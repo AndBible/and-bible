@@ -251,7 +251,7 @@ describe("WordType.vue", () => {
         }
     });
 
-    it("applies heatmap background on incorrect input", async () => {
+    it("applies heatmap class on incorrect input", async () => {
         const wrapper = createWrapper();
         const input = wrapper.find(".type-hidden-input");
 
@@ -261,11 +261,31 @@ describe("WordType.vue", () => {
         await input.setValue('Z');
         await input.trigger('input');
 
-        // The current word should have a red background via inline style
+        // The current word should have heatmap-2 class after two errors
         const currentWord = wrapper.find(".type-current");
-        const bgStyle = currentWord.attributes('style');
-        expect(bgStyle).toContain('background-color');
-        expect(bgStyle).toContain('rgba(231, 76, 60');
+        expect(currentWord.classes()).toContain("heatmap-2");
+    });
+
+    it("caps heatmap level at 3 even after many errors", async () => {
+        const wrapper = createWrapper();
+        const input = wrapper.find(".type-hidden-input");
+
+        // Type wrong letter five times for "For"
+        for (let i = 0; i < 5; i++) {
+            await input.setValue('X');
+            await input.trigger('input');
+        }
+
+        const currentWord = wrapper.find(".type-current");
+        const classes = currentWord.classes();
+        expect(classes).toContain("heatmap-3");
+        expect(classes).not.toContain("heatmap-4");
+        expect(classes).not.toContain("heatmap-5");
+
+        // saved errorCount should also be capped at 3
+        const configs = wrapper.emitted('save-mode-config');
+        const lastConfig = configs.at(-1)[0];
+        expect(lastConfig.typeConfig.errorCounts[0]).toBe(3);
     });
 
     it("does not apply heatmap when disabled", async () => {
@@ -283,26 +303,93 @@ describe("WordType.vue", () => {
         await nextTick();
 
         const currentWord = wrapper.find(".type-current");
-        const bgStyle = currentWord.attributes('style');
-        expect(bgStyle || '').not.toContain('background-color');
+        const classes = currentWord.classes();
+        expect(classes.some(c => c.startsWith("heatmap-"))).toBe(false);
     });
 
-    it("clears error counts on reset", async () => {
+    it("preserves error counts on reset", async () => {
         const wrapper = createWrapper();
         const input = wrapper.find(".type-hidden-input");
 
-        // Make an error
+        // Make two errors to build heatmap
         await input.setValue('X');
+        await input.trigger('input');
+        await input.setValue('Z');
         await input.trigger('input');
 
         // Click reset
         const buttons = wrapper.findAll(".memorize-controls .icon-button");
         await buttons[0].trigger("click");
+        await nextTick();
 
-        // Current word should not have heatmap background
+        // Current word should still have heatmap-2 class (preserved across reset)
         const currentWord = wrapper.find(".type-current");
-        const bgStyle = currentWord.attributes('style');
-        expect(bgStyle || '').not.toContain('background-color');
+        expect(currentWord.classes()).toContain("heatmap-2");
+
+        // saved errorCounts should still contain the entry
+        const configs = wrapper.emitted('save-mode-config');
+        const lastConfig = configs.at(-1)[0];
+        expect(lastConfig.typeConfig.errorCounts[0]).toBe(2);
+    });
+
+    it("decrements heatmap level when word is typed correctly", async () => {
+        // Start with errorCounts already populated
+        const wrapper = createWrapper({
+            modeConfig: {
+                typeConfig: {
+                    currentWordIndex: 0,
+                    typeEverything: false,
+                    wordVisibility: 'light',
+                    errorHeatmap: true,
+                    errorCounts: {0: 3, 1: 1},
+                }
+            }
+        });
+        await nextTick();
+
+        const input = wrapper.find(".type-hidden-input");
+
+        // Type "For" correctly — should decrement errorCounts[0] from 3 to 2
+        await input.setValue('F');
+        await input.trigger('input');
+
+        const configs = wrapper.emitted('save-mode-config');
+        const config1 = configs.at(-1)[0];
+        expect(config1.typeConfig.errorCounts[0]).toBe(2);
+
+        // Type "God" correctly — should remove errorCounts[1] (was 1, becomes 0)
+        await input.setValue('G');
+        await input.trigger('input');
+
+        const config2 = wrapper.emitted('save-mode-config').at(-1)[0];
+        expect(config2.typeConfig.errorCounts[1]).toBeUndefined();
+    });
+
+    it("shows text and heatmap before typing starts when error history exists", async () => {
+        // Restore state with existing errorCounts but currentWordIndex=0 (pre-typing)
+        const wrapper = createWrapper({
+            modeConfig: {
+                typeConfig: {
+                    currentWordIndex: 0,
+                    typeEverything: false,
+                    wordVisibility: 'light',
+                    errorHeatmap: true,
+                    errorCounts: {2: 2},
+                }
+            }
+        });
+        await nextTick();
+
+        // Text block should be present (no longer hidden via .hidden class)
+        const textBlock = wrapper.find(".text-block");
+        expect(textBlock.classes()).not.toContain("hidden");
+
+        // Tap hint should still be shown initially
+        expect(wrapper.find(".tap-hint").exists()).toBe(true);
+
+        // Word with index 2 should have heatmap-2 class
+        const words = wrapper.findAll(".type-word:not(.punctuation)");
+        expect(words[2].classes()).toContain("heatmap-2");
     });
 
     it("saves wordVisibility in config", async () => {
