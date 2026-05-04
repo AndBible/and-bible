@@ -55,9 +55,12 @@ object ReadHistoryDialog {
         chapter: Int,
         onChanged: (() -> Unit)? = null,
     ) where A : Activity, A : LifecycleOwner {
-        loadAndShow(activity, "${KJVA.getLongName(book)} $chapter", onChanged) { cycle ->
-            ProgressControl.getReadHistoryForChapter(book, chapter, cycle)
-        }
+        loadAndShow(
+            activity,
+            subject = "${KJVA.getShortName(book)} $chapter",
+            showChapterPerRow = false,
+            onChanged = onChanged,
+        ) { cycle -> ProgressControl.getReadHistoryForChapter(book, chapter, cycle) }
     }
 
     fun <A> showForBook(
@@ -65,9 +68,12 @@ object ReadHistoryDialog {
         book: BibleBook,
         onChanged: (() -> Unit)? = null,
     ) where A : Activity, A : LifecycleOwner {
-        loadAndShow(activity, KJVA.getLongName(book), onChanged) { cycle ->
-            ProgressControl.getReadHistoryForBook(book, cycle)
-        }
+        loadAndShow(
+            activity,
+            subject = KJVA.getLongName(book),
+            showChapterPerRow = true,
+            onChanged = onChanged,
+        ) { cycle -> ProgressControl.getReadHistoryForBook(book, cycle) }
     }
 
     fun <A> showForDay(
@@ -75,31 +81,33 @@ object ReadHistoryDialog {
         dayTimestamp: Long,
         onChanged: (() -> Unit)? = null,
     ) where A : Activity, A : LifecycleOwner {
-        val title = activity.getString(
-            R.string.reading_progress_history_day_title,
-            DateFormat.getDateFormat(activity).format(Date(dayTimestamp)),
-        )
-        loadAndShow(activity, title, onChanged) { cycle ->
-            ProgressControl.getReadHistoryForDay(dayTimestamp, cycle)
-        }
+        val subject = DateFormat.getDateFormat(activity).format(Date(dayTimestamp))
+        loadAndShow(
+            activity,
+            subject = subject,
+            showChapterPerRow = true,
+            onChanged = onChanged,
+        ) { cycle -> ProgressControl.getReadHistoryForDay(dayTimestamp, cycle) }
     }
 
     private fun <A> loadAndShow(
         activity: A,
-        title: String,
+        subject: String,
+        showChapterPerRow: Boolean,
         onChanged: (() -> Unit)?,
         fetch: (cycle: Int) -> List<ChapterReadEntry>,
     ) where A : Activity, A : LifecycleOwner {
         activity.lifecycleScope.launch {
             val cycle = ProgressControl.getCurrentCycle()
             val entries = withContext(Dispatchers.IO) { fetch(cycle) }
-            show(activity, title, entries, cycle, onChanged)
+            show(activity, subject, showChapterPerRow, entries, cycle, onChanged)
         }
     }
 
     private fun <A> show(
         activity: A,
-        title: String,
+        subject: String,
+        showChapterPerRow: Boolean,
         entries: List<ChapterReadEntry>,
         cycle: Int,
         onChanged: (() -> Unit)?,
@@ -144,11 +152,16 @@ object ReadHistoryDialog {
         } else {
             for (entry in entries) {
                 val kjvBook = BibleBook.entries.getOrNull(entry.kjvBookOrdinal)
-                val chapterRef = if (kjvBook != null) "${KJVA.getLongName(kjvBook)} ${entry.chapter}" else "?"
+                val chapterRef = if (kjvBook != null) "${KJVA.getShortName(kjvBook)} ${entry.chapter}" else "?"
                 val dateStr = dateFormat.format(Date(entry.readAt))
                 val timeStr = timeFormat.format(Date(entry.readAt))
                 val versionStr = entry.bookInitials.ifEmpty {
                     activity.getString(R.string.reading_progress_history_version_unknown)
+                }
+                val rowSummary = if (showChapterPerRow) {
+                    "$chapterRef  ·  $dateStr $timeStr  ·  $versionStr"
+                } else {
+                    "$dateStr $timeStr  ·  $versionStr"
                 }
 
                 val row = LinearLayout(activity).apply {
@@ -157,19 +170,10 @@ object ReadHistoryDialog {
                     setPadding(0, dp4, 0, dp4)
                 }
 
-                row.addView(LinearLayout(activity).apply {
-                    orientation = LinearLayout.VERTICAL
+                row.addView(TextView(activity).apply {
+                    text = rowSummary
+                    textSize = 14f
                     layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-
-                    addView(TextView(activity).apply {
-                        text = chapterRef
-                        textSize = 14f
-                    })
-                    addView(TextView(activity).apply {
-                        text = "$dateStr $timeStr  ·  $versionStr"
-                        textSize = 11f
-                        setTextColor(Color.GRAY)
-                    })
                 })
 
                 val deleteButton = TextView(activity).apply {
@@ -214,7 +218,7 @@ object ReadHistoryDialog {
         }
 
         AlertDialog.Builder(activity)
-            .setTitle(title)
+            .setTitle(activity.getString(R.string.reading_progress_history_for, subject))
             .setView(scrollView)
             .setPositiveButton(android.R.string.ok, null)
             .setOnDismissListener { applyPendingDeletes() }

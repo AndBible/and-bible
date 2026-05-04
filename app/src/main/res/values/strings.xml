@@ -161,7 +161,7 @@
     <string name="reading_progress_percent_read_scale">Percent\nRead</string>
     <string name="reading_progress_percent_label">%d%%</string>
     <string name="reading_progress_history_title">Read History</string>
-    <string name="reading_progress_history_day_title">Read History — %1$s</string>
+    <string name="reading_progress_history_for">Reading progress for %1$s</string>
     <string name="reading_progress_history_no_entries">No read entries for this selection.</string>
     <string name="reading_progress_history_version_unknown">Unknown version</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
