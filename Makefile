@@ -4,10 +4,17 @@ increment-version:
 	./scripts/increment-version.sh
 increment-test-version:
 	./scripts/increment-version.sh --build
-tx-push:
+
+tx-push-sources:
 	tx push -s -r andbible.play-store-main-description
 	tx push -s -r andbible.and-bible-stringsxml
 	tx push -s -r andbible.bibleview-js
+
+
+tx-push-all:
+	tx push -s -t -r andbible.play-store-main-description
+	tx push -s -t -r andbible.and-bible-stringsxml
+	tx push -s -t -r andbible.bibleview-js
 
 tx-pull:
 	tx pull --force --all
