@@ -137,6 +137,13 @@
   <string name="prefs_show_memorization_indicators_summary">حفظ شدہ اور ہدف آیات کے لیے رنگین حاشیہ اشارے دکھائیں</string>
   <string name="prefs_auto_track_reading_title">خودکار پڑھنے کی ٹریکنگ</string>
   <string name="prefs_auto_track_reading_summary">ابواب سے گزرتے وقت انہیں خودبخود پڑھا ہوا نشان لگائیں</string>
+  <string name="reading_progress_read_count_scale">پڑھنے\nکی تعداد</string>
+  <string name="reading_progress_percent_read_scale">فیصد\nپڑھا</string>
+  <string name="reading_progress_percent_label">%d%%</string>
+  <string name="reading_progress_history_title">پڑھنے کی تاریخ</string>
+  <string name="reading_progress_history_for">%1$s کے لیے پڑھنے کی پیشرفت</string>
+  <string name="reading_progress_history_no_entries">اس انتخاب کے لیے کوئی پڑھنے کا اندراج نہیں۔</string>
+  <string name="reading_progress_history_version_unknown">نامعلوم ورژن</string>
   <string name="prefs_tilt_to_scroll_title">جھکا کر اسکرول کریں</string>
 
   <string name="prefs_toolbar_button_action_title">ٹول بار بٹن دبانے کا عمل</string>
@@ -404,6 +411,7 @@
   <string name="auto_assign_labels">خودکار تفویض اور پسندیدہ لیبل</string>
   <string name="auto_assign_labels1">نئے بک مارکس کو خودکار لیبل تفویض کریں</string>
   <string name="auto_assign_labels_primary">بنیادی کے طور پر خودکار تفویض کریں</string>
+  <!-- can be removed -->
   <string name="marker_style">انتخاب بک مارکس کے لیے صرف مارکر دکھائیں</string>
   <string name="marker_style_whole_verse">پوری آیت بک مارکس کے لیے صرف مارکر دکھائیں</string>
   <string name="hide_style">انتخاب بک مارکس کے لیے چھپائیں</string>
@@ -706,6 +714,10 @@
   <string name="upgrade_video_message">براہ کرم اس ریلیز کی نئی خصوصیات والی ویڈیو دیکھیں (%s)۔</string>
   <string name="stable_notice_par1">%2$s کا نیا ورژن %1$s کامیابی سے انسٹال ہو گیا!</string>
 
+  <string name="new_sync_targets_notice_title">نئی مطابقت ترتیبات دستیاب ہیں</string>
+  <string name="new_sync_targets_notice_message">AndBible کا یہ ورژن اضافی مطابقت اہداف متعارف کراتا ہے: میری دستاویزات، AI ترتیبات اور پڑھنے کی پیشرفت۔ اگر آپ انہیں فعال کرنا چاہتے ہیں، تو آپ ڈیوائس مطابقت ترتیبات میں ایسا کر سکتے ہیں۔</string>
+  <string name="open_settings">ترتیبات کھولیں</string>
+
     <!-- History -->
   <string name="history_for">تاریخ (%1$s: ونڈو %2$d)</string>
 
@@ -781,8 +793,6 @@
   <string name="prefs_experimental_features_summary">کون سی تجرباتی خصوصیات فعال کرنی ہیں منتخب کریں۔ یہ خصوصیات ابھی زیر تیاری ہیں اور تبدیل یا ہٹائی جا سکتی ہیں</string>
   <string name="experimental_feature_bookmark_edit_actions">بک مارک ترمیم اعمال</string>
   <string name="experimental_feature_add_paragraph_break">پیراگراف وقفہ بک مارک شامل کریں</string>
-  <string name="experimental_feature_ai_features">AI خصوصیات اور میری دستاویزات</string>
-  <string name="experimental_feature_reading_and_memorization">پڑھنے کی ٹریکنگ اور حفظ</string>
   <string name="raw_llm_log_title">خام LLM لاگ</string>
   <string name="raw_llm_log_empty">کوئی خام لاگ ڈیٹا دستیاب نہیں</string>
   <string name="raw_llm_log_copied">لاگ کلپ بورڈ پر کاپی ہو گئی</string>
@@ -1147,6 +1157,8 @@
   <string name="memorize_error_heatmap_summary">زیادہ خرابیوں والے الفاظ کو بتدریج گہرے سرخ رنگ میں نمایاں کریں</string>
   <string name="memorize_scramble_hide_used">استعمال شدہ لفظ بٹن چھپائیں</string>
   <string name="memorize_scramble_hide_used_summary">لفظ ترتیب موڈ میں درست جگہ رکھنے کے بعد لفظ بٹن مکمل طور پر چھپا دیں</string>
+  <string name="memorize_include_reference">آیت کا حوالہ شامل کریں</string>
+  <string name="memorize_include_reference_summary">آیت کا حوالہ (مثلاً یوحنا 3:16) حفظ کرنے کے آخری عنصر کے طور پر شامل کریں</string>
   <string name="reading_progress_settings">پیشرفت اور حفظ</string>
   <string name="reading_progress_settings_summary">خودکار ٹریکنگ، حفظ، اور ٹائپنگ مشق کی ترتیبات</string>
   <string name="memorize_confirm_unmark">%s کا حفظ شدہ حیثیت ہٹائیں؟</string>
@@ -1261,6 +1273,7 @@
   <string name="ai_provider_name_hint">اس فراہم کنندہ کا ڈسپلے نام</string>
   <string name="ai_provider_api_key">API کلید</string>
   <string name="ai_provider_endpoint">API اینڈ پوائنٹ</string>
+  <string name="ai_provider_endpoint_description">صرف بنیادی URL۔ AndBible خودکار طور پر \"/chat/completions\" (OpenAI فارمیٹ) یا \"/messages\" (Anthropic فارمیٹ) شامل کرتا ہے۔ ماڈل کی فہرستیں \"/models\" سے حاصل کی جاتی ہیں۔</string>
   <string name="ai_provider_api_format">API شکل</string>
   <string name="ai_provider_saved">فراہم کنندہ محفوظ ہو گیا</string>
   <string name="ai_provider_deleted">فراہم کنندہ حذف ہو گیا</string>
@@ -1606,7 +1619,6 @@
   <string name="agent_log_executing">چل رہا ہے: %s</string>
   <string name="agent_log_iteration">تکرار %d</string>
   <string name="agent_log_tool">ٹول: %s</string>
-  <string name="agent_log_tool_completed">ٹول %s مکمل</string>
   <string name="agent_log_tool_failed">ٹول %s ناکام</string>
   <string name="agent_log_response_received">جواب موصول</string>
   <string name="agent_log_saved">محفوظ: %s</string>

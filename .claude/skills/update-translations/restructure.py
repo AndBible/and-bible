@@ -167,11 +167,15 @@ def main():
             if sa_match:
                 sa_name = sa_match.group(1)
                 sa_block = []
-                while ti < len(target_lines):
+                # Handle self-closing <string-array .../> on a single line
+                if re.search(r'/\s*>\s*$', target_lines[ti].rstrip()):
                     sa_block.append(target_lines[ti])
-                    if '</string-array>' in target_lines[ti]:
-                        break
-                    ti += 1
+                else:
+                    while ti < len(target_lines):
+                        sa_block.append(target_lines[ti])
+                        if '</string-array>' in target_lines[ti]:
+                            break
+                        ti += 1
                 existing_string_arrays[sa_name] = sa_block
             ti += 1
         if existing_string_arrays:

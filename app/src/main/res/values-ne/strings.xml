@@ -137,6 +137,13 @@
   <string name="prefs_show_memorization_indicators_summary">कण्ठस्थ र लक्ष्य श्लोकहरूको लागि रंगीन किनारा सूचकहरू देखाउनुहोस्</string>
   <string name="prefs_auto_track_reading_title">पठन स्वचालित ट्र्याक गर्नुहोस्</string>
   <string name="prefs_auto_track_reading_summary">स्क्रोल गर्दा अध्यायहरू स्वचालित रूपमा पढेको चिन्ह लगाउनुहोस्</string>
+  <string name="reading_progress_read_count_scale">पढेको\nसंख्या</string>
+  <string name="reading_progress_percent_read_scale">प्रतिशत\nपठन</string>
+  <string name="reading_progress_percent_label">%d%%</string>
+  <string name="reading_progress_history_title">पठन इतिहास</string>
+  <string name="reading_progress_history_for">%1$s को पठन प्रगति</string>
+  <string name="reading_progress_history_no_entries">यस चयनका लागि कुनै पठन प्रविष्टि छैन।</string>
+  <string name="reading_progress_history_version_unknown">अज्ञात संस्करण</string>
   <string name="prefs_tilt_to_scroll_title">झुकाएर स्क्रोल गर्नुहोस्</string>
 
   <string name="prefs_toolbar_button_action_title">टुलबार बटन थिच्दा हुने कार्य</string>
@@ -404,6 +411,7 @@
   <string name="auto_assign_labels">स्वतः-असाइन र मनपर्ने लेबलहरू</string>
   <string name="auto_assign_labels1">नयाँ बुकमार्कहरूमा स्वतः-असाइन लेबल</string>
   <string name="auto_assign_labels_primary">मुख्यको रूपमा स्वतः-असाइन</string>
+  <!-- can be removed -->
   <string name="marker_style">छनोट बुकमार्कहरूको लागि केवल मार्कर देखाउनुहोस्</string>
   <string name="marker_style_whole_verse">पूर्ण श्लोक बुकमार्कहरूको लागि केवल मार्कर देखाउनुहोस्</string>
   <string name="hide_style">छनोट बुकमार्कहरूको लागि लुकाउनुहोस्</string>
@@ -706,6 +714,10 @@
   <string name="upgrade_video_message">कृपया यस रिलिजका नयाँ सुविधाहरू देखाउने भिडियो हेर्नुहोस् (%s)।</string>
   <string name="stable_notice_par1">%2$s को नयाँ संस्करण %1$s सफलतापूर्वक स्थापना गरियो!</string>
 
+  <string name="new_sync_targets_notice_title">नया सिङ्क सेटिङहरू उपलब्ध छन्</string>
+  <string name="new_sync_targets_notice_message">AndBible को यस संस्करणले थप सिङ्क लक्ष्यहरू प्रस्तुत गर्दछ: मेरा कागजातहरू, AI सेटिङहरू र पठन प्रगति। यदि तपाईं तिनीहरूलाई सक्षम गर्न चाहनुहुन्छ भने, उपकरण सिङ्क्रोनाइजेसन सेटिङहरूमा गएर गर्न सक्नुहुन्छ।</string>
+  <string name="open_settings">सेटिङहरू खोल्नुहोस्</string>
+
     <!-- History -->
   <string name="history_for">इतिहास (%1$s: विन्डो %2$d)</string>
 
@@ -781,8 +793,6 @@
   <string name="prefs_experimental_features_summary">कुन प्रायोगिक सुविधाहरू सक्षम गर्ने छान्नुहोस्। यी सुविधाहरू अझै विकासाधीन छन् र परिवर्तन वा हटाउन सकिन्छ</string>
   <string name="experimental_feature_bookmark_edit_actions">बुकमार्क सम्पादन कार्यहरू</string>
   <string name="experimental_feature_add_paragraph_break">अनुच्छेद विराम बुकमार्क थप्नुहोस्</string>
-  <string name="experimental_feature_ai_features">AI सुविधाहरू र मेरा कागजातहरू</string>
-  <string name="experimental_feature_reading_and_memorization">पठन ट्र्याकिङ र कण्ठस्थ</string>
   <string name="raw_llm_log_title">कच्चा LLM लग</string>
   <string name="raw_llm_log_empty">कुनै कच्चा लग डेटा उपलब्ध छैन</string>
   <string name="raw_llm_log_copied">लग क्लिपबोर्डमा प्रतिलिपि गरियो</string>
@@ -1147,6 +1157,8 @@
   <string name="memorize_error_heatmap_summary">बढी त्रुटि भएका शब्दहरूलाई बढ्दो गहिरो रातो रंगमा हाइलाइट गर्नुहोस्</string>
   <string name="memorize_scramble_hide_used">प्रयोग भएका शब्द बटनहरू लुकाउनुहोस्</string>
   <string name="memorize_scramble_hide_used_summary">शब्द स्क्रम्बल मोडमा सही ठाउँमा राखिसकेपछि शब्द बटनहरू पूर्ण रूपमा लुकाउनुहोस्</string>
+  <string name="memorize_include_reference">श्लोक सन्दर्भ समावेश गर्नुहोस्</string>
+  <string name="memorize_include_reference_summary">कण्ठस्थ गर्नका लागि अन्तिम वस्तुको रूपमा श्लोक सन्दर्भ (जस्तै, यूहन्ना ३:१६) थप्नुहोस्</string>
   <string name="reading_progress_settings">प्रगति र कण्ठस्थ</string>
   <string name="reading_progress_settings_summary">स्वतः-ट्र्याकिङ, कण्ठस्थ, र टाइपिङ अभ्यास सेटिङहरू</string>
   <string name="memorize_confirm_unmark">%s को कण्ठस्थ स्थिति हटाउने?</string>
@@ -1261,6 +1273,7 @@
   <string name="ai_provider_name_hint">यो प्रदायकको लागि प्रदर्शन नाम</string>
   <string name="ai_provider_api_key">API कुञ्जी</string>
   <string name="ai_provider_endpoint">API endpoint</string>
+  <string name="ai_provider_endpoint_description">आधार URL मात्र। AndBible ले स्वचालित रूपमा \"/chat/completions\" (OpenAI ढाँचा) वा \"/messages\" (Anthropic ढाँचा) थप्दछ। मोडल सूचीहरू \"/models\" बाट प्राप्त गरिन्छन्।</string>
   <string name="ai_provider_api_format">API ढाँचा</string>
   <string name="ai_provider_saved">प्रदायक सुरक्षित गरियो</string>
   <string name="ai_provider_deleted">प्रदायक मेटियो</string>
@@ -1606,7 +1619,6 @@
   <string name="agent_log_executing">कार्यान्वयन गर्दैछ: %s</string>
   <string name="agent_log_iteration">पुनरावृत्ति %d</string>
   <string name="agent_log_tool">उपकरण: %s</string>
-  <string name="agent_log_tool_completed">उपकरण %s सम्पन्न</string>
   <string name="agent_log_tool_failed">उपकरण %s असफल</string>
   <string name="agent_log_response_received">प्रतिक्रिया प्राप्त भयो</string>
   <string name="agent_log_saved">सुरक्षित: %s</string>

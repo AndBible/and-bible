@@ -1,12 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
+
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Studera Bibeln</string>
   <string name="app_name_medium">Studera Bibeln (AndBible)</string>
   <string name="app_name_long">AndBible: Studera Bibeln</string>
+
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Vänligen mata in ett SD-kort och starta om appen.</string>
-  <!--Main menu-->
+
+    <!-- Main menu -->
   <string name="menu">Meny</string>
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Avsnitt</string>
@@ -22,13 +25,15 @@
   <string name="administration">Administration</string>
   <string name="rate_application">Betygsätt &amp; recensera</string>
   <string name="chooce_document">Välj Dokument</string>
-  <!--Passage navigation-->
+
+    <!-- Passage navigation -->
   <string name="choosePassageBookName">Välj bok</string>
   <string name="choosePassageChapterName">Välj kapitel</string>
   <string name="choosePassageVerseName">Välj vers</string>
   <string name="bible">Bibel</string>
   <string name="deuterocanonical">Deuterokanonisk</string>
-  <!--Search-->
+
+    <!--  Search -->
   <string name="search_index">Sökindex</string>
   <string name="index_creation_required">Ett register är nödvändigt för att söka.</string>
   <string name="create_index_for">Ett register är nödvändigt för att söka. \n\nSkapa register för %s?</string>
@@ -40,13 +45,15 @@
   <string name="do_in_background">Fortsätt i bakgrunden</string>
   <string name="rebuild_index_button">Återuppbygg</string>
   <string name="creating_index_for">Skapar index index för%s...</string>
-  <!--X results in module Y-->
+    <!-- X results in module Y -->
   <string name="search_with_results2">%1$s resultat i %2$s</string>
-  <!--Tasks-->
+
+    <!-- Tasks -->
   <string name="progress_status">Framsteg</string>
   <string name="task_kill_warning">Dessa aktiviteter kan avbrytas om du växlar till en annan app innan de är klara.</string>
   <string name="no_tasks_running">Det finns för närvarande inga körande aktiviteter.</string>
-  <!--Search-->
+
+    <!-- Search -->
   <string name="search_words_group_prompt">Hitta verser</string>
   <string name="search_all_words">Alla ord</string>
   <string name="search_any_word">Något av orden</string>
@@ -61,38 +68,49 @@
   <string name="search_current_book">Aktuell bok</string>
   <string name="error_executing_search">Ogiltig sökterm</string>
   <string name="type_text_or_bible_reference">Skriv text eller bibelreferens</string>
-  <!--Open (bible reference X)-->
+    <!-- Open (bible reference X) -->
   <string name="go_to_ref">Öppna %s</string>
-  <!--Finx "(keywords x)", keywords based on text selection-->
+    <!-- Finx "(keywords x)", keywords based on text selection -->
   <string name="search_what">Hitta \"%s\"</string>
-  <!--Multi-translation search-->
+    <!-- Multi-translation search -->
   <string name="search_translations">Översättningar</string>
   <string name="choose_translations">Välj översättningar…</string>
   <string name="multi_search_results">%1$d verser i %2$d översättningar</string>
   <string name="search_index_not_created">inget index</string>
-  <!--Preferences-->
+
+    <!-- Preferences -->
   <string name="prefs_show_verseno_title">Kapitel- &amp; versnummer</string>
   <string name="prefs_show_verseno_summary">Visa kapitel- &amp; versnummer</string>
+
   <string name="prefs_e_ink_mode_title">Svartvitt läge</string>
   <string name="prefs_eink_mode_summary">Använd appen i monokromt läge (inga färger) för att göra den mer lämpad för E Ink-enheter.</string>
   <string name="prefs_eink_settings_cat">E-ink-inställningar</string>
   <string name="prefs_eink_display_title">E-ink-funktioner</string>
   <string name="prefs_eink_display_summary">Aktivera e-ink-specifika funktioner (sidrullningsknappar, rullningshjälpslinjer)</string>
+
   <string name="prefs_disable_animations_title">Inaktivera animationer</string>
   <string name="prefs_disable_animations_summary">Inaktivera olika animationer såsom mjuk skrollning.</string>
+
   <string name="prefs_disable_click_to_edit_title">Inaktivera klicka-för-att-redigera i studieblock</string>
   <string name="prefs_disable_click_to_edit_summary">Kräver att redigeringsknappen används för att redigera anteckningar i studieblocket.</string>
+
   <string name="prefs_notes_content_type_title">Format för nya bokmärkesanteckningar</string>
   <string name="prefs_notes_content_type_summary">Textformat som används vid skapande av nya bokmärkesanteckningar och studieblocksposter</string>
   <string name="notes_content_type_html">RTF (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
+
+
+
+
   <string name="prefs_verse_per_line_summary">Visa varje vers på en egen rad</string>
   <string name="prefs_show_bookmarks_summary">Avbocka för att dölja alla bokmärken</string>
+
   <string name="prefs_show_mynotes_summary">Visa en ikon i verser med anteckningar</string>
   <string name="prefs_show_strongs_summary">Länkar till grekiska &amp; hebreiska definitioner</string>
   <string name="prefs_show_morphology_summary">Visa Robinsons grekiska morfologi</string>
   <string name="prefs_section_title_summary">Visa icke-kanoniska rubriker</string>
   <string name="prefs_red_letter_summary">Visa ord av Jesus i röd text</string>
+
   <string name="prefs_verse_per_line_title">En vers per rad</string>
   <string name="prefs_show_bookmarks_title">Visa bokmärken</string>
   <string name="prefs_show_mynotes_title">Visa anteckningsikoner</string>
@@ -102,6 +120,7 @@
   <string name="prefs_show_footnotes_inline_title">Fotnoter i löptext</string>
   <string name="prefs_show_footnotes_inline_summary">Visa fotnoter direkt i texten istället för som klickbara handtag</string>
   <string name="prefs_show_xrefs_summary">Visa parallellhänvisningar om de är tillgängliga i dokumentet</string>
+
   <string name="prefs_show_strongs_title">Strongs nummer</string>
   <string name="prefs_show_morphology_title">Morfologiska koder</string>
   <string name="prefs_non_strongs_word_italic_title">Kursivera tillagda ord</string>
@@ -118,18 +137,28 @@
   <string name="prefs_show_memorization_indicators_summary">Visa färgade marginalsmarkeringar för memorerade och målverser</string>
   <string name="prefs_auto_track_reading_title">Spåra läsning automatiskt</string>
   <string name="prefs_auto_track_reading_summary">Markera automatiskt kapitel som lästa när du scrollar igenom dem</string>
+  <string name="reading_progress_read_count_scale">Antal\nlästa</string>
+  <string name="reading_progress_percent_read_scale">Procent\nläst</string>
+  <string name="reading_progress_percent_label">%d%%</string>
+  <string name="reading_progress_history_title">Läshistorik</string>
+  <string name="reading_progress_history_for">Läsningsframsteg för %1$s</string>
+  <string name="reading_progress_history_no_entries">Inga läsposter för detta urval.</string>
+  <string name="reading_progress_history_version_unknown">Okänd version</string>
   <string name="prefs_tilt_to_scroll_title">Luta för att scrolla</string>
+
   <string name="prefs_toolbar_button_action_title">Åtgärd för knapptryck i verktygsfältet</string>
   <string name="prefs_toolbar_button_action_summary">Åtgärd vid tryck/långtryck på Bibel- eller Kommentarknapparna i verktygsfältet</string>
   <string name="prefs_toolbar_button_action_default">Tryck för att öppna menyn, långtryck för dokumentskärmen (standard)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Tryck för att öppna nästa dokument, långtryck för att öppna menyn</string>
   <string name="prefs_toolbar_button_action_swap_activity">Tryck för att öppna nästa dokument, långtryck för dokumentskärmen</string>
+
   <string name="prefs_night_mode_title">Byt till nattläge</string>
   <string name="prefs_night_mode_summary">Byt till nattläge automatiskt (om enheten stödjer det) manuellt eller via systeminställningen (Android 10+). Du kan byta manuellt via menyn uppe till höger på huvudskärmen.</string>
   <string name="prefs_night_mode_manual">Manuellt</string>
   <string name="prefs_night_mode_automatic">Automatiskt</string>
   <string name="prefs_night_mode_system">System</string>
   <string name="options_menu_night_mode">Nattläge</string>
+
   <string name="prefs_navigate_to_verse_title">Navigera till vers</string>
   <string name="prefs_navigate_to_verse_summary">Välj både kapitel och vers vid val av stycke</string>
   <string name="prefs_open_links_in_special_window_title">Länkfönster</string>
@@ -140,15 +169,20 @@
   <string name="prefs_interface_locale_title">Språk i appen</string>
   <string name="prefs_interface_locale_summary">Välj språk för användargränssnittet</string>
   <string name="reset_fontsize">Återställ</string>
+
   <string name="prefs_request_sdcard_permission_title">Manuellt installerade dokument finns</string>
   <string name="prefs_request_sdcard_permission_summary">Aktivera användning av manuellt installerade dokument från jsword/sword mappen i den lokala lagringen</string>
+
   <string name="prefs_expand_footnotes_title">Parallellhänvisningar inuti texten</string>
   <string name="prefs_expand_footnotes_summary">Visa parallellhänvisningens innehåll i texten i stället för en länk som öppnar en dialogruta</string>
+
   <string name="all_text_options_window_menutitle">Alla textinställningar</string>
   <string name="text_options_window_menutitle">Textinställningar</string>
   <string name="auto_fullscreen">Helskärm genom att skrolla</string>
   <string name="reversed_split_mode">Omvänt delat läge</string>
+
   <string name="add_ellipsis">%s...</string>
+
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Byt automatiskt till helskärm när du skrollar text. Tips: du kan alltid byta till helskärm genom att dubbeltrycka på skärmen.</string>
@@ -158,10 +192,12 @@
   <string name="prefs_features_cat">Funktioner</string>
   <string name="prefs_display_customization_cat">Utseende &amp; känsla</string>
   <string name="prefs_behavior_customization_cat">Appbeteende</string>
+
   <string name="prefs_margin_size_summary">Justera vänster och höger marginal i textvyn. Du kan också
         justera maximal textbredd.
     </string>
   <string name="prefs_margin_size_summary_2">Tips: Du kan trycka i marginalen för att hoppa upp/ner en sida.</string>
+
   <string name="prefs_text_colors_summary">Ändra text- och bakgrundsfärg samt bruseffekt</string>
   <string name="text_display_settings_activity_title">Textskärmsinställningar</string>
   <string name="workspace_text_display_settings_title">Textinställningar - %s</string>
@@ -179,6 +215,7 @@
   <string name="prefs_footnotes_and_xrefs_title">Fotnoter &amp; Parallellhänvisningar</string>
   <string name="prefs_verses_and_headings_title">Verser &amp; Rubriker</string>
   <string name="prefs_page_scrolling_title">Sidrullning</string>
+
   <string name="prefs_justify_title">Marginaljustera texten</string>
   <string name="prefs_justify_summary">Justera texten så att dess vänstra och högra marginal är i linje</string>
   <string name="pref_left_margin_label_mm">Vänster marginal (%d mm)</string>
@@ -200,8 +237,10 @@
   <string name="hide_window_buttons_summary">Fönsterknappar som visas på höger sida av bibelvyerna döljs. Navigeringsfältet för fönster visas fortfarande nere på skärmen och man kan öppna fönstermenyn genom att långtrycka där.</string>
   <string name="hide_bible_reference_overlay_title">Dölj meddelanderuta om bibelställe</string>
   <string name="hide_bible_reference_overlay_summary">Visa inte meddelanderuta om nuvarande bibelställe när appen är i helskärmsläge</string>
+
   <string name="full_screen_hide_buttons_pref_title">Dölj fönsterknappar i fullskärm</string>
   <string name="full_screen_hide_buttons_pref_summary">Vid byte till fullskärmsläge, dölj automatiskt fönsterknapplistan som är i botten av skärmen</string>
+
   <string name="prefs_dictionaries_cat">Uppslagsbok</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs grekiska ordbok</string>
   <string name="choose_strongs_greek_dictionary_summary">Välj Strongs ordbok för grekiska orddefinitioner</string>
@@ -213,22 +252,28 @@
   <string name="choose_word_lookup_dictionary_summary">Välj lexikon för ordsökning</string>
   <string name="lookup_in_dictionary">Slå upp i ordböcker</string>
   <string name="word_not_found_in_dictionaries">Ordet hittades inte i någon ordlista</string>
+
   <string name="prefs_top_margin_title_mm">Övre marginal (%d mm)</string>
   <string name="font_size_title">Textstorlek</string>
   <string name="font_size_title_pt">Textstorlek (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ändra storleken på typsnittet</string>
+
   <string name="pref_font_family_label_name">Typsnittfamilj (%s)</string>
   <string name="prefs_font_family_summary">Ändra typsnittfamilj. Tips: Fler typsnitt kan installeras via Hämta dokument / Tillägg.</string>
+
   <string name="prefs_text_bookmarks_title">Inställningar för bokmärken &amp; egna anteckningar</string>
   <string name="prefs_reading_and_memorization_title">Läsning &amp; Memorering</string>
+
   <string name="prefs_enable_bluetooth_title">Aktivera Bluetoothmedieknappar</string>
   <string name="prefs_enable_bluetooth_summary">Använd Bluetoothmedieknappar för att starta/stoppa uppläsning.</string>
   <string name="create_bookmark">Skapa nytt bokmärke</string>
   <string name="create_bookmark_with_a_note">Skapa nytt bokmärke med anteckning</string>
-  <!--Colors preferences-->
+
+    <!-- Colors preferences -->
   <string name="prefs_text_colors_menutitle">Färginställningar</string>
   <string name="window_color_settings_title">Fönsterfärg inställningar</string>
   <string name="workspace_color_settings_title">Standardfärginställningar för arbetsyta</string>
+
   <string name="color_workspace">Färg på arbetsyta</string>
   <string name="color_text">Textfärg</string>
   <string name="color_background">Bakgrundsfärg</string>
@@ -236,7 +281,9 @@
   <string name="colors_night_mode_title">Nattläge</string>
   <string name="prefs_noise_title">Bakgrundsbrus</string>
   <string name="prefs_noise_summary">Att lägga till brus i bakgrunden kan göra det mer behagligt för ögonen.</string>
-  <!--Window-->
+
+
+    <!-- Window -->
   <string name="new_window">Nytt fönster</string>
   <string name="windowMaximise">Maximera</string>
   <string name="windowMinimise">Minimera</string>
@@ -249,12 +296,15 @@
   <string name="copy_settings_to_global">Globala standardvärden</string>
   <string name="change_to_normal">Ändra till normalt fönster</string>
   <string name="window_pin_mode">Nåla fast</string>
-  <!--Notes screen-->
+
+    <!-- Notes screen -->
   <string name="previous">Föregående</string>
   <string name="next">Nästa</string>
-  <!--Strongs-->
+
+    <!--  Strongs -->
   <string name="no_indexed_bible_with_strongs_ref">Du måste ladda ned en bibel som innehåller Strongs nummer och bygga upp dess sökindex med sökfunktionen</string>
-  <!--Module download-->
+
+    <!-- Module download -->
   <string name="download">Hämta dokument</string>
   <string name="redownload">Åternerladda Dokument</string>
   <string name="download_source_last_updated">Dokumentet uppdaterades senast: %s.</string>
@@ -283,7 +333,8 @@ Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="failed_repositories_message">Kunde inte ansluta till följande dokumentserver: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Följande filer kunde inte laddas ner:\n\n%s\n\n</string>
   <string name="cant_delete_document">Detta dokument kan inte raderas.</string>
-  <!--Install zip file-->
+
+    <!--  Install zip file -->
   <string name="install_zip">Läs in dokument från filer</string>
   <string name="install_zip_module">Installera Bibelmodul</string>
   <string name="install_zip_module_discrete">Installera kalkylatormodul</string>
@@ -296,7 +347,8 @@ Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="overwrite_files_title">Skriva över filer?</string>
   <string name="could_not_overwrite_files">Kunde inte skriva över filer: %s. Bortsett från det lyckades installationen.</string>
   <string name="install_do_you_want">Vill du installera modulen (%s)?</string>
-  <!--Daily Reading Plan-->
+
+    <!-- Daily Reading Plan -->
   <string name="rdg_plan_title">Läsningsplan</string>
   <string name="reading_plans_plural">Läsningsplaner</string>
   <string name="rdg_plan_selector_title">Välj en läsningsplan</string>
@@ -346,26 +398,30 @@ i GT och NT varje dag.
         Läs igenom Bibeln på 2 år och läs NT samt Psaltaren två gånger.
         Med tillåtelse av Wholesome Words,  http://www.wholesomewords.org/, tillstånd beviljat
     </string>
-  <!--Document context menu-->
+
+    <!-- Document context menu -->
   <string name="delete">Radera</string>
   <string name="delete_index">Radera sökindex</string>
   <string name="about">Om</string>
   <string name="delete_doc">Radera %s?</string>
   <string name="delete_search_index_doc">Radera indexet för %s?</string>
-  <!--Verse context menu-->
+
+    <!-- Verse context menu -->
   <string name="notes">Fotnoter och hänvisningar</string>
   <string name="share_verse">Dela...</string>
   <string name="share_verse_widget_title">Dela markering</string>
   <string name="compare_translations">Jämför översättningar</string>
-  <!--Link context menu-->
+
+    <!-- Link context menu -->
   <string name="open_link_in_this_window">Öppna länk här</string>
   <string name="open_link_in_new_window">Öppna länk i ett nytt fönster</string>
   <string name="open_link_in_special_window">Öppna länk i ett specialfönster</string>
-  <!--Bookmarks-->
+
+    <!-- Bookmarks -->
   <string name="bookmarks_and_mynotes_title">Bokmärken &amp; egna anteckningar</string>
   <string name="migrated_my_notes">Migrerade egna anteckningar</string>
   <string name="bookmarks">Bokmärken</string>
-  <!--Bookmark / note labels-->
+    <!-- Bookmark / note labels -->
   <string name="labels">Etiketter</string>
   <string name="manage_labels">Hantera etiketter</string>
   <string name="assign_labels">Tilldela etiketter</string>
@@ -385,7 +441,7 @@ i GT och NT varje dag.
   <string name="auto_assign_labels">Tilldela automatiskt &amp; Markera etiketter som favoriter</string>
   <string name="auto_assign_labels1">Tilldela etikett automatiskt till nya bokmärken</string>
   <string name="auto_assign_labels_primary">Tilldela automatiskt som primär</string>
-  <!--can be removed-->
+  <!-- can be removed -->
   <string name="marker_style">Visa endast ikon vid markeringsbokmärken</string>
   <string name="marker_style_whole_verse">Visa endast ikon vid versbokmärken</string>
   <string name="hide_style">Dölj för markeringsbokmärken</string>
@@ -397,35 +453,39 @@ i GT och NT varje dag.
     </string>
   <string name="bookmark_warning3">Vill du ändå uppdatera modulen?</string>
   <string name="bookmark_warning4">Det rekommenderas att du säkerhetskopierar modulen innan du uppdaterar.</string>
-  <!--Sort orders used for Bookmarks and MyNotes-->
+    <!--  Sort orders used for Bookmarks and MyNotes -->
   <string name="sort_by_date">Datumordning</string>
   <string name="sort_by_bible_book">Biblisk ordning</string>
   <string name="sort_by_alphabetical">Alfabetisk ordning</string>
-  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
   <string name="filter_by_notes">Sök anteckningar</string>
-  <!--Dictionary-->
+
+    <!-- Dictionary -->
   <string name="dictionary">Lexikon</string>
   <string name="search_dictionary_hint">Sök i lexikon</string>
-  <!--General Book-->
+
+    <!-- General Book -->
   <string name="general_book">Bok</string>
-  <!--Speak-->
-  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
-  <!--Speak - Bible-->
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
   <string name="one_chapter">%d kapitel</string>
   <string name="some_chapters">%d kapitel</string>
-  <!--Speak - Commentary-->
+    <!-- Speak - Commentary -->
   <string name="one_verse">%d vers</string>
   <string name="some_verses">%d verser</string>
-  <!--Speak - Dictionary and other-->
+    <!-- Speak - Dictionary and other -->
   <string name="one_page">%d sida</string>
   <string name="some_pages">%d sidor</string>
-  <!--Speak - Common-->
+    <!-- Speak - Common -->
   <string name="stop">Stopp</string>
   <string name="pause">Pause</string>
   <string name="rewind">Tillbaka</string>
   <string name="forward">Framåt</string>
   <string name="tts_lang_not_available">Språket är inte tillgängligt.</string>
-  <!--Speak - Bible-->
+
+    <!-- Speak - Bible -->
   <string name="speak_speed_title">Talhastighet</string>
   <string name="speak_and_play_earcons_title">Läs upp och spela ljudsignaler för</string>
   <string name="playback_settings_title">Uppspelningsinställningar</string>
@@ -434,14 +494,17 @@ i GT och NT varje dag.
   <string name="speak_bookmarks_menu_title">Tal från bokmärke</string>
   <string name="speak_advanced_settings">Avancerade inställningar</string>
   <string name="speak_sleep_timer_title">Sovtimer</string>
+
   <string name="speak_no_books_available">Ingen bok tillgänglig för uppläsning</string>
   <string name="speak_general_error">Uppläsning kunde inte startas för denna bok</string>
+
   <string name="repeat_passage">Upprepa avsnitt</string>
   <string name="set_repeat_passage_range">Ställ in gränser för avsnittet</string>
   <string name="speak_beginning_of_passage">Välj avsnittets början</string>
   <string name="speak_ending_of_passage">Välj avsnittets slut</string>
   <string name="speak_verse_range_to_repeat">Välj versomfång att upprepa</string>
   <string name="speak_ending_verse_must_be_later">Den sista versen måste vara senare än den första versen</string>
+
   <string name="conf_speak_synchronize">Text följer tal</string>
   <string name="conf_speak_auto_bookmark">Automatisk bokmärkning</string>
   <string name="conf_save_playback_settings_to_bookmarks">Spara uppspelningsinställningarna till bokmärken</string>
@@ -450,10 +513,12 @@ i GT och NT varje dag.
   <string name="conf_change_title">Titel</string>
   <string name="conf_speak_footnotes">Fotnoter</string>
   <string name="conf_speak_sleep_timer">Ställ in sovtimer</string>
+
   <string name="sleep_timer_title">Sovtimer i minuter</string>
   <string name="sleep_timer_set">Ställ in sovtimer. Inställd på %d minuter</string>
   <string name="sleep_timer_started">Sovtimer startad, %d minuter</string>
   <string name="sleep_timer_active_at">Sovtimer: %s minuter kvar.</string>
+
   <string name="speak_next">Nästa</string>
   <string name="speak_previous">Föregående</string>
   <string name="widget_toggle_sleep_timer">Slå på/av sovtimer</string>
@@ -461,33 +526,43 @@ i GT och NT varje dag.
   <string name="speak_status_stopped">Stannad</string>
   <string name="speak_autobookmarking_disabled">Automatisk bokmärkning inaktiverad!</string>
   <string name="system_speak_settings">Öppna systemets text-till-tal-inställningar</string>
+
   <string name="auto_assing_labels_help1">Här kan du ändra vilka etiketter som tilldelas automatiskt till bokmärken som du skapar.</string>
-  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
   <string name="setting_scope">Denna inställningen gäller för %s</string>
   <string name="setting_scope_window">Detta fönster</string>
   <string name="setting_scope_workspace">denna arbetsyta</string>
+
   <string name="assing_labels_help1">Varje bokmärke kan tilldelas flera etiketter.</string>
-  <!--param is bookmark icon-->
+    <!-- param is bookmark icon -->
   <string name="assing_labels_help2">Använd %s för att ange vilken etikettfärg som visas.</string>
-  <!--param is auto-assign label icon-->
+    <!-- param is auto-assign label icon -->
   <string name="assing_labels_help3">Tryck på %s för att låta den etiketten tilldelas automatiskt till nya bokmärken.</string>
-  <!--param is heart icon-->
+    <!-- param is heart icon -->
   <string name="assing_labels_help4">Tryck på %s för att lägga till etiketten till din lista över favoriter för snabb åtkomst.</string>
-  <!--param is refresh icon-->
+
+    <!-- param is refresh icon -->
   <string name="assing_labels_help5">Tryck %s för att ordna om listan enligt dina markeringar.</string>
+
   <string name="global_text_options_help_title">Globala textalternativ</string>
   <string name="global_text_options_help1">Det här är de globala standardinställningarna för alla arbetsytor. Varje arbetsyta kan åsidosätta dessa med egna inställningar.</string>
+
   <string name="workspace_text_options_help_title">Textinställningar för arbetsyta</string>
   <string name="workspace_text_options_help1">Dessa inställningar utgör standarden för alla fönster i arbetsytan.</string>
   <string name="workspace_text_options_help2">Du kan frångå dem genom att ändra inställningar för enskilda fönster.</string>
+
   <string name="window_text_options_help_title">Fönstertextinställningar</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s-ikonen indikerar att inställningen kommer från inställningarna för arbetsyta</string>
-  <!--Parameter is actual icon-->
-  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+    <!-- Parameter is actual icon -->
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Använd knappen %1$s för att återställa alla dessa inställningar till %2$s.</string>
   <string name="reset_defaults">standardvärden</string>
   <string name="reset_workspace_defaults">standardvärden för arbetsyta</string>
+
+
   <string name="speak_help_auto_bookmark">
         Ett uppläsningsbokmärke kommer att läggas till automatiskt när uppläsningen pausas eller stoppas.
         Automatiskt genererade bokmärken är märkta med den särskilda \"Läs upp\"-etiketten.
@@ -507,12 +582,13 @@ i GT och NT varje dag.
         kan du ha olika uppspelningsinställningar för böckerna,
         när dessa inställningar sparas i respektive bokmärke.
     </string>
-  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
+         in speak settings. -->
   <string-array name="speak_divinename_original">
     <item>HERREN</item>
     <item></item>
@@ -520,11 +596,11 @@ i GT och NT varje dag.
     <item></item>
     <item></item>
   </string-array>
-  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
+         in speak settings. -->
   <string-array name="speak_divinename_replace">
     <item>Jahve</item>
     <item></item>
@@ -532,6 +608,7 @@ i GT och NT varje dag.
     <item></item>
     <item></item>
   </string-array>
+
   <string name="speak_book_changed">Bok ändrad.</string>
   <string name="speak_chapter_changed">Kapitel</string>
   <string name="speak_first">Första</string>
@@ -539,13 +616,16 @@ i GT och NT varje dag.
   <string name="speak_third">Tredje</string>
   <string name="speak_fourth">Fjärde</string>
   <string name="speak_fifth">Femte</string>
+
   <string name="verse_range_mode_disabled">
         Upprepning av avsnitt inaktiverades automatiskt eftersom 
         uppläsning påbörjades utanför definierade verser. 
     </string>
-  <!--User Notes-->
+
+    <!-- User Notes -->
   <string name="mynotes">Anteckningar</string>
-  <!--Backup and restore-->
+
+    <!-- Backup and restore -->
   <string name="backup_backup_title">Var vill du Säkerhetskopiera?</string>
   <string name="backup_backup_message">Säkerhetskopiera till telefonen eller till en annan plats via delningsfunktionen (e-post, Google Drive etc.)?</string>
   <string name="backup_phone_storage">Telefonlagring</string>
@@ -560,11 +640,13 @@ i GT och NT varje dag.
   <string name="backup_document_info">Biblar, kommentarer, lexikon, kartor etc.</string>
   <string name="backup_to">Säkerhetskopiera till...</string>
   <string name="backup_restore_from">Återställ från...</string>
-  <!--Restore = overwrite existing. Import = merge into existing-->
+    <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Återställ eller importera från...</string>
   <string name="backup_restore2">Återställ eller importera</string>
   <string name="overwrite_something">Skriv över %s?</string>
-  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
+
   <string name="restore_database">Återställ databasfil</string>
   <string name="restore_confirmation">Skriv över egna anteckningar, bokmärken, studieblock, läsningsplaner och arbetsytor?</string>
   <string name="restore_success">Egna anteckningar, bokmärken, studieblock, läsningsplaner och arbetsytor återställdes</string>
@@ -572,10 +654,13 @@ i GT och NT varje dag.
   <string name="loading_backup">Läser in databas från säkerhetskopia...</string>
   <string name="backup_success2">Egna anteckningar, bokmärken, studieblock, läsningsplaner och arbetsytor säkerhetskopierades.</string>
   <string name="backup_modules_success">Markerade moduler har säkerhetskopierats.</string>
+
   <string name="backup_modules_email_subject_2">Säkerhetskopia av %s-moduler</string>
   <string name="backup_modules_email_message_2">Säkerhetskopian av dina %1$s-moduler är bifogad och innehåller följande moduler: %2$s</string>
+
   <string name="backup_email_subject_2">Säkerhetskopia av %s-databas</string>
   <string name="backup_email_message_2">Din %s-databas som innehåller bokmärken, anteckningar, läsningsplaner och arbetsytor är bifogad</string>
+
   <string name="exported_studypads_subject">Exporterade studieblock</string>
   <string name="exported_studypads_message">Din %s-databas som innehåller bokmärken och anteckningar relaterade till markerade studieblock är bifogad</string>
   <string name="restore_unsuccessfull">Databasen kunde inte återställas. Du kanske angav en ogiltig databasfil.</string>
@@ -585,18 +670,22 @@ i GT och NT varje dag.
   <string name="ask_restore_or_import">Databasen för %s kan antingen återställas (dvs. den existerande databasen tas bort och den markerade databasen läses in) eller importeras (den markerade databasen importeras in i den existerande databasen). Vad vill du göra?</string>
   <string name="restore">Återställ</string>
   <string name="import2">Importera</string>
-  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" och %2$s andra etiketter/studieblock och %3$s bokmärken</string>
-  <!--About-->
+
+    <!-- About -->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Installerad version: %1$s (%2$s)</string>
   <string name="module_about_latest_version">Senaste version: %1$s (%2$s)</string>
   <string name="module_about_versification">Versifikation: %s</string>
   <string name="module_about_repository">Distributionsserver: %s</string>
   <string name="module_about_osisId">OSIS-id: %s</string>
-  <!--Bug reporting-->
+
+    <!-- Bug reporting -->
   <string name="send_bug_report_title">Feedback/buggrapportering</string>
   <string name="report_bug_email_subject_3">[%1$s] Buggrapport för %2$s %3$s</string>
+
   <string name="report_bug_big_heading">SKRIV DIN FEEDBACK ELLER BUGGRAPPORT OVANFÖR DENNA RAD</string>
   <string name="report_bug_heading1">Instruktioner</string>
   <string name="report_bug_line_1">Berätta kort vad du gjorde eller vad som hände när problemet uppstod.</string>
@@ -613,7 +702,8 @@ i GT och NT varje dag.
   <string name="bug_report_screenshot">Skärmdump av appen när den krashade, eller när buggrapporteringen skapades.</string>
   <string name="bug_report_attachment_line_1">Att infoga dessa filer hjälper apputvecklarna mycket i att fixa de rapporterade buggarna.</string>
   <string name="report_bug_heading_4">Enhetsinformation: </string>
-  <!--Document types-->
+
+    <!-- Document types -->
   <string name="doc_type_all">Alla typer</string>
   <string name="doc_type_bible">Bibel</string>
   <string name="doc_type_commentary">Kommentar</string>
@@ -621,9 +711,11 @@ i GT och NT varje dag.
   <string name="doc_type_book">Bok</string>
   <string name="doc_type_map">Karta</string>
   <string name="doc_type_addons">Tillägg</string>
-  <!--Languages-->
+
+    <!-- Languages -->
   <string name="lang_default">Standard</string>
-  <!--General-->
+
+    <!-- General -->
   <string name="okay">OK</string>
   <string name="cancel">Avbryt</string>
   <string name="discard_changes_confirmation">Ignorera osparade ändringar?</string>
@@ -635,7 +727,8 @@ i GT och NT varje dag.
   <string name="reset_generic">Återställ</string>
   <string name="watch_tutorial_video">Se instruktionsvideo (på engelska)</string>
   <string name="verse_not_found">Versen hittades inte</string>
-  <!--Errors-->
+
+    <!-- Errors -->
   <string name="report_error">Skicka rapport</string>
   <string name="error_occurred">Det har skett ett fel</string>
   <string name="error_occurred_crash_last_time">Senast du använde appen kraschade den. Vi skulle uppskatta om du sände oss en buggrapport för att hjälpa oss åtgärda buggen.</string>
@@ -648,10 +741,12 @@ i GT och NT varje dag.
   <string name="error_skip">Hoppa över</string>
   <string name="bug_report_email_title">Skicka buggrapport via e-post</string>
   <string name="bug_report_email_text">Välj nu den e-postapp du föredrar (t.ex. Gmail) för att skicka rapporten till utvecklarna.</string>
-  <!--Notifications-->
+
+    <!-- Notifications -->
   <string name="notification_channel_tts_status">Text till tal</string>
   <string name="notification_channel_progress_status">Avisering om hur nerladdning av dokument etc. förlöper.</string>
-  <!--Workspaces-->
+
+    <!-- Workspaces -->
   <string name="switch_to_workspace">Arbetsytor</string>
   <string name="delete_workspace">Radera</string>
   <string name="new_copied_workspace">Kopiera som ny</string>
@@ -671,13 +766,15 @@ i GT och NT varje dag.
   <string name="search_settings">Sökinställningar</string>
   <string name="dismiss">Avböj</string>
   <string name="workspace_listing_with_current">%s (nuvarande)</string>
-  <!--Beta notice-->
+
+    <!-- Beta notice -->
   <string name="beta_notice_title">Detta är en beta version!</string>
   <string name="beta_notice_content_1">
         I betaversionen finns det nya funktioner som inte ännu testats tillräckligt,
         och därför kan betan ge upphov till oväntat beteende, dvs. buggar.
         Vanliga bibelläsare rekommenderas använda den stabila versionen istället.
     </string>
+
   <string name="beta_notice_content_2">
         Betaanvändare uppmuntras att rapportera buggar via Google Play eller
         (helst) via %s.
@@ -687,12 +784,19 @@ i GT och NT varje dag.
   <string name="beta_notice_github_issues">Github-ärenden</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Avböj till nästa uppdatering</string>
+
   <string name="stable_notice_title">Appen har blivit uppgraderad!</string>
   <string name="upgrade_video_message">Se video om de nya funktionerna i denna utgåva (%s).</string>
   <string name="stable_notice_par1">Nya versionen %1$s av %2$s har installerats!</string>
-  <!--History-->
+
+  <string name="new_sync_targets_notice_title">Nya synkroniseringsinställningar tillgängliga</string>
+  <string name="new_sync_targets_notice_message">Den här versionen av AndBible introducerar ytterligare synkroniseringsmål: Mina dokument, AI-inställningar och läsningsframsteg. Om du vill aktivera dem kan du göra det i inställningarna för enhetssynkronisering.</string>
+  <string name="open_settings">Öppna inställningar</string>
+
+    <!-- History -->
   <string name="history_for">Historik (%1$s: Fönster %2$d)</string>
-  <!--Help-->
+
+    <!-- Help -->
   <string name="help_nav_title">Navigering</string>
   <string name="help_nav_text">Gå till nästa eller föregående kapitel genom att svepa på skärmen med ditt finger.
         Dubbeltryck på bibeltexten för att växla till fullskärmsläge.
@@ -719,8 +823,9 @@ i GT och NT varje dag.
         Alla bokmärken som skapats med den specifika etiketten visas automatiskt i studieblocket.
         Utöver bokmärken kan man också infoga anpassad text i ett studieblock.
     </string>
+
   <string name="help_search_title">Sök</string>
-  <!--TODO: to be removed-->
+    <!-- TODO: to be removed -->
   <string name="help_search_text2">Söktexten kan innehålla specialtecken som *, AND, OR, NOT</string>
   <string name="help_search_details">Se %s for för mer information.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -750,17 +855,18 @@ i GT och NT varje dag.
         ha bibeldokument öppnade hela tiden, och snabbt byta mellan kommentarer och
         annat extramaterial när du studerar Bibeln.
     </string>
-  <!--Welcome text-->
+
+    <!-- Welcome text -->
   <string name="redownload_documents">Snabb Åternerladdning</string>
   <string name="welcome_message">Tack för att du laddar ned %s. Just nu är inga biblar eller dokument installerade. För att fortsätta, installera
         åtminstone 1 dokument genom att ladda ned det från internet, eller genom att läsa in en säkerhetskopia av dokument i
         en zip-fil.
     </string>
-  <!--Supported file formats for documents-->
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- Supported file formats for documents -->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Välj vilken fil du vill läsa in i %s.</string>
   <string name="supported_formats">Format som stöds för att läsa in dokument från en fil: %s</string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="format_zip">Zip-fil som innehåller Sword-modul(er) eller säkerhetskopia av dokument (*.abmd) skapad av %s</string>
   <string name="format_mysword">MySword-dokument (*.mybible)</string>
   <string name="format_mybible">MyBible-dokument (*.SQLite3)</string>
@@ -772,12 +878,15 @@ i GT och NT varje dag.
   <string name="redownload_message">
         En lista över tidigare böcker/dokument hittades. Tryck här nedanför för att enkelt ladda ned dem igen.
     </string>
-  <!--Uncategorized-->
+
+    <!-- Uncategorized -->
   <string name="close">Stäng</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Jag förstår</string>
   <string name="first_time_help_show_next_time">Visa igen nästa gång</string>
+
   <string name="strongs_mode_title">Välj läge för Strongs</string>
+
   <string name="download_dialog_message">Följande böcker kunde inte laddas ner:</string>
   <string name="journal_description">Redigerbara studieblock med anpassad text och bokmärken</string>
   <string name="my_notes_description">Redigerbara anteckningar bifogade till bokmärken</string>
@@ -797,12 +906,11 @@ i GT och NT varje dag.
   <string name="unlock_info">Krypterad modul upplåsningsinformation</string>
   <string name="try_again_passphrase">Lösenordsfras fungerade inte, försök igen?</string>
   <string name="show_unlock_info">Modul &amp; upplåsningsinfo</string>
+
   <string name="prefs_experimental_features_title">Experimentella funktioner</string>
   <string name="prefs_experimental_features_summary">Välj vilka experimentella funktioner du vill aktivera. Dessa funktioner utvecklas fortfarande och kan komma att ändras eller tas bort.</string>
   <string name="experimental_feature_bookmark_edit_actions">Åtgärder vid bokmärkesredigering</string>
   <string name="experimental_feature_add_paragraph_break">Lägg till bokmärke för styckebrytning</string>
-  <string name="experimental_feature_ai_features">AI-funktioner &amp; Mina dokument</string>
-  <string name="experimental_feature_reading_and_memorization">Lässpårning &amp; Memorering</string>
   <string name="raw_llm_log_title">Rå LLM-logg</string>
   <string name="raw_llm_log_empty">Ingen råloggdata tillgänglig</string>
   <string name="raw_llm_log_copied">Loggen kopierades till urklipp</string>
@@ -829,6 +937,7 @@ i GT och NT varje dag.
   <string name="active_window_indicator_title">Visa aktiv fönsterindekator</string>
   <string name="active_window_indicator_summary">Markera fönsterhörn för att göra det lättare att se vilket fönster som är aktivt</string>
   <string name="app_licence_title">Licens för öppen källkod</string>
+
   <string name="how_to_contribute">Hur bidrar jag?</string>
   <string name="confirm_delete_bookmarks">Vill du ta bort %d bokmärken och deras anteckningar?</string>
   <string name="confirm_delete_orphaned_bookmarks">Den valda etiketten är tilldelad till %d bokmärken som inte har andra etiketter. Vill du radera dessa bokmärken och denna etikett?</string>
@@ -852,14 +961,15 @@ i GT och NT varje dag.
   <string name="show_reference_at_front">Visa framför vers</string>
   <string name="abbreviate_reference">Förkorta hänvisning</string>
   <string name="version_name">Versions namn</string>
-  <!--meaning, bible version name-->
+    <!-- meaning, bible version name -->
   <string name="show_version_name">Visa versionsnamn</string>
   <string name="show_ellipsis">Visa tre punkter (…)</string>
   <string name="show_quotes">Visa citattecken</string>
   <string name="separate_verses_with_newlines">Separera verser med radbrytningar</string>
+
   <string name="initializing_app">Läser in app...</string>
   <string name="show_notes">Visa anteckningar</string>
-  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
   <string name="old_webview">Android WebView-paketet är för gammalt (%1$s). Du måste uppgradera ditt Android WebView-paket till åtminstone version %2$s för att använda %3$s. För de flesta enheter kan detta göras här: %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Fortsätt ändå</string>
@@ -871,15 +981,16 @@ i GT och NT varje dag.
   <string name="rate_message6">
         Tänk gärna på följande innan du lämnar en negativ recension:
     </string>
-  <!--parameters are actions (file a bug, send email)-->
+
+    <!-- parameters are actions (file a bug, send email) -->
   <string name="rate_message1">
         Om du har ett problem med appen, vänligen %1$s eller %2$s istället.
     </string>
-  <!--param is "please report maintainers"-->
+    <!-- param is "please report maintainers" -->
   <string name="rate_message2">
         Om någon text/bibelöversättning har ett problem, %s.
     </string>
-  <!--param is "please read what you can do"-->
+    <!-- param is "please read what you can do" -->
   <string name="rate_message3">
         Om en specifik text inte är tillgänglig i appen, %s.
     </string>
@@ -967,33 +1078,36 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="export_something">Exportera %s</string>
   <string name="import_items">Importera %s</string>
   <string name="import_error">Import från appdatabas misslyckades. Databasfilen kan ha fel format eller vara skapad med för gammal version av %s.</string>
+
   <string name="export_bookmarks_csv">Exportera bokmärken som %s</string>
-  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
   <string name="osis_reference">OSIS-referens</string>
-  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
   <string name="bible_reference">Bibelreferens</string>
   <string name="document">Dokument</string>
   <string name="book">Bok</string>
-  <!--Chapter is the chapter number in the book, starting from 1-->
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
   <string name="chapter_start">Kapitel i början</string>
-  <!--Verse is the verse number in the chapter, starting from 1-->
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
   <string name="verse_start">Vers i början</string>
   <string name="chapter_end">Kapitel i slutet</string>
   <string name="verse_end">Vers i slutet</string>
   <string name="id">Identifierare</string>
-  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
   <string name="ordinal_start">Indexeringstal i början</string>
   <string name="ordinal_end">Indexeringstal i slutet</string>
   <string name="created_at">Skapades (datum &amp; tid)</string>
-  <!--Offsets are used to indicate from which character a bookmark starts.-->
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
   <string name="start_offset">Förskjutning i början</string>
   <string name="end_offset">Förskjutning i slutet</string>
   <string name="custom_icon">Anpassad ikon</string>
   <string name="last_updated_at">Uppdaterades senast</string>
   <string name="bookmark_notes">Bokmärkesanteckningar</string>
-  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Vi är ledsna, men användargränssnittet är bara till viss del översatt till %1$s. Det beror på att %2$s utvecklas helt av volontärer. Om du kan hjälpa till med översättningen, se gärna %3$s.</string>
-  <!--will be added to incomplete_translation as a link-->
+    <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">Instruktioner för översättare</string>
   <string name="questions_title">Frågor?</string>
   <string name="bookmark_style">Bokmärkesstil</string>
@@ -1002,6 +1116,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="strongs_text_and_links">Text och Länkar</string>
   <string name="strongs_hidden_links">Dolda länkar</string>
   <string name="verse_tip">För att markera en del av en vers eller flera verser kan du långtrycka på bibeltexten.</string>
+
   <string name="permission_required">Rättigheter behövs</string>
   <string name="labels_search_hint">Sök</string>
   <string name="search_mode_name_start">Namn (från början)</string>
@@ -1010,7 +1125,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="search_results_matches">%d träffar</string>
   <string name="search_results_match">1 träff</string>
   <string name="progress_status_permission">För att visa aviseringar (nedladdningsförlopp, bearbetning, uppläsningsstatus) behöver vi din tillåtelse.</string>
-  <!--Discrete mode settings-->
+
+    <!-- Discrete mode settings -->
   <string name="app_name_calculator">Enkel kalkylator</string>
   <string name="prefs_persecution_cat">Inställningar för förföljda</string>
   <string name="prefs_discrete_mode">Dölj religiösa symboler</string>
@@ -1019,12 +1135,13 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="prefs_calculator_pin">Kalkylator-PIN</string>
   <string name="prefs_calculator_pin_desc">PIN-kod för att komma in i appen när kalkylatorn visas.</string>
   <string name="calc_division_by_zero">Division med noll inte tillåtet</string>
-  <!--Context: calculator. Wrong number format etc.-->
+    <!-- Context: calculator. Wrong number format etc. -->
   <string name="calc_wrong_format">Fel format</string>
   <string name="calc_wrong_format_operand">Fel format. Operand utan några siffror?</string>
   <string name="prefs_persecuted_help">Läs det här först!</string>
-  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
   <string name="prefs_persecuted_summary">Instruktioner om inställningarna och information om den specifika diskreta apputgåvan.</string>
+
   <string name="calculator_par1">
         Innan du kommer in i appen visas skärmen med kalkylatorn.
     </string>
@@ -1045,12 +1162,14 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="discrete_mode_link">
         Du kan ladda ned den senaste diskreta versionen från %s.
     </string>
-  <!--Window synchronize groups-->
+
+    <!-- Window synchronize groups -->
   <string name="sync_group_n">Grupp %d</string>
   <string name="disable_sync">Inaktivera synkronisering</string>
   <string name="open_in_window">Öppna resultat i ett fönster</string>
-  <!--Custom repositories-->
-  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
   <string name="custom_repositories">Anpassade kataloger</string>
   <string name="custom_repositories_empty_list_message">Inga anpassade kataloger är definierade</string>
   <string name="custom_repositories_create_button_label">Lägg till anpassad katalog</string>
@@ -1062,14 +1181,17 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="wiki_page">Wiki-sida</string>
   <string name="custom_repositories_help0">Du kan installera dokument från externa anpassade kataloger genom att installera anpassade kataloger.</string>
   <string name="duplicate_custom_repository">Katalog med namnet %s existerar redan, kan inte lägga till ytterligare en.</string>
+
   <string name="packages_dir">Paketkatalog (zip-filer)</string>
   <string name="warn_bad_document">Varning: Detta dokument kan (åtminstone till viss del) vara av dålig teknisk kvalitet.</string>
-  <!--Open links in AndBible (Deep linking)-->
+
+    <!-- Open links in AndBible (Deep linking) -->
   <string name="open_bible_links_title">Öppna bibellänkar i AndBible</string>
   <string name="open_bible_links_summary">Öppna kompatibla bibellänkar i AndBible när du klickar på dem</string>
   <string name="copyReference">Kopiera länk till urklipp</string>
   <string name="reference_copied_to_clipboard">Hänvisning kopierad till urklipp</string>
-  <!--Device cloud synchronization-->
+
+    <!-- Device cloud synchronization -->
   <string name="prefs_sync_introduction_summary1">
         Välj vilken molntjänst du vill använda för att synkronisera flera enheter.
     </string>
@@ -1092,7 +1214,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_settings_sync_contents">AI-prompter och leverantörskonfigurationer</string>
   <string name="progress_sync_title">Läsframsteg</string>
   <string name="progress_sync_contents">Memorerade verser och kapitlets läsposter</string>
-  <!--Reading Progress Activity-->
+
+    <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Läs-/minnesframsteg</string>
   <string name="reading_progress_chapters_read">kapitel lästa</string>
   <string name="reading_progress_active_days">aktiva dagar</string>
@@ -1106,6 +1229,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="reading_progress_new_cycle_confirm">Starta en ny läscykel? Detta börjar spåra dina framsteg från början, men bevarar data från din tidigare cykel.</string>
   <string name="reading_progress_previous_cycle">Föregående cykel</string>
   <string name="reading_progress_next_cycle">Nästa cykel</string>
+
   <string name="cloud_fetch_and_restore_initial">Kopiera från molnet till denna enhet</string>
   <string name="cloud_create_new">Kopiera från denna enhet till molnet</string>
   <string name="cloud_disable_sync">Avbryt &amp; inaktivera synkronisering</string>
@@ -1134,18 +1258,20 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="sync_disabling">Inaktiverar synkronisering för %s tills vidare.</string>
   <string name="sync_update_app">Uppdatera appen för att fortsätta synkroniseringen.</string>
   <string name="sign_in_failed">Kunde inte logga in på bakgrundstjänsten för synkronisering.</string>
-  <!--... after restoring from backup file-->
+    <!--  ... after restoring from backup file -->
   <string name="disabling_sync">Inaktiverar molnsynkronisering. Du måste återaktivera manuellt efter återställning.</string>
   <string name="report">Rapportera</string>
   <string name="sync_error">Ett fel uppstod i molnsynkroniseringen</string>
   <string name="error_notification_channel_name">Felmeddelanden</string>
   <string name="last_updated">Senast uppdaterad: %s</string>
-  <!--MyBible/MySword module support-->
+
+    <!-- MyBible/MySword module support -->
   <string name="sqlite_cant_read">Kan inte läsa filen</string>
   <string name="sqlite_invalid_file">Ogiltig modulfil eller ogiltigt filnamn: %s</string>
   <string name="sqlite_cant_write">Kan inte skriva (över) filen</string>
   <string name="install_failed_reason">Installation av modulen misslyckades av följande orsak: %s</string>
-  <!--Other / uncategorized-->
+
+    <!-- Other / uncategorized -->
   <string name="app_opened_elsewhere">App öppnad på annan plats</string>
   <string name="open_here">Öppna här</string>
   <string name="external_link">Extern länk</string>
@@ -1194,6 +1320,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="memorize_error_heatmap_summary">Markera ord med fler fel i allt djupare rött</string>
   <string name="memorize_scramble_hide_used">Dölj använda ordknappar</string>
   <string name="memorize_scramble_hide_used_summary">Dölj ordknappar helt efter att de placerats korrekt i ordblandningsläget</string>
+  <string name="memorize_include_reference">Inkludera versreferens</string>
+  <string name="memorize_include_reference_summary">Lägg till versreferensen (t.ex. Joh 3:16) som det sista objektet att memorera</string>
   <string name="reading_progress_settings">Framsteg &amp; memorering</string>
   <string name="reading_progress_settings_summary">Inställningar för automatisk spårning, memorering och skrivövning</string>
   <string name="memorize_confirm_unmark">Ta bort memorerad status för %s?</string>
@@ -1206,7 +1334,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="memorize_calendar">Memoreringsaktivitet</string>
   <string name="memorize_view_list">Lista</string>
   <string name="memorize_view_overview">Översikt</string>
-  <!--LLM Translation Settings-->
+
+    <!-- LLM Translation Settings -->
   <string name="sync_settings_shortcut_summary">Synkronisera data mellan enheter</string>
   <string name="llm_provider_custom">Anpassad (OpenAI-kompatibel)</string>
   <string name="ai_behavior_category">Beteende</string>
@@ -1252,7 +1381,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="custom_system_prompt_default">Standard</string>
   <string name="custom_system_prompt_custom">Anpassad</string>
   <string name="reset_to_default">Återställ till standard</string>
-  <!--Raw log history-->
+
+    <!-- Raw log history -->
   <string name="raw_log_history_title">AI-logghistorik</string>
   <string name="raw_log_history_summary">Visa och hantera sparade AI-konversationsloggar</string>
   <string name="raw_log_history_empty">Inga sparade loggar</string>
@@ -1270,6 +1400,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="raw_log_retention_summary_disabled">Inaktiverat (behåll alla)</string>
   <string name="send_ai_bug_report_title">Rapportera AI-fel</string>
   <string name="ai_bug_report_menu">Rapportera AI-fel</string>
+
   <string name="select_model_before_run_title">Välj modell</string>
   <string name="set_default_model_for_prompt">Ange som standardmodell för denna prompt</string>
   <string name="prompt_max_iterations">Åsidosättning av maximala iterationer</string>
@@ -1278,7 +1409,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="prompt_max_iterations_unlimited">Obegränsat</string>
   <string name="prompt_max_iterations_global_default">Globalt standard (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Åsidosätt globalt maximalt antal iterationer för denna prompt. 0 = obegränsat.\nAktuellt: %s</string>
-  <!--Prompt Manager-->
+
+    <!-- Prompt Manager -->
   <string name="manage_prompts">Hantera AI-prompter</string>
   <string name="manage_prompts_summary">Skapa och redigera AI-prompter</string>
   <string name="ai_settings">AI-inställningar</string>
@@ -1289,7 +1421,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_settings_shortcut_summary">AI-anslutning och promptinställningar</string>
   <string name="ai_provider_tier_recommended">Rekommenderade</string>
   <string name="ai_provider_tier_community">Andra leverantörer (ej testade)</string>
-  <!--Multi-provider settings-->
+
+    <!-- Multi-provider settings -->
   <string name="ai_providers_models_category">Leverantörer &amp; Modeller</string>
   <string name="ai_providers_category">Leverantörer</string>
   <string name="ai_providers_summary_none">Inga leverantörer konfigurerade</string>
@@ -1303,13 +1436,15 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_provider_name_hint">Visningsnamn för den här leverantören</string>
   <string name="ai_provider_api_key">API-nyckel</string>
   <string name="ai_provider_endpoint">API-slutpunkt</string>
+  <string name="ai_provider_endpoint_description">Endast bas-URL. AndBible lägger automatiskt till "/chat/completions" (OpenAI-format) eller "/messages" (Anthropic-format). Modellistor hämtas från "/models".</string>
   <string name="ai_provider_api_format">API-format</string>
   <string name="ai_provider_saved">Leverantör sparad</string>
   <string name="ai_provider_deleted">Leverantör raderad</string>
+
   <string name="llm_openrouter_category">Kategori</string>
   <string name="llm_openrouter_category_all">Alla</string>
   <string name="llm_openrouter_model">Modell</string>
-  <!--Configured models management-->
+    <!-- Configured models management -->
   <string name="ai_models_category">Modeller</string>
   <string name="add_model">Lägg till modell</string>
   <string name="edit_model_title">Redigera modell</string>
@@ -1321,7 +1456,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="model_supported_badge">✓ Stöds</string>
   <string name="show_also_unsupported_models">Visa även modeller som inte stöds</string>
   <string name="show_also_unsupported_providers">Visa även leverantörer som inte stöds</string>
-  <!--Easy Setup-->
+
+    <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s in / %2$s ut per Mtoken</string>
   <string name="easy_setup_free_tier">Gratisnivå</string>
   <string name="unknown_error">Okänt fel</string>
@@ -1338,7 +1474,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="easy_setup_gemini_desc">Gratisnivå tillgänglig, bra kvalitet</string>
   <string name="easy_setup_anthropic_desc">Prisvärd, utmärkt kvalitet</string>
   <string name="easy_setup_openai_desc">Välkänd, pålitlig</string>
-  <!--AI Disclaimer-->
+
+    <!-- AI Disclaimer -->
   <string name="ai_disclaimer_warning_title">Viktigt: Läs innan du använder AI-verktyg</string>
   <string name="ai_disclaimer_warning_summary">Risker och ansvar vid användning av AI</string>
   <string name="ai_disclaimer_dialog_title">AI-verktyg — viktig information</string>
@@ -1356,6 +1493,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_disclaimer_point9">AI-leverantörer tar betalt för API-användning. Kostnadsuppskattningar i AndBible är ungefärliga — kontrollera alltid din leverantörs fakturering för faktiska kostnader.</string>
   <string name="ai_disclaimer_accept_title">Godkänn AI-ansvarsfriskrivning</string>
   <string name="ai_disclaimer_accept_button">Jag accepterar och tar fullt ansvar</string>
+
   <string name="prompt_permission_mode">Behörighetsläge</string>
   <string name="prompt_permission_mode_description">Styr när användarbekräftelse krävs innan AI:n utför skrivoperationer. Inställningarna per verktyg nedan kan åsidosätta detta för enskilda verktyg.</string>
   <string name="agent_permission_mode_summary">Styr när användarbekräftelse krävs innan AI utför skrivoperationer</string>
@@ -1438,7 +1576,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_regenerate_keep_previous">Behåll tidigare version</string>
   <string name="ai_regenerate_fresh_run">Ny körning (ignorera tidigare resultat)</string>
   <string name="ai_unknown_prompt">AI</string>
-  <!--Default prompts-->
+
+    <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">Översätt till %s</string>
   <string name="default_prompt_translate_to_ui_language">Översätt till gränssnittsspråk</string>
   <string name="default_prompt_translate_to_ui_language_desc">Översätter dokumenttext till appens gränssnittsspråk</string>
@@ -1475,7 +1614,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_restore_hidden_prompts">Återställ dolda prompter</string>
   <string name="ai_prompt_hidden">Prompt dold</string>
   <string name="ai_prompts_restored">Dolda promptar återställda</string>
-  <!--Agent Tool Display Names-->
+
+    <!-- Agent Tool Display Names -->
   <string name="tool_create_bookmark">Skapa bokmärke</string>
   <string name="tool_add_bookmark_note">Lägg till bokmärkesanteckning</string>
   <string name="tool_update_bookmark_note">Uppdatera bokmärkesanteckning</string>
@@ -1516,11 +1656,13 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="tool_create_window">Skapa fönster</string>
   <string name="tool_manage_window">Hantera fönster</string>
   <string name="tool_set_window_document">Ange fönsterdokument</string>
-  <!--Agent Permission Dialog-->
+
+    <!-- Agent Permission Dialog -->
   <string name="agent_permission_title">AI-behörighet</string>
   <string name="agent_permission_message">AI-assistenten vill använda \"%1$s\":\n\n%2$s</string>
   <string name="agent_permission_message_with_action">AI-assistenten vill:\n\n%1$s</string>
-  <!--Tool action descriptions for permission dialog-->
+
+    <!-- Tool action descriptions for permission dialog -->
   <string name="action_create_bookmark_at">Skapa bokmärke vid %1$s</string>
   <string name="action_create_bookmark_at_with_extras">Skapa bokmärke vid %1$s (%2$s)</string>
   <string name="action_with_note">med anteckning</string>
@@ -1558,7 +1700,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="permission_always_allow_confirm_title">Tillåt alltid?</string>
   <string name="permission_always_allow_confirm">Är du säker på att du permanent vill tillåta \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Du kan återställa detta i AI-inställningar.</string>
-  <!--Agent Tool Permission Settings-->
+
+    <!-- Agent Tool Permission Settings -->
   <string name="manage_tool_permissions_title">Verktygsbehörigheter</string>
   <string name="manage_tool_permissions_summary">Hantera behörighetsåsidosättningar per verktyg</string>
   <string name="commentary_max_response_title">Storleksgräns för kommentarssvar</string>
@@ -1592,15 +1735,19 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="permission_option_always_allow">Tillåt alltid</string>
   <string name="permission_option_always_deny">Neka alltid</string>
   <string name="reset_all_permissions">Återställ alla</string>
-  <!--Tool Info-->
+
+    <!-- Tool Info -->
   <string name="ai_available_tools">Tillgängliga verktyg</string>
   <string name="ai_read_tools">Läsverktyg</string>
   <string name="ai_write_tools">Skrivverktyg</string>
-  <!--Global Tool Permissions Activity-->
+
+    <!-- Global Tool Permissions Activity -->
   <string name="global_tool_permissions_title">Standardverktygsinställningar</string>
-  <!--Per-Prompt Tool Permissions-->
+
+    <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Verktygsbehörigheter</string>
-  <!--Tool categories-->
+
+    <!-- Tool categories -->
   <string name="tool_category_bible_search">Bibel &amp; Sökning</string>
   <string name="tool_category_bookmarks">Bokmärken</string>
   <string name="tool_category_labels">Etiketter</string>
@@ -1617,13 +1764,16 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="tool_option_default_disabled">Standard (inaktiverad)</string>
   <string name="tool_option_default_allowed">Standard (tillåten)</string>
   <string name="tool_option_default_denied">Standard (nekad)</string>
-  <!--Per-Prompt Model Override-->
+
+    <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modell</string>
   <string name="prompt_model_default">Standard</string>
-  <!--LLM One Tap Actions-->
+
+    <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Välj AI-åtgärd</string>
   <string name="llm_actions">AI-åtgärder</string>
-  <!--Agent Log Widget-->
+
+    <!-- Agent Log Widget -->
   <string name="agent_log_expand">Expandera/minimera AI-logg</string>
   <string name="agent_log_close">Stäng AI-logg</string>
   <string name="agent_log_stop">Stoppa AI</string>
@@ -1632,14 +1782,14 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="agent_log_executing">Kör: %s</string>
   <string name="agent_log_iteration">Iteration %d</string>
   <string name="agent_log_tool">Verktyg: %s</string>
-  <string name="agent_log_tool_completed">Verktyget %s klart</string>
   <string name="agent_log_tool_failed">Verktyget %s misslyckades</string>
   <string name="agent_log_response_received">Svar mottaget</string>
   <string name="agent_log_saved">Sparad: %s</string>
   <string name="agent_log_done">Klar: %s</string>
   <string name="agent_log_cancelled">Avbruten</string>
   <string name="agent_already_running">En AI-assistent körs redan. Vänta eller stoppa den först.</string>
-  <!--AI Agent Notifications-->
+
+    <!-- AI Agent Notifications -->
   <string name="ai_agent_notification_channel_name">AI-assistent</string>
   <string name="ai_agent_notification_running">AI-assistent arbetar…</string>
   <string name="ai_agent_notification_permission_needed">AI-assistenten behöver ditt godkännande</string>
@@ -1648,7 +1798,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_agent_notification_completed_tap">Tryck för att visa resultat</string>
   <string name="ai_agent_notification_error">AI-uppgift misslyckades</string>
   <string name="ai_agent_notification_cancel">Avbryt</string>
-  <!--My Documents-->
+
+    <!-- My Documents -->
   <string name="my_documents_title">Mina dokument</string>
   <string name="my_documents_empty">Inga dokument ännu. Tryck på + för att skapa ett.</string>
   <string name="my_document_new_name">Dokument %d</string>
@@ -1659,6 +1810,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="my_document_save_changes">Spara ändringar?</string>
   <string name="my_document_no_description">Ingen beskrivning</string>
   <string name="my_document_edit_description">Redigera beskrivning</string>
+
   <string name="my_document_pages_title">%s - Sidor</string>
   <string name="my_document_pages_empty">Inga sidor i detta dokument.</string>
   <string name="my_document_page_rename_title">Byt namn på sida</string>
@@ -1679,6 +1831,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="prefs_show_ai_doc_markers_summary">Visa markeringsikoner för AI-genererade dokumentsidor kopplade till verser</string>
   <string name="prefs_show_ordinals_title">Visa ordinaltal</string>
   <string name="prefs_show_ordinals_summary">Visa ordinalpositionsmarkeringar i texten</string>
+
   <string name="prefs_page_scroll_amount_title">Sidrullningsmängd</string>
   <string name="prefs_page_scroll_amount_summary">Hur stor del av sidan som scrollas med sidupp/ned</string>
   <string name="prefs_scroll_helper_lines_title">Rullningshjälpslinjer</string>
