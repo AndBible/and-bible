@@ -84,7 +84,7 @@ export type BibleJavascriptInterface = {
     removeMemorizationTarget: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     openReadingProgress: (tab: number) => void,
     openReadingProgressSettings: () => void,
-    markChapterRead: (bookInitials: string, startOrdinal: number, chapter: number, source: string) => void,
+    markChapterRead: (bookInitials: string, startOrdinal: number, chapter: number) => void,
     unmarkChapterRead: (bookInitials: string, startOrdinal: number, chapter: number) => void,
     incrementChapterReadCount: (bookInitials: string, startOrdinal: number, chapter: number) => void,
     getChapterReadCount: (bookInitials: string, startOrdinal: number, chapter: number) => number,
@@ -460,8 +460,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.openReadingProgressSettings();
     }
 
-    function markChapterRead(bookInitials: string, startOrdinal: number, chapter: number, source: string = "MANUAL") {
-        window.android.markChapterRead(bookInitials, startOrdinal, chapter, source);
+    function markChapterRead(bookInitials: string, startOrdinal: number, chapter: number) {
+        window.android.markChapterRead(bookInitials, startOrdinal, chapter);
     }
 
     function unmarkChapterRead(bookInitials: string, startOrdinal: number, chapter: number) {

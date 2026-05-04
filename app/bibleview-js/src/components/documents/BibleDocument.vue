@@ -29,7 +29,7 @@
       <div class="mark-as-read-wrapper">
         <FontAwesomeIcon class="mark-as-read-icon" :class="{read: chapterRead}" :icon="faCheck" @click="onMarkAsRead"/>
         <span
-            v-if="config.useReadCountMode && chapterReadCount > 0"
+            v-if="chapterReadCount > 0"
             class="read-count"
             @click="onOpenReadHistory"
         >×{{ chapterReadCount }}</span>

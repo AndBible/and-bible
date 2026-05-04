@@ -40,10 +40,8 @@ export function useReadingTracker(
 
     const totalVerses = ordinalRange[1] - ordinalRange[0] + 1;
 
-    // Load initial chapter read count if in count-mode
-    if (config.useReadCountMode) {
-        chapterReadCount.value = android.getChapterReadCount(bookInitials, ordinalRange[0], chapterNumber);
-    }
+    // Load initial chapter read count from history
+    chapterReadCount.value = android.getChapterReadCount(bookInitials, ordinalRange[0], chapterNumber);
 
     function checkCoverage() {
         if (autoTrackDone || totalVerses <= 0) return;
@@ -51,7 +49,7 @@ export function useReadingTracker(
         if (coverage >= COVERAGE_THRESHOLD) {
             autoTrackDone = true;
             chapterRead.value = true;
-            android.markChapterRead(bookInitials, ordinalRange[0], chapterNumber, "AUTO_SCROLL");
+            android.markChapterRead(bookInitials, ordinalRange[0], chapterNumber);
             cleanup();
         }
     }
@@ -88,21 +86,11 @@ export function useReadingTracker(
     }
 
     function toggleChapterRead() {
-        if (config.useReadCountMode) {
-            // In count-mode: each tap increments the counter
-            android.incrementChapterReadCount(bookInitials, ordinalRange[0], chapterNumber);
-            chapterReadCount.value++;
-            chapterRead.value = true; // Always mark as read
-        } else {
-            // In toggle-mode: tap toggles between read/unread (existing behavior)
-            if (chapterRead.value) {
-                android.unmarkChapterRead(bookInitials, ordinalRange[0], chapterNumber);
-                chapterRead.value = false;
-            } else {
-                android.markChapterRead(bookInitials, ordinalRange[0], chapterNumber);
-                chapterRead.value = true;
-            }
-        }
+        // Each tap records a new history entry. To remove reads the user opens the
+        // history dialog via long-press (handled in BibleDocument.vue).
+        android.incrementChapterReadCount(bookInitials, ordinalRange[0], chapterNumber);
+        chapterReadCount.value++;
+        chapterRead.value = true;
     }
 
     function openChapterReadHistory() {
@@ -112,9 +100,7 @@ export function useReadingTracker(
     setupEventBusListener("update_chapter_read_status", (data: {chapter: number, isRead: boolean}) => {
         if (data.chapter === chapterNumber) {
             chapterRead.value = data.isRead;
-            if (config.useReadCountMode) {
-                chapterReadCount.value = android.getChapterReadCount(bookInitials, ordinalRange[0], chapterNumber);
-            }
+            chapterReadCount.value = android.getChapterReadCount(bookInitials, ordinalRange[0], chapterNumber);
         }
     });
 
