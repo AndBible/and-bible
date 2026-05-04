@@ -17,17 +17,17 @@
 
 <template>
   <div class="memorize-controls">
-    <div class="icon-button"
-         @pointerdown.prevent="isPeeking = true"
-         @pointerup="isPeeking = false"
-         @pointerleave="isPeeking = false"
-    >
-      <FontAwesomeIcon :icon="faEye"/>
-    </div>
-    <div @click="resetWords()" class="icon-button">
-      <FontAwesomeIcon :icon="faUndo"/>
-    </div>
     <div class="controls-right">
+      <div class="icon-button"
+           @pointerdown.prevent="isPeeking = true"
+           @pointerup="isPeeking = false"
+           @pointerleave="isPeeking = false"
+      >
+        <FontAwesomeIcon :icon="faEye"/>
+      </div>
+      <div @click="resetWords()" class="icon-button">
+        <FontAwesomeIcon :icon="faUndo"/>
+      </div>
       <div class="settings-wrapper" ref="settingsWrapper">
         <div class="settings-trigger" @click="toggleSettings">
           <FontAwesomeIcon :icon="faGear"/>
