@@ -77,6 +77,7 @@ class ReadingProgressActivity : ActivityBase() {
     private var memorizedPassagesShown = PAGE_SIZE
     private var memorizeTargetsShown = PAGE_SIZE
     private var memOverviewActive = true
+    private var detailBook: BibleBook? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -247,6 +248,7 @@ class ReadingProgressActivity : ActivityBase() {
         refreshBibleHeatmap()
         refreshCalendarHeatmap()
         refreshCycleLabel()
+        detailBook?.let { renderChapterDetail(it) }
     }
 
     private fun refreshSummary() {
@@ -360,14 +362,18 @@ class ReadingProgressActivity : ActivityBase() {
     }
 
     private fun showChapterDetail(book: BibleBook) {
+        detailBook = book
         binding.chapterDetailSection.visibility = View.VISIBLE
-        binding.chapterDetailTitle.text = kjva.getLongName(book)
-        binding.chaptersGrid.removeAllViews()
-
         // Scroll so the "Bible Overview" heading is at the top of the screen
         binding.readingContent.post {
             binding.readingContent.smoothScrollTo(0, binding.bibleHeatmapTitle.top)
         }
+        renderChapterDetail(book)
+    }
+
+    private fun renderChapterDetail(book: BibleBook) {
+        binding.chapterDetailTitle.text = kjva.getLongName(book)
+        binding.chaptersGrid.removeAllViews()
 
         val totalChapters = kjva.getLastChapter(book)
         // Use at least 5 columns so a single-chapter book doesn't stretch to full width
