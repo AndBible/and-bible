@@ -804,6 +804,10 @@
     <string name="upgrade_video_message">Please see video featuring new features of this release (%s).</string>
     <string name="stable_notice_par1">New version %1$s of %2$s has been installed successfully!</string>
 
+    <string name="new_sync_targets_notice_title">New sync settings available</string>
+    <string name="new_sync_targets_notice_message">This version of AndBible introduces additional sync targets: My Documents, AI settings and reading progress. If you want to enable them, you can do so in the Device Synchronization settings.</string>
+    <string name="open_settings">Open settings</string>
+
     <!-- History -->
     <string name="history_for">History (%1$s: Window %2$d)</string>
 

@@ -131,6 +131,7 @@ import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKe
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
+import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
@@ -188,6 +189,10 @@ import kotlin.system.exitProcess
  */
 
 const val DEFAULT_SYNC_INTERVAL = 5*60L // 5 minutes
+
+// Bump this when introducing additional sync targets to re-trigger the
+// "new sync targets available" notice for users who already dismissed it.
+private const val NEW_SYNC_TARGETS_ANNOUNCE_VERSION = 1
 
 private val syncScope = CoroutineScope(Dispatchers.IO)
 
@@ -359,6 +364,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
                 showBetaNotice()
                 showStableNotice()
+                showNewSyncTargetsNotice()
                 showFirstTimeHelp()
                 if(!CommonUtils.isDiscrete) {
                     ABEventBus.post(ToastEvent(windowRepository.name))
@@ -570,6 +576,32 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 preferences.setBoolean("pinning-help-shown", true)
             }
         }
+    }
+
+    private fun showNewSyncTargetsNotice() {
+        val displayedVer = preferences.getInt("new-sync-targets-notice-displayed", 0)
+        if (displayedVer >= NEW_SYNC_TARGETS_ANNOUNCE_VERSION) return
+
+        // The notice is only relevant to users who already use device sync. Suppress
+        // it for everyone else so that users who enable sync later don't see a stale
+        // announcement about targets that aren't new to them.
+        if (!CommonUtils.isCloudSyncEnabled) {
+            preferences.setInt("new-sync-targets-notice-displayed", NEW_SYNC_TARGETS_ANNOUNCE_VERSION)
+            return
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.new_sync_targets_notice_title)
+            .setMessage(R.string.new_sync_targets_notice_message)
+            .setCancelable(false)
+            .setNegativeButton(R.string.dismiss) { _, _ ->
+                preferences.setInt("new-sync-targets-notice-displayed", NEW_SYNC_TARGETS_ANNOUNCE_VERSION)
+            }
+            .setPositiveButton(R.string.open_settings) { _, _ ->
+                preferences.setInt("new-sync-targets-notice-displayed", NEW_SYNC_TARGETS_ANNOUNCE_VERSION)
+                startActivity(Intent(this, SyncSettingsActivity::class.java))
+            }
+            .show()
     }
 
     private suspend fun showStableNotice() = suspendCoroutine<Boolean> {
