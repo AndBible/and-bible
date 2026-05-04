@@ -1273,7 +1273,7 @@
   <string name="ai_provider_name_hint">Nom visible per a aquest proveïdor</string>
   <string name="ai_provider_api_key">Clau d\'API</string>
   <string name="ai_provider_endpoint">Extrem de l\'API</string>
-  <string name="ai_provider_endpoint_description">Només l'URL base. AndBible afegeix "/chat/completions" (format OpenAI) o "/messages" (format Anthropic) automàticament. Les llistes de models es recuperen de "/models".</string>
+  <string name="ai_provider_endpoint_description">Només l\'URL base. AndBible afegeix "/chat/completions" (format OpenAI) o "/messages" (format Anthropic) automàticament. Les llistes de models es recuperen de "/models".</string>
   <string name="ai_provider_api_format">Format de l\'API</string>
   <string name="ai_provider_saved">Proveïdor desat</string>
   <string name="ai_provider_deleted">Proveïdor suprimit</string>
