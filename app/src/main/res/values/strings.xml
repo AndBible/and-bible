@@ -1336,6 +1336,8 @@
     <string name="memorize_error_heatmap_summary">Highlight words with more errors in progressively deeper red</string>
     <string name="memorize_scramble_hide_used">Hide used word buttons</string>
     <string name="memorize_scramble_hide_used_summary">Hide word buttons completely after they are correctly placed in word scramble mode</string>
+    <string name="memorize_include_reference">Include verse reference</string>
+    <string name="memorize_include_reference_summary">Add the verse reference (e.g. John 3:16) as the last item to memorize</string>
     <string name="reading_progress_settings">Progress &amp; memorization</string>
     <string name="reading_progress_settings_summary">Auto-tracking, memorization, and typing practice settings</string>
     <string name="memorize_confirm_unmark">Remove memorized status for %s?</string>

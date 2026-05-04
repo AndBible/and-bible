@@ -431,6 +431,17 @@ h2 {
   cursor: pointer;
   font-size: 14px;
   white-space: nowrap;
+  color: #666;
+
+  .night & {
+    color: #999;
+  }
+  .monochrome & {
+    color: black;
+  }
+  .monochrome.night & {
+    color: white;
+  }
 
   &:hover {
     background: rgba(0, 0, 0, 0.05);
