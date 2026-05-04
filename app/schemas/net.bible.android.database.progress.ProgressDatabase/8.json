@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 8,
-    "identityHash": "010ad70b92d4bd126c5d1aa534e6e051",
+    "identityHash": "c2d7f0c8ee4a7ce72185785a7726ee88",
     "entities": [
       {
         "tableName": "MemorizedVerse",
@@ -47,7 +47,7 @@
       },
       {
         "tableName": "ChapterReadHistory",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `kjvBookOrdinal` INTEGER NOT NULL, `chapter` INTEGER NOT NULL, `cycle` INTEGER NOT NULL, `readAt` INTEGER NOT NULL, `bookInitials` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `kjvBookOrdinal` INTEGER NOT NULL, `chapter` INTEGER NOT NULL, `cycle` INTEGER NOT NULL, `readAt` INTEGER NOT NULL, `bookInitials` TEXT NOT NULL, `source` TEXT NOT NULL DEFAULT 'MANUAL', PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -84,6 +84,13 @@
             "columnName": "bookInitials",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'MANUAL'"
           }
         ],
         "primaryKey": {
@@ -360,7 +367,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '010ad70b92d4bd126c5d1aa534e6e051')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c2d7f0c8ee4a7ce72185785a7726ee88')"
     ]
   }
 }

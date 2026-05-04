@@ -67,16 +67,19 @@ private val addChapterReadHistoryTable = makeMigration(7..8) { db ->
             chapter INTEGER NOT NULL,
             cycle INTEGER NOT NULL DEFAULT 1,
             readAt INTEGER NOT NULL,
-            bookInitials TEXT NOT NULL DEFAULT ''
+            bookInitials TEXT NOT NULL DEFAULT '',
+            source TEXT NOT NULL DEFAULT 'MANUAL'
         )
     """)
     db.execSQL("CREATE INDEX IF NOT EXISTS `index_ChapterReadHistory_kjvBookOrdinal_chapter_cycle` ON ChapterReadHistory (kjvBookOrdinal, chapter, cycle)")
 
     // Migrate existing ChapterReadingRecord rows 1:1 to ChapterReadHistory.
-    // bookInitials is unknown for old records (the legacy table never tracked it).
+    // bookInitials is unknown for old records (the legacy table never tracked it);
+    // source is preserved from the legacy table where it was already present.
     db.execSQL("""
-        INSERT INTO ChapterReadHistory (id, kjvBookOrdinal, chapter, cycle, readAt, bookInitials)
-        SELECT randomblob(16), kjvBookOrdinal, chapter, cycle, readAt, '' FROM ChapterReadingRecord
+        INSERT INTO ChapterReadHistory (id, kjvBookOrdinal, chapter, cycle, readAt, bookInitials, source)
+        SELECT randomblob(16), kjvBookOrdinal, chapter, cycle, readAt, '', source
+        FROM ChapterReadingRecord
     """)
 
     // Drop the legacy table — ChapterReadHistory is now the single source of truth.

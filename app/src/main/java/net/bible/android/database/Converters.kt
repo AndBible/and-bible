@@ -29,6 +29,7 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.android.database.progress.ReadingSource
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ApiFormat
 import net.bible.service.llm.PromptContext
@@ -349,4 +350,10 @@ class Converters {
 
     @TypeConverter
     fun permissionModeToStr(obj: PermissionMode?): String? = obj?.name
+
+    @TypeConverter
+    fun toReadingSource(value: String?) = if (value == null) null else ReadingSource.valueOf(value)
+
+    @TypeConverter
+    fun fromReadingSource(value: ReadingSource?) = value?.name
 }
