@@ -1,6 +1,3 @@
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-}
 /*
  * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
