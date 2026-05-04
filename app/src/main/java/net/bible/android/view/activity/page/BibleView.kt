@@ -1808,8 +1808,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: ChapterReadStatusChangedEvent) {
         val doc = firstDocument
         if (doc !is BibleDocument) return
+        // Different windows may show the same chapter number across different books, so
+        // filter by KJV book ordinal here — the Vue-side tracker only checks chapter number.
+        val docKjvBookOrdinal = doc.verseRange.toV11n(KJVA).start.book.ordinal
+        if (docKjvBookOrdinal != event.kjvBookOrdinal) return
         executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-            kjvBookOrdinal: ${event.kjvBookOrdinal}, chapter: ${event.chapter}, isRead: ${event.isRead}
+            chapter: ${event.chapter}, count: ${event.count}
         });""")
     }
 
@@ -1820,9 +1824,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val v11n = doc.swordBook.versification
         val book = doc.verseRange.start.book
         for (chapter in minChapter..maxChapter) {
-            val isRead = ProgressControl.isChapterRead(v11n, book, chapter)
+            val count = ProgressControl.getChapterReadCount(v11n, book, chapter)
             executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-                chapter: $chapter, isRead: $isRead
+                chapter: $chapter, count: $count
             });""")
         }
     }
@@ -1830,6 +1834,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: ReadingProgressSettingsChangedEvent) {
         val settingsJson = ReadingProgressSettings.getBundleAsJson()
         executeJavascriptOnUiThread("""bibleView.emit("update_reading_progress_settings", $settingsJson);""")
+        updateConfig()
     }
 
     fun onEvent(event: AiDocPagesChangedEvent) {

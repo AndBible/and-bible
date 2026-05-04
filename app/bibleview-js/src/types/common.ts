@@ -35,6 +35,8 @@ export type LogEntry = {
 export type JSONString = string
 export type AsyncFunc = (callId: number) => void
 export type StudyPadEntryType = "bookmark" | "generic-bookmark" | "journal" | "ai-doc-marker" | "none"
+/** Mirrors net.bible.android.database.progress.ReadingSource — keep in sync. */
+export type ReadingSource = "MANUAL" | "AUTO_SCROLL" | "AUTO_TTS"
 
 export type ColorInt = number
 export type ColorString = string

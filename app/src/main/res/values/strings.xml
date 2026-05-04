@@ -157,6 +157,13 @@
     <string name="prefs_show_memorization_indicators_summary">Show colored margin indicators for memorized and target verses</string>
     <string name="prefs_auto_track_reading_title">Auto-track reading</string>
     <string name="prefs_auto_track_reading_summary">Automatically mark chapters as read when you scroll through them</string>
+    <string name="reading_progress_read_count_scale">Read\nCount</string>
+    <string name="reading_progress_percent_read_scale">Percent\nRead</string>
+    <string name="reading_progress_percent_label">%d%%</string>
+    <string name="reading_progress_history_title">Read History</string>
+    <string name="reading_progress_history_for">Reading progress for %1$s</string>
+    <string name="reading_progress_history_no_entries">No read entries for this selection.</string>
+    <string name="reading_progress_history_version_unknown">Unknown version</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
 
     <string name="prefs_toolbar_button_action_title">Action for toolbar button press</string>

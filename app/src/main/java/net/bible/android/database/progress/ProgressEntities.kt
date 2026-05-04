@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2024-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -28,7 +28,7 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 
 enum class ReadingSource {
-    MANUAL, AUTO_SCROLL, AUTO_TTS
+    MANUAL, AUTO_SCROLL, AUTO_TTS,
 }
 
 @Entity(
@@ -64,16 +64,19 @@ data class MemorizationTarget(
 
 @Entity(
     indices = [
-        Index(value = ["kjvBookOrdinal", "chapter", "cycle"], unique = true)
+        Index(value = ["kjvBookOrdinal", "chapter", "cycle"])
     ]
 )
-data class ChapterReadingRecord(
+data class ChapterReadHistory(
     @PrimaryKey var id: IdType = IdType(),
     val kjvBookOrdinal: Int,
     val chapter: Int,
     val cycle: Int = 1,
     val readAt: Long = System.currentTimeMillis(),
-    val source: ReadingSource = ReadingSource.MANUAL,
+    /** The SWORD book initials of the Bible version used when this chapter was tapped (empty for migrated records). */
+    val bookInitials: String = "",
+    /** How this read was recorded — manual tap or one of the auto-track sources. Defaults to MANUAL for migrated/legacy callers. */
+    @ColumnInfo(defaultValue = "MANUAL") val source: ReadingSource = ReadingSource.MANUAL,
 )
 
 @Entity

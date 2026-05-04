@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2024-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -27,15 +27,15 @@ export function useReadingTracker(
     bookInitials: string,
     ordinalRange: OrdinalRange,
     chapterNumber: number,
-    initiallyRead: boolean,
+    initialReadCount: number,
 ) {
     const config = inject(configKey)!;
     const android = inject(androidKey)!;
 
-    const chapterRead = ref(initiallyRead);
+    const chapterReadCount = ref(initialReadCount);
     const seenOrdinals = new Set<number>();
     let observer: IntersectionObserver | null = null;
-    let autoTrackDone = initiallyRead;
+    let autoTrackDone = chapterReadCount.value > 0;
 
     const totalVerses = ordinalRange[1] - ordinalRange[0] + 1;
 
@@ -44,8 +44,7 @@ export function useReadingTracker(
         const coverage = seenOrdinals.size / totalVerses;
         if (coverage >= COVERAGE_THRESHOLD) {
             autoTrackDone = true;
-            chapterRead.value = true;
-            android.markChapterRead(bookInitials, ordinalRange[0], chapterNumber, "AUTO_SCROLL");
+            android.recordChapterRead(bookInitials, ordinalRange[0], chapterNumber, "AUTO_SCROLL");
             cleanup();
         }
     }
@@ -82,18 +81,19 @@ export function useReadingTracker(
     }
 
     function toggleChapterRead() {
-        if (chapterRead.value) {
-            android.unmarkChapterRead(bookInitials, ordinalRange[0], chapterNumber);
-            chapterRead.value = false;
-        } else {
-            android.markChapterRead(bookInitials, ordinalRange[0], chapterNumber);
-            chapterRead.value = true;
-        }
+        // Each tap records a new history entry. To remove reads the user opens the
+        // history dialog via long-press (handled in BibleDocument.vue).
+        android.recordChapterRead(bookInitials, ordinalRange[0], chapterNumber, "MANUAL");
+        chapterReadCount.value++;
     }
 
-    setupEventBusListener("update_chapter_read_status", (data: {chapter: number, isRead: boolean}) => {
+    function openChapterReadHistory() {
+        android.openChapterReadHistory(bookInitials, ordinalRange[0], chapterNumber);
+    }
+
+    setupEventBusListener("update_chapter_read_status", (data: {chapter: number, count: number}) => {
         if (data.chapter === chapterNumber) {
-            chapterRead.value = data.isRead;
+            chapterReadCount.value = data.count;
         }
     });
 
@@ -115,5 +115,5 @@ export function useReadingTracker(
         cleanup();
     });
 
-    return {chapterRead, toggleChapterRead};
+    return {chapterReadCount, toggleChapterRead, openChapterReadHistory};
 }

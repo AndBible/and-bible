@@ -93,11 +93,21 @@
 
             <!-- Section: Bible Heatmap -->
             <TextView
+                android:id="@+id/bibleHeatmapTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/reading_progress_bible_heatmap"
                 android:textSize="16sp"
                 android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Count-mode book percentage scale (hidden in toggle mode) -->
+            <LinearLayout
+                android:id="@+id/bookPercentScale"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
                 android:layout_marginBottom="8dp"/>
 
             <TextView
@@ -147,6 +157,14 @@
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="4dp"/>
+
+                <LinearLayout
+                    android:id="@+id/chapterCountScale"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="6dp"/>
 
                 <GridLayout
                     android:id="@+id/chaptersGrid"

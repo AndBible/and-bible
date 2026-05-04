@@ -37,7 +37,6 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
-import net.bible.android.database.progress.ReadingSource
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -54,9 +53,11 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.progress.ReadingSource
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.progress.ReadHistoryDialog
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.service.common.ReadingProgressSettings
@@ -566,21 +567,28 @@ class BibleJavascriptInterface(
         }
     }
 
+    /**
+     * Records a new read-history row for this chapter. Always inserts — JS-side state
+     * (autoTrackDone) prevents duplicate auto-track inserts. The `source` parameter is
+     * the string name of a [ReadingSource] value; unknown strings fall back to MANUAL.
+     */
     @JavascriptInterface
-    fun markChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) {
+    fun recordChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
         val verse = Verse(v11n, startOrdinal)
         val readingSource = try { ReadingSource.valueOf(source) } catch (_: Exception) { ReadingSource.MANUAL }
-        ProgressControl.markChapterRead(v11n, verse.book, chapter, readingSource)
+        ProgressControl.recordChapterRead(v11n, verse.book, chapter, bookInitials, readingSource)
     }
 
     @JavascriptInterface
-    fun unmarkChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int) {
+    fun openChapterReadHistory(bookInitials: String, startOrdinal: Int, chapter: Int) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
-        val verse = Verse(v11n, startOrdinal)
-        ProgressControl.unmarkChapterRead(v11n, verse.book, chapter)
+        val kjvBook = Verse(v11n, startOrdinal).toV11n(KJVA).book
+        scope.launch(Dispatchers.Main) {
+            ReadHistoryDialog.showForChapter(mainBibleActivity, kjvBook, chapter)
+        }
     }
 
     @JavascriptInterface

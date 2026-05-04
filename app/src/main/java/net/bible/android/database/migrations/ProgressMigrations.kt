@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2024-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -58,4 +58,40 @@ private val addMemorizeIncludeReference = makeMigration(6..7) { db ->
     db.execSQL("ALTER TABLE GlobalReadingProgressSettings ADD COLUMN memorizeIncludeReference INTEGER NOT NULL DEFAULT 0")
 }
 
-val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget, addGlobalReadingProgressSettings, addMemorizeTypeSettings, addActiveCycle, addScrambleHideUsed, addMemorizeIncludeReference)
+private val addChapterReadHistoryTable = makeMigration(7..8) { db ->
+    // Create final ChapterReadHistory schema in one shot
+    db.execSQL("""
+        CREATE TABLE IF NOT EXISTS ChapterReadHistory (
+            id BLOB NOT NULL PRIMARY KEY,
+            kjvBookOrdinal INTEGER NOT NULL,
+            chapter INTEGER NOT NULL,
+            cycle INTEGER NOT NULL DEFAULT 1,
+            readAt INTEGER NOT NULL,
+            bookInitials TEXT NOT NULL DEFAULT '',
+            source TEXT NOT NULL DEFAULT 'MANUAL'
+        )
+    """)
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_ChapterReadHistory_kjvBookOrdinal_chapter_cycle` ON ChapterReadHistory (kjvBookOrdinal, chapter, cycle)")
+
+    // Migrate existing ChapterReadingRecord rows 1:1 to ChapterReadHistory.
+    // bookInitials is unknown for old records (the legacy table never tracked it);
+    // source is preserved from the legacy table where it was already present.
+    db.execSQL("""
+        INSERT INTO ChapterReadHistory (id, kjvBookOrdinal, chapter, cycle, readAt, bookInitials, source)
+        SELECT randomblob(16), kjvBookOrdinal, chapter, cycle, readAt, '', source
+        FROM ChapterReadingRecord
+    """)
+
+    // Drop the legacy table — ChapterReadHistory is now the single source of truth.
+    db.execSQL("DROP TABLE IF EXISTS ChapterReadingRecord")
+}
+
+val progressMigrations: Array<Migration> = arrayOf(
+    addMemorizationTarget,
+    addGlobalReadingProgressSettings,
+    addMemorizeTypeSettings,
+    addActiveCycle,
+    addScrambleHideUsed,
+    addMemorizeIncludeReference,
+    addChapterReadHistoryTable,
+)

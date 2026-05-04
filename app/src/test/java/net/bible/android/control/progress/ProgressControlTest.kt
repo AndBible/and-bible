@@ -147,29 +147,21 @@ class ProgressControlTest {
     // --- Chapter reading ---
 
     @Test
-    fun `markChapterRead and isChapterRead`() {
+    fun `recordChapterRead and isChapterRead`() {
         assertFalse(ProgressControl.isChapterRead(KJVA, BibleBook.GEN, 1))
 
-        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
 
         assertTrue(ProgressControl.isChapterRead(KJVA, BibleBook.GEN, 1))
         assertFalse(ProgressControl.isChapterRead(KJVA, BibleBook.GEN, 2))
     }
 
     @Test
-    fun `markChapterRead is idempotent`() {
-        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 1)
-        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 1)
-
-        assertEquals(1, ProgressControl.getTotalReadChapters())
-    }
-
-    @Test
     fun `getReadingProgress returns correct fraction`() {
         val totalChapters = KJVA.getLastChapter(BibleBook.GEN)
 
-        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 1)
-        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 2)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
 
         val progress = ProgressControl.getReadingProgress(KJVA, BibleBook.GEN)
         assertEquals(2f / totalChapters, progress, 0.001f)
@@ -182,8 +174,8 @@ class ProgressControlTest {
 
     @Test
     fun `getReadChaptersForBook returns read chapters`() {
-        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 3)
-        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 7)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 3)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 7)
 
         val chapters = ProgressControl.getReadChaptersForBook(BibleBook.GEN)
         assertEquals(listOf(3, 7), chapters)
@@ -205,15 +197,15 @@ class ProgressControlTest {
     @Test
     fun `reading records are cycle-specific`() {
         // Read in cycle 1
-        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         assertTrue(ProgressControl.isChapterRead(KJVA, BibleBook.GEN, 1))
 
         // Start new cycle - the cycle itself is determined by the max cycle in DB.
         // Since we haven't written cycle 2 records yet, getCurrentCycle still returns 1.
         // We need to manually write a cycle 2 record to advance.
         val cycle2 = ProgressControl.startNewCycle()
-        dao.insertChapterReadingRecord(
-            net.bible.android.database.progress.ChapterReadingRecord(
+        dao.insertChapterReadHistory(
+            net.bible.android.database.progress.ChapterReadHistory(
                 kjvBookOrdinal = BibleBook.GEN.ordinal,
                 chapter = 5,
                 cycle = cycle2,
@@ -233,22 +225,164 @@ class ProgressControlTest {
 
     @Test
     fun `getTotalReadChapters counts correctly`() {
-        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 1)
-        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 2)
-        ProgressControl.markChapterRead(KJVA, BibleBook.EXOD, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.EXOD, 1)
 
         assertEquals(3, ProgressControl.getTotalReadChapters())
     }
 
     @Test
     fun `getBookReadingProgress returns progress for read books only`() {
-        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 1)
-        ProgressControl.markChapterRead(KJVA, BibleBook.EXOD, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.EXOD, 1)
 
         val progress = ProgressControl.getBookReadingProgress()
         assertTrue(progress.containsKey(BibleBook.GEN))
         assertTrue(progress.containsKey(BibleBook.EXOD))
         assertFalse(progress.containsKey(BibleBook.LEV))
+    }
+
+    // --- Chapter read history ---
+
+    @Test
+    fun `recordChapterRead increases count for that chapter`() {
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+
+        assertEquals(3, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 1))
+    }
+
+    @Test
+    fun `getChapterReadCount returns zero for unread chapter`() {
+        assertEquals(0, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 1))
+    }
+
+    @Test
+    fun `getChapterReadCount is independent per chapter`() {
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
+
+        assertEquals(2, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 1))
+        assertEquals(1, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 2))
+        assertEquals(0, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 3))
+    }
+
+    @Test
+    fun `getChapterReadCountsForBook returns map of chapter to count`() {
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 3)
+
+        val counts = ProgressControl.getChapterReadCountsForBook(BibleBook.GEN)
+        assertEquals(2, counts[1])
+        assertEquals(1, counts[3])
+        assertFalse(counts.containsKey(2))
+    }
+
+    @Test
+    fun `getChapterReadCountsForBook returns empty map when nothing read`() {
+        assertTrue(ProgressControl.getChapterReadCountsForBook(BibleBook.GEN).isEmpty())
+    }
+
+    @Test
+    fun `getDistinctReadChaptersCountForBook counts unique chapters only`() {
+        // Chapter 1 read 3 times, chapter 2 once — distinct count is 2
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
+
+        assertEquals(2, ProgressControl.getDistinctReadChaptersCountForBook(BibleBook.GEN))
+    }
+
+    @Test
+    fun `getBookCountProgress readPercent equals totalReads divided by totalChapters`() {
+        val totalChapters = KJVA.getLastChapter(BibleBook.GEN)
+        // Read chapter 1 twice and chapter 2 once → 3 total reads
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
+
+        val progress = ProgressControl.getBookCountProgress()
+        val genProgress = progress[BibleBook.GEN]
+        assertFalse("GEN should be present", genProgress == null)
+        assertEquals(3f / totalChapters, genProgress!!.readPercent, 0.001f)
+    }
+
+    @Test
+    fun `getBookCountProgress readPercent exceeds 1 when chapters read multiple times`() {
+        // 3 John has 1 chapter; reading it 6 times should give readPercent = 6.0
+        val john3 = BibleBook.JOHN3
+        val totalChapters = KJVA.getLastChapter(john3)
+        assertEquals("3 John should have 1 chapter", 1, totalChapters)
+        repeat(6) { ProgressControl.recordChapterRead(KJVA, john3, 1) }
+
+        val progress = ProgressControl.getBookCountProgress()
+        assertEquals(6.0f, progress[john3]!!.readPercent, 0.001f)
+    }
+
+    @Test
+    fun `getBookCountProgress excludes books with no reads`() {
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+
+        val progress = ProgressControl.getBookCountProgress()
+        assertTrue(progress.containsKey(BibleBook.GEN))
+        assertFalse(progress.containsKey(BibleBook.EXOD))
+    }
+
+    @Test
+    fun `deleteReadHistoryEntry removes one read instance only`() {
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+
+        val latestEntry = ProgressControl.getReadHistoryForChapter(BibleBook.GEN, 1).first()
+        ProgressControl.deleteReadHistoryEntry(latestEntry)
+
+        assertEquals(1, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 1))
+        assertEquals(1, ProgressControl.getReadHistoryForChapter(BibleBook.GEN, 1).size)
+    }
+
+    @Test
+    fun `deleteReadHistoryEntries removes only selected instances`() {
+        repeat(3) { ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1) }
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
+
+        val selectedEntries = ProgressControl.getReadHistoryForBook(BibleBook.GEN)
+            .filter { it.chapter == 1 }
+            .take(2)
+        ProgressControl.deleteReadHistoryEntries(selectedEntries)
+
+        assertEquals(1, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 1))
+        assertEquals(1, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 2))
+        assertEquals(2, ProgressControl.getReadHistoryForBook(BibleBook.GEN).size)
+    }
+
+    @Test
+    fun `getReadHistoryForDay returns entries for tapped calendar day`() {
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
+
+        val today = (System.currentTimeMillis() / 86_400_000L) * 86_400_000L
+        val entries = ProgressControl.getReadHistoryForDay(today)
+
+        // Both reads land in the same millisecond, so order is unspecified — assert as a set.
+        assertEquals(setOf(1, 2), entries.map { it.chapter }.toSet())
+    }
+
+    @Test
+    fun `getReadHistoryForDay returns recordChapterRead entries across books`() {
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 3)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.EXOD, 1)
+
+        val today = (System.currentTimeMillis() / 86_400_000L) * 86_400_000L
+        val entries = ProgressControl.getReadHistoryForDay(today)
+
+        assertEquals(2, entries.size)
+        assertTrue(entries.any { it.kjvBookOrdinal == BibleBook.GEN.ordinal && it.chapter == 3 })
+        assertTrue(entries.any { it.kjvBookOrdinal == BibleBook.EXOD.ordinal && it.chapter == 1 })
     }
 
     // --- Memorization targets ---

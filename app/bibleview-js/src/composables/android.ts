@@ -22,7 +22,7 @@ import {onMounted, reactive, Ref} from "vue";
 import {calculateOffsetToVerse, ReachedRootError} from "@/dom";
 import {isFunction, union} from "lodash";
 import {Config, errorBox} from "@/composables/config";
-import {AsyncFunc, StudyPadEntryType, JSONString, LogEntry, Nullable} from "@/types/common";
+import {AsyncFunc, StudyPadEntryType, JSONString, LogEntry, Nullable, ReadingSource} from "@/types/common";
 import {
     BaseBookmark,
     CombinedRange,
@@ -84,8 +84,8 @@ export type BibleJavascriptInterface = {
     removeMemorizationTarget: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     openReadingProgress: (tab: number) => void,
     openReadingProgressSettings: () => void,
-    markChapterRead: (bookInitials: string, startOrdinal: number, chapter: number, source: string) => void,
-    unmarkChapterRead: (bookInitials: string, startOrdinal: number, chapter: number) => void,
+    recordChapterRead: (bookInitials: string, startOrdinal: number, chapter: number, source: ReadingSource) => void,
+    openChapterReadHistory: (bookInitials: string, startOrdinal: number, chapter: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
     openMyNotes: (v11n: string, ordinal: number) => void,
     speak: (bookInitials: string, v11n: string, startOrdinal: number, endOrdinal: number) => void,
@@ -457,12 +457,12 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.openReadingProgressSettings();
     }
 
-    function markChapterRead(bookInitials: string, startOrdinal: number, chapter: number, source: string = "MANUAL") {
-        window.android.markChapterRead(bookInitials, startOrdinal, chapter, source);
+    function recordChapterRead(bookInitials: string, startOrdinal: number, chapter: number, source: ReadingSource) {
+        window.android.recordChapterRead(bookInitials, startOrdinal, chapter, source);
     }
 
-    function unmarkChapterRead(bookInitials: string, startOrdinal: number, chapter: number) {
-        window.android.unmarkChapterRead(bookInitials, startOrdinal, chapter);
+    function openChapterReadHistory(bookInitials: string, startOrdinal: number, chapter: number) {
+        window.android.openChapterReadHistory(bookInitials, startOrdinal, chapter);
     }
 
     function openStudyPad(labelId: IdType, bookmark: BaseBookmark) {
@@ -716,8 +716,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         removeMemorizationTarget,
         openReadingProgress,
         openReadingProgressSettings,
-        markChapterRead,
-        unmarkChapterRead,
+        recordChapterRead,
+        openChapterReadHistory,
         speak,
         speakGeneric,
         speakMemorizationLoop,

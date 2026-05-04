@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2024-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -25,12 +25,12 @@ import net.bible.android.database.SyncConfiguration
 import net.bible.android.database.SyncStatus
 import net.bible.android.database.SyncableRoomDatabase
 
-const val PROGRESS_DATABASE_VERSION = 7
+const val PROGRESS_DATABASE_VERSION = 8
 
 @Database(
     entities = [
         MemorizedVerse::class,
-        ChapterReadingRecord::class,
+        ChapterReadHistory::class,
         MemorizationTarget::class,
         GlobalReadingProgressSettings::class,
         LogEntry::class,
