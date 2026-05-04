@@ -57,6 +57,7 @@ import net.bible.android.database.progress.ReadingSource
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.progress.ReadHistoryDialog
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.service.common.ReadingProgressSettings
@@ -584,16 +585,9 @@ class BibleJavascriptInterface(
     fun openChapterReadHistory(bookInitials: String, startOrdinal: Int, chapter: Int) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
-        val verse = Verse(v11n, startOrdinal)
-        val kjvBook = verse.toV11n(KJVA).book
+        val kjvBook = Verse(v11n, startOrdinal).toV11n(KJVA).book
         scope.launch(Dispatchers.Main) {
-            val intent = Intent(mainBibleActivity, ReadingProgressActivity::class.java).apply {
-                putExtra(ReadingProgressActivity.EXTRA_TAB, 0)
-                putExtra(ReadingProgressActivity.EXTRA_HISTORY_BOOK_ORDINAL, kjvBook.ordinal)
-                putExtra(ReadingProgressActivity.EXTRA_HISTORY_CHAPTER, chapter)
-                putExtra(ReadingProgressActivity.EXTRA_HISTORY_ONLY, true)
-            }
-            mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+            ReadHistoryDialog.showForChapter(mainBibleActivity, kjvBook, chapter)
         }
     }
 
