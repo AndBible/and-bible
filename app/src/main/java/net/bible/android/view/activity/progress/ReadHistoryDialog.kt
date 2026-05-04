@@ -158,10 +158,10 @@ object ReadHistoryDialog {
                 val versionStr = entry.bookInitials.ifEmpty {
                     activity.getString(R.string.reading_progress_history_version_unknown)
                 }
-                val rowSummary = if (showChapterPerRow) {
-                    "$chapterRef  ·  $dateStr $timeStr  ·  $versionStr"
+                val (primaryText, secondaryText) = if (showChapterPerRow) {
+                    "$chapterRef · $timeStr" to "$dateStr · $versionStr"
                 } else {
-                    "$dateStr $timeStr  ·  $versionStr"
+                    "$dateStr $timeStr" to versionStr
                 }
 
                 val row = LinearLayout(activity).apply {
@@ -170,15 +170,24 @@ object ReadHistoryDialog {
                     setPadding(0, dp4, 0, dp4)
                 }
 
-                row.addView(TextView(activity).apply {
-                    text = rowSummary
-                    textSize = 14f
+                row.addView(LinearLayout(activity).apply {
+                    orientation = LinearLayout.VERTICAL
                     layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+
+                    addView(TextView(activity).apply {
+                        text = primaryText
+                        textSize = 16f
+                    })
+                    addView(TextView(activity).apply {
+                        text = secondaryText
+                        textSize = 12f
+                        setTextColor(Color.GRAY)
+                    })
                 })
 
                 val deleteButton = TextView(activity).apply {
                     text = "\u00D7"
-                    textSize = 28f
+                    textSize = 24f
                     minWidth = dp8 * 6
                     minHeight = dp8 * 6
                     gravity = Gravity.CENTER
