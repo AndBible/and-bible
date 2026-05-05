@@ -1,0 +1,30 @@
+- Track and display multiple chapter reads with reading history dialog (#3794)
+- Notify existing sync users about new sync targets: My Documents, AI settings, reading progress (#3789)
+- Expose 'Include verse reference' toggle in memorize settings (#3722)
+- Rename "Goal -" menu item to "Remove from Goals" (#3740)
+- Persist Type-it error heatmap across resets (#3742)
+- Move Scramble mode buttons to the right (#3743)
+- Hide Copy reference / Open ref menu items for fake docs (#3744)
+- Hide sync menu for Memorize windows (#3744)
+- Replace AI icon with FontAwesome robot and align colors with surrounding icons
+- Replace spin with pulse animation on agent log status icon
+- Stop agent log header from hijacking missed button taps
+- Align memorize dropdown menu colors with tab navigation
+- Update AI provider endpoint description for clarity
+- Translation updates for all supported languages
+
+5.1
+"What's new" video: https://youtu.be/EKnyBIti9Fk
+
+Highlights:
+- AI assistant (Claude, Grok, OpenRouter, ...) with tool calling
+- Reading & memorization progress tracking with multiple modes
+- My Documents: your own editable, syncable pages
+- Multi-translation search across Bibles (#1411)
+- 3-level text display settings inheritance
+- Strong's tab view & compact display
+- E-ink/monochrome improvements
+- Many bug fixes
+
+See https://andbible.org
+Support: https://shop.andbible.org/
