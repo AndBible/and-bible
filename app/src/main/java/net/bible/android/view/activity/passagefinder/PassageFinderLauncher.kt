@@ -64,11 +64,23 @@ class PassageFinderLauncher(
         )[PassageFinderViewModel::class.java]
     }
 
-    fun show() {
-        ensureComposeView()
+    /**
+     * Open the passage finder overlay.
+     *
+     * @return true if the widget was actually shown; false if the active module has no
+     *   books to navigate (in which case the caller should fall back to the legacy chooser).
+     */
+    fun show(): Boolean {
         val vm = viewModel
         vm.show()
+        if (!vm.uiState.value.visible) {
+            // ViewModel.show() refused — typically because the active module yields no books.
+            // Skip showing the ComposeView so the caller can fall back to the legacy chooser
+            // rather than presenting an empty overlay.
+            return false
+        }
 
+        ensureComposeView()
         composeView?.setContent {
             PassageFinderWidget(
                 viewModel = vm,
@@ -86,6 +98,7 @@ class PassageFinderLauncher(
                 hide()
             }
         }
+        return true
     }
 
     fun hide() {

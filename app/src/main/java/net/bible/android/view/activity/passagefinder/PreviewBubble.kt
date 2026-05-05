@@ -17,11 +17,9 @@
 
 package net.bible.android.view.activity.passagefinder
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,15 +48,13 @@ import net.bible.android.activity.R
 import net.bible.android.control.passagefinder.PassageFinderDataSource
 
 /**
- * Semi-transparent floating bubble that shows the current selection reference.
+ * Semi-transparent floating bubble that shows the current verse-level selection.
  *
- * Content is progressive and crossfades between levels:
- * - BOOK level: full book name (e.g. "Genesis")
- * - CHAPTER level: abbreviated reference (e.g. "Gen 1")
- * - VERSE level: abbreviated reference + verse (e.g. "Gen 1:1") with verse text below
+ * The bubble renders the abbreviated reference (e.g. "Gen 1:1") with the verse text
+ * underneath. The widget hides the bubble at BOOK level via [visible] (book/chapter-only
+ * previews aren't useful), so this composable only ever needs to draw verse-level content.
  *
- * The bubble is hidden until the user first interacts with the widget (controlled by [visible]).
- * All animations respect the [disableAnimations] setting for accessibility.
+ * The verse-text fade-in respects the [disableAnimations] accessibility setting.
  */
 @Composable
 fun PreviewBubble(
@@ -67,7 +63,6 @@ fun PreviewBubble(
     selectedBookIndex: Int,
     selectedChapter: Int,
     selectedVerse: Int,
-    currentLevel: NavigationLevel,
     verseText: String?,
     visible: Boolean,
     disableAnimations: Boolean,
@@ -77,13 +72,8 @@ fun PreviewBubble(
 
     val book = books.getOrNull(selectedBookIndex)
     val shortName = book?.shortName ?: ""
-    val longName = book?.longName ?: ""
-    val currentReference = when (currentLevel) {
-        NavigationLevel.BOOK -> longName
-        NavigationLevel.CHAPTER -> "$shortName $selectedChapter"
-        NavigationLevel.VERSE -> "$shortName $selectedChapter:$selectedVerse"
-    }
-    val confirmDescription = stringResource(R.string.passage_finder_a11y_go_to, currentReference)
+    val reference = "$shortName $selectedChapter:$selectedVerse"
+    val confirmDescription = stringResource(R.string.passage_finder_a11y_go_to, reference)
 
     AnimatedVisibility(
         visible = visible,
@@ -109,49 +99,30 @@ fun PreviewBubble(
                 )
                 .padding(horizontal = 20.dp, vertical = 12.dp),
         ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                BasicText(
+                    text = reference,
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
+                )
 
-            AnimatedContent(
-                targetState = currentLevel,
-                transitionSpec = {
-                    fadeIn(tween(if (disableAnimations) 0 else 150)) togetherWith
-                        fadeOut(tween(if (disableAnimations) 0 else 150))
-                },
-                contentAlignment = Alignment.Center,
-                label = "bubbleLevelTransition",
-            ) { targetLevel ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    val title = when (targetLevel) {
-                        NavigationLevel.BOOK -> longName
-                        NavigationLevel.CHAPTER -> "$shortName $selectedChapter"
-                        NavigationLevel.VERSE -> "$shortName $selectedChapter:$selectedVerse"
-                    }
-
+                AnimatedVisibility(
+                    visible = !verseText.isNullOrBlank(),
+                    enter = fadeIn(tween(if (disableAnimations) 0 else 200)),
+                ) {
                     BasicText(
-                        text = title,
+                        text = verseText ?: "",
                         style = TextStyle(
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
+                            color = Color.White.copy(alpha = 0.85f),
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Justify,
                         ),
+                        maxLines = 5,
+                        overflow = TextOverflow.Ellipsis,
                     )
-
-                    if (targetLevel == NavigationLevel.VERSE) {
-                        AnimatedVisibility(
-                            visible = !verseText.isNullOrBlank(),
-                            enter = fadeIn(tween(if (disableAnimations) 0 else 200)),
-                        ) {
-                            BasicText(
-                                text = verseText ?: "",
-                                style = TextStyle(
-                                    color = Color.White.copy(alpha = 0.85f),
-                                    fontSize = 14.sp,
-                                    textAlign = TextAlign.Justify,
-                                ),
-                                maxLines = 5,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                    }
                 }
             }
         }

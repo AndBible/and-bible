@@ -280,9 +280,8 @@ fun PassageFinderWidget(
             ) {
                 // Preview bubble — part of the Column so it flows with the strips.
                 // Visible when showPreview is set (chapter/verse scroll has occurred) and
-                // the user is not currently scrolling books. Always renders verse-level
-                // content (full reference + verse text) since book/chapter-only previews
-                // aren't useful to the user.
+                // the user is not currently scrolling books. Renders the full reference
+                // plus verse text; book/chapter-only previews aren't useful.
                 PreviewBubble(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
@@ -292,7 +291,6 @@ fun PassageFinderWidget(
                     selectedBookIndex = uiState.selectedBookIndex,
                     selectedChapter = uiState.selectedChapter,
                     selectedVerse = uiState.selectedVerse,
-                    currentLevel = NavigationLevel.VERSE,
                     verseText = verseText,
                     visible = uiState.showPreview && !bookScrolling,
                     disableAnimations = disableAnimations,

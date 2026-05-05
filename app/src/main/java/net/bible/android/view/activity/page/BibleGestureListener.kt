@@ -87,8 +87,9 @@ class BibleGestureListener(
                 if (CommonUtils.settings.getBoolean("passage_finder_enabled", false)
                     && abs(velocityY) > minScaledVelocity * 3
                     && !mainBibleActivity.passageFinderLauncher.isVisible
+                    && mainBibleActivity.passageFinderLauncher.show()
                 ) {
-                    mainBibleActivity.passageFinderLauncher.show()
+                    // Only consume the fling if the widget actually opened.
                     return true
                 }
                 return false

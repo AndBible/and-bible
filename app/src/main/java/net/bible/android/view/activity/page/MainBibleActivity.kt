@@ -761,9 +761,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             override fun onSingleTapUp(e: MotionEvent): Boolean {
-                if (CommonUtils.settings.getBoolean("passage_finder_enabled", false)) {
-                    passageFinderLauncher.show()
-                } else {
+                val passageFinderShown = CommonUtils.settings.getBoolean("passage_finder_enabled", false)
+                    && passageFinderLauncher.show()
+                if (!passageFinderShown) {
+                    // Fall back to the legacy key chooser when the passage finder is
+                    // disabled or refused to open (e.g. the active module has no books).
                     pageControl.currentPageManager.currentPage.startKeyChooser(this@MainBibleActivity)
                 }
                 return true
