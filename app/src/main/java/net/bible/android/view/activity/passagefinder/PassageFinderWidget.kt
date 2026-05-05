@@ -297,8 +297,11 @@ fun PassageFinderWidget(
                     visible = uiState.showPreview && !bookScrolling,
                     disableAnimations = disableAnimations,
                     onTap = {
+                        // Don't call onDismiss() here: the launcher's selectionConfirmed
+                        // collector handles navigation and then calls hide() itself.
+                        // Cancelling navigationJob early via onDismiss() can race the
+                        // emission and silently drop the navigation.
                         viewModel.confirmSelection()
-                        onDismiss()
                     },
                 )
 
@@ -321,9 +324,11 @@ fun PassageFinderWidget(
                     disableAnimations = disableAnimations,
                     onVerseTapped = { verse ->
                         if (verse == uiState.selectedVerse) {
-                            // Already centered -- confirm selection
+                            // Already centered -- confirm selection. Don't call onDismiss():
+                            // the launcher's selectionConfirmed collector navigates and then
+                            // hides the view; cancelling navigationJob early would race the
+                            // SharedFlow emission and drop the navigation.
                             viewModel.confirmSelection()
-                            onDismiss()
                         }
                         // Otherwise: onVerseSelected already called by VerseStrip onClick,
                         // which triggers scroll-to-center via the LaunchedEffect

@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.passagefinder
 
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -105,6 +106,29 @@ class ScrollCoordinatorTest {
         }
         assertFalse(
             "programmaticScroll should be reset even after exception",
+            coordinator.programmaticScroll,
+        )
+    }
+
+    @Test
+    fun `overlapping withProgrammaticScroll calls keep flag true until all complete`() = runTest {
+        // Models the scenario where a re-center LaunchedEffect restarts before the
+        // previous one's `finally` has run: the inner block's exit must not clear the
+        // flag while the outer block is still in flight.
+        val coordinator = ScrollCoordinator()
+        coordinator.withProgrammaticScroll {
+            assertEquals(true, coordinator.programmaticScroll)
+            coordinator.withProgrammaticScroll {
+                assertEquals(true, coordinator.programmaticScroll)
+            }
+            assertEquals(
+                "outer scroll still in flight, flag must remain true",
+                true,
+                coordinator.programmaticScroll,
+            )
+        }
+        assertFalse(
+            "flag should be cleared once every overlapping scroll has returned",
             coordinator.programmaticScroll,
         )
     }

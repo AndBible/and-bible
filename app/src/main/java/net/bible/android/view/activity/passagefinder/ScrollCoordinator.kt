@@ -17,6 +17,8 @@
 
 package net.bible.android.view.activity.passagefinder
 
+import java.util.concurrent.atomic.AtomicInteger
+
 /**
  * Coordinates scroll state between user-initiated scrolling and programmatic re-centering
  * to prevent feedback loops where scroll-settle → selection update → re-center → misalignment.
@@ -27,9 +29,14 @@ package net.bible.android.view.activity.passagefinder
  * displacing the already-centered item. This class breaks that feedback loop.
  */
 class ScrollCoordinator {
-    /** True while a programmatic scroll is in progress (suppresses scroll-settle callbacks). */
-    var programmaticScroll: Boolean = false
-        private set
+    // Counter rather than a boolean so overlapping programmatic scrolls (e.g. a new
+    // LaunchedEffect starting before the previous one's `finally` runs) don't let an
+    // earlier exit clear the flag while a later scroll is still in flight.
+    private val programmaticScrollCount = AtomicInteger(0)
+
+    /** True while at least one programmatic scroll is in progress (suppresses scroll-settle callbacks). */
+    val programmaticScroll: Boolean
+        get() = programmaticScrollCount.get() > 0
 
     /** True when the last selection change was triggered by scroll-settle (skip re-center). */
     private var scrollTriggeredSelection: Boolean = false
@@ -57,15 +64,17 @@ class ScrollCoordinator {
     }
 
     /**
-     * Wraps a programmatic scroll operation, setting [programmaticScroll] for the duration
-     * so scroll-settle callbacks are suppressed.
+     * Wraps a programmatic scroll operation, keeping [programmaticScroll] true for the
+     * duration so scroll-settle callbacks are suppressed. Re-entrant: nested or overlapping
+     * calls each bump the counter, and the flag only clears when every active call has
+     * returned (or been cancelled).
      */
     suspend fun <T> withProgrammaticScroll(block: suspend () -> T): T {
-        programmaticScroll = true
+        programmaticScrollCount.incrementAndGet()
         try {
             return block()
         } finally {
-            programmaticScroll = false
+            programmaticScrollCount.decrementAndGet()
         }
     }
 }
