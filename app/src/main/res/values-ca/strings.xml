@@ -715,7 +715,7 @@
   <string name="stable_notice_par1">La versió nova %1$s de %2$s s\'ha instal·lat correctament!</string>
 
   <string name="new_sync_targets_notice_title">Nova configuració de sincronització disponible</string>
-  <string name="new_sync_targets_notice_message">Aquesta versió d'AndBible introdueix destinacions de sincronització addicionals: Els meus documents, configuració d'IA i progrés de lectura. Si voleu activar-les, podeu fer-ho a la configuració de sincronització del dispositiu.</string>
+  <string name="new_sync_targets_notice_message">Aquesta versió d\'AndBible introdueix destinacions de sincronització addicionals: Els meus documents, configuració d\'IA i progrés de lectura. Si voleu activar-les, podeu fer-ho a la configuració de sincronització del dispositiu.</string>
   <string name="open_settings">Obre la configuració</string>
 
     <!-- History -->

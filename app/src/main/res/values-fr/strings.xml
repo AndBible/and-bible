@@ -763,7 +763,7 @@ Les bêta-testeurs sont invités à rapporter les bogues via Google Play ou via 
   <string name="stable_notice_par1">La nouvelle version %1$s de %2$s a été installée avec succès !</string>
 
   <string name="new_sync_targets_notice_title">Nouveaux paramètres de synchronisation disponibles</string>
-  <string name="new_sync_targets_notice_message">Cette version d'AndBible introduit des cibles de synchronisation supplémentaires : Mes Documents, paramètres IA et progression de lecture. Si vous souhaitez les activer, vous pouvez le faire dans les paramètres de Synchronisation des appareils.</string>
+  <string name="new_sync_targets_notice_message">Cette version d\'AndBible introduit des cibles de synchronisation supplémentaires : Mes Documents, paramètres IA et progression de lecture. Si vous souhaitez les activer, vous pouvez le faire dans les paramètres de Synchronisation des appareils.</string>
   <string name="open_settings">Ouvrir les paramètres</string>
 
     <!-- History -->
