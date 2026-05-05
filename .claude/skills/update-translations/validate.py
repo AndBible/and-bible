@@ -114,6 +114,25 @@ def main():
             if empty:
                 warnings.append(f"Android: {len(empty)} empty translation values: {empty[:10]}")
 
+            # Unescaped apostrophes (AAPT will reject these with
+            # "Invalid unicode escape sequence in string"). Android requires \'
+            # outside of "..."-quoted string values.
+            unescaped = []
+            for name, val in target_strings.items():
+                if not val:
+                    continue
+                # If the entire value is wrapped in double quotes, apostrophes
+                # don't need escaping inside.
+                if val.startswith('"') and val.endswith('"') and len(val) >= 2:
+                    continue
+                if re.search(r"(?<!\\)'", val):
+                    unescaped.append(name)
+            if unescaped:
+                errors.append(
+                    f"Android: {len(unescaped)} string(s) with unescaped apostrophe "
+                    f"(AAPT will reject): {unescaped[:10]}"
+                )
+
             print(f"  Strings: {len(target_strings)}/{len(base_strings)}")
 
     # ===== VUE.JS =====
@@ -204,7 +223,6 @@ def main():
                     base_val = str(ps_base_data[k])
                     target_val = str(ps_target_data[k])
                     # Check {{ variable }} placeholders
-                    import re
                     base_vars = set(re.findall(r'\{\{(\w+)\}\}', base_val))
                     target_vars = set(re.findall(r'\{\{(\w+)\}\}', target_val))
                     if base_vars and base_vars != target_vars:
