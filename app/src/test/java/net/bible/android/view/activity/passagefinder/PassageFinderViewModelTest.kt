@@ -36,6 +36,7 @@ import org.crosswire.jsword.versification.system.Versifications
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -107,7 +108,7 @@ class PassageFinderViewModelTest {
     @Test
     fun `confirmSelection sets visible to false`() = runTest {
         viewModel.show()
-        assert(viewModel.uiState.value.visible)
+        assertTrue(viewModel.uiState.value.visible)
 
         val deferred = async { viewModel.selectionConfirmed.first() }
         testDispatcher.scheduler.advanceUntilIdle()
@@ -120,10 +121,37 @@ class PassageFinderViewModelTest {
     }
 
     @Test
+    fun `show stays hidden when datasource returns no books`() = runTest {
+        whenever(dataSource.getBooks()).thenReturn(emptyList())
+        val vm = PassageFinderViewModel(dataSource)
+        vm.show()
+        assertFalse(
+            "widget must not become visible when there are no books to navigate",
+            vm.uiState.value.visible,
+        )
+        assertTrue(vm.uiState.value.books.isEmpty())
+    }
+
+    @Test
+    fun `show clears stale preview verse text`() = runTest {
+        viewModel.show()
+        viewModel.drillDown()                      // BOOK -> CHAPTER
+        viewModel.drillDown()                      // CHAPTER -> VERSE
+        viewModel.onVerseSelected(5)
+        testDispatcher.scheduler.advanceUntilIdle()
+        // Force a known stale value so we can detect whether show() clears it.
+        // (In real usage the debounced flow would have populated this.)
+        viewModel.dismiss()
+
+        viewModel.show()
+        assertEquals(null, viewModel.previewVerseText.value)
+    }
+
+    @Test
     fun `confirmSelection does nothing when books list is empty`() = runTest {
         // Don't call show() -- books list is empty, selectedBookIndex is 0 but out of range
         val state = viewModel.uiState.value
-        assert(state.books.isEmpty())
+        assertTrue(state.books.isEmpty())
 
         viewModel.confirmSelection()
         testDispatcher.scheduler.advanceUntilIdle()

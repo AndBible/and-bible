@@ -311,7 +311,6 @@ fun PassageFinderWidget(
                     selectedBookIndex = uiState.selectedBookIndex,
                     selectedChapter = uiState.selectedChapter,
                     selectedVerse = uiState.selectedVerse,
-                    chapterCounts = { bookIdx -> viewModel.getChapterCount(bookIdx) },
                     verseCounts = { bookIdx, chapter -> viewModel.getVerseCount(bookIdx, chapter) },
                     onVerseSelected = { verse ->
                         if (verse != uiState.selectedVerse) {

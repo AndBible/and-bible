@@ -114,6 +114,13 @@ class PassageFinderViewModel(
      */
     fun show() {
         val books = dataSource.getBooks()
+        if (books.isEmpty()) {
+            // Module yields no books — nothing to navigate. Keep the widget hidden
+            // and let the caller fall back to the legacy passage chooser.
+            Log.w(TAG, "Active module returned no books; not showing passage finder")
+            _uiState.value = PassageFinderUiState(visible = false)
+            return
+        }
         val currentVerse = dataSource.getCurrentVerse()
         val currentBookIndex = books.indexOfFirst { it.book == currentVerse.book }
             .coerceAtLeast(0)
@@ -121,6 +128,10 @@ class PassageFinderViewModel(
         val chapterCount = dataSource.getChapterCount(currentBook)
         val chapter = currentVerse.chapter.coerceIn(1, chapterCount)
         val verseCount = dataSource.getVerseCount(currentBook, chapter)
+
+        // Drop any preview text from a previous session — the debounced verse-text
+        // flow won't repopulate it until the user actually scrolls.
+        _previewVerseText.value = null
 
         _uiState.value = PassageFinderUiState(
             visible = true,

@@ -47,16 +47,15 @@ class NavigationControl @Inject constructor(
      *
      * Unlike [getBibleBooks] this does not filter by the KJV scripture set, so
      * deuterocanonical / apocryphal books in Catholic and Orthodox modules are
-     * included. Books are returned in canonical order.
+     * included. Books are returned in the active versification's natural order
+     * (which already places deuterocanonicals correctly per canon).
      */
     fun getAllDocumentBooksExcludingIntros(): List<BibleBook> {
         val currentPassageDocument: AbstractPassageBook = currentPassageDocument
         val documentBookList = if (currentPassageDocument.isSpecial) {
             KJVA.bookIterator.asSequence().toList()
         } else documentBibleBooksFactory.getBooksFor(currentPassageDocument)
-        return documentBookList
-            .filterNot { Scripture.isIntro(it) }
-            .sortedBy { it.ordinal }
+        return documentBookList.filterNot { Scripture.isIntro(it) }
     }
 
     /**

@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.PageControl
@@ -75,6 +76,10 @@ class PassageFinderLauncher(
     fun hide() {
         navigationJob?.cancel()
         navigationJob = null
+        // Sync the ViewModel state with the hidden view. In normal flow the widget
+        // already calls dismiss()/confirmSelection() before invoking onDismiss, but
+        // hide() can also be called externally (e.g. on back press), so be defensive.
+        viewModel?.dismiss()
         composeView?.visibility = View.GONE
     }
 

@@ -25,9 +25,8 @@ import org.crosswire.jsword.versification.BibleBook
  *
  * The OT/NT colors mirror the palette used by GridChoosePassageBook
  * (http://en.wikipedia.org/wiki/Books_of_the_Bible). DEUTEROCANONICAL groups
- * apocryphal/deuterocanonical books that appear in Catholic and Orthodox
- * canons, and OTHER is a defensive fallback for any book the routing in
- * [forBook] does not cover.
+ * apocryphal/deuterocanonical books — anything past Revelation in JSword's
+ * BibleBook enum — so Catholic and Orthodox modules render their full canon.
  *
  * Each category carries a normal color and a monochrome shade
  * (0.0 = black, 1.0 = white) used on e-ink devices.
@@ -43,8 +42,7 @@ enum class BookCategory(val color: Color, val monochromeShade: Float) {
     PAULINE(Color(0xFFFFFF31), 0.60f),
     GENERAL_EPISTLES(Color(0xFF67CC66), 0.45f),
     REVELATION(Color(0xFFFE33FF), 0.40f),
-    DEUTEROCANONICAL(Color(0xFFD4A574), 0.35f),
-    OTHER(Color(0xFFB8B8B8), 0.30f);
+    DEUTEROCANONICAL(Color(0xFFD4A574), 0.35f);
 
     companion object {
         fun forBook(book: BibleBook): BookCategory = when {
