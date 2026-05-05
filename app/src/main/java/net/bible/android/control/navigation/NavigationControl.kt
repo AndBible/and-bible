@@ -43,6 +43,23 @@ class NavigationControl @Inject constructor(
     private val documentBibleBooksFactory: DocumentBibleBooksFactory)
 {
     /**
+     * Returns every book in the current document except introductory pseudo-books.
+     *
+     * Unlike [getBibleBooks] this does not filter by the KJV scripture set, so
+     * deuterocanonical / apocryphal books in Catholic and Orthodox modules are
+     * included. Books are returned in canonical order.
+     */
+    fun getAllDocumentBooksExcludingIntros(): List<BibleBook> {
+        val currentPassageDocument: AbstractPassageBook = currentPassageDocument
+        val documentBookList = if (currentPassageDocument.isSpecial) {
+            KJVA.bookIterator.asSequence().toList()
+        } else documentBibleBooksFactory.getBooksFor(currentPassageDocument)
+        return documentBookList
+            .filterNot { Scripture.isIntro(it) }
+            .sortedBy { it.ordinal }
+    }
+
+    /**
      * Get books in current Document - either all Scripture books or all non-Scripture books
      */
     fun getBibleBooks(isScriptureRequired: Boolean): List<BibleBook> {

@@ -364,9 +364,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         Log.i(TAG, "onStart")
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        Log.i(TAG, "onNewIntent $this ${intent?.action}")
+        Log.i(TAG, "onNewIntent $this ${intent.action}")
     }
 
     override fun onStop() {

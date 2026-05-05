@@ -1878,4 +1878,10 @@
     <string name="scroll_helper_line_style_thick_solid">Thick solid line</string>
     <string name="prefs_page_buttons_title">Page scroll buttons</string>
     <string name="prefs_page_buttons_summary">Show visible page up/down buttons on screen</string>
+
+    <string name="prefs_passage_finder_enabled_title">Use scrollable passage finder</string>
+    <string name="prefs_passage_finder_enabled_summary">Replace the static book/chapter grid with the scrollable passage finder. Consider disabling on older devices.</string>
+    <string name="passage_finder_a11y_label">Bible passage selector. Swipe horizontally to choose a book, chapter, or verse. Swipe up to drill in, swipe down to go back.</string>
+    <string name="passage_finder_a11y_dismiss">Dismiss passage finder</string>
+    <string name="passage_finder_a11y_go_to">Go to %1$s</string>
 </resources>

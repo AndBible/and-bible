@@ -24,6 +24,7 @@ import java.util.Properties
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("app.accrescent.tools.bundletool")
 }
@@ -276,7 +277,9 @@ android {
 
         create("github") {
             dimension = dimDistributionChannelName
-            minSdk = 21
+            // Compose 1.10+ (foundation-layout, ui-tooling) requires minSdk 23.
+            // The other flavors already default to 23; this brings github in line.
+            minSdk = 23
         }
 
         create("accrescent") {
@@ -344,6 +347,7 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
     }
 
     namespace = "net.bible.android.activity"
@@ -424,6 +428,18 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.14.0")
+
+    // Compose
+    val composeBom = platform("androidx.compose:compose-bom:2026.03.00")
+    implementation(composeBom)
+    implementation("androidx.compose.foundation:foundation")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.animation:animation")
+    implementation("androidx.compose.runtime:runtime")
+    implementation("androidx.activity:activity-compose:1.10.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+
     implementation("net.objecthunter:exp4j:0.4.8")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
     implementation("org.yaml:snakeyaml:2.2")
@@ -498,6 +514,7 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest-library:2.2")
     testImplementation("org.mockito:mockito-core:3.12.4")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${coroutinesVersion}")
 
     // Android instrumentation testing
 

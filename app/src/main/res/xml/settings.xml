@@ -263,6 +263,10 @@
 			android:defaultValue="@null"
 			android:icon="@drawable/ic_bug_report_white_24dp"
 			/>
+		<SwitchPreferenceCompat android:key="passage_finder_enabled"
+			android:title="@string/prefs_passage_finder_enabled_title"
+			android:summary="@string/prefs_passage_finder_enabled_summary"
+			android:defaultValue="false"/>
 		<SwitchPreferenceCompat android:key="enable_bluetooth_pref"
 			android:title="@string/prefs_enable_bluetooth_title"
 			android:summary="@string/prefs_enable_bluetooth_summary"
