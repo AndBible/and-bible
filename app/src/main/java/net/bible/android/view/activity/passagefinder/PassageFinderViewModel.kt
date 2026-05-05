@@ -177,10 +177,17 @@ class PassageFinderViewModel(
             val bookChanged = index != state.selectedBookIndex
             val book = state.books[index].book
             val chapterCount = dataSource.getChapterCount(book)
-            val verseCount = dataSource.getVerseCount(book, 1)
+            // When the book changes we snap back to chapter 1 / verse 1; otherwise
+            // keep the user's current chapter and clamp selectedVerse against the
+            // new book's verse count so VerseStrip's scrollToItem stays in range.
+            val effectiveChapter = if (bookChanged) 1 else state.selectedChapter
+            val verseCount = dataSource.getVerseCount(book, effectiveChapter)
+            val effectiveVerse = if (bookChanged) 1
+            else state.selectedVerse.coerceIn(1, verseCount.coerceAtLeast(1))
             _uiState.value = state.copy(
                 selectedBookIndex = index,
-                selectedChapter = if (bookChanged) 1 else state.selectedChapter,
+                selectedChapter = effectiveChapter,
+                selectedVerse = effectiveVerse,
                 chapterCount = chapterCount,
                 verseCount = verseCount,
                 hasInteracted = true,

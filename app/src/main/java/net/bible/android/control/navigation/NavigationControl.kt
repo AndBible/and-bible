@@ -51,10 +51,10 @@ class NavigationControl @Inject constructor(
      * (which already places deuterocanonicals correctly per canon).
      */
     fun getAllDocumentBooksExcludingIntros(): List<BibleBook> {
-        val currentPassageDocument: AbstractPassageBook = currentPassageDocument
-        val documentBookList = if (currentPassageDocument.isSpecial) {
+        val doc: AbstractPassageBook = currentPassageDocument
+        val documentBookList = if (doc.isSpecial) {
             KJVA.bookIterator.asSequence().toList()
-        } else documentBibleBooksFactory.getBooksFor(currentPassageDocument)
+        } else documentBibleBooksFactory.getBooksFor(doc)
         return documentBookList.filterNot { Scripture.isIntro(it) }
     }
 

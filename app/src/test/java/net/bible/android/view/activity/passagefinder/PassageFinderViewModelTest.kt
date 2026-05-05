@@ -161,6 +161,27 @@ class PassageFinderViewModelTest {
     }
 
     @Test
+    fun `onBookSelected clamps selectedVerse to new books verseCount`() = runTest {
+        // Start in Genesis on a deep verse, then switch to a book whose chapter 1
+        // has fewer verses. selectedVerse must be clamped or VerseStrip's
+        // scrollToItem(selectedVerse - 1) would index out of range.
+        whenever(dataSource.getChapterCount(eq(BibleBook.GEN))).thenReturn(50)
+        whenever(dataSource.getVerseCount(eq(BibleBook.GEN), eq(1))).thenReturn(31)
+        whenever(dataSource.getVerseCount(eq(BibleBook.MATT), eq(1))).thenReturn(25)
+        whenever(dataSource.getCurrentVerse()).thenReturn(Verse(v11n, BibleBook.GEN, 1, 31))
+
+        val vm = PassageFinderViewModel(dataSource)
+        vm.show()
+        assertEquals(31, vm.uiState.value.selectedVerse)
+        vm.onBookSelected(3)  // switch to Matthew
+        assertEquals(
+            "selectedVerse should reset to 1 on book change so it can't outrun the new verseCount",
+            1,
+            vm.uiState.value.selectedVerse,
+        )
+    }
+
+    @Test
     fun `single-chapter book skips chapter level on drillDown`() = runTest {
         // Obadiah-shaped book with 1 chapter -- drillDown from BOOK should go
         // straight to VERSE level rather than landing on CHAPTER.

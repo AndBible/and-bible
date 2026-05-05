@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
@@ -43,15 +44,29 @@ class PassageFinderLauncher(
     private val pageControl: PageControl,
 ) {
     private var composeView: ComposeView? = null
-    private var viewModel: PassageFinderViewModel? = null
     private var navigationJob: Job? = null
+
+    /**
+     * Obtain the ViewModel from the activity's ViewModelStore so its [androidx.lifecycle.viewModelScope]
+     * (and the verse-text flow collector started in `init`) are cancelled when the activity is
+     * destroyed. Manually instantiating the ViewModel — as an earlier draft did — would skip
+     * `onCleared()` and leak the collector across activity recreation.
+     *
+     * The launcher itself is recreated alongside the activity, so this `lazy` only ever wraps
+     * one activity's ViewModelStore.
+     */
+    private val viewModel: PassageFinderViewModel by lazy {
+        ViewModelProvider(
+            activity,
+            PassageFinderViewModelFactory(
+                PassageFinderDataSource(navigationControl, pageControl)
+            ),
+        )[PassageFinderViewModel::class.java]
+    }
 
     fun show() {
         ensureComposeView()
-        val vm = viewModel ?: PassageFinderViewModel(
-            PassageFinderDataSource(navigationControl, pageControl)
-        ).also { viewModel = it }
-
+        val vm = viewModel
         vm.show()
 
         composeView?.setContent {
@@ -79,7 +94,7 @@ class PassageFinderLauncher(
         // Sync the ViewModel state with the hidden view. In normal flow the widget
         // already calls dismiss()/confirmSelection() before invoking onDismiss, but
         // hide() can also be called externally (e.g. on back press), so be defensive.
-        viewModel?.dismiss()
+        viewModel.dismiss()
         composeView?.visibility = View.GONE
     }
 
