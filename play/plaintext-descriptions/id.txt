@@ -1,8 +1,8 @@
 Alat Studi Alkitab yang Canggih
 
-"AndBible: Studi Alkitab" adalah aplikasi studi alkitab offline yang canggih namun mudah digunakan untuk Android. Aplikasi ini tidak bertujuan hanya sebagai pembaca alkitab biasa, tetapi berfokus menjadi alat canggih untuk melakukan studi alkitab pribadi yang mendalam.
+"AndBible: Studi Alkitab" adalah aplikasi studi Alkitab offline untuk Android yang canggih dan mudah digunakan — toolkit serbaguna dengan fitur-fitur berkualitas tinggi yang melayani berbagai gaya studi, mulai dari pembacaan santai hingga riset mendalam. Lebih dari sekadar pembaca, aplikasi ini adalah alat untuk studi pribadi yang serius.
 
-Aplikasi ini dikembangkan oleh pembaca alkitab, untuk pembaca alkitab. Tujuannya adalah membantu Anda menjadikan studi alkitab lebih nyaman, mendalam, dan menyenangkan. Hal terbaik dari proyek komunitas nirlaba ini adalah bersifat open-source, sepenuhnya gratis, dan tidak mengandung iklan.
+Dikembangkan oleh pembaca Alkitab, untuk pembaca Alkitab — proyek komunitas open-source nirlaba yang sepenuhnya gratis dan tanpa iklan.
 
 Beberapa versi alkitab populer (dari banyak yang tersedia) adalah KJV, NASB, NET, serta tafsiran populer seperti Matthew Henry dan John Gill.
 
@@ -13,12 +13,14 @@ Aplikasi ini memiliki banyak fitur orisinal yang berwawasan luas, membuat pengal
  * Tampilan teks terpisah yang memungkinkan perbandingan terjemahan dan konsultasi tafsiran
  * Ruang kerja memungkinkan beberapa pengaturan studi alkitab dengan pengaturan masing-masing
  * Integrasi Strong memungkinkan analisis kata bahasa Yunani dan Ibrani
- * Referensi silang, catatan kaki, dan dokumen yang saling terhubung; beralih ke referensi silang dan catatan kaki hanya dengan mengetuk tautan; lakukan studi mendalam tentang Kitab Suci menggunakan tafsiran berhiperlink (Gill, Matthew Henry, dll.), koleksi referensi silang (Treasure of Scripture Knowledge, TSKe), dan sumber daya lainnya.
- * Teks ke ucapan canggih dengan penanda buku berbicara, menghadirkan pengalaman mendengarkan alkitab yang nyaman
- * Pencarian yang fleksibel
+ * Ketuk tautan apa pun untuk mengikuti referensi silang, catatan kaki, dan tafsiran (Gill, Matthew Henry, dll.) atau koleksi referensi silang (Treasure of Scripture Knowledge, TSKe) yang terhubung.
+ * Agen studi AI opsional (hanya jika diaktifkan — perlu kunci API Anda sendiri untuk layanan eksternal): jelajahi tafsiran dan kamus Anda dengan bantuan AI dalam bahasa pilihan Anda, plus alur studi kreatif lainnya. Sistem izin bawaan menjaga Anda tetap mengendalikan apa yang dapat dilakukan agen.
+ * Pencarian teks lengkap yang fleksibel pada satu atau beberapa terjemahan Alkitab sekaligus
  * Fitur penanda buku & penyorotan canggih dengan catatan studi pribadi
  * Lembar studi untuk menambahkan catatan dan referensi alkitab saat mendengarkan khotbah.
- * Rencana bacaan: tetapkan tujuan untuk membaca Alkitab
+ * Pelacakan bacaan dan hafalan: tetapkan target bacaan, pantau kemajuan, dan hafalkan ayat dengan mode interaktif Acak Kata, Urutan Kata, Kata Buram, dan Ketik Sendiri
+ * Teks ke ucapan canggih dengan penanda buku berbicara, menghadirkan pengalaman mendengarkan alkitab yang nyaman
+ * Sinkronisasi antar perangkat: jaga ruang kerja, penanda buku, catatan, dan kemajuan bacaan Anda tetap selaras di semua perangkat
  * Perpustakaan dokumen yang luas: terjemahan alkitab, tafsiran teologi, kamus, peta, dan buku-buku Kristen, dengan total lebih dari 1500 dokumen dalam lebih dari 700 bahasa, didistribusikan secara legal oleh Crosswire dan repositori SWORD lainnya.
  * Dukungan asli untuk file MyBible, MySword, dan EPUB memungkinkan Anda memperluas perpustakaan lebih jauh.
 

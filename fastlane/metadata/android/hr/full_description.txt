@@ -1,8 +1,8 @@
 <b>Moćno sredstvo za učenje Svetoga pisma</b>
 
-"AndBible: Biblija Studij" je moćna, ali ipak lagana za korištenje, izvanmežna Android aplikacija za učenje Svetoga pisma. Aplikacija nije napravljenja samo za čitanje Svetoga pisma, već kao i napredno sredstvo za detaljno osobno proučavanje Svetoga pisma."
+"AndBible: Biblija Studij" je moćna i jednostavna izvanmrežna aplikacija za proučavanje Biblije na Androidu — svestran skup visokokvalitetnih značajki za različite stilove proučavanja, od ležernog čitanja do dubinskog istraživanja. Više od običnog čitača — pravi alat za ozbiljno osobno proučavanje.
 
-Ova aplikacija je napravljena od strane čitatelja Svetoga pisma za čitatelje Svetoga pisma. Ima za cilj da Vam učenje Svetoga pisma bude ugodno, detaljno i zanimljivo. Najbolji dio o ovom neprofitnom projektu jeste što je aplikacija otvorenog koda, sasvim besplatna i bez oglasa.
+Razvijena od strane čitatelja Biblije za čitatelje Biblije — neprofitan projekt zajednice otvorenog koda, potpuno besplatan i bez oglasa.
 
 Nekoliko najpoznatijih prijevoda Biblije (od mnogih dostupnih) su KJV, NASB, NET i također, popularna tumačenja kao što su tumačenja Matthew Henrya i John Gilla.
 
@@ -13,12 +13,14 @@ Aplikacija ima mnoge originalne funkcije koje čine detaljno proučavanje Biblij
  * Dijeljenje pregleda teksta koje omogućava uspoređivanje prijevoda i pretraživanje u tumačenjima
  * Radne površine omogućavaju više postavki za proučavanje Biblije sa odvojenim podešavanjima
  * Integracija Strongovog rječnika omogućava analizu grčkih i hebrejskih riječi
- * Povezane unakrsne reference, fusnote i dokumenti: prebacite se na unakrsne reference i fusnote jednostavnim dodirom na poveznicu; izvršite detaljnu analizu Svetih spisa korištenjem hiperveze tumačenja (Gill, Matthew Henry itd.), kolekcije unakrsnih referenci (Treasure of Scripture Knowledge, TSKe) i drugih izvora
- * Napredni tekst - u - govor sa izgovorom straničnika, koje omogućava glatki doživljaj slušanja Svetoga pisma
- * Prilagodljivo pretraživanje
+ * Dodirnite bilo koju poveznicu kako biste pratili unakrsne reference, fusnote i tumačenja (Gill, Matthew Henry itd.) ili zbirke unakrsnih referenci (Treasure of Scripture Knowledge, TSKe).
+ * Neobavezni AI pomoćnik za proučavanje (samo na zahtjev — potreban je vaš osobni API ključ za vanjsku uslugu): istražujte instalirana tumačenja i rječnike uz AI pomoć na odabranom jeziku, uz druge kreativne načine proučavanja. Ugrađeni sustav dopuštenja drži vas pod punom kontrolom nad onime što pomoćnik smije činiti.
+ * Fleksibilno cjelovito pretraživanje teksta u jednom ili više biblijskih prijevoda istovremeno
  * Napredno straničnikanje i isticanja značajki sa osobnim bilješkama za učenje
  * Radne bilježnice za dodavanje bilješki i biblijskih referenci za vrijeme slušanja propovijedi
- * Planovi čitanja: postavite cilj za čitanje Svetoga pisma
+ * Praćenje čitanja i pamćenja: postavljajte ciljeve čitanja, pratite napredak i pamtite retke u interaktivnim načinima Miješanje riječi, Redoslijed riječi, Zamućenje riječi i Upisivanje
+ * Napredni tekst - u - govor sa izgovorom straničnika, koje omogućava glatki doživljaj slušanja Svetoga pisma
+ * Sinkronizacija među uređajima: držite svoje radne površine, straničnike, bilješke i napredak čitanja usklađenima na svim svojim uređajima
  * Ogromna biblioteka dokumenata: biblijskih prijevoda, teoloških tumačenja, rječnika, karata i kršćanskih knjiga, čiji ukupan broj izlazi na preko  1500 dokumenata na više od  700 jezika, legalno distribuiranih od strane Crosswire i drugih SWORD repozitorija
  * Izvorna podrška za MyBible, MySword i EPUB datoteke pruža mogućnosti da još više proširite Vašu biblioteku
 

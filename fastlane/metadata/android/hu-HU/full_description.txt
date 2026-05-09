@@ -1,8 +1,8 @@
 <b>Bibliatanulmányozó alkalmazás</b>
 
-" AndBible: Biblia" funkciógazdag, mégis egyszerűen kezelhető, folyamatos internetkapcsolatot nem igénylő bibliatanulmányozó alkalmazás Android operációs rendszerre. Az alkalmazás nem csak egy egyszerű bibliaolvasó, hanem fejlett funkciókkal támogatja a személyes bibliatanulmányozást.
+A „AndBible: Biblia" egy hatékony, könnyen használható, offline bibliatanulmányozó alkalmazás Androidra — sokoldalú eszköztár az alkalmi olvasástól a részletes kutatásig. Több mint olvasó: komoly személyes tanulmányozás eszköze.
 
-Az alkalmazást bibliaolvasó emberek fejlesztik bibliaolvasó embereknek. A cél az, hogy a Biblia tanulmányozása egyszerű, szórakoztató, de alapos is legyen. A non-profit közösségi modell előnye, hogy az alkalmazás nyílt forráskódú, teljesen ingyenes és nem tartalmaz hirdetéseket. Az alkalmazást teljesen az alapoktól készítettük Androidra, így kifejezetten kicsi a mérete, erőforrásbarát és meglepően gyors.
+Bibliaolvasók fejlesztették bibliaolvasóknak — non-profit, nyílt forráskódú közösségi projekt, teljesen ingyenes és reklámmentes.
 
 Az applikációban magyarul több fordítás érhető el: többek közt a Károli Biblia 1908-as revíziója, a Magyar Bibliatársulat Újfordítású Bibliájának 1990 és 2014-es változata és a Káldi Neovulgáta modern változata is. Angolul a népszerű KJV, NASB, NET fordítások és az ugyancsak népszerű Matthew Henry és John Gill kommentárok is elérhetőek, a több száz egyéb nyelvű bibliafordítással  és kommentárral együtt.
 
@@ -13,12 +13,14 @@ Az app számos különleges funkcióval rendelkezik, amelyek az öszetett és al
  * Megosztott képernyős mód, amely lehetővé teszi a különböző forditások összehasonlítását, vagy a kommentárok a Bibilia szövegével párhuzamos olvasását
  * A Munkaasztalok segítségével több kölönböző saját beállításokkal rendelkező bibliatanulmányozási konfiguráció létrehozására van lehetőség
  * A Strong-konkordancia (szómutató) integráció lehetővé teszi a görög és héber szóanalízist.
- * Interaktív, egyszerű kattintással elérhető kereszthivatkozások, lábjegyzetek; a kéziratok tanulmányozása hiperlinkelt magyarázatokkal (Gill, Matthew Henry stb.), kereszthivatkozás gyűjteményekkel (Treasury of Scripture Knowledge, TSKe) és egyéb források segítségével.
- * Fejlett felolvasási képességek (a támogatott nyelveken), beszéd könyvjelzők, hogy tényleg akadálymentesen hallgathassa a Bibliát.
- * Rugalmas keresési lehetőségek
+ * Bármely hivatkozásra koppintva követheti a kapcsolt kereszthivatkozásokat, lábjegyzeteket és kommentárokat (Gill, Matthew Henry stb.), valamint a kereszthivatkozás-gyűjteményeket (Treasury of Scripture Knowledge, TSKe).
+ * Választható MI-tanulmányozó ügynök (csak igény szerint — saját API-kulcs szükséges külső szolgáltatóhoz): fedezze fel kommentárjait és szótárait MI segítségével a választott nyelven, kreatív tanulmányozási módokkal. Beépített engedélyrendszer tartja teljes ellenőrzése alatt az ügynök tevékenységét.
+ * Rugalmas teljes szöveges keresés egy vagy több bibliafordításban
  * Fejlett könyvjelző és kijelölési lehetőségek, személyes jegyzetek
  * Jegyzetlapok jegyzetekkel és biblia hivatkozásokkal: igehirdetésre készülve vagy igehirdetés hallgatása közben.
- * Olvasási tervek: olvassa a bibliát előre összeállított tervek szerint, és állítson be olvasási célokat
+ * Olvasás- és memorizáláskövetés: olvasási célok, előrehaladás-követés, és versek memorizálása interaktív Szókeverő, Szósorrend, Szóhomály és Begépelés módokkal
+ * Fejlett felolvasási képességek (a támogatott nyelveken), beszéd könyvjelzők, hogy tényleg akadálymentesen hallgathassa a Bibliát.
+ * Eszközök közötti szinkronizáció: munkaterületek, könyvjelzők, jegyzetek és olvasási előrehaladás szinkronja minden eszközön
  * Modulkönyvtár: bibliafordítások, teológiai kommentárok, szótárak, térképek és keresztény irodalom, összesen 1500 mű, 700 nyelven,  jogtisztán letölthetően a Crosswire és egyéb SWORD modulkönyvtárakból.
  * A MyBible, MySword és EPUB fájltípusok natívan támogatottak, így még teljesebb lehet a könyvtárad.
 

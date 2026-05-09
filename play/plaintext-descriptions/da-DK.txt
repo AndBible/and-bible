@@ -1,8 +1,8 @@
 Kraftfuldt bibelstudieværktøj
 
-"AndBible: Bibelstudium" er en kraftfuld, men nem at bruge, offline bibelstudieapp til Android. Appen sigter ikke blot mod at være en biblæser, men fokuserer på at være et avanceret værktøj til dybdegående personligt bibelstudium.
+"AndBible: Bibelstudium" er en kraftfuld, brugervenlig og offline bibelstudieapp til Android — et alsidigt værktøj med funktioner af høj kvalitet, der passer til mange studieformer, fra afslappet læsning til dybdegående research. Mere end blot en læser; det er et redskab til seriøst, personligt studium.
 
-Denne app er udviklet af bibelentusiaster, til bibelentusiaster. Den hjælper dig med at gøre dit bibelstudium bekvemt, dybdegående og sjovt. Det bedste ved dette non-profit fællesskabsprojekt er, at det er open source, helt gratis og reklamefrit.
+Udviklet af bibellæsere, for bibellæsere — et nonprofit, open source-fællesskabsprojekt, der er helt gratis og uden reklamer.
 
 Nogle populære Bibeloversættelser (blandt de mange tilgængelige) er KJV, NASB, NET, samt populære kommentarer som Matthew Henry og John Gill.
 
@@ -13,12 +13,14 @@ Appen har mange indsigtsfulde og originale funktioner, der gør et komplekst og 
  * Delt tekstvisning til sammenligning af oversættelser og konsultation af kommentarer
  * Arbejdsrum giver mulighed for flere bibelstudieopsætninger med egne indstillinger
  * Strong's integration muliggør analyse af græske og hebraiske ord
- * Koblede krydsreferencer, fodnoter og dokumenter; hop til krydsreferencer og fodnoter ved blot at trykke på et link; foretag dybdegående studium af Skriften ved hjælp af hyperlinks til kommentarer (Gill, Matthew Henry m.fl.), krydsreferencesamlinger (Treasure of Scripture Knowledge, TSKe) og andre ressourcer.
- * Avanceret tekst-til-tale med tale-bogmærker for en jævn bibeloplevelse
- * Fleksibel søgning
+ * Tryk på et link for at følge krydshenvisninger, fodnoter og kommentarer (Gill, Matthew Henry m.fl.) eller samlinger af krydshenvisninger (Treasure of Scripture Knowledge, TSKe).
+ * Valgfri AI-studieassistent (kræver tilvalg og din egen API-nøgle til en ekstern tjeneste): udforsk dine installerede kommentarer og ordbøger ved hjælp af AI på det sprog, du vælger, og brug andre kreative studieforløb. Et indbygget tilladelsessystem holder dig fuldt ud i kontrol med, hvad assistenten må gøre.
+ * Fleksibel fritekstsøgning på tværs af én eller flere bibeloversættelser samtidig
  * Avancerede bogmærke- og fremhævningsfunktioner med personlige studienotater
  * Studiepads til at tilføje noter og Bibelhenvisninger, mens du lytter til prædikener.
- * Læseplaner: sæt mål for din Bibellæsning
+ * Sporing af læsning og memorering: sæt læsemål, følg fremskridt og memorér vers med interaktive tilstande som Ordrod, Ordrækkefølge, Sløret ord og Skriv selv
+ * Avanceret tekst-til-tale med tale-bogmærker for en jævn bibeloplevelse
+ * Synkronisering på tværs af enheder: hold dine arbejdsområder, bogmærker, noter og læsefremskridt synkroniseret på alle dine enheder
  * Stort dokumentbibliotek: Bibeloversættelser, teologiske kommentarer, ordbøger, kort og kristne bøger – i alt over 1500 dokumenter på over 700 sprog, lovligt distribueret af Crosswire og andre SWORD-arkiver.
  * Indbygget understøttelse af MyBible, MySword og EPUB-filer giver dig mulighed for at udvide dit bibliotek endnu mere.
 

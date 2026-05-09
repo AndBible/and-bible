@@ -1,8 +1,8 @@
 功能強大嘅研經工具
 
-"AndBible: 研經工具" 研經工具係一款多功能、易用嘅離線Android程式。此程式不單係一個純粹的聖經閱讀器，亦專注於成功個人全方位嘅研經工具。
+"AndBible: 研經工具" is a powerful, easy-to-use, offline Bible study app for Android — a versatile toolkit of high-quality features serving many study styles, from casual reading to in-depth research. More than a reader, it's a tool for serious personal study.
 
-此程式係由聖經讀者開發，亦係為聖經讀者開發。目的係提供便利、有深度且有趣嘅查經體驗。此程式係非營利、亦係開源，更重要係完全冇廣告滋擾。
+Developed by Bible readers, for Bible readers — a non-profit, open-source community project that is completely free and contains no ads.
 
 熱門嘅聖經譯本如和合本、新譯本、KJV、NASB，以及常見嘅註解如Matthew Henry及John Gill等。文件之多，未能盡錄。
 
@@ -13,12 +13,14 @@
  * 分割視窗可以幫助比較譯本同參考註解
  * 工作區可以自定研經嘅環境
  * Strong's 參考方便查找希臘文及希伯來文分析
- * 串珠交叉對照、註腳及文件。讀者簡易地撳一吓連結，就可切換交叉對照及註腳，進行深度嘅研經。例如Gill、Matthew Henry之類或Treasure of Scripture Knowledge, TSKe。
- * 進階嘅文字轉語音功能及語音書籤，以提供一個流暢嘅聆聽聖經體驗。
- * 具彈性嘅搜尋
+ * Tap any link to follow hyperlinked cross-references, footnotes, and commentaries (Gill、Matthew Henry之類) or cross-reference collections (Treasure of Scripture Knowledge, TSKe).
+ * Optional AI study agent (opt-in only — requires your own API key for an external service): explore your installed commentaries and dictionaries with AI assistance in your chosen language, plus other creative study workflows. A built-in permission system keeps you in full control of what the agent can do.
+ * Flexible full-text search across one or many Bible translations simultaneously
  * 包括個人筆記的書籤及醒目提示
  * 研習筆記可以讓你喺聽講道時，新增筆記及參考。
- * 讀經計劃：訂立聖經閱讀目標
+ * Reading and memorization tracking: set reading goals, track progress, and memorize verses with interactive Word Scramble, Word Order, Word Blur, and Type It modes
+ * 進階嘅文字轉語音功能及語音書籤，以提供一個流暢嘅聆聽聖經體驗。
+ * Cross-device sync: keep your workspaces, bookmarks, notes, and reading progress in sync across all your devices
  * 龐大嘅文件庫：700種語言、超過1500份聖經譯本、神學註釋、字典、地點及基督教書籍。全部都係由Crosswire及其他SWORD資料庫授權分發。
  * 原生支援MyBible、MySword及EPUB檔案，讓你可以豐富你嘅收藏。
 

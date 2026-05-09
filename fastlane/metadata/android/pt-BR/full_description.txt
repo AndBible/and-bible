@@ -1,8 +1,8 @@
 <b>Poderosa ferramenta de estudo bíblico</b>
 
-"AndBible: Bíblia de estudo" é um ´poderoso aplicativo de estudo da Bíblia offline, porém fácil de usar, para Android. O aplicativo não pretende ser simplesmente um leitor da Bíblia,  foca--se em ser uma ferramenta avançada para fazer um profundo estudo bíblico pessoal.
+"AndBible: Bíblia de estudo" é um aplicativo de estudo bíblico offline para Android, poderoso e fácil de usar — um kit versátil de recursos de alta qualidade para diversos estilos de estudo, da leitura casual à pesquisa aprofundada. Mais que um leitor, é uma ferramenta para o estudo pessoal sério.
 
-Este aplicativo é desenvolvido por leitores da Bíblia, para leitores da Bíblia. Seu objetivo é ajudá-lo a tornar seu estudo bíblico conveniente, profundo e divertido. A melhor parte desse projeto comunitário sem fins lucrativos é que ele é de código aberto, totalmente gratuito e não contém anúncios.
+Feito por leitores da Bíblia, para leitores da Bíblia — um projeto comunitário sem fins lucrativos, de código aberto, totalmente gratuito e sem anúncios.
 
 Algumas versões populares da Bíblia (das muitas disponíveis) são KJV, NASB, NET e também comentários populares como Matthew Henry e John Gill.
 
@@ -13,12 +13,14 @@ O aplicativo tem muitos recursos criteriosos e originais, que tornam uma experi�
  * Visualização do texto em várias janelas que permitem comparar traduções e consultar comentários
  * As Áreas de trabalho permitem várias configurações para o estudo bíblico com as suas próprias configurações
  * A integração de Strong permite a análise de palavras em grego e hebraico
- * Referências cruzadas, notas de rodapé e documentos; vá diretamente para as referências cruzadas e notas de rodapé simplesmente tocando num link; faça um estudo aprofundado das Escrituras usando comentários com hiperlinks (Gill, Matthew Henry etc.), coleções de referência cruzada (Tesouro do Conhecimento das Escrituras, TSKe) e outros recursos.
- * Texto avançado para fala com marcadores de fala, permitindo uma experiência de audição suave da Bíblia
- * Pesquisa flexível
+ * Toque em qualquer link para seguir referências cruzadas, notas de rodapé e comentários (Gill, Matthew Henry etc.) ou coleções de referências cruzadas (Tesouro do Conhecimento das Escrituras, TSKe).
+ * Agente de estudo com IA opcional (ativação voluntária — exige sua chave de API de um serviço externo): explore comentários e dicionários instalados com a IA no idioma escolhido, além de outros fluxos criativos. Um sistema de permissões integrado mantém você no controle do que o agente pode fazer.
+ * Pesquisa flexível de texto completo em uma ou várias traduções simultaneamente
  * Recursos avançados de marcadores e destaque com notas de estudo pessoais
  * Blocos de estudo para adicionar notas e referências bíblicas enquanto escuta homilias.
- * Planos de leitura: estabeleça metas para a leitura da Bíblia
+ * Acompanhamento de leitura e memorização: defina metas, acompanhe o progresso e memorize versículos com os modos Palavras Embaralhadas, Ordem das Palavras, Palavras Borradas e Digite Você
+ * Texto avançado para fala com marcadores de fala, permitindo uma experiência de audição suave da Bíblia
+ * Sincronização entre dispositivos: mantenha suas áreas de trabalho, marcadores, notas e progresso de leitura sincronizados em todos os seus dispositivos
  * Vasta biblioteca de documentos: traduções da Bíblia, comentários teológicos, dicionários, mapas e livros cristãos, totalizando mais de 1500 documentos em mais de 700 idiomas, legalmente distribuídos pela Crosswire e outros repositórios SWORD.
  * Suporte nativo para arquivos MyBible, MySword e EPUB permitem estender sua biblioteca sempre mais.
 

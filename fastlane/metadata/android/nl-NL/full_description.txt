@@ -1,8 +1,8 @@
 <b>Krachtig Bijbelstudie-hulpmiddel</b>
 
-"AndBible: Bijbelstudie" is een krachtige, maar toch eenvoudig te gebruiken Android app voor offline bijbelstudie. De app is niet gemaakt als een eenvoudig bijbel-leesprogramma, maar biedt vergaande mogelijkheden om de diepte in te gaan tijdens de persoonlijke bijbelstudie.
+"AndBible: Bijbelstudie" is een krachtige, gebruiksvriendelijke, offline Bijbelstudie-app voor Android — een veelzijdig hulpmiddel met hoogwaardige functies voor uiteenlopende studiestijlen, van ontspannen lezen tot diepgaand onderzoek. Meer dan een leesapp: een instrument voor serieuze persoonlijke studie.
 
-Deze applicatie is ontwikkeld door bijbellezers voor bijbellezers. Hij is bedoeld om je bijbelstudie makkelijk, grondig en plezierig te laten zijn. Het mooiste van dit gemeenschappelijke non-profit project is dat het open-source is, gratis, en zonder advertenties.
+Ontwikkeld door Bijbellezers, voor Bijbellezers — een non-profit, open-source gemeenschapsproject dat volledig gratis is en geen advertenties bevat.
 
 Enkele populaire bijbel versies (van de vele beschikbare) zijn de KJV, NASB, NET. Bovendien zijn er commentaren van bijvoorbeeld Matthew Henry en John Gill
 
@@ -13,12 +13,14 @@ De applicatie heeft veel handige, originele functies die complexe en grondige bi
  * Gesplitste vensters maken het mogelijk om vertalingen te vergelijken en commentaren te raadplegen
  * Werkbladen maken meerdere bijbelstudieconfiguraties met hun eigen instellingen mogelijk
  * Geïntegreerde Strong's codes vergemakkelijken de analyse van het Griekse en Hebreeuwse woorden
- * Gelinkte kruisverwijzingen, voetnoten en documenten; tik simpelweg op een link om die te volgen naar kruisverwijzingen en voetnoten; bestudeer de schriften grondig door het gebruik van commentaren met hyperlinks (Gill, Matthew Henry, enz.), verzamelingen kruisverwijzingen (Treasure of Scripture Knowledge, TSKe) en andere bronnen.
- * Geavanceerde tekst-naar-spraak met bladwijzers maken het eenvoudig om de bijbel te beluisteren
- * Flexibele zoekmogelijkheden
+ * Tik op een willekeurige link om gekoppelde kruisverwijzingen, voetnoten en commentaren (Gill, Matthew Henry, enz.) of verzamelingen van kruisverwijzingen (Treasure of Scripture Knowledge, TSKe) te volgen.
+ * Optionele AI-studieassistent (alleen op verzoek — vereist je eigen API-sleutel voor een externe dienst): verken je geïnstalleerde commentaren en woordenboeken met AI-ondersteuning in de taal van je keuze, plus andere creatieve studiewerkwijzen. Een ingebouwd machtigingensysteem houdt jou volledig in controle over wat de assistent mag doen.
+ * Flexibel zoeken op volledige tekst in één of meerdere Bijbelvertalingen tegelijk
  * Geavanceerde functies voor het maken van bladwijzers en het markeren van tekst met persoonlijke studieaantekeningen
  * Studiemappen om aantekeningen en bijbelverwijzingen te organiseren tijdens het luisteren van preken.
- * Bijbelleesplannen: stel je doelen voor het bijbellezen
+ * Bijhouden van lezen en memoriseren: stel leesdoelen in, volg je voortgang en memoriseer verzen met de interactieve modi Woordpuzzel, Woordvolgorde, Woordvervaging en Typmodus
+ * Geavanceerde tekst-naar-spraak met bladwijzers maken het eenvoudig om de bijbel te beluisteren
+ * Synchronisatie tussen apparaten: houd je werkbladen, bladwijzers, notities en leesvoortgang gesynchroniseerd op al je apparaten
  * Uitgebreide bibliotheek: Bijbelvertalingen, theologische commentaren, woordenboeken, landkaarten en christelijke literatuur, samen meer dan 1500 documenten in meer dan 700 talen, legaal verspreid door Crosswire en andere SWORD repositories.
  * Native ondersteuning voor MyBible, MySword en EPUB-bestanden waarmee je bibliotheek verder vergroot.
 

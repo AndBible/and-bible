@@ -1,8 +1,8 @@
 <b>Účinný nástroj na štúdium Biblie</b>
 
-"AndBible: Bible Study" je výkonná, ale ľahko použiteľná offline aplikácia na štúdium Biblie pre Android. Aplikácia si nekladie za cieľ byť len čítačkou Biblie, ale zameriava sa na to, aby bola pokročilým nástrojom na hĺbkové osobné štúdium Biblie.
+„AndBible: Bible Study" je výkonná, ľahko použiteľná offline aplikácia na štúdium Biblie pre Android — všestranný nástroj s kvalitnými funkciami pre rôzne spôsoby štúdia, od príležitostného čítania až po hlboký výskum. Nie je to iba čítačka, ale nástroj na skutočne vážne osobné štúdium.
 
-Táto aplikácia je vyvinutá čitateľmi Biblie pre čitateľov Biblie. Jeho cieľom je pomôcť vám, aby bolo vaše štúdium Biblie pohodlné, hlboké a zábavné. Najlepšie na tomto neziskovom komunitnom projekte je, že je open source, úplne zadarmo a neobsahuje žiadne reklamy.
+Vyvinuté čitateľmi Biblie pre čitateľov Biblie — neziskový komunitný projekt s otvoreným kódom, ktorý je úplne zadarmo a neobsahuje žiadne reklamy.
 
 Niekoľko populárnych verzií Biblie (z mnohých dostupných) je KJV, NASB, NET a tiež obľúbené komentáre ako Matthew Henry a John Gill.
 
@@ -13,12 +13,14 @@ Aplikácia má mnoho podnetných a originálnych funkcií, vďaka ktorým je kom
  * Oddelené zobrazenia textu, ktoré umožňujú porovnávať preklady a konzultovať komentáre
  * Pracovné prostredia umožňujúce vlastné nastavenia pre štúdium Biblie
  * Integrácia Strongových čísel umožňuje rozbor gréckych a hebrejských slov
- * Prepojené krížové odkazy, poznámky pod čiarou a dokumenty; skok na krížové referencie poznámky pod čiarou jednoduchým klepnutím na odkaz; vykonanie hĺbkového štúdium Písma pomocou hypertextových odkazov na komentáre  (Gill, Matthew Henry atď.), zbierky krížových odkazov  (Konkordancia Treasure of Scripture Knowledge, TSKe) a iné zdroje.
- * Pokročilé čítanie so záložkami umožňujúcimi plynulé počúvanie Biblie
- * Flexibilné vyhľadávanie
+ * Klepnutím na ľubovoľný odkaz zobrazíte prepojené krížové odkazy, poznámky pod čiarou a komentáre (Gill, Matthew Henry atď.) alebo zbierky krížových odkazov (Konkordancia Treasure of Scripture Knowledge, TSKe).
+ * Voliteľný AI študijný asistent (iba po vlastnej aktivácii — vyžaduje váš vlastný API kľúč k externej službe): preskúmavajte svoje nainštalované komentáre a slovníky s pomocou AI vo zvolenom jazyku, plus ďalšie tvorivé postupy štúdia. Vstavaný systém oprávnení vám zachováva plnú kontrolu nad tým, čo môže asistent robiť.
+ * Flexibilné fulltextové vyhľadávanie v jednom alebo vo viacerých prekladoch Biblie súčasne
  * Pokročilý systém záložiek a zvýraznenia textu s osobnými poznámkami.
  * Študijné zložky pre pridávanie poznámok a referencií na Bibliu pri počúvaní kázní.
- * Plány čítanie: nastavte si ciele pre prečítanie Biblie
+ * Sledovanie čítania a memorovania: nastavte si ciele čítania, sledujte postup a memorujte verše pomocou interaktívnych režimov Pomiešané slová, Poradie slov, Rozmazané slová a Napíš to
+ * Pokročilé čítanie so záložkami umožňujúcimi plynulé počúvanie Biblie
+ * Synchronizácia medzi zariadeniami: udržujte svoje pracovné plochy, záložky, poznámky a postup čítania zosynchronizované na všetkých svojich zariadeniach
  * Rozsiahla knižnica dokumentov: preklady Biblie, teologické komentáre, slovníky, mapy a kresťanské knihy v celkovom počte viac ako 1500 dokumentov vo viac ako 700 jazykoch, legálne distribuované spoločnosťou Crosswire a inými archívmi SWORD.
  * Natívna podpora súborov MyBible, MySword a EPUB vám umožní rozšíriť vašu knižnicu ešte viac.
 

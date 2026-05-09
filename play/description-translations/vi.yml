@@ -1,14 +1,14 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Học Kinh Thánh"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: "Đọc Kinh Thánh, nghiên cứu chú giải, từ điển hoặc đọc sách ngoại tuyến."
+short_description: "Bộ công cụ học Kinh Thánh mạnh mẽ: chú giải, đánh dấu, ghi chú, công cụ AI"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Công cụ nghiên cứu Kinh Thánh mạnh mẽ
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  "{{ title }}" là ứng dụng nghiên cứu Kinh Thánh ngoại tuyến mạnh mẽ nhưng dễ sử dụng dành cho Android. Ứng dụng không chỉ đơn thuần là một trình đọc Kinh Thánh, mà tập trung vào việc trở thành công cụ nâng cao để nghiên cứu Kinh Thánh cá nhân chuyên sâu.
+  "{{ title }}" là một ứng dụng nghiên cứu Kinh Thánh ngoại tuyến mạnh mẽ, dễ sử dụng dành cho Android — một bộ công cụ đa năng với các tính năng chất lượng cao, phục vụ nhiều phong cách nghiên cứu khác nhau, từ đọc thông thường đến nghiên cứu chuyên sâu. Hơn cả một trình đọc, đây là công cụ dành cho việc nghiên cứu cá nhân nghiêm túc.
 paragraph_1_2: >
-  Ứng dụng này được phát triển bởi những người đọc Kinh Thánh, dành cho những người đọc Kinh Thánh. Mục tiêu là giúp bạn nghiên cứu Kinh Thánh một cách thuận tiện, sâu sắc và thú vị. Điểm nổi bật nhất của dự án cộng đồng phi lợi nhuận này là mã nguồn mở, hoàn toàn miễn phí và không có quảng cáo.
+  Được phát triển bởi những người đọc Kinh Thánh, dành cho những người đọc Kinh Thánh — một dự án cộng đồng phi lợi nhuận, mã nguồn mở, hoàn toàn miễn phí và không có quảng cáo.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Một số bản dịch Kinh Thánh phổ biến (trong số nhiều bản có sẵn) là KJV, NASB, NET, cùng các chú giải nổi tiếng như Matthew Henry và John Gill.
@@ -16,58 +16,57 @@ subtitle_2: Các tính năng nghiên cứu Kinh Thánh mạnh mẽ
 paragraph_2_1: >
   Ứng dụng có nhiều tính năng độc đáo và sâu sắc, giúp trải nghiệm nghiên cứu Kinh Thánh phức tạp và chuyên sâu trở nên mượt mà hơn bao giờ hết. Các tính năng nổi bật nhất bao gồm:
 feature_01: Chế độ xem văn bản chia đôi cho phép so sánh các bản dịch và tra cứu chú giải
-feature_02: "Không gian làm việc cho phép nhiều cấu hình nghiên cứu Kinh Thánh với cài đặt riêng\n"
+feature_02: >
+  Không gian làm việc cho phép nhiều cấu hình nghiên cứu Kinh Thánh với cài đặt riêng
 feature_03: Tích hợp Strong's cho phép phân tích từ ngữ tiếng Hy Lạp và tiếng Hê-bơ-rơ
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
-  Tham chiếu chéo, chú thích và tài liệu được liên kết; chuyển đến tham chiếu chéo và chú thích chỉ bằng cách chạm vào liên kết; nghiên cứu chuyên sâu Kinh Thánh bằng cách sử dụng chú giải có siêu liên kết ({{commentary_examples}}), bộ sưu tập tham chiếu chéo ({{cross_reference_examples}}) và các tài nguyên khác.
+  Nhấn vào bất kỳ liên kết nào để theo dõi các tham chiếu chéo, chú thích và chú giải được liên kết ({{commentary_examples}}) hoặc các bộ sưu tập tham chiếu chéo ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: "Gill, Matthew Henry v.v."
+commentary_examples: Gill, Matthew Henry v.v.
 # Examples of cross-reference collections.
-cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
-feature_05: "Chuyển văn bản thành giọng nói nâng cao với dấu trang phát âm, mang lại trải nghiệm nghe Kinh Thánh mượt mà\n"
-feature_06: Tìm kiếm linh hoạt
+cross_reference_examples: Treasure of Scripture Knowledge, TSKe
+feature_05: >
+  Chuyển văn bản thành giọng nói nâng cao với dấu trang phát âm, mang lại trải nghiệm nghe Kinh Thánh mượt mà
+feature_06: Tìm kiếm toàn văn linh hoạt trên một hoặc nhiều bản dịch Kinh Thánh cùng lúc
 feature_07: Tính năng đánh dấu & tô sáng nâng cao với ghi chú nghiên cứu cá nhân
-feature_09: >-
-  Kế hoạch đọc: đặt mục tiêu đọc Kinh Thánh
+feature_08: >
+  Đồng bộ giữa các thiết bị: giữ cho không gian làm việc, dấu trang, ghi chú và tiến trình đọc của bạn được đồng bộ trên tất cả các thiết bị
+feature_09: >
+  Theo dõi việc đọc và học thuộc: đặt mục tiêu đọc, theo dõi tiến trình và học thuộc các câu Kinh Thánh với các chế độ tương tác Xáo Trộn Từ, Sắp Xếp Từ, Làm Mờ Từ và Gõ Lại
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Thư viện tài liệu phong phú: bản dịch Kinh Thánh, chú giải thần học, từ điển, bản đồ và sách Cơ Đốc giáo, với tổng cộng hơn {{total_documents}} tài liệu trong hơn {{total_languages}} ngôn ngữ, được phân phối hợp pháp bởi Crosswire và các kho SWORD khác.
 feature_10_1: >
   Hỗ trợ gốc cho các tệp MyBible, MySword và EPUB giúp bạn mở rộng thư viện của mình hơn nữa.
+feature_11: >
+  Trợ lý nghiên cứu AI tùy chọn (chỉ khi bạn đồng ý — yêu cầu khóa API riêng của bạn cho dịch vụ bên ngoài): khám phá các chú giải và từ điển đã cài đặt với sự hỗ trợ của AI bằng ngôn ngữ bạn chọn, cùng với các quy trình nghiên cứu sáng tạo khác. Hệ thống quyền tích hợp giúp bạn hoàn toàn kiểm soát những gì trợ lý có thể làm.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: "ESV, NIV và NKJV"
-feature_12: >-
-  Ngoại tuyến: thời gian duy nhất bạn cần internet là để tải xuống tài liệu.
+unavailable_documents: ESV, NIV và NKJV
+feature_12: "Ngoại tuyến: thời gian duy nhất bạn cần internet là để tải xuống tài liệu."
 # UNUSED
-feature_13: >-
-  Bảng ghi chú để thêm ghi chú và tham chiếu Kinh Thánh khi nghe bài giảng.
+feature_13: Bảng ghi chú để thêm ghi chú và tham chiếu Kinh Thánh khi nghe bài giảng.
 subtitle_3: Hãy cùng nhau tạo ra ứng dụng Kinh Thánh tốt nhất!
 paragraph_3_1: >
   AndBible là một dự án cộng đồng mã nguồn mở. Trên thực tế, điều này có nghĩa là bất kỳ ai có kỹ năng phù hợp đều có thể và được khuyến khích đóng góp cho dự án bằng cách:
-contr_1: "phát triển các tính năng mới,"
-contr_2: "kiểm thử các tính năng chưa được phát hành,"
-contr_3: "cập nhật bản dịch giao diện người dùng, và"
-contr_4: "giúp mở rộng thư viện mô-đun bằng cách xin phép từ người giữ bản quyền hoặc chuyển đổi tài liệu sang định dạng SWORD.\n"
+contr_1: phát triển các tính năng mới,
+contr_2: kiểm thử các tính năng chưa được phát hành,
+contr_3: cập nhật bản dịch giao diện người dùng, và
+contr_4: >
+  giúp mở rộng thư viện mô-đun bằng cách xin phép từ người giữ bản quyền hoặc chuyển đổi tài liệu sang định dạng SWORD.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: "Nếu bạn là kỹ sư phần mềm hoặc người kiểm thử chuyên nghiệp, hãy cân nhắc đóng góp cho dự án. Để biết thêm thông tin về cách đóng góp, vui lòng xem {{how_to_contribute_url}}.\n"
+paragraph_4_1: >
+  Nếu bạn là kỹ sư phần mềm hoặc người kiểm thử chuyên nghiệp, hãy cân nhắc đóng góp cho dự án. Để biết thêm thông tin về cách đóng góp, vui lòng xem {{how_to_contribute_url}}.
 subtitle_4: Liên kết
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: >-
-  Trang chủ: {{homepage_url}}
-link_2: >-
-  Thích AndBible trên Facebook: {{facebook_url}}
-link_3: >-
-  Kênh Youtube của chúng tôi: {{youtube_url}}
-link_4: >-
-  Câu hỏi thường gặp: {{faq_url}}
-link_5: >-
-  Trang dự án trên Github: {{github_url}}
-buy_title: >-
-  Hỗ trợ bằng cách mua thời gian phát triển!
+link_1: "Trang chủ: {{homepage_url}}"
+link_2: "Thích AndBible trên Facebook: {{facebook_url}}"
+link_3: "Kênh Youtube của chúng tôi: {{youtube_url}}"
+link_4: "Câu hỏi thường gặp: {{faq_url}}"
+link_5: "Trang dự án trên Github: {{github_url}}"
+buy_title: Hỗ trợ bằng cách mua thời gian phát triển!
 buy_1: >
   Nếu bạn không có thời gian hoặc kỹ năng để đóng góp cho dự án, bạn cũng có thể hỗ trợ dự án bằng cách mua thời gian làm việc của nhà phát triển chuyên nghiệp.
-buy_2: >-
-  Xem các tùy chọn
+buy_2: Xem các tùy chọn

@@ -1,8 +1,8 @@
 Galingas Biblijos studijavimo įrankis
 
-"AndBible: Biblija" tai galinga, bet tuo pačiu metu lengva naudoti „Android“ Biblijos studijų programėlė, kuri nereikalauja interneto. Ši programėlė nesiekia būti paprasta Biblijos skaitytuve, bet verčiau yra sutelkta į tai, kad būtų išplėstiniu įrankiu, kuris yra skirtas išsamiai asmeniškai nagrinėti Bibliją.
+„AndBible: Biblija“ yra galinga, lengvai naudojama, neprisijungus veikianti Biblijos studijų programėlė Android sistemai — universalus aukštos kokybės įrankių rinkinys, tinkantis įvairiems studijų stiliams: nuo kasdienio skaitymo iki nuodugnių tyrimų. Tai daugiau nei skaitytuvas — tai įrankis rimtoms asmeninėms studijoms.
 
-Šią programėlę Biblijos skaitytojams sukūrė Biblijos skaitytojai. Jos tikslas – padėti jums patogiai, išsamiai ir linksmai nagrinėti Bibliją. Geriausia, kas yra šiame nekomerciniame bendruomenės projekte yra tai, jog jis yra atvirojo kodo, visiškai nemokamas ir be jokių reklamų.
+Sukurta Biblijos skaitytojų Biblijos skaitytojams — ne pelno siekiantis, atvirojo kodo bendruomenės projektas, kuris yra visiškai nemokamas ir be reklamų.
 
 Kelios populiarios Biblijos versijos (iš daugelio prieinamų) yra NRSV, KJV, NASB, NET bei taip pat populiarūs Biblijos komentarai, tokie kaip Matthew Henry ir John Gill.
 
@@ -13,12 +13,14 @@ Programėlėje yra daug sumanių, išskirtinių ypatybių, kurios sudėtingą ir
  * Padalinto teksto rodiniai, kurie leidžia palyginti vertimus ir ieškoti informacijos komentaruose
  * Darbo sritys leidžia turėti kelias Biblijos studijų sąrankas su savo atskirais nustatymais
  * Strongo integracija leidžia nagrinėti graikiškus ir hebrajiškus žodžius
- * Susijusios kryžminės nuorodos, išnašos bei dokumentai; pereikite prie kryžminių nuorodų ar išnašų, tiesiog, baksteldami ant nuorodos; atlikite nuodugnų Šventojo Rašto nagrinėjimą naudodami saitais susietus komentarus (Gill, Matthew Henry ir t.t.), kryžminių nuorodų kolekcijas (Treasure of Scripture Knowledge, TSKe) bei kitus išteklius.
- * Išplėstinis garsinio teksto atkūrimas su kalbėjimo žymėmis, leidžiantis sklandžiai klausytis Biblijos teksto
- * Lanksti paieška
+ * Bakstelėkite bet kurią nuorodą, kad pereitumėte į kryžmines nuorodas, išnašas ir komentarus (Gill, Matthew Henry ir t.t.) arba kryžminių nuorodų rinkinius (Treasure of Scripture Knowledge, TSKe).
+ * Pasirenkamas DI studijų agentas (savanoriškas — reikia savo API rakto išorinei paslaugai): tyrinėkite įdiegtus komentarus ir žodynus su DI pagalba pasirinkta kalba bei naudokitės kitomis kūrybiškomis studijų eigomis. Įmontuota leidimų sistema užtikrina, kad visiškai valdytumėte, ką agentas gali daryti.
+ * Lankstus pilno teksto ieškojimas vienu metu vienoje ar keliose Biblijos versijose
  * Išplėstinės žymių ir paryškinimo ypatybės kartu su asmeninio studijavimo pastabomis
  * Bloknotai, skirti, klausantis pamokslo, pridėti pastabas ir Biblijos nuorodas.
- * Skaitymo planai: nusistatykite Biblijos skaitymo tikslus
+ * Skaitymo ir įsiminimo sekimas: nustatykite skaitymo tikslus, stebėkite pažangą ir mokykitės eilutes mintinai interaktyviais režimais — Žodžių maišymas, Žodžių tvarka, Žodžių neryškumas ir Įvedimas
+ * Išplėstinis garsinio teksto atkūrimas su kalbėjimo žymėmis, leidžiantis sklandžiai klausytis Biblijos teksto
+ * Sinchronizavimas tarp įrenginių: išlaikykite darbo sritis, žymes, pastabas ir skaitymo eigą atnaujintas visuose savo įrenginiuose
  * Didelė dokumentų biblioteka: Biblijos vertimai, teologiniai komentarai, žodynai, žemėlapiai bei krikščioniškos knygos, iš viso virš 1500 dokumentų, daugiau nei 700 kalbų, kuriuos teisėtai platina Crosswire ir kitos SWORD saugyklos.
  * Savas MyBible, MySword ir EPUB failų palaikymas dar labiau įgalina jus išplėsti savo biblioteką.
 

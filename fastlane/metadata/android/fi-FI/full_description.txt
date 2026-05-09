@@ -1,8 +1,8 @@
 <b>Tehokas työkalu Raamatun tutkimiseen</b>
 
-"AndBible: Raamattu" on tehokas, ja silti helppokäyttöinen sovellus Raamatun tutkimiseen Androidilla. Sovellus ei pyri olemaan ainoastaan yksinkertainen raamatunlukuohjelma, vaan pyrkii myös olemaan monipuolinen työkalu, joka mahdollistaa syvällisen henkilökohtaisen Raamatun tutkiskelun.
+”AndBible: Raamattu” on tehokas, helppokäyttöinen ja offline-tilassa toimiva raamatuntutkimussovellus Androidille — monipuolinen työkalupakki rennosta lukemisesta syvälliseen tutkimukseen. Enemmän kuin lukuohjelma — väline vakavaan Raamatun tutkimiseen.
 
-Sovelluksen kehittäjät ovat itse sovelluksen aktiivisia käyttäjiä, ts. innokkaita Raamatun lukijoita, ja sovellus pyrkii vastaamaan Raamatun lukemisen ja tutkimisen tarpeisiin. Se pyrkii auttamaan tekemään Raamatun tutkiskelustasi käytännöllistä, syvällistä ja hauskaa. Parasta tässä voittoa tavoittelemattomassa, yhteisöllisessä projektissa on se, että se on avointa lähdekoodia, ja siten täysin ilmainen, eikä sisällä mainoksia.
+Sovelluksen ovat kehittäneet Raamatun lukijat Raamatun lukijoille — voittoa tavoittelematon, avoimen lähdekoodin yhteisöprojekti, joka on täysin ilmainen eikä sisällä mainoksia.
 
 Useista tarjolla olevista raamatunkäännöksistä muutamia suosituimpia ovat Raamattu Kansalle, -92, -33/38 -käännökset, ja englanninkielisistä KJV, NASB, NET. Sisältää myös kattavia Raamattukommentaareja, kuten Matthew Henryn ja John Gillin kommentaarit.
 
@@ -13,12 +13,14 @@ Sovelluksessa on monia oivaltavia ja alkuperäisiä ominaisuuksia, jotka tekevä
  * Jaetut tekstinäkymät jotka mahdollistavat raamatunkäännösten vertailun ja kommentaarien selailun
  * Työtilojen avulla voit tallentaa erilaisia asetelmia erilaisiin raamatuntutkimistilanteisiin, siten että kussakin työtilassa on omat asetukset.
  * Strongin sanakirjan integraatio mahdollistaa kreikan ja heprean sanojen analysoinnin
- * Linkitetyt ristiviitteet, alaviitteet ja dokumentit; siirry ristiviitteisiin ja alaviitteisiin yksinkertaisesti napsauttamalla linkkiä; uppoudu Kirjoituksiin hyödyntämällä hyperlinkattuja kommentaareja (Gill, Matthew Henry jne.), ristiviitekokoelmia (Treasure of Scripture Knowledge, Quoting Passsages jne.) ja muita resursseja.
- * Edistynyt tekstin lukutoiminto ja puheen kirjanmerkit tekevät Raamatun kuuntelemisesta kätevää
- * Joustava hakutoiminto
+ * Napauta mitä tahansa linkkiä siirtyäksesi rinnakkaisviitteisiin, alaviitteisiin ja kommentaareihin (Gill, Matthew Henry jne.) tai rinnakkaisviitekokoelmiin (Treasure of Scripture Knowledge, Quoting Passsages jne.).
+ * Valinnainen tekoälyavustaja (vaatii oman API-avaimen ulkoiseen palveluun): tutki asentamiasi kommentaareja ja sanakirjoja tekoälyn avulla. Sisäänrakennettu lupajärjestelmä pitää sinut hallinnassa.
+ * Joustava kokotekstihaku yhdestä tai useammasta raamatunkäännöksestä samanaikaisesti
  * Monipuoliset kirjanmerkkaus- ja korostusominaisuudet, mahdollisuudella omiin kommenttimerkintöihin
  * Opintoalustat joihin voi kirjoittaa merkintöjä ja raamattuviitteitä saarnoja kuunnellessa.
- * Lukusuunnitelmat: aseta tavoitteita Raamatun lukemiselle
+ * Lukemisen seuranta ja ulkoa opettelu: aseta tavoitteita, seuraa edistymistä ja opettele jakeita interaktiivisilla tiloilla
+ * Edistynyt tekstin lukutoiminto ja puheen kirjanmerkit tekevät Raamatun kuuntelemisesta kätevää
+ * Synkronointi laitteiden välillä: pidä työtilasi, kirjanmerkkisi, muistiinpanosi ja lukuedistymisesi ajan tasalla kaikilla laitteillasi
  * Kattava kirjasto erilaisia teoksia: Raamatun käännöksiä, teologisia kommentaareja, sanakirjoja, karttoja ja kristillisiä kirjoja, yhteensä yli 1500 teosta yli  700 kielellä, laillisesti Crosswirelta ja muista SWORD repositorioista .
  * Voit laajentaa kirjastoasi entisestään sovelluksen tukemien MyBible- MySword- ja EPUB-tiedostojen avulla.
 

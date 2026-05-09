@@ -1,8 +1,8 @@
 <b>Công cụ nghiên cứu Kinh Thánh mạnh mẽ</b>
 
-"AndBible: Học Kinh Thánh" là ứng dụng nghiên cứu Kinh Thánh ngoại tuyến mạnh mẽ nhưng dễ sử dụng dành cho Android. Ứng dụng không chỉ đơn thuần là một trình đọc Kinh Thánh, mà tập trung vào việc trở thành công cụ nâng cao để nghiên cứu Kinh Thánh cá nhân chuyên sâu.
+"AndBible: Học Kinh Thánh" là một ứng dụng nghiên cứu Kinh Thánh ngoại tuyến mạnh mẽ, dễ sử dụng dành cho Android — một bộ công cụ đa năng với các tính năng chất lượng cao, phục vụ nhiều phong cách nghiên cứu khác nhau, từ đọc thông thường đến nghiên cứu chuyên sâu. Hơn cả một trình đọc, đây là công cụ dành cho việc nghiên cứu cá nhân nghiêm túc.
 
-Ứng dụng này được phát triển bởi những người đọc Kinh Thánh, dành cho những người đọc Kinh Thánh. Mục tiêu là giúp bạn nghiên cứu Kinh Thánh một cách thuận tiện, sâu sắc và thú vị. Điểm nổi bật nhất của dự án cộng đồng phi lợi nhuận này là mã nguồn mở, hoàn toàn miễn phí và không có quảng cáo.
+Được phát triển bởi những người đọc Kinh Thánh, dành cho những người đọc Kinh Thánh — một dự án cộng đồng phi lợi nhuận, mã nguồn mở, hoàn toàn miễn phí và không có quảng cáo.
 
 Một số bản dịch Kinh Thánh phổ biến (trong số nhiều bản có sẵn) là KJV, NASB, NET, cùng các chú giải nổi tiếng như Matthew Henry và John Gill.
 
@@ -13,12 +13,14 @@ Một số bản dịch Kinh Thánh phổ biến (trong số nhiều bản có s
  * Chế độ xem văn bản chia đôi cho phép so sánh các bản dịch và tra cứu chú giải
  * Không gian làm việc cho phép nhiều cấu hình nghiên cứu Kinh Thánh với cài đặt riêng
  * Tích hợp Strong's cho phép phân tích từ ngữ tiếng Hy Lạp và tiếng Hê-bơ-rơ
- * Tham chiếu chéo, chú thích và tài liệu được liên kết; chuyển đến tham chiếu chéo và chú thích chỉ bằng cách chạm vào liên kết; nghiên cứu chuyên sâu Kinh Thánh bằng cách sử dụng chú giải có siêu liên kết (Gill, Matthew Henry v.v.), bộ sưu tập tham chiếu chéo (Treasure of Scripture Knowledge, TSKe) và các tài nguyên khác.
- * Chuyển văn bản thành giọng nói nâng cao với dấu trang phát âm, mang lại trải nghiệm nghe Kinh Thánh mượt mà
- * Tìm kiếm linh hoạt
+ * Nhấn vào bất kỳ liên kết nào để theo dõi các tham chiếu chéo, chú thích và chú giải được liên kết (Gill, Matthew Henry v.v.) hoặc các bộ sưu tập tham chiếu chéo (Treasure of Scripture Knowledge, TSKe).
+ * Trợ lý nghiên cứu AI tùy chọn (chỉ khi bạn đồng ý — yêu cầu khóa API riêng của bạn cho dịch vụ bên ngoài): khám phá các chú giải và từ điển đã cài đặt với sự hỗ trợ của AI bằng ngôn ngữ bạn chọn, cùng với các quy trình nghiên cứu sáng tạo khác. Hệ thống quyền tích hợp giúp bạn hoàn toàn kiểm soát những gì trợ lý có thể làm.
+ * Tìm kiếm toàn văn linh hoạt trên một hoặc nhiều bản dịch Kinh Thánh cùng lúc
  * Tính năng đánh dấu & tô sáng nâng cao với ghi chú nghiên cứu cá nhân
  * Bảng ghi chú để thêm ghi chú và tham chiếu Kinh Thánh khi nghe bài giảng.
- * Kế hoạch đọc: đặt mục tiêu đọc Kinh Thánh
+ * Theo dõi việc đọc và học thuộc: đặt mục tiêu đọc, theo dõi tiến trình và học thuộc các câu Kinh Thánh với các chế độ tương tác Xáo Trộn Từ, Sắp Xếp Từ, Làm Mờ Từ và Gõ Lại
+ * Chuyển văn bản thành giọng nói nâng cao với dấu trang phát âm, mang lại trải nghiệm nghe Kinh Thánh mượt mà
+ * Đồng bộ giữa các thiết bị: giữ cho không gian làm việc, dấu trang, ghi chú và tiến trình đọc của bạn được đồng bộ trên tất cả các thiết bị
  * Thư viện tài liệu phong phú: bản dịch Kinh Thánh, chú giải thần học, từ điển, bản đồ và sách Cơ Đốc giáo, với tổng cộng hơn 1500 tài liệu trong hơn 700 ngôn ngữ, được phân phối hợp pháp bởi Crosswire và các kho SWORD khác.
  * Hỗ trợ gốc cho các tệp MyBible, MySword và EPUB giúp bạn mở rộng thư viện của mình hơn nữa.
 

@@ -1,73 +1,70 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Studi Biblion"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: "Studi Biblion, legi komentojn kaj vortarojn; malkonekte."
+short_description: "Potenca ilaro por studi Biblion: komentaroj, legosignoj, notoj, AI-iloj"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Ampleksa aplikaĵo por studi Biblion
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  "{{ title }}" estas ampleksa, tamen facile uzebla ilo por studi la Sanktan Skribon por la operaciumo Android. Ĝi ne celas esti simpla legilo de Biblio, sed koncentriĝas esti spertula ilo por profunde persone studi Biblion.
+  "{{ title }}" estas potenca, facile uzebla, eksterreta aplikaĵo por studi Biblion sub Android — versatila ilaro de altkvalitaj ebloj, kiuj servas multajn studstilojn, de simpla legado ĝis profunda esploro. Pli ol nura legilo, ĝi estas ilo por serioza persona studado.
 paragraph_1_2: >
-  Tiu ĉi aplikaĵo estas evoluigata de legantoj de Biblio kaj por legantoj de Biblio. Ĝia celo estas igi studadon de Biblio oportuna, profunda kaj amuza. La plej grava fakto de tiu ĉi neprofitcela komunuma projekto estas, ke ĝi estas malfermkoda, tute senpaga kaj enhavas neniun reklamon.
+  Ellaborita de Biblio-legantoj, por Biblio-legantoj — neprofitcela, malfermkoda komunuma projekto, kiu estas tute senpaga kaj ne enhavas reklamojn.
 # You can also advertise here the best documents that are available in the app in your language.
-paragraph_1_3: >-
-  Esperanta Londona Biblio.
+paragraph_1_3: Esperanta Londona Biblio.
 subtitle_2: Potencaj ebloj de la aplikaĵo
 paragraph_2_1: >
   La aplikaĵo distingiĝas per pluraj sagaj, originalaj ebloj, kiuj plifaciligas profundan studadon de Biblio. La plej gravaj trajtoj estas:
 feature_01: dividi vidon de teksto por kompari tradukojn kaj legi komentarojn
-feature_02: "laborspacoj ebligantaj havi plurajn mediojn por studi Biblion, ĉiu kun propraj agordoj\n"
+feature_02: >
+  laborspacoj ebligantaj havi plurajn mediojn por studi Biblion, ĉiu kun propraj agordoj
 feature_03: numeroj de Strong por analizi vortojn en greka kaj hebrea
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
-  entekstaj malfermeblaj ligiloj al internaj referencoj, piednotoj kaj dokumentoj; komentaroj ({{commentary_examples}}), kolektoj de internaj referencoj ({{cross_reference_examples}}) kaj aliaj tekstoj
+  tuŝu iun ajn ligilon por sekvi hiperligitajn krucreferencojn, piednotojn kaj komentarojn ({{commentary_examples}}) aŭ kolektojn de krucreferencoj ({{cross_reference_examples}})
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
 commentary_examples: nedisponeblaj en EO
 # Examples of cross-reference collections.
 cross_reference_examples: nedisponeblaj en EO
 feature_05: teksto-al-parolo kun legosignoj por senbare aŭskulti Biblion
-feature_06: fleksebla serĉo
+feature_06: fleksebla plenteksta serĉado tra unu aŭ pluraj Biblio-tradukoj samtempe
 feature_07: ampleksaj ebloj por krei legosignojn kaj emfazi tekston kun personaj notoj
-feature_09: >-
-  planoj de legado: difinu viajn celojn por legi Biblion
+feature_08: >
+  sinkronigado inter aparatoj: tenu viajn laborspacojn, legosignojn, notojn kaj legoprogreson sinkronaj inter ĉiuj viaj aparatoj
+feature_09: >
+  spurado de legado kaj parkerigado: difinu legocelojn, sekvu progreson kaj parkerigu versojn per interagaj reĝimoj Vortmiksaĵo, Vortordo, Vortmalklarigo kaj Tajpu Ĝin
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   granda biblioteko de dokumentoj: tradukoj, teologiaj komentaroj, vortaroj, mapoj, kristanismaj libroj, pli ol {{total_documents}} dokumentoj en {{total_languages}} lingvoj, laŭleĝe distribuataj de per CrossWire kaj per aliaj SWORD-deponejoj
 feature_10_1: >
   subteno por moduloj MyBible, MySword kaj dosieroj EPUB por eĉ pli plivastigi vian bibliotekon
+feature_11: >
+  laŭvola AI-studagento (nur per propra elekto — postulas vian propran API-ŝlosilon por ekstera servo): esploru viajn instalitajn komentarojn kaj vortarojn kun helpo de AI en la lingvo de via elekto, plus aliaj kreemaj studfluoj. Enkonstruita permes-sistemo lasas vin plene regi tion, kion la agento povas fari.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: "ESV, NIV kaj NKJV"
-feature_12: >-
-  funkcias malkonekte: interreta konekto estas bezonata nur por elŝuti dokumentojn
+unavailable_documents: ESV, NIV kaj NKJV
+feature_12: "funkcias malkonekte: interreta konekto estas bezonata nur por elŝuti dokumentojn"
 # UNUSED
-feature_13: >-
-  “notblokoj” por aldoni notojn kaj referencojn dum aŭskulti predikojn
+feature_13: “notblokoj” por aldoni notojn kaj referencojn dum aŭskulti predikojn
 subtitle_3: Ni kune faru la plej bonan apon por legi Biblion!
 paragraph_3_1: >
   AndBible estas malfermkoda plurhoma projekto. Tio ĉi signifas, ke ĉiu (kun necesaj scipovoj) povas kaj estas instigata por kontribui al la projekto per:
 contr_1: programi novajn eblojn;
 contr_2: testi beta-eblojn;
 contr_3: traduki la programon;
-contr_4: "helpi plivastigi la bibliotekon de moduloj per ricevi permesojn de kopirajt‑posedantoj aŭ konverti dokumentojn al la formo SWORD.\n"
+contr_4: >
+  helpi plivastigi la bibliotekon de moduloj per ricevi permesojn de kopirajt‑posedantoj aŭ konverti dokumentojn al la formo SWORD.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: "Se vi estas profesia programisto aŭ testanto, bonvolu konsideri kontribui al la projekto. Pliaj informoj pri kiel kontribui troviĝas ĉe {{how_to_contribute_url}}\n"
+paragraph_4_1: >
+  Se vi estas profesia programisto aŭ testanto, bonvolu konsideri kontribui al la projekto. Pliaj informoj pri kiel kontribui troviĝas ĉe {{how_to_contribute_url}}
 subtitle_4: Ligiloj
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: >-
-  hejmpaĝo: {{homepage_url}}
-link_2: >-
-  ŝatu la apon AndBible ĉe {{facebook_url}}
-link_3: >-
-  nia YouTube-kanalo: {{youtube_url}}
-link_4: >-
-  oftaj demandoj (en la angla) {{faq_url}}
-link_5: >-
-  projekt-paĝo ĉe GitHub: {{github_url}}
-buy_title: >-
-  Subtenu per aĉeti labortempon de programisto!
+link_1: "hejmpaĝo: {{homepage_url}}"
+link_2: ŝatu la apon AndBible ĉe {{facebook_url}}
+link_3: "nia YouTube-kanalo: {{youtube_url}}"
+link_4: oftaj demandoj (en la angla) {{faq_url}}
+link_5: "projekt-paĝo ĉe GitHub: {{github_url}}"
+buy_title: Subtenu per aĉeti labortempon de programisto!
 buy_1: >
   Se mankas al vi tempo aŭ scipovoj por kontribui al la projekto, vi povas subteni ĝin per aĉeti labortempon de profesia programisto.
-buy_2: >-
-  Pliaj informoj
+buy_2: Pliaj informoj
