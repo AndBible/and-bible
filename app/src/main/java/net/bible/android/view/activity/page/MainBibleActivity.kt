@@ -1052,13 +1052,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
                 windowRepository.updateAllWindowsTextDisplaySettings()
             }
-            val onReset = {
-                if(itemOptions is Preference) {
-                    itemOptions.value = TextDisplaySettings.default.getValue(itemOptions.type)!!
-                }
-                onReady()
-            }
-            itemOptions.openDialog(this, {onReady()}, onReset)
+            // Reset is implemented by each Preference.openDialog calling setNonSpecific() before
+            // invoking this callback. setNonSpecific clears the workspace/window value (sets it to
+            // null), which is what makes the value inherit from the parent level (global → default).
+            // Do NOT write `value = default` here: at WORKSPACE/WINDOW level, the value setter
+            // re-stores an explicit default value when the parent (global) differs from default,
+            // overriding the just-cleared null and breaking inheritance from global.
+            itemOptions.openDialog(this, {onReady()}, {onReady()})
         }
     }
 

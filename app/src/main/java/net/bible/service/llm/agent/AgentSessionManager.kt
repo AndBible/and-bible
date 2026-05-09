@@ -52,7 +52,9 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.VerseRange
+import net.bible.android.control.versification.toVerseRange
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
 import android.widget.Toast
@@ -348,6 +350,22 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val osisContent: String?
     )
 
+    /**
+     * Coerce a JSword [Key] into a [VerseRange] when possible.
+     *
+     * `Book.getKey(osisRef)` on a Bible returns a [RangedPassage] for chapter/range
+     * references — it is neither a [VerseRange] nor a [Verse], so a direct cast
+     * fails and AI doc markers end up stored without KJVA ordinals (which makes
+     * them invisible in BibleView).
+     */
+    internal fun keyToVerseRange(key: Key?): VerseRange? = when (key) {
+        null -> null
+        is VerseRange -> key
+        is Verse -> VerseRange(key.versification, key, key)
+        is RangedPassage -> if (!key.isEmpty) key.toVerseRange else null
+        else -> null
+    }
+
     /** Extract content for whole-page mode (ordinals are -1, Bible document). */
     private fun extractWholePageContent(book: SwordBook, selection: Selection, pageKey: Key?): SelectionContent {
         val keyToUse = selection.osisRef?.let {
@@ -357,8 +375,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             }
         } ?: pageKey
 
-        val verseRange = keyToUse as? VerseRange
-            ?: (keyToUse as? Verse)?.let { VerseRange(it.versification, it, it) }
+        val verseRange = keyToVerseRange(keyToUse)
 
         val selectedText = if (keyToUse != null) {
             try { SwordContentFacade.getCanonicalText(book, keyToUse, false) }
