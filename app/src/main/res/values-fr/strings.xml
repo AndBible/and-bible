@@ -1,15 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bible Study</string>
   <string name="app_name_medium">Bible Study (AndBible)</string>
   <string name="app_name_long">AndBible : Étude de la Bible</string>
-
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Merci d’insérer une carte SD et de redémarrer l’application.</string>
-
-    <!-- Main menu -->
+  <!--Main menu-->
   <string name="menu">Menu</string>
   <string name="chooseBook">Document</string>
   <string name="selectPassage">Passage</string>
@@ -25,15 +22,13 @@
   <string name="administration">Gérer</string>
   <string name="rate_application">Évaluer &amp; commenter</string>
   <string name="chooce_document">Ouvrir un document</string>
-
-    <!-- Passage navigation -->
+  <!--Passage navigation-->
   <string name="choosePassageBookName">Sélectionner un livre</string>
   <string name="choosePassageChapterName">Sélectionner un chapitre</string>
   <string name="choosePassageVerseName">Sélectionner un verset</string>
   <string name="bible">Bible</string>
   <string name="deuterocanonical">Deutérocanonique</string>
-
-    <!--  Search -->
+  <!--Search-->
   <string name="search_index">Recherche d\'index</string>
   <string name="index_creation_required">L’indexation de ce document est requise avant d’effectuer des recherches.</string>
   <string name="create_index_for">Un index est requis pour effectuer des recherches.\n\nCréer un index pour %s ?</string>
@@ -45,15 +40,13 @@
   <string name="do_in_background">Continuer en arrière-plan</string>
   <string name="rebuild_index_button">Recréer</string>
   <string name="creating_index_for">Créer un index pour %s…</string>
-    <!-- X results in module Y -->
+  <!--X results in module Y-->
   <string name="search_with_results2">%1$s résultats dans %2$s</string>
-
-    <!-- Tasks -->
+  <!--Tasks-->
   <string name="progress_status">Progression</string>
   <string name="task_kill_warning">Merci de patienter. Ne pas basculer vers une autre application, ces tâches risqueraient d\'être interrompues.</string>
   <string name="no_tasks_running">Il n\'y a pas de tâches en cours d\'exécution.</string>
-
-    <!-- Search -->
+  <!--Search-->
   <string name="search_words_group_prompt">Type de requête</string>
   <string name="search_all_words">Tous les mots</string>
   <string name="search_any_word">N\'importe quel mot</string>
@@ -68,49 +61,38 @@
   <string name="search_current_book">Livre courant</string>
   <string name="error_executing_search">Requête invalide</string>
   <string name="type_text_or_bible_reference">Entrer les références bibliques ou du texte</string>
-    <!-- Open (bible reference X) -->
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">Ouvrir %s</string>
-    <!-- Finx "(keywords x)", keywords based on text selection -->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Rechercher \"%s\"</string>
-    <!-- Multi-translation search -->
+  <!--Multi-translation search-->
   <string name="search_translations">Traductions</string>
   <string name="choose_translations">Choisir des traductions…</string>
   <string name="multi_search_results">%1$d versets dans %2$d traductions</string>
   <string name="search_index_not_created">aucun index</string>
-
-    <!-- Preferences -->
+  <!--Preferences-->
   <string name="prefs_show_verseno_title">Chapitre et numéros de versets</string>
   <string name="prefs_show_verseno_summary">Montrer le chapitre et les numéros de versets</string>
-
   <string name="prefs_e_ink_mode_title">Mode noir &amp; blanc</string>
   <string name="prefs_eink_mode_summary">Utilisez l’application en mode monochrome (sans couleurs), ce qui la rend plus adaptée aux appareils à encre électronique.</string>
   <string name="prefs_eink_settings_cat">Paramètres e-ink</string>
   <string name="prefs_eink_display_title">Fonctionnalités e-ink</string>
   <string name="prefs_eink_display_summary">Activer les fonctionnalités spécifiques e-ink (boutons de défilement de page, lignes d’aide au défilement)</string>
-
   <string name="prefs_disable_animations_title">Désactiver les animations</string>
   <string name="prefs_disable_animations_summary">Désactiver diverses animations telles que le défilement fluide.</string>
-
   <string name="prefs_disable_click_to_edit_title">Désactiver la modification par clic dans le bloc-notes</string>
   <string name="prefs_disable_click_to_edit_summary">Nécessite d\'utiliser le bouton d\'édition pour modifier les notes dans le bloc-notes.</string>
-
   <string name="prefs_notes_content_type_title">Format des nouvelles notes de signet</string>
   <string name="prefs_notes_content_type_summary">Format de texte utilisé lors de la création de nouvelles notes de signet et d\'entrées dans le bloc-notes</string>
   <string name="notes_content_type_html">Texte enrichi (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
-
-
-
-
   <string name="prefs_verse_per_line_summary">Afficher chaque verset sur une ligne différente</string>
   <string name="prefs_show_bookmarks_summary">Affiche les signets dans le texte</string>
-
   <string name="prefs_show_mynotes_summary">Les notes sont signalées par une icône dans les versets</string>
   <string name="prefs_show_strongs_summary">Liens vers les définitions en Grec &amp; Hébreu</string>
   <string name="prefs_show_morphology_summary">Afficher la morphologie grecque de Robinson</string>
   <string name="prefs_section_title_summary">Afficher les titres des sections non-canoniques</string>
   <string name="prefs_red_letter_summary">Afficher les paroles du Christ en rouge</string>
-
   <string name="prefs_verse_per_line_title">Un verset par ligne</string>
   <string name="prefs_show_bookmarks_title">Afficher les signets</string>
   <string name="prefs_show_mynotes_title">Afficher les icônes des notes</string>
@@ -120,7 +102,6 @@
   <string name="prefs_show_footnotes_inline_title">Notes de bas de page intégrées dans le texte</string>
   <string name="prefs_show_footnotes_inline_summary">Afficher les notes de bas de page dans le texte plutôt que sous forme de liens cliquables</string>
   <string name="prefs_show_xrefs_summary">Afficher les références croisées, si elles sont disponibles dans le document</string>
-
   <string name="prefs_show_strongs_title">Nombres de Strong</string>
   <string name="prefs_show_morphology_title">Codes morphologiques</string>
   <string name="prefs_non_strongs_word_italic_title">Mettre en italique les mots ajoutés</string>
@@ -145,20 +126,17 @@
   <string name="reading_progress_history_no_entries">Aucune entrée de lecture pour cette sélection.</string>
   <string name="reading_progress_history_version_unknown">Version inconnue</string>
   <string name="prefs_tilt_to_scroll_title">Incliner pour faire défiler</string>
-
   <string name="prefs_toolbar_button_action_title">Action en cas de pression sur un bouton de la barre d’outils</string>
   <string name="prefs_toolbar_button_action_summary">Action à entreprendre lorsque vous appuyez ou appuyez longuement sur les boutons de la barre d’outils Bible ou Commentaire.</string>
   <string name="prefs_toolbar_button_action_default">Appuyez pour ouvrir le menu, appuyez longuement pour l’affichage des documents (par défaut).</string>
   <string name="prefs_toolbar_button_action_swap_menu">Appuyer pour ouvrir le document suivant, appui long pour ouvrir le menu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Appuyer pour ouvrir le document suivant, appui long pour l’affichage des documents</string>
-
   <string name="prefs_night_mode_title">Passe en mode nuit</string>
   <string name="prefs_night_mode_summary">Si vous souhaitez passer en mode nuit automatiquement (si l’appareil le permet), manuellement ou via les paramètres du système (Android 10+). La commutation manuelle peut être effectuée à partir du menu options à 3 points de l’écran principal. </string>
   <string name="prefs_night_mode_manual">Manuel</string>
   <string name="prefs_night_mode_automatic">Automatique</string>
   <string name="prefs_night_mode_system">Système</string>
   <string name="options_menu_night_mode">Mode nuit</string>
-
   <string name="prefs_navigate_to_verse_title">Aller au verset</string>
   <string name="prefs_navigate_to_verse_summary">Sélectionne aussi le verset (après le chapitre) lors du choix d\'un passage</string>
   <string name="prefs_open_links_in_special_window_title">Fenêtres liées</string>
@@ -169,20 +147,15 @@
   <string name="prefs_interface_locale_title">Langue de l\'application</string>
   <string name="prefs_interface_locale_summary">Sélection d\'une langue d\'interface personnalisée </string>
   <string name="reset_fontsize">Réinitialiser</string>
-
   <string name="prefs_request_sdcard_permission_title">Installation manuelle de documents</string>
   <string name="prefs_request_sdcard_permission_summary">Permet d’installer manuellement des documents à partir du dossier jsword/sword dans l’espace de stockage interne</string>
-
   <string name="prefs_expand_footnotes_title">Références croisées intégrées dans le texte</string>
   <string name="prefs_expand_footnotes_summary">Afficher le contenu des références croisées entre les lignes dans le texte, au lieu d’un lien qui ouvre une boîte de dialogue contextuelle</string>
-
   <string name="all_text_options_window_menutitle">Toutes les options du texte</string>
   <string name="text_options_window_menutitle">Options du texte</string>
   <string name="auto_fullscreen">Plein-écran par défilement</string>
   <string name="reversed_split_mode">Partage d\'écran pivoté</string>
-
   <string name="add_ellipsis">%s…</string>
-
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Activer automatiquement le mode plein-écran lors du défilement du texte. Astuce : Vous pouvez aussi activer le mode plein-écran par un double tapotement sur le texte.</string>
@@ -192,10 +165,8 @@
   <string name="prefs_features_cat">Fonctionnalités</string>
   <string name="prefs_display_customization_cat">Apparence</string>
   <string name="prefs_behavior_customization_cat">Comportement de l’application</string>
-
   <string name="prefs_margin_size_summary">Configure les marges gauche et droite du texte, ainsi que la largeur maximale du texte.</string>
   <string name="prefs_margin_size_summary_2">Astuce : vous pouvez appuyer sur la marge pour passer à la page suivante ou précédente.</string>
-
   <string name="prefs_text_colors_summary">Ajuste les couleurs du texte, du fond et le motif de fond.</string>
   <string name="text_display_settings_activity_title">Paramètres d’affichage de texte</string>
   <string name="workspace_text_display_settings_title">Options du texte - %s</string>
@@ -213,7 +184,6 @@
   <string name="prefs_footnotes_and_xrefs_title">Notes de bas de page &amp; Références croisées</string>
   <string name="prefs_verses_and_headings_title">Versets &amp; Titres</string>
   <string name="prefs_page_scrolling_title">Défilement de page</string>
-
   <string name="prefs_justify_title">Justification du texte</string>
   <string name="prefs_justify_summary">Aligne le texte en mode justifié, toutes les lignes sont étirées pour avoir la même longueur </string>
   <string name="pref_left_margin_label_mm">Marge de gauche (%d mm)</string>
@@ -235,10 +205,8 @@
   <string name="hide_window_buttons_summary">Les boutons de fenêtre qui sont affichés sur le côté droit des vues de la Bible sont cachés. La barre de navigation des fenêtres en bas est toujours affichée et vous pouvez ouvrir le menu contextuel des fenêtres en les cliquant longuement.</string>
   <string name="hide_bible_reference_overlay_title">Masquer la superposition des références bibliques</string>
   <string name="hide_bible_reference_overlay_summary">Ne pas afficher la superposition semi-transparente des références bibliques lorsque l’application est en mode plein écran.</string>
-
   <string name="full_screen_hide_buttons_pref_title">Masquer la barre de boutons de la fenêtre en plein écran</string>
   <string name="full_screen_hide_buttons_pref_summary">Lorsque vous passez en mode plein écran, masquer automatiquement la barre de boutons de la fenêtre qui se trouve en bas de l’écran</string>
-
   <string name="prefs_dictionaries_cat">Dictionnaires</string>
   <string name="choose_strongs_greek_dictionary_title">Dictionnaire grec de Strongs</string>
   <string name="choose_strongs_greek_dictionary_summary">Choisir le dictionnaire de Strongs pour les définitions des mots grecs</string>
@@ -250,28 +218,22 @@
   <string name="choose_word_lookup_dictionary_summary">Choisir les dictionnaires pour la recherche de mots</string>
   <string name="lookup_in_dictionary">Rechercher dans les dictionnaires</string>
   <string name="word_not_found_in_dictionaries">Mot introuvable dans les dictionnaires</string>
-
   <string name="prefs_top_margin_title_mm">Marge supérieure (%d mm)</string>
   <string name="font_size_title">Taille de la police</string>
   <string name="font_size_title_pt">Taille de la police (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ajuster la taille de la police du texte principal</string>
-
   <string name="pref_font_family_label_name">Famille de police (%s)</string>
   <string name="prefs_font_family_summary">Modifier la famille de polices. Conseil : d’autres polices peuvent être installées via Documents à télécharger / Extensions.</string>
-
   <string name="prefs_text_bookmarks_title">Signets &amp; paramètres de mes notes</string>
   <string name="prefs_reading_and_memorization_title">Lecture &amp; Mémorisation</string>
-
   <string name="prefs_enable_bluetooth_title">Activer les boutons multimédias Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Gérer les boutons multimédia Bluetooth pour démarrer/arrêter de parler.</string>
   <string name="create_bookmark">Créer un nouveau marque-page</string>
   <string name="create_bookmark_with_a_note">Créer un nouveau signet avec une note</string>
-
-    <!-- Colors preferences -->
+  <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Options de couleur</string>
   <string name="window_color_settings_title">Paramètres de couleur de fenêtre</string>
   <string name="workspace_color_settings_title">Couleurs par défaut de l’espace</string>
-
   <string name="color_workspace">Couleur de l’espace de travail</string>
   <string name="color_text">Couleur du texte</string>
   <string name="color_background">Couleur du fond</string>
@@ -279,9 +241,7 @@
   <string name="colors_night_mode_title">Mode nuit</string>
   <string name="prefs_noise_title">Motif de fond</string>
   <string name="prefs_noise_summary">Ajouter un peu de moiré sur le fond peut rendre la lecture plus confortable.</string>
-
-
-    <!-- Window -->
+  <!--Window-->
   <string name="new_window">Nouvelle fenêtre</string>
   <string name="windowMaximise">Maximiser</string>
   <string name="windowMinimise">Minimiser</string>
@@ -294,15 +254,12 @@
   <string name="copy_settings_to_global">Valeurs par défaut globales</string>
   <string name="change_to_normal">Modifier en fenêtre normale</string>
   <string name="window_pin_mode">Épingler</string>
-
-    <!-- Notes screen -->
+  <!--Notes screen-->
   <string name="previous">Précédent</string>
   <string name="next">Suivant</string>
-
-    <!--  Strongs -->
+  <!--Strongs-->
   <string name="no_indexed_bible_with_strongs_ref">Vous devez télécharger une Bible contenant les nombres de Strong et construire son index via la recherche.</string>
-
-    <!-- Module download -->
+  <!--Module download-->
   <string name="download">Télécharger des documents</string>
   <string name="redownload">Retélécharger les documents</string>
   <string name="download_source_last_updated">Dernière mise à jour des listes de documents : %s.</string>
@@ -331,8 +288,7 @@ Tous les téléchargements à partir des dépôts de modules sont cryptés (HTTP
   <string name="failed_repositories_message">Impossible de se connecter aux dépôts de documents suivants : \n\n %s\n\n</string>
   <string name="failed_downloads_message">Les fichiers suivants n’ont pas pu être téléchargés :\n\n %s \n\n</string>
   <string name="cant_delete_document">Ce document ne peut pas être supprimé.</string>
-
-    <!--  Install zip file -->
+  <!--Install zip file-->
   <string name="install_zip">Charger des documents depuis des fichiers</string>
   <string name="install_zip_module">Installe un module de Bible</string>
   <string name="install_zip_module_discrete">Installer le module Calculatrice</string>
@@ -345,8 +301,7 @@ Tous les téléchargements à partir des dépôts de modules sont cryptés (HTTP
   <string name="overwrite_files_title">Écraser les fichiers ?</string>
   <string name="could_not_overwrite_files">Impossible d’écraser les fichiers : %s. À part cela, l’installation s’est déroulée avec succès.</string>
   <string name="install_do_you_want">Voulez-vous installer le module (%s) ?</string>
-
-    <!-- Daily Reading Plan -->
+  <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lecture</string>
   <string name="reading_plans_plural">Plans de lecture</string>
   <string name="rdg_plan_selector_title">Choix d\'un plan de lecture</string>
@@ -388,30 +343,26 @@ En une année, l\'AT est lu 1 fois et les Psaumes et le NT sont lus 2 fois . </s
   <string name="plan_description_y2ot1ntps2">
 Lecture de la Bible en 2 ans, le NT et les Psaumes sont lus 2 fois.
 Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/</string>
-
-    <!-- Document context menu -->
+  <!--Document context menu-->
   <string name="delete">Supprimer</string>
   <string name="delete_index">Supprimer l\'index de recherche</string>
   <string name="about">À propos</string>
   <string name="delete_doc">Supprimer %s?</string>
   <string name="delete_search_index_doc">Supprimer l\'index de %s?</string>
-
-    <!-- Verse context menu -->
+  <!--Verse context menu-->
   <string name="notes">Notes et références croisées</string>
   <string name="share_verse">Partager ...</string>
   <string name="share_verse_widget_title">Partager la sélection</string>
   <string name="compare_translations">Comparer les traductions</string>
-
-    <!-- Link context menu -->
+  <!--Link context menu-->
   <string name="open_link_in_this_window">Ouvrir le lien ici</string>
   <string name="open_link_in_new_window">Ouvrir le lien dans une nouvelle fenêtre</string>
   <string name="open_link_in_special_window">Ouvrir le lien dans une fenêtre spéciale</string>
-
-    <!-- Bookmarks -->
+  <!--Bookmarks-->
   <string name="bookmarks_and_mynotes_title">Signets &amp; mes notes</string>
   <string name="migrated_my_notes">Migrer mes notes</string>
   <string name="bookmarks">Signets</string>
-    <!-- Bookmark / note labels -->
+  <!--Bookmark / note labels-->
   <string name="labels">Étiquettes</string>
   <string name="manage_labels">Gérer les étiquettes</string>
   <string name="assign_labels">Attribuer des étiquettes</string>
@@ -431,7 +382,7 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="auto_assign_labels">Auto-assignation &amp; étiquettes favorites</string>
   <string name="auto_assign_labels1">Attribution automatique d’une étiquette aux nouveaux signets</string>
   <string name="auto_assign_labels_primary">Auto-assignation comme première</string>
-  <!-- can be removed -->
+  <!--can be removed-->
   <string name="marker_style">Afficher uniquement le marqueur pour les signets de sélection</string>
   <string name="marker_style_whole_verse">Afficher uniquement le marqueur pour les signets de versets entiers</string>
   <string name="hide_style">Masquer les signets de sélection</string>
@@ -442,39 +393,35 @@ Si la structure du document a été modifiée, la mise à jour de ce document pe
 l’emplacement de ces signets/notes se déplace à l’intérieur du document ou disparaît complètement.</string>
   <string name="bookmark_warning3">Voulez-vous toujours mettre à jour le module ?</string>
   <string name="bookmark_warning4">Il est recommandé de sauvegarder le module avant de le mettre à jour.</string>
-    <!--  Sort orders used for Bookmarks and MyNotes -->
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordre chronologique</string>
   <string name="sort_by_bible_book">Ordre biblique</string>
   <string name="sort_by_alphabetical">Ordre alphabétique</string>
-    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <string name="filter_by_notes">Notes de recherche</string>
-
-    <!-- Dictionary -->
+  <!--Dictionary-->
   <string name="dictionary">Dictionnaire</string>
   <string name="search_dictionary_hint">Recherche dans le dictionnaire</string>
-
-    <!-- General Book -->
+  <!--General Book-->
   <string name="general_book">Livre</string>
-
-    <!-- Speak -->
-    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
-    <!-- Speak - Bible -->
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
   <string name="one_chapter">%d chapitre</string>
   <string name="some_chapters">%d chapitres</string>
-    <!-- Speak - Commentary -->
+  <!--Speak - Commentary-->
   <string name="one_verse">%d verset</string>
   <string name="some_verses">%d versets</string>
-    <!-- Speak - Dictionary and other -->
+  <!--Speak - Dictionary and other-->
   <string name="one_page">%d page</string>
   <string name="some_pages">%d pages</string>
-    <!-- Speak - Common -->
+  <!--Speak - Common-->
   <string name="stop">Arrêt</string>
   <string name="pause">Pause</string>
   <string name="rewind">Reculer</string>
   <string name="forward">Avancer</string>
   <string name="tts_lang_not_available">La langue n\'est pas disponible.</string>
-
-    <!-- Speak - Bible -->
+  <!--Speak - Bible-->
   <string name="speak_speed_title">Vitesse de lecture</string>
   <string name="speak_and_play_earcons_title">Lire et jouer des effets sonores pour </string>
   <string name="playback_settings_title">Paramètres audio</string>
@@ -483,17 +430,14 @@ l’emplacement de ces signets/notes se déplace à l’intérieur du document o
   <string name="speak_bookmarks_menu_title">Écouter à partir du signet</string>
   <string name="speak_advanced_settings">Paramètres avancés</string>
   <string name="speak_sleep_timer_title">Mise en sommeil</string>
-
   <string name="speak_no_books_available">Pas de livre disponible à écouter</string>
   <string name="speak_general_error">La synthèse vocale n’a pas pu être lancée pour ce livre</string>
-
   <string name="repeat_passage">Répéter un passage</string>
   <string name="set_repeat_passage_range">Définir la plage de répétition de passage</string>
   <string name="speak_beginning_of_passage">Choisir le début du passage</string>
   <string name="speak_ending_of_passage">Choisir la fin du passage</string>
   <string name="speak_verse_range_to_repeat">Définir la série de versets à répéter</string>
   <string name="speak_ending_verse_must_be_later">Le verset de fin doit se situer après le verset de début.</string>
-
   <string name="conf_speak_synchronize">Le texte défile en suivant la voix</string>
   <string name="conf_speak_auto_bookmark">Mise en signet automatique</string>
   <string name="conf_save_playback_settings_to_bookmarks">Enregistrer les paramètres audio dans les signets</string>
@@ -502,12 +446,10 @@ l’emplacement de ces signets/notes se déplace à l’intérieur du document o
   <string name="conf_change_title">Titre</string>
   <string name="conf_speak_footnotes">Note de bas de page</string>
   <string name="conf_speak_sleep_timer">Programmer la mise en sommeil</string>
-
   <string name="sleep_timer_title">Minuterie d\'arrêt en minutes</string>
   <string name="sleep_timer_set">Mise en sommeil programmée : %d minutes</string>
   <string name="sleep_timer_started">Minuteur démarré, %d minutes</string>
   <string name="sleep_timer_active_at">Mise en sommeil : reste %s minutes</string>
-
   <string name="speak_next">Suivant</string>
   <string name="speak_previous">Précédent</string>
   <string name="widget_toggle_sleep_timer">Inverser la mise en sommeil</string>
@@ -515,43 +457,33 @@ l’emplacement de ces signets/notes se déplace à l’intérieur du document o
   <string name="speak_status_stopped">arrêt</string>
   <string name="speak_autobookmarking_disabled">Mise en signet automatique désactivée! </string>
   <string name="system_speak_settings">Paramètres de la synthèse vocale</string>
-
   <string name="auto_assing_labels_help1">Vous pouvez régler ici les étiquettes qui sont attribuées automatiquement aux signets que vous créez.</string>
-
-    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Ce paramètre s’applique à %s.</string>
   <string name="setting_scope_window">cette fenêtre</string>
   <string name="setting_scope_workspace">cet espace</string>
-
   <string name="assing_labels_help1">Plusieurs étiquettes peuvent être attribuées à chaque signet.</string>
-    <!-- param is bookmark icon -->
+  <!--param is bookmark icon-->
   <string name="assing_labels_help2">Utilisez %s pour spécifier la couleur de l’étiquette à afficher.</string>
-    <!-- param is auto-assign label icon -->
+  <!--param is auto-assign label icon-->
   <string name="assing_labels_help3">Tapez l’icône %s  pour que l’étiquette soit automatiquement attribuée aux nouveaux signets.</string>
-    <!-- param is heart icon -->
+  <!--param is heart icon-->
   <string name="assing_labels_help4">Tapez %s pour ajouter l’étiquette à votre liste de favoris pour un accès rapide.</string>
-
-    <!-- param is refresh icon -->
+  <!--param is refresh icon-->
   <string name="assing_labels_help5">Tapez %s pour réorganiser la liste en fonction de vos sélections.</string>
-
   <string name="global_text_options_help_title">Options de texte globales</string>
   <string name="global_text_options_help1">Ce sont les paramètres par défaut globaux pour tous les espaces de travail. Chaque espace de travail peut les remplacer par ses propres paramètres.</string>
-
   <string name="workspace_text_options_help_title">Options de texte de l’espace</string>
   <string name="workspace_text_options_help1">Ces paramètres déterminent la valeur par défaut de toutes les fenêtres de l’espace.</string>
   <string name="workspace_text_options_help2">Vous pouvez les annuler en modifiant les paramètres de chaque fenêtre.</string>
-
   <string name="window_text_options_help_title">Options de texte des fenêtres</string>
-    <!-- Parameter is actual icon -->
+  <!--Parameter is actual icon-->
   <string name="window_text_options_help1">L’icône %s indique que ce paramètre provient des paramètres de l’espace.</string>
-    <!-- Parameter is actual icon -->
-
-    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Utilisez le bouton %1$s  pour réinitialiser tous ces paramètres dans %2$s.</string>
   <string name="reset_defaults">Valeurs par défaut</string>
   <string name="reset_workspace_defaults">Valeur par défaut des espaces</string>
-
-
   <string name="speak_help_auto_bookmark">
 Un Signet audio est automatiquement généré lorsque la Lecture audio est mise sur pause ou arrétée. Ces signets ont pour label Lecture audio.
 Si vous démarrez l\'écoute à partir d\'un signet audio, celui-ci sera déplacé au verset où vous interromprez ensuite la Lecture audio.
@@ -561,13 +493,12 @@ Si cette option est activée, vos paramètres audio (section Paramètres des sig
 Quand vous redémarrez la lecture à partir d\'un signet audio, les paramètres de lecture sont rechargés à partir du signet.</string>
   <string name="speak_help_playback_settings_example">
 Par exemple si vous écoutez Genèse et Romains, et désirez entendre Genèse à bonne vitesse sans notifications de changement de chapitre mais Romains plutôt lentement avec un effet sonore en tête de chapitre, vous conserverez ces paramètres différents pour l\'écoute si ces paramètres sont enregistrés dans les signets correspondants.</string>
-
-    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings. -->
+         in speak settings.-->
   <string-array name="speak_divinename_original">
     <item>Seigneur</item>
     <item>Dieu</item>
@@ -575,11 +506,11 @@ Par exemple si vous écoutez Genèse et Romains, et désirez entendre Genèse à
     <item></item>
     <item></item>
   </string-array>
-    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings. -->
+         in speak settings.-->
   <string-array name="speak_divinename_replace">
     <item>Yahvé</item>
     <item>Yahvé</item>
@@ -587,7 +518,6 @@ Par exemple si vous écoutez Genèse et Romains, et désirez entendre Genèse à
     <item></item>
     <item></item>
   </string-array>
-
   <string name="speak_book_changed">Changement de livre.</string>
   <string name="speak_chapter_changed">Chapitre</string>
   <string name="speak_first">Premier</string>
@@ -595,14 +525,11 @@ Par exemple si vous écoutez Genèse et Romains, et désirez entendre Genèse à
   <string name="speak_third">Troisième</string>
   <string name="speak_fourth">Quatrième</string>
   <string name="speak_fifth">Cinquième</string>
-
   <string name="verse_range_mode_disabled">
 La répétition automatique de passage a été automatiquement désactivée car la lecture audio a démarré en dehors de la plage des versets à répéter.</string>
-
-    <!-- User Notes -->
+  <!--User Notes-->
   <string name="mynotes">Mes notes</string>
-
-    <!-- Backup and restore -->
+  <!--Backup and restore-->
   <string name="backup_backup_title">Vers où sauvegarder ?</string>
   <string name="backup_backup_message">Sauvegarder sur le téléphone ou ailleurs via la fonction Partager (courriel, Google Drive, etc.) ?</string>
   <string name="backup_phone_storage">Stockage de téléphone</string>
@@ -617,13 +544,11 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="backup_document_info">Bibles, commentaires, dictionnaires, cartes, etc.</string>
   <string name="backup_to">Sauvegarder vers...</string>
   <string name="backup_restore_from">Restaurer de...</string>
-    <!-- Restore = overwrite existing. Import = merge into existing -->
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Restaurer ou importer depuis…</string>
   <string name="backup_restore2">Restaurer ou importer</string>
   <string name="overwrite_something">Écraser %s ?</string>
-
-    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Restaurer le fichier de base de données</string>
   <string name="restore_confirmation">Écraser mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ?</string>
   <string name="restore_success">Mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ont été restaurés avec succès.</string>
@@ -631,13 +556,10 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="loading_backup">Chargement de la base de données depuis la sauvegarde...</string>
   <string name="backup_success2">Mes notes, signets,  bloc-notes, plans de lecture et espaces de travail ont été sauvegardés avec succès.</string>
   <string name="backup_modules_success">Les modules sélectionnés ont été sauvegardés avec succès.</string>
-
   <string name="backup_modules_email_subject_2">%s sauvegarde de modules</string>
   <string name="backup_modules_email_message_2">Vous trouverez ci-joint votre sauvegarde %1$s des modules, qui contient les modules suivants : %2$s</string>
-
   <string name="backup_email_subject_2">%s sauvegarde de la base de données</string>
   <string name="backup_email_message_2">Votre base de données %s contenant des signets, des notes, des plans de lecture et des espaces de travail est jointe</string>
-
   <string name="exported_studypads_subject">bloc-note(s) exporté(s)</string>
   <string name="exported_studypads_message">Votre base de données %s contenant les signets et les notes liés à  vos espaces  sélectionnés est jointe</string>
   <string name="restore_unsuccessfull">La restauration de la base de données a échoué.
@@ -648,22 +570,18 @@ Le fichier est peut-être invalide.</string>
   <string name="ask_restore_or_import">La base de données pour %s peut être soit restaurée (c’est-à-dire que la base de données existante est supprimée et la base de données sélectionnée est chargée), soit importée (la base de données sélectionnée est importée dans la base de données existante). Que souhaitez-vous faire ?</string>
   <string name="restore">Restaurer</string>
   <string name="import2">Importer</string>
-
-    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">« %1$s » et %2$s autres étiquette(s) / Bloc-note(s) et %3$ssignets</string>
-
-    <!-- About -->
+  <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Version installée : %1$s (%2$s)</string>
   <string name="module_about_latest_version">Dernière version : %1$s (%2$s) </string>
   <string name="module_about_versification">Versification : %s</string>
   <string name="module_about_repository">Serveur de distribution : %s</string>
   <string name="module_about_osisId">OSIS ID : %s</string>
-
-    <!-- Bug reporting -->
+  <!--Bug reporting-->
   <string name="send_bug_report_title">Commentaire / rapport de bogue</string>
   <string name="report_bug_email_subject_3">[%1$s] Rapport de bogues pour %2$s %3$s</string>
-
   <string name="report_bug_big_heading">VEUILLEZ ÉCRIRE VOS COMMENTAIRES OU VOTRE RAPPORT DE BOGUE AU-DESSUS DE CETTE LIGNE.</string>
   <string name="report_bug_heading1">Instructions :</string>
   <string name="report_bug_line_1">Dites-nous brièvement ce que vous avez fait / ce qui s’est passé lorsque le problème a eu lieu.</string>
@@ -679,8 +597,7 @@ Le fichier est peut-être invalide.</string>
   <string name="bug_report_screenshot">Capture d’écran de l’application au moment du plantage ou de la création du rapport de bogue.</string>
   <string name="bug_report_attachment_line_1">Le fait d’avoir ces fichiers joints aide beaucoup les développeurs d’applications à corriger le bogue signalé.</string>
   <string name="report_bug_heading_4">Info sur le périphérique :</string>
-
-    <!-- Document types -->
+  <!--Document types-->
   <string name="doc_type_all">Tous types</string>
   <string name="doc_type_bible">Bible</string>
   <string name="doc_type_commentary">Commentaire</string>
@@ -688,11 +605,9 @@ Le fichier est peut-être invalide.</string>
   <string name="doc_type_book">Livre</string>
   <string name="doc_type_map">Carte</string>
   <string name="doc_type_addons">Extensions</string>
-
-    <!-- Languages -->
+  <!--Languages-->
   <string name="lang_default">Par défaut</string>
-
-    <!-- General -->
+  <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Annuler</string>
   <string name="discard_changes_confirmation">Ignorer les modifications non enregistrées ?</string>
@@ -704,8 +619,7 @@ Le fichier est peut-être invalide.</string>
   <string name="reset_generic">Réinitialiser</string>
   <string name="watch_tutorial_video">Voir le tutoriel vidéo (en anglais)</string>
   <string name="verse_not_found">Verset non trouvé</string>
-
-    <!-- Errors -->
+  <!--Errors-->
   <string name="report_error">Envoyer un rapport </string>
   <string name="error_occurred">Une erreur s\'est produite</string>
   <string name="error_occurred_crash_last_time">La dernière fois que vous avez utilisé l’application, elle a planté. Pour nous aider à corriger le bogue, nous vous serions reconnaissants de nous envoyer un rapport. </string>
@@ -718,12 +632,10 @@ Le fichier est peut-être invalide.</string>
   <string name="error_skip">Sauter</string>
   <string name="bug_report_email_title">Envoyer un rapport de bogue par courriel</string>
   <string name="bug_report_email_text">Ensuite, veuillez sélectionner votre application de messagerie préférée (Gmail par exemple) pour envoyer le rapport à l’équipe de développeurs.</string>
-
-    <!-- Notifications -->
+  <!--Notifications-->
   <string name="notification_channel_tts_status">Lecture de texte</string>
   <string name="notification_channel_progress_status">État d\'avancement de la notification de téléchargement des documents etc.</string>
-
-    <!-- Workspaces -->
+  <!--Workspaces-->
   <string name="switch_to_workspace">Espaces</string>
   <string name="delete_workspace">Supprimer</string>
   <string name="new_copied_workspace">Copier comme un nouveau</string>
@@ -743,33 +655,27 @@ Le fichier est peut-être invalide.</string>
   <string name="search_settings">Paramètres de recherche</string>
   <string name="dismiss">Ignorer</string>
   <string name="workspace_listing_with_current">%s (courant)</string>
-
-    <!-- Beta notice -->
+  <!--Beta notice-->
   <string name="beta_notice_title">Ceci est une version bêta!</string>
   <string name="beta_notice_content_1">
 Dans une version bêta, les nouvelles fonctionnalités n\'ont pas encore été toutes entièrement testées,
 une bêta peut donc produire des bogues qui sont encore en cours d\'analyse et de correction.
 Il est recommandé d\'utiliser la version stable. </string>
-
   <string name="beta_notice_content_2">
 Les bêta-testeurs sont invités à rapporter les bogues via Google Play ou via (de préférence) %s.</string>
   <string name="beta_notice_content_3">Si vous êtes développeur, merci d\'envisager de contribuer vous-mêmes aux corrections de bogues sur %s :)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Ignorer jusqu\'à la prochaine mise à jour</string>
-
   <string name="stable_notice_title">L’application a été mise à jour !</string>
   <string name="upgrade_video_message">Veuillez voir la vidéo présentant les nouvelles fonctionnalités de cette version (%s).</string>
   <string name="stable_notice_par1">La nouvelle version %1$s de %2$s a été installée avec succès !</string>
-
   <string name="new_sync_targets_notice_title">Nouveaux paramètres de synchronisation disponibles</string>
   <string name="new_sync_targets_notice_message">Cette version d\'AndBible introduit des cibles de synchronisation supplémentaires : Mes Documents, paramètres IA et progression de lecture. Si vous souhaitez les activer, vous pouvez le faire dans les paramètres de Synchronisation des appareils.</string>
   <string name="open_settings">Ouvrir les paramètres</string>
-
-    <!-- History -->
+  <!--History-->
   <string name="history_for">Historique (%1$s: Fenêtre %2$d)</string>
-
-    <!-- Help -->
+  <!--Help-->
   <string name="help_nav_title">Navigation</string>
   <string name="help_nav_text">Passez au chapitre suivant ou précédent en faisant glisser l’écran avec votre doigt.
   Appuyez deux fois sur le texte de la Bible pour passer en mode plein écran.
@@ -792,9 +698,8 @@ d’afficher vos notes dans une fenêtre séparée.</string>
   écrire des notes personnelles d’études bibliques comportant plusieurs références bibliques. Chaque bloc-notes est associé à une étiquette de signet.
   Tous les signets qui ont été créés avec cette étiquette respective apparaissent automatiquement dans le document du bloc-note.
 En plus des signets, un bloc-note peut contenir des entrées de texte personnalisées.</string>
-
   <string name="help_search_title">Rechercher</string>
-    <!-- TODO: to be removed -->
+  <!--TODO: to be removed-->
   <string name="help_search_text2">Le texte recherché peut inclure des caractères spéciaux tels que *, AND, OR, NOT.</string>
   <string name="help_search_details">Veillez voir %s pour plus de détails.</string>
   <string name="help_apache_lucene">Apache Lucene - Syntaxe de l’analyseur de requêtes</string>
@@ -822,18 +727,17 @@ Appuyez longuement sur le bouton Retour pour accéder à la liste de l’histori
 commentaires, les cartes, etc. en tant que fenêtres non épinglées. Ainsi, vous pouvez facilement
 avoir les documents bibliques toujours ouverts, et passer rapidement des commentaires et autres
 documents supplémentaires lorsque vous étudiez la Bible.</string>
-
-    <!-- Welcome text -->
+  <!--Welcome text-->
   <string name="redownload_documents">Rapide retéléchargement</string>
   <string name="welcome_message">Merci d’avoir téléchargé %s. Il n’y a actuellement aucune bible ou document installé. Pour continuer, veuillez installer
   au moins 1 document en le téléchargeant depuis l’internet, ou en le chargeant depuis un fichier zip de document
         sauvegardé.
     </string>
-    <!-- Supported file formats for documents -->
-    <!-- argument is app_name_andbible (AndBible). -->
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Vous devez choisir le fichier que vous voulez charger dans %s.</string>
   <string name="supported_formats">Formats pris en charge pour le chargement de documents à partir d’un fichier : %s</string>
-    <!-- argument is app_name_andbible (AndBible). -->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Fichier Zip contenant le(s) module(s) Sword, ou fichier de sauvegarde de documents (*.abmd) créé par %s</string>
   <string name="format_mysword">Documents MySword (*.mybible)</string>
   <string name="format_mybible">Documents MyBible (*.SQLite3)</string>
@@ -845,15 +749,12 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="redownload_message">
         Une liste de livres/documents précédents a été trouvée. Cliquez ci-dessous pour les télécharger à nouveau facilement.
     </string>
-
-    <!-- Uncategorized -->
+  <!--Uncategorized-->
   <string name="close">Fermer</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">J’ai compris</string>
   <string name="first_time_help_show_next_time">Me montrer la prochaine fois</string>
-
   <string name="strongs_mode_title">Choisir le mode Strongs</string>
-
   <string name="download_dialog_message">Les livres suivants ne peuvent pas être téléchargés :</string>
   <string name="journal_description">Bloc-notes modifiables par l’utilisateur avec du texte et des signets personnalisés</string>
   <string name="my_notes_description">Fichier d’étude modifiables par l’utilisateur joints à des signets</string>
@@ -873,7 +774,6 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="unlock_info">Infos de déverrouillage du module crypté</string>
   <string name="try_again_passphrase">La phrase de passe n’a pas fonctionné, essayez à nouveau ?</string>
   <string name="show_unlock_info">Module et info de déverrouillage</string>
-
   <string name="prefs_experimental_features_title">Fonctionnalités expérimentales</string>
   <string name="prefs_experimental_features_summary">Sélectionner quelle fonctionnalités expérimentales à activer. Ces fonctionnalités sont toujours en développement et peuvent être modifiées ou supprimés.</string>
   <string name="experimental_feature_bookmark_edit_actions">Actions d’édition des signets</string>
@@ -904,7 +804,6 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="active_window_indicator_title">Afficher l’indicateur de la fenêtre active</string>
   <string name="active_window_indicator_summary">Mise en évidence des coins de fenêtre pour aider à reconnaître la fenêtre active</string>
   <string name="app_licence_title">Licence à code source ouvert</string>
-
   <string name="how_to_contribute">Comment contribuer ?</string>
   <string name="confirm_delete_bookmarks">Voulez-vous supprimer les signets %d et leurs notes ?</string>
   <string name="confirm_delete_orphaned_bookmarks">L’étiquette sélectionnée est attachée au signet %d qui n’a pas d’autre étiquette. Voulez-vous supprimer ces signets avec ces étiquettes ?</string>
@@ -928,15 +827,14 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="show_reference_at_front">Afficher au début du verset</string>
   <string name="abbreviate_reference">Référence abrégée</string>
   <string name="version_name">Nom de version</string>
-    <!-- meaning, bible version name -->
+  <!--meaning, bible version name-->
   <string name="show_version_name">Inclure le nom de version</string>
   <string name="show_ellipsis">Afficher les ellipses (...)</string>
   <string name="show_quotes">Montrer les citations</string>
   <string name="separate_verses_with_newlines">Séparer les versets par des sauts de ligne</string>
-
   <string name="initializing_app">Initialisation de l’application…</string>
   <string name="show_notes">Montrer les notes</string>
-    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Le paquet Android WebView est trop ancien (%1$s). Vous devez mettre à jour votre paquet Android WebView vers la version minimale %2$s pour utiliser %3$s. Pour la plupart des appareils, cela peut être fait via %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Accéder malgré tout</string>
@@ -947,16 +845,15 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="rate_message6">
      Avant d’examiner un avis négatif, veuillez prendre en compte les éléments suivants :
     </string>
-
-    <!-- parameters are actions (file a bug, send email) -->
+  <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
          Si vous avez un problème avec l’application, s’il vous plaît %1$s ou %2$sà la place.
     </string>
-    <!-- param is "please report maintainers" -->
+  <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Si un texte / une traduction de la Bible présente un problème, %s.
     </string>
-    <!-- param is "please read what you can do" -->
+  <!--param is "please read what you can do"-->
   <string name="rate_message3">
 Si un texte particulier n’est pas disponible dans l’application, %s.
 </string>
@@ -1043,36 +940,33 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="export_something">Exportation de %s</string>
   <string name="import_items">Importer %s</string>
   <string name="import_error">L’importation à partir de la base de données de l’application a échoué. Le fichier de la base de données peut être d’un format incorrect ou créé avec une version trop ancienne de %s.</string>
-
   <string name="export_bookmarks_csv">Exporter des signets comme %s</string>
-
-    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
   <string name="osis_reference"> Référence OSIS</string>
-    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
   <string name="bible_reference"> Référence biblique</string>
   <string name="document">Document</string>
   <string name="book">Livre</string>
-    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <!--Chapter is the chapter number in the book, starting from 1-->
   <string name="chapter_start">Début de chapitre</string>
-    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <!--Verse is the verse number in the chapter, starting from 1-->
   <string name="verse_start">Début de verset</string>
   <string name="chapter_end">Fin de chapitre</string>
   <string name="verse_end">Fin de verset</string>
   <string name="id">Identifiant</string>
-    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
   <string name="ordinal_start">Ordinal de début</string>
   <string name="ordinal_end">Ordinal de fin</string>
   <string name="created_at">Créé à</string>
-    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="start_offset">Décalage de départ</string>
   <string name="end_offset">Décalage de fin</string>
   <string name="custom_icon">Icône personnalisée</string>
   <string name="last_updated_at">Dernière mise à jour à</string>
   <string name="bookmark_notes">Notes de signet</string>
-
-    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Nous sommes désolés, mais nous n’avons qu’une traduction partielle de l’interface utilisateur en langue %1$s. C’est parce que %2$s est entièrement développé par des volontaires. Si vous pouvez aider à la traduction, veuillez voir %3$s.</string>
-    <!-- will be added to incomplete_translation as a link -->
+  <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instructions pour les traducteurs</string>
   <string name="questions_title">Questions ?</string>
   <string name="bookmark_style">Style du signet</string>
@@ -1081,7 +975,6 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="strongs_text_and_links">Textes et liens</string>
   <string name="strongs_hidden_links">Liens cachés</string>
   <string name="verse_tip">Pour sélectionner un ou plusieurs versets, vous pouvez appuyer longuement sur le texte biblique.</string>
-
   <string name="permission_required">Permission nécessaire</string>
   <string name="labels_search_hint">Rechercher</string>
   <string name="search_mode_name_start">Nom (depuis le début)</string>
@@ -1090,8 +983,7 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="search_results_matches">%d correspondances</string>
   <string name="search_results_match">1 correspondance</string>
   <string name="progress_status_permission">Pour afficher des notifications (état du téléchargement, traitement, état de la parole), nous avons besoin de votre autorisation.</string>
-
-    <!-- Discrete mode settings -->
+  <!--Discrete mode settings-->
   <string name="app_name_calculator">Simple calculatrice</string>
   <string name="prefs_persecution_cat">Paramètres pour les pays de persécution</string>
   <string name="prefs_discrete_mode">Cache les symboles religieux</string>
@@ -1100,13 +992,12 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="prefs_calculator_pin">PIN du calculatrice</string>
   <string name="prefs_calculator_pin_desc">Code PIN pour entrer dans l’application lorsque la calculatrice est affichée.</string>
   <string name="calc_division_by_zero">La division par zéro n’est pas autorisée</string>
-    <!-- Context: calculator. Wrong number format etc. -->
+  <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Mauvais format</string>
   <string name="calc_wrong_format_operand">Format incorrect. Opérande Sans chiffres ?</string>
   <string name="prefs_persecuted_help">Lisez cela en premier !</string>
-    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">Instructions pour les réglages et informations sur la construction discrète spécifique.</string>
-
   <string name="calculator_par1">
 Avant d’entrer dans l’application, l’écran de la calculatrice s’affiche.
 </string>
@@ -1127,14 +1018,12 @@ Vous pouvez y faire du calcul standard, et lorsque vous voulez entrer dans l’a
   <string name="discrete_mode_link">
 Vous pouvez télécharger la dernière version de la version discrète à l’adresse suivante%s
 </string>
-
-    <!-- Window synchronize groups -->
+  <!--Window synchronize groups-->
   <string name="sync_group_n">Groupe %d</string>
   <string name="disable_sync">Désactiver la synchronisation</string>
   <string name="open_in_window">Ouvre les résultats dans une fenêtre</string>
-
-    <!-- Custom repositories -->
-    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
+  <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Dépôts personnalisés</string>
   <string name="custom_repositories_empty_list_message">Aucun dépôts personnalisés ne sont définis.</string>
   <string name="custom_repositories_create_button_label">Ajouter un dépôt personnalisé</string>
@@ -1146,17 +1035,14 @@ Vous pouvez télécharger la dernière version de la version discrète à l’ad
   <string name="wiki_page">Page de WIKI</string>
   <string name="custom_repositories_help0">Vous pouvez installer des documents provenant de dépôts personnalisés externes en installant des dépôts personnalisés.</string>
   <string name="duplicate_custom_repository">Le dépôt avec le nom %s existe déjà, il n’est pas possible d’en ajouter un autre.</string>
-
   <string name="packages_dir">dossier de paquets (fichiers Zip)</string>
   <string name="warn_bad_document">Avertissement : Ce document peut être (au moins partiellement) de mauvaise qualité technique.</string>
-
-    <!-- Open links in AndBible (Deep linking) -->
+  <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">Ouvrir les liens bibliques dans Andbible</string>
   <string name="open_bible_links_summary">Lorsque vous cliquez sur des liens qui font référence à l’URL de la Bible prise en charge par AndBible, ouvrez-les dans AndBible.</string>
   <string name="copyReference">Copier dans le presse-papier</string>
   <string name="reference_copied_to_clipboard">La référence a été copiée dans le presse-papier</string>
-
-    <!-- Device cloud synchronization -->
+  <!--Device cloud synchronization-->
   <string name="prefs_sync_introduction_summary1">
 Choisissez le service de cloud que vous souhaitez utiliser pour synchroniser plusieurs appareils.
 </string>
@@ -1179,8 +1065,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="ai_settings_sync_contents">Prompts AI et configurations des fournisseurs</string>
   <string name="progress_sync_title">Progression de lecture</string>
   <string name="progress_sync_contents">Versets mémorisés et enregistrements de lecture des chapitres</string>
-
-    <!-- Reading Progress Activity -->
+  <!--Reading Progress Activity-->
   <string name="reading_progress_title">Progression lecture/mémorisation</string>
   <string name="reading_progress_chapters_read">chapitres lus</string>
   <string name="reading_progress_active_days">jours actifs</string>
@@ -1194,7 +1079,6 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="reading_progress_new_cycle_confirm">Démarrer un nouveau cycle de lecture ? Cela commencera à suivre votre progression depuis le début, tout en préservant les données de votre cycle précédent.</string>
   <string name="reading_progress_previous_cycle">Cycle précédent</string>
   <string name="reading_progress_next_cycle">Cycle suivant</string>
-
   <string name="cloud_fetch_and_restore_initial">Copiez du Cloud vers le périphérique</string>
   <string name="cloud_create_new">Copier du périphérique vers le Cloud</string>
   <string name="cloud_disable_sync">Annuler &amp;amp ; désactiver la synchronisation</string>
@@ -1223,20 +1107,18 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="sync_disabling">Désactivation de la synchronisation pour %s pour l’instant.</string>
   <string name="sync_update_app">Veuillez mettre à jour l’application pour poursuivre la synchronisation.</string>
   <string name="sign_in_failed">La connexion au service de synchronisation a échoué.</string>
-    <!--  ... after restoring from backup file -->
+  <!--... after restoring from backup file-->
   <string name="disabling_sync">Désactivation de la synchronisation dans le nuage. Vous devez la réactiver manuellement après la restauration.</string>
   <string name="report">Rapport</string>
   <string name="sync_error">Une erreur est survenue durant la synchronisation du Cloud</string>
   <string name="error_notification_channel_name">Erreur de notifications</string>
   <string name="last_updated">Dernière mise à jour : %s</string>
-
-    <!-- MyBible/MySword module support -->
+  <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Ne peut pas lire ce fichier</string>
   <string name="sqlite_invalid_file">Fichier de module ou nom de fichier invalide : %s</string>
   <string name="sqlite_cant_write">Impossible d’écrire ou de réécrire le fichier</string>
   <string name="install_failed_reason">L’installation du module a échoué pour la raison suivante : %s.</string>
-
-    <!-- Other / uncategorized -->
+  <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Application ouverte ailleurs</string>
   <string name="open_here">Ouvrir ici</string>
   <string name="external_link">Lien externe</string>
@@ -1299,8 +1181,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="memorize_calendar">Activité de mémorisation</string>
   <string name="memorize_view_list">Liste</string>
   <string name="memorize_view_overview">Aperçu</string>
-
-    <!-- LLM Translation Settings -->
+  <!--LLM Translation Settings-->
   <string name="sync_settings_shortcut_summary">Synchroniser les données entre les appareils</string>
   <string name="llm_provider_custom">Personnalisé (compatible OpenAI)</string>
   <string name="ai_behavior_category">Comportement</string>
@@ -1346,8 +1227,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="custom_system_prompt_default">Par défaut</string>
   <string name="custom_system_prompt_custom">Personnalisé</string>
   <string name="reset_to_default">Réinitialiser par défaut</string>
-
-    <!-- Raw log history -->
+  <!--Raw log history-->
   <string name="raw_log_history_title">Historique des journaux IA</string>
   <string name="raw_log_history_summary">Afficher et gérer les journaux de conversation IA enregistrés</string>
   <string name="raw_log_history_empty">Aucun journal enregistré</string>
@@ -1365,7 +1245,6 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="raw_log_retention_summary_disabled">Désactivé (tout conserver)</string>
   <string name="send_ai_bug_report_title">Signaler un bug IA</string>
   <string name="ai_bug_report_menu">Signaler un bug IA</string>
-
   <string name="select_model_before_run_title">Sélectionner un modèle</string>
   <string name="set_default_model_for_prompt">Définir comme modèle par défaut pour ce prompt</string>
   <string name="prompt_max_iterations">Limite max d\'itérations</string>
@@ -1374,8 +1253,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="prompt_max_iterations_unlimited">Illimité</string>
   <string name="prompt_max_iterations_global_default">Valeur par défaut globale (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Remplacer la limite max d\'itérations globale pour cette invite. 0 = illimité.\nActuel : %s</string>
-
-    <!-- Prompt Manager -->
+  <!--Prompt Manager-->
   <string name="manage_prompts">Gérer les invites AI</string>
   <string name="manage_prompts_summary">Créer et modifier les invites AI</string>
   <string name="ai_settings">Paramètres AI</string>
@@ -1386,8 +1264,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="ai_settings_shortcut_summary">Paramètres de connexion AI et d\'invite</string>
   <string name="ai_provider_tier_recommended">Recommandé</string>
   <string name="ai_provider_tier_community">Autres fournisseurs (non testés)</string>
-
-    <!-- Multi-provider settings -->
+  <!--Multi-provider settings-->
   <string name="ai_providers_models_category">Fournisseurs &amp; Modèles</string>
   <string name="ai_providers_category">Fournisseurs</string>
   <string name="ai_providers_summary_none">Aucun fournisseur configuré</string>
@@ -1401,15 +1278,14 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="ai_provider_name_hint">Nom d\'affichage pour ce fournisseur</string>
   <string name="ai_provider_api_key">Clé API</string>
   <string name="ai_provider_endpoint">Point de terminaison API</string>
-  <string name="ai_provider_endpoint_description">URL de base uniquement. AndBible ajoute automatiquement "/chat/completions" (format OpenAI) ou "/messages" (format Anthropic). Les listes de modèles sont récupérées depuis "/models".</string>
+  <string name="ai_provider_endpoint_description">URL de base uniquement. AndBible ajoute automatiquement \"/chat/completions\" (format OpenAI) ou \"/messages\" (format Anthropic). Les listes de modèles sont récupérées depuis \"/models\".</string>
   <string name="ai_provider_api_format">Format API</string>
   <string name="ai_provider_saved">Fournisseur enregistré</string>
   <string name="ai_provider_deleted">Fournisseur supprimé</string>
-
   <string name="llm_openrouter_category">Catégorie</string>
   <string name="llm_openrouter_category_all">Tout</string>
   <string name="llm_openrouter_model">Modèle</string>
-    <!-- Configured models management -->
+  <!--Configured models management-->
   <string name="ai_models_category">Modèles</string>
   <string name="add_model">Ajouter un modèle</string>
   <string name="edit_model_title">Modifier le modèle</string>
@@ -1421,8 +1297,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="model_supported_badge">✓ Pris en charge</string>
   <string name="show_also_unsupported_models">Afficher aussi les modèles non pris en charge</string>
   <string name="show_also_unsupported_providers">Afficher aussi les fournisseurs non pris en charge</string>
-
-    <!-- Easy Setup -->
+  <!--Easy Setup-->
   <string name="model_pricing_summary">%1$s en entrée / %2$s en sortie par Mjeton</string>
   <string name="easy_setup_free_tier">Niveau gratuit</string>
   <string name="unknown_error">Erreur inconnue</string>
@@ -1439,8 +1314,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="easy_setup_gemini_desc">Niveau gratuit disponible, bonne qualité</string>
   <string name="easy_setup_anthropic_desc">Abordable, excellente qualité</string>
   <string name="easy_setup_openai_desc">Bien connu, fiable</string>
-
-    <!-- AI Disclaimer -->
+  <!--AI Disclaimer-->
   <string name="ai_disclaimer_warning_title">Important : À lire avant d\'utiliser les outils IA</string>
   <string name="ai_disclaimer_warning_summary">Risques et responsabilités liés à l\'utilisation de l\'IA</string>
   <string name="ai_disclaimer_dialog_title">Outils IA — Informations importantes</string>
@@ -1458,7 +1332,6 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="ai_disclaimer_point9">Les fournisseurs IA facturent l\'utilisation de l\'API. Les estimations de coût affichées dans AndBible sont approximatives — vérifiez toujours la facturation de votre fournisseur pour les charges réelles.</string>
   <string name="ai_disclaimer_accept_title">Accepter la clause de non-responsabilité IA</string>
   <string name="ai_disclaimer_accept_button">J\'accepte et prends l\'entière responsabilité</string>
-
   <string name="prompt_permission_mode">Mode d\'autorisation</string>
   <string name="prompt_permission_mode_description">Contrôle quand une confirmation de l\'utilisateur est requise avant que l\'IA effectue des opérations d\'écriture. Les paramètres par outil ci-dessous peuvent remplacer ce réglage pour des outils individuels.</string>
   <string name="agent_permission_mode_summary">Contrôle quand une confirmation de l\'utilisateur est requise avant les opérations d\'écriture IA</string>
@@ -1541,8 +1414,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="ai_regenerate_keep_previous">Conserver la version précédente</string>
   <string name="ai_regenerate_fresh_run">Nouvelle exécution (ignorer le résultat précédent)</string>
   <string name="ai_unknown_prompt">AI</string>
-
-    <!-- Default prompts -->
+  <!--Default prompts-->
   <string name="default_prompt_translate_to_language">Traduire en %s</string>
   <string name="default_prompt_translate_to_ui_language">Traduire dans la langue de l\'interface</string>
   <string name="default_prompt_translate_to_ui_language_desc">Traduit le texte du document dans la langue de l\'interface de l\'application</string>
@@ -1579,8 +1451,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="ai_restore_hidden_prompts">Restaurer les prompts masqués</string>
   <string name="ai_prompt_hidden">Prompt masqué</string>
   <string name="ai_prompts_restored">Prompts masqués restaurés</string>
-
-    <!-- Agent Tool Display Names -->
+  <!--Agent Tool Display Names-->
   <string name="tool_create_bookmark">Créer un signet</string>
   <string name="tool_add_bookmark_note">Ajouter une note au signet</string>
   <string name="tool_update_bookmark_note">Mettre à jour la note du signet</string>
@@ -1621,13 +1492,11 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="tool_create_window">Créer une fenêtre</string>
   <string name="tool_manage_window">Gérer la fenêtre</string>
   <string name="tool_set_window_document">Définir le document de la fenêtre</string>
-
-    <!-- Agent Permission Dialog -->
+  <!--Agent Permission Dialog-->
   <string name="agent_permission_title">Permission de l\'agent</string>
   <string name="agent_permission_message">L\'assistant AI souhaite utiliser \"%1$s\" :\n\n%2$s</string>
   <string name="agent_permission_message_with_action">L\'assistant AI souhaite :\n\n%1$s</string>
-
-    <!-- Tool action descriptions for permission dialog -->
+  <!--Tool action descriptions for permission dialog-->
   <string name="action_create_bookmark_at">Créer un signet à %1$s</string>
   <string name="action_create_bookmark_at_with_extras">Créer un signet à %1$s (%2$s)</string>
   <string name="action_with_note">avec note</string>
@@ -1665,8 +1534,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="permission_always_allow_confirm_title">Toujours autoriser ?</string>
   <string name="permission_always_allow_confirm">Êtes-vous sûr de vouloir autoriser définitivement \"%1$s\" ?</string>
   <string name="permission_always_allow_confirm_reset_hint">Vous pouvez réinitialiser cela dans les Paramètres AI.</string>
-
-    <!-- Agent Tool Permission Settings -->
+  <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Permissions des outils</string>
   <string name="manage_tool_permissions_summary">Gérer les remplacements de permissions par outil</string>
   <string name="commentary_max_response_title">Limite de taille de réponse des commentaires</string>
@@ -1700,19 +1568,15 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="permission_option_always_allow">Toujours autoriser</string>
   <string name="permission_option_always_deny">Toujours refuser</string>
   <string name="reset_all_permissions">Réinitialiser tout</string>
-
-    <!-- Tool Info -->
+  <!--Tool Info-->
   <string name="ai_available_tools">Outils disponibles</string>
   <string name="ai_read_tools">Outils de lecture</string>
   <string name="ai_write_tools">Outils d\'écriture</string>
-
-    <!-- Global Tool Permissions Activity -->
+  <!--Global Tool Permissions Activity-->
   <string name="global_tool_permissions_title">Paramètres d\'outils par défaut</string>
-
-    <!-- Per-Prompt Tool Permissions -->
+  <!--Per-Prompt Tool Permissions-->
   <string name="prompt_tool_permissions">Permissions des outils</string>
-
-    <!-- Tool categories -->
+  <!--Tool categories-->
   <string name="tool_category_bible_search">Bible &amp; Recherche</string>
   <string name="tool_category_bookmarks">Signets</string>
   <string name="tool_category_labels">Étiquettes</string>
@@ -1729,16 +1593,13 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="tool_option_default_disabled">Par défaut (désactivé)</string>
   <string name="tool_option_default_allowed">Par défaut (autorisé)</string>
   <string name="tool_option_default_denied">Par défaut (refusé)</string>
-
-    <!-- Per-Prompt Model Override -->
+  <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Modèle</string>
   <string name="prompt_model_default">Par défaut</string>
-
-    <!-- LLM One Tap Actions -->
+  <!--LLM One Tap Actions-->
   <string name="select_llm_prompt">Sélectionner une action AI</string>
   <string name="llm_actions">Actions AI</string>
-
-    <!-- Agent Log Widget -->
+  <!--Agent Log Widget-->
   <string name="agent_log_expand">Développer/réduire le journal de l\'agent</string>
   <string name="agent_log_close">Fermer le journal de l\'agent</string>
   <string name="agent_log_stop">Arrêter l\'AI</string>
@@ -1753,8 +1614,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="agent_log_done">Terminé : %s</string>
   <string name="agent_log_cancelled">Annulé</string>
   <string name="agent_already_running">Un agent AI est déjà en cours d\'exécution. Veuillez patienter ou l\'arrêter d\'abord.</string>
-
-    <!-- AI Agent Notifications -->
+  <!--AI Agent Notifications-->
   <string name="ai_agent_notification_channel_name">Agent AI</string>
   <string name="ai_agent_notification_running">Agent AI en cours de traitement…</string>
   <string name="ai_agent_notification_permission_needed">L\'agent AI nécessite votre approbation</string>
@@ -1763,8 +1623,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="ai_agent_notification_completed_tap">Appuyer pour voir les résultats</string>
   <string name="ai_agent_notification_error">Tâche AI échouée</string>
   <string name="ai_agent_notification_cancel">Annuler</string>
-
-    <!-- My Documents -->
+  <!--My Documents-->
   <string name="my_documents_title">Mes documents</string>
   <string name="my_documents_empty">Aucun document. Appuyez sur + pour en créer un.</string>
   <string name="my_document_new_name">Document %d</string>
@@ -1775,7 +1634,6 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="my_document_save_changes">Enregistrer les modifications ?</string>
   <string name="my_document_no_description">Aucune description</string>
   <string name="my_document_edit_description">Modifier la description</string>
-
   <string name="my_document_pages_title">%s - Pages</string>
   <string name="my_document_pages_empty">Aucune page dans ce document.</string>
   <string name="my_document_page_rename_title">Renommer la page</string>
@@ -1796,7 +1654,6 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="prefs_show_ai_doc_markers_summary">Afficher les icônes de marqueur pour les pages de documents générées par AI liées aux versets</string>
   <string name="prefs_show_ordinals_title">Afficher les numéros ordinaux</string>
   <string name="prefs_show_ordinals_summary">Afficher les marqueurs de position ordinale dans le texte</string>
-
   <string name="prefs_page_scroll_amount_title">Quantité de défilement par page</string>
   <string name="prefs_page_scroll_amount_summary">Quelle portion de la page faire défiler avec page haut/bas</string>
   <string name="prefs_scroll_helper_lines_title">Lignes d\'aide au défilement</string>

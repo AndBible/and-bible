@@ -1,15 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">การศึกษาพระคัมภีร์</string>
   <string name="app_name_medium">การศึกษาพระคัมภีร์ (AndBible)</string>
   <string name="app_name_long">AndBible: การศึกษาพระคัมภีร์</string>
-
   <string name="version_text">เวอร์ชัน %s</string>
   <string name="no_sdcard_error">กรุณาใส่การ์ด SD แล้วรีสตาร์ทแอปพลิเคชัน</string>
-
-    <!-- Main menu -->
+  <!--Main menu-->
   <string name="menu">เมนู</string>
   <string name="chooseBook">เอกสาร</string>
   <string name="selectPassage">ข้อความ</string>
@@ -25,15 +22,13 @@
   <string name="administration">การจัดการ</string>
   <string name="rate_application">ให้คะแนนและรีวิว</string>
   <string name="chooce_document">เลือกเอกสาร</string>
-
-    <!-- Passage navigation -->
+  <!--Passage navigation-->
   <string name="choosePassageBookName">เลือกหนังสือ</string>
   <string name="choosePassageChapterName">เลือกบท</string>
   <string name="choosePassageVerseName">เลือกข้อ</string>
   <string name="bible">พระคัมภีร์</string>
   <string name="deuterocanonical">เฒ่าพันธสัญญาชั้นสอง</string>
-
-    <!--  Search -->
+  <!--Search-->
   <string name="search_index">ดัชนีการค้นหา</string>
   <string name="index_creation_required">จำเป็นต้องมีดัชนีเพื่อค้นหา</string>
   <string name="create_index_for">จำเป็นต้องมีดัชนีเพื่อค้นหา \n\nสร้างดัชนีสำหรับ %s?</string>
@@ -45,15 +40,13 @@
   <string name="do_in_background">ดำเนินการต่อในเบื้องหลัง</string>
   <string name="rebuild_index_button">สร้างใหม่</string>
   <string name="creating_index_for">กำลังสร้างดัชนีสำหรับ %s…</string>
-    <!-- X results in module Y -->
+  <!--X results in module Y-->
   <string name="search_with_results2">%1$s ผลลัพธ์ใน %2$s</string>
-
-    <!-- Tasks -->
+  <!--Tasks-->
   <string name="progress_status">ความคืบหน้า</string>
   <string name="task_kill_warning">งานที่ใช้เวลานานเหล่านี้อาจสิ้นสุดหากคุณสลับไปใช้แอปพลิเคชันอื่นก่อนที่จะเสร็จสิ้น</string>
   <string name="no_tasks_running">ขณะนี้ไม่มีงานที่กำลังดำเนินการ</string>
-
-    <!-- Search -->
+  <!--Search-->
   <string name="search_words_group_prompt">ค้นหาข้อพระคัมภีร์</string>
   <string name="search_all_words">ทุกคำ</string>
   <string name="search_any_word">คำใดคำหนึ่ง</string>
@@ -68,49 +61,38 @@
   <string name="search_current_book">หนังสือปัจจุบัน</string>
   <string name="error_executing_search">คำค้นหาไม่ถูกต้อง</string>
   <string name="type_text_or_bible_reference">พิมพ์ข้อความหรืออ้างอิงพระคัมภีร์</string>
-    <!-- Open (bible reference X) -->
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">เปิด %s</string>
-    <!-- Finx "(keywords x)", keywords based on text selection -->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">ค้นหา \"%s\"</string>
-    <!-- Multi-translation search -->
+  <!--Multi-translation search-->
   <string name="search_translations">ฉบับแปล</string>
   <string name="choose_translations">เลือกฉบับแปล…</string>
   <string name="multi_search_results">%1$d ข้อใน %2$d ฉบับแปล</string>
   <string name="search_index_not_created">ไม่มีดัชนี</string>
-
-    <!-- Preferences -->
+  <!--Preferences-->
   <string name="prefs_show_verseno_title">เลขบทและข้อ</string>
   <string name="prefs_show_verseno_summary">แสดงเลขบทและข้อ</string>
-
   <string name="prefs_e_ink_mode_title">โหมดขาวดำ</string>
   <string name="prefs_eink_mode_summary">ใช้แอปพลิเคชันในโหมดโมโนโครม (ไม่มีสี) เหมาะสำหรับอุปกรณ์ E-ink</string>
   <string name="prefs_eink_settings_cat">การตั้งค่า E-ink</string>
   <string name="prefs_eink_display_title">คุณสมบัติ E-ink</string>
   <string name="prefs_eink_display_summary">เปิดใช้งานคุณสมบัติเฉพาะ E-ink (ปุ่มเลื่อนหน้า เส้นช่วยการเลื่อน)</string>
-
   <string name="prefs_disable_animations_title">ปิดการใช้งานแอนิเมชัน</string>
   <string name="prefs_disable_animations_summary">ปิดการใช้งานแอนิเมชันต่างๆ เช่น การเลื่อนแบบราบรื่น</string>
-
   <string name="prefs_disable_click_to_edit_title">ปิดการแตะเพื่อแก้ไขในแผ่นบันทึกการศึกษา</string>
   <string name="prefs_disable_click_to_edit_summary">ต้องใช้ปุ่มแก้ไขเพื่อแก้ไขบันทึกในแผ่นบันทึกการศึกษา</string>
-
   <string name="prefs_notes_content_type_title">รูปแบบสำหรับบันทึกที่คั่นหน้าใหม่</string>
   <string name="prefs_notes_content_type_summary">รูปแบบข้อความที่ใช้เมื่อสร้างบันทึกที่คั่นหน้าและรายการแผ่นบันทึกการศึกษาใหม่</string>
   <string name="notes_content_type_html">ข้อความรูปแบบ (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
-
-
-
-
   <string name="prefs_verse_per_line_summary">แสดงแต่ละข้อในบรรทัดแยกต่างหาก</string>
   <string name="prefs_show_bookmarks_summary">ยกเลิกการเลือกเพื่อซ่อนที่คั่นหน้าทั้งหมด</string>
-
   <string name="prefs_show_mynotes_summary">แสดงไอคอนในข้อที่มีบันทึกของฉัน</string>
   <string name="prefs_show_strongs_summary">ลิงก์ไปยังคำจำกัดความภาษากรีกและฮีบรู</string>
   <string name="prefs_show_morphology_summary">แสดงสัณฐานวิทยาภาษากรีกของ Robinson</string>
   <string name="prefs_section_title_summary">แสดงหัวข้อส่วนที่ไม่ใช่พระคัมภีร์</string>
   <string name="prefs_red_letter_summary">แสดงพระวจนะของพระคริสต์ด้วยตัวอักษรสีแดง</string>
-
   <string name="prefs_verse_per_line_title">หนึ่งข้อต่อบรรทัด</string>
   <string name="prefs_show_bookmarks_title">แสดงที่คั่นหน้า</string>
   <string name="prefs_show_mynotes_title">แสดงไอคอนบันทึกของฉัน</string>
@@ -120,7 +102,6 @@
   <string name="prefs_show_footnotes_inline_title">เชิงอรรถแบบอินไลน์</string>
   <string name="prefs_show_footnotes_inline_summary">แสดงเชิงอรรถแบบอินไลน์กับข้อความแทนที่จะเป็นตัวจัดการที่คลิกได้</string>
   <string name="prefs_show_xrefs_summary">แสดงการอ้างอิงข้าม หากมีในเอกสาร</string>
-
   <string name="prefs_show_strongs_title">หมายเลข Strong\'s</string>
   <string name="prefs_show_morphology_title">รหัสสัณฐานวิทยา</string>
   <string name="prefs_non_strongs_word_italic_title">ทำคำที่เพิ่มเข้ามาเป็นตัวเอียง</string>
@@ -145,20 +126,17 @@
   <string name="reading_progress_history_no_entries">ไม่มีรายการที่อ่านสำหรับการเลือกนี้</string>
   <string name="reading_progress_history_version_unknown">ไม่ทราบเวอร์ชัน</string>
   <string name="prefs_tilt_to_scroll_title">เอียงเพื่อเลื่อน</string>
-
   <string name="prefs_toolbar_button_action_title">การกระทำสำหรับปุ่มแถบเครื่องมือ</string>
   <string name="prefs_toolbar_button_action_summary">การกระทำเมื่อกด/กดค้างปุ่มแถบเครื่องมือพระคัมภีร์หรือคำอธิบาย</string>
   <string name="prefs_toolbar_button_action_default">กดเพื่อเปิดเมนู กดค้างเพื่อเปิดหน้าจอเอกสาร (ค่าเริ่มต้น)</string>
   <string name="prefs_toolbar_button_action_swap_menu">กดเพื่อเปิดเอกสารถัดไป กดค้างเพื่อเปิดเมนู</string>
   <string name="prefs_toolbar_button_action_swap_activity">กดเพื่อเปิดเอกสารถัดไป กดค้างเพื่อเปิดหน้าจอเอกสาร</string>
-
   <string name="prefs_night_mode_title">การสลับโหมดกลางคืน</string>
   <string name="prefs_night_mode_summary">เลือกว่าจะสลับเป็นโหมดกลางคืนโดยอัตโนมัติ (หากอุปกรณ์รองรับ) ด้วยตนเอง หรือตามการตั้งค่าระบบ (Android 10 ขึ้นไป) การสลับด้วยตนเองสามารถทำได้จากเมนู 3 จุดในหน้าจอหลัก</string>
   <string name="prefs_night_mode_manual">ด้วยตนเอง</string>
   <string name="prefs_night_mode_automatic">อัตโนมัติ</string>
   <string name="prefs_night_mode_system">ระบบ</string>
   <string name="options_menu_night_mode">โหมดกลางคืน</string>
-
   <string name="prefs_navigate_to_verse_title">นำทางไปยังข้อ</string>
   <string name="prefs_navigate_to_verse_summary">เลือกข้อ (และบท) เมื่อเลือกตอน</string>
   <string name="prefs_open_links_in_special_window_title">หน้าต่างลิงก์</string>
@@ -169,20 +147,15 @@
   <string name="prefs_interface_locale_title">ภาษาของแอปพลิเคชัน</string>
   <string name="prefs_interface_locale_summary">เลือกภาษาส่วนติดต่อผู้ใช้แบบกำหนดเอง</string>
   <string name="reset_fontsize">รีเซ็ต</string>
-
   <string name="prefs_request_sdcard_permission_title">มีเอกสารที่ติดตั้งด้วยตนเอง</string>
   <string name="prefs_request_sdcard_permission_summary">เปิดใช้งานเอกสารที่ติดตั้งด้วยตนเองจากโฟลเดอร์ jsword/sword ในพื้นที่จัดเก็บภายใน</string>
-
   <string name="prefs_expand_footnotes_title">การอ้างอิงข้ามแบบอินไลน์</string>
   <string name="prefs_expand_footnotes_summary">แสดงเนื้อหาการอ้างอิงข้ามแบบอินไลน์ภายในข้อความ แทนการเปิดกล่องโต้ตอบผ่านลิงก์</string>
-
   <string name="all_text_options_window_menutitle">ตัวเลือกข้อความทั้งหมด</string>
   <string name="text_options_window_menutitle">ตัวเลือกข้อความ</string>
   <string name="auto_fullscreen">เต็มหน้าจออัตโนมัติเมื่อเลื่อน</string>
   <string name="reversed_split_mode">โหมดแบ่งหน้าจอแบบกลับด้าน</string>
-
   <string name="add_ellipsis">%s…</string>
-
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d มม.</string>
   <string name="auto_fullscreen_summary">สลับไปยังโหมดเต็มหน้าจออัตโนมัติเมื่อเลื่อนข้อความ เคล็ดลับ: คุณสามารถสลับเป็นเต็มหน้าจอได้เสมอโดยแตะหน้าจอสองครั้ง</string>
@@ -192,10 +165,8 @@
   <string name="prefs_features_cat">คุณสมบัติ</string>
   <string name="prefs_display_customization_cat">รูปลักษณ์</string>
   <string name="prefs_behavior_customization_cat">การทำงานของแอปพลิเคชัน</string>
-
   <string name="prefs_margin_size_summary">ปรับขอบซ้ายและขวาของพื้นที่ข้อความ คุณยังสามารถปรับความกว้างสูงสุดของข้อความได้</string>
   <string name="prefs_margin_size_summary_2">เคล็ดลับ: แตะที่พื้นที่ขอบเพื่อเลื่อนขึ้น/ลงหนึ่งหน้า</string>
-
   <string name="prefs_text_colors_summary">ปรับสีข้อความ สีพื้นหลัง และเอฟเฟกต์สัญญาณรบกวน</string>
   <string name="text_display_settings_activity_title">การตั้งค่าการแสดงข้อความ</string>
   <string name="workspace_text_display_settings_title">ตัวเลือกข้อความ - %s</string>
@@ -213,7 +184,6 @@
   <string name="prefs_footnotes_and_xrefs_title">เชิงอรรถ &amp; การอ้างอิงข้าม</string>
   <string name="prefs_verses_and_headings_title">ข้อพระคัมภีร์ &amp; หัวเรื่อง</string>
   <string name="prefs_page_scrolling_title">การเลื่อนหน้า</string>
-
   <string name="prefs_justify_title">จัดข้อความแบบ Justify</string>
   <string name="prefs_justify_summary">จัดข้อความแบบ \'justify\' คือขอบซ้ายและขวาของข้อความอยู่ในแนวเดียวกัน</string>
   <string name="pref_left_margin_label_mm">ขอบซ้าย (%d มม.)</string>
@@ -235,10 +205,8 @@
   <string name="hide_window_buttons_summary">ปุ่มหน้าต่างที่แสดงทางด้านขวาของมุมมองพระคัมภีร์จะถูกซ่อน แถบนำทางหน้าต่างที่ด้านล่างยังคงแสดงอยู่ และคุณสามารถเปิดเมนูป็อปอัปหน้าต่างได้โดยกดค้าง</string>
   <string name="hide_bible_reference_overlay_title">ซ่อนการอ้างอิงพระคัมภีร์แบบโปร่งแสง</string>
   <string name="hide_bible_reference_overlay_summary">ไม่แสดงการอ้างอิงพระคัมภีร์แบบกึ่งโปร่งแสงเมื่อแอปอยู่ในโหมดเต็มหน้าจอ</string>
-
   <string name="full_screen_hide_buttons_pref_title">ซ่อนแถบปุ่มหน้าต่างในโหมดเต็มหน้าจอ</string>
   <string name="full_screen_hide_buttons_pref_summary">เมื่อสลับไปยังโหมดเต็มหน้าจอ ซ่อนแถบปุ่มหน้าต่างที่ด้านล่างของหน้าจออัตโนมัติ</string>
-
   <string name="prefs_dictionaries_cat">พจนานุกรม</string>
   <string name="choose_strongs_greek_dictionary_title">พจนานุกรมภาษากรีก Strongs</string>
   <string name="choose_strongs_greek_dictionary_summary">เลือกพจนานุกรม Strongs สำหรับคำจำกัดความภาษากรีก</string>
@@ -250,28 +218,22 @@
   <string name="choose_word_lookup_dictionary_summary">เลือกพจนานุกรมสำหรับค้นหาคำ</string>
   <string name="lookup_in_dictionary">ค้นหาในพจนานุกรม</string>
   <string name="word_not_found_in_dictionaries">ไม่พบคำในพจนานุกรมใดๆ</string>
-
   <string name="prefs_top_margin_title_mm">ขอบบน (%d มม.)</string>
   <string name="font_size_title">ขนาดตัวอักษร</string>
   <string name="font_size_title_pt">ขนาดตัวอักษร (%d pt)</string>
   <string name="prefs_font_text_size_summary">ปรับขนาดตัวอักษรของข้อความหลัก</string>
-
   <string name="pref_font_family_label_name">ตระกูลแบบอักษร (%s)</string>
   <string name="prefs_font_family_summary">เปลี่ยนตระกูลแบบอักษร เคล็ดลับ: สามารถติดตั้งแบบอักษรเพิ่มเติมได้ผ่านดาวน์โหลดเอกสาร / ส่วนเสริม</string>
-
   <string name="prefs_text_bookmarks_title">การตั้งค่าที่คั่นหน้า &amp; บันทึกของฉัน</string>
   <string name="prefs_reading_and_memorization_title">การอ่านและการจดจำ</string>
-
   <string name="prefs_enable_bluetooth_title">เปิดใช้งานปุ่มมีเดียบลูทูธ</string>
   <string name="prefs_enable_bluetooth_summary">จัดการปุ่มมีเดียบลูทูธเพื่อเริ่ม/หยุดการอ่านออกเสียง</string>
   <string name="create_bookmark">สร้างที่คั่นหน้าใหม่</string>
   <string name="create_bookmark_with_a_note">สร้างที่คั่นหน้าใหม่พร้อมบันทึก</string>
-
-    <!-- Colors preferences -->
+  <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">การตั้งค่าสี</string>
   <string name="window_color_settings_title">การตั้งค่าสีหน้าต่าง</string>
   <string name="workspace_color_settings_title">ค่าเริ่มต้นการตั้งค่าสีพื้นที่ทำงาน</string>
-
   <string name="color_workspace">สีพื้นที่ทำงาน</string>
   <string name="color_text">สีข้อความ</string>
   <string name="color_background">สีพื้นหลัง</string>
@@ -279,9 +241,7 @@
   <string name="colors_night_mode_title">โหมดกลางคืน</string>
   <string name="prefs_noise_title">สัญญาณรบกวนพื้นหลัง</string>
   <string name="prefs_noise_summary">การเพิ่มสัญญาณรบกวนให้พื้นหลังอาจทำให้สบายตามากขึ้น</string>
-
-
-    <!-- Window -->
+  <!--Window-->
   <string name="new_window">หน้าต่างใหม่</string>
   <string name="windowMaximise">ขยายใหญ่สุด</string>
   <string name="windowMinimise">ย่อเล็กสุด</string>
@@ -294,15 +254,12 @@
   <string name="copy_settings_to_global">ค่าเริ่มต้นสากล</string>
   <string name="change_to_normal">เปลี่ยนเป็นหน้าต่างปกติ</string>
   <string name="window_pin_mode">ปักหมุด</string>
-
-    <!-- Notes screen -->
+  <!--Notes screen-->
   <string name="previous">ก่อนหน้า</string>
   <string name="next">ถัดไป</string>
-
-    <!--  Strongs -->
+  <!--Strongs-->
   <string name="no_indexed_bible_with_strongs_ref">คุณต้องดาวน์โหลดพระคัมภีร์ที่มีหมายเลข Strong\'s และสร้างดัชนีผ่านการค้นหา</string>
-
-    <!-- Module download -->
+  <!--Module download-->
   <string name="download">ดาวน์โหลดเอกสาร</string>
   <string name="redownload">ดาวน์โหลดเอกสารใหม่</string>
   <string name="download_source_last_updated">อัปเดตรายการเอกสารล่าสุด: %s</string>
@@ -327,8 +284,7 @@
   <string name="failed_repositories_message">ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์เอกสารต่อไปนี้: \n\n%s\n\n</string>
   <string name="failed_downloads_message">ไม่สามารถดาวน์โหลดไฟล์ต่อไปนี้:\n\n%s\n\n</string>
   <string name="cant_delete_document">ไม่สามารถลบเอกสารนี้ได้</string>
-
-    <!--  Install zip file -->
+  <!--Install zip file-->
   <string name="install_zip">โหลดเอกสารจากไฟล์</string>
   <string name="install_zip_module">ติดตั้งโมดูลพระคัมภีร์</string>
   <string name="install_zip_module_discrete">ติดตั้งโมดูลเครื่องคิดเลข</string>
@@ -341,8 +297,7 @@
   <string name="overwrite_files_title">เขียนทับไฟล์?</string>
   <string name="could_not_overwrite_files">ไม่สามารถเขียนทับไฟล์: %s นอกจากนั้นการติดตั้งสำเร็จแล้ว</string>
   <string name="install_do_you_want">ต้องการติดตั้งโมดูล (%s) หรือไม่?</string>
-
-    <!-- Daily Reading Plan -->
+  <!--Daily Reading Plan-->
   <string name="rdg_plan_title">แผนการอ่าน</string>
   <string name="reading_plans_plural">แผนการอ่าน</string>
   <string name="rdg_plan_selector_title">เลือกแผนการอ่าน</string>
@@ -368,30 +323,26 @@
   <string name="plan_description_y1ot6nt4_profHorner">ได้รับความอนุเคราะห์จาก ศ.ฮอร์เนอร์ ได้รับอนุญาต</string>
   <string name="plan_name_y2ot1ntps2">อ่านพระคัมภีร์ใน 2 ปี NT+สดุดี 2 รอบ</string>
   <string name="plan_description_y2ot1ntps2">อ่านพระคัมภีร์ใน 2 ปี โดยอ่าน NT และสดุดีสองครั้ง ได้รับความอนุเคราะห์จาก Wholesome Words, http://www.wholesomewords.org/, ได้รับอนุญาต</string>
-
-    <!-- Document context menu -->
+  <!--Document context menu-->
   <string name="delete">ลบ</string>
   <string name="delete_index">ลบดัชนีค้นหา</string>
   <string name="about">เกี่ยวกับ</string>
   <string name="delete_doc">ลบ %s?</string>
   <string name="delete_search_index_doc">ลบดัชนีของ %s?</string>
-
-    <!-- Verse context menu -->
+  <!--Verse context menu-->
   <string name="notes">เชิงอรรถและอ้างอิง</string>
   <string name="share_verse">แชร์…</string>
   <string name="share_verse_widget_title">แชร์ส่วนที่เลือก</string>
   <string name="compare_translations">เปรียบเทียบฉบับแปล</string>
-
-    <!-- Link context menu -->
+  <!--Link context menu-->
   <string name="open_link_in_this_window">เปิดลิงก์ที่นี่</string>
   <string name="open_link_in_new_window">เปิดลิงก์ในหน้าต่างใหม่</string>
   <string name="open_link_in_special_window">เปิดลิงก์ในหน้าต่างพิเศษ</string>
-
-    <!-- Bookmarks -->
+  <!--Bookmarks-->
   <string name="bookmarks_and_mynotes_title">ที่คั่นหน้า &amp; บันทึกของฉัน</string>
   <string name="migrated_my_notes">โอนย้ายบันทึกของฉันแล้ว</string>
   <string name="bookmarks">ที่คั่นหน้า</string>
-    <!-- Bookmark / note labels -->
+  <!--Bookmark / note labels-->
   <string name="labels">ป้ายกำกับ</string>
   <string name="manage_labels">จัดการป้ายกำกับ</string>
   <string name="assign_labels">กำหนดป้ายกำกับ</string>
@@ -411,7 +362,7 @@
   <string name="auto_assign_labels">กำหนดอัตโนมัติ &amp; ป้ายกำกับโปรด</string>
   <string name="auto_assign_labels1">กำหนดป้ายกำกับอัตโนมัติสำหรับที่คั่นหน้าใหม่</string>
   <string name="auto_assign_labels_primary">กำหนดเป็นหลักอัตโนมัติ</string>
-  <!-- can be removed -->
+  <!--can be removed-->
   <string name="marker_style">แสดงเฉพาะเครื่องหมายสำหรับที่คั่นหน้าส่วนที่เลือก</string>
   <string name="marker_style_whole_verse">แสดงเฉพาะเครื่องหมายสำหรับที่คั่นหน้าข้อพระคัมภีร์ทั้งหมด</string>
   <string name="hide_style">ซ่อนสำหรับที่คั่นหน้าส่วนที่เลือก</string>
@@ -420,39 +371,35 @@
   <string name="bookmark_warning2">หากโครงสร้างเอกสารมีการเปลี่ยนแปลง การอัปเดตเอกสารนี้อาจทำให้ ตำแหน่งของที่คั่นหน้า/บันทึกเหล่านี้เคลื่อนไปในเอกสาร หรือหายไปโดยสิ้นเชิง</string>
   <string name="bookmark_warning3">คุณยังต้องการอัปเดตโมดูลอยู่หรือไม่?</string>
   <string name="bookmark_warning4">แนะนำให้สำรองข้อมูลโมดูลก่อนอัปเดต</string>
-    <!--  Sort orders used for Bookmarks and MyNotes -->
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">เรียงตามวันที่</string>
   <string name="sort_by_bible_book">เรียงตามลำดับพระคัมภีร์</string>
   <string name="sort_by_alphabetical">เรียงตามตัวอักษร</string>
-    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <string name="filter_by_notes">ค้นหาบันทึก</string>
-
-    <!-- Dictionary -->
+  <!--Dictionary-->
   <string name="dictionary">พจนานุกรม</string>
   <string name="search_dictionary_hint">ค้นหาพจนานุกรม</string>
-
-    <!-- General Book -->
+  <!--General Book-->
   <string name="general_book">หนังสือ</string>
-
-    <!-- Speak -->
-    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
-    <!-- Speak - Bible -->
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
   <string name="one_chapter">%d บท</string>
   <string name="some_chapters">%d บท</string>
-    <!-- Speak - Commentary -->
+  <!--Speak - Commentary-->
   <string name="one_verse">%d ข้อ</string>
   <string name="some_verses">%d ข้อ</string>
-    <!-- Speak - Dictionary and other -->
+  <!--Speak - Dictionary and other-->
   <string name="one_page">%d หน้า</string>
   <string name="some_pages">%d หน้า</string>
-    <!-- Speak - Common -->
+  <!--Speak - Common-->
   <string name="stop">หยุด</string>
   <string name="pause">พัก</string>
   <string name="rewind">ย้อนกลับ</string>
   <string name="forward">ไปข้างหน้า</string>
   <string name="tts_lang_not_available">ไม่รองรับภาษานี้</string>
-
-    <!-- Speak - Bible -->
+  <!--Speak - Bible-->
   <string name="speak_speed_title">ความเร็วในการอ่าน</string>
   <string name="speak_and_play_earcons_title">อ่านและเล่นเสียงสัญลักษณ์สำหรับ</string>
   <string name="playback_settings_title">การตั้งค่าการเล่น</string>
@@ -461,17 +408,14 @@
   <string name="speak_bookmarks_menu_title">อ่านจากที่คั่นหน้า</string>
   <string name="speak_advanced_settings">การตั้งค่าขั้นสูง</string>
   <string name="speak_sleep_timer_title">ตั้งเวลาหยุดอัตโนมัติ</string>
-
   <string name="speak_no_books_available">ไม่มีหนังสือที่สามารถอ่านได้</string>
   <string name="speak_general_error">ไม่สามารถเริ่มอ่านหนังสือเล่มนี้ได้</string>
-
   <string name="repeat_passage">ทำซ้ำตอน</string>
   <string name="set_repeat_passage_range">กำหนดช่วงตอนที่ต้องการทำซ้ำ</string>
   <string name="speak_beginning_of_passage">เลือกจุดเริ่มต้นของตอน</string>
   <string name="speak_ending_of_passage">เลือกจุดสิ้นสุดของตอน</string>
   <string name="speak_verse_range_to_repeat">เลือกช่วงข้อพระคัมภีร์ที่ต้องการทำซ้ำ</string>
   <string name="speak_ending_verse_must_be_later">ข้อสิ้นสุดต้องอยู่หลังข้อเริ่มต้น</string>
-
   <string name="conf_speak_synchronize">ข้อความตามเสียง</string>
   <string name="conf_speak_auto_bookmark">ที่คั่นหน้าอัตโนมัติ</string>
   <string name="conf_save_playback_settings_to_bookmarks">บันทึกการตั้งค่าการเล่นไปยังที่คั่นหน้า</string>
@@ -480,12 +424,10 @@
   <string name="conf_change_title">หัวเรื่อง</string>
   <string name="conf_speak_footnotes">เชิงอรรถ</string>
   <string name="conf_speak_sleep_timer">ตั้งเวลาหยุดอัตโนมัติ</string>
-
   <string name="sleep_timer_title">เวลาหยุด (นาที)</string>
   <string name="sleep_timer_set">ตั้งเวลาหยุดอัตโนมัติ ตั้งไว้: %d นาที</string>
   <string name="sleep_timer_started">เริ่มตั้งเวลาหยุดอัตโนมัติ %d นาที</string>
   <string name="sleep_timer_active_at">ตัวจับเวลาหยุด: เหลือ %s นาที</string>
-
   <string name="speak_next">ถัดไป</string>
   <string name="speak_previous">ก่อนหน้า</string>
   <string name="widget_toggle_sleep_timer">เปิด/ปิดตัวจับเวลาหยุด</string>
@@ -493,59 +435,47 @@
   <string name="speak_status_stopped">หยุดแล้ว</string>
   <string name="speak_autobookmarking_disabled">ที่คั่นหน้าอัตโนมัติถูกปิดใช้งาน!</string>
   <string name="system_speak_settings">เปิดการตั้งค่า TTS ของระบบ</string>
-
   <string name="auto_assing_labels_help1">ที่นี่คุณสามารถปรับป้ายกำกับที่จะถูกกำหนดโดยอัตโนมัติให้กับที่คั่นหน้าที่คุณสร้าง</string>
-
-    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">การตั้งค่านี้ใช้กับ %s</string>
   <string name="setting_scope_window">หน้าต่างนี้</string>
   <string name="setting_scope_workspace">พื้นที่ทำงานนี้</string>
-
   <string name="assing_labels_help1">ที่คั่นหน้าแต่ละอันสามารถกำหนดป้ายกำกับได้หลายอัน</string>
-    <!-- param is bookmark icon -->
+  <!--param is bookmark icon-->
   <string name="assing_labels_help2">ใช้ %s เพื่อระบุสีของป้ายกำกับที่แสดง</string>
-    <!-- param is auto-assign label icon -->
+  <!--param is auto-assign label icon-->
   <string name="assing_labels_help3">แตะไอคอน %s เพื่อให้ป้ายกำกับนั้นถูกกำหนดโดยอัตโนมัติให้กับที่คั่นหน้าใหม่</string>
-    <!-- param is heart icon -->
+  <!--param is heart icon-->
   <string name="assing_labels_help4">แตะ %s เพื่อเพิ่มป้ายกำกับในรายการโปรดสำหรับการเข้าถึงอย่างรวดเร็ว</string>
-
-    <!-- param is refresh icon -->
+  <!--param is refresh icon-->
   <string name="assing_labels_help5">แตะ %s เพื่อจัดเรียงรายการตามตัวเลือกของคุณ</string>
-
   <string name="global_text_options_help_title">ตัวเลือกข้อความระดับทั่วไป</string>
   <string name="global_text_options_help1">การตั้งค่าเริ่มต้นทั่วไปสำหรับพื้นที่ทำงานทั้งหมด แต่ละพื้นที่ทำงานสามารถกำหนดค่าของตนเองได้</string>
-
   <string name="workspace_text_options_help_title">ตัวเลือกข้อความของพื้นที่ทำงาน</string>
   <string name="workspace_text_options_help1">การตั้งค่าเหล่านี้กำหนดค่าเริ่มต้นสำหรับหน้าต่างทั้งหมดในพื้นที่ทำงาน การตั้งค่าที่สืบทอดจากค่าเริ่มต้นระดับทั่วไปจะมีการระบุไว้</string>
   <string name="workspace_text_options_help2">คุณสามารถปรับเปลี่ยนได้โดยเปลี่ยนการตั้งค่าของแต่ละหน้าต่าง</string>
-
   <string name="window_text_options_help_title">ตัวเลือกข้อความของหน้าต่าง</string>
-    <!-- Parameter is actual icon -->
+  <!--Parameter is actual icon-->
   <string name="window_text_options_help1">ไอคอน %s แสดงว่าการตั้งค่านี้มาจากการตั้งค่าพื้นที่ทำงาน</string>
-    <!-- Parameter is actual icon -->
-
-    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">ใช้ปุ่ม %1$s เพื่อรีเซ็ตการตั้งค่าทั้งหมดกลับเป็น %2$s</string>
   <string name="reset_defaults">ค่าเริ่มต้น</string>
   <string name="reset_workspace_defaults">ค่าเริ่มต้นของพื้นที่ทำงาน</string>
-
-
   <string name="speak_help_auto_bookmark">ที่คั่นหน้าการอ่านจะถูกเพิ่มโดยอัตโนมัติเมื่อหยุดพักหรือหยุดการอ่าน ที่คั่นหน้าที่สร้างอัตโนมัติจะถูกติดป้ายกำกับการอ่านพิเศษ หากคุณเริ่มจากที่คั่นหน้าการอ่าน ที่คั่นหน้าจะถูกย้ายไปยังข้อที่คุณ หยุดพักหรือหยุดในครั้งถัดไป เฉพาะป้ายกำกับการอ่านเท่านั้นที่จะถูกย้าย ป้ายกำกับอื่นๆ จะยังคงอยู่ที่เดิม</string>
   <string name="speak_help_playback_settings">การตั้งค่าการเล่นพิเศษ (ภายใต้ \"การตั้งค่าการเล่น\" บนหน้าจออ่าน) จะถูกบันทึกไปยังที่คั่นหน้าการอ่านเมื่อเลือกการตั้งค่านี้ เมื่อคุณเริ่มอ่านจากที่คั่นหน้าการอ่าน การตั้งค่าการเล่นที่บันทึกไว้ จะถูกโหลดจากที่คั่นหน้า</string>
   <string name="speak_help_playback_settings_example">ตัวอย่างเช่น หากคุณกำลังฟังปฐมกาลและโรมัน และ ต้องการฟังปฐมกาลด้วยความเร็วสูงโดยไม่มีการแจ้งเตือนการเปลี่ยนบท แต่ฟังโรมันด้วยความเร็วช้ากว่าพร้อมเสียงสัญลักษณ์เมื่อเปลี่ยนบท คุณ สามารถมีการตั้งค่าการเล่นที่แตกต่างกันสำหรับหนังสือเหล่านี้ เมื่อบันทึกการตั้งค่าเหล่านี้ไปยังที่คั่นหน้าที่สอดคล้องกัน</string>
-
-    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings. -->
-    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings. -->
-
+         in speak settings.-->
   <string name="speak_book_changed">เปลี่ยนหนังสือแล้ว</string>
   <string name="speak_chapter_changed">บท</string>
   <string name="speak_first">ที่หนึ่ง</string>
@@ -553,13 +483,10 @@
   <string name="speak_third">ที่สาม</string>
   <string name="speak_fourth">ที่สี่</string>
   <string name="speak_fifth">ที่ห้า</string>
-
   <string name="verse_range_mode_disabled">โหมดทำซ้ำตอนถูกปิดใช้งานโดยอัตโนมัติ เนื่องจาก การอ่านเริ่มต้นนอกช่วงข้อพระคัมภีร์ที่กำหนด</string>
-
-    <!-- User Notes -->
+  <!--User Notes-->
   <string name="mynotes">บันทึกของฉัน</string>
-
-    <!-- Backup and restore -->
+  <!--Backup and restore-->
   <string name="backup_backup_title">สำรองข้อมูลไปที่ไหน?</string>
   <string name="backup_backup_message">สำรองข้อมูลไปยังโทรศัพท์หรือที่อื่นผ่านฟังก์ชันแชร์ (อีเมล, Google Drive เป็นต้น)?</string>
   <string name="backup_phone_storage">ที่เก็บข้อมูลโทรศัพท์</string>
@@ -574,13 +501,11 @@
   <string name="backup_document_info">พระคัมภีร์ คำอธิบาย พจนานุกรม แผนที่ เป็นต้น</string>
   <string name="backup_to">สำรองข้อมูลไปยัง…</string>
   <string name="backup_restore_from">กู้คืนจาก…</string>
-    <!-- Restore = overwrite existing. Import = merge into existing -->
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">กู้คืนหรือนำเข้าจาก…</string>
   <string name="backup_restore2">กู้คืนหรือนำเข้า</string>
   <string name="overwrite_something">เขียนทับ %s?</string>
-
-    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">กู้คืนไฟล์ฐานข้อมูล</string>
   <string name="restore_confirmation">เขียนทับบันทึกของฉัน ที่คั่นหน้า แผ่นบันทึกการศึกษา แผนการอ่าน และพื้นที่ทำงาน?</string>
   <string name="restore_success">กู้คืนบันทึกของฉัน ที่คั่นหน้า แผ่นบันทึกการศึกษา แผนการอ่าน และพื้นที่ทำงานสำเร็จ</string>
@@ -588,13 +513,10 @@
   <string name="loading_backup">กำลังโหลดฐานข้อมูลจากข้อมูลสำรอง…</string>
   <string name="backup_success2">สำรองบันทึกของฉัน ที่คั่นหน้า แผ่นบันทึกการศึกษา แผนการอ่าน และพื้นที่ทำงานสำเร็จ</string>
   <string name="backup_modules_success">สำรองโมดูลที่เลือกสำเร็จ</string>
-
   <string name="backup_modules_email_subject_2">สำรองโมดูล %s</string>
   <string name="backup_modules_email_message_2">แนบมาคือข้อมูลสำรองโมดูล %1$s ของคุณ ซึ่งประกอบด้วยโมดูลต่อไปนี้: %2$s</string>
-
   <string name="backup_email_subject_2">สำรองฐานข้อมูล %s</string>
   <string name="backup_email_message_2">ฐานข้อมูล %s ของคุณที่มีที่คั่นหน้า บันทึก แผนการอ่าน และพื้นที่ทำงานแนบมาด้วย</string>
-
   <string name="exported_studypads_subject">ส่งออกแผ่นบันทึกการศึกษา</string>
   <string name="exported_studypads_message">ฐานข้อมูล %s ของคุณที่มีที่คั่นหน้าและบันทึกที่เกี่ยวข้องกับแผ่นบันทึกการศึกษาที่เลือกแนบมาด้วย</string>
   <string name="restore_unsuccessfull">การกู้คืนฐานข้อมูลล้มเหลว อาจเป็นเพราะคุณระบุไฟล์ฐานข้อมูลที่ไม่ถูกต้อง</string>
@@ -604,22 +526,18 @@
   <string name="ask_restore_or_import">ฐานข้อมูลสำหรับ %s สามารถกู้คืน (ลบฐานข้อมูลที่มีอยู่และโหลดฐานข้อมูลที่เลือก) หรือนำเข้า (นำเข้าฐานข้อมูลที่เลือกเข้าสู่ฐานข้อมูลที่มีอยู่) คุณต้องการทำอะไร?</string>
   <string name="restore">กู้คืน</string>
   <string name="import2">นำเข้า</string>
-
-    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" และ %2$s ป้ายกำกับ/แผ่นบันทึกการศึกษาอื่นๆ และ %3$s ที่คั่นหน้า</string>
-
-    <!-- About -->
+  <!--About-->
   <string name="module_about_copyright">ลิขสิทธิ์: %s</string>
   <string name="module_about_installed_version">เวอร์ชันที่ติดตั้ง: %1$s (%2$s)</string>
   <string name="module_about_latest_version">เวอร์ชันล่าสุด: %1$s (%2$s)</string>
   <string name="module_about_versification">การแบ่งข้อ: %s</string>
   <string name="module_about_repository">เซิร์ฟเวอร์จัดจำหน่าย: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
-
-    <!-- Bug reporting -->
+  <!--Bug reporting-->
   <string name="send_bug_report_title">ข้อเสนอแนะ / รายงานข้อผิดพลาด</string>
   <string name="report_bug_email_subject_3">[%1$s] รายงานข้อผิดพลาดสำหรับ %2$s %3$s</string>
-
   <string name="report_bug_big_heading">กรุณาเขียนข้อเสนอแนะหรือรายงานข้อผิดพลาดเหนือบรรทัดนี้</string>
   <string name="report_bug_heading1">คำแนะนำ:</string>
   <string name="report_bug_line_1">โปรดบอกเราสั้นๆ ว่าคุณทำอะไร / เกิดอะไรขึ้นเมื่อปัญหาเกิดขึ้น</string>
@@ -635,8 +553,7 @@
   <string name="bug_report_screenshot">ภาพหน้าจอของแอปเมื่อแอปขัดข้อง หรือเมื่อสร้างรายงานข้อผิดพลาด</string>
   <string name="bug_report_attachment_line_1">การแนบไฟล์เหล่านี้ช่วยนักพัฒนาแอปในการแก้ไขข้อผิดพลาดที่รายงานได้มาก</string>
   <string name="report_bug_heading_4">ข้อมูลอุปกรณ์:</string>
-
-    <!-- Document types -->
+  <!--Document types-->
   <string name="doc_type_all">ทุกประเภท</string>
   <string name="doc_type_bible">พระคัมภีร์</string>
   <string name="doc_type_commentary">คำอธิบาย</string>
@@ -644,11 +561,9 @@
   <string name="doc_type_book">หนังสือ</string>
   <string name="doc_type_map">แผนที่</string>
   <string name="doc_type_addons">ส่วนเสริม</string>
-
-    <!-- Languages -->
+  <!--Languages-->
   <string name="lang_default">ค่าเริ่มต้น</string>
-
-    <!-- General -->
+  <!--General-->
   <string name="okay">ตกลง</string>
   <string name="cancel">ยกเลิก</string>
   <string name="discard_changes_confirmation">ยกเลิกการเปลี่ยนแปลงที่ยังไม่ได้บันทึก?</string>
@@ -660,8 +575,7 @@
   <string name="reset_generic">รีเซ็ต</string>
   <string name="watch_tutorial_video">ดูวิดีโอสอนการใช้งาน (ภาษาอังกฤษ)</string>
   <string name="verse_not_found">ไม่พบข้อพระคัมภีร์</string>
-
-    <!-- Errors -->
+  <!--Errors-->
   <string name="report_error">ส่งรายงาน</string>
   <string name="error_occurred">เกิดข้อผิดพลาด</string>
   <string name="error_occurred_crash_last_time">ครั้งที่แล้วที่คุณใช้แอปพลิเคชัน แอปขัดข้อง หากคุณส่งรายงานข้อผิดพลาดมาให้เรา จะช่วยให้เราแก้ไขปัญหาได้</string>
@@ -674,12 +588,10 @@
   <string name="error_skip">ข้าม</string>
   <string name="bug_report_email_title">ส่งรายงานข้อผิดพลาดทางอีเมล</string>
   <string name="bug_report_email_text">ถัดไป กรุณาเลือกแอปอีเมลที่คุณต้องการ (เช่น Gmail) เพื่อส่งรายงานให้ทีมนักพัฒนา</string>
-
-    <!-- Notifications -->
+  <!--Notifications-->
   <string name="notification_channel_tts_status">การอ่านข้อความเป็นเสียง</string>
   <string name="notification_channel_progress_status">การแจ้งเตือนความคืบหน้าสำหรับการดาวน์โหลดเอกสาร ฯลฯ</string>
-
-    <!-- Workspaces -->
+  <!--Workspaces-->
   <string name="switch_to_workspace">พื้นที่ทำงาน</string>
   <string name="delete_workspace">ลบ</string>
   <string name="new_copied_workspace">คัดลอกเป็นอันใหม่</string>
@@ -699,29 +611,23 @@
   <string name="search_settings">ค้นหาการตั้งค่า</string>
   <string name="dismiss">ปิด</string>
   <string name="workspace_listing_with_current">%s (ปัจจุบัน)</string>
-
-    <!-- Beta notice -->
+  <!--Beta notice-->
   <string name="beta_notice_title">นี่คือเวอร์ชันทดสอบ!</string>
   <string name="beta_notice_content_1">ในเวอร์ชันทดสอบ มีฟีเจอร์ใหม่ที่ยังไม่ได้ทดสอบอย่างครบถ้วน การใช้เวอร์ชันทดสอบอาจทำให้เกิดพฤติกรรมที่ไม่คาดคิด เช่น ข้อผิดพลาด แนะนำให้ผู้อ่านพระคัมภีร์ทั่วไปใช้เวอร์ชันเสถียรแทน</string>
-
   <string name="beta_notice_content_2">ผู้ใช้เวอร์ชันทดสอบควรรายงานข้อผิดพลาดผ่าน Google Play หรือ (ควรทำ) ผ่าน %s</string>
   <string name="beta_notice_content_3">หากคุณเป็นนักพัฒนา กรุณาช่วยส่ง การแก้ไขข้อผิดพลาดผ่าน %s ด้วยตนเอง :-)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">ปิดจนกว่าจะอัปเดตครั้งถัดไป</string>
-
   <string name="stable_notice_title">แอปพลิเคชันได้รับการอัปเกรดแล้ว!</string>
   <string name="upgrade_video_message">กรุณาดูวิดีโอแนะนำฟีเจอร์ใหม่ของเวอร์ชันนี้ (%s)</string>
   <string name="stable_notice_par1">ติดตั้งเวอร์ชันใหม่ %1$s ของ %2$s สำเร็จแล้ว!</string>
-
   <string name="new_sync_targets_notice_title">มีการตั้งค่าการซิงค์ใหม่</string>
   <string name="new_sync_targets_notice_message">AndBible เวอร์ชันนี้รองรับเป้าหมายการซิงค์เพิ่มเติม ได้แก่ เอกสารของฉัน การตั้งค่า AI และความคืบหน้าการอ่าน หากต้องการเปิดใช้งาน สามารถทำได้ในการตั้งค่าการซิงค์อุปกรณ์</string>
   <string name="open_settings">เปิดการตั้งค่า</string>
-
-    <!-- History -->
+  <!--History-->
   <string name="history_for">ประวัติ (%1$s: หน้าต่าง %2$d)</string>
-
-    <!-- Help -->
+  <!--Help-->
   <string name="help_nav_title">การนำทาง</string>
   <string name="help_nav_text">ไปยังบทถัดไปหรือก่อนหน้าโดยการปัดหน้าจอด้วยนิ้ว แตะสองครั้งที่ข้อความพระคัมภีร์เพื่อสลับโหมดเต็มจอ หน้าจอแยก (เรียกว่าหน้าต่าง) มีปุ่มเมนูที่มุมขวาบน ซึ่งช่วยให้คุณใช้ฟังก์ชันเฉพาะหน้าต่างและปรับแต่งรูปลักษณ์และพฤติกรรมของหน้าต่างได้</string>
   <string name="help_contextmenus_title">เมนูบริบท</string>
@@ -729,9 +635,8 @@
   <string name="help_bookmarks_title">ที่คั่นหน้า &amp; บันทึกของฉัน</string>
   <string name="help_bookmarks_text">สร้างที่คั่นหน้าโดยการเลือกข้อความและเลือก \"ที่คั่นหน้า\" จาก เมนูป๊อปอัป คุณสามารถเพิ่มบันทึกส่วนตัวในที่คั่นหน้าใหม่โดยแตะที่ข้อความ ที่ถูกเน้นในมุมมองพระคัมภีร์ นอกจากนี้ยังมีเอกสารพิเศษ \"บันทึกของฉัน\" ในคำอธิบายที่ช่วยให้ คุณดูบันทึกในหน้าต่างแยกต่างหาก</string>
   <string name="help_studypads_text">แผ่นบันทึกการศึกษาออกแบบมาเพื่อให้ง่ายต่อการเขียนบันทึกเทศน์ เตรียมเทศน์ หรือเขียน บันทึกการศึกษาพระคัมภีร์ส่วนตัวที่มีการอ้างอิงพระคัมภีร์หลายข้อ แผ่นบันทึกแต่ละแผ่นเชื่อมโยงกับป้ายกำกับที่คั่นหน้าหนึ่งใบ ที่คั่นหน้าทั้งหมดที่สร้างด้วยป้ายกำกับนั้นจะปรากฏในเอกสารแผ่นบันทึกโดยอัตโนมัติ นอกจากที่คั่นหน้าแล้ว ยังสามารถมีข้อความแบบกำหนดเองในแผ่นบันทึกการศึกษาได้</string>
-
   <string name="help_search_title">ค้นหา</string>
-    <!-- TODO: to be removed -->
+  <!--TODO: to be removed-->
   <string name="help_search_text2">ข้อความค้นหาสามารถใช้อักขระพิเศษเช่น *, AND, OR, NOT</string>
   <string name="help_search_details">กรุณาดู %s สำหรับรายละเอียดเพิ่มเติม</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -742,15 +647,14 @@
   <string name="help_hidden_features_text">ปัดลงจากแถบเครื่องมือเพื่อแสดงตัวเลือกพื้นที่ทำงาน กดค้างที่ปุ่มหน้าต่างเพื่อย่อขนาดอย่างรวดเร็ว กดค้างที่ปุ่มแถบเครื่องมืออ่านออกเสียงเพื่อไปยังการตั้งค่าการอ่านออกเสียงอย่างรวดเร็ว กดค้างที่หัวข้อตำแหน่งข้อในแถบเครื่องมือเพื่อไปยังตัวเลือกเอกสาร กดค้างที่ปุ่มย้อนกลับเพื่อเข้าถึงรายการประวัติ</string>
   <string name="help_window_pinning_title">การตรึงหน้าต่าง</string>
   <string name="help_window_pinning_text">คุณสามารถเปิดใช้การตรึงหน้าต่างจากเมนูตัวเลือก (สามจุด มุมขวาบน) หากเปิดใช้การตรึงหน้าต่าง คุณสามารถแสดงหน้าต่างที่ตรึงหลายหน้าต่างในมุมมองพระคัมภีร์ได้ แต่มีเพียงหน้าต่างที่ไม่ตรึงเพียงหน้าต่างเดียว หน้าต่างที่ตรึงจะแสดงก่อน จากนั้น หน้าต่างที่ไม่ตรึง คุณอาจต้องการเปิดเอกสารพระคัมภีร์เป็นหน้าต่างที่ตรึง และ คำอธิบายและแผนที่ ฯลฯ เป็นหน้าต่างที่ไม่ตรึง จากนั้นคุณสามารถ เปิดเอกสารพระคัมภีร์ไว้เสมอ และสลับระหว่างคำอธิบายและ เนื้อหาเสริมอื่นๆ ได้อย่างรวดเร็วเมื่อศึกษาพระคัมภีร์</string>
-
-    <!-- Welcome text -->
+  <!--Welcome text-->
   <string name="redownload_documents">ดาวน์โหลดซ้ำอย่างรวดเร็ว</string>
   <string name="welcome_message">ขอบคุณที่ดาวน์โหลด %s ขณะนี้ยังไม่ได้ติดตั้งพระคัมภีร์หรือเอกสารใด หากต้องการดำเนินการต่อ กรุณาติดตั้ง อย่างน้อย 1 เอกสารโดยการดาวน์โหลดจากอินเทอร์เน็ต หรือโหลดจากไฟล์สำรองข้อมูลเอกสารแบบ zip</string>
-    <!-- Supported file formats for documents -->
-    <!-- argument is app_name_andbible (AndBible). -->
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">คุณต้องเลือกไฟล์ที่ต้องการโหลดไปยัง %s</string>
   <string name="supported_formats">รูปแบบที่รองรับสำหรับการโหลดเอกสารจากไฟล์: %s</string>
-    <!-- argument is app_name_andbible (AndBible). -->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">ไฟล์ Zip ที่มีโมดูล Sword หรือไฟล์สำรองข้อมูลเอกสาร (*.abmd) ที่สร้างโดย %s</string>
   <string name="format_mysword">เอกสาร MySword (*.mybible)</string>
   <string name="format_mybible">เอกสาร MyBible (*.SQLite3)</string>
@@ -760,15 +664,12 @@
   <string name="format_csv_prompts">ส่วนเสริมคำสั่ง AI (*.csv)</string>
   <string name="format_studypads">แผ่นบันทึกการศึกษาจากฐานข้อมูล AndBible (*.abdb)</string>
   <string name="redownload_message">พบรายการหนังสือ/เอกสารก่อนหน้า คลิกด้านล่างเพื่อดาวน์โหลดอีกครั้งได้ง่ายๆ</string>
-
-    <!-- Uncategorized -->
+  <!--Uncategorized-->
   <string name="close">ปิด</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">เข้าใจแล้ว</string>
   <string name="first_time_help_show_next_time">แสดงอีกครั้งในครั้งถัดไป</string>
-
   <string name="strongs_mode_title">เลือกโหมด Strong\'s</string>
-
   <string name="download_dialog_message">ไม่สามารถดาวน์โหลดหนังสือต่อไปนี้:</string>
   <string name="journal_description">แผ่นบันทึกการศึกษาที่ผู้ใช้แก้ไขได้ พร้อมข้อความและที่คั่นหน้าแบบกำหนดเอง</string>
   <string name="my_notes_description">บันทึกที่ผู้ใช้แก้ไขได้ ซึ่งแนบกับที่คั่นหน้า</string>
@@ -788,7 +689,6 @@
   <string name="unlock_info">ข้อมูลการปลดล็อกโมดูลที่เข้ารหัส</string>
   <string name="try_again_passphrase">รหัสผ่านไม่ถูกต้อง ลองอีกครั้งหรือไม่?</string>
   <string name="show_unlock_info">ข้อมูลโมดูลและการปลดล็อก</string>
-
   <string name="prefs_experimental_features_title">คุณสมบัติทดลอง</string>
   <string name="prefs_experimental_features_summary">เลือกคุณสมบัติทดลองที่ต้องการเปิดใช้งาน คุณสมบัติเหล่านี้ยังอยู่ในระหว่างพัฒนาและอาจมีการเปลี่ยนแปลงหรือถูกลบออก</string>
   <string name="experimental_feature_bookmark_edit_actions">การแก้ไขที่คั่นหน้า</string>
@@ -819,7 +719,6 @@
   <string name="active_window_indicator_title">แสดงตัวบ่งชี้หน้าต่างที่ใช้งานอยู่</string>
   <string name="active_window_indicator_summary">เน้นมุมหน้าต่างเพื่อช่วยระบุว่าหน้าต่างใดกำลังใช้งานอยู่</string>
   <string name="app_licence_title">สัญญาอนุญาตโอเพนซอร์ส</string>
-
   <string name="how_to_contribute">วิธีมีส่วนร่วม?</string>
   <string name="confirm_delete_bookmarks">ต้องการลบที่คั่นหน้า %d รายการและบันทึกที่เกี่ยวข้องหรือไม่?</string>
   <string name="confirm_delete_orphaned_bookmarks">ป้ายกำกับที่เลือกแนบกับที่คั่นหน้า %d รายการที่ไม่มีป้ายกำกับอื่น ต้องการลบที่คั่นหน้าเหล่านี้พร้อมกับป้ายกำกับหรือไม่?</string>
@@ -843,15 +742,14 @@
   <string name="show_reference_at_front">แสดงที่ต้นข้อ</string>
   <string name="abbreviate_reference">ย่อข้ออ้างอิง</string>
   <string name="version_name">ชื่อฉบับ</string>
-    <!-- meaning, bible version name -->
+  <!--meaning, bible version name-->
   <string name="show_version_name">รวมชื่อฉบับ</string>
   <string name="show_ellipsis">แสดงจุดไข่ปลา (…)</string>
   <string name="show_quotes">แสดงเครื่องหมายคำพูด</string>
   <string name="separate_verses_with_newlines">คั่นข้อด้วยบรรทัดใหม่</string>
-
   <string name="initializing_app">กำลังเริ่มต้นแอปพลิเคชัน…</string>
   <string name="show_notes">แสดงบันทึก</string>
-    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">แพ็กเกจ Android WebView เก่าเกินไป (%1$s) คุณต้องอัปเกรดแพ็กเกจ Android WebView เป็นอย่างน้อยเวอร์ชัน %2$s เพื่อใช้ %3$s สำหรับอุปกรณ์ส่วนใหญ่สามารถทำได้ผ่าน %4$s</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">ดำเนินการต่อไป</string>
@@ -859,12 +757,11 @@
   <string name="rate_title">การให้คะแนนและรีวิวแอป</string>
   <string name="rate_message5">รีวิวเชิงบวกและละเอียดช่วยโครงการโอเพนซอร์ส AndBible ได้มาก ขอบคุณ!</string>
   <string name="rate_message6">ก่อนเขียนรีวิวเชิงลบ โปรดพิจารณาสิ่งต่อไปนี้:</string>
-
-    <!-- parameters are actions (file a bug, send email) -->
+  <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">หากมีปัญหากับแอป โปรด %1$s หรือ %2$s แทน</string>
-    <!-- param is "please report maintainers" -->
+  <!--param is "please report maintainers"-->
   <string name="rate_message2">หากข้อความ / ฉบับแปลมีปัญหา %s</string>
-    <!-- param is "please read what you can do" -->
+  <!--param is "please read what you can do"-->
   <string name="rate_message3">หากข้อความบางส่วนไม่มีในแอป %s</string>
   <string name="rate_message4">นักพัฒนาแอปนี้ไม่รับผิดชอบในการดูแลเอกสาร</string>
   <string name="bug_report">ส่งรายงานข้อผิดพลาด (จากเมนูหลัก)</string>
@@ -938,36 +835,33 @@
   <string name="export_something">ส่งออก %s</string>
   <string name="import_items">นำเข้า %s</string>
   <string name="import_error">การนำเข้าจากฐานข้อมูลแอปล้มเหลว ไฟล์ฐานข้อมูลอาจมีรูปแบบไม่ถูกต้องหรือสร้างจากเวอร์ชันเก่าของ %s</string>
-
   <string name="export_bookmarks_csv">ส่งออกที่คั่นหน้าเป็น %s</string>
-
-    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
   <string name="osis_reference">การอ้างอิง OSIS</string>
-    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
   <string name="bible_reference">การอ้างอิงพระคัมภีร์</string>
   <string name="document">เอกสาร</string>
   <string name="book">หนังสือ</string>
-    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <!--Chapter is the chapter number in the book, starting from 1-->
   <string name="chapter_start">บทเริ่มต้น</string>
-    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <!--Verse is the verse number in the chapter, starting from 1-->
   <string name="verse_start">ข้อเริ่มต้น</string>
   <string name="chapter_end">บทสิ้นสุด</string>
   <string name="verse_end">ข้อสิ้นสุด</string>
   <string name="id">ตัวระบุ</string>
-    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
   <string name="ordinal_start">ลำดับเริ่มต้น</string>
   <string name="ordinal_end">ลำดับสิ้นสุด</string>
   <string name="created_at">สร้างเมื่อ</string>
-    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="start_offset">ออฟเซ็ตเริ่มต้น</string>
   <string name="end_offset">ออฟเซ็ตสิ้นสุด</string>
   <string name="custom_icon">ไอคอนกำหนดเอง</string>
   <string name="last_updated_at">อัปเดตล่าสุดเมื่อ</string>
   <string name="bookmark_notes">บันทึกที่คั่นหน้า</string>
-
-    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">เราขออภัย แต่เรามีการแปลส่วนติดต่อผู้ใช้เพียงบางส่วนในภาษา %1$s นั่นเป็นเพราะ %2$s ได้รับการพัฒนาโดยอาสาสมัครทั้งหมด หากคุณสามารถช่วยแปล โปรดดู %3$s</string>
-    <!-- will be added to incomplete_translation as a link -->
+  <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">คำแนะนำสำหรับผู้แปล</string>
   <string name="questions_title">มีคำถามหรือไม่?</string>
   <string name="bookmark_style">รูปแบบที่คั่นหน้า</string>
@@ -976,7 +870,6 @@
   <string name="strongs_text_and_links">ข้อความและลิงก์</string>
   <string name="strongs_hidden_links">ลิงก์ที่ซ่อนอยู่</string>
   <string name="verse_tip">หากต้องการเลือกข้อบางส่วนหรือหลายข้อ คุณสามารถกดค้างที่ข้อความพระคัมภีร์</string>
-
   <string name="permission_required">ต้องการสิทธิ์</string>
   <string name="labels_search_hint">ค้นหา</string>
   <string name="search_mode_name_start">ชื่อ (จากต้น)</string>
@@ -985,8 +878,7 @@
   <string name="search_results_matches">%d รายการที่ตรงกัน</string>
   <string name="search_results_match">1 รายการที่ตรงกัน</string>
   <string name="progress_status_permission">เพื่อแสดงการแจ้งเตือน (สถานะการดาวน์โหลด, การประมวลผล, สถานะการพูด) เราต้องการสิทธิ์ของคุณ</string>
-
-    <!-- Discrete mode settings -->
+  <!--Discrete mode settings-->
   <string name="app_name_calculator">เครื่องคิดเลขอย่างง่าย</string>
   <string name="prefs_persecution_cat">การตั้งค่าสำหรับผู้ถูกข่มเหง</string>
   <string name="prefs_discrete_mode">ซ่อนสัญลักษณ์ทางศาสนา</string>
@@ -995,27 +887,24 @@
   <string name="prefs_calculator_pin">PIN เครื่องคิดเลข</string>
   <string name="prefs_calculator_pin_desc">รหัส PIN สำหรับเข้าใช้แอปเมื่อแสดงเครื่องคิดเลข</string>
   <string name="calc_division_by_zero">ไม่อนุญาตให้หารด้วยศูนย์</string>
-    <!-- Context: calculator. Wrong number format etc. -->
+  <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">รูปแบบไม่ถูกต้อง</string>
   <string name="calc_wrong_format_operand">รูปแบบไม่ถูกต้อง ตัวดำเนินการไม่มีตัวเลขหรือ?</string>
   <string name="prefs_persecuted_help">อ่านสิ่งนี้ก่อน!</string>
-    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">คำแนะนำสำหรับการตั้งค่าและข้อมูลเกี่ยวกับบิลด์แบบไม่เปิดเผย</string>
-
   <string name="calculator_par1">ก่อนเข้าใช้แอป จะแสดงหน้าจอเครื่องคิดเลข</string>
   <string name="calculator_par2">ในนั้น คุณสามารถคำนวณได้ตามปกติ และเมื่อต้องการเข้าใช้แอป เพียงพิมพ์รหัส PIN ของคุณ (ค่าเริ่มต้นคือ 1234) แล้วกดปุ่ม \"=\"</string>
   <string name="calculator_par3">คุณสามารถตั้งรหัส PIN แบบกำหนดเองได้ผ่านการตั้งค่า \"PIN เครื่องคิดเลข\"</string>
   <string name="discrete_mode_info_par1">คุณกำลังใช้แอปเวอร์ชันมาตรฐาน ซึ่งหมายความว่ายังสามารถเห็น ชื่อจริงและไอคอนของแอปในข้อมูลแอปได้</string>
   <string name="discrete_mode_info_par2">เพื่อความปลอดภัยที่ดีขึ้นในสภาพแวดล้อมที่ถูกข่มเหง เราขอแนะนำอย่างยิ่งให้ใช้ เวอร์ชันไม่เปิดเผยของแอป ซึ่งจะแสดงเครื่องคิดเลขเสมอ แม้ว่าข้อมูลแอปจะถูกลบ</string>
   <string name="discrete_mode_link">คุณสามารถดาวน์โหลดเวอร์ชันล่าสุดของเวอร์ชันไม่เปิดเผยได้จาก %s</string>
-
-    <!-- Window synchronize groups -->
+  <!--Window synchronize groups-->
   <string name="sync_group_n">กลุ่ม %d</string>
   <string name="disable_sync">ปิดการซิงโครไนซ์</string>
   <string name="open_in_window">เปิดผลลัพธ์ในหน้าต่าง</string>
-
-    <!-- Custom repositories -->
-    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
+  <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">ที่เก็บข้อมูลกำหนดเอง</string>
   <string name="custom_repositories_empty_list_message">ไม่มีที่เก็บข้อมูลกำหนดเองที่กำหนดไว้</string>
   <string name="custom_repositories_create_button_label">เพิ่มที่เก็บข้อมูลกำหนดเอง</string>
@@ -1027,17 +916,14 @@
   <string name="wiki_page">หน้า WIKI</string>
   <string name="custom_repositories_help0">คุณสามารถติดตั้งเอกสารจากที่เก็บข้อมูลกำหนดเองภายนอกโดยการติดตั้งที่เก็บข้อมูลกำหนดเอง</string>
   <string name="duplicate_custom_repository">ที่เก็บข้อมูลชื่อ %s มีอยู่แล้ว ไม่สามารถเพิ่มอีกรายการได้</string>
-
   <string name="packages_dir">ไดเรกทอรีแพ็กเกจ (ไฟล์ Zip)</string>
   <string name="warn_bad_document">คำเตือน: เอกสารนี้อาจมีคุณภาพทางเทคนิคที่ไม่ดี (อย่างน้อยบางส่วน)</string>
-
-    <!-- Open links in AndBible (Deep linking) -->
+  <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">เปิดลิงก์พระคัมภีร์ใน AndBible</string>
   <string name="open_bible_links_summary">เมื่อคลิกลิงก์ที่อ้างถึง URL พระคัมภีร์ที่ AndBible รองรับ ให้เปิดใน AndBible</string>
   <string name="copyReference">คัดลอกลิงก์ไปยังคลิปบอร์ด</string>
   <string name="reference_copied_to_clipboard">คัดลอกข้อมูลอ้างอิงแล้ว</string>
-
-    <!-- Device cloud synchronization -->
+  <!--Device cloud synchronization-->
   <string name="prefs_sync_introduction_summary1">เลือกบริการคลาวด์ที่ต้องการใช้เพื่อซิงโครไนซ์อุปกรณ์หลายเครื่อง</string>
   <string name="prefs_sync_introduction_summary2">เมื่อใช้ Google Drive %s จะได้รับสิทธิ์เข้าถึงเฉพาะไฟล์ของแอปพลิเคชัน ไม่ใช่ไฟล์ส่วนตัวใดๆ</string>
   <string name="restore_backup_sections">ต้องการกู้คืนส่วนใดของข้อมูลสำรอง?</string>
@@ -1053,8 +939,7 @@
   <string name="ai_settings_sync_contents">พรอมต์ AI และการกำหนดค่าผู้ให้บริการ</string>
   <string name="progress_sync_title">ความก้าวหน้าในการอ่าน</string>
   <string name="progress_sync_contents">ข้อพระคัมภีร์ที่จดจำและบันทึกการอ่านบท</string>
-
-    <!-- Reading Progress Activity -->
+  <!--Reading Progress Activity-->
   <string name="reading_progress_title">ความก้าวหน้าการอ่าน/การจดจำ</string>
   <string name="reading_progress_chapters_read">บทที่อ่านแล้ว</string>
   <string name="reading_progress_active_days">วันที่ใช้งาน</string>
@@ -1068,7 +953,6 @@
   <string name="reading_progress_new_cycle_confirm">เริ่มรอบการอ่านใหม่? ระบบจะเริ่มติดตามความก้าวหน้าจากต้นใหม่ โดยยังคงข้อมูลรอบก่อนหน้าไว้</string>
   <string name="reading_progress_previous_cycle">รอบก่อนหน้า</string>
   <string name="reading_progress_next_cycle">รอบถัดไป</string>
-
   <string name="cloud_fetch_and_restore_initial">คัดลอกจากคลาวด์มายังอุปกรณ์นี้</string>
   <string name="cloud_create_new">คัดลอกจากอุปกรณ์นี้ไปยังคลาวด์</string>
   <string name="cloud_disable_sync">ยกเลิกและปิดใช้งานการซิงโครไนซ์</string>
@@ -1097,20 +981,18 @@
   <string name="sync_disabling">ปิดใช้งานการซิงโครไนซ์สำหรับ %s ชั่วคราว</string>
   <string name="sync_update_app">กรุณาอัปเดตแอปเพื่อดำเนินการซิงโครไนซ์ต่อ</string>
   <string name="sign_in_failed">การเข้าสู่ระบบบริการแบ็กเอนด์การซิงโครไนซ์ล้มเหลว</string>
-    <!--  ... after restoring from backup file -->
+  <!--... after restoring from backup file-->
   <string name="disabling_sync">ปิดใช้งานการซิงโครไนซ์คลาวด์ คุณต้องเปิดใช้งานใหม่ด้วยตนเองหลังจากกู้คืนข้อมูล</string>
   <string name="report">รายงาน</string>
   <string name="sync_error">เกิดข้อผิดพลาดในการซิงโครไนซ์คลาวด์</string>
   <string name="error_notification_channel_name">การแจ้งเตือนข้อผิดพลาด</string>
   <string name="last_updated">อัปเดตล่าสุด: %s</string>
-
-    <!-- MyBible/MySword module support -->
+  <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">ไม่สามารถอ่านไฟล์ได้</string>
   <string name="sqlite_invalid_file">ไฟล์โมดูลหรือชื่อไฟล์ไม่ถูกต้อง: %s</string>
   <string name="sqlite_cant_write">ไม่สามารถ(เขียนทับ)ไฟล์ได้</string>
   <string name="install_failed_reason">การติดตั้งโมดูลล้มเหลวด้วยเหตุผลต่อไปนี้: %s</string>
-
-    <!-- Other / uncategorized -->
+  <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">แอปเปิดอยู่ที่อื่น</string>
   <string name="open_here">เปิดที่นี่</string>
   <string name="external_link">ลิงก์ภายนอก</string>
@@ -1171,8 +1053,7 @@
   <string name="memorize_calendar">กิจกรรมการท่องจำ</string>
   <string name="memorize_view_list">รายการ</string>
   <string name="memorize_view_overview">ภาพรวม</string>
-
-    <!-- LLM Translation Settings -->
+  <!--LLM Translation Settings-->
   <string name="sync_settings_shortcut_summary">ซิงโครไนซ์ข้อมูลระหว่างอุปกรณ์</string>
   <string name="llm_provider_custom">กำหนดเอง (รองรับ OpenAI)</string>
   <string name="ai_behavior_category">พฤติกรรม</string>
@@ -1218,8 +1099,7 @@
   <string name="custom_system_prompt_default">ค่าเริ่มต้น</string>
   <string name="custom_system_prompt_custom">กำหนดเอง</string>
   <string name="reset_to_default">รีเซ็ตเป็นค่าเริ่มต้น</string>
-
-    <!-- Raw log history -->
+  <!--Raw log history-->
   <string name="raw_log_history_title">ประวัติบันทึก AI</string>
   <string name="raw_log_history_summary">ดูและจัดการบันทึกการสนทนา AI ที่บันทึกไว้</string>
   <string name="raw_log_history_empty">ไม่มีบันทึกที่บันทึกไว้</string>
@@ -1237,7 +1117,6 @@
   <string name="raw_log_retention_summary_disabled">ปิดใช้งาน (เก็บทั้งหมด)</string>
   <string name="send_ai_bug_report_title">รายงานข้อบกพร่องของ AI</string>
   <string name="ai_bug_report_menu">รายงานข้อบกพร่องของ AI</string>
-
   <string name="select_model_before_run_title">เลือกโมเดล</string>
   <string name="set_default_model_for_prompt">ตั้งเป็นโมเดลเริ่มต้นสำหรับพรอมต์นี้</string>
   <string name="prompt_max_iterations">จำนวนการทำซ้ำสูงสุด (แทนที่ค่าหลัก)</string>
@@ -1246,8 +1125,7 @@
   <string name="prompt_max_iterations_unlimited">ไม่จำกัด</string>
   <string name="prompt_max_iterations_global_default">ค่าเริ่มต้นส่วนกลาง (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">แทนที่จำนวนการทำซ้ำสูงสุดส่วนกลางสำหรับพรอมต์นี้ 0 = ไม่จำกัด\nปัจจุบัน: %s</string>
-
-    <!-- Prompt Manager -->
+  <!--Prompt Manager-->
   <string name="manage_prompts">จัดการพรอมต์ AI</string>
   <string name="manage_prompts_summary">สร้างและแก้ไขพรอมต์ AI</string>
   <string name="ai_settings">การตั้งค่า AI</string>
@@ -1258,8 +1136,7 @@
   <string name="ai_settings_shortcut_summary">การตั้งค่าการเชื่อมต่อ AI และพรอมต์</string>
   <string name="ai_provider_tier_recommended">แนะนำ</string>
   <string name="ai_provider_tier_community">ผู้ให้บริการอื่น (ยังไม่ผ่านการทดสอบ)</string>
-
-    <!-- Multi-provider settings -->
+  <!--Multi-provider settings-->
   <string name="ai_providers_models_category">ผู้ให้บริการและโมเดล</string>
   <string name="ai_providers_category">ผู้ให้บริการ</string>
   <string name="ai_providers_summary_none">ไม่มีผู้ให้บริการที่กำหนดค่า</string>
@@ -1277,11 +1154,10 @@
   <string name="ai_provider_api_format">รูปแบบ API</string>
   <string name="ai_provider_saved">บันทึกผู้ให้บริการแล้ว</string>
   <string name="ai_provider_deleted">ลบผู้ให้บริการแล้ว</string>
-
   <string name="llm_openrouter_category">หมวดหมู่</string>
   <string name="llm_openrouter_category_all">ทั้งหมด</string>
   <string name="llm_openrouter_model">โมเดล</string>
-    <!-- Configured models management -->
+  <!--Configured models management-->
   <string name="ai_models_category">โมเดล</string>
   <string name="add_model">เพิ่มโมเดล</string>
   <string name="edit_model_title">แก้ไขโมเดล</string>
@@ -1293,8 +1169,7 @@
   <string name="model_supported_badge">✓ รองรับแล้ว</string>
   <string name="show_also_unsupported_models">แสดงโมเดลที่ไม่รองรับด้วย</string>
   <string name="show_also_unsupported_providers">แสดงผู้ให้บริการที่ไม่รองรับด้วย</string>
-
-    <!-- Easy Setup -->
+  <!--Easy Setup-->
   <string name="model_pricing_summary">%1$s ขาเข้า / %2$s ขาออก ต่อ Mtoken</string>
   <string name="easy_setup_free_tier">ฟรีเทียร์</string>
   <string name="unknown_error">ข้อผิดพลาดที่ไม่รู้จัก</string>
@@ -1311,8 +1186,7 @@
   <string name="easy_setup_gemini_desc">มีฟรีเทียร์ คุณภาพดี</string>
   <string name="easy_setup_anthropic_desc">ราคาประหยัด คุณภาพยอดเยี่ยม</string>
   <string name="easy_setup_openai_desc">เป็นที่รู้จัก เชื่อถือได้</string>
-
-    <!-- AI Disclaimer -->
+  <!--AI Disclaimer-->
   <string name="ai_disclaimer_warning_title">สำคัญ: อ่านก่อนใช้เครื่องมือ AI</string>
   <string name="ai_disclaimer_warning_summary">ความเสี่ยงและความรับผิดชอบในการใช้ AI</string>
   <string name="ai_disclaimer_dialog_title">เครื่องมือ AI — ข้อมูลสำคัญ</string>
@@ -1330,7 +1204,6 @@
   <string name="ai_disclaimer_point9">ผู้ให้บริการ AI คิดค่าใช้จ่ายสำหรับการใช้งาน API การประมาณค่าใช้จ่ายที่แสดงใน AndBible เป็นเพียงค่าประมาณ โปรดตรวจสอบการเรียกเก็บเงินจากผู้ให้บริการของคุณสำหรับค่าใช้จ่ายจริง</string>
   <string name="ai_disclaimer_accept_title">ยอมรับข้อกำหนด AI</string>
   <string name="ai_disclaimer_accept_button">ฉันยอมรับและรับผิดชอบอย่างเต็มที่</string>
-
   <string name="prompt_permission_mode">โหมดสิทธิ์</string>
   <string name="prompt_permission_mode_description">ควบคุมเมื่อใดที่ต้องการการยืนยันจากผู้ใช้ก่อน AI ดำเนินการเขียน การตั้งค่าต่อเครื่องมือด้านล่างสามารถแทนที่สิ่งนี้สำหรับแต่ละเครื่องมือได้</string>
   <string name="agent_permission_mode_summary">ควบคุมเมื่อใดที่ต้องการการยืนยันก่อนการดำเนินการเขียนของ AI</string>
@@ -1413,8 +1286,7 @@
   <string name="ai_regenerate_keep_previous">เก็บเวอร์ชันเดิมไว้</string>
   <string name="ai_regenerate_fresh_run">เริ่มใหม่ (ไม่ใช้ผลลัพธ์เดิม)</string>
   <string name="ai_unknown_prompt">AI</string>
-
-    <!-- Default prompts -->
+  <!--Default prompts-->
   <string name="default_prompt_translate_to_language">แปลเป็น %s</string>
   <string name="default_prompt_translate_to_ui_language">แปลเป็นภาษาของแอป</string>
   <string name="default_prompt_translate_to_ui_language_desc">แปลข้อความในเอกสารเป็นภาษาที่ใช้ในอินเทอร์เฟซของแอป</string>
@@ -1451,8 +1323,7 @@
   <string name="ai_restore_hidden_prompts">คืนค่าคำสั่งที่ซ่อนไว้</string>
   <string name="ai_prompt_hidden">ซ่อนคำสั่งแล้ว</string>
   <string name="ai_prompts_restored">คืนค่าคำสั่งที่ซ่อนไว้แล้ว</string>
-
-    <!-- Agent Tool Display Names -->
+  <!--Agent Tool Display Names-->
   <string name="tool_create_bookmark">สร้างที่คั่นหน้า</string>
   <string name="tool_add_bookmark_note">เพิ่มบันทึกในที่คั่นหน้า</string>
   <string name="tool_update_bookmark_note">อัปเดตบันทึกในที่คั่นหน้า</string>
@@ -1493,13 +1364,11 @@
   <string name="tool_create_window">สร้างหน้าต่าง</string>
   <string name="tool_manage_window">จัดการหน้าต่าง</string>
   <string name="tool_set_window_document">ตั้งค่าเอกสารในหน้าต่าง</string>
-
-    <!-- Agent Permission Dialog -->
+  <!--Agent Permission Dialog-->
   <string name="agent_permission_title">สิทธิ์ของผู้ช่วย AI</string>
   <string name="agent_permission_message">ผู้ช่วย AI ต้องการใช้ \"%1$s\":\n\n%2$s</string>
   <string name="agent_permission_message_with_action">ผู้ช่วย AI ต้องการ:\n\n%1$s</string>
-
-    <!-- Tool action descriptions for permission dialog -->
+  <!--Tool action descriptions for permission dialog-->
   <string name="action_create_bookmark_at">สร้างที่คั่นหน้าที่ %1$s</string>
   <string name="action_create_bookmark_at_with_extras">สร้างที่คั่นหน้าที่ %1$s (%2$s)</string>
   <string name="action_with_note">พร้อมบันทึก</string>
@@ -1537,8 +1406,7 @@
   <string name="permission_always_allow_confirm_title">อนุญาตเสมอ?</string>
   <string name="permission_always_allow_confirm">คุณต้องการอนุญาต \"%1$s\" อย่างถาวรใช่หรือไม่?</string>
   <string name="permission_always_allow_confirm_reset_hint">คุณสามารถรีเซ็ตค่านี้ได้ในการตั้งค่า AI</string>
-
-    <!-- Agent Tool Permission Settings -->
+  <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">สิทธิ์การใช้เครื่องมือ</string>
   <string name="manage_tool_permissions_summary">จัดการการตั้งค่าสิทธิ์แต่ละเครื่องมือ</string>
   <string name="commentary_max_response_title">ขีดจำกัดขนาดการตอบกลับคำอธิบาย</string>
@@ -1572,19 +1440,15 @@
   <string name="permission_option_always_allow">อนุญาตเสมอ</string>
   <string name="permission_option_always_deny">ปฏิเสธเสมอ</string>
   <string name="reset_all_permissions">รีเซ็ตทั้งหมด</string>
-
-    <!-- Tool Info -->
+  <!--Tool Info-->
   <string name="ai_available_tools">เครื่องมือที่ใช้ได้</string>
   <string name="ai_read_tools">เครื่องมืออ่าน</string>
   <string name="ai_write_tools">เครื่องมือเขียน</string>
-
-    <!-- Global Tool Permissions Activity -->
+  <!--Global Tool Permissions Activity-->
   <string name="global_tool_permissions_title">การตั้งค่าเครื่องมือเริ่มต้น</string>
-
-    <!-- Per-Prompt Tool Permissions -->
+  <!--Per-Prompt Tool Permissions-->
   <string name="prompt_tool_permissions">สิทธิ์การใช้เครื่องมือ</string>
-
-    <!-- Tool categories -->
+  <!--Tool categories-->
   <string name="tool_category_bible_search">พระคัมภีร์ &amp; การค้นหา</string>
   <string name="tool_category_bookmarks">ที่คั่นหน้า</string>
   <string name="tool_category_labels">ป้ายกำกับ</string>
@@ -1601,16 +1465,13 @@
   <string name="tool_option_default_disabled">ค่าเริ่มต้น (ปิดใช้งาน)</string>
   <string name="tool_option_default_allowed">ค่าเริ่มต้น (อนุญาต)</string>
   <string name="tool_option_default_denied">ค่าเริ่มต้น (ปฏิเสธ)</string>
-
-    <!-- Per-Prompt Model Override -->
+  <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">โมเดล</string>
   <string name="prompt_model_default">ค่าเริ่มต้น</string>
-
-    <!-- LLM One Tap Actions -->
+  <!--LLM One Tap Actions-->
   <string name="select_llm_prompt">เลือกการดำเนินการ AI</string>
   <string name="llm_actions">การดำเนินการ AI</string>
-
-    <!-- Agent Log Widget -->
+  <!--Agent Log Widget-->
   <string name="agent_log_expand">ขยาย/ยุบบันทึก agent</string>
   <string name="agent_log_close">ปิดบันทึก agent</string>
   <string name="agent_log_stop">หยุด AI</string>
@@ -1625,8 +1486,7 @@
   <string name="agent_log_done">เสร็จ: %s</string>
   <string name="agent_log_cancelled">ยกเลิกแล้ว</string>
   <string name="agent_already_running">AI agent กำลังทำงานอยู่แล้ว กรุณารอหรือหยุดก่อน</string>
-
-    <!-- AI Agent Notifications -->
+  <!--AI Agent Notifications-->
   <string name="ai_agent_notification_channel_name">AI Agent</string>
   <string name="ai_agent_notification_running">AI agent กำลังทำงาน…</string>
   <string name="ai_agent_notification_permission_needed">AI agent ต้องการการอนุมัติของคุณ</string>
@@ -1635,8 +1495,7 @@
   <string name="ai_agent_notification_completed_tap">แตะเพื่อดูผลลัพธ์</string>
   <string name="ai_agent_notification_error">งาน AI ล้มเหลว</string>
   <string name="ai_agent_notification_cancel">ยกเลิก</string>
-
-    <!-- My Documents -->
+  <!--My Documents-->
   <string name="my_documents_title">เอกสารของฉัน</string>
   <string name="my_documents_empty">ยังไม่มีเอกสาร แตะ + เพื่อสร้าง</string>
   <string name="my_document_new_name">เอกสาร %d</string>
@@ -1647,7 +1506,6 @@
   <string name="my_document_save_changes">บันทึกการเปลี่ยนแปลง?</string>
   <string name="my_document_no_description">ไม่มีคำอธิบาย</string>
   <string name="my_document_edit_description">แก้ไขคำอธิบาย</string>
-
   <string name="my_document_pages_title">%s - หน้า</string>
   <string name="my_document_pages_empty">ไม่มีหน้าในเอกสารนี้</string>
   <string name="my_document_page_rename_title">เปลี่ยนชื่อหน้า</string>
@@ -1668,7 +1526,6 @@
   <string name="prefs_show_ai_doc_markers_summary">แสดงไอคอนเครื่องหมายสำหรับหน้าเอกสารที่ AI สร้างและเชื่อมโยงกับข้อพระคัมภีร์</string>
   <string name="prefs_show_ordinals_title">แสดงเลขลำดับ</string>
   <string name="prefs_show_ordinals_summary">แสดงเครื่องหมายตำแหน่งลำดับในข้อความ</string>
-
   <string name="prefs_page_scroll_amount_title">ปริมาณการเลื่อนหน้า</string>
   <string name="prefs_page_scroll_amount_summary">ปริมาณการเลื่อนหน้าด้วยปุ่มเลื่อนขึ้น/ลง</string>
   <string name="prefs_scroll_helper_lines_title">เส้นช่วยเลื่อน</string>

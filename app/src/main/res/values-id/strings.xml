@@ -118,6 +118,13 @@
   <string name="prefs_show_memorization_indicators_summary">Tampilkan indikator tepi berwarna untuk ayat hafalan dan ayat target</string>
   <string name="prefs_auto_track_reading_title">Pelacakan bacaan otomatis</string>
   <string name="prefs_auto_track_reading_summary">Tandai pasal secara otomatis sebagai sudah dibaca saat Anda menggulirnya</string>
+  <string name="reading_progress_read_count_scale">Jumlah\nBacaan</string>
+  <string name="reading_progress_percent_read_scale">Persen\nDibaca</string>
+  <string name="reading_progress_percent_label">%d%%</string>
+  <string name="reading_progress_history_title">Riwayat Bacaan</string>
+  <string name="reading_progress_history_for">Kemajuan bacaan untuk %1$s</string>
+  <string name="reading_progress_history_no_entries">Tidak ada entri bacaan untuk pilihan ini.</string>
+  <string name="reading_progress_history_version_unknown">Versi tidak diketahui</string>
   <string name="prefs_tilt_to_scroll_title">Miringkan untuk menggulir</string>
   <string name="prefs_toolbar_button_action_title">Tindakan untuk tombol bilah alat</string>
   <string name="prefs_toolbar_button_action_summary">Tindakan yang dilakukan saat menekan/menahan lama tombol bilah alat Alkitab atau Tafsiran</string>
@@ -665,6 +672,9 @@ Pengguna versi beta didorong untuk melaporkan bug melalui Google Play atau (seba
   <string name="stable_notice_title">Aplikasi telah diperbarui!</string>
   <string name="upgrade_video_message">Silakan lihat video yang menampilkan fitur-fitur baru dari rilis ini (%s).</string>
   <string name="stable_notice_par1">Versi baru %1$s dari %2$s telah berhasil dipasang!</string>
+  <string name="new_sync_targets_notice_title">Pengaturan sinkronisasi baru tersedia</string>
+  <string name="new_sync_targets_notice_message">Versi AndBible ini memperkenalkan target sinkronisasi tambahan: Dokumen Saya, pengaturan AI, dan kemajuan bacaan. Jika ingin mengaktifkannya, Anda dapat melakukannya di pengaturan Sinkronisasi Perangkat.</string>
+  <string name="open_settings">Buka pengaturan</string>
   <!--History-->
   <string name="history_for">Riwayat (%1$s: Jendela %2$d)</string>
   <!--Help-->
@@ -740,8 +750,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="prefs_experimental_features_summary">Pilih fitur eksperimental yang akan diaktifkan. Fitur-fitur ini masih dalam pengembangan dan mungkin berubah atau dihapus</string>
   <string name="experimental_feature_bookmark_edit_actions">Tindakan edit penanda buku</string>
   <string name="experimental_feature_add_paragraph_break">Tambah penanda buku jeda paragraf</string>
-  <string name="experimental_feature_ai_features">Fitur AI &amp; Dokumenku</string>
-  <string name="experimental_feature_reading_and_memorization">Pelacakan bacaan &amp; Hafalan</string>
   <string name="raw_llm_log_title">Log LLM Mentah</string>
   <string name="raw_llm_log_empty">Tidak ada data log mentah yang tersedia</string>
   <string name="raw_llm_log_copied">Log disalin ke clipboard</string>
@@ -1088,6 +1096,8 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="memorize_error_heatmap_summary">Sorot kata dengan lebih banyak kesalahan dalam warna merah yang semakin dalam</string>
   <string name="memorize_scramble_hide_used">Sembunyikan tombol kata yang sudah digunakan</string>
   <string name="memorize_scramble_hide_used_summary">Sembunyikan tombol kata sepenuhnya setelah ditempatkan dengan benar dalam mode acak kata</string>
+  <string name="memorize_include_reference">Sertakan referensi ayat</string>
+  <string name="memorize_include_reference_summary">Tambahkan referensi ayat (mis. Yohanes 3:16) sebagai item terakhir untuk dihafal</string>
   <string name="reading_progress_settings">Kemajuan &amp; Hafalan</string>
   <string name="reading_progress_settings_summary">Pengaturan pelacakan otomatis, hafalan, dan latihan mengetik</string>
   <string name="memorize_confirm_unmark">Hapus status dihafal untuk %s?</string>
@@ -1197,6 +1207,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="ai_provider_name_hint">Nama tampilan untuk penyedia ini</string>
   <string name="ai_provider_api_key">Kunci API</string>
   <string name="ai_provider_endpoint">Titik akhir API</string>
+  <string name="ai_provider_endpoint_description">Hanya URL dasar. AndBible menambahkan \"/chat/completions\" (format OpenAI) atau \"/messages\" (format Anthropic) secara otomatis. Daftar model diambil dari \"/models\".</string>
   <string name="ai_provider_api_format">Format API</string>
   <string name="ai_provider_saved">Penyedia disimpan</string>
   <string name="ai_provider_deleted">Penyedia dihapus</string>
@@ -1526,7 +1537,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="agent_log_executing">Menjalankan: %s</string>
   <string name="agent_log_iteration">Iterasi %d</string>
   <string name="agent_log_tool">Alat: %s</string>
-  <string name="agent_log_tool_completed">Alat %s selesai</string>
   <string name="agent_log_tool_failed">Alat %s gagal</string>
   <string name="agent_log_response_received">Respons diterima</string>
   <string name="agent_log_saved">Disimpan: %s</string>
