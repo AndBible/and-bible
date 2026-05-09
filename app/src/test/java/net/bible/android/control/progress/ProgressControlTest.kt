@@ -20,6 +20,9 @@ package net.bible.android.control.progress
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.progress.ChapterReadHistory
+import net.bible.android.database.progress.DailyReadingCount
+import net.bible.android.database.progress.MemorizedVerse
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.Verse
@@ -34,6 +37,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.time.Instant
+import java.util.Calendar
+import java.util.TimeZone
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -365,8 +371,7 @@ class ProgressControlTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
 
-        val today = (System.currentTimeMillis() / 86_400_000L) * 86_400_000L
-        val entries = ProgressControl.getReadHistoryForDay(today)
+        val entries = ProgressControl.getReadHistoryForDay(localMidnightToday())
 
         // Both reads land in the same millisecond, so order is unspecified — assert as a set.
         assertEquals(setOf(1, 2), entries.map { it.chapter }.toSet())
@@ -377,12 +382,111 @@ class ProgressControlTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 3)
         ProgressControl.recordChapterRead(KJVA, BibleBook.EXOD, 1)
 
-        val today = (System.currentTimeMillis() / 86_400_000L) * 86_400_000L
-        val entries = ProgressControl.getReadHistoryForDay(today)
+        val entries = ProgressControl.getReadHistoryForDay(localMidnightToday())
 
         assertEquals(2, entries.size)
         assertTrue(entries.any { it.kjvBookOrdinal == BibleBook.GEN.ordinal && it.chapter == 3 })
         assertTrue(entries.any { it.kjvBookOrdinal == BibleBook.EXOD.ordinal && it.chapter == 1 })
+    }
+
+    // --- Local-day bucketing across timezones (regression: AndBible/and-bible#3800) ---
+    //
+    // SQLite cannot resolve the device timezone, so the heatmap previously bucketed reads
+    // by UTC days while the view rendered cells by local days — the two never agreed for
+    // users not on UTC. These tests pin the JVM timezone to UTC+10 and assert that bucketing,
+    // distinct-day counting, and per-day history all align with the *local* calendar day.
+
+    @Test
+    fun `getReadingCalendar buckets reads by local day in non-UTC timezone`() = withTimeZone("Etc/GMT-10") {
+        // Three reads spanning a UTC midnight that sits at 14:00 local (UTC+10):
+        //   2025-11-08T13:00:00Z = 2025-11-08 23:00 local → local day Nov 8
+        //   2025-11-08T15:00:00Z = 2025-11-09 01:00 local → local day Nov 9
+        //   2025-11-08T23:30:00Z = 2025-11-09 09:30 local → local day Nov 9
+        insertRead(BibleBook.GEN, 1, parseUtc("2025-11-08T13:00:00Z"))
+        insertRead(BibleBook.GEN, 2, parseUtc("2025-11-08T15:00:00Z"))
+        insertRead(BibleBook.GEN, 3, parseUtc("2025-11-08T23:30:00Z"))
+
+        val records = ProgressControl.getReadingCalendar(
+            parseUtc("2025-11-01T00:00:00Z"),
+            parseUtc("2025-11-30T23:59:00Z"),
+        )
+
+        // Local midnights expressed in UTC ms (UTC+10):
+        //   2025-11-08 00:00+10:00 = 2025-11-07T14:00:00Z
+        //   2025-11-09 00:00+10:00 = 2025-11-08T14:00:00Z
+        val nov8Local = parseUtc("2025-11-07T14:00:00Z")
+        val nov9Local = parseUtc("2025-11-08T14:00:00Z")
+        assertEquals(
+            listOf(DailyReadingCount(nov8Local, 1), DailyReadingCount(nov9Local, 2)),
+            records,
+        )
+    }
+
+    @Test
+    fun `getDistinctReadDays counts distinct local days not UTC days`() = withTimeZone("Etc/GMT-10") {
+        // Two reads on the same local day (Nov 9 +10) that span UTC midnight,
+        // and one read on the next local day. Must report 2 local days, not 3.
+        insertRead(BibleBook.GEN, 1, parseUtc("2025-11-08T15:00:00Z"))  // Nov 9 local
+        insertRead(BibleBook.GEN, 2, parseUtc("2025-11-08T23:30:00Z"))  // Nov 9 local
+        insertRead(BibleBook.GEN, 3, parseUtc("2025-11-09T15:00:00Z"))  // Nov 10 local
+
+        assertEquals(2, ProgressControl.getDistinctReadDays())
+    }
+
+    @Test
+    fun `getReadHistoryForDay returns reads from the local calendar day`() = withTimeZone("Etc/GMT-10") {
+        // r1 belongs to local Nov 9 (06:00 local), r2 to local Nov 8 (23:00 local).
+        // Querying the Nov 9 local-midnight key must return r1 only.
+        insertRead(BibleBook.GEN, 1, parseUtc("2025-11-08T20:00:00Z"))
+        insertRead(BibleBook.GEN, 2, parseUtc("2025-11-08T13:00:00Z"))
+
+        val nov9LocalMidnight = parseUtc("2025-11-08T14:00:00Z")
+        val entries = ProgressControl.getReadHistoryForDay(nov9LocalMidnight)
+
+        assertEquals(listOf(1), entries.map { it.chapter })
+    }
+
+    @Test
+    fun `getMemorizationCalendar buckets memorizations by local day`() = withTimeZone("Etc/GMT-10") {
+        // Two memorizations on the same local day split by UTC midnight.
+        dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = 1, memorizedAt = parseUtc("2025-11-08T15:00:00Z")))
+        dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = 2, memorizedAt = parseUtc("2025-11-08T23:30:00Z")))
+
+        val records = ProgressControl.getMemorizationCalendar(
+            parseUtc("2025-11-01T00:00:00Z"),
+            parseUtc("2025-11-30T23:59:00Z"),
+        )
+
+        assertEquals(
+            listOf(DailyReadingCount(parseUtc("2025-11-08T14:00:00Z"), 2)),
+            records,
+        )
+    }
+
+    private fun localMidnightToday(): Long = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+
+    private fun parseUtc(iso: String): Long = Instant.parse(iso).toEpochMilli()
+
+    private fun insertRead(book: BibleBook, chapter: Int, readAt: Long) {
+        dao.insertChapterReadHistory(
+            ChapterReadHistory(kjvBookOrdinal = book.ordinal, chapter = chapter, readAt = readAt)
+        )
+    }
+
+    /** Runs [block] with the JVM default timezone temporarily set to [zoneId]. */
+    private inline fun withTimeZone(zoneId: String, block: () -> Unit) {
+        val previous = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone(zoneId))
+        try {
+            block()
+        } finally {
+            TimeZone.setDefault(previous)
+        }
     }
 
     // --- Memorization targets ---
