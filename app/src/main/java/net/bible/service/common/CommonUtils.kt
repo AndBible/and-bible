@@ -1233,6 +1233,13 @@ object CommonUtils : CommonUtilsBase() {
                 addManuallyInstalledEpubBooks()
                 addManuallyInstalledTtfBooks()
                 addManuallyInstalledCsvPromptBooks()
+            }
+            // Must run on the main thread — SwordGenBook and JSword's Activator
+            // are not thread-safe. Running registerAllDocuments() on a background
+            // thread races with workspace restore and can leave the new
+            // SwordGenBook's internal key map null. See MyDocumentBookManager
+            // class kdoc and commit 9d63d1e7c (sync handler fix).
+            withContext(Dispatchers.Main) {
                 MyDocumentBookManager.registerAllDocuments()
             }
             initializeOnyx()
