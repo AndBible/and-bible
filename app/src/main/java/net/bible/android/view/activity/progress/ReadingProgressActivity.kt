@@ -28,6 +28,7 @@ import android.text.format.DateFormat
 import android.text.format.DateUtils
 import android.text.style.RelativeSizeSpan
 import android.text.style.SuperscriptSpan
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -74,6 +75,13 @@ class ReadingProgressActivity : ActivityBase() {
     private var memorizeTargetsShown = PAGE_SIZE
     private var memOverviewActive = true
     private var detailBook: BibleBook? = null
+
+    /** Secondary text color from current theme (adapts to light/dark/monochrome). */
+    private val secondaryTextColor: Int by lazy {
+        val tv = TypedValue()
+        theme.resolveAttribute(android.R.attr.textColorSecondary, tv, true)
+        if (tv.resourceId != 0) getColor(tv.resourceId) else tv.data
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -838,7 +846,7 @@ class ReadingProgressActivity : ActivityBase() {
                 text = getString(R.string.reading_progress_percent_label, pct)
                 textSize = 9f
                 gravity = Gravity.CENTER
-                setTextColor(Color.DKGRAY)
+                setTextColor(secondaryTextColor)
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             })
         }
@@ -857,7 +865,7 @@ class ReadingProgressActivity : ActivityBase() {
             addView(TextView(this@ReadingProgressActivity).apply {
                 text = getString(R.string.reading_progress_percent_read_scale)
                 textSize = 10f
-                setTextColor(Color.DKGRAY)
+                setTextColor(secondaryTextColor)
                 setPadding(0, 0, (6 * density).toInt(), 0)
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             })
@@ -913,7 +921,7 @@ class ReadingProgressActivity : ActivityBase() {
                 text = "$count"
                 textSize = 9f
                 gravity = Gravity.CENTER
-                setTextColor(Color.DKGRAY)
+                setTextColor(secondaryTextColor)
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             })
         }
@@ -934,7 +942,7 @@ class ReadingProgressActivity : ActivityBase() {
             addView(TextView(this@ReadingProgressActivity).apply {
                 text = getString(R.string.reading_progress_read_count_scale)
                 textSize = 10f
-                setTextColor(Color.DKGRAY)
+                setTextColor(secondaryTextColor)
                 setPadding(0, 0, (6 * density).toInt(), 0)
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
