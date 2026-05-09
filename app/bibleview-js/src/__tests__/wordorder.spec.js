@@ -265,6 +265,53 @@ describe("WordOrder.vue", () => {
       const orderArea = wrapper.find(".order-area");
       expect(orderArea.classes()).toContain("completed");
     });
+
+    // Regression test for #3735: Genesis 1:1 has three instances of "the".
+    // Any "the" tile placed at any of the three "the" positions must be accepted.
+    it("accepts any of three 'the' instances at any 'the' position (Gen 1:1)", async () => {
+      // words: ["In", "the", "beginning", "God", "created", "the", "heavens", "and", "the", "earth"]
+      //         0      1      2            3      4          5      6           7      8      9
+      // Permutation that cycles the three "the" indices (1→5→8→1) and keeps
+      // every other word in place. Every position still has the correct word,
+      // so the verse should be marked completed.
+      const wrapper = await createWrapper({
+        textItems: [{ key: "v1", text: "In the beginning God created the heavens and the earth" }],
+        modeConfig: {
+          orderConfig: {
+            currentOrder: [0, 8, 2, 3, 4, 1, 6, 7, 5, 9],
+          }
+        }
+      });
+      const tiles = wrapper.findAll(".order-tile");
+      expect(tiles).toHaveLength(10);
+      const orderArea = wrapper.find(".order-area");
+      expect(orderArea.classes()).toContain("completed");
+    });
+
+    it("marks a 'the' tile correct when placed at any of three 'the' positions", async () => {
+      // Start with everything correct except positions 1 and 2 swapped:
+      // [In, beginning, the, God, created, the, heavens, and, the, earth]
+      // Position 1 has "beginning" (wrong); position 2 has "the" — but expected at 2 is "beginning".
+      // Now move the "the" originally at index 8 into position 1 (a 'the' position):
+      // [In, the(orig=8), beginning, God, created, the(orig=1), heavens, and, the(orig=5), earth]
+      // Even though it's the third "the" tile, it should be marked correct at position 1.
+      const wrapper = await createWrapper({
+        textItems: [{ key: "v1", text: "In the beginning God created the heavens and the earth" }],
+        modeConfig: {
+          orderConfig: {
+            currentOrder: [0, 8, 2, 3, 4, 1, 6, 7, 5, 9],
+          }
+        }
+      });
+      const tiles = wrapper.findAll(".order-tile");
+      // All three 'the' positions (1, 5, 8) have a 'the' tile, so each must be correct
+      // (or completed-tile, since the whole thing is done).
+      [1, 5, 8].forEach(pos => {
+        expect(tiles[pos].text().trim().toLowerCase()).toBe("the");
+        // Once completed, tiles get the completed-tile class instead of correct.
+        expect(tiles[pos].classes()).toContain("completed-tile");
+      });
+    });
   });
 
   describe("Completion", () => {
