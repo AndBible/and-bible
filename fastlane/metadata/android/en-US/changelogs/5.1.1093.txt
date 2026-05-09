@@ -1,0 +1,21 @@
+- Verse references now included in Bible memorization by default (#3799)
+- Fixed memorization mode to accept duplicate words at any matching position (#3735)
+- Fixed "Percent Read" text visibility in dark mode (#3797)
+- Fixed reading activity heatmap not showing today's activity for non-UTC timezones (#3800)
+- Fixed crash when using actions like speak on AI Documents pages (3cd60c1f3)
+
+5.1
+"What's new" video: https://youtu.be/EKnyBIti9Fk
+
+Highlights:
+- AI assistant (Claude, Grok, OpenRouter, ...) with tool calling
+- Reading & memorization progress tracking with multiple modes
+- My Documents: your own editable, syncable pages
+- Multi-translation search across Bibles (#1411)
+- 3-level text display settings inheritance
+- Strong's tab view & compact display
+- E-ink/monochrome improvements
+- Many bug fixes
+
+See https://andbible.org
+Support: https://shop.andbible.org/
