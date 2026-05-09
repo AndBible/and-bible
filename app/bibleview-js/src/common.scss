@@ -131,6 +131,12 @@ $button-grey: var(--modal-grey);
   .night {
     --link-color: #8ab4f8;
   }
+  .monochrome {
+    --link-color: black;
+  }
+  .monochrome.night {
+    --link-color: white;
+  }
 }
 
 .button {
