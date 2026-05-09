@@ -86,6 +86,39 @@ private val addChapterReadHistoryTable = makeMigration(7..8) { db ->
     db.execSQL("DROP TABLE IF EXISTS ChapterReadingRecord")
 }
 
+// Flip the column DEFAULT for memorizeIncludeReference from 0 to 1 so that fresh installs
+// (and any future inserts that omit the column) get verse-reference memorisation enabled
+// by default. Existing rows are preserved as-is — users who already have a stored value
+// keep it. SQLite has no ALTER COLUMN SET DEFAULT, so the table is recreated.
+private val flipMemorizeIncludeReferenceDefault = makeMigration(8..9) { db ->
+    db.execSQL("""
+        CREATE TABLE GlobalReadingProgressSettings_new (
+            id BLOB NOT NULL PRIMARY KEY,
+            autoTrackReading INTEGER NOT NULL DEFAULT 0,
+            autoMarkMemorized INTEGER NOT NULL DEFAULT 1,
+            memorizeTypeFullWords INTEGER NOT NULL DEFAULT 0,
+            memorizeWordVisibility TEXT NOT NULL DEFAULT 'light',
+            memorizeErrorHeatmap INTEGER NOT NULL DEFAULT 1,
+            memorizeScrambleHideUsed INTEGER NOT NULL DEFAULT 0,
+            memorizeIncludeReference INTEGER NOT NULL DEFAULT 1,
+            activeCycle INTEGER NOT NULL DEFAULT 0
+        )
+    """)
+    db.execSQL("""
+        INSERT INTO GlobalReadingProgressSettings_new (
+            id, autoTrackReading, autoMarkMemorized, memorizeTypeFullWords,
+            memorizeWordVisibility, memorizeErrorHeatmap, memorizeScrambleHideUsed,
+            memorizeIncludeReference, activeCycle
+        )
+        SELECT id, autoTrackReading, autoMarkMemorized, memorizeTypeFullWords,
+               memorizeWordVisibility, memorizeErrorHeatmap, memorizeScrambleHideUsed,
+               memorizeIncludeReference, activeCycle
+        FROM GlobalReadingProgressSettings
+    """)
+    db.execSQL("DROP TABLE GlobalReadingProgressSettings")
+    db.execSQL("ALTER TABLE GlobalReadingProgressSettings_new RENAME TO GlobalReadingProgressSettings")
+}
+
 val progressMigrations: Array<Migration> = arrayOf(
     addMemorizationTarget,
     addGlobalReadingProgressSettings,
@@ -94,4 +127,5 @@ val progressMigrations: Array<Migration> = arrayOf(
     addScrambleHideUsed,
     addMemorizeIncludeReference,
     addChapterReadHistoryTable,
+    flipMemorizeIncludeReferenceDefault,
 )

@@ -126,9 +126,9 @@ class CalendarHeatmapView @JvmOverloads constructor(
                 if (cal.after(today)) break
 
                 val y = headerHeight + day * (cellSize + cellPadding)
-                val dayStart = cal.timeInMillis
-                val normalizedDay = (dayStart / 86400000L) * 86400000L
-                val count = dailyCounts[normalizedDay] ?: 0
+                // cal is at local midnight (HOUR/MIN/SEC/MS zeroed at start, advanced day-by-day),
+                // so timeInMillis is the local-day key matching ProgressControl.bucketByLocalDay.
+                val count = dailyCounts[cal.timeInMillis] ?: 0
 
                 fillPaint.color = getColorForCount(count)
                 rect.set(x, y, x + cellSize, y + cellSize)
@@ -191,7 +191,8 @@ class CalendarHeatmapView @JvmOverloads constructor(
 
                 val top = headerHeight + day * (cellSize + cellPadding)
                 val bottom = top + cellSize
-                val dayTimestamp = (cal.timeInMillis / 86400000L) * 86400000L
+                // cal is at local midnight here — see comment in onDraw.
+                val dayTimestamp = cal.timeInMillis
                 val count = dailyCounts[dayTimestamp] ?: 0
 
                 if (x in left..right && y in top..bottom) {

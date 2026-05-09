@@ -98,15 +98,15 @@ describe("MemorizeDocument.vue", () => {
     });
   };
 
-  it("renders the document title by default (includeReference off)", () => {
-    const wrapper = createWrapper();
+  it("renders the document title when includeReference is off", () => {
+    const wrapper = createWrapper({
+      readingProgressSettings: { memorizeIncludeReference: false }
+    });
     expect(wrapper.find("h2").text()).toBe("Memory Verse - John 3:16");
   });
 
-  it("hides the document title when includeReference is on", () => {
-    const wrapper = createWrapper({
-      readingProgressSettings: { memorizeIncludeReference: true }
-    });
+  it("hides the document title by default (includeReference on)", () => {
+    const wrapper = createWrapper();
     expect(wrapper.find("h2").exists()).toBe(false);
   });
 
@@ -156,8 +156,10 @@ describe("MemorizeDocument.vue", () => {
     }
   });
 
-  it("provides only verse text items by default (includeReference off)", () => {
-    const wrapper = createWrapper();
+  it("provides only verse text items when includeReference is off", () => {
+    const wrapper = createWrapper({
+      readingProgressSettings: { memorizeIncludeReference: false }
+    });
     const childComponent = wrapper.findComponent(WordBlur);
 
     expect(childComponent.props('textItems')).toEqual([
@@ -169,10 +171,8 @@ describe("MemorizeDocument.vue", () => {
     expect(childComponent.props('modeConfig')).toEqual({});
   });
 
-  it("provides text items with reference prepended when includeReference is on", () => {
-    const wrapper = createWrapper({
-      readingProgressSettings: { memorizeIncludeReference: true }
-    });
+  it("provides text items with reference prepended by default (includeReference on)", () => {
+    const wrapper = createWrapper();
     const childComponent = wrapper.findComponent(WordBlur);
 
     expect(childComponent.props('textItems')).toEqual([

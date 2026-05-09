@@ -32,7 +32,7 @@ data class ReadingProgressSettingsBundle(
     val memorizeWordVisibility: String = "light",
     val memorizeErrorHeatmap: Boolean = true,
     val memorizeScrambleHideUsed: Boolean = false,
-    val memorizeIncludeReference: Boolean = false,
+    val memorizeIncludeReference: Boolean = true,
 )
 
 /**

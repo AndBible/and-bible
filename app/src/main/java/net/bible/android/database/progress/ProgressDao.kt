@@ -60,12 +60,10 @@ interface ProgressDao {
     @Query("DELETE FROM MemorizedVerse WHERE kjvOrdinal >= :startOrdinal AND kjvOrdinal <= :endOrdinal")
     fun deleteMemorizedVersesInRange(startOrdinal: Int, endOrdinal: Int)
 
-    @Query("SELECT (memorizedAt / 86400000) * 86400000 AS dayTimestamp, COUNT(*) AS count " +
-        "FROM MemorizedVerse " +
-        "WHERE memorizedAt >= :startMs AND memorizedAt <= :endMs " +
-        "GROUP BY memorizedAt / 86400000 " +
-        "ORDER BY dayTimestamp")
-    fun getMemorizationCalendar(startMs: Long, endMs: Long): List<DailyReadingCount>
+    /** Raw memorization timestamps in the given range. Bucketing into local days happens in Kotlin
+     *  (see [ProgressControl.getMemorizationCalendar]) because SQLite cannot resolve the device timezone. */
+    @Query("SELECT memorizedAt FROM MemorizedVerse WHERE memorizedAt >= :startMs AND memorizedAt <= :endMs")
+    fun getMemorizationTimestamps(startMs: Long, endMs: Long): List<Long>
 
     // Memorization target queries
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -120,17 +118,19 @@ interface ProgressDao {
     @Query("SELECT COUNT(DISTINCT (kjvBookOrdinal || ',' || chapter)) FROM ChapterReadHistory WHERE cycle = :cycle")
     fun countDistinctChaptersRead(cycle: Int): Int
 
-    @Query("SELECT COUNT(DISTINCT (readAt / 86400000)) FROM ChapterReadHistory WHERE cycle = :cycle")
-    fun countDistinctReadDays(cycle: Int): Int
+    /** Raw read timestamps for a cycle. Distinct local days are computed in Kotlin
+     *  (see [ProgressControl.getDistinctReadDays]) because SQLite cannot resolve the device timezone. */
+    @Query("SELECT readAt FROM ChapterReadHistory WHERE cycle = :cycle")
+    fun getAllReadingTimestampsForCycle(cycle: Int): List<Long>
 
     @Query("SELECT COALESCE(MAX(cycle), 1) FROM ChapterReadHistory")
     fun getLatestCycle(): Int
 
-    @Query("SELECT (readAt / 86400000) * 86400000 AS dayTimestamp, COUNT(*) AS count " +
-        "FROM ChapterReadHistory " +
-        "WHERE readAt >= :startMs AND readAt <= :endMs AND cycle = :cycle " +
-        "GROUP BY readAt / 86400000 ORDER BY dayTimestamp")
-    fun getReadingCalendar(startMs: Long, endMs: Long, cycle: Int): List<DailyReadingCount>
+    /** Raw read timestamps in the given range. Bucketing into local days happens in Kotlin
+     *  (see [ProgressControl.getReadingCalendar]) because SQLite cannot resolve the device timezone. */
+    @Query("SELECT readAt FROM ChapterReadHistory " +
+        "WHERE readAt >= :startMs AND readAt <= :endMs AND cycle = :cycle")
+    fun getReadingTimestamps(startMs: Long, endMs: Long, cycle: Int): List<Long>
 }
 
 @Dao
