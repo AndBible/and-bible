@@ -1,14 +1,12 @@
 # Long version of app name that will be displayed on Play Store. (max 50 characters)
 title: "AndBible: သမ္မာကျမ်းစာ"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: လိုင်းမဲ့ ကျမ်းစာဖတ်ပါ၊ အနက်ဖွင့်ကျမ်းနှင့် အဘိဓာန်များလေ့လာပါ သို့ စာအုပ်ဖတ်ပါ
+short_description: ""
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: စွမ်းအားမြင့် ကျမ်းစာလေ့လာရေး ကိရိယာ
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
-paragraph_1_1: >
-  "{{ title }}" အစွမ်းထက်သလောက် အသုံးပြုရလွယ်ကူသည့် လိုင်းမလို Android ကျမ်းစာလေ့လာရေးအက်ပ် တစ်ခုဖြစ်ပါသည်။ ဤအက်ပ်ကို ကျမ်းစာဖတ်ရှုရုံ အတွက်သာ ရည်ရွယ်ထားသည်မဟုတ်ပဲ ကိုယ်တိုင်ကျမ်းစာကို လေးလေးနက်နက် လေ့လာနိုင်သည့် အဆင့်မြင့်ကိရိယာအဖြစ်လည်း ရှေးရှုထားပါသည်။
-paragraph_1_2: >
-  ဤအက်ပ်ကို ကျမ်းစာဖတ်ရူသူများမှ ကျမ်းစာဖတ်ရူသူများအတွက် ရည်ရွယ်ထုတ်လုပ် ထားခြင်းဖြစ်သည်။ ကျမ်းစာကို သက်တောင့် သက်သာ၊ လေးလေးနက်နက်နှင့် ပျော်ရွှင်စွာ ပြုလုပ်နိုင်စေရန် ရည်ရွယ်ပါသည်။ ဤအခမဲ့ လူထုအကျိုးပြုလုပ်ငန်း၏ အကောင်းဆုံးအချက်မှာ ပွင့်လင်းသောရင်းမြစ်၊ လုံး၀အခမဲ့နှင့် ကြော်ငြာများ မပါဝင်ခြင်းပင် ဖြစ်သည်။ Android စနစ်တွင် အောက်ခြေမှစ တည်ဆောက်ထားခြင်းဖြစ်ပြီး ဒေါင်းလုပ်ရပေါ့ပါးပါသည်။ ထို့ကြောင့် အလွန်ထိရောက်ပြီး အံ့သြဖွယ်ရာ မြန်ဆန်ပါသည်။ 
+paragraph_1_1: ""
+paragraph_1_2: ""
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   ထင်ရှားသည့် ကျမ်းစာဗားရှင်းအချို့ (အများအပြား ရှိသည့်အနက်)ဖြစ်သည့်  KJV၊ NASBနှင့် NET တို့ရှိပြီး Matthew Henry နှင့် John Gill ကဲ့သို့သော ထင်ရှားသည့် အနက်ဖွင့်ကျမ်းများလည်း ရှိသည်။  
@@ -19,18 +17,16 @@ feature_01: "ဘာသာပြန်များကို နှိုင်း
 feature_02: ကျမ်းစာလေ့လာခြင်း setup များကို ၎င်းတို့၏ ကိုယ်ပိုင်ဆက်တင်များနှင့်အတူ ခွင့်ပြုပေးသည့် လုပ်ငန်းခွင်များ
 feature_03: Strong နှင့်ပေါင်းစပ်ခြင်းဖြင့် ဂရိနှင့် ဟီဘရူး စာလုံးများကို ခွဲခြမ်းလေ့လာနိုင်သည်။
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
-feature_04: >
-  လင့်ခ်လုပ်ထားသည့် ပြန်လှန်ကိုးကားချက်များ၊ အောက်ခြေမှတ်စုများနှင့် မှတ်စုများ၊ လင့်ခ်ကို နှိပ်ရုံမျှဖြင့် ပြန်လှန်ကိုးကားချက်များနှင့် အောက်ခြေမှတ်စုများသို့ ခုန်ကူးခြင်း၊ ဟိုက်ပါလင့်ခ်လုပ်ထားသည့် အနက်ဖွင့်ကျမ်းများ ({{commentary_examples}})၊ ပြန်လှန်ကိုးကားချက် စုဆောင်းချက်များ ({{cross_reference_examples}}) နှင့် အခြားအရင်းအမြစ်များကို သုံးခြင်းဖြင့် ကျမ်းစာကိုလေးလေးနက်နက်လေ့လာပါ။ 
+feature_04: ""
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
 commentary_examples: "Gill, Matthew Henry အစရှိသဖြင့် "
 # Examples of cross-reference collections.
 cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
 feature_05: " စကားပြောစာညှပ်ဖြင့် အသံထွက်စေသည့် အဆင့်မြင့်စာသား။ ချောမွေ့သည့် ကျမ်းစာ နားထောင်ခြင်း အထိအတွေ့ကို ပေးစွမ်းနိုင်ပါသည်"
-feature_06: ပြုပြင်နိုင်သည့် ရှာဖွေရေး
+feature_06: ""
 feature_07: ကိုယ်ပိုင်လေ့လာရေးမှတ်စုများတွင် အဆင့်မြှင့်စာညှပ်ခြင်းများနှင့် ဟိုက်လိုက်အသွင်အပြင်များ
-feature_09: >
-  ဖတ်စာအစီအစဉ်များ: ကျမ်းစာဖတ်ရှုခြင်းအတွက် ရည်မှန်းချက်များ ထားရှိခြင်း 
+feature_09: ""
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   ကျယ်ဝန်းသည့် မှတ်တမ်းစာကြည့်တိုက်: ကျမ်းစာဘာသာပြန်များ၊ သီဩလော်ဂျီဆိုင်ရာ အနက်ဖွင့်ကျမ်းများ၊ အဘိဓာန်များ၊ မြေပုံများနှင့် ခရစ်ယာန် စာအုပ်များကို {{total_documents}} မှတ်တမ်းများတွင် {{total_languages}} ဘာသာစကားများစွာဖြင့် Crosswire နှင့် အခြား SWORD သုတဘဏ်များမှ တရားဝင် ဖြန့်ဖြူးပါသည်။ 

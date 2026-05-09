@@ -1,44 +1,53 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Pag-aaral ng Bibliya"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: "Basahin ang Bibliya, pag-aralan ang komentaryo o diksyonaryo nang offline.\n"
+short_description: "Kagamitan sa pag-aaral ng Bibliya: komentaryo, bookmark, tala, AI"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Makapangyarihang Kagamitan sa Pag-aaral ng Bibliya
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  Ang "{{ title }}" ay isang makapangyarihan ngunit madaling gamitin na offline na app sa pag-aaral ng Bibliya para sa Android. Nakatuon ito sa pagiging advanced na kagamitan para sa malalim na personal na pag-aaral ng Bibliya.
+  Ang "{{ title }}" ay makapangyarihan, madaling gamitin, at offline na app sa pag-aaral ng Bibliya para sa Android — mula sa kaswal na pagbabasa hanggang sa malalim na pananaliksik. Higit pa sa isang reader — para sa seryosong personal na pag-aaral.
 paragraph_1_2: >
-  Binuo ng mga nagbabasa ng Bibliya, para sa mga nagbabasa ng Bibliya. Layunin nitong gawing maginhawa at malalim ang iyong pag-aaral. Open-source, ganap na libre, at walang advertisement.
+  Binuo ng mga mambabasa ng Bibliya, para sa mga mambabasa ng Bibliya — non-profit at open-source, libre at walang ad.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Ang ilang popular na bersyon ng Bibliya (sa maraming magagamit) ay ang KJV, NASB, NET, at pati na rin ang mga popular na komentaryo tulad ng Matthew Henry at John Gill.
 subtitle_2: Mga Makapangyarihang Tampok sa Pag-aaral ng Bibliya
 paragraph_2_1: >
   Ang application ay may maraming natatangi at orihinal na tampok na nagpapadali ng kumplikado at malalim na karanasan sa pag-aaral ng Bibliya. Ang pinaka-kapansin-pansing mga tampok ay ang mga sumusunod:
-feature_01: "Mga split text view na nagbibigay-daan sa paghahambing ng mga salin at pagtukoy sa mga komentaryo\n"
-feature_02: "Ang mga workspace ay nagpapahintulot ng maraming setup sa pag-aaral ng Bibliya na may sariling mga setting\n"
-feature_03: "Ang integrasyon ng Strong's ay nagbibigay-daan sa pagsusuri ng mga salitang Griyego at Hebreo\n"
+feature_01: >
+  Mga split text view na nagbibigay-daan sa paghahambing ng mga salin at pagtukoy sa mga komentaryo
+feature_02: >
+  Ang mga workspace ay nagpapahintulot ng maraming setup sa pag-aaral ng Bibliya na may sariling mga setting
+feature_03: >
+  Ang integrasyon ng Strong's ay nagbibigay-daan sa pagsusuri ng mga salitang Griyego at Hebreo
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
-  Mga naka-link na cross-reference, footnote, at dokumento; pumunta sa mga ito sa pamamagitan ng pag-tap ng link; gamitin ang mga komentaryo ({{commentary_examples}}), cross-reference ({{cross_reference_examples}}) at iba pang mapagkukunan.
+  I-tap ang link para sa cross-reference, talababa, at komentaryo ({{commentary_examples}}) o koleksyon ng cross-reference ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: "Gill, Matthew Henry atbp."
+commentary_examples: Gill, Matthew Henry atbp.
 # Examples of cross-reference collections.
-cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
-feature_05: "Advanced na text to speech na may mga speak bookmark, na nagbibigay ng maayos na karanasan sa pakikinig ng Bibliya\n"
-feature_06: Flexible na paghahanap
-feature_07: "Advanced na mga tampok sa pagba-bookmark at pag-highlight na may personal na mga tala sa pag-aaral\n"
-feature_09: >-
-  Mga plano sa pagbabasa: magtakda ng mga layunin para sa pagbabasa ng Bibliya
+cross_reference_examples: Treasure of Scripture Knowledge, TSKe
+feature_05: >
+  Advanced na text to speech na may mga speak bookmark, na nagbibigay ng maayos na karanasan sa pakikinig ng Bibliya
+feature_06: Flexible full-text search sa isa o maraming salin nang sabay-sabay
+feature_07: >
+  Advanced na mga tampok sa pagba-bookmark at pag-highlight na may personal na mga tala sa pag-aaral
+feature_08: >
+  Cross-device sync: panatilihing nakasync ang mga workspace, bookmark, tala, at progreso ng pagbabasa sa lahat ng device
+feature_09: >
+  Pagsubaybay sa pagbabasa at pagsasaulo: magtakda ng layunin, subaybayan ang progreso, at isaulo ang talata sa Word Scramble, Word Order, Word Blur, at Type It mode
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Malawak na aklatan ng mga dokumento: mga salin ng Bibliya, mga teolohikal na komentaryo, mga diksyonaryo, mga mapa, at mga Kristiyanong aklat, na kabuuang higit sa {{total_documents}} na dokumento sa mahigit {{total_languages}} na wika, na legal na ipinamamahagi ng Crosswire at iba pang mga SWORD repository.
 feature_10_1: >
   Ang katutubong suporta para sa MyBible, MySword, at EPUB na mga file ay nagbibigay-daan sa iyo na palawakin pa ang iyong aklatan.
+feature_11: >
+  Opsyonal na AI study agent (opt-in lamang — kailangan ng sarili mong API key sa panlabas na serbisyo): galugarin ang mga komentaryo at diksyonaryo sa tulong ng AI sa pinili mong wika. May permission system para sa buong kontrol mo.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: "ESV, NIV at NKJV"
+unavailable_documents: ESV, NIV at NKJV
 feature_12: >
   Offline: ang tanging pagkakataon na kailangan mo ng internet ay para sa pag-download ng mga dokumento.
 # UNUSED
@@ -47,27 +56,22 @@ feature_13: >
 subtitle_3: Gumawa tayo ng pinakamahusay na Bible app nang magkasama!
 paragraph_3_1: >
   Ang AndBible ay isang open-source na proyektong pangkomunidad. Ang sinuman na may angkop na kakayahan ay maaaring mag-ambag sa pamamagitan ng:
-contr_1: "pagbuo ng mga bagong tampok,"
-contr_2: "pagsubok ng mga tampok na hindi pa inilalabas,"
-contr_3: "pagpapanatiling napapanahon ang mga pagsasalin ng user interface, at"
-contr_4: "pagtulong na palawakin ang module library sa pamamagitan ng pagkuha ng pahintulot mula sa mga may-ari ng copyright, o sa pamamagitan ng pag-convert ng mga dokumento sa SWORD format.\n"
+contr_1: pagbuo ng mga bagong tampok,
+contr_2: pagsubok ng mga tampok na hindi pa inilalabas,
+contr_3: pagpapanatiling napapanahon ang mga pagsasalin ng user interface, at
+contr_4: >
+  pagtulong na palawakin ang module library sa pamamagitan ng pagkuha ng pahintulot mula sa mga may-ari ng copyright, o sa pamamagitan ng pag-convert ng mga dokumento sa SWORD format.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: "Kung ikaw ay software engineer o tester, isaalang-alang ang pag-ambag sa proyekto. Para sa impormasyon, tingnan ang {{how_to_contribute_url}}.\n"
+paragraph_4_1: >
+  Kung ikaw ay software engineer o tester, isaalang-alang ang pag-ambag sa proyekto. Para sa impormasyon, tingnan ang {{how_to_contribute_url}}.
 subtitle_4: Mga Link
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: >-
-  Homepage: {{homepage_url}}
-link_2: >-
-  I-like ang AndBible sa Facebook: {{facebook_url}}
-link_3: >-
-  Ang Aming Youtube Channel: {{youtube_url}}
-link_4: >-
-  Mga Madalas Itanong: {{faq_url}}
-link_5: >-
-  Pahina ng proyekto sa Github: {{github_url}}
-buy_title: >-
-  Suportahan sa pamamagitan ng pagbili ng oras ng pag-unlad!
+link_1: "Homepage: {{homepage_url}}"
+link_2: "I-like ang AndBible sa Facebook: {{facebook_url}}"
+link_3: "Ang Aming Youtube Channel: {{youtube_url}}"
+link_4: "Mga Madalas Itanong: {{faq_url}}"
+link_5: "Pahina ng proyekto sa Github: {{github_url}}"
+buy_title: Suportahan sa pamamagitan ng pagbili ng oras ng pag-unlad!
 buy_1: >
   Kung wala kang oras o kakayahan para sa mga kontribusyon sa proyekto, maaari ka ring suportahan ang proyekto sa pamamagitan ng pagbili ng propesyonal na oras ng trabaho ng developer.
-buy_2: >-
-  Tingnan ang mga opsyon
+buy_2: Tingnan ang mga opsyon

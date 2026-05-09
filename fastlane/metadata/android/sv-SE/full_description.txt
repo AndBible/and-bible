@@ -1,8 +1,8 @@
 <b>Kraftfullt bibelstudieverktyg</b>
 
-"AndBible: Studera Bibeln" är en kraftfull, men samtidigt lättanvänd, bibelstudieapp för Android. Appen fungerar även offline. Dess mål är inte att bara vara en enkel bibelläsningsapp, utan att vara ett avancerat verktyg för ingående personliga studier av Bibeln.
+"AndBible: Studera Bibeln" är en kraftfull, lättanvänd och offline bibelstudieapp för Android — en mångsidig verktygslåda med högkvalitativa funktioner som passar många studiestilar, från lättsam läsning till djupgående forskning. Mer än bara en läsare — det är ett verktyg för seriöst personligt studium.
 
-Appen är utvecklad av bibelläsare, för bibelläsare. Dess syfte är att göra dina bibelstudier smidigare, djupa och roliga. Det bästa med det här ideella gemenskapsprojektet är det har öppen källkod, är helt gratis och inte innehåller någon reklam.
+Utvecklad av bibelläsare, för bibelläsare — ett ideellt projekt med öppen källkod som drivs av en gemenskap, helt gratis och utan reklam.
 
 Några populära bibelöversättningar (av många som finns) är Svenska folkbibeln 2015/1998, Svenska kärnbibeln och 1917 års kyrkobibel. På engelska finns t.ex. KJV, NASB, NET och även populära kommentarer såsom dem av Matthew Henry och John Gill.
 
@@ -13,12 +13,14 @@ Appen har många insiktsfulla och unika funktioner som gör komplicerade och dju
  * Delade textvyer som låter dig jämföra översättningar och använda bibelkommentarer.
  * Arbetsytor låter dig skapa olika anpassade vyer med separata inställningar för bibelstudier.
  * Integration med Strongs nummer möjliggör analys av grekiska och hebreiska ord.
- * Länkade parallellhänvisningar, fotnoter och dokument; hoppa till parallellhänvisningar och fotnoter genom att bara trycka på en länk; studera Skriften grundligt med hjälp av hyperlänkade kommentarer (Gill, Matthew Henry m.fl.), samlade parallellhänvisningar (Treasure of Scripture Knowledge, TSKe) och andra resurser.
- * Avancerat text-till-tal med uppläsningsbokmärken som gör lyssningsupplevelsen bekvämare
- * Flexibel sökfunktion
+ * Tryck på en länk för att följa parallellhänvisningar, fotnoter och kommentarer (Gill, Matthew Henry m.fl.) eller samlingar av parallellhänvisningar (Treasure of Scripture Knowledge, TSKe).
+ * Valfri AI-studieassistent (endast efter aktivering — kräver din egen API-nyckel till en extern tjänst): utforska dina installerade kommentarer och lexikon med AI-hjälp på ditt valda språk, samt andra kreativa studiemetoder. Ett inbyggt behörighetssystem ger dig full kontroll över vad assistenten får göra.
+ * Flexibel fritextsökning över en eller flera bibelöversättningar samtidigt
  * Avancerade funktioner för bokmärken och färgmarkeringar med personliga anteckningar
  * Studieblock för att lägga till anteckningar och bibelhänvisningar medan du lyssnar till predikningar.
- * Läsningsplaner: sätt upp mål för att läsa Bibeln
+ * Spårning av läsning och memorering: sätt upp läsmål, följ ditt förlopp och memorera verser med interaktiva lägen som Bokstavspussel, Ordföljd, Suddade ord och Skriv själv
+ * Avancerat text-till-tal med uppläsningsbokmärken som gör lyssningsupplevelsen bekvämare
+ * Synkronisering mellan enheter: håll dina arbetsytor, bokmärken, anteckningar och läsningsförlopp synkroniserade på alla dina enheter
  * Omfattande bibliotek av dokument: Bibelöversättningar, teologiska kommentarer, lexikon, kartor och kristna böcker. Totalt över 1500 dokument på fler än än 700 språk, lagligt distribuerade av Crosswire och andra SWORD-kataloger.
  * Det inbyggda stödet för MyBible-, MySword- och EPUB-filer gör att du också kan utöka ditt bibliotek.
 

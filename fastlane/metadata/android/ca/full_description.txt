@@ -1,8 +1,8 @@
 <b>Potent eina d'estudi bíblic</b>
 
-"AndBible: Estudi Bíblic" és una aplicació potent i fàcil d'usar per a l'estudi bíblic fora de línia per a Android. L'aplicació no pretén ser simplement un lector de la Bíblia, sinó que se centra en ser una eina avançada per fer un estudi bíblic personal en profunditat.
+«AndBible: Estudi Bíblic» és una aplicació potent, fàcil d'utilitzar i fora de línia per a l'estudi bíblic a Android, que s'adapta a molts estils d'estudi, des de la lectura ocasional fins a la recerca en profunditat. Més que un lector, és una eina per a l'estudi personal seriós.
 
-Aquesta aplicació ha estat desenvolupada per lectors de la Bíblia, per a lectors de la Bíblia. L'objectiu és ajudar-vos a fer el vostre estudi bíblic còmode, profund i agradable. El millor d'aquest projecte comunitari sense ànim de lucre és que és de codi obert, completament gratuït i no conté anuncis.
+Desenvolupada per lectors de la Bíblia, per a lectors de la Bíblia — un projecte comunitari sense ànim de lucre i de codi obert, totalment gratuït i sense anuncis.
 
 Algunes versions populars de la Bíblia (de les moltes disponibles) són KJV, NASB, NET, i també comentaris populars com Matthew Henry i John Gill.
 
@@ -13,12 +13,14 @@ L'aplicació té moltes funcions originals i reveladores que fan que una experi�
  * Vistes de text dividides que permeten comparar traduccions i consultar comentaris
  * Els espais de treball permeten múltiples configuracions d'estudi bíblic amb els seus propis ajustos
  * La integració dels Números de Strong permet l'anàlisi de paraules gregues i hebrees
- * Referències creuades enllaçades, notes a peu de pàgina i documents; salteu a les referències creuades i notes a peu de pàgina simplement tocant un enllaç; feu un estudi en profunditat de les Escriptures utilitzant comentaris amb hipervincles (Gill, Matthew Henry, etc.), col·leccions de referències creuades (Treasure of Scripture Knowledge, TSKe) i altres recursos.
- * Text a veu avançat amb marcadors de lectura, que permet una experiència d'escolta bíblica fluida
- * Cerca flexible
+ * Toqueu qualsevol enllaç per consultar referències creuades, notes a peu de pàgina i comentaris (Gill, Matthew Henry, etc.) o col·leccions de referències creuades (Treasure of Scripture Knowledge, TSKe).
+ * Agent d'estudi amb IA opcional (cal activar-lo i requereix la vostra pròpia clau API d'un servei extern) per explorar els comentaris i diccionaris instal·lats en l'idioma que trieu. Un sistema de permisos integrat us manté el control total sobre el que pot fer l'agent.
+ * Cerca flexible de text complet en una o diverses traduccions de la Bíblia simultàniament
  * Funcions avançades de marcadors i destacats amb notes d'estudi personals
  * Blocs d'estudi per afegir notes i referències bíbliques mentre escolteu sermons.
- * Plans de lectura: establiu objectius per llegir la Bíblia
+ * Seguiment de lectura i memorització: fixeu objectius de lectura, feu el seguiment del progrés i memoritzeu versets amb els modes interactius Paraules Barrejades, Ordre de Paraules, Paraules Difuminades i Escriu-ho
+ * Text a veu avançat amb marcadors de lectura, que permet una experiència d'escolta bíblica fluida
+ * Sincronització entre dispositius: mantingueu sincronitzats els espais de treball, marcadors, notes i progrés de lectura a tots els vostres dispositius
  * Àmplia biblioteca de documents: traduccions de la Bíblia, comentaris teològics, diccionaris, mapes i llibres cristians, amb un total de més de 1500 documents en més de 700 idiomes, distribuïts legalment per Crosswire i altres repositoris SWORD.
  * El suport natiu per a fitxers MyBible, MySword i EPUB us permet ampliar encara més la vostra biblioteca.
 

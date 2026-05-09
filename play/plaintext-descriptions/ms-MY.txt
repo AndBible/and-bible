@@ -1,8 +1,8 @@
 Alat Kajian Alkitab yang Berkuasa
 
-"AndBible: Kajian Alkitab" adalah aplikasi kajian Alkitab luar talian yang berkuasa namun mudah digunakan untuk Android. Aplikasi ini tidak bertujuan sebagai pembaca Alkitab semata-mata, tetapi menumpukan pada menjadi alat canggih untuk kajian Alkitab peribadi yang mendalam.
+"AndBible: Kajian Alkitab" ialah aplikasi kajian Alkitab luar talian yang berkuasa dan mudah digunakan untuk Android — set alat serba boleh dengan ciri-ciri berkualiti tinggi yang menyokong pelbagai gaya kajian, daripada pembacaan santai hingga penyelidikan mendalam. Lebih daripada sekadar pembaca, ia merupakan alat untuk kajian peribadi yang serius.
 
-Aplikasi ini dibangunkan oleh pembaca Alkitab, untuk pembaca Alkitab. Ia bertujuan membantu anda menjadikan kajian Alkitab anda mudah, mendalam, dan menyeronokkan. Bahagian terbaik tentang projek komuniti bukan untung ini ialah ia sumber terbuka, sepenuhnya percuma, dan tidak mengandungi iklan.
+Dibangunkan oleh pembaca Alkitab, untuk pembaca Alkitab — projek komuniti sumber terbuka tanpa keuntungan, sepenuhnya percuma dan tanpa iklan.
 
 Beberapa versi Alkitab popular (daripada banyak yang tersedia) ialah KJV, NASB, NET, dan juga ulasan popular seperti Matthew Henry dan John Gill.
 
@@ -13,12 +13,14 @@ Aplikasi ini mempunyai banyak ciri asli yang berwawasan, yang menjadikan pengala
  * Paparan teks pisah yang membolehkan perbandingan terjemahan dan rujukan ulasan
  * Ruang kerja membolehkan pelbagai persediaan kajian Alkitab dengan tetapan mereka sendiri
  * Integrasi Strong's membolehkan analisis perkataan Greek dan Ibrani
- * Rujukan silang, nota kaki, dan dokumen yang dipautkan; lompat ke rujukan silang dan nota kaki dengan hanya mengetuk pautan; lakukan kajian mendalam Kitab Suci menggunakan ulasan berhiperpautan (Gill, Matthew Henry dll.), koleksi rujukan silang (Treasure of Scripture Knowledge, TSKe) dan sumber lain.
- * Teks ke pertuturan lanjutan dengan penanda buku baca, membolehkan pengalaman mendengar Alkitab yang lancar
- * Carian yang fleksibel
+ * Ketik mana-mana pautan untuk mengikuti rujukan silang, nota kaki, dan ulasan (Gill, Matthew Henry dll.) atau koleksi rujukan silang (Treasure of Scripture Knowledge, TSKe) yang berhiperpautan.
+ * Ejen kajian AI pilihan (perlu didayakan sendiri — memerlukan kunci API anda sendiri untuk perkhidmatan luar): jelajahi ulasan dan kamus yang anda pasang dengan bantuan AI dalam bahasa pilihan anda, serta aliran kerja kajian kreatif yang lain. Sistem kebenaran terbina dalam memastikan anda mengawal sepenuhnya apa yang boleh dilakukan oleh ejen tersebut.
+ * Carian teks penuh yang fleksibel merentasi satu atau banyak terjemahan Alkitab secara serentak
  * Ciri penanda buku &amp; penyerlahan lanjutan dengan nota kajian peribadi
  * Pad Kajian untuk menambah nota dan rujukan Alkitab semasa mendengar khotbah.
- * Rancangan bacaan: tetapkan matlamat untuk membaca Alkitab
+ * Penjejakan bacaan dan hafalan: tetapkan matlamat bacaan, jejaki kemajuan, dan hafal ayat dengan mod interaktif Susun Perkataan, Tertib Perkataan, Kabur Perkataan, dan Taipkan
+ * Teks ke pertuturan lanjutan dengan penanda buku baca, membolehkan pengalaman mendengar Alkitab yang lancar
+ * Penyegerakan merentas peranti: pastikan ruang kerja, penanda buku, nota, dan kemajuan bacaan anda diselaraskan pada semua peranti anda
  * Perpustakaan dokumen yang luas: terjemahan Alkitab, ulasan teologi, kamus, peta, dan buku Kristian, berjumlah lebih 1500 dokumen dalam lebih 700 bahasa, diedarkan secara sah oleh Crosswire dan repositori SWORD lain.
  * Sokongan asli untuk fail MyBible, MySword dan EPUB membolehkan anda meluaskan perpustakaan anda lebih lagi.
 

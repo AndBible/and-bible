@@ -1,8 +1,8 @@
 <b>Киелі кітапты зерттеудің Мықты құралы</b>
 
-"AndBible: Киелі Кітап+" қосымшасы - бұл Android үшін күшті, бірақ қолдануға оңай офлайн режимінде Киелі кітапты зерттеу қосымшасы. Қосымша тек Киелі кітапты ғана оқуды мақсат етпейді, Киелі кітапты жеке әрі терең зерттеудің жетілдірілген құралы болуына бағытталған.
+"AndBible: Киелі Кітап+" is a powerful, easy-to-use, offline Bible study app for Android — a versatile toolkit of high-quality features serving many study styles, from casual reading to in-depth research. More than a reader, it's a tool for serious personal study.
 
-Бұл қолданба Киелі кітапты оқырмандар үшін Киелі кітап оқырмандары әзірлеген. Ол Киелі кітапты зерттеуде ыңғайлы, терең және қызықты өткізуге көмектесуді көздейді. Бұл коммерциялық емес қауымдастық жобасының ең жақсы жері - оның бастапқы дереккөзі ашық, толығымен тегін және ешқандай жарнамасыз.
+Developed by Bible readers, for Bible readers — a non-profit, open-source community project that is completely free and contains no ads.
 
 Киелі кітаптың бірнеше танымал нұсқалары (ең қол жетімділері) - KJV, NASB, NET, сонымен қатар Мэттью Генри мен Джон Гилл сияқты танымал түсініктемелері де бар.
 
@@ -13,12 +13,14 @@
  * Аудармаларды салыстыруға және түсіндірмелер арқылы кеңес алуға мүмкіндік беретін мәтіндік көріністерге бөлу
  * Қолданбаның жұмыс кеңістігі Киелі кітапты зерттеуде бірнеше реттеулерді орнатуға және олармен қолдануға мүмкіндіктер береді
  * Strong интеграциясы грек және еврей сөздерін талдауға мүмкіндік береді
- * Байланыстырылған қиылысты сілтемелер, жай сілтемелер мен құжаттар; сілтемені түрту арқылы қиылысқан сілтемелер мен жай сілтемелерге өту; (Гилл, Мэттью Генри және т.б.) гиперсілтемелерде берілген түсініктемелерді, (Жазбалар туралы білімнің қазынасы, TSKe) сілтемелер жиынтығын және басқа да ресурстарды қолдана отырып, Жазбаларды терең зерттеу
- * Жетілдірілген түрлендірулер және қосымша белгілеулермен мәтінді дыбысты етіп шығару, бұл Киелі кітапты жайлы тыңдауға мүмкіндік береді
- * Икемді іздеу
+ * Tap any link to follow hyperlinked cross-references, footnotes, and commentaries (Гилл, Мэттью Генри және т.б.) or cross-reference collections (Жазбалар туралы білімнің қазынасы, TSKe).
+ * Optional AI study agent (opt-in only — requires your own API key for an external service): explore your installed commentaries and dictionaries with AI assistance in your chosen language, plus other creative study workflows. A built-in permission system keeps you in full control of what the agent can do.
+ * Flexible full-text search across one or many Bible translations simultaneously
  * Жетілдірілген белгілеулер мен ерекшелеулерді жеке зерттеу жазбаларында қолдану
  * Уағыздарды тыңдау кезінде жазбалар мен Киелі кітапқа сілтемелер қосуға арналған оқу тақталары.
- * Оқу жоспарлары: Киелі кітапты оқуға мақсаттар қойыңыз
+ * Reading and memorization tracking: set reading goals, track progress, and memorize verses with interactive Word Scramble, Word Order, Word Blur, and Type It modes
+ * Жетілдірілген түрлендірулер және қосымша белгілеулермен мәтінді дыбысты етіп шығару, бұл Киелі кітапты жайлы тыңдауға мүмкіндік береді
+ * Cross-device sync: keep your workspaces, bookmarks, notes, and reading progress in sync across all your devices
  * Құжаттардың көлемді кітапханасы: Киелі Кітаптың аудармалары, теологиялық пікірлер, түсіндірмелер, сөздіктер, карталар және мәсіхшілік кітаптар, 700 әр-түрлі тілдерде Crosswire және SWORD репозиторийлерінде заңды түрде таратылатын көптеген 1500 құжаттар.
  * MyBible, MySword және EPUB файлдары жергілікті қолдау кітапханаңызды одан әрі кеңейтуге мүмкіндік береді.
 

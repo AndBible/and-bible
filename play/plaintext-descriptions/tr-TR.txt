@@ -1,8 +1,8 @@
 Güçlü Kutsal Kitap çalışma aracı
 
-"AndBible: İncil Çalışması" Android için güçlü, ancak kullanımı kolay, çevrimdışı bir Kutsal Kitap çalışma uygulamasıdır. Uygulama sadece bir Kutsal Kitap okuyucusu olmayı hedeflemez, ancak derinlemesine kişisel Kutsal Kitap çalışması yapmak için gelişmiş bir araç olmaya odaklanır.
+"AndBible: İncil Çalışması", Android için güçlü, kullanımı kolay ve çevrimdışı çalışan bir Kutsal Kitap çalışma uygulamasıdır — gündelik okumadan derinlemesine araştırmaya kadar pek çok çalışma tarzına hizmet eden, yüksek kaliteli özelliklerden oluşan çok yönlü bir araç setidir. Yalnızca bir okuyucudan çok daha fazlası: ciddi bireysel çalışma için bir araçtır.
 
-Bu uygulama Kutsal Kitap okuyucuları tarafından, Kutsal Kitap okuyucuları için geliştirilmiştir. Kutsal Kitap çalışmanızı rahat, derin ve eğlenceli hale getirmenize yardımcı olmayı amaçlamaktadır. Kâr amacı gütmeyen bu topluluk projesinin en iyi yanı, açık kaynaklı, tamamen ücretsiz olması ve reklam içermemesidir.
+Kutsal Kitap okuyucuları tarafından, Kutsal Kitap okuyucuları için geliştirildi — kâr amacı gütmeyen, açık kaynaklı bir topluluk projesi; tamamen ücretsiz ve reklam içermez.
 
 KJV, NASB, NET gibi birkaç popüler İncil versiyonu (mevcut birçok versiyon arasından) ve ayrıca Matthew Henry ve John Gill gibi popüler yorumları.
 
@@ -13,15 +13,15 @@ Uygulama, karmaşık ve derin bir Kutsal Kitap çalışma deneyimini daha soruns
  * Çevirileri karşılaştırmayı ve yorumlara başvurmayı sağlayan bölünmüş metin görünümleri
  * Çalışma alanları, kendi ayarlarına sahip birden fazla Kutsal Kitap çalışma kurulumuna izin verir
  * Strong’un sözlüğü entegrasyonla birlikte Grekçe ve İbranice kelime analizine olanak sağlar
- * Bağlantılı referanslar, dipnotlar ve belgeler; sadece bir bağlantıya dokunarak referanslara ve dipnotlara atlayın; köprü bağlantılı tefsirleri (Gill, Matthew Henry vb.), referans koleksiyonlarını (Kutsal Kitap Bilgisinin Hazinesi, TSKe) ve diğer kaynakları kullanarak Kutsal Yazılar üzerinde derinlemesine çalışma yapın.
- * Konuşma imleri ile gelişmiş metin okuma özelliği, sorunsuz bir Kutsal Kitap dinleme deneyimi sağlar
- * Esnek arama
+ * Bağlantılı çapraz referansları, dipnotları ve yorumları (Gill, Matthew Henry vb.) veya çapraz referans koleksiyonlarını (Kutsal Kitap Bilgisinin Hazinesi, TSKe) takip etmek için herhangi bir bağlantıya dokunun.
+ * İsteğe bağlı YZ çalışma asistanı (yalnızca isteğe bağlı — harici bir hizmet için kendi API anahtarınızı gerektirir): yüklü yorumlarınızı ve sözlüklerinizi seçtiğiniz dilde yapay zeka yardımıyla keşfedin, ayrıca diğer yaratıcı çalışma akışlarından yararlanın. Yerleşik bir izin sistemi, asistanın neler yapabileceği konusunda kontrolün tamamen sizde kalmasını sağlar.
+ * Bir veya birden çok Kutsal Kitap çevirisinde aynı anda esnek tam metin araması
  * Gelişmiş yer imi
  * Vaazları dinlerken notlar ve Kutsal Kitap referansları eklemek için Çalışma Pedleri.
- * Okuma planları: Kutsal Kitap’ı okumak için hedefler belirleyin
- * Geniş belge kütüphanesi: Crosswire ve diğer SWORD depoları tarafından yasal olarak dağıtılan
- 700 üzerinde dilde 1500 belgeden oluşan Kutsal Kitap çevirileri,
-teolojik yorumlar, sözlükler, haritalar ve Hristiyan kitapları.
+ * Okuma ve ezberleme takibi: okuma hedefleri belirleyin, ilerlemenizi izleyin ve ayetleri etkileşimli Kelime Karıştırma, Kelime Sıralama, Kelime Bulanıklaştırma ve Yazarak Ezberleme modlarıyla ezberleyin
+ * Konuşma imleri ile gelişmiş metin okuma özelliği, sorunsuz bir Kutsal Kitap dinleme deneyimi sağlar
+ * Cihazlar arası senkronizasyon: çalışma alanlarınızı, yer imlerinizi, notlarınızı ve okuma ilerlemenizi tüm cihazlarınızda eşitleyin
+ * Geniş belge kütüphanesi: Crosswire ve diğer SWORD depoları tarafından yasal olarak dağıtılan 700 üzerinde dilde 1500 belgeden oluşan Kutsal Kitap çevirileri, teolojik yorumlar, sözlükler, haritalar ve Hristiyan kitapları.
  * MyBible, MySword ve EPUB dosyaları için yerel destek, kitaplığınızı daha da genişletmenizi sağlar.
 
 Birlikte en iyi Kutsal Kitap uygulamasını yapalım!

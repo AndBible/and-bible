@@ -1,44 +1,52 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible : Bible Study"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: "Lire la Bible, avec des commentaires, des dictionnaires, tout cela hors ligne."
+short_description: "Étude biblique : commentaires, signets, notes, outils IA"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Puissant outil d’étude biblique
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  "{{ title }}" est une puissante application d'étude biblique hors ligne pour Android, facile à utiliser. L'application ne vise pas à être un simple lecteur de la Bible, mais se concentre sur un outil avancé pour faire une étude personnelle approfondie de la Bible.
+  « {{ title }} » est une application d'étude biblique hors ligne pour Android, puissante et facile à utiliser — une boîte à outils polyvalente, de la lecture occasionnelle à l'étude approfondie. Un vrai outil pour l'étude personnelle.
 paragraph_1_2: >
-  Cette application a été développée par des lecteurs de la Bible, pour des lecteurs de la Bible. Elle a pour but de vous aider à rendre votre étude de la Bible pratique, approfondie et amusante. La meilleure partie de ce projet communautaire à but non lucratif est qu'il est à code source ouvert, entièrement gratuit et ne contient aucune publicité. 
+  Développée par et pour des lecteurs de la Bible — projet communautaire à code source ouvert, gratuit et sans publicité.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Quelques versions populaires de la Bible (parmi les nombreuses disponibles) sont les KJV, NASB, NET, et aussi des commentaires populaires comme Matthew Henry et John Gill.
 subtitle_2: Puissantes fonctionnalités  d'étude de la Bible
 paragraph_2_1: >
   L'application comporte de nombreuses fonctionnalités originales et petinentes, qui rendent l'étude complexe et approfondie de la Bible plus fluide que jamais. Les fonctionnalités les plus remarquables sont les suivantes :
-feature_01: Divise les affichages du texte permettant de comparer les traductions et de consulter les commentaires
-feature_02: Les espaces de travail permettent de mettre en place plusieurs études bibliques avec leurs propres paramètres.
+feature_01: >
+  Divise les affichages du texte permettant de comparer les traductions et de consulter les commentaires
+feature_02: >
+  Les espaces de travail permettent de mettre en place plusieurs études bibliques avec leurs propres paramètres.
 feature_03: L'intégration de Strongs permet l'analyse des mots grecs et hébreux.
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
-  Références croisées, notes de bas de page et documents liés ; passez aux références croisées et aux notes de bas de page en appuyant simplement sur un lien ; effectuez une étude approfondie des Écritures en utilisant des commentaires en hyperlien ({{commentary_examples}}), des collections de références croisées ({{cross_reference_examples}}) et d'autres ressources.
+  Touchez un lien pour suivre les références croisées, notes de bas de page et commentaires ({{commentary_examples}}) ou collections de références croisées ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: "Gill, Matthew Henry etc. "
+commentary_examples: Gill, Matthew Henry etc.
 # Examples of cross-reference collections.
-cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
-feature_05: "Une synthèse vocale avancée avec des signets vocaux, pour une écoute fluide de la Bible."
-feature_06: Recherche flexible
-feature_07: Fonctions avancées des signets et de surlignage avec des notes d'étude personnelles
+cross_reference_examples: Treasure of Scripture Knowledge, TSKe
+feature_05: >
+  Une synthèse vocale avancée avec des signets vocaux, pour une écoute fluide de la Bible.
+feature_06: Recherche plein texte dans une ou plusieurs traductions simultanément
+feature_07: >
+  Fonctions avancées des signets et de surlignage avec des notes d'étude personnelles
+feature_08: >
+  Synchronisation entre appareils : espaces de travail, signets, notes et progression de lecture sur tous vos appareils
 feature_09: >
-  Plans de lecture : fixer des objectifs de lecture de la Bible 
+  Suivi de lecture et mémorisation : objectifs, progression et mémorisation avec les modes Mots mêlés, Ordre des mots, Mots flous et Saisie
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
-  Vaste bibliothèque de documents : Traductions de la Bible, commentaires théologiques, dictionnaires, cartes et livres chrétiens, totalisant plus de {{total_documents}} documents dans plus de {{total_languages}} langues, distribués légalement par Crosswire et d'autres dépôts SWORD. 
+  Vaste bibliothèque de documents : Traductions de la Bible, commentaires théologiques, dictionnaires, cartes et livres chrétiens, totalisant plus de {{total_documents}} documents dans plus de {{total_languages}} langues, distribués légalement par Crosswire et d'autres dépôts SWORD.
 feature_10_1: >
   La prise en charge native de MyBible, MySword et des fichiers EPUB vous permet d'élargir encore davantage votre bibliothèque.
+feature_11: >
+  Agent d'étude IA optionnel (activation volontaire, clé API personnelle requise) : explorez vos commentaires et dictionnaires avec l'IA dans votre langue. Système d'autorisations intégré pour garder le plein contrôle.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: "ESV, NIV et NKJV"
+unavailable_documents: ESV, NIV et NKJV
 feature_12: >
   Hors ligne  : vous n'avez besoin de l'internet que pour télécharger des documents.
 # UNUSED
@@ -47,27 +55,22 @@ feature_13: >
 subtitle_3: Créons ensemble la meilleure application biblique !
 paragraph_3_1: >
   AndBible est un projet communautaire à code source ouvert. En pratique, cela signifie que toute personne possédant les compétences nécessaires peut contribuer au projet, et est encouragée à le faire :
-contr_1: "en développant de nouvelles fonctionnalités,"
-contr_2: "en testant les fonctionnalités pas encore publiées,"
-contr_3: "en gardant la traduction de l’interface utilisateur à jour, et"
-contr_4: en contribuant à l'extension de la bibliothèque de modules en obtenant les autorisations des détenteurs de droits d'auteur ou en convertissant les documents au format SWORD.
+contr_1: en développant de nouvelles fonctionnalités,
+contr_2: en testant les fonctionnalités pas encore publiées,
+contr_3: en gardant la traduction de l’interface utilisateur à jour, et
+contr_4: >
+  en contribuant à l'extension de la bibliothèque de modules en obtenant les autorisations des détenteurs de droits d'auteur ou en convertissant les documents au format SWORD.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: "Si vous êtes informaticien ou un testeur professionnel, veuillez envisager de contribuer au projet. Pour plus d'informations sur la façon de contribuer, veuillez consulter {{how_to_contribute_url}}."
+paragraph_4_1: >
+  Si vous êtes informaticien ou un testeur professionnel, veuillez envisager de contribuer au projet. Pour plus d'informations sur la façon de contribuer, veuillez consulter {{how_to_contribute_url}}.
 subtitle_4: Liens
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: >
-  Page d'accueil : {{homepage_url}}
-link_2: >
-  J’aime AndBible sur Facebook : {{facebook_url}}
-link_3: >
-  Notre chaîne Youtube : {{youtube_url}}
-link_4: >
-  Questions fréquemment posées : {{faq_url}}
-link_5: >
-  Page du projet sur Github : {{github_url}}
-buy_title: >
-  Soutenez-le projet en achetant du temps de développement !
+link_1: "Page d'accueil : {{homepage_url}}"
+link_2: "J’aime AndBible sur Facebook : {{facebook_url}}"
+link_3: "Notre chaîne Youtube : {{youtube_url}}"
+link_4: "Questions fréquemment posées : {{faq_url}}"
+link_5: "Page du projet sur Github : {{github_url}}"
+buy_title: Soutenez-le projet en achetant du temps de développement !
 buy_1: >
   Si vous n’avez pas le temps ou les compétences nécessaires pour contribuer au projet, vous pouvez également soutenir le projet en achetant du temps de travail à des développeurs professionnels.
-buy_2: >
-  Voir les options
+buy_2: Voir les options

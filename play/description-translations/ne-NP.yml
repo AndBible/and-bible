@@ -1,15 +1,14 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: बाइबल अध्ययन"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: >
-  बाइबल पढ्नुहोस्, टिप्पणीहरू अध्ययन गर्नुहोस्, र पुस्तकहरू अफलाइन पढ्नुहोस्।
+short_description: "शक्तिशाली बाइबल अध्ययन उपकरण: टिप्पणी, बुकमार्क, टिप्पणीहरू, AI"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: शक्तिशाली बाइबल अध्ययन उपकरण
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  "{{ title }}" Android को लागि एक शक्तिशाली, तर प्रयोग गर्न सजिलो, अफलाइन बाइबल अध्ययन अनुप्रयोग हो। अनुप्रयोगको उद्देश्य केवल बाइबल पाठक बन्नु होइन, बरु गहन व्यक्तिगत बाइबल अध्ययन गर्नका लागि उन्नत उपकरण हुनु हो।
+  "{{ title }}" Android का लागि एक शक्तिशाली, प्रयोग गर्न सजिलो, अफलाइन बाइबल अध्ययन अनुप्रयोग हो — साधारण पठनदेखि गहन अनुसन्धानसम्म, विभिन्न अध्ययन शैलीहरूलाई सेवा पुर्‍याउने उच्च गुणस्तरीय सुविधाहरूको बहुउद्देश्यीय उपकरण। यो केवल एउटा रिडर मात्र होइन, गम्भीर व्यक्तिगत अध्ययनको लागि उपकरण हो।
 paragraph_1_2: >
-  यो अनुप्रयोग बाइबल पाठकहरूले, बाइबल पाठकहरूको लागि विकास गरेका हुन्। यसको उद्देश्य तपाईंको बाइबल अध्ययनलाई सुविधाजनक, गहन र रमाइलो बनाउन मद्दत गर्नु हो। यस गैर-नाफामुखी सामुदायिक परियोजनाको सबैभन्दा राम्रो भाग यो हो कि यो खुला स्रोत, पूर्णतः निःशुल्क र विज्ञापन-मुक्त छ।
+  बाइबल पाठकहरूद्वारा, बाइबल पाठकहरूका लागि विकसित — एक गैर-नाफामूलक, खुला स्रोत सामुदायिक परियोजना जुन पूर्ण रूपमा निःशुल्क छ र कुनै विज्ञापन समावेश छैन।
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   केही लोकप्रिय बाइबल संस्करणहरू (उपलब्ध धेरैमध्ये) KJV, NASB, NET, र Matthew Henry र John Gill जस्ता लोकप्रिय टिप्पणीहरू पनि हुन्।
@@ -21,21 +20,26 @@ feature_02: कार्यक्षेत्रहरूले आफ्नै 
 feature_03: Strong's एकीकरणले ग्रीक र हिब्रू शब्द विश्लेषण सक्षम बनाउँछ
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
-  जोडिएका अन्तरसन्दर्भहरू, पादटिप्पणीहरू र कागजातहरू; लिङ्कमा ट्याप गरेर अन्तरसन्दर्भ र पादटिप्पणीहरूमा जानुहोस्; हाइपरलिङ्क गरिएका टिप्पणीहरू ({{commentary_examples}}), अन्तरसन्दर्भ संग्रहणहरू ({{cross_reference_examples}}) र अन्य स्रोतहरू प्रयोग गरेर धर्मग्रन्थको गहन अध्ययन गर्नुहोस्।
+  हाइपरलिङ्क गरिएका अन्तरसन्दर्भहरू, पादटिप्पणीहरू, र टिप्पणीहरू ({{commentary_examples}}) वा अन्तरसन्दर्भ संग्रहहरू ({{cross_reference_examples}}) पछ्याउन कुनै पनि लिङ्कमा ट्याप गर्नुहोस्।
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
 commentary_examples: Gill, Matthew Henry आदि।
 # Examples of cross-reference collections.
 cross_reference_examples: Treasure of Scripture Knowledge, TSKe
 feature_05: बुकमार्कहरूसहित उन्नत पाठबाट भाषण, सहज बाइबल सुन्ने अनुभव सक्षम गर्दछ
-feature_06: लचिलो खोज
+feature_06: एक वा धेरै बाइबल अनुवादहरूमा एकैसाथ लचिलो पूर्ण-पाठ खोजी
 feature_07: व्यक्तिगत अध्ययन टिप्पणीहरूसहित उन्नत बुकमार्किङ र हाइलाइटिङ सुविधाहरू
-feature_09: "पठन योजनाहरू: बाइबल पढ्नका लागि लक्ष्यहरू सेट गर्नुहोस्"
+feature_08: >
+  अन्तर-उपकरण समन्वय: तपाईंका सबै उपकरणहरूमा कार्यक्षेत्र, बुकमार्क, टिप्पणीहरू, र पठन प्रगति समन्वयमा राख्नुहोस्
+feature_09: >
+  पठन र कण्ठस्थ ट्र्याकिङ: पठन लक्ष्यहरू तय गर्नुहोस्, प्रगति ट्र्याक गर्नुहोस्, र अन्तरक्रियात्मक शब्द मिश्रण, शब्द क्रम, शब्द धमिलो, र टाइप गर्ने मोडहरूका साथ श्लोकहरू कण्ठस्थ गर्नुहोस्
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   कागजातहरूको विशाल पुस्तकालय: बाइबल अनुवादहरू, धर्मशास्त्रीय टिप्पणीहरू, शब्दकोशहरू, नक्साहरू, र ईसाई पुस्तकहरू, Crosswire र अन्य SWORD भण्डारहरूद्वारा कानूनी रूपमा वितरण गरिएका {{total_languages}} भन्दा बढी भाषाहरूमा {{total_documents}} भन्दा बढी कागजातहरू।
 feature_10_1: >
   MyBible, MySword र EPUB फाइलहरूको मूल समर्थनले तपाईंको पुस्तकालय थप विस्तार गर्न सक्षम बनाउँछ।
+feature_11: >
+  वैकल्पिक AI अध्ययन सहायक (केवल छनोट अनुसार — बाह्य सेवाको लागि तपाईंको आफ्नै API कुञ्जी आवश्यक): आफ्नो रोजेको भाषामा AI सहायताका साथ आफ्ना स्थापित टिप्पणीहरू र शब्दकोशहरू अन्वेषण गर्नुहोस्, साथै अन्य रचनात्मक अध्ययन प्रक्रियाहरू। एक अन्तर्निहित अनुमति प्रणालीले सहायकले के गर्न सक्छ भन्ने कुरामा तपाईंलाई पूर्ण नियन्त्रणमा राख्छ।
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: ESV, NIV र NKJV

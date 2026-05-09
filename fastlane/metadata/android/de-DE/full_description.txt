@@ -1,8 +1,8 @@
 <b>Ein mächtiges Werkzeug für das Bibelstudium</b>
 
-"AndBible: Bibel+" ist ein umfangreiches und trotzdem einfach zu bedienendes  Programm für das Bibelstudium - auch ohne Internet. Diese App ist nicht nur ein einfaches Bibelleseprogramm, sondern will ein Werkzeug für fortgeschrittenes, in die Tiefe gehendes Bibelstudium sein.
+„AndBible: Bibel+“ ist eine leistungsstarke, einfache Offline-Bibelstudium-App für Android — ein vielseitiges Toolkit für viele Studienstile, vom gelegentlichen Lesen bis zur tiefgehenden Forschung. Mehr als nur ein Lesegerät: ein Werkzeug für ernsthaftes persönliches Studium.
 
-Dieses Programm wird von Bibellesern für Bibelleser entwickelt. Es zielt darauf ab, dein Bibelstudium einfach, bedeutsam und unterhaltsam zu machen. Das Beste an diesem Non-Profit Projekt ist, dass es Open Source ist - völlig kostenlos und ohne Werbung.
+Entwickelt von Bibellesern für Bibelleser — ein gemeinnütziges Open-Source-Gemeinschaftsprojekt, vollständig kostenlos und werbefrei.
 
 Einige der erhältlichen beliebten Bibelversionen sind Schlachter 1955, NeUE, Luther 1912, sowie englische Kommentare wie Matthew Henry und John Gill.
 
@@ -13,19 +13,20 @@ Das Programm hat viele originelle und aufschlussreiche Funktionen, die ein kompl
  * Geteilte Textansicht zum Vergleichen von Übersetzungen und Anzeigen von Kommentaren
  * Arbeitsbereiche erlauben mehrere Konfigurationen für Bibelstudien mit jeweils eigenen Einstellungen
  * Die Integration der Strong-Codes erlaubt das Nachschlagen und Analysieren von griechischen und hebräischen Vokabeln
- * Verknüpfte Querverweise, Fußnoten und andere Dokumente; einfach antipppen um dahin zu springen; tiefergehende Studien ausführen durch den Gebrauch verknüpfter Kommentare (Gill, Matthew Henry, etc.), Sammlungen von Querverweisen (Treasure of Scripture Knowledge, TSKe) und anderer Resourcen.
- * Fortgeschrittene Sprachausgabe von Text mit Lesezeichen, für ein reibungsfreies Hörerlebnis
- * Flexible Suche
+ * Tippe auf einen Link, um Querverweisen, Fußnoten und Kommentaren (Gill, Matthew Henry, etc.) oder Querverweissammlungen (Treasure of Scripture Knowledge, TSKe) zu folgen.
+ * Optionaler KI-Studienassistent (Opt-in, eigener API-Schlüssel für externen Dienst nötig): erkunde Kommentare und Wörterbücher mit KI-Hilfe in deiner Sprache, plus weitere kreative Studienabläufe. Integriertes Berechtigungssystem hält dich in voller Kontrolle.
+ * Flexible Volltextsuche in einer oder mehreren Bibelübersetzungen gleichzeitig
  * Fortgeschrittene Lesezeichen- & Hervorhebungsfunktionen mit persönlichen Studiennotizen
  * Studienmappen für Notizen und Querverweise während Predigten.
- * Bibellesepläne: setze dir Ziele für deine Bibellese
+ * Lese- und Lernfortschritt: Leseziele setzen, Fortschritt verfolgen und Verse auswendig lernen mit interaktiven Modi wie Wortwirrwarr, Wortreihenfolge, Wortschleier und Eintippen
+ * Fortgeschrittene Sprachausgabe von Text mit Lesezeichen, für ein reibungsfreies Hörerlebnis
+ * Geräteübergreifende Synchronisierung: Arbeitsbereiche, Lesezeichen, Notizen und Lesefortschritt bleiben auf allen Geräten synchron
  * Große Sammlung von Dokumenten: Bibelübersetzungen, theologische Kommentare, Wörterbücher, Landkarten und christliche Bücher, insgesamt über  1500 Dokumente in über 700 Sprachen, gesetzeskonform zur Verfügung gestellt von Crosswire und anderen SWORD Quellen.
  * Dank der nativen Unterstützung für MyBible-, MySword- und EPUB-Dateien kannst du deine Bibliothek noch weiter erweitern.
 
 <b>Lasst uns gemeinsam die beste Bibelleseapp entwickeln!</b>
 
-Bibel+ (AndBibel) ist ein Opensource Gemeinschaftprojekt. Das bedeutet in der Praxis, das jeder, der die entsprechenden Fähigkeiten hat, zu diesem Projekt beitragen kann, ja dazu sogar herzlich eingeladen ist.
-Man kann beitragen durch:
+Bibel+ (AndBibel) ist ein Opensource Gemeinschaftprojekt. Das bedeutet in der Praxis, das jeder, der die entsprechenden Fähigkeiten hat, zu diesem Projekt beitragen kann, ja dazu sogar herzlich eingeladen ist. Man kann beitragen durch:
 
  * Entwickeln neuer Funktionen,
  * Testen noch nicht freigegebener Funktionen,

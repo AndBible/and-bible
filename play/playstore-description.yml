@@ -1,18 +1,17 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Bible Study"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: Read the Bible, study commentaries or dictionaries, or read books offline.
+short_description: "Powerful Bible study toolkit: commentaries, bookmarks, notes, AI tools"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Powerful Bible Study tool
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  "{{ title }}" is a powerful, yet easy to use, offline Bible
-  study application for Android. The app does not aim to be simply a Bible reader, but focuses on
-  being an advanced tool to do in-depth personal Bible study.
+  "{{ title }}" is a powerful, easy-to-use, offline Bible study app for Android — a versatile
+  toolkit of high-quality features serving many study styles, from casual reading to in-depth
+  research. More than a reader, it's a tool for serious personal study.
 paragraph_1_2: >
-  This application is developed by Bible readers, for Bible readers. It aims at helping you make
-  your Bible study convenient, deep and fun. The best part about this non-profit community project
-  is that it is open-source, completely free, and contains no advertisements.
+  Developed by Bible readers, for Bible readers — a non-profit, open-source community project
+  that is completely free and contains no ads.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   A few popular Bible versions (of the many available) are KJV, NASB, NET, and also popular
@@ -26,20 +25,21 @@ feature_02: Workspaces allow multiple Bible study setups with their own settings
 feature_03: Strong's integration allows Greek and Hebrew word analysis
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
-  Linked cross-references, footnotes, and documents; jump to cross-references
-  and footnotes by simply tapping a link; perform in-depth study of the Scriptures
-  by using hyperlinked commentaries ({{commentary_examples}}),
-  cross-reference collections ({{cross_reference_examples}}) and other resources.
+  Tap any link to follow hyperlinked cross-references, footnotes, and commentaries
+  ({{commentary_examples}}) or cross-reference collections ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
 commentary_examples: Gill, Matthew Henry etc. 
 # Examples of cross-reference collections.
 cross_reference_examples: Treasure of Scripture Knowledge, TSKe
 feature_05: Advanced text to speech with speak bookmarks, enabling a smooth Bible listening experience
-feature_06: Flexible searching
+feature_06: Flexible full-text search across one or many Bible translations simultaneously
 feature_07: Advanced bookmarking & highlighting features with personal study notes
+feature_08: >
+  Cross-device sync: keep your workspaces, bookmarks, notes, and reading progress in sync
+  across all your devices
 feature_09: >
-  Reading plans: set goals for reading the Bible 
+  Reading and memorization tracking: set reading goals, track progress, and memorize verses with interactive Word Scramble, Word Order, Word Blur, and Type It modes
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Vast library of documents: Bible translations, theological commentaries, dictionaries, maps, and
@@ -47,6 +47,11 @@ feature_10: >
   legally distributed by Crosswire and other SWORD repositories. 
 feature_10_1: >
   Native support for MyBible, MySword and EPUB files enables you to extend your library even more.
+feature_11: >
+  Optional AI study agent (opt-in only — requires your own API key for an external service):
+  explore your installed commentaries and dictionaries with AI assistance in your chosen language,
+  plus other creative study workflows. A built-in permission system keeps you in full control
+  of what the agent can do.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: ESV, NIV and NKJV

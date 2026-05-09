@@ -1,14 +1,14 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: ศึกษาพระคัมภีร์"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: อ่านพระคัมภีร์ ศึกษาคำอธิบายหรือพจนานุกรม หรืออ่านหนังสือแบบออฟไลน์
+short_description: "ชุดเครื่องมือศึกษาพระคัมภีร์ทรงพลัง: คำอธิบาย ที่คั่นหน้า บันทึก เครื่องมือ AI"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: เครื่องมือศึกษาพระคัมภีร์อันทรงพลัง
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  "{{ title }}" เป็นแอปพลิเคชันศึกษาพระคัมภีร์แบบออฟไลน์ที่ทรงพลังและใช้งานง่ายสำหรับ Android แอปนี้ไม่ได้มุ่งเน้นเพียงการอ่านพระคัมภีร์ แต่เน้นเป็นเครื่องมือขั้นสูงสำหรับการศึกษาพระคัมภีร์เชิงลึกส่วนตัว
+  "{{ title }}" เป็นแอปศึกษาพระคัมภีร์แบบออฟไลน์สำหรับ Android ที่ทรงพลังและใช้งานง่าย — ชุดเครื่องมือคุณภาพสูงที่หลากหลาย รองรับรูปแบบการศึกษาทุกประเภท ตั้งแต่การอ่านทั่วไปไปจนถึงการค้นคว้าเชิงลึก แอปนี้ไม่ใช่แค่เครื่องอ่าน แต่เป็นเครื่องมือสำหรับการศึกษาส่วนตัวอย่างจริงจัง
 paragraph_1_2: >
-  แอปพลิเคชันนี้พัฒนาโดยผู้อ่านพระคัมภีร์เพื่อผู้อ่านพระคัมภีร์ มุ่งช่วยให้การศึกษาพระคัมภีร์ของคุณสะดวก ลึกซึ้ง และสนุกสนาน จุดเด่นของโครงการชุมชนไม่แสวงหาผลกำไรนี้คือเป็นโอเพนซอร์ส ฟรีอย่างสมบูรณ์ และไม่มีโฆษณา
+  พัฒนาโดยผู้อ่านพระคัมภีร์ เพื่อผู้อ่านพระคัมภีร์ — โครงการชุมชนโอเพนซอร์สที่ไม่แสวงหากำไร ใช้งานได้ฟรีอย่างสมบูรณ์ และไม่มีโฆษณา
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   พระคัมภีร์ฉบับยอดนิยมบางฉบับ (จากหลายฉบับที่มี) ได้แก่ KJV, NASB, NET รวมถึงคำอธิบายพระคัมภีร์ยอดนิยม เช่น Matthew Henry และ John Gill
@@ -20,54 +20,52 @@ feature_02: พื้นที่ทำงานรองรับการต�
 feature_03: การผสาน Strong's ช่วยวิเคราะห์คำภาษากรีกและฮีบรู
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
-  ข้ออ้างอิงข้าม เชิงอรรถ และเอกสารที่เชื่อมโยงกัน กระโดดไปยังข้ออ้างอิงข้ามและเชิงอรรถได้ด้วยการแตะลิงก์ ศึกษาพระคัมภีร์เชิงลึกโดยใช้คำอธิบายแบบไฮเปอร์ลิงก์ ({{commentary_examples}}) คอลเลกชันข้ออ้างอิงข้าม ({{cross_reference_examples}}) และทรัพยากรอื่น ๆ
+  แตะที่ลิงก์ใดก็ได้เพื่อติดตามข้อพระคัมภีร์อ้างอิง เชิงอรรถ และคำอธิบาย ({{commentary_examples}}) หรือชุดข้อพระคัมภีร์อ้างอิง ({{cross_reference_examples}}) ที่เชื่อมโยงไว้
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: "Gill, Matthew Henry ฯลฯ"
+commentary_examples: Gill, Matthew Henry ฯลฯ
 # Examples of cross-reference collections.
-cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
-feature_05: "การแปลงข้อความเป็นเสียงขั้นสูงพร้อมบุ๊กมาร์กเสียง เพื่อประสบการณ์ฟังพระคัมภีร์ที่ราบรื่น\n"
-feature_06: การค้นหาที่ยืดหยุ่น
+cross_reference_examples: Treasure of Scripture Knowledge, TSKe
+feature_05: >
+  การแปลงข้อความเป็นเสียงขั้นสูงพร้อมบุ๊กมาร์กเสียง เพื่อประสบการณ์ฟังพระคัมภีร์ที่ราบรื่น
+feature_06: >
+  การค้นหาแบบเต็มข้อความที่ยืดหยุ่น ครอบคลุมการแปลพระคัมภีร์หนึ่งฉบับหรือหลายฉบับพร้อมกัน
 feature_07: คุณสมบัติบุ๊กมาร์กและการไฮไลต์ขั้นสูงพร้อมบันทึกการศึกษาส่วนตัว
-feature_09: >-
-  แผนการอ่าน: ตั้งเป้าหมายการอ่านพระคัมภีร์
+feature_08: >
+  การซิงค์ข้ามอุปกรณ์: รักษาพื้นที่ทำงาน ที่คั่นหน้า บันทึก และความคืบหน้าในการอ่านของคุณให้ตรงกันบนทุกอุปกรณ์
+feature_09: >
+  การติดตามการอ่านและการจดจำ: ตั้งเป้าหมายการอ่าน ติดตามความคืบหน้า และจดจำข้อพระคัมภีร์ด้วยโหมดแบบโต้ตอบ ได้แก่ สลับคำ (Word Scramble) เรียงคำ (Word Order) เบลอคำ (Word Blur) และพิมพ์ตาม (Type It)
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   คลังเอกสารขนาดใหญ่: การแปลพระคัมภีร์ คำอธิบายเทววิทยา พจนานุกรม แผนที่ และหนังสือคริสเตียน รวมกว่า {{total_documents}} รายการในกว่า {{total_languages}} ภาษา แจกจ่ายโดยชอบด้วยกฎหมายผ่าน Crosswire และคลังข้อมูล SWORD อื่น ๆ
-feature_10_1: >-
-  รองรับไฟล์ MyBible, MySword และ EPUB โดยตรง ช่วยให้คุณขยายคลังได้มากยิ่งขึ้น
+feature_10_1: รองรับไฟล์ MyBible, MySword และ EPUB โดยตรง ช่วยให้คุณขยายคลังได้มากยิ่งขึ้น
+feature_11: >
+  ผู้ช่วยศึกษาพระคัมภีร์ AI ทางเลือก (เปิดใช้เองเท่านั้น — ต้องใช้ API key ของคุณเองสำหรับบริการภายนอก): สำรวจคำอธิบายและพจนานุกรมที่คุณติดตั้งไว้ด้วยความช่วยเหลือจาก AI ในภาษาที่คุณเลือก พร้อมรูปแบบการศึกษาเชิงสร้างสรรค์อื่น ๆ ระบบสิทธิ์ที่มีอยู่ในตัวช่วยให้คุณควบคุมสิ่งที่ผู้ช่วยทำได้อย่างเต็มที่
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: "ESV, NIV และ NKJV"
-feature_12: >-
-  ออฟไลน์: เวลาเดียวที่คุณต้องการอินเทอร์เน็ตคือการดาวน์โหลดเอกสาร
+unavailable_documents: ESV, NIV และ NKJV
+feature_12: "ออฟไลน์: เวลาเดียวที่คุณต้องการอินเทอร์เน็ตคือการดาวน์โหลดเอกสาร"
 # UNUSED
-feature_13: >-
-  Study Pads สำหรับเพิ่มบันทึกและข้อพระคัมภีร์ขณะฟังการเทศนา
+feature_13: Study Pads สำหรับเพิ่มบันทึกและข้อพระคัมภีร์ขณะฟังการเทศนา
 subtitle_3: มาสร้างแอปพระคัมภีร์ที่ดีที่สุดไปด้วยกัน!
 paragraph_3_1: >
   AndBible เป็นโครงการชุมชนโอเพนซอร์ส ในทางปฏิบัติ หมายความว่าทุกคนที่มีทักษะที่เหมาะสมสามารถและได้รับการสนับสนุนให้มีส่วนร่วมในโครงการโดย:
 contr_1: พัฒนาคุณสมบัติใหม่
 contr_2: ทดสอบคุณสมบัติที่ยังไม่เปิดตัว
 contr_3: อัปเดตการแปลส่วนติดต่อผู้ใช้ให้ทันสมัย และ
-contr_4: "ช่วยขยายคลังโมดูลโดยขอสิทธิ์จากเจ้าของลิขสิทธิ์ หรือโดยการแปลงเอกสารเป็นรูปแบบ SWORD\n"
+contr_4: >
+  ช่วยขยายคลังโมดูลโดยขอสิทธิ์จากเจ้าของลิขสิทธิ์ หรือโดยการแปลงเอกสารเป็นรูปแบบ SWORD
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: "หากคุณเป็นวิศวกรซอฟต์แวร์หรือผู้ทดสอบมืออาชีพ โปรดพิจารณามีส่วนร่วมในโครงการ สำหรับข้อมูลเพิ่มเติมเกี่ยวกับวิธีการมีส่วนร่วม โปรดดูที่ {{how_to_contribute_url}}\n"
+paragraph_4_1: >
+  หากคุณเป็นวิศวกรซอฟต์แวร์หรือผู้ทดสอบมืออาชีพ โปรดพิจารณามีส่วนร่วมในโครงการ สำหรับข้อมูลเพิ่มเติมเกี่ยวกับวิธีการมีส่วนร่วม โปรดดูที่ {{how_to_contribute_url}}
 subtitle_4: ลิงก์
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: >-
-  หน้าหลัก: {{homepage_url}}
-link_2: >-
-  ติดตาม AndBible บน Facebook: {{facebook_url}}
-link_3: >-
-  ช่อง YouTube ของเรา: {{youtube_url}}
-link_4: >-
-  คำถามที่พบบ่อย: {{faq_url}}
-link_5: >-
-  หน้าโครงการบน Github: {{github_url}}
-buy_title: >-
-  สนับสนุนโดยการซื้อเวลาพัฒนา!
+link_1: "หน้าหลัก: {{homepage_url}}"
+link_2: "ติดตาม AndBible บน Facebook: {{facebook_url}}"
+link_3: "ช่อง YouTube ของเรา: {{youtube_url}}"
+link_4: "คำถามที่พบบ่อย: {{faq_url}}"
+link_5: "หน้าโครงการบน Github: {{github_url}}"
+buy_title: สนับสนุนโดยการซื้อเวลาพัฒนา!
 buy_1: >
   หากคุณไม่มีเวลาหรือทักษะในการมีส่วนร่วมในโครงการ คุณยังสามารถสนับสนุนโครงการได้โดยการซื้อเวลาทำงานของนักพัฒนามืออาชีพ
-buy_2: >-
-  ดูตัวเลือก
+buy_2: ดูตัวเลือก

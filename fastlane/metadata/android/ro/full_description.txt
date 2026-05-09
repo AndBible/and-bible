@@ -1,8 +1,8 @@
 <b>O unealtă pentru studiul Bibliei</b>
 
-"AndBible: Biblia" este o aplicație complexă de studiu biblic, dar ușor de utilizat, pentru Android. Aplicația nu își propune să fie doar pentru citit Biblia, ci se concentrează pe a fi un instrument pentru a face un studiu aprofundat al Bibliei.
+„AndBible: Biblia" este o aplicație offline puternică și ușor de folosit pentru studiul Bibliei pe Android — un set versatil de unelte de calitate, de la citire ocazională la cercetare aprofundată. Mai mult decît un cititor, este o unealtă pentru studiul personal serios.
 
-Această aplicație este realizată de cititori ai Bibliei, pentru cititorii Bibliei. Scopul ei este de a vă ajuta să vă faceți studiul biblic convenabil, profund și distractiv. Cea mai bună parte a acestui proiect comunitar non-profit este că are sursă publică, este complet gratuit și nu conține reclame.
+Dezvoltată de cititori ai Bibliei pentru cititori ai Bibliei — un proiect comunitar non-profit, cu sursă deschisă, gratuit și fără reclame.
 
 Cîteva versiuni populare ale Bibliei (din cele multe disponibile) sînt Cornilescu, KJV, NASB, Diodati, precum și comentarii populare precum Matthew Henry și John Gill.
 
@@ -13,12 +13,14 @@ Aplicația are multe caracteristici originale și interesante, care fac ca exper
  * Vizualizări separate ale textului care permit compararea traducerilor și consultarea comentariilor
  * Spațiile de studiu permit organizarea mai multor studii biblice cu propriile reglări
  * Integrarea Strong permite analiza cuvintelor grecești și ebraice
- * Trimiteri, note de subsol și documente; accesezi trimiterile și notele de subsol prin simpla apăsare a unei legături; efectuezi un studiu aprofundat al Scripturilor folosind comentarii cu legături hipertext (Gill, Matthew Henry etc.), colecții de trimiteri (Treasure of Scripture Knowledge, TSKe) și alte resurse.
- * Pronunțarea avansată a textului cu marcaje de vorbire, permițînd o experiență de ascultare ușoară a Bibliei
- * Căutare flexibilă
+ * Apasă pe orice legătură pentru a urmări trimiteri, note de subsol, comentarii (Gill, Matthew Henry etc.) sau colecții de trimiteri (Treasure of Scripture Knowledge, TSKe).
+ * Agent AI opțional pentru studiu (doar la cerere — necesită propria cheie API pentru un serviciu extern): explorează comentariile și dicționarele instalate cu AI în limba aleasă. Un sistem de permisiuni îți păstrează controlul deplin asupra acțiunilor agentului.
+ * Căutare flexibilă în text complet, în una sau mai multe traduceri simultan
  * Semne de carte și evidențiere avansată cu notițe de studiu personale
  * Notițe de studiu pentru a adăuga comentarii și trimiteri biblice în timp ce asculți predicile.
- * Planuri de citire: stabilește obiective pentru citirea Bibliei
+ * Urmărirea citirii și memorării: stabilește obiective, urmărește progresul și memorează versete cu modurile Cuvinte amestecate, Ordinea cuvintelor, Cuvinte estompate și Scrie tu
+ * Pronunțarea avansată a textului cu marcaje de vorbire, permițînd o experiență de ascultare ușoară a Bibliei
+ * Sincronizare între dispozitive: spațiile de studiu, semnele de carte, notițele și progresul citirii rămîn sincronizate
  * O vastă bibliotecă de documente: Traduceri ale Bibliei, comentarii teologice, dicționare, hărți și cărți creștine, totalizînd peste 1500 documente în peste 700 limbi, distribuite legal de Crosswire și alte depozite SWORD.
  * Compatibilitatea nativă cu fișierele MyBible, MySword și EPUB permite o extindere și mai mare a bibliotecii tale.
 

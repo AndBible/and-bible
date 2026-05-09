@@ -1,8 +1,8 @@
 Kragtige Bybelstudie instrument
 
-"AndBible: Bybel Studie" is 'n kragtige, maar tog maklik om te gebruik, vanlyn Bybelstudie applikasie vir Android. Die toep beoog nie om bloot 'n Bybelleser te wees nie, maar fokus daarop om 'n gevorderde hulpmiddel te wees om diepgaande persoonlike Bybelstudie te doen.
+"AndBible: Bybel Studie" is 'n kragtige, maklik om te gebruik, vanlyn Bybelstudie-toep vir Android — 'n veelsydige instrumentestel met hoë gehalte kenmerke wat baie studiestyle bedien, van ontspanne lees tot diepgaande navorsing. Meer as net 'n leser, dit is 'n instrument vir ernstige persoonlike studie.
 
-Hierdie toepassing is ontwikkel deur Bybellesers, vir Bybellesers. Dit het ten doel om jou te help om jou Bybelstudie gerieflik, diep en prettig te maak. Die beste deel van hierdie nie-winsgewende gemeenskapsprojek is dat dit open source is, heeltemal gratis is en geen advertensies bevat nie.
+Ontwikkel deur Bybellesers, vir Bybellesers — 'n nie-winsgewende, oopbron gemeenskapsprojek wat heeltemal gratis is en geen advertensies bevat nie.
 
 'n Paar gewilde Bybelweergawes (van die vele beskikbaar) is KJV, NASB, NET, en ook gewilde kommentare soos Matthew Henry en John Gill.
 
@@ -13,12 +13,14 @@ Die toepassing het baie insiggewende, oorspronklike kenmerke, wat 'n komplekse e
  * Verdeel teksaansigte wat vergelykende vertalings en konsultasiekommentare moontlik maak
  * Werkruimtes laat verskeie Bybelstudie-opstellings toe met hul eie instellings
  * Stong's integrasie laat Griekse en Hebreeuse woord analise toe
- * Gekoppelde kruisverwysings, voetnote en dokumente; spring na kruisverwysings en voetnote deur eenvoudig 'n skakel te tik; voer diepgaande studie van die Skrif uit deur hiperskakelkommentare (Gill, Matthew Henry ens. ...), kruisverwysingsversamelings (Skat van Skrif kennis, TSKe) en ander hulpbronne te gebruik.
- * Gevorderde teks-na-spraak-spraak-boekmerke, wat 'n gladde Bybel beluister ervaring moontlik maak
- * Buigsame soek
+ * Tik op enige skakel om gekoppelde kruisverwysings, voetnotas en kommentare (Gill, Matthew Henry ens. ...) of versamelings van kruisverwysings (Skat van Skrif kennis, TSKe) te volg.
+ * Opsionele KI-studie-agent (slegs op aanvraag — vereis jou eie API-sleutel vir 'n eksterne diens): verken jou geïnstalleerde kommentare en woordeboeke met KI-bystand in jou gekose taal, plus ander kreatiewe studie-werkvloeie. 'n Ingeboude toestemmingstelsel hou jou in volle beheer van wat die agent kan doen.
+ * Buigsame volteks-soektog oor een of meer Bybelvertalings tegelyk
  * Gevorderde boekmerk & beklemtoon funksies met persoonlike studie notas
  * Bestudeer blokke vir die toevoeging van notas en Bybel verwysings terwyl jy na preke luister.
- * Leesplanne: stel doelwitte vir die lees van die Bybel
+ * Lees- en memoriseringsbestuur: stel leesdoelwitte, hou vordering by, en memoriseer verse met interaktiewe Woordwarboel-, Woordorde-, Woordwasem- en Tik-Dit-modusse
+ * Gevorderde teks-na-spraak-spraak-boekmerke, wat 'n gladde Bybel beluister ervaring moontlik maak
+ * Sinkronisering oor toestelle: hou jou werkspasies, boekmerke, notas en leesvordering op datum oor al jou toestelle
  * Groot biblioteek van dokumente: Bybelvertalings, teologiese kommentare, woordeboeke, kaarte en christelike boeke, wat meer as 1500 dokumente in meer as 700 tale beloop, wettig versprei deur Crosswire en ander SWAARDbewaarplekke.
  * Inheemse ondersteuning vir MyBible, MySword en EPUB-lêers stel jou in staat om jou biblioteek selfs meer uit te brei.
 

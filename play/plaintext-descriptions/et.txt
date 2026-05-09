@@ -1,8 +1,8 @@
 Võimas piibliuurimise tööriist
 
-"AndBible: Piibliuuring" on võimas, kuid lihtne kasutada, interneti ühenduseta piibliuurimise rakendus Androidile. Rakendus ei püüa olla lihtsalt piibliluger, vaid keskendub täiustatud tööriistaks olemisele põhjalikuks isiklikuks piibliuurimiseks.
+„AndBible: Piibliuuring" on võimas, kasutajasõbralik ja võrguühenduseta töötav piibliuurimise rakendus Androidile — mitmekülgne tööriistakomplekt, mille kvaliteetsed funktsioonid sobivad paljudele uurimisstiilidele, alates rahulikust lugemisest kuni süvauurimiseni. Enam kui pelk lugemisrakendus — see on tööriist tõsiseks isiklikuks piibliuuringuks.
 
-Seda rakendust on arendanud piiblilugejad piiblilugejatele. Selle eesmärk on muuta sinu piibliuuring mugavaks, põhjalikuks ja lõbusaks. Parim osa selles mittetulundusühinguprojektis on see, et see on avatud lähtekoodiga, täiesti tasuta ja ilma reklaamideta.
+Rakenduse on loonud piiblilugejad piiblilugejatele — mittetulunduslik avatud lähtekoodiga kogukonna projekt, mis on täiesti tasuta ega sisalda reklaame.
 
 Mõned populaarsed piibli versioonid (paljudest saadaolevatest) on KJV, NASB, NET ja ka populaarsed kommentaarid nagu Matthew Henry ja John Gill.
 
@@ -13,12 +13,14 @@ Rakendusel on palju originaalseid funktsioone, mis muudavad keeruka ja põhjalik
  * Jagatud tekstivaated, mis võimaldavad tõlkeid võrrelda ja kommentaare konsulteerida
  * Tööalad võimaldavad mitut piibliuurimise seadistust oma seadetega
  * Strongi integreerimine võimaldab kreeka ja heebrea sõnade analüüsi
- * Lingitud ristviited, allmärkused ja dokumendid; hüppa ristviidete ja allmärkuste juurde lihtsalt linki puudutades; tee põhjalik Pühakirja uuring lingitud kommentaaride (Gill, Matthew Henry jne.), ristviidete kogumike (Treasure of Scripture Knowledge, TSKe) ja teiste ressursside abil.
- * Täiustatud tekst kõneks koos kõnelemise järjehoidjatega, mis võimaldab sujuvat piibli kuulamise kogemust
- * Paindlik otsimine
+ * Puuduta ükskõik millist linki, et liikuda ristviidetele, allmärkustele ja kommentaaridele (Gill, Matthew Henry jne.) või ristviidete kogudele (Treasure of Scripture Knowledge, TSKe).
+ * Valikuline AI uurimisagent (kasutuselevõtt on vabatahtlik — nõuab sinu enda API-võtit välisele teenusele): uuri paigaldatud kommentaare ja sõnaraamatuid AI abiga sinu valitud keeles ning kasuta muid loomingulisi uurimisvõimalusi. Sisseehitatud loasüsteem hoiab sind täielikult kontrolli all selle üle, mida agent võib teha.
+ * Paindlik täistekstotsing ühest või mitmest piiblitõlkest samaaegselt
  * Täiustatud järjehoidja ja esiletõstmise funktsioonid koos isiklike uurimismärkmetega
  * Uurimismärkmikud märkmete ja piibli viidete lisamiseks jutluste kuulamisel.
- * Lugemiskavad: sea eesmärgid piibli lugemiseks
+ * Lugemise ja päheõppimise jälgimine: sea lugemiseesmärgid, jälgi edenemist ja õpi salme pähe interaktiivsetes režiimides — Sõnasegadik, Sõnade järjekord, Sõnade hägu ja Trükkimine
+ * Täiustatud tekst kõneks koos kõnelemise järjehoidjatega, mis võimaldab sujuvat piibli kuulamise kogemust
+ * Sünkroonimine seadmete vahel: hoia oma tööalad, järjehoidjad, märkmed ja lugemise edenemine ajakohased kõigis seadmetes
  * Lai dokumentide kogu: piibli tõlked, teoloogilised kommentaarid, sõnaraamatud, kaardid ja kristlikud raamatud, kokku üle 1500 dokumendi üle 700 keeles, mida jagavad seaduslikult Crosswire ja teised SWORD hoidlad.
  * MyBible, MySword ja EPUB failide natiivne tugi võimaldab sul oma kogu veelgi laiendada.
 

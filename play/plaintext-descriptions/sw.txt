@@ -1,8 +1,8 @@
 Zana yenye nguvu ya Masomo ya Biblia
 
-"AndBible: Masomo ya Biblia" ni programu ya masomo ya Biblia ya nje ya mtandao yenye nguvu, lakini rahisi kutumia, kwa Android. Programu hailengi kuwa msomaji wa Biblia tu, bali inazingatia kuwa zana ya hali ya juu ya masomo ya kibinafsi ya kina ya Biblia.
+"AndBible: Masomo ya Biblia" ni programu yenye nguvu, rahisi kutumia, na ya nje ya mtandao ya masomo ya Biblia kwa Android — zana yenye uwezo mwingi yenye vipengele vya hali ya juu vinavyofaa mitindo mingi ya kusoma, kuanzia kusoma kwa kawaida hadi utafiti wa kina. Ni zaidi ya msomaji tu — ni zana ya masomo ya kibinafsi yenye umakini.
 
-Programu hii inatengenezwa na wasomaji wa Biblia, kwa wasomaji wa Biblia. Inalenga kukusaidia kufanya masomo yako ya Biblia kuwa rahisi, ya kina na ya kufurahisha. Sehemu nzuri zaidi kuhusu mradi huu wa jumuiya usio wa faida ni kwamba ni wa chanzo huria, huru kabisa, na hauna matangazo.
+Imetengenezwa na wasomaji wa Biblia, kwa wasomaji wa Biblia — mradi wa jumuiya wa chanzo huria, usio wa faida, ambao ni bure kabisa na hauna matangazo.
 
 Matoleo machache maarufu ya Biblia (kati ya mengi yanayopatikana) ni KJV, NASB, NET, na pia maoni maarufu kama Matthew Henry na John Gill.
 
@@ -13,12 +13,14 @@ Programu ina vipengele vingi vya kuvutia na vya asili, ambavyo hufanya uzoefu wa
  * Maonyesho ya maandishi yaliyogawanywa yanayoruhusu kulinganisha tafsiri na kushauriana na maoni
  * Maeneo ya kazi huruhusu usanidi mwingi wa masomo ya Biblia wenye mipangilio yake
  * Muunganiko wa Strong's huruhusu uchambuzi wa maneno ya Kigiriki na Kiebrania
- * Marejeleo ya msalaba, maelezo ya chini, na hati zilizounganishwa; ruka hadi marejeleo ya msalaba na maelezo ya chini kwa kugonga kiungo tu; fanya masomo ya kina ya Maandiko kwa kutumia maoni yaliyounganishwa (Gill, Matthew Henry n.k.), makusanyiko ya marejeleo ya msalaba (Hazina ya Maarifa ya Maandiko, TSKe) na rasilimali nyingine.
- * Maandishi-hadi-usemi wa hali ya juu wenye alamisho za kusoma, kuruhusu uzoefu laini wa kusikia Biblia
- * Utafutaji wa kubadilika
+ * Gusa kiungo chochote ili kufuata marejeleo ya msalaba yenye viungo, maelezo ya chini, na maoni (Gill, Matthew Henry n.k.) au makusanyo ya marejeleo ya msalaba (Hazina ya Maarifa ya Maandiko, TSKe).
+ * Wakala wa AI wa masomo wa hiari (kwa kuchagua tu — unahitaji ufunguo wako wa API kwa huduma ya nje): chunguza maoni na kamusi zako ulizosakinisha kwa msaada wa AI katika lugha unayochagua, pamoja na njia nyingine za ubunifu za masomo. Mfumo wa ndani wa ruhusa unakupa udhibiti kamili wa kile ambacho wakala anaweza kufanya.
+ * Utafutaji rahisi wa maandishi kamili katika tafsiri moja au nyingi za Biblia kwa wakati mmoja
  * Vipengele vya hali ya juu vya kuweka alamisho na kuangazia na maelezo ya kibinafsi ya masomo
  * Daftari za Masomo kwa kuandika maelezo na marejeleo ya Biblia unapisikiliza mahubiri.
- * Mipango ya kusoma: weka malengo ya kusoma Biblia
+ * Ufuatiliaji wa kusoma na ukariri: weka malengo ya kusoma, fuatilia maendeleo, na kariri mistari kwa hali shirikishi za Maneno Yaliyochanganywa, Mpangilio wa Maneno, Maneno Yaliyofifia, na Andika Mwenyewe
+ * Maandishi-hadi-usemi wa hali ya juu wenye alamisho za kusoma, kuruhusu uzoefu laini wa kusikia Biblia
+ * Ulinganishaji kati ya vifaa: weka maeneo yako ya kazi, alamisho, maelezo, na maendeleo ya kusoma yakilingana katika vifaa vyako vyote
  * Maktaba kubwa ya hati: tafsiri za Biblia, maoni ya kiteolojia, kamusi, ramani, na vitabu vya Kikristo, kwa jumla zaidi ya hati 1500 katika lugha zaidi ya 700, zinazosambazwa kisheria na Crosswire na hazina nyingine za SWORD.
  * Msaada wa asili wa faili za MyBible, MySword na EPUB hukuruhusu kupanua maktaba yako zaidi.
 

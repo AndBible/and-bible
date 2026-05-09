@@ -1,48 +1,56 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Studium Biblii"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: "Czytaj Biblię, komentarze i słowniki; bez internetu."
+short_description: "Zaawansowane studium Biblii: komentarze, zakładki, notatki, narzędzia AI"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Zaawansowane narzędzie do studiowania Pisma Świętego
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  "{{ title }}" jest potężnym i zarazem łatwym w użyciu narzędziem do czytania Biblii bez dostępu do internetu na system Android. Nie jest to zwykły czytnik Pisma Świętego, ale zaawansowane narzędzie do głębokiego osobistego studiowania Biblii.
+  „{{ title }}" to potężna, łatwa w obsłudze aplikacja do studiowania Biblii na Androida, działająca offline — wszechstronne narzędzie z wysokiej jakości funkcjami obsługującymi wiele stylów studium, od swobodnej lektury po pogłębioną pracę badawczą. To znacznie więcej niż czytnik — to narzędzie do prawdziwie poważnego, osobistego studium Pisma.
 paragraph_1_2: >
-  Ta aplikacja jest rozwijana przez i dla czytaczy Pisma Świętego. Jej celem jest sprawienie, aby czytanie Biblii było wygodne, głębokie i radosne. Najważniejsze w naszym projekcie jest to, że jest on otwartoźródłowy (open source), całkowicie darmowy i nie zawiera reklam.
+  Stworzona przez czytelników Biblii dla czytelników Biblii — niekomercyjny projekt społecznościowy o otwartym kodzie, w pełni darmowy i pozbawiony reklam.
 # You can also advertise here the best documents that are available in the app in your language.
-paragraph_1_3: >-
+paragraph_1_3: >
   Z polskich wersji Biblii dostępna jest Biblia gdańska (z roku 1881), Uwspółcześniona Biblia gdańska (2018) i Przekład toruński (2017).
 subtitle_2: Możliwości aplikacji Studium Biblii
 paragraph_2_1: >
   Aplikacja wyróżnia się wieloma zmyślnymi, oryginalnymi cechami, które to ułatwiają głębokie studiowanie Pisma Świętego. Najważniejsze z nich to:
-feature_01: podzielny widok tekstu umożliwiający porównywanie tłumaczeń i czytanie komentarza
-feature_02: "obszary robocze umożliwiające posiadanie kilku oddzielnych środowisk do studiowania Biblii, każde z własnymi ustawieniami"
-feature_03: "numeracja Stronga, aby móc analizować słowa w grece i hebrajskim"
+feature_01: >
+  podzielny widok tekstu umożliwiający porównywanie tłumaczeń i czytanie komentarza
+feature_02: >
+  obszary robocze umożliwiające posiadanie kilku oddzielnych środowisk do studiowania Biblii, każde z własnymi ustawieniami
+feature_03: numeracja Stronga, aby móc analizować słowa w grece i hebrajskim
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
-  klikalne odsyłacze, przypisy i dokumenty; komentarze ({{commentary_examples}}), kolekcje odsyłaczy ({{cross_reference_examples}}) i inne materiały
+  Dotknij dowolnego odsyłacza, aby przejść do powiązanych odnośników wewnętrznych, przypisów i komentarzy ({{commentary_examples}}) lub zbiorów odsyłaczy ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
 commentary_examples: niedostępne w j. polskim
 # Examples of cross-reference collections.
 cross_reference_examples: niedostępne w j. polskim
-feature_05: "możliwość odczytu na głos z zakładkami, aby płynnie słuchać Biblii"
-feature_06: elastyczne wyszukiwanie
-feature_07: "zaawansowane możliwości tworzenia zakładek, wyróżniania tekstu i pisania własnych notatek"
+feature_05: możliwość odczytu na głos z zakładkami, aby płynnie słuchać Biblii
+feature_06: >
+  elastyczne wyszukiwanie pełnotekstowe w jednym lub wielu przekładach Biblii jednocześnie
+feature_07: >
+  zaawansowane możliwości tworzenia zakładek, wyróżniania tekstu i pisania własnych notatek
+feature_08: >
+  synchronizacja między urządzeniami: utrzymuj swoje obszary robocze, zakładki, notatki i postęp czytania zsynchronizowane na wszystkich urządzeniach
 feature_09: >
-  plany czytania: zdefiniuj własne cele czytania
+  śledzenie czytania i zapamiętywania: wyznaczaj cele czytania, śledź postępy i ucz się wersetów na pamięć z interaktywnymi trybami Pomieszaj słowa, Kolejność słów, Zasłoń słowa oraz Wpisz tekst
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   obszerna biblioteka dokumentów: tłumaczenia, komentarze teologiczne, słowniki, mapy, książki chrześcijańskie, w sumie ponad {{total_documents}} dokumentów w {{total_languages}} językach legalnie rozpowszechnianych przez CrossWire i inne repozytoria SWORD
-feature_10_1: >-
+feature_10_1: >
   wsparcie dla plików MyBible, MySword i EPUB pozwalające na dalsze rozszerzenie Twojej biblioteki
+feature_11: >
+  opcjonalny asystent AI do studium (wyłącznie po Twojej aktywacji — wymaga własnego klucza API do zewnętrznej usługi): przeglądaj zainstalowane komentarze i słowniki ze wsparciem AI w wybranym języku oraz korzystaj z innych twórczych metod pracy nad tekstem. Wbudowany system uprawnień zapewnia Ci pełną kontrolę nad tym, co asystent może robić.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: Biblia Warszawska
 feature_12: >
   działa w pełni offline: połączenie internetowe jest potrzebne tylko do pobrania dokumentów
 # UNUSED
-feature_13: >-
+feature_13: >
   „bloczki notatek” umożliwiające dodawanie notatek i odnośników do Biblii podczas słuchania kazań
 subtitle_3: Razem stwórzmy najlepszą apkę do czytania Biblii!
 paragraph_3_1: >
@@ -50,24 +58,19 @@ paragraph_3_1: >
 contr_1: programowanie nowych funkcji;
 contr_2: testowanie funkcji próbnych;
 contr_3: tłumaczenie interfejsu programu;
-contr_4: oraz rozszerzanie biblioteki modułów poprzez otrzymanie pozwoleń od właścicieli praw autorskich lub konwertując dokumenty do formatu SWORD.
+contr_4: >
+  oraz rozszerzanie biblioteki modułów poprzez otrzymanie pozwoleń od właścicieli praw autorskich lub konwertując dokumenty do formatu SWORD.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: "Jeżeli jesteś zawodowym programistą lub testerem, prosimy rozważyć włączenie się w rozwój aplikacji. Więcej informacji znajduje się na stronie {{how_to_contribute_url}}"
+paragraph_4_1: >
+  Jeżeli jesteś zawodowym programistą lub testerem, prosimy rozważyć włączenie się w rozwój aplikacji. Więcej informacji znajduje się na stronie {{how_to_contribute_url}}
 subtitle_4: Odnośniki
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: >
-  strona programu: {{homepage_url}}
-link_2: >
-  polub nas na Facebooku: {{facebook_url}}
-link_3: >
-  nasz kanał na YouTube: {{youtube_url}}
-link_4: >
-  często zadawane pytania (w j. angielskim): {{faq_url}}
-link_5: >
-  strona projektu na GitHubie: {{github_url}}
-buy_title: >-
-  Wspomóż poprzez opłacenie czasu programisty!
+link_1: "strona programu: {{homepage_url}}"
+link_2: "polub nas na Facebooku: {{facebook_url}}"
+link_3: "nasz kanał na YouTube: {{youtube_url}}"
+link_4: "często zadawane pytania (w j. angielskim): {{faq_url}}"
+link_5: "strona projektu na GitHubie: {{github_url}}"
+buy_title: Wspomóż poprzez opłacenie czasu programisty!
 buy_1: >
   Jeżeli nie masz czasu lub zdolności programistycznych, wciąż możesz wspomóc projekt wykupując czas pracy profesjonalnego programisty.
-buy_2: >-
-  Czytaj więcej
+buy_2: Czytaj więcej

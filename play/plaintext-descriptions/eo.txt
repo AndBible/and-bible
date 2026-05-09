@@ -1,8 +1,8 @@
 Ampleksa aplikaĵo por studi Biblion
 
-"AndBible: Studi Biblion" estas ampleksa, tamen facile uzebla ilo por studi la Sanktan Skribon por la operaciumo Android. Ĝi ne celas esti simpla legilo de Biblio, sed koncentriĝas esti spertula ilo por profunde persone studi Biblion.
+"AndBible: Studi Biblion" estas potenca, facile uzebla, eksterreta aplikaĵo por studi Biblion sub Android — versatila ilaro de altkvalitaj ebloj, kiuj servas multajn studstilojn, de simpla legado ĝis profunda esploro. Pli ol nura legilo, ĝi estas ilo por serioza persona studado.
 
-Tiu ĉi aplikaĵo estas evoluigata de legantoj de Biblio kaj por legantoj de Biblio. Ĝia celo estas igi studadon de Biblio oportuna, profunda kaj amuza. La plej grava fakto de tiu ĉi neprofitcela komunuma projekto estas, ke ĝi estas malfermkoda, tute senpaga kaj enhavas neniun reklamon.
+Ellaborita de Biblio-legantoj, por Biblio-legantoj — neprofitcela, malfermkoda komunuma projekto, kiu estas tute senpaga kaj ne enhavas reklamojn.
 
 Esperanta Londona Biblio.
 
@@ -13,12 +13,14 @@ La aplikaĵo distingiĝas per pluraj sagaj, originalaj ebloj, kiuj plifaciligas 
  * dividi vidon de teksto por kompari tradukojn kaj legi komentarojn
  * laborspacoj ebligantaj havi plurajn mediojn por studi Biblion, ĉiu kun propraj agordoj
  * numeroj de Strong por analizi vortojn en greka kaj hebrea
- * entekstaj malfermeblaj ligiloj al internaj referencoj, piednotoj kaj dokumentoj; komentaroj (nedisponeblaj en EO), kolektoj de internaj referencoj (nedisponeblaj en EO) kaj aliaj tekstoj
- * teksto-al-parolo kun legosignoj por senbare aŭskulti Biblion
- * fleksebla serĉo
+ * tuŝu iun ajn ligilon por sekvi hiperligitajn krucreferencojn, piednotojn kaj komentarojn (nedisponeblaj en EO) aŭ kolektojn de krucreferencoj (nedisponeblaj en EO)
+ * laŭvola AI-studagento (nur per propra elekto — postulas vian propran API-ŝlosilon por ekstera servo): esploru viajn instalitajn komentarojn kaj vortarojn kun helpo de AI en la lingvo de via elekto, plus aliaj kreemaj studfluoj. Enkonstruita permes-sistemo lasas vin plene regi tion, kion la agento povas fari.
+ * fleksebla plenteksta serĉado tra unu aŭ pluraj Biblio-tradukoj samtempe
  * ampleksaj ebloj por krei legosignojn kaj emfazi tekston kun personaj notoj
  * “notblokoj” por aldoni notojn kaj referencojn dum aŭskulti predikojn
- * planoj de legado: difinu viajn celojn por legi Biblion
+ * spurado de legado kaj parkerigado: difinu legocelojn, sekvu progreson kaj parkerigu versojn per interagaj reĝimoj Vortmiksaĵo, Vortordo, Vortmalklarigo kaj Tajpu Ĝin
+ * teksto-al-parolo kun legosignoj por senbare aŭskulti Biblion
+ * sinkronigado inter aparatoj: tenu viajn laborspacojn, legosignojn, notojn kaj legoprogreson sinkronaj inter ĉiuj viaj aparatoj
  * granda biblioteko de dokumentoj: tradukoj, teologiaj komentaroj, vortaroj, mapoj, kristanismaj libroj, pli ol 1500 dokumentoj en 700 lingvoj, laŭleĝe distribuataj de per CrossWire kaj per aliaj SWORD-deponejoj
  * subteno por moduloj MyBible, MySword kaj dosieroj EPUB por eĉ pli plivastigi vian bibliotekon
 
