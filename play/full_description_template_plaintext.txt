@@ -14,11 +14,13 @@
  * {{feature_02}}
  * {{feature_03}}
  * {{feature_04}}
- * {{feature_05}}
+ * {{feature_11}}
  * {{feature_06}}
  * {{feature_07}}
  * {{feature_13}}
  * {{feature_09}}
+ * {{feature_05}}
+ * {{feature_08}}
  * {{feature_10}}
  * {{feature_10_1}}
 
