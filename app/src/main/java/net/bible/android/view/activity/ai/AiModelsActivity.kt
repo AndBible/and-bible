@@ -68,7 +68,7 @@ class AiModelsActivity : ActivityBase() {
                     activity = this,
                     titleResId = R.string.help,
                     messageResId = R.string.help_ai_models_text,
-                    helpPath = "ai.html#refreshing-available-models",
+                    helpPath = "ai.html#available-models",
                 )
                 true
             }
