@@ -362,7 +362,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     override fun onStart() {
         super.onStart()
         Log.i(TAG, "onStart")
-        CommonUtils.onyxSupport?.setupOnyxFast()
     }
 
     override fun onNewIntent(intent: Intent?) {

@@ -450,9 +450,9 @@ object CommonUtils : CommonUtilsBase() {
         fun removeLong(key: String) = setLong(key, null)
         fun removeBoolean(key: String) = setBoolean(key, null)
 
-        val monochromeMode: Boolean get() = getBoolean("monochrome_mode", onyxSupport?.isMonochrome == true)
+        val monochromeMode: Boolean get() = getBoolean("monochrome_mode", isOnyxDevice)
         val einkMode: Boolean get() = getBoolean("eink_mode", false)
-        val disableAnimations: Boolean get() = getBoolean("disable_animations", onyxSupport?.isOnyxDevice == true)
+        val disableAnimations: Boolean get() = getBoolean("disable_animations", isOnyxDevice)
         val disableClickToEdit: Boolean get() = getBoolean("disable_click_to_edit", false)
         val notesContentType: String get() = getString("notes_content_type", "HTML") ?: "HTML"
         val fontSizeMultiplier: Int get() = getInt("font_size_multiplier", 100)
@@ -1148,7 +1148,7 @@ object CommonUtils : CommonUtilsBase() {
 
     var initialized = false
     private var booksInitialized = false
-    var onyxSupport: OnyxSupportInterface? = null
+    val isOnyxDevice get() = Build.BRAND.lowercase() == "onyx"
 
     fun initializeApp() {
         if(!initialized) {
@@ -1168,7 +1168,6 @@ object CommonUtils : CommonUtilsBase() {
             if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
                 ttsWidgetManager = SpeakWidgetManager()
             }
-            initializeOnyx()
 
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
@@ -1195,14 +1194,6 @@ object CommonUtils : CommonUtilsBase() {
                 }
             }
             booksInitialized = true
-        }
-    }
-
-    private fun initializeOnyx() {
-        if (!BuildVariant.DistributionChannel.isFdroid) {
-            val adapter = Class.forName("net.bible.service.onyx.OnyxSupport")
-            val constructor = adapter.getDeclaredConstructor()
-            onyxSupport = constructor.newInstance() as OnyxSupportInterface
         }
     }
 
@@ -1242,7 +1233,6 @@ object CommonUtils : CommonUtilsBase() {
             withContext(Dispatchers.Main) {
                 MyDocumentBookManager.registerAllDocuments()
             }
-            initializeOnyx()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.

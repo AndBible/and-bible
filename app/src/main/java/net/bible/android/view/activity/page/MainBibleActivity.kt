@@ -2270,11 +2270,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         CurrentActivityHolder.activate(this)
     }
 
-    override fun onStart() {
-        super.onStart()
-        CommonUtils.onyxSupport?.setupOnyxNormal()
-    }
-
     fun executeLlmPrompt(prompt: AgentPrompt, selection: Selection) =
         llmDialogHelper.maybeAskModel(prompt, selection, userSpecification = null)
 
