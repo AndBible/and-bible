@@ -48,4 +48,12 @@ const renderedHtml = computed(() => {
 .night .osis-markdown :deep() {
     @include md.markdown-content-night;
 }
+
+.monochrome .osis-markdown :deep() {
+    @include md.markdown-content-monochrome;
+}
+
+.monochrome.night .osis-markdown :deep() {
+    @include md.markdown-content-monochrome-night;
+}
 </style>

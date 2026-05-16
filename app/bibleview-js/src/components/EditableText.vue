@@ -254,4 +254,12 @@ div.pell-content, .pell-content div, .notes-display:not(.markdown-notes) div {
 .night .markdown-notes {
   @include md.markdown-content-night;
 }
+
+.monochrome .markdown-notes {
+  @include md.markdown-content-monochrome;
+}
+
+.monochrome.night .markdown-notes {
+  @include md.markdown-content-monochrome-night;
+}
 </style>
