@@ -17,8 +17,6 @@
 
 package net.bible.android.view.activity.ai
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -30,6 +28,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ActivityToolInfoBinding
 import net.bible.android.activity.databinding.ItemToolInfoBinding
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.common.CommonUtils
 import net.bible.service.llm.tools.ToolRegistry
 
 /**
@@ -93,7 +92,12 @@ class ToolInfoActivity : ActivityBase() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             MENU_DOCUMENTATION -> {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://docs.andbible.org/en/latest/ai.html")))
+                CommonUtils.showHelpDialog(
+                    activity = this,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_tool_info_text,
+                    helpPath = "ai.html#ai-tools",
+                )
                 true
             }
             android.R.id.home -> {

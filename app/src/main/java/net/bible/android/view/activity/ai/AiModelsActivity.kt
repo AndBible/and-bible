@@ -27,6 +27,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsActivityBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.PreferenceStore
+import net.bible.service.common.CommonUtils
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmProvider
 
@@ -52,16 +53,27 @@ class AiModelsActivity : ActivityBase() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            R.id.add_model -> {
+                val fragment = supportFragmentManager.findFragmentById(R.id.settings_container) as? AiModelsFragment
+                fragment?.addModel()
+                true
+            }
+            R.id.show_help -> {
+                CommonUtils.showHelpDialog(
+                    activity = this,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_ai_models_text,
+                    helpPath = "ai.html#refreshing-available-models",
+                )
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        val fragment = supportFragmentManager.findFragmentById(R.id.settings_container) as? AiModelsFragment
-        if (item.itemId == R.id.add_model) {
-            fragment?.addModel()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 }
 

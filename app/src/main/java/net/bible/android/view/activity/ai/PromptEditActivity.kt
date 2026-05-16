@@ -19,7 +19,6 @@ package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.view.Menu
@@ -605,7 +604,12 @@ class PromptEditActivity : ActivityBase() {
                 true
             }
             R.id.prompt_help -> {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://docs.andbible.org/en/latest/ai.html")))
+                CommonUtils.showHelpDialog(
+                    activity = this,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_prompt_edit_text,
+                    helpPath = "ai.html#custom-prompts",
+                )
                 true
             }
             android.R.id.home -> {

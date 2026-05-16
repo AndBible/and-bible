@@ -254,6 +254,15 @@ class AiSettingsActivity : ActivityBase() {
                 lifecycleScope.launch { importPrompts() }
                 true
             }
+            R.id.show_help -> {
+                CommonUtils.showHelpDialog(
+                    activity = this,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_ai_settings_text,
+                    helpPath = "ai.html",
+                )
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

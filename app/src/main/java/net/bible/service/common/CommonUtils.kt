@@ -1088,6 +1088,38 @@ object CommonUtils : CommonUtilsBase() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
+    /**
+     * Show a help dialog with a short blurb and a clickable "Read more in the manual" link.
+     *
+     * The link opens [helpPath] resolved against the docs.andbible.org URL prefix.
+     *
+     * @param activity Activity used to launch the dialog.
+     * @param titleResId String resource for the dialog title.
+     * @param messageResId String resource for the short blurb shown above the link.
+     * @param helpPath Path under https://docs.andbible.org/en/latest/, e.g. "ai.html#permissions".
+     */
+    fun showHelpDialog(
+        activity: Activity,
+        titleResId: Int,
+        messageResId: Int,
+        helpPath: String,
+    ) {
+        val readMore = activity.getString(R.string.help_read_more_link)
+        val messageHtml = activity.getString(messageResId) +
+            "<br><br><i><a href=\"$DOCS_URL_PREFIX$helpPath\">$readMore</a></i>"
+        val spanned = htmlToSpan(messageHtml)
+        val dialog = AlertDialog.Builder(activity)
+            .setTitle(titleResId)
+            .setMessage(spanned)
+            .setPositiveButton(R.string.okay, null)
+            .show()
+        dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
+            LinkMovementMethod.getInstance()
+    }
+
+    /** Base URL for AndBible's user documentation. Help dialog links resolve their paths against this. */
+    private const val DOCS_URL_PREFIX = "https://docs.andbible.org/en/latest/"
+
     fun openLink(link: String, forceAsk: Boolean = false) {
         val activity = CurrentActivityHolder.currentActivity!!
         if (isDiscrete || forceAsk) {

@@ -122,6 +122,7 @@ type TranslatedStrings = {
     viewReadingProgress: string
     viewReadingProgressSettings: string
     listenInLoop: string
+    viewHelp: string
     verseNoteLong: string
     verseParagraphBreakLong: string
     addBookmark: string
