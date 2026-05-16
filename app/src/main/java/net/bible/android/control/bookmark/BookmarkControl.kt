@@ -499,7 +499,9 @@ open class BookmarkControl @Inject constructor(
         if(note == null) {
             dao.deleteBookmarkNotes(bookmarkId)
         } else {
-            dao.saveBookmarkNote(bookmarkId, note, CommonUtils.settings.notesContentType)
+            val existingContentType = dao.bibleBookmarkById(bookmarkId)?.notesContentType?.name
+            val contentType = existingContentType ?: CommonUtils.settings.notesContentType
+            dao.saveBookmarkNote(bookmarkId, note, contentType)
         }
         val bookmark = dao.bibleBookmarkById(bookmarkId)!!
         addLabels(bookmark)
@@ -510,7 +512,9 @@ open class BookmarkControl @Inject constructor(
         if(note == null) {
             dao.deleteGenericBookmarkNotes(bookmarkId)
         } else {
-            dao.saveGenericBookmarkNote(bookmarkId, note, CommonUtils.settings.notesContentType)
+            val existingContentType = dao.genericBookmarkById(bookmarkId)?.notesContentType?.name
+            val contentType = existingContentType ?: CommonUtils.settings.notesContentType
+            dao.saveGenericBookmarkNote(bookmarkId, note, contentType)
         }
         val bookmark = dao.genericBookmarkById(bookmarkId)!!
         addLabels(bookmark)
