@@ -19,8 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
-    android:versionCode="1094"
-    android:versionName="5.1.1094-beta">
+    android:versionCode="1095"
+    android:versionName="5.1.1095-beta">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" android:minSdkVersion="24"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
