@@ -310,7 +310,6 @@ if(gradle.startParameter.taskNames.any { it.contains("Fdroid") }) {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         println("Excluding ${name}")
         exclude("**/googledrive/*")
-        exclude("**/onyx/*")
     }
 }
 
@@ -377,8 +376,6 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.2")
 
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
-        // Onyx SDK (e-ink devices)
-        variantImplementation("com.onyx.android.sdk:onyxsdk-device:1.2.32") // NOTE: remember to check its AndroidManifest.xml and remove unnecessary permissions in our AndroidManifest.xml
         // Google Drive API
         variantImplementation("com.google.android.gms:play-services-auth:20.7.0")
         variantImplementation("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
@@ -530,15 +527,6 @@ bundletool {
 configurations {
     testImplementation {
         exclude(group = "com.github.requery", module = "sqlite-android")
-    }
-}
-
-// Boox repository for Onyx SDK (e-ink devices) - NOT allowed in F-droid builds
-if (gradle.startParameter.taskNames.any { it.contains("Fdroid", ignoreCase = true) }) {
-    println("F-droid build: Boox repository excluded")
-} else {
-    repositories {
-        maven { url = uri("https://repo.boox.com/repository/maven-public/") }
     }
 }
 
