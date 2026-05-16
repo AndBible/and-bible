@@ -84,6 +84,8 @@ egress_allow:
   - archive.ubuntu.com:443
   - security.ubuntu.com:443
   - ports.ubuntu.com:443
+  - github.com:443
+  - release-assets.githubusercontent.com:443
 
 # Container resource defaults. Android Gradle builds are memory-hungry;
 # the Vue.js side is light, but the JVM + Gradle daemon + Kotlin compiler
