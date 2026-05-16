@@ -1104,10 +1104,9 @@ object CommonUtils : CommonUtilsBase() {
         messageResId: Int,
         helpPath: String,
     ) {
-        val urlPrefix = "https://docs.andbible.org/en/latest/"
         val readMore = activity.getString(R.string.help_read_more_link)
         val messageHtml = activity.getString(messageResId) +
-            "<br><br><i><a href=\"$urlPrefix$helpPath\">$readMore</a></i>"
+            "<br><br><i><a href=\"$DOCS_URL_PREFIX$helpPath\">$readMore</a></i>"
         val spanned = htmlToSpan(messageHtml)
         val dialog = AlertDialog.Builder(activity)
             .setTitle(titleResId)
@@ -1117,6 +1116,9 @@ object CommonUtils : CommonUtilsBase() {
         dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
             LinkMovementMethod.getInstance()
     }
+
+    /** Base URL for AndBible's user documentation. Help dialog links resolve their paths against this. */
+    private const val DOCS_URL_PREFIX = "https://docs.andbible.org/en/latest/"
 
     fun openLink(link: String, forceAsk: Boolean = false) {
         val activity = CurrentActivityHolder.currentActivity!!

@@ -576,7 +576,10 @@ class BibleJavascriptInterface(
     fun showHelpDialog(scopeKey: String) {
         val (titleRes, messageRes, helpPath) = when (scopeKey) {
             "memorize" -> Triple(R.string.help, R.string.help_memorize_text, "memorize.html")
-            else -> return
+            else -> {
+                Log.w(TAG, "Unknown help scope: $scopeKey")
+                return
+            }
         }
         scope.launch(Dispatchers.Main) {
             CommonUtils.showHelpDialog(mainBibleActivity, titleRes, messageRes, helpPath)
