@@ -40,14 +40,18 @@ jetbrains:
 # Repo-specific host bind-mounts.
 #
 # Android SDK is bind-mounted RO so Gradle can find platforms/build-tools
-# without reinstalling them in every container. ~/.android holds adb keys
-# and emulator state. adb.sock is bind-mounted as a file so the container
-# adb-client talks to the host adb-server. Personal mounts (~/.gnupg,
-# ~/.gitconfig, JetBrains/Toolbox) belong in ~/.config/gie/global.yaml.
+# without reinstalling them in every container. The host adb-server's
+# Unix socket is bind-mounted as a single file at /home/dev/.adb.sock —
+# no need to expose ~/.android (adb-client doesn't read adbkey; that's
+# only used server-side for authenticating with the phone).
+# Personal mounts (~/.gnupg, ~/.gitconfig, JetBrains/Toolbox) belong in
+# ~/.config/gie/global.yaml.
 host_mounts:
-  - { host: ~/Android/Sdk,        container: /home/dev/Android/Sdk,        readonly: true  }
-  - { host: ~/.android,           container: /home/dev/.android,           readonly: false }
-  - { host: ~/.android/adb.sock,  container: /home/dev/.android/adb.sock,  readonly: false }
+  - { host: ~/Android/Sdk,       container: /home/dev/Android/Sdk, readonly: true  }
+  # Socket must live OUTSIDE /run because container-init mounts tmpfs on
+  # top of /run after Incus's disk devices are wired, burying any disk
+  # mount under /run/*. /home/dev (ext4 rootfs, no overlay) is safe.
+  - { host: ~/.android/adb.sock, container: /home/dev/.adb.sock,   readonly: false }
   # Sibling git repos that are gitignored in the main repo but live
   # under the working tree (ai-local, wiki, readthedocs). All three are
   # mounted RW so edits/commits made inside the container are reflected
@@ -116,7 +120,7 @@ golden:
 # let the Android SDK be discovered from the RO-mounted host SDK.
 container:
   env:
-    ADB_SERVER_SOCKET: "localfilesystem:/home/dev/.android/adb.sock"
+    ADB_SERVER_SOCKET: "localfilesystem:/home/dev/.adb.sock"
     ANDROID_HOME: /home/dev/Android/Sdk
     ANDROID_SDK_ROOT: /home/dev/Android/Sdk
 
