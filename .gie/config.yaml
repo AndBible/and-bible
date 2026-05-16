@@ -18,17 +18,36 @@ jetbrains:
   ide: studio
   autostart: false
 
+# adb model: a single host-side adb-server serves both host and container
+# adb-clients, communicating over a Unix socket at ~/.android/adb.sock.
+# Configured entirely via the ADB_SERVER_SOCKET env var — same value in
+# both places. Works identically for USB, `adb tcpip`, and Android 11+
+# wireless debugging.
+#
+# One-time host setup — add to ~/.bashrc / ~/.zshrc:
+#   export ADB_SERVER_SOCKET=localfilesystem:$HOME/.android/adb.sock
+#   adb start-server   # idempotent; only starts if not already running
+# Then on next login (or `source ~/.bashrc`): adb-server reads
+# ADB_SERVER_SOCKET and listens on that Unix socket instead of TCP:5037.
+#
+# Pair the phone once on the host (`adb pair`, `adb connect`); the
+# container inherits the running server with no extra steps.
+#
+# IMPORTANT: the socket file must exist on host before `gie new` / `gie
+# start` (Incus binds files at container start). If you ever see a mount
+# error, just run `adb start-server` on host and retry.
+
 # Repo-specific host bind-mounts.
 #
 # Android SDK is bind-mounted RO so Gradle can find platforms/build-tools
 # without reinstalling them in every container. ~/.android holds adb keys
-# (the container adb-client reads adbkey when authenticating against the
-# host's adb-server) and emulator state — keep it writable.
-# Personal mounts (~/.gnupg, ~/.gitconfig, JetBrains/Toolbox) belong in
-# ~/.config/gie/global.yaml.
+# and emulator state. adb.sock is bind-mounted as a file so the container
+# adb-client talks to the host adb-server. Personal mounts (~/.gnupg,
+# ~/.gitconfig, JetBrains/Toolbox) belong in ~/.config/gie/global.yaml.
 host_mounts:
-  - { host: ~/Android/Sdk, container: /home/dev/Android/Sdk, readonly: true }
-  - { host: ~/.android,    container: /home/dev/.android,    readonly: false }
+  - { host: ~/Android/Sdk,        container: /home/dev/Android/Sdk,        readonly: true  }
+  - { host: ~/.android,           container: /home/dev/.android,           readonly: false }
+  - { host: ~/.android/adb.sock,  container: /home/dev/.android/adb.sock,  readonly: false }
   # Sibling git repos that are gitignored in the main repo but live
   # under the working tree (ai-local, wiki, readthedocs). All three are
   # mounted RW so edits/commits made inside the container are reflected
@@ -37,37 +56,13 @@ host_mounts:
   - { host: wiki,        container: /home/dev/and-bible/wiki,        readonly: false }
   - { host: readthedocs, container: /home/dev/and-bible/readthedocs, readonly: false }
 
-# adb model: run adb-server on the HOST and have the container's adb-client
-# talk to it over TCP:5037. This works identically for USB, `adb tcpip`,
-# and Android 11+ wireless debugging (pairing + mDNS) — the host handles
-# all phone-side communication, the container only ever sees the local
-# adb-server socket.
-#
-# Host-side setup (one-time):
-#   1. Stop any local adb-server: `adb kill-server`
-#   2. Start it listening on all interfaces:
-#        adb -a -P 5037 nodaemon server start
-#      (or wrap in a systemd user unit; -a = bind 0.0.0.0)
-#   3. Find the Incus bridge gateway IP from the host:
-#        ip -4 addr show incusbr0 | grep inet
-#      Typically 10.x.x.1 — that's what the container sees as "host".
-#
-# Container-side: ADB_SERVER_SOCKET is exported in autostart.env below
-# (replace 10.234.216.1 with the actual bridge gateway IP) so adb/Gradle pick
-# up the remote server automatically.
-#
-# Pair the phone for wireless debugging once on the host (`adb pair`,
-# `adb connect`); after that the container inherits the running server
-# and sees `adb devices` populated.
-
 # Egress allowlist applied in strict mode. These cover Android Gradle
-# builds, npm/Vue.js dependencies, apt updates, and the host adb-server.
+# builds, npm/Vue.js dependencies, and apt updates. adb-server traffic
+# goes over the bind-mounted Unix socket, not the network, so no egress
+# rule is needed for it.
 # Add github.com only when you actually need to push (or switch to
 # `gie net loose <name>` for that session).
 egress_allow:
-  # Host adb-server reached via the Incus bridge gateway. Replace
-  # 10.234.216.1 with the actual incusbr0 IPv4 (see comment in host_mounts).
-  - 10.234.216.1:5037
   # Android / Google
   - dl.google.com
   - maven.google.com
@@ -102,11 +97,8 @@ golden:
   java: amazon-corretto-17
   node: 20
   python: "3.13"
-  # Tools commonly needed alongside Android development:
-  #   - usbutils for `lsusb` (handy when wiring up USB passthrough)
-  #   - android-tools-adb as a fallback adb binary if the SDK one isn't on PATH
   # android-tools-adb gives the container an adb-client; the actual
-  # adb-server runs on the host (see host_mounts comment).
+  # adb-server runs on the host (see adb model comment above).
   extra_apt_packages:
     - android-tools-adb
 
@@ -117,14 +109,18 @@ golden:
 #       run: "npm install"
 #       working_dir: app/bibleview-js
 #       network: loose
-autostart:
-  step_timeout: 600
+# Container-wide env vars injected via the Incus base profile — visible
+# in every process Incus spawns (gie shell, gie tmux, autostart steps,
+# the IDE). ADB_SERVER_SOCKET points at the host adb-server's Unix
+# socket bind-mounted under ~/.android. ANDROID_HOME / ANDROID_SDK_ROOT
+# let the Android SDK be discovered from the RO-mounted host SDK.
+container:
   env:
-    # Route the container's adb-client to the host's adb-server. Replace
-    # 10.234.216.1 with the actual incusbr0 gateway IP — must match the
-    # entry in egress_allow above.
-    ADB_SERVER_SOCKET: "tcp:10.234.216.1:5037"
+    ADB_SERVER_SOCKET: "localfilesystem:/home/dev/.android/adb.sock"
     ANDROID_HOME: /home/dev/Android/Sdk
     ANDROID_SDK_ROOT: /home/dev/Android/Sdk
+
+autostart:
+  step_timeout: 600
   on_create: []
   on_start: []
