@@ -1,0 +1,130 @@
+# gie configuration for AndBible.
+# Android (Kotlin) + Vue.js hybrid app. Java 17 + Node 20 are required;
+# Gradle reaches a fairly broad set of Google/Maven mirrors during builds.
+# See docs/config.md for the full reference.
+
+# Chrome is not needed for this repo — turn it off regardless of what
+# ~/.config/gie/global.yaml says.
+chrome:
+  enabled: false
+
+# IDE: AndBible is developed with Android Studio, installable via
+# JetBrains Toolbox. `ide: studio` matches the Toolbox launcher binary
+# name (/opt/jetbrains-toolbox/apps/android-studio/bin/studio.sh).
+# autostart is OFF by repo policy; flip on per-user in global.yaml if
+# you want `gie new` to launch the IDE automatically.
+jetbrains:
+  enabled: true
+  ide: studio
+  autostart: false
+
+# Repo-specific host bind-mounts.
+#
+# Android SDK is bind-mounted RO so Gradle can find platforms/build-tools
+# without reinstalling them in every container. ~/.android holds adb keys
+# (the container adb-client reads adbkey when authenticating against the
+# host's adb-server) and emulator state — keep it writable.
+# Personal mounts (~/.gnupg, ~/.gitconfig, JetBrains/Toolbox) belong in
+# ~/.config/gie/global.yaml.
+host_mounts:
+  - { host: ~/Android/Sdk, container: /home/dev/Android/Sdk, readonly: true }
+  - { host: ~/.android,    container: /home/dev/.android,    readonly: false }
+  # Sibling git repos that are gitignored in the main repo but live
+  # under the working tree (ai-local, wiki, readthedocs). All three are
+  # mounted RW so edits/commits made inside the container are reflected
+  # on the host. gie clones the main repo at /home/dev/<repo-root.name>.
+  - { host: ai-local,    container: /home/dev/and-bible/ai-local,    readonly: false }
+  - { host: wiki,        container: /home/dev/and-bible/wiki,        readonly: false }
+  - { host: readthedocs, container: /home/dev/and-bible/readthedocs, readonly: false }
+
+# adb model: run adb-server on the HOST and have the container's adb-client
+# talk to it over TCP:5037. This works identically for USB, `adb tcpip`,
+# and Android 11+ wireless debugging (pairing + mDNS) — the host handles
+# all phone-side communication, the container only ever sees the local
+# adb-server socket.
+#
+# Host-side setup (one-time):
+#   1. Stop any local adb-server: `adb kill-server`
+#   2. Start it listening on all interfaces:
+#        adb -a -P 5037 nodaemon server start
+#      (or wrap in a systemd user unit; -a = bind 0.0.0.0)
+#   3. Find the Incus bridge gateway IP from the host:
+#        ip -4 addr show incusbr0 | grep inet
+#      Typically 10.x.x.1 — that's what the container sees as "host".
+#
+# Container-side: ADB_SERVER_SOCKET is exported in autostart.env below
+# (replace 10.234.216.1 with the actual bridge gateway IP) so adb/Gradle pick
+# up the remote server automatically.
+#
+# Pair the phone for wireless debugging once on the host (`adb pair`,
+# `adb connect`); after that the container inherits the running server
+# and sees `adb devices` populated.
+
+# Egress allowlist applied in strict mode. These cover Android Gradle
+# builds, npm/Vue.js dependencies, apt updates, and the host adb-server.
+# Add github.com only when you actually need to push (or switch to
+# `gie net loose <name>` for that session).
+egress_allow:
+  # Host adb-server reached via the Incus bridge gateway. Replace
+  # 10.234.216.1 with the actual incusbr0 IPv4 (see comment in host_mounts).
+  - 10.234.216.1:5037
+  # Android / Google
+  - dl.google.com
+  - maven.google.com
+  - android.googlesource.com
+  # Maven Central / Gradle
+  - repo.maven.apache.org
+  - repo1.maven.org
+  - plugins.gradle.org
+  - services.gradle.org
+  - jitpack.io
+  # Node / npm (for app/bibleview-js)
+  - registry.npmjs.org
+  - registry.yarnpkg.com
+  # Ubuntu apt
+  - archive.ubuntu.com:443
+  - security.ubuntu.com:443
+  - ports.ubuntu.com:443
+
+# Container resource defaults. Android Gradle builds are memory-hungry;
+# the Vue.js side is light, but the JVM + Gradle daemon + Kotlin compiler
+# easily eats 8–12 GiB on a full build.
+defaults:
+  memory: 16GiB
+  cpu: 8
+  network: strict
+  storage_pool: default
+
+# Golden image config. Versions match the repo's documented requirements
+# (CLAUDE.md): Java 17, Node 20.
+golden:
+  ubuntu_version: "25.10"
+  java: amazon-corretto-17
+  node: 20
+  python: "3.13"
+  # Tools commonly needed alongside Android development:
+  #   - usbutils for `lsusb` (handy when wiring up USB passthrough)
+  #   - android-tools-adb as a fallback adb binary if the SDK one isn't on PATH
+  # android-tools-adb gives the container an adb-client; the actual
+  # adb-server runs on the host (see host_mounts comment).
+  extra_apt_packages:
+    - android-tools-adb
+
+# Autostart left empty — leaving setup decisions to the user.
+# Useful starting points if you want to fill this in later:
+#   on_create:
+#     - name: bibleview-install
+#       run: "npm install"
+#       working_dir: app/bibleview-js
+#       network: loose
+autostart:
+  step_timeout: 600
+  env:
+    # Route the container's adb-client to the host's adb-server. Replace
+    # 10.234.216.1 with the actual incusbr0 gateway IP — must match the
+    # entry in egress_allow above.
+    ADB_SERVER_SOCKET: "tcp:10.234.216.1:5037"
+    ANDROID_HOME: /home/dev/Android/Sdk
+    ANDROID_SDK_ROOT: /home/dev/Android/Sdk
+  on_create: []
+  on_start: []
