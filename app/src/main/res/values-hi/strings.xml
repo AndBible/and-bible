@@ -1,12 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
+
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">बाइबिल अध्ययन</string>
   <string name="app_name_medium">Bible Study (AndBible)</string>
   <string name="app_name_long">AndBible: बाइबिल</string>
+
   <string name="version_text">संस्करण %s</string>
   <string name="no_sdcard_error"> कृपया एसडी कार्ड डालें और ऐप पुनः आरंभ करें।</string>
-  <!--Main menu-->
+
+    <!-- Main menu -->
   <string name="menu">मेन्यू </string>
   <string name="chooseBook">किताबें</string>
   <string name="selectPassage">पुस्तक/अध्याय</string>
@@ -15,6 +18,18 @@
   <string name="history">अध्ययन इतिहास</string>
   <string name="speak">अध्याय सुनिए</string>
   <string name="help">मदद</string>
+    <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">मैनुअल में और पढ़ें</string>
+  <string name="help_prompt_edit_text">कस्टम प्रॉम्प्ट आपको अपने अध्ययन के लिए पुनः उपयोग योग्य AI निर्देश बनाने देते हैं। एक नाम, विवरण, टेम्पलेट, वे संदर्भ जहाँ यह दिखाई दे, और वैकल्पिक रूप से एक कस्टम प्रदाता/मॉडल सेट करें। अंतर्निहित प्रॉम्प्ट सीधे संपादित नहीं किए जा सकते — अपना संस्करण बनाने के लिए \"कॉपी करें और अनुकूलित करें\" का उपयोग करें।</string>
+  <string name="help_tool_info_text">AI टूल विशेष कार्य हैं जिन्हें AI आपकी ओर से डेटा पढ़ने या बदलाव करने के लिए कॉल कर सकती है। रीड टूल (छंद, कमेंटरी, शब्दकोश, बुकमार्क) के लिए कोई अनुमति आवश्यक नहीं है। राइट टूल (बुकमार्क बनाना, टिप्पणीयां, स्टडी पैड प्रविष्टियाँ) अनुमति प्रणाली द्वारा नियंत्रित हैं।</string>
+  <string name="help_ai_settings_text">AI सेटिंग्स वह स्थान है जहाँ आप अपने प्रॉम्प्ट और श्रेणियाँ प्रबंधित करते हैं। यहाँ से आप नए प्रॉम्प्ट बना सकते हैं, उन्हें श्रेणियों में व्यवस्थित कर सकते हैं, प्रॉम्प्ट को CSV के रूप में आयात/निर्यात कर सकते हैं, ऐड-ऑन प्रॉम्प्ट पैक इंस्टॉल कर सकते हैं, और AI कनेक्शन सेटिंग्स तक पहुँच सकते हैं।</string>
+  <string name="help_ai_connection_text">यहाँ अपने AI प्रदाता, मॉडल, अनुमतियां और अन्य कनेक्शन विकल्प कॉन्फ़िगर करें। प्रत्येक प्रदाता को अपनी API कुंजी की आवश्यकता है। आप एकाधिक प्रदाता जोड़ सकते हैं और एक डिफ़ॉल्ट मॉडल चुन सकते हैं।</string>
+  <string name="help_ai_providers_text">AI प्रदाता (Google Gemini, OpenAI, Anthropic, आदि) प्रबंधित करें। प्रत्येक प्रदाता को अपनी API कुंजी की आवश्यकता है। आप एकाधिक प्रदाता जोड़ सकते हैं और विशिष्ट प्रॉम्प्ट के लिए अलग-अलग प्रदाता निर्दिष्ट कर सकते हैं।</string>
+  <string name="help_ai_models_text">इस प्रदाता के लिए मॉडल प्रबंधित करें। नए संस्करणों को शामिल करने के लिए प्रदाता की API से मॉडल सूची रीफ्रेश कर सकते हैं, या यदि मॉडल सूची में नहीं है तो मैन्युअल रूप से मॉडल नाम जोड़ सकते हैं।</string>
+  <string name="help_ai_document_filter_text">सीमित करें कि AI एजेंट कौन सी बाइबिल, कमेंटरी और अन्य मॉड्यूल पढ़ सकती है। डिफ़ॉल्ट रूप से AI सभी इंस्टॉल किए गए मॉड्यूल देखती है; फ़िल्टरिंग से शोर और लागत कम होती है जब आप चाहते हैं कि यह केवल विशिष्ट स्रोतों पर विचार करे।</string>
+  <string name="help_global_tool_permissions_text">व्यक्तिगत AI टूल के लिए अनुमतियां कॉन्फ़िगर करें। प्रत्येक रीड टूल के लिए, चुनें कि AI इसे उपयोग कर सकती है या नहीं (सक्षम या अक्षम)। प्रत्येक राइट टूल के लिए, हमेशा अनुमति दें, हमेशा अस्वीकार करें, या पूछें (जो AI कनेक्शन सेटिंग्स में सेट किए गए वैश्विक अनुमति मोड पर वापस जाता है) में से चुनें।</string>
+  <string name="help_reading_progress_text">एक नज़र में आपकी बाइबिल पठन और याद करना प्रगति। \"पठित के रूप में चिह्नित करें\" बटन से अध्यायों को मैन्युअल रूप से पठित चिह्नित करें, या स्वचालित ट्रैकिंग सक्षम करें। याद करना अभ्यास भी इस दृश्य में फ़ीड होते हैं।</string>
+  <string name="help_memorize_text">याद करें दृश्य आपको अंशों को कंठस्थ करने में मदद करता है। Word Blur, Word Scramble, Word Type या Word Order का उपयोग करके अभ्यास करें। सफल अभ्यास स्वचालित रूप से छंदों को याद किया हुआ चिह्नित करते हैं (यह अक्षम किया जा सकता है)।</string>
   <string name="information">जानकारी</string>
   <string name="other"> अन्य</string>
   <string name="contact">संपर्क</string>
@@ -22,13 +37,15 @@
   <string name="administration"> प्रशासन</string>
   <string name="rate_application">रेट &amp; रिव्यू करे </string>
   <string name="chooce_document"> दस्तावेज़ चुनें</string>
-  <!--Passage navigation-->
+
+    <!-- Passage navigation -->
   <string name="choosePassageBookName">पुस्तक चुनें</string>
   <string name="choosePassageChapterName">अध्याय चुनें</string>
   <string name="choosePassageVerseName">छंद चुनें</string>
   <string name="bible">बाइबिल </string>
   <string name="deuterocanonical"> विशेषण</string>
-  <!--Search-->
+
+    <!--  Search -->
   <string name="search_index">खोज सूचकांक</string>
   <string name="index_creation_required">खोज के लिए एक सूचकांक की आवश्यकता होती है।</string>
   <string name="create_index_for">खोज के लिए एक सूचकांक की आवश्यकता होती है। \n\n%s के लिए सूचकांक बनाए?</string>
@@ -40,13 +57,15 @@
   <string name="do_in_background"> बैकग्राउंड में जारी रखें </string>
   <string name="rebuild_index_button"> फ़िर से बनाए</string>
   <string name="creating_index_for">%s के लिए सूचकांक बनाया जा रहा है…</string>
-  <!--X results in module Y-->
+    <!-- X results in module Y -->
   <string name="search_with_results2">%2$s में %1$s परिणाम</string>
-  <!--Tasks-->
+
+    <!-- Tasks -->
   <string name="progress_status">प्रगति</string>
   <string name="task_kill_warning">अगर आप आन्ड बाइबिल को छोड़ जाऐं, तो लंबे कार्य अंत होने की संभावना है</string>
   <string name="no_tasks_running">कोई कार्य इस समय क्रियान्वित नही</string>
-  <!--Search-->
+
+    <!-- Search -->
   <string name="search_words_group_prompt">छंद खोज</string>
   <string name="search_all_words">सभी शब्द</string>
   <string name="search_any_word">कोई भी शब्द</string>
@@ -61,38 +80,49 @@
   <string name="search_current_book">वर्तमान पुस्तक</string>
   <string name="error_executing_search">खोज वाक्य में गलती</string>
   <string name="type_text_or_bible_reference">टेक्स्ट या बाइबिल संदर्भ टाइप करें</string>
-  <!--Open (bible reference X)-->
+    <!-- Open (bible reference X) -->
   <string name="go_to_ref">%s खोलें</string>
-  <!--Finx "(keywords x)", keywords based on text selection-->
+    <!-- Finx "(keywords x)", keywords based on text selection -->
   <string name="search_what">\"%s\" खोजें</string>
-  <!--Multi-translation search-->
+    <!-- Multi-translation search -->
   <string name="search_translations">अनुवाद</string>
   <string name="choose_translations">अनुवाद चुनें…</string>
   <string name="multi_search_results">%2$d अनुवादों में %1$d छंद</string>
   <string name="search_index_not_created">कोई सूचकांक नहीं</string>
-  <!--Preferences-->
+
+    <!-- Preferences -->
   <string name="prefs_show_verseno_title">अध्याय &amp; छंद संख्या</string>
   <string name="prefs_show_verseno_summary">अध्याय &amp; छंद संख्या दिखाएँ</string>
+
   <string name="prefs_e_ink_mode_title">ब्लैक &amp;amp वाइट मोड</string>
   <string name="prefs_eink_mode_summary">मोनोक्रोम मोड (कोई रंग नहीं) में एप्लिकेशन का उपयोग करें, जिससे यह ई-इंक उपकरणों के लिए अधिक उपयुक्त हो।</string>
   <string name="prefs_eink_settings_cat">E-ink सेटिंग्स</string>
   <string name="prefs_eink_display_title">E-ink फ़ीचर</string>
   <string name="prefs_eink_display_summary">E-ink विशिष्ट सुविधाएँ सक्षम करें (पेज स्क्रॉल बटन, स्क्रॉल सहायक रेखाएं)</string>
+
   <string name="prefs_disable_animations_title">एनिमेशन बंद करें</string>
   <string name="prefs_disable_animations_summary">सहज स्क्रॉलिंग जैसे विभिन्न एनिमेशन बंद करें।</string>
+
   <string name="prefs_disable_click_to_edit_title">स्टडी पैड क्लिक-टू-एडिट अक्षम करें</string>
   <string name="prefs_disable_click_to_edit_summary">स्टडी पैड में नोट्स संपादित करने के लिए एडिट बटन का उपयोग करना आवश्यक है।</string>
+
   <string name="prefs_notes_content_type_title">नए बुकमार्क नोट्स का प्रारूप</string>
   <string name="prefs_notes_content_type_summary">नए बुकमार्क नोट्स और स्टडी पैड प्रविष्टियाँ बनाते समय उपयोग किया जाने वाला टेक्स्ट प्रारूप</string>
   <string name="notes_content_type_html">समृद्ध टेक्स्ट (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
+
+
+
+
   <string name="prefs_verse_per_line_summary"> प्रत्येक छंद को एक अलग लाइन पर दिखाएं</string>
   <string name="prefs_show_bookmarks_summary">सभी बुकमार्क छिपाने के लिए अनचाहा करे</string>
+
   <string name="prefs_show_mynotes_summary">मेरे नोट के साथ छंद में आइकन दिखाएं</string>
   <string name="prefs_show_strongs_summary"> यूनानी &amp; यहूदी परिभाषाएँ के लिंक्स</string>
   <string name="prefs_show_morphology_summary">रॉबिन्सन की यूनानी आकृति विज्ञान दिखाएं</string>
   <string name="prefs_section_title_summary">गैर-विहित अनुभाग शीर्षक दिखाएं</string>
   <string name="prefs_red_letter_summary">मसीह के शब्द लाल रंग में दिखाए</string>
+
   <string name="prefs_verse_per_line_title">हर छंद, नई पंक्ति में</string>
   <string name="prefs_show_bookmarks_title">बुकमार्क दिखाएँ</string>
   <string name="prefs_show_mynotes_title">मेरे टिप्पणी-चित्र दिखाना</string>
@@ -102,6 +132,7 @@
   <string name="prefs_show_footnotes_inline_title">फ़ुटनोट इनलाइन</string>
   <string name="prefs_show_footnotes_inline_summary">क्लिक करने योग्य हैंडल के बजाय टेक्स्ट के साथ इनलाइन फ़ुटनोट दिखाएं</string>
   <string name="prefs_show_xrefs_summary">क्रॉस रेफरेन्सेस दिखाएँ, यदि वे दस्तावेज़ में उपलब्ध हैं</string>
+
   <string name="prefs_show_strongs_title"> स्ट्रॉन्ग के संख्याएं</string>
   <string name="prefs_show_morphology_title">आकारिकी(Morphology) संख्या </string>
   <string name="prefs_non_strongs_word_italic_title">जोड़े गए शब्दों को तिरछा करें</string>
@@ -126,17 +157,20 @@
   <string name="reading_progress_history_no_entries">इस चयन के लिए कोई पठन प्रविष्टि नहीं।</string>
   <string name="reading_progress_history_version_unknown">अज्ञात संस्करण</string>
   <string name="prefs_tilt_to_scroll_title">अगले पृष्ठ के लिए फ़ोन झुकना</string>
+
   <string name="prefs_toolbar_button_action_title">टूलबार बटन प्रेस के लिए कार्य</string>
   <string name="prefs_toolbar_button_action_summary">बाइबिल या कमेंट्री टूलबार बटनों को दबाने/लंबे समय तक दबाने पर की जाने वाली कार्य</string>
   <string name="prefs_toolbar_button_action_default">मेनू खोलने के लिए दबाएं, दस्तावेज़ स्क्रीन के लिए देर तक दबाएं (डिफ़ॉल्ट)</string>
   <string name="prefs_toolbar_button_action_swap_menu">अगला दस्तावेज़ खोलने के लिए दबाएं, मेनू खोलने के लिए देर तक दबाएं</string>
   <string name="prefs_toolbar_button_action_swap_activity">अगला दस्तावेज़ खोलने के लिए दबाएं, दस्तावेज़ स्क्रीन के लिए देर तक दबाएं</string>
+
   <string name="prefs_night_mode_title">नाइट मोड स्विचिंग</string>
   <string name="prefs_night_mode_summary">स्वचालित रूप से (यदि डिवाइस समर्थन करता है) , मैन्युअल रूप से या सिस्टम सेटिंग (एंड्रॉइड 10+) के माध्यम से, नाइट मोड में स्विच करना है। मुख्य स्क्रीन पर 3-डॉट विकल्प मेनू से मैन्युअल स्विचिंग की जा सकती है।</string>
   <string name="prefs_night_mode_manual">मैनुअल</string>
   <string name="prefs_night_mode_automatic">ऑटोमैटिक</string>
   <string name="prefs_night_mode_system">सिस्टम</string>
   <string name="options_menu_night_mode"> नाइट मोड</string>
+
   <string name="prefs_navigate_to_verse_title">छंद पर पहुंचे</string>
   <string name="prefs_navigate_to_verse_summary">पुस्तक मे अध्याय और छंद चुनें</string>
   <string name="prefs_open_links_in_special_window_title">लिंक विंडो</string>
@@ -147,15 +181,20 @@
   <string name="prefs_interface_locale_title">  एप्लिकेशन भाषा</string>
   <string name="prefs_interface_locale_summary">आन्ड बाइबिल की भाषा चुनिए</string>
   <string name="reset_fontsize"> रीसेट</string>
+
   <string name="prefs_request_sdcard_permission_title">मैन्युअल रूप से इंस्टॉल्ड दस्तावेज़ मौजूद हैं</string>
   <string name="prefs_request_sdcard_permission_summary"> आंतरिक स्टोरेज पर jsword/sword फ़ोल्डर से मैन्युअल रूप से इंस्टॉल्ड दस्तावेज़ का उपयोग सक्षम करें</string>
+
   <string name="prefs_expand_footnotes_title">इनलाइन क्रॉस रेफरेंस</string>
   <string name="prefs_expand_footnotes_summary">पॉप-अप डायलॉग खोलने वाले लिंक के बजाय टेक्स्ट के भीतर इनलाइन क्रॉस रेफरेंस सामग्री दिखाएं</string>
+
   <string name="all_text_options_window_menutitle"> सभी टेक्स्ट विकल्प</string>
   <string name="text_options_window_menutitle"> टेक्स्ट विकल्प</string>
   <string name="auto_fullscreen">स्क्रॉल करके फुल स्क्रीन</string>
   <string name="reversed_split_mode"> उलटा विभाजन मोड</string>
+
   <string name="add_ellipsis">%s...</string>
+
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">पाठ स्क्रॉल करते समय फुलस्क्रीन पर स्वचालित रूप से स्विच करें। टिप्: आप  हमेशा स्क्रीन पर डबल टैप करके फुलस्क्रीन पर स्विच कर सकते हैं।</string>
@@ -165,10 +204,12 @@
   <string name="prefs_features_cat">फ़ीचर</string>
   <string name="prefs_display_customization_cat">देखने &amp; लगने में</string>
   <string name="prefs_behavior_customization_cat"> एप्लिकेशन व्यवहार</string>
+
   <string name="prefs_margin_size_summary">पाठ के बाएँ और दाएँ मार्जिन को समायोजित करें। आप पाठ की
    अधिकतम चौड़ाई भी समायोजित कर सकते हैं।
 </string>
   <string name="prefs_margin_size_summary_2">टिप: आप एक पेज ऊपर/नीचे जाने के लिए मार्जिन क्षेत्र पर टैप कर सकते हैं।</string>
+
   <string name="prefs_text_colors_summary"> पाठ और पृष्ठभूमि रंग और शोर प्रभाव समायोजित करें</string>
   <string name="text_display_settings_activity_title"> पाठ प्रदर्शन सेटिंग्स</string>
   <string name="workspace_text_display_settings_title">पाठ विकल्प - %s</string>
@@ -186,6 +227,7 @@
   <string name="prefs_footnotes_and_xrefs_title">फ़ुटनोट और क्रॉस-रेफरेंस</string>
   <string name="prefs_verses_and_headings_title">छंद और शीर्षक</string>
   <string name="prefs_page_scrolling_title">पेज स्क्रॉलिंग</string>
+
   <string name="prefs_justify_title">टेक्स्ट को एलाइन करे</string>
   <string name="prefs_justify_summary"> टेक्स्ट को एलाइन करे,  यानी पाठ के बाएँ और दाएँ हाशिये पंक्ति में हैं</string>
   <string name="pref_left_margin_label_mm"> बायां मार्जिन (%d mm)</string>
@@ -207,8 +249,10 @@
   <string name="hide_window_buttons_summary">विंडो बटन जो बाइबिल के दृश्य के दाईं ओर प्रदर्शित होते हैं, छिपे हुए हैं। नीचे की ओर विंडो नेविगेशन बार अभी भी प्रदर्शित है और आप विंडो पॉपअप मेनू को लॉन्ग-क्लिक करके खोल सकते हैं।</string>
   <string name="hide_bible_reference_overlay_title">बाइबिल संदर्भ उपरिशायी छुपाएं </string>
   <string name="hide_bible_reference_overlay_summary">जब ऐप फ़ुलस्क्रीन मोड में हो तो अर्ध-पारदर्शी बाइबिल संदर्भ उपरिशायी न दिखाएँ</string>
+
   <string name="full_screen_hide_buttons_pref_title">फुलस्क्रीन में विंडो बटन बार छिपाएं</string>
   <string name="full_screen_hide_buttons_pref_summary"> फ़ुलस्क्रीन मोड पर स्विच करते समय, स्वचालित रूप से विंडो बटन बार को छिपाएं जो स्क्रीन के निचले भाग पर है</string>
+
   <string name="prefs_dictionaries_cat">शब्दकोशों</string>
   <string name="choose_strongs_greek_dictionary_title">स्ट्रॉन्ग्स यूनानी शब्दकोश</string>
   <string name="choose_strongs_greek_dictionary_summary">यूनानी शब्द परिभाषाओं के लिए स्ट्रॉन्ग्स शब्दकोश चुनें</string>
@@ -220,22 +264,28 @@
   <string name="choose_word_lookup_dictionary_summary">शब्द खोजने के लिए शब्दकोश चुनें</string>
   <string name="lookup_in_dictionary">शब्दकोश में देखें</string>
   <string name="word_not_found_in_dictionaries">किसी भी शब्दकोश में शब्द नहीं मिला</string>
+
   <string name="prefs_top_margin_title_mm">ऊपरी किनारा (%d mm)</string>
   <string name="font_size_title">फ़ॉन्ट आकार</string>
   <string name="font_size_title_pt">फ़ॉन्ट आकार (%d pt)</string>
   <string name="prefs_font_text_size_summary">मुख्य पाठ का फ़ॉन्ट आकार बदले</string>
+
   <string name="pref_font_family_label_name">फ़ॉन्ट परिवार (%s)</string>
   <string name="prefs_font_family_summary">फ़ॉन्ट परिवार बदलें। युक्ति: डाउनलोड दस्तावेज़ / ऐड-ऑन के माध्यम से अधिक फोंट प्राप्त किए जा सकते हैं।</string>
+
   <string name="prefs_text_bookmarks_title">बुकमार्क &amp; मेरे नोट्स की सेटिंग्स</string>
   <string name="prefs_reading_and_memorization_title">पठन और याद करना</string>
+
   <string name="prefs_enable_bluetooth_title">Bluetooth मीडिया बटन सक्षम करें</string>
   <string name="prefs_enable_bluetooth_summary">बोलना शुरू/बंद करने के लिए Bluetooth मीडिया बटन का उपयोग करें।</string>
   <string name="create_bookmark">नया बुकमार्क बनाएं</string>
   <string name="create_bookmark_with_a_note">नोट के साथ नया बुकमार्क बनाएं</string>
-  <!--Colors preferences-->
+
+    <!-- Colors preferences -->
   <string name="prefs_text_colors_menutitle"> रंग के सेटिंग्स</string>
   <string name="window_color_settings_title">  विंडो का रंगी के सेटिंग्स</string>
   <string name="workspace_color_settings_title"> कार्यक्षेत्र रंग सेटिंग डिफ़ॉल्ट</string>
+
   <string name="color_workspace">कार्यक्षेत्र का रंग</string>
   <string name="color_text"> लिखावट का रंग</string>
   <string name="color_background">बैकग्राउंड का रंग</string>
@@ -243,7 +293,9 @@
   <string name="colors_night_mode_title">नाइट मोड</string>
   <string name="prefs_noise_title">बैकग्राउंड नॉइज</string>
   <string name="prefs_noise_summary">बैकग्राउंड पे कुछ नॉइज जोड़ने से यह आँखों के लिए और अधिक आरामदायक हो सकता है।</string>
-  <!--Window-->
+
+
+    <!-- Window -->
   <string name="new_window"> नयी विंडो</string>
   <string name="windowMaximise"> अधिकतम</string>
   <string name="windowMinimise"> छोटा करे</string>
@@ -256,12 +308,15 @@
   <string name="copy_settings_to_global">वैश्विक डिफ़ॉल्ट</string>
   <string name="change_to_normal">सामान्य विंडो में परिवर्तन</string>
   <string name="window_pin_mode">पिन</string>
-  <!--Notes screen-->
+
+    <!-- Notes screen -->
   <string name="previous">पिछला</string>
   <string name="next">अगला</string>
-  <!--Strongs-->
+
+    <!--  Strongs -->
   <string name="no_indexed_bible_with_strongs_ref">आपको Strong\'s नंबर वाली बाइबिल डाउनलोड करनी होगी और खोज के माध्यम से उसका सूचकांक बनाना होगा</string>
-  <!--Module download-->
+
+    <!-- Module download -->
   <string name="download">अन्य किताबें डाउनलोड करें</string>
   <string name="redownload">दस्तावेज़ों को फिर से डाउनलोड करें</string>
   <string name="download_source_last_updated">अंतिम बार अपडेट की गईं दस्तावेज़ सूचियाँ: %s।</string>
@@ -291,7 +346,8 @@
   <string name="failed_repositories_message">निम्न दस्तावेज़ सर्वर से कनेक्ट नहीं हो सका: \n\n%s\n\n</string>
   <string name="failed_downloads_message">निम्न फ़ाइलों को डाउनलोड नहीं किया जा सका: \ n \ n%s \ n \ n</string>
   <string name="cant_delete_document">इस दस्तावेज़ को हटाया नहीं जा सकता।</string>
-  <!--Install zip file-->
+
+    <!--  Install zip file -->
   <string name="install_zip">फ़ाइलों से दस्तावेज़ लोड करें</string>
   <string name="install_zip_module"> बाइबिल मॉड्यूल इंस्रेंटॉल करें</string>
   <string name="install_zip_module_discrete">कैलकुलेटर मॉड्यूल इंस्टॉल करें</string>
@@ -304,7 +360,8 @@
   <string name="overwrite_files_title">फाइल्स ओवरराइट करे?</string>
   <string name="could_not_overwrite_files">फ़ाइलें ओवरराइट नहीं हो सकीं: %s। इसके अलावा इंस्टॉल सफल रहा।</string>
   <string name="install_do_you_want">क्या आप मॉड्यूल (%s) इंस्टॉल करना चाहते हैं?</string>
-  <!--Daily Reading Plan-->
+
+    <!-- Daily Reading Plan -->
   <string name="rdg_plan_title">पठन-योजना</string>
   <string name="reading_plans_plural">पढ़ने की योजना</string>
   <string name="rdg_plan_selector_title">एक पठन-योजना चुनें</string>
@@ -352,26 +409,30 @@ http://www.heartlight.org, अनुमति प्रदान की गई
 2 वर्षों में बाइबिल के माध्यम से, नए नियम और भजन संहिता को दो बार पढ़ें।
 Wholesome Words के सौजन्य से, http://www.wholesomewords.org/, अनुमति प्रदान की गई
 </string>
-  <!--Document context menu-->
+
+    <!-- Document context menu -->
   <string name="delete">मिटाओ</string>
   <string name="delete_index">खोज सूचकांक मिटाओ</string>
   <string name="about">बाइबिल विवरण</string>
   <string name="delete_doc">%s किताब मिटाओ</string>
   <string name="delete_search_index_doc">%s किताब की खोज सूचकांक मिटाओ</string>
-  <!--Verse context menu-->
+
+    <!-- Verse context menu -->
   <string name="notes">पाद टिप्पणी और संबंधित संदर्भ</string>
   <string name="share_verse">शेयर</string>
   <string name="share_verse_widget_title">चयन साझा करें</string>
   <string name="compare_translations">अन्य अनुवादों से तुलना</string>
-  <!--Link context menu-->
+
+    <!-- Link context menu -->
   <string name="open_link_in_this_window"> यहाँ लिंक खोलें</string>
   <string name="open_link_in_new_window">नई विंडो में लिंक खोलें</string>
   <string name="open_link_in_special_window"> विशेष विंडो में लिंक खोले</string>
-  <!--Bookmarks-->
+
+    <!-- Bookmarks -->
   <string name="bookmarks_and_mynotes_title">बुकमार्क &amp; मेरे नोट्स</string>
   <string name="migrated_my_notes">माइग्रेट मेरे नोट्स</string>
   <string name="bookmarks"> बुकमार्क</string>
-  <!--Bookmark / note labels-->
+    <!-- Bookmark / note labels -->
   <string name="labels">लेबल</string>
   <string name="manage_labels">लेबल मैनेज करें</string>
   <string name="assign_labels">लेबल लिखना/देना</string>
@@ -391,7 +452,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="auto_assign_labels">ऑटो-असाइन करें &amp; पसंदीदा लेबल</string>
   <string name="auto_assign_labels1">नए बुकमार्क के लिए लेबल को ऑटो-असाइन करें</string>
   <string name="auto_assign_labels_primary">प्राथमिक रूप में ऑटो-असाइन करें</string>
-  <!--can be removed-->
+  <!-- can be removed -->
   <string name="marker_style">चयन बुकमार्क के लिए केवल मार्कर दिखाएं</string>
   <string name="marker_style_whole_verse">पूर्ण छंद बुकमार्क के लिए केवल मार्कर दिखाएं</string>
   <string name="hide_style">चयन बुकमार्क के लिए छुपाएं</string>
@@ -400,35 +461,39 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="bookmark_warning2">यदि दस्तावेज़ संरचना बदल गई है, तो इस दस्तावेज़ को अपडेट करने से इन बुकमार्क/नोट्स की स्थिति दस्तावेज़ के भीतर बदल सकती है या वे पूरी तरह गायब हो सकते हैं।</string>
   <string name="bookmark_warning3">क्या आप फिर भी मॉड्यूल अपडेट करना चाहते हैं?</string>
   <string name="bookmark_warning4">अपडेट करने से पहले मॉड्यूल का बैकअप लेने की सलाह दी जाती है।</string>
-  <!--Sort orders used for Bookmarks and MyNotes-->
+    <!--  Sort orders used for Bookmarks and MyNotes -->
   <string name="sort_by_date">दिनांक अनुक्रम</string>
   <string name="sort_by_bible_book">बाइबिल का अनुक्रम</string>
   <string name="sort_by_alphabetical">वर्णमाला क्रम</string>
-  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
   <string name="filter_by_notes">नोट्स खोजें</string>
-  <!--Dictionary-->
+
+    <!-- Dictionary -->
   <string name="dictionary">शब्दकोश</string>
   <string name="search_dictionary_hint">शब्दकोश में खोजें</string>
-  <!--General Book-->
+
+    <!-- General Book -->
   <string name="general_book">पुस्तक</string>
-  <!--Speak-->
-  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
-  <!--Speak - Bible-->
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
   <string name="one_chapter">%d अध्याय</string>
   <string name="some_chapters">%d अध्याय</string>
-  <!--Speak - Commentary-->
+    <!-- Speak - Commentary -->
   <string name="one_verse">%d छंद</string>
   <string name="some_verses">%d छंद</string>
-  <!--Speak - Dictionary and other-->
+    <!-- Speak - Dictionary and other -->
   <string name="one_page">%d पृष्ठ</string>
   <string name="some_pages">%d पृष्ठों</string>
-  <!--Speak - Common-->
+    <!-- Speak - Common -->
   <string name="stop">रोकना</string>
   <string name="pause">विराम</string>
   <string name="rewind">उल्टा फिराना</string>
   <string name="forward">आगे बढ़ाना</string>
   <string name="tts_lang_not_available">भाषा मौजूद नही</string>
-  <!--Speak - Bible-->
+
+    <!-- Speak - Bible -->
   <string name="speak_speed_title">बोलने की गति</string>
   <string name="speak_and_play_earcons_title"> बोलो और आवाज़ सुनाओ</string>
   <string name="playback_settings_title">प्लेबैक सेटिंग्स</string>
@@ -437,14 +502,17 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="speak_bookmarks_menu_title">बुकमार्क से बोलो</string>
   <string name="speak_advanced_settings"> एडवांस सेटिंग</string>
   <string name="speak_sleep_timer_title"> सोने का टाइमर</string>
+
   <string name="speak_no_books_available">बोलने के लिए कोई किताब उपलब्ध नहीं है</string>
   <string name="speak_general_error">इस पुस्तक के लिए बोलना प्रारंभ नहीं किया जा सका</string>
+
   <string name="repeat_passage"> गद्यांश को दोहराएं</string>
   <string name="set_repeat_passage_range">गद्यांश दोहराने की सीमा निर्धारित करें</string>
   <string name="speak_beginning_of_passage">गद्द्यांश की शुरुआत चुनें </string>
   <string name="speak_ending_of_passage">गद्यांश की अंत चुने</string>
   <string name="speak_verse_range_to_repeat"> दोहराने के लिए छंद की रेंज चुनें</string>
   <string name="speak_ending_verse_must_be_later">अंतिम छंद  शुरुआती छंद की तुलना में बाद में होना चाहिए</string>
+
   <string name="conf_speak_synchronize">पाठ भाषण के बाद है</string>
   <string name="conf_speak_auto_bookmark"> स्वचालित बुकमार्क करना</string>
   <string name="conf_save_playback_settings_to_bookmarks">प्लेबैक सेटिंग्स को बुकमार्क में सेव करे</string>
@@ -453,10 +521,12 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="conf_change_title">शीर्षक</string>
   <string name="conf_speak_footnotes"> फ़ुटनोट</string>
   <string name="conf_speak_sleep_timer">सोने का टाइमर सेट करें</string>
+
   <string name="sleep_timer_title">सोने का समय मिनटों में</string>
   <string name="sleep_timer_set">सोने का टाइमर सेट करे। टाइमर सेट: %dमिनट </string>
   <string name="sleep_timer_started">सोने का टाइमर स्टार्ट हो चुका है, %d मिनट</string>
   <string name="sleep_timer_active_at">सोने का टाइमर: %s मिनट बचे हुए है</string>
+
   <string name="speak_next">आगे</string>
   <string name="speak_previous"> पिछला</string>
   <string name="widget_toggle_sleep_timer">सोने का टाइमर लगाए/हटाए</string>
@@ -464,33 +534,43 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="speak_status_stopped">रुका हुआ</string>
   <string name="speak_autobookmarking_disabled"> ऑटोबोकमार्किंग अक्षम!</string>
   <string name="system_speak_settings">सिस्टम TTS सेटिंग्स खोलें</string>
+
   <string name="auto_assing_labels_help1">यहां आप समायोजित कर सकते हैं कि आपके द्वारा बनाए गए बुकमार्क को कौन से लेबल स्वचालित रूप से असाइन किए जाते हैं।</string>
-  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
   <string name="setting_scope">यह सेटिंग %s पर लागू होती है।</string>
   <string name="setting_scope_window">यह विंडो</string>
   <string name="setting_scope_workspace">यह कार्यक्षेत्र</string>
+
   <string name="assing_labels_help1">प्रत्येक बुकमार्क को एकाधिक लेबल असाइन किए जा सकते हैं।</string>
-  <!--param is bookmark icon-->
+    <!-- param is bookmark icon -->
   <string name="assing_labels_help2">यह निर्दिष्ट करने के लिए %s उपयोग करें कि कौन सा लेबल रंग दिखाया गया है।</string>
-  <!--param is auto-assign label icon-->
+    <!-- param is auto-assign label icon -->
   <string name="assing_labels_help3">उस लेबल को नए बुकमार्क को स्वचालित रूप से असाइन करने के लिए %s आइकन टैप करें।</string>
-  <!--param is heart icon-->
+    <!-- param is heart icon -->
   <string name="assing_labels_help4">त्वरित पहुँच के लिए अपनी पसंदीदा सूची में लेबल जोड़ने के लिए %s टैप करें।</string>
-  <!--param is refresh icon-->
+
+    <!-- param is refresh icon -->
   <string name="assing_labels_help5">अपने चयनों के आधार पर सूची को फिर से क्रमित करने के लिए %s टैप करें।</string>
+
   <string name="global_text_options_help_title">वैश्विक टेक्स्ट विकल्प</string>
   <string name="global_text_options_help1">ये सभी कार्यक्षेत्रों के लिए वैश्विक डिफ़ॉल्ट सेटिंग्स हैं। प्रत्येक कार्यक्षेत्र इन्हें अपनी सेटिंग्स से ओवरराइड कर सकता है।</string>
+
   <string name="workspace_text_options_help_title">कार्यक्षेत्र पाठ विकल्प</string>
   <string name="workspace_text_options_help1">ये सेटिंग्स सभी कार्यस्थान विंडो के लिए डिफ़ॉल्ट निर्धारित करती हैं।</string>
   <string name="workspace_text_options_help2">आप अलग-अलग विंडो सेटिंग्स को बदलकर इन्हें ओवरराइड कर सकते हैं।</string>
+
   <string name="window_text_options_help_title">विंडो टेक्स्ट विकल्प</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s आइकन इंगित करता है कि सेटिंग, कार्यक्षेत्र की सेटिंग्स से आती है।</string>
-  <!--Parameter is actual icon-->
-  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+    <!-- Parameter is actual icon -->
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">सभी सेटिंग्स को %2$s पर रीसेट करने के लिए %1$s बटन का उपयोग करें।</string>
   <string name="reset_defaults">डिफॉल्ट मूल्य</string>
   <string name="reset_workspace_defaults">कार्यक्षेत्र डिफ़ॉल्ट मूल्य</string>
+
+
   <string name="speak_help_auto_bookmark">
 जब आप स्बंपीक द करेंगे तो एक स्पीक बुकमार्क अपने आप जुड़ जाएगा।
  स्वचालित रूप से जनरेट किए गए बुकमार्क विशेष स्पीक लेबल के साथ लेबल किए जाते हैं।
@@ -508,12 +588,13 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 उदाहरण के लिए यदि आप उत्पत्ति और रोम सुन रहे हैं और अध्याय परिवर्तन सूचनाओं के बिना जल्दी से बोली जाने वाली उत्पत्ति सुनने की इच्छा रखते हैं
 , लेकिन अध्पयाय परिवर्पतन पर श्रव्य इयरकॉन ध्वनियों के साथ अधिक धीरे-धीरे रोम सुनने के लिए, आपके पास इन पुस्तकों के लिए अलग प्लेबैक सेटिंग्स हो सकती हैं, जब ये सेटिंग्स संबंधित बुकमार्क पर सेव किए जाते हैं।
 </string>
-  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
+         in speak settings. -->
   <string-array name="speak_divinename_original">
     <item>भगवान</item>
     <item>परमेश्वर</item>
@@ -521,11 +602,11 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
     <item>ख़ुदा</item>
     <item></item>
   </string-array>
-  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
+         in speak settings. -->
   <string-array name="speak_divinename_replace">
     <item>यहोवा</item>
     <item>यहोवा</item>
@@ -533,6 +614,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
     <item>यहोवा</item>
     <item></item>
   </string-array>
+
   <string name="speak_book_changed">पुस्तक बदल गई।</string>
   <string name="speak_chapter_changed">अध्याय</string>
   <string name="speak_first"> पहला</string>
@@ -540,12 +622,15 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="speak_third"> तीसरा</string>
   <string name="speak_fourth"> चौथा</string>
   <string name="speak_fifth"> पांचवां</string>
+
   <string name="verse_range_mode_disabled">
  पाठ दोहराने वाला मोड को स्वचालित रूप से अक्षम किया गया था क्योंकि बोलना परिभाषित छंद सीमा के बाहर शुरू किया गया था।
 </string>
-  <!--User Notes-->
+
+    <!-- User Notes -->
   <string name="mynotes">मेरे टिप्पणीयां</string>
-  <!--Backup and restore-->
+
+    <!-- Backup and restore -->
   <string name="backup_backup_title">कहां बैकअप करे?</string>
   <string name="backup_backup_message">फोन में बैकअप करें या कहीं औरा (ईमेल, गूगल ड्राइव आदि) शेयर फंक्शन के द्वारा?</string>
   <string name="backup_phone_storage">फोन स्टोरेज</string>
@@ -560,11 +645,13 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="backup_document_info">बाइबिल, कमेंटरी, शब्दकोश, नक्शे आदि।</string>
   <string name="backup_to">बैकअप करें…</string>
   <string name="backup_restore_from">इससे पुनर्स्थापित करें…</string>
-  <!--Restore = overwrite existing. Import = merge into existing-->
+    <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">इससे पुनर्स्थापित या आयात करें…</string>
   <string name="backup_restore2">पुनर्स्थापित या आयात करें</string>
   <string name="overwrite_something">%s ओवरराइट करें?</string>
-  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
+
   <string name="restore_database">डेटाबेस फ़ाइल को पुनर्स्थापित करें</string>
   <string name="restore_confirmation">मेरे नोट्स, बुकमार्क, स्टडी पैड, पढ़ने की योजना और कार्यक्षेत्र को ओवरराइट करें?</string>
   <string name="restore_success">मेरे नोट्स, बुकमार्क, स्टडी पैड, पढ़ने की योजना और कार्यक्षेत्र सफलतापूर्वक पुनर्स्थापित हो गए</string>
@@ -572,10 +659,13 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="loading_backup">डेटाबेस को बैकअप से लोड किया जा रहा हैं...</string>
   <string name="backup_success2">मेरे नोट्स, बुकमार्क, स्टडी पैड, पढ़ने की योजना और कार्यक्षेत्र सफलतापूर्वक बैकअप लिए गए।</string>
   <string name="backup_modules_success">चयनित मॉड्यूल का सफलतापूर्वक बैकअप लिया गया।</string>
+
   <string name="backup_modules_email_subject_2">%s मॉड्यूल बैकअप</string>
   <string name="backup_modules_email_message_2">संलग्न आपका %1$s मॉड्यूल बैकअप है, जिसमें निम्नलिखित मॉड्यूल हैं: %2$s</string>
+
   <string name="backup_email_subject_2">%s डेटाबेस बैकअप</string>
   <string name="backup_email_message_2">आपका %s डेटाबेस, जिसमें बुकमार्क्स,  टिप्पणियां, पढ़ने की योजना और कार्यक्षेत्र है, जुड़ा हुआ है</string>
+
   <string name="exported_studypads_subject">निर्यात किए गए StudyPad(s)</string>
   <string name="exported_studypads_message">आपका %s डेटाबेस जिसमें चयनित StudyPads से संबंधित बुकमार्क और नोट्स हैं, संलग्न है</string>
   <string name="restore_unsuccessfull">डेटाबेस रिस्टोर करना असफल रहा। शायद आपने गलत डेटाबेस फाइल चुना।</string>
@@ -585,18 +675,22 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ask_restore_or_import">%s का डेटाबेस या तो पुनर्स्थापित किया जा सकता है (यानी मौजूदा डेटाबेस हटा दिया जाता है और चयनित डेटाबेस लोड किया जाता है) या आयात किया जा सकता है (चयनित डेटाबेस मौजूदा डेटाबेस में आयात किया जाता है)। आप क्या करना चाहते हैं?</string>
   <string name="restore">बैकअप से नवीकरण</string>
   <string name="import2">आयात करें</string>
-  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" और %2$s अन्य लेबल/StudyPad(s) और %3$s बुकमार्क</string>
-  <!--About-->
+
+    <!-- About -->
   <string name="module_about_copyright">कॉपीराइट: %s</string>
   <string name="module_about_installed_version">इंस्टॉल किया गया संस्करण: %1$s (%2$s)</string>
   <string name="module_about_latest_version">नवीनतम संस्करण: %1$s (%2$s)</string>
   <string name="module_about_versification">छंद रचना: %s</string>
   <string name="module_about_repository">वितरण सर्वर: %s</string>
   <string name="module_about_osisId">OSIS IS: %s</string>
-  <!--Bug reporting-->
+
+    <!-- Bug reporting -->
   <string name="send_bug_report_title">प्रतिक्रिया / बग रिपोर्ट</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s के लिए बग रिपोर्ट</string>
+
   <string name="report_bug_big_heading">कृपया इस लाइन के ऊपर अपना प्रतिक्रिया या बग रिपोर्ट लिखें</string>
   <string name="report_bug_heading1">निर्देश:</string>
   <string name="report_bug_line_1">हमें संक्षेप में बताएं कि आपने क्या किया / जब समस्या हुई तो क्या हुआ।</string>
@@ -613,7 +707,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="bug_report_screenshot">क्रैश होने पर या बग रिपोर्ट बनाते समय ऐप का स्क्रीनशॉट।</string>
   <string name="bug_report_attachment_line_1">इन फ़ाइलों को अटैच करने से ऐप डेवलपर्स को रिपोर्ट की गई बग को ठीक करने में बहुत मदद मिलती है।</string>
   <string name="report_bug_heading_4">यंत्र की जानकारी</string>
-  <!--Document types-->
+
+    <!-- Document types -->
   <string name="doc_type_all">सभी प्रकार के</string>
   <string name="doc_type_bible"> बाइबिल</string>
   <string name="doc_type_commentary">कमेंटरी</string>
@@ -621,9 +716,11 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="doc_type_book">पुस्तक</string>
   <string name="doc_type_map">नक्शा</string>
   <string name="doc_type_addons">ऐड-ऑन</string>
-  <!--Languages-->
+
+    <!-- Languages -->
   <string name="lang_default">डिफॉल्ट</string>
-  <!--General-->
+
+    <!-- General -->
   <string name="okay">ठीक है</string>
   <string name="cancel">रद्द करें</string>
   <string name="discard_changes_confirmation">बिना सहेजे बदलाव छोड़ें?</string>
@@ -635,7 +732,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="reset_generic">रिसेट</string>
   <string name="watch_tutorial_video"> ट्यूटोरियल वीडियो देखें (अंग्रेजी में)</string>
   <string name="verse_not_found"> छंद नहीं मिला</string>
-  <!--Errors-->
+
+    <!-- Errors -->
   <string name="report_error"> रिपोर्ट भेजो</string>
   <string name="error_occurred">एक गलती हुई है</string>
   <string name="error_occurred_crash_last_time">पिछली बार जब आपने एप्लिकेशन का उपयोग किया था, तो यह क्रैश हो गया था। बग को ठीक करने में हमारी सहायता करने के लिए, यदि आप हमें बग रिपोर्ट भेजते हैं तो हम इसकी सराहना करेंगे।</string>
@@ -648,10 +746,12 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="error_skip">छोड़ें</string>
   <string name="bug_report_email_title">ईमेल द्वारा बग रिपोर्ट भेजें</string>
   <string name="bug_report_email_text">इसके बाद, कृपया डेवलपर टीम को रिपोर्ट भेजने के लिए अपना पसंदीदा ईमेल एप्लिकेशन (जैसे Gmail) चुनें।</string>
-  <!--Notifications-->
+
+    <!-- Notifications -->
   <string name="notification_channel_tts_status"> लिखे हुए को बोलने में बदलना</string>
   <string name="notification_channel_progress_status"> पुस्तक डाउनलोड आदि के प्रगति की स्थिति के लिए नोटिफिकेशन।</string>
-  <!--Workspaces-->
+
+    <!-- Workspaces -->
   <string name="switch_to_workspace">कार्यस्थानों</string>
   <string name="delete_workspace"> हटाना</string>
   <string name="new_copied_workspace"> नए के रूप में कॉपी करें</string>
@@ -671,13 +771,15 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="search_settings">खोज सेटिंग्स</string>
   <string name="dismiss">खारिज करें</string>
   <string name="workspace_listing_with_current">%s (वर्तमान)</string>
-  <!--Beta notice-->
+
+    <!-- Beta notice -->
   <string name="beta_notice_title">यह बीटा संस्करण है!</string>
   <string name="beta_notice_content_1">
 बीटा संस्करण में, नई विशेषताएं हैं जो अभी तक ठीक से परीक्षण नहीं की गई हैं,
 और इस प्रकार बीटा का उपयोग अप्रत्याशित व्यवहार, यानी बग का परिचय दे सकता है।
 हमारी सलाह यह है कि सामान्य बाइबिल पाठक इसके बजाय स्थिर संस्करण का उपयोग करें।
 </string>
+
   <string name="beta_notice_content_2">
  बीटा उपयोगकर्ताओं को गूगल प्ले या %s (बेहतर होगा) के माध्यम से बग रिपोर्ट करने के लिए
  प्रोत्साहित किया जाता है
@@ -687,15 +789,19 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="beta_notice_github_issues">गिटहब के मुद्दे</string>
   <string name="beta_notice_github"> गिटहब</string>
   <string name="beta_notice_dismiss_until_update">अगले अद्यतन तक खारिज करे</string>
+
   <string name="stable_notice_title">एप्लिकेशन को अपग्रेड कर दिया गया है!</string>
   <string name="upgrade_video_message">कृपया इस रिलीज़ की नई विशेषताओं वाला वीडियो देखें (%s)</string>
   <string name="stable_notice_par1">%2$s का नया संस्करण %1$s सफलतापूर्वक इंस्टॉल हो गया!</string>
+
   <string name="new_sync_targets_notice_title">नई सिंक सेटिंग्स उपलब्ध हैं</string>
   <string name="new_sync_targets_notice_message">AndBible के इस संस्करण में अतिरिक्त सिंक लक्ष्य जोड़े गए हैं: मेरे दस्तावेज़, AI सेटिंग्स और पठन प्रगति। यदि आप उन्हें सक्षम करना चाहते हैं, तो आप डिवाइस सिंक्रोनाइज़ेशन सेटिंग्स में ऐसा कर सकते हैं।</string>
   <string name="open_settings">सेटिंग्स खोलें</string>
-  <!--History-->
+
+    <!-- History -->
   <string name="history_for">इतिहास (%1$s: विंडो %2$d)</string>
-  <!--Help-->
+
+    <!-- Help -->
   <string name="help_nav_title">नेविगेशन</string>
   <string name="help_nav_text">अपनी उंगली से स्क्रीन को स्वाइप करके अगले या पिछले अध्याय पर जाएं।
 फ़ुल स्क्रीन मोड को चालू करने के लिए बाइबिल पाठ पर दो बार टैप करें।
@@ -722,8 +828,9 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 उस संबंधित लेबल के साथ बनाए गए सभी बुकमार्क स्वचालित रूप से स्टडी पैड दस्तावेज़ में दिखाई देते हैं।
 बुकमार्क के अतिरिक्त, स्टडी पैड में कस्टम टेक्स्ट प्रविष्टियां हो सकती हैं।
  </string>
+
   <string name="help_search_title"> खोज</string>
-  <!--TODO: to be removed-->
+    <!-- TODO: to be removed -->
   <string name="help_search_text2">खोज टेक्स्ट में विशेष वर्ण जैसे *, AND, OR, NOT शामिल हो सकते हैं</string>
   <string name="help_search_details">अधिक जानकारी के लिए कृपया %s देखें।</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -753,17 +860,18 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 बाइबिल के दस्तावेज़ हमेशा खुले रख सकते हैं, और टिप्पणियों एवं
 अन्य अतिरिक्त सामग्री के बीच शीघ्रता से स्विच कर सकते हैं, जब आप बाइबिल का अध्ययन करते हैं।
  </string>
-  <!--Welcome text-->
+
+    <!-- Welcome text -->
   <string name="redownload_documents">त्वरित पुनः डाउनलोड</string>
   <string name="welcome_message">%s डाउनलोड करने के लिए धन्यवाद। वर्तमान में कोई बाइबिल या दस्तावेज़ स्थापित नहीं हैं। जारी रखने के लिए, कृपया
  इंटरनेट से डाउनलोड करके या ज़िप फ़ाइल दस्तावेज़ 
 बैकअप से लोड करके कम से कम 1 दस्तावेज़ से स्थापित करें
  </string>
-  <!--Supported file formats for documents-->
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- Supported file formats for documents -->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">आपको वह फ़ाइल चुननी होगी जिसे आप %s में लोड करना चाहते हैं। </string>
   <string name="supported_formats">फ़ाइल से दस्तावेज़ लोड करने के लिए समर्थित प्रारूप: %s</string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="format_zip">Sword मॉड्यूल(s) या %s द्वारा बनाई गई दस्तावेज़ बैकअप फ़ाइल (*.abmd) युक्त Zip फ़ाइल</string>
   <string name="format_mysword">MySword दस्तावेज़ (*.mybible)</string>
   <string name="format_mybible">MyBible दस्तावेज़ (*.SQLite3)</string>
@@ -775,12 +883,15 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="redownload_message">
 पिछली पुस्तकों/दस्तावेजों की एक सूची मिली। उन्हें फिर से आसानी से डाउनलोड करने के लिए नीचे क्लिक करें।
  </string>
-  <!--Uncategorized-->
+
+    <!-- Uncategorized -->
   <string name="close">बंद करे</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">मै समझता हुँ</string>
   <string name="first_time_help_show_next_time">अगली बार फिर दिखाओ</string>
+
   <string name="strongs_mode_title">स्ट्रॉन्ग्स मोड चुनें</string>
+
   <string name="download_dialog_message">निम्नलिखित पुस्तकें डाउनलोड नहीं की जा सकीं:</string>
   <string name="journal_description">कस्टम टेक्स्ट और बुकमार्क के साथ उपयोगकर्ता-संपादन योग्य स्टडी पैड</string>
   <string name="my_notes_description">बुकमार्क के साथ अटैच्ड उपयोगकर्ता-संपादन योग्य नोट</string>
@@ -800,6 +911,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="unlock_info">एन्क्रिप्टेड मॉड्यूल अनलॉक जानकारी</string>
   <string name="try_again_passphrase">पासफ़्रेज़ काम नहीं किया, पुन: प्रयास करें?</string>
   <string name="show_unlock_info">मॉड्यूल &amp; अनलॉक जानकारी</string>
+
   <string name="prefs_experimental_features_title">प्रयोगात्मक फ़ीचर</string>
   <string name="prefs_experimental_features_summary">कौन से प्रयोगात्मक फ़ीचर सक्षम करने हैं चुनें। ये फ़ीचर अभी विकास में हैं और बदल या हटाए जा सकते हैं</string>
   <string name="experimental_feature_bookmark_edit_actions">बुकमार्क संपादन क्रियाएं</string>
@@ -830,6 +942,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="active_window_indicator_title">सक्रिय विंडो संकेतक दिखाएं</string>
   <string name="active_window_indicator_summary">कौन सी विंडो सक्रिय है, यह पहचानने में सहायता के लिए विंडो के कोनों को हाइलाइट करें</string>
   <string name="app_licence_title">ओपन सोर्स लाइसेंस</string>
+
   <string name="how_to_contribute">कैसे योगदान करें?</string>
   <string name="confirm_delete_bookmarks">क्या आप %d बुकमार्क और उनके नोट हटाना चाहते हैं?</string>
   <string name="confirm_delete_orphaned_bookmarks">चयनित लेबल %d बुकमार्क से जुड़ा है जिनमें कोई अन्य लेबल नहीं है। क्या आप इन बुकमार्क को लेबल के साथ हटाना चाहते हैं?</string>
@@ -853,14 +966,15 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="show_reference_at_front">छंद के आगे दिखाएं</string>
   <string name="abbreviate_reference">संक्षिप्त संदर्भ</string>
   <string name="version_name">संस्करण का नाम</string>
-  <!--meaning, bible version name-->
+    <!-- meaning, bible version name -->
   <string name="show_version_name">संस्करण नाम शामिल करें</string>
   <string name="show_ellipsis">दीर्घवृत्त दिखाएं (…)</string>
   <string name="show_quotes">उद्धरण चिह्न दिखाएं</string>
   <string name="separate_verses_with_newlines">नई लाइनों से छंद अलग करें</string>
+
   <string name="initializing_app">एप्लिकेशन शुरू किया जा रहा है…</string>
   <string name="show_notes">नोट्स दिखाएं</string>
-  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
   <string name="old_webview">Android WebView पैकेज बहुत पुराना है (%1$s)। %3$s उपयोग करने के लिए आपको अपना Android WebView पैकेज कम से कम संस्करण %2$s तक अपग्रेड करना होगा। अधिकांश डिवाइस के लिए यह %4$s के माध्यम से किया जा सकता है।</string>
   <string name="play">गूगल प्ले</string>
   <string name="proceed_anyway">कोई बात नहीं आगे बढ़ो</string>
@@ -870,13 +984,14 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="rate_message6">
 नकारात्मक रिव्यु देने से पहले, कृपया निम्नलिखित पर विचार करें:
  </string>
-  <!--parameters are actions (file a bug, send email)-->
+
+    <!-- parameters are actions (file a bug, send email) -->
   <string name="rate_message1">यदि ऐप में कोई समस्या है, तो कृपया इसके बजाय %1$s या %2$s करें।</string>
-  <!--param is "please report maintainers"-->
+    <!-- param is "please report maintainers" -->
   <string name="rate_message2">
 यदि कुछ पाठ/बाइबिल अनुवाद में कोई समस्या है, %s।
  </string>
-  <!--param is "please read what you can do"-->
+    <!-- param is "please read what you can do" -->
   <string name="rate_message3">
 यदि एप्लिकेशन में विशेष पाठ उपलब्ध नहीं है, %s।
  </string>
@@ -964,33 +1079,36 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="export_something">%s निर्यात करें</string>
   <string name="import_items">%s के रूप में आयात करें</string>
   <string name="import_error">ऐप डेटाबेस से आयात करना विफल रहा। डेटाबेस फ़ाइल गलत प्रारूप हो सकती है या %s के बहुत पुराने संस्करण के साथ बनाई गई हो सकती है।</string>
+
   <string name="export_bookmarks_csv">बुकमार्क %s के रूप में निर्यात करें</string>
-  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
   <string name="osis_reference">OSIS संदर्भ</string>
-  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
   <string name="bible_reference">बाइबिल संदर्भ</string>
   <string name="document">किताबें</string>
   <string name="book">पुस्तक</string>
-  <!--Chapter is the chapter number in the book, starting from 1-->
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
   <string name="chapter_start">अध्याय आरंभ</string>
-  <!--Verse is the verse number in the chapter, starting from 1-->
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
   <string name="verse_start">छंद आरंभ</string>
   <string name="chapter_end">अध्याय अंत</string>
   <string name="verse_end">छंद अंत</string>
   <string name="id">पहचानकर्ता</string>
-  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
   <string name="ordinal_start">क्रमिक आरंभ</string>
   <string name="ordinal_end">क्रमिक अंत</string>
   <string name="created_at">बनाया गया</string>
-  <!--Offsets are used to indicate from which character a bookmark starts.-->
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
   <string name="start_offset">आरंभ ऑफ़सेट</string>
   <string name="end_offset">अंत ऑफ़सेट</string>
   <string name="custom_icon">कस्टम आइकन</string>
   <string name="last_updated_at">अंतिम अपडेट</string>
   <string name="bookmark_notes">बुकमार्क नोट्स</string>
-  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">हमें खेद है, लेकिन %1$s भाषा में केवल आंशिक यूज़र इंटरफ़ेस अनुवाद है। ऐसा इसलिए है क्योंकि %2$s पूरी तरह से स्वयंसेवकों द्वारा विकसित किया जाता है। यदि आप अनुवाद में मदद कर सकते हैं, तो कृपया %3$s देखें।</string>
-  <!--will be added to incomplete_translation as a link-->
+    <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">अनुवादकों के लिए निर्देश</string>
   <string name="questions_title">कोई सवाल?</string>
   <string name="bookmark_style">बुकमार्क शैली</string>
@@ -999,6 +1117,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="strongs_text_and_links">टेक्स्ट और लिंक</string>
   <string name="strongs_hidden_links">छुपे हुए लिंक</string>
   <string name="verse_tip">अधूरा या कई छंदों का चयन करने के लिए, आप बाइबिल पाठ को देर तक दबा सकते हैं</string>
+
   <string name="permission_required">अनुमति आवश्यक है</string>
   <string name="labels_search_hint"> खोज</string>
   <string name="search_mode_name_start">नाम (आरंभ से)</string>
@@ -1007,7 +1126,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="search_results_matches">%d मिलान</string>
   <string name="search_results_match">1 मिलान</string>
   <string name="progress_status_permission">सूचनाएं दिखाने के लिए (डाउनलोड स्थिति, प्रोसेसिंग, बोलने की स्थिति), हमें आपकी अनुमति चाहिए।</string>
-  <!--Discrete mode settings-->
+
+    <!-- Discrete mode settings -->
   <string name="app_name_calculator">Simple Calculator</string>
   <string name="prefs_persecution_cat">उत्पीड़ित लोगों के लिए सेटिंग्स</string>
   <string name="prefs_discrete_mode">धार्मिक प्रतीक छुपाएं</string>
@@ -1016,24 +1136,27 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="prefs_calculator_pin">कैलकुलेटर PIN</string>
   <string name="prefs_calculator_pin_desc">कैलकुलेटर दिखाए जाने पर ऐप में प्रवेश करने के लिए PIN कोड।</string>
   <string name="calc_division_by_zero">शून्य से विभाजन की अनुमति नहीं है</string>
-  <!--Context: calculator. Wrong number format etc.-->
+    <!-- Context: calculator. Wrong number format etc. -->
   <string name="calc_wrong_format">गलत प्रारूप</string>
   <string name="calc_wrong_format_operand">गलत प्रारूप। बिना संख्या के ऑपरेंड?</string>
   <string name="prefs_persecuted_help">पहले यह पढ़ें!</string>
-  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
   <string name="prefs_persecuted_summary">सेटिंग्स के लिए निर्देश और विशेष discrete build के बारे में जानकारी।</string>
+
   <string name="calculator_par1">ऐप में प्रवेश करने से पहले, कैलकुलेटर स्क्रीन दिखाई देती है।</string>
   <string name="calculator_par2">इसमें, आप सामान्य गणना कर सकते हैं, और जब आप ऐप में प्रवेश करना चाहते हैं, तो बस अपना PIN कोड (डिफ़ॉल्ट 1234 है) टाइप करें और फिर \"=\" बटन दबाएं।</string>
   <string name="calculator_par3">आप \"Calculator PIN\" सेटिंग द्वारा एक कस्टम PIN कोड सेट कर सकते हैं।</string>
   <string name="discrete_mode_info_par1">आप मानक एप्लिकेशन संस्करण का उपयोग कर रहे हैं, जिसका अर्थ है कि ऐप इन्फो में एप्लिकेशन का असली नाम और आइकन अभी भी दिखाई दे सकता है।</string>
   <string name="discrete_mode_info_par2">उत्पीड़न वाले वातावरण में बेहतर सुरक्षा के लिए, हम दृढ़ता से ऐप के discrete संस्करण का उपयोग करने की सलाह देते हैं, जो हमेशा कैलकुलेटर दिखाता है, चाहे ऐप डेटा हटा दिया जाए।</string>
   <string name="discrete_mode_link">आप %s से discrete संस्करण का नवीनतम संस्करण डाउनलोड कर सकते हैं।</string>
-  <!--Window synchronize groups-->
+
+    <!-- Window synchronize groups -->
   <string name="sync_group_n">समूह %d</string>
   <string name="disable_sync">सिंक्रनाइज़ेशन अक्षम करें</string>
   <string name="open_in_window">परिणाम एक विंडो में खोलें</string>
-  <!--Custom repositories-->
-  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
   <string name="custom_repositories">कस्टम रिपॉज़िटरी</string>
   <string name="custom_repositories_empty_list_message">कोई कस्टम रिपॉज़िटरी परिभाषित नहीं है</string>
   <string name="custom_repositories_create_button_label">कस्टम रिपॉज़िटरी जोड़ें</string>
@@ -1045,14 +1168,17 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="wiki_page">WIKI पेज</string>
   <string name="custom_repositories_help0">आप कस्टम रिपॉज़िटरी इंस्टॉल करके बाहरी कस्टम रिपॉज़िटरी से दस्तावेज़ इंस्टॉल कर सकते हैं।</string>
   <string name="duplicate_custom_repository">%s नाम की रिपॉज़िटरी पहले से मौजूद है, दूसरी नहीं जोड़ी जा सकती।</string>
+
   <string name="packages_dir">पैकेज निर्देशिका (Zip फ़ाइलें)</string>
   <string name="warn_bad_document">चेतावनी: यह दस्तावेज़ (कम से कम आंशिक रूप से) खराब तकनीकी गुणवत्ता का हो सकता है।</string>
-  <!--Open links in AndBible (Deep linking)-->
+
+    <!-- Open links in AndBible (Deep linking) -->
   <string name="open_bible_links_title">AndBible में बाइबिल लिंक खोलें</string>
   <string name="open_bible_links_summary">AndBible समर्थित बाइबिल URL को संदर्भित करने वाले लिंक पर क्लिक करने पर, उन्हें AndBible में खोलें</string>
   <string name="copyReference">लिंक क्लिपबोर्ड पर कॉपी करें</string>
   <string name="reference_copied_to_clipboard">संदर्भ क्लिपबोर्ड पर कॉपी किया गया</string>
-  <!--Device cloud synchronization-->
+
+    <!-- Device cloud synchronization -->
   <string name="prefs_sync_introduction_summary1">चुनें कि आप कई डिवाइस सिंक्रनाइज़ करने के लिए किस बैकएंड क्लाउड सेवा का उपयोग करना चाहते हैं।</string>
   <string name="prefs_sync_introduction_summary2">Google Drive का उपयोग करते समय, %s को केवल एप्लिकेशन फ़ाइलों तक पहुँच दी जाती है, किसी भी व्यक्तिगत फ़ाइलों तक नहीं।</string>
   <string name="restore_backup_sections">आप कौन से बैकअप अनुभाग पुनर्स्थापित करना चाहते हैं?</string>
@@ -1068,7 +1194,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ai_settings_sync_contents">AI प्रॉम्प्ट और प्रदाता कॉन्फ़िगरेशन</string>
   <string name="progress_sync_title">पठन प्रगति</string>
   <string name="progress_sync_contents">याद किए गए छंद और अध्याय पठन रिकॉर्ड</string>
-  <!--Reading Progress Activity-->
+
+    <!-- Reading Progress Activity -->
   <string name="reading_progress_title">पठन/स्मरण प्रगति</string>
   <string name="reading_progress_chapters_read">अध्याय पढ़े गए</string>
   <string name="reading_progress_active_days">सक्रिय दिन</string>
@@ -1082,6 +1209,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="reading_progress_new_cycle_confirm">नया पठन चक्र शुरू करें? यह शुरुआत से आपकी प्रगति ट्रैक करना शुरू कर देगा, जबकि आपके पिछले चक्र का डेटा सुरक्षित रहेगा।</string>
   <string name="reading_progress_previous_cycle">पिछला चक्र</string>
   <string name="reading_progress_next_cycle">अगला चक्र</string>
+
   <string name="cloud_fetch_and_restore_initial">क्लाउड से इस डिवाइस पर कॉपी करें</string>
   <string name="cloud_create_new">इस डिवाइस से क्लाउड पर कॉपी करें</string>
   <string name="cloud_disable_sync">रद्द करें और सिंक्रनाइज़ेशन अक्षम करें</string>
@@ -1110,18 +1238,20 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="sync_disabling">अभी के लिए %s के लिए सिंक्रनाइज़ेशन अक्षम किया जा रहा है।</string>
   <string name="sync_update_app">सिंक्रनाइज़ेशन जारी रखने के लिए कृपया ऐप अपडेट करें।</string>
   <string name="sign_in_failed">सिंक्रनाइज़ेशन बैकएंड सेवा में साइन इन विफल रहा।</string>
-  <!--... after restoring from backup file-->
+    <!--  ... after restoring from backup file -->
   <string name="disabling_sync">क्लाउड सिंक्रनाइज़ेशन अक्षम किया जा रहा है। पुनर्स्थापना के बाद आपको मैन्युअल रूप से पुनः सक्षम करना होगा।</string>
   <string name="report">रिपोर्ट</string>
   <string name="sync_error">क्लाउड सिंक्रनाइज़ेशन में त्रुटि हुई</string>
   <string name="error_notification_channel_name">त्रुटि सूचनाएं</string>
   <string name="last_updated">पिछली बार अपडेट किया गया: %s</string>
-  <!--MyBible/MySword module support-->
+
+    <!-- MyBible/MySword module support -->
   <string name="sqlite_cant_read">फ़ाइल नहीं पढ़ी जा सकती</string>
   <string name="sqlite_invalid_file">अमान्य मॉड्यूल फ़ाइल या फ़ाइलनाम: %s</string>
   <string name="sqlite_cant_write">फ़ाइल (ओवर)राइट नहीं की जा सकती</string>
   <string name="install_failed_reason">निम्नलिखित कारण से मॉड्यूल इंस्टॉल करना विफल रहा: %s।</string>
-  <!--Other / uncategorized-->
+
+    <!-- Other / uncategorized -->
   <string name="app_opened_elsewhere">ऐप कहीं और खोला गया</string>
   <string name="open_here">यहाँ खोलें</string>
   <string name="external_link">बाहरी लिंक</string>
@@ -1182,7 +1312,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="memorize_calendar">याद करने की गतिविधि</string>
   <string name="memorize_view_list">सूची</string>
   <string name="memorize_view_overview">अवलोकन</string>
-  <!--LLM Translation Settings-->
+
+    <!-- LLM Translation Settings -->
   <string name="sync_settings_shortcut_summary">डिवाइसों के बीच डेटा सिंक्रनाइज़ करें</string>
   <string name="llm_provider_custom">कस्टम (OpenAI compatible)</string>
   <string name="ai_behavior_category">व्यवहार</string>
@@ -1228,7 +1359,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="custom_system_prompt_default">डिफ़ॉल्ट</string>
   <string name="custom_system_prompt_custom">कस्टम</string>
   <string name="reset_to_default">डिफ़ॉल्ट पर रीसेट करें</string>
-  <!--Raw log history-->
+
+    <!-- Raw log history -->
   <string name="raw_log_history_title">AI Log इतिहास</string>
   <string name="raw_log_history_summary">सहेजे गए AI वार्तालाप logs देखें और प्रबंधित करें</string>
   <string name="raw_log_history_empty">कोई सहेजे गए logs नहीं</string>
@@ -1246,6 +1378,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="raw_log_retention_summary_disabled">अक्षम (सभी रखें)</string>
   <string name="send_ai_bug_report_title">AI Bug रिपोर्ट करें</string>
   <string name="ai_bug_report_menu">AI bug रिपोर्ट करें</string>
+
   <string name="select_model_before_run_title">मॉडल चुनें</string>
   <string name="set_default_model_for_prompt">इस प्रॉम्प्ट के लिए डिफ़ॉल्ट मॉडल के रूप में सेट करें</string>
   <string name="prompt_max_iterations">अधिकतम पुनरावृत्ति ओवरराइड</string>
@@ -1254,7 +1387,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="prompt_max_iterations_unlimited">असीमित</string>
   <string name="prompt_max_iterations_global_default">वैश्विक डिफ़ॉल्ट (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">इस प्रॉम्प्ट के लिए वैश्विक अधिकतम पुनरावृत्तियां ओवरराइड करें। 0 = असीमित।\nवर्तमान: %s</string>
-  <!--Prompt Manager-->
+
+    <!-- Prompt Manager -->
   <string name="manage_prompts">AI प्रॉम्प्ट प्रबंधित करें</string>
   <string name="manage_prompts_summary">AI प्रॉम्प्ट बनाएं और संपादित करें</string>
   <string name="ai_settings">AI सेटिंग्स</string>
@@ -1265,7 +1399,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ai_settings_shortcut_summary">AI कनेक्शन और प्रॉम्प्ट सेटिंग्स</string>
   <string name="ai_provider_tier_recommended">अनुशंसित</string>
   <string name="ai_provider_tier_community">अन्य प्रदाता (परीक्षण नहीं किया गया)</string>
-  <!--Multi-provider settings-->
+
+    <!-- Multi-provider settings -->
   <string name="ai_providers_models_category">प्रदाता और मॉडल</string>
   <string name="ai_providers_category">प्रदाता</string>
   <string name="ai_providers_summary_none">कोई प्रदाता कॉन्फ़िगर नहीं है</string>
@@ -1283,10 +1418,11 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ai_provider_api_format">API प्रारूप</string>
   <string name="ai_provider_saved">प्रदाता सहेजा गया</string>
   <string name="ai_provider_deleted">प्रदाता हटाया गया</string>
+
   <string name="llm_openrouter_category">श्रेणी</string>
   <string name="llm_openrouter_category_all">सभी</string>
   <string name="llm_openrouter_model">मॉडल</string>
-  <!--Configured models management-->
+    <!-- Configured models management -->
   <string name="ai_models_category">मॉडल</string>
   <string name="add_model">मॉडल जोड़ें</string>
   <string name="edit_model_title">मॉडल संपादित करें</string>
@@ -1298,7 +1434,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="model_supported_badge">✓ समर्थित</string>
   <string name="show_also_unsupported_models">असमर्थित मॉडल भी दिखाएं</string>
   <string name="show_also_unsupported_providers">असमर्थित प्रदाता भी दिखाएं</string>
-  <!--Easy Setup-->
+
+    <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s in / %2$s out प्रति Mtoken</string>
   <string name="easy_setup_free_tier">निःशुल्क स्तर</string>
   <string name="unknown_error">अज्ञात त्रुटि</string>
@@ -1315,7 +1452,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="easy_setup_gemini_desc">निःशुल्क स्तर उपलब्ध, अच्छी गुणवत्ता</string>
   <string name="easy_setup_anthropic_desc">किफायती, उत्कृष्ट गुणवत्ता</string>
   <string name="easy_setup_openai_desc">सुपरिचित, विश्वसनीय</string>
-  <!--AI Disclaimer-->
+
+    <!-- AI Disclaimer -->
   <string name="ai_disclaimer_warning_title">महत्वपूर्ण: AI टूल का उपयोग करने से पहले पढ़ें</string>
   <string name="ai_disclaimer_warning_summary">AI का उपयोग करने के जोखिम और जिम्मेदारियां</string>
   <string name="ai_disclaimer_dialog_title">AI टूल — महत्वपूर्ण जानकारी</string>
@@ -1333,6 +1471,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ai_disclaimer_point9">AI प्रदाता API उपयोग के लिए शुल्क लेते हैं। AndBible में दिखाए गए लागत अनुमान लगभग हैं — वास्तविक शुल्क के लिए हमेशा अपने प्रदाता की बिलिंग जांचें।</string>
   <string name="ai_disclaimer_accept_title">AI अस्वीकरण स्वीकार करें</string>
   <string name="ai_disclaimer_accept_button">मैं स्वीकार करता हूँ और पूरी जिम्मेदारी लेता हूँ</string>
+
   <string name="prompt_permission_mode">अनुमति मोड</string>
   <string name="prompt_permission_mode_description">AI द्वारा write ऑपरेशन करने से पहले उपयोगकर्ता की पुष्टि कब आवश्यक है, इसे नियंत्रित करता है। नीचे प्रति-टूल सेटिंग्स अलग-अलग टूल के लिए इसे ओवरराइड कर सकती हैं।</string>
   <string name="agent_permission_mode_summary">AI write ऑपरेशन से पहले उपयोगकर्ता की पुष्टि कब आवश्यक है, इसे नियंत्रित करता है</string>
@@ -1415,7 +1554,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ai_regenerate_keep_previous">पिछला संस्करण रखें</string>
   <string name="ai_regenerate_fresh_run">नया रन (पिछला परिणाम अनदेखा करें)</string>
   <string name="ai_unknown_prompt">AI</string>
-  <!--Default prompts-->
+
+    <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">%s में अनुवाद करें</string>
   <string name="default_prompt_translate_to_ui_language">UI भाषा में अनुवाद करें</string>
   <string name="default_prompt_translate_to_ui_language_desc">दस्तावेज़ टेक्स्ट को ऐप इंटरफ़ेस भाषा में अनुवाद करता है</string>
@@ -1452,7 +1592,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ai_restore_hidden_prompts">छुपे हुए प्रॉम्प्ट पुनर्स्थापित करें</string>
   <string name="ai_prompt_hidden">प्रॉम्प्ट छुपाया गया</string>
   <string name="ai_prompts_restored">छुपे हुए प्रॉम्प्ट पुनर्स्थापित किए गए</string>
-  <!--Agent Tool Display Names-->
+
+    <!-- Agent Tool Display Names -->
   <string name="tool_create_bookmark">बुकमार्क बनाएं</string>
   <string name="tool_add_bookmark_note">बुकमार्क नोट जोड़ें</string>
   <string name="tool_update_bookmark_note">बुकमार्क नोट अपडेट करें</string>
@@ -1493,11 +1634,13 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="tool_create_window">विंडो बनाएं</string>
   <string name="tool_manage_window">विंडो प्रबंधित करें</string>
   <string name="tool_set_window_document">विंडो दस्तावेज़ सेट करें</string>
-  <!--Agent Permission Dialog-->
+
+    <!-- Agent Permission Dialog -->
   <string name="agent_permission_title">एजेंट अनुमति</string>
   <string name="agent_permission_message">AI सहायक \"%1$s\" का उपयोग करना चाहता है:\n\n%2$s</string>
   <string name="agent_permission_message_with_action">AI सहायक चाहता है:\n\n%1$s</string>
-  <!--Tool action descriptions for permission dialog-->
+
+    <!-- Tool action descriptions for permission dialog -->
   <string name="action_create_bookmark_at">%1$s पर बुकमार्क बनाएं</string>
   <string name="action_create_bookmark_at_with_extras">%1$s पर बुकमार्क बनाएं (%2$s)</string>
   <string name="action_with_note">नोट के साथ</string>
@@ -1535,7 +1678,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="permission_always_allow_confirm_title">हमेशा अनुमति दें?</string>
   <string name="permission_always_allow_confirm">क्या आप वाकई \"%1$s\" को स्थायी रूप से अनुमति देना चाहते हैं?</string>
   <string name="permission_always_allow_confirm_reset_hint">आप AI सेटिंग्स में इसे रीसेट कर सकते हैं।</string>
-  <!--Agent Tool Permission Settings-->
+
+    <!-- Agent Tool Permission Settings -->
   <string name="manage_tool_permissions_title">टूल अनुमतियां</string>
   <string name="manage_tool_permissions_summary">प्रति-टूल अनुमति ओवरराइड प्रबंधित करें</string>
   <string name="commentary_max_response_title">कमेंटरी प्रतिक्रिया आकार सीमा</string>
@@ -1569,15 +1713,19 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="permission_option_always_allow">हमेशा अनुमति दें</string>
   <string name="permission_option_always_deny">हमेशा अस्वीकार करें</string>
   <string name="reset_all_permissions">सभी रीसेट करें</string>
-  <!--Tool Info-->
+
+    <!-- Tool Info -->
   <string name="ai_available_tools">उपलब्ध टूल</string>
   <string name="ai_read_tools">पढ़ने के टूल</string>
   <string name="ai_write_tools">लिखने के टूल</string>
-  <!--Global Tool Permissions Activity-->
+
+    <!-- Global Tool Permissions Activity -->
   <string name="global_tool_permissions_title">डिफ़ॉल्ट टूल सेटिंग्स</string>
-  <!--Per-Prompt Tool Permissions-->
+
+    <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">टूल अनुमतियां</string>
-  <!--Tool categories-->
+
+    <!-- Tool categories -->
   <string name="tool_category_bible_search">बाइबिल और खोज</string>
   <string name="tool_category_bookmarks">बुकमार्क</string>
   <string name="tool_category_labels">लेबल</string>
@@ -1594,13 +1742,16 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="tool_option_default_disabled">डिफ़ॉल्ट (अक्षम)</string>
   <string name="tool_option_default_allowed">डिफ़ॉल्ट (अनुमति)</string>
   <string name="tool_option_default_denied">डिफ़ॉल्ट (अस्वीकार)</string>
-  <!--Per-Prompt Model Override-->
+
+    <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">मॉडल</string>
   <string name="prompt_model_default">डिफ़ॉल्ट</string>
-  <!--LLM One Tap Actions-->
+
+    <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">AI क्रिया चुनें</string>
   <string name="llm_actions">AI क्रियाएं</string>
-  <!--Agent Log Widget-->
+
+    <!-- Agent Log Widget -->
   <string name="agent_log_expand">एजेंट log विस्तार/संकुचन</string>
   <string name="agent_log_close">एजेंट log बंद करें</string>
   <string name="agent_log_stop">AI रोकें</string>
@@ -1615,7 +1766,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="agent_log_done">पूर्ण: %s</string>
   <string name="agent_log_cancelled">रद्द किया गया</string>
   <string name="agent_already_running">एक AI एजेंट पहले से चल रहा है। कृपया प्रतीक्षा करें या पहले इसे रोकें।</string>
-  <!--AI Agent Notifications-->
+
+    <!-- AI Agent Notifications -->
   <string name="ai_agent_notification_channel_name">AI एजेंट</string>
   <string name="ai_agent_notification_running">AI एजेंट काम कर रहा है…</string>
   <string name="ai_agent_notification_permission_needed">AI एजेंट को आपकी मंजूरी चाहिए</string>
@@ -1624,7 +1776,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ai_agent_notification_completed_tap">परिणाम देखने के लिए टैप करें</string>
   <string name="ai_agent_notification_error">AI कार्य विफल हुआ</string>
   <string name="ai_agent_notification_cancel">रद्द करें</string>
-  <!--My Documents-->
+
+    <!-- My Documents -->
   <string name="my_documents_title">मेरे दस्तावेज़</string>
   <string name="my_documents_empty">अभी कोई दस्तावेज़ नहीं। एक बनाने के लिए + टैप करें।</string>
   <string name="my_document_new_name">दस्तावेज़ %d</string>
@@ -1635,6 +1788,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="my_document_save_changes">बदलाव सहेजें?</string>
   <string name="my_document_no_description">कोई विवरण नहीं</string>
   <string name="my_document_edit_description">विवरण संपादित करें</string>
+
   <string name="my_document_pages_title">%s - पेज</string>
   <string name="my_document_pages_empty">इस दस्तावेज़ में कोई पेज नहीं है।</string>
   <string name="my_document_page_rename_title">पेज का नाम बदलें</string>
@@ -1655,6 +1809,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="prefs_show_ai_doc_markers_summary">छंदों से जुड़े AI-जनित दस्तावेज़ पेजों के लिए मार्कर आइकन दिखाएं</string>
   <string name="prefs_show_ordinals_title">क्रमिक संख्याएं दिखाएं</string>
   <string name="prefs_show_ordinals_summary">टेक्स्ट में क्रमिक स्थिति मार्कर दिखाएं</string>
+
   <string name="prefs_page_scroll_amount_title">पेज स्क्रॉल मात्रा</string>
   <string name="prefs_page_scroll_amount_summary">पेज ऊपर/नीचे के साथ पेज का कितना हिस्सा स्क्रॉल करें</string>
   <string name="prefs_scroll_helper_lines_title">स्क्रॉल सहायक रेखाएं</string>

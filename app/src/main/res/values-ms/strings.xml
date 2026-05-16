@@ -18,6 +18,18 @@
   <string name="history">Sejarah</string>
   <string name="speak">Baca</string>
   <string name="help">Bantuan</string>
+    <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Baca lebih lanjut dalam manual</string>
+  <string name="help_prompt_edit_text">Prompt tersuai membolehkan anda mencipta arahan AI yang boleh digunakan semula untuk kajian anda. Tetapkan nama, penerangan, templat, konteks di mana ia harus muncul, dan secara pilihan penyedia/model tersuai. Prompt terbina dalam tidak boleh diedit secara langsung — gunakan \"Salin untuk disesuaikan\" untuk mencipta versi anda sendiri.</string>
+  <string name="help_tool_info_text">Alat AI adalah fungsi khusus yang boleh dipanggil oleh AI untuk membaca data anda atau membuat perubahan bagi pihak anda. Alat baca (ayat, ulasan, kamus, penanda buku) tidak memerlukan kebenaran. Alat tulis (mencipta penanda buku, nota, entri pad kajian) dikawal oleh sistem kebenaran.</string>
+  <string name="help_ai_settings_text">Tetapan AI adalah tempat anda mengurus prompt dan kategori anda. Dari sini anda boleh mencipta prompt baharu, menyusunnya ke dalam kategori, import/eksport prompt sebagai CSV, memasang pek prompt tambahan, dan mencapai tetapan sambungan AI.</string>
+  <string name="help_ai_connection_text">Konfigurasikan penyedia AI, model, kebenaran dan pilihan sambungan lain di sini. Setiap penyedia memerlukan kunci API tersendiri. Anda boleh menambah berbilang penyedia dan memilih model lalai.</string>
+  <string name="help_ai_providers_text">Urus penyedia AI (Google Gemini, OpenAI, Anthropic, dll.). Setiap penyedia memerlukan kunci API tersendiri. Anda boleh menambah berbilang penyedia dan menugaskan yang berbeza kepada prompt tertentu.</string>
+  <string name="help_ai_models_text">Urus model untuk penyedia ini. Anda boleh menyegarkan semula senarai model daripada API penyedia untuk mendapatkan keluaran baharu, atau menambah nama model secara manual jika ia tidak terdapat dalam senarai yang diambil.</string>
+  <string name="help_ai_document_filter_text">Hadkan Alkitab, ulasan dan modul lain yang boleh dibaca oleh ejen AI. Secara lalai AI melihat semua modul yang dipasang; penapisan membantu mengurangkan gangguan dan kos apabila anda hanya mahu ia mempertimbangkan sumber tertentu.</string>
+  <string name="help_global_tool_permissions_text">Konfigurasikan kebenaran untuk alat AI individu. Untuk setiap alat baca, pilih sama ada AI boleh menggunakannya (Didayakan atau Dilumpuhkan). Untuk setiap alat tulis, pilih Benarkan sentiasa, Tolak sentiasa, atau Tanya (yang kembali kepada mod kebenaran global yang ditetapkan dalam tetapan Sambungan AI).</string>
+  <string name="help_reading_progress_text">Kemajuan bacaan Alkitab dan hafalan anda secara sekilas. Tandakan bab sebagai dibaca secara manual dengan butang \"Tandakan sebagai dibaca\", atau dayakan penjejakan automatik. Latihan hafal juga menyumbang kepada paparan ini.</string>
+  <string name="help_memorize_text">Paparan Hafal membantu anda menghafal petikan di luar kepala. Gunakan Kabur Perkataan, Kacaukan Perkataan, Taip Perkataan atau Susun Perkataan untuk berlatih. Latihan yang berjaya secara automatik menandakan ayat sebagai dihafal (ini boleh dilumpuhkan).</string>
   <string name="information">Maklumat</string>
   <string name="other">Lain-lain</string>
   <string name="contact">Hubungi</string>

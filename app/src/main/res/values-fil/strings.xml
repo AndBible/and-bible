@@ -1,12 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
+
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Pag-aaral ng Bibliya</string>
   <string name="app_name_medium">Pag-aaral ng Bibliya (AndBible)</string>
   <string name="app_name_long">AndBible: Pag-aaral ng Bibliya</string>
+
   <string name="version_text">Bersyon %s</string>
   <string name="no_sdcard_error">Mangyaring maglagay ng SD card at i-restart ang application.</string>
-  <!--Main menu-->
+
+    <!-- Main menu -->
   <string name="menu">Menu</string>
   <string name="chooseBook">Dokumento</string>
   <string name="selectPassage">Talata</string>
@@ -15,6 +18,18 @@
   <string name="history">Kasaysayan</string>
   <string name="speak">Magsalita</string>
   <string name="help">Tulong</string>
+    <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Magbasa pa sa manwal</string>
+  <string name="help_prompt_edit_text">Ang mga custom na prompt ay nagbibigay-daan sa iyong gumawa ng mga reusable na instruksyon ng AI para sa iyong pag-aaral. Magtakda ng pangalan, paglalarawan, template, mga konteksto kung saan ito dapat lumabas, at opsyonal na custom na provider/modelo. Ang mga built-in na prompt ay hindi maaaring direktang i-edit — gamitin ang \"Kopyahin para i-customize\" para gumawa ng sarili mong bersyon.</string>
+  <string name="help_tool_info_text">Ang mga AI tool ay mga espesyal na function na maaaring tawagin ng AI para basahin ang iyong data o gumawa ng mga pagbabago sa iyong ngalan. Ang mga read tool (mga talata, komentaryo, diksyonaryo, mga bookmark) ay hindi kailanman nangangailangan ng pahintulot. Ang mga write tool (paggawa ng mga bookmark, tala, mga entry sa study pad) ay kontrolado ng sistema ng pahintulot.</string>
+  <string name="help_ai_settings_text">Ang AI Settings ay kung saan mo pinamamahalaan ang iyong mga prompt at kategorya. Mula rito maaari kang gumawa ng mga bagong prompt, ayusin ang mga ito sa mga kategorya, mag-import/mag-export ng mga prompt bilang CSV, mag-install ng mga add-on prompt pack, at maabot ang mga setting ng koneksyon ng AI.</string>
+  <string name="help_ai_connection_text">I-configure ang iyong mga AI provider, modelo, pahintulot at iba pang mga opsyon ng koneksyon dito. Ang bawat provider ay nangangailangan ng sariling API key. Maaari kang magdagdag ng maraming provider at pumili ng default na modelo.</string>
+  <string name="help_ai_providers_text">Pamahalaan ang mga AI provider (Google Gemini, OpenAI, Anthropic, atbp.). Ang bawat provider ay nangangailangan ng sariling API key. Maaari kang magdagdag ng maraming provider at mag-assign ng iba\'t iba sa mga partikular na prompt.</string>
+  <string name="help_ai_models_text">Pamahalaan ang mga modelo para sa provider na ito. Maaari mong i-refresh ang listahan ng modelo mula sa API ng provider para makuha ang mga bagong release, o manu-manong magdagdag ng pangalan ng modelo kung wala ito sa na-fetch na listahan.</string>
+  <string name="help_ai_document_filter_text">Limitahan kung aling mga Bibliya, komentaryo at iba pang mga module ang mababasa ng AI agent. Bilang default, nakikita ng AI ang lahat ng naka-install na module; nakakatulong ang pag-filter na mabawasan ang ingay at gastos kapag gusto mo lang itong isaalang-alang ang mga partikular na pinagkukunan.</string>
+  <string name="help_global_tool_permissions_text">I-configure ang mga pahintulot para sa mga indibidwal na AI tool. Para sa bawat read tool, piliin kung maaari itong gamitin ng AI (Pinagana o Hindi Pinagana). Para sa bawat write tool, piliin ang Palaging payagan, Palaging tanggihan, o Tanungin (na bumabalik sa global na mode ng pahintulot na nakatakda sa mga setting ng Koneksyon ng AI).</string>
+  <string name="help_reading_progress_text">Ang iyong progreso sa pagbabasa ng Bibliya at pagsasaulo sa isang tingin. Markahan ang mga kabanata bilang nabasa nang mano-mano gamit ang pindutang \"Markahan bilang nabasa\", o paganahin ang awtomatikong pagsubaybay. Ang mga ehersisyo sa pagsasaulo ay nag-aambag din sa view na ito.</string>
+  <string name="help_memorize_text">Ang Memorize view ay tumutulong sa iyong matutuhan ang mga sipi sa puso. Gamitin ang Word Blur, Word Scramble, Word Type o Word Order para magsanay. Ang mga matagumpay na ehersisyo ay awtomatikong nagmamarka ng mga talata bilang nasaulo (maaari itong hindi paganahin).</string>
   <string name="information">Impormasyon</string>
   <string name="other">Iba pa</string>
   <string name="contact">Makipag-ugnayan</string>
@@ -22,13 +37,15 @@
   <string name="administration">Administrasyon</string>
   <string name="rate_application">I-rate at Suriin</string>
   <string name="chooce_document">Pumili ng Dokumento</string>
-  <!--Passage navigation-->
+
+    <!-- Passage navigation -->
   <string name="choosePassageBookName">Pumili ng Aklat</string>
   <string name="choosePassageChapterName">Pumili ng Kabanata</string>
   <string name="choosePassageVerseName">Pumili ng Talata</string>
   <string name="bible">Bibliya</string>
   <string name="deuterocanonical">Deuterocanonical</string>
-  <!--Search-->
+
+    <!--  Search -->
   <string name="search_index">Search Index</string>
   <string name="index_creation_required">Kailangan ng index para mahanap.</string>
   <string name="create_index_for">Kailangan ng index para mahanap. \n\nGumawa ng index para sa %s?</string>
@@ -40,13 +57,15 @@
   <string name="do_in_background">Magpatuloy sa background</string>
   <string name="rebuild_index_button">Itayo muli</string>
   <string name="creating_index_for">Gumagawa ng index para sa %s…</string>
-  <!--X results in module Y-->
+    <!-- X results in module Y -->
   <string name="search_with_results2">%1$s mga resulta sa %2$s</string>
-  <!--Tasks-->
+
+    <!-- Tasks -->
   <string name="progress_status">Progreso</string>
   <string name="task_kill_warning">Maaaring materminate ang mga matagalang gawaing ito kung lumipat ka sa ibang application bago pa matapos ang mga ito.</string>
   <string name="no_tasks_running">Walang mga gawaing isinasagawa ngayon.</string>
-  <!--Search-->
+
+    <!-- Search -->
   <string name="search_words_group_prompt">Maghanap ng mga talata</string>
   <string name="search_all_words">Lahat ng salita</string>
   <string name="search_any_word">Kahit anong salita</string>
@@ -61,38 +80,49 @@
   <string name="search_current_book">Kasalukuyang aklat</string>
   <string name="error_executing_search">Di-wastong query sa paghahanap</string>
   <string name="type_text_or_bible_reference">Mag-type ng teksto o sanggunian sa Bibliya</string>
-  <!--Open (bible reference X)-->
+    <!-- Open (bible reference X) -->
   <string name="go_to_ref">Buksan ang %s</string>
-  <!--Finx "(keywords x)", keywords based on text selection-->
+    <!-- Finx "(keywords x)", keywords based on text selection -->
   <string name="search_what">Hanapin ang \"%s\"</string>
-  <!--Multi-translation search-->
+    <!-- Multi-translation search -->
   <string name="search_translations">Mga Salin</string>
   <string name="choose_translations">Pumili ng mga salin…</string>
   <string name="multi_search_results">%1$d mga talata sa %2$d mga salin</string>
   <string name="search_index_not_created">walang index</string>
-  <!--Preferences-->
+
+    <!-- Preferences -->
   <string name="prefs_show_verseno_title">Mga numero ng kabanata at talata</string>
   <string name="prefs_show_verseno_summary">Ipakita ang mga numero ng kabanata at talata</string>
+
   <string name="prefs_e_ink_mode_title">Black &amp; white mode</string>
   <string name="prefs_eink_mode_summary">Gamitin ang application sa monochrome mode (walang kulay), na mas angkop para sa mga E-ink device.</string>
   <string name="prefs_eink_settings_cat">Mga setting ng E-ink</string>
   <string name="prefs_eink_display_title">Mga tampok ng E-ink</string>
   <string name="prefs_eink_display_summary">I-enable ang mga tampok na partikular sa e-ink (mga button na scroll ng pahina, mga linya ng tulong sa pag-scroll)</string>
+
   <string name="prefs_disable_animations_title">I-disable ang mga animation</string>
   <string name="prefs_disable_animations_summary">I-disable ang iba\'t ibang animation tulad ng maayos na pag-scroll.</string>
+
   <string name="prefs_disable_click_to_edit_title">I-disable ang click-to-edit ng Study Pad</string>
   <string name="prefs_disable_click_to_edit_summary">Kailangan gamitin ang button na i-edit para ma-edit ang mga tala sa Study Pad.</string>
+
   <string name="prefs_notes_content_type_title">Format para sa mga bagong tala ng bookmark</string>
   <string name="prefs_notes_content_type_summary">Format ng teksto na ginagamit kapag gumagawa ng mga bagong tala ng bookmark at mga entry ng Study Pad</string>
   <string name="notes_content_type_html">Rich text (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
+
+
+
+
   <string name="prefs_verse_per_line_summary">Ipakita ang bawat talata sa ibang linya</string>
   <string name="prefs_show_bookmarks_summary">Alisan ng check para itago ang lahat ng bookmark</string>
+
   <string name="prefs_show_mynotes_summary">Ipakita ang icon sa mga talatang may Aking Tala</string>
   <string name="prefs_show_strongs_summary">Mga link sa mga kahulugan sa Greek at Hebrew</string>
   <string name="prefs_show_morphology_summary">Ipakita ang morphology ng Greek ni Robinson</string>
   <string name="prefs_section_title_summary">Ipakita ang mga pamagat ng seksyon na hindi canonical</string>
   <string name="prefs_red_letter_summary">Ipakita ang mga salita ni Cristo sa pula</string>
+
   <string name="prefs_verse_per_line_title">Isang talata bawat linya</string>
   <string name="prefs_show_bookmarks_title">Ipakita ang mga bookmark</string>
   <string name="prefs_show_mynotes_title">Ipakita ang mga icon ng Aking Tala</string>
@@ -102,6 +132,7 @@
   <string name="prefs_show_footnotes_inline_title">Mga footnote inline</string>
   <string name="prefs_show_footnotes_inline_summary">Ipakita ang mga footnote nang inline kasama ang teksto sa halip na bilang mga clickable na handle</string>
   <string name="prefs_show_xrefs_summary">Ipakita ang mga cross-reference, kung available ang mga ito sa dokumento</string>
+
   <string name="prefs_show_strongs_title">Mga numero ng Strong</string>
   <string name="prefs_show_morphology_title">Mga morphological code</string>
   <string name="prefs_non_strongs_word_italic_title">I-italicize ang mga idinagdag na salita</string>
@@ -126,17 +157,20 @@
   <string name="reading_progress_history_no_entries">Walang mga entry na nabasa para sa pagpiling ito.</string>
   <string name="reading_progress_history_version_unknown">Hindi kilalang bersyon</string>
   <string name="prefs_tilt_to_scroll_title">Itilt para mag-scroll</string>
+
   <string name="prefs_toolbar_button_action_title">Aksyon para sa pindutin ng button sa toolbar</string>
   <string name="prefs_toolbar_button_action_summary">Aksyon na gagawin kapag pinindot/matagalang pinindot ang mga button sa toolbar ng Bibliya o Komentaryo</string>
   <string name="prefs_toolbar_button_action_default">Pindutin para buksan ang menu, matagalang pindutin para sa screen ng mga dokumento (default)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Pindutin para buksan ang susunod na dokumento, matagalang pindutin para buksan ang menu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Pindutin para buksan ang susunod na dokumento, matagalang pindutin para sa screen ng mga dokumento</string>
+
   <string name="prefs_night_mode_title">Paglipat ng night mode</string>
   <string name="prefs_night_mode_summary">Kung lilipat sa night mode nang awtomatiko (kung sinusuportahan ng device), manwal o sa pamamagitan ng setting ng system (Android 10+). Ang manwal na paglipat ay maaaring gawin mula sa 3-tuldok na menu ng mga opsyon sa pangunahing screen.</string>
   <string name="prefs_night_mode_manual">Manwal</string>
   <string name="prefs_night_mode_automatic">Awtomatiko</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Night mode</string>
+
   <string name="prefs_navigate_to_verse_title">Pumunta sa talata</string>
   <string name="prefs_navigate_to_verse_summary">Pumili ng talata (at kabanata) kapag pumipili ng sipi</string>
   <string name="prefs_open_links_in_special_window_title">Window ng mga link</string>
@@ -147,15 +181,20 @@
   <string name="prefs_interface_locale_title">Wika ng application</string>
   <string name="prefs_interface_locale_summary">Pumili ng custom na wika para sa user interface</string>
   <string name="reset_fontsize">I-reset</string>
+
   <string name="prefs_request_sdcard_permission_title">May mga manu-manong naka-install na dokumento</string>
   <string name="prefs_request_sdcard_permission_summary">Paganahin ang paggamit ng mga manu-manong naka-install na dokumento mula sa jsword/sword na folder sa internal storage</string>
+
   <string name="prefs_expand_footnotes_title">Mga inline na cross-reference</string>
   <string name="prefs_expand_footnotes_summary">Ipakita ang nilalaman ng cross-reference nang direkta sa loob ng teksto, sa halip na isang link na nagbubukas ng pop-up na dialog</string>
+
   <string name="all_text_options_window_menutitle">Lahat ng opsyon sa teksto</string>
   <string name="text_options_window_menutitle">Mga opsyon sa teksto</string>
   <string name="auto_fullscreen">Fullscreen sa pamamagitan ng pag-scroll</string>
   <string name="reversed_split_mode">Reversed na split mode</string>
+
   <string name="add_ellipsis">%s…</string>
+
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Awtomatikong lumipat sa fullscreen kapag nag-i-scroll ng teksto. Tip: maaari ka ring lumipat sa full screen sa pamamagitan ng double-tap sa screen.</string>
@@ -165,8 +204,10 @@
   <string name="prefs_features_cat">Mga feature</string>
   <string name="prefs_display_customization_cat">Hitsura at pakiramdam</string>
   <string name="prefs_behavior_customization_cat">Gawi ng application</string>
+
   <string name="prefs_margin_size_summary">I-adjust ang kaliwa at kanang margin ng text view. Maaari ka ring i-adjust ang maximum na lapad ng teksto.</string>
   <string name="prefs_margin_size_summary_2">Tip: Maaari kang mag-tap sa margin area upang lumipat ng isang pahina pataas / pababa.</string>
+
   <string name="prefs_text_colors_summary">I-adjust ang teksto, kulay ng background, at noise effect</string>
   <string name="text_display_settings_activity_title">Mga setting sa pagpapakita ng teksto</string>
   <string name="workspace_text_display_settings_title">Mga opsyon sa teksto - %s</string>
@@ -184,6 +225,7 @@
   <string name="prefs_footnotes_and_xrefs_title">Mga Talababa at Cross-reference</string>
   <string name="prefs_verses_and_headings_title">Mga Talata at Pamagat</string>
   <string name="prefs_page_scrolling_title">Pag-scroll ng Pahina</string>
+
   <string name="prefs_justify_title">I-justify-align ang teksto</string>
   <string name="prefs_justify_summary">I-align ang teksto sa \'justify\' na estilo, ibig sabihin ang kaliwa at kanang margin ng teksto ay nakahanay</string>
   <string name="pref_left_margin_label_mm">Kaliwang margin (%d mm)</string>
@@ -205,8 +247,10 @@
   <string name="hide_window_buttons_summary">Ang mga button ng window na ipinapakita sa kanang bahagi ng mga Bible view ay itinatago. Ang navigation bar ng window sa ibaba ay ipinapakita pa rin at maaari mong buksan ang popup menu ng window sa pamamagitan ng matagal na pag-tap dito.</string>
   <string name="hide_bible_reference_overlay_title">Itago ang Bible reference overlay</string>
   <string name="hide_bible_reference_overlay_summary">Huwag ipakita ang semi-transparent na Bible reference overlay kapag ang app ay nasa fullscreen mode</string>
+
   <string name="full_screen_hide_buttons_pref_title">Itago ang window button bar sa fullscreen</string>
   <string name="full_screen_hide_buttons_pref_summary">Kapag lumipat sa fullscreen mode, awtomatikong itago ang window button bar na nasa ibaba ng screen</string>
+
   <string name="prefs_dictionaries_cat">Mga Diksyonaryo</string>
   <string name="choose_strongs_greek_dictionary_title">Diksyonaryong Griyego ng Strong\'s</string>
   <string name="choose_strongs_greek_dictionary_summary">Pumili ng diksyonaryo ng Strong\'s para sa mga kahulugan ng salitang Griyego</string>
@@ -218,22 +262,28 @@
   <string name="choose_word_lookup_dictionary_summary">Pumili ng mga diksyonaryo para sa paghahanap ng mga salita</string>
   <string name="lookup_in_dictionary">Hanapin sa mga diksyonaryo</string>
   <string name="word_not_found_in_dictionaries">Hindi nahanap ang salita sa anumang diksyonaryo</string>
+
   <string name="prefs_top_margin_title_mm">Tuktok na margin (%d mm)</string>
   <string name="font_size_title">Laki ng font</string>
   <string name="font_size_title_pt">Laki ng font (%d pt)</string>
   <string name="prefs_font_text_size_summary">I-adjust ang laki ng font ng pangunahing teksto</string>
+
   <string name="pref_font_family_label_name">Pamilya ng font (%s)</string>
   <string name="prefs_font_family_summary">Baguhin ang pamilya ng font. Tip: maaaring mag-install ng mas maraming font sa pamamagitan ng I-download ang Mga Dokumento / Mga Add-on.</string>
+
   <string name="prefs_text_bookmarks_title">Mga setting ng Bookmark at My Notes</string>
   <string name="prefs_reading_and_memorization_title">Pagbabasa at Pagmemorya</string>
+
   <string name="prefs_enable_bluetooth_title">Paganahin ang Bluetooth media buttons</string>
   <string name="prefs_enable_bluetooth_summary">Pangasiwaan ang Bluetooth media buttons upang simulan/itigil ang pagsasalita.</string>
   <string name="create_bookmark">Lumikha ng bagong Bookmark</string>
   <string name="create_bookmark_with_a_note">Lumikha ng bagong Bookmark na may tala</string>
-  <!--Colors preferences-->
+
+    <!-- Colors preferences -->
   <string name="prefs_text_colors_menutitle">Mga setting ng kulay</string>
   <string name="window_color_settings_title">Mga setting ng kulay ng window</string>
   <string name="workspace_color_settings_title">Mga default na setting ng kulay ng workspace</string>
+
   <string name="color_workspace">Kulay ng workspace</string>
   <string name="color_text">Kulay ng teksto</string>
   <string name="color_background">Kulay ng background</string>
@@ -241,7 +291,9 @@
   <string name="colors_night_mode_title">Night mode</string>
   <string name="prefs_noise_title">Background noise</string>
   <string name="prefs_noise_summary">Ang pagdaragdag ng kaunting noise sa background ay maaaring maging mas komportable sa mata.</string>
-  <!--Window-->
+
+
+    <!-- Window -->
   <string name="new_window">Bagong window</string>
   <string name="windowMaximise">I-maximize</string>
   <string name="windowMinimise">I-minimize</string>
@@ -254,12 +306,15 @@
   <string name="copy_settings_to_global">Mga global na default</string>
   <string name="change_to_normal">Baguhin sa normal na window</string>
   <string name="window_pin_mode">I-pin</string>
-  <!--Notes screen-->
+
+    <!-- Notes screen -->
   <string name="previous">Nakaraan</string>
   <string name="next">Susunod</string>
-  <!--Strongs-->
+
+    <!--  Strongs -->
   <string name="no_indexed_bible_with_strongs_ref">Kailangan mong mag-download ng Bibliya na naglalaman ng mga numero ng Strong\'s at buuin ang index nito sa pamamagitan ng Paghahanap</string>
-  <!--Module download-->
+
+    <!-- Module download -->
   <string name="download">I-download ang Mga Dokumento</string>
   <string name="redownload">I-redownload ang Mga Dokumento</string>
   <string name="download_source_last_updated">Mga listahan ng dokumento ay huling na-update: %s.</string>
@@ -284,7 +339,8 @@
   <string name="failed_repositories_message">Hindi makakonekta sa sumusunod na document server: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Hindi ma-download ang mga sumusunod na file:\n\n%s\n\n</string>
   <string name="cant_delete_document">Hindi maaaring tanggalin ang dokumentong ito.</string>
-  <!--Install zip file-->
+
+    <!--  Install zip file -->
   <string name="install_zip">I-load ang Mga Dokumento Mula sa Mga File</string>
   <string name="install_zip_module">I-install ang Bible Module</string>
   <string name="install_zip_module_discrete">I-install ang Calculator Module</string>
@@ -297,7 +353,8 @@
   <string name="overwrite_files_title">I-overwrite ang mga file?</string>
   <string name="could_not_overwrite_files">Hindi ma-overwrite ang mga file: %s. Bukod doon, matagumpay ang pag-install.</string>
   <string name="install_do_you_want">Nais mo bang i-install ang module (%s)?</string>
-  <!--Daily Reading Plan-->
+
+    <!-- Daily Reading Plan -->
   <string name="rdg_plan_title">Plano sa Pagbabasa</string>
   <string name="reading_plans_plural">Mga Plano sa Pagbabasa</string>
   <string name="rdg_plan_selector_title">Pumili ng Plano sa Pagbabasa</string>
@@ -323,26 +380,30 @@
   <string name="plan_description_y1ot6nt4_profHorner">Nagmula kay Prof. Horner, may pahintulot</string>
   <string name="plan_name_y2ot1ntps2">2-Taon sa Buong Bibliya, NT+PS nang dalawang beses</string>
   <string name="plan_description_y2ot1ntps2">Basahin ang Bibliya sa loob ng 2 taon, binabasa ang NT at Mga Awit nang dalawang beses. Nagmula sa Wholesome Words, http://www.wholesomewords.org/, may pahintulot</string>
-  <!--Document context menu-->
+
+    <!-- Document context menu -->
   <string name="delete">Tanggalin</string>
   <string name="delete_index">Tanggalin ang search index</string>
   <string name="about">Tungkol sa</string>
   <string name="delete_doc">Tanggalin ang %s?</string>
   <string name="delete_search_index_doc">Tanggalin ang index ng %s?</string>
-  <!--Verse context menu-->
+
+    <!-- Verse context menu -->
   <string name="notes">Mga talababa at sanggunian</string>
   <string name="share_verse">I-share…</string>
   <string name="share_verse_widget_title">I-share ang seleksyon</string>
   <string name="compare_translations">Ikumpara ang mga pagsasalin</string>
-  <!--Link context menu-->
+
+    <!-- Link context menu -->
   <string name="open_link_in_this_window">Buksan ang link dito</string>
   <string name="open_link_in_new_window">Buksan ang link sa bagong window</string>
   <string name="open_link_in_special_window">Buksan ang link sa espesyal na window</string>
-  <!--Bookmarks-->
+
+    <!-- Bookmarks -->
   <string name="bookmarks_and_mynotes_title">Mga Bookmark at Aking Mga Tala</string>
   <string name="migrated_my_notes">Na-migrate ang Aking Mga Tala</string>
   <string name="bookmarks">Mga Bookmark</string>
-  <!--Bookmark / note labels-->
+    <!-- Bookmark / note labels -->
   <string name="labels">Mga Label</string>
   <string name="manage_labels">Pamahalaan ang mga Label</string>
   <string name="assign_labels">Magtalaga ng mga label</string>
@@ -362,7 +423,7 @@
   <string name="auto_assign_labels">Awtomatikong-italaga at Mga Paboritong Label</string>
   <string name="auto_assign_labels1">Awtomatikong italaga ang label sa mga bagong bookmark</string>
   <string name="auto_assign_labels_primary">Awtomatikong italaga bilang pangunahin</string>
-  <!--can be removed-->
+  <!-- can be removed -->
   <string name="marker_style">Ipakita lamang ang marker para sa mga selection bookmark</string>
   <string name="marker_style_whole_verse">Ipakita lamang ang marker para sa mga buong talatang bookmark</string>
   <string name="hide_style">Itago para sa mga selection bookmark</string>
@@ -371,35 +432,39 @@
   <string name="bookmark_warning2">Kung nagbago ang istraktura ng dokumento, ang pag-update ng dokumentong ito ay maaaring magpagalaw ng mga lokasyon ng mga bookmark/tala sa loob ng dokumento o mawala nang tuluyan.</string>
   <string name="bookmark_warning3">Gusto mo pa ring i-update ang module?</string>
   <string name="bookmark_warning4">Inirerekomenda na i-backup ang module bago i-update.</string>
-  <!--Sort orders used for Bookmarks and MyNotes-->
+    <!--  Sort orders used for Bookmarks and MyNotes -->
   <string name="sort_by_date">Pagkakasunud-sunod ng petsa</string>
   <string name="sort_by_bible_book">Pagkakasunud-sunod ng Bibliya</string>
   <string name="sort_by_alphabetical">Pagkakasunud-sunod ng alpabeto</string>
-  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
   <string name="filter_by_notes">Maghanap ng mga tala</string>
-  <!--Dictionary-->
+
+    <!-- Dictionary -->
   <string name="dictionary">Diksyonaryo</string>
   <string name="search_dictionary_hint">Maghanap sa diksyonaryo</string>
-  <!--General Book-->
+
+    <!-- General Book -->
   <string name="general_book">Aklat</string>
-  <!--Speak-->
-  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
-  <!--Speak - Bible-->
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
   <string name="one_chapter">%d kabanata</string>
   <string name="some_chapters">%d na kabanata</string>
-  <!--Speak - Commentary-->
+    <!-- Speak - Commentary -->
   <string name="one_verse">%d talata</string>
   <string name="some_verses">%d mga talata</string>
-  <!--Speak - Dictionary and other-->
+    <!-- Speak - Dictionary and other -->
   <string name="one_page">%d pahina</string>
   <string name="some_pages">%d mga pahina</string>
-  <!--Speak - Common-->
+    <!-- Speak - Common -->
   <string name="stop">Itigil</string>
   <string name="pause">I-pause</string>
   <string name="rewind">I-rewind</string>
   <string name="forward">I-forward</string>
   <string name="tts_lang_not_available">Hindi available ang wika.</string>
-  <!--Speak - Bible-->
+
+    <!-- Speak - Bible -->
   <string name="speak_speed_title">Bilis ng pagsasalita</string>
   <string name="speak_and_play_earcons_title">Magsalita at mag-play ng earcon sounds para sa</string>
   <string name="playback_settings_title">Mga Setting ng Playback</string>
@@ -408,14 +473,17 @@
   <string name="speak_bookmarks_menu_title">Magsalita mula sa bookmark</string>
   <string name="speak_advanced_settings">Mga Advanced na Setting</string>
   <string name="speak_sleep_timer_title">Sleep timer</string>
+
   <string name="speak_no_books_available">Walang available na aklat para basahin</string>
   <string name="speak_general_error">Hindi masimulan ang pagsasalita para sa aklat na ito</string>
+
   <string name="repeat_passage">Ulitin ang talata</string>
   <string name="set_repeat_passage_range">Itakda ang saklaw ng uulitin na talata</string>
   <string name="speak_beginning_of_passage">Piliin ang simula ng talata</string>
   <string name="speak_ending_of_passage">Piliin ang katapusan ng talata</string>
   <string name="speak_verse_range_to_repeat">Piliin ang hanay ng talata na uulitin</string>
   <string name="speak_ending_verse_must_be_later">Ang panghuling talata ay dapat na mas huli kaysa sa unang talata</string>
+
   <string name="conf_speak_synchronize">Sumusunod ang teksto sa pagsasalita</string>
   <string name="conf_speak_auto_bookmark">Awtomatikong bookmarking</string>
   <string name="conf_save_playback_settings_to_bookmarks">I-save ang mga setting ng playback sa mga bookmark</string>
@@ -424,10 +492,12 @@
   <string name="conf_change_title">Mga Pamagat</string>
   <string name="conf_speak_footnotes">Mga Talababa</string>
   <string name="conf_speak_sleep_timer">Itakda ang sleep timer</string>
+
   <string name="sleep_timer_title">Oras ng tulog sa minuto</string>
   <string name="sleep_timer_set">Itakda ang sleep timer. Itinakdang timer: %d minuto</string>
   <string name="sleep_timer_started">Nagsimula ang sleep timer, %d minuto</string>
   <string name="sleep_timer_active_at">Sleep timer: %s minuto na natitira.</string>
+
   <string name="speak_next">Susunod</string>
   <string name="speak_previous">Nakaraan</string>
   <string name="widget_toggle_sleep_timer">I-toggle ang sleep timer</string>
@@ -435,47 +505,59 @@
   <string name="speak_status_stopped">natigil</string>
   <string name="speak_autobookmarking_disabled">Naka-disable ang autobookmarking!</string>
   <string name="system_speak_settings">Buksan ang mga setting ng TTS ng sistema</string>
+
   <string name="auto_assing_labels_help1">Dito maaari mong ayusin kung aling mga label ang awtomatikong itinatakda sa mga bookmark na iyong nilikha.</string>
-  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
   <string name="setting_scope">Ang setting na ito ay nalalapat sa %s.</string>
   <string name="setting_scope_window">ang window na ito</string>
   <string name="setting_scope_workspace">ang workspace na ito</string>
+
   <string name="assing_labels_help1">Ang bawat bookmark ay maaaring magkaroon ng maraming label.</string>
-  <!--param is bookmark icon-->
+    <!-- param is bookmark icon -->
   <string name="assing_labels_help2">Gamitin ang %s upang tukuyin kung aling kulay ng label ang ipinakita.</string>
-  <!--param is auto-assign label icon-->
+    <!-- param is auto-assign label icon -->
   <string name="assing_labels_help3">I-tap ang icon na %s upang ang label na iyon ay awtomatikong italaga sa mga bagong bookmark.</string>
-  <!--param is heart icon-->
+    <!-- param is heart icon -->
   <string name="assing_labels_help4">I-tap ang %s upang idagdag ang label sa iyong listahan ng mga paborito para sa mabilis na access.</string>
-  <!--param is refresh icon-->
+
+    <!-- param is refresh icon -->
   <string name="assing_labels_help5">I-tap ang %s upang muling ayusin ang listahan batay sa iyong mga pinili.</string>
+
   <string name="global_text_options_help_title">Mga pandaigdigang opsyon sa teksto</string>
   <string name="global_text_options_help1">Ito ang mga pandaigdigang default na setting para sa lahat ng workspace. Ang bawat workspace ay maaaring mag-override ng mga ito gamit ang sarili nitong mga setting.</string>
+
   <string name="workspace_text_options_help_title">Mga opsyon sa teksto ng workspace</string>
   <string name="workspace_text_options_help1">Tinutukoy ng mga setting na ito ang default para sa lahat ng window ng workspace. Ang mga setting na minana mula sa mga pandaigdigang default ay ipinahiwatig nang naaangkop.</string>
   <string name="workspace_text_options_help2">Maaari mong i-override ang mga ito sa pamamagitan ng pagbabago ng mga indibidwal na setting ng window.</string>
+
   <string name="window_text_options_help_title">Mga opsyon sa teksto ng window</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">Ang icon na %s ay nagpapahiwatig na ang setting ay nagmumula sa mga setting ng workspace.</string>
-  <!--Parameter is actual icon-->
-  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+    <!-- Parameter is actual icon -->
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Gamitin ang button na %1$s upang i-reset ang lahat ng setting na ito pabalik sa %2$s.</string>
   <string name="reset_defaults">mga default na halaga</string>
   <string name="reset_workspace_defaults">mga default na halaga ng workspace</string>
+
+
   <string name="speak_help_auto_bookmark">Ang isang Speak bookmark ay awtomatikong idadagdag kapag naka-pause o natigil ang Speak. Ang mga awtomatikong nabuong bookmark ay may label na espesyal na Speak label. Kung magsisimula ka sa isang Speak bookmark, ang bookmark ay ilililipat sa talata na titigil o ipa-pause mo sa susunod na pagkakataon. Ang mga Speak label lamang ang ilililipat, ang iba pang mga label ay mananatiling hindi nagbabago.</string>
   <string name="speak_help_playback_settings">Ang mga espesyal na setting ng playback (sa ilalim ng \"Mga Setting ng Playback\" sa screen ng Speak) ay sine-save sa mga Speak bookmark kapag napili ang setting na ito. Kapag muling sinimulan ang pagsasalita mula sa isang Speak bookmark, ang mga naka-save na setting ng playback ay ikine-load mula sa bookmark.</string>
   <string name="speak_help_playback_settings_example">Halimbawa, kung nakikinig ka sa Genesis at Romans at nais mong marinig ang Genesis na mabilis na binabasa nang walang mga abiso sa pagbabago ng kabanata, ngunit ang Romans nang mas mabagal na may audible na earcon sounds sa mga pagbabago ng kabanata, maaari kang magkaroon ng iba\'t ibang setting ng playback para sa mga aklat na ito, kapag ang mga setting na ito ay sine-save sa mga kaukulang bookmark.</string>
-  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
+         in speak settings. -->
+
   <string name="speak_book_changed">Nagbago ang aklat.</string>
   <string name="speak_chapter_changed">Kabanata</string>
   <string name="speak_first">Una</string>
@@ -483,10 +565,13 @@
   <string name="speak_third">Ikatlo</string>
   <string name="speak_fourth">Ikaapat</string>
   <string name="speak_fifth">Ikalima</string>
+
   <string name="verse_range_mode_disabled">Awtomatikong na-disable ang mode ng pag-ulit ng talata dahil ang pagsasalita ay nagsimula sa labas ng tinukoy na hanay ng talata.</string>
-  <!--User Notes-->
+
+    <!-- User Notes -->
   <string name="mynotes">Aking Mga Tala</string>
-  <!--Backup and restore-->
+
+    <!-- Backup and restore -->
   <string name="backup_backup_title">I-backup saan?</string>
   <string name="backup_backup_message">I-backup sa telepono o sa ibang lugar sa pamamagitan ng function na I-share (email, Google Drive, atbp.)?</string>
   <string name="backup_phone_storage">Storage ng telepono</string>
@@ -501,11 +586,13 @@
   <string name="backup_document_info">Mga Bibliya, komentaryo, diksyonaryo, mapa, atbp.</string>
   <string name="backup_to">I-backup sa…</string>
   <string name="backup_restore_from">I-restore mula sa…</string>
-  <!--Restore = overwrite existing. Import = merge into existing-->
+    <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">I-restore o Mag-import mula sa…</string>
   <string name="backup_restore2">I-restore o Mag-import</string>
   <string name="overwrite_something">I-overwrite ang %s?</string>
-  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
+
   <string name="restore_database">I-restore ang File ng Database</string>
   <string name="restore_confirmation">I-overwrite ang Aking Mga Tala, Mga Bookmark, Mga Study Pad, Mga Plano sa Pagbabasa, at Mga Workspace?</string>
   <string name="restore_success">Matagumpay na na-restore ang Aking Mga Tala, Mga Bookmark, Mga Study Pad, Mga Plano sa Pagbabasa, at Mga Workspace</string>
@@ -513,10 +600,13 @@
   <string name="loading_backup">Nilo-load ang database mula sa backup…</string>
   <string name="backup_success2">Matagumpay na na-backup ang Aking Mga Tala, Mga Bookmark, Mga Study Pad, Mga Plano sa Pagbabasa, at Mga Workspace.</string>
   <string name="backup_modules_success">Matagumpay na na-backup ang mga napiling module.</string>
+
   <string name="backup_modules_email_subject_2">%s backup ng mga module</string>
   <string name="backup_modules_email_message_2">Naka-attach ang iyong backup ng mga module na %1$s, na naglalaman ng mga sumusunod na module: %2$s</string>
+
   <string name="backup_email_subject_2">%s backup ng database</string>
   <string name="backup_email_message_2">Naka-attach ang iyong database ng %s na naglalaman ng mga bookmark, tala, plano sa pagbabasa, at workspace</string>
+
   <string name="exported_studypads_subject">Na-export na Mga StudyPad</string>
   <string name="exported_studypads_message">Naka-attach ang iyong database ng %s na naglalaman ng Mga Bookmark at Tala na may kaugnayan sa mga napiling StudyPad</string>
   <string name="restore_unsuccessfull">Hindi matagumpay ang pag-restore ng database. Marahil ay nagbigay ka ng di-wastong file ng database.</string>
@@ -526,18 +616,22 @@
   <string name="ask_restore_or_import">Ang database para sa %s ay maaaring i-restore (ibig sabihin, tinanggal ang kasalukuyang database at ikine-load ang napiling database) o mai-import (ini-import ang napiling database sa kasalukuyang database). Ano ang nais mong gawin?</string>
   <string name="restore">I-restore</string>
   <string name="import2">Mag-import</string>
-  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" at %2$s iba pang Label/StudyPad at %3$s Mga Bookmark</string>
-  <!--About-->
+
+    <!-- About -->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Naka-install na bersyon: %1$s (%2$s)</string>
   <string name="module_about_latest_version">Pinakabagong bersyon: %1$s (%2$s)</string>
   <string name="module_about_versification">Versification: %s</string>
   <string name="module_about_repository">Server ng distribusyon: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
-  <!--Bug reporting-->
+
+    <!-- Bug reporting -->
   <string name="send_bug_report_title">Feedback / ulat ng bug</string>
   <string name="report_bug_email_subject_3">[%1$s] Ulat ng bug para sa %2$s %3$s</string>
+
   <string name="report_bug_big_heading">PAKISULAT ANG IYONG FEEDBACK O ULAT NG BUG SA ITAAS NG LINYANG ITO</string>
   <string name="report_bug_heading1">Mga Tagubilin:</string>
   <string name="report_bug_line_1">Ipaliwanag nang maigsi kung ano ang iyong ginawa / kung ano ang nangyari nang lumitaw ang problema.</string>
@@ -553,7 +647,8 @@
   <string name="bug_report_screenshot">Screenshot ng app nang mag-crash, o nang gumawa ng ulat ng bug.</string>
   <string name="bug_report_attachment_line_1">Ang pagkakaroon ng mga file na ito na nakalakip ay malaki ang naitutulong sa mga developer ng app sa pag-aayos ng iniulat na bug.</string>
   <string name="report_bug_heading_4">Impormasyon ng device:</string>
-  <!--Document types-->
+
+    <!-- Document types -->
   <string name="doc_type_all">Lahat ng uri</string>
   <string name="doc_type_bible">Bibliya</string>
   <string name="doc_type_commentary">Komentaryo</string>
@@ -561,9 +656,11 @@
   <string name="doc_type_book">Aklat</string>
   <string name="doc_type_map">Mapa</string>
   <string name="doc_type_addons">Mga Add-on</string>
-  <!--Languages-->
+
+    <!-- Languages -->
   <string name="lang_default">Default</string>
-  <!--General-->
+
+    <!-- General -->
   <string name="okay">OK</string>
   <string name="cancel">Kanselahin</string>
   <string name="discard_changes_confirmation">Itapon ang mga hindi nai-save na pagbabago?</string>
@@ -575,7 +672,8 @@
   <string name="reset_generic">I-reset</string>
   <string name="watch_tutorial_video">Panoorin ang tutorial video (Ingles)</string>
   <string name="verse_not_found">Hindi nahanap ang talata</string>
-  <!--Errors-->
+
+    <!-- Errors -->
   <string name="report_error">Magpadala ng Ulat</string>
   <string name="error_occurred">May naganap na error</string>
   <string name="error_occurred_crash_last_time">Nang huling gamitin mo ang application, nag-crash ito. Para matulungan kami sa pag-aayos ng bug, magpapasalamat kami kung magpapadala ka ng ulat ng bug.</string>
@@ -588,10 +686,12 @@
   <string name="error_skip">Laktawan</string>
   <string name="bug_report_email_title">Magpadala ng ulat ng bug sa pamamagitan ng email</string>
   <string name="bug_report_email_text">Susunod, mangyaring piliin ang iyong gustong email application (tulad ng Gmail) para ipadala ang ulat sa team ng developer.</string>
-  <!--Notifications-->
+
+    <!-- Notifications -->
   <string name="notification_channel_tts_status">Text to speech</string>
   <string name="notification_channel_progress_status">Notification ng status ng pag-unlad para sa mga pag-download ng dokumento atbp.</string>
-  <!--Workspaces-->
+
+    <!-- Workspaces -->
   <string name="switch_to_workspace">Mga Workspace</string>
   <string name="delete_workspace">Alisin</string>
   <string name="new_copied_workspace">Kopyahin bilang bago</string>
@@ -611,23 +711,29 @@
   <string name="search_settings">Hanapin ang mga setting</string>
   <string name="dismiss">Isara</string>
   <string name="workspace_listing_with_current">%s (kasalukuyan)</string>
-  <!--Beta notice-->
+
+    <!-- Beta notice -->
   <string name="beta_notice_title">Ito ay beta version!</string>
   <string name="beta_notice_content_1">Sa beta version, may mga bagong feature na hindi pa maayos na nasubok, at kaya ang paggamit ng beta ay maaaring magdulot ng hindi inaasahang gawi, i.e. mga bug. Inirerekomenda na ang mga ordinaryong mambabasa ng Bibliya ay gumamit ng stable version sa halip.</string>
+
   <string name="beta_notice_content_2">Ang mga beta user ay hinihikayat na mag-ulat ng mga bug sa pamamagitan ng Google Play o (mas mabuti pa) sa pamamagitan ng %s.</string>
   <string name="beta_notice_content_3">Kung ikaw ay programmer, pakiisaalang-alang ang pag-aambag ng mga pag-aayos ng bug sa pamamagitan ng %s mismo. :-)</string>
   <string name="beta_notice_github_issues">Mga Github issue</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Isara hanggang sa susunod na update</string>
+
   <string name="stable_notice_title">Na-upgrade na ang application!</string>
   <string name="upgrade_video_message">Pakitingnan ang video na nagtatampok ng mga bagong feature ng release na ito (%s).</string>
   <string name="stable_notice_par1">Matagumpay na na-install ang bagong bersyon %1$s ng %2$s!</string>
+
   <string name="new_sync_targets_notice_title">Available na ang mga bagong setting ng pag-sync</string>
   <string name="new_sync_targets_notice_message">Ang bersyong ito ng AndBible ay nagdaragdag ng mga karagdagang target ng pag-sync: Aking mga Dokumento, mga setting ng AI, at progreso sa pagbabasa. Kung nais mong paganahin ang mga ito, maaari mong gawin sa mga setting ng Device Synchronization.</string>
   <string name="open_settings">Buksan ang mga setting</string>
-  <!--History-->
+
+    <!-- History -->
   <string name="history_for">Kasaysayan (%1$s: Window %2$d)</string>
-  <!--Help-->
+
+    <!-- Help -->
   <string name="help_nav_title">Nabigasyon</string>
   <string name="help_nav_text">Pumunta sa susunod o nakaraang kabanata sa pamamagitan ng pag-swipe sa screen gamit ang iyong daliri. Mag-double-tap sa teksto ng Bibliya para i-toggle ang full screen mode. Ang mga split screen (tinatawag din na mga window) ay may menu button sa kanilang kanang sulok sa itaas, na nagbibigay-daan sa iyo na gumamit ng ilang function na tukoy sa window at i-customize ang hitsura at gawi ng window.</string>
   <string name="help_contextmenus_title">Mga Context Menu</string>
@@ -635,8 +741,9 @@
   <string name="help_bookmarks_title">Mga Bookmark at Aking Mga Tala</string>
   <string name="help_bookmarks_text">Maaaring gumawa ng mga bookmark sa pamamagitan ng pagpili ng ilang teksto at pagpili ng \"Bookmark\" mula sa popup menu. Maaari kang magdagdag ng iyong mga custom na tala sa bagong bookmark sa pamamagitan ng pag-tap sa ngayon na naka-highlight na teksto sa Bible view. Mayroon ding espesyal na dokumento na \"Aking Mga Tala\" sa mga komentaryo na nagbibigay-daan sa iyo na tingnan ang iyong mga tala sa isang hiwalay na window.</string>
   <string name="help_studypads_text">Ang mga study pad ay dinisenyo para gawing madali ang pagsulat ng mga sermon notes, paghahanda ng mga sermon o simpleng pagsulat ng personal na mga tala ng pag-aaral ng Bibliya na may maraming sanggunian sa Bibliya. Ang bawat study pad ay nauugnay sa isang bookmark label. Ang lahat ng Bookmark na nagawa gamit ang kaukulang label ay awtomatikong lumalabas sa dokumento ng study pad. Bukod sa mga bookmark, maaaring magkaroon ng mga custom na text entry sa isang study pad.</string>
+
   <string name="help_search_title">Paghahanap</string>
-  <!--TODO: to be removed-->
+    <!-- TODO: to be removed -->
   <string name="help_search_text2">Ang teksto ng paghahanap ay maaaring magsama ng mga espesyal na karakter tulad ng *, AND, OR, NOT</string>
   <string name="help_search_details">Pakitingnan ang %s para sa higit pang detalye.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -647,14 +754,15 @@
   <string name="help_hidden_features_text">Mag-swipe pababa mula sa toolbar para ipakita ang workspace selector. Matagal na pindutin ang window button para mabilis na i-minimize. Matagal na pindutin ang speak toolbar button para mabilis na pumunta sa mga setting ng pagsasalita. Matagal na pindutin ang pamagat ng lokasyon ng talata sa toolbar para lumukso sa document selector. Matagal na pindutin ang Back button para ma-access ang listahan ng Kasaysayan.</string>
   <string name="help_window_pinning_title">Pag-pin ng window</string>
   <string name="help_window_pinning_text">Maaari mong paganahin ang pag-pin ng window mula sa options menu (tatlong tuldok, kanang sulok sa itaas). Kung pinagana ang pag-pin ng window, maaari kang magpakita ng maraming naka-pin na window sa Bible view, ngunit isang hindi naka-pin na window lamang. Ang mga naka-pin na window ay unang ipinapakita, at pagkatapos ay ang mga hindi naka-pin na window. Maaaring gusto mong buksan ang mga dokumento ng Bibliya bilang mga naka-pin na window, at mga komentaryo at mapa atbp. bilang mga hindi naka-pin na window. Pagkatapos ay madali mong maaaring palaging buksan ang mga dokumento ng Bibliya, at mabilis na lumipat sa pagitan ng mga komentaryo at iba pang dagdag na materyal habang nag-aaral ng Bibliya.</string>
-  <!--Welcome text-->
+
+    <!-- Welcome text -->
   <string name="redownload_documents">Mabilis na I-redownload</string>
   <string name="welcome_message">Salamat sa pag-download ng %s. Kasalukuyang walang mga Bibliya o dokumento na naka-install. Para magpatuloy, mangyaring mag-install ng hindi bababa sa 1 dokumento sa pamamagitan ng pag-download mula sa internet, o sa pamamagitan ng pag-load mula sa isang zip file na backup ng dokumento.</string>
-  <!--Supported file formats for documents-->
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- Supported file formats for documents -->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Kailangan mong piliin ang file na gusto mong i-load sa %s.</string>
   <string name="supported_formats">Mga sinusuportahang format para sa pag-load ng mga dokumento mula sa isang file: %s</string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="format_zip">Zip file na naglalaman ng Sword module(s), o backup file ng mga dokumento (*.abmd) na ginawa ng %s</string>
   <string name="format_mysword">Mga dokumento ng MySword (*.mybible)</string>
   <string name="format_mybible">Mga dokumento ng MyBible (*.SQLite3)</string>
@@ -664,12 +772,15 @@
   <string name="format_csv_prompts">Mga AI prompt add-on (*.csv)</string>
   <string name="format_studypads">Mga StudyPad mula sa mga database ng AndBible (*.abdb)</string>
   <string name="redownload_message">Nahanap ang listahan ng mga nakaraang aklat/dokumento. Mag-click sa ibaba para madaling i-download muli ang mga ito.</string>
-  <!--Uncategorized-->
+
+    <!-- Uncategorized -->
   <string name="close">Isara</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Naiintindihan ko</string>
   <string name="first_time_help_show_next_time">Ipakita muli sa susunod na pagkakataon</string>
+
   <string name="strongs_mode_title">Pumili ng Strong\'s mode</string>
+
   <string name="download_dialog_message">Hindi ma-download ang mga sumusunod na aklat:</string>
   <string name="journal_description">Mga study pad na maaaring i-edit ng user na may custom na teksto at mga bookmark</string>
   <string name="my_notes_description">Mga tala na maaaring i-edit ng user na nakalakip sa mga bookmark</string>
@@ -689,6 +800,7 @@
   <string name="unlock_info">Impormasyon sa pag-unlock ng naka-encrypt na module</string>
   <string name="try_again_passphrase">Hindi gumana ang passphrase, subukan muli?</string>
   <string name="show_unlock_info">Module at impormasyon sa pag-unlock</string>
+
   <string name="prefs_experimental_features_title">Mga experimental na feature</string>
   <string name="prefs_experimental_features_summary">Pumili kung aling mga experimental na feature ang ibibigay-daan. Ang mga feature na ito ay nasa pag-unlad pa at maaaring magbago o maalis</string>
   <string name="experimental_feature_bookmark_edit_actions">Mga aksyon sa pag-edit ng bookmark</string>
@@ -719,6 +831,7 @@
   <string name="active_window_indicator_title">Ipakita ang indicator ng aktibong window</string>
   <string name="active_window_indicator_summary">I-highlight ang mga sulok ng window para matukoy kung aling window ang aktibo</string>
   <string name="app_licence_title">Lisensya ng Open Source</string>
+
   <string name="how_to_contribute">Paano makakatulong?</string>
   <string name="confirm_delete_bookmarks">Gusto mo bang alisin ang %d na bookmark at ang kanilang mga tala?</string>
   <string name="confirm_delete_orphaned_bookmarks">Ang napiling label ay nakakabit sa %d na bookmark na walang ibang label. Gusto mo bang tanggalin ang mga bookmark na ito kasama ang mga label?</string>
@@ -742,14 +855,15 @@
   <string name="show_reference_at_front">Ipakita sa harap ng talata</string>
   <string name="abbreviate_reference">Paikliin ang sanggunian</string>
   <string name="version_name">Pangalan ng bersyon</string>
-  <!--meaning, bible version name-->
+    <!-- meaning, bible version name -->
   <string name="show_version_name">Isama ang pangalan ng bersyon</string>
   <string name="show_ellipsis">Ipakita ang ellipsis (…)</string>
   <string name="show_quotes">Ipakita ang mga panipi</string>
   <string name="separate_verses_with_newlines">Paghiwalayin ang mga talata ng mga bagong linya</string>
+
   <string name="initializing_app">Sinisimulan ang application…</string>
   <string name="show_notes">Ipakita ang mga tala</string>
-  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
   <string name="old_webview">Ang Android WebView package ay masyadong luma (%1$s). Kailangan mong i-upgrade ang iyong Android WebView package sa kahit bersyon %2$s para magamit ang %3$s. Para sa karamihan ng mga device maaari itong gawin sa pamamagitan ng %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Magpatuloy naman</string>
@@ -757,11 +871,12 @@
   <string name="rate_title">Pagbibigay ng rating at pagsusuri ng app</string>
   <string name="rate_message5">\n Ang mga positibo at detalyadong pagsusuri ay napakatulong sa AndBible Open Source Project. Maraming salamat!\n</string>
   <string name="rate_message6">\n Bago magsulat ng negatibong pagsusuri, pakiisaalang-alang ang sumusunod:\n</string>
-  <!--parameters are actions (file a bug, send email)-->
+
+    <!-- parameters are actions (file a bug, send email) -->
   <string name="rate_message1">\n Kung mayroon kang problema sa app, mangyaring %1$s o %2$s sa halip.\n</string>
-  <!--param is "please report maintainers"-->
+    <!-- param is "please report maintainers" -->
   <string name="rate_message2">\n Kung may isyu ang ilang teksto / pagsalin ng Bibliya, %s.\n</string>
-  <!--param is "please read what you can do"-->
+    <!-- param is "please read what you can do" -->
   <string name="rate_message3">\n Kung ang partikular na teksto ay hindi available sa application, %s.\n</string>
   <string name="rate_message4">\n Ang mga developer ng app na ito ay hindi responsable sa pagpapanatili ng mga dokumento.\n</string>
   <string name="bug_report">\n magpadala ng bug report (mula sa Pangunahing Menu)\n</string>
@@ -835,33 +950,36 @@
   <string name="export_something">I-export ang %s</string>
   <string name="import_items">Mag-import ng %s</string>
   <string name="import_error">Nabigo ang pag-import mula sa App Database. Maaaring mali ang format ng database file o ginawa gamit ang masyadong lumang bersyon ng %s.</string>
+
   <string name="export_bookmarks_csv">I-export ang Mga Bookmark bilang %s</string>
-  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
   <string name="osis_reference">OSIS Reference</string>
-  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
   <string name="bible_reference">Sanggunian sa Bibliya</string>
   <string name="document">Dokumento</string>
   <string name="book">Aklat</string>
-  <!--Chapter is the chapter number in the book, starting from 1-->
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
   <string name="chapter_start">Simula ng Kabanata</string>
-  <!--Verse is the verse number in the chapter, starting from 1-->
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
   <string name="verse_start">Simula ng Talata</string>
   <string name="chapter_end">Katapusan ng Kabanata</string>
   <string name="verse_end">Katapusan ng Talata</string>
   <string name="id">Identifier</string>
-  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
   <string name="ordinal_start">Simula ng Ordinal</string>
   <string name="ordinal_end">Katapusan ng Ordinal</string>
   <string name="created_at">Nilikha Noong</string>
-  <!--Offsets are used to indicate from which character a bookmark starts.-->
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
   <string name="start_offset">Simula ng Offset</string>
   <string name="end_offset">Katapusan ng Offset</string>
   <string name="custom_icon">Custom na Icon</string>
   <string name="last_updated_at">Huling na-update noong</string>
   <string name="bookmark_notes">Mga tala ng bookmark</string>
-  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Humihingi kami ng paumanhin, ngunit mayroon lamang kaming bahagyang pagsasalin ng interface ng gumagamit sa wikang %1$s. Ito ay dahil ang %2$s ay ganap na pinaglilingkuran ng mga boluntaryo. Kung maaari kang tumulong sa pagsasalin, pakitingnan ang %3$s.</string>
-  <!--will be added to incomplete_translation as a link-->
+    <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">mga tagubilin para sa mga tagasalin</string>
   <string name="questions_title">Mga Katanungan?</string>
   <string name="bookmark_style">Estilo ng bookmark</string>
@@ -870,6 +988,7 @@
   <string name="strongs_text_and_links">Teksto at Mga Link</string>
   <string name="strongs_hidden_links">Mga Nakatagong Link</string>
   <string name="verse_tip">Para pumili ng bahagyang o maraming talata, maaari kang mag-long-press sa teksto ng Bibliya</string>
+
   <string name="permission_required">Kailangan ng pahintulot</string>
   <string name="labels_search_hint">Hanapin</string>
   <string name="search_mode_name_start">Pangalan (mula sa simula)</string>
@@ -878,7 +997,8 @@
   <string name="search_results_matches">%d mga tugma</string>
   <string name="search_results_match">1 tugma</string>
   <string name="progress_status_permission">Para ipakita ang mga notification (katayuan ng download, pagpoproseso, katayuan ng pagsasalita), kailangan namin ang iyong pahintulot.</string>
-  <!--Discrete mode settings-->
+
+    <!-- Discrete mode settings -->
   <string name="app_name_calculator">Simpleng Calculator</string>
   <string name="prefs_persecution_cat">Mga setting para sa mga pinersekuto</string>
   <string name="prefs_discrete_mode">Itago ang mga relihiyosong simbolo</string>
@@ -887,24 +1007,27 @@
   <string name="prefs_calculator_pin">PIN ng Calculator</string>
   <string name="prefs_calculator_pin_desc">PIN code para pumasok sa app kapag ipinapakita ang calculator.</string>
   <string name="calc_division_by_zero">Hindi pinapayagan ang paghahati sa zero</string>
-  <!--Context: calculator. Wrong number format etc.-->
+    <!-- Context: calculator. Wrong number format etc. -->
   <string name="calc_wrong_format">Maling Format</string>
   <string name="calc_wrong_format_operand">Maling Format. Operand na walang anumang numero?</string>
   <string name="prefs_persecuted_help">Basahin ito muna!</string>
-  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
   <string name="prefs_persecuted_summary">Mga tagubilin para sa mga setting at impormasyon tungkol sa partikular na discrete build.</string>
+
   <string name="calculator_par1">Bago pumasok sa app, ipinapakita ang screen ng calculator.</string>
   <string name="calculator_par2">Dito, maaari kang gumawa ng karaniwang kalkulasyon, at kapag nais mong pumasok sa app, i-type lamang ang iyong PIN code (default ay 1234) at pagkatapos pindutin ang \"=\" na button.</string>
   <string name="calculator_par3">Maaari kang magtakda ng custom na PIN code sa pamamagitan ng setting na \"Calculator PIN\".</string>
   <string name="discrete_mode_info_par1">Gumagamit ka ng karaniwang bersyon ng aplikasyon, na nangangahulugang posible pa ring makita ang tunay na pangalan at icon ng aplikasyon sa impormasyon ng app.</string>
   <string name="discrete_mode_info_par2">Para sa pinahusay na seguridad sa persekutadong kapaligiran, lubos naming inirerekomenda ang paggamit ng discrete na bersyon ng app, na palaging nagpapakita ng calculator, kahit na nabura ang data ng app.</string>
   <string name="discrete_mode_link">Maaari kang mag-download ng pinakabagong bersyon ng discrete na bersyon mula sa %s.</string>
-  <!--Window synchronize groups-->
+
+    <!-- Window synchronize groups -->
   <string name="sync_group_n">Grupo %d</string>
   <string name="disable_sync">Huwag paganahin ang pag-synchronize</string>
   <string name="open_in_window">Buksan ang mga resulta sa isang window</string>
-  <!--Custom repositories-->
-  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
   <string name="custom_repositories">Mga custom na repository</string>
   <string name="custom_repositories_empty_list_message">Walang mga tinukoy na custom na repository</string>
   <string name="custom_repositories_create_button_label">Magdagdag ng Custom na Repository</string>
@@ -916,14 +1039,17 @@
   <string name="wiki_page">Pahina ng WIKI</string>
   <string name="custom_repositories_help0">Maaari kang mag-install ng mga dokumento mula sa panlabas na custom na mga repository sa pamamagitan ng pag-install ng mga custom na repository.</string>
   <string name="duplicate_custom_repository">Mayroon nang repository na may pangalang %s, hindi maaaring magdagdag ng isa pa.</string>
+
   <string name="packages_dir">Direktoryo ng mga pakete (Mga Zip file)</string>
   <string name="warn_bad_document">Babala: Ang dokumentong ito ay maaaring (kahit bahagyang) ay may masamang kalidad na teknikal.</string>
-  <!--Open links in AndBible (Deep linking)-->
+
+    <!-- Open links in AndBible (Deep linking) -->
   <string name="open_bible_links_title">Buksan ang mga link ng Bibliya sa AndBible</string>
   <string name="open_bible_links_summary">Kapag na-click ang mga link na tumutukoy sa URL ng Bibliya na sinusuportahan ng AndBible, buksan ang mga ito sa AndBible</string>
   <string name="copyReference">Kopyahin ang link sa clipboard</string>
   <string name="reference_copied_to_clipboard">Nakopya ang sanggunian sa clipboard</string>
-  <!--Device cloud synchronization-->
+
+    <!-- Device cloud synchronization -->
   <string name="prefs_sync_introduction_summary1">Piliin kung aling cloud service ang nais mong gamitin para i-synchronize ang maraming device.</string>
   <string name="prefs_sync_introduction_summary2">Kapag gumagamit ng Google Drive, ang %s ay binibigyan ng access lamang sa mga file ng application, hindi sa mga personal na file.</string>
   <string name="restore_backup_sections">Aling mga seksyon ng backup ang nais mong i-restore?</string>
@@ -939,7 +1065,8 @@
   <string name="ai_settings_sync_contents">Mga AI prompt at mga configuration ng provider</string>
   <string name="progress_sync_title">Pag-unlad sa Pagbabasa</string>
   <string name="progress_sync_contents">Mga nasamang talata at mga rekord ng pagbabasa ng kabanata</string>
-  <!--Reading Progress Activity-->
+
+    <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Pag-unlad sa Pagbabasa/Pagsasaulo</string>
   <string name="reading_progress_chapters_read">mga kabanatang nabasa</string>
   <string name="reading_progress_active_days">mga aktibong araw</string>
@@ -953,6 +1080,7 @@
   <string name="reading_progress_new_cycle_confirm">Magsimula ng bagong iklo ng pagbabasa? Magsisimula itong mag-track ng iyong pag-unlad mula sa simula, habang pinapanatili ang data ng iyong nakaraang iklo.</string>
   <string name="reading_progress_previous_cycle">Nakaraang iklo</string>
   <string name="reading_progress_next_cycle">Susunod na iklo</string>
+
   <string name="cloud_fetch_and_restore_initial">Kopyahin mula sa Cloud papunta sa device na ito</string>
   <string name="cloud_create_new">Kopyahin mula sa device na ito papunta sa Cloud</string>
   <string name="cloud_disable_sync">Kanselahin at huwag paganahin ang synchronization</string>
@@ -981,18 +1109,20 @@
   <string name="sync_disabling">Nini-disable ang synchronization para sa %s sa ngayon.</string>
   <string name="sync_update_app">Pakiayos ang app para mapatuloy ang synchronization.</string>
   <string name="sign_in_failed">Nabigo ang pag-sign in sa synchronization backend service.</string>
-  <!--... after restoring from backup file-->
+    <!--  ... after restoring from backup file -->
   <string name="disabling_sync">Dini-disable ang cloud synchronization. Kailangan mong i-enable muli nang manu-mano pagkatapos ng restore.</string>
   <string name="report">Ulat</string>
   <string name="sync_error">May naganap na error sa Cloud synchronization</string>
   <string name="error_notification_channel_name">Mga notification ng error</string>
   <string name="last_updated">Huling na-update: %s</string>
-  <!--MyBible/MySword module support-->
+
+    <!-- MyBible/MySword module support -->
   <string name="sqlite_cant_read">Hindi mabasa ang file</string>
   <string name="sqlite_invalid_file">Di-wastong module file o filename: %s</string>
   <string name="sqlite_cant_write">Hindi ma-(over)write ang file</string>
   <string name="install_failed_reason">Nabigo ang pag-install ng module dahil sa sumusunod na dahilan: %s.</string>
-  <!--Other / uncategorized-->
+
+    <!-- Other / uncategorized -->
   <string name="app_opened_elsewhere">Binuksan ang app sa ibang lugar</string>
   <string name="open_here">Buksan dito</string>
   <string name="external_link">External na link</string>
@@ -1053,7 +1183,8 @@
   <string name="memorize_calendar">Aktibidad sa Pagsasaulo</string>
   <string name="memorize_view_list">Listahan</string>
   <string name="memorize_view_overview">Pangkalahatang-tanaw</string>
-  <!--LLM Translation Settings-->
+
+    <!-- LLM Translation Settings -->
   <string name="sync_settings_shortcut_summary">I-synchronize ang datos sa pagitan ng mga device</string>
   <string name="llm_provider_custom">Custom (OpenAI compatible)</string>
   <string name="ai_behavior_category">Gawi</string>
@@ -1099,7 +1230,8 @@
   <string name="custom_system_prompt_default">Default</string>
   <string name="custom_system_prompt_custom">Custom</string>
   <string name="reset_to_default">I-reset sa default</string>
-  <!--Raw log history-->
+
+    <!-- Raw log history -->
   <string name="raw_log_history_title">Kasaysayan ng AI Log</string>
   <string name="raw_log_history_summary">Tingnan at pamahalaan ang mga nasaved na log ng AI conversation</string>
   <string name="raw_log_history_empty">Walang nasaved na log</string>
@@ -1117,6 +1249,7 @@
   <string name="raw_log_retention_summary_disabled">Hindi pinagana (itago lahat)</string>
   <string name="send_ai_bug_report_title">Mag-ulat ng AI Bug</string>
   <string name="ai_bug_report_menu">Mag-ulat ng AI bug</string>
+
   <string name="select_model_before_run_title">Pumili ng modelo</string>
   <string name="set_default_model_for_prompt">Itakda bilang default na modelo para sa prompt na ito</string>
   <string name="prompt_max_iterations">Override ng max na iterasyon</string>
@@ -1125,7 +1258,8 @@
   <string name="prompt_max_iterations_unlimited">Walang limitasyon</string>
   <string name="prompt_max_iterations_global_default">Global default (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">I-override ang global max na iterasyon para sa prompt na ito. 0 = walang limitasyon.\nKasalukuyan: %s</string>
-  <!--Prompt Manager-->
+
+    <!-- Prompt Manager -->
   <string name="manage_prompts">Pamahalaan ang Mga AI Prompt</string>
   <string name="manage_prompts_summary">Lumikha at mag-edit ng mga AI prompt</string>
   <string name="ai_settings">Mga Setting ng AI</string>
@@ -1136,7 +1270,8 @@
   <string name="ai_settings_shortcut_summary">Mga setting ng AI connection at prompt</string>
   <string name="ai_provider_tier_recommended">Inirerekomenda</string>
   <string name="ai_provider_tier_community">Iba pang provider (hindi nasubukan)</string>
-  <!--Multi-provider settings-->
+
+    <!-- Multi-provider settings -->
   <string name="ai_providers_models_category">Mga Provider at Modelo</string>
   <string name="ai_providers_category">Mga Provider</string>
   <string name="ai_providers_summary_none">Walang na-configure na provider</string>
@@ -1154,10 +1289,11 @@
   <string name="ai_provider_api_format">Format ng API</string>
   <string name="ai_provider_saved">Nai-save ang provider</string>
   <string name="ai_provider_deleted">Natanggal ang provider</string>
+
   <string name="llm_openrouter_category">Kategorya</string>
   <string name="llm_openrouter_category_all">Lahat</string>
   <string name="llm_openrouter_model">Modelo</string>
-  <!--Configured models management-->
+    <!-- Configured models management -->
   <string name="ai_models_category">Mga Modelo</string>
   <string name="add_model">Magdagdag ng modelo</string>
   <string name="edit_model_title">I-edit ang modelo</string>
@@ -1169,7 +1305,8 @@
   <string name="model_supported_badge">✓ Sinusuportahan</string>
   <string name="show_also_unsupported_models">Ipakita rin ang mga hindi sinusuportahang modelo</string>
   <string name="show_also_unsupported_providers">Ipakita rin ang mga hindi sinusuportahang provider</string>
-  <!--Easy Setup-->
+
+    <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s pasok / %2$s labas bawat Mtoken</string>
   <string name="easy_setup_free_tier">Libreng tier</string>
   <string name="unknown_error">Hindi kilalang error</string>
@@ -1186,7 +1323,8 @@
   <string name="easy_setup_gemini_desc">May libreng tier, magandang kalidad</string>
   <string name="easy_setup_anthropic_desc">Abot-kaya, napakagandang kalidad</string>
   <string name="easy_setup_openai_desc">Kilala, mapagkakatiwalaan</string>
-  <!--AI Disclaimer-->
+
+    <!-- AI Disclaimer -->
   <string name="ai_disclaimer_warning_title">Mahalaga: Basahin bago gumamit ng mga AI tool</string>
   <string name="ai_disclaimer_warning_summary">Mga panganib at responsibilidad sa paggamit ng AI</string>
   <string name="ai_disclaimer_dialog_title">Mga AI Tool — Mahalagang Impormasyon</string>
@@ -1204,6 +1342,7 @@
   <string name="ai_disclaimer_point9">Nag-icharge ang mga AI provider para sa paggamit ng API. Ang mga tinantyang gastos na ipinapakita sa AndBible ay tinatayang halaga lamang — palaging suriin ang billing ng iyong provider para sa aktwal na mga singil.</string>
   <string name="ai_disclaimer_accept_title">Tanggapin ang AI Disclaimer</string>
   <string name="ai_disclaimer_accept_button">Tinatanggap ko at buong responsibilidad ko ito</string>
+
   <string name="prompt_permission_mode">Mode ng pahintulot</string>
   <string name="prompt_permission_mode_description">Kinokontrol kung kailan kailangan ang kumpirmasyon ng gumagamit bago magsagawa ng mga write operation ang AI. Ang mga setting bawat tool sa ibaba ay maaaring mag-override nito para sa mga indibidwal na tool.</string>
   <string name="agent_permission_mode_summary">Kinokontrol kung kailan kailangan ang kumpirmasyon ng gumagamit bago ang mga write operation ng AI</string>
@@ -1286,7 +1425,8 @@
   <string name="ai_regenerate_keep_previous">Panatilihin ang nakaraang bersyon</string>
   <string name="ai_regenerate_fresh_run">Bagong pagpapatakbo (huwag pansinin ang nakaraang resulta)</string>
   <string name="ai_unknown_prompt">AI</string>
-  <!--Default prompts-->
+
+    <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">Isalin sa %s</string>
   <string name="default_prompt_translate_to_ui_language">Isalin sa wika ng interface</string>
   <string name="default_prompt_translate_to_ui_language_desc">Isinasalin ang teksto ng dokumento sa wika ng interface ng app</string>
@@ -1323,7 +1463,8 @@
   <string name="ai_restore_hidden_prompts">Ibalik ang mga nakatagong prompt</string>
   <string name="ai_prompt_hidden">Naitago ang prompt</string>
   <string name="ai_prompts_restored">Naibalik ang mga nakatagong prompt</string>
-  <!--Agent Tool Display Names-->
+
+    <!-- Agent Tool Display Names -->
   <string name="tool_create_bookmark">Gumawa ng bookmark</string>
   <string name="tool_add_bookmark_note">Magdagdag ng tala sa bookmark</string>
   <string name="tool_update_bookmark_note">I-update ang tala ng bookmark</string>
@@ -1364,11 +1505,13 @@
   <string name="tool_create_window">Gumawa ng window</string>
   <string name="tool_manage_window">Pamahalaan ang window</string>
   <string name="tool_set_window_document">Itakda ang dokumento ng window</string>
-  <!--Agent Permission Dialog-->
+
+    <!-- Agent Permission Dialog -->
   <string name="agent_permission_title">Pahintulot ng Agent</string>
   <string name="agent_permission_message">Nais gamitin ng AI assistant ang \"%1$s\":\n\n%2$s</string>
   <string name="agent_permission_message_with_action">Nais ng AI assistant na:\n\n%1$s</string>
-  <!--Tool action descriptions for permission dialog-->
+
+    <!-- Tool action descriptions for permission dialog -->
   <string name="action_create_bookmark_at">Gumawa ng bookmark sa %1$s</string>
   <string name="action_create_bookmark_at_with_extras">Gumawa ng bookmark sa %1$s (%2$s)</string>
   <string name="action_with_note">na may tala</string>
@@ -1406,7 +1549,8 @@
   <string name="permission_always_allow_confirm_title">Laging payagan?</string>
   <string name="permission_always_allow_confirm">Tiyak bang gusto mong permanenteng payagan ang \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Maaari mong i-reset ito sa Mga Setting ng AI.</string>
-  <!--Agent Tool Permission Settings-->
+
+    <!-- Agent Tool Permission Settings -->
   <string name="manage_tool_permissions_title">Mga pahintulot ng tool</string>
   <string name="manage_tool_permissions_summary">Pamahalaan ang mga override ng pahintulot bawat tool</string>
   <string name="commentary_max_response_title">Limitasyon ng laki ng tugon ng komentaryo</string>
@@ -1440,15 +1584,19 @@
   <string name="permission_option_always_allow">Laging payagan</string>
   <string name="permission_option_always_deny">Laging tanggihan</string>
   <string name="reset_all_permissions">I-reset lahat</string>
-  <!--Tool Info-->
+
+    <!-- Tool Info -->
   <string name="ai_available_tools">Mga available na tool</string>
   <string name="ai_read_tools">Mga Read Tool</string>
   <string name="ai_write_tools">Mga Write Tool</string>
-  <!--Global Tool Permissions Activity-->
+
+    <!-- Global Tool Permissions Activity -->
   <string name="global_tool_permissions_title">Mga default na setting ng tool</string>
-  <!--Per-Prompt Tool Permissions-->
+
+    <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Mga pahintulot ng tool</string>
-  <!--Tool categories-->
+
+    <!-- Tool categories -->
   <string name="tool_category_bible_search">Bibliya at Paghahanap</string>
   <string name="tool_category_bookmarks">Mga Bookmark</string>
   <string name="tool_category_labels">Mga Label</string>
@@ -1465,13 +1613,16 @@
   <string name="tool_option_default_disabled">Default (hindi pinagana)</string>
   <string name="tool_option_default_allowed">Default (pinapayagan)</string>
   <string name="tool_option_default_denied">Default (tinatanggihan)</string>
-  <!--Per-Prompt Model Override-->
+
+    <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modelo</string>
   <string name="prompt_model_default">Default</string>
-  <!--LLM One Tap Actions-->
+
+    <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Pumili ng AI Action</string>
   <string name="llm_actions">Mga AI Action</string>
-  <!--Agent Log Widget-->
+
+    <!-- Agent Log Widget -->
   <string name="agent_log_expand">Palawakin/Bawasan ang agent log</string>
   <string name="agent_log_close">Isara ang agent log</string>
   <string name="agent_log_stop">Itigil ang AI</string>
@@ -1486,7 +1637,8 @@
   <string name="agent_log_done">Tapos na: %s</string>
   <string name="agent_log_cancelled">Kinansela</string>
   <string name="agent_already_running">May AI agent na tumatakbo na. Mangyaring maghintay o itigil ito muna.</string>
-  <!--AI Agent Notifications-->
+
+    <!-- AI Agent Notifications -->
   <string name="ai_agent_notification_channel_name">AI Agent</string>
   <string name="ai_agent_notification_running">Nagtatrabaho ang AI agent…</string>
   <string name="ai_agent_notification_permission_needed">Kailangan ng AI agent ang iyong pahintulot</string>
@@ -1495,7 +1647,8 @@
   <string name="ai_agent_notification_completed_tap">I-tap upang tingnan ang mga resulta</string>
   <string name="ai_agent_notification_error">Nabigo ang AI task</string>
   <string name="ai_agent_notification_cancel">Kanselahin</string>
-  <!--My Documents-->
+
+    <!-- My Documents -->
   <string name="my_documents_title">Aking Mga Dokumento</string>
   <string name="my_documents_empty">Wala pang dokumento. I-tap ang + upang lumikha ng isa.</string>
   <string name="my_document_new_name">Dokumento %d</string>
@@ -1506,6 +1659,7 @@
   <string name="my_document_save_changes">I-save ang mga pagbabago?</string>
   <string name="my_document_no_description">Walang paglalarawan</string>
   <string name="my_document_edit_description">I-edit ang paglalarawan</string>
+
   <string name="my_document_pages_title">%s - Mga Pahina</string>
   <string name="my_document_pages_empty">Walang pahina sa dokumentong ito.</string>
   <string name="my_document_page_rename_title">Palitan ang pangalan ng pahina</string>
@@ -1526,6 +1680,7 @@
   <string name="prefs_show_ai_doc_markers_summary">Ipakita ang mga marker icon para sa mga AI-generated na pahina ng dokumento na naka-link sa mga talata</string>
   <string name="prefs_show_ordinals_title">Ipakita ang mga ordinal na numero</string>
   <string name="prefs_show_ordinals_summary">Ipakita ang mga ordinal position marker sa teksto</string>
+
   <string name="prefs_page_scroll_amount_title">Dami ng page scroll</string>
   <string name="prefs_page_scroll_amount_summary">Gaano karami ng pahina ang i-scroll sa page up/down</string>
   <string name="prefs_scroll_helper_lines_title">Mga linya ng scroll helper</string>
