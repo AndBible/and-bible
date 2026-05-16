@@ -106,6 +106,14 @@ const {config} = useCommon();
     @include md.markdown-content-night;
 }
 
+.monochrome .mydoc-markdown {
+    @include md.markdown-content-monochrome;
+}
+
+.monochrome.night .mydoc-markdown {
+    @include md.markdown-content-monochrome-night;
+}
+
 .italic-non-strongs {
   font-style: italic;
 

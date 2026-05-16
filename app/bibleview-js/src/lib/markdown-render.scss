@@ -96,3 +96,51 @@
         border-color: #444;
     }
 }
+
+// E-ink/monochrome: no gray shades — replace gray borders/text with pure black,
+// and drop gray backgrounds (monospace font and bold already distinguish code/th).
+@mixin markdown-content-monochrome {
+    blockquote {
+        border-left-color: black;
+        color: black;
+    }
+
+    code, pre {
+        background-color: transparent;
+    }
+
+    hr {
+        border-top-color: black;
+    }
+
+    th {
+        background-color: transparent;
+    }
+
+    th, td {
+        border-color: black;
+    }
+}
+
+@mixin markdown-content-monochrome-night {
+    blockquote {
+        border-left-color: white;
+        color: white;
+    }
+
+    code, pre {
+        background-color: transparent;
+    }
+
+    hr {
+        border-top-color: white;
+    }
+
+    th {
+        background-color: transparent;
+    }
+
+    th, td {
+        border-color: white;
+    }
+}
