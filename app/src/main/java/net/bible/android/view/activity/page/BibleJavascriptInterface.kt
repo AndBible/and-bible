@@ -568,6 +568,22 @@ class BibleJavascriptInterface(
     }
 
     /**
+     * Show a help dialog for a Vue-side view. The [scopeKey] string is
+     * resolved server-side to a (title, message, helpPath) triple so
+     * that the JS side cannot inject arbitrary URLs.
+     */
+    @JavascriptInterface
+    fun showHelpDialog(scopeKey: String) {
+        val (titleRes, messageRes, helpPath) = when (scopeKey) {
+            "memorize" -> Triple(R.string.help, R.string.help_memorize_text, "memorize.html")
+            else -> return
+        }
+        scope.launch(Dispatchers.Main) {
+            CommonUtils.showHelpDialog(mainBibleActivity, titleRes, messageRes, helpPath)
+        }
+    }
+
+    /**
      * Records a new read-history row for this chapter. Always inserts — JS-side state
      * (autoTrackDone) prevents duplicate auto-track inserts. The `source` parameter is
      * the string name of a [ReadingSource] value; unknown strings fall back to MANUAL.
