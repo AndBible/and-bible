@@ -22,6 +22,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.CheckBox
 import android.widget.EditText
@@ -40,6 +41,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsActivityBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.PreferenceStore
+import net.bible.service.common.CommonUtils
 import net.bible.service.llm.LlmCostTracker
 
 class AiConnectionSettingsActivity : ActivityBase() {
@@ -59,12 +61,28 @@ class AiConnectionSettingsActivity : ActivityBase() {
             .commit()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.ai_connection_options_menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            R.id.show_help -> {
+                CommonUtils.showHelpDialog(
+                    activity = this,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_ai_connection_text,
+                    helpPath = "ai.html#getting-started",
+                )
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 }
 

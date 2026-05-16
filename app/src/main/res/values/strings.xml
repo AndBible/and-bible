@@ -38,6 +38,18 @@
     <string name="history">History</string>
     <string name="speak">Speak</string>
     <string name="help">Help</string>
+    <!-- Help dialog strings (phase 3 UI Help links) -->
+    <string name="help_read_more_link">Read more in the manual</string>
+    <string name="help_prompt_edit_text">Custom prompts let you create reusable AI instructions for your study. Set a name, description, template, the contexts where it should appear, and optionally a custom provider/model. Built-in prompts cannot be edited directly — use \"Copy to customize\" to create your own version.</string>
+    <string name="help_tool_info_text">AI tools are specialised functions the AI can call to read your data or make changes on your behalf. Read tools (verses, commentaries, dictionaries, bookmarks) never require permission. Write tools (creating bookmarks, notes, study pad entries) are gated by the permission system.</string>
+    <string name="help_ai_settings_text">AI Settings is where you manage your prompts and categories. From here you can create new prompts, organise them into categories, import/export prompts as CSV, install add-on prompt packs, and reach the AI connection settings.</string>
+    <string name="help_ai_connection_text">Configure your AI providers, models, permissions and other connection options here. Each provider needs its own API key. You can add multiple providers and select a default model.</string>
+    <string name="help_ai_providers_text">Manage AI providers (Google Gemini, OpenAI, Anthropic, etc.). Each provider needs its own API key. You can add multiple providers and assign different ones to specific prompts.</string>
+    <string name="help_ai_models_text">Manage models for this provider. You can refresh the model list from the provider\'s API to pick up new releases, or add a model name manually if it is not in the fetched list.</string>
+    <string name="help_ai_document_filter_text">Limit which Bibles, commentaries and other modules the AI agent can read. By default the AI sees all installed modules; filtering helps reduce noise and cost when you only want it to consider specific sources.</string>
+    <string name="help_global_tool_permissions_text">Configure permissions for individual AI tools. For each read tool, choose whether the AI may use it (Enabled or Disabled). For each write tool, choose Always allow, Always deny, or Ask (which falls back to the global permission mode set in AI Connection settings).</string>
+    <string name="help_reading_progress_text">Your Bible reading and memorization progress at a glance. Mark chapters as read manually with the \"Mark as read\" button, or enable automatic tracking. Memorize exercises also feed into this view.</string>
+    <string name="help_memorize_text">The Memorize view helps you learn passages by heart. Use Word Blur, Word Scramble, Word Type or Word Order to practise. Successful exercises automatically mark verses as memorized (this can be disabled).</string>
     <string name="information">Information</string>
     <string name="other">Other</string>
     <string name="contact">Contact</string>
