@@ -32,6 +32,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.htmlToSpan
 import net.bible.service.llm.DynamicModelService
 import net.bible.service.llm.LlmConfiguredModel
@@ -173,6 +175,7 @@ internal fun AiSettingsFragmentBase.performEasySetup(setup: RecommendedSetup, ap
                 DynamicModelService.fetchModels(setup.provider.endpoint, fetchKey, setup.provider.name)
             }
         }
+        ABEventBus.post(AppSettingsUpdated())
         refreshAll()
         showEasySetupStep3()
     }
