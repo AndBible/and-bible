@@ -15,24 +15,19 @@ paragraph_1_3: >
 subtitle_2: Un potente strumento di studio della Bibbia
 paragraph_2_1: >
   L'applicazione ha molte caratteristiche intuitive e originali, che rendono una complessa esperienza di studio della Bibbia più agevole che mai. Le caratteristiche più interessanti sono le seguenti:
-feature_01: >
-  Le finestre di testo separate permettono di confrontare le traduzioni e consultare i commentari
-feature_02: >
-  Le aree di lavoro consentono ambienti separati di studio biblico con impostazioni differenti
-feature_03: >
-  L'integrazione dei numeri Strong consente l'analisi delle parole in greco ed ebraico
+feature_01: "Le finestre di testo separate permettono di confrontare le traduzioni e consultare i commentari\n"
+feature_02: "Le aree di lavoro consentono ambienti separati di studio biblico con impostazioni differenti\n"
+feature_03: "L'integrazione dei numeri Strong consente l'analisi delle parole in greco ed ebraico\n"
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Tocca qualsiasi collegamento per seguire riferimenti incrociati, note a piè di pagina e commentari ({{commentary_examples}}) o raccolte di riferimenti incrociati ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry, ecc.
+commentary_examples: "Gill, Matthew Henry, ecc."
 # Examples of cross-reference collections.
-cross_reference_examples: Treasure of Scripture Knowledge, TSKe
-feature_05: >
-  Sintesi vocale avanzata con segnalibri parlati, che permette una comoda esperienza di ascolto della Bibbia
-feature_06: >
-  Ricerca flessibile a testo integrale in una o più traduzioni della Bibbia contemporaneamente
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Sintesi vocale avanzata con segnalibri parlati, che permette una comoda esperienza di ascolto della Bibbia\n"
+feature_06: "Ricerca flessibile a testo integrale in una o più traduzioni della Bibbia contemporaneamente\n"
 feature_07: Segnalibri ed evidenziazione avanzata con note di studio personali
 feature_08: >
   Sincronizzazione tra dispositivi: mantieni spazi di lavoro, segnalibri, annotazioni e progressi di lettura sincronizzati su tutti i tuoi dispositivi
@@ -47,30 +42,36 @@ feature_11: >
   Agente di studio IA opzionale (attivazione facoltativa, richiede una tua chiave API per un servizio esterno): esplora commentari e dizionari con l'IA nella lingua scelta. Sistema di autorizzazioni integrato per il pieno controllo.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV e NKJV
-feature_12: "Offline: l'unica volta che hai bisogno di internet è per scaricare i documenti."
+unavailable_documents: "ESV, NIV e NKJV"
+feature_12: >-
+  Offline: l'unica volta che hai bisogno di internet è per scaricare i documenti.
 # UNUSED
 feature_13: >
   Appunti di studio per aggiungere annotazioni e riferimenti biblici durante l'ascolto dei sermoni.
 subtitle_3: Creiamo insieme la migliore app della Bibbia!
 paragraph_3_1: >
   AndBible è un progetto della community open-source. In pratica, ciò significa che chiunque abbia le competenze adeguate può contribuire al progetto ed è incoraggiato a farlo:
-contr_1: sviluppando nuove funzionalità,
-contr_2: testando le nuove caratteristiche,
-contr_3: mantenendo aggiornate le traduzioni dell'interfaccia utente, e
-contr_4: >
-  aiutando ad estendere la libreria dei moduli ottenendo i permessi dai detentori del copyright, o convertendo i documenti in formato SWORD.
+contr_1: "sviluppando nuove funzionalità,"
+contr_2: "testando le nuove caratteristiche,"
+contr_3: "mantenendo aggiornate le traduzioni dell'interfaccia utente, e"
+contr_4: "aiutando ad estendere la libreria dei moduli ottenendo i permessi dai detentori del copyright, o convertendo i documenti in formato SWORD.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  Se sei uno sviluppatore software o un tester, per favore considera di contribuire al progetto. Per maggiori informazioni su come contribuire, vedi {{how_to_contribute_url}}.
+paragraph_4_1: "Se sei uno sviluppatore software o un tester, per favore considera di contribuire al progetto. Per maggiori informazioni su come contribuire, vedi {{how_to_contribute_url}}.\n"
 subtitle_4: Collegamenti
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "Pagina principale: {{homepage_url}}"
-link_2: "Metti mi piace a AndBible su Facebook: {{facebook_url}}"
-link_3: "Il nostro canale Youtube: {{youtube_url}}"
-link_4: "Domande frequenti: {{faq_url}}"
-link_5: "Pagina del progetto su Github: {{github_url}}"
-buy_title: Sostieni acquistando tempo di programmazione!
+link_1: >-
+  Pagina principale: {{homepage_url}}
+link_2: >-
+  Metti mi piace a AndBible su Facebook: {{facebook_url}}
+link_3: >-
+  Il nostro canale Youtube: {{youtube_url}}
+link_4: >-
+  Domande frequenti: {{faq_url}}
+link_5: >-
+  Pagina del progetto su Github: {{github_url}}
+buy_title: >-
+  Sostieni acquistando tempo di programmazione!
 buy_1: >
   Se non hai tempo o capacità per contribuire al progetto, puoi anche sostenere il progetto acquistando il tempo di lavoro di un programmatore professionista.
-buy_2: Vedi le opzioni
+buy_2: >-
+  Vedi le opzioni

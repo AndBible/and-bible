@@ -1,15 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bijbelstudie</string>
   <string name="app_name_medium">Bijbelstudie (And Bible)</string>
   <string name="app_name_long">AndBible: Bijbelstudie</string>
-
   <string name="version_text">Versie %s</string>
   <string name="no_sdcard_error">Voer een SD-kaart in en start And Bible opnieuw.</string>
-
-    <!-- Main menu -->
+  <!--Main menu-->
   <string name="menu">Menu</string>
   <string name="chooseBook">Document</string>
   <string name="selectPassage">Passage</string>
@@ -18,18 +15,6 @@
   <string name="history">Geschiedenis</string>
   <string name="speak">Voorlezen</string>
   <string name="help">Hulp</string>
-    <!-- Help dialog strings (phase 3 UI Help links) -->
-  <string name="help_read_more_link">Lees meer in de handleiding</string>
-  <string name="help_prompt_edit_text">Met aangepaste prompts kunt u herbruikbare AI-instructies voor uw studie maken. Stel een naam, beschrijving, sjabloon en de contexten in waar de prompt moet verschijnen, en optioneel een aangepaste provider/model. Ingebouwde prompts kunnen niet direct worden bewerkt — gebruik \"Kopiëren om aan te passen\" om uw eigen versie te maken.</string>
-  <string name="help_tool_info_text">AI-tools zijn gespecialiseerde functies die de AI kan aanroepen om uw gegevens te lezen of namens u wijzigingen aan te brengen. Leestools (verzen, commentaren, woordenboeken, bladwijzers) vereisen nooit toestemming. Schrijftools (bladwijzers aanmaken, notities, studiemappen) zijn onderworpen aan het toestemmingssysteem.</string>
-  <string name="help_ai_settings_text">In AI-instellingen beheert u uw prompts en categorieën. Hier kunt u nieuwe prompts aanmaken, ze in categorieën indelen, prompts importeren/exporteren als CSV, aanvullende promptpakketten installeren en de AI-verbindingsinstellingen bereiken.</string>
-  <string name="help_ai_connection_text">Configureer hier uw AI-providers, modellen, machtigingen en andere verbindingsopties. Elke provider heeft een eigen API-sleutel nodig. U kunt meerdere providers toevoegen en een standaardmodel selecteren.</string>
-  <string name="help_ai_providers_text">Beheer AI-providers (Google Gemini, OpenAI, Anthropic, enz.). Elke provider heeft een eigen API-sleutel nodig. U kunt meerdere providers toevoegen en verschillende providers toewijzen aan specifieke prompts.</string>
-  <string name="help_ai_models_text">Beheer modellen voor deze provider. U kunt de modellijst vernieuwen via de API van de provider om nieuwe releases op te halen, of handmatig een modelnaam toevoegen als deze niet in de opgehaalde lijst staat.</string>
-  <string name="help_ai_document_filter_text">Beperk welke Bijbels, commentaren en andere modules de AI-agent kan lezen. Standaard ziet de AI alle geïnstalleerde modules; filteren helpt ruis en kosten te verminderen als u wilt dat de AI alleen specifieke bronnen raadpleegt.</string>
-  <string name="help_global_tool_permissions_text">Configureer machtigingen voor individuele AI-tools. Kies voor elke leestool of de AI deze mag gebruiken (Ingeschakeld of Uitgeschakeld). Kies voor elke schrijftool Altijd toestaan, Altijd weigeren of Vragen (wat terugvalt op de globale machtigingsmodus in de AI-verbindingsinstellingen).</string>
-  <string name="help_reading_progress_text">Uw voortgang bij het lezen van de Bijbel en memorisatie in één oogopslag. Markeer hoofdstukken handmatig als gelezen met de knop \"Markeer als gelezen\", of schakel automatisch bijhouden in. Memorisatie-oefeningen worden ook in deze weergave bijgehouden.</string>
-  <string name="help_memorize_text">De Memoriseren-weergave helpt u passages uit het hoofd te leren. Gebruik Woordvervaging, Woordscramble, Woord typen of Woordvolgorde om te oefenen. Succesvolle oefeningen markeren verzen automatisch als gememoriseerd (dit kan worden uitgeschakeld).</string>
   <string name="information">Informatie</string>
   <string name="other">Anders</string>
   <string name="contact">Contact</string>
@@ -37,15 +22,13 @@
   <string name="administration">Administratie</string>
   <string name="rate_application">Beoordelen</string>
   <string name="chooce_document">Document kiezen</string>
-
-    <!-- Passage navigation -->
+  <!--Passage navigation-->
   <string name="choosePassageBookName">Kies Bijbelboek</string>
   <string name="choosePassageChapterName">Kies een hoofdstuk</string>
   <string name="choosePassageVerseName">Kies een Vers</string>
   <string name="bible">Bijbel</string>
   <string name="deuterocanonical">Deuterocanoniek</string>
-
-    <!--  Search -->
+  <!--Search-->
   <string name="search_index">Index doorzoeken</string>
   <string name="index_creation_required">Een index is vereist om te zoeken</string>
   <string name="create_index_for">Een index is vereist om te zoeken. \n\nIndex aanmaken voor %s?</string>
@@ -57,15 +40,13 @@
   <string name="do_in_background">Doorgaan in de achtergrond</string>
   <string name="rebuild_index_button">Opnieuw bouwen</string>
   <string name="creating_index_for">Index maken voor %s...</string>
-    <!-- X results in module Y -->
+  <!--X results in module Y-->
   <string name="search_with_results2">%1$s resultaten in %2$s</string>
-
-    <!-- Tasks -->
+  <!--Tasks-->
   <string name="progress_status">Voortgang</string>
   <string name="task_kill_warning">Deze langlopende taken kunnen beëindigd worden als je overschakelt naar een andere app.</string>
   <string name="no_tasks_running">Er worden momenteel geen taken uitgevoerd.</string>
-
-    <!-- Search -->
+  <!--Search-->
   <string name="search_words_group_prompt">Verzen zoeken</string>
   <string name="search_all_words">Alle woorden</string>
   <string name="search_any_word">Elk woord</string>
@@ -80,49 +61,38 @@
   <string name="search_current_book">Huidig boek</string>
   <string name="error_executing_search">Ongeldige zoekopdracht</string>
   <string name="type_text_or_bible_reference">Typ tekst of bijbelverwijzing</string>
-    <!-- Open (bible reference X) -->
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">Open %s</string>
-    <!-- Finx "(keywords x)", keywords based on text selection -->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Zoek \"%s\"</string>
-    <!-- Multi-translation search -->
+  <!--Multi-translation search-->
   <string name="search_translations">Vertalingen</string>
   <string name="choose_translations">Kies vertalingen…</string>
   <string name="multi_search_results">%1$d verzen in %2$d vertalingen</string>
   <string name="search_index_not_created">geen index</string>
-
-    <!-- Preferences -->
+  <!--Preferences-->
   <string name="prefs_show_verseno_title">Hoofdstuk- en versnummers</string>
   <string name="prefs_show_verseno_summary">Toon hoofdstuk- en versnummers</string>
-
   <string name="prefs_e_ink_mode_title">Zwart-wit-weergave</string>
   <string name="prefs_eink_mode_summary">Gebruik de applicatie in monochrome modus (geen kleur), meer geschikt voor e-readers.</string>
   <string name="prefs_eink_settings_cat">E-ink instellingen</string>
   <string name="prefs_eink_display_title">E-ink functies</string>
   <string name="prefs_eink_display_summary">Schakel e-ink specifieke functies in (paginascrolknoppen, scrolhulplijnen)</string>
-
   <string name="prefs_disable_animations_title">Schakel animaties uit</string>
   <string name="prefs_disable_animations_summary">Schakel diverse animaties uit, zoals gelijkmatig scrollen.</string>
-
   <string name="prefs_disable_click_to_edit_title">Klik-om-te-bewerken uitschakelen in studiepad</string>
   <string name="prefs_disable_click_to_edit_summary">Vereist de bewerkknop om notities in het studiepad te bewerken.</string>
-
   <string name="prefs_notes_content_type_title">Formaat voor nieuwe bladwijzernotities</string>
   <string name="prefs_notes_content_type_summary">Tekstformaat dat wordt gebruikt bij het aanmaken van nieuwe bladwijzernotities en studiepadvermeldingen</string>
   <string name="notes_content_type_html">Rijke tekst (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
-
-
-
-
   <string name="prefs_verse_per_line_summary">Elk vers op nieuwe regel beginnen</string>
   <string name="prefs_show_bookmarks_summary">Uitvinken om alle bladwijzers te verbergen</string>
-
   <string name="prefs_show_mynotes_summary">Laat icoon zien in verzen met Mijn Notitie</string>
   <string name="prefs_show_strongs_summary">Snelkoppelingen naar Griekse &amp; Hebreeuwse definities</string>
   <string name="prefs_show_morphology_summary">Laat Robinson\'s Greek morphology zien</string>
   <string name="prefs_section_title_summary">Laat niet-canonieke pericoop kopjes zien</string>
   <string name="prefs_red_letter_summary">Woorden van Christus in rood weergeven</string>
-
   <string name="prefs_verse_per_line_title">Eén vers per regel</string>
   <string name="prefs_show_bookmarks_title">Bladwijzers tonen</string>
   <string name="prefs_show_mynotes_title">Mijn notitie-pictogrammen tonen</string>
@@ -132,7 +102,6 @@
   <string name="prefs_show_footnotes_inline_title">Voetnoten inline</string>
   <string name="prefs_show_footnotes_inline_summary">Voetnoten inline weergeven bij de tekst in plaats van als aanklikbare handvatten</string>
   <string name="prefs_show_xrefs_summary">Toon verwijzingen indien aanwezig in het document.</string>
-
   <string name="prefs_show_strongs_title">Strong\'s nummers</string>
   <string name="prefs_show_morphology_title">Morfologische codes</string>
   <string name="prefs_non_strongs_word_italic_title">Toegevoegde woorden cursief</string>
@@ -157,20 +126,17 @@
   <string name="reading_progress_history_no_entries">Geen leesvermeldingen voor deze selectie.</string>
   <string name="reading_progress_history_version_unknown">Onbekende versie</string>
   <string name="prefs_tilt_to_scroll_title">Kantelen om te scrollen</string>
-
   <string name="prefs_toolbar_button_action_title">Actie voor knoppen op taakbalk</string>
   <string name="prefs_toolbar_button_action_summary">Actie bij (lang) drukken op taakbalk van Bijbel of Commentaar</string>
   <string name="prefs_toolbar_button_action_default">Indrukken om het menu te openen, lang indrukken voor het documentscherm (standaard)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Indrukken om het volgende document te openen, lang indrukken om het menu te openen.</string>
   <string name="prefs_toolbar_button_action_swap_activity">Druk om volgend document te openen, lang drukken voor Documenten scherm</string>
-
   <string name="prefs_night_mode_title">Nachtweergave wisselen</string>
   <string name="prefs_night_mode_summary">Kies om automatisch naar nacht-modus te wisselen (als het apparaat dit ondersteunt), handmatig of via apparaatinstellingen (Android 10+).  Handmatig wisselen kan vanuit het 3-stippenmenu in het hoofdscherm.</string>
   <string name="prefs_night_mode_manual">Handmatige nachtmodus</string>
   <string name="prefs_night_mode_automatic">Automatisch</string>
   <string name="prefs_night_mode_system">Systeem</string>
   <string name="options_menu_night_mode">Nachtweergave</string>
-
   <string name="prefs_navigate_to_verse_title">Navigeer naar vers</string>
   <string name="prefs_navigate_to_verse_summary">Kies een vers (en hoofdstuk) bij het selecteren van een passage</string>
   <string name="prefs_open_links_in_special_window_title">Koppelingenscherm</string>
@@ -181,20 +147,15 @@
   <string name="prefs_interface_locale_title">Applicatietaal</string>
   <string name="prefs_interface_locale_summary">Kies een aangepaste taal voor deze app</string>
   <string name="reset_fontsize">Reset</string>
-
   <string name="prefs_request_sdcard_permission_title">Handmatige geïnstalleerde documenten</string>
   <string name="prefs_request_sdcard_permission_summary">Het gebruik van handmatig geïnstalleerde documenten inschakelen uit de jsword-map of sword-map op interne opslag</string>
-
   <string name="prefs_expand_footnotes_title">Inline verwijzingen</string>
   <string name="prefs_expand_footnotes_summary">Toon verwijzingen in de tekst, in plaats van een link die een pop-upvenster opent</string>
-
   <string name="all_text_options_window_menutitle">Alle tekstopties</string>
   <string name="text_options_window_menutitle">Tekstopties</string>
   <string name="auto_fullscreen">Volledig scherm door te scrollen</string>
   <string name="reversed_split_mode">Omgekeerde splitsmodus</string>
-
   <string name="add_ellipsis">%s ...</string>
-
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Wissel automatisch naar volledig scherm tijdens het scrollen van de tekst. Tip: u kunt altijd naar volledig scherm wisselen door dubbel te tikken op het scherm.</string>
@@ -204,11 +165,9 @@
   <string name="prefs_features_cat">Functies</string>
   <string name="prefs_display_customization_cat">Uiterlijk</string>
   <string name="prefs_behavior_customization_cat">Applicatie gedrag</string>
-
   <string name="prefs_margin_size_summary">Pas de linker en rechter marge van het tekstvenster aan. U kunt ook
         de maximale breedte van de tekst aanpassen.</string>
   <string name="prefs_margin_size_summary_2">Tip: U kunt op de kantlijn tikken om één pagina omhoog of omlaag te springen.</string>
-
   <string name="prefs_text_colors_summary">Pas kleuren en ruiseffect van tekst en achtergrond aan</string>
   <string name="text_display_settings_activity_title">Tekst weergave instellingen</string>
   <string name="workspace_text_display_settings_title">Tekstopties - %s</string>
@@ -226,7 +185,6 @@
   <string name="prefs_footnotes_and_xrefs_title">Voetnoten &amp; kruisverwijzingen</string>
   <string name="prefs_verses_and_headings_title">Verzen &amp; koppen</string>
   <string name="prefs_page_scrolling_title">Pagina scrollen</string>
-
   <string name="prefs_justify_title">Uitvullen</string>
   <string name="prefs_justify_summary">Geeft tekst uitgevuld weer, links en rechts met rechte kantlijn</string>
   <string name="pref_left_margin_label_mm">Linker mage (%d mm)</string>
@@ -248,10 +206,8 @@
   <string name="hide_window_buttons_summary">Vensterknoppen aan de rechterzijde van het leesscherm zijn verborgen. Vensternavigatie aan de onderkant wordt weergegeven; u kunt het venster popup-menu openen door hier lang op te drukken.</string>
   <string name="hide_bible_reference_overlay_title">Laag met Schriftverwijzing verbergen</string>
   <string name="hide_bible_reference_overlay_summary">De semitransparante laag met Schriftverwijzing niet tonen als de app in volledig-scherm-weergave wordt gebruikt.</string>
-
   <string name="full_screen_hide_buttons_pref_title">Verberg vensterknoppen-balk in volledig scherm</string>
   <string name="full_screen_hide_buttons_pref_summary">Bij het overschakelen naar volledig-scherm-weergave wordt de balk met vensterknoppen onderaan het scherm automatisch verborgen.</string>
-
   <string name="prefs_dictionaries_cat">Woordenboeken</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs Grieks woordenboek</string>
   <string name="choose_strongs_greek_dictionary_summary">Kies Strongs-woordenboek voor betekenis Griekse woorden</string>
@@ -263,28 +219,22 @@
   <string name="choose_word_lookup_dictionary_summary">Kies woordenboeken voor het opzoeken van woorden</string>
   <string name="lookup_in_dictionary">Opzoeken in woordenboeken</string>
   <string name="word_not_found_in_dictionaries">Woord niet gevonden in een woordenboek</string>
-
   <string name="prefs_top_margin_title_mm">Bovenmarge (%dmm)</string>
   <string name="font_size_title">Lettergrootte</string>
   <string name="font_size_title_pt">Lettergrootte (%d pt)</string>
   <string name="prefs_font_text_size_summary">Pas de lettergrootte van de tekst aan</string>
-
   <string name="pref_font_family_label_name">Lettertype (%s)</string>
   <string name="prefs_font_family_summary">Wijzig lettertype. Tip: Meer lettertypes kunnen geinstalleerd worden via Documenten downloaden / Uitbreidingen.</string>
-
   <string name="prefs_text_bookmarks_title">Instellingen voor Bladwijzers &amp; Mijn notities</string>
   <string name="prefs_reading_and_memorization_title">Lezen &amp; memoriseren</string>
-
   <string name="prefs_enable_bluetooth_title">Schakel Bluetooth-mediaknoppen in</string>
   <string name="prefs_enable_bluetooth_summary">Gebruik Bluetooth-mediaknoppen om spreken te starten/stoppen.</string>
   <string name="create_bookmark">Maak een nieuwe bladwijzer</string>
   <string name="create_bookmark_with_a_note">Maak een nieuwe bladwijzer met een notitie</string>
-
-    <!-- Colors preferences -->
+  <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Kleurinstellingen</string>
   <string name="window_color_settings_title">Instellingen voor schermkleur.</string>
   <string name="workspace_color_settings_title">Standaard kleurinstellingen voor werkblad</string>
-
   <string name="color_workspace">Werkblad kleur</string>
   <string name="color_text">Tekstkleur</string>
   <string name="color_background">Achtergrondkleur</string>
@@ -292,9 +242,7 @@
   <string name="colors_night_mode_title">Nachtweergave</string>
   <string name="prefs_noise_title">Achtergrondruiseffect</string>
   <string name="prefs_noise_summary">Het toevoegen van ruis aan de achtergrond kan comfortabeler zijn voor de ogen.</string>
-
-
-    <!-- Window -->
+  <!--Window-->
   <string name="new_window">Nieuw venster</string>
   <string name="windowMaximise">Maximaliseren</string>
   <string name="windowMinimise">Minimaliseren</string>
@@ -307,15 +255,12 @@
   <string name="copy_settings_to_global">Algemene standaarden</string>
   <string name="change_to_normal">Wisselen naar normaal venster</string>
   <string name="window_pin_mode">Zet vast</string>
-
-    <!-- Notes screen -->
+  <!--Notes screen-->
   <string name="previous">Vorige</string>
   <string name="next">Volgende</string>
-
-    <!--  Strongs -->
+  <!--Strongs-->
   <string name="no_indexed_bible_with_strongs_ref">U moet een Bijbel met Strong\'s codering downloaden en de index bouwen via Zoeken</string>
-
-    <!-- Module download -->
+  <!--Module download-->
   <string name="download">Documenten downloaden</string>
   <string name="redownload">Documenten opnieuw downloaden</string>
   <string name="download_source_last_updated">Document lijsten voor het laatst ververst: %s.</string>
@@ -342,8 +287,7 @@ Alle downloads van module servers zijn versleuteld (HTTPS).</string>
   <string name="failed_repositories_message">Verbinding met de volgende documentserver is mislukt: \n\n%s\n\n</string>
   <string name="failed_downloads_message">De volgende bestanden zijn niet gedownload:\n\n%s\n\n</string>
   <string name="cant_delete_document">Dit document kan niet verwijderd worden.</string>
-
-    <!--  Install zip file -->
+  <!--Install zip file-->
   <string name="install_zip">Document laden uit bestanden.</string>
   <string name="install_zip_module">Bijbelmodule installeren</string>
   <string name="install_zip_module_discrete">Installeer Rekenmachine Module</string>
@@ -356,8 +300,7 @@ Alle downloads van module servers zijn versleuteld (HTTPS).</string>
   <string name="overwrite_files_title">Bestanden overschrijven?</string>
   <string name="could_not_overwrite_files">Kan bestanden niet overschrijven: %s. Afgezien hiervan was de installatie succesvol.</string>
   <string name="install_do_you_want">Wil je module (%s) installeren?</string>
-
-    <!-- Daily Reading Plan -->
+  <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leesplan</string>
   <string name="reading_plans_plural">Leesplannen</string>
   <string name="rdg_plan_selector_title">Kies een leesplan</string>
@@ -399,30 +342,26 @@ In een jaar leest u het Oude Testament eenmaal en het Nieuwe Testament en de Psa
   <string name="plan_description_y2ot1ntps2">
 Lees de bijbel in 2 jaar, lees de NT en Psalmen twee keer. 
 Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.</string>
-
-    <!-- Document context menu -->
+  <!--Document context menu-->
   <string name="delete">Verwijderen</string>
   <string name="delete_index">Zoekindex verwijderen</string>
   <string name="about">Over</string>
   <string name="delete_doc">%s verwijderen?</string>
   <string name="delete_search_index_doc">Index van %s verwijderen?</string>
-
-    <!-- Verse context menu -->
+  <!--Verse context menu-->
   <string name="notes">Voetnoten en verwijzingen</string>
   <string name="share_verse">Delen...</string>
   <string name="share_verse_widget_title">Selectie delen</string>
   <string name="compare_translations">Vertalingen vergelijken</string>
-
-    <!-- Link context menu -->
+  <!--Link context menu-->
   <string name="open_link_in_this_window">Link hier openen</string>
   <string name="open_link_in_new_window">Link openen in nieuw venster</string>
   <string name="open_link_in_special_window">Link openen in speciaal venster</string>
-
-    <!-- Bookmarks -->
+  <!--Bookmarks-->
   <string name="bookmarks_and_mynotes_title">Bladwijzers &amp; mijn notities</string>
   <string name="migrated_my_notes">Gemigreerde Mijn Notities</string>
   <string name="bookmarks">Bladwijzers</string>
-    <!-- Bookmark / note labels -->
+  <!--Bookmark / note labels-->
   <string name="labels">Labels</string>
   <string name="manage_labels">Labels beheren</string>
   <string name="assign_labels">Labels toewijzen</string>
@@ -442,7 +381,7 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="auto_assign_labels">Auto-toewijzen &amp; Favoriete labels</string>
   <string name="auto_assign_labels1">Automatisch toewijzen label aan nieuwe bladwijzers</string>
   <string name="auto_assign_labels_primary">Auto-toewijzen als primair</string>
-  <!-- can be removed -->
+  <!--can be removed-->
   <string name="marker_style">Gebruik alleen een bladwijzericoon voor selectie-bladwijzers</string>
   <string name="marker_style_whole_verse">Gebruik alleen een bladwijzericoon voor de hele-vers bladwijzers</string>
   <string name="hide_style">Verberg selectie-bladwijzers</string>
@@ -452,39 +391,35 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
 Als de indeling van het document is veranderd, kan het bijwerken van het document de bladwijzers/notities van plek laten veranderen of zelfs compleet laten verdwijnen uit het document </string>
   <string name="bookmark_warning3">Wil je nog steeds de module updaten?</string>
   <string name="bookmark_warning4">Het wordt aanbevolen om een reservekopie te maken van de module voordat je hem bijwerkt.</string>
-    <!--  Sort orders used for Bookmarks and MyNotes -->
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datumvolgorde</string>
   <string name="sort_by_bible_book">Bijbelse volgorde</string>
   <string name="sort_by_alphabetical">Alfabetische volgorde</string>
-    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <string name="filter_by_notes">Zoek notities</string>
-
-    <!-- Dictionary -->
+  <!--Dictionary-->
   <string name="dictionary">Woordenboek</string>
   <string name="search_dictionary_hint">Woordenboek doorzoeken</string>
-
-    <!-- General Book -->
+  <!--General Book-->
   <string name="general_book">Boek</string>
-
-    <!-- Speak -->
-    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
-    <!-- Speak - Bible -->
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
   <string name="one_chapter">%d hoofdstuk</string>
   <string name="some_chapters">%d hoofdstukken</string>
-    <!-- Speak - Commentary -->
+  <!--Speak - Commentary-->
   <string name="one_verse">%d vers</string>
   <string name="some_verses">%d verzen</string>
-    <!-- Speak - Dictionary and other -->
+  <!--Speak - Dictionary and other-->
   <string name="one_page">%d pagina</string>
   <string name="some_pages">%d pagina\'s</string>
-    <!-- Speak - Common -->
+  <!--Speak - Common-->
   <string name="stop">Stoppen</string>
   <string name="pause">Pauzeren</string>
   <string name="rewind">Terug </string>
   <string name="forward">Vooruit</string>
   <string name="tts_lang_not_available">De taal is niet beschikbaar.</string>
-
-    <!-- Speak - Bible -->
+  <!--Speak - Bible-->
   <string name="speak_speed_title">Voorleessnelheid</string>
   <string name="speak_and_play_earcons_title">Earcon-geluiden voorlezen en afspelen voor</string>
   <string name="playback_settings_title">Afspeelinstellingen</string>
@@ -493,17 +428,14 @@ Als de indeling van het document is veranderd, kan het bijwerken van het documen
   <string name="speak_bookmarks_menu_title">Bladwijzer voorlezen</string>
   <string name="speak_advanced_settings">Geavanceerde instellingen</string>
   <string name="speak_sleep_timer_title">Slaaptimer</string>
-
   <string name="speak_no_books_available">Geen voor te lezen boeken</string>
   <string name="speak_general_error">Voorlezen kon niet gestart worden voor dit boek</string>
-
   <string name="repeat_passage">Passage herhalen</string>
   <string name="set_repeat_passage_range">Passageherhaling instellen</string>
   <string name="speak_beginning_of_passage">Kies het begin van de passage</string>
   <string name="speak_ending_of_passage">Kies het einde van de passage</string>
   <string name="speak_verse_range_to_repeat">Kies de te herhalen verzen</string>
   <string name="speak_ending_verse_must_be_later">Het laatste vers moet zich verder bevinden dan het eerste</string>
-
   <string name="conf_speak_synchronize">Tekst loopt synchroon met spraak</string>
   <string name="conf_speak_auto_bookmark">Automatische bladwijzers</string>
   <string name="conf_save_playback_settings_to_bookmarks">Afspeelinstellingen opslaan naar bladwijzers</string>
@@ -512,12 +444,10 @@ Als de indeling van het document is veranderd, kan het bijwerken van het documen
   <string name="conf_change_title">Titels</string>
   <string name="conf_speak_footnotes">Voetnoten</string>
   <string name="conf_speak_sleep_timer">Slaaptimer instellen</string>
-
   <string name="sleep_timer_title">Slaaptijd, in minuten</string>
   <string name="sleep_timer_set">Slaaptimer instellen. Timer ingesteld op %d minuten</string>
   <string name="sleep_timer_started">Slaaptimer gestart; %d minuten</string>
   <string name="sleep_timer_active_at">Slaaptimer: nog %s minuten te gaan.</string>
-
   <string name="speak_next">Volgende</string>
   <string name="speak_previous">Vorige</string>
   <string name="widget_toggle_sleep_timer">Slaaptimer in-/uitschakelen</string>
@@ -525,43 +455,33 @@ Als de indeling van het document is veranderd, kan het bijwerken van het documen
   <string name="speak_status_stopped">gestopt</string>
   <string name="speak_autobookmarking_disabled">Automatisch toevoegen aan bladwijzers uitgeschakeld!</string>
   <string name="system_speak_settings">TTS-instellingen van systeem openen</string>
-
   <string name="auto_assing_labels_help1">Hier kunt instellen welke labels automatisch toegewezen worden aan bladwijzers die u aanmaakt.</string>
-
-    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Deze instelling heeft betrekking op %s.</string>
   <string name="setting_scope_window">dit venster</string>
   <string name="setting_scope_workspace">dit werkblad</string>
-
   <string name="assing_labels_help1">Aan elke bladwijzer kunnen meerdere labels toegewezen worden.</string>
-    <!-- param is bookmark icon -->
+  <!--param is bookmark icon-->
   <string name="assing_labels_help2">Gebruik %s om in te stellen in welke kleur het label getoond wordt.</string>
-    <!-- param is auto-assign label icon -->
+  <!--param is auto-assign label icon-->
   <string name="assing_labels_help3">Tik op het icoon %s om het label automatisch toe te wijzen aan nieuwe bladwijzers.</string>
-    <!-- param is heart icon -->
+  <!--param is heart icon-->
   <string name="assing_labels_help4">Tik op %s om het label toe te voegen aan uw lijst met favorieten voor snelle toegang.</string>
-
-    <!-- param is refresh icon -->
+  <!--param is refresh icon-->
   <string name="assing_labels_help5">Tik op %s om de lijst opnieuw te sorteren op basis van uw selectie.</string>
-
   <string name="global_text_options_help_title">Algemene tekstopties</string>
   <string name="global_text_options_help1">Dit zijn de algemene standaardinstellingen voor alle werkbladen. Elk werkblad kan deze overschrijven met eigen instellingen.</string>
-
   <string name="workspace_text_options_help_title">Werkblad-tekstopties</string>
   <string name="workspace_text_options_help1">Deze instellingen bepalen de standaard voor alle vensters in het werkblad.</string>
   <string name="workspace_text_options_help2">U kunt deze instellingen aanpassen in de individuele vensterinstellingen.</string>
-
   <string name="window_text_options_help_title">Venstertekstopties </string>
-    <!-- Parameter is actual icon -->
+  <!--Parameter is actual icon-->
   <string name="window_text_options_help1">%s geeft aan dat de instellingen vanuit de werkbladinstellingen overgenomen is.</string>
-    <!-- Parameter is actual icon -->
-
-    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Gebruik de knop %1$s om de instellingen terug te zetten naar %2$s.</string>
   <string name="reset_defaults">standaardwaarden</string>
   <string name="reset_workspace_defaults">standaardwaarden voor werkblad</string>
-
-
   <string name="speak_help_auto_bookmark">
         Er wordt automatisch een bladwijzer voor voorlezen toegevoegd zodra het voorlezen wordt gepauzeerd of gestopt.
         Automatisch gegenereerde bladwijzers zijn gelabeld met het speciale voorleeslabel.
@@ -582,13 +502,12 @@ Als de indeling van het document is veranderd, kan het bijwerken van het documen
         verschillende afspeelinstellingen instellen voor deze boeken,
         zodra ze worden opgeslagen naar de bijbehorende bladwijzers.
     </string>
-
-    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings. -->
+         in speak settings.-->
   <string-array name="speak_divinename_original">
     <item>Heer</item>
     <item>God</item>
@@ -596,11 +515,11 @@ Als de indeling van het document is veranderd, kan het bijwerken van het documen
     <item></item>
     <item></item>
   </string-array>
-    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings. -->
+         in speak settings.-->
   <string-array name="speak_divinename_replace">
     <item>Yahweh</item>
     <item>Yahweh</item>
@@ -608,7 +527,6 @@ Als de indeling van het document is veranderd, kan het bijwerken van het documen
     <item></item>
     <item></item>
   </string-array>
-
   <string name="speak_book_changed">Boek opgeslagen.</string>
   <string name="speak_chapter_changed">Hoofdstuk</string>
   <string name="speak_first">Eerste</string>
@@ -616,14 +534,11 @@ Als de indeling van het document is veranderd, kan het bijwerken van het documen
   <string name="speak_third">Derde</string>
   <string name="speak_fourth">Vierde</string>
   <string name="speak_fifth">Vijfde</string>
-
   <string name="verse_range_mode_disabled">
 Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buiten het gedefinieerde vers bereik.</string>
-
-    <!-- User Notes -->
+  <!--User Notes-->
   <string name="mynotes">Mijn notities</string>
-
-    <!-- Backup and restore -->
+  <!--Backup and restore-->
   <string name="backup_backup_title">Waar backup opslaan?</string>
   <string name="backup_backup_message">Back-up naar telefoon of elders via Deel functie (email, Google Drive etc.)?</string>
   <string name="backup_phone_storage">Telefoonopslag</string>
@@ -638,13 +553,11 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="backup_document_info">Bijbels, commentaren, woordenboeken, kaarten etc.</string>
   <string name="backup_to">Back-up naar...</string>
   <string name="backup_restore_from">Herstel van...</string>
-    <!-- Restore = overwrite existing. Import = merge into existing -->
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Herstellen of importeren van...</string>
   <string name="backup_restore2">Herstellen of Importeren</string>
   <string name="overwrite_something">Overschrijf %s?</string>
-
-    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Terugzetten Database bestand</string>
   <string name="restore_confirmation">Overschrijf Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen?</string>
   <string name="restore_success">Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen succesvol teruggezet</string>
@@ -652,13 +565,10 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="loading_backup">Database laadt vanuit backup...</string>
   <string name="backup_success2">Mijn Notities, Bladwijzers, Studiemappen, Leesplannen en Werkbladen succesvol geback-upt.</string>
   <string name="backup_modules_success">Geselecteerde modules succesvol geback-upt.</string>
-
   <string name="backup_modules_email_subject_2">%s modules back-up</string>
   <string name="backup_modules_email_message_2">Toegevoegd is uw %1$s modules back-up, die de volgende modules bevat: %2$s</string>
-
   <string name="backup_email_subject_2">%sdatabase backup</string>
   <string name="backup_email_message_2">Uw %s database met bladwijzers, notities, leesplannen en werkbladen is toegevoegd</string>
-
   <string name="exported_studypads_subject">Geëxporteerde StudiePad(s)</string>
   <string name="exported_studypads_message">Jouw %s database bevat Bladwijzers en Notities gerelateerd aan gekoppelde geselecteerde Studiepaden. </string>
   <string name="restore_unsuccessfull">Database herstellen is mislukt. Misschien gaf u een verkeerd database bestand.</string>
@@ -668,22 +578,18 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="ask_restore_or_import">Database voor %s kan hersteld worden (huidige database wordt verwijderd en geselecteerde database wordt ingeladen) of geïmporteerd (geselecteerde database wordt geïmporteerd in de bestaande database). Wat wil je doen?</string>
   <string name="restore">Herstellen</string>
   <string name="import2">Import</string>
-
-    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" en %2$s andere Label(s) / Studiepad(en) en %3$s Bladwijzers</string>
-
-    <!-- About -->
+  <!--About-->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Geïnstalleerde versie: %1$s (%2$s)</string>
   <string name="module_about_latest_version">Laatste versie: %1$s (%2$s)</string>
   <string name="module_about_versification">Versificatie: %s</string>
   <string name="module_about_repository">Distributie server: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
-
-    <!-- Bug reporting -->
+  <!--Bug reporting-->
   <string name="send_bug_report_title">Terugkoppeling / foutrapportage</string>
   <string name="report_bug_email_subject_3">[%1$s] Bug-melding voor %2$s %3$s</string>
-
   <string name="report_bug_big_heading">SCHRIJF ALSTUBLIEFT UW TERUGKOPPELING OF FOUT RAPPORTAGE BOVEN DEZE LIJN</string>
   <string name="report_bug_heading1">Instructies:</string>
   <string name="report_bug_line_1">Vertel in het kort wat u deed of wat er gebeurde toen het probleem zich voor deed.</string>
@@ -699,8 +605,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="bug_report_screenshot">Schermafbeelding van app toen de crash plaatsvond, of toen het foutrapport is gemaakt.</string>
   <string name="bug_report_attachment_line_1">Het toevoegen van deze bestanden zal de app-ontwikkelaars veel kunnen helpen in het oplossen van de gerapporteerde fout.</string>
   <string name="report_bug_heading_4">Apparaat info:</string>
-
-    <!-- Document types -->
+  <!--Document types-->
   <string name="doc_type_all">Alle types</string>
   <string name="doc_type_bible">Bijbel</string>
   <string name="doc_type_commentary">Commentaar</string>
@@ -708,11 +613,9 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="doc_type_book">Boek</string>
   <string name="doc_type_map">Kaart</string>
   <string name="doc_type_addons">Uitbreidingen</string>
-
-    <!-- Languages -->
+  <!--Languages-->
   <string name="lang_default">Standaard</string>
-
-    <!-- General -->
+  <!--General-->
   <string name="okay">Oké</string>
   <string name="cancel">Annuleren</string>
   <string name="discard_changes_confirmation">Niet-opgeslagen wijzigingen verwijderen?</string>
@@ -724,8 +627,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="reset_generic">Reset</string>
   <string name="watch_tutorial_video">Bekijk de rondleidingsvideo (Engels)</string>
   <string name="verse_not_found">Vers niet gevonden</string>
-
-    <!-- Errors -->
+  <!--Errors-->
   <string name="report_error">Rapportage versturen</string>
   <string name="error_occurred">Er is een fout opgetreden</string>
   <string name="error_occurred_crash_last_time">De laatste keer dat de applicatie werd gebruikt is het vastgelopen. Om ons te helpen om de fout op te lossen, zouden we het waarderen wanneer u ons een foutrapportage stuurt.</string>
@@ -738,12 +640,10 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="error_skip">Overslaan</string>
   <string name="bug_report_email_title">Stuur bug rapport via email</string>
   <string name="bug_report_email_text">Selecteer uw email programma (bijvoorbeeld Gmail) om het rapport aan het team van ontwikkelaars te sturen.</string>
-
-    <!-- Notifications -->
+  <!--Notifications-->
   <string name="notification_channel_tts_status">Tekst-naar-spraak</string>
   <string name="notification_channel_progress_status">Voortgangsmeldingen voor documentdownloads, etc.</string>
-
-    <!-- Workspaces -->
+  <!--Workspaces-->
   <string name="switch_to_workspace">Werkbladen</string>
   <string name="delete_workspace">Verwijderen</string>
   <string name="new_copied_workspace">Kopiëren naar nieuw</string>
@@ -763,32 +663,26 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="search_settings">Zoekinstellingen</string>
   <string name="dismiss">Negeren</string>
   <string name="workspace_listing_with_current">%s (huidig)</string>
-
-    <!-- Beta notice -->
+  <!--Beta notice-->
   <string name="beta_notice_title">Dit is een bètaversie!</string>
   <string name="beta_notice_content_1">
 In de beta-versie zitten nieuwe functies die nog niet volledig zijn getest. Gebruik van beta versies kan onverwacht gedrag opleveren, ofwel bugs.
 Voor dagelijkse Bijbelstudie wordt aangeraden de stabiele versie te gebruiken.</string>
-
   <string name="beta_notice_content_2">
 Beta gebruikers worden aangemoedigd om foutrapportages te sturen via Google Play of (bij voorkeur) via %s.</string>
   <string name="beta_notice_content_3">Als je een programmeur bent, overweeg dan alsjeblieft om zelf foutoplossingen bij te dragen via %s. :-)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Negeren tot volgende update</string>
-
   <string name="stable_notice_title">Applicatie is vernieuwd!</string>
   <string name="upgrade_video_message">Video met uitleg over nieuwe functies van deze versie (%s).</string>
   <string name="stable_notice_par1">Nieuwe versie %1$s van %2$s is succesvol geïnstalleerd!</string>
-
   <string name="new_sync_targets_notice_title">Nieuwe synchronisatie-instellingen beschikbaar</string>
   <string name="new_sync_targets_notice_message">Deze versie van AndBible introduceert aanvullende synchronisatiedoelen: Mijn documenten, AI-instellingen en leesvoortgang. Als u deze wilt inschakelen, kunt u dit doen in de instellingen voor apparaatsynchronisatie.</string>
   <string name="open_settings">Instellingen openen</string>
-
-    <!-- History -->
+  <!--History-->
   <string name="history_for">Geschiedenis (%1$s: Venster %2$d)</string>
-
-    <!-- Help -->
+  <!--Help-->
   <string name="help_nav_title">Navigatie</string>
   <string name="help_nav_text">Ga naar het volgende of vorige hoofdstuk door met je vinger over het scherm te vegen. 
         Dubbel-tik op de Bijbeltekst om over te schakelen naar de volledig scherm-modus. 
@@ -809,9 +703,8 @@ Studiemappen zijn ontworpen voor het schrijven van preeknotities, voorbereiden v
 Iedere studiemap is gekoppeld aan een bladwijzerlabel. Alle bladwijzers die met dat label zijn aangemaakt verschijnen automatisch in de studiemap.
 Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te nemen. 
     </string>
-
   <string name="help_search_title">Zoeken</string>
-    <!-- TODO: to be removed -->
+  <!--TODO: to be removed-->
   <string name="help_search_text2">Zoekterm mag speciale tekens bevatten, zoals *, AND, OR, NOT</string>
   <string name="help_search_details">Zie %s voor meer details.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -833,15 +726,14 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
 Je kunt venster vastmaken aanzetten vanuit menu Opties (drie stippen, rechter bovenhoek).
 Wanneer venster vastmaken is ingeschakeld, kun je meerdere vastgemaakte vensters laten zien in Bijbel weergave, maar slechts één niet-vast venster. Vastgemaakte vensters worden als eerste getoond, daarna de niet-vaste vensters.
 Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebruiken, en commentaren en mappen als niet-vastgemaakte vensters. Dan kun je eenvoudig wisselen tussen commentaren en ander extra materiaal, terwijl Bijbel documenten geopend blijven.</string>
-
-    <!-- Welcome text -->
+  <!--Welcome text-->
   <string name="redownload_documents">Snel opnieuw downloaden</string>
   <string name="welcome_message">Bedankt voor het downloaden van %s. Er zijn momenteel geen Bijbels of documenten geïnstalleerd. Om verder te gaan, installeer dan minstens 1 document van internet, of door het laden van een zip document backup bestand.</string>
-    <!-- Supported file formats for documents -->
-    <!-- argument is app_name_andbible (AndBible). -->
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Selecteer het bestand dat u wilt laden in %s</string>
   <string name="supported_formats">Ondersteunde bestandsformaten om documenten te laden: %s</string>
-    <!-- argument is app_name_andbible (AndBible). -->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Zip file met Sword module(s), of reservekopieën (*.abmd) gemaakt door %s</string>
   <string name="format_mysword">MySword documenten (*.mybible)</string>
   <string name="format_mybible">MyBible documenten (*.SQLite3)</string>
@@ -852,15 +744,12 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="format_studypads">Studiemappen uit AndBible-databases (*.abdb)</string>
   <string name="redownload_message">
 Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om ze makkelijk nogmaals te downloaden.</string>
-
-    <!-- Uncategorized -->
+  <!--Uncategorized-->
   <string name="close">Sluiten</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Ik begrijp het</string>
   <string name="first_time_help_show_next_time">Laat volgende keer weer zien</string>
-
   <string name="strongs_mode_title">Kies Strong\'s modus</string>
-
   <string name="download_dialog_message">The volgende boeken konden niet worden gedownload:</string>
   <string name="journal_description">Door gebruiker bewerkbare studiemappen met aangepaste tekst en bladwijzers</string>
   <string name="my_notes_description">Door gebruiker bewerkbare notities gekoppeld aan bladwijzers</string>
@@ -880,7 +769,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="unlock_info">Versleutelde module ontgrendel info</string>
   <string name="try_again_passphrase">Wachtwoordzin werkte niet, nog eens proberen?</string>
   <string name="show_unlock_info">Module &amp; ontgrendel info</string>
-
   <string name="prefs_experimental_features_title">Experimentele functies</string>
   <string name="prefs_experimental_features_summary">Selecteer welke experimentele functies u wilt inschakelen. Deze functies zijn nog in ontwikkeling en kunnen worden gewijzigd of verwijderd</string>
   <string name="experimental_feature_bookmark_edit_actions">Bladwijzer bewerkacties</string>
@@ -911,7 +799,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="active_window_indicator_title">Indicator voor actief venster tonen</string>
   <string name="active_window_indicator_summary">De vensterhoeken markeren om aan te geven welk venster actief is.</string>
   <string name="app_licence_title">Open-source-licentie</string>
-
   <string name="how_to_contribute">Hoe bijdragen?</string>
   <string name="confirm_delete_bookmarks">Wilt u %d bladwijzers, inclusief bijbehorende notities, verwijderen?</string>
   <string name="confirm_delete_orphaned_bookmarks">Het geselecteerde label is gekoppeld aan %d bladwijzers die geen andere labels hebben. Wilt u deze bladwijzers samen met de labels verwijderen?</string>
@@ -935,15 +822,14 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="show_reference_at_front">Toon aan begin van vers</string>
   <string name="abbreviate_reference">Verwijzing afkorten</string>
   <string name="version_name">Bijbelvertaling</string>
-    <!-- meaning, bible version name -->
+  <!--meaning, bible version name-->
   <string name="show_version_name">Bijbelvertaling opnemen</string>
   <string name="show_ellipsis">Gedachtepuntjes weergeven (...)</string>
   <string name="show_quotes">Zie quotes</string>
   <string name="separate_verses_with_newlines">Verzen scheiden met nieuwe regels</string>
-
   <string name="initializing_app">Bezig met starten...</string>
   <string name="show_notes">Notities tonen</string>
-    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Het pakket Android WebView is te oud (%1$s). U dient uw Android WebView-pakket te updaten naar version %2$s of hoger, om %3$s te kunnen gebruiken. Voor de meeste apparaten kunt u dit doen via %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Toch doorgaan</string>
@@ -954,16 +840,15 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="rate_message6">
         Voor u een negatieve review instuurt, overweeg alstublieft het volgende:
     </string>
-
-    <!-- parameters are actions (file a bug, send email) -->
+  <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
         Bij problemen met de app, %1$s of %2$s.
     </string>
-    <!-- param is "please report maintainers" -->
+  <!--param is "please report maintainers"-->
   <string name="rate_message2">
         Bij problemen met een tekst / Bijbelvertaling, %s.
     </string>
-    <!-- param is "please read what you can do" -->
+  <!--param is "please read what you can do"-->
   <string name="rate_message3">
         Als een bepaalde tekst niet beschikbaar is in de app, %s.</string>
   <string name="rate_message4">
@@ -1050,36 +935,33 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="export_something">Export %s</string>
   <string name="import_items">Importeer %s</string>
   <string name="import_error">Importeren vanuit App Database mislukt. Database bestand zou verkeerd formaat kunnen zijn of gemaakt zijn met een te oude versie van %s.</string>
-
   <string name="export_bookmarks_csv">Bladwijzers exporteren als %s</string>
-
-    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
   <string name="osis_reference">OSIS-referentie</string>
-    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
   <string name="bible_reference">Bijbelreferentie</string>
   <string name="document">Document</string>
   <string name="book">Boek</string>
-    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <!--Chapter is the chapter number in the book, starting from 1-->
   <string name="chapter_start">Begin hoofdstuk</string>
-    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <!--Verse is the verse number in the chapter, starting from 1-->
   <string name="verse_start">Begin vers</string>
   <string name="chapter_end">Einde hoofdstuk</string>
   <string name="verse_end">Vers Einde</string>
   <string name="id">Identificatie</string>
-    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
   <string name="ordinal_start">Volgnummer Begin</string>
   <string name="ordinal_end">Volgnummer Einde</string>
   <string name="created_at">Aangemaakt op</string>
-    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="start_offset">Beginpositie</string>
   <string name="end_offset">Eindpositie</string>
   <string name="custom_icon">Aangepast pictogram</string>
   <string name="last_updated_at">Laatst bijgewerkt op</string>
   <string name="bookmark_notes">Bladwijzernotities</string>
-
-    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Het spijt ons, maar we hebben slechts een gedeeltelijke vertaling van de gebruikersinterface in het %1$s. Dat komt omdat %2$s volledig door vrijwilligers is ontwikkeld. Als je kunt helpen bij het vertalen, zie %3$s.</string>
-    <!-- will be added to incomplete_translation as a link -->
+  <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">instructies voor vertalers</string>
   <string name="questions_title">Vragen?</string>
   <string name="bookmark_style">Bladwijzer stijl</string>
@@ -1088,7 +970,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="strongs_text_and_links">Tekst en links</string>
   <string name="strongs_hidden_links">Verborgen Links</string>
   <string name="verse_tip">Om gedeeltes of meerdere versen te selecteerd, kunt u lang drukken op Bijbel tekst</string>
-
   <string name="permission_required">Permissie nodig</string>
   <string name="labels_search_hint">Zoeken</string>
   <string name="search_mode_name_start">Naam (vanaf begin)</string>
@@ -1097,8 +978,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="search_results_matches">%d overeenkomsten</string>
   <string name="search_results_match">1 overeenkomst</string>
   <string name="progress_status_permission">We hebben uw toestemming nodig om meldingen (voortgang van de download, verwerking, status van het voorlezen) te laten zien.</string>
-
-    <!-- Discrete mode settings -->
+  <!--Discrete mode settings-->
   <string name="app_name_calculator">Simpele Rekenmachine</string>
   <string name="prefs_persecution_cat">Instellingen voor vervolgden</string>
   <string name="prefs_discrete_mode">Verberg religieuze symbolen</string>
@@ -1107,13 +987,12 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="prefs_calculator_pin">Rekenmachine PIN</string>
   <string name="prefs_calculator_pin_desc">PIN code om de app in te komen als de calculator op het scherm is.</string>
   <string name="calc_division_by_zero">Delen door nul kan niet</string>
-    <!-- Context: calculator. Wrong number format etc. -->
+  <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Verkeerde Formaat</string>
   <string name="calc_wrong_format_operand">Verkeerde invoer. Operator zonder getallen?</string>
   <string name="prefs_persecuted_help">Lees dit eerst!</string>
-    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">Aanwijzingen voor de instellingen en informatie over de discrete versie van de app .</string>
-
   <string name="calculator_par1">
         Een calculator wordt getoond voordat je de app in komt.</string>
   <string name="calculator_par2">
@@ -1129,14 +1008,12 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
        versie van de app te gebruiken, die altijd een calculator laat zien, zelfs wanneer de app gewist is.</string>
   <string name="discrete_mode_link">
         De laatste versie van de discrete app kan worden gedownload van %s.</string>
-
-    <!-- Window synchronize groups -->
+  <!--Window synchronize groups-->
   <string name="sync_group_n">Groep %d</string>
   <string name="disable_sync">Synchroniseer uitzetten</string>
   <string name="open_in_window">Open resultaten in een venster</string>
-
-    <!-- Custom repositories -->
-    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
+  <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Aangepaste documentopslagplaatsen</string>
   <string name="custom_repositories_empty_list_message">Geen aangepaste documentopslagplaatsen gedefinieerd</string>
   <string name="custom_repositories_create_button_label">Voeg aangepaste documentopslagplaats toe</string>
@@ -1148,17 +1025,14 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="wiki_page">WIKI pagina</string>
   <string name="custom_repositories_help0">U kunt documenten van documentopslagplaatsen van derden installeren door die aangepaste documentopslagplaatsen te installeren.</string>
   <string name="duplicate_custom_repository">De documentopslagplaats %sbestaat al onder die naam, en kan niet nog een keer worden toegevoegd.</string>
-
   <string name="packages_dir">Pakketten map (Zip bestanden)</string>
   <string name="warn_bad_document">Waarchuwing: Dit document kan (tenminste deels) van slechte technische kwaliteit zijn.</string>
-
-    <!-- Open links in AndBible (Deep linking) -->
+  <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">Open Bijbel links in AndBible</string>
   <string name="open_bible_links_summary">Open Bijbel URLs in AndBible (alleen mogelijk als Bijbel URL wordt ondersteund door AndBible)</string>
   <string name="copyReference">Kopieer link naar knipbord</string>
   <string name="reference_copied_to_clipboard">Verwijzing gekopieerd naar het klembord</string>
-
-    <!-- Device cloud synchronization -->
+  <!--Device cloud synchronization-->
   <string name="prefs_sync_introduction_summary1">
         Kies welke backend cloud service u wilt gebruiken om meerdere apparaten te synchroniseren.</string>
   <string name="prefs_sync_introduction_summary2">
@@ -1178,8 +1052,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="ai_settings_sync_contents">AI-prompts en providerconfiguraties</string>
   <string name="progress_sync_title">Leesvoortgang</string>
   <string name="progress_sync_contents">Gememoriseerde verzen en leesrecords per hoofdstuk</string>
-
-    <!-- Reading Progress Activity -->
+  <!--Reading Progress Activity-->
   <string name="reading_progress_title">Lees-/geheugenvoortgang</string>
   <string name="reading_progress_chapters_read">hoofdstukken gelezen</string>
   <string name="reading_progress_active_days">actieve dagen</string>
@@ -1193,7 +1066,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="reading_progress_new_cycle_confirm">Een nieuwe leescyclus starten? Dit begint de voortgang opnieuw bij te houden, terwijl de gegevens van de vorige cyclus bewaard blijven.</string>
   <string name="reading_progress_previous_cycle">Vorige cyclus</string>
   <string name="reading_progress_next_cycle">Volgende cyclus</string>
-
   <string name="cloud_fetch_and_restore_initial">Kopieer van Cloud naar dit toestel</string>
   <string name="cloud_create_new">Kopieer van dit toestel naar de Cloud</string>
   <string name="cloud_disable_sync">Annuleren &amp; synchronisatie uitschakelen</string>
@@ -1222,20 +1094,18 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="sync_disabling">Uitzetten synchronisatie voor %s voor dit moment.</string>
   <string name="sync_update_app">Graag de app updaten om synchronisatie voort te zetten. </string>
   <string name="sign_in_failed">Inloggen bij synchronisatie dienst mislukt.</string>
-    <!--  ... after restoring from backup file -->
+  <!--... after restoring from backup file-->
   <string name="disabling_sync">Cloud synchronisatie wordt uitgeschakeld. Schakel dit handmatig in na het terugzetten.</string>
   <string name="report">Rapport</string>
   <string name="sync_error">Er is een fout opgetreden bij de cloudsynchronisatie</string>
   <string name="error_notification_channel_name">Foutmeldingen</string>
   <string name="last_updated">Laatst bijgewerkt: %s</string>
-
-    <!-- MyBible/MySword module support -->
+  <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Kan het bestand niet lezen</string>
   <string name="sqlite_invalid_file">Ongeldige modulebestand of bestandsnaam: %s</string>
   <string name="sqlite_cant_write">Kan het bestand niet (over)schrijven</string>
   <string name="install_failed_reason">Installeren van module is mislukt door de volgende oorzaak: %s.</string>
-
-    <!-- Other / uncategorized -->
+  <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">App ergens anders geopend</string>
   <string name="open_here">Hier openen</string>
   <string name="external_link">Externe link</string>
@@ -1298,8 +1168,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="memorize_calendar">Memorisatieactiviteit</string>
   <string name="memorize_view_list">Lijst</string>
   <string name="memorize_view_overview">Overzicht</string>
-
-    <!-- LLM Translation Settings -->
+  <!--LLM Translation Settings-->
   <string name="sync_settings_shortcut_summary">Gegevens synchroniseren tussen apparaten</string>
   <string name="llm_provider_custom">Aangepast (OpenAI-compatibel)</string>
   <string name="ai_behavior_category">Gedrag</string>
@@ -1345,8 +1214,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="custom_system_prompt_default">Standaard</string>
   <string name="custom_system_prompt_custom">Aangepast</string>
   <string name="reset_to_default">Terugzetten naar standaard</string>
-
-    <!-- Raw log history -->
+  <!--Raw log history-->
   <string name="raw_log_history_title">AI-logboekgeschiedenis</string>
   <string name="raw_log_history_summary">Opgeslagen AI-gesprekslogboeken bekijken en beheren</string>
   <string name="raw_log_history_empty">Geen opgeslagen logboeken</string>
@@ -1364,7 +1232,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="raw_log_retention_summary_disabled">Uitgeschakeld (alles bewaren)</string>
   <string name="send_ai_bug_report_title">AI-fout melden</string>
   <string name="ai_bug_report_menu">AI-fout melden</string>
-
   <string name="select_model_before_run_title">Model selecteren</string>
   <string name="set_default_model_for_prompt">Instellen als standaardmodel voor deze prompt</string>
   <string name="prompt_max_iterations">Max. iteraties overschrijven</string>
@@ -1373,8 +1240,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="prompt_max_iterations_unlimited">Onbeperkt</string>
   <string name="prompt_max_iterations_global_default">Globale standaard (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Overschrijf het globale maximum aantal iteraties voor deze prompt. 0 = onbeperkt.\nHuidig: %s</string>
-
-    <!-- Prompt Manager -->
+  <!--Prompt Manager-->
   <string name="manage_prompts">AI-prompts beheren</string>
   <string name="manage_prompts_summary">AI-prompts maken en bewerken</string>
   <string name="ai_settings">AI-instellingen</string>
@@ -1385,8 +1251,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="ai_settings_shortcut_summary">AI-verbindings- en promptinstellingen</string>
   <string name="ai_provider_tier_recommended">Aanbevolen</string>
   <string name="ai_provider_tier_community">Andere providers (niet getest)</string>
-
-    <!-- Multi-provider settings -->
+  <!--Multi-provider settings-->
   <string name="ai_providers_models_category">Providers &amp; modellen</string>
   <string name="ai_providers_category">Providers</string>
   <string name="ai_providers_summary_none">Geen providers geconfigureerd</string>
@@ -1404,11 +1269,10 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="ai_provider_api_format">API-indeling</string>
   <string name="ai_provider_saved">Provider opgeslagen</string>
   <string name="ai_provider_deleted">Provider verwijderd</string>
-
   <string name="llm_openrouter_category">Categorie</string>
   <string name="llm_openrouter_category_all">Alle</string>
   <string name="llm_openrouter_model">Model</string>
-    <!-- Configured models management -->
+  <!--Configured models management-->
   <string name="ai_models_category">Modellen</string>
   <string name="add_model">Model toevoegen</string>
   <string name="edit_model_title">Model bewerken</string>
@@ -1420,8 +1284,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="model_supported_badge">✓ Ondersteund</string>
   <string name="show_also_unsupported_models">Toon ook niet-ondersteunde modellen</string>
   <string name="show_also_unsupported_providers">Toon ook niet-ondersteunde providers</string>
-
-    <!-- Easy Setup -->
+  <!--Easy Setup-->
   <string name="model_pricing_summary">%1$s in / %2$s uit per Mtoken</string>
   <string name="easy_setup_free_tier">Gratis niveau</string>
   <string name="unknown_error">Onbekende fout</string>
@@ -1438,8 +1301,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="easy_setup_gemini_desc">Gratis niveau beschikbaar, goede kwaliteit</string>
   <string name="easy_setup_anthropic_desc">Betaalbaar, uitstekende kwaliteit</string>
   <string name="easy_setup_openai_desc">Bekend, betrouwbaar</string>
-
-    <!-- AI Disclaimer -->
+  <!--AI Disclaimer-->
   <string name="ai_disclaimer_warning_title">Belangrijk: Lees dit voordat u AI-tools gebruikt</string>
   <string name="ai_disclaimer_warning_summary">Risico\'s en verantwoordelijkheden bij het gebruik van AI</string>
   <string name="ai_disclaimer_dialog_title">AI-tools — Belangrijke informatie</string>
@@ -1457,7 +1319,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="ai_disclaimer_point9">AI-providers rekenen voor API-gebruik. Kostenschattingen weergegeven in AndBible zijn bij benadering — controleer altijd de facturering van uw provider voor werkelijke kosten.</string>
   <string name="ai_disclaimer_accept_title">AI-disclaimer accepteren</string>
   <string name="ai_disclaimer_accept_button">Ik accepteer en neem volledige verantwoordelijkheid</string>
-
   <string name="prompt_permission_mode">Toestemmingsmodus</string>
   <string name="prompt_permission_mode_description">Bepaalt wanneer gebruikersbevestiging vereist is voordat de AI schrijfbewerkingen uitvoert. De onderstaande per-tool-instellingen kunnen dit voor afzonderlijke tools overschrijven.</string>
   <string name="agent_permission_mode_summary">Bepaalt wanneer gebruikersbevestiging vereist is voor AI-schrijfbewerkingen</string>
@@ -1540,8 +1401,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="ai_regenerate_keep_previous">Vorige versie bewaren</string>
   <string name="ai_regenerate_fresh_run">Nieuwe uitvoering (vorig resultaat negeren)</string>
   <string name="ai_unknown_prompt">AI</string>
-
-    <!-- Default prompts -->
+  <!--Default prompts-->
   <string name="default_prompt_translate_to_language">Vertalen naar %s</string>
   <string name="default_prompt_translate_to_ui_language">Vertalen naar gebruikerstaal</string>
   <string name="default_prompt_translate_to_ui_language_desc">Vertaalt documenttekst naar de taal van de app-interface</string>
@@ -1578,8 +1438,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="ai_restore_hidden_prompts">Verborgen prompts herstellen</string>
   <string name="ai_prompt_hidden">Prompt verborgen</string>
   <string name="ai_prompts_restored">Verborgen prompts hersteld</string>
-
-    <!-- Agent Tool Display Names -->
+  <!--Agent Tool Display Names-->
   <string name="tool_create_bookmark">Bladwijzer aanmaken</string>
   <string name="tool_add_bookmark_note">Bladwijzernotitie toevoegen</string>
   <string name="tool_update_bookmark_note">Bladwijzernotitie bijwerken</string>
@@ -1620,13 +1479,11 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="tool_create_window">Venster aanmaken</string>
   <string name="tool_manage_window">Venster beheren</string>
   <string name="tool_set_window_document">Vensterdocument instellen</string>
-
-    <!-- Agent Permission Dialog -->
+  <!--Agent Permission Dialog-->
   <string name="agent_permission_title">Agentmachtiging</string>
   <string name="agent_permission_message">De AI-assistent wil \"%1$s\" gebruiken:\n\n%2$s</string>
   <string name="agent_permission_message_with_action">De AI-assistent wil:\n\n%1$s</string>
-
-    <!-- Tool action descriptions for permission dialog -->
+  <!--Tool action descriptions for permission dialog-->
   <string name="action_create_bookmark_at">Bladwijzer maken bij %1$s</string>
   <string name="action_create_bookmark_at_with_extras">Bladwijzer maken bij %1$s (%2$s)</string>
   <string name="action_with_note">met notitie</string>
@@ -1664,8 +1521,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="permission_always_allow_confirm_title">Altijd toestaan?</string>
   <string name="permission_always_allow_confirm">Weet u zeker dat u \"%1$s\" permanent wilt toestaan?</string>
   <string name="permission_always_allow_confirm_reset_hint">U kunt dit opnieuw instellen in AI-instellingen.</string>
-
-    <!-- Agent Tool Permission Settings -->
+  <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Hulpmiddelenmachtigingen</string>
   <string name="manage_tool_permissions_summary">Machtigingsoverschrijvingen per hulpmiddel beheren</string>
   <string name="commentary_max_response_title">Maximale responsgrootte commentaar</string>
@@ -1699,19 +1555,15 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="permission_option_always_allow">Altijd toestaan</string>
   <string name="permission_option_always_deny">Altijd weigeren</string>
   <string name="reset_all_permissions">Alles opnieuw instellen</string>
-
-    <!-- Tool Info -->
+  <!--Tool Info-->
   <string name="ai_available_tools">Beschikbare hulpmiddelen</string>
   <string name="ai_read_tools">Leesinstrumenten</string>
   <string name="ai_write_tools">Schrijfinstrumenten</string>
-
-    <!-- Global Tool Permissions Activity -->
+  <!--Global Tool Permissions Activity-->
   <string name="global_tool_permissions_title">Standaard hulpmiddeleninstellingen</string>
-
-    <!-- Per-Prompt Tool Permissions -->
+  <!--Per-Prompt Tool Permissions-->
   <string name="prompt_tool_permissions">Hulpmiddelenmachtigingen</string>
-
-    <!-- Tool categories -->
+  <!--Tool categories-->
   <string name="tool_category_bible_search">Bijbel &amp; zoeken</string>
   <string name="tool_category_bookmarks">Bladwijzers</string>
   <string name="tool_category_labels">Labels</string>
@@ -1728,16 +1580,13 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="tool_option_default_disabled">Standaard (uitgeschakeld)</string>
   <string name="tool_option_default_allowed">Standaard (toegestaan)</string>
   <string name="tool_option_default_denied">Standaard (geweigerd)</string>
-
-    <!-- Per-Prompt Model Override -->
+  <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Standaard</string>
-
-    <!-- LLM One Tap Actions -->
+  <!--LLM One Tap Actions-->
   <string name="select_llm_prompt">AI-actie selecteren</string>
   <string name="llm_actions">AI-acties</string>
-
-    <!-- Agent Log Widget -->
+  <!--Agent Log Widget-->
   <string name="agent_log_expand">Agentlog uitvouwen/samenvouwen</string>
   <string name="agent_log_close">Agentlog sluiten</string>
   <string name="agent_log_stop">AI stoppen</string>
@@ -1752,8 +1601,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="agent_log_done">Klaar: %s</string>
   <string name="agent_log_cancelled">Geannuleerd</string>
   <string name="agent_already_running">Er wordt al een AI-agent uitgevoerd. Wacht of stop deze eerst.</string>
-
-    <!-- AI Agent Notifications -->
+  <!--AI Agent Notifications-->
   <string name="ai_agent_notification_channel_name">AI-agent</string>
   <string name="ai_agent_notification_running">AI-agent is bezig…</string>
   <string name="ai_agent_notification_permission_needed">AI-agent heeft uw goedkeuring nodig</string>
@@ -1762,8 +1610,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="ai_agent_notification_completed_tap">Tik om resultaten te bekijken</string>
   <string name="ai_agent_notification_error">AI-taak mislukt</string>
   <string name="ai_agent_notification_cancel">Annuleren</string>
-
-    <!-- My Documents -->
+  <!--My Documents-->
   <string name="my_documents_title">Mijn documenten</string>
   <string name="my_documents_empty">Nog geen documenten. Tik op + om er een aan te maken.</string>
   <string name="my_document_new_name">Document %d</string>
@@ -1774,7 +1621,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="my_document_save_changes">Wijzigingen opslaan?</string>
   <string name="my_document_no_description">Geen beschrijving</string>
   <string name="my_document_edit_description">Beschrijving bewerken</string>
-
   <string name="my_document_pages_title">%s - Pagina\'s</string>
   <string name="my_document_pages_empty">Geen pagina\'s in dit document.</string>
   <string name="my_document_page_rename_title">Pagina hernoemen</string>
@@ -1795,7 +1641,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="prefs_show_ai_doc_markers_summary">Markeringspictogrammen tonen voor AI-gegenereerde documentpagina\'s die aan verzen zijn gekoppeld</string>
   <string name="prefs_show_ordinals_title">Rangnummers tonen</string>
   <string name="prefs_show_ordinals_summary">Rangpositiemarkeringen in de tekst tonen</string>
-
   <string name="prefs_page_scroll_amount_title">Pagina-scrolhoeveelheid</string>
   <string name="prefs_page_scroll_amount_summary">Hoeveel van de pagina er wordt gescrolld met pagina omhoog/omlaag</string>
   <string name="prefs_scroll_helper_lines_title">Scrolhulplijnen</string>

@@ -15,23 +15,19 @@ paragraph_1_3: >
 subtitle_2: Fitur Studi Alkitab yang Canggih
 paragraph_2_1: >
   Aplikasi ini memiliki banyak fitur orisinal yang berwawasan luas, membuat pengalaman studi alkitab yang kompleks dan mendalam menjadi lebih mudah dari sebelumnya. Fitur-fitur yang paling menonjol adalah sebagai berikut:
-feature_01: >
-  Tampilan teks terpisah yang memungkinkan perbandingan terjemahan dan konsultasi tafsiran
-feature_02: >
-  Ruang kerja memungkinkan beberapa pengaturan studi alkitab dengan pengaturan masing-masing
+feature_01: "Tampilan teks terpisah yang memungkinkan perbandingan terjemahan dan konsultasi tafsiran\n"
+feature_02: "Ruang kerja memungkinkan beberapa pengaturan studi alkitab dengan pengaturan masing-masing\n"
 feature_03: Integrasi Strong memungkinkan analisis kata bahasa Yunani dan Ibrani
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Ketuk tautan apa pun untuk mengikuti referensi silang, catatan kaki, dan tafsiran ({{commentary_examples}}) atau koleksi referensi silang ({{cross_reference_examples}}) yang terhubung.
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry, dll.
+commentary_examples: "Gill, Matthew Henry, dll."
 # Examples of cross-reference collections.
-cross_reference_examples: Treasure of Scripture Knowledge, TSKe
-feature_05: >
-  Teks ke ucapan canggih dengan penanda buku berbicara, menghadirkan pengalaman mendengarkan alkitab yang nyaman
-feature_06: >
-  Pencarian teks lengkap yang fleksibel pada satu atau beberapa terjemahan Alkitab sekaligus
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Teks ke ucapan canggih dengan penanda buku berbicara, menghadirkan pengalaman mendengarkan alkitab yang nyaman\n"
+feature_06: "Pencarian teks lengkap yang fleksibel pada satu atau beberapa terjemahan Alkitab sekaligus\n"
 feature_07: Fitur penanda buku & penyorotan canggih dengan catatan studi pribadi
 feature_08: >
   Sinkronisasi antar perangkat: jaga ruang kerja, penanda buku, catatan, dan kemajuan bacaan Anda tetap selaras di semua perangkat
@@ -46,7 +42,7 @@ feature_11: >
   Agen studi AI opsional (hanya jika diaktifkan — perlu kunci API Anda sendiri untuk layanan eksternal): jelajahi tafsiran dan kamus Anda dengan bantuan AI dalam bahasa pilihan Anda, plus alur studi kreatif lainnya. Sistem izin bawaan menjaga Anda tetap mengendalikan apa yang dapat dilakukan agen.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV, dan NKJV
+unavailable_documents: "ESV, NIV, dan NKJV"
 feature_12: >
   Offline: satu-satunya saat Anda memerlukan internet adalah untuk mengunduh dokumen.
 # UNUSED
@@ -55,22 +51,27 @@ feature_13: >
 subtitle_3: Mari buat aplikasi alkitab terbaik bersama-sama!
 paragraph_3_1: >
   AndBible adalah proyek komunitas open-source. Dalam praktiknya, ini berarti siapa saja dengan keahlian yang sesuai dapat, dan didorong untuk, berkontribusi pada proyek dengan cara:
-contr_1: mengembangkan fitur baru,
-contr_2: menguji fitur yang belum dirilis,
-contr_3: menjaga terjemahan antarmuka pengguna tetap terkini, dan
-contr_4: >
-  membantu memperluas perpustakaan modul dengan memperoleh izin dari pemegang hak cipta, atau dengan mengonversi dokumen ke format SWORD.
+contr_1: "mengembangkan fitur baru,"
+contr_2: "menguji fitur yang belum dirilis,"
+contr_3: "menjaga terjemahan antarmuka pengguna tetap terkini, dan"
+contr_4: "membantu memperluas perpustakaan modul dengan memperoleh izin dari pemegang hak cipta, atau dengan mengonversi dokumen ke format SWORD.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  Jika Anda adalah insinyur perangkat lunak atau penguji profesional, pertimbangkanlah untuk berkontribusi pada proyek ini. Untuk informasi lebih lanjut tentang cara berkontribusi, silakan lihat {{how_to_contribute_url}}.
+paragraph_4_1: "Jika Anda adalah insinyur perangkat lunak atau penguji profesional, pertimbangkanlah untuk berkontribusi pada proyek ini. Untuk informasi lebih lanjut tentang cara berkontribusi, silakan lihat {{how_to_contribute_url}}.\n"
 subtitle_4: Tautan
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "Beranda: {{homepage_url}}"
-link_2: "Sukai AndBible di Facebook: {{facebook_url}}"
-link_3: "Saluran Youtube Kami: {{youtube_url}}"
-link_4: "Pertanyaan yang Sering Diajukan: {{faq_url}}"
-link_5: "Halaman proyek di Github: {{github_url}}"
-buy_title: Dukung dengan membeli waktu pengembangan!
+link_1: >-
+  Beranda: {{homepage_url}}
+link_2: >-
+  Sukai AndBible di Facebook: {{facebook_url}}
+link_3: >-
+  Saluran Youtube Kami: {{youtube_url}}
+link_4: >-
+  Pertanyaan yang Sering Diajukan: {{faq_url}}
+link_5: >-
+  Halaman proyek di Github: {{github_url}}
+buy_title: >-
+  Dukung dengan membeli waktu pengembangan!
 buy_1: >
   Jika Anda tidak memiliki waktu atau keahlian untuk kontribusi proyek, Anda juga dapat mendukung proyek dengan membeli waktu kerja pengembang profesional.
-buy_2: Lihat pilihan
+buy_2: >-
+  Lihat pilihan

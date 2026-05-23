@@ -1,15 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Masomo ya Biblia</string>
   <string name="app_name_medium">Masomo ya Biblia (AndBible)</string>
   <string name="app_name_long">AndBible: Masomo ya Biblia</string>
-
   <string name="version_text">Toleo %s</string>
   <string name="no_sdcard_error">Tafadhali ingiza kadi ya SD na uanzishe upya programu.</string>
-
-    <!-- Main menu -->
+  <!--Main menu-->
   <string name="menu">Menyu</string>
   <string name="chooseBook">Hati</string>
   <string name="selectPassage">Kifungu</string>
@@ -18,18 +15,6 @@
   <string name="history">Historia</string>
   <string name="speak">Soma kwa sauti</string>
   <string name="help">Msaada</string>
-    <!-- Help dialog strings (phase 3 UI Help links) -->
-  <string name="help_read_more_link">Soma zaidi katika mwongozo</string>
-  <string name="help_prompt_edit_text">Maagizo maalum yanakuruhusu kuunda maelekezo ya AI yanayoweza kutumika tena kwa masomo yako. Weka jina, maelezo, kiolezo, mazingira yanayopaswa kuonekana, na kwa hiari mtoa huduma/mfano maalum. Maagizo ya msingi hayawezi kuhaririwa moja kwa moja — tumia \"Nakili ili kubadilisha\" kuunda toleo lako mwenyewe.</string>
-  <string name="help_tool_info_text">Zana za AI ni kazi maalum ambazo AI inaweza kuziita kusoma data yako au kufanya mabadiliko kwa niaba yako. Zana za kusoma (mistari, maoni, kamusi, alamisho) haziitaji ruhusa. Zana za kuandika (kuunda alamisho, maelezo, maingizo ya daftari la masomo) zinahitaji ruhusa kupitia mfumo wa ruhusa.</string>
-  <string name="help_ai_settings_text">Mipangilio ya AI ndipo unaposimamia maagizo na makundi yako. Kutoka hapa unaweza kuunda maagizo mapya, kuyapanga katika makundi, kuingiza/kusafirisha maagizo kama CSV, kusanikisha vifurushi vya maagizo vya ziada, na kufika mipangilio ya muunganisho wa AI.</string>
-  <string name="help_ai_connection_text">Sanidi watoa huduma wako wa AI, mifano, ruhusa na chaguzi nyingine za muunganisho hapa. Kila mtoa huduma anahitaji ufunguo wake wa API. Unaweza kuongeza watoa huduma wengi na kuchagua mfano wa chaguo-msingi.</string>
-  <string name="help_ai_providers_text">Simamia watoa huduma wa AI (Google Gemini, OpenAI, Anthropic, n.k.). Kila mtoa huduma anahitaji ufunguo wake wa API. Unaweza kuongeza watoa huduma wengi na kuwagawia tofauti kwa maagizo maalum.</string>
-  <string name="help_ai_models_text">Simamia mifano ya mtoa huduma huyu. Unaweza kuburudisha orodha ya mifano kutoka kwa API ya mtoa huduma ili kupata matoleo mapya, au kuongeza jina la mfano kwa mkono ikiwa haipo kwenye orodha iliyopakuliwa.</string>
-  <string name="help_ai_document_filter_text">Punguza Biblia, maoni na moduli nyingine ambazo wakala wa AI anaweza kusoma. Kwa chaguo-msingi AI huona moduli zote zilizosanikishwa; kuchuja husaidia kupunguza kelele na gharama unapotaka izingatie vyanzo maalum tu.</string>
-  <string name="help_global_tool_permissions_text">Sanidi ruhusa kwa zana za AI binafsi. Kwa kila zana ya kusoma, chagua ikiwa AI inaweza kuitumia (Imewezeshwa au Imezimwa). Kwa kila zana ya kuandika, chagua Ruhusu daima, Kataa daima, au Uliza (ambayo inarudi kwa hali ya ruhusa ya kimataifa iliyowekwa katika mipangilio ya Muunganisho wa AI).</string>
-  <string name="help_reading_progress_text">Maendeleo yako ya kusoma Biblia na ukariri kwa muhtasari. Weka alama za sura kama zilizosomwa kwa mkono kwa kitufe cha \"Weka alama kama imesomwa\", au wezesha ufuatiliaji wa kiotomatiki. Mazoezi ya ukariri pia yanachangia kwenye mtazamo huu.</string>
-  <string name="help_memorize_text">Mtazamo wa Ukariri unakusaidia kujifunza vifungu kwa moyo. Tumia Ukungu wa Maneno, Mpangilio Mbaya wa Maneno, Aina ya Maneno au Mpangilio wa Maneno kufanya mazoezi. Mazoezi yaliyofanikiwa huweka alama mistari kama ilivyokaririwa kiotomatiki (hii inaweza kuzimwa).</string>
   <string name="information">Taarifa</string>
   <string name="other">Nyingine</string>
   <string name="contact">Wasiliana</string>
@@ -37,15 +22,13 @@
   <string name="administration">Usimamizi</string>
   <string name="rate_application">Kadiria na Pitia</string>
   <string name="chooce_document">Chagua Hati</string>
-
-    <!-- Passage navigation -->
+  <!--Passage navigation-->
   <string name="choosePassageBookName">Chagua Kitabu</string>
   <string name="choosePassageChapterName">Chagua Sura</string>
   <string name="choosePassageVerseName">Chagua Mstari</string>
   <string name="bible">Biblia</string>
   <string name="deuterocanonical">Deuterocanonical</string>
-
-    <!--  Search -->
+  <!--Search-->
   <string name="search_index">Faharasa ya Utafutaji</string>
   <string name="index_creation_required">Faharasa inahitajika ili kutafuta.</string>
   <string name="create_index_for">Faharasa inahitajika ili kutafuta. \n\nUnde faharasa kwa %s?</string>
@@ -57,15 +40,13 @@
   <string name="do_in_background">Endelea mandharinyuma</string>
   <string name="rebuild_index_button">Jenga upya</string>
   <string name="creating_index_for">Kuunda faharasa kwa %s…</string>
-    <!-- X results in module Y -->
+  <!--X results in module Y-->
   <string name="search_with_results2">Matokeo %1$s katika %2$s</string>
-
-    <!-- Tasks -->
+  <!--Tasks-->
   <string name="progress_status">Maendeleo</string>
   <string name="task_kill_warning">Kazi hizi zinazochukua muda mrefu zinaweza kusimama ikiwa utabadilisha programu nyingine kabla ya kukamilika.</string>
   <string name="no_tasks_running">Hakuna kazi zinazotekelezwa sasa hivi.</string>
-
-    <!-- Search -->
+  <!--Search-->
   <string name="search_words_group_prompt">Tafuta mistari</string>
   <string name="search_all_words">Maneno yote</string>
   <string name="search_any_word">Neno lolote</string>
@@ -80,49 +61,38 @@
   <string name="search_current_book">Kitabu cha sasa</string>
   <string name="error_executing_search">Hoja ya utafutaji si sahihi</string>
   <string name="type_text_or_bible_reference">Andika maandishi au rejeleo la biblia</string>
-    <!-- Open (bible reference X) -->
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">Fungua %s</string>
-    <!-- Finx "(keywords x)", keywords based on text selection -->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">Tafuta \"%s\"</string>
-    <!-- Multi-translation search -->
+  <!--Multi-translation search-->
   <string name="search_translations">Tafsiri</string>
   <string name="choose_translations">Chagua tafsiri…</string>
   <string name="multi_search_results">Mistari %1$d katika tafsiri %2$d</string>
   <string name="search_index_not_created">hakuna faharasa</string>
-
-    <!-- Preferences -->
+  <!--Preferences-->
   <string name="prefs_show_verseno_title">Nambari za sura na mstari</string>
   <string name="prefs_show_verseno_summary">Onyesha nambari za sura na mstari</string>
-
   <string name="prefs_e_ink_mode_title">Hali nyeusi na nyeupe</string>
   <string name="prefs_eink_mode_summary">Tumia programu katika hali ya rangi moja (bila rangi), kufaa zaidi kwa vifaa vya E-ink.</string>
   <string name="prefs_eink_settings_cat">Mipangilio ya E-ink</string>
   <string name="prefs_eink_display_title">Vipengele vya E-ink</string>
   <string name="prefs_eink_display_summary">Wezesha vipengele maalum vya e-ink (vitufe vya kusogeza kurasa, mistari ya msaada wa kusogeza)</string>
-
   <string name="prefs_disable_animations_title">Zima uhuishaji</string>
   <string name="prefs_disable_animations_summary">Zima uhuishaji mbalimbali kama vile kusogeza laini.</string>
-
   <string name="prefs_disable_click_to_edit_title">Zima kubonyeza-ili-kuhariri kwa Daftari la Masomo</string>
   <string name="prefs_disable_click_to_edit_summary">Inahitaji kutumia kitufe cha kuhariri ili kuhariri maelezo katika Daftari la Masomo.</string>
-
   <string name="prefs_notes_content_type_title">Umbizo la maelezo mapya ya alamisho</string>
   <string name="prefs_notes_content_type_summary">Umbizo la maandishi linalotumika wakati wa kuunda maelezo mapya ya alamisho na maingizo ya Daftari la Masomo</string>
   <string name="notes_content_type_html">Maandishi tajiri (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
-
-
-
-
   <string name="prefs_verse_per_line_summary">Onyesha kila mstari katika safu tofauti</string>
   <string name="prefs_show_bookmarks_summary">Ondoa alama ili kuficha alamisho zote</string>
-
   <string name="prefs_show_mynotes_summary">Onyesha ikoni katika mistari yenye Maelezo Yangu</string>
   <string name="prefs_show_strongs_summary">Viungo vya ufafanuzi wa Kigiriki na Kiebrania</string>
   <string name="prefs_show_morphology_summary">Onyesha mofolojia ya Kigiriki ya Robinson</string>
   <string name="prefs_section_title_summary">Onyesha vichwa vya sehemu visivyo vya kanuni</string>
   <string name="prefs_red_letter_summary">Onyesha maneno ya Kristo kwa nyekundu</string>
-
   <string name="prefs_verse_per_line_title">Mstari mmoja kwa kila safu</string>
   <string name="prefs_show_bookmarks_title">Onyesha alamisho</string>
   <string name="prefs_show_mynotes_title">Onyesha ikoni za Maelezo Yangu</string>
@@ -132,7 +102,6 @@
   <string name="prefs_show_footnotes_inline_title">Maelezo ya chini ndani ya maandishi</string>
   <string name="prefs_show_footnotes_inline_summary">Onyesha maelezo ya chini ndani ya maandishi badala ya kama viungo vinavyoweza kubonyezwa</string>
   <string name="prefs_show_xrefs_summary">Onyesha marejeleo ya msalaba, ikiwa yanapatikana katika hati</string>
-
   <string name="prefs_show_strongs_title">Nambari za Strong\'s</string>
   <string name="prefs_show_morphology_title">Misimbo ya mofolojia</string>
   <string name="prefs_non_strongs_word_italic_title">Italiki maneno yaliyoongezwa</string>
@@ -157,20 +126,17 @@
   <string name="reading_progress_history_no_entries">Hakuna rekodi za kusoma kwa uteuzi huu.</string>
   <string name="reading_progress_history_version_unknown">Toleo halijulikani</string>
   <string name="prefs_tilt_to_scroll_title">Inamisha kusogeza</string>
-
   <string name="prefs_toolbar_button_action_title">Kitendo cha kitufe cha mwambaa zana</string>
   <string name="prefs_toolbar_button_action_summary">Kitendo cha kuchukua unapobonyeza/kubonyeza muda mrefu vitufe vya mwambaa zana vya Biblia au Maoni</string>
   <string name="prefs_toolbar_button_action_default">Bonyeza kufungua menyu, bonyeza muda mrefu kwa skrini ya hati (chaguo-msingi)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Bonyeza kufungua hati inayofuata, bonyeza muda mrefu kufungua menyu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Bonyeza kufungua hati inayofuata, bonyeza muda mrefu kwa skrini ya hati</string>
-
   <string name="prefs_night_mode_title">Kubadilisha hali ya usiku</string>
   <string name="prefs_night_mode_summary">Iwapo kubadilisha hadi hali ya usiku kiotomatiki (ikiwa kifaa kinaauni), kwa mkono au kupitia mipangilio ya mfumo (Android 10+). Kubadilisha kwa mkono kunaweza kufanywa kutoka kwenye menyu ya chaguo 3-nukta kwenye skrini kuu.</string>
   <string name="prefs_night_mode_manual">Mkono</string>
   <string name="prefs_night_mode_automatic">Kiotomatiki</string>
   <string name="prefs_night_mode_system">Mfumo</string>
   <string name="options_menu_night_mode">Hali ya usiku</string>
-
   <string name="prefs_navigate_to_verse_title">Nenda kwenye mstari</string>
   <string name="prefs_navigate_to_verse_summary">Chagua mstari (na sura) unapochagua kifungu</string>
   <string name="prefs_open_links_in_special_window_title">Dirisha la viungo</string>
@@ -181,20 +147,15 @@
   <string name="prefs_interface_locale_title">Lugha ya programu</string>
   <string name="prefs_interface_locale_summary">Chagua lugha maalum ya kiolesura</string>
   <string name="reset_fontsize">Weka upya</string>
-
   <string name="prefs_request_sdcard_permission_title">Hati zilizosanikishwa kwa mkono zipo</string>
   <string name="prefs_request_sdcard_permission_summary">Wezesha matumizi ya hati zilizosanikishwa kwa mkono kutoka folda ya jsword/sword kwenye hifadhi ya ndani</string>
-
   <string name="prefs_expand_footnotes_title">Marejeleo ya msalaba ndani ya maandishi</string>
   <string name="prefs_expand_footnotes_summary">Onyesha maudhui ya marejeleo ya msalaba ndani ya maandishi, badala ya kiungo kinachofungua mazungumzo ya ibuko</string>
-
   <string name="all_text_options_window_menutitle">Chaguo zote za maandishi</string>
   <string name="text_options_window_menutitle">Chaguo za maandishi</string>
   <string name="auto_fullscreen">Skrini nzima kwa kusogeza</string>
   <string name="reversed_split_mode">Hali ya mgawanyiko wa kinyume</string>
-
   <string name="add_ellipsis">%s…</string>
-
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Badilisha kiotomatiki hadi skrini nzima unaposogeza maandishi. Kidokezo: unaweza pia kubadilisha hadi skrini nzima kwa kugonga mara mbili skrini.</string>
@@ -204,10 +165,8 @@
   <string name="prefs_features_cat">Vipengele</string>
   <string name="prefs_display_customization_cat">Muonekano</string>
   <string name="prefs_behavior_customization_cat">Tabia ya programu</string>
-
   <string name="prefs_margin_size_summary">Rekebisha ukingo wa kushoto na wa kulia wa sehemu ya maandishi. Unaweza pia rekebisha upana wa juu wa maandishi.</string>
   <string name="prefs_margin_size_summary_2">Kidokezo: Unaweza gonga eneo la ukingo kuruka ukurasa mmoja juu / chini.</string>
-
   <string name="prefs_text_colors_summary">Rekebisha rangi za maandishi, mandhari na athari ya kelele</string>
   <string name="text_display_settings_activity_title">Mipangilio ya onyesho la maandishi</string>
   <string name="workspace_text_display_settings_title">Chaguo za maandishi - %s</string>
@@ -225,9 +184,8 @@
   <string name="prefs_footnotes_and_xrefs_title">Maelezo ya Chini na Marejeleo ya Msalaba</string>
   <string name="prefs_verses_and_headings_title">Mistari na Vichwa</string>
   <string name="prefs_page_scrolling_title">Kusogeza Kurasa</string>
-
-  <string name="prefs_justify_title">Rekebisha-sawa maandishi</string>
-  <string name="prefs_justify_summary">Pangilia maandishi katika mtindo wa \'rekebisha-sawa\', yaani ukingo wa kushoto na wa kulia wa maandishi uko sawasawa</string>
+  <string name="prefs_justify_title">Sawazisha maandishi</string>
+  <string name="prefs_justify_summary">Pangilia maandishi katika mtindo wa \'Sawazisha kingo\', yaani ukingo wa kushoto na wa kulia wa maandishi uko sawasawa</string>
   <string name="pref_left_margin_label_mm">Ukingo wa kushoto (%d mm)</string>
   <string name="pref_right_margin_label_mm">Ukingo wa kulia (%d mm)</string>
   <string name="pref_maximum_width_of_text_label_mm">Upana wa juu wa maandishi (%d mm)</string>
@@ -247,10 +205,8 @@
   <string name="hide_window_buttons_summary">Vitufe vya dirisha vinavyoonyeshwa upande wa kulia wa maonyesho ya Biblia vimefichwa. Mwambaa wa uabiri wa dirisha chini bado unaonyeshwa na unaweza kufungua menyu ya ibuko ya dirisha kwa kubonyeza muda mrefu.</string>
   <string name="hide_bible_reference_overlay_title">Ficha kionyeshi cha rejeleo la Biblia</string>
   <string name="hide_bible_reference_overlay_summary">Usionyeshe kionyeshi cha rejeleo la Biblia chenye uwazi wa nusu wakati programu iko katika hali ya skrini nzima</string>
-
   <string name="full_screen_hide_buttons_pref_title">Ficha mwambaa wa vitufe vya dirisha katika skrini nzima</string>
   <string name="full_screen_hide_buttons_pref_summary">Unapobadilisha hadi hali ya skrini nzima, ficha kiotomatiki mwambaa wa vitufe vya dirisha ulio chini ya skrini</string>
-
   <string name="prefs_dictionaries_cat">Kamusi</string>
   <string name="choose_strongs_greek_dictionary_title">Kamusi ya Kigiriki ya Strongs</string>
   <string name="choose_strongs_greek_dictionary_summary">Chagua kamusi ya Strongs kwa ufafanuzi wa maneno ya Kigiriki</string>
@@ -262,28 +218,22 @@
   <string name="choose_word_lookup_dictionary_summary">Chagua kamusi kwa utafutaji wa maneno</string>
   <string name="lookup_in_dictionary">Tafuta katika kamusi</string>
   <string name="word_not_found_in_dictionaries">Neno halipatikani katika kamusi yoyote</string>
-
   <string name="prefs_top_margin_title_mm">Ukingo wa juu (%d mm)</string>
   <string name="font_size_title">Ukubwa wa fonti</string>
   <string name="font_size_title_pt">Ukubwa wa fonti (%d pt)</string>
   <string name="prefs_font_text_size_summary">Rekebisha ukubwa wa fonti ya maandishi kuu</string>
-
   <string name="pref_font_family_label_name">Familia ya fonti (%s)</string>
   <string name="prefs_font_family_summary">Badilisha familia ya fonti. Kidokezo: fonti zaidi zinaweza kusanikishwa kupitia Pakua Hati / Viongezi.</string>
-
   <string name="prefs_text_bookmarks_title">Mipangilio ya Alamisho na Maelezo Yangu</string>
   <string name="prefs_reading_and_memorization_title">Usomaji na Ukariri</string>
-
   <string name="prefs_enable_bluetooth_title">Wezesha vitufe vya midia vya Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Shughulikia vitufe vya midia vya Bluetooth kuanza/kusimama kusoma kwa sauti.</string>
   <string name="create_bookmark">Unda Alamisho jipya</string>
   <string name="create_bookmark_with_a_note">Unda Alamisho jipya lenye maelezo</string>
-
-    <!-- Colors preferences -->
+  <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">Mipangilio ya rangi</string>
   <string name="window_color_settings_title">Mipangilio ya rangi ya dirisha</string>
   <string name="workspace_color_settings_title">Chaguo-msingi za mipangilio ya rangi ya eneo la kazi</string>
-
   <string name="color_workspace">Rangi ya eneo la kazi</string>
   <string name="color_text">Rangi ya maandishi</string>
   <string name="color_background">Rangi ya mandhari</string>
@@ -291,9 +241,7 @@
   <string name="colors_night_mode_title">Hali ya usiku</string>
   <string name="prefs_noise_title">Kelele ya mandhari</string>
   <string name="prefs_noise_summary">Kuongeza kelele kidogo kwa mandhari kunaweza kuifanya iwe vizuri zaidi kwa macho.</string>
-
-
-    <!-- Window -->
+  <!--Window-->
   <string name="new_window">Dirisha jipya</string>
   <string name="windowMaximise">Panua</string>
   <string name="windowMinimise">Punguza</string>
@@ -306,15 +254,12 @@
   <string name="copy_settings_to_global">Chaguo-msingi za kimataifa</string>
   <string name="change_to_normal">Badilisha hadi dirisha la kawaida</string>
   <string name="window_pin_mode">Pina</string>
-
-    <!-- Notes screen -->
+  <!--Notes screen-->
   <string name="previous">Iliyopita</string>
   <string name="next">Inayofuata</string>
-
-    <!--  Strongs -->
+  <!--Strongs-->
   <string name="no_indexed_bible_with_strongs_ref">Lazima upakue Biblia yenye nambari za Strong\'s na uunde faharasa yake kupitia Utafutaji</string>
-
-    <!-- Module download -->
+  <!--Module download-->
   <string name="download">Pakua Hati</string>
   <string name="redownload">Pakua Tena Hati</string>
   <string name="download_source_last_updated">Orodha za hati zilisasishwa mara ya mwisho: %s.</string>
@@ -331,7 +276,9 @@
   <string name="one_more_back_press">Bonyeza nyuma tena ili kufunga programu</string>
   <string name="document_filter_results">Hati %d</string>
   <string name="download_question_title">Je, unataka kuendelea kupakua hati?</string>
-  <string name="download_question_message">Ikiwa unaishi katika nchi inayodhulumiwa, huenda uhitaji kuwa makini kuhusu kupakua nyenzo za Kikristo kupitia Mtandao. Badala yake, unaweza kutaka kupata faili za moduli za zipu kwa usalama zaidi na kuzisanikisha kupitia \"Pakia Hati Kutoka kwa Zipu\". Je, una uhakika unataka kuendelea kupakua? Upakuaji wote kutoka kwa seva za moduli umesimbwa (HTTPS).</string>
+  <string name="download_question_message">Ikiwa unaishi katika nchi inayodhulumiwa, 
+huenda uhitaji kuwa makini kuhusu kupakua nyenzo za Kikristo kupitia Mtandao. Badala yake, unaweza kutaka kupata faili za moduli za zipu kwa usalama zaidi na kuzisanikisha kupitia \"Pakia Hati Kutoka kwa Zipu\". Je, una uhakika unataka kuendelea kupakua? Upakuaji wote kutoka kwa seva za moduli umesimbwa (HTTPS).
+</string>
   <string name="do_not_ask_again">Ndiyo, usiulize tena</string>
   <string name="recommended_document">Inapendekezwa!</string>
   <string name="about_version_history">Historia ya toleo: %s</string>
@@ -339,8 +286,7 @@
   <string name="failed_repositories_message">Haikuweza kuunganika na seva ya hati ifuatayo: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Faili zifuatazo hazikuweza kupakuliwa:\n\n%s\n\n</string>
   <string name="cant_delete_document">Hati hii haiwezi kufutwa.</string>
-
-    <!--  Install zip file -->
+  <!--Install zip file-->
   <string name="install_zip">Pakia Hati Kutoka kwa Faili</string>
   <string name="install_zip_module">Sanikisha Moduli ya Biblia</string>
   <string name="install_zip_module_discrete">Sanikisha Moduli ya Kikokotoo</string>
@@ -353,8 +299,7 @@
   <string name="overwrite_files_title">Andika juu ya faili?</string>
   <string name="could_not_overwrite_files">Haikuweza kuandika juu ya faili: %s. Zaidi ya hilo sanikisho ilifanikiwa.</string>
   <string name="install_do_you_want">Je, unataka kusanikisha moduli (%s)?</string>
-
-    <!-- Daily Reading Plan -->
+  <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Mpango wa Kusoma</string>
   <string name="reading_plans_plural">Mipango ya Kusoma</string>
   <string name="rdg_plan_selector_title">Chagua Mpango wa Kusoma</string>
@@ -365,45 +310,49 @@
   <string name="done">Imekamilika</string>
   <string name="reset_plan_question">Je, una uhakika unataka kuweka upya mpango huu?</string>
   <string name="import_reading_plan">Ingiza mpango wa kusoma…</string>
-  <string name="plan_duplicate_user_plan">Kuna mpango wa kusoma wa mtumiaji katika sdcard jsword/readingplan yenye jina sawa na mpango wa ndani. Haiwezi kuorodheshwa hapa. Tafadhali ibadilishie jina kwa kitu kingine, ukiacha kiendelezi cha faili chake kama .properties</string>
+  <string name="plan_duplicate_user_plan">
+Kuna mpango wa kusoma wa mtumiaji katika sdcard 
+sword/readingplan yenye jina sawa na mpango wa ndani. Haiwezi kuorodheshwa hapa.
+Tafadhali ibadilishie jina kwa kitu kingine, ukiacha kiendelezi cha faili chake kama .properties</string>
   <string name="plan_name_y1ntpspr">Agano Jipya, Zaburi na Mithali katika Mwaka Mmoja</string>
-  <string name="plan_description_y1ntpspr">Kwa heshima ya HEARTLIGHT Internet Magazine, http://www.heartlight.org, ruhusa imetolewa</string>
+  <string name="plan_description_y1ntpspr">
+Kwa heshima ya HEARTLIGHT Internet Magazine, http://www.heartlight.org, ruhusa imetolewa</string>
   <string name="plan_name_y1ot1nt1_chronological">Mpangilio wa Matukio mwaka 1 kupitia Biblia</string>
-  <string name="plan_description_y1ot1nt1_chronological">Mpango unaozingatia matukio ya mpangilio wa matukio katika Biblia. Mstari wa wakati wa matukio ni wa makadirio.</string>
+  <string name="plan_description_y1ot1nt1_chronological">
+Mpango unaozingatia matukio ya mpangilio wa matukio katika Biblia. Mstari wa wakati wa matukio ni wa makadirio.</string>
   <string name="plan_name_y1ot1nt1_OTandNT">Mwaka 1 Agano la Kale+Agano Jipya Wakati Mmoja</string>
-  <string name="plan_description_y1ot1nt1_OTandNT">Soma Biblia yote kwa mwaka 1, na sura za Agano la Kale na Agano Jipya kila siku.</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">
+Soma Biblia yote kwa mwaka 1, na sura za Agano la Kale na Agano Jipya kila siku.</string>
   <string name="plan_name_y1ot1nt1_OTthenNT">Mwaka 1 kupitia Biblia</string>
-  <string name="plan_description_y1ot1nt1_OTthenNT">Soma Biblia yote kwa mwaka 1, ukianza katika Mwanzo na kukamilika katika Ufunuo. Agano la Kale ni la kwanza, kisha Agano Jipya.</string>
-  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne Mwaka 1 sura 4/siku</string>
-  <string name="plan_description_y1ot1nt2_mcheyne">Mpango huu unazingatia mfumo wa kusoma wa M\'Cheyne, ukiwa na masomo manne tofauti ya kutumia katika ibada za familia na za kibinafsi. Kila siku ina vifungu viwili kutoka Agano la Kale, kimoja kutoka Agano Jipya, na kimoja kutoka Zaburi au Injili. Katika mwaka mmoja, unasoma Agano la Kale mara moja na Agano Jipya na Zaburi mara mbili.</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">
+Soma Biblia yote kwa mwaka 1, ukianza katika Mwanzo na kukamilika katika Ufunuo. Agano la Kale ni la kwanza, kisha Agano Jipya.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">Mpangilio wa kufuata M\'Cheyne: Mwaka 1 sura 4/siku</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">Mpangilioo huu unazingatia mfumo wa kusoma wa M\'Cheyne, ukiwa na masomo manne tofauti ya kutumia katika ibada za familia na za kibinafsi. Kila siku ina vifungu viwili kutoka Agano la Kale, kimoja kutoka Agano Jipya, na kimoja kutoka Zaburi au Injili. Katika mwaka mmoja, unasoma Agano la Kale mara moja na Agano Jipya na Zaburi mara mbili.</string>
   <string name="plan_name_y1ot6nt4_profHorner">Mpango wa Kusoma wa Prof. Horner sura 10/siku</string>
   <string name="plan_description_y1ot6nt4_profHorner">Kwa heshima ya Prof. Horner, ruhusa imetolewa</string>
   <string name="plan_name_y2ot1ntps2">Miaka 2 Kupitia Biblia, Agano Jipya+Zaburi mara mbili</string>
-  <string name="plan_description_y2ot1ntps2">Soma Biblia yote kwa miaka 2, ukisoma Agano Jipya na Zaburi mara mbili. Kwa heshima ya Wholesome Words, http://www.wholesomewords.org/, ruhusa imetolewa</string>
-
-    <!-- Document context menu -->
+  <string name="plan_description_y2ot1ntps2">
+Soma Biblia yote kwa miaka 2, ukisoma Agano Jipya na Zaburi mara mbili. Kwa heshima ya Wholesome Words, http://www.wholesomewords.org/, ruhusa imetolewa</string>
+  <!--Document context menu-->
   <string name="delete">Futa</string>
   <string name="delete_index">Futa faharasa ya utafutaji</string>
   <string name="about">Kuhusu</string>
   <string name="delete_doc">Futa %s?</string>
   <string name="delete_search_index_doc">Futa faharasa ya %s?</string>
-
-    <!-- Verse context menu -->
+  <!--Verse context menu-->
   <string name="notes">Maelezo ya chini na marejeleo</string>
   <string name="share_verse">Shiriki…</string>
   <string name="share_verse_widget_title">Shiriki uteuzi</string>
   <string name="compare_translations">Linganisha tafsiri</string>
-
-    <!-- Link context menu -->
+  <!--Link context menu-->
   <string name="open_link_in_this_window">Fungua kiungo hapa</string>
   <string name="open_link_in_new_window">Fungua kiungo katika dirisha jipya</string>
   <string name="open_link_in_special_window">Fungua kiungo katika dirisha maalum</string>
-
-    <!-- Bookmarks -->
+  <!--Bookmarks-->
   <string name="bookmarks_and_mynotes_title">Alamisho na Maelezo Yangu</string>
   <string name="migrated_my_notes">Maelezo Yangu yaliyohamishwa</string>
   <string name="bookmarks">Alamisho</string>
-    <!-- Bookmark / note labels -->
+  <!--Bookmark / note labels-->
   <string name="labels">Lebo</string>
   <string name="manage_labels">Simamia Lebo</string>
   <string name="assign_labels">Gawanya lebo</string>
@@ -418,53 +367,51 @@
   <string name="add_paragraph_break">Mapumziko ya aya</string>
   <string name="ai_label">AI</string>
   <string name="bookmark_settings_hide_labels_title">Ficha lebo maalum</string>
-  <string name="bookmark_settings_hide_labels_summary">Ficha alamisho zilizowekwa alama na lebo maalum</string>
+  <string name="bookmark_settings_hide_labels_summary">
+Ficha alamisho zilizowekwa alama na lebo maalum</string>
   <string name="auto_assign_labels_title">Mipangilio ya lebo</string>
   <string name="auto_assign_labels">Gawanya kiotomatiki na Lebo za Kipendwa</string>
   <string name="auto_assign_labels1">Gawanya lebo kiotomatiki kwa alamisho mpya</string>
   <string name="auto_assign_labels_primary">Gawanya kiotomatiki kama ya msingi</string>
-  <!-- can be removed -->
+  <!--can be removed-->
   <string name="marker_style">Onyesha alama tu kwa alamisho za uteuzi</string>
   <string name="marker_style_whole_verse">Onyesha alama tu kwa alamisho za mstari wote</string>
   <string name="hide_style">Ficha kwa alamisho za uteuzi</string>
   <string name="hide_style_whole_verse">Ficha kwa alamisho za mstari wote</string>
   <string name="bookmark_warning">Kuna alamisho na/au maelezo kwa hati hii.</string>
-  <string name="bookmark_warning2">Ikiwa muundo wa hati umebadilika, kusasisha hati hii kunaweza kufanya maeneo ya alamisho/maelezo hizi yahamie ndani ya hati au kutoweka kabisa.</string>
+  <string name="bookmark_warning2">
+Ikiwa muundo wa hati umebadilika, kusasisha hati hii kunaweza kufanya maeneo ya alamisho/maelezo hizi yahamie ndani ya hati au kutoweka kabisa.</string>
   <string name="bookmark_warning3">Je, bado unataka kusasisha moduli?</string>
   <string name="bookmark_warning4">Inashauriwa kufanya nakala ya hifadhi ya moduli kabla ya kusasisha.</string>
-    <!--  Sort orders used for Bookmarks and MyNotes -->
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Mpangilio wa tarehe</string>
   <string name="sort_by_bible_book">Mpangilio wa Kibiblia</string>
   <string name="sort_by_alphabetical">Mpangilio wa alfabeti</string>
-    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <string name="filter_by_notes">Tafuta maelezo</string>
-
-    <!-- Dictionary -->
+  <!--Dictionary-->
   <string name="dictionary">Kamusi</string>
   <string name="search_dictionary_hint">Tafuta kamusi</string>
-
-    <!-- General Book -->
+  <!--General Book-->
   <string name="general_book">Kitabu</string>
-
-    <!-- Speak -->
-    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
-    <!-- Speak - Bible -->
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
   <string name="one_chapter">Sura %d</string>
   <string name="some_chapters">Sura %d</string>
-    <!-- Speak - Commentary -->
+  <!--Speak - Commentary-->
   <string name="one_verse">Mstari %d</string>
   <string name="some_verses">Mistari %d</string>
-    <!-- Speak - Dictionary and other -->
+  <!--Speak - Dictionary and other-->
   <string name="one_page">Ukurasa %d</string>
   <string name="some_pages">Kurasa %d</string>
-    <!-- Speak - Common -->
+  <!--Speak - Common-->
   <string name="stop">Simama</string>
   <string name="pause">Sitisha</string>
   <string name="rewind">Rudi nyuma</string>
   <string name="forward">Mbele</string>
   <string name="tts_lang_not_available">Lugha haipatikani.</string>
-
-    <!-- Speak - Bible -->
+  <!--Speak - Bible-->
   <string name="speak_speed_title">Kasi ya kusoma</string>
   <string name="speak_and_play_earcons_title">Soma kwa sauti na cheza sauti za earcon kwa</string>
   <string name="playback_settings_title">Mipangilio ya Uchezaji</string>
@@ -473,17 +420,14 @@
   <string name="speak_bookmarks_menu_title">Soma kutoka kwa alamisho</string>
   <string name="speak_advanced_settings">Mipangilio ya Hali ya Juu</string>
   <string name="speak_sleep_timer_title">Kipima muda cha kulala</string>
-
   <string name="speak_no_books_available">Hakuna vitabu vinavyopatikana kwa kusoma</string>
   <string name="speak_general_error">Kusoma kwa sauti hakukuweza kuanzishwa kwa kitabu hiki</string>
-
   <string name="repeat_passage">Rudia kifungu</string>
   <string name="set_repeat_passage_range">Weka anuwai ya kifungu cha kurudiwa</string>
   <string name="speak_beginning_of_passage">Chagua mwanzo wa kifungu</string>
   <string name="speak_ending_of_passage">Chagua mwisho wa kifungu</string>
   <string name="speak_verse_range_to_repeat">Chagua anuwai ya mstari wa kurudiwa</string>
   <string name="speak_ending_verse_must_be_later">Mstari wa mwisho lazima uwe baadaye kuliko mstari wa kuanza</string>
-
   <string name="conf_speak_synchronize">Maandishi yanafuata usemi</string>
   <string name="conf_speak_auto_bookmark">Kuweka alamisho kiotomatiki</string>
   <string name="conf_save_playback_settings_to_bookmarks">Hifadhi mipangilio ya uchezaji kwa alamisho</string>
@@ -492,12 +436,10 @@
   <string name="conf_change_title">Vichwa</string>
   <string name="conf_speak_footnotes">Maelezo ya chini</string>
   <string name="conf_speak_sleep_timer">Weka kipima muda cha kulala</string>
-
   <string name="sleep_timer_title">Muda wa kulala kwa dakika</string>
   <string name="sleep_timer_set">Weka kipima muda cha kulala. Kipima muda kimewekwa: dakika %d</string>
   <string name="sleep_timer_started">Kipima muda cha kulala kimeanzishwa, dakika %d</string>
   <string name="sleep_timer_active_at">Kipima muda cha kulala: dakika %s zimebaki.</string>
-
   <string name="speak_next">Inayofuata</string>
   <string name="speak_previous">Iliyopita</string>
   <string name="widget_toggle_sleep_timer">Badilisha kipima muda cha kulala</string>
@@ -505,59 +447,64 @@
   <string name="speak_status_stopped">imesimama</string>
   <string name="speak_autobookmarking_disabled">Kuweka alamisho kiotomatiki kumezimwa!</string>
   <string name="system_speak_settings">Fungua mipangilio ya TTS ya mfumo</string>
-
   <string name="auto_assing_labels_help1">Hapa unaweza kurekebisha lebo zipi zinagawiwa kiotomatiki kwa alamisho unazozunda.</string>
-
-    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">Mipangilio hii inatumika kwa %s.</string>
   <string name="setting_scope_window">dirisha hili</string>
   <string name="setting_scope_workspace">eneo hili la kazi</string>
-
   <string name="assing_labels_help1">Kila alamisho linaweza kupewa lebo nyingi.</string>
-    <!-- param is bookmark icon -->
+  <!--param is bookmark icon-->
   <string name="assing_labels_help2">Tumia %s kubainisha rangi ya lebo inayoonyeshwa.</string>
-    <!-- param is auto-assign label icon -->
+  <!--param is auto-assign label icon-->
   <string name="assing_labels_help3">Gonga ikoni ya %s ili lebo hiyo igawiwe kiotomatiki kwa alamisho mpya.</string>
-    <!-- param is heart icon -->
+  <!--param is heart icon-->
   <string name="assing_labels_help4">Gonga %s kuongeza lebo kwenye orodha yako ya vipendwa kwa ufikiaji wa haraka.</string>
-
-    <!-- param is refresh icon -->
+  <!--param is refresh icon-->
   <string name="assing_labels_help5">Gonga %s kupanga upya orodha kulingana na uteuzi wako.</string>
-
   <string name="global_text_options_help_title">Chaguo za maandishi za kimataifa</string>
   <string name="global_text_options_help1">Hizi ni mipangilio ya chaguo-msingi ya kimataifa kwa maeneo yote ya kazi. Kila eneo la kazi linaweza kupindua hizi kwa mipangilio yake yenyewe.</string>
-
   <string name="workspace_text_options_help_title">Chaguo za maandishi za eneo la kazi</string>
   <string name="workspace_text_options_help1">Mipangilio hii inabainisha chaguo-msingi kwa madirisha yote ya eneo la kazi. Mipangilio iliyorithiwa kutoka kwa chaguo-msingi za kimataifa inaonyeshwa ipasavyo.</string>
   <string name="workspace_text_options_help2">Unaweza kupindua hizi kwa kubadilisha mipangilio ya dirisha la mtu binafsi.</string>
-
   <string name="window_text_options_help_title">Chaguo za maandishi za dirisha</string>
-    <!-- Parameter is actual icon -->
+  <!--Parameter is actual icon-->
   <string name="window_text_options_help1">Ikoni ya %s inaonyesha kwamba mipangilio inakuja kutoka kwa mipangilio ya eneo la kazi.</string>
-    <!-- Parameter is actual icon -->
-
-    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">Tumia kitufe cha %1$s kuweka upya mipangilio hii yote hadi %2$s.</string>
   <string name="reset_defaults">thamani za chaguo-msingi</string>
   <string name="reset_workspace_defaults">thamani za chaguo-msingi za eneo la kazi</string>
-
-
-  <string name="speak_help_auto_bookmark">Alamisho ya Kusoma itaongezwa kiotomatiki Kusoma kunapositishwa au kusimamishwa. Alamisho zilizoundwa kiotomatiki zimewekwa alama na lebo maalum ya Kusoma. Ukianza katika alamisho ya Kusoma, alamisho litahamia kwenye mstari unaokomalia au kusitisha wakati ujao. Lebo za Kusoma tu ndizo zitahamia, lebo nyingine zitabaki sawa.</string>
-  <string name="speak_help_playback_settings">Mipangilio maalum ya uchezaji (chini ya \"Mipangilio ya Uchezaji\" kwenye skrini ya Kusoma) huhifadhiwa kwenye alamisho za Kusoma mipangilio hii inapochaguliwa. Unapoanza tena kusoma kutoka kwa alamisho ya Kusoma, mipangilio ya uchezaji iliyohifadhiwa hupakiwa kutoka kwa alamisho.</string>
-  <string name="speak_help_playback_settings_example">Kwa mfano ikiwa unasikiliza Mwanzo na Warumi na unataka kusikia Mwanzo ukisomwa haraka bila arifa za mabadiliko ya sura, lakini Warumi polepole zaidi na sauti za earcon zinazosikika wakati wa mabadiliko ya sura, basi unaweza kuwa na mipangilio tofauti ya uchezaji kwa vitabu hivi, mipangilio hii ikihifadhiwa kwenye alamisho zinazohusiana.</string>
-
-    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+  <string name="speak_help_auto_bookmark">
+Alamisho ya Kusoma itaongezwa kiotomatiki Kusoma kunapositishwa au kusimamishwa. Alamisho zilizoundwa kiotomatiki zimewekwa alama na lebo maalum ya Kusoma. Ukianza katika alamisho ya Kusoma, alamisho litahamia kwenye mstari unaokomalia au kusitisha wakati ujao. Lebo za Kusoma tu ndizo zitahamia, lebo nyingine zitabaki sawa.</string>
+  <string name="speak_help_playback_settings">
+Mipangilio maalum ya uchezaji (chini ya \"Mipangilio ya Uchezaji\" kwenye skrini ya Kusoma) huhifadhiwa kwenye alamisho za Kusoma mipangilio hii inapochaguliwa. Unapoanza tena kusoma kutoka kwa alamisho ya Kusoma, mipangilio ya uchezaji iliyohifadhiwa hupakiwa kutoka kwa alamisho.</string>
+  <string name="speak_help_playback_settings_example">
+Kwa mfano ikiwa unasikiliza Mwanzo na Warumi na unataka kusikia Mwanzo ukisomwa haraka bila arifa za mabadiliko ya sura, lakini Warumi polepole zaidi na sauti za earcon zinazosikika wakati wa mabadiliko ya sura, basi unaweza kuwa na mipangilio tofauti ya uchezaji kwa vitabu hivi, mipangilio hii ikihifadhiwa kwenye alamisho zinazohusiana.</string>
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings. -->
-    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
+         in speak settings.-->
+  <string-array name="speak_divinename_original">
+    <item>BWANA</item>
+    <item>Mungu</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings. -->
-
+         in speak settings.-->
+  <string-array name="speak_divinename_replace">
+    <item>Yahweh</item>
+    <item>Yahweh</item>
+    <item></item>
+    <item></item>
+    <item></item>
+  </string-array>
   <string name="speak_book_changed">Kitabu kimebadilika.</string>
   <string name="speak_chapter_changed">Sura</string>
   <string name="speak_first">Ya kwanza</string>
@@ -565,13 +512,11 @@
   <string name="speak_third">Ya tatu</string>
   <string name="speak_fourth">Ya nne</string>
   <string name="speak_fifth">Ya tano</string>
-
-  <string name="verse_range_mode_disabled">Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya anuwai ya mstari iliyobainishwa.</string>
-
-    <!-- User Notes -->
+  <string name="verse_range_mode_disabled">
+Hali ya kurudia kifungu ilizimwa kiotomatiki kwa sababu kusoma kulianza nje ya anuwai ya mstari iliyobainishwa.</string>
+  <!--User Notes-->
   <string name="mynotes">Maelezo Yangu</string>
-
-    <!-- Backup and restore -->
+  <!--Backup and restore-->
   <string name="backup_backup_title">Hifadhi wapi?</string>
   <string name="backup_backup_message">Hifadhi kwenye simu au mahali pengine kupitia kitendakazi cha Shiriki (barua pepe, Google Drive n.k.)?</string>
   <string name="backup_phone_storage">Hifadhi ya simu</string>
@@ -586,13 +531,11 @@
   <string name="backup_document_info">Biblia, maoni, kamusi, ramani n.k.</string>
   <string name="backup_to">Hifadhi hadi…</string>
   <string name="backup_restore_from">Rejesha kutoka…</string>
-    <!-- Restore = overwrite existing. Import = merge into existing -->
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">Rejesha au Ingiza kutoka…</string>
   <string name="backup_restore2">Rejesha au Ingiza</string>
   <string name="overwrite_something">Andika juu ya %s?</string>
-
-    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Rejesha Faili la Hifadhidata</string>
   <string name="restore_confirmation">Andika juu ya Maelezo Yangu, Alamisho, Daftari za Masomo, Mipango ya Kusoma na Maeneo ya Kazi?</string>
   <string name="restore_success">Maelezo Yangu, Alamisho, Daftari za Masomo, Mipango ya Kusoma na Maeneo ya Kazi yamerejesha kwa mafanikio</string>
@@ -600,13 +543,10 @@
   <string name="loading_backup">Inapakia hifadhidata kutoka kwa hifadhi…</string>
   <string name="backup_success2">Maelezo Yangu, Alamisho, Daftari za Masomo, Mipango ya Kusoma na Maeneo ya Kazi yamehifadhiwa kwa mafanikio.</string>
   <string name="backup_modules_success">Moduli zilizochaguliwa zimehifadhiwa kwa mafanikio.</string>
-
   <string name="backup_modules_email_subject_2">Hifadhi ya moduli za %s</string>
   <string name="backup_modules_email_message_2">Imefungwa ni hifadhi yako ya moduli za %1$s, ambayo ina moduli zifuatazo: %2$s</string>
-
   <string name="backup_email_subject_2">Hifadhi ya hifadhidata ya %s</string>
   <string name="backup_email_message_2">Hifadhidata yako ya %s yenye alamisho, maelezo, mipango ya kusoma na maeneo ya kazi imefungwa</string>
-
   <string name="exported_studypads_subject">Daftari za Masomo Zilizosafirishwa</string>
   <string name="exported_studypads_message">Hifadhidata yako ya %s yenye Alamisho na Maelezo yanayohusiana na Daftari za Masomo zilizochaguliwa imefungwa</string>
   <string name="restore_unsuccessfull">Kurejesha hifadhidata hakufanikiwa. Huenda ulitoa faili la hifadhidata lisilo sahihi.</string>
@@ -616,22 +556,18 @@
   <string name="ask_restore_or_import">Hifadhidata ya %s inaweza kurejesha (yaani hifadhidata iliyopo inaondolewa na hifadhidata iliyochaguliwa inapakiwa) au kuingizwa (hifadhidata iliyochaguliwa inaingizwa kwenye hifadhidata iliyopo). Unataka kufanya nini?</string>
   <string name="restore">Rejesha</string>
   <string name="import2">Ingiza</string>
-
-    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" na Lebo %2$s nyingine / Daftari za Masomo na Alamisho %3$s</string>
-
-    <!-- About -->
+  <!--About-->
   <string name="module_about_copyright">Hakimiliki: %s</string>
   <string name="module_about_installed_version">Toleo lililosanikishwa: %1$s (%2$s)</string>
   <string name="module_about_latest_version">Toleo jipya zaidi: %1$s (%2$s)</string>
   <string name="module_about_versification">Uainishaji wa mistari: %s</string>
   <string name="module_about_repository">Seva ya usambazaji: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
-
-    <!-- Bug reporting -->
+  <!--Bug reporting-->
   <string name="send_bug_report_title">Maoni / ripoti ya hitilafu</string>
   <string name="report_bug_email_subject_3">[%1$s] Ripoti ya hitilafu kwa %2$s %3$s</string>
-
   <string name="report_bug_big_heading">TAFADHALI ANDIKA MAONI AU RIPOTI YAKO YA HITILAFU JUU YA MSTARI HUU</string>
   <string name="report_bug_heading1">Maelekezo:</string>
   <string name="report_bug_line_1">Tueleze kwa ufupi ulichofanya / kilichotokea wakati tatizo lilipotokea.</string>
@@ -647,20 +583,17 @@
   <string name="bug_report_screenshot">Picha ya skrini ya programu wakati mvunjiko ulipotokea, au wakati ripoti ya hitilafu iliundwa.</string>
   <string name="bug_report_attachment_line_1">Kuwa na faili hizi zimefungwa kunasaidia sana wasanidi wa programu katika kurekebisha hitilafu iliyoripotiwa.</string>
   <string name="report_bug_heading_4">Taarifa za kifaa:</string>
-
-    <!-- Document types -->
+  <!--Document types-->
   <string name="doc_type_all">Aina zote</string>
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Maoni</string>
   <string name="doc_type_dictionary">Kamusi</string>
   <string name="doc_type_book">Kitabu</string>
   <string name="doc_type_map">Ramani</string>
-  <string name="doc_type_addons">Viongezi</string>
-
-    <!-- Languages -->
+  <string name="doc_type_addons">Nyongeza</string>
+  <!--Languages-->
   <string name="lang_default">Chaguo-msingi</string>
-
-    <!-- General -->
+  <!--General-->
   <string name="okay">Sawa</string>
   <string name="cancel">Ghairi</string>
   <string name="discard_changes_confirmation">Tupa mabadiliko ambayo hayakuhifadhiwa?</string>
@@ -672,8 +605,7 @@
   <string name="reset_generic">Weka upya</string>
   <string name="watch_tutorial_video">Tazama video ya mafunzo (Kiingereza)</string>
   <string name="verse_not_found">Mstari haukupatikana</string>
-
-    <!-- Errors -->
+  <!--Errors-->
   <string name="report_error">Tuma Ripoti</string>
   <string name="error_occurred">Hitilafu imetokea</string>
   <string name="error_occurred_crash_last_time">Mara ya mwisho ulipotumia programu, ilivunjika. Ili kutusaidia kurekebisha hitilafu, tutashukuru ikiwa utatuma ripoti ya hitilafu.</string>
@@ -686,12 +618,10 @@
   <string name="error_skip">Ruka</string>
   <string name="bug_report_email_title">Tuma ripoti ya hitilafu kupitia barua pepe</string>
   <string name="bug_report_email_text">Inayofuata, tafadhali chagua programu yako unayoipenda ya barua pepe (Gmail kwa mfano) kutuma ripoti kwa timu ya wasanidi.</string>
-
-    <!-- Notifications -->
+  <!--Notifications-->
   <string name="notification_channel_tts_status">Maandishi-hadi-usemi</string>
   <string name="notification_channel_progress_status">Arifa ya hali ya maendeleo kwa upakuaji wa hati n.k.</string>
-
-    <!-- Workspaces -->
+  <!--Workspaces-->
   <string name="switch_to_workspace">Maeneo ya Kazi</string>
   <string name="delete_workspace">Ondoa</string>
   <string name="new_copied_workspace">Nakili kama mpya</string>
@@ -711,58 +641,57 @@
   <string name="search_settings">Tafuta mipangilio</string>
   <string name="dismiss">Ondoa</string>
   <string name="workspace_listing_with_current">%s (ya sasa)</string>
-
-    <!-- Beta notice -->
+  <!--Beta notice-->
   <string name="beta_notice_title">Hii ni toleo la beta!</string>
-  <string name="beta_notice_content_1">Katika toleo la beta, kuna vipengele vipya ambavyo bado havijapimwa vizuri, na kwa hivyo kutumia beta kunaweza kuleta tabia isiyotarajiwa, yaani hitilafu. Inashauriwa kwamba wasomaji wa kawaida wa Biblia watumie toleo thabiti badala yake.</string>
-
-  <string name="beta_notice_content_2">Watumiaji wa beta wanahimizwa kuripoti hitilafu kupitia Google Play au (kwa hiari) kupitia %s.</string>
+  <string name="beta_notice_content_1">
+Katika toleo la beta, kuna vipengele vipya ambavyo bado havijapimwa vizuri, na kwa hivyo kutumia beta kunaweza kuleta tabia isiyotarajiwa, yaani hitilafu. Inashauriwa kwamba wasomaji wa kawaida wa Biblia watumie toleo thabiti badala yake.</string>
+  <string name="beta_notice_content_2">
+Watumiaji wa beta wanahimizwa kuripoti hitilafu kupitia Google Play au (kwa hiari) kupitia %s.</string>
   <string name="beta_notice_content_3">Ikiwa wewe ni mprogramu, tafadhali fikiria kuchangia marekebisho ya hitilafu kupitia %s mwenyewe. :-)</string>
   <string name="beta_notice_github_issues">Masuala ya Github</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Ondoa hadi sasasho linalofuata</string>
-
   <string name="stable_notice_title">Programu imeboreshwa!</string>
   <string name="upgrade_video_message">Tafadhali tazama video inayoonyesha vipengele vipya vya toleo hili (%s).</string>
   <string name="stable_notice_par1">Toleo jipya %1$s la %2$s limesanikishwa kwa mafanikio!</string>
-
   <string name="new_sync_targets_notice_title">Mipangilio mipya ya usawazishaji inapatikana</string>
   <string name="new_sync_targets_notice_message">Toleo hili la AndBible linaanzisha malengo mapya ya usawazishaji: Hati Zangu, mipangilio ya AI na maendeleo ya kusoma. Ikiwa unataka kuyawezesha, unaweza kufanya hivyo katika mipangilio ya Usawazishaji wa Kifaa.</string>
   <string name="open_settings">Fungua mipangilio</string>
-
-    <!-- History -->
+  <!--History-->
   <string name="history_for">Historia (%1$s: Dirisha %2$d)</string>
-
-    <!-- Help -->
+  <!--Help-->
   <string name="help_nav_title">Uabiri</string>
   <string name="help_nav_text">Nenda kwenye sura inayofuata au iliyotangulia kwa kuteleza skrini kwa kidole chako. Gonga mara mbili maandishi ya Biblia kubadilisha hali ya skrini nzima. Skrini zilizogawanywa (zinazoitwa pia madirisha) zina kitufe cha menyu kwenye kona yao ya juu-kulia, kinachokuwezesha kutumia kazi kadhaa maalum za dirisha na kurekebisha muonekano na tabia ya dirisha.</string>
   <string name="help_contextmenus_title">Menyu za Muktadha</string>
-  <string name="help_contextmenus_text">Kubonyeza muda mrefu kunafungua menyu ya muktadha au hali ya kitendo katika maonyesho kadhaa. Bonyeza muda mrefu kwenye maonyesho ya Biblia kufungua hali ya kitendo kwa vitendo vinavyoathiri mstari wa sasa. Bonyeza muda mrefu kwenye kipengele cha hati katika orodha ya Chagua Hati au Pakua kufuta hati au kuona taarifa. Bonyeza muda mrefu alamisho katika orodha ya alamisho kuongeza lebo au kufuta alamisho. Bonyeza muda mrefu viungo kuchagua ikiwa unataka kuvifungua katika dirisha la sasa, dirisha jipya au dirisha maalum la viungo.</string>
+  <string name="help_contextmenus_text">
+Kubonyeza muda mrefu kunafungua menyu ya muktadha au hali ya kitendo katika maonyesho kadhaa. Bonyeza muda mrefu kwenye maonyesho ya Biblia kufungua hali ya kitendo kwa vitendo vinavyoathiri mstari wa sasa. Bonyeza muda mrefu kwenye kipengele cha hati katika orodha ya Chagua Hati au Pakua kufuta hati au kuona taarifa. Bonyeza muda mrefu alamisho katika orodha ya alamisho kuongeza lebo au kufuta alamisho. Bonyeza muda mrefu viungo kuchagua ikiwa unataka kuvifungua katika dirisha la sasa, dirisha jipya au dirisha maalum la viungo.</string>
   <string name="help_bookmarks_title">Alamisho na Maelezo Yangu</string>
   <string name="help_bookmarks_text">Alamisho zinaweza kuundwa kwa kuchagua maandishi fulani na kuchagua \"Alamisho\" kutoka kwenye menyu ya ibuko. Unaweza kuongeza maelezo yako maalum kwenye alamisho jipya kwa kugonga maandishi yaliyoangaziwa sasa katika maonyesho ya Biblia. Pia kuna hati maalum ya \"Maelezo Yangu\" katika maoni ambayo inakuruhusu kuona maelezo yako katika dirisha tofauti.</string>
-  <string name="help_studypads_text">Daftari za masomo zimeundwa kufanya iwe rahisi kuandika maelezo ya mahubiri, kuandaa mahubiri au tu kuandika maelezo ya kibinafsi ya masomo ya Biblia yenye marejeleo mengi ya Biblia. Kila daftari la masomo linahusishwa na lebo moja ya alamisho. Alamisho zote zilizoundwa na lebo hiyo husika zinaonekana kiotomatiki katika hati ya daftari la masomo. Zaidi ya alamisho, kunaweza kuwa na maingizo ya maandishi maalum katika daftari la masomo.</string>
-
+  <string name="help_studypads_text">
+Daftari za masomo zimeundwa kufanya iwe rahisi kuandika maelezo ya mahubiri, kuandaa mahubiri au tu kuandika maelezo ya kibinafsi ya masomo ya Biblia yenye marejeleo mengi ya Biblia. Kila daftari la masomo linahusishwa na lebo moja ya alamisho. Alamisho zote zilizoundwa na lebo hiyo husika zinaonekana kiotomatiki katika hati ya daftari la masomo. Zaidi ya alamisho, kunaweza kuwa na maingizo ya maandishi maalum katika daftari la masomo.</string>
   <string name="help_search_title">Utafutaji</string>
-    <!-- TODO: to be removed -->
+  <!--TODO: to be removed-->
   <string name="help_search_text2">Maandishi ya utafutaji yanaweza kuhifadhi wahusika maalum kama *, AND, OR, NOT</string>
   <string name="help_search_details">Tafadhali tazama %s kwa maelezo zaidi.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintaksia ya Uchambuzi wa Hoja</string>
   <string name="help_fts5">Sintaksia ya Hoja ya Maandishi Kamili ya FTS5</string>
   <string name="help_workspaces_title">Maeneo ya Kazi</string>
-  <string name="help_workspaces_text">Maeneo ya kazi huruhusu kuwa na mazingira mengi yanayotegemea muktadha. Vitendakazi vya eneo la kazi vinaweza kufikiwa kupitia kipengele cha Maeneo ya Kazi katika menyu ya chaguo (kona ya juu-kulia). Njia ya haraka ya kufikia maeneo ya kazi ni kwa ishara ya kuteleza-chini kutoka kwenye mwambaa zana. Unaweza pia kutumia ishara za kuteleza-kushoto na kuteleza-kulia juu ya mwambaa zana kubadilisha hadi eneo la kazi la awali / linalofuata.</string>
+  <string name="help_workspaces_text">
+Maeneo ya kazi huruhusu kuwa na mazingira mengi yanayotegemea muktadha. Vitendakazi vya eneo la kazi vinaweza kufikiwa kupitia kipengele cha Maeneo ya Kazi katika menyu ya chaguo (kona ya juu-kulia). Njia ya haraka ya kufikia maeneo ya kazi ni kwa ishara ya kuteleza-chini kutoka kwenye mwambaa zana. Unaweza pia kutumia ishara za kuteleza-kushoto na kuteleza-kulia juu ya mwambaa zana kubadilisha hadi eneo la kazi la awali / linalofuata.</string>
   <string name="help_hidden_features_title">Njia za mkato zilizofichwa</string>
-  <string name="help_hidden_features_text">Telezesha chini kutoka kwenye mwambaa zana kuonyesha kichaguzi cha eneo la kazi. Bonyeza muda mrefu kitufe cha dirisha kupunguza haraka. Bonyeza muda mrefu kitufe cha kusoma kwenye mwambaa zana kwenda haraka kwa mipangilio ya kusoma. Bonyeza muda mrefu kichwa cha eneo la mstari kwenye mwambaa zana kuruka hadi kichaguzi cha hati. Bonyeza muda mrefu kitufe cha Nyuma kufikia orodha ya Historia.</string>
+  <string name="help_hidden_features_text">
+Telezesha chini kutoka kwenye mwambaa zana kuonyesha kichaguzi cha eneo la kazi. Bonyeza muda mrefu kitufe cha dirisha kupunguza haraka. Bonyeza muda mrefu kitufe cha kusoma kwenye mwambaa zana kwenda haraka kwa mipangilio ya kusoma. Bonyeza muda mrefu kichwa cha eneo la mstari kwenye mwambaa zana kuruka hadi kichaguzi cha hati. Bonyeza muda mrefu kitufe cha Nyuma kufikia orodha ya Historia.</string>
   <string name="help_window_pinning_title">Upinzani wa dirisha</string>
-  <string name="help_window_pinning_text">Unaweza kuwezesha upinzani wa dirisha kutoka kwenye menyu ya chaguo (nukta tatu, kona ya juu kulia). Upinzani wa dirisha ukiwa umewezeshwa, unaweza kuonyesha madirisha mengi yaliyopinzwa kwenye maonyesho ya Biblia, lakini dirisha moja tu lisilo pinzwa. Madirisha yaliyopinzwa yanaonyeshwa kwanza, kisha madirisha yasiyopinzwa. Huenda ukataka kufungua hati za Biblia kama madirisha yaliyopinzwa, na maoni, ramani n.k. kama madirisha yasiyopinzwa. Kisha unaweza kwa urahisi kuwa na hati za Biblia zikifunguliwa daima, na kubadilisha haraka kati ya maoni na nyenzo nyingine za ziada unaposoma Biblia.</string>
-
-    <!-- Welcome text -->
+  <string name="help_window_pinning_text">
+Unaweza kuwezesha upinzani wa dirisha kutoka kwenye menyu ya chaguo (nukta tatu, kona ya juu kulia). Upinzani wa dirisha ukiwa umewezeshwa, unaweza kuonyesha madirisha mengi yaliyopinzwa kwenye maonyesho ya Biblia, lakini dirisha moja tu lisilo pinzwa. Madirisha yaliyopinzwa yanaonyeshwa kwanza, kisha madirisha yasiyopinzwa. Huenda ukataka kufungua hati za Biblia kama madirisha yaliyopinzwa, na maoni, ramani n.k. kama madirisha yasiyopinzwa. Kisha unaweza kwa urahisi kuwa na hati za Biblia zikifunguliwa daima, na kubadilisha haraka kati ya maoni na nyenzo nyingine za ziada unaposoma Biblia.</string>
+  <!--Welcome text-->
   <string name="redownload_documents">Pakua Upya Haraka</string>
   <string name="welcome_message">Asante kwa kupakua %s. Kwa sasa hakuna Biblia au hati zilizosanikishwa. Ili kuendelea, tafadhali sanikisha angalau hati 1 kwa kuipakua kutoka kwa mtandao, au kwa kuipakia kutoka kwa faili la zipu la hifadhi ya hati.</string>
-    <!-- Supported file formats for documents -->
-    <!-- argument is app_name_andbible (AndBible). -->
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Lazima uchague faili unalotaka kupakia kwenye %s.</string>
   <string name="supported_formats">Miundo inayoauni kwa kupakia hati kutoka kwa faili: %s</string>
-    <!-- argument is app_name_andbible (AndBible). -->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Faili ya Zip yenye moduli za Sword, au faili ya hifadhi ya hati (*.abmd) iliyoundwa na %s</string>
   <string name="format_mysword">Hati za MySword (*.mybible)</string>
   <string name="format_mybible">Hati za MyBible (*.SQLite3)</string>
@@ -771,16 +700,14 @@
   <string name="format_ttf">Fonti za TTF (*.ttf)</string>
   <string name="format_csv_prompts">Viongezi vya maagizo ya AI (*.csv)</string>
   <string name="format_studypads">Daftari za Masomo kutoka kwa hifadhidata za AndBible (*.abdb)</string>
-  <string name="redownload_message">Orodha ya vitabu/hati vya awali ilipatikana. Bonyeza hapa chini kuvipakua tena kwa urahisi.</string>
-
-    <!-- Uncategorized -->
+  <string name="redownload_message">
+Orodha ya vitabu/hati vya awali ilipatikana. Bonyeza hapa chini kuvipakua tena kwa urahisi.</string>
+  <!--Uncategorized-->
   <string name="close">Funga</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Nimeelewa</string>
   <string name="first_time_help_show_next_time">Onyesha tena wakati ujao</string>
-
   <string name="strongs_mode_title">Chagua hali ya strongs</string>
-
   <string name="download_dialog_message">Vitabu vifuatavyo havikuweza kupakuliwa:</string>
   <string name="journal_description">Daftari za masomo zinazoweza kuhaririwa na mtumiaji zenye maandishi maalum na alamisho</string>
   <string name="my_notes_description">Maelezo yanayoweza kuhaririwa na mtumiaji yaliyounganishwa na alamisho</string>
@@ -800,7 +727,6 @@
   <string name="unlock_info">Taarifa ya ufunguzi wa moduli iliyosimbwa</string>
   <string name="try_again_passphrase">Neno la siri halikufanya kazi, jaribu tena?</string>
   <string name="show_unlock_info">Moduli na taarifa za ufunguzi</string>
-
   <string name="prefs_experimental_features_title">Vipengele vya majaribio</string>
   <string name="prefs_experimental_features_summary">Chagua vipengele vya majaribio vipi vya kuwezesha. Vipengele hivi bado vipo katika ukuzaji na vinaweza kubadilika au kuondolewa</string>
   <string name="experimental_feature_bookmark_edit_actions">Vitendo vya kuhariri alamisho</string>
@@ -831,7 +757,6 @@
   <string name="active_window_indicator_title">Onyesha kiashiria cha dirisha linalotumika</string>
   <string name="active_window_indicator_summary">Angazia kona za dirisha kusaidia kutambua dirisha linalotumika</string>
   <string name="app_licence_title">Leseni ya Chanzo Huria</string>
-
   <string name="how_to_contribute">Jinsi ya kuchangia?</string>
   <string name="confirm_delete_bookmarks">Je, unataka kuondoa alamisho %d na maelezo yake?</string>
   <string name="confirm_delete_orphaned_bookmarks">Lebo iliyochaguliwa imewekwa kwenye alamisho %d ambazo hazina lebo nyingine. Je, unataka kufuta alamisho hizi pamoja na lebo?</string>
@@ -855,41 +780,50 @@
   <string name="show_reference_at_front">Onyesha mbele ya mstari</string>
   <string name="abbreviate_reference">Fupisha rejeleo</string>
   <string name="version_name">Jina la toleo</string>
-    <!-- meaning, bible version name -->
+  <!--meaning, bible version name-->
   <string name="show_version_name">Jumuisha jina la toleo</string>
   <string name="show_ellipsis">Onyesha alama tatu (…)</string>
   <string name="show_quotes">Onyesha alama za nukuu</string>
   <string name="separate_verses_with_newlines">Tenganisha mistari kwa mistari mipya</string>
-
   <string name="initializing_app">Inaanzisha programu…</string>
   <string name="show_notes">Onyesha maelezo</string>
-    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Kifurushi cha Android WebView ni cha zamani sana (%1$s). Unahitaji kuboresha kifurushi chako cha Android WebView hadi angalau toleo %2$s kutumia %3$s. Kwa vifaa vingi hii inaweza kufanywa kupitia %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Endelea hata hivyo</string>
   <string name="proceed">Endelea</string>
   <string name="rate_title">Kukadiria na kupitia programu</string>
-  <string name="rate_message5">Mapitio mazuri na ya kina yanasaidia sana Mradi wa Chanzo Huria wa AndBible. Asante!</string>
-  <string name="rate_message6">Kabla ya kuandika mapitio mabaya, tafadhali fikiria yafuatayo:</string>
-
-    <!-- parameters are actions (file a bug, send email) -->
-  <string name="rate_message1">Ikiwa una tatizo na programu, tafadhali %1$s au %2$s badala yake.</string>
-    <!-- param is "please report maintainers" -->
-  <string name="rate_message2">Ikiwa maandishi fulani / tafsiri ya Biblia yana tatizo, %s.</string>
-    <!-- param is "please read what you can do" -->
-  <string name="rate_message3">Ikiwa maandishi fulani hayapatikani katika programu, %s.</string>
-  <string name="rate_message4">Wasanidi wa programu hii hawajibiki kwa kudumisha hati.</string>
-  <string name="bug_report">tuma ripoti ya hitilafu (kutoka kwa Menyu Kuu)</string>
-  <string name="how_to_help">tafadhali soma unachoweza kufanya kusaidia</string>
-  <string name="send_email">tuma barua pepe kwa wasanidi</string>
-  <string name="proceed_google_play">Endelea hadi Google Play</string>
-  <string name="text_maintainers">tafadhali ripoti matatizo kwa wadumishaji wa maandishi</string>
+  <string name="rate_message5">
+Mapitio mazuri na ya kina yanasaidia sana Mradi wa Chanzo Huria wa AndBible. Asante!</string>
+  <string name="rate_message6">
+Kabla ya kuandika mapitio mabaya, tafadhali fikiria yafuatayo:</string>
+  <!--parameters are actions (file a bug, send email)-->
+  <string name="rate_message1">
+Ikiwa una tatizo na programu, tafadhali %1$s au %2$s badala yake.</string>
+  <!--param is "please report maintainers"-->
+  <string name="rate_message2">
+Ikiwa maandishi fulani / tafsiri ya Biblia yana tatizo, %s.</string>
+  <!--param is "please read what you can do"-->
+  <string name="rate_message3">
+Ikiwa maandishi fulani hayapatikani katika programu, %s.</string>
+  <string name="rate_message4">
+Wasanidi wa programu hii hawajibiki kwa kudumisha hati.</string>
+  <string name="bug_report">
+tuma ripoti ya hitilafu (kutoka kwa Menyu Kuu)</string>
+  <string name="how_to_help">
+tafadhali soma unachoweza kufanya kusaidia</string>
+  <string name="send_email">
+tuma barua pepe kwa wasanidi</string>
+  <string name="proceed_google_play">
+Endelea hadi Google Play</string>
+  <string name="text_maintainers">
+tafadhali ripoti matatizo kwa wadumishaji wa maandishi</string>
   <string name="cant_change_wholeverse">Haiwezekani kuzima alama ya mstari wote kwa alamisho hii</string>
   <string name="whole_verse_turned_on">Alamisho sasa imewekwa alama kwa mstari wote</string>
   <string name="this_bookmark">Alamisho hii</string>
   <string name="this_workspace">Eneo hili la kazi</string>
-  <string name="override_style">Pindua mtindo</string>
-  <string name="no_override_suffix">(hakuna upinzani)</string>
+  <string name="override_style">Futa mtindo</string>
+  <string name="no_override_suffix">Hamna kufuta</string>
   <string name="display_mode_highlight">Angazia</string>
   <string name="display_mode_underline">Pigia mstari</string>
   <string name="display_mode_marker">Alama tu</string>
@@ -950,36 +884,33 @@
   <string name="export_something">Safirisha %s</string>
   <string name="import_items">Ingiza %s</string>
   <string name="import_error">Kuingiza kutoka kwa Hifadhidata ya Programu kumeshindwa. Faili la hifadhidata linaweza kuwa na umbizo lisilo sahihi au limeundwa na toleo la zamani sana la %s.</string>
-
   <string name="export_bookmarks_csv">Safirisha Alamisho kama %s</string>
-
-    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
   <string name="osis_reference">Rejeleo la OSIS</string>
-    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
   <string name="bible_reference">Rejeleo la Biblia</string>
   <string name="document">Hati</string>
   <string name="book">Kitabu</string>
-    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <!--Chapter is the chapter number in the book, starting from 1-->
   <string name="chapter_start">Mwanzo wa Sura</string>
-    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <!--Verse is the verse number in the chapter, starting from 1-->
   <string name="verse_start">Mwanzo wa Mstari</string>
   <string name="chapter_end">Mwisho wa Sura</string>
   <string name="verse_end">Mwisho wa Mstari</string>
   <string name="id">Kitambulisho</string>
-    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
   <string name="ordinal_start">Mwanzo wa Mpangilio</string>
   <string name="ordinal_end">Mwisho wa Mpangilio</string>
   <string name="created_at">Iliundwa Tarehe</string>
-    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="start_offset">Kukabiliana na Mwanzo</string>
   <string name="end_offset">Kukabiliana na Mwisho</string>
   <string name="custom_icon">Ikoni maalum</string>
   <string name="last_updated_at">Ilisasishwa mara ya mwisho tarehe</string>
   <string name="bookmark_notes">Maelezo ya alamisho</string>
-
-    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Tunaomba msamaha, lakini tuna tafsiri ya sehemu tu ya kiolesura cha mtumiaji katika lugha ya %1$s. Hii ni kwa sababu %2$s inatengenezwa kabisa na wanajitolea. Ikiwa unaweza kusaidia kutafsiri, tafadhali tazama %3$s.</string>
-    <!-- will be added to incomplete_translation as a link -->
+  <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">maelekezo kwa watafsiri</string>
   <string name="questions_title">Maswali?</string>
   <string name="bookmark_style">Mtindo wa alamisho</string>
@@ -988,7 +919,6 @@
   <string name="strongs_text_and_links">Maandishi na Viungo</string>
   <string name="strongs_hidden_links">Viungo Vilivyofichwa</string>
   <string name="verse_tip">Kuchagua mistari ya sehemu au mingi, unaweza kubonyeza muda mrefu maandishi ya Biblia</string>
-
   <string name="permission_required">Ruhusa inahitajika</string>
   <string name="labels_search_hint">Tafuta</string>
   <string name="search_mode_name_start">Jina (kutoka mwanzo)</string>
@@ -997,8 +927,7 @@
   <string name="search_results_matches">Mechi %d</string>
   <string name="search_results_match">Mechi 1</string>
   <string name="progress_status_permission">Kuonyesha arifa (hali ya upakuaji, usindikaji, hali ya kusoma), tunahitaji ruhusa yako.</string>
-
-    <!-- Discrete mode settings -->
+  <!--Discrete mode settings-->
   <string name="app_name_calculator">Kikokotoo Rahisi</string>
   <string name="prefs_persecution_cat">Mipangilio kwa wanaodhulumiwa</string>
   <string name="prefs_discrete_mode">Ficha alama za kidini</string>
@@ -1007,27 +936,30 @@
   <string name="prefs_calculator_pin">PIN ya Kikokotoo</string>
   <string name="prefs_calculator_pin_desc">Msimbo wa PIN kuingia programu wakati kikokotoo kinaonyeshwa.</string>
   <string name="calc_division_by_zero">Kugawanya kwa sufuri hairuhusiwi</string>
-    <!-- Context: calculator. Wrong number format etc. -->
+  <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">Umbizo Lisilo Sahihi</string>
   <string name="calc_wrong_format_operand">Umbizo Lisilo Sahihi. Operandi Bila nambari yoyote?</string>
   <string name="prefs_persecuted_help">Soma hii kwanza!</string>
-    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">Maelekezo ya mipangilio na taarifa kuhusu toleo maalum la siri.</string>
-
-  <string name="calculator_par1">Kabla ya kuingia programu, skrini ya kikokotoo inaonyeshwa.</string>
-  <string name="calculator_par2">Ndani yake, unaweza kufanya hesabu za kawaida, na unapotaka kuingia programu, tu andika msimbo wako wa PIN (chaguo-msingi ni 1234) kisha bonyeza kitufe cha \"=\".</string>
-  <string name="calculator_par3">Unaweza kuweka msimbo maalum wa PIN kwa mipangilio ya \"PIN ya Kikokotoo\".</string>
-  <string name="discrete_mode_info_par1">Unatumia toleo la kawaida la programu, ambalo linamaanisha bado inawezekana kuona jina la kweli na ikoni ya programu katika taarifa ya programu.</string>
-  <string name="discrete_mode_info_par2">Kwa usalama wa hali ya juu zaidi katika mazingira yanayodhulumiwa, tunapendekeza sana kutumia toleo la siri la programu, ambalo huonyesha kikokotoo daima, hata data ya programu ikifutwa.</string>
-  <string name="discrete_mode_link">Unaweza kupakua toleo jipya zaidi la toleo la siri kutoka %s.</string>
-
-    <!-- Window synchronize groups -->
+  <string name="calculator_par1">
+Kabla ya kuingia programu, skrini ya kikokotoo inaonyeshwa.</string>
+  <string name="calculator_par2">
+Ndani yake, unaweza kufanya hesabu za kawaida, na unapotaka kuingia programu, tu andika msimbo wako wa PIN (chaguo-msingi ni 1234) kisha bonyeza kitufe cha \"=\".</string>
+  <string name="calculator_par3">
+Unaweza kuweka msimbo maalum wa PIN kwa mipangilio ya \"PIN ya Kikokotoo\".</string>
+  <string name="discrete_mode_info_par1">
+Unatumia toleo la kawaida la programu, ambalo linamaanisha bado inawezekana kuona jina la kweli na ikoni ya programu katika taarifa ya programu.</string>
+  <string name="discrete_mode_info_par2">
+Kwa usalama wa hali ya juu zaidi katika mazingira yanayodhulumiwa, tunapendekeza sana kutumia toleo la siri la programu, ambalo huonyesha kikokotoo daima, hata data ya programu ikifutwa.</string>
+  <string name="discrete_mode_link">
+Unaweza kupakua toleo jipya zaidi la toleo la siri kutoka %s.</string>
+  <!--Window synchronize groups-->
   <string name="sync_group_n">Kikundi %d</string>
   <string name="disable_sync">Zima usawazishaji</string>
   <string name="open_in_window">Fungua matokeo katika dirisha</string>
-
-    <!-- Custom repositories -->
-    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
+  <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Hazina maalum</string>
   <string name="custom_repositories_empty_list_message">Hakuna hazina maalum zilizobainishwa</string>
   <string name="custom_repositories_create_button_label">Ongeza Hazina Maalum</string>
@@ -1039,24 +971,24 @@
   <string name="wiki_page">Ukurasa wa WIKI</string>
   <string name="custom_repositories_help0">Unaweza kusanikisha hati kutoka kwa hazina maalum za nje kwa kusanikisha hazina maalum.</string>
   <string name="duplicate_custom_repository">Hazina yenye jina %s tayari ipo, haiwezekani kuongeza nyingine.</string>
-
   <string name="packages_dir">Saraka ya Vifurushi (Faili za Zip)</string>
   <string name="warn_bad_document">Onyo: Hati hii inaweza kuwa (angalau sehemu) na ubora mbaya wa kiufundi.</string>
-
-    <!-- Open links in AndBible (Deep linking) -->
+  <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">Fungua viungo vya Biblia katika AndBible</string>
   <string name="open_bible_links_summary">Ukibonyeza viungo vinavyorejelea URL ya Biblia inayoauni AndBible, vifungua katika AndBible</string>
   <string name="copyReference">Nakili kiungo kwenye ubao wa kunakili</string>
   <string name="reference_copied_to_clipboard">Rejeleo limenanakiliwa kwenye ubao wa kunakili</string>
-
-    <!-- Device cloud synchronization -->
-  <string name="prefs_sync_introduction_summary1">Chagua huduma ya wingu ya nyuma unayotaka kutumia kusawazisha vifaa vingi.</string>
-  <string name="prefs_sync_introduction_summary2">Unapotumia Google Drive, %s inapewa ufikiaji wa faili za programu tu, si faili za kibinafsi.</string>
+  <!--Device cloud synchronization-->
+  <string name="prefs_sync_introduction_summary1">
+Chagua huduma ya mtandaoni unayotaka kutumia kusawazisha vifaa vingi.</string>
+  <string name="prefs_sync_introduction_summary2">
+Unapotumia Google Drive, %s inapewa ufikiaji wa faili za programu tu, si faili za kibinafsi.</string>
   <string name="restore_backup_sections">Ni sehemu zipi za hifadhi unataka kurejesha?</string>
   <string name="db_repositories">Hazina na mipangilio inayohusiana</string>
   <string name="db_bookmarks">Alamisho, Maelezo Yangu, Lebo na Daftari za Masomo</string>
   <string name="synchronizing">Inasawazisha…</string>
-  <string name="overrideBackup">Hifadhidata iliyopo ambayo kifaa hiki hakikusawazishwa nayo imepatikana katika Wingu. Hifadhidata ina %s. Unataka kufanya nini?</string>
+  <string name="overrideBackup">
+Hifadhidata iliyopo ambayo kifaa hiki hakikusawazishwa nayo imepatikana katika Wingu. Hifadhidata ina %s. Unataka kufanya nini?</string>
   <string name="reading_plans_content">Mipango ya kusoma na hali zao</string>
   <string name="bookmarks_contents">Alamisho, Lebo na Daftari za Masomo</string>
   <string name="workspaces_contents">Maeneo ya Kazi na Madirisha</string>
@@ -1065,8 +997,7 @@
   <string name="ai_settings_sync_contents">Maagizo ya AI na mipangilio ya mtoa huduma</string>
   <string name="progress_sync_title">Maendeleo ya Usomaji</string>
   <string name="progress_sync_contents">Mistari iliyokaririwa na rekodi za kusoma sura</string>
-
-    <!-- Reading Progress Activity -->
+  <!--Reading Progress Activity-->
   <string name="reading_progress_title">Maendeleo ya Kusoma/Kukariri</string>
   <string name="reading_progress_chapters_read">sura zilizosomwa</string>
   <string name="reading_progress_active_days">siku zinazotumika</string>
@@ -1080,7 +1011,6 @@
   <string name="reading_progress_new_cycle_confirm">Anza mzunguko mpya wa kusoma? Hii itaanza kufuatilia maendeleo yako kutoka mwanzo, huku ikihifadhi data ya mzunguko wako uliopita.</string>
   <string name="reading_progress_previous_cycle">Mzunguko uliopita</string>
   <string name="reading_progress_next_cycle">Mzunguko unaofuata</string>
-
   <string name="cloud_fetch_and_restore_initial">Nakili kutoka Wingu hadi kifaa hiki</string>
   <string name="cloud_create_new">Nakili kutoka kifaa hiki hadi Wingu</string>
   <string name="cloud_disable_sync">Ghairi na uzime usawazishaji</string>
@@ -1109,20 +1039,18 @@
   <string name="sync_disabling">Inazima usawazishaji wa %s kwa sasa.</string>
   <string name="sync_update_app">Tafadhali sasisha programu kuendelea na usawazishaji.</string>
   <string name="sign_in_failed">Kuingia kwa huduma ya nyuma ya usawazishaji kumeshindwa.</string>
-    <!--  ... after restoring from backup file -->
+  <!--... after restoring from backup file-->
   <string name="disabling_sync">Inazima usawazishaji wa wingu. Lazima uuruhusu tena kwa mkono baada ya urejesho.</string>
   <string name="report">Ripoti</string>
   <string name="sync_error">Hitilafu ilitokea katika usawazishaji wa Wingu</string>
   <string name="error_notification_channel_name">Arifa za hitilafu</string>
   <string name="last_updated">Ilisasishwa mara ya mwisho: %s</string>
-
-    <!-- MyBible/MySword module support -->
+  <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Haiwezi kusoma faili</string>
   <string name="sqlite_invalid_file">Faili la moduli au jina la faili si sahihi: %s</string>
   <string name="sqlite_cant_write">Haiwezi kuandika (juu ya) faili</string>
   <string name="install_failed_reason">Kusanikisha moduli kumeshindwa kwa sababu ifuatayo: %s.</string>
-
-    <!-- Other / uncategorized -->
+  <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Programu imefunguliwa mahali pengine</string>
   <string name="open_here">Fungua hapa</string>
   <string name="external_link">Kiungo cha nje</string>
@@ -1134,7 +1062,8 @@
   <string name="processing_epub">Inasindika EPUB: %s</string>
   <string name="buy_development">Nunua kazi ya ukuzaji</string>
   <string name="buy_development2">Unga mkono mradi</string>
-  <string name="dont_show">Usionyeshe ujumbe huu tena</string>
+  <string name="dont_show">
+Usionyeshe ujumbe huu tena</string>
   <string name="pref_font_size_multiplier_title">Kizidishio cha ukubwa wa fonti</string>
   <string name="pref_font_size_multiplier_summary_1">Zidisha ukubwa wa fonti za maandishi kwa nambari hii.</string>
   <string name="pref_font_size_multiplier_summary_2">Inafaa ikiwa una kifaa kilichosawazishwa kinachotumika na fonti kubwa zaidi.</string>
@@ -1183,8 +1112,7 @@
   <string name="memorize_calendar">Shughuli ya Ukariri</string>
   <string name="memorize_view_list">Orodha</string>
   <string name="memorize_view_overview">Muhtasari</string>
-
-    <!-- LLM Translation Settings -->
+  <!--LLM Translation Settings-->
   <string name="sync_settings_shortcut_summary">Sawazisha data kati ya vifaa</string>
   <string name="llm_provider_custom">Maalum (unaooana na OpenAI)</string>
   <string name="ai_behavior_category">Tabia</string>
@@ -1230,8 +1158,7 @@
   <string name="custom_system_prompt_default">Chaguo-msingi</string>
   <string name="custom_system_prompt_custom">Maalum</string>
   <string name="reset_to_default">Weka upya hadi chaguo-msingi</string>
-
-    <!-- Raw log history -->
+  <!--Raw log history-->
   <string name="raw_log_history_title">Historia ya Kumbukumbu ya AI</string>
   <string name="raw_log_history_summary">Tazama na simamia kumbukumbu zilizohifadhiwa za mazungumzo ya AI</string>
   <string name="raw_log_history_empty">Hakuna kumbukumbu zilizohifadhiwa</string>
@@ -1249,7 +1176,6 @@
   <string name="raw_log_retention_summary_disabled">Imezimwa (hifadhi yote)</string>
   <string name="send_ai_bug_report_title">Ripoti Hitilafu ya AI</string>
   <string name="ai_bug_report_menu">Ripoti hitilafu ya AI</string>
-
   <string name="select_model_before_run_title">Chagua mfano</string>
   <string name="set_default_model_for_prompt">Weka kama mfano wa chaguo-msingi kwa agizo hili</string>
   <string name="prompt_max_iterations">Upinzani wa marudio ya juu zaidi</string>
@@ -1258,8 +1184,7 @@
   <string name="prompt_max_iterations_unlimited">Bila kikomo</string>
   <string name="prompt_max_iterations_global_default">Chaguo-msingi ya kimataifa (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Pindua marudio ya juu zaidi ya kimataifa kwa agizo hili. 0 = bila kikomo.\nYa sasa: %s</string>
-
-    <!-- Prompt Manager -->
+  <!--Prompt Manager-->
   <string name="manage_prompts">Simamia Maagizo ya AI</string>
   <string name="manage_prompts_summary">Unda na hariri maagizo ya AI</string>
   <string name="ai_settings">Mipangilio ya AI</string>
@@ -1270,8 +1195,7 @@
   <string name="ai_settings_shortcut_summary">Mipangilio ya muunganisho wa AI na maagizo</string>
   <string name="ai_provider_tier_recommended">Inayopendekezwa</string>
   <string name="ai_provider_tier_community">Watoa huduma wengine (haijapimwa)</string>
-
-    <!-- Multi-provider settings -->
+  <!--Multi-provider settings-->
   <string name="ai_providers_models_category">Watoa huduma na Mifano</string>
   <string name="ai_providers_category">Watoa Huduma</string>
   <string name="ai_providers_summary_none">Hakuna watoa huduma waliowekwa</string>
@@ -1289,11 +1213,10 @@
   <string name="ai_provider_api_format">Umbizo la API</string>
   <string name="ai_provider_saved">Mtoa huduma amehifadhiwa</string>
   <string name="ai_provider_deleted">Mtoa huduma amefutwa</string>
-
   <string name="llm_openrouter_category">Kitengo</string>
   <string name="llm_openrouter_category_all">Yote</string>
   <string name="llm_openrouter_model">Mfano</string>
-    <!-- Configured models management -->
+  <!--Configured models management-->
   <string name="ai_models_category">Mifano</string>
   <string name="add_model">Ongeza mfano</string>
   <string name="edit_model_title">Hariri mfano</string>
@@ -1305,8 +1228,7 @@
   <string name="model_supported_badge">✓ Inaauni</string>
   <string name="show_also_unsupported_models">Onyesha pia mifano isiyoauni</string>
   <string name="show_also_unsupported_providers">Onyesha pia watoa huduma wasiooauni</string>
-
-    <!-- Easy Setup -->
+  <!--Easy Setup-->
   <string name="model_pricing_summary">%1$s ndani / %2$s nje kwa Mtokeni</string>
   <string name="easy_setup_free_tier">Kiwango cha bure</string>
   <string name="unknown_error">Hitilafu isiyojulikana</string>
@@ -1323,8 +1245,7 @@
   <string name="easy_setup_gemini_desc">Kiwango cha bure kinapatikana, ubora mzuri</string>
   <string name="easy_setup_anthropic_desc">Nafuu, ubora bora</string>
   <string name="easy_setup_openai_desc">Inajulikana sana, ya kuaminika</string>
-
-    <!-- AI Disclaimer -->
+  <!--AI Disclaimer-->
   <string name="ai_disclaimer_warning_title">Muhimu: Soma kabla ya kutumia zana za AI</string>
   <string name="ai_disclaimer_warning_summary">Hatari na majukumu ya kutumia AI</string>
   <string name="ai_disclaimer_dialog_title">Zana za AI — Taarifa Muhimu</string>
@@ -1335,14 +1256,13 @@
   <string name="ai_disclaimer_point2">Majibu ya AI yanaweza kuakisi upendeleo kutoka kwa data yao ya mafunzo, yanaweza kupotosha kwa makusudi, au yanaweza kuwasilisha mtazamo fulani wa kidini kana kwamba ni wa kawaida au kamili.</string>
   <string name="ai_disclaimer_point3">Unajibika kwa jinsi unavyotumia maudhui yaliyoundwa na AI. Daima thibitisha matokeo dhidi ya Maandiko kabla ya kutegemea.</string>
   <string name="ai_disclaimer_point4">AndBible inajitahidi kufanya uthibitishaji kuwe rahisi (mfano. nukuu sahihi za vyanzo katika maoni), lakini jukumu la mwisho daima liko kwako.</string>
-  <string name="ai_disclaimer_point5">\"Jaribu yote; shika lililo jema.\" (1 Wathesalonike 5:21)</string>
+  <string name="ai_disclaimer_point5">\\"Jaribu yote; shika lililo jema.\\" (1 Wathesalonike 5:21)</string>
   <string name="ai_disclaimer_point6">Zana hizi hazina roho wala Roho Mtakatifu. Ni zana za usindikaji wa maandishi, si viongozi vya kiroho. Hazifai moja kwa moja kwa kuandaa mahubiri, ibada za kujitegemea, au maudhui mengine ya kiroho bila usimamizi makini wa binadamu, maombi, na uamuzi.</string>
   <string name="ai_disclaimer_point7">Zikitumiwa kwa hekima, zinaweza kunufaisha watumiaji wengi na matumizi mengi. Lakini ikiwa huna uhakika wa kukubali hatari, kuchagua kutotumia pia ni chaguo halali kabisa.</string>
   <string name="ai_disclaimer_point8">Data yako inatumwa kwa seva za mtoa huduma wako wa AI uliyechagua. Kwa kutumia ufunguo wa API, unakubali masharti na sera ya faragha ya mtoa huduma huyo. Mifano inayohifadhiwa binafsi inawezekana lakini inahitaji ujuzi wa kiufundi zaidi, na inaweza kutoa matokeo si mazuri kama mifano ya biashara.</string>
   <string name="ai_disclaimer_point9">Watoa huduma wa AI hutozea matumizi ya API. Makadirio ya gharama yanayoonyeshwa katika AndBible ni ya makadirio — daima angalia bili ya mtoa huduma wako kwa malipo halisi.</string>
   <string name="ai_disclaimer_accept_title">Kubali Kanusho la AI</string>
   <string name="ai_disclaimer_accept_button">Nakubali na nachukua jukumu kamili</string>
-
   <string name="prompt_permission_mode">Hali ya ruhusa</string>
   <string name="prompt_permission_mode_description">Inasimamia wakati uthibitishaji wa mtumiaji unahitajika kabla ya AI kufanya shughuli za uandishi. Mipangilio ya kila zana hapa chini inaweza kupindua hii kwa zana za mtu binafsi.</string>
   <string name="agent_permission_mode_summary">Inasimamia wakati uthibitishaji wa mtumiaji unahitajika kabla ya shughuli za uandishi za AI</string>
@@ -1394,7 +1314,7 @@
   <string name="reset_all_ai_settings_confirm_message">Hii itafuta ufunguo wa API, mtoa huduma, mwisho, mfano, na kuweka upya maagizo yote kwa chaguo-msingi. Endelea?</string>
   <string name="edit_prompt">Hariri agizo</string>
   <string name="built_in_prompt">Iliyojengwa ndani</string>
-  <string name="built_in_prompt_notice">Hii ni agizo lililojengwa ndani na haliwezi kuhaririwa. Tumia \"Nakili kubinafsisha\" kuunda nakili inayoweza kuhaririwa.</string>
+  <string name="built_in_prompt_notice">Hii ni agizo lililojengwa ndani na haliwezi kuhaririwa. Tumia \\"Nakili kubinafsisha\\" kuunda nakili inayoweza kuhaririwa.</string>
   <string name="copy_to_customize">Nakili kubinafsisha</string>
   <string name="prompt_copied">Agizo limenanakiliwa</string>
   <string name="delete_prompt_confirmation">Futa agizo \"%s\"?</string>
@@ -1425,8 +1345,7 @@
   <string name="ai_regenerate_keep_previous">Hifadhi toleo la awali</string>
   <string name="ai_regenerate_fresh_run">Utekelezaji mpya (puuza matokeo ya awali)</string>
   <string name="ai_unknown_prompt">AI</string>
-
-    <!-- Default prompts -->
+  <!--Default prompts-->
   <string name="default_prompt_translate_to_language">Tafsiri kwa %s</string>
   <string name="default_prompt_translate_to_ui_language">Tafsiri kwa lugha ya kiolesura</string>
   <string name="default_prompt_translate_to_ui_language_desc">Hutafsiri maandishi ya hati hadi lugha ya kiolesura cha programu</string>
@@ -1463,8 +1382,7 @@
   <string name="ai_restore_hidden_prompts">Rejesha maagizo yaliyofichwa</string>
   <string name="ai_prompt_hidden">Agizo limefichwa</string>
   <string name="ai_prompts_restored">Maagizo yaliyofichwa yamerejesha</string>
-
-    <!-- Agent Tool Display Names -->
+  <!--Agent Tool Display Names-->
   <string name="tool_create_bookmark">Unda alamisho</string>
   <string name="tool_add_bookmark_note">Ongeza maelezo ya alamisho</string>
   <string name="tool_update_bookmark_note">Sasisha maelezo ya alamisho</string>
@@ -1486,7 +1404,7 @@
   <string name="tool_get_commentaries">Soma maoni</string>
   <string name="tool_get_dictionary_entry">Tafuta maingizo ya kamusi</string>
   <string name="tool_search_bible">Tafuta Biblia</string>
-  <string name="tool_search_by_strongs">Tafuta kwa nambari ya Strong\'s</string>
+  <string name="tool_search_by_strongs">Tafuta kwa nambari ya Strong\\'s</string>
   <string name="tool_get_installed_documents">Orodhesha hati zilizosanikishwa</string>
   <string name="tool_get_all_labels">Orodhesha lebo zote</string>
   <string name="tool_get_bookmarks_for_verse">Pata alamisho za mstari</string>
@@ -1505,13 +1423,11 @@
   <string name="tool_create_window">Unda dirisha</string>
   <string name="tool_manage_window">Simamia dirisha</string>
   <string name="tool_set_window_document">Weka hati ya dirisha</string>
-
-    <!-- Agent Permission Dialog -->
+  <!--Agent Permission Dialog-->
   <string name="agent_permission_title">Ruhusa ya Wakala</string>
   <string name="agent_permission_message">Msaidizi wa AI anataka kutumia \"%1$s\":\n\n%2$s</string>
   <string name="agent_permission_message_with_action">Msaidizi wa AI anataka:\n\n%1$s</string>
-
-    <!-- Tool action descriptions for permission dialog -->
+  <!--Tool action descriptions for permission dialog-->
   <string name="action_create_bookmark_at">Unda alamisho katika %1$s</string>
   <string name="action_create_bookmark_at_with_extras">Unda alamisho katika %1$s (%2$s)</string>
   <string name="action_with_note">na maelezo</string>
@@ -1549,8 +1465,7 @@
   <string name="permission_always_allow_confirm_title">Ruhusu daima?</string>
   <string name="permission_always_allow_confirm">Je, una uhakika unataka kuruhusu kwa kudumu \"%1$s\"?</string>
   <string name="permission_always_allow_confirm_reset_hint">Unaweza kuweka upya hii katika Mipangilio ya AI.</string>
-
-    <!-- Agent Tool Permission Settings -->
+  <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">Ruhusa za zana</string>
   <string name="manage_tool_permissions_summary">Simamia upinzani wa ruhusa kwa kila zana</string>
   <string name="commentary_max_response_title">Kikomo cha ukubwa wa jibu la maoni</string>
@@ -1584,19 +1499,15 @@
   <string name="permission_option_always_allow">Ruhusu daima</string>
   <string name="permission_option_always_deny">Kataa daima</string>
   <string name="reset_all_permissions">Weka upya zote</string>
-
-    <!-- Tool Info -->
+  <!--Tool Info-->
   <string name="ai_available_tools">Zana zinazopatikana</string>
   <string name="ai_read_tools">Zana za Kusoma</string>
   <string name="ai_write_tools">Zana za Uandishi</string>
-
-    <!-- Global Tool Permissions Activity -->
+  <!--Global Tool Permissions Activity-->
   <string name="global_tool_permissions_title">Mipangilio ya chaguo-msingi ya zana</string>
-
-    <!-- Per-Prompt Tool Permissions -->
+  <!--Per-Prompt Tool Permissions-->
   <string name="prompt_tool_permissions">Ruhusa za zana</string>
-
-    <!-- Tool categories -->
+  <!--Tool categories-->
   <string name="tool_category_bible_search">Biblia na Utafutaji</string>
   <string name="tool_category_bookmarks">Alamisho</string>
   <string name="tool_category_labels">Lebo</string>
@@ -1613,16 +1524,13 @@
   <string name="tool_option_default_disabled">Chaguo-msingi (imezimwa)</string>
   <string name="tool_option_default_allowed">Chaguo-msingi (ineruhusiwa)</string>
   <string name="tool_option_default_denied">Chaguo-msingi (imekataliwa)</string>
-
-    <!-- Per-Prompt Model Override -->
+  <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">Mfano</string>
   <string name="prompt_model_default">Chaguo-msingi</string>
-
-    <!-- LLM One Tap Actions -->
+  <!--LLM One Tap Actions-->
   <string name="select_llm_prompt">Chagua Kitendo cha AI</string>
   <string name="llm_actions">Vitendo vya AI</string>
-
-    <!-- Agent Log Widget -->
+  <!--Agent Log Widget-->
   <string name="agent_log_expand">Panua/punguza kumbukumbu ya wakala</string>
   <string name="agent_log_close">Funga kumbukumbu ya wakala</string>
   <string name="agent_log_stop">Simamisha AI</string>
@@ -1637,8 +1545,7 @@
   <string name="agent_log_done">Imekamilika: %s</string>
   <string name="agent_log_cancelled">Imeghairiwa</string>
   <string name="agent_already_running">Wakala wa AI tayari anaendesha. Tafadhali subiri au umsimamishe kwanza.</string>
-
-    <!-- AI Agent Notifications -->
+  <!--AI Agent Notifications-->
   <string name="ai_agent_notification_channel_name">Wakala wa AI</string>
   <string name="ai_agent_notification_running">Wakala wa AI anafanya kazi…</string>
   <string name="ai_agent_notification_permission_needed">Wakala wa AI anahitaji idhini yako</string>
@@ -1647,8 +1554,7 @@
   <string name="ai_agent_notification_completed_tap">Gonga kuona matokeo</string>
   <string name="ai_agent_notification_error">Kazi ya AI imeshindwa</string>
   <string name="ai_agent_notification_cancel">Ghairi</string>
-
-    <!-- My Documents -->
+  <!--My Documents-->
   <string name="my_documents_title">Hati Zangu</string>
   <string name="my_documents_empty">Hakuna hati bado. Gonga + kuunda moja.</string>
   <string name="my_document_new_name">Hati %d</string>
@@ -1659,7 +1565,6 @@
   <string name="my_document_save_changes">Hifadhi mabadiliko?</string>
   <string name="my_document_no_description">Hakuna maelezo</string>
   <string name="my_document_edit_description">Hariri maelezo</string>
-
   <string name="my_document_pages_title">%s - Kurasa</string>
   <string name="my_document_pages_empty">Hakuna kurasa katika hati hii.</string>
   <string name="my_document_page_rename_title">Badilisha jina la ukurasa</string>
@@ -1680,7 +1585,6 @@
   <string name="prefs_show_ai_doc_markers_summary">Onyesha ikoni za alama kwa kurasa za hati zilizoundwa na AI zilizounganishwa na mistari</string>
   <string name="prefs_show_ordinals_title">Onyesha nambari za mpangilio</string>
   <string name="prefs_show_ordinals_summary">Onyesha alama za nafasi ya mpangilio katika maandishi</string>
-
   <string name="prefs_page_scroll_amount_title">Kiasi cha kusogeza ukurasa</string>
   <string name="prefs_page_scroll_amount_summary">Kiasi cha ukurasa cha kusogeza na ukurasa juu/chini</string>
   <string name="prefs_scroll_helper_lines_title">Mistari ya msaada wa kusogeza</string>

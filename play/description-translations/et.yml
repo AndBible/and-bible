@@ -15,8 +15,7 @@ paragraph_1_3: >
 subtitle_2: Võimsad piibliuurimise funktsioonid
 paragraph_2_1: >
   Rakendusel on palju originaalseid funktsioone, mis muudavad keeruka ja põhjaliku piibliuurimise kogemuse sujuvamaks kui kunagi varem. Olulisemad funktsioonid on järgmised:
-feature_01: >
-  Jagatud tekstivaated, mis võimaldavad tõlkeid võrrelda ja kommentaare konsulteerida
+feature_01: "Jagatud tekstivaated, mis võimaldavad tõlkeid võrrelda ja kommentaare konsulteerida\n"
 feature_02: Tööalad võimaldavad mitut piibliuurimise seadistust oma seadetega
 feature_03: Strongi integreerimine võimaldab kreeka ja heebrea sõnade analüüsi
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
@@ -24,14 +23,12 @@ feature_04: >
   Puuduta ükskõik millist linki, et liikuda ristviidetele, allmärkustele ja kommentaaridele ({{commentary_examples}}) või ristviidete kogudele ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry jne.
+commentary_examples: "Gill, Matthew Henry jne."
 # Examples of cross-reference collections.
-cross_reference_examples: Treasure of Scripture Knowledge, TSKe
-feature_05: >
-  Täiustatud tekst kõneks koos kõnelemise järjehoidjatega, mis võimaldab sujuvat piibli kuulamise kogemust
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Täiustatud tekst kõneks koos kõnelemise järjehoidjatega, mis võimaldab sujuvat piibli kuulamise kogemust\n"
 feature_06: Paindlik täistekstotsing ühest või mitmest piiblitõlkest samaaegselt
-feature_07: >
-  Täiustatud järjehoidja ja esiletõstmise funktsioonid koos isiklike uurimismärkmetega
+feature_07: "Täiustatud järjehoidja ja esiletõstmise funktsioonid koos isiklike uurimismärkmetega\n"
 feature_08: >
   Sünkroonimine seadmete vahel: hoia oma tööalad, järjehoidjad, märkmed ja lugemise edenemine ajakohased kõigis seadmetes
 feature_09: >
@@ -45,30 +42,36 @@ feature_11: >
   Valikuline AI uurimisagent (kasutuselevõtt on vabatahtlik — nõuab sinu enda API-võtit välisele teenusele): uuri paigaldatud kommentaare ja sõnaraamatuid AI abiga sinu valitud keeles ning kasuta muid loomingulisi uurimisvõimalusi. Sisseehitatud loasüsteem hoiab sind täielikult kontrolli all selle üle, mida agent võib teha.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV ja NKJV
+unavailable_documents: "ESV, NIV ja NKJV"
 feature_12: >
   Võrguühenduseta: ainus kord, mil vajad internetti, on dokumentide allalaadimisel.
 # UNUSED
-feature_13: Uurimismärkmikud märkmete ja piibli viidete lisamiseks jutluste kuulamisel.
+feature_13: >-
+  Uurimismärkmikud märkmete ja piibli viidete lisamiseks jutluste kuulamisel.
 subtitle_3: Loome koos parima piiblirakenduse!
 paragraph_3_1: >
   AndBible on avatud lähtekoodiga kogukonna projekt. Praktikas tähendab see, et igaüks, kellel on sobivad oskused, saab ja on julgustatud projektile kaasa aitama:
-contr_1: uute funktsioonide arendamine,
-contr_2: veel avaldamata funktsioonide testimine,
+contr_1: "uute funktsioonide arendamine,"
+contr_2: "veel avaldamata funktsioonide testimine,"
 contr_3: kasutajaliidese tõlgete ajakohane hoidmine ja
-contr_4: >
-  moodulite kogu laiendamise abistamine autoriõiguse omajatelt lubade hankimise või dokumentide SWORD formaati teisendamise teel.
+contr_4: "moodulite kogu laiendamise abistamine autoriõiguse omajatelt lubade hankimise või dokumentide SWORD formaati teisendamise teel.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  Kui oled professionaalne tarkvarainsener või testija, palun kaatle projektile panustamist. Lisateavet kaasa aitamise kohta leiad aadressilt {{how_to_contribute_url}}.
+paragraph_4_1: "Kui oled professionaalne tarkvarainsener või testija, palun kaatle projektile panustamist. Lisateavet kaasa aitamise kohta leiad aadressilt {{how_to_contribute_url}}.\n"
 subtitle_4: Lingid
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "Koduleht: {{homepage_url}}"
-link_2: "Meeldi AndBible Facebookis: {{facebook_url}}"
-link_3: "Meie Youtube kanal: {{youtube_url}}"
-link_4: "Korduma kippuvad küsimused: {{faq_url}}"
-link_5: "Projektileht Githubis: {{github_url}}"
-buy_title: Toeta arendusaja ostmisega!
+link_1: >-
+  Koduleht: {{homepage_url}}
+link_2: >-
+  Meeldi AndBible Facebookis: {{facebook_url}}
+link_3: >-
+  Meie Youtube kanal: {{youtube_url}}
+link_4: >-
+  Korduma kippuvad küsimused: {{faq_url}}
+link_5: >-
+  Projektileht Githubis: {{github_url}}
+buy_title: >-
+  Toeta arendusaja ostmisega!
 buy_1: >
   Kui sul pole aega või oskusi projektile panustamiseks, saad projekti toetada ka professionaalse arendaja tööaja ostmisega.
-buy_2: Vaata valikuid
+buy_2: >-
+  Vaata valikuid

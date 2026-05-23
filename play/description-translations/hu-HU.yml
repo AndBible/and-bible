@@ -15,24 +15,20 @@ paragraph_1_3: >
 subtitle_2: Bibliatanulmányozó funkciók
 paragraph_2_1: >
   Az app számos különleges funkcióval rendelkezik, amelyek az öszetett és alapos bibliatanulmányozást még egyszerűbbé teszik. A elismerésre legméltóbb funkciók:
-feature_01: >
-  Megosztott képernyős mód, amely lehetővé teszi a különböző forditások összehasonlítását, vagy a kommentárok a Bibilia szövegével párhuzamos olvasását
-feature_02: >
-  A Munkaasztalok segítségével több kölönböző saját beállításokkal rendelkező bibliatanulmányozási konfiguráció létrehozására van lehetőség
-feature_03: >
-  A Strong-konkordancia (szómutató) integráció lehetővé teszi a görög és héber szóanalízist.
+feature_01: "Megosztott képernyős mód, amely lehetővé teszi a különböző forditások összehasonlítását, vagy a kommentárok a Bibilia szövegével párhuzamos olvasását\n"
+feature_02: "A Munkaasztalok segítségével több kölönböző saját beállításokkal rendelkező bibliatanulmányozási konfiguráció létrehozására van lehetőség\n"
+feature_03: "A Strong-konkordancia (szómutató) integráció lehetővé teszi a görög és héber szóanalízist.\n"
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Bármely hivatkozásra koppintva követheti a kapcsolt kereszthivatkozásokat, lábjegyzeteket és kommentárokat ({{commentary_examples}}), valamint a kereszthivatkozás-gyűjteményeket ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry stb.
+commentary_examples: "Gill, Matthew Henry stb."
 # Examples of cross-reference collections.
-cross_reference_examples: Treasury of Scripture Knowledge, TSKe
-feature_05: >
-  Fejlett felolvasási képességek (a támogatott nyelveken), beszéd könyvjelzők, hogy tényleg akadálymentesen hallgathassa a Bibliát.
+cross_reference_examples: "Treasury of Scripture Knowledge, TSKe"
+feature_05: "Fejlett felolvasási képességek (a támogatott nyelveken), beszéd könyvjelzők, hogy tényleg akadálymentesen hallgathassa a Bibliát.\n"
 feature_06: Rugalmas teljes szöveges keresés egy vagy több bibliafordításban
-feature_07: Fejlett könyvjelző és kijelölési lehetőségek, személyes jegyzetek
+feature_07: "Fejlett könyvjelző és kijelölési lehetőségek, személyes jegyzetek"
 feature_08: >
   Eszközök közötti szinkronizáció: munkaterületek, könyvjelzők, jegyzetek és olvasási előrehaladás szinkronja minden eszközön
 feature_09: >
@@ -46,7 +42,7 @@ feature_11: >
   Választható MI-tanulmányozó ügynök (csak igény szerint — saját API-kulcs szükséges külső szolgáltatóhoz): fedezze fel kommentárjait és szótárait MI segítségével a választott nyelven, kreatív tanulmányozási módokkal. Beépített engedélyrendszer tartja teljes ellenőrzése alatt az ügynök tevékenységét.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV és NKJV
+unavailable_documents: "ESV, NIV és NKJV"
 feature_12: >
   Offline: csak a bibliamodulok letöltésekor van szükség aktív internetkapcsolatra.
 # UNUSED
@@ -58,19 +54,24 @@ paragraph_3_1: >
 contr_1: új funkciók kifejlesztésével
 contr_2: újonnan fejlesztett funkciók tesztelésével
 contr_3: a felhasználói felület fordításainak karbantartásával és
-contr_4: >
-  a modulkönyvtár fejlesztésével: dokumentumok SWORD formátumba konvertálásával vagy a jogtulajdonosoktól a megfelelő engedélyek beszerzésével.
+contr_4: "a modulkönyvtár fejlesztésével: dokumentumok SWORD formátumba konvertálásával vagy a jogtulajdonosoktól a megfelelő engedélyek beszerzésével.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  Ha hivatásos szoftverfejlesztő vagy tesztelő, kérjük vegyen részt az alkalmazás feljlesztésében! Bővebb információ: {{how_to_contribute_url}}.
+paragraph_4_1: "Ha hivatásos szoftverfejlesztő vagy tesztelő, kérjük vegyen részt az alkalmazás feljlesztésében! Bővebb információ: {{how_to_contribute_url}}.\n"
 subtitle_4: Hivatkozások
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "Internetcím: {{homepage_url}}"
-link_2: "Kövesd az AndBible-t Facbookon: {{facebook_url}}"
-link_3: "YouTube csatornánk: {{youtube_url}}"
-link_4: "Gyakori kérdések (FAQ): {{faq_url}}"
-link_5: "A projekt GitHub oldala: {{github_url}}"
-buy_title: Támogasd as projektet fejlesztőidő vásárlásával!
+link_1: >-
+  Internetcím: {{homepage_url}}
+link_2: >-
+  Kövesd az AndBible-t Facbookon: {{facebook_url}}
+link_3: >-
+  YouTube csatornánk: {{youtube_url}}
+link_4: >-
+  Gyakori kérdések (FAQ): {{faq_url}}
+link_5: >-
+  A projekt GitHub oldala: {{github_url}}
+buy_title: >-
+  Támogasd as projektet fejlesztőidő vásárlásával!
 buy_1: >
   Ha nem rendelkezik megfelelő képességekkel, támogathatja a projektet fejlesztőidő vásárlásával.
-buy_2: Lehetőségek
+buy_2: >-
+  Lehetőségek

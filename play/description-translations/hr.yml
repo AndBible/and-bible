@@ -15,23 +15,19 @@ paragraph_1_3: >
 subtitle_2: Moćne funkcije za proučavanje Biblije.
 paragraph_2_1: >
   Aplikacija ima mnoge originalne funkcije koje čine detaljno proučavanje Biblije lakšim nego ikad. Značajne funkcije su sljedeće:
-feature_01: >
-  Dijeljenje pregleda teksta koje omogućava uspoređivanje prijevoda i pretraživanje u tumačenjima
-feature_02: >
-  Radne površine omogućavaju više postavki za proučavanje Biblije sa odvojenim podešavanjima
+feature_01: "Dijeljenje pregleda teksta koje omogućava uspoređivanje prijevoda i pretraživanje u tumačenjima\n"
+feature_02: "Radne površine omogućavaju više postavki za proučavanje Biblije sa odvojenim podešavanjima\n"
 feature_03: Integracija Strongovog rječnika omogućava analizu grčkih i hebrejskih riječi
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Dodirnite bilo koju poveznicu kako biste pratili unakrsne reference, fusnote i tumačenja ({{commentary_examples}}) ili zbirke unakrsnih referenci ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry itd.
+commentary_examples: "Gill, Matthew Henry itd."
 # Examples of cross-reference collections.
-cross_reference_examples: Treasure of Scripture Knowledge, TSKe
-feature_05: >
-  Napredni tekst - u - govor sa izgovorom straničnika, koje omogućava glatki doživljaj slušanja Svetoga pisma
-feature_06: >
-  Fleksibilno cjelovito pretraživanje teksta u jednom ili više biblijskih prijevoda istovremeno
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Napredni tekst - u - govor sa izgovorom straničnika, koje omogućava glatki doživljaj slušanja Svetoga pisma\n"
+feature_06: "Fleksibilno cjelovito pretraživanje teksta u jednom ili više biblijskih prijevoda istovremeno\n"
 feature_07: Napredno straničnikanje i isticanja značajki sa osobnim bilješkama za učenje
 feature_08: >
   Sinkronizacija među uređajima: držite svoje radne površine, straničnike, bilješke i napredak čitanja usklađenima na svim svojim uređajima
@@ -46,8 +42,9 @@ feature_11: >
   Neobavezni AI pomoćnik za proučavanje (samo na zahtjev — potreban je vaš osobni API ključ za vanjsku uslugu): istražujte instalirana tumačenja i rječnike uz AI pomoć na odabranom jeziku, uz druge kreativne načine proučavanja. Ugrađeni sustav dopuštenja drži vas pod punom kontrolom nad onime što pomoćnik smije činiti.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV i NKJV
-feature_12: "Izvanmrežno: jedino kada Vam treba internet jeste za preuzimanje dokumenata."
+unavailable_documents: "ESV, NIV i NKJV"
+feature_12: >-
+  Izvanmrežno: jedino kada Vam treba internet jeste za preuzimanje dokumenata.
 # UNUSED
 feature_13: >
   Radne bilježnice za dodavanje bilješki i biblijskih referenci za vrijeme slušanja propovijedi
@@ -56,20 +53,25 @@ paragraph_3_1: >
   AndBible je projekt zajednice otvorenog koda. U praksi, ovo znači da svatko tko ima određeni niz vještina može, uz ohrabrenje, da doprinese projektu:
 contr_1: razvijanjem novih funkcija
 contr_2: testiranjem još uvijek neobjavljenih funkcija
-contr_3: održavanjem prijevoda korisničkog sučelja ažurnim, i
-contr_4: >
-  pomažući u proširenju modula biblioteke zadobivanjem dozvola od vlasnika autorskih prava, ili pretvaranjem dokumenata u SWORD format.
+contr_3: "održavanjem prijevoda korisničkog sučelja ažurnim, i"
+contr_4: "pomažući u proširenju modula biblioteke zadobivanjem dozvola od vlasnika autorskih prava, ili pretvaranjem dokumenata u SWORD format.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  Ukoliko ste profesionalni softverski programer ili tester, molimo Vas da razmislite o doprinosu projektu. Za više informacija o tome kako doprinijeti, molimo pogledajte {{how_to_contribute_url}}
+paragraph_4_1: "Ukoliko ste profesionalni softverski programer ili tester, molimo Vas da razmislite o doprinosu projektu. Za više informacija o tome kako doprinijeti, molimo pogledajte {{how_to_contribute_url}}\n"
 subtitle_4: "Poveznice:"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "Početna stranica: {{homepage_url}}"
-link_2: "Lajkaj AndBible na Facebook-u:  {{facebook_url}}"
-link_3: "Naš Youtube kanal:  {{youtube_url}}"
-link_4: "Često postavljena pitanja:  {{faq_url}}"
-link_5: "Stranica projekta na Github-u: {{github_url}}"
-buy_title: Podržite razvoj kupovinom vremena!
+link_1: >-
+  Početna stranica: {{homepage_url}}
+link_2: >-
+  Lajkaj AndBible na Facebook-u:  {{facebook_url}}
+link_3: >-
+  Naš Youtube kanal:  {{youtube_url}}
+link_4: >-
+  Često postavljena pitanja:  {{faq_url}}
+link_5: >-
+  Stranica projekta na Github-u: {{github_url}}
+buy_title: >-
+  Podržite razvoj kupovinom vremena!
 buy_1: >
   Ukoliko nemate vremena ili vještina za doprinos na projektu, također možete podržati projekt kupovinom profesionalnog razvoja.
-buy_2: Pogledajte opcije
+buy_2: >-
+  Pogledajte opcije
