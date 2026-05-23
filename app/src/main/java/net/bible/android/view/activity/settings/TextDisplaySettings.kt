@@ -400,26 +400,75 @@ class TextDisplaySettingsActivity: ActivityBase() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         val newBundleJson = intent?.getStringExtra("settingsBundle") ?: return
-        // Save current state to stack before switching to the new level
+        // Commit current-level dirty changes to in-memory state before navigating up the stack,
+        // so they aren't lost when this bundle later pops back.
+        commitDirtyToInMemoryState()
         bundleStack.addLast(settingsBundle)
         loadSettingsBundle(SettingsBundle.fromJson(newBundleJson))
     }
 
     override fun onBackPressed() {
-        if (settingsBundle.level == SettingsLevel.GLOBAL && dirtyTypes.isNotEmpty()) {
-            CommonUtils.globalTextDisplaySettings = settingsBundle.globalSettings
-            CommonUtils.windowControl.windowRepository.propagateGlobalTextDisplaySettingsChange(
-                dirtyTypes, settingsBundle.globalSettings
-            )
-            CommonUtils.windowControl.windowRepository.updateAllWindowsTextDisplaySettings()
+        // Commit current-level dirty changes. GLOBAL must commit even when exiting (the activity
+        // may have been launched without a result handler). WORKSPACE/WINDOW commit only when
+        // popping back to a stacked level; on full exit they propagate via onActivityResult.
+        val popping = bundleStack.isNotEmpty()
+        if (dirtyTypes.isNotEmpty() &&
+            (settingsBundle.level == SettingsLevel.GLOBAL || popping)
+        ) {
+            commitDirtyToInMemoryState()
         }
-        if (bundleStack.isNotEmpty()) {
-            // Return to previous level, refreshing global settings from DB
+        if (popping) {
             val previous = bundleStack.removeLast()
-            loadSettingsBundle(previous.copy(globalSettings = CommonUtils.globalTextDisplaySettings))
+            // Refresh the popped bundle from now-current in-memory state so the popped view shows
+            // the changes the user just made deeper in the stack (e.g. window-level icons/values
+            // reflect workspace edits that were just committed above).
+            loadSettingsBundle(refreshFromInMemoryState(previous))
             return
         }
         finish()
+    }
+
+    /**
+     * Persist the currently-edited [settingsBundle]'s dirty changes into the in-memory
+     * `windowRepository`/`CommonUtils` state so that subsequent navigation and reads see them.
+     * Mirrors the per-level branches of `MainBibleActivity.workspaceSettingsChanged`.
+     */
+    private fun commitDirtyToInMemoryState() {
+        if (dirtyTypes.isEmpty()) return
+        val repo = windowControl.windowRepository
+        when (settingsBundle.level) {
+            SettingsLevel.GLOBAL -> {
+                CommonUtils.globalTextDisplaySettings = settingsBundle.globalSettings
+                repo.propagateGlobalTextDisplaySettingsChange(
+                    dirtyTypes, settingsBundle.globalSettings
+                )
+                repo.updateAllWindowsTextDisplaySettings()
+            }
+            SettingsLevel.WORKSPACE -> {
+                repo.textDisplaySettings = settingsBundle.workspaceSettings
+                repo.workspaceSettings.workspaceColor =
+                    settingsBundle.workspaceSettings.colors?.workspaceColor ?: defaultWorkspaceColor
+                repo.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
+                repo.updateAllWindowsTextDisplaySettings()
+            }
+            SettingsLevel.WINDOW -> {
+                val window = settingsBundle.windowId?.let { repo.getWindow(it) } ?: return
+                window.pageManager.textDisplaySettings = settingsBundle.pageManagerSettings!!
+                window.bibleView?.updateTextDisplaySettings()
+            }
+        }
+    }
+
+    /** Refresh inherited (and own-window) settings on a popped bundle from in-memory state. */
+    private fun refreshFromInMemoryState(bundle: SettingsBundle): SettingsBundle {
+        val repo = windowControl.windowRepository
+        val refreshedWindow = bundle.windowId?.let { repo.getWindow(it) }
+        return bundle.copy(
+            globalSettings = CommonUtils.globalTextDisplaySettings,
+            workspaceSettings = repo.textDisplaySettings,
+            pageManagerSettings = refreshedWindow?.pageManager?.textDisplaySettings
+                ?: bundle.pageManagerSettings,
+        )
     }
 
     private fun loadSettingsBundle(bundle: SettingsBundle) {

@@ -156,18 +156,7 @@ open class Preference(val settings: SettingsBundle,
         SettingsLevel.GLOBAL -> false
     }
 
-    val inheritedFrom: InheritedFrom get() = when (settings.level) {
-        SettingsLevel.WINDOW -> when {
-            pageManagerSettings?.getValue(type) != null -> InheritedFrom.NONE
-            workspaceSettings.getValue(type) != null -> InheritedFrom.WORKSPACE
-            else -> InheritedFrom.GLOBAL
-        }
-        SettingsLevel.WORKSPACE -> when {
-            workspaceSettings.getValue(type) != null -> InheritedFrom.NONE
-            else -> InheritedFrom.GLOBAL
-        }
-        SettingsLevel.GLOBAL -> InheritedFrom.NONE
-    }
+    val inheritedFrom: InheritedFrom get() = settings.inheritedFrom(type)
 
     val pageManager get() = window?.pageManager ?: windowControl.activeWindowPageManager
 
