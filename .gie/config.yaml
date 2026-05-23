@@ -59,6 +59,7 @@ host_mounts:
   - { host: ai-local,    container: /home/dev/and-bible/ai-local,    readonly: false }
   - { host: wiki,        container: /home/dev/and-bible/wiki,        readonly: false }
   - { host: readthedocs, container: /home/dev/and-bible/readthedocs, readonly: false }
+  - { host: ../jsword, container: /home/dev/jsword, readonly: false }
 
 # Egress allowlist applied in strict mode. These cover Android Gradle
 # builds, npm/Vue.js dependencies, and apt updates. adb-server traffic
