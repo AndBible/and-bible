@@ -15,6 +15,18 @@
   <string name="history">履歴</string>
   <string name="speak">読み上げ</string>
   <string name="help">ヘルプ</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">マニュアルで詳細を読む</string>
+  <string name="help_prompt_edit_text">カスタムプロンプトを使用すると、聖書研究のための再利用可能なAI指示を作成できます。名前、説明、テンプレート、表示するコンテキスト、およびオプションでカスタムプロバイダー/モデルを設定します。組み込みプロンプトは直接編集できません — 「コピーしてカスタマイズ」を使用して独自のバージョンを作成してください。</string>
+  <string name="help_tool_info_text">AIツールは、AIがあなたのデータを読み取ったり、あなたの代わりに変更を加えたりするために呼び出せる特殊な機能です。読み取りツール（節、注解、辞書、ブックマーク）は権限を必要としません。書き込みツール（ブックマーク、ノート、スタディパッドエントリの作成）は権限システムによって管理されます。</string>
+  <string name="help_ai_settings_text">AI設定では、プロンプトとカテゴリを管理します。ここから新しいプロンプトを作成し、カテゴリに整理し、プロンプトをCSVとしてインポート/エクスポートし、アドオンプロンプトパックをインストールし、AI接続設定にアクセスできます。</string>
+  <string name="help_ai_connection_text">AIプロバイダー、モデル、権限、その他の接続オプションをここで設定します。各プロバイダーには独自のAPIキーが必要です。複数のプロバイダーを追加し、デフォルトモデルを選択できます。</string>
+  <string name="help_ai_providers_text">AIプロバイダー（Google Gemini、OpenAI、Anthropicなど）を管理します。各プロバイダーには独自のAPIキーが必要です。複数のプロバイダーを追加し、特定のプロンプトに異なるプロバイダーを割り当てることができます。</string>
+  <string name="help_ai_models_text">このプロバイダーのモデルを管理します。プロバイダーのAPIからモデルリストを更新して新しいリリースを取得するか、取得したリストにないモデル名を手動で追加できます。</string>
+  <string name="help_ai_document_filter_text">AIエージェントが読み取れる聖書、注解、その他のモジュールを制限します。デフォルトでは、AIはインストールされているすべてのモジュールを参照します。特定のソースのみを考慮させたい場合は、フィルタリングによってノイズとコストを削減できます。</string>
+  <string name="help_global_tool_permissions_text">個々のAIツールの権限を設定します。各読み取りツールについて、AIがそれを使用できるか（有効または無効）を選択します。各書き込みツールについて、常に許可、常に拒否、または確認（AI接続設定で設定されたグローバル権限モードにフォールバック）を選択します。</string>
+  <string name="help_reading_progress_text">聖書の読書と暗記の進捗を一目で確認できます。「既読にする」ボタンで章を手動で既読にするか、自動追跡を有効にします。暗記演習もこのビューに反映されます。</string>
+  <string name="help_memorize_text">暗記ビューでは、聖句を暗記するのに役立ちます。ワードブラー、ワードスクランブル、ワードタイプ、ワードオーダーを使用して練習します。成功した演習は自動的に節を暗記済みとしてマークします（無効にすることもできます）。</string>
   <string name="information">情報</string>
   <string name="other">その他</string>
   <string name="contact">お問い合わせ</string>

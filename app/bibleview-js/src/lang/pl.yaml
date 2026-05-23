@@ -76,6 +76,7 @@ removeFromTargets: Cel -
 viewReadingProgress: Postęp czytania/nauki
 viewReadingProgressSettings: Ustawienia czytania/nauki
 listenInLoop: Słuchaj w pętli
+viewHelp: Wyświetl pomoc
 verseNoteLong: Napisz notatkę
 verseParagraphBreakLong: Dodaj nową linię
 addBookmark: Zakładka

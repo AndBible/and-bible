@@ -15,6 +15,18 @@
   <string name="history">Historik</string>
   <string name="speak">Läs upp</string>
   <string name="help">Hjälp</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Läs mer i manualen</string>
+  <string name="help_prompt_edit_text">Anpassade promptar låter dig skapa återanvändbara AI-instruktioner för din bibelstudium. Ange ett namn, beskrivning, mall, de sammanhang där den ska visas och valfritt en anpassad leverantör/modell. Inbyggda promptar kan inte redigeras direkt — använd \"Kopiera för att anpassa\" för att skapa din egen version.</string>
+  <string name="help_tool_info_text">AI-verktyg är specialiserade funktioner som AI:n kan anropa för att läsa dina data eller göra ändringar för din räkning. Läsverktyg (verser, kommentarer, lexikon, bokmärken) kräver aldrig tillåtelse. Skrivverktyg (skapa bokmärken, anteckningar, studieblocksposter) styrs av behörighetssystemet.</string>
+  <string name="help_ai_settings_text">AI-inställningar är där du hanterar dina promptar och kategorier. Härifrån kan du skapa nya promptar, organisera dem i kategorier, importera/exportera promptar som CSV, installera tilläggspromptar och nå AI-anslutningsinställningarna.</string>
+  <string name="help_ai_connection_text">Konfigurera dina AI-leverantörer, modeller, behörigheter och andra anslutningsalternativ här. Varje leverantör behöver sin egen API-nyckel. Du kan lägga till flera leverantörer och välja en standardmodell.</string>
+  <string name="help_ai_providers_text">Hantera AI-leverantörer (Google Gemini, OpenAI, Anthropic m.fl.). Varje leverantör behöver sin egen API-nyckel. Du kan lägga till flera leverantörer och tilldela olika sådana till specifika promptar.</string>
+  <string name="help_ai_models_text">Hantera modeller för denna leverantör. Du kan uppdatera modellistan från leverantörens API för att hämta nya versioner, eller lägga till ett modellnamn manuellt om det inte finns i den hämtade listan.</string>
+  <string name="help_ai_document_filter_text">Begränsa vilka biblar, kommentarer och andra moduler som AI-agenten kan läsa. Som standard ser AI:n alla installerade moduler; filtrering hjälper till att minska brus och kostnader när du bara vill att den ska beakta specifika källor.</string>
+  <string name="help_global_tool_permissions_text">Konfigurera behörigheter för enskilda AI-verktyg. För varje läsverktyg väljer du om AI:n får använda det (Aktiverat eller Inaktiverat). För varje skrivverktyg väljer du Tillåt alltid, Neka alltid eller Fråga (som återfaller till det globala behörighetsläget inställt i AI-anslutningsinställningarna).</string>
+  <string name="help_reading_progress_text">Din bibelläsning och memoreringsframsteg i en överblick. Markera kapitel som lästa manuellt med knappen \"Markera som läst\", eller aktivera automatisk spårning. Memoreringsövningar bidrar också till den här vyn.</string>
+  <string name="help_memorize_text">Memorera-vyn hjälper dig att lära dig textavsnitt utantill. Använd Ordoskärpa, Ordsortering, Ordtyp eller Ordordning för att öva. Lyckade övningar markerar automatiskt verser som memorerade (detta kan inaktiveras).</string>
   <string name="information">Information</string>
   <string name="other">Annat</string>
   <string name="contact">Kontakt</string>

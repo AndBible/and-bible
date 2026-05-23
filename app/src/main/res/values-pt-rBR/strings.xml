@@ -15,6 +15,18 @@
   <string name="history">Histórico</string>
   <string name="speak">Escutar</string>
   <string name="help">Ajuda</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Leia mais no manual</string>
+  <string name="help_prompt_edit_text">Prompts personalizados permitem criar instruções de IA reutilizáveis para seu estudo. Defina um nome, descrição, modelo, os contextos onde deve aparecer e, opcionalmente, um provedor/modelo personalizado. Prompts integrados não podem ser editados diretamente — use \"Copiar para personalizar\" para criar sua própria versão.</string>
+  <string name="help_tool_info_text">Ferramentas de IA são funções especializadas que a IA pode chamar para ler seus dados ou fazer alterações em seu nome. Ferramentas de leitura (versículos, comentários, dicionários, marcadores) nunca requerem permissão. Ferramentas de escrita (criar marcadores, notas, entradas no bloco de estudo) são controladas pelo sistema de permissões.</string>
+  <string name="help_ai_settings_text">Configurações de IA é onde você gerencia seus prompts e categorias. Aqui você pode criar novos prompts, organizá-los em categorias, importar/exportar prompts como CSV, instalar pacotes de prompts adicionais e acessar as configurações de conexão de IA.</string>
+  <string name="help_ai_connection_text">Configure seus provedores de IA, modelos, permissões e outras opções de conexão aqui. Cada provedor precisa de sua própria chave de API. Você pode adicionar vários provedores e selecionar um modelo padrão.</string>
+  <string name="help_ai_providers_text">Gerencie provedores de IA (Google Gemini, OpenAI, Anthropic, etc.). Cada provedor precisa de sua própria chave de API. Você pode adicionar vários provedores e atribuir diferentes a prompts específicos.</string>
+  <string name="help_ai_models_text">Gerencie modelos para este provedor. Você pode atualizar a lista de modelos da API do provedor para obter novas versões, ou adicionar um nome de modelo manualmente se ele não estiver na lista obtida.</string>
+  <string name="help_ai_document_filter_text">Limite quais Bíblias, comentários e outros módulos o agente de IA pode ler. Por padrão, a IA vê todos os módulos instalados; filtrar ajuda a reduzir ruído e custo quando você deseja que ela considere apenas fontes específicas.</string>
+  <string name="help_global_tool_permissions_text">Configure permissões para ferramentas de IA individuais. Para cada ferramenta de leitura, escolha se a IA pode usá-la (Ativada ou Desativada). Para cada ferramenta de escrita, escolha Sempre permitir, Sempre negar ou Perguntar (que volta ao modo de permissão global definido nas configurações de conexão de IA).</string>
+  <string name="help_reading_progress_text">Seu progresso de leitura e memorização da Bíblia em um só lugar. Marque capítulos como lidos manualmente com o botão \"Marcar como lido\", ou ative o rastreamento automático. Exercícios de memorização também alimentam esta visualização.</string>
+  <string name="help_memorize_text">A visualização Memorizar ajuda você a aprender passagens de cor. Use Borrar Palavras, Embaralhar Palavras, Digitar Palavras ou Ordenar Palavras para praticar. Exercícios bem-sucedidos marcam automaticamente os versículos como memorizados (isso pode ser desativado).</string>
   <string name="information">Informações</string>
   <string name="other">Outros</string>
   <string name="contact">Contato</string>

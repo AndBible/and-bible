@@ -76,6 +76,7 @@ removeFromTargets: Cél -
 viewReadingProgress: Olvasási/memorizálási haladás
 viewReadingProgressSettings: Olvasási/memorizálási beállítások
 listenInLoop: Ismételt lejátszás
+viewHelp: Súgó megnyitása
 verseNoteLong: Jegyzet hozzáadása
 verseParagraphBreakLong: Bekezdéstörés
 addBookmark: Könyvjelző

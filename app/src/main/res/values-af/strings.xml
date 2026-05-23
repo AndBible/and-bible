@@ -15,6 +15,18 @@
   <string name="history">Geskiedenis</string>
   <string name="speak">Praat</string>
   <string name="help">Hulp</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Lees meer in die handleiding</string>
+  <string name="help_prompt_edit_text">Gepasmaakte opdragte laat jou toe om herbruikbare KI-instruksies vir jou studie te skep. Stel \'n naam, beskrywing, sjabloon, die kontekste waar dit moet verskyn, en opsioneel \'n gepasmaakte verskaffer/model in. Ingeboude opdragte kan nie direk gewysig word nie — gebruik \"Kopieer om aan te pas\" om jou eie weergawe te skep.</string>
+  <string name="help_tool_info_text">KI-hulpmiddels is gespesialiseerde funksies wat die KI kan aanroep om jou data te lees of namens jou veranderinge aan te bring. Lees-hulpmiddels (verse, kommentaar, woordeboeke, boekmerke) benodig nooit toestemming nie. Skryf-hulpmiddels (skep van boekmerke, notas, studie blok-inskrywings) word beheer deur die toestemmingstelsel.</string>
+  <string name="help_ai_settings_text">KI-instellings is waar jy jou opdragte en kategorieë bestuur. Van hier af kan jy nuwe opdragte skep, hulle in kategorieë organiseer, opdragte as CSV invoer/uitvoer, byvoegsel-opdragpakkette installeer, en die KI-verbindingsinstellings bereik.</string>
+  <string name="help_ai_connection_text">Stel jou KI-verskaffers, modelle, toestemmings en ander verbindingsopsies hier in. Elke verskaffer benodig sy eie API-sleutel. Jy kan verskeie verskaffers byvoeg en \'n verstekmodel kies.</string>
+  <string name="help_ai_providers_text">Bestuur KI-verskaffers (Google Gemini, OpenAI, Anthropic, ens.). Elke verskaffer benodig sy eie API-sleutel. Jy kan verskeie verskaffers byvoeg en verskillende een aan spesifieke opdragte toewys.</string>
+  <string name="help_ai_models_text">Bestuur modelle vir hierdie verskaffer. Jy kan die modellys vanaf die verskaffer se API verfris om nuwe vrystellings op te tel, of \'n modelnaam handmatig byvoeg as dit nie in die opgehaalde lys is nie.</string>
+  <string name="help_ai_document_filter_text">Beperk watter Bybels, kommentare en ander modules die KI-agent kan lees. By verstek sien die KI alle geïnstalleerde modules; filtering help om ruis en koste te verminder wanneer jy slegs wil hê dit moet spesifieke bronne oorweeg.</string>
+  <string name="help_global_tool_permissions_text">Stel toestemmings in vir individuele KI-hulpmiddels. Vir elke lees-hulpmiddel, kies of die KI dit mag gebruik (Geaktiveer of Gedeaktiveer). Vir elke skryf-hulpmiddel, kies Altyd toelaat, Altyd weier, of Vra (wat terugval op die globale toestemmingsmodus wat in KI-verbindingsinstellings gestel is).</string>
+  <string name="help_reading_progress_text">Jou Bybel-lees- en memoriseringsvordering in een oogopslag. Merk hoofstukke handmatig as gelees met die \"Merk as gelees\"-knoppie, of aktiveer outomatiese opsporing. Memoriseer-oefeninge dra ook by tot hierdie aansig.</string>
+  <string name="help_memorize_text">Die Memoriseer-aansig help jou om gedeeltes uit jou kop te leer. Gebruik Woordvervaging, Woordmengsel, Woordtik of Woordvolgorde om te oefen. Suksesvolle oefeninge merk verse outomaties as gememoriseer (dit kan gedeaktiveer word).</string>
   <string name="information">Inligting</string>
   <string name="other">Ander</string>
   <string name="contact">Kontak</string>

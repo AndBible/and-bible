@@ -15,6 +15,18 @@
   <string name="history">阅读历史</string>
   <string name="speak">朗读</string>
   <string name="help">帮助</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">在手册中阅读更多</string>
+  <string name="help_prompt_edit_text">自定义提示词让您为研经创建可复用的AI指令。设置名称、描述、模板、出现的上下文，以及可选的自定义提供商/模型。内置提示词无法直接编辑——请使用\"复制以自定义\"来创建您自己的版本。</string>
+  <string name="help_tool_info_text">AI工具是AI可以调用的专用功能，用于读取您的数据或代表您进行更改。读取工具（经文、注释、字典、书签）无需任何权限。写入工具（创建书签、笔记、学习笔记条目）受权限系统管控。</string>
+  <string name="help_ai_settings_text">AI设置是您管理提示词和类别的地方。在这里您可以创建新提示词、将其整理到类别中、以CSV格式导入/导出提示词、安装附加提示词包，以及访问AI连接设置。</string>
+  <string name="help_ai_connection_text">在此处配置您的AI提供商、模型、权限和其他连接选项。每个提供商需要各自的API密钥。您可以添加多个提供商并选择默认模型。</string>
+  <string name="help_ai_providers_text">管理AI提供商（Google Gemini、OpenAI、Anthropic等）。每个提供商需要各自的API密钥。您可以添加多个提供商，并为特定提示词分配不同的提供商。</string>
+  <string name="help_ai_models_text">管理此提供商的模型。您可以从提供商的API刷新模型列表以获取新版本，或者手动添加模型名称（如果未在获取的列表中出现）。</string>
+  <string name="help_ai_document_filter_text">限制AI代理可以读取的圣经、注释和其他模块。默认情况下，AI可以查看所有已安装的模块；当您只想让其考虑特定来源时，过滤有助于减少噪音和成本。</string>
+  <string name="help_global_tool_permissions_text">为各个AI工具配置权限。对于每个读取工具，选择AI是否可以使用（已启用或已禁用）。对于每个写入工具，选择始终允许、始终拒绝或询问（回退到AI连接设置中设定的全局权限模式）。</string>
+  <string name="help_reading_progress_text">一览您的圣经阅读和记忆进度。使用\"标记为已读\"按钮手动标记章节，或启用自动追踪。记忆练习也会反映在此视图中。</string>
+  <string name="help_memorize_text">记忆视图帮助您熟记经文段落。使用单词模糊、单词打乱、单词输入或单词顺序来练习。成功完成练习后，经文将自动标记为已记忆（此功能可以关闭）。</string>
   <string name="information">信息</string>
   <string name="other">其他</string>
   <string name="contact">联系方式</string>

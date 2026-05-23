@@ -15,6 +15,18 @@
   <string name="history">Povijest</string>
   <string name="speak">Izgovori</string>
   <string name="help">Pomoć</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Pročitaj više u priručniku</string>
+  <string name="help_prompt_edit_text">Prilagođeni upiti omogućuju vam stvaranje višekratno upotrebljivih AI uputa za vaše proučavanje. Postavite naziv, opis, predložak, kontekste u kojima bi se trebao prikazati i po potrebi prilagođenog pružatelja/model. Ugrađene upite nije moguće izravno uređivati — upotrijebite \"Kopiraj radi prilagodbe\" kako biste stvorili vlastitu verziju.</string>
+  <string name="help_tool_info_text">AI alati su specijalizirane funkcije koje AI može pozivati kako bi čitao vaše podatke ili vršio promjene u vaše ime. Alati za čitanje (redci, komentari, rječnici, straničnici) nikada ne zahtijevaju dopuštenje. Alati za pisanje (stvaranje straničnika, bilješki, unosa u radnu bilježnicu) upravljani su sustavom dopuštenja.</string>
+  <string name="help_ai_settings_text">AI postavke su mjesto gdje upravljate upitima i kategorijama. Odavde možete stvarati nove upite, organizirati ih u kategorije, uvoziti/izvoziti upite kao CSV, instalirati dodatne pakete upita i pristupiti postavkama AI veze.</string>
+  <string name="help_ai_connection_text">Ovdje konfigurirajte svoje AI pružatelje, modele, dopuštenja i druge mogućnosti veze. Svaki pružatelj treba vlastiti API ključ. Možete dodati više pružatelja i odabrati zadani model.</string>
+  <string name="help_ai_providers_text">Upravljajte AI pružateljima (Google Gemini, OpenAI, Anthropic itd.). Svaki pružatelj treba vlastiti API ključ. Možete dodati više pružatelja i dodijeliti različite za određene upite.</string>
+  <string name="help_ai_models_text">Upravljajte modelima za ovog pružatelja. Možete osvježiti popis modela putem API-ja pružatelja kako biste preuzeli nova izdanja ili ručno dodati naziv modela ako nije na dohvaćenom popisu.</string>
+  <string name="help_ai_document_filter_text">Ograničite koje Biblije, komentare i druge module AI agent može čitati. Prema zadanim postavkama AI vidi sve instalirane module; filtriranje pomaže smanjiti šum i troškove kada želite da uzima u obzir samo određene izvore.</string>
+  <string name="help_global_tool_permissions_text">Konfigurirajte dopuštenja za pojedinačne AI alate. Za svaki alat za čitanje odaberite smije li ga AI koristiti (Omogućeno ili Onemogućeno). Za svaki alat za pisanje odaberite Uvijek dopusti, Uvijek odbij ili Pitaj (što se vraća na globalni način dopuštenja postavljen u AI postavkama veze).</string>
+  <string name="help_reading_progress_text">Vaš napredak čitanja Biblije i pamćenja na prvi pogled. Označavajte poglavlja kao pročitana ručno gumbom \"Označi kao pročitano\" ili omogućite automatsko praćenje. Vježbe pamćenja također se prikazuju u ovom prikazu.</string>
+  <string name="help_memorize_text">Prikaz Pamćenje pomaže vam naučiti odlomke napamet. Koristite Zamagljivanje riječi, Miješanje riječi, Tipkanje riječi ili Redoslijed riječi za vježbanje. Uspješne vježbe automatski označavaju retke kao zapamćene (ovo se može onemogućiti).</string>
   <string name="information">Informacije</string>
   <string name="other">Ostalo</string>
   <string name="contact">Kontakt</string>

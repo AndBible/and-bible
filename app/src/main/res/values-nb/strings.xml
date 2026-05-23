@@ -15,6 +15,18 @@
   <string name="history">Historikk</string>
   <string name="speak">Høytlesing</string>
   <string name="help">Hjelp</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Les mer i håndboken</string>
+  <string name="help_prompt_edit_text">Egendefinerte instruksjoner lar deg opprette gjenbrukbare KI-instruksjoner for studiet ditt. Angi navn, beskrivelse, mal, kontekstene den skal vises i, og eventuelt en egendefinert leverandør/modell. Innebygde instruksjoner kan ikke redigeres direkte — bruk \"Kopier for å tilpasse\" for å opprette din egen versjon.</string>
+  <string name="help_tool_info_text">KI-verktøy er spesialiserte funksjoner KI-en kan kalle for å lese dataene dine eller gjøre endringer på dine vegne. Leseverktøy (vers, bibelkommentarer, bibelordbok, bokmerker) krever aldri tillatelse. Skriveverktøy (opprette bokmerker, notater, studiebrett-innlegg) styres av tillatelsessystemet.</string>
+  <string name="help_ai_settings_text">KI-innstillinger er stedet der du administrerer instruksjonene og kategoriene dine. Herfra kan du opprette nye instruksjoner, organisere dem i kategorier, importere/eksportere instruksjoner som CSV, installere tilleggsinnstruksjonspakker og nå KI-tilkoblingsinnstillingene.</string>
+  <string name="help_ai_connection_text">Konfigurer KI-leverandørene, modellene, tillatelsene og andre tilkoblingsalternativer her. Hver leverandør trenger sin egen API-nøkkel. Du kan legge til flere leverandører og velge en standardmodell.</string>
+  <string name="help_ai_providers_text">Administrer KI-leverandører (Google Gemini, OpenAI, Anthropic osv.). Hver leverandør trenger sin egen API-nøkkel. Du kan legge til flere leverandører og tildele forskjellige til bestemte instruksjoner.</string>
+  <string name="help_ai_models_text">Administrer modeller for denne leverandøren. Du kan oppdatere modellisten fra leverandørens API for å hente nye utgivelser, eller legge til et modellnavn manuelt hvis det ikke er i den hentede listen.</string>
+  <string name="help_ai_document_filter_text">Begrens hvilke bibler, bibelkommentarer og andre moduler KI-agenten kan lese. Som standard ser KI-en alle installerte moduler; filtrering bidrar til å redusere støy og kostnader når du bare vil at den skal vurdere bestemte kilder.</string>
+  <string name="help_global_tool_permissions_text">Konfigurer tillatelser for individuelle KI-verktøy. For hvert leseverktøy, velg om KI-en kan bruke det (Aktivert eller Deaktivert). For hvert skriveverktøy, velg Tillat alltid, Avslå alltid eller Spør (som faller tilbake til den globale tillatelsesmodusen angitt i KI-tilkoblingsinnstillinger).</string>
+  <string name="help_reading_progress_text">Din lesing av Bibelen og fremgang i memorering på ett sted. Merk kapitler som lest manuelt med knappen \"Merk som lest\", eller aktiver automatisk sporing. Memoreringsøvelser bidrar også til denne visningen.</string>
+  <string name="help_memorize_text">Memoreringsvisningen hjelper deg å lære avsnitt utenat. Bruk Orduskarphet, Ordstokking, Ordtype eller Ordrekkefølge for å øve. Vellykkede øvelser merker automatisk vers som memorert (dette kan deaktiveres).</string>
   <string name="information">Informasjon</string>
   <string name="other">Annet</string>
   <string name="contact">Kontakt</string>

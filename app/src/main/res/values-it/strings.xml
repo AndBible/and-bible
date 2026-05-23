@@ -15,6 +15,18 @@
   <string name="history">Cronologia</string>
   <string name="speak">Parla/Audio</string>
   <string name="help">Supporto</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Leggi di più nel manuale</string>
+  <string name="help_prompt_edit_text">I prompt personalizzati ti permettono di creare istruzioni AI riutilizzabili per il tuo studio. Imposta un nome, una descrizione, un modello, i contesti in cui dovrebbe apparire e, facoltativamente, un fornitore/modello personalizzato. I prompt integrati non possono essere modificati direttamente — usa \"Copia per personalizzare\" per creare la tua versione.</string>
+  <string name="help_tool_info_text">Gli strumenti AI sono funzioni specializzate che l\'IA può chiamare per leggere i tuoi dati o apportare modifiche per tuo conto. Gli strumenti di lettura (versetti, commentari, dizionari, segnalibri) non richiedono mai autorizzazione. Gli strumenti di scrittura (creazione di segnalibri, note, voci degli appunti di studio) sono controllati dal sistema di autorizzazioni.</string>
+  <string name="help_ai_settings_text">Impostazioni AI è il luogo dove gestisci i tuoi prompt e le categorie. Da qui puoi creare nuovi prompt, organizzarli in categorie, importare/esportare prompt come CSV, installare pacchetti di prompt aggiuntivi e accedere alle impostazioni di connessione AI.</string>
+  <string name="help_ai_connection_text">Configura qui i tuoi fornitori AI, modelli, autorizzazioni e altre opzioni di connessione. Ogni fornitore ha bisogno della propria chiave API. Puoi aggiungere più fornitori e selezionare un modello predefinito.</string>
+  <string name="help_ai_providers_text">Gestisci i fornitori AI (Google Gemini, OpenAI, Anthropic, ecc.). Ogni fornitore ha bisogno della propria chiave API. Puoi aggiungere più fornitori e assegnarne di diversi a prompt specifici.</string>
+  <string name="help_ai_models_text">Gestisci i modelli per questo fornitore. Puoi aggiornare l\'elenco dei modelli dall\'API del fornitore per includere le nuove versioni, oppure aggiungere manualmente il nome di un modello se non è presente nell\'elenco recuperato.</string>
+  <string name="help_ai_document_filter_text">Limita quali Bibbie, commentari e altri moduli l\'agente AI può leggere. Per impostazione predefinita l\'IA vede tutti i moduli installati; il filtro aiuta a ridurre il rumore e i costi quando vuoi che consideri solo fonti specifiche.</string>
+  <string name="help_global_tool_permissions_text">Configura le autorizzazioni per i singoli strumenti AI. Per ogni strumento di lettura, scegli se l\'IA può utilizzarlo (Abilitato o Disabilitato). Per ogni strumento di scrittura, scegli Consenti sempre, Nega sempre o Chiedi (che ricade sulla modalità di autorizzazione globale impostata nelle impostazioni di connessione AI).</string>
+  <string name="help_reading_progress_text">Il tuo progresso di lettura e memorizzazione della Bibbia a colpo d\'occhio. Segna i capitoli come letti manualmente con il pulsante \"Segna come letto\", oppure abilita il monitoraggio automatico. Anche gli esercizi di memorizzazione confluiscono in questa vista.</string>
+  <string name="help_memorize_text">La vista Memorizza ti aiuta ad imparare i passi a memoria. Usa Sfocatura Parola, Rimescolamento Parola, Digitazione Parola o Ordine Parola per esercitarti. Gli esercizi riusciti contrassegnano automaticamente i versetti come memorizzati (questa opzione può essere disabilitata).</string>
   <string name="information">Informazioni</string>
   <string name="other">Altro</string>
   <string name="contact">Contatti</string>

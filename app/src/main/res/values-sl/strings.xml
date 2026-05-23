@@ -15,6 +15,18 @@
   <string name="history">Zgodovina</string>
   <string name="speak">Govor</string>
   <string name="help">Pomoč</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Preberite več v priročniku</string>
+  <string name="help_prompt_edit_text">Po meri narejeni pozivi vam omogočajo ustvarjanje večkrat uporabnih navodil za umetno inteligenco pri vašem študiju. Nastavite ime, opis, predlogo, kontekste, v katerih naj se prikaže, in po želji pošiljatelja/model. Vgrajenih pozivov ni mogoče neposredno urejati — uporabite \"Kopiraj za prilagoditev\", da ustvarite svojo različico.</string>
+  <string name="help_tool_info_text">Orodja UI so specializirane funkcije, ki jih UI lahko kliče za branje vaših podatkov ali izvajanje sprememb v vašem imenu. Orodja za branje (vrstice, komentarji, slovarji, zaznamki) nikoli ne zahtevajo dovoljenja. Orodja za pisanje (ustvarjanje zaznamkov, opomb, vnosov v beležko) so nadzorovana s sistemom dovoljenj.</string>
+  <string name="help_ai_settings_text">Nastavitve UI je mesto, kjer upravljate svoje pozive in kategorije. Od tu lahko ustvarjate nove pozive, jih razvrščate v kategorije, uvažate/izvažate pozive kot CSV, nameščate dodatne pakete pozivov in dostopate do nastavitev povezave UI.</string>
+  <string name="help_ai_connection_text">Tukaj konfigurirajte svoje ponudnike UI, modele, dovoljenja in druge možnosti povezave. Vsak ponudnik potrebuje lasten ključ API. Dodate lahko več ponudnikov in izberete privzeti model.</string>
+  <string name="help_ai_providers_text">Upravljajte ponudnike UI (Google Gemini, OpenAI, Anthropic itd.). Vsak ponudnik potrebuje lasten ključ API. Dodate lahko več ponudnikov in različnim pozivom dodelite različne ponudnike.</string>
+  <string name="help_ai_models_text">Upravljajte modele za tega ponudnika. Osvežite lahko seznam modelov iz API-ja ponudnika, da pridobite nove različice, ali pa ručno dodate ime modela, če ga ni na prenesenem seznamu.</string>
+  <string name="help_ai_document_filter_text">Omejite, katere Biblije, komentarje in druge module lahko bere UI. Privzeto UI vidi vse nameščene module; filtriranje pomaga zmanjšati hrup in stroške, kadar želite, da upošteva le določene vire.</string>
+  <string name="help_global_tool_permissions_text">Konfigurirajte dovoljenja za posamezna orodja UI. Za vsako orodje za branje izberite, ali ga UI sme uporabljati (Omogočeno ali Onemogočeno). Za vsako orodje za pisanje izberite Vedno dovoli, Vedno zavrni ali Vprašaj (kar privzeto uporablja globalni način dovoljenj, nastavljen v nastavitvah povezave UI).</string>
+  <string name="help_reading_progress_text">Vaš napredek pri branju Biblije in pomnjenju na prvi pogled. Poglavja označite kot prebrana ročno z gumbom \"Označi kot prebrano\" ali omogočite samodejno sledenje. Vaje pomnjenja se prav tako beležijo v tem pogledu.</string>
+  <string name="help_memorize_text">Pogled Zapomni si vam pomaga naučiti se odlomkov na pamet. Vadite z možnostmi Zameglitev besed, Mešanje besed, Tipkanje besed ali Vrstni red besed. Uspešne vaje samodejno označijo vrstice kot zapomnene (to je mogoče onemogočiti).</string>
   <string name="information">Informacije</string>
   <string name="other">Drugo</string>
   <string name="contact">Stik</string>

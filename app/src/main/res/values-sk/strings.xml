@@ -15,6 +15,18 @@
   <string name="history">História</string>
   <string name="speak">Predčítanie</string>
   <string name="help">Pomoc</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Čítajte viac v príručke</string>
+  <string name="help_prompt_edit_text">Vlastné výzvy vám umožňujú vytvárať opakovane použiteľné AI pokyny pre vaše štúdium. Nastavte názov, popis, šablónu, kontexty, v ktorých sa má zobrazovať, a voliteľne vlastného poskytovateľa/model. Zabudované výzvy nie je možné priamo upravovať — použite \"Kopírovať na prispôsobenie\" a vytvorte vlastnú verziu.</string>
+  <string name="help_tool_info_text">Nástroje AI sú špecializované funkcie, ktoré môže AI volať na čítanie vašich údajov alebo vykonávanie zmien vo vašom mene. Nástroje na čítanie (verše, komentáre, slovníky, záložky) nevyžadujú žiadne oprávnenia. Nástroje na zápis (vytváranie záložiek, poznámok, zápisov do študijnej zložky) sú riadené systémom oprávnení.</string>
+  <string name="help_ai_settings_text">Nastavenia AI je miesto, kde spravujete svoje výzvy a kategórie. Odtiaľto môžete vytvárať nové výzvy, organizovať ich do kategórií, importovať/exportovať výzvy ako CSV, inštalovať balíky doplnkových výziev a dostať sa k nastaveniam pripojenia AI.</string>
+  <string name="help_ai_connection_text">Tu nakonfigurujte svojich poskytovateľov AI, modely, oprávnenia a ďalšie možnosti pripojenia. Každý poskytovateľ potrebuje vlastný API kľúč. Môžete pridať viacerých poskytovateľov a vybrať predvolený model.</string>
+  <string name="help_ai_providers_text">Spravujte poskytovateľov AI (Google Gemini, OpenAI, Anthropic atď.). Každý poskytovateľ potrebuje vlastný API kľúč. Môžete pridať viacerých poskytovateľov a priradiť rôznych k špecifickým výzvam.</string>
+  <string name="help_ai_models_text">Spravujte modely pre tohto poskytovateľa. Môžete obnoviť zoznam modelov z API poskytovateľa, aby ste získali nové vydania, alebo manuálne pridať názov modelu, ak nie je v načítanom zozname.</string>
+  <string name="help_ai_document_filter_text">Obmedzte, ktoré Biblie, komentáre a ďalšie moduly môže agent AI čítať. Predvolene AI vidí všetky nainštalované moduly; filtrovanie pomáha znížiť šum a náklady, keď chcete, aby zvažoval iba konkrétne zdroje.</string>
+  <string name="help_global_tool_permissions_text">Nakonfigurujte oprávnenia pre jednotlivé nástroje AI. Pre každý nástroj na čítanie vyberte, či ho AI môže používať (Povolené alebo Zakázané). Pre každý nástroj na zápis vyberte Vždy povoliť, Vždy zakázať alebo Opýtať sa (čo závisí od globálneho režimu oprávnení nastaveného v nastaveniach pripojenia AI).</string>
+  <string name="help_reading_progress_text">Váš pokrok pri čítaní Biblie a memorovaní na prvý pohľad. Kapitoly môžete manuálne označiť ako prečítané tlačidlom \"Označiť ako prečítané\" alebo povoliť automatické sledovanie. Cvičenia memorovania sa tiež zahrnujú do tohto zobrazenia.</string>
+  <string name="help_memorize_text">Zobrazenie Memorovanie vám pomáha naučiť sa úryvky naspamäť. Na precvičovanie použite Rozmazanie slov, Premiešanie slov, Písanie slov alebo Poradie slov. Úspešné cvičenia automaticky označia verše ako zapamätané (toto je možné vypnúť).</string>
   <string name="information">Informácie</string>
   <string name="other">Iné</string>
   <string name="contact">Kontakt</string>

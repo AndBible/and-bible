@@ -15,6 +15,18 @@
   <string name="history">閱讀歷史</string>
   <string name="speak">朗讀</string>
   <string name="help">幫助</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">在手冊中閱讀更多</string>
+  <string name="help_prompt_edit_text">自訂提示詞可讓您為研經建立可重複使用的 AI 指示。設定名稱、描述、範本、應出現的情境，以及可選的自訂提供商/模型。內建提示詞無法直接編輯——請使用「複製以自定義」建立您自己的版本。</string>
+  <string name="help_tool_info_text">AI 工具是 AI 可呼叫的特殊功能，用於讀取您的資料或代您進行變更。讀取工具（經文、注釋、字典、書籤）無需權限。寫入工具（建立書籤、筆記、學習筆記條目）受權限系統管制。</string>
+  <string name="help_ai_settings_text">AI 設定是您管理提示詞和分類的地方。您可以在此建立新提示詞、將其整理為分類、以 CSV 格式匯入/匯出提示詞、安裝附加提示詞套件，以及進入 AI 連線設定。</string>
+  <string name="help_ai_connection_text">在此設定您的 AI 提供商、模型、權限及其他連線選項。每個提供商都需要自己的 API 金鑰。您可以新增多個提供商並選擇預設模型。</string>
+  <string name="help_ai_providers_text">管理 AI 提供商（Google Gemini、OpenAI、Anthropic 等）。每個提供商都需要自己的 API 金鑰。您可以新增多個提供商，並為特定提示詞分配不同的提供商。</string>
+  <string name="help_ai_models_text">管理此提供商的模型。您可以從提供商的 API 重新整理模型清單以取得最新版本，或手動新增不在清單中的模型名稱。</string>
+  <string name="help_ai_document_filter_text">限制 AI 代理可以讀取的聖經、注釋及其他模組。預設情況下，AI 可看到所有已安裝的模組；當您只希望它考慮特定來源時，篩選有助於減少雜訊和成本。</string>
+  <string name="help_global_tool_permissions_text">設定各個 AI 工具的權限。對於每個讀取工具，選擇 AI 是否可以使用（已啟用或已停用）。對於每個寫入工具，選擇永遠允許、永遠拒絕，或詢問（退回至 AI 連線設定中設定的全域權限模式）。</string>
+  <string name="help_reading_progress_text">一目了然地查看您的聖經閱讀和記憶進度。使用「標記為已讀」按鈕手動標記章節為已讀，或啟用自動追蹤。記憶練習也會記錄在此視圖中。</string>
+  <string name="help_memorize_text">記憶視圖幫助您熟記段落。使用單字模糊、單字打亂、單字輸入或單字排序來練習。成功的練習會自動將經文標記為已記憶（此功能可停用）。</string>
   <string name="information">資訊</string>
   <string name="other">其他</string>
   <string name="contact">聯絡</string>

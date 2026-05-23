@@ -15,6 +15,18 @@
   <string name="history">Lịch sử</string>
   <string name="speak">Đọc</string>
   <string name="help">Trợ giúp</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Đọc thêm trong hướng dẫn</string>
+  <string name="help_prompt_edit_text">Lệnh nhắc tùy chỉnh cho phép bạn tạo các hướng dẫn AI có thể tái sử dụng cho việc nghiên cứu. Đặt tên, mô tả, mẫu, các ngữ cảnh hiển thị và tùy chọn nhà cung cấp/mô hình tùy chỉnh. Các lệnh nhắc tích hợp không thể chỉnh sửa trực tiếp — sử dụng \"Sao chép để tùy chỉnh\" để tạo phiên bản của riêng bạn.</string>
+  <string name="help_tool_info_text">Các công cụ AI là các chức năng chuyên biệt mà AI có thể gọi để đọc dữ liệu của bạn hoặc thực hiện thay đổi thay mặt bạn. Các công cụ đọc (câu kinh, chú giải, từ điển, đánh dấu) không bao giờ cần quyền. Các công cụ ghi (tạo đánh dấu, ghi chú, mục sổ tay nghiên cứu) được kiểm soát bởi hệ thống quyền.</string>
+  <string name="help_ai_settings_text">Cài đặt AI là nơi bạn quản lý các lệnh nhắc và danh mục. Từ đây bạn có thể tạo lệnh nhắc mới, sắp xếp chúng thành danh mục, nhập/xuất lệnh nhắc dưới dạng CSV, cài đặt gói lệnh nhắc bổ sung và truy cập cài đặt kết nối AI.</string>
+  <string name="help_ai_connection_text">Cấu hình các nhà cung cấp AI, mô hình, quyền và các tùy chọn kết nối khác tại đây. Mỗi nhà cung cấp cần khóa API riêng. Bạn có thể thêm nhiều nhà cung cấp và chọn một mô hình mặc định.</string>
+  <string name="help_ai_providers_text">Quản lý các nhà cung cấp AI (Google Gemini, OpenAI, Anthropic, v.v.). Mỗi nhà cung cấp cần khóa API riêng. Bạn có thể thêm nhiều nhà cung cấp và gán các nhà cung cấp khác nhau cho các lệnh nhắc cụ thể.</string>
+  <string name="help_ai_models_text">Quản lý các mô hình cho nhà cung cấp này. Bạn có thể làm mới danh sách mô hình từ API của nhà cung cấp để nhận các bản phát hành mới, hoặc thêm tên mô hình thủ công nếu nó không có trong danh sách đã tải.</string>
+  <string name="help_ai_document_filter_text">Giới hạn những Kinh Thánh, chú giải và các mô-đun khác mà tác nhân AI có thể đọc. Theo mặc định AI có thể thấy tất cả các mô-đun đã cài đặt; lọc giúp giảm nhiễu và chi phí khi bạn chỉ muốn xem xét các nguồn cụ thể.</string>
+  <string name="help_global_tool_permissions_text">Cấu hình quyền cho từng công cụ AI riêng lẻ. Với mỗi công cụ đọc, chọn xem AI có thể sử dụng nó không (Bật hoặc Tắt). Với mỗi công cụ ghi, chọn Luôn cho phép, Luôn từ chối hoặc Hỏi (sẽ dùng chế độ quyền toàn cục được đặt trong cài đặt Kết nối AI).</string>
+  <string name="help_reading_progress_text">Tiến trình đọc và thuộc lòng Kinh Thánh của bạn hiển thị một cách tổng quát. Đánh dấu các chương là đã đọc thủ công bằng nút \"Đánh dấu đã đọc\", hoặc bật tính năng theo dõi tự động. Các bài tập thuộc lòng cũng đóng góp vào chế độ xem này.</string>
+  <string name="help_memorize_text">Chế độ xem Thuộc lòng giúp bạn học thuộc các đoạn văn. Sử dụng Làm mờ từ, Xáo trộn từ, Nhập từ hoặc Sắp xếp từ để luyện tập. Các bài tập thành công sẽ tự động đánh dấu các câu là đã thuộc lòng (tính năng này có thể tắt).</string>
   <string name="information">Thông tin</string>
   <string name="other">Khác</string>
   <string name="contact">Liên hệ</string>

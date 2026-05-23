@@ -76,6 +76,7 @@ removeFromTargets: Tavoite -
 viewReadingProgress: Luku-/opetteluedistyminen
 viewReadingProgressSettings: Luku-/opetteluasetukset
 listenInLoop: Kuuntele silmukassa
+viewHelp: Näytä ohje
 verseNoteLong: Kirjoita muistiinpano
 verseParagraphBreakLong: Kappalejako
 addBookmark: Kirjanmerkki

@@ -15,6 +15,18 @@
   <string name="history">Geçmiş</string>
   <string name="speak">Sesli Oku</string>
   <string name="help">Yardım</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Kılavuzda daha fazlasını okuyun</string>
+  <string name="help_prompt_edit_text">Özel istemler, çalışmanız için yeniden kullanılabilir yapay zeka talimatları oluşturmanızı sağlar. Bir ad, açıklama, şablon, görünmesi gereken bağlamlar ve isteğe bağlı olarak özel bir sağlayıcı/model belirleyin. Yerleşik istemler doğrudan düzenlenemez — kendi sürümünüzü oluşturmak için \"Özelleştirmek için kopyala\" seçeneğini kullanın.</string>
+  <string name="help_tool_info_text">Yapay zeka araçları, yapay zekanın verilerinizi okumak veya sizin adınıza değişiklik yapmak için çağırabileceği özel işlevlerdir. Okuma araçları (ayetler, yorumlar, sözlükler, yer imleri) hiçbir zaman izin gerektirmez. Yazma araçları (yer imi oluşturma, not, çalışma defteri girişleri) izin sistemi tarafından kontrol edilir.</string>
+  <string name="help_ai_settings_text">Yapay Zeka Ayarları, istemlerinizi ve kategorilerinizi yönettiğiniz yerdir. Buradan yeni istemler oluşturabilir, onları kategorilere göre düzenleyebilir, istemleri CSV olarak içe/dışa aktarabilir, eklenti istem paketleri yükleyebilir ve yapay zeka bağlantı ayarlarına ulaşabilirsiniz.</string>
+  <string name="help_ai_connection_text">Yapay zeka sağlayıcılarınızı, modellerinizi, izinlerinizi ve diğer bağlantı seçeneklerini burada yapılandırın. Her sağlayıcının kendi API anahtarına ihtiyacı vardır. Birden fazla sağlayıcı ekleyebilir ve varsayılan bir model seçebilirsiniz.</string>
+  <string name="help_ai_providers_text">Yapay zeka sağlayıcılarını (Google Gemini, OpenAI, Anthropic, vb.) yönetin. Her sağlayıcının kendi API anahtarına ihtiyacı vardır. Birden fazla sağlayıcı ekleyebilir ve belirli istemlere farklı sağlayıcılar atayabilirsiniz.</string>
+  <string name="help_ai_models_text">Bu sağlayıcı için modelleri yönetin. Yeni sürümleri takip etmek için model listesini sağlayıcının API\'sinden yenileyebilir veya listede yoksa model adını manuel olarak ekleyebilirsiniz.</string>
+  <string name="help_ai_document_filter_text">Yapay zeka aracısının okuyabileceği Kutsal Kitap çevirilerini, yorumları ve diğer modülleri sınırlayın. Varsayılan olarak yapay zeka yüklü tüm modülleri görür; filtreleme, yalnızca belirli kaynakları dikkate almasını istediğinizde gürültüyü ve maliyeti azaltmaya yardımcı olur.</string>
+  <string name="help_global_tool_permissions_text">Bireysel yapay zeka araçları için izinleri yapılandırın. Her okuma aracı için yapay zekanın onu kullanıp kullanamayacağını seçin (Etkin veya Devre Dışı). Her yazma aracı için Her zaman izin ver, Her zaman reddet veya Sor (bu, Yapay Zeka Bağlantı ayarlarında belirlenen genel izin moduna geri döner) seçeneklerinden birini belirleyin.</string>
+  <string name="help_reading_progress_text">Kutsal Kitap okuma ve ezberleme ilerlemenize tek bakışta göz atın. Bölümleri \"Okundu olarak işaretle\" düğmesiyle manuel olarak okundu olarak işaretleyin veya otomatik takibi etkinleştirin. Ezberleme egzersizleri de bu görünüme yansıtılır.</string>
+  <string name="help_memorize_text">Ezberleme görünümü, pasajları ezberleyerek öğrenmenize yardımcı olur. Pratik yapmak için Sözcük Bulanıklaştırma, Sözcük Karıştırma, Sözcük Yazma veya Sözcük Sıralaması seçeneklerini kullanın. Başarılı egzersizler, ayetleri otomatik olarak ezberlenmiş olarak işaretler (bu devre dışı bırakılabilir).</string>
   <string name="information">Bilgi</string>
   <string name="other">Diğer</string>
   <string name="contact">İletişim</string>

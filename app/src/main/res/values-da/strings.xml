@@ -15,6 +15,18 @@
   <string name="history">Historik</string>
   <string name="speak">Oplæs</string>
   <string name="help">Hjælp</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Læs mere i manualen</string>
+  <string name="help_prompt_edit_text">Brugerdefinerede prompts giver dig mulighed for at oprette genanvendelige AI-instruktioner til din bibelstudium. Angiv et navn, en beskrivelse, en skabelon, de kontekster, hvor den skal vises, og eventuelt en brugerdefineret udbyder/model. Indbyggede prompts kan ikke redigeres direkte — brug \"Kopiér for at tilpasse\" til at oprette din egen version.</string>
+  <string name="help_tool_info_text">AI-værktøjer er specialiserede funktioner, som AI\'en kan kalde for at læse dine data eller foretage ændringer på dine vegne. Læseværktøjer (vers, kommentarer, ordbøger, bogmærker) kræver aldrig tilladelse. Skriveværktøjer (oprettelse af bogmærker, noter, studieblokposter) styres af tilladelsessystemet.</string>
+  <string name="help_ai_settings_text">AI-indstillinger er stedet, hvor du administrerer dine prompts og kategorier. Herfra kan du oprette nye prompts, organisere dem i kategorier, importere/eksportere prompts som CSV, installere tilføjelsespromptpakker og nå AI-forbindelsesindstillingerne.</string>
+  <string name="help_ai_connection_text">Konfigurér dine AI-udbydere, modeller, tilladelser og andre forbindelsesindstillinger her. Hver udbyder har brug for sin egen API-nøgle. Du kan tilføje flere udbydere og vælge en standardmodel.</string>
+  <string name="help_ai_providers_text">Administrér AI-udbydere (Google Gemini, OpenAI, Anthropic osv.). Hver udbyder har brug for sin egen API-nøgle. Du kan tilføje flere udbydere og tildele forskellige til specifikke prompts.</string>
+  <string name="help_ai_models_text">Administrér modeller for denne udbyder. Du kan opdatere modellisten fra udbyderens API for at hente nye udgivelser, eller tilføje et modelnavn manuelt, hvis det ikke er på den hentede liste.</string>
+  <string name="help_ai_document_filter_text">Begræns hvilke bibler, kommentarer og andre moduler AI-agenten kan læse. Som standard ser AI\'en alle installerede moduler; filtrering hjælper med at reducere støj og omkostninger, når du kun vil have den til at overveje specifikke kilder.</string>
+  <string name="help_global_tool_permissions_text">Konfigurér tilladelser for individuelle AI-værktøjer. For hvert læseværktøj kan du vælge, om AI\'en må bruge det (Aktiveret eller Deaktiveret). For hvert skriveværktøj kan du vælge Tillad altid, Afvis altid eller Spørg (som falder tilbage til den globale tilladelsestilstand i AI-forbindelsesindstillinger).</string>
+  <string name="help_reading_progress_text">Dit bibelslæsnings- og memoreringsforløb på ét overblik. Markér kapitler som læst manuelt med knappen \"Markér som læst\", eller aktivér automatisk sporing. Memoreringsøvelser indgår også i denne visning.</string>
+  <string name="help_memorize_text">Memoreringsvisningen hjælper dig med at lære passager udenad. Brug Ordslør, Ordkort, Ordtype eller Ordrækkefølge til at øve dig. Vellykkede øvelser markerer automatisk vers som memoreret (dette kan deaktiveres).</string>
   <string name="information">Information</string>
   <string name="other">Andet</string>
   <string name="contact">Kontakt</string>

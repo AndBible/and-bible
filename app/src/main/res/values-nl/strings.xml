@@ -15,6 +15,18 @@
   <string name="history">Geschiedenis</string>
   <string name="speak">Voorlezen</string>
   <string name="help">Hulp</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Lees meer in de handleiding</string>
+  <string name="help_prompt_edit_text">Met aangepaste prompts kunt u herbruikbare AI-instructies voor uw studie maken. Stel een naam, beschrijving, sjabloon en de contexten in waar de prompt moet verschijnen, en optioneel een aangepaste provider/model. Ingebouwde prompts kunnen niet direct worden bewerkt — gebruik \"Kopiëren om aan te passen\" om uw eigen versie te maken.</string>
+  <string name="help_tool_info_text">AI-tools zijn gespecialiseerde functies die de AI kan aanroepen om uw gegevens te lezen of namens u wijzigingen aan te brengen. Leestools (verzen, commentaren, woordenboeken, bladwijzers) vereisen nooit toestemming. Schrijftools (bladwijzers aanmaken, notities, studiemappen) zijn onderworpen aan het toestemmingssysteem.</string>
+  <string name="help_ai_settings_text">In AI-instellingen beheert u uw prompts en categorieën. Hier kunt u nieuwe prompts aanmaken, ze in categorieën indelen, prompts importeren/exporteren als CSV, aanvullende promptpakketten installeren en de AI-verbindingsinstellingen bereiken.</string>
+  <string name="help_ai_connection_text">Configureer hier uw AI-providers, modellen, machtigingen en andere verbindingsopties. Elke provider heeft een eigen API-sleutel nodig. U kunt meerdere providers toevoegen en een standaardmodel selecteren.</string>
+  <string name="help_ai_providers_text">Beheer AI-providers (Google Gemini, OpenAI, Anthropic, enz.). Elke provider heeft een eigen API-sleutel nodig. U kunt meerdere providers toevoegen en verschillende providers toewijzen aan specifieke prompts.</string>
+  <string name="help_ai_models_text">Beheer modellen voor deze provider. U kunt de modellijst vernieuwen via de API van de provider om nieuwe releases op te halen, of handmatig een modelnaam toevoegen als deze niet in de opgehaalde lijst staat.</string>
+  <string name="help_ai_document_filter_text">Beperk welke Bijbels, commentaren en andere modules de AI-agent kan lezen. Standaard ziet de AI alle geïnstalleerde modules; filteren helpt ruis en kosten te verminderen als u wilt dat de AI alleen specifieke bronnen raadpleegt.</string>
+  <string name="help_global_tool_permissions_text">Configureer machtigingen voor individuele AI-tools. Kies voor elke leestool of de AI deze mag gebruiken (Ingeschakeld of Uitgeschakeld). Kies voor elke schrijftool Altijd toestaan, Altijd weigeren of Vragen (wat terugvalt op de globale machtigingsmodus in de AI-verbindingsinstellingen).</string>
+  <string name="help_reading_progress_text">Uw voortgang bij het lezen van de Bijbel en memorisatie in één oogopslag. Markeer hoofdstukken handmatig als gelezen met de knop \"Markeer als gelezen\", of schakel automatisch bijhouden in. Memorisatie-oefeningen worden ook in deze weergave bijgehouden.</string>
+  <string name="help_memorize_text">De Memoriseren-weergave helpt u passages uit het hoofd te leren. Gebruik Woordvervaging, Woordscramble, Woord typen of Woordvolgorde om te oefenen. Succesvolle oefeningen markeren verzen automatisch als gememoriseerd (dit kan worden uitgeschakeld).</string>
   <string name="information">Informatie</string>
   <string name="other">Anders</string>
   <string name="contact">Contact</string>

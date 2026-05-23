@@ -76,6 +76,7 @@ removeFromTargets: Obiettivo -
 viewReadingProgress: Progresso lettura/memorizzazione
 viewReadingProgressSettings: Impostazioni lettura/memorizzazione
 listenInLoop: Ascolta in loop
+viewHelp: Visualizza aiuto
 verseNoteLong: Scrivi una nota
 verseParagraphBreakLong: Interruzione di paragrafo
 addBookmark: Segnalibro

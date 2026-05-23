@@ -76,6 +76,7 @@ removeFromTargets: Hedef -
 viewReadingProgress: Okuma/Ezberleme İlerlemesi
 viewReadingProgressSettings: Okuma/Ezberleme Ayarları
 listenInLoop: Döngüde dinle
+viewHelp: Yardımı görüntüle
 verseNoteLong: Bir not yazın
 verseParagraphBreakLong: Paragraf sonu
 addBookmark: Yer imi
