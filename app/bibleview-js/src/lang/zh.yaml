@@ -76,6 +76,7 @@ removeFromTargets: 目標 -
 viewReadingProgress: 閱讀/記憶進度
 viewReadingProgressSettings: 閱讀/記憶設定
 listenInLoop: 循環收聽
+viewHelp: 查看說明
 verseNoteLong: 寫筆記
 verseParagraphBreakLong: 段落換行
 addBookmark: 書籤

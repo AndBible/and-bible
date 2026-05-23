@@ -15,6 +15,18 @@
   <string name="history">Historia</string>
   <string name="speak">Puhe</string>
   <string name="help">Ohje</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Lue lisää käyttöoppaasta</string>
+  <string name="help_prompt_edit_text">Mukautetuilla kehotteilla voit luoda uudelleenkäytettäviä tekoälyohjeita opiskeluasi varten. Aseta nimi, kuvaus, malli, kontekstit joissa se näkyy, ja halutessasi mukautettu palveluntarjoaja/malli. Sisäänrakennettuja kehotteita ei voi muokata suoraan — käytä \"Kopioi muokattavaksi\" luodaksesi oman version.</string>
+  <string name="help_tool_info_text">Tekoälytyökalut ovat erikoistuneita toimintoja, joita tekoäly voi kutsua lukeakseen tietojasi tai tehdäkseen muutoksia puolestasi. Lukutyökalut (jakeet, kommentaarit, sanakirjat, kirjanmerkit) eivät koskaan vaadi lupaa. Kirjoitustyökalut (kirjanmerkkien, muistiinpanojen ja opintoalustamerkintöjen luominen) ovat lupajärjestelmän alaisia.</string>
+  <string name="help_ai_settings_text">Tekoälyasetuksissa hallitset kehotteita ja luokkia. Täältä voit luoda uusia kehotteita, järjestää niitä luokkiin, tuoda/viedä kehotteita CSV-muodossa, asentaa lisäosa-kehotepaketteja ja siirtyä tekoälyn yhteysasetuksiin.</string>
+  <string name="help_ai_connection_text">Määritä tässä tekoälyn palveluntarjoajat, mallit, käyttöoikeudet ja muut yhteysasetukset. Jokainen palveluntarjoaja tarvitsee oman API-avaimen. Voit lisätä useita palveluntarjoajia ja valita oletusmallin.</string>
+  <string name="help_ai_providers_text">Hallinnoi tekoälyn palveluntarjoajia (Google Gemini, OpenAI, Anthropic jne.). Jokainen palveluntarjoaja tarvitsee oman API-avaimen. Voit lisätä useita palveluntarjoajia ja määrittää eri palveluntarjoajia tietyille kehotteille.</string>
+  <string name="help_ai_models_text">Hallinnoi tämän palveluntarjoajan malleja. Voit päivittää malliluettelon palveluntarjoajan ohjelmointirajapinnasta uusien julkaisujen noutamiseksi tai lisätä mallin nimen manuaalisesti, jos se ei ole haetussa luettelossa.</string>
+  <string name="help_ai_document_filter_text">Rajaa, mitä Raamatun käännöksiä, kommentaareja ja muita moduuleja tekoälyagentin sallitaan lukea. Oletuksena tekoäly näkee kaikki asennetut moduulit; suodattaminen vähentää hälyä ja kustannuksia, kun haluat sen huomioivan vain tietyt lähteet.</string>
+  <string name="help_global_tool_permissions_text">Määritä yksittäisten tekoälytyökalujen käyttöoikeudet. Jokaiselle lukutyökalulle valitse, saako tekoäly käyttää sitä (Käytössä tai Ei käytössä). Jokaiselle kirjoitustyökalulle valitse Salli aina, Estä aina tai Kysy (joka noudattaa tekoälyn yhteysasetuksissa määritettyä yleistä lupakäytäntöä).</string>
+  <string name="help_reading_progress_text">Raamatun lukemis- ja opetteleedistymisesi yhdellä silmäyksellä. Merkitse luvut luetuiksi manuaalisesti \"Merkitse luetuksi\" -painikkeella tai ota automaattinen seuranta käyttöön. Opetteluharjoitukset kirjautuvat myös tähän näkymään.</string>
+  <string name="help_memorize_text">Opettele-näkymä auttaa sinua oppimaan kohtia ulkoa. Käytä Sanasumutu-, Sanasekoitus-, Sanatyyppi- tai Sanajärjestys-harjoituksia. Onnistuneet harjoitukset merkitsevät jakeet automaattisesti opitelluiksi (tämän voi poistaa käytöstä).</string>
   <string name="information">Tietoja</string>
   <string name="other">Muita</string>
   <string name="contact">Ota yhteyttä</string>

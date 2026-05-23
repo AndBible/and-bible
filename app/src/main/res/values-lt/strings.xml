@@ -15,6 +15,18 @@
   <string name="history">Istorija</string>
   <string name="speak">Klausytis</string>
   <string name="help">Pagalba</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Skaityti daugiau vadove</string>
+  <string name="help_prompt_edit_text">Pasirinktiniai raginimai leidžia kurti daugkartinio naudojimo DI instrukcijas studijoms. Nustatykite pavadinimą, aprašymą, šabloną, kontekstus, kuriuose jis turėtų pasirodyti, ir pasirinktinai – pasirinktinį tiekėją / modelį. Integruotų raginimų tiesiogiai redaguoti negalima — naudokite \"Kopijuoti ir tinkinti\", kad sukurtumėte savo versiją.</string>
+  <string name="help_tool_info_text">DI įrankiai yra specializuotos funkcijos, kurias DI gali iškviesti, kad skaitytų jūsų duomenis arba atliktų pakeitimus jūsų vardu. Skaitymo įrankiai (eilutės, komentarai, žodynai, žymės) niekada nereikalauja leidimo. Rašymo įrankiai (žymių, pastabų, bloknoto įrašų kūrimas) valdomi leidimų sistemos.</string>
+  <string name="help_ai_settings_text">DI nustatymuose galite valdyti raginimai ir kategorijas. Čia galite kurti naujus raginimus, rūšiuoti juos į kategorijas, importuoti / eksportuoti raginimus kaip CSV, diegti priedų raginimų paketus ir pasiekti DI ryšio nustatymus.</string>
+  <string name="help_ai_connection_text">Čia konfigūruokite savo DI tiekėjus, modelius, leidimus ir kitas ryšio parinktis. Kiekvienas tiekėjas reikalauja savo API rakto. Galite pridėti kelis tiekėjus ir pasirinkti numatytąjį modelį.</string>
+  <string name="help_ai_providers_text">Tvarkykite DI tiekėjus (Google Gemini, OpenAI, Anthropic ir kt.). Kiekvienas tiekėjas reikalauja savo API rakto. Galite pridėti kelis tiekėjus ir priskirti skirtingus raginimams.</string>
+  <string name="help_ai_models_text">Tvarkykite šio tiekėjo modelius. Galite atnaujinti modelių sąrašą iš tiekėjo API, kad gautumėte naujausius leidimus, arba rankiniu būdu pridėti modelio pavadinimą, jei jo nėra gaunamame sąraše.</string>
+  <string name="help_ai_document_filter_text">Apribokite, kurias Biblijas, komentarus ir kitus modulius DI agentas gali skaityti. Pagal numatytuosius nustatymus DI mato visus įdiegtus modulius; filtravimas padeda sumažinti triukšmą ir išlaidas, kai norite, kad jis nagrinėtų tik konkrečius šaltinius.</string>
+  <string name="help_global_tool_permissions_text">Konfigūruokite atskiriems DI įrankiams suteikiamus leidimus. Kiekvienam skaitymo įrankiui pasirinkite, ar DI gali jį naudoti (Įjungta arba Išjungta). Kiekvienam rašymo įrankiui pasirinkite Visada leisti, Visada drausti arba Klausti (kuris grįžta prie bendro leidimų režimo, nustatyto DI ryšio nustatymuose).</string>
+  <string name="help_reading_progress_text">Jūsų Biblijos skaitymo ir įsiminimo pažanga iš karto. Pažymėkite skyrius kaip perskaitytus rankiniu būdu naudodami mygtuką \"Pažymėti kaip perskaitytą\" arba įjunkite automatinį sekimą. Įsiminimo pratimai taip pat rodomi šiame rodinyje.</string>
+  <string name="help_memorize_text">Įsiminimo rodinys padeda išmokti ištraukas mintinai. Naudokite Žodžių suliejimą, Žodžių maišymą, Žodžių įvedimą arba Žodžių tvarką, kad praktikuotumėtės. Sėkmingi pratimai automatiškai pažymi eilutes kaip įsimintas (tai galima išjungti).</string>
   <string name="information">Informacija</string>
   <string name="other">Kita</string>
   <string name="contact">Kontaktas</string>

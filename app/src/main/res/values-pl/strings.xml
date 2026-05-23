@@ -15,6 +15,18 @@
   <string name="history">Historia</string>
   <string name="speak">Odsłuchaj</string>
   <string name="help">Pomoc</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Czytaj więcej w podręczniku</string>
+  <string name="help_prompt_edit_text">Niestandardowe monity pozwalają tworzyć wielokrotnie używane instrukcje AI do nauki. Ustaw nazwę, opis, szablon, konteksty, w których ma się pojawiać, oraz opcjonalnie niestandardowego dostawcę/model. Wbudowanych monitów nie można edytować bezpośrednio — użyj opcji \"Kopiuj, aby dostosować\", aby utworzyć własną wersję.</string>
+  <string name="help_tool_info_text">Narzędzia AI to wyspecjalizowane funkcje, które AI może wywoływać, aby odczytywać Twoje dane lub wprowadzać zmiany w Twoim imieniu. Narzędzia do odczytu (wersety, komentarze, słowniki, zakładki) nigdy nie wymagają uprawnień. Narzędzia do zapisu (tworzenie zakładek, notatek, wpisów w bloczku notatek) są objęte systemem uprawnień.</string>
+  <string name="help_ai_settings_text">Ustawienia AI to miejsce, w którym zarządzasz monitami i kategoriami. Stąd możesz tworzyć nowe monity, organizować je w kategorie, importować/eksportować monity jako CSV, instalować pakiety dodatkowych monitów i przechodzić do ustawień połączenia AI.</string>
+  <string name="help_ai_connection_text">Skonfiguruj tutaj swoich dostawców AI, modele, uprawnienia i inne opcje połączenia. Każdy dostawca wymaga własnego klucza API. Możesz dodać wielu dostawców i wybrać domyślny model.</string>
+  <string name="help_ai_providers_text">Zarządzaj dostawcami AI (Google Gemini, OpenAI, Anthropic itp.). Każdy dostawca wymaga własnego klucza API. Możesz dodać wielu dostawców i przypisać różnych dostawców do konkretnych monitów.</string>
+  <string name="help_ai_models_text">Zarządzaj modelami dla tego dostawcy. Możesz odświeżyć listę modeli z API dostawcy, aby pobrać nowe wersje, lub ręcznie dodać nazwę modelu, jeśli nie ma go na pobranej liście.</string>
+  <string name="help_ai_document_filter_text">Ogranicz, które Biblie, komentarze i inne moduły agent AI może odczytywać. Domyślnie AI widzi wszystkie zainstalowane moduły; filtrowanie pomaga ograniczyć szum i koszty, gdy chcesz, aby brało pod uwagę tylko określone źródła.</string>
+  <string name="help_global_tool_permissions_text">Skonfiguruj uprawnienia dla poszczególnych narzędzi AI. Dla każdego narzędzia do odczytu wybierz, czy AI może go używać (Włączone lub Wyłączone). Dla każdego narzędzia do zapisu wybierz opcję Zawsze zezwalaj, Zawsze odmawiaj lub Pytaj (co powraca do globalnego trybu uprawnień ustawionego w ustawieniach połączenia AI).</string>
+  <string name="help_reading_progress_text">Twój postęp w czytaniu Biblii i zapamiętywaniu na pierwszy rzut oka. Oznaczaj rozdziały jako przeczytane ręcznie przyciskiem \"Oznacz jako przeczytane\" lub włącz automatyczne śledzenie. Ćwiczenia zapamiętywania również są widoczne w tym widoku.</string>
+  <string name="help_memorize_text">Widok Zapamiętywanie pomaga uczyć się fragmentów na pamięć. Użyj opcji Rozmycie słów, Przestawienie słów, Wpisywanie słów lub Kolejność słów do ćwiczeń. Udane ćwiczenia automatycznie oznaczają wersety jako zapamiętane (można to wyłączyć).</string>
   <string name="information">Informacje</string>
   <string name="other">Inne</string>
   <string name="contact">Kontakt</string>

@@ -76,6 +76,7 @@ removeFromTargets: Cíl -
 viewReadingProgress: Průběh čtení/zapamatování
 viewReadingProgressSettings: Nastavení čtení/zapamatování
 listenInLoop: Poslouchat ve smyčce
+viewHelp: Zobrazit nápovědu
 verseNoteLong: Napsat poznámku
 verseParagraphBreakLong: Zalomení odstavce
 addBookmark: Záložka

@@ -15,6 +15,18 @@
   <string name="history">내가 본 페이지</string>
   <string name="speak">말하기</string>
   <string name="help">도움말</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">설명서에서 더 읽기</string>
+  <string name="help_prompt_edit_text">사용자 지정 프롬프트를 사용하면 성경 공부를 위한 재사용 가능한 AI 지시를 만들 수 있습니다. 이름, 설명, 템플릿, 표시될 컨텍스트, 그리고 선택적으로 사용자 지정 공급자/모델을 설정하세요. 기본 제공 프롬프트는 직접 편집할 수 없습니다 — \"복사하여 사용자 지정\"을 사용해 나만의 버전을 만드세요.</string>
+  <string name="help_tool_info_text">AI 도구는 AI가 데이터를 읽거나 사용자를 대신해 변경을 수행하기 위해 호출할 수 있는 전문화된 기능입니다. 읽기 도구(구절, 주석, 사전, 북마크)는 권한이 필요하지 않습니다. 쓰기 도구(북마크 만들기, 노트, 스터디 패드 항목)는 권한 시스템에 의해 제어됩니다.</string>
+  <string name="help_ai_settings_text">AI 설정은 프롬프트와 카테고리를 관리하는 곳입니다. 여기서 새 프롬프트를 만들고, 카테고리로 정리하고, 프롬프트를 CSV로 가져오기/내보내기 하고, 애드온 프롬프트 팩을 설치하고, AI 연결 설정에 접근할 수 있습니다.</string>
+  <string name="help_ai_connection_text">여기서 AI 공급자, 모델, 권한 및 기타 연결 옵션을 구성하세요. 각 공급자는 자체 API 키가 필요합니다. 여러 공급자를 추가하고 기본 모델을 선택할 수 있습니다.</string>
+  <string name="help_ai_providers_text">AI 공급자(Google Gemini, OpenAI, Anthropic 등)를 관리합니다. 각 공급자는 자체 API 키가 필요합니다. 여러 공급자를 추가하고 특정 프롬프트에 다른 공급자를 지정할 수 있습니다.</string>
+  <string name="help_ai_models_text">이 공급자의 모델을 관리합니다. 새 릴리스를 가져오려면 공급자의 API에서 모델 목록을 새로 고침하거나, 목록에 없는 경우 모델 이름을 수동으로 추가할 수 있습니다.</string>
+  <string name="help_ai_document_filter_text">AI 에이전트가 읽을 수 있는 성경, 주석 및 기타 모듈을 제한합니다. 기본적으로 AI는 설치된 모든 모듈을 볼 수 있습니다. 특정 출처만 고려하려면 필터링을 통해 노이즈와 비용을 줄일 수 있습니다.</string>
+  <string name="help_global_tool_permissions_text">개별 AI 도구의 권한을 구성합니다. 각 읽기 도구에 대해 AI가 사용할 수 있는지 여부(활성화 또는 비활성화)를 선택합니다. 각 쓰기 도구에 대해 항상 허용, 항상 거부 또는 묻기(AI 연결 설정에서 설정한 전역 권한 모드로 대체됨)를 선택합니다.</string>
+  <string name="help_reading_progress_text">성경 읽기 및 암송 진도를 한눈에 확인합니다. \"읽음으로 표시\" 버튼으로 장을 수동으로 읽음 표시하거나, 자동 추적을 활성화하세요. 암송 연습도 이 보기에 반영됩니다.</string>
+  <string name="help_memorize_text">암송 보기는 구절을 암기하는 데 도움을 줍니다. 단어 흐림, 단어 섞기, 단어 입력 또는 단어 순서로 연습하세요. 성공적인 연습은 자동으로 구절을 암기됨으로 표시합니다(비활성화 가능).</string>
   <string name="information">정보</string>
   <string name="other">기타</string>
   <string name="contact">연락처</string>

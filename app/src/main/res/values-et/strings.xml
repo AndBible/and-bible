@@ -15,6 +15,18 @@
   <string name="history">Ajalugu</string>
   <string name="speak">Loe ette</string>
   <string name="help">Abiinfo</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Loe lisaks kasutusjuhendist</string>
+  <string name="help_prompt_edit_text">Kohandatud käsud võimaldavad luua korduvkasutatavaid AI-juhiseid oma õppimiseks. Määra nimi, kirjeldus, mall, kontekstid, kus see peaks ilmuma, ja valikuliselt kohandatud teenusepakkuja/mudel. Sisseehitatud käske ei saa otse muuta — kasuta \"Kopeeri kohandamiseks\", et luua oma versioon.</string>
+  <string name="help_tool_info_text">AI tööriistad on spetsiaalsed funktsioonid, mida AI saab kutsuda sinu andmete lugemiseks või muutuste tegemiseks sinu nimel. Lugemistööriistad (salmid, kommentaarid, sõnaraamatud, järjehoidjad) ei vaja kunagi luba. Kirjutamistööriistad (järjehoidjate, märkmete, õppemärkmiku kirjete loomine) on lubade süsteemi poolt kaitstud.</string>
+  <string name="help_ai_settings_text">AI seaded on koht, kus hallatakse käske ja kategooriaid. Siit saad luua uusi käske, korraldada neid kategooriatesse, importida/eksportida käske CSV-failina, installida lisandmooduli käskude pakette ja jõuda AI-ühenduse seadeteni.</string>
+  <string name="help_ai_connection_text">Seadista siin oma AI-teenusepakkujaid, mudeleid, lubasid ja muid ühendusvalikuid. Iga teenusepakkuja vajab oma API-võtit. Saad lisada mitu teenusepakkujat ja valida vaikimisi mudeli.</string>
+  <string name="help_ai_providers_text">Halda AI-teenusepakkujaid (Google Gemini, OpenAI, Anthropic jne). Iga teenusepakkuja vajab oma API-võtit. Saad lisada mitu teenusepakkujat ja määrata erinevatele käskudele erinevad teenusepakkujad.</string>
+  <string name="help_ai_models_text">Halda selle teenusepakkuja mudeleid. Saad uuendada mudelite loendit teenusepakkuja API kaudu, et saada uued väljalasked, või lisada mudeli nime käsitsi, kui seda toodud loendis pole.</string>
+  <string name="help_ai_document_filter_text">Piira, milliseid Piibleid, kommentaare ja muid mooduleid AI-agent saab lugeda. Vaikimisi näeb AI kõiki installitud mooduleid; filtreerimine aitab vähendada müra ja kulu, kui soovid, et see arvestaks ainult teatud allikatega.</string>
+  <string name="help_global_tool_permissions_text">Seadista üksikute AI-tööriistade lubasid. Iga lugemistööriista puhul vali, kas AI tohib seda kasutada (Lubatud või Keelatud). Iga kirjutamistööriista puhul vali Luba alati, Keela alati või Küsi (mis langeb tagasi AI-ühenduse seadetes määratud globaalsele loarežiimile).</string>
+  <string name="help_reading_progress_text">Sinu Piibli lugemise ja päheõppimise edu ühel pilgul. Märgi peatükid käsitsi loetuks nupuga \"Märgi loetuks\" või luba automaatne jälgimine. Päheõppimise harjutused lähevad samuti sellesse vaatesse arvesse.</string>
+  <string name="help_memorize_text">Päheõppimise vaade aitab sul lõike pähe õppida. Kasuta harjutamiseks Sõnahägustamist, Sõnade Segamist, Sõnade Sisestamist või Sõnade Järjestamist. Edukad harjutused märgivad salmid automaatselt päheõpituks (seda saab keelata).</string>
   <string name="information">Info</string>
   <string name="other">Muu</string>
   <string name="contact">Kontakt</string>

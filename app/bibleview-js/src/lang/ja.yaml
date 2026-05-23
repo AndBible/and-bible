@@ -76,6 +76,7 @@ removeFromTargets: 目標 -
 viewReadingProgress: 読書/暗記の進捗
 viewReadingProgressSettings: 読書/暗記の設定
 listenInLoop: ループ再生
+viewHelp: ヘルプを表示
 verseNoteLong: ノートを書く
 verseParagraphBreakLong: 段落区切り
 addBookmark: ブックマーク

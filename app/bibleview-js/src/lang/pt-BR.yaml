@@ -76,6 +76,7 @@ removeFromTargets: Meta -
 viewReadingProgress: Progresso de Leitura/Memorização
 viewReadingProgressSettings: Configurações de Leitura/Memorização
 listenInLoop: Ouvir em loop
+viewHelp: Ver ajuda
 verseNoteLong: Escrever uma nota
 verseParagraphBreakLong: Quebra de parágrafo
 addBookmark: Marcador

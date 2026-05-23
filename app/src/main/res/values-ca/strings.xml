@@ -15,6 +15,18 @@
   <string name="history">Historial</string>
   <string name="speak">Parla</string>
   <string name="help">Ajuda</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Llegiu-ne més al manual</string>
+  <string name="help_prompt_edit_text">Les preguntes personalitzades us permeten crear instruccions d\'IA reutilitzables per al vostre estudi. Establiu un nom, una descripció, una plantilla, els contextos on ha d\'aparèixer i, opcionalment, un proveïdor/model personalitzat. Les preguntes integrades no es poden editar directament; utilitzeu «Copia per personalitzar» per crear la vostra pròpia versió.</string>
+  <string name="help_tool_info_text">Les eines d\'IA són funcions especialitzades que la IA pot cridar per llegir les vostres dades o fer canvis en nom vostre. Les eines de lectura (versets, comentaris, diccionaris, marcadors) no requereixen mai permís. Les eines d\'escriptura (crear marcadors, notes, entrades al bloc d\'estudi) estan sotmeses al sistema de permisos.</string>
+  <string name="help_ai_settings_text">La configuració d\'IA és on gestioneu les vostres preguntes i categories. Des d\'aquí podeu crear noves preguntes, organitzar-les en categories, importar/exportar preguntes com a CSV, instal·lar paquets de preguntes addicionals i accedir a la configuració de connexió d\'IA.</string>
+  <string name="help_ai_connection_text">Configureu aquí els vostres proveïdors d\'IA, models, permisos i altres opcions de connexió. Cada proveïdor necessita la seva pròpia clau d\'API. Podeu afegir diversos proveïdors i seleccionar un model predeterminat.</string>
+  <string name="help_ai_providers_text">Gestioneu els proveïdors d\'IA (Google Gemini, OpenAI, Anthropic, etc.). Cada proveïdor necessita la seva pròpia clau d\'API. Podeu afegir diversos proveïdors i assignar-ne de diferents a preguntes específiques.</string>
+  <string name="help_ai_models_text">Gestioneu els models d\'aquest proveïdor. Podeu actualitzar la llista de models des de l\'API del proveïdor per obtenir les noves versions, o afegir manualment un nom de model si no es troba a la llista obtinguda.</string>
+  <string name="help_ai_document_filter_text">Limiteu quines Bíblies, comentaris i altres mòduls pot llegir l\'agent d\'IA. Per defecte, la IA veu tots els mòduls instal·lats; el filtratge ajuda a reduir el soroll i el cost quan només voleu que consideri fonts específiques.</string>
+  <string name="help_global_tool_permissions_text">Configureu els permisos per a cada eina d\'IA individual. Per a cada eina de lectura, trieu si la IA la pot utilitzar (Activada o Desactivada). Per a cada eina d\'escriptura, trieu Permet sempre, Denega sempre o Pregunta (que recorre al mode de permís global establert a la configuració de connexió d\'IA).</string>
+  <string name="help_reading_progress_text">El vostre progrés de lectura i memorització de la Bíblia d\'un cop d\'ull. Marqueu els capítols com a llegits manualment amb el botó «Marca com a llegit», o activeu el seguiment automàtic. Els exercicis de memorització també s\'incorporen a aquesta vista.</string>
+  <string name="help_memorize_text">La vista de memorització us ajuda a aprendre passatges de memòria. Utilitzeu Difuminat de paraules, Paraules barrejades, Escriu la paraula o Ordre de paraules per practicar. Els exercicis reeixits marquen automàticament els versets com a memoritzats (això es pot desactivar).</string>
   <string name="information">Informació</string>
   <string name="other">Altres</string>
   <string name="contact">Contacte</string>

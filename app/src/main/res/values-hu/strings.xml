@@ -15,6 +15,18 @@
   <string name="history">Előzmények</string>
   <string name="speak">Felolvasás</string>
   <string name="help">Súgó</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Bővebben a kézikönyvben</string>
+  <string name="help_prompt_edit_text">Az egyéni promptok segítségével újrafelhasználható AI-utasításokat hozhat létre a tanulmányozáshoz. Adjon meg nevet, leírást, sablont, a megjelenési kontextusokat, valamint opcionálisan egyéni szolgáltatót/modellt. A beépített promptok nem szerkeszthetők közvetlenül – használja a \"Másolás testreszabáshoz\" lehetőséget saját verzió létrehozásához.</string>
+  <string name="help_tool_info_text">Az AI-eszközök speciális funkciók, amelyeket az AI az Ön adatainak olvasásához vagy módosításához hívhat meg. Az olvasó eszközök (versek, kommentárok, szótárak, könyvjelzők) soha nem igényelnek engedélyt. Az írási eszközök (könyvjelzők, jegyzetek, jegyzetlap bejegyzések létrehozása) az engedélyrendszeren keresztül vezérelhetők.</string>
+  <string name="help_ai_settings_text">Az AI-beállításokban kezelheti a promptjait és kategóriáit. Innen új promptokat hozhat létre, kategóriákba rendezheti azokat, CSV formátumban importálhat/exportálhat promptokat, kiegészítő promptcsomagokat telepíthet, és elérheti az AI-kapcsolat beállításait.</string>
+  <string name="help_ai_connection_text">Itt konfigurálhatja az AI-szolgáltatókat, modelleket, engedélyeket és egyéb kapcsolati beállításokat. Minden szolgáltatóhoz saját API-kulcs szükséges. Több szolgáltatót is felvehet, és kiválaszthat egy alapértelmezett modellt.</string>
+  <string name="help_ai_providers_text">AI-szolgáltatók kezelése (Google Gemini, OpenAI, Anthropic stb.). Minden szolgáltatóhoz saját API-kulcs szükséges. Több szolgáltatót is felvehet, és különböző promptokhoz eltérő szolgáltatót rendelhet.</string>
+  <string name="help_ai_models_text">Kezelheti az ehhez a szolgáltatóhoz tartozó modelleket. Frissítheti a modellistát a szolgáltató API-jából az új kiadások megjelenítéséhez, vagy manuálisan is hozzáadhat egy modellnevet, ha az nem szerepel a letöltött listában.</string>
+  <string name="help_ai_document_filter_text">Korlátozhatja, hogy az AI-ügynök mely Bibliákat, kommentárokat és egyéb modulokat olvashatja. Alapértelmezés szerint az AI az összes telepített modult látja; a szűrés segít csökkenteni a zajt és a költségeket, ha csak bizonyos forrásokat szeretne figyelembe venni.</string>
+  <string name="help_global_tool_permissions_text">Konfigurálhatja az egyes AI-eszközök engedélyeit. Minden olvasó eszközhöz megadhatja, hogy az AI használhatja-e (Engedélyezve vagy Letiltva). Minden írási eszközhöz választhat: Mindig engedélyez, Mindig megtagad, vagy Kérdez (ami az AI-kapcsolat beállításaiban megadott globális engedélyezési módhoz tér vissza).</string>
+  <string name="help_reading_progress_text">Egy pillantással áttekintheti a bibliaolvasási és memorizálási előrehaladását. A fejezeteket manuálisan jelölheti olvasottnak a \"Megjelölés olvasottként\" gombbal, vagy engedélyezheti az automatikus nyomkövetést. A memorizálási feladatok szintén megjelennek ebben a nézetben.</string>
+  <string name="help_memorize_text">A Memorizálás nézet segít kívülről megtanulni a versszakokat. Gyakoroljon a Szóelmosás, Szókeverés, Szóírás vagy Szórendezés módszerekkel. A sikeres feladatok automatikusan memorizáltként jelölik a verseket (ez kikapcsolható).</string>
   <string name="information">Információ</string>
   <string name="other">Egyéb</string>
   <string name="contact">Kapcsolat</string>

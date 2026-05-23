@@ -15,6 +15,18 @@
   <string name="history">Cronologia</string>
   <string name="speak">Audio</string>
   <string name="help">Ajutor</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Citește mai mult în manual</string>
+  <string name="help_prompt_edit_text">Prompturile personalizate îți permit să creezi instrucțiuni AI reutilizabile pentru studiul tău. Setează un nume, descriere, șablon, contextele unde ar trebui să apară și, opțional, un provider/model personalizat. Prompturile integrate nu pot fi editate direct — folosește \"Copiază pentru a personaliza\" pentru a crea propria versiune.</string>
+  <string name="help_tool_info_text">Instrumentele AI sunt funcții specializate pe care AI le poate apela pentru a citi datele tale sau a face modificări în numele tău. Instrumentele de citire (versete, comentarii, dicționare, semne de carte) nu necesită niciodată permisiune. Instrumentele de scriere (crearea de semne de carte, notițe, intrări în notițele de studiu) sunt controlate de sistemul de permisiuni.</string>
+  <string name="help_ai_settings_text">Reglările AI este locul unde îți gestionezi prompturile și categoriile. De aici poți crea prompturi noi, le poți organiza în categorii, importa/exporta prompturi ca CSV, instala pachete suplimentare de prompturi și accesa reglările conexiunii AI.</string>
+  <string name="help_ai_connection_text">Configurează providerii tăi AI, modelele, permisiunile și alte opțiuni de conexiune aici. Fiecare provider are nevoie de propriul cheie API. Poți adăuga mai mulți provideri și selecta un model implicit.</string>
+  <string name="help_ai_providers_text">Gestionează providerii AI (Google Gemini, OpenAI, Anthropic, etc.). Fiecare provider are nevoie de propriul cheie API. Poți adăuga mai mulți provideri și le poți atribui diferitelor prompturi.</string>
+  <string name="help_ai_models_text">Gestionează modelele pentru acest provider. Poți reîmprospăta lista de modele din API-ul providerului pentru a obține versiunile noi, sau adăuga manual un nume de model dacă nu se află în lista preluată.</string>
+  <string name="help_ai_document_filter_text">Limitează care Biblii, comentarii și alte module poate citi agentul AI. Implicit, AI-ul vede toate modulele instalate; filtrarea ajută la reducerea zgomotului și a costurilor când vrei ca acesta să ia în considerare doar anumite surse.</string>
+  <string name="help_global_tool_permissions_text">Configurează permisiunile pentru instrumentele AI individuale. Pentru fiecare instrument de citire, alege dacă AI-ul îl poate utiliza (Activat sau Dezactivat). Pentru fiecare instrument de scriere, alege Permite întotdeauna, Interzice întotdeauna sau Întreabă (care revine la modul global de permisiuni setat în reglările conexiunii AI).</string>
+  <string name="help_reading_progress_text">Progresul tău de citire a Bibliei și de memorare dintr-o privire. Marchează capitolele ca citite manual cu butonul \"Marchează ca citit\" sau activează urmărirea automată. Exercițiile de memorare contribuie și ele la această vizualizare.</string>
+  <string name="help_memorize_text">Vizualizarea Memorare te ajută să înveți pasaje pe de rost. Folosește Estompare cuvinte, Amestecare cuvinte, Tastare cuvinte sau Ordonare cuvinte pentru a exersa. Exercițiile reușite marchează automat versetele ca memorate (aceasta poate fi dezactivat).</string>
   <string name="information">Informații</string>
   <string name="other">Altele</string>
   <string name="contact">Contact</string>

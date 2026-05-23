@@ -15,6 +15,18 @@
   <string name="history">Historio</string>
   <string name="speak">Paroli</string>
   <string name="help">Helpo</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">Legi pli en la manlibro</string>
+  <string name="help_prompt_edit_text">Propraj demandoj permesas al vi krei reuzeblajn AI-instrukciojn por via studo. Agordu nomon, priskribon, ŝablonon, la kuntekstojn kie ĝi aperu, kaj laŭvole propran provizanton/modelon. Enkonstruitajn demandojn ne eblas redakti rekte — uzu \"Kopii por personigi\" por krei vian propran version.</string>
+  <string name="help_tool_info_text">AI-iloj estas specialigitaj funkcioj, kiujn la AI povas voki por legi viajn datumojn aŭ fari ŝanĝojn en via nomo. Legitaj iloj (versoj, komentaroj, vortaroj, legosignoj) neniam bezonas permeson. Skribitaj iloj (krei legosignojn, notojn, notblokajn enojn) estas kontrolataj de la permesa sistemo.</string>
+  <string name="help_ai_settings_text">AI-agordoj estas kie vi administras viajn demandojn kaj kategoriojn. De ĉi tie vi povas krei novajn demandojn, organizi ilin en kategoriojn, enporti/elporti demandojn kiel CSV, instali aldonajn demandpakaĵojn, kaj atingi la AI-konektajn agordojn.</string>
+  <string name="help_ai_connection_text">Agordu viajn AI-provizantojn, modelojn, permesojn kaj aliajn konektajn eblojn ĉi tie. Ĉiu provizanto bezonas sian propran API-ŝlosilon. Vi povas aldoni plurajn provizantojn kaj elekti defaŭltan modelon.</string>
+  <string name="help_ai_providers_text">Administru AI-provizantojn (Google Gemini, OpenAI, Anthropic, ktp.). Ĉiu provizanto bezonas sian propran API-ŝlosilon. Vi povas aldoni plurajn provizantojn kaj asigni malsamajn al specifaj demandoj.</string>
+  <string name="help_ai_models_text">Administru modelojn por ĉi tiu provizanto. Vi povas ĝisdatigi la modeloliston el la API de la provizanto por ekhavi novajn eldonojn, aŭ aldoni modelnomon permane se ĝi ne estas en la ŝarĝita listo.</string>
+  <string name="help_ai_document_filter_text">Limigu kiujn Bibliojn, komentarojn kaj aliajn modulojn la AI-agento povas legi. Defaŭlte la AI vidas ĉiujn instalitajn modulojn; filtri helpas redukti bruon kaj koston kiam vi volas, ke ĝi konsideru nur specifajn fontojn.</string>
+  <string name="help_global_tool_permissions_text">Agordu permesojn por individuaj AI-iloj. Por ĉiu legita ilo, elektu ĉu la AI povas uzi ĝin (Ebligita aŭ Malaktivigita). Por ĉiu skribita ilo, elektu Ĉiam permesi, Ĉiam nei, aŭ Demandi (kio falulas al la tutmonda permesa reĝimo agordita en AI-konektaj agordoj).</string>
+  <string name="help_reading_progress_text">Via Biblia legado kaj parkeriga progreso unuavide. Marku ĉapitrojn kiel legitajn permane per la butono \"Marki kiel legita\", aŭ ebligu aŭtomatan spuron. Parkerigaj ekzercoj ankaŭ enfluas en ĉi tiun vidon.</string>
+  <string name="help_memorize_text">La Parkeriga vido helpas vin lerni pasaĵojn parkere. Uzu Vortan Malklarigon, Vortan Mikson, Vortan Tajpadon aŭ Vortan Ordon por ekzerci. Sukcesaj ekzercoj aŭtomate markas versojn kiel parkerigatajn (ĉi tio estas malŝaltebla).</string>
   <string name="information">Informoj</string>
   <string name="other">Aliaj</string>
   <string name="contact">Kontakto</string>

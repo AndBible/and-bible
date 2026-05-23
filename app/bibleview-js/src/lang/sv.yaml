@@ -76,6 +76,7 @@ removeFromTargets: Mål -
 viewReadingProgress: Läs-/memoreringsframsteg
 viewReadingProgressSettings: Läs-/memoreringsinställningar
 listenInLoop: Lyssna i loop
+viewHelp: Visa hjälp
 verseNoteLong: Skriv en anteckning
 verseParagraphBreakLong: Styckebrytning
 addBookmark: Bokmärke

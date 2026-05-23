@@ -15,6 +15,18 @@
   <string name="history">Historique</string>
   <string name="speak">Lecture audio</string>
   <string name="help">Aide</string>
+  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <string name="help_read_more_link">En savoir plus dans le manuel</string>
+  <string name="help_prompt_edit_text">Les invites personnalisées vous permettent de créer des instructions IA réutilisables pour votre étude. Définissez un nom, une description, un modèle, les contextes dans lesquels il doit apparaître, et éventuellement un fournisseur/modèle personnalisé. Les invites intégrées ne peuvent pas être modifiées directement — utilisez \"Copier pour personnaliser\" pour créer votre propre version.</string>
+  <string name="help_tool_info_text">Les outils IA sont des fonctions spécialisées que l\'IA peut appeler pour lire vos données ou effectuer des modifications en votre nom. Les outils de lecture (versets, commentaires, dictionnaires, signets) ne nécessitent jamais de permission. Les outils d\'écriture (création de signets, notes, entrées de bloc-notes) sont soumis au système de permissions.</string>
+  <string name="help_ai_settings_text">Les paramètres IA vous permettent de gérer vos invites et catégories. Depuis ici, vous pouvez créer de nouvelles invites, les organiser en catégories, importer/exporter des invites en CSV, installer des packs d\'invites supplémentaires et accéder aux paramètres de connexion IA.</string>
+  <string name="help_ai_connection_text">Configurez vos fournisseurs IA, modèles, autorisations et autres options de connexion ici. Chaque fournisseur nécessite sa propre clé API. Vous pouvez ajouter plusieurs fournisseurs et sélectionner un modèle par défaut.</string>
+  <string name="help_ai_providers_text">Gérez les fournisseurs IA (Google Gemini, OpenAI, Anthropic, etc.). Chaque fournisseur nécessite sa propre clé API. Vous pouvez ajouter plusieurs fournisseurs et en attribuer différents à des invites spécifiques.</string>
+  <string name="help_ai_models_text">Gérez les modèles pour ce fournisseur. Vous pouvez actualiser la liste des modèles depuis l\'API du fournisseur pour récupérer les nouvelles versions, ou ajouter manuellement un nom de modèle s\'il ne figure pas dans la liste récupérée.</string>
+  <string name="help_ai_document_filter_text">Limitez les Bibles, commentaires et autres modules que l\'agent IA peut lire. Par défaut, l\'IA voit tous les modules installés ; le filtrage aide à réduire le bruit et le coût lorsque vous souhaitez qu\'il ne prenne en compte que des sources spécifiques.</string>
+  <string name="help_global_tool_permissions_text">Configurez les autorisations pour les outils IA individuels. Pour chaque outil de lecture, choisissez si l\'IA peut l\'utiliser (Activé ou Désactivé). Pour chaque outil d\'écriture, choisissez Toujours autoriser, Toujours refuser ou Demander (ce qui revient au mode de permission global défini dans les paramètres de connexion IA).</string>
+  <string name="help_reading_progress_text">Votre progression de lecture et de mémorisation de la Bible en un coup d\'œil. Marquez les chapitres comme lus manuellement avec le bouton \"Marquer comme lu\", ou activez le suivi automatique. Les exercices de mémorisation contribuent également à cette vue.</string>
+  <string name="help_memorize_text">La vue Mémoriser vous aide à apprendre des passages par cœur. Utilisez Flou de mots, Mélange de mots, Saisie de mots ou Ordre de mots pour vous entraîner. Les exercices réussis marquent automatiquement les versets comme mémorisés (cela peut être désactivé).</string>
   <string name="information">Information</string>
   <string name="other">Autre</string>
   <string name="contact">Contact</string>

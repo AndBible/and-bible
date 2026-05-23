@@ -76,6 +76,7 @@ removeFromTargets: 목표 -
 viewReadingProgress: 읽기/암송 진행 상황
 viewReadingProgressSettings: 읽기/암송 설정
 listenInLoop: 반복 듣기
+viewHelp: 도움말 보기
 verseNoteLong: 노트 쓰기
 verseParagraphBreakLong: 단락 나누기
 addBookmark: 북마크
