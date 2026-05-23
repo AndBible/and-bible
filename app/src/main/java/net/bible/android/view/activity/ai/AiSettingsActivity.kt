@@ -43,9 +43,11 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManagePromptsBinding
 import net.bible.android.activity.databinding.ManagePromptsCategoryHeaderBinding
 import net.bible.android.activity.databinding.ManagePromptsListItemBinding
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.sword.csvprompt.addCsvPromptBook
 import net.bible.service.common.CommonUtils
@@ -296,6 +298,7 @@ class AiSettingsActivity : ActivityBase() {
                 PromptRepository.deleteAllUserPrompts()
                 PromptRepository.deleteAllUserCategories()
             }
+            ABEventBus.post(AppSettingsUpdated())
             updateView()
         }
     }

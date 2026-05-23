@@ -45,7 +45,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsActivityBinding
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.android.view.activity.settings.PreferenceStore
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
@@ -389,6 +391,7 @@ class AiProvidersFragment : AiSettingsFragmentBase() {
                     updated.setApiKey(apiKey)
                 }
             }
+            if (isNew) ABEventBus.post(AppSettingsUpdated())
             Toast.makeText(requireContext(), R.string.ai_provider_saved, Toast.LENGTH_SHORT).show()
             refreshAll()
         }
@@ -410,6 +413,7 @@ class AiProvidersFragment : AiSettingsFragmentBase() {
                             settings.defaultModelId = remaining.firstOrNull()?.id
                         }
                     }
+                    ABEventBus.post(AppSettingsUpdated())
                     Toast.makeText(requireContext(), R.string.ai_provider_deleted, Toast.LENGTH_SHORT).show()
                     refreshAll()
                 }
