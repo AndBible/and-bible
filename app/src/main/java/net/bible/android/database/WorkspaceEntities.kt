@@ -693,6 +693,25 @@ data class SettingsBundle (
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
         WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings, workspaceSettings, globalSettings)
 
+    /**
+     * Where the effective value for [type] originates relative to this bundle's [level].
+     * - [InheritedFrom.NONE]: the value is set at this level (the user owns it here).
+     * - [InheritedFrom.WORKSPACE]: at WINDOW level, the value is null at window but set at workspace.
+     * - [InheritedFrom.GLOBAL]: the value falls through to global/defaults.
+     */
+    fun inheritedFrom(type: WorkspaceEntities.TextDisplaySettings.Types): InheritedFrom = when (level) {
+        SettingsLevel.WINDOW -> when {
+            pageManagerSettings?.getValue(type) != null -> InheritedFrom.NONE
+            workspaceSettings.getValue(type) != null -> InheritedFrom.WORKSPACE
+            else -> InheritedFrom.GLOBAL
+        }
+        SettingsLevel.WORKSPACE -> when {
+            workspaceSettings.getValue(type) != null -> InheritedFrom.NONE
+            else -> InheritedFrom.GLOBAL
+        }
+        SettingsLevel.GLOBAL -> InheritedFrom.NONE
+    }
+
     fun toJson(): String {
         return json.encodeToString(serializer(), this)
     }

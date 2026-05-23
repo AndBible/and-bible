@@ -1177,4 +1177,117 @@ class TextDisplaySettingsTest {
         // lineSpacing: win=24 vs ws=null → not equal → kept
         assertEquals("win lineSpacing kept (24 != null)", 24, win.lineSpacing)
     }
+
+    // --- SettingsBundle.inheritedFrom tests ---
+    // These verify that the icon-overlay logic correctly identifies where the effective value
+    // for a given Type comes from. Drives the gear vs. workspace overlay shown in Text options.
+
+    @Test
+    fun `inheritedFrom at GLOBAL level is always NONE`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.GLOBAL,
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+        )
+        assertEquals(InheritedFrom.NONE, bundle.inheritedFrom(Types.VERSENUMBERS))
+        assertEquals(InheritedFrom.NONE, bundle.inheritedFrom(Types.FONTSIZE))
+    }
+
+    @Test
+    fun `inheritedFrom at WORKSPACE level is NONE when workspace has explicit value`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WORKSPACE,
+            workspaceSettings = TextDisplaySettings(showVerseNumbers = false),
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+        )
+        assertEquals(InheritedFrom.NONE, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom at WORKSPACE level is GLOBAL when workspace null`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WORKSPACE,
+            workspaceSettings = TextDisplaySettings(),
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+        )
+        assertEquals(InheritedFrom.GLOBAL, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom at WINDOW level is NONE when window has explicit value`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = TextDisplaySettings(showVerseNumbers = false),
+            workspaceSettings = TextDisplaySettings(showVerseNumbers = true),
+            globalSettings = TextDisplaySettings(),
+            windowId = IdType.empty(),
+        )
+        assertEquals(InheritedFrom.NONE, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom at WINDOW level is WORKSPACE when window null and workspace has value`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = TextDisplaySettings(),
+            workspaceSettings = TextDisplaySettings(showVerseNumbers = false),
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+            windowId = IdType.empty(),
+        )
+        assertEquals(InheritedFrom.WORKSPACE, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom at WINDOW level is GLOBAL when window and workspace null`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = TextDisplaySettings(),
+            workspaceSettings = TextDisplaySettings(),
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+            windowId = IdType.empty(),
+        )
+        assertEquals(InheritedFrom.GLOBAL, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom at WINDOW level is GLOBAL when pageManagerSettings is null and workspace null`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = null,
+            workspaceSettings = TextDisplaySettings(),
+            globalSettings = TextDisplaySettings(),
+            windowId = IdType.empty(),
+        )
+        assertEquals(InheritedFrom.GLOBAL, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom survives JSON roundtrip preserving null vs non-null fields`() {
+        val original = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = TextDisplaySettings(),
+            workspaceSettings = TextDisplaySettings(showVerseNumbers = false, fontSize = 20),
+            globalSettings = TextDisplaySettings(showRedLetters = false),
+            windowId = IdType.empty(),
+        )
+        val restored = SettingsBundle.fromJson(original.toJson())
+
+        // After JSON roundtrip the bundle must still correctly identify inheritance source.
+        assertEquals(InheritedFrom.WORKSPACE, restored.inheritedFrom(Types.VERSENUMBERS))
+        assertEquals(InheritedFrom.WORKSPACE, restored.inheritedFrom(Types.FONTSIZE))
+        assertEquals(InheritedFrom.GLOBAL, restored.inheritedFrom(Types.REDLETTERS))
+        assertEquals(InheritedFrom.GLOBAL, restored.inheritedFrom(Types.SECTIONTITLES))
+    }
+
+    @Test
+    fun `inheritedFrom at WINDOW level uses workspace value of false (not null)`() {
+        // Regression: false is a valid non-null Boolean and must not be confused with null.
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = TextDisplaySettings(),
+            workspaceSettings = TextDisplaySettings(showVerseNumbers = false),
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+            windowId = IdType.empty(),
+        )
+        assertEquals(InheritedFrom.WORKSPACE, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
 }
