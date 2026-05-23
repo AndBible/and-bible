@@ -8,6 +8,9 @@
 chrome:
   enabled: false
 
+new:
+  clone_from: local
+
 # IDE: AndBible is developed with Android Studio, installable via
 # JetBrains Toolbox. `ide: studio` matches the Toolbox launcher binary
 # name (/opt/jetbrains-toolbox/apps/android-studio/bin/studio.sh).
