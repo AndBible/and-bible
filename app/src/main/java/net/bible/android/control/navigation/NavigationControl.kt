@@ -49,6 +49,11 @@ class NavigationControl @Inject constructor(
      * deuterocanonical / apocryphal books in Catholic and Orthodox modules are
      * included. Books are returned in the active versification's natural order
      * (which already places deuterocanonicals correctly per canon).
+     *
+     * For "special" documents (e.g. pseudo-books with no real versification) we
+     * fall back to the KJVA book iterator — which includes apocrypha — so the
+     * deuterocanonical inclusion still holds in practice, but the order/canon
+     * reflects KJVA rather than the original module.
      */
     fun getAllDocumentBooksExcludingIntros(): List<BibleBook> {
         val doc: AbstractPassageBook = currentPassageDocument
