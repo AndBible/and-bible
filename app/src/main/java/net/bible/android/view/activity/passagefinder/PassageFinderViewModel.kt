@@ -140,7 +140,7 @@ class PassageFinderViewModel(
             selectedBookIndex = currentBookIndex,
             currentLevel = NavigationLevel.BOOK,
             selectedChapter = chapter,
-            selectedVerse = currentVerse.verse.coerceIn(1, verseCount.coerceAtLeast(1)),
+            selectedVerse = currentVerse.verse.coerceIn(1, verseCount),
             chapterCount = chapterCount,
             verseCount = verseCount,
             hasInteracted = false,

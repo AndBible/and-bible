@@ -17,6 +17,7 @@
 
 package net.bible.android.control.passagefinder
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.control.navigation.NavigationControl
@@ -25,6 +26,8 @@ import net.bible.android.view.activity.passagefinder.BookCategory
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.passage.Verse
+
+private const val TAG = "PassageFinderDataSource"
 
 /**
  * Data source for the PassageFinder widget. Reads book, chapter, and verse metadata
@@ -63,14 +66,33 @@ class PassageFinderDataSource(
         }
     }
 
-    /** Returns the chapter count for a given book. */
+    /**
+     * Returns the chapter count for a given book, clamped to >= 1.
+     *
+     * Defensive: some modules/versifications can throw or return non-positive
+     * values for unusual books. The widget always needs at least one chapter
+     * to render a non-empty strip, so we floor at 1 and log on failure.
+     */
     fun getChapterCount(book: BibleBook): Int {
-        return navigationControl.versification.getLastChapter(book)
+        return try {
+            navigationControl.versification.getLastChapter(book).coerceAtLeast(1)
+        } catch (e: Exception) {
+            Log.w(TAG, "getLastChapter failed for $book", e)
+            1
+        }
     }
 
-    /** Returns the verse count for a given book and chapter. */
+    /**
+     * Returns the verse count for a given book and chapter, clamped to >= 1.
+     * See [getChapterCount] for the same defensive rationale.
+     */
     fun getVerseCount(book: BibleBook, chapter: Int): Int {
-        return navigationControl.versification.getLastVerse(book, chapter)
+        return try {
+            navigationControl.versification.getLastVerse(book, chapter).coerceAtLeast(1)
+        } catch (e: Exception) {
+            Log.w(TAG, "getLastVerse failed for $book $chapter", e)
+            1
+        }
     }
 
     /** Returns the currently active verse (book + chapter + verse). */
