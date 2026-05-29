@@ -17,6 +17,7 @@
   <string name="help">Hulp</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Lees meer in de handleiding</string>
+  <string name="help_full_documentation_link">Volledige documentatie bekijken</string>
   <string name="help_prompt_edit_text">Met aangepaste prompts kunt u herbruikbare AI-instructies voor uw studie maken. Stel een naam, beschrijving, sjabloon en de contexten in waar de prompt moet verschijnen, en optioneel een aangepaste provider/model. Ingebouwde prompts kunnen niet direct worden bewerkt — gebruik \"Kopiëren om aan te passen\" om uw eigen versie te maken.</string>
   <string name="help_tool_info_text">AI-tools zijn gespecialiseerde functies die de AI kan aanroepen om uw gegevens te lezen of namens u wijzigingen aan te brengen. Leestools (verzen, commentaren, woordenboeken, bladwijzers) vereisen nooit toestemming. Schrijftools (bladwijzers aanmaken, notities, studiemappen) zijn onderworpen aan het toestemmingssysteem.</string>
   <string name="help_ai_settings_text">In AI-instellingen beheert u uw prompts en categorieën. Hier kunt u nieuwe prompts aanmaken, ze in categorieën indelen, prompts importeren/exporteren als CSV, aanvullende promptpakketten installeren en de AI-verbindingsinstellingen bereiken.</string>

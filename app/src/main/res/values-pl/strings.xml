@@ -17,6 +17,7 @@
   <string name="help">Pomoc</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Czytaj więcej w podręczniku</string>
+  <string name="help_full_documentation_link">Przeglądaj pełną dokumentację</string>
   <string name="help_prompt_edit_text">Niestandardowe monity pozwalają tworzyć wielokrotnie używane instrukcje AI do nauki. Ustaw nazwę, opis, szablon, konteksty, w których ma się pojawiać, oraz opcjonalnie niestandardowego dostawcę/model. Wbudowanych monitów nie można edytować bezpośrednio — użyj opcji \"Kopiuj, aby dostosować\", aby utworzyć własną wersję.</string>
   <string name="help_tool_info_text">Narzędzia AI to wyspecjalizowane funkcje, które AI może wywoływać, aby odczytywać Twoje dane lub wprowadzać zmiany w Twoim imieniu. Narzędzia do odczytu (wersety, komentarze, słowniki, zakładki) nigdy nie wymagają uprawnień. Narzędzia do zapisu (tworzenie zakładek, notatek, wpisów w bloczku notatek) są objęte systemem uprawnień.</string>
   <string name="help_ai_settings_text">Ustawienia AI to miejsce, w którym zarządzasz monitami i kategoriami. Stąd możesz tworzyć nowe monity, organizować je w kategorie, importować/eksportować monity jako CSV, instalować pakiety dodatkowych monitów i przechodzić do ustawień połączenia AI.</string>
