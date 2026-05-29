@@ -84,7 +84,9 @@ fun PreviewBubble(
         Box(
             modifier = Modifier
                 .graphicsLayer {
-                    shadowElevation = 8f
+                    // shadowElevation is in pixels; convert from dp so the shadow
+                    // scales correctly across screen densities.
+                    shadowElevation = 8.dp.toPx()
                     shape = bubbleShape
                     clip = false
                 }
