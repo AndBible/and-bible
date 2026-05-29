@@ -15,7 +15,7 @@
   <string name="history">Kasaysayan</string>
   <string name="speak">Magsalita</string>
   <string name="help">Tulong</string>
-  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Magbasa pa sa manwal</string>
   <string name="help_prompt_edit_text">Ang mga custom na prompt ay nagbibigay-daan sa iyong gumawa ng mga reusable na instruksyon ng AI para sa iyong pag-aaral. Magtakda ng pangalan, paglalarawan, template, mga konteksto kung saan ito dapat lumabas, at opsyonal na custom na provider/modelo. Ang mga built-in na prompt ay hindi maaaring direktang i-edit — gamitin ang \"Kopyahin para i-customize\" para gumawa ng sarili mong bersyon.</string>
   <string name="help_tool_info_text">Ang mga AI tool ay mga espesyal na function na maaaring tawagin ng AI para basahin ang iyong data o gumawa ng mga pagbabago sa iyong ngalan. Ang mga read tool (mga talata, komentaryo, diksyonaryo, mga bookmark) ay hindi kailanman nangangailangan ng pahintulot. Ang mga write tool (paggawa ng mga bookmark, tala, mga entry sa study pad) ay kontrolado ng sistema ng pahintulot.</string>

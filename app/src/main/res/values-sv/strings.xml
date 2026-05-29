@@ -15,7 +15,7 @@
   <string name="history">Historik</string>
   <string name="speak">Läs upp</string>
   <string name="help">Hjälp</string>
-  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Läs mer i manualen</string>
   <string name="help_prompt_edit_text">Anpassade promptar låter dig skapa återanvändbara AI-instruktioner för din bibelstudium. Ange ett namn, beskrivning, mall, de sammanhang där den ska visas och valfritt en anpassad leverantör/modell. Inbyggda promptar kan inte redigeras direkt — använd \"Kopiera för att anpassa\" för att skapa din egen version.</string>
   <string name="help_tool_info_text">AI-verktyg är specialiserade funktioner som AI:n kan anropa för att läsa dina data eller göra ändringar för din räkning. Läsverktyg (verser, kommentarer, lexikon, bokmärken) kräver aldrig tillåtelse. Skrivverktyg (skapa bokmärken, anteckningar, studieblocksposter) styrs av behörighetssystemet.</string>

@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Main menu-->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <!--Passage navigation-->
   <!--Search-->
   <string name="create_index_for">To search a document we need an index. \n\nCreate an index for %s?</string>

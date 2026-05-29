@@ -15,7 +15,7 @@
   <string name="history">Historial</string>
   <string name="speak">Parla</string>
   <string name="help">Ajuda</string>
-  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Llegiu-ne més al manual</string>
   <string name="help_prompt_edit_text">Les preguntes personalitzades us permeten crear instruccions d\'IA reutilitzables per al vostre estudi. Establiu un nom, una descripció, una plantilla, els contextos on ha d\'aparèixer i, opcionalment, un proveïdor/model personalitzat. Les preguntes integrades no es poden editar directament; utilitzeu «Copia per personalitzar» per crear la vostra pròpia versió.</string>
   <string name="help_tool_info_text">Les eines d\'IA són funcions especialitzades que la IA pot cridar per llegir les vostres dades o fer canvis en nom vostre. Les eines de lectura (versets, comentaris, diccionaris, marcadors) no requereixen mai permís. Les eines d\'escriptura (crear marcadors, notes, entrades al bloc d\'estudi) estan sotmeses al sistema de permisos.</string>

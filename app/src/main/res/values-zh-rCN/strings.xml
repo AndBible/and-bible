@@ -15,7 +15,7 @@
   <string name="history">阅读历史</string>
   <string name="speak">朗读</string>
   <string name="help">帮助</string>
-  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">在手册中阅读更多</string>
   <string name="help_prompt_edit_text">自定义提示词让您为研经创建可复用的AI指令。设置名称、描述、模板、出现的上下文，以及可选的自定义提供商/模型。内置提示词无法直接编辑——请使用\"复制以自定义\"来创建您自己的版本。</string>
   <string name="help_tool_info_text">AI工具是AI可以调用的专用功能，用于读取您的数据或代表您进行更改。读取工具（经文、注释、字典、书签）无需任何权限。写入工具（创建书签、笔记、学习笔记条目）受权限系统管控。</string>

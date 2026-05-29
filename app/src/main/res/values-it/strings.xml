@@ -15,7 +15,7 @@
   <string name="history">Cronologia</string>
   <string name="speak">Parla/Audio</string>
   <string name="help">Supporto</string>
-  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Leggi di più nel manuale</string>
   <string name="help_prompt_edit_text">I prompt personalizzati ti permettono di creare istruzioni AI riutilizzabili per il tuo studio. Imposta un nome, una descrizione, un modello, i contesti in cui dovrebbe apparire e, facoltativamente, un fornitore/modello personalizzato. I prompt integrati non possono essere modificati direttamente — usa \"Copia per personalizzare\" per creare la tua versione.</string>
   <string name="help_tool_info_text">Gli strumenti AI sono funzioni specializzate che l\'IA può chiamare per leggere i tuoi dati o apportare modifiche per tuo conto. Gli strumenti di lettura (versetti, commentari, dizionari, segnalibri) non richiedono mai autorizzazione. Gli strumenti di scrittura (creazione di segnalibri, note, voci degli appunti di studio) sono controllati dal sistema di autorizzazioni.</string>

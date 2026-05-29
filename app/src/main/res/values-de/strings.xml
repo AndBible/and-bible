@@ -15,7 +15,7 @@
   <string name="history">Verlauf</string>
   <string name="speak">Vorlesen</string>
   <string name="help">Hilfe</string>
-  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Mehr im Handbuch lesen</string>
   <string name="help_prompt_edit_text">Mit benutzerdefinierten Prompts können Sie wiederverwendbare KI-Anweisungen für Ihr Studium erstellen. Legen Sie einen Namen, eine Beschreibung, eine Vorlage, die Kontexte, in denen er erscheinen soll, und optional einen benutzerdefinierten Anbieter/Modell fest. Integrierte Prompts können nicht direkt bearbeitet werden – verwenden Sie \"Kopieren zum Anpassen\", um Ihre eigene Version zu erstellen.</string>
   <string name="help_tool_info_text">KI-Tools sind spezialisierte Funktionen, die die KI aufrufen kann, um Ihre Daten zu lesen oder in Ihrem Auftrag Änderungen vorzunehmen. Lese-Tools (Verse, Kommentare, Wörterbücher, Lesezeichen) benötigen keine Berechtigung. Schreib-Tools (Lesezeichen erstellen, Notizen, Studienmappe-Einträge) werden durch das Berechtigungssystem gesteuert.</string>
@@ -24,8 +24,8 @@
   <string name="help_ai_providers_text">Verwalten Sie KI-Anbieter (Google Gemini, OpenAI, Anthropic usw.). Jeder Anbieter benötigt einen eigenen API-Schlüssel. Sie können mehrere Anbieter hinzufügen und verschiedene Anbieter bestimmten Prompts zuweisen.</string>
   <string name="help_ai_models_text">Verwalten Sie Modelle für diesen Anbieter. Sie können die Modellliste über die API des Anbieters aktualisieren, um neue Versionen zu erhalten, oder einen Modellnamen manuell hinzufügen, wenn er nicht in der abgerufenen Liste enthalten ist.</string>
   <string name="help_ai_document_filter_text">Begrenzen Sie, welche Bibeln, Kommentare und andere Module der KI-Agent lesen kann. Standardmäßig sieht die KI alle installierten Module; die Filterung hilft, Rauschen und Kosten zu reduzieren, wenn Sie nur bestimmte Quellen berücksichtigen möchten.</string>
-  <string name="help_global_tool_permissions_text">Konfigurieren Sie Berechtigungen für einzelne KI-Tools. Wählen Sie für jedes Lese-Tool, ob die KI es verwenden darf (Aktiviert oder Deaktiviert). Wählen Sie für jedes Schreib-Tool „Immer erlauben", „Immer ablehnen" oder „Fragen" (was auf den globalen Berechtigungsmodus zurückgreift, der in den KI-Verbindungseinstellungen festgelegt ist).</string>
-  <string name="help_reading_progress_text">Ihr Bibellesefortschritt und Auswendiglernfortschritt auf einen Blick. Markieren Sie Kapitel manuell mit der Schaltfläche „Als gelesen markieren" als gelesen oder aktivieren Sie die automatische Nachverfolgung. Auswendiglernen-Übungen fließen ebenfalls in diese Ansicht ein.</string>
+  <string name="help_global_tool_permissions_text">Konfigurieren Sie Berechtigungen für einzelne KI-Tools. Wählen Sie für jedes Lese-Tool, ob die KI es verwenden darf (Aktiviert oder Deaktiviert). Wählen Sie für jedes Schreib-Tool „Immer erlauben\", „Immer ablehnen\" oder „Fragen\" (was auf den globalen Berechtigungsmodus zurückgreift, der in den KI-Verbindungseinstellungen festgelegt ist).</string>
+  <string name="help_reading_progress_text">Ihr Bibellesefortschritt und Auswendiglernfortschritt auf einen Blick. Markieren Sie Kapitel manuell mit der Schaltfläche „Als gelesen markieren\" als gelesen oder aktivieren Sie die automatische Nachverfolgung. Auswendiglernen-Übungen fließen ebenfalls in diese Ansicht ein.</string>
   <string name="help_memorize_text">Die Auswendiglernen-Ansicht hilft Ihnen, Textabschnitte auswendig zu lernen. Verwenden Sie Wortunschärfe, Wortmischung, Worteingabe oder Wortreihenfolge zum Üben. Erfolgreiche Übungen markieren Verse automatisch als auswendig gelernt (dies kann deaktiviert werden).</string>
   <string name="information">Information</string>
   <string name="other">Sonstiges</string>

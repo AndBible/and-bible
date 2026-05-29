@@ -15,6 +15,7 @@
   <string name="history">Sejarah</string>
   <string name="speak">Bicara</string>
   <string name="help">Bantuan</string>
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="information">Informasi</string>
   <string name="other">Lainnya</string>
   <string name="contact">Kontak</string>

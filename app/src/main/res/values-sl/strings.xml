@@ -15,7 +15,7 @@
   <string name="history">Zgodovina</string>
   <string name="speak">Govor</string>
   <string name="help">Pomoč</string>
-  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Preberite več v priročniku</string>
   <string name="help_prompt_edit_text">Po meri narejeni pozivi vam omogočajo ustvarjanje večkrat uporabnih navodil za umetno inteligenco pri vašem študiju. Nastavite ime, opis, predlogo, kontekste, v katerih naj se prikaže, in po želji pošiljatelja/model. Vgrajenih pozivov ni mogoče neposredno urejati — uporabite \"Kopiraj za prilagoditev\", da ustvarite svojo različico.</string>
   <string name="help_tool_info_text">Orodja UI so specializirane funkcije, ki jih UI lahko kliče za branje vaših podatkov ali izvajanje sprememb v vašem imenu. Orodja za branje (vrstice, komentarji, slovarji, zaznamki) nikoli ne zahtevajo dovoljenja. Orodja za pisanje (ustvarjanje zaznamkov, opomb, vnosov v beležko) so nadzorovana s sistemom dovoljenj.</string>

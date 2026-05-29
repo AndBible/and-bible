@@ -15,7 +15,7 @@
   <string name="history">Cronologia</string>
   <string name="speak">Audio</string>
   <string name="help">Ajutor</string>
-  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Citește mai mult în manual</string>
   <string name="help_prompt_edit_text">Prompturile personalizate îți permit să creezi instrucțiuni AI reutilizabile pentru studiul tău. Setează un nume, descriere, șablon, contextele unde ar trebui să apară și, opțional, un provider/model personalizat. Prompturile integrate nu pot fi editate direct — folosește \"Copiază pentru a personaliza\" pentru a crea propria versiune.</string>
   <string name="help_tool_info_text">Instrumentele AI sunt funcții specializate pe care AI le poate apela pentru a citi datele tale sau a face modificări în numele tău. Instrumentele de citire (versete, comentarii, dicționare, semne de carte) nu necesită niciodată permisiune. Instrumentele de scriere (crearea de semne de carte, notițe, intrări în notițele de studiu) sunt controlate de sistemul de permisiuni.</string>
@@ -56,7 +56,7 @@
   <string name="search_with_results2">%1$s rezultate în %2$s</string>
   <!--Tasks-->
   <string name="progress_status">Progres</string>
-  <string name="task_kill_warning">Aceste lucrări de lungă durată se pot întrerupe dacă treci la o altă aplicație înainte de terminarea lor.</string>
+  <string name="task_kill_warning">Aceste lucrări de lungă durată se pot întrerupe dacă treci la altă aplicație înainte de terminarea lor.</string>
   <string name="no_tasks_running">Nu există lucrări în curs de execuție.</string>
   <!--Search-->
   <string name="search_words_group_prompt">Caută versete</string>
@@ -66,7 +66,7 @@
   <string name="search_fts_query">Sintaxa brută a căutărilor</string>
   <string name="search_result_count">%drezultate găsite </string>
   <string name="search_showing_first">Prea multe rezultate. Afișez primele %d</string>
-  <string name="search_bible_section_group_prompt">Unde să caut</string>
+  <string name="search_bible_section_group_prompt">Unde se caută</string>
   <string name="search_all_bible">Toată Biblia</string>
   <string name="search_new_testament">Noul Testament</string>
   <string name="search_old_testament">Vechiul Testament</string>
@@ -85,7 +85,7 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numărul capitolului și al versetului</string>
   <string name="prefs_show_verseno_summary">Arată numărul capitolului și al versetului</string>
-  <string name="prefs_e_ink_mode_title">Fond negru și alb</string>
+  <string name="prefs_e_ink_mode_title">Fond negru sau alb</string>
   <string name="prefs_eink_mode_summary">Folosește o singură culoare pentru aplicație (pentru a fi mai potrivită ecranelor E-ink).</string>
   <string name="prefs_eink_settings_cat">Reglări e-ink</string>
   <string name="prefs_eink_display_title">Caracteristici e-ink</string>

@@ -15,7 +15,7 @@
   <string name="history">Előzmények</string>
   <string name="speak">Felolvasás</string>
   <string name="help">Súgó</string>
-  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Bővebben a kézikönyvben</string>
   <string name="help_prompt_edit_text">Az egyéni promptok segítségével újrafelhasználható AI-utasításokat hozhat létre a tanulmányozáshoz. Adjon meg nevet, leírást, sablont, a megjelenési kontextusokat, valamint opcionálisan egyéni szolgáltatót/modellt. A beépített promptok nem szerkeszthetők közvetlenül – használja a \"Másolás testreszabáshoz\" lehetőséget saját verzió létrehozásához.</string>
   <string name="help_tool_info_text">Az AI-eszközök speciális funkciók, amelyeket az AI az Ön adatainak olvasásához vagy módosításához hívhat meg. Az olvasó eszközök (versek, kommentárok, szótárak, könyvjelzők) soha nem igényelnek engedélyt. Az írási eszközök (könyvjelzők, jegyzetek, jegyzetlap bejegyzések létrehozása) az engedélyrendszeren keresztül vezérelhetők.</string>

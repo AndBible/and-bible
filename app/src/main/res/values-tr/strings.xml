@@ -15,7 +15,7 @@
   <string name="history">Geçmiş</string>
   <string name="speak">Sesli Oku</string>
   <string name="help">Yardım</string>
-  <!-- Help dialog strings (phase 3 UI Help links) -->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Kılavuzda daha fazlasını okuyun</string>
   <string name="help_prompt_edit_text">Özel istemler, çalışmanız için yeniden kullanılabilir yapay zeka talimatları oluşturmanızı sağlar. Bir ad, açıklama, şablon, görünmesi gereken bağlamlar ve isteğe bağlı olarak özel bir sağlayıcı/model belirleyin. Yerleşik istemler doğrudan düzenlenemez — kendi sürümünüzü oluşturmak için \"Özelleştirmek için kopyala\" seçeneğini kullanın.</string>
   <string name="help_tool_info_text">Yapay zeka araçları, yapay zekanın verilerinizi okumak veya sizin adınıza değişiklik yapmak için çağırabileceği özel işlevlerdir. Okuma araçları (ayetler, yorumlar, sözlükler, yer imleri) hiçbir zaman izin gerektirmez. Yazma araçları (yer imi oluşturma, not, çalışma defteri girişleri) izin sistemi tarafından kontrol edilir.</string>
