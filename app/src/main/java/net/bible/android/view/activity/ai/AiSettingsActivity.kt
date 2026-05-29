@@ -214,7 +214,7 @@ class AiSettingsActivity : ActivityBase() {
         menu.findItem(R.id.new_prompt)?.isVisible = configured
         menu.findItem(R.id.new_category)?.isVisible = configured
         menu.findItem(R.id.ai_connection_settings)?.isVisible = configured
-        menu.findItem(R.id.reset_all_ai_settings)?.isVisible = configured
+        menu.findItem(R.id.reset_all_ai_settings)?.isVisible = configured && CommonUtils.isDebugMode
         menu.findItem(R.id.export_prompts_csv)?.isVisible = configured
         menu.findItem(R.id.import_prompts_csv)?.isVisible = configured
         menu.findItem(R.id.restore_hidden_prompts)?.isVisible =
