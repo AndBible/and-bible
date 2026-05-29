@@ -216,17 +216,17 @@ class PassageFinderViewModel(
             NavigationLevel.BOOK -> {
                 val book = state.books.getOrNull(state.selectedBookIndex) ?: return
                 val chapterCount = dataSource.getChapterCount(book.book)
-                // Determine initial chapter: use current chapter if this is the open book
-                val initialChapter = if (state.selectedBookIndex == state.openBookIndex) {
-                    state.selectedChapter.coerceIn(1, chapterCount)
-                } else 1
+                // Always honor the current selection (clamped). It's already correct for
+                // every book: onBookSelected resets chapter/verse to 1 on a book change,
+                // and onChapterSelected/onVerseSelected track the user's picks afterwards.
+                // Special-casing the open book here would discard a chapter the user just
+                // scrolled to on a non-open book.
+                val initialChapter = state.selectedChapter.coerceIn(1, chapterCount)
 
                 if (chapterCount == 1) {
                     // Single-chapter book: skip chapter level, go directly to verse
                     val verseCount = dataSource.getVerseCount(book.book, 1)
-                    val initialVerse = if (state.selectedBookIndex == state.openBookIndex) {
-                        state.selectedVerse.coerceIn(1, verseCount.coerceAtLeast(1))
-                    } else 1
+                    val initialVerse = state.selectedVerse.coerceIn(1, verseCount.coerceAtLeast(1))
                     _uiState.value = state.copy(
                         currentLevel = NavigationLevel.VERSE,
                         selectedChapter = 1,
@@ -248,9 +248,7 @@ class PassageFinderViewModel(
             NavigationLevel.CHAPTER -> {
                 val book = state.books.getOrNull(state.selectedBookIndex) ?: return
                 val verseCount = dataSource.getVerseCount(book.book, state.selectedChapter)
-                val initialVerse = if (state.selectedBookIndex == state.openBookIndex) {
-                    state.selectedVerse.coerceIn(1, verseCount.coerceAtLeast(1))
-                } else 1
+                val initialVerse = state.selectedVerse.coerceIn(1, verseCount.coerceAtLeast(1))
                 _uiState.value = state.copy(
                     currentLevel = NavigationLevel.VERSE,
                     selectedVerse = initialVerse,

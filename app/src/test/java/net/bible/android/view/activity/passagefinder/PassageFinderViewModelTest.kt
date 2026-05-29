@@ -204,6 +204,27 @@ class PassageFinderViewModelTest {
     }
 
     @Test
+    fun `drillDown preserves chapter picked on a non-open book`() = runTest {
+        // Open book is Genesis (index 0). Move to Exodus (a non-open book), scroll the
+        // chapter strip to chapter 5 while still at BOOK level, then drill down.
+        // drillDown must keep chapter 5 rather than snapping back to chapter 1.
+        viewModel.show()
+        viewModel.onBookSelected(1)            // -> Exodus, selectedChapter reset to 1
+        viewModel.onChapterSelected(5)         // user scrolls chapter strip to chapter 5
+        assertEquals(5, viewModel.uiState.value.selectedChapter)
+
+        viewModel.drillDown()                  // BOOK -> CHAPTER
+
+        val state = viewModel.uiState.value
+        assertEquals(NavigationLevel.CHAPTER, state.currentLevel)
+        assertEquals(
+            "chapter chosen on a non-open book must survive drillDown",
+            5,
+            state.selectedChapter,
+        )
+    }
+
+    @Test
     fun `drillUp from BOOK level returns false`() {
         viewModel.show()
         assertFalse(
