@@ -40,6 +40,7 @@
     <string name="help">Help</string>
     <!-- Help dialog strings (phase 3 UI Help links) -->
     <string name="help_read_more_link">Read more in the manual</string>
+    <string name="help_full_documentation_link">Browse the full documentation</string>
     <string name="help_prompt_edit_text">Custom prompts let you create reusable AI instructions for your study. Set a name, description, template, the contexts where it should appear, and optionally a custom provider/model. Built-in prompts cannot be edited directly — use \"Copy to customize\" to create your own version.</string>
     <string name="help_tool_info_text">AI tools are specialised functions the AI can call to read your data or make changes on your behalf. Read tools (verses, commentaries, dictionaries, bookmarks) never require permission. Write tools (creating bookmarks, notes, study pad entries) are gated by the permission system.</string>
     <string name="help_ai_settings_text">AI Settings is where you manage your prompts and categories. From here you can create new prompts, organise them into categories, import/export prompts as CSV, install add-on prompt packs, and reach the AI connection settings.</string>

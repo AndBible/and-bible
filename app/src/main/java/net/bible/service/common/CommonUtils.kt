@@ -1038,16 +1038,16 @@ object CommonUtils : CommonUtilsBase() {
         val app = application
         val versionMsg = app.getString(R.string.version_text, applicationVersionName)
 
-        data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null)
+        data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null, val docPath: String? = null)
 
         val help = listOf(
-            HelpItem(R.string.help_nav_title, R.string.help_nav_text),
+            HelpItem(R.string.help_nav_title, R.string.help_nav_text, docPath = "navigation.html"),
             HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
-            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo),
-            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist), // beta video
-            HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo), // beta video
-            HelpItem(R.string.help_search_title, R.string.help_search_text2),
-            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo),
+            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo, docPath = "windows.html"),
+            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist, docPath = "bookmarks.html"), // beta video
+            HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo, docPath = "study_pads.html"), // beta video
+            HelpItem(R.string.help_search_title, R.string.help_search_text2, docPath = "search.html"),
+            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo, docPath = "workspaces.html"),
             HelpItem(R.string.help_hidden_features_title, R.string.help_hidden_features_text)
         ).run {
             if(filterItems != null) {
@@ -1071,11 +1071,19 @@ object CommonUtils : CommonUtilsBase() {
                     "<i><a href=\"${helpItem.videoLink}\">${app.getString(R.string.watch_tutorial_video)}</a></i><br>"
                 } else ""
 
+            val docMessage =
+                if(helpItem.docPath != null) {
+                    "<i><a href=\"$DOCS_URL_PREFIX${helpItem.docPath}\">${app.getString(R.string.help_read_more_link)}</a></i><br>"
+                } else ""
+
             val helpText = app.getString(helpItem.text).replace("\n", "<br>")
-            htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$videoMessage$helpText<br><br>"
+            htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$videoMessage$docMessage$helpText<br><br>"
         }
 
-        val spanned = TextUtils.concat(htmlToSpan(htmlMessage), spannedBuy, if(showVersion) htmlToSpan("<br><br><i>$versionMsg</i>") else "")
+        val fullDocsLink = app.getString(R.string.help_full_documentation_link)
+        val fullDocsMessage = "<a href=\"$DOCS_URL_PREFIX\">$fullDocsLink</a><br><br>"
+
+        val spanned = TextUtils.concat(htmlToSpan(htmlMessage), htmlToSpan(fullDocsMessage), spannedBuy, if(showVersion) htmlToSpan("<br><br><i>$versionMsg</i>") else "")
 
         val d = AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
