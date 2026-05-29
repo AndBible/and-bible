@@ -315,12 +315,26 @@ private fun BookSpine(
     }
     val bookHash = bookItem.shortName.hashCode() and 0xFF
     val colorVariation = (bookHash % 30 - 15) / 255f
-    val variedColor = Color(
-        red = (baseColor.red + colorVariation).coerceIn(0f, 1f),
-        green = (baseColor.green + colorVariation * 0.7f).coerceIn(0f, 1f),
-        blue = (baseColor.blue + colorVariation * 0.5f).coerceIn(0f, 1f),
-        alpha = 0.75f + 0.25f * proximity,
-    )
+    val spineAlpha = 0.75f + 0.25f * proximity
+    // The per-channel variation factors (0.7/0.5 on green/blue) add a warm tint in color
+    // mode. In monochrome the base color is grayscale (r=g=b), so apply the same variation
+    // to every channel — otherwise the differing factors would re-introduce a color cast
+    // on e-ink devices.
+    val variedColor = if (isMonochrome) {
+        Color(
+            red = (baseColor.red + colorVariation).coerceIn(0f, 1f),
+            green = (baseColor.green + colorVariation).coerceIn(0f, 1f),
+            blue = (baseColor.blue + colorVariation).coerceIn(0f, 1f),
+            alpha = spineAlpha,
+        )
+    } else {
+        Color(
+            red = (baseColor.red + colorVariation).coerceIn(0f, 1f),
+            green = (baseColor.green + colorVariation * 0.7f).coerceIn(0f, 1f),
+            blue = (baseColor.blue + colorVariation * 0.5f).coerceIn(0f, 1f),
+            alpha = spineAlpha,
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -365,7 +379,13 @@ private fun BookSpine(
                 }
                 // Open book marker: small colored bar at the bottom
                 if (isOpenBook) {
-                    val markerColor = if (isDarkTheme) Color.White else Color(0xFF1565C0)
+                    // Monochrome keeps the marker grayscale (black on the light e-ink panel);
+                    // colored blue accent only in normal day mode.
+                    val markerColor = when {
+                        isDarkTheme -> Color.White
+                        isMonochrome -> Color.Black
+                        else -> Color(0xFF1565C0)
+                    }
                     drawRect(
                         color = markerColor,
                         topLeft = Offset(1f, size.height - 4.dp.toPx()),

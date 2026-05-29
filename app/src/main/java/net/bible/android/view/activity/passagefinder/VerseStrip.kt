@@ -64,6 +64,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.bible.android.control.passagefinder.PassageFinderDataSource
+import net.bible.service.common.CommonUtils
 import kotlin.math.abs
 
 /** Minimum width of a verse cell at far edges. */
@@ -97,6 +98,7 @@ fun VerseStrip(
     onVerseSelected: (Int) -> Unit,
     onVerseTapped: ((Int) -> Unit)? = null,
     disableAnimations: Boolean = false,
+    isMonochrome: Boolean = CommonUtils.settings.monochromeMode,
 ) {
     if (books.isEmpty()) return
 
@@ -198,6 +200,7 @@ fun VerseStrip(
                     proximityMap = proximityMap,
                     isSelected = isSelected,
                     disableAnimations = disableAnimations,
+                    isMonochrome = isMonochrome,
                     onClick = {
                         currentOnVerseSelected(verseNumber)
                         currentOnVerseTapped?.invoke(verseNumber)
@@ -230,9 +233,13 @@ private fun VerseCell(
     proximityMap: State<Map<Int, Float>>,
     isSelected: Boolean,
     disableAnimations: Boolean = false,
+    isMonochrome: Boolean = false,
     onClick: () -> Unit,
 ) {
     val bgAlpha = if (isSelected) 0.95f else 0.85f
+    // Cells have a white background, so a black border reads clearly on e-ink; the red
+    // accent is only used in normal color mode.
+    val selectionColor = if (isMonochrome) Color.Black else Color.Red
 
     val isCenter by remember(proximityMap, index) {
         derivedStateOf { (proximityMap.value[index] ?: 0f) > 0.95f }
@@ -275,13 +282,13 @@ private fun VerseCell(
                     val cornerRadiusPx = 6.dp.toPx()
                     // Outer glow halo
                     drawRoundRect(
-                        color = Color.Red.copy(alpha = borderAlpha * 0.3f),
+                        color = selectionColor.copy(alpha = borderAlpha * 0.3f),
                         cornerRadius = CornerRadius(cornerRadiusPx),
                         style = Stroke(width = 4.dp.toPx()),
                     )
                     // Inner solid core
                     drawRoundRect(
-                        color = Color.Red.copy(alpha = borderAlpha * 0.8f),
+                        color = selectionColor.copy(alpha = borderAlpha * 0.8f),
                         cornerRadius = CornerRadius(cornerRadiusPx),
                         style = Stroke(width = 1.5f.dp.toPx()),
                     )

@@ -187,8 +187,10 @@ fun PassageFinderWidget(
         ) {}
     }
 
-    // Opaque panel color behind strips — themed for dark/light/monochrome
-    val panelColor = if (isDarkTheme || isMonochrome) Color(0xF0121212) else Color(0xF0F0F0F0)
+    // Opaque panel color behind strips — darkness follows the day/night theme. In monochrome
+    // (e-ink) we keep a light panel in day mode for readability and only go dark when night
+    // mode is actually on, matching the rest of the app's monochrome behavior.
+    val panelColor = if (isDarkTheme) Color(0xF0121212) else Color(0xF0F0F0F0)
 
     // Strip stack
     AnimatedVisibility(
@@ -320,6 +322,7 @@ fun PassageFinderWidget(
                         viewModel.onVerseSelected(verse)
                     },
                     disableAnimations = disableAnimations,
+                    isMonochrome = isMonochrome,
                     onVerseTapped = { verse ->
                         if (verse == uiState.selectedVerse) {
                             // Already centered -- confirm selection. Don't call onDismiss():
@@ -358,6 +361,7 @@ fun PassageFinderWidget(
                     },
                     onUserScrollChanged = { chapterScrolling = it },
                     disableAnimations = disableAnimations,
+                    isMonochrome = isMonochrome,
                 )
 
                 // Book strip in fixed-height container so varying spine widths
