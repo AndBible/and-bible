@@ -1073,11 +1073,11 @@ object CommonUtils : CommonUtilsBase() {
 
             val docMessage =
                 if(helpItem.docPath != null) {
-                    "<i><a href=\"$DOCS_URL_PREFIX${helpItem.docPath}\">${app.getString(R.string.help_read_more_link)}</a></i><br>"
+                    "<br><i><a href=\"$DOCS_URL_PREFIX${helpItem.docPath}\">${app.getString(R.string.help_read_more_link)}</a></i><br>"
                 } else ""
 
             val helpText = app.getString(helpItem.text).replace("\n", "<br>")
-            htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$videoMessage$docMessage$helpText<br><br>"
+            htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$videoMessage$helpText<br>$docMessage<br>"
         }
 
         val fullDocsLink = app.getString(R.string.help_full_documentation_link)
