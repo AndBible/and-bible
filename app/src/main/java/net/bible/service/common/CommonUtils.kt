@@ -249,8 +249,7 @@ const val studyPadsVideo = notesAndStudyPadsPlayList
 const val workspacesVideo = windowsAndWorkspacesPlaylist
 
 const val betaIntroVideo = "https://youtu.be/EKnyBIti9Fk" //promoAndNewFeaturesPlaylistAutostart
-// TODO: replace with a dedicated new-features intro video when available
-const val newFeaturesIntroVideo = "https://youtu.be/EKnyBIti9Fk" // promoAndNewFeaturesPlaylistAutostart
+const val newFeaturesIntroVideo = "https://youtu.be/Gm-JLot1uf4" // What's new in 5.1
 
 const val speakHelpVideo = speakPlayList
 const val automaticSpeakBookmarkingVideo = speakPlayList
