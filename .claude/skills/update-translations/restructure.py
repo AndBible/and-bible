@@ -234,6 +234,16 @@ def main():
             block_text = ''.join(block)
             # Skip copyright/author header comments, keep all others
             if 'Copyright' not in block_text and '@author' not in block_text:
+                # Normalize first line to Transifex style: "  <!--TEXT..." (no padding after <!--)
+                first = block[0]
+                m_first = re.match(r'^\s*' + re.escape(CS) + r' ?(.*\n?)$', first)
+                if m_first:
+                    block[0] = '  ' + CS + m_first.group(1)
+                # Normalize last line: "...TEXT-->" (no padding before -->)
+                last = block[-1]
+                m_last = re.match(r'^(.*?) *' + re.escape(CE) + r'(\s*)$', last)
+                if m_last:
+                    block[-1] = m_last.group(1) + CE + m_last.group(2)
                 for bl in block:
                     output_lines.append(bl)
             i = j + 1
@@ -248,15 +258,16 @@ def main():
             i += 1
             continue
 
-        # Single-line comment
+        # Single-line comment — normalize to Transifex style: <!--TEXT--> (no inner padding)
         if stripped.startswith(CS) and CE in stripped:
-            output_lines.append(line)
+            inner = stripped[len(CS):stripped.rindex(CE)]
+            inner = inner.strip()
+            output_lines.append('  ' + CS + inner + CE + '\n')
             i += 1
             continue
 
-        # Blank line
+        # Blank line — skip (Transifex output does not preserve blank lines between groups)
         if stripped == '':
-            output_lines.append('\n')
             i += 1
             continue
 

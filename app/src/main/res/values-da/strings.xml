@@ -17,6 +17,7 @@
   <string name="help">Hjælp</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Læs mere i manualen</string>
+  <string name="help_full_documentation_link">Gennemse hele dokumentationen</string>
   <string name="help_prompt_edit_text">Brugerdefinerede prompts giver dig mulighed for at oprette genanvendelige AI-instruktioner til din bibelstudium. Angiv et navn, en beskrivelse, en skabelon, de kontekster, hvor den skal vises, og eventuelt en brugerdefineret udbyder/model. Indbyggede prompts kan ikke redigeres direkte — brug \"Kopiér for at tilpasse\" til at oprette din egen version.</string>
   <string name="help_tool_info_text">AI-værktøjer er specialiserede funktioner, som AI\'en kan kalde for at læse dine data eller foretage ændringer på dine vegne. Læseværktøjer (vers, kommentarer, ordbøger, bogmærker) kræver aldrig tilladelse. Skriveværktøjer (oprettelse af bogmærker, noter, studieblokposter) styres af tilladelsessystemet.</string>
   <string name="help_ai_settings_text">AI-indstillinger er stedet, hvor du administrerer dine prompts og kategorier. Herfra kan du oprette nye prompts, organisere dem i kategorier, importere/eksportere prompts som CSV, installere tilføjelsespromptpakker og nå AI-forbindelsesindstillingerne.</string>

@@ -1,15 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">بائبل مطالعہ</string>
   <string name="app_name_medium">بائبل مطالعہ (AndBible)</string>
   <string name="app_name_long">AndBible: بائبل مطالعہ</string>
-
   <string name="version_text">ورژن %s</string>
   <string name="no_sdcard_error">براہ کرم ایس ڈی کارڈ لگائیں اور ایپ دوبارہ شروع کریں۔</string>
-
-    <!-- Main menu -->
+  <!--Main menu-->
   <string name="menu">مینو</string>
   <string name="chooseBook">دستاویز</string>
   <string name="selectPassage">اقتباس</string>
@@ -18,8 +15,9 @@
   <string name="history">تاریخ</string>
   <string name="speak">بولیں</string>
   <string name="help">مدد</string>
-    <!-- Help dialog strings (phase 3 UI Help links) -->
+  <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">دستی کتاب میں مزید پڑھیں</string>
+  <string name="help_full_documentation_link">مکمل دستاویزات دیکھیں</string>
   <string name="help_prompt_edit_text">حسب ضرورت پرامپٹس آپ کو اپنے مطالعے کے لیے دوبارہ قابل استعمال AI ہدایات بنانے کی سہولت دیتے ہیں۔ ایک نام، تفصیل، سانچہ، وہ تناظر جہاں یہ ظاہر ہو، اور اختیاری طور پر ایک مخصوص فراہم کنندہ/ماڈل ترتیب دیں۔ بلٹ ان پرامپٹس براہ راست ترمیم نہیں کیے جا سکتے — اپنا ورژن بنانے کے لیے \"Copy to customize\" استعمال کریں۔</string>
   <string name="help_tool_info_text">AI ٹولز مخصوص فنکشنز ہیں جنہیں AI آپ کا ڈیٹا پڑھنے یا آپ کی جانب سے تبدیلیاں کرنے کے لیے استعمال کر سکتا ہے۔ ریڈ ٹولز (آیات، تفسیر، لغت، بک مارکس) کبھی اجازت نہیں مانگتے۔ رائٹ ٹولز (بک مارکس، نوٹس، مطالعہ پیڈ اندراجات بنانا) اجازت کے نظام سے گزرتے ہیں۔</string>
   <string name="help_ai_settings_text">AI ترتیبات وہ جگہ ہے جہاں آپ اپنے پرامپٹس اور زمرے منظم کرتے ہیں۔ یہاں سے آپ نئے پرامپٹس بنا سکتے ہیں، انہیں زمروں میں ترتیب دے سکتے ہیں، CSV کے طور پر پرامپٹس درآمد/برآمد کر سکتے ہیں، ایڈ آن پرامپٹ پیکس انسٹال کر سکتے ہیں، اور AI کنکشن ترتیبات تک پہنچ سکتے ہیں۔</string>
@@ -37,15 +35,13 @@
   <string name="administration">انتظام</string>
   <string name="rate_application">ریٹنگ اور جائزہ</string>
   <string name="chooce_document">دستاویز منتخب کریں</string>
-
-    <!-- Passage navigation -->
+  <!--Passage navigation-->
   <string name="choosePassageBookName">کتاب منتخب کریں</string>
   <string name="choosePassageChapterName">باب منتخب کریں</string>
   <string name="choosePassageVerseName">آیت منتخب کریں</string>
   <string name="bible">بائبل</string>
   <string name="deuterocanonical">ڈیوٹروکینونیکل</string>
-
-    <!--  Search -->
+  <!--Search-->
   <string name="search_index">تلاش انڈیکس</string>
   <string name="index_creation_required">تلاش کے لیے ایک انڈیکس درکار ہے۔</string>
   <string name="create_index_for">تلاش کے لیے انڈیکس درکار ہے۔ \n\n%s کے لیے انڈیکس بنائیں؟</string>
@@ -57,15 +53,13 @@
   <string name="do_in_background">پس منظر میں جاری رکھیں</string>
   <string name="rebuild_index_button">دوبارہ بنائیں</string>
   <string name="creating_index_for">%s کے لیے انڈیکس بنایا جا رہا ہے…</string>
-    <!-- X results in module Y -->
+  <!--X results in module Y-->
   <string name="search_with_results2">%2$s میں %1$s نتائج</string>
-
-    <!-- Tasks -->
+  <!--Tasks-->
   <string name="progress_status">پیشرفت</string>
   <string name="task_kill_warning">یہ طویل کام ختم ہو سکتے ہیں اگر آپ انہیں مکمل ہونے سے پہلے کسی اور ایپ پر چلے جائیں۔</string>
   <string name="no_tasks_running">فی الحال کوئی کام نہیں چل رہا۔</string>
-
-    <!-- Search -->
+  <!--Search-->
   <string name="search_words_group_prompt">آیات تلاش کریں</string>
   <string name="search_all_words">تمام الفاظ</string>
   <string name="search_any_word">کوئی بھی لفظ</string>
@@ -80,49 +74,38 @@
   <string name="search_current_book">موجودہ کتاب</string>
   <string name="error_executing_search">غلط تلاش سوال</string>
   <string name="type_text_or_bible_reference">متن یا بائبل حوالہ ٹائپ کریں</string>
-    <!-- Open (bible reference X) -->
+  <!--Open (bible reference X)-->
   <string name="go_to_ref">%s کھولیں</string>
-    <!-- Finx "(keywords x)", keywords based on text selection -->
+  <!--Finx "(keywords x)", keywords based on text selection-->
   <string name="search_what">\"%s\" تلاش کریں</string>
-    <!-- Multi-translation search -->
+  <!--Multi-translation search-->
   <string name="search_translations">تراجم</string>
   <string name="choose_translations">تراجم منتخب کریں…</string>
   <string name="multi_search_results">%2$d تراجم میں %1$d آیات</string>
   <string name="search_index_not_created">کوئی انڈیکس نہیں</string>
-
-    <!-- Preferences -->
+  <!--Preferences-->
   <string name="prefs_show_verseno_title">باب اور آیت نمبر</string>
   <string name="prefs_show_verseno_summary">باب اور آیت نمبر دکھائیں</string>
-
   <string name="prefs_e_ink_mode_title">سیاہ اور سفید موڈ</string>
   <string name="prefs_eink_mode_summary">ایپ کو یک رنگی موڈ (بغیر رنگ) میں استعمال کریں، جو ای-انک ڈیوائسز کے لیے موزوں ہے۔</string>
   <string name="prefs_eink_settings_cat">ای-انک ترتیبات</string>
   <string name="prefs_eink_display_title">ای-انک خصوصیات</string>
   <string name="prefs_eink_display_summary">ای-انک مخصوص خصوصیات فعال کریں (صفحہ اسکرول بٹن، اسکرول معاون لائنیں)</string>
-
   <string name="prefs_disable_animations_title">اینیمیشن غیر فعال کریں</string>
   <string name="prefs_disable_animations_summary">مختلف اینیمیشن جیسے ہموار اسکرولنگ کو غیر فعال کریں۔</string>
-
   <string name="prefs_disable_click_to_edit_title">مطالعہ پیڈ کلک-ٹو-ایڈٹ غیر فعال کریں</string>
   <string name="prefs_disable_click_to_edit_summary">مطالعہ پیڈ میں نوٹس ترمیم کرنے کے لیے ترمیم بٹن استعمال کرنا ضروری ہے۔</string>
-
   <string name="prefs_notes_content_type_title">نئے بک مارک نوٹس کی شکل</string>
   <string name="prefs_notes_content_type_summary">نئے بک مارک نوٹس اور مطالعہ پیڈ اندراجات بناتے وقت استعمال شدہ متن کی شکل</string>
   <string name="notes_content_type_html">بھرپور متن (HTML)</string>
   <string name="notes_content_type_markdown">مارک ڈاؤن</string>
-
-
-
-
   <string name="prefs_verse_per_line_summary">ہر آیت الگ لائن پر دکھائیں</string>
   <string name="prefs_show_bookmarks_summary">تمام بک مارکس چھپانے کے لیے ہٹا دیں</string>
-
   <string name="prefs_show_mynotes_summary">میرے نوٹس والی آیات میں آئیکن دکھائیں</string>
   <string name="prefs_show_strongs_summary">یونانی اور عبرانی تعریفات کے لنک</string>
   <string name="prefs_show_morphology_summary">Robinson\'s یونانی صرف و نحو دکھائیں</string>
   <string name="prefs_section_title_summary">غیر عقیدتی حصے کے عنوانات دکھائیں</string>
   <string name="prefs_red_letter_summary">مسیح کے الفاظ سرخ رنگ میں دکھائیں</string>
-
   <string name="prefs_verse_per_line_title">ہر لائن پر ایک آیت</string>
   <string name="prefs_show_bookmarks_title">بک مارکس دکھائیں</string>
   <string name="prefs_show_mynotes_title">میرے نوٹس آئیکن دکھائیں</string>
@@ -132,7 +115,6 @@
   <string name="prefs_show_footnotes_inline_title">حاشیے ان لائن</string>
   <string name="prefs_show_footnotes_inline_summary">حاشیے کو کلک کرنے والے ہینڈل کی بجائے متن کے ساتھ ان لائن دکھائیں</string>
   <string name="prefs_show_xrefs_summary">کراس حوالہ جات دکھائیں، اگر دستاویز میں دستیاب ہوں</string>
-
   <string name="prefs_show_strongs_title">Strong\'s نمبر</string>
   <string name="prefs_show_morphology_title">صرفی کوڈ</string>
   <string name="prefs_non_strongs_word_italic_title">اضافی الفاظ ترچھا کریں</string>
@@ -157,20 +139,17 @@
   <string name="reading_progress_history_no_entries">اس انتخاب کے لیے کوئی پڑھنے کا اندراج نہیں۔</string>
   <string name="reading_progress_history_version_unknown">نامعلوم ورژن</string>
   <string name="prefs_tilt_to_scroll_title">جھکا کر اسکرول کریں</string>
-
   <string name="prefs_toolbar_button_action_title">ٹول بار بٹن دبانے کا عمل</string>
   <string name="prefs_toolbar_button_action_summary">بائبل یا تفسیر ٹول بار بٹن دبانے/طویل دبانے پر انجام دینے کا عمل</string>
   <string name="prefs_toolbar_button_action_default">دبانے پر مینو کھولیں، طویل دبانے پر دستاویزات اسکرین (ڈیفالٹ)</string>
   <string name="prefs_toolbar_button_action_swap_menu">دبانے پر اگلی دستاویز، طویل دبانے پر مینو کھولیں</string>
   <string name="prefs_toolbar_button_action_swap_activity">دبانے پر اگلی دستاویز، طویل دبانے پر دستاویزات اسکرین</string>
-
   <string name="prefs_night_mode_title">رات کا موڈ سوئچنگ</string>
   <string name="prefs_night_mode_summary">رات کا موڈ خودبخود (اگر ڈیوائس سپورٹ کرے)، دستی یا سسٹم ترتیب کے ذریعے سوئچ کریں (Android 10+)۔ دستی سوئچنگ مرکزی اسکرین پر 3 نقطوں کے مینو سے ہو سکتی ہے۔</string>
   <string name="prefs_night_mode_manual">دستی</string>
   <string name="prefs_night_mode_automatic">خودکار</string>
   <string name="prefs_night_mode_system">سسٹم</string>
   <string name="options_menu_night_mode">رات کا موڈ</string>
-
   <string name="prefs_navigate_to_verse_title">آیت پر جائیں</string>
   <string name="prefs_navigate_to_verse_summary">اقتباس منتخب کرتے وقت آیت (اور باب) منتخب کریں</string>
   <string name="prefs_open_links_in_special_window_title">لنکس ونڈو</string>
@@ -181,20 +160,15 @@
   <string name="prefs_interface_locale_title">ایپلیکیشن زبان</string>
   <string name="prefs_interface_locale_summary">کسٹم یوزر انٹرفیس زبان منتخب کریں</string>
   <string name="reset_fontsize">ری سیٹ</string>
-
   <string name="prefs_request_sdcard_permission_title">دستی طور پر نصب شدہ دستاویزات موجود ہیں</string>
   <string name="prefs_request_sdcard_permission_summary">اندرونی اسٹوریج پر jsword/sword فولڈر سے دستی طور پر نصب شدہ دستاویزات کا استعمال فعال کریں</string>
-
   <string name="prefs_expand_footnotes_title">ان لائن کراس حوالہ جات</string>
   <string name="prefs_expand_footnotes_summary">کراس حوالہ جات کا مواد متن میں ان لائن دکھائیں، بجائے پاپ-اپ ڈائلاگ کھولنے والے لنک کے</string>
-
   <string name="all_text_options_window_menutitle">تمام متن کے اختیارات</string>
   <string name="text_options_window_menutitle">متن کے اختیارات</string>
   <string name="auto_fullscreen">اسکرول سے فل اسکرین</string>
   <string name="reversed_split_mode">الٹا تقسیم موڈ</string>
-
   <string name="add_ellipsis">%s…</string>
-
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">متن اسکرول کرتے وقت خودبخود فل اسکرین پر جائیں۔ تجویز: آپ اسکرین کو ڈبل ٹیپ کر کے بھی فل اسکرین پر جا سکتے ہیں۔</string>
@@ -204,10 +178,8 @@
   <string name="prefs_features_cat">خصوصیات</string>
   <string name="prefs_display_customization_cat">ظاہری شکل</string>
   <string name="prefs_behavior_customization_cat">ایپلیکیشن رویہ</string>
-
   <string name="prefs_margin_size_summary">متن ویو کے بائیں اور دائیں حاشیے کو ایڈجسٹ کریں۔ آپ متن کی زیادہ سے زیادہ چوڑائی بھی ایڈجسٹ کر سکتے ہیں۔</string>
   <string name="prefs_margin_size_summary_2">تجویز: ایک صفحہ اوپر/نیچے کودنے کے لیے حاشیے کے علاقے کو ٹیپ کریں۔</string>
-
   <string name="prefs_text_colors_summary">متن اور پس منظر کے رنگ اور شور اثر کو ایڈجسٹ کریں</string>
   <string name="text_display_settings_activity_title">متن ڈسپلے ترتیبات</string>
   <string name="workspace_text_display_settings_title">متن کے اختیارات - %s</string>
@@ -225,7 +197,6 @@
   <string name="prefs_footnotes_and_xrefs_title">حاشیے اور کراس حوالہ جات</string>
   <string name="prefs_verses_and_headings_title">آیات اور سرخیاں</string>
   <string name="prefs_page_scrolling_title">صفحہ اسکرولنگ</string>
-
   <string name="prefs_justify_title">متن کو جسٹیفائی کریں</string>
   <string name="prefs_justify_summary">متن کو \'جسٹیفائی\' انداز میں ترتیب دیں، یعنی متن کے بائیں اور دائیں حاشیے برابر ہوں</string>
   <string name="pref_left_margin_label_mm">بایاں حاشیہ (%d ملی میٹر)</string>
@@ -247,10 +218,8 @@
   <string name="hide_window_buttons_summary">بائبل ویوز کے دائیں جانب دکھائے جانے والے ونڈو بٹن چھپا دیے جائیں گے۔ نیچے موجود ونڈو نیویگیشن بار اب بھی دکھائی دے گا اور آپ انہیں طویل کلک کر کے ونڈو پاپ اپ مینو کھول سکتے ہیں۔</string>
   <string name="hide_bible_reference_overlay_title">بائبل حوالہ اوورلے چھپائیں</string>
   <string name="hide_bible_reference_overlay_summary">جب ایپ فل اسکرین موڈ میں ہو تو نیم شفاف بائبل حوالہ اوورلے نہ دکھائیں</string>
-
   <string name="full_screen_hide_buttons_pref_title">فل اسکرین میں ونڈو بٹن بار چھپائیں</string>
   <string name="full_screen_hide_buttons_pref_summary">فل اسکرین موڈ پر سوئچ کرتے وقت، اسکرین کے نیچے موجود ونڈو بٹن بار خودبخود چھپائیں</string>
-
   <string name="prefs_dictionaries_cat">لغات</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs یونانی لغت</string>
   <string name="choose_strongs_greek_dictionary_summary">یونانی لفظ کی تعریفات کے لیے Strongs لغت منتخب کریں</string>
@@ -262,28 +231,22 @@
   <string name="choose_word_lookup_dictionary_summary">الفاظ تلاش کرنے کے لیے لغات منتخب کریں</string>
   <string name="lookup_in_dictionary">لغات میں تلاش کریں</string>
   <string name="word_not_found_in_dictionaries">لفظ کسی لغت میں نہیں ملا</string>
-
   <string name="prefs_top_margin_title_mm">اوپری حاشیہ (%d ملی میٹر)</string>
   <string name="font_size_title">فونٹ سائز</string>
   <string name="font_size_title_pt">فونٹ سائز (%d pt)</string>
   <string name="prefs_font_text_size_summary">مرکزی متن فونٹ سائز ایڈجسٹ کریں</string>
-
   <string name="pref_font_family_label_name">فونٹ فیملی (%s)</string>
   <string name="prefs_font_family_summary">فونٹ فیملی تبدیل کریں۔ تجویز: مزید فونٹ دستاویزات ڈاؤنلوڈ / ایڈ-آنز کے ذریعے انسٹال کیے جا سکتے ہیں۔</string>
-
   <string name="prefs_text_bookmarks_title">بک مارک اور میرے نوٹس کی ترتیبات</string>
   <string name="prefs_reading_and_memorization_title">پڑھنا اور حفظ</string>
-
   <string name="prefs_enable_bluetooth_title">بلوٹوتھ میڈیا بٹن فعال کریں</string>
   <string name="prefs_enable_bluetooth_summary">بولنا شروع/بند کرنے کے لیے بلوٹوتھ میڈیا بٹن ہینڈل کریں۔</string>
   <string name="create_bookmark">ایک نیا بک مارک بنائیں</string>
   <string name="create_bookmark_with_a_note">ایک نوٹ کے ساتھ نیا بک مارک بنائیں</string>
-
-    <!-- Colors preferences -->
+  <!--Colors preferences-->
   <string name="prefs_text_colors_menutitle">رنگ ترتیبات</string>
   <string name="window_color_settings_title">ونڈو رنگ ترتیبات</string>
   <string name="workspace_color_settings_title">ورک اسپیس رنگ ترتیبات ڈیفالٹ</string>
-
   <string name="color_workspace">ورک اسپیس رنگ</string>
   <string name="color_text">متن کا رنگ</string>
   <string name="color_background">پس منظر کا رنگ</string>
@@ -291,9 +254,7 @@
   <string name="colors_night_mode_title">رات کا موڈ</string>
   <string name="prefs_noise_title">پس منظر شور</string>
   <string name="prefs_noise_summary">پس منظر میں تھوڑا شور شامل کرنا آنکھوں کو زیادہ آرام دہ بنا سکتا ہے۔</string>
-
-
-    <!-- Window -->
+  <!--Window-->
   <string name="new_window">نئی ونڈو</string>
   <string name="windowMaximise">بڑا کریں</string>
   <string name="windowMinimise">چھوٹا کریں</string>
@@ -306,15 +267,12 @@
   <string name="copy_settings_to_global">عالمی ڈیفالٹس</string>
   <string name="change_to_normal">نارمل ونڈو میں تبدیل کریں</string>
   <string name="window_pin_mode">پن کریں</string>
-
-    <!-- Notes screen -->
+  <!--Notes screen-->
   <string name="previous">پچھلا</string>
   <string name="next">اگلا</string>
-
-    <!--  Strongs -->
+  <!--Strongs-->
   <string name="no_indexed_bible_with_strongs_ref">آپ کو Strong\'s نمبروں پر مشتمل بائبل ڈاؤنلوڈ کرنا ہوگی اور تلاش کے ذریعے اس کا انڈیکس بنانا ہوگا</string>
-
-    <!-- Module download -->
+  <!--Module download-->
   <string name="download">دستاویزات ڈاؤنلوڈ کریں</string>
   <string name="redownload">دستاویزات دوبارہ ڈاؤنلوڈ کریں</string>
   <string name="download_source_last_updated">دستاویز فہرستیں آخری بار اپ ڈیٹ: %s۔</string>
@@ -339,8 +297,7 @@
   <string name="failed_repositories_message">مندرجہ ذیل دستاویز سرور سے رابطہ نہ ہو سکا: \n\n%s\n\n</string>
   <string name="failed_downloads_message">مندرجہ ذیل فائلیں ڈاؤنلوڈ نہ ہو سکیں:\n\n%s\n\n</string>
   <string name="cant_delete_document">یہ دستاویز حذف نہیں کی جا سکتی۔</string>
-
-    <!--  Install zip file -->
+  <!--Install zip file-->
   <string name="install_zip">فائلوں سے دستاویزات لوڈ کریں</string>
   <string name="install_zip_module">بائبل ماڈیول انسٹال کریں</string>
   <string name="install_zip_module_discrete">کیلکولیٹر ماڈیول انسٹال کریں</string>
@@ -353,8 +310,7 @@
   <string name="overwrite_files_title">فائلیں اوور رائٹ کریں؟</string>
   <string name="could_not_overwrite_files">فائلیں اوور رائٹ نہ ہو سکیں: %s۔ اس کے علاوہ انسٹالیشن کامیاب رہی۔</string>
   <string name="install_do_you_want">کیا آپ ماڈیول (%s) انسٹال کرنا چاہتے ہیں؟</string>
-
-    <!-- Daily Reading Plan -->
+  <!--Daily Reading Plan-->
   <string name="rdg_plan_title">مطالعہ منصوبہ</string>
   <string name="reading_plans_plural">مطالعہ منصوبے</string>
   <string name="rdg_plan_selector_title">مطالعہ منصوبہ منتخب کریں</string>
@@ -380,30 +336,26 @@
   <string name="plan_description_y1ot6nt4_profHorner">پروفیسر Horner کی مہربانی سے، اجازت دی گئی</string>
   <string name="plan_name_y2ot1ntps2">دو سال: بائبل، NT+PS دو بار</string>
   <string name="plan_description_y2ot1ntps2">دو سال میں بائبل پڑھیں، NT اور زبور دو بار پڑھتے ہوئے۔ Wholesome Words کی مہربانی سے، http://www.wholesomewords.org/، اجازت دی گئی</string>
-
-    <!-- Document context menu -->
+  <!--Document context menu-->
   <string name="delete">حذف کریں</string>
   <string name="delete_index">تلاش انڈیکس حذف کریں</string>
   <string name="about">کے بارے میں</string>
   <string name="delete_doc">%s حذف کریں؟</string>
   <string name="delete_search_index_doc">%s کا انڈیکس حذف کریں؟</string>
-
-    <!-- Verse context menu -->
+  <!--Verse context menu-->
   <string name="notes">حاشیے اور حوالہ جات</string>
   <string name="share_verse">شیئر کریں…</string>
   <string name="share_verse_widget_title">انتخاب شیئر کریں</string>
   <string name="compare_translations">تراجم کا موازنہ کریں</string>
-
-    <!-- Link context menu -->
+  <!--Link context menu-->
   <string name="open_link_in_this_window">یہاں لنک کھولیں</string>
   <string name="open_link_in_new_window">نئی ونڈو میں لنک کھولیں</string>
   <string name="open_link_in_special_window">خصوصی ونڈو میں لنک کھولیں</string>
-
-    <!-- Bookmarks -->
+  <!--Bookmarks-->
   <string name="bookmarks_and_mynotes_title">بک مارکس اور میرے نوٹس</string>
   <string name="migrated_my_notes">میرے نوٹس منتقل ہو گئے</string>
   <string name="bookmarks">بک مارکس</string>
-    <!-- Bookmark / note labels -->
+  <!--Bookmark / note labels-->
   <string name="labels">لیبل</string>
   <string name="manage_labels">لیبل منظم کریں</string>
   <string name="assign_labels">لیبل تفویض کریں</string>
@@ -423,7 +375,7 @@
   <string name="auto_assign_labels">خودکار تفویض اور پسندیدہ لیبل</string>
   <string name="auto_assign_labels1">نئے بک مارکس کو خودکار لیبل تفویض کریں</string>
   <string name="auto_assign_labels_primary">بنیادی کے طور پر خودکار تفویض کریں</string>
-  <!-- can be removed -->
+  <!--can be removed-->
   <string name="marker_style">انتخاب بک مارکس کے لیے صرف مارکر دکھائیں</string>
   <string name="marker_style_whole_verse">پوری آیت بک مارکس کے لیے صرف مارکر دکھائیں</string>
   <string name="hide_style">انتخاب بک مارکس کے لیے چھپائیں</string>
@@ -432,39 +384,35 @@
   <string name="bookmark_warning2">اگر دستاویز کا ڈھانچہ بدل گیا ہو تو اس دستاویز کو اپ ڈیٹ کرنے سے یہ بک مارکس/نوٹس دستاویز کے اندر ادھر ادھر ہو سکتے ہیں یا مکمل طور پر غائب ہو سکتے ہیں۔</string>
   <string name="bookmark_warning3">کیا آپ پھر بھی ماڈیول اپ ڈیٹ کرنا چاہتے ہیں؟</string>
   <string name="bookmark_warning4">اپ ڈیٹ کرنے سے پہلے ماڈیول کا بیک اپ لینا تجویز کیا جاتا ہے۔</string>
-    <!--  Sort orders used for Bookmarks and MyNotes -->
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">تاریخ کی ترتیب</string>
   <string name="sort_by_bible_book">بائبلی ترتیب</string>
   <string name="sort_by_alphabetical">حروف تہجی کی ترتیب</string>
-    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
+  <!--notes = user notes ("My Notes") that are attached to bookmark-->
   <string name="filter_by_notes">نوٹس تلاش کریں</string>
-
-    <!-- Dictionary -->
+  <!--Dictionary-->
   <string name="dictionary">لغت</string>
   <string name="search_dictionary_hint">لغت میں تلاش کریں</string>
-
-    <!-- General Book -->
+  <!--General Book-->
   <string name="general_book">کتاب</string>
-
-    <!-- Speak -->
-    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
-    <!-- Speak - Bible -->
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
   <string name="one_chapter">%d باب</string>
   <string name="some_chapters">%d ابواب</string>
-    <!-- Speak - Commentary -->
+  <!--Speak - Commentary-->
   <string name="one_verse">%d آیت</string>
   <string name="some_verses">%d آیات</string>
-    <!-- Speak - Dictionary and other -->
+  <!--Speak - Dictionary and other-->
   <string name="one_page">%d صفحہ</string>
   <string name="some_pages">%d صفحات</string>
-    <!-- Speak - Common -->
+  <!--Speak - Common-->
   <string name="stop">روکیں</string>
   <string name="pause">رکیں</string>
   <string name="rewind">پیچھے کریں</string>
   <string name="forward">آگے کریں</string>
   <string name="tts_lang_not_available">زبان دستیاب نہیں ہے۔</string>
-
-    <!-- Speak - Bible -->
+  <!--Speak - Bible-->
   <string name="speak_speed_title">بولنے کی رفتار</string>
   <string name="speak_and_play_earcons_title">اس کے لیے بولیں اور آواز بجائیں</string>
   <string name="playback_settings_title">پلے بیک ترتیبات</string>
@@ -473,17 +421,14 @@
   <string name="speak_bookmarks_menu_title">بک مارک سے بولیں</string>
   <string name="speak_advanced_settings">جدید ترتیبات</string>
   <string name="speak_sleep_timer_title">نیند ٹائمر</string>
-
   <string name="speak_no_books_available">بولنے کے لیے کوئی کتاب دستیاب نہیں</string>
   <string name="speak_general_error">اس کتاب کے لیے بولنا شروع نہیں ہو سکا</string>
-
   <string name="repeat_passage">اقتباس دہرائیں</string>
   <string name="set_repeat_passage_range">اقتباس دہرانے کی حد سیٹ کریں</string>
   <string name="speak_beginning_of_passage">اقتباس کا آغاز منتخب کریں</string>
   <string name="speak_ending_of_passage">اقتباس کا اختتام منتخب کریں</string>
   <string name="speak_verse_range_to_repeat">دہرانے کے لیے آیت کی حد منتخب کریں</string>
   <string name="speak_ending_verse_must_be_later">اختتامی آیت شروع کی آیت سے بعد کی ہونی چاہیے</string>
-
   <string name="conf_speak_synchronize">متن تقریر کے ساتھ چلتا ہے</string>
   <string name="conf_speak_auto_bookmark">خودکار بک مارکنگ</string>
   <string name="conf_save_playback_settings_to_bookmarks">پلے بیک ترتیبات بک مارکس میں محفوظ کریں</string>
@@ -492,12 +437,10 @@
   <string name="conf_change_title">عنوانات</string>
   <string name="conf_speak_footnotes">حاشیے</string>
   <string name="conf_speak_sleep_timer">نیند ٹائمر سیٹ کریں</string>
-
   <string name="sleep_timer_title">منٹوں میں نیند کا وقت</string>
   <string name="sleep_timer_set">نیند ٹائمر سیٹ کریں۔ ٹائمر سیٹ: %d منٹ</string>
   <string name="sleep_timer_started">نیند ٹائمر شروع ہوا، %d منٹ</string>
   <string name="sleep_timer_active_at">نیند ٹائمر: %s منٹ باقی۔</string>
-
   <string name="speak_next">اگلا</string>
   <string name="speak_previous">پچھلا</string>
   <string name="widget_toggle_sleep_timer">نیند ٹائمر ٹوگل کریں</string>
@@ -505,59 +448,47 @@
   <string name="speak_status_stopped">رک گیا</string>
   <string name="speak_autobookmarking_disabled">خودکار بک مارکنگ غیر فعال ہے!</string>
   <string name="system_speak_settings">سسٹم TTS ترتیبات کھولیں</string>
-
   <string name="auto_assing_labels_help1">یہاں آپ ایڈجسٹ کر سکتے ہیں کہ آپ کے بنائے گئے بک مارکس کو کون سے لیبل خودکار تفویض کیے جائیں۔</string>
-
-    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
   <string name="setting_scope">یہ ترتیب %s پر لاگو ہوتی ہے۔</string>
   <string name="setting_scope_window">اس ونڈو</string>
   <string name="setting_scope_workspace">اس ورک اسپیس</string>
-
   <string name="assing_labels_help1">ہر بک مارک کو متعدد لیبل تفویض کیے جا سکتے ہیں۔</string>
-    <!-- param is bookmark icon -->
+  <!--param is bookmark icon-->
   <string name="assing_labels_help2">کون سا لیبل رنگ دکھانا ہے یہ بتانے کے لیے %s استعمال کریں۔</string>
-    <!-- param is auto-assign label icon -->
+  <!--param is auto-assign label icon-->
   <string name="assing_labels_help3">%s آئیکن ٹیپ کریں تاکہ وہ لیبل نئے بک مارکس کو خودکار تفویض ہو۔</string>
-    <!-- param is heart icon -->
+  <!--param is heart icon-->
   <string name="assing_labels_help4">اپنی پسندیدہ فہرست میں فوری رسائی کے لیے %s ٹیپ کریں۔</string>
-
-    <!-- param is refresh icon -->
+  <!--param is refresh icon-->
   <string name="assing_labels_help5">اپنے انتخاب کی بنیاد پر فہرست کو دوبارہ ترتیب دینے کے لیے %s ٹیپ کریں۔</string>
-
   <string name="global_text_options_help_title">عالمی متن کے اختیارات</string>
   <string name="global_text_options_help1">یہ تمام ورک اسپیسز کے لیے عالمی ڈیفالٹ ترتیبات ہیں۔ ہر ورک اسپیس اپنی ترتیبات سے انہیں اوور رائڈ کر سکتی ہے۔</string>
-
   <string name="workspace_text_options_help_title">ورک اسپیس متن کے اختیارات</string>
   <string name="workspace_text_options_help1">یہ ترتیبات تمام ورک اسپیس ونڈوز کے ڈیفالٹ طے کرتی ہیں۔ عالمی ڈیفالٹس سے وراثت میں ملی ترتیبات کا اشارہ ہوتا ہے۔</string>
   <string name="workspace_text_options_help2">آپ انفرادی ونڈو ترتیبات تبدیل کر کے انہیں اوور رائڈ کر سکتے ہیں۔</string>
-
   <string name="window_text_options_help_title">ونڈو متن کے اختیارات</string>
-    <!-- Parameter is actual icon -->
+  <!--Parameter is actual icon-->
   <string name="window_text_options_help1">%s آئیکن بتاتا ہے کہ ترتیب ورک اسپیس ترتیبات سے آئی ہے۔</string>
-    <!-- Parameter is actual icon -->
-
-    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+  <!--Parameter is actual icon-->
+  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">تمام ترتیبات %2$s پر واپس کرنے کے لیے %1$s بٹن استعمال کریں۔</string>
   <string name="reset_defaults">ڈیفالٹ اقدار</string>
   <string name="reset_workspace_defaults">ورک اسپیس ڈیفالٹ اقدار</string>
-
-
   <string name="speak_help_auto_bookmark">جب بولنا روکا یا بند کیا جائے تو ایک بولنے والا بک مارک خودبخود شامل ہو جاتا ہے۔ خودبخود بنائے گئے بک مارکس خصوصی Speak لیبل سے نشان زد ہوتے ہیں۔ اگر آپ کسی Speak بک مارک سے شروع کریں تو بک مارک اگلی بار جہاں آپ روکیں یا رکیں وہاں منتقل ہو جاتا ہے۔ صرف Speak لیبل منتقل ہوتے ہیں، دیگر لیبل ویسے رہتے ہیں۔</string>
   <string name="speak_help_playback_settings">خصوصی پلے بیک ترتیبات (Speak اسکرین پر \"پلے بیک ترتیبات\" کے تحت) اس ترتیب کے منتخب ہونے پر Speak بک مارکس میں محفوظ ہو جاتی ہیں۔ Speak بک مارک سے دوبارہ بولنا شروع کرتے وقت، محفوظ پلے بیک ترتیبات بک مارک سے لوڈ ہو جاتی ہیں۔</string>
   <string name="speak_help_playback_settings_example">مثال کے طور پر اگر آپ پیدائش اور رومیوں سنتے ہیں اور پیدائش کو باب کی تبدیلی کی اطلاعات کے بغیر تیز سنتے ہیں، لیکن رومیوں کو باب کی تبدیلی پر آواز کے اشارے کے ساتھ سست سنتے ہیں، تو آپ ان کتابوں کے لیے مختلف پلے بیک ترتیبات رکھ سکتے ہیں، جب یہ ترتیبات متعلقہ بک مارکس میں محفوظ ہوں۔</string>
-
-    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings. -->
-    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
+         in speak settings.-->
+  <!--List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings. -->
-
+         in speak settings.-->
   <string name="speak_book_changed">کتاب بدل گئی۔</string>
   <string name="speak_chapter_changed">باب</string>
   <string name="speak_first">پہلا</string>
@@ -565,13 +496,10 @@
   <string name="speak_third">تیسرا</string>
   <string name="speak_fourth">چوتھا</string>
   <string name="speak_fifth">پانچواں</string>
-
   <string name="verse_range_mode_disabled">اقتباس دہرانے کا موڈ خودبخود غیر فعال ہو گیا کیونکہ بولنا طے شدہ آیت کی حد سے باہر سے شروع کیا گیا۔</string>
-
-    <!-- User Notes -->
+  <!--User Notes-->
   <string name="mynotes">میرے نوٹس</string>
-
-    <!-- Backup and restore -->
+  <!--Backup and restore-->
   <string name="backup_backup_title">بیک اپ کہاں کریں؟</string>
   <string name="backup_backup_message">فون اسٹوریج یا شیئر فنکشن (ای میل، گوگل ڈرائیو وغیرہ) کے ذریعے کہیں اور بیک اپ کریں؟</string>
   <string name="backup_phone_storage">فون اسٹوریج</string>
@@ -586,13 +514,11 @@
   <string name="backup_document_info">بائبلیں، تفسیریں، لغات، نقشے وغیرہ۔</string>
   <string name="backup_to">بیک اپ کریں…</string>
   <string name="backup_restore_from">سے بحال کریں…</string>
-    <!-- Restore = overwrite existing. Import = merge into existing -->
+  <!--Restore = overwrite existing. Import = merge into existing-->
   <string name="backup_restore_from2">بحال یا درآمد کریں…</string>
   <string name="backup_restore2">بحال یا درآمد کریں</string>
   <string name="overwrite_something">%s اوور رائٹ کریں؟</string>
-
-    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-
+  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">ڈیٹابیس فائل بحال کریں</string>
   <string name="restore_confirmation">میرے نوٹس، بک مارکس، مطالعہ پیڈز، مطالعہ منصوبے اور ورک اسپیسز اوور رائٹ کریں؟</string>
   <string name="restore_success">میرے نوٹس، بک مارکس، مطالعہ پیڈز، مطالعہ منصوبے اور ورک اسپیسز کامیابی سے بحال ہو گئے</string>
@@ -600,13 +526,10 @@
   <string name="loading_backup">بیک اپ سے ڈیٹابیس لوڈ ہو رہا ہے…</string>
   <string name="backup_success2">میرے نوٹس، بک مارکس، مطالعہ پیڈز، مطالعہ منصوبے اور ورک اسپیسز کامیابی سے بیک اپ ہو گئے۔</string>
   <string name="backup_modules_success">منتخب ماڈیول کامیابی سے بیک اپ ہو گئے۔</string>
-
   <string name="backup_modules_email_subject_2">%s ماڈیول بیک اپ</string>
   <string name="backup_modules_email_message_2">منسلک آپ کا %1$s ماڈیول بیک اپ ہے جس میں مندرجہ ذیل ماڈیول شامل ہیں: %2$s</string>
-
   <string name="backup_email_subject_2">%s ڈیٹابیس بیک اپ</string>
   <string name="backup_email_message_2">منسلک آپ کا %s ڈیٹابیس ہے جس میں بک مارکس، نوٹس، مطالعہ منصوبے اور ورک اسپیسز ہیں</string>
-
   <string name="exported_studypads_subject">برآمد شدہ مطالعہ پیڈ(ز)</string>
   <string name="exported_studypads_message">منسلک آپ کا %s ڈیٹابیس ہے جس میں منتخب مطالعہ پیڈز سے متعلق بک مارکس اور نوٹس ہیں</string>
   <string name="restore_unsuccessfull">ڈیٹابیس بحال کرنا ناکام رہا۔ شاید آپ نے غلط ڈیٹابیس فائل دی۔</string>
@@ -616,22 +539,18 @@
   <string name="ask_restore_or_import">%s کے لیے ڈیٹابیس کو بحال (موجودہ ڈیٹابیس ہٹا کر منتخب ڈیٹابیس لوڈ) یا درآمد (منتخب ڈیٹابیس موجودہ میں شامل) کیا جا سکتا ہے۔ آپ کیا کرنا چاہتے ہیں؟</string>
   <string name="restore">بحال کریں</string>
   <string name="import2">درآمد کریں</string>
-
-    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <string name="bookmarks_db_stats">\"%1$s\" اور %2$s دیگر لیبل(ز) / مطالعہ پیڈ/(ز) اور %3$s بک مارکس</string>
-
-    <!-- About -->
+  <!--About-->
   <string name="module_about_copyright">کاپی رائٹ: %s</string>
   <string name="module_about_installed_version">نصب شدہ ورژن: %1$s (%2$s)</string>
   <string name="module_about_latest_version">تازہ ترین ورژن: %1$s (%2$s)</string>
   <string name="module_about_versification">تقسیم آیات: %s</string>
   <string name="module_about_repository">تقسیم سرور: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
-
-    <!-- Bug reporting -->
+  <!--Bug reporting-->
   <string name="send_bug_report_title">رائے / بگ رپورٹ</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s کے لیے بگ رپورٹ</string>
-
   <string name="report_bug_big_heading">براہ کرم اس لائن سے اوپر اپنی رائے یا بگ رپورٹ لکھیں</string>
   <string name="report_bug_heading1">ہدایات:</string>
   <string name="report_bug_line_1">مختصراً بتائیں کہ آپ نے کیا کیا / مسئلہ پیش آنے پر کیا ہوا۔</string>
@@ -647,8 +566,7 @@
   <string name="bug_report_screenshot">جب کریش ہوا یا بگ رپورٹ بنائی گئی اس وقت ایپ کا اسکرین شاٹ۔</string>
   <string name="bug_report_attachment_line_1">ان فائلوں کا منسلق ہونا ڈویلپرز کو رپورٹ کردہ بگ ٹھیک کرنے میں بہت مدد کرتا ہے۔</string>
   <string name="report_bug_heading_4">ڈیوائس کی معلومات:</string>
-
-    <!-- Document types -->
+  <!--Document types-->
   <string name="doc_type_all">تمام اقسام</string>
   <string name="doc_type_bible">بائبل</string>
   <string name="doc_type_commentary">تفسیر</string>
@@ -656,11 +574,9 @@
   <string name="doc_type_book">کتاب</string>
   <string name="doc_type_map">نقشہ</string>
   <string name="doc_type_addons">ایڈ-آنز</string>
-
-    <!-- Languages -->
+  <!--Languages-->
   <string name="lang_default">ڈیفالٹ</string>
-
-    <!-- General -->
+  <!--General-->
   <string name="okay">ٹھیک ہے</string>
   <string name="cancel">منسوخ کریں</string>
   <string name="discard_changes_confirmation">غیر محفوظ تبدیلیاں رد کریں؟</string>
@@ -672,8 +588,7 @@
   <string name="reset_generic">ری سیٹ کریں</string>
   <string name="watch_tutorial_video">ٹیوٹوریل ویڈیو دیکھیں (انگریزی)</string>
   <string name="verse_not_found">آیت نہیں ملی</string>
-
-    <!-- Errors -->
+  <!--Errors-->
   <string name="report_error">رپورٹ بھیجیں</string>
   <string name="error_occurred">ایک خرابی پیش آئی</string>
   <string name="error_occurred_crash_last_time">آخری بار جب آپ نے ایپ استعمال کی تو یہ کریش ہو گئی۔ بگ ٹھیک کرنے میں مدد کے لیے ہم تعریف کریں گے اگر آپ بگ رپورٹ بھیجیں۔</string>
@@ -686,12 +601,10 @@
   <string name="error_skip">چھوڑیں</string>
   <string name="bug_report_email_title">ای میل کے ذریعے بگ رپورٹ بھیجیں</string>
   <string name="bug_report_email_text">اگلے، براہ کرم اپنی پسندیدہ ای میل ایپلیکیشن (مثلاً Gmail) منتخب کریں تاکہ رپورٹ ڈویلپر ٹیم کو بھیجی جا سکے۔</string>
-
-    <!-- Notifications -->
+  <!--Notifications-->
   <string name="notification_channel_tts_status">متن سے تقریر</string>
   <string name="notification_channel_progress_status">دستاویز ڈاؤنلوڈز وغیرہ کے لیے پیشرفت اطلاع</string>
-
-    <!-- Workspaces -->
+  <!--Workspaces-->
   <string name="switch_to_workspace">ورک اسپیسز</string>
   <string name="delete_workspace">ہٹائیں</string>
   <string name="new_copied_workspace">نئی کاپی بنائیں</string>
@@ -711,29 +624,23 @@
   <string name="search_settings">ترتیبات تلاش کریں</string>
   <string name="dismiss">مسترد کریں</string>
   <string name="workspace_listing_with_current">%s (موجودہ)</string>
-
-    <!-- Beta notice -->
+  <!--Beta notice-->
   <string name="beta_notice_title">یہ بیٹا ورژن ہے!</string>
   <string name="beta_notice_content_1">بیٹا ورژن میں نئی خصوصیات ہیں جو ابھی ٹھیک سے جانچی نہیں گئیں، اس لیے بیٹا استعمال کرنے سے غیر متوقع رویہ (یعنی بگز) ہو سکتا ہے۔ عام بائبل قارئین کے لیے مستحکم ورژن استعمال کرنا تجویز کیا جاتا ہے۔</string>
-
   <string name="beta_notice_content_2">بیٹا صارفین کو گوگل پلے یا (ترجیحاً) %s کے ذریعے بگز رپورٹ کرنے کی ترغیب دی جاتی ہے۔</string>
   <string name="beta_notice_content_3">اگر آپ پروگرامر ہیں تو براہ کرم %s کے ذریعے خود بگ فکس میں حصہ ڈالنے پر غور کریں۔ :-)</string>
   <string name="beta_notice_github_issues">Github مسائل</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">اگلی اپ ڈیٹ تک مسترد کریں</string>
-
   <string name="stable_notice_title">ایپلیکیشن اپ گریڈ ہو گئی!</string>
   <string name="upgrade_video_message">براہ کرم اس ریلیز کی نئی خصوصیات والی ویڈیو دیکھیں (%s)۔</string>
   <string name="stable_notice_par1">%2$s کا نیا ورژن %1$s کامیابی سے انسٹال ہو گیا!</string>
-
   <string name="new_sync_targets_notice_title">نئی مطابقت ترتیبات دستیاب ہیں</string>
   <string name="new_sync_targets_notice_message">AndBible کا یہ ورژن اضافی مطابقت اہداف متعارف کراتا ہے: میری دستاویزات، AI ترتیبات اور پڑھنے کی پیشرفت۔ اگر آپ انہیں فعال کرنا چاہتے ہیں، تو آپ ڈیوائس مطابقت ترتیبات میں ایسا کر سکتے ہیں۔</string>
   <string name="open_settings">ترتیبات کھولیں</string>
-
-    <!-- History -->
+  <!--History-->
   <string name="history_for">تاریخ (%1$s: ونڈو %2$d)</string>
-
-    <!-- Help -->
+  <!--Help-->
   <string name="help_nav_title">نیویگیشن</string>
   <string name="help_nav_text">اگلے یا پچھلے باب پر جانے کے لیے اسکرین پر انگلی سے سوائپ کریں۔ فل اسکرین موڈ ٹوگل کرنے کے لیے بائبل متن کو ڈبل ٹیپ کریں۔ تقسیم شدہ اسکرینز (ونڈوز بھی کہلاتی ہیں) کے اوپری دائیں کونے میں مینو بٹن ہوتا ہے، جو کئی ونڈو مخصوص افعال اور ونڈو کی ظاہری شکل اور رویہ کسٹمائز کرنے کے قابل بناتا ہے۔</string>
   <string name="help_contextmenus_title">سیاق و سباق کے مینو</string>
@@ -741,9 +648,8 @@
   <string name="help_bookmarks_title">بک مارکس اور میرے نوٹس</string>
   <string name="help_bookmarks_text">بک مارکس کچھ متن منتخب کر کے اور پاپ اپ مینو سے \"بک مارک\" منتخب کر کے بنائے جا سکتے ہیں۔ آپ بائبل ویو میں نشان زد متن ٹیپ کر کے نئے بک مارک میں اپنے کسٹم نوٹس شامل کر سکتے ہیں۔ تفسیروں میں ایک \"میرے نوٹس\" خصوصی دستاویز بھی ہے جو آپ کو اپنے نوٹس علیحدہ ونڈو میں دیکھنے دیتی ہے۔</string>
   <string name="help_studypads_text">مطالعہ پیڈز خطبہ نوٹس لکھنے، خطبے تیار کرنے یا ایسے ذاتی بائبل مطالعہ نوٹس لکھنے کے لیے بنائے گئے ہیں جن میں متعدد بائبل حوالہ جات ہوں۔ ہر مطالعہ پیڈ ایک بک مارک لیبل سے منسلک ہے۔ اس متعلقہ لیبل کے ساتھ بنائے گئے تمام بک مارکس خودبخود مطالعہ پیڈ دستاویز میں ظاہر ہوتے ہیں۔ بک مارکس کے علاوہ مطالعہ پیڈ میں کسٹم متن اندراجات بھی ہو سکتی ہیں۔</string>
-
   <string name="help_search_title">تلاش</string>
-    <!-- TODO: to be removed -->
+  <!--TODO: to be removed-->
   <string name="help_search_text2">تلاش متن میں خصوصی کردار جیسے *, AND, OR, NOT شامل ہو سکتے ہیں</string>
   <string name="help_search_details">مزید تفصیل کے لیے %s دیکھیں۔</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -754,15 +660,14 @@
   <string name="help_hidden_features_text">ورک اسپیس سلیکٹر دکھانے کے لیے ٹول بار سے نیچے سوائپ کریں۔ جلدی چھوٹا کرنے کے لیے ونڈو بٹن طویل دبائیں۔ جلدی بولنے کی ترتیبات پر جانے کے لیے Speak ٹول بار بٹن طویل دبائیں۔ دستاویز سلیکٹر پر جانے کے لیے ٹول بار میں آیت مقام عنوان طویل دبائیں۔ تاریخ کی فہرست تک رسائی کے لیے واپس بٹن طویل دبائیں۔</string>
   <string name="help_window_pinning_title">ونڈو پننگ</string>
   <string name="help_window_pinning_text">آپ آپشنز مینو (تین نقطے، اوپری دائیں کونہ) سے ونڈو پننگ فعال کر سکتے ہیں۔ اگر ونڈو پننگ فعال ہو تو آپ بائبل ویو پر کئی پن شدہ ونڈوز دکھا سکتے ہیں، لیکن صرف ایک غیر پن شدہ ونڈو۔ پن شدہ ونڈوز پہلے دکھائی جاتی ہیں، پھر غیر پن شدہ۔ آپ بائبل دستاویزات پن شدہ ونڈوز میں اور تفسیریں اور نقشے وغیرہ غیر پن شدہ ونڈوز میں کھول سکتے ہیں۔ پھر بائبل دستاویزات ہمیشہ کھلی رہیں گی اور آپ بائبل مطالعہ کرتے وقت تفسیروں اور دیگر اضافی مواد کے درمیان آسانی سے سوئچ کر سکتے ہیں۔</string>
-
-    <!-- Welcome text -->
+  <!--Welcome text-->
   <string name="redownload_documents">فوری دوبارہ ڈاؤنلوڈ</string>
   <string name="welcome_message">%s ڈاؤنلوڈ کرنے کا شکریہ۔ فی الحال کوئی بائبل یا دستاویزات نصب نہیں ہیں۔ جاری رکھنے کے لیے براہ کرم انٹرنیٹ سے ڈاؤنلوڈ کر کے یا زپ فائل دستاویز بیک اپ سے لوڈ کر کے کم از کم 1 دستاویز انسٹال کریں۔</string>
-    <!-- Supported file formats for documents -->
-    <!-- argument is app_name_andbible (AndBible). -->
+  <!--Supported file formats for documents-->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">آپ کو وہ فائل منتخب کرنی ہے جو آپ %s میں لوڈ کرنا چاہتے ہیں۔</string>
   <string name="supported_formats">فائل سے دستاویزات لوڈ کرنے کے لیے سپورٹ شدہ شکلیں: %s</string>
-    <!-- argument is app_name_andbible (AndBible). -->
+  <!--argument is app_name_andbible (AndBible).-->
   <string name="format_zip">Sword ماڈیول(ز) پر مشتمل زپ فائل، یا %s کی بنائی دستاویز بیک اپ فائل (*.abmd)</string>
   <string name="format_mysword">MySword دستاویزات (*.mybible)</string>
   <string name="format_mybible">MyBible دستاویزات (*.SQLite3)</string>
@@ -772,15 +677,12 @@
   <string name="format_csv_prompts">AI پرامپٹ ایڈ-آنز (*.csv)</string>
   <string name="format_studypads">AndBible ڈیٹابیسز سے مطالعہ پیڈز (*.abdb)</string>
   <string name="redownload_message">پچھلی کتابوں/دستاویزات کی فہرست ملی۔ انہیں آسانی سے دوبارہ ڈاؤنلوڈ کرنے کے لیے نیچے کلک کریں۔</string>
-
-    <!-- Uncategorized -->
+  <!--Uncategorized-->
   <string name="close">بند کریں</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">میں سمجھ گیا</string>
   <string name="first_time_help_show_next_time">اگلی بار پھر دکھائیں</string>
-
   <string name="strongs_mode_title">Strongs موڈ منتخب کریں</string>
-
   <string name="download_dialog_message">مندرجہ ذیل کتابیں ڈاؤنلوڈ نہیں ہو سکیں:</string>
   <string name="journal_description">کسٹم متن اور بک مارکس کے ساتھ صارف کے قابل ترمیم مطالعہ پیڈز</string>
   <string name="my_notes_description">بک مارکس سے منسلک صارف کے قابل ترمیم نوٹس</string>
@@ -800,7 +702,6 @@
   <string name="unlock_info">انکرپٹڈ ماڈیول کھولنے کی معلومات</string>
   <string name="try_again_passphrase">پاس فریز کام نہیں کیا، دوبارہ کوشش کریں؟</string>
   <string name="show_unlock_info">ماڈیول اور کھولنے کی معلومات</string>
-
   <string name="prefs_experimental_features_title">تجرباتی خصوصیات</string>
   <string name="prefs_experimental_features_summary">کون سی تجرباتی خصوصیات فعال کرنی ہیں منتخب کریں۔ یہ خصوصیات ابھی زیر تیاری ہیں اور تبدیل یا ہٹائی جا سکتی ہیں</string>
   <string name="experimental_feature_bookmark_edit_actions">بک مارک ترمیم اعمال</string>
@@ -831,7 +732,6 @@
   <string name="active_window_indicator_title">فعال ونڈو اشارہ دکھائیں</string>
   <string name="active_window_indicator_summary">کون سی ونڈو فعال ہے یہ پہچاننے میں مدد کے لیے ونڈو کونوں کو نمایاں کریں</string>
   <string name="app_licence_title">اوپن سورس لائسنس</string>
-
   <string name="how_to_contribute">حصہ کیسے ڈالیں؟</string>
   <string name="confirm_delete_bookmarks">کیا آپ %d بک مارکس اور ان کے نوٹس ہٹانا چاہتے ہیں؟</string>
   <string name="confirm_delete_orphaned_bookmarks">منتخب لیبل %d بک مارکس سے منسلک ہے جن کے کوئی دوسرے لیبل نہیں ہیں۔ کیا آپ یہ بک مارکس لیبل کے ساتھ حذف کرنا چاہتے ہیں؟</string>
@@ -855,15 +755,14 @@
   <string name="show_reference_at_front">آیت کے شروع میں دکھائیں</string>
   <string name="abbreviate_reference">حوالہ مختصر کریں</string>
   <string name="version_name">ورژن کا نام</string>
-    <!-- meaning, bible version name -->
+  <!--meaning, bible version name-->
   <string name="show_version_name">ورژن کا نام شامل کریں</string>
   <string name="show_ellipsis">Ellipsis دکھائیں (…)</string>
   <string name="show_quotes">اقتباس دکھائیں</string>
   <string name="separate_verses_with_newlines">آیات کو نئی لائنوں سے الگ کریں</string>
-
   <string name="initializing_app">ایپلیکیشن شروع ہو رہی ہے…</string>
   <string name="show_notes">نوٹس دکھائیں</string>
-    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <string name="old_webview">Android WebView پیکیج بہت پرانا ہے (%1$s)۔ %3$s استعمال کرنے کے لیے آپ کو اپنا Android WebView پیکیج کم از کم ورژن %2$s تک اپ گریڈ کرنا ہوگا۔ زیادہ تر ڈیوائسز پر یہ %4$s کے ذریعے ہو سکتا ہے۔</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">پھر بھی جاری رکھیں</string>
@@ -871,12 +770,11 @@
   <string name="rate_title">ریٹنگ اور جائزہ</string>
   <string name="rate_message5">مثبت اور تفصیلی جائزے AndBible اوپن سورس پروجیکٹ کی بہت مدد کرتے ہیں۔ شکریہ!</string>
   <string name="rate_message6">منفی جائزہ لکھنے سے پہلے براہ کرم مندرجہ ذیل پر غور کریں:</string>
-
-    <!-- parameters are actions (file a bug, send email) -->
+  <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">اگر ایپ میں کوئی مسئلہ ہو تو براہ کرم %1$s یا %2$s کریں۔</string>
-    <!-- param is "please report maintainers" -->
+  <!--param is "please report maintainers"-->
   <string name="rate_message2">اگر کسی متن/بائبل ترجمے میں مسئلہ ہو تو %s۔</string>
-    <!-- param is "please read what you can do" -->
+  <!--param is "please read what you can do"-->
   <string name="rate_message3">اگر کوئی مخصوص متن ایپلیکیشن میں دستیاب نہ ہو تو %s۔</string>
   <string name="rate_message4">اس ایپ کے ڈویلپرز دستاویزات برقرار رکھنے کے ذمہ دار نہیں ہیں۔</string>
   <string name="bug_report">بگ رپورٹ بھیجیں (مرکزی مینو سے)</string>
@@ -950,36 +848,33 @@
   <string name="export_something">%s برآمد کریں</string>
   <string name="import_items">%s درآمد کریں</string>
   <string name="import_error">ایپ ڈیٹابیس سے درآمد ناکام ہوئی۔ ڈیٹابیس فائل غلط شکل میں ہو سکتی ہے یا %s کے بہت پرانے ورژن سے بنی ہو سکتی ہے۔</string>
-
   <string name="export_bookmarks_csv">بک مارکس %s کے طور پر برآمد کریں</string>
-
-    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
   <string name="osis_reference">OSIS حوالہ</string>
-    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
   <string name="bible_reference">بائبل حوالہ</string>
   <string name="document">دستاویز</string>
   <string name="book">کتاب</string>
-    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <!--Chapter is the chapter number in the book, starting from 1-->
   <string name="chapter_start">باب شروع</string>
-    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <!--Verse is the verse number in the chapter, starting from 1-->
   <string name="verse_start">آیت شروع</string>
   <string name="chapter_end">باب ختم</string>
   <string name="verse_end">آیت ختم</string>
   <string name="id">شناخت کنندہ</string>
-    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
   <string name="ordinal_start">ترتیبی آغاز</string>
   <string name="ordinal_end">ترتیبی اختتام</string>
   <string name="created_at">بنایا</string>
-    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="start_offset">شروع آف سیٹ</string>
   <string name="end_offset">اختتام آف سیٹ</string>
   <string name="custom_icon">کسٹم آئیکن</string>
   <string name="last_updated_at">آخری اپ ڈیٹ</string>
   <string name="bookmark_notes">بک مارک نوٹس</string>
-
-    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">ہمیں افسوس ہے، لیکن %1$s زبان میں صرف جزوی یوزر انٹرفیس ترجمہ دستیاب ہے۔ یہ اس لیے ہے کہ %2$s مکمل طور پر رضاکاروں کی کوشش سے تیار ہوتا ہے۔ اگر آپ ترجمے میں مدد کر سکتے ہیں تو براہ کرم %3$s دیکھیں۔</string>
-    <!-- will be added to incomplete_translation as a link -->
+  <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">مترجمین کے لیے ہدایات</string>
   <string name="questions_title">سوالات؟</string>
   <string name="bookmark_style">بک مارک انداز</string>
@@ -988,7 +883,6 @@
   <string name="strongs_text_and_links">متن اور لنکس</string>
   <string name="strongs_hidden_links">پوشیدہ لنکس</string>
   <string name="verse_tip">جزوی یا متعدد آیات منتخب کرنے کے لیے بائبل متن طویل دبائیں</string>
-
   <string name="permission_required">اجازت درکار ہے</string>
   <string name="labels_search_hint">تلاش کریں</string>
   <string name="search_mode_name_start">نام (شروع سے)</string>
@@ -997,8 +891,7 @@
   <string name="search_results_matches">%d مطابقتیں</string>
   <string name="search_results_match">1 مطابقت</string>
   <string name="progress_status_permission">اطلاعات دکھانے کے لیے (ڈاؤنلوڈ حیثیت، پروسیسنگ، بولنے کی حیثیت)، ہمیں آپ کی اجازت درکار ہے۔</string>
-
-    <!-- Discrete mode settings -->
+  <!--Discrete mode settings-->
   <string name="app_name_calculator">سادہ کیلکولیٹر</string>
   <string name="prefs_persecution_cat">مظلوموں کے لیے ترتیبات</string>
   <string name="prefs_discrete_mode">مذہبی علامات چھپائیں</string>
@@ -1007,27 +900,24 @@
   <string name="prefs_calculator_pin">کیلکولیٹر PIN</string>
   <string name="prefs_calculator_pin_desc">کیلکولیٹر دکھائے جانے پر ایپ میں داخل ہونے کے لیے PIN کوڈ۔</string>
   <string name="calc_division_by_zero">صفر پر تقسیم کی اجازت نہیں</string>
-    <!-- Context: calculator. Wrong number format etc. -->
+  <!--Context: calculator. Wrong number format etc.-->
   <string name="calc_wrong_format">غلط شکل</string>
   <string name="calc_wrong_format_operand">غلط شکل۔ بغیر نمبر کے آپرینڈ؟</string>
   <string name="prefs_persecuted_help">پہلے یہ پڑھیں!</string>
-    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
   <string name="prefs_persecuted_summary">ترتیبات کے لیے ہدایات اور مخصوص خفیہ بلڈ کے بارے میں معلومات۔</string>
-
   <string name="calculator_par1">ایپ میں داخل ہونے سے پہلے کیلکولیٹر اسکرین دکھائی جاتی ہے۔</string>
   <string name="calculator_par2">اس میں آپ معیاری حساب کر سکتے ہیں، اور جب ایپ میں داخل ہونا چاہیں تو اپنا PIN کوڈ (ڈیفالٹ 1234) ٹائپ کریں اور \"=\" بٹن دبائیں۔</string>
   <string name="calculator_par3">آپ \"کیلکولیٹر PIN\" ترتیب سے کسٹم PIN کوڈ سیٹ کر سکتے ہیں۔</string>
   <string name="discrete_mode_info_par1">آپ معیاری ایپلیکیشن ورژن استعمال کر رہے ہیں، یعنی ایپ انفو میں ایپلیکیشن کا اصل نام اور آئیکن دیکھا جا سکتا ہے۔</string>
   <string name="discrete_mode_info_par2">مظلوم ماحول میں بہتر سیکیورٹی کے لیے، ہم خفیہ ورژن استعمال کرنے کی سختی سے تجویز کرتے ہیں جو ہمیشہ کیلکولیٹر دکھاتا ہے، یہاں تک کہ ایپ ڈیٹا حذف ہونے پر بھی۔</string>
   <string name="discrete_mode_link">خفیہ ورژن کا تازہ ترین ورژن %s سے ڈاؤنلوڈ کیا جا سکتا ہے۔</string>
-
-    <!-- Window synchronize groups -->
+  <!--Window synchronize groups-->
   <string name="sync_group_n">گروپ %d</string>
   <string name="disable_sync">ہم آہنگی غیر فعال کریں</string>
   <string name="open_in_window">نتائج ایک ونڈو میں کھولیں</string>
-
-    <!-- Custom repositories -->
-    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
+  <!--Custom repositories-->
+  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">کسٹم ذخائر</string>
   <string name="custom_repositories_empty_list_message">کوئی کسٹم ذخیرہ بیان نہیں کیا گیا</string>
   <string name="custom_repositories_create_button_label">کسٹم ذخیرہ شامل کریں</string>
@@ -1039,17 +929,14 @@
   <string name="wiki_page">WIKI صفحہ</string>
   <string name="custom_repositories_help0">آپ کسٹم ذخائر انسٹال کر کے بیرونی کسٹم ذخائر سے دستاویزات انسٹال کر سکتے ہیں۔</string>
   <string name="duplicate_custom_repository">%s نام کا ذخیرہ پہلے سے موجود ہے، دوسرا شامل نہیں کیا جا سکتا۔</string>
-
   <string name="packages_dir">پیکیجز ڈائریکٹری (زپ فائلیں)</string>
   <string name="warn_bad_document">تنبیہ: یہ دستاویز تکنیکی لحاظ سے (کم از کم جزوی طور پر) خراب ہو سکتی ہے۔</string>
-
-    <!-- Open links in AndBible (Deep linking) -->
+  <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">بائبل لنکس AndBible میں کھولیں</string>
   <string name="open_bible_links_summary">جب AndBible سپورٹڈ بائبل URL کے حوالے والے لنکس کلک کریں تو انہیں AndBible میں کھولیں</string>
   <string name="copyReference">حوالہ کلپ بورڈ پر کاپی کریں</string>
   <string name="reference_copied_to_clipboard">حوالہ کلپ بورڈ پر کاپی ہو گیا</string>
-
-    <!-- Device cloud synchronization -->
+  <!--Device cloud synchronization-->
   <string name="prefs_sync_introduction_summary1">منتخب کریں کہ آپ متعدد ڈیوائسز ہم آہنگ کرنے کے لیے کون سی بیک اینڈ کلاؤڈ سروس استعمال کرنا چاہتے ہیں۔</string>
   <string name="prefs_sync_introduction_summary2">Google Drive استعمال کرتے وقت، %s کو صرف ایپلیکیشن فائلوں تک رسائی دی جاتی ہے، کسی ذاتی فائل تک نہیں۔</string>
   <string name="restore_backup_sections">آپ کون سے بیک اپ حصے بحال کرنا چاہتے ہیں؟</string>
@@ -1065,8 +952,7 @@
   <string name="ai_settings_sync_contents">AI پرامپٹس اور فراہم کنندہ کنفیگریشن</string>
   <string name="progress_sync_title">پڑھنے کی پیشرفت</string>
   <string name="progress_sync_contents">حفظ شدہ آیات اور باب پڑھنے کے ریکارڈ</string>
-
-    <!-- Reading Progress Activity -->
+  <!--Reading Progress Activity-->
   <string name="reading_progress_title">پڑھنے/حفظ کی پیشرفت</string>
   <string name="reading_progress_chapters_read">ابواب پڑھے</string>
   <string name="reading_progress_active_days">سرگرم دن</string>
@@ -1080,7 +966,6 @@
   <string name="reading_progress_new_cycle_confirm">نیا پڑھنے کا چکر شروع کریں؟ یہ آپ کی پیشرفت از سر نو ٹریک کرنا شروع کرے گا، جبکہ پچھلے چکر کا ڈیٹا محفوظ رہے گا۔</string>
   <string name="reading_progress_previous_cycle">پچھلا چکر</string>
   <string name="reading_progress_next_cycle">اگلا چکر</string>
-
   <string name="cloud_fetch_and_restore_initial">کلاؤڈ سے اس ڈیوائس پر کاپی کریں</string>
   <string name="cloud_create_new">اس ڈیوائس سے کلاؤڈ پر کاپی کریں</string>
   <string name="cloud_disable_sync">منسوخ کریں اور ہم آہنگی غیر فعال کریں</string>
@@ -1109,20 +994,18 @@
   <string name="sync_disabling">%s کے لیے ہم آہنگی فی الحال غیر فعال کی جا رہی ہے۔</string>
   <string name="sync_update_app">ہم آہنگی جاری رکھنے کے لیے براہ کرم ایپ اپ ڈیٹ کریں۔</string>
   <string name="sign_in_failed">ہم آہنگی بیک اینڈ سروس میں سائن ان ناکام ہوا۔</string>
-    <!--  ... after restoring from backup file -->
+  <!--... after restoring from backup file-->
   <string name="disabling_sync">کلاؤڈ ہم آہنگی غیر فعال ہو رہی ہے۔ بحالی کے بعد آپ کو دستی طور پر دوبارہ فعال کرنا ہوگا۔</string>
   <string name="report">رپورٹ کریں</string>
   <string name="sync_error">کلاؤڈ ہم آہنگی میں خرابی ہوئی</string>
   <string name="error_notification_channel_name">خرابی اطلاعات</string>
   <string name="last_updated">آخری اپ ڈیٹ: %s</string>
-
-    <!-- MyBible/MySword module support -->
+  <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">فائل نہیں پڑھ سکتے</string>
   <string name="sqlite_invalid_file">غلط ماڈیول فائل یا فائل نام: %s</string>
   <string name="sqlite_cant_write">فائل لکھ/اوور رائٹ نہیں کر سکتے</string>
   <string name="install_failed_reason">ماڈیول انسٹال مندرجہ ذیل وجہ سے ناکام ہوئی: %s۔</string>
-
-    <!-- Other / uncategorized -->
+  <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">ایپ کسی اور جگہ کھولی گئی</string>
   <string name="open_here">یہاں کھولیں</string>
   <string name="external_link">بیرونی لنک</string>
@@ -1183,8 +1066,7 @@
   <string name="memorize_calendar">حفظ کی سرگرمی</string>
   <string name="memorize_view_list">فہرست</string>
   <string name="memorize_view_overview">جائزہ</string>
-
-    <!-- LLM Translation Settings -->
+  <!--LLM Translation Settings-->
   <string name="sync_settings_shortcut_summary">ڈیوائسز کے درمیان ڈیٹا ہم آہنگ کریں</string>
   <string name="llm_provider_custom">کسٹم (OpenAI سے مطابق)</string>
   <string name="ai_behavior_category">رویہ</string>
@@ -1230,8 +1112,7 @@
   <string name="custom_system_prompt_default">ڈیفالٹ</string>
   <string name="custom_system_prompt_custom">کسٹم</string>
   <string name="reset_to_default">ڈیفالٹ پر ری سیٹ کریں</string>
-
-    <!-- Raw log history -->
+  <!--Raw log history-->
   <string name="raw_log_history_title">AI لاگ تاریخ</string>
   <string name="raw_log_history_summary">محفوظ AI گفتگو لاگز دیکھیں اور منظم کریں</string>
   <string name="raw_log_history_empty">کوئی محفوظ لاگز نہیں</string>
@@ -1249,7 +1130,6 @@
   <string name="raw_log_retention_summary_disabled">غیر فعال (سب رکھیں)</string>
   <string name="send_ai_bug_report_title">AI بگ رپورٹ کریں</string>
   <string name="ai_bug_report_menu">AI بگ رپورٹ کریں</string>
-
   <string name="select_model_before_run_title">ماڈل منتخب کریں</string>
   <string name="set_default_model_for_prompt">اس پرامپٹ کے لیے ڈیفالٹ ماڈل بنائیں</string>
   <string name="prompt_max_iterations">زیادہ سے زیادہ تکرار اوور رائڈ</string>
@@ -1258,8 +1138,7 @@
   <string name="prompt_max_iterations_unlimited">لامحدود</string>
   <string name="prompt_max_iterations_global_default">عالمی ڈیفالٹ (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">اس پرامپٹ کے لیے عالمی زیادہ سے زیادہ تکرار اوور رائڈ کریں۔ 0 = لامحدود۔\nموجودہ: %s</string>
-
-    <!-- Prompt Manager -->
+  <!--Prompt Manager-->
   <string name="manage_prompts">AI پرامپٹس منظم کریں</string>
   <string name="manage_prompts_summary">AI پرامپٹس بنائیں اور ترمیم کریں</string>
   <string name="ai_settings">AI ترتیبات</string>
@@ -1270,8 +1149,7 @@
   <string name="ai_settings_shortcut_summary">AI کنکشن اور پرامپٹ ترتیبات</string>
   <string name="ai_provider_tier_recommended">تجویز کردہ</string>
   <string name="ai_provider_tier_community">دیگر فراہم کنندگان (جانچے نہیں گئے)</string>
-
-    <!-- Multi-provider settings -->
+  <!--Multi-provider settings-->
   <string name="ai_providers_models_category">فراہم کنندگان اور ماڈل</string>
   <string name="ai_providers_category">فراہم کنندگان</string>
   <string name="ai_providers_summary_none">کوئی فراہم کنندہ ترتیب نہیں دیا گیا</string>
@@ -1289,11 +1167,10 @@
   <string name="ai_provider_api_format">API شکل</string>
   <string name="ai_provider_saved">فراہم کنندہ محفوظ ہو گیا</string>
   <string name="ai_provider_deleted">فراہم کنندہ حذف ہو گیا</string>
-
   <string name="llm_openrouter_category">زمرہ</string>
   <string name="llm_openrouter_category_all">تمام</string>
   <string name="llm_openrouter_model">ماڈل</string>
-    <!-- Configured models management -->
+  <!--Configured models management-->
   <string name="ai_models_category">ماڈل</string>
   <string name="add_model">ماڈل شامل کریں</string>
   <string name="edit_model_title">ماڈل ترمیم کریں</string>
@@ -1305,8 +1182,7 @@
   <string name="model_supported_badge">✓ سپورٹ شدہ</string>
   <string name="show_also_unsupported_models">غیر سپورٹ شدہ ماڈل بھی دکھائیں</string>
   <string name="show_also_unsupported_providers">غیر سپورٹ شدہ فراہم کنندگان بھی دکھائیں</string>
-
-    <!-- Easy Setup -->
+  <!--Easy Setup-->
   <string name="model_pricing_summary">%1$s ان / %2$s آؤٹ فی Mtoken</string>
   <string name="easy_setup_free_tier">مفت درجہ</string>
   <string name="unknown_error">نامعلوم خرابی</string>
@@ -1323,8 +1199,7 @@
   <string name="easy_setup_gemini_desc">مفت درجہ دستیاب، اچھا معیار</string>
   <string name="easy_setup_anthropic_desc">سستی، بہترین معیار</string>
   <string name="easy_setup_openai_desc">معروف، قابل اعتماد</string>
-
-    <!-- AI Disclaimer -->
+  <!--AI Disclaimer-->
   <string name="ai_disclaimer_warning_title">اہم: AI ٹولز استعمال کرنے سے پہلے پڑھیں</string>
   <string name="ai_disclaimer_warning_summary">AI استعمال کرنے کے خطرات اور ذمہ داریاں</string>
   <string name="ai_disclaimer_dialog_title">AI ٹولز — اہم معلومات</string>
@@ -1342,7 +1217,6 @@
   <string name="ai_disclaimer_point9">AI فراہم کنندگان API استعمال کا معاوضہ لیتے ہیں۔ AndBible میں دکھائے گئے لاگت کے تخمینے تقریبی ہیں — اصل معاوضوں کے لیے اپنے فراہم کنندہ کی بلنگ چیک کریں۔</string>
   <string name="ai_disclaimer_accept_title">AI دستبرداری قبول کریں</string>
   <string name="ai_disclaimer_accept_button">میں قبول کرتا ہوں اور مکمل ذمہ داری لیتا ہوں</string>
-
   <string name="prompt_permission_mode">اجازت موڈ</string>
   <string name="prompt_permission_mode_description">کنٹرول کرتا ہے کہ AI کے لکھنے والے کام انجام دینے سے پہلے صارف کی تصدیق کب درکار ہے۔ نیچے دی گئی فی ٹول ترتیبات انفرادی ٹولز کے لیے اسے اوور رائڈ کر سکتی ہیں۔</string>
   <string name="agent_permission_mode_summary">کنٹرول کرتا ہے کہ AI لکھنے والے کام سے پہلے صارف کی تصدیق کب درکار ہے</string>
@@ -1425,8 +1299,7 @@
   <string name="ai_regenerate_keep_previous">پچھلا ورژن رکھیں</string>
   <string name="ai_regenerate_fresh_run">نئی شروعات (پچھلا نتیجہ نظر انداز کریں)</string>
   <string name="ai_unknown_prompt">AI</string>
-
-    <!-- Default prompts -->
+  <!--Default prompts-->
   <string name="default_prompt_translate_to_language">%s میں ترجمہ کریں</string>
   <string name="default_prompt_translate_to_ui_language">UI زبان میں ترجمہ کریں</string>
   <string name="default_prompt_translate_to_ui_language_desc">دستاویز متن کو ایپ انٹرفیس کی زبان میں ترجمہ کرتا ہے</string>
@@ -1463,8 +1336,7 @@
   <string name="ai_restore_hidden_prompts">پوشیدہ پرامپٹس بحال کریں</string>
   <string name="ai_prompt_hidden">پرامپٹ پوشیدہ ہو گیا</string>
   <string name="ai_prompts_restored">پوشیدہ پرامپٹس بحال ہو گئے</string>
-
-    <!-- Agent Tool Display Names -->
+  <!--Agent Tool Display Names-->
   <string name="tool_create_bookmark">بک مارک بنائیں</string>
   <string name="tool_add_bookmark_note">بک مارک نوٹ شامل کریں</string>
   <string name="tool_update_bookmark_note">بک مارک نوٹ اپ ڈیٹ کریں</string>
@@ -1505,13 +1377,11 @@
   <string name="tool_create_window">ونڈو بنائیں</string>
   <string name="tool_manage_window">ونڈو منظم کریں</string>
   <string name="tool_set_window_document">ونڈو دستاویز سیٹ کریں</string>
-
-    <!-- Agent Permission Dialog -->
+  <!--Agent Permission Dialog-->
   <string name="agent_permission_title">ایجنٹ اجازت</string>
   <string name="agent_permission_message">AI معاون \"%1$s\" استعمال کرنا چاہتا ہے:\n\n%2$s</string>
   <string name="agent_permission_message_with_action">AI معاون یہ کرنا چاہتا ہے:\n\n%1$s</string>
-
-    <!-- Tool action descriptions for permission dialog -->
+  <!--Tool action descriptions for permission dialog-->
   <string name="action_create_bookmark_at">%1$s پر بک مارک بنائیں</string>
   <string name="action_create_bookmark_at_with_extras">%1$s پر بک مارک بنائیں (%2$s)</string>
   <string name="action_with_note">نوٹ کے ساتھ</string>
@@ -1549,8 +1419,7 @@
   <string name="permission_always_allow_confirm_title">ہمیشہ اجازت دیں؟</string>
   <string name="permission_always_allow_confirm">کیا آپ واقعی \"%1$s\" کو مستقل اجازت دینا چاہتے ہیں؟</string>
   <string name="permission_always_allow_confirm_reset_hint">آپ اسے AI ترتیبات میں ری سیٹ کر سکتے ہیں۔</string>
-
-    <!-- Agent Tool Permission Settings -->
+  <!--Agent Tool Permission Settings-->
   <string name="manage_tool_permissions_title">ٹول اجازتیں</string>
   <string name="manage_tool_permissions_summary">فی ٹول اجازت اوور رائڈز منظم کریں</string>
   <string name="commentary_max_response_title">تفسیر جواب کا سائز حد</string>
@@ -1584,19 +1453,15 @@
   <string name="permission_option_always_allow">ہمیشہ اجازت دیں</string>
   <string name="permission_option_always_deny">ہمیشہ انکار کریں</string>
   <string name="reset_all_permissions">سب ری سیٹ کریں</string>
-
-    <!-- Tool Info -->
+  <!--Tool Info-->
   <string name="ai_available_tools">دستیاب ٹولز</string>
   <string name="ai_read_tools">پڑھنے کے ٹولز</string>
   <string name="ai_write_tools">لکھنے کے ٹولز</string>
-
-    <!-- Global Tool Permissions Activity -->
+  <!--Global Tool Permissions Activity-->
   <string name="global_tool_permissions_title">ڈیفالٹ ٹول ترتیبات</string>
-
-    <!-- Per-Prompt Tool Permissions -->
+  <!--Per-Prompt Tool Permissions-->
   <string name="prompt_tool_permissions">ٹول اجازتیں</string>
-
-    <!-- Tool categories -->
+  <!--Tool categories-->
   <string name="tool_category_bible_search">بائبل اور تلاش</string>
   <string name="tool_category_bookmarks">بک مارکس</string>
   <string name="tool_category_labels">لیبل</string>
@@ -1613,16 +1478,13 @@
   <string name="tool_option_default_disabled">ڈیفالٹ (غیر فعال)</string>
   <string name="tool_option_default_allowed">ڈیفالٹ (اجازت ہے)</string>
   <string name="tool_option_default_denied">ڈیفالٹ (انکار ہے)</string>
-
-    <!-- Per-Prompt Model Override -->
+  <!--Per-Prompt Model Override-->
   <string name="prompt_model_override">ماڈل</string>
   <string name="prompt_model_default">ڈیفالٹ</string>
-
-    <!-- LLM One Tap Actions -->
+  <!--LLM One Tap Actions-->
   <string name="select_llm_prompt">AI عمل منتخب کریں</string>
   <string name="llm_actions">AI اعمال</string>
-
-    <!-- Agent Log Widget -->
+  <!--Agent Log Widget-->
   <string name="agent_log_expand">ایجنٹ لاگ پھیلائیں/سکیڑیں</string>
   <string name="agent_log_close">ایجنٹ لاگ بند کریں</string>
   <string name="agent_log_stop">AI روکیں</string>
@@ -1637,8 +1499,7 @@
   <string name="agent_log_done">مکمل: %s</string>
   <string name="agent_log_cancelled">منسوخ</string>
   <string name="agent_already_running">ایک AI ایجنٹ پہلے سے چل رہا ہے۔ براہ کرم انتظار کریں یا پہلے روکیں۔</string>
-
-    <!-- AI Agent Notifications -->
+  <!--AI Agent Notifications-->
   <string name="ai_agent_notification_channel_name">AI ایجنٹ</string>
   <string name="ai_agent_notification_running">AI ایجنٹ کام کر رہا ہے…</string>
   <string name="ai_agent_notification_permission_needed">AI ایجنٹ کو آپ کی منظوری درکار ہے</string>
@@ -1647,8 +1508,7 @@
   <string name="ai_agent_notification_completed_tap">نتائج دیکھنے کے لیے ٹیپ کریں</string>
   <string name="ai_agent_notification_error">AI کام ناکام</string>
   <string name="ai_agent_notification_cancel">منسوخ کریں</string>
-
-    <!-- My Documents -->
+  <!--My Documents-->
   <string name="my_documents_title">میری دستاویزات</string>
   <string name="my_documents_empty">ابھی کوئی دستاویز نہیں۔ بنانے کے لیے + ٹیپ کریں۔</string>
   <string name="my_document_new_name">دستاویز %d</string>
@@ -1659,7 +1519,6 @@
   <string name="my_document_save_changes">تبدیلیاں محفوظ کریں؟</string>
   <string name="my_document_no_description">کوئی تفصیل نہیں</string>
   <string name="my_document_edit_description">تفصیل ترمیم کریں</string>
-
   <string name="my_document_pages_title">%s - صفحات</string>
   <string name="my_document_pages_empty">اس دستاویز میں کوئی صفحہ نہیں۔</string>
   <string name="my_document_page_rename_title">صفحے کا نام بدلیں</string>
@@ -1680,7 +1539,6 @@
   <string name="prefs_show_ai_doc_markers_summary">آیات سے منسلک AI سے بنے دستاویز صفحات کے مارکر آئیکن دکھائیں</string>
   <string name="prefs_show_ordinals_title">ترتیبی نمبر دکھائیں</string>
   <string name="prefs_show_ordinals_summary">متن میں ترتیبی پوزیشن مارکر دکھائیں</string>
-
   <string name="prefs_page_scroll_amount_title">صفحہ اسکرول مقدار</string>
   <string name="prefs_page_scroll_amount_summary">صفحہ اوپر/نیچے کے ساتھ کتنا اسکرول کرنا ہے</string>
   <string name="prefs_scroll_helper_lines_title">اسکرول معاون لائنیں</string>

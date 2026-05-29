@@ -17,6 +17,7 @@
   <string name="help">Abiinfo</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Loe lisaks kasutusjuhendist</string>
+  <string name="help_full_documentation_link">Sirvi täielikku dokumentatsiooni</string>
   <string name="help_prompt_edit_text">Kohandatud käsud võimaldavad luua korduvkasutatavaid AI-juhiseid oma õppimiseks. Määra nimi, kirjeldus, mall, kontekstid, kus see peaks ilmuma, ja valikuliselt kohandatud teenusepakkuja/mudel. Sisseehitatud käske ei saa otse muuta — kasuta \"Kopeeri kohandamiseks\", et luua oma versioon.</string>
   <string name="help_tool_info_text">AI tööriistad on spetsiaalsed funktsioonid, mida AI saab kutsuda sinu andmete lugemiseks või muutuste tegemiseks sinu nimel. Lugemistööriistad (salmid, kommentaarid, sõnaraamatud, järjehoidjad) ei vaja kunagi luba. Kirjutamistööriistad (järjehoidjate, märkmete, õppemärkmiku kirjete loomine) on lubade süsteemi poolt kaitstud.</string>
   <string name="help_ai_settings_text">AI seaded on koht, kus hallatakse käske ja kategooriaid. Siit saad luua uusi käske, korraldada neid kategooriatesse, importida/eksportida käske CSV-failina, installida lisandmooduli käskude pakette ja jõuda AI-ühenduse seadeteni.</string>

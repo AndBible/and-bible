@@ -17,6 +17,7 @@
   <string name="help">Ajuda</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Ler mais no manual</string>
+  <string name="help_full_documentation_link">Consultar a documentação completa</string>
   <string name="help_prompt_edit_text">Os prompts personalizados permitem criar instruções de IA reutilizáveis para o seu estudo. Defina um nome, descrição, modelo, os contextos onde deve aparecer e, opcionalmente, um fornecedor/modelo personalizado. Os prompts integrados não podem ser editados diretamente — utilize \"Copiar para personalizar\" para criar a sua própria versão.</string>
   <string name="help_tool_info_text">As ferramentas de IA são funções especializadas que a IA pode invocar para ler os seus dados ou efetuar alterações em seu nome. As ferramentas de leitura (versículos, comentários, dicionários, marcadores) nunca requerem permissão. As ferramentas de escrita (criar marcadores, notas, entradas em áreas de estudo) estão sujeitas ao sistema de permissões.</string>
   <string name="help_ai_settings_text">As Definições de IA são o local onde gere os seus prompts e categorias. A partir daqui pode criar novos prompts, organizá-los em categorias, importar/exportar prompts em CSV, instalar pacotes de prompts adicionais e aceder às definições de ligação de IA.</string>
