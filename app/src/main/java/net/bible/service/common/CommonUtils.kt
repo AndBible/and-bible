@@ -1065,18 +1065,18 @@ object CommonUtils : CommonUtilsBase() {
         var htmlMessage = ""
 
         for(helpItem in help) {
-            val videoMessage =
-                if(helpItem.videoLink != null) {
-                    "<i><a href=\"${helpItem.videoLink}\">${app.getString(R.string.watch_tutorial_video)}</a></i><br>"
-                } else ""
-
-            val docMessage =
-                if(helpItem.docPath != null) {
-                    "<br><i><a href=\"$DOCS_URL_PREFIX${helpItem.docPath}\">${app.getString(R.string.help_read_more_link)}</a></i><br>"
-                } else ""
-
             val helpText = app.getString(helpItem.text).replace("\n", "<br>")
-            htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$videoMessage$helpText<br>$docMessage<br>"
+
+            val links = mutableListOf<String>()
+            if(helpItem.videoLink != null) {
+                links.add("&bull;&nbsp;<i><a href=\"${helpItem.videoLink}\">${app.getString(R.string.watch_tutorial_video)}</a></i>")
+            }
+            if(helpItem.docPath != null) {
+                links.add("&bull;&nbsp;<i><a href=\"$DOCS_URL_PREFIX${helpItem.docPath}\">${app.getString(R.string.help_read_more_link)}</a></i>")
+            }
+            val linksHtml = if(links.isNotEmpty()) "<br>${links.joinToString("<br>")}<br>" else ""
+
+            htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$helpText<br>$linksHtml<br>"
         }
 
         val fullDocsLink = app.getString(R.string.help_full_documentation_link)
