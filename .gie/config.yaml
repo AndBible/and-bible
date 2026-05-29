@@ -54,7 +54,7 @@ host_mounts:
   # Socket must live OUTSIDE /run because container-init mounts tmpfs on
   # top of /run after Incus's disk devices are wired, burying any disk
   # mount under /run/*. /home/dev (ext4 rootfs, no overlay) is safe.
-  - { host: ~/.android/adb.sock, container: /home/dev/.adb.sock,   readonly: false }
+  # - { host: ~/.android/adb.sock, container: /home/dev/.adb.sock,   readonly: false }
   # Sibling git repos that are gitignored in the main repo but live
   # under the working tree (ai-local, wiki, readthedocs). All three are
   # mounted RW so edits/commits made inside the container are reflected
@@ -127,7 +127,7 @@ golden:
 # let the Android SDK be discovered from the RO-mounted host SDK.
 container:
   env:
-    ADB_SERVER_SOCKET: "localfilesystem:/home/dev/.adb.sock"
+    #ADB_SERVER_SOCKET: "localfilesystem:/home/dev/.adb.sock"
     ANDROID_HOME: /home/dev/Android/Sdk
     ANDROID_SDK_ROOT: /home/dev/Android/Sdk
 
