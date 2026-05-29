@@ -349,6 +349,9 @@ class PassageFinderViewModelFactory(
     private val dataSource: PassageFinderDataSource,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        require(modelClass.isAssignableFrom(PassageFinderViewModel::class.java)) {
+            "Unknown ViewModel class: ${modelClass.name}"
+        }
         @Suppress("UNCHECKED_CAST")
         return PassageFinderViewModel(dataSource) as T
     }

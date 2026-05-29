@@ -350,9 +350,10 @@ fun PassageFinderWidget(
                         // User has now picked a chapter — reveal verse strip
                         verseRevealed = true
                     },
-                    onChapterTapped = { chapter ->
-                        viewModel.onChapterSelected(chapter)
-                        verseRevealed = true
+                    onChapterTapped = {
+                        // ChapterStrip's onClick already invokes onChapterSelected (which
+                        // updates state and sets verseRevealed) before this callback, so
+                        // we only need to drill into the verse level here.
                         viewModel.drillDown()
                     },
                     onUserScrollChanged = { chapterScrolling = it },
@@ -383,11 +384,10 @@ fun PassageFinderWidget(
                             }
                             viewModel.onBookSelected(index)
                         },
-                        onBookTapped = { index ->
-                            if (index != uiState.selectedBookIndex) {
-                                verseRevealed = false
-                            }
-                            viewModel.onBookSelected(index)
+                        onBookTapped = {
+                            // BookStrip's onClick already invokes onSelectedIndexChanged
+                            // (which updates the selected book and resets verseRevealed)
+                            // before this callback, so we only need to drill into chapters.
                             viewModel.drillDown()
                         },
                         onUserScrollChanged = { bookScrolling = it },
