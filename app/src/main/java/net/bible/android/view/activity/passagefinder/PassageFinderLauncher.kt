@@ -122,11 +122,13 @@ class PassageFinderLauncher(
             )
         }
         // Add as overlay to drawerLayout (the DrawerLayout root) so it floats above
-        // all content including toolbar and navigation drawer.
+        // all content including toolbar and navigation drawer. Append rather than insert
+        // at a fixed index — show() calls bringToFront() to raise it, so the insertion
+        // position doesn't matter and appending is robust as the layout evolves.
         val params = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT,
         )
-        activity.binding.drawerLayout.addView(composeView, 1, params)
+        activity.binding.drawerLayout.addView(composeView, params)
     }
 }

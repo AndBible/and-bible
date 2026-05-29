@@ -37,7 +37,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -232,15 +231,16 @@ fun BookStrip(
         val halfViewportDp = with(LocalDensity.current) { halfViewportPx.toDp() }
 
         // Compute proximity map (0..1) for each visible item based on distance from center.
-        // Only updates during active scrolling or on first layout — frozen when idle to prevent
-        // a layout feedback loop (width changes → position shifts → proximity recalculates).
-        // Initial-layout / re-center updates are driven by the recenter LaunchedEffect above.
-        val isScrolling = listState.isScrollInProgress
-        val currentProximity by remember {
-            derivedStateOf { computeProximityMap(listState.layoutInfo) }
-        }
-        if (isScrolling) {
-            proximityMap.value = currentProximity
+        // Updated from the effect phase (not composition) so scroll-frame writes don't mutate
+        // state during recomposition. Only updates during active scrolling — frozen when idle
+        // to prevent a layout feedback loop (width changes → position shifts → proximity
+        // recalculates). Initial-layout / re-center updates are driven by the recenter
+        // LaunchedEffect above.
+        LaunchedEffect(Unit) {
+            snapshotFlow { listState.isScrollInProgress to computeProximityMap(listState.layoutInfo) }
+                .collect { (scrolling, proximity) ->
+                    if (scrolling) proximityMap.value = proximity
+                }
         }
 
         LazyRow(

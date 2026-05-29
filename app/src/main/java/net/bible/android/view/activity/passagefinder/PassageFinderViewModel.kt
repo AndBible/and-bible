@@ -77,7 +77,13 @@ class PassageFinderViewModel(
     private val _uiState = MutableStateFlow(PassageFinderUiState())
     val uiState: StateFlow<PassageFinderUiState> = _uiState.asStateFlow()
 
-    private val _selectionConfirmed = MutableSharedFlow<Verse>(extraBufferCapacity = 1)
+    private val _selectionConfirmed = MutableSharedFlow<Verse>(
+        extraBufferCapacity = 1,
+        // Ensure the latest confirmation always wins: if the buffer is momentarily full
+        // (e.g. rapid double-tap before the collector catches up), drop the stale value
+        // rather than letting tryEmit fail and silently lose the user's selection.
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
 
     /** Emits the confirmed [Verse] when the user finalizes their selection. Collected by Phase 4. */
     val selectionConfirmed: SharedFlow<Verse> = _selectionConfirmed.asSharedFlow()
