@@ -17,7 +17,8 @@
 
 package net.bible.service.llm.agent
 
-import com.google.gson.GsonBuilder
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import net.bible.android.database.IdType
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.tools.ToolDefinition
@@ -94,11 +95,10 @@ class RawLlmLog {
                 }
                 is RawLogEntry.ToolDefinitionsEntry -> {
                     appendLine("=== TOOL DEFINITIONS (${entry.toolDefs.size} tools) ===")
-                    val gson = GsonBuilder().setPrettyPrinting().create()
                     for (def in entry.toolDefs) {
                         appendLine("--- ${def.name} ---")
                         appendLine("Description: ${def.description}")
-                        appendLine("Parameters: ${gson.toJson(def.parametersSchema)}")
+                        appendLine("Parameters: ${prettyJson.encodeToString(def.parametersSchema)}")
                         appendLine()
                     }
                 }
@@ -112,6 +112,8 @@ class RawLlmLog {
     }
 
     companion object {
+        private val prettyJson = Json { prettyPrint = true }
+
         fun gzipCompress(text: String): ByteArray {
             val bos = ByteArrayOutputStream()
             GZIPOutputStream(bos).use { it.write(text.toByteArray(Charsets.UTF_8)) }
