@@ -122,8 +122,10 @@ golden:
   # adb-server runs on the host (see adb model comment above).
   extra_apt_packages:
     - android-tools-adb
-    # typst: PDF receipt generation for the ostickethelper tool (ai-local).
-    - typst
+    # typst is NOT in apt — it's installed from a GitHub release binary by
+    # .gie/install.d/95-typst.sh (PDF receipt generation for ostickethelper).
+    # xz-utils provides the `xz` decompressor that snippet's `tar -xJf` needs.
+    - xz-utils
 
 # Autostart left empty — leaving setup decisions to the user.
 # Useful starting points if you want to fill this in later:
