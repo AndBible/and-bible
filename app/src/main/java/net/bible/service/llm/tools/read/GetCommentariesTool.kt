@@ -145,11 +145,46 @@ object GetCommentariesTool : Tool {
         return application.getString(R.string.tool_log_commentary_count, data.commentaryCount)
     }
 
-    private data class ContentBlock(
+    /** A single verse's rendered content (plain text or OSIS XML), or null if it has no commentary. */
+    internal data class RenderedVerse(val osisId: String, val content: String?)
+
+    /** A run of consecutive verses that share identical rendered content. */
+    internal data class RenderedBlock(
         val startVerseRef: String,
-        var endVerseRef: String,
-        val osisXml: String
+        val endVerseRef: String,
+        val content: String
     )
+
+    /**
+     * Merges consecutive verses that share identical rendered content into a single block.
+     *
+     * Verses with null content (no commentary entry) act as separators: they flush the
+     * current block and are dropped. Deduplication compares the final rendered content
+     * (plain text or OSIS XML, depending on the requested format) rather than the raw OSIS
+     * fragment, so semantically identical entries whose underlying XML differs only in
+     * per-verse metadata (e.g. across a chapter boundary) still collapse into one block.
+     */
+    internal fun deduplicateConsecutiveBlocks(verses: List<RenderedVerse>): List<RenderedBlock> {
+        val blocks = mutableListOf<RenderedBlock>()
+        var current: RenderedBlock? = null
+        for (verse in verses) {
+            val content = verse.content
+            if (content == null) {
+                current?.let { blocks.add(it) }
+                current = null
+                continue
+            }
+            val cur = current
+            current = if (cur != null && cur.content == content) {
+                cur.copy(endVerseRef = verse.osisId)
+            } else {
+                if (cur != null) blocks.add(cur)
+                RenderedBlock(verse.osisId, verse.osisId, content)
+            }
+        }
+        current?.let { blocks.add(it) }
+        return blocks
+    }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val args = try {
@@ -186,68 +221,43 @@ object GetCommentariesTool : Tool {
                 val verses = collectVerses(key)
                 if (verses.isEmpty()) continue
 
-                // Fetch content for each verse and deduplicate consecutive identical entries
-                val blocks = mutableListOf<ContentBlock>()
-                var currentBlock: ContentBlock? = null
-
-                for (verse in verses) {
-                    val osisXml = try {
+                // Render each verse to its final form (text or XML), then merge consecutive
+                // verses that share identical content. Dedup compares rendered content — not
+                // the raw OSIS fragment — so a single commentary entry spanning a chapter
+                // boundary collapses into one block instead of being emitted once per chapter.
+                val useXml = args.format == ContentFormat.XML
+                val renderedVerses = verses.map { verse ->
+                    val content = try {
                         val fragment = SwordContentFacade.readOsisFragment(commentary, verse)
                         val xml = outputter.outputString(fragment)
-                        if (xml.isBlank() || xml == "<div/>") null else xml
+                        when {
+                            xml.isBlank() || xml == "<div/>" -> null
+                            useXml -> xml
+                            else -> OsisToPlainText.convert(
+                                useSaxBuilder { it.build(StringReader(xml)).rootElement },
+                                injectAnchors = true
+                            )
+                        }
                     } catch (_: Exception) {
                         null
                     }
-
-                    if (osisXml == null) {
-                        if (currentBlock != null) {
-                            blocks.add(currentBlock)
-                            currentBlock = null
-                        }
-                        continue
-                    }
-
-                    val verseOsisId = verse.osisID
-
-                    if (currentBlock != null && currentBlock.osisXml == osisXml) {
-                        currentBlock = currentBlock.copy(endVerseRef = verseOsisId)
-                    } else {
-                        if (currentBlock != null) {
-                            blocks.add(currentBlock)
-                        }
-                        currentBlock = ContentBlock(
-                            startVerseRef = verseOsisId,
-                            endVerseRef = verseOsisId,
-                            osisXml = osisXml
-                        )
-                    }
-                }
-                if (currentBlock != null) {
-                    blocks.add(currentBlock)
+                    RenderedVerse(verse.osisID, content)
                 }
 
+                val blocks = deduplicateConsecutiveBlocks(renderedVerses)
                 if (blocks.isEmpty()) continue
 
-                val useXml = args.format == ContentFormat.XML
                 val entries = blocks.map { block ->
                     val rangeRef = if (block.startVerseRef == block.endVerseRef) {
                         block.startVerseRef
                     } else {
                         "${block.startVerseRef}-${block.endVerseRef}"
                     }
+                    val linkUrl = "sword://${Uri.encode(commentary.initials)}/${Uri.encode(block.startVerseRef)}"
                     if (useXml) {
-                        CommentaryEntry(
-                            verseRange = rangeRef,
-                            linkUrl = "sword://${Uri.encode(commentary.initials)}/${Uri.encode(block.startVerseRef)}",
-                            osisXml = block.osisXml
-                        )
+                        CommentaryEntry(verseRange = rangeRef, linkUrl = linkUrl, osisXml = block.content)
                     } else {
-                        val fragment = useSaxBuilder { it.build(StringReader(block.osisXml)).rootElement }
-                        CommentaryEntry(
-                            verseRange = rangeRef,
-                            linkUrl = "sword://${Uri.encode(commentary.initials)}/${Uri.encode(block.startVerseRef)}",
-                            text = OsisToPlainText.convert(fragment, injectAnchors = true)
-                        )
+                        CommentaryEntry(verseRange = rangeRef, linkUrl = linkUrl, text = block.content)
                     }
                 }
 
