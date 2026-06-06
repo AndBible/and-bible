@@ -80,8 +80,7 @@ fi
 echo "Current version: $CURRENT_VERSION_NAME (code: $CURRENT_VERSION_CODE)"
 
 # Split off optional suffix (e.g. -beta). The suffix identifies beta builds in
-# the app and must be preserved when incrementing. Changelog filenames do NOT
-# include the suffix (e.g. 5.1.1087.txt, not 5.1.1087-beta.txt).
+# the app and must be preserved when incrementing.
 VERSION_SUFFIX=$(echo "$CURRENT_VERSION_NAME" | grep -oE -- '-[a-zA-Z][a-zA-Z0-9]*$' || true)
 BASE_VERSION_NAME="${CURRENT_VERSION_NAME%"$VERSION_SUFFIX"}"
 
@@ -94,9 +93,10 @@ NEW_VERSION_NAME="${NEW_BASE_VERSION_NAME}${VERSION_SUFFIX}"
 
 echo "New version: $NEW_VERSION_NAME (code: $NEW_VERSION_CODE)"
 
-# Changelog filenames use the base version (without -beta suffix)
-CURRENT_CHANGELOG="$CHANGELOG_DIR/${BASE_VERSION_NAME}.txt"
-NEW_CHANGELOG="$CHANGELOG_DIR/${NEW_BASE_VERSION_NAME}.txt"
+# Changelog filenames use the versionCode (fastlane/F-Droid convention),
+# e.g. 1099.txt, not the versionName 5.1.1099.txt.
+CURRENT_CHANGELOG="$CHANGELOG_DIR/${CURRENT_VERSION_CODE}.txt"
+NEW_CHANGELOG="$CHANGELOG_DIR/${NEW_VERSION_CODE}.txt"
 
 if [[ ! -f "$CURRENT_CHANGELOG" ]]; then
     echo -e "${RED}Error: Current changelog not found at $CURRENT_CHANGELOG${NC}"
