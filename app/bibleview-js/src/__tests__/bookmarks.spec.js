@@ -427,6 +427,67 @@ describe("marker visibility tests", () => {
     });
 });
 
+describe("AI doc marker visibility tests", () => {
+    // Page represents a single chapter spanning ordinals [10, 20].
+    let gb, b;
+    beforeEach(() => {
+        const {config, appSettings} = useConfig();
+        gb = useGlobalBookmarks(config, {value: "bible"});
+        const fragmentReady = ref(true);
+        b = useBookmarks(
+            "fragKey",
+            [10, 20],
+            gb,
+            "KJV",
+            null,
+            true,
+            fragmentReady,
+            {adjustedColor: () => null},
+            config,
+            appSettings,
+        );
+    });
+
+    function addAiDocMarker(id, ordinalRange) {
+        gb.updateBookmarks([{
+            id,
+            ordinalRange,
+            offsetRange: null,
+            labels: [],
+            bookInitials: "KJV",
+            notes: null,
+            wholeVerse: false,
+            type: "ai-doc-marker",
+        }]);
+    }
+
+    const markerIds = () => b.markerBookmarks.value.map(m => m.id);
+
+    it("shows the marker on the chapter where its range ends", () => {
+        // Range ends at ordinal 18, which is on this page.
+        addAiDocMarker(1, [12, 18]);
+        expect(markerIds()).toEqual([1]);
+    });
+
+    it("shows the marker on the ending chapter even when the range starts in a previous chapter", () => {
+        // Range started in the previous chapter (ordinal 5) but ends here at 18.
+        addAiDocMarker(1, [5, 18]);
+        expect(markerIds()).toEqual([1]);
+    });
+
+    it("does NOT show the marker on a chapter the range merely crosses (range ends in a later chapter)", () => {
+        // Range starts here (15) but ends in the next chapter (25), beyond this page.
+        // The robot icon must appear only on the chapter where the range ends - same as bookmarks.
+        addAiDocMarker(1, [15, 25]);
+        expect(markerIds()).toEqual([]);
+    });
+
+    it("does not show the marker on a chapter entirely after the range", () => {
+        addAiDocMarker(1, [2, 8]);
+        expect(markerIds()).toEqual([]);
+    });
+});
+
 describe("abbreviate tests", () => {
     it("test 1", () => {
         expect(abbreviated("turhanpäiväisissä ajatuksissaan", 15)).toBe("turhanpäiväisi...")

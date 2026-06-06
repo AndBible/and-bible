@@ -527,7 +527,7 @@ export function useBookmarks(
             isMounted.value;
             return documentBookmarks.value
                 .filter(b => {
-                    if (isAiDocMarker(b)) return config.showAiDocMarkers && checkOrdinal(b);
+                    if (isAiDocMarker(b)) return config.showAiDocMarkers && checkOrdinalEnd(b);
                     if (!checkOrdinalEnd(b)) return false;
                     return !showHighlight(b) &&
                         ((b.hasNote && config.showMyNotes) || config.showBookmarks);
@@ -903,11 +903,10 @@ export function useBookmarks(
                 undoMarkers.push(() => elem.removeEventListener("click", func));
             }
 
-            // Marker will be put to the last verse, collect those to a map.
-            // For AI doc markers whose range extends beyond the page, clamp to page end.
-            const key = isAiDocMarker(b) && ordinalRange
-                ? Math.min(b.ordinalRange[1], ordinalRange[1])
-                : b.ordinalRange[1];
+            // Marker is put to the last verse of the range. AI doc markers, like bookmarks,
+            // only appear on the page where their range ends (see markerBookmarks/checkOrdinalEnd),
+            // so the end ordinal is always present on this page.
+            const key = b.ordinalRange[1];
             const bookmarkLabel = getBookmarkStyleLabel(b);
             if (!isHiddenBookmark(b, bookmarkLabel) && intersection(new Set(b.labels), hideLabels).size === 0) {
                 const value = bookmarkMap.get(key) || [];
@@ -974,5 +973,5 @@ export function useBookmarks(
         allStyleRangeArrays.delete(styleRanges);
     });
 
-    return {styleRanges};
+    return {styleRanges, markerBookmarks};
 }
