@@ -89,7 +89,7 @@ h3.isSubTitle {
 
 .title-scroll-btn {
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   top: 50%;
   transform: translateY(-50%);
   background: none;
