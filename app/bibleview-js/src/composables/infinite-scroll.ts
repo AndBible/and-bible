@@ -167,24 +167,24 @@ export function useInfiniteScroll(
     }
 
     const
-        // Whether the current document type supports chapter navigation (Bible or GenBook)
+        // Whether the current document type supports chapter navigation (Bible or GenBook).
+        // AI documents are single-page generated content for which adjacent-chapter navigation
+        // is not valid, so they are excluded at this capability layer. Both the manual chapter
+        // controls and infinite scroll derive from this same contract.
         documentSupportsChapterNavigation = computed(() => {
            if(bibleViewDocuments.length === 0) return false;
            const doc = bibleViewDocuments[0];
            if(isOsisDocument(doc)) {
+                if(doc.isAiDocument) return false;
                 return enabledCategories.has(doc.bookCategory)
            } else {
                return doc.type === "bible";
            }
         }),
-        // Whether infinite scroll is currently active (enabled in settings, supported by document,
-        // and not an AI document which is single-page content)
-        isEnabled = computed(() => {
-            if(!config.infiniteScroll || !documentSupportsChapterNavigation.value) return false;
-            const doc = bibleViewDocuments[0];
-            if(isOsisDocument(doc) && doc.isAiDocument) return false;
-            return true;
-        }),
+        // Whether infinite scroll is currently active (enabled in settings and supported by document)
+        isEnabled = computed(() =>
+            config.infiniteScroll && documentSupportsChapterNavigation.value
+        ),
         UP_MARGIN = 2,
         DOWN_MARGIN = 200,
         bodyHeight = () => document.body.scrollHeight,
