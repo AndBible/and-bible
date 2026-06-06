@@ -1,8 +1,13 @@
 name: Branch Management
 
+# Disabled for now: current-stable is the branch where development happens, and we
+# don't use the other long-lived branches much (only feature branches). The automatic
+# merge into release/main branches is therefore not needed at the moment.
+# Only manual triggering is left enabled so the workflow can be re-activated easily.
 on:
-  push:
-    branches: [ current-stable ] # do not trigger on branches that are pushed below, unless additional checking is done, or else it will cause endless loop
+  workflow_dispatch:
+  # push:
+  #   branches: [ current-stable ] # do not trigger on branches that are pushed below, unless additional checking is done, or else it will cause endless loop
 
 permissions: {}
 
