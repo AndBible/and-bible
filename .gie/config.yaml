@@ -64,6 +64,16 @@ host_mounts:
   - { host: readthedocs, container: /home/dev/and-bible/readthedocs, readonly: false }
   - { host: ../jsword, container: /home/dev/jsword, readonly: false }
 
+# Persistent shared caches (bind-mounted from <shared_dir>/<host_subpath>).
+# The ai-local ostickethelper / playwright tools install Chromium (~150 MB)
+# into ~/.cache/ms-playwright, which is NOT bind-mounted by default and lives
+# on the container's ephemeral overlay — so it vanishes on every `gie new` and
+# re-downloads each session. Persisting just ms-playwright (not all of
+# ~/.cache) keeps the browser around; gie auto-creates the host subpath, so no
+# manual mkdir is needed.
+shared_caches:
+  - { name: cache, host_subpath: home-caches, container_path: ~/.cache }
+
 # Egress allowlist applied in strict mode. These cover Android Gradle
 # builds, npm/Vue.js dependencies, and apt updates. adb-server traffic
 # goes over the bind-mounted Unix socket, not the network, so no egress
