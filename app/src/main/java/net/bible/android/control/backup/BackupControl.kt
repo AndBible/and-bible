@@ -112,6 +112,26 @@ const val ZIP_MIMETYPE = "application/zip"
 
 enum class SaveOrShare {SAVE, SHARE}
 
+/**
+ * Maps each backed-up database filename to its user-facing title resource.
+ *
+ * This is the single source of truth for database titles shown in backup/restore UI.
+ * Every filename in [ALL_DB_FILENAMES] must have an entry here — see
+ * `BackupControlTest` which guards this invariant. A missing entry previously caused
+ * an `IllegalStateException: Unknown database file: ...` crash when restoring a backup
+ * that contained a database not yet listed (e.g. progress.sqlite3).
+ */
+val databaseTitleResIds: Map<String, Int> = mapOf(
+    BookmarkDatabase.dbFileName to R.string.db_bookmarks,
+    ReadingPlanDatabase.dbFileName to R.string.reading_plans_plural,
+    WorkspaceDatabase.dbFileName to R.string.help_workspaces_title,
+    RepoDatabase.dbFileName to R.string.db_repositories,
+    SettingsDatabase.dbFileName to R.string.settings,
+    MyDocumentDatabase.dbFileName to R.string.my_documents_title,
+    AiSettingsDatabase.dbFileName to R.string.ai_settings_sync_title,
+    ProgressDatabase.dbFileName to R.string.progress_sync_title,
+)
+
 object BackupControl {
     internal suspend fun saveDbBackupFileViaIntent(activity: ActivityBase, file: File) =
         saveOrShare(
@@ -279,16 +299,9 @@ object BackupControl {
         withContext(Dispatchers.Main) {
             result = suspendCoroutine {
                 val backupNames = available.map {
-                    when(it) {
-                        BookmarkDatabase.dbFileName -> context.getString(R.string.db_bookmarks)
-                        ReadingPlanDatabase.dbFileName -> context.getString(R.string.reading_plans_plural)
-                        WorkspaceDatabase.dbFileName -> context.getString(R.string.help_workspaces_title)
-                        RepoDatabase.dbFileName -> context.getString(R.string.db_repositories)
-                        SettingsDatabase.dbFileName -> context.getString(R.string.settings)
-                        MyDocumentDatabase.dbFileName -> context.getString(R.string.my_documents_title)
-                        AiSettingsDatabase.dbFileName -> context.getString(R.string.ai_settings_sync_title)
-                        else -> throw IllegalStateException("Unknown database file: $it")
-                    }
+                    val titleResId = databaseTitleResIds[it]
+                        ?: throw IllegalStateException("Unknown database file: $it")
+                    context.getString(titleResId)
                 }.toTypedArray()
 
                 val checkedItems = backupNames.map { true }.toBooleanArray()
@@ -906,23 +919,24 @@ class BackupActivity: ActivityBase() {
                 }
             }
 
-            // Database reset section
-            data class ResettableDb(val nameResId: Int, val dbFileName: String, val syncCategory: SyncableDatabaseDefinition?)
+            // Database reset section. Titles come from the shared databaseTitleResIds map.
+            data class ResettableDb(val dbFileName: String, val syncCategory: SyncableDatabaseDefinition?)
             val resettableDbs = listOf(
-                ResettableDb(R.string.db_bookmarks, BookmarkDatabase.dbFileName, SyncableDatabaseDefinition.BOOKMARKS),
-                ResettableDb(R.string.help_workspaces_title, WorkspaceDatabase.dbFileName, SyncableDatabaseDefinition.WORKSPACES),
-                ResettableDb(R.string.reading_plans_plural, ReadingPlanDatabase.dbFileName, SyncableDatabaseDefinition.READINGPLANS),
-                ResettableDb(R.string.db_repositories, RepoDatabase.dbFileName, null),
-                ResettableDb(R.string.settings, SettingsDatabase.dbFileName, null),
-                ResettableDb(R.string.my_documents_title, MyDocumentDatabase.dbFileName, SyncableDatabaseDefinition.MYDOCUMENTS),
-                ResettableDb(R.string.ai_settings_sync_title, AiSettingsDatabase.dbFileName, SyncableDatabaseDefinition.AI_SETTINGS),
-                ResettableDb(R.string.progress_sync_title, ProgressDatabase.dbFileName, SyncableDatabaseDefinition.PROGRESS),
+                ResettableDb(BookmarkDatabase.dbFileName, SyncableDatabaseDefinition.BOOKMARKS),
+                ResettableDb(WorkspaceDatabase.dbFileName, SyncableDatabaseDefinition.WORKSPACES),
+                ResettableDb(ReadingPlanDatabase.dbFileName, SyncableDatabaseDefinition.READINGPLANS),
+                ResettableDb(RepoDatabase.dbFileName, null),
+                ResettableDb(SettingsDatabase.dbFileName, null),
+                ResettableDb(MyDocumentDatabase.dbFileName, SyncableDatabaseDefinition.MYDOCUMENTS),
+                ResettableDb(AiSettingsDatabase.dbFileName, SyncableDatabaseDefinition.AI_SETTINGS),
+                ResettableDb(ProgressDatabase.dbFileName, SyncableDatabaseDefinition.PROGRESS),
             )
             for (db in resettableDbs) {
+                val nameResId = databaseTitleResIds.getValue(db.dbFileName)
                 val btn = Button(this@BackupActivity)
-                btn.text = getString(R.string.reset_something, getString(db.nameResId))
+                btn.text = getString(R.string.reset_something, getString(nameResId))
                 btn.setOnClickListener {
-                    lifecycleScope.launch { BackupControl.resetDatabase(this@BackupActivity, db.dbFileName, db.nameResId, db.syncCategory) }
+                    lifecycleScope.launch { BackupControl.resetDatabase(this@BackupActivity, db.dbFileName, nameResId, db.syncCategory) }
                 }
                 resetButtons.addView(btn)
             }

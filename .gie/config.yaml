@@ -122,6 +122,8 @@ golden:
   # adb-server runs on the host (see adb model comment above).
   extra_apt_packages:
     - android-tools-adb
+    # typst: PDF receipt generation for the ostickethelper tool (ai-local).
+    - typst
 
 # Autostart left empty — leaving setup decisions to the user.
 # Useful starting points if you want to fill this in later:
