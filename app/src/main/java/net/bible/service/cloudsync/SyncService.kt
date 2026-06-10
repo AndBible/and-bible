@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -91,7 +91,18 @@ class SyncService: Service() {
         val notification = builder.build()
         notificationManager.notify(SYNC_NOTIFICATION_ID, notification)
 
-        startForeground(SYNC_NOTIFICATION_ID, notification)
+        try {
+            startForeground(SYNC_NOTIFICATION_ID, notification)
+        } catch (e: Exception) {
+            // Android 14+ may refuse to start a dataSync foreground service, e.g.
+            // ForegroundServiceStartNotAllowedException "Time limit already exhausted
+            // for foreground service type dataSync" once the daily quota is used up.
+            // Don't crash the whole app — just log it and skip this synchronization.
+            Log.e(TAG, "Could not start foreground sync service, skipping synchronization", e)
+            notificationManager.cancel(SYNC_NOTIFICATION_ID)
+            stopSelf()
+            return
+        }
         wakeLock.acquire(5*60*1000) // 5 minutes
 
         scope.launch {
