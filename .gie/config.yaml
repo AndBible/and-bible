@@ -6,7 +6,7 @@
 # Chrome is not needed for this repo — turn it off regardless of what
 # ~/.config/gie/global.yaml says.
 chrome:
-  enabled: false
+  enabled: true
 
 new:
   clone_from: local
