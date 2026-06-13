@@ -145,6 +145,9 @@ abstract class CurrentPageBase protected constructor(
 
     override val displayKey get() = annotateKey ?: key
 
+    /** Subclasses (commentary) may supply a verse-range descriptor shown by the Vue side. */
+    protected open fun commentaryRangeFor(key: Key): CommentaryRangeInfo? = null
+
     override fun getPageContent(key: Key): Document = try {
         val currentDocument = currentDocument!!
 
@@ -188,6 +191,7 @@ abstract class CurrentPageBase protected constructor(
             sourcePromptName = promptName,
             sourceModelName = cacheEntry?.sourceModelName,
             aiDocMarkers = aiDocMarkers,
+            commentaryRange = commentaryRangeFor(key),
         )
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)

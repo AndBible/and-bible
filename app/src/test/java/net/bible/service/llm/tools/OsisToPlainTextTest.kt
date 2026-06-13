@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools
 
+import net.bible.service.sword.OsisToPlainText
 import org.jdom2.input.SAXBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Test

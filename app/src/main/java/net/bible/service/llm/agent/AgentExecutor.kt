@@ -36,7 +36,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.llm.tools.AiDocumentFilter
-import net.bible.service.llm.tools.OsisToPlainText
+import net.bible.service.sword.OsisToPlainText
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.ChatMessage
 import net.bible.service.llm.LlmApiAdapter

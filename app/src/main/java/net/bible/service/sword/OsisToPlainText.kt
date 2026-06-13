@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.service.llm.tools
+package net.bible.service.sword
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

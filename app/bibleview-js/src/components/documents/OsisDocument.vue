@@ -34,6 +34,7 @@
     </div>
 
     <template v-else>
+      <h2 v-if="bookCategory === 'COMMENTARY' && commentaryRange" class="commentary-range">{{ commentaryRange.name }}</h2>
       <OsisFragment :is-native-html="document.isNativeHtml" :fragment="osisFragment"/>
       <DocumentActionMenu ref="actionMenuRef" :document="document"/>
       <div v-if="isMyDocument && isContentEmpty" class="mydoc-placeholder" @click="startEditing">
@@ -84,6 +85,7 @@ const {
     highlightedOrdinalRange,
     isMyDocument,
     aiDocMarkers,
+    commentaryRange,
 } = props.document;
 const referenceCollector = useReferenceCollector();
 

@@ -51,6 +51,12 @@ export interface MultiFragmentDocument extends BaseDocument {
 }
 
 
+export interface CommentaryRange {
+    startOsisRef: string
+    endOsisRef: string
+    name: string
+}
+
 interface BaseOsisDocument extends BaseDocument {
     osisFragment: OsisFragment
     bookInitials: string
@@ -76,6 +82,7 @@ interface BaseOsisDocument extends BaseDocument {
 export interface OsisDocument extends BaseOsisDocument {
     type: "osis",
     highlightedOrdinalRange: Nullable<OrdinalRange>
+    commentaryRange: Nullable<CommentaryRange>
 }
 
 export interface ErrorDocument extends BaseDocument {
