@@ -17,6 +17,7 @@
   <string name="help">Aide</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">En savoir plus dans le manuel</string>
+  <string name="help_full_documentation_link">Parcourir la documentation complète</string>
   <string name="help_prompt_edit_text">Les invites personnalisées vous permettent de créer des instructions IA réutilisables pour votre étude. Définissez un nom, une description, un modèle, les contextes dans lesquels il doit apparaître, et éventuellement un fournisseur/modèle personnalisé. Les invites intégrées ne peuvent pas être modifiées directement — utilisez \"Copier pour personnaliser\" pour créer votre propre version.</string>
   <string name="help_tool_info_text">Les outils IA sont des fonctions spécialisées que l\'IA peut appeler pour lire vos données ou effectuer des modifications en votre nom. Les outils de lecture (versets, commentaires, dictionnaires, signets) ne nécessitent jamais de permission. Les outils d\'écriture (création de signets, notes, entrées de bloc-notes) sont soumis au système de permissions.</string>
   <string name="help_ai_settings_text">Les paramètres IA vous permettent de gérer vos invites et catégories. Depuis ici, vous pouvez créer de nouvelles invites, les organiser en catégories, importer/exporter des invites en CSV, installer des packs d\'invites supplémentaires et accéder aux paramètres de connexion IA.</string>

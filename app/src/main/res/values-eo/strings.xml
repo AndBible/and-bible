@@ -17,6 +17,7 @@
   <string name="help">Helpo</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Legi pli en la manlibro</string>
+  <string name="help_full_documentation_link">Foliumi la kompletan dokumentaron</string>
   <string name="help_prompt_edit_text">Propraj demandoj ebligas al vi krei reuzeblajn instrukciojn de artefarita intelekto por via studo. Ebligas agordi nomon, priskribon, ŝablonon, la kuntekstojn kie ĝi aperu, kaj laŭvole propran liveranton/modelon. Enkonstruitajn demandojn ne eblas redakti rekte – uzu la menuon “Kopii por alĝustigi” por krei vian propran version.</string>
   <string name="help_tool_info_text">AI-iloj estas specialigitaj funkcioj, kiujn la artefarita intelekto povas voki por legi viajn datumojn aŭ fari ŝanĝojn komisie de vi. Legantaj iloj (legi versojn, komentarojn, vortarojn, legosignojn) neniam bezonas permeson. Skribantaj iloj (krei legosignojn, notojn, notblokojn) estas regataj de la permesa sistemo.</string>
   <string name="help_ai_settings_text">AI-agordoj estas kie vi administras viajn demandojn kaj kategoriojn. De tie ĉi vi povas krei novajn demandojn, organizi ilin en kategoriojn, enporti/elporti demandojn kiel CSV, instali aldonajn demandpakaĵojn, kaj atingi la AI-konektajn agordojn.</string>

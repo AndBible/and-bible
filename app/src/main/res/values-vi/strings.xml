@@ -17,6 +17,7 @@
   <string name="help">Trợ giúp</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Đọc thêm trong hướng dẫn</string>
+  <string name="help_full_documentation_link">Duyệt toàn bộ tài liệu</string>
   <string name="help_prompt_edit_text">Lệnh nhắc tùy chỉnh cho phép bạn tạo các hướng dẫn AI có thể tái sử dụng cho việc nghiên cứu. Đặt tên, mô tả, mẫu, các ngữ cảnh hiển thị và tùy chọn nhà cung cấp/mô hình tùy chỉnh. Các lệnh nhắc tích hợp không thể chỉnh sửa trực tiếp — sử dụng \"Sao chép để tùy chỉnh\" để tạo phiên bản của riêng bạn.</string>
   <string name="help_tool_info_text">Các công cụ AI là các chức năng chuyên biệt mà AI có thể gọi để đọc dữ liệu của bạn hoặc thực hiện thay đổi thay mặt bạn. Các công cụ đọc (câu kinh, chú giải, từ điển, đánh dấu) không bao giờ cần quyền. Các công cụ ghi (tạo đánh dấu, ghi chú, mục sổ tay nghiên cứu) được kiểm soát bởi hệ thống quyền.</string>
   <string name="help_ai_settings_text">Cài đặt AI là nơi bạn quản lý các lệnh nhắc và danh mục. Từ đây bạn có thể tạo lệnh nhắc mới, sắp xếp chúng thành danh mục, nhập/xuất lệnh nhắc dưới dạng CSV, cài đặt gói lệnh nhắc bổ sung và truy cập cài đặt kết nối AI.</string>
