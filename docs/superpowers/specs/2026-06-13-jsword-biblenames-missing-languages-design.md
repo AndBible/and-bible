@@ -145,8 +145,8 @@ normalization.
 ## Git / commit plan
 
 - `jsword` submodule (`AndBible/jsword`): currently detached HEAD — check out the tracked
-  branch first. Commit the resource files + tests (one commit per language is acceptable,
-  or a single grouped commit + the Indonesian fix as its own commit).
+  branch first. **One commit per language** (resource file + its test), and the Indonesian
+  fix as its own separate commit.
 - Main repo (`and-bible`): separate commit bumping the submodule pointer (`git add jsword`).
 - This design doc lives in the main repo.
 
