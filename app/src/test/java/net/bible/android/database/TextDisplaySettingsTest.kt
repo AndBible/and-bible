@@ -112,6 +112,28 @@ class TextDisplaySettingsTest {
         }
     }
 
+    @Test
+    fun `resetting global to empty restores default for every type including ordinals`() {
+        // Models the GLOBAL-level reset (TextDisplaySettingsActivity.reset): the global overrides
+        // are replaced with an empty TextDisplaySettings, so every effective value must fall back
+        // to its built-in default. Regression guard for ordinals (and any future setting) being
+        // left out of the reset.
+        val customizedGlobal = TextDisplaySettings(showOrdinals = true, fontSize = 28, strongsMode = 2)
+        val before = TextDisplaySettings.actual(null, TextDisplaySettings(), customizedGlobal)
+        assertEquals(true, before.showOrdinals)
+        assertEquals(28, before.fontSize)
+
+        val resetGlobal = TextDisplaySettings()
+        val after = TextDisplaySettings.actual(null, TextDisplaySettings(), resetGlobal)
+        for (type in Types.values()) {
+            assertEquals(
+                "After global reset, $type should equal its default",
+                TextDisplaySettings.default.getValue(type), after.getValue(type)
+            )
+        }
+        assertEquals(false, after.showOrdinals)
+    }
+
     // --- actual() sub-object field-level merge tests ---
     //
     // Regression tests for the bug where workspace/window stored a MarginSize with
