@@ -2208,6 +2208,21 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val doc = currentPage.getDocumentForChapter(newChap)
                 executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
             }
+        } else if (isCommentary) {
+            val currentPage = window.pageManager.currentCommentary
+            val first = firstKey as? Verse ?: run {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
+            }
+            val prevStart = currentPage.prevBlockStart(first) ?: run {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
+            }
+            firstKey = prevStart
+            chapterLoadJobs += scope.launch(Dispatchers.IO) {
+                val doc = currentPage.getPageContent(prevStart)
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            }
         } else {
             val currentPage = window.pageManager.currentGeneralBook
             firstKey ?: run {
@@ -2244,6 +2259,21 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getDocumentForChapter(newChap)
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            }
+        } else if (isCommentary) {
+            val currentPage = window.pageManager.currentCommentary
+            val last = lastKey as? Verse ?: run {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
+            }
+            val nextStart = currentPage.nextBlockStart(last) ?: run {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
+            }
+            lastKey = nextStart
+            chapterLoadJobs += scope.launch(Dispatchers.IO) {
+                val doc = currentPage.getPageContent(nextStart)
                 executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
             }
         } else {
