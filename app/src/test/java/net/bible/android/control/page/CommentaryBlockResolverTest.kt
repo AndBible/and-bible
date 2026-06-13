@@ -141,4 +141,48 @@ class CommentaryBlockResolverTest {
         assertEquals(v2, block.end)
         assertEquals("X", block.content)
     }
+
+    /** Walker whose render throws for designated verses (e.g. a "verse 0" the module cannot render). */
+    private class ThrowingWalker(
+        private val verses: List<Verse>,
+        private val content: Map<Verse, String?>,
+        private val throwOn: Set<Verse>,
+    ) : CommentaryWalker {
+        override fun next(verse: Verse): Verse? {
+            val i = verses.indexOf(verse)
+            return if (i in 0 until verses.lastIndex) verses[i + 1] else null
+        }
+        override fun prev(verse: Verse): Verse? {
+            val i = verses.indexOf(verse)
+            return if (i > 0) verses[i - 1] else null
+        }
+        override fun render(verse: Verse): String? {
+            if (verse in throwOn) throw RuntimeException("$verse not found in document")
+            return content[verse]
+        }
+    }
+
+    @Test
+    fun `a verse that throws while rendering is treated as a separator, not a crash`() {
+        // Regression: walking onto an unrenderable verse (e.g. a chapter-intro "verse 0") used to
+        // propagate DocumentNotFound and crash navigation. It must be treated as an empty separator.
+        val vs = johnVerses(4)
+        val content = mapOf(vs[0] to "A", vs[2] to "B", vs[3] to "B")
+        val r = CommentaryBlockResolver(ThrowingWalker(vs, content, throwOn = setOf(vs[1])))
+
+        // resolveBlock from the throwing verse yields an empty block (no crash, no snapping).
+        val thrown = r.resolveBlock(vs[1])
+        assertEquals(vs[1], thrown.start)
+        assertEquals(vs[1], thrown.end)
+        assertNull(thrown.content)
+
+        // The throwing verse separates the "A" block from the "B" block.
+        val blockA = r.resolveBlock(vs[0])
+        assertEquals(vs[0], blockA.start)
+        assertEquals(vs[0], blockA.end)
+
+        // Navigation skips the throwing verse to the next renderable block.
+        assertEquals(vs[2], r.nextBlockStart(vs[0]))
+        assertEquals(vs[0], r.prevBlockStart(vs[2]))
+    }
 }
