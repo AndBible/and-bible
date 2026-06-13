@@ -38,8 +38,8 @@ import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.agent.AgentPermissionWaitingEvent
 import net.bible.service.llm.tools.AiDocumentFilter
-import net.bible.service.llm.tools.ContentFormat
-import net.bible.service.llm.tools.OsisToPlainText
+import net.bible.service.sword.ContentFormat
+import net.bible.service.sword.OsisToPlainText
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs

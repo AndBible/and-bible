@@ -28,8 +28,8 @@ import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
-import net.bible.service.llm.tools.ContentFormat
-import net.bible.service.llm.tools.OsisToPlainText
+import net.bible.service.sword.ContentFormat
+import net.bible.service.sword.OsisToPlainText
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
