@@ -141,7 +141,7 @@ golden:
 # let the Android SDK be discovered from the RO-mounted host SDK.
 container:
   env:
-    #ADB_SERVER_SOCKET: "localfilesystem:/home/dev/.adb.sock"
+    ADB_SERVER_SOCKET: "localfilesystem:/home/dev/.adb.sock"
     ANDROID_HOME: /home/dev/Android/Sdk
     ANDROID_SDK_ROOT: /home/dev/Android/Sdk
 
