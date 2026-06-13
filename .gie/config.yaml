@@ -51,6 +51,7 @@ jetbrains:
 # ~/.config/gie/global.yaml.
 host_mounts:
   - { host: ~/Android/Sdk,       container: /home/dev/Android/Sdk, readonly: true  }
+  - { host: ~/.android/adb.sock, container: /home/dev/.adb.sock,   readonly: false }
   # Socket must live OUTSIDE /run because container-init mounts tmpfs on
   # top of /run after Incus's disk devices are wired, burying any disk
   # mount under /run/*. /home/dev (ext4 rootfs, no overlay) is safe.
@@ -62,7 +63,6 @@ host_mounts:
   - { host: ai-local,    container: /home/dev/and-bible/ai-local,    readonly: false }
   - { host: wiki,        container: /home/dev/and-bible/wiki,        readonly: false }
   - { host: readthedocs, container: /home/dev/and-bible/readthedocs, readonly: false }
-  - { host: ../jsword, container: /home/dev/jsword, readonly: false }
 
 # Persistent shared caches (bind-mounted from <shared_dir>/<host_subpath>).
 # The ai-local ostickethelper / playwright tools install Chromium (~150 MB)
