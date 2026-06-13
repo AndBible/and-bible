@@ -41,6 +41,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.page.BibleDocument
+import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.MultiFragmentDocument
@@ -126,7 +127,11 @@ class BibleJavascriptInterface(
                 }, bibleView.window)
         } else if(doc is OsisDocument || doc is StudyPadDocument) {
             val curPage = currentPageManager.currentPage
-            if(curPage is CurrentGeneralBookPage && doc is OsisDocument && curPage.key?.osisRef != keyStr) {
+            // Commentaries (CurrentCommentaryPage) and general books (CurrentGeneralBookPage) are
+            // both addressed by a single osisRef key. When infinite scroll brings a new block/entry
+            // into view its document carries a different osisRef, so update the page key and notify
+            // listeners (title bar / synced windows). Bible & MyNotes are handled above by ordinal.
+            if((curPage is CurrentGeneralBookPage || curPage is CurrentCommentaryPage) && doc is OsisDocument && curPage.key?.osisRef != keyStr) {
                 curPage.currentDocument?.getKey(keyStr)?.let {
                     curPage.doSetKey(it)
                     ABEventBus.post(CurrentVerseChangedEvent(window = bibleView.window))
