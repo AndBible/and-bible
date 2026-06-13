@@ -142,6 +142,7 @@ open class CurrentCommentaryPage internal constructor(
 
     /** A resolver for the current commentary document, or null for non-commentary / special docs. */
     private fun blockResolver(): CommentaryBlockResolver? {
+        if (isSpecialDoc) return null
         val book = currentDocument as? AbstractPassageBook ?: return null
         if (book.bookCategory != BookCategory.COMMENTARY) return null
         return CommentaryBlockResolver(SwordCommentaryWalker(book, bibleTraverser))
