@@ -30,6 +30,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.service.common.shortName
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.doesNotExist
 import net.bible.service.download.isSpecial
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
@@ -142,8 +143,9 @@ open class CurrentCommentaryPage internal constructor(
 
     /** A resolver for the current commentary document, or null for non-commentary / special docs. */
     private fun blockResolver(): CommentaryBlockResolver? {
-        if (isSpecialDoc) return null
-        val book = currentDocument as? AbstractPassageBook ?: return null
+        val doc = currentDocument
+        if (doc == null || doc.isSpecial || doc.doesNotExist) return null
+        val book = doc as? AbstractPassageBook ?: return null
         if (book.bookCategory != BookCategory.COMMENTARY) return null
         return CommentaryBlockResolver(SwordCommentaryWalker(book, bibleTraverser))
     }
