@@ -167,6 +167,16 @@ open class CurrentCommentaryPage internal constructor(
         return true
     }
 
+    override fun commentaryRangeFor(key: Key): CommentaryRangeInfo? {
+        val resolver = blockResolver() ?: return null
+        val verse = KeyUtil.getVerse(key)
+        val block = resolver.resolveBlock(verse)
+        if (block.content == null) return null
+        val name = if (block.start == block.end) block.start.name
+            else VerseRange(versification, block.start, block.end).name
+        return CommentaryRangeInfo(block.start.osisRef, block.end.osisRef, name)
+    }
+
     /** Start verse of the next block after the block containing [verse], or null at the end. */
     fun nextBlockStart(verse: Verse): Verse? {
         val resolver = blockResolver() ?: return null

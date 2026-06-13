@@ -104,6 +104,14 @@ class ErrorDocument(private val errorMessage: String?, private val severity: Err
     }
 }
 
+data class CommentaryRangeInfo(val startOsisRef: String, val endOsisRef: String, val name: String) {
+    val asJson: String get() = mapToJson(mapOf(
+        "startOsisRef" to wrapString(startOsisRef),
+        "endOsisRef" to wrapString(endOsisRef),
+        "name" to wrapString(name),
+    ))
+}
+
 open class OsisDocument(
     val osisFragment: OsisFragment,
     val book: Book,
@@ -115,6 +123,7 @@ open class OsisDocument(
     val sourcePromptName: String? = null,
     val sourceModelName: String? = null,
     open val aiDocMarkers: List<AiDocMarkerInfo> = emptyList(),
+    val commentaryRange: CommentaryRangeInfo? = null,
 ): Document {
     override val asHashMap: Map<String, String> get () {
         val highlightedOrdinalRange =
@@ -151,6 +160,7 @@ open class OsisDocument(
             "sourcePromptName" to wrapString(sourcePromptName),
             "sourceModelName" to wrapString(sourceModelName),
             "aiDocMarkers" to listToJson(aiDocMarkers.map { ClientAiDocMarker(it, (book as? SwordBook)?.versification).asJson }),
+            "commentaryRange" to (commentaryRange?.asJson ?: "null"),
         )
     }
 }
