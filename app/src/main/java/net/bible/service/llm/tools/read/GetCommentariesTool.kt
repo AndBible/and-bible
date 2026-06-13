@@ -53,8 +53,7 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
-import org.jdom2.output.Format
-import org.jdom2.output.XMLOutputter
+import net.bible.android.control.page.renderCommentaryFragmentXml
 import org.json.JSONObject
 import java.io.StringReader
 import kotlin.coroutines.resume
@@ -210,7 +209,6 @@ object GetCommentariesTool : Tool {
             return ToolResult.error("No commentaries available", "NO_COMMENTARIES")
         }
 
-        val outputter = XMLOutputter(Format.getRawFormat())
         val commentaryResults = mutableListOf<CommentaryResult>()
 
         for (commentary in commentaries) {
@@ -228,10 +226,9 @@ object GetCommentariesTool : Tool {
                 val useXml = args.format == ContentFormat.XML
                 val renderedVerses = verses.map { verse ->
                     val content = try {
-                        val fragment = SwordContentFacade.readOsisFragment(commentary, verse)
-                        val xml = outputter.outputString(fragment)
+                        val xml = renderCommentaryFragmentXml(commentary, verse)
                         when {
-                            xml.isBlank() || xml == "<div/>" -> null
+                            xml == null -> null
                             useXml -> xml
                             else -> OsisToPlainText.convert(
                                 useSaxBuilder { it.build(StringReader(xml)).rootElement },
