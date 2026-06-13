@@ -71,7 +71,17 @@ interface CommentaryWalker {
  */
 class CommentaryBlockResolver(private val walker: CommentaryWalker) {
     private val cache = HashMap<Verse, String?>()
-    private fun render(verse: Verse): String? = cache.getOrPut(verse) { walker.render(verse) }
+
+    /**
+     * Renders [verse] to its comparison content, or null. A verse the module cannot render
+     * (e.g. a chapter-intro "verse 0", or a key outside the module) throws from the SWORD layer;
+     * such a verse is treated as having no content (null), i.e. a block separator that navigation
+     * skips — never propagated, so a verse-by-verse walk never crashes the caller. This mirrors
+     * the exception handling in GetCommentariesTool's per-verse rendering.
+     */
+    private fun render(verse: Verse): String? = cache.getOrPut(verse) {
+        try { walker.render(verse) } catch (e: Exception) { null }
+    }
 
     /**
      * Expands the block containing [verse]. If [verse] itself is empty, returns a single-verse
