@@ -66,9 +66,20 @@ renderComparable(book: SwordBook, verse: Verse): String?
   // null if blank or "<div/>"
 ```
 
-Both `CommentaryBlockResolver` and `GetCommentariesTool` use this so the
-comparison logic is not duplicated. Compare the **raw** `readOsisFragment` output
-(before page-level addAnchors/unwrap processing), as the LLM tool does today.
+Both `CommentaryBlockResolver` and `GetCommentariesTool` reuse this read +
+blank-check primitive so it is not duplicated. For *boundary comparison*, the
+resolver's `renderComparable` converts that raw XML to **plain text** (via
+`OsisToPlainText`) before comparing: plain text is insensitive to per-verse OSIS
+metadata (e.g. a chapter boundary), so semantically identical entries still
+collapse into one block. (`GetCommentariesTool` keeps its own final-content
+comparison — text or XML depending on the requested format.)
+
+> Implementation note: an earlier draft of this spec proposed comparing the raw
+> `readOsisFragment` output directly. During implementation that was changed to
+> plain-text comparison because raw XML can differ in per-verse metadata for the
+> same logical entry, which would prevent collapsing. The shared primitive is the
+> read + blank-check (`renderCommentaryFragmentXml`); the plain-text comparison
+> lives in `renderComparable`.
 
 ### Component 2: `CommentaryBlockResolver`
 
