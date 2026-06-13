@@ -17,6 +17,7 @@
   <string name="help">Pomoć</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Pročitajte više u priručniku</string>
+  <string name="help_full_documentation_link">Pregledaj celokupnu dokumentaciju</string>
   <string name="help_prompt_edit_text">Prilagođeni upiti vam omogućavaju da kreirate upute za veštačku inteligenciju koje možete ponovo koristiti u svom proučavanju. Postavite naziv, opis, predložak, kontekste u kojima treba da se pojavi, i po želji prilagođenog pružaoca/model. Ugrađeni upiti ne mogu se direktno uređivati — koristite \"Kopiraj radi prilagođavanja\" da kreirate sopstvenu verziju.</string>
   <string name="help_tool_info_text">Alatke veštačke inteligencije su specijalizovane funkcije koje VI može pozvati da čita vaše podatke ili vrši promene u vaše ime. Alatke za čitanje (stihovi, komentari, rečnici, obeleživači) nikada ne zahtevaju dozvolu. Alatke za pisanje (kreiranje obeleživača, beleški, unosa radne sveske) podležu sistemu dozvola.</string>
   <string name="help_ai_settings_text">Postavke VI je mesto gde upravljate upitima i kategorijama. Odavde možete kreirati nove upite, organizovati ih u kategorije, uvoziti/izvoziti upite kao CSV, instalirati dodatne pakete upita i pristupiti postavkama VI veze.</string>
