@@ -323,6 +323,15 @@ class TextDisplaySettingsActivity: ActivityBase() {
             .setPositiveButton(R.string.yes) {_, _ ->
                 reset = true
                 requiresReload = true
+                if (settingsBundle.level == SettingsLevel.GLOBAL) {
+                    // GLOBAL settings are launched without a result handler, so the reset cannot be
+                    // applied by MainBibleActivity.workspaceSettingsChanged like WINDOW/WORKSPACE.
+                    // Clear all global overrides in-place and commit here, mirroring the empty-object
+                    // reset used for the other levels (commitDirtyToInMemoryState handles GLOBAL).
+                    settingsBundle = settingsBundle.copy(globalSettings = TextDisplaySettings())
+                    dirtyTypes.addAll(Types.values())
+                    commitDirtyToInMemoryState()
+                }
                 setResult()
                 finish()
             }
