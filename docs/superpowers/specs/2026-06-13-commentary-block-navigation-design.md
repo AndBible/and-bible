@@ -1,199 +1,200 @@
-# Kommentaarien lohkopohjainen navigointi + infinite scroll
+# Commentary block-based navigation + infinite scroll
 
-**Päivämäärä:** 2026-06-13
-**Tila:** Hyväksytty suunnitelma (odottaa toteutussuunnitelmaa)
+**Date:** 2026-06-13
+**Status:** Approved design (pending implementation plan)
 
-## Tausta ja ongelma
+## Background and problem
 
-AndBiblen kommentaarit (`BookCategory.COMMENTARY`) navigoidaan tällä hetkellä
-jaekohtaisesti (`CurrentCommentaryPage.next()/previous()` → `nextVerse()`/
-`previousVerse()`). Monet kommentaarit tallentavat saman sisällön jaeväleille:
-yksi entry voi kattaa esim. jakeet 1–5 tai jopa luvunvaihdoksen yli. Tästä seuraa
-kaksi ongelmaa:
+AndBible commentaries (`BookCategory.COMMENTARY`) are currently navigated
+verse-by-verse (`CurrentCommentaryPage.next()/previous()` → `nextVerse()`/
+`previousVerse()`). Many commentaries store the same content across a range of
+verses: a single entry may cover e.g. verses 1–5, or even span a chapter
+boundary. This causes two problems:
 
-1. **Navigointi**: "seuraava" näyttää saman tekstin uudestaan kunnes jaeväli
-   loppuu — käyttäjä joutuu painamaan montaa kertaa nähdäkseen uutta sisältöä.
-2. **Infinite scroll**: ei ole käytössä kommentaareille lainkaan
-   (`infinite-scroll.ts` `enabledCategories` = vain `BIBLE`, `GENERAL_BOOK`).
-   Jos se otettaisiin käyttöön sellaisenaan, sama sisältö toistuisi useaan kertaan.
+1. **Navigation**: "next" shows the same text again until the verse range ends —
+   the user must press several times to reach new content.
+2. **Infinite scroll**: not enabled for commentaries at all
+   (`infinite-scroll.ts` `enabledCategories` = only `BIBLE`, `GENERAL_BOOK`).
+   If enabled as-is, the same content would repeat multiple times.
 
-Sovelluksessa on jo todistettu deduplikointilogiikka samaan ongelmaan LLM-työkalun
-puolella: `GetCommentariesTool.deduplicateConsecutiveBlocks()`
+The app already has proven deduplication logic for the same problem on the LLM
+tool side: `GetCommentariesTool.deduplicateConsecutiveBlocks()`
 (`app/src/main/java/net/bible/service/llm/tools/read/GetCommentariesTool.kt:167-187`).
-Se yhdistää peräkkäiset jakeet, joilla on identtinen **renderöity** sisältö —
-vertailee renderöityä sisältöä eikä raakaa OSIS-fragmenttia, joten luvunvaihdoksen
-yli ulottuva entry collapsoituu yhdeksi lohkoksi (regressiotesti OSTicket #3303,
-`GetCommentariesDedupTest.kt`).
+It merges consecutive verses that share identical **rendered** content — it
+compares rendered content rather than the raw OSIS fragment, so an entry that
+spans a chapter boundary collapses into a single block (regression test for
+OSTicket #3303, `GetCommentariesDedupTest.kt`).
 
-## Tavoite
+## Goal
 
-Kommentaareissa navigoinnin ja infinite scrollin yksikkö on **lohko** (block) —
-peräkkäisten jakeiden joukko, joilla on identtinen renderöity sisältö — eikä
-yksittäinen jae. Sama sisältö ei toistu; tyhjät jakeet ohitetaan.
+In commentaries, the unit of navigation and infinite scroll is a **block** — a
+run of consecutive verses with identical rendered content — rather than a single
+verse. The same content never repeats; empty verses are skipped.
 
-## Laajuus
+## Scope
 
-- **Vain kommentaarit** (`BookCategory.COMMENTARY`). Ei yleiskirjoja, sanakirjoja
-  eikä muita tyyppejä.
+- **Commentaries only** (`BookCategory.COMMENTARY`). Not general books,
+  dictionaries, or any other type.
 
-## Suunnittelupäätökset (hyväksytyt)
+## Design decisions (approved)
 
-| Päätös | Valinta | Perustelu |
-|--------|---------|-----------|
-| Aktiivinen avain lohkolle | **Lohkon alkujae** (yksi `Verse`) | Range-avaimen vieminen läpi `CurrentCommentaryPage`/sync/bookmark/`PageManager`-koneiston olisi iso, riskialtis muutos. Avainmalli pysyy yhden jakeen mallina. |
-| Range-näyttö (esim. "1–5") | **Erillinen esitys-/navigointitieto** | Lasketaan dedup-logiikalla, välitetään Vue-puolelle. Otsikko näyttää välin; "seuraava" tietää mistä jatkaa. |
-| Tyhjät jakeet (ei entryä) | **Ohitetaan** navigoinnissa/skrollauksessa | Lukukokemus sujuva, ei tyhjiä sivuja. Tyhjä jae toimii lohkorajana. |
-| Infinite scroll -tapa | **Automaattinen, asetuksen `config.infiniteScroll` mukaan** | Yhtenäinen Biblen kanssa. |
-| Lähestymistapa | **Laiska inkrementaalinen lohkonratkaisu** | Ei esilasketa koko kirjaa; kävely on lyhyt paitsi yhden ison entryn tapauksessa. Kierrättää todistetun dedup-logiikan. |
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Canonical key for a block | **Block start verse** (single `Verse`) | Threading a range key through the `CurrentCommentaryPage`/sync/bookmark/`PageManager` machinery would be a large, risky change. The key model stays single-verse. |
+| Range display (e.g. "1–5") | **Separate display/navigation info** | Computed via the dedup logic, passed to the Vue side. The header shows the range; "next" knows where to continue. |
+| Empty verses (no entry) | **Skipped** during navigation/scroll | Smooth reading, no empty pages. An empty verse acts as a block boundary. |
+| Infinite scroll mode | **Automatic, per the `config.infiniteScroll` setting** | Consistent with Bibles. |
+| Approach | **Lazy incremental block resolution** | No precomputing the whole book; the walk is short except for one large entry. Reuses the proven dedup logic. |
 
-## Arkkitehtuuri
+## Architecture
 
-### Lohkon määritelmä
+### Block definition
 
-Lohko = peräkkäiset jakeet, joiden `renderComparable`-tulos on identtinen.
-Tyhjä jae (`null`-sisältö: blank tai `<div/>`) flushaa nykyisen lohkon ja
-ohitetaan (toimii erottimena). Vertailu tehdään renderöidystä sisällöstä, ei
-raa'asta OSIS-fragmentista, jotta per-jae-metadata (esim. luvunvaihdos) ei estä
-collapsointia.
+A block = consecutive verses whose `renderComparable` result is identical. An
+empty verse (`null` content: blank or `<div/>`) flushes the current block and is
+skipped (acts as a separator). Comparison is done on rendered content, not the
+raw OSIS fragment, so per-verse metadata (e.g. a chapter boundary) does not
+prevent collapsing.
 
-### Komponentti 1: jaettu render-funktio
+### Component 1: shared render function
 
-Eristetään `GetCommentariesTool`:sta yhteinen funktio:
+Extract a shared function from `GetCommentariesTool`:
 
 ```
 renderComparable(book: SwordBook, verse: Verse): String?
-  // raaka readOsisFragment → XMLOutputter-string
-  // null jos blank tai "<div/>"
+  // raw readOsisFragment → XMLOutputter string
+  // null if blank or "<div/>"
 ```
 
-Sekä `CommentaryBlockResolver` että `GetCommentariesTool` käyttävät tätä, jottei
-vertailulogiikka duplikoidu. Verrataan **raakaa** `readOsisFragment`-tulosta
-(ennen sivukohtaista addAnchors-/unwrap-käsittelyä), kuten LLM-työkalu tekee nyt.
+Both `CommentaryBlockResolver` and `GetCommentariesTool` use this so the
+comparison logic is not duplicated. Compare the **raw** `readOsisFragment` output
+(before page-level addAnchors/unwrap processing), as the LLM tool does today.
 
-### Komponentti 2: `CommentaryBlockResolver`
+### Component 2: `CommentaryBlockResolver`
 
-Sijainti: `net.bible.service.sword` (tai `control.page`). Laiska, inkrementaalinen,
-per-jae render-cache (tyhjennetään dokumentin/avaimen vaihtuessa).
+Location: `net.bible.service.sword` (or `control.page`). Lazy, incremental,
+per-verse render cache (cleared when the document/key changes).
 
 ```
 resolveBlock(book, verse) -> (startVerse, endVerse, content?)
-  // kävelee taaksepäin alkuun ja eteenpäin loppuun renderComparablea vertaillen.
-  // Käytetään kun sync tuo kommentaarin keskelle lohkoa (Bible jakeessa 3 → 1–5).
-  // Jos verse itse on tyhjä → palauttaa tyhjän tilan (ei snappausta).
+  // walks backward to the start and forward to the end comparing renderComparable.
+  // Used when sync lands the commentary in the middle of a block (Bible on verse 3 → 1–5).
+  // If the verse itself is empty → returns the empty state (no snapping).
 
 nextBlockStart(book, fromVerse) -> Verse?
-  // eteenpäin ohittaen tyhjät; seuraavan ei-tyhjän lohkon alkujae. null = loppu.
+  // forward, skipping empties; start verse of the next non-empty block. null = end.
 
 prevBlockStart(book, beforeVerse) -> Verse?
-  // taaksepäin ohittaen tyhjät edelliseen ei-tyhjään jakeeseen, sitten ko.
-  // lohkon alkuun. null = alku.
+  // backward, skipping empties to the previous non-empty verse, then to that
+  // block's start. null = start.
 ```
 
-Kävely käyttää `bibleTraverser.getNextVerse`/`getPrevVerse` -semantiikkaa
-(kulkee kirjojen yli koko raamatun sisällä); pysähtyy raamatun rajalla
-(kun traverser palauttaa saman jakeen).
+The walk uses `bibleTraverser.getNextVerse`/`getPrevVerse` semantics (crosses
+book boundaries within the whole Bible); it stops at the Bible boundary (when the
+traverser returns the same verse).
 
-`GetCommentariesTool.deduplicateConsecutiveBlocks` säilyy ennallaan
-(list-pohjainen omiin tarpeisiinsa), mutta rakentuu samalle `renderComparable`-
-periaatteelle.
+`GetCommentariesTool.deduplicateConsecutiveBlocks` stays as-is (list-based, for
+its own needs) but builds on the same `renderComparable` principle.
 
-### Komponentti 3: navigointi — `CurrentCommentaryPage`
+### Component 3: navigation — `CurrentCommentaryPage`
 
 - `next()`:
   - `val (_, end, _) = resolver.resolveBlock(book, currentVerse)`
   - `val start = resolver.nextBlockStart(book, end)`
-  - `if (start != null) setKey(start)` muuten pysytään paikallaan.
+  - `if (start != null) setKey(start)`, otherwise stay put.
 - `previous()`:
   - `val (start, _, _) = resolver.resolveBlock(book, currentVerse)`
   - `val prevStart = resolver.prevBlockStart(book, start)`
   - `if (prevStart != null) setKey(prevStart)`.
 
-Boundary: `null` → pysytään paikallaan (kuten nyt jaerajalla).
+Boundary: `null` → stay put (as at a verse boundary today).
 
-### Komponentti 4: sivun sisältö + range-tiedon välitys
+### Component 4: page content + range info delivery
 
-- `getPageContent(blockStartVerse)` tuottaa jo oikean sisällön (lohkon jaettu
-  teksti = alkujakeen fragment).
-- Lisätään commentaary-`OsisDocument`:iin lohkon **range-tieto**
-  (start/end osisRef + näyttönimi), laskettuna `resolveBlock`:lla.
-- Vue-tyypit (`documents.ts` / `client-objects.ts`): valinnainen
-  `commentaryRange`-kenttä (start/end osisRef + näyttönimi).
+- `getPageContent(blockStartVerse)` already produces the correct content (the
+  block's shared text = the start verse's fragment).
+- Add the block's **range info** (start/end osisRef + display name) to the
+  commentary `OsisDocument`, computed via `resolveBlock`.
+- Vue types (`documents.ts` / `client-objects.ts`): optional `commentaryRange`
+  field (start/end osisRef + display name).
 
-### Komponentti 5: infinite scroll -syöttö
+### Component 5: infinite scroll feed
 
 **Kotlin `BibleView.kt` (`requestMoreToBeginning`/`requestMoreToEnd`):**
-Lisätään kommentaarihaara nykyisen `isBible` / general book -haaran rinnalle.
-- Seurataan lohkon alkuavaimia `firstKey`/`lastKey`-tyyliin (kuten general book).
-- Loppuun: `nextBlockStart(book, lastBlockEnd)` → `getPageContent(start)` →
+Add a commentary branch alongside the existing `isBible` / general book branches.
+- Track block start keys `firstKey`/`lastKey`-style (like general books).
+- To end: `nextBlockStart(book, lastBlockEnd)` → `getPageContent(start)` →
   `response`. `null` → `response(callId, null)` (reachedEnd).
-- Alkuun: `prevBlockStart(book, firstBlockStart)` → vastaavasti.
+- To beginning: `prevBlockStart(book, firstBlockStart)` → likewise.
 
 **Vue `infinite-scroll.ts`:**
-- Lisätään `"COMMENTARY"` `enabledCategories`-settiin → `documentSupportsChapterNavigation`
-  ja automaattilataus aktivoituvat asetuksen `config.infiniteScroll` mukaan.
-- Otsikon/erottimen range-näyttö lohkojen välissä.
+- Add `"COMMENTARY"` to the `enabledCategories` set → `documentSupportsChapterNavigation`
+  and automatic loading activate per the `config.infiniteScroll` setting.
+- Render the range in the header/separator between blocks.
 
-## Datavirta
+## Data flow
 
 ```
-Sync Bible→kommentaari (jae 3):
+Sync Bible→commentary (verse 3):
   setKey(3) → resolveBlock(book, 3) → start=1, end=5
-  → näyttö: sisältö + otsikko "1–5", aktiivinen avain = 1
+  → display: content + header "1–5", active key = 1
 
 next():
   resolveBlock(book, currentVerse) → end=5
-  nextBlockStart(book, 5) → ohita tyhjät 6–19 → 20
+  nextBlockStart(book, 5) → skip empties 6–19 → 20
   setKey(20)
 
-Infinite scroll alas:
-  requestMoreToEnd → nextBlockStart(book, lastBlockEnd) → seuraava lohkon alku
-  → getPageContent(start) → asJson → Vue lisää dokumentin
+Infinite scroll down:
+  requestMoreToEnd → nextBlockStart(book, lastBlockEnd) → next block start
+  → getPageContent(start) → asJson → Vue appends the document
 ```
 
-## Virhetilanteet / reunatapaukset
+## Error cases / edge cases
 
-- **Sync tyhjään jakeeseen**: näytetään nykyinen "ei kommentaaria" -tila, ei
-  snäpätä lähimpään lohkoon. Navigointi sieltä eteen/taakse löytää lähimmän
-  ei-tyhjän lohkon.
-- **Raamatun raja**: `nextBlockStart`/`prevBlockStart` palauttaa `null` →
-  navigointi pysähtyy, infinite scroll `response(callId, null)` → reachedEnd.
-- **Yksi iso entry koko kirjalle**: kävely renderöi kourallisen jakeita
-  (collapsoituu yhdeksi lohkoksi); render-cache estää toiston edestakaisin
-  skrollatessa.
-- **Tiheä per-jae-kommentaari**: sisältö eroaa heti → kävely on 1 askel per lohko.
+- **Sync to an empty verse**: show the current "no commentary" state, do not snap
+  to the nearest block. Navigating from there forward/backward finds the nearest
+  non-empty block.
+- **Bible boundary**: `nextBlockStart`/`prevBlockStart` returns `null` →
+  navigation stops, infinite scroll returns `response(callId, null)` → reachedEnd.
+- **One large entry for the whole book**: the walk renders a handful of verses
+  (collapses into one block); the render cache prevents repetition when scrolling
+  back and forth.
+- **Dense per-verse commentary**: content differs immediately → the walk is 1
+  step per block.
 
-## Testaus
+## Testing
 
-**Kotlin — `CommentaryBlockResolverTest`** (injektoitava render-funktio kuten
+**Kotlin — `CommentaryBlockResolverTest`** (injectable render function, like
 `GetCommentariesDedupTest`):
-- lohko keskeltä taaksepäin alkuun (`resolveBlock`)
-- eteenpäin tyhjien yli (`nextBlockStart`)
-- taaksepäin tyhjien yli (`prevBlockStart`)
-- yksittäisjae-lohkot
-- kaikki tyhjät → null
-- lohko moduulin alussa/lopussa (boundary → null)
-- #3303-luvunvaihdos collapsoituu yhdeksi lohkoksi
+- block from the middle backward to the start (`resolveBlock`)
+- forward over empties (`nextBlockStart`)
+- backward over empties (`prevBlockStart`)
+- single-verse blocks
+- all empty → null
+- block at module start/end (boundary → null)
+- #3303 chapter boundary collapses into one block
 
 **Vue (`*.spec.js`):**
-- `COMMENTARY` aktivoi infinite scrollin (`documentSupportsChapterNavigation`)
-- range-otsikon renderöinti
-- tyhjien lohkojen ohitus dokumenttijonossa
+- `COMMENTARY` activates infinite scroll (`documentSupportsChapterNavigation`)
+- range header rendering
+- skipping empty blocks in the document queue
 
-## Ei muutoksia
+## No changes
 
-- Ei uutta asetusta (käytetään `config.infiniteScroll`).
-- Ei uusia käännösmerkkijonoja (käytetään olemassa olevaa jaeviittausformatointia).
-- Range-avainmallia ei viedä koneistoon — aktiivinen avain pysyy yhtenä jakeena.
+- No new setting (reuse `config.infiniteScroll`).
+- No new translation strings (reuse existing verse-reference formatting).
+- The range key model is not threaded into the machinery — the active key stays a
+  single verse.
 
-## Keskeiset tiedostot
+## Key files
 
-| Tiedosto | Muutos |
-|----------|--------|
-| `GetCommentariesTool.kt` | Eristä `renderComparable`; käytä sitä |
-| `CommentaryBlockResolver.kt` (uusi) | Lohkorajojen laskenta |
-| `CurrentCommentaryPage.kt` | `next()`/`previous()` lohkopohjaisiksi |
-| `CurrentPageBase.kt` / commentary `getPageContent` | range-tiedon liittäminen `OsisDocument`:iin |
-| `BibleView.kt` | `requestMoreToBeginning/End` kommentaarihaara |
-| `infinite-scroll.ts` | `COMMENTARY` `enabledCategories`:iin |
-| `documents.ts` / `client-objects.ts` | valinnainen `commentaryRange`-kenttä |
-| testit (Kotlin + Vue) | yllä kuvatut |
+| File | Change |
+|------|--------|
+| `GetCommentariesTool.kt` | Extract `renderComparable`; use it |
+| `CommentaryBlockResolver.kt` (new) | Block boundary resolution |
+| `CurrentCommentaryPage.kt` | Make `next()`/`previous()` block-based |
+| `CurrentPageBase.kt` / commentary `getPageContent` | Attach range info to `OsisDocument` |
+| `BibleView.kt` | Commentary branch in `requestMoreToBeginning/End` |
+| `infinite-scroll.ts` | Add `COMMENTARY` to `enabledCategories` |
+| `documents.ts` / `client-objects.ts` | Optional `commentaryRange` field |
+| tests (Kotlin + Vue) | as described above |
