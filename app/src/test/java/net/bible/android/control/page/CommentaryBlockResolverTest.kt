@@ -139,5 +139,6 @@ class CommentaryBlockResolverTest {
         val block = resolver(vs, content).resolveBlock(v2)
         assertEquals(v1, block.start)
         assertEquals(v2, block.end)
+        assertEquals("X", block.content)
     }
 }

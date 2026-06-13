@@ -33,7 +33,7 @@ import java.io.StringReader
  * (blank or `<div/>`). Shared by GetCommentariesTool and [renderComparable] so the
  * read+blank-check is defined once.
  */
-fun renderCommentaryFragmentXml(book: Book, key: Key): String? {
+internal fun renderCommentaryFragmentXml(book: Book, key: Key): String? {
     val outputter = XMLOutputter(Format.getRawFormat())
     val xml = outputter.outputString(SwordContentFacade.readOsisFragment(book, key))
     return if (xml.isBlank() || xml == "<div/>") null else xml
@@ -45,7 +45,7 @@ fun renderCommentaryFragmentXml(book: Book, key: Key): String? {
  * identical but differ only in per-verse OSIS metadata (e.g. across a chapter boundary) still
  * collapse into one block — mirroring the dedup behaviour in GetCommentariesTool.
  */
-fun renderComparable(book: Book, verse: Verse): String? {
+internal fun renderComparable(book: Book, verse: Verse): String? {
     val xml = renderCommentaryFragmentXml(book, verse) ?: return null
     val text = OsisToPlainText.convert(useSaxBuilder { it.build(StringReader(xml)).rootElement }).trim()
     return text.ifBlank { null }
@@ -75,7 +75,9 @@ class CommentaryBlockResolver(private val walker: CommentaryWalker) {
 
     /**
      * Expands the block containing [verse]. If [verse] itself is empty, returns a single-verse
-     * block with null content (no snapping to a neighbouring block).
+     * block with null content (no snapping to a neighbouring block). Blocks are delimited by
+     * empty verses (whose rendered content is null), so two spans with coincidentally identical
+     * content separated by an empty verse remain distinct blocks.
      */
     fun resolveBlock(verse: Verse): CommentaryBlock {
         val content = render(verse) ?: return CommentaryBlock(verse, verse, null)
@@ -117,8 +119,8 @@ class SwordCommentaryWalker(
     private val bibleTraverser: BibleTraverser,
 ) : CommentaryWalker {
     override fun next(verse: Verse): Verse? =
-        try { bibleTraverser.getNextVerse(book, verse).takeIf { it != verse } } catch (e: Exception) { null }
+        try { bibleTraverser.getNextVerse(book, verse).takeIf { it.ordinal > verse.ordinal } } catch (e: Exception) { null }
     override fun prev(verse: Verse): Verse? =
-        try { bibleTraverser.getPrevVerse(book, verse).takeIf { it != verse } } catch (e: Exception) { null }
+        try { bibleTraverser.getPrevVerse(book, verse).takeIf { it.ordinal < verse.ordinal } } catch (e: Exception) { null }
     override fun render(verse: Verse): String? = renderComparable(book, verse)
 }
