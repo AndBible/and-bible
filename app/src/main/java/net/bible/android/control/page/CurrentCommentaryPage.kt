@@ -36,8 +36,10 @@ import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookFilters
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
@@ -117,7 +119,7 @@ open class CurrentCommentaryPage internal constructor(
 	 */
     override fun next() {
         Log.i(TAG, "Next")
-        nextVerse()
+        if (!navigateByBlock(forward = true)) nextVerse()
     }
 
     /* (non-Javadoc)
@@ -125,7 +127,7 @@ open class CurrentCommentaryPage internal constructor(
 	 */
     override fun previous() {
         Log.i(TAG, "Previous")
-        previousVerse()
+        if (!navigateByBlock(forward = false)) previousVerse()
     }
 
     private fun nextVerse() {
@@ -136,6 +138,42 @@ open class CurrentCommentaryPage internal constructor(
     private fun previousVerse() {
         originalVerseRange = null
         setKey(getKeyPlus(-1))
+    }
+
+    /** A resolver for the current commentary document, or null for non-commentary / special docs. */
+    private fun blockResolver(): CommentaryBlockResolver? {
+        val book = currentDocument as? AbstractPassageBook ?: return null
+        if (book.bookCategory != BookCategory.COMMENTARY) return null
+        return CommentaryBlockResolver(SwordCommentaryWalker(book, bibleTraverser))
+    }
+
+    /**
+     * Navigates to the next/previous content block. Returns false when block navigation does not
+     * apply (special document or non-commentary), so the caller falls back to verse navigation.
+     * Returns true (handled) even at a boundary, where it stays put.
+     */
+    private fun navigateByBlock(forward: Boolean): Boolean {
+        val resolver = blockResolver() ?: return false
+        val currentVerse = currentBibleVerse.getVerseSelected(versification)
+        val block = resolver.resolveBlock(currentVerse)
+        val target = if (forward) resolver.nextBlockStart(block.end) else resolver.prevBlockStart(block.start)
+        if (target != null) {
+            originalVerseRange = null
+            setKey(target)
+        }
+        return true
+    }
+
+    /** Start verse of the next block after the block containing [verse], or null at the end. */
+    fun nextBlockStart(verse: Verse): Verse? {
+        val resolver = blockResolver() ?: return null
+        return resolver.nextBlockStart(resolver.resolveBlock(verse).end)
+    }
+
+    /** Start verse of the previous block before the block containing [verse], or null at the start. */
+    fun prevBlockStart(verse: Verse): Verse? {
+        val resolver = blockResolver() ?: return null
+        return resolver.prevBlockStart(resolver.resolveBlock(verse).start)
     }
 
     /** add or subtract a number of pages from the current position and return Verse
