@@ -17,7 +17,6 @@
   <string name="help">Ajutor</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Citește mai mult în manual</string>
-  <string name="help_full_documentation_link">Răsfoiește documentația completă</string>
   <string name="help_prompt_edit_text">Prompturile personalizate îți permit să creezi instrucțiuni AI reutilizabile pentru studiul tău. Setează un nume, descriere, șablon, contextele unde ar trebui să apară și, opțional, un provider/model personalizat. Prompturile integrate nu pot fi editate direct — folosește \"Copiază pentru a personaliza\" pentru a crea propria versiune.</string>
   <string name="help_tool_info_text">Instrumentele AI sunt funcții specializate pe care AI le poate apela pentru a citi datele tale sau a face modificări în numele tău. Instrumentele de citire (versete, comentarii, dicționare, semne de carte) nu necesită niciodată permisiune. Instrumentele de scriere (crearea de semne de carte, notițe, intrări în notițele de studiu) sunt controlate de sistemul de permisiuni.</string>
   <string name="help_ai_settings_text">Reglările AI este locul unde îți gestionezi prompturile și categoriile. De aici poți crea prompturi noi, le poți organiza în categorii, importa/exporta prompturi ca CSV, instala pachete suplimentare de prompturi și accesa reglările conexiunii AI.</string>

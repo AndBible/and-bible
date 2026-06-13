@@ -4,7 +4,7 @@ bookmarksAndNotes: Segnalibri e Annotazioni
 openMyNotes: Apri in Annotazioni
 openStudyPad: Apri in Appunti di studio (%s)
 noteText: Note a piè di pagina (%s)
-noteTextWithoutType: Note a piè di pagina
+noteTextWithoutType: Note fine pagina
 crossReferenceText: Riferimenti incrociati
 findAllOccurrences: Trova tutte le occorrenze
 reportError: Segnala un errore
@@ -57,7 +57,7 @@ bookmarkLabels: Etichette dei segnalibri
 refParserHelp: Per favore installa il modulo %s per usare riferimenti in lingue diverse dall'inglese.
 openDownloads: Scarica estensioni
 verseShare: Condividi
-verseSpeak: Parla/Audio
+verseSpeak: Parla
 verseCompare: Confronta
 verseMemorize: Memorizza
 verseNote: Nota

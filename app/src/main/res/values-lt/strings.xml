@@ -17,7 +17,6 @@
   <string name="help">Pagalba</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Skaityti daugiau vadove</string>
-  <string name="help_full_documentation_link">Naršyti visą dokumentaciją</string>
   <string name="help_prompt_edit_text">Pasirinktiniai raginimai leidžia kurti daugkartinio naudojimo DI instrukcijas studijoms. Nustatykite pavadinimą, aprašymą, šabloną, kontekstus, kuriuose jis turėtų pasirodyti, ir pasirinktinai – pasirinktinį tiekėją / modelį. Integruotų raginimų tiesiogiai redaguoti negalima — naudokite \"Kopijuoti ir tinkinti\", kad sukurtumėte savo versiją.</string>
   <string name="help_tool_info_text">DI įrankiai yra specializuotos funkcijos, kurias DI gali iškviesti, kad skaitytų jūsų duomenis arba atliktų pakeitimus jūsų vardu. Skaitymo įrankiai (eilutės, komentarai, žodynai, žymės) niekada nereikalauja leidimo. Rašymo įrankiai (žymių, pastabų, bloknoto įrašų kūrimas) valdomi leidimų sistemos.</string>
   <string name="help_ai_settings_text">DI nustatymuose galite valdyti raginimai ir kategorijas. Čia galite kurti naujus raginimus, rūšiuoti juos į kategorijas, importuoti / eksportuoti raginimus kaip CSV, diegti priedų raginimų paketus ir pasiekti DI ryšio nustatymus.</string>

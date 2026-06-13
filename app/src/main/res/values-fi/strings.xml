@@ -17,7 +17,6 @@
   <string name="help">Ohje</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Lue lisää käyttöoppaasta</string>
-  <string name="help_full_documentation_link">Selaa täydellistä dokumentaatiota</string>
   <string name="help_prompt_edit_text">Mukautetuilla kehotteilla voit luoda uudelleenkäytettäviä tekoälyohjeita opiskeluasi varten. Aseta nimi, kuvaus, malli, kontekstit joissa se näkyy, ja halutessasi mukautettu palveluntarjoaja/malli. Sisäänrakennettuja kehotteita ei voi muokata suoraan — käytä \"Kopioi muokattavaksi\" luodaksesi oman version.</string>
   <string name="help_tool_info_text">Tekoälytyökalut ovat erikoistuneita toimintoja, joita tekoäly voi kutsua lukeakseen tietojasi tai tehdäkseen muutoksia puolestasi. Lukutyökalut (jakeet, kommentaarit, sanakirjat, kirjanmerkit) eivät koskaan vaadi lupaa. Kirjoitustyökalut (kirjanmerkkien, muistiinpanojen ja opintoalustamerkintöjen luominen) ovat lupajärjestelmän alaisia.</string>
   <string name="help_ai_settings_text">Tekoälyasetuksissa hallitset kehotteita ja luokkia. Täältä voit luoda uusia kehotteita, järjestää niitä luokkiin, tuoda/viedä kehotteita CSV-muodossa, asentaa lisäosa-kehotepaketteja ja siirtyä tekoälyn yhteysasetuksiin.</string>

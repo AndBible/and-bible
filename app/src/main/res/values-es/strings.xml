@@ -17,7 +17,6 @@
   <string name="help">Ayuda</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Leer más en el manual</string>
-  <string name="help_full_documentation_link">Explorar la documentación completa</string>
   <string name="help_prompt_edit_text">Las indicaciones personalizadas permiten crear instrucciones de IA reutilizables para tu estudio. Establece un nombre, descripción, plantilla, los contextos donde debe aparecer y, opcionalmente, un proveedor/modelo personalizado. Las indicaciones integradas no se pueden editar directamente — usa \"Copiar para personalizar\" para crear tu propia versión.</string>
   <string name="help_tool_info_text">Las herramientas de IA son funciones especializadas que la IA puede llamar para leer tus datos o realizar cambios en tu nombre. Las herramientas de lectura (versículos, comentarios, diccionarios, marcadores) nunca requieren permiso. Las herramientas de escritura (crear marcadores, notas, entradas en pizarras de estudio) están controladas por el sistema de permisos.</string>
   <string name="help_ai_settings_text">Ajustes de IA es donde gestionas tus indicaciones y categorías. Desde aquí puedes crear nuevas indicaciones, organizarlas en categorías, importar/exportar indicaciones como CSV, instalar paquetes de indicaciones adicionales y acceder a los ajustes de conexión de IA.</string>

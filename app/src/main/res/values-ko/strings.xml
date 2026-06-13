@@ -17,7 +17,6 @@
   <string name="help">도움말</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">설명서에서 더 읽기</string>
-  <string name="help_full_documentation_link">전체 문서 보기</string>
   <string name="help_prompt_edit_text">사용자 지정 프롬프트를 사용하면 성경 공부를 위한 재사용 가능한 AI 지시를 만들 수 있습니다. 이름, 설명, 템플릿, 표시될 컨텍스트, 그리고 선택적으로 사용자 지정 공급자/모델을 설정하세요. 기본 제공 프롬프트는 직접 편집할 수 없습니다 — \"복사하여 사용자 지정\"을 사용해 나만의 버전을 만드세요.</string>
   <string name="help_tool_info_text">AI 도구는 AI가 데이터를 읽거나 사용자를 대신해 변경을 수행하기 위해 호출할 수 있는 전문화된 기능입니다. 읽기 도구(구절, 주석, 사전, 북마크)는 권한이 필요하지 않습니다. 쓰기 도구(북마크 만들기, 노트, 스터디 패드 항목)는 권한 시스템에 의해 제어됩니다.</string>
   <string name="help_ai_settings_text">AI 설정은 프롬프트와 카테고리를 관리하는 곳입니다. 여기서 새 프롬프트를 만들고, 카테고리로 정리하고, 프롬프트를 CSV로 가져오기/내보내기 하고, 애드온 프롬프트 팩을 설치하고, AI 연결 설정에 접근할 수 있습니다.</string>

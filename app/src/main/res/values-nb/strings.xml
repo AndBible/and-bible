@@ -17,7 +17,6 @@
   <string name="help">Hjelp</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Les mer i håndboken</string>
-  <string name="help_full_documentation_link">Bla gjennom hele dokumentasjonen</string>
   <string name="help_prompt_edit_text">Egendefinerte instruksjoner lar deg opprette gjenbrukbare KI-instruksjoner for studiet ditt. Angi navn, beskrivelse, mal, kontekstene den skal vises i, og eventuelt en egendefinert leverandør/modell. Innebygde instruksjoner kan ikke redigeres direkte — bruk \"Kopier for å tilpasse\" for å opprette din egen versjon.</string>
   <string name="help_tool_info_text">KI-verktøy er spesialiserte funksjoner KI-en kan kalle for å lese dataene dine eller gjøre endringer på dine vegne. Leseverktøy (vers, bibelkommentarer, bibelordbok, bokmerker) krever aldri tillatelse. Skriveverktøy (opprette bokmerker, notater, studiebrett-innlegg) styres av tillatelsessystemet.</string>
   <string name="help_ai_settings_text">KI-innstillinger er stedet der du administrerer instruksjonene og kategoriene dine. Herfra kan du opprette nye instruksjoner, organisere dem i kategorier, importere/eksportere instruksjoner som CSV, installere tilleggsinnstruksjonspakker og nå KI-tilkoblingsinnstillingene.</string>

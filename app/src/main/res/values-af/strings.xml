@@ -17,7 +17,6 @@
   <string name="help">Hulp</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Lees meer in die handleiding</string>
-  <string name="help_full_documentation_link">Blaai deur die volledige dokumentasie</string>
   <string name="help_prompt_edit_text">Gepasmaakte opdragte laat jou toe om herbruikbare KI-instruksies vir jou studie te skep. Stel \'n naam, beskrywing, sjabloon, die kontekste waar dit moet verskyn, en opsioneel \'n gepasmaakte verskaffer/model in. Ingeboude opdragte kan nie direk gewysig word nie — gebruik \"Kopieer om aan te pas\" om jou eie weergawe te skep.</string>
   <string name="help_tool_info_text">KI-hulpmiddels is gespesialiseerde funksies wat die KI kan aanroep om jou data te lees of namens jou veranderinge aan te bring. Lees-hulpmiddels (verse, kommentaar, woordeboeke, boekmerke) benodig nooit toestemming nie. Skryf-hulpmiddels (skep van boekmerke, notas, studie blok-inskrywings) word beheer deur die toestemmingstelsel.</string>
   <string name="help_ai_settings_text">KI-instellings is waar jy jou opdragte en kategorieë bestuur. Van hier af kan jy nuwe opdragte skep, hulle in kategorieë organiseer, opdragte as CSV invoer/uitvoer, byvoegsel-opdragpakkette installeer, en die KI-verbindingsinstellings bereik.</string>

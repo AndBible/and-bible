@@ -17,7 +17,6 @@
   <string name="help">ヘルプ</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">マニュアルで詳細を読む</string>
-  <string name="help_full_documentation_link">完全なドキュメントを参照</string>
   <string name="help_prompt_edit_text">カスタムプロンプトを使用すると、聖書研究のための再利用可能なAI指示を作成できます。名前、説明、テンプレート、表示するコンテキスト、およびオプションでカスタムプロバイダー/モデルを設定します。組み込みプロンプトは直接編集できません — 「コピーしてカスタマイズ」を使用して独自のバージョンを作成してください。</string>
   <string name="help_tool_info_text">AIツールは、AIがあなたのデータを読み取ったり、あなたの代わりに変更を加えたりするために呼び出せる特殊な機能です。読み取りツール（節、注解、辞書、ブックマーク）は権限を必要としません。書き込みツール（ブックマーク、ノート、スタディパッドエントリの作成）は権限システムによって管理されます。</string>
   <string name="help_ai_settings_text">AI設定では、プロンプトとカテゴリを管理します。ここから新しいプロンプトを作成し、カテゴリに整理し、プロンプトをCSVとしてインポート/エクスポートし、アドオンプロンプトパックをインストールし、AI接続設定にアクセスできます。</string>

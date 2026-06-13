@@ -19,8 +19,8 @@ footnoteTypeTranslation: traduko
 clearLog: Forviŝi erar‑protokolon
 editTextPlaceholder: Frapetu por redakti tekston
 myDocumentEdit: Redakti paĝon
-myDocumentEmptyPlaceholder: Tuŝu por komenci redakti ĉi tiun paĝon
-inputPlaceholder: Skribu tien ĉi
+myDocumentEmptyPlaceholder: Frapetu por komenci redakti tiun ĉi paĝon
+inputPlaceholder: Skribu tie ĉi
 inputReference: Enigi biblian referencon
 invalidReference: Ne trovis verson
 bookmarkAccurate: Legosigno kreita en %s
@@ -39,9 +39,9 @@ externalLink: Malfermi eksteran ligilon
 referenceLink: Malfermi referencan ligilon
 openFootnote: Malfermi piednoton
 noMyNotesTitle: Neniu noto por tiu ĉi ĉapitro.
-noMyNotesDescription: >-
+noMyNotesDescription: >
   Unue kreu legosignojn en la biblia dokumento. La kreotaj legosignoj aperos tie ĉi kaj vi povos aldoni al ili personajn notojn.
-emptyStudyPad: >-
+emptyStudyPad: >
   Malplena notbloko. Por komenci plenigi tiun ĉi notblokon, kreu notojn tie ĉi aŭ kreu legosignojn kun legosignaj etikedoj ligitaj al tiu ĉi notbloko.
 doYouWantToDeleteEntry: "Ĉu forigi tiun ĉi enskribon en notbloko?"
 removeStudyPadConfirmationTitle: "Ĉu forigi enskribon en notbloko?"
@@ -67,16 +67,16 @@ verseShareLong: Kunhavigi verson
 verseCompareLong: Kompari verson
 verseMemorizeLong: Parkerigi bibliajn versojn
 addMemorizationTarget: Celo +
-addMemorizationTargetLong: Agordi kiel parkerig-celon
+addMemorizationTargetLong: Agordi kiel parkerigan celon
 removeMemorizationTarget: Celo -
-removeMemorizationTargetLong: Forigi parkerig-celon
-markAsMemorized: Marki kiel parkenigita
-markedAsMemorized: Parkenigita
-removeFromTargets: Celo -
-viewReadingProgress: Legada/Parkeriga Progreso
-viewReadingProgressSettings: Legadaj/Parkerigaj Agordoj
-listenInLoop: Aŭskulti en Buklo
-viewHelp: Vidi helpon
+removeMemorizationTargetLong: Forigi parkerigan celon
+markAsMemorized: Marki kiel parkerigitan
+markedAsMemorized: Parkerigita
+removeFromTargets: Forigi el celoj
+viewReadingProgress: Lega/parkeriga progreso
+viewReadingProgressSettings: Agordoj pri lego/parkerigo
+listenInLoop: Aŭskulti en ciklo
+viewHelp: Montri helpon
 verseNoteLong: Skribi noton
 verseParagraphBreakLong: Aldoni novan linion
 addBookmark: Legosigno
@@ -102,21 +102,21 @@ invalidClosingTag: Erara fina marko
 unmatchedClosingTag: Malkongrua fina marko
 unclosedTag: Nefermita marko
 unknownError: Nekonata eraro
-wordBlur: Kovri vortojn
-wordScramble: Malordigi vortojn
-wordType: Tipo
-wordOrder: Ordo
+wordBlur: Kovritaj vortoj
+wordScramble: Miksitaj vortoj
+wordType: Tajpi
+wordOrder: Ordigi
 typeEverything: Tajpi plenajn vortojn
-tapToStartTyping: Tuŝu ĉi tie por komenci tajpi
-wordVisibility: Vorta videbleco
-wordVisibilityLight: Hela
-wordVisibilityDim: Malhela
-wordVisibilityHidden: Kaŝita
-errorHeatmap: Erara varmmapo
-hideUsedButtons: Kaŝi uzitajn vortobutonoj
+tapToStartTyping: Frapetu tie ĉi por komenci tajpi
+wordVisibility: Videblo de vortoj
+wordVisibilityLight: malklara
+wordVisibilityDim: apenaǔa
+wordVisibilityHidden: nenia
+errorHeatmap: Oftecmapo de eraroj
+hideUsedButtons: Malaktivigi uzitajn vortojn
 more: Pli
 llmAction: AI
-llmActionLong: AI-Ago
+llmActionLong: AI-ago
 aiDocumentRegenerate: Regeneri
 aiDocumentDelete: Forigi
 aiGeneratedBy: "Generita de %s"

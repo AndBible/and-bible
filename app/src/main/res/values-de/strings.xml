@@ -17,7 +17,6 @@
   <string name="help">Hilfe</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Mehr im Handbuch lesen</string>
-  <string name="help_full_documentation_link">Vollständige Dokumentation durchsuchen</string>
   <string name="help_prompt_edit_text">Mit benutzerdefinierten Prompts können Sie wiederverwendbare KI-Anweisungen für Ihr Studium erstellen. Legen Sie einen Namen, eine Beschreibung, eine Vorlage, die Kontexte, in denen er erscheinen soll, und optional einen benutzerdefinierten Anbieter/Modell fest. Integrierte Prompts können nicht direkt bearbeitet werden – verwenden Sie \"Kopieren zum Anpassen\", um Ihre eigene Version zu erstellen.</string>
   <string name="help_tool_info_text">KI-Tools sind spezialisierte Funktionen, die die KI aufrufen kann, um Ihre Daten zu lesen oder in Ihrem Auftrag Änderungen vorzunehmen. Lese-Tools (Verse, Kommentare, Wörterbücher, Lesezeichen) benötigen keine Berechtigung. Schreib-Tools (Lesezeichen erstellen, Notizen, Studienmappe-Einträge) werden durch das Berechtigungssystem gesteuert.</string>
   <string name="help_ai_settings_text">In den KI-Einstellungen verwalten Sie Ihre Prompts und Kategorien. Von hier aus können Sie neue Prompts erstellen, sie in Kategorien organisieren, Prompts als CSV importieren/exportieren, Add-on-Prompt-Pakete installieren und die KI-Verbindungseinstellungen aufrufen.</string>

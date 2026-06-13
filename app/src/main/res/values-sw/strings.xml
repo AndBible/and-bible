@@ -17,7 +17,6 @@
   <string name="help">Msaada</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Soma zaidi katika mwongozo</string>
-  <string name="help_full_documentation_link">Vinjari hati kamili</string>
   <string name="help_prompt_edit_text">Maagizo maalum yanakuruhusu kuunda maelekezo ya AI yanayoweza kutumika tena kwa masomo yako. Weka jina, maelezo, kiolezo, mazingira yanayopaswa kuonekana, na kwa hiari mtoa huduma/mfano maalum. Maagizo ya msingi hayawezi kuhaririwa moja kwa moja — tumia \"Nakili ili kubadilisha\" kuunda toleo lako mwenyewe.</string>
   <string name="help_tool_info_text">Zana za AI ni kazi maalum ambazo AI inaweza kuziita kusoma data yako au kufanya mabadiliko kwa niaba yako. Zana za kusoma (mistari, maoni, kamusi, alamisho) haziitaji ruhusa. Zana za kuandika (kuunda alamisho, maelezo, maingizo ya daftari la masomo) zinahitaji ruhusa kupitia mfumo wa ruhusa.</string>
   <string name="help_ai_settings_text">Mipangilio ya AI ndipo unaposimamia maagizo na makundi yako. Kutoka hapa unaweza kuunda maagizo mapya, kuyapanga katika makundi, kuingiza/kusafirisha maagizo kama CSV, kusanikisha vifurushi vya maagizo vya ziada, na kufika mipangilio ya muunganisho wa AI.</string>
@@ -1417,7 +1416,7 @@ Usionyeshe ujumbe huu tena</string>
   <string name="tool_get_commentaries">Soma maoni</string>
   <string name="tool_get_dictionary_entry">Tafuta maingizo ya kamusi</string>
   <string name="tool_search_bible">Tafuta Biblia</string>
-  <string name="tool_search_by_strongs">Tafuta kwa nambari ya Strong\'s</string>
+  <string name="tool_search_by_strongs">Tafuta kwa nambari ya Strong\\'s</string>
   <string name="tool_get_installed_documents">Orodhesha hati zilizosanikishwa</string>
   <string name="tool_get_all_labels">Orodhesha lebo zote</string>
   <string name="tool_get_bookmarks_for_verse">Pata alamisho za mstari</string>

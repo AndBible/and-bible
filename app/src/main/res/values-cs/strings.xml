@@ -17,7 +17,6 @@
   <string name="help">Nápověda</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Přečtěte si více v příručce</string>
-  <string name="help_full_documentation_link">Procházet úplnou dokumentaci</string>
   <string name="help_prompt_edit_text">Vlastní prompty vám umožňují vytvářet opakovaně použitelné instrukce pro umělou inteligenci pro vaše studium. Nastavte název, popis, šablonu, kontexty, ve kterých se má zobrazit, a volitelně vlastního poskytovatele/model. Integrované prompty nelze přímo upravovat – k vytvoření vlastní verze použijte \"Kopírovat a přizpůsobit\".</string>
   <string name="help_tool_info_text">Nástroje AI jsou specializované funkce, které může AI volat za účelem čtení vašich dat nebo provádění změn vaším jménem. Nástroje pro čtení (verše, komentáře, slovníky, záložky) nevyžadují nikdy oprávnění. Nástroje pro zápis (vytváření záložek, poznámek, záznamů ve studijní složce) jsou řízeny systémem oprávnění.</string>
   <string name="help_ai_settings_text">Nastavení AI je místo, kde spravujete své prompty a kategorie. Odtud můžete vytvářet nové prompty, organizovat je do kategorií, importovat/exportovat prompty jako CSV, instalovat doplňkové sady promptů a přistupovat k nastavení připojení AI.</string>

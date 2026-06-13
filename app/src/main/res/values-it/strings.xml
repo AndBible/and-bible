@@ -13,11 +13,10 @@
   <string name="search">Trova</string>
   <string name="settings">Preferenze dell\'app</string>
   <string name="history">Cronologia</string>
-  <string name="speak">Parla/Audio</string>
+  <string name="speak">Parla</string>
   <string name="help">Supporto</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Leggi di più nel manuale</string>
-  <string name="help_full_documentation_link">Sfoglia la documentazione completa</string>
   <string name="help_prompt_edit_text">I prompt personalizzati ti permettono di creare istruzioni AI riutilizzabili per il tuo studio. Imposta un nome, una descrizione, un modello, i contesti in cui dovrebbe apparire e, facoltativamente, un fornitore/modello personalizzato. I prompt integrati non possono essere modificati direttamente — usa \"Copia per personalizzare\" per creare la tua versione.</string>
   <string name="help_tool_info_text">Gli strumenti AI sono funzioni specializzate che l\'IA può chiamare per leggere i tuoi dati o apportare modifiche per tuo conto. Gli strumenti di lettura (versetti, commentari, dizionari, segnalibri) non richiedono mai autorizzazione. Gli strumenti di scrittura (creazione di segnalibri, note, voci degli appunti di studio) sono controllati dal sistema di autorizzazioni.</string>
   <string name="help_ai_settings_text">Impostazioni AI è il luogo dove gestisci i tuoi prompt e le categorie. Da qui puoi creare nuovi prompt, organizzarli in categorie, importare/esportare prompt come CSV, installare pacchetti di prompt aggiuntivi e accedere alle impostazioni di connessione AI.</string>
@@ -348,8 +347,8 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="delete">Cancella</string>
   <string name="delete_index">Cancella l\'indice di ricerca</string>
   <string name="about">Informazioni</string>
-  <string name="delete_doc">Cancella %s?</string>
-  <string name="delete_search_index_doc">Cancellare l\'indice di %s?</string>
+  <string name="delete_doc">Elimino %s?</string>
+  <string name="delete_search_index_doc">Elimino l\'indice di %s?</string>
   <!--Verse context menu-->
   <string name="notes">Note e referenze</string>
   <string name="share_verse">Condividere…</string>
@@ -427,9 +426,9 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="speak_speed_title">Velocità del testo parlato</string>
   <string name="speak_and_play_earcons_title">Parla e riproduci effetti acustici per</string>
   <string name="playback_settings_title">Impostazioni di riproduzione</string>
-  <string name="speak_settings_title">Impostazioni generali di Parla/Audio</string>
+  <string name="speak_settings_title">Impostazioni generali del testo parlato</string>
   <string name="speak_bookmarking_settings_title">Impostazioni dei segnalibri</string>
-  <string name="speak_bookmarks_menu_title">Parla/Audio dal segnalibro</string>
+  <string name="speak_bookmarks_menu_title">Parla dal segnalibro</string>
   <string name="speak_advanced_settings">Impostazioni avanzate</string>
   <string name="speak_sleep_timer_title">Timer di spegnimento</string>
   <string name="speak_no_books_available">Nessun libro disponibile per leggere</string>
@@ -487,9 +486,9 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="reset_defaults">valori predefiniti</string>
   <string name="reset_workspace_defaults">valori predefiniti dello spazio di lavoro</string>
   <string name="speak_help_auto_bookmark">
-Un segnalibro Audio verrà aggiunto automaticamente quando Parla/Audio viene messo in pausa o interrotto. I segnalibri generati automaticamente sono etichettati con l\'etichetta speciale Audio. Se inizi da un segnalibro di Audio, il segnalibro verrà spostato nel versetto stesso interrompere o mettere in pausa alla prossima volta. Verranno spostate solo le etichette Audio, tutte le altre etichette saranno lasciate solo.</string>
+Un segnalibro Audio verrà aggiunto automaticamente quando Parla viene messo in pausa o interrotto. I segnalibri generati automaticamente sono etichettati con l\'etichetta speciale Audio. Se inizi da un segnalibro di Audio, il segnalibro verrà spostato nel versetto stesso interrompere o mettere in pausa alla prossima volta. Verranno spostate solo le etichette Audio, tutte le altre etichette saranno lasciate solo.</string>
   <string name="speak_help_playback_settings">
-Impostazioni di riproduzione speciali (in \"Impostazioni di riproduzione\" nella schermata Parla/Audio) vengono salvati in Parla/Audio segnalibri quando questa impostazione è selezionata. Quando si riavvia la conversazione da un segnalibro Parla/Audio, le impostazioni di riproduzione salvate vengono caricati dal segnalibro.</string>
+Impostazioni di riproduzione speciali (in \"Impostazioni di riproduzione\" nella schermata Parla) vengono salvati in Parla dai segnalibri quando questa impostazione è selezionata. Quando si riavvia la conversazione da un segnalibro parlato, le impostazioni di riproduzione salvate vengono caricati dal segnalibro.</string>
   <string name="speak_help_playback_settings_example">
 Ad esempio se stai ascoltando Genesi e Romani e
 desidera ascoltare la Genesi parlata rapidamente senza notifiche di modifica dei capitoli,
@@ -1003,7 +1002,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
     </string>
   <string name="discrete_mode_info_par2">
         Per una maggiore sicurezza nelle zone di persecuzione, consigliamo vivamente l\'uso della
-        versione discreta dell\'app, che mostra sempre la calcolatrice, anche quando i dati sono cancellati.
+        versione discreta dell\'app, che mostra sempre la calcolatrice, anche quando i dati dell\'app vengono cancellati.
     </string>
   <string name="discrete_mode_link">
         Puoi scaricare l\'ultima versione discreta da %s.
@@ -1011,7 +1010,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <!--Window synchronize groups-->
   <string name="sync_group_n">Gruppo %d</string>
   <string name="disable_sync">Disattiva sincronizzazione</string>
-  <string name="open_in_window">Apri risultati in una finestra</string>
+  <string name="open_in_window">Apri i risultati in una finestra</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Repository personalizzati</string>
@@ -1041,7 +1040,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
     </string>
   <string name="restore_backup_sections">Quali sezioni di backup desideri ripristinare?</string>
   <string name="db_repositories">Impostazioni relative ai repository</string>
-  <string name="db_bookmarks">Segnalibri, Annotazioni, Etichette and Appunti di Studio</string>
+  <string name="db_bookmarks">Segnalibri, Annotazioni, Etichette e Appunti di Studio</string>
   <string name="synchronizing">Sincronizzazione…</string>
   <string name="overrideBackup">
         Trovato nel Cloud un database esistente con cui il dispositivo non è sincronizzato.
@@ -1066,7 +1065,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="reading_progress_calendar">Attività di lettura</string>
   <string name="reading_progress_cycle">Ciclo %d</string>
   <string name="reading_progress_new_cycle">Nuovo ciclo</string>
-  <string name="reading_progress_new_cycle_confirm">Iniziare un nuovo ciclo di lettura? Inizierai a tracciare i tuoi progressi da zero, conservando i dati del ciclo precedente.</string>
+  <string name="reading_progress_new_cycle_confirm">Iniziare un nuovo ciclo di lettura? Ricomincerai a tracciare i tuoi progressi da zero, conservando i dati del ciclo precedente.</string>
   <string name="reading_progress_previous_cycle">Ciclo precedente</string>
   <string name="reading_progress_next_cycle">Ciclo successivo</string>
   <string name="cloud_fetch_and_restore_initial">Copia dal Cloud a questo dispositivo</string>

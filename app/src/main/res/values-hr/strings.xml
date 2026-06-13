@@ -17,7 +17,6 @@
   <string name="help">Pomoć</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
   <string name="help_read_more_link">Pročitaj više u priručniku</string>
-  <string name="help_full_documentation_link">Pregledaj cijelu dokumentaciju</string>
   <string name="help_prompt_edit_text">Prilagođeni upiti omogućuju vam stvaranje višekratno upotrebljivih AI uputa za vaše proučavanje. Postavite naziv, opis, predložak, kontekste u kojima bi se trebao prikazati i po potrebi prilagođenog pružatelja/model. Ugrađene upite nije moguće izravno uređivati — upotrijebite \"Kopiraj radi prilagodbe\" kako biste stvorili vlastitu verziju.</string>
   <string name="help_tool_info_text">AI alati su specijalizirane funkcije koje AI može pozivati kako bi čitao vaše podatke ili vršio promjene u vaše ime. Alati za čitanje (redci, komentari, rječnici, straničnici) nikada ne zahtijevaju dopuštenje. Alati za pisanje (stvaranje straničnika, bilješki, unosa u radnu bilježnicu) upravljani su sustavom dopuštenja.</string>
   <string name="help_ai_settings_text">AI postavke su mjesto gdje upravljate upitima i kategorijama. Odavde možete stvarati nove upite, organizirati ih u kategorije, uvoziti/izvoziti upite kao CSV, instalirati dodatne pakete upita i pristupiti postavkama AI veze.</string>
