@@ -406,9 +406,9 @@ class TextDisplaySettingsActivity: ActivityBase() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val newBundleJson = intent?.getStringExtra("settingsBundle") ?: return
+        val newBundleJson = intent.getStringExtra("settingsBundle") ?: return
         // Commit current-level dirty changes to in-memory state before navigating up the stack,
         // so they aren't lost when this bundle later pops back.
         commitDirtyToInMemoryState()

@@ -83,6 +83,15 @@ class BibleGestureListener(
 
             // test vertical distance, make sure it's a swipe
             if (vertical > scaledMinimumDistance) {
+                // Fast vertical fling opens PassageFinder when enabled
+                if (CommonUtils.settings.getBoolean("passage_finder_enabled", false)
+                    && abs(velocityY) > minScaledVelocity * 3
+                    && !mainBibleActivity.passageFinderLauncher.isVisible
+                    && mainBibleActivity.passageFinderLauncher.show()
+                ) {
+                    // Only consume the fling if the widget actually opened.
+                    return true
+                }
                 return false
             } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
                 // right to left swipe - sometimes velocity seems to have wrong sign so use raw positions to determine direction

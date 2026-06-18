@@ -99,6 +99,7 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.PageControl
+import net.bible.android.view.activity.passagefinder.PassageFinderLauncher
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.report.ErrorReportControl
@@ -220,6 +221,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var documentViewManager: DocumentViewManager
     lateinit var bibleViewFactory: BibleViewFactory
     private lateinit var mainMenuCommandHandler: MenuCommandHandler
+    lateinit var passageFinderLauncher: PassageFinderLauncher
 
     val llmDialogHelper = LlmDialogHelper(this)
 
@@ -320,6 +322,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         CommonUtils.buildActivityComponent().inject(this)
+
+        passageFinderLauncher = PassageFinderLauncher(this, navigationControl, pageControl)
 
         windowRepository = WindowRepository(lifecycleScope)
         windowControl.windowRepository = windowRepository
@@ -757,7 +761,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             override fun onSingleTapUp(e: MotionEvent): Boolean {
-                pageControl.currentPageManager.currentPage.startKeyChooser(this@MainBibleActivity)
+                val passageFinderShown = CommonUtils.settings.getBoolean("passage_finder_enabled", false)
+                    && passageFinderLauncher.show()
+                if (!passageFinderShown) {
+                    // Fall back to the legacy key chooser when the passage finder is
+                    // disabled or refused to open (e.g. the active module has no books).
+                    pageControl.currentPageManager.currentPage.startKeyChooser(this@MainBibleActivity)
+                }
                 return true
             }
 
@@ -773,6 +783,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed $fullScreen")
+        if (passageFinderLauncher.isVisible) {
+            passageFinderLauncher.hide()
+            return
+        }
         if(fullScreen) {
             toggleFullScreen()
             return
