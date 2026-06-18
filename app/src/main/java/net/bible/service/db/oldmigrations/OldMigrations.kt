@@ -150,15 +150,7 @@ private val MIGRATION_53_54_booleanSettings = object : Migration(53, 54) {
     }
 }
 
-private val MIGRATION_5_6 = object : Migration(5, 6) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
-        ReadingPlanDatabaseOperations.instance.onCreate(db)
-        ReadingPlanDatabaseOperations.instance.migratePrefsToDatabase(db)
-    }
-}
-
 val oldMigrations = arrayOf(
-    MIGRATION_5_6,
     MIGRATION_37_38_MyNotes_To_Bookmarks,
     MIGRATION_53_54_booleanSettings,
 )
