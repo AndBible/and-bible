@@ -452,6 +452,8 @@ data class GlobalAiSettings(
     val favoritePrompts: Set<IdType> = emptySet(),
     /** Auto-delete raw logs older than this many days. null = no auto-delete. */
     @ColumnInfo(defaultValue = "30") val rawLogRetentionDays: Int? = 30,
+    /** When true, auto-hide the agent log panel when a task finishes (unless it errored). */
+    @ColumnInfo(defaultValue = "0") val autoHideAgentLogOnCompletion: Boolean = false,
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */
