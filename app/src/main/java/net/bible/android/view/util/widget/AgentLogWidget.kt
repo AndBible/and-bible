@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.AgentLogWidgetBinding
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.ai.AgentLogAdapter
@@ -47,7 +48,9 @@ import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentLogUpdatedEvent
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.AgentSessionStatusChangedEvent
+import net.bible.service.llm.agent.AgentStopReason
 import net.bible.service.llm.agent.LogEntryType
+import net.bible.service.llm.agent.shouldAutoHideAgentLog
 import javax.inject.Inject
 
 /**
@@ -352,6 +355,17 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             // Auto-show when agent starts
             if (event.isRunning && visibility != View.VISIBLE) {
                 show()
+            }
+
+            // Auto-hide on a terminal state (unless it errored), if enabled by the user.
+            if (!event.isRunning &&
+                visibility == View.VISIBLE &&
+                shouldAutoHideAgentLog(CommonUtils.aiSettings.autoHideAgentLogOnCompletion, event.stopReason)
+            ) {
+                hide()
+                if (event.stopReason == AgentStopReason.COMPLETED) {
+                    ABEventBus.post(ToastEvent(R.string.ai_task_completed))
+                }
             }
         }
     }
