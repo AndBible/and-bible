@@ -79,6 +79,18 @@ class AgentLogUpdatedEvent(
     val entry: AgentLogEntry
 )
 
+/** Terminal outcome of an agent session, carried on [AgentSessionStatusChangedEvent]. */
+enum class AgentStopReason { COMPLETED, ERROR, CANCELLED }
+
+/**
+ * Whether the agent log panel should auto-hide for a terminal session state.
+ * Pure function — unit tested in AgentLogAutoHideTest. Hides for any non-error
+ * terminal reason when the setting is enabled; keeps the panel visible on error
+ * (so the user can read it) and ignores the start event (reason == null).
+ */
+fun shouldAutoHideAgentLog(settingEnabled: Boolean, reason: AgentStopReason?): Boolean =
+    settingEnabled && reason != null && reason != AgentStopReason.ERROR
+
 class AgentSessionStatusChangedEvent(
     val workspaceId: IdType,
     val isRunning: Boolean
