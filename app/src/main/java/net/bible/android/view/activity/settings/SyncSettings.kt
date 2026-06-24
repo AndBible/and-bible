@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.settings
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.webkit.URLUtil
@@ -33,12 +34,14 @@ import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.cloudsync.CloudAdapters
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -123,6 +126,33 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_mydocuments")!!.run { setupDrivePref(this) }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_ai_settings")!!.run { setupDrivePref(this) }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_progress")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_documents")!!.run {
+            setOnPreferenceChangeListener { _, newValue ->
+                val enable = newValue as Boolean
+                if (enable) {
+                    lifecycleScope.launch {
+                        var signedIn = CloudSync.signedIn
+                        if (!signedIn) signedIn = CloudSync.signIn(activity as ActivityBase) == true
+                        if (signedIn) {
+                            DocumentSyncSettings.enabled = true
+                            startActivity(
+                                Intent(requireContext(), CloudDocumentsActivity::class.java)
+                                    .putExtra(CloudDocumentsActivity.EXTRA_SETUP_MODE, true)
+                            )
+                        }
+                        activity?.recreate()
+                    }
+                    false
+                } else {
+                    DocumentSyncSettings.enabled = false
+                    true
+                }
+            }
+        }
+        preferenceScreen.findPreference<Preference>("document_sync_manage")!!.setOnPreferenceClickListener {
+            startActivity(Intent(requireContext(), CloudDocumentsActivity::class.java))
+            true
+        }
         preferenceScreen.findPreference<Preference>("cloud_sync_reset")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
