@@ -70,10 +70,6 @@ class CloudDocumentsAdapter(
 
     fun getSelectedInitials(): Set<String> = selectedInitials.toSet()
 
-    fun clearSelection() {
-        selectedInitials.clear()
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_cloud_document, parent, false)

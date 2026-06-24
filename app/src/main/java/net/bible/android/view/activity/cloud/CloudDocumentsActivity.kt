@@ -165,6 +165,7 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     private fun applyFilter() {
+        if (adapter.isSelectionMode()) exitSelectionMode()
         val filtered = allItems.filter { item ->
             when (filter) {
                 Filter.ALL -> true
