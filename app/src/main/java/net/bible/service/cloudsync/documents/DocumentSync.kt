@@ -29,6 +29,9 @@ import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 
+/** Wall-clock budget for DOWNLOAD/UPGRADE actions in a single pull cycle (ms). */
+private const val PULL_DOWNLOAD_BUDGET_MS = 150_000L
+
 object DocumentSync {
     private const val TAG = "DocumentSync"
 
@@ -140,10 +143,21 @@ object DocumentSync {
         val actions = resolveDocumentSyncActions(
             cloudDocs, localDocs, syncTimestamps,
             DocumentSyncSettings.blockList.all(), ::versionIsNewer)
+        val start = System.currentTimeMillis()
+        var deferred = 0
         for (action in actions) when (action.type) {
-            DocumentSyncActionType.DOWNLOAD, DocumentSyncActionType.UPGRADE -> downloadAndInstall(action.initials)
+            DocumentSyncActionType.DOWNLOAD, DocumentSyncActionType.UPGRADE -> {
+                if ((System.currentTimeMillis() - start) > PULL_DOWNLOAD_BUDGET_MS) {
+                    deferred++
+                } else {
+                    downloadAndInstall(action.initials)
+                }
+            }
             DocumentSyncActionType.UNINSTALL -> uninstallLocal(action.initials, local)
             DocumentSyncActionType.SKIP_BLOCKED, DocumentSyncActionType.NONE -> {}
+        }
+        if (deferred > 0) {
+            Log.i(TAG, "Document pull: deferred $deferred document download(s) to next sync cycle (time budget reached)")
         }
     }
 

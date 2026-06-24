@@ -38,6 +38,25 @@ enum class DocumentSyncActionType { DOWNLOAD, UPGRADE, UNINSTALL, SKIP_BLOCKED, 
 
 data class DocumentSyncAction(val initials: String, val type: DocumentSyncActionType)
 
+/**
+ * Resolves the sync action to perform for each document in [cloudDocs], preserving input order.
+ *
+ * Decision precedence for each cloud document:
+ * 1. **Tombstone (deleted=true)**: UNINSTALL if a [syncTimestamps] record exists and the tombstone
+ *    is strictly newer than the last known sync; otherwise NONE (locally-installed-only docs are
+ *    never auto-deleted).
+ * 2. **Blocked**: SKIP_BLOCKED if the document's initials appear in [blocked].
+ * 3. **Not installed locally**: DOWNLOAD.
+ * 4. **Cloud newer than local**: UPGRADE (determined via [isNewer]).
+ * 5. **Otherwise**: NONE (local is same or newer).
+ *
+ * @param cloudDocs   Documents reported by the cloud store, in desired processing order.
+ * @param localDocs   Locally installed documents keyed by initials.
+ * @param syncTimestamps Per-initials timestamp of the last confirmed sync (used by tombstone check).
+ * @param blocked     Set of initials that must never be auto-downloaded or upgraded.
+ * @param isNewer     Caller-injected version comparator. Returns **true** if [cloudVersion] is
+ *                    strictly newer than [localVersion] (e.g. semantic version comparison).
+ */
 fun resolveDocumentSyncActions(
     cloudDocs: List<CloudDocument>,
     localDocs: Map<String, LocalDocument>,
