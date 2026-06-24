@@ -42,6 +42,7 @@ import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -1674,6 +1675,11 @@ object CommonUtils : CommonUtilsBase() {
             }
             notificationManager.createNotificationChannel(channel)
         }
+    }
+
+    val isMeteredNetwork: Boolean get() {
+        val cm = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return cm.isActiveNetworkMetered
     }
 
     val isCloudSyncAvailable get() = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
