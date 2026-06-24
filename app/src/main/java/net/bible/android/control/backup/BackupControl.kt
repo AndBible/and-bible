@@ -342,40 +342,72 @@ object BackupControl {
         return result
     }
 
+    private fun relativeFileName(rootDir: File, file: File): String {
+        val filePath = file.canonicalPath
+        val dirPath = rootDir.canonicalPath
+        assert(filePath.startsWith(dirPath))
+        return filePath.substring(dirPath.length + 1)
+    }
+
+    private fun addFile(outFile: ZipOutputStream, rootDir: File, file: File) {
+        FileInputStream(file).use { inFile ->
+            BufferedInputStream(inFile).use { origin ->
+                val entry = ZipEntry(relativeFileName(rootDir, file))
+                outFile.putNextEntry(entry)
+                origin.copyTo(outFile)
+            }
+        }
+    }
+
+    private fun addModuleFile(outFile: ZipOutputStream, moduleFile: File) {
+        FileInputStream(moduleFile).use { inFile ->
+            BufferedInputStream(inFile).use { origin ->
+                val fileNameInsideZip = moduleFile.relativeTo(moduleDir).path
+                val entry = ZipEntry(fileNameInsideZip)
+                outFile.putNextEntry(entry)
+                origin.copyTo(outFile)
+            }
+        }
+    }
+
+    private fun addModuleDir(outFile: ZipOutputStream, modDir: File) {
+        for (f in modDir.walkTopDown().filter { it.isFile }) {
+            addFile(outFile, moduleDir, f)
+        }
+    }
+
+    private fun addBookToZip(outFile: ZipOutputStream, b: Book) {
+        val bmd = b.bookMetaData as SwordBookMetaData
+        if (b.isManuallyInstalledMyBibleBook) {
+            addModuleFile(outFile, b.dbFile)
+        } else if (b.isManuallyInstalledMySwordBook) {
+            addModuleFile(outFile, b.dbFile)
+        } else if (b.isManuallyInstalledESwordBook) {
+            addModuleFile(outFile, b.dbFile)
+        } else if (b.isManuallyInstalledEpub) {
+            addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))
+        } else {
+            val configFile = bmd.configFile
+            val rootDir = configFile.parentFile!!.parentFile!!
+            addFile(outFile, rootDir, configFile)
+            val dataPath = bmd.getProperty("DataPath")
+            val dataDir = File(rootDir, dataPath).run {
+                if (listOf(
+                        BookCategory.DICTIONARY,
+                        BookCategory.GENERAL_BOOK,
+                        BookCategory.MAPS
+                    ).contains(b.bookCategory)
+                )
+                    parentFile
+                else this
+            }
+            for (f in dataDir.walkTopDown().filter { it.isFile }) {
+                addFile(outFile, rootDir, f)
+            }
+        }
+    }
+
     private suspend fun createModulesZip(books: List<Book>, zipFile: File) {
-        fun relativeFileName(rootDir: File, file: File): String {
-            val filePath = file.canonicalPath
-            val dirPath = rootDir.canonicalPath
-            assert(filePath.startsWith(dirPath))
-            return filePath.substring(dirPath.length + 1)
-        }
-
-        fun addFile(outFile: ZipOutputStream, rootDir: File, file: File) {
-            FileInputStream(file).use { inFile ->
-                BufferedInputStream(inFile).use { origin ->
-                    val entry = ZipEntry(relativeFileName(rootDir, file))
-                    outFile.putNextEntry(entry)
-                    origin.copyTo(outFile)
-                }
-            }
-        }
-
-        fun addModuleFile(outFile: ZipOutputStream, moduleFile: File) {
-            FileInputStream(moduleFile).use { inFile ->
-                BufferedInputStream(inFile).use { origin ->
-                    val fileNameInsideZip = moduleFile.relativeTo(moduleDir).path
-                    val entry = ZipEntry(fileNameInsideZip)
-                    outFile.putNextEntry(entry)
-                    origin.copyTo(outFile)
-                }
-            }
-        }
-        fun addModuleDir(outFile: ZipOutputStream, modDir: File) {
-            for (f in modDir.walkTopDown().filter { it.isFile }) {
-                addFile(outFile, moduleDir, f)
-            }
-        }
-
         val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP)
 
         withContext(Dispatchers.IO) {
@@ -383,37 +415,19 @@ object BackupControl {
                 ZipOutputStream(out).use { outFile ->
                     manifest.saveToZip(outFile)
                     for (b in books) {
-                        val bmd = b.bookMetaData as SwordBookMetaData
-                        if (b.isManuallyInstalledMyBibleBook) {
-                            addModuleFile(outFile, b.dbFile)
-                        } else if (b.isManuallyInstalledMySwordBook) {
-                            addModuleFile(outFile, b.dbFile)
-                        } else if (b.isManuallyInstalledESwordBook) {
-                            addModuleFile(outFile, b.dbFile)
-                        } else if (b.isManuallyInstalledEpub) {
-                            addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))
-                        }
-                        else {
-                            val configFile = bmd.configFile
-                            val rootDir = configFile.parentFile!!.parentFile!!
-                            addFile(outFile, rootDir, configFile)
-                            val dataPath = bmd.getProperty("DataPath")
-                            val dataDir = File(rootDir, dataPath).run {
-                                if (listOf(
-                                        BookCategory.DICTIONARY,
-                                        BookCategory.GENERAL_BOOK,
-                                        BookCategory.MAPS
-                                    ).contains(b.bookCategory)
-                                )
-                                    parentFile
-                                else this
-                            }
-                            for (f in dataDir.walkTopDown().filter { it.isFile }) {
-                                addFile(outFile, rootDir, f)
-                            }
-                        }
+                        addBookToZip(outFile, b)
                     }
                 }
+            }
+        }
+    }
+
+    suspend fun createSingleModuleZip(book: Book, zipFile: File) = withContext(Dispatchers.IO) {
+        val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP)
+        FileOutputStream(zipFile).use { out ->
+            ZipOutputStream(out).use { outFile ->
+                manifest.saveToZip(outFile)
+                addBookToZip(outFile, book)
             }
         }
     }
