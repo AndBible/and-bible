@@ -100,6 +100,17 @@ object CloudSync {
 
     val signedIn get() = _adapter != null && adapter.signedIn
 
+    internal val cloudAdapter: CloudAdapter? get() = _adapter
+
+    const val DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX = "DOCUMENTS"
+
+    suspend fun documentsSyncFolderId(): String? {
+        val adapter = _adapter ?: return null
+        val name = "${app.applicationInfo.packageName}-sync-$DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX"
+        val existing = adapter.listFiles(name = name).firstOrNull()
+        return existing?.id ?: adapter.createNewFolder(name).id
+    }
+
     private val signInMutex = Mutex()
     suspend fun signIn(activity: ActivityBase): Boolean? {
         if(signInMutex.isLocked) {
