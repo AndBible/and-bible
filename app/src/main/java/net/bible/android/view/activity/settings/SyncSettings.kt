@@ -137,7 +137,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                             DocumentSyncSettings.enabled = true
                             startActivity(
                                 Intent(requireContext(), CloudDocumentsActivity::class.java)
-                                    .putExtra(CloudDocumentsActivity.EXTRA_SETUP_MODE, true)
+                                    .putExtra(CloudDocumentsActivity.EXTRA_SETUP_MODE, DocumentSyncSettings.automatic)
                             )
                         }
                         activity?.recreate()
