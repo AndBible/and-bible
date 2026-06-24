@@ -35,6 +35,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
+import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
@@ -427,6 +428,11 @@ object CloudSync {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
                     ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
                 }
+            }
+            try {
+                DocumentSync.pullDocuments(automaticOnly = true)
+            } catch (e: Exception) {
+                Log.e(TAG, "Document sync pull failed", e)
             }
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
         }
