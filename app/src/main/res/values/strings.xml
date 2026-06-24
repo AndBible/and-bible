@@ -1879,4 +1879,28 @@
     <string name="scroll_helper_line_style_thick_solid">Thick solid line</string>
     <string name="prefs_page_buttons_title">Page scroll buttons</string>
     <string name="prefs_page_buttons_summary">Show visible page up/down buttons on screen</string>
+
+    <!-- Document sync: cloud documents management view -->
+    <string name="document_sync_manage_title">Synced documents</string>
+    <string name="cloud_doc_status_synced">Synced</string>
+    <string name="cloud_doc_status_local_only">On this device only</string>
+    <string name="cloud_doc_status_cloud_only">In cloud only</string>
+    <string name="cloud_doc_status_update">Update available</string>
+    <string name="cloud_doc_status_blocked">Blocked on this device</string>
+    <string name="cloud_doc_version_prefix">v%1$s</string>
+    <string name="cloud_doc_filter_all">All</string>
+    <string name="cloud_doc_filter_installed">Installed</string>
+    <string name="cloud_doc_filter_cloud">In cloud</string>
+    <string name="cloud_doc_filter_updates">Updates</string>
+    <string name="cloud_doc_filter_blocked">Blocked</string>
+    <string name="cloud_doc_action_download">Download</string>
+    <string name="cloud_doc_action_push">Push to cloud</string>
+    <string name="cloud_doc_action_remove_cloud">Remove from cloud</string>
+    <string name="cloud_doc_action_block">Don\'t sync to this device</string>
+    <string name="cloud_doc_action_unblock">Allow on this device</string>
+    <string name="cloud_doc_remove_confirm">Remove this document from the cloud? In automatic mode it will also be removed from your other devices.</string>
+    <string name="cloud_doc_setup_intro">Document sync enabled — choose what to sync.</string>
+    <string name="cloud_doc_setup_start">Start syncing</string>
+    <string name="cloud_doc_header_totals">Upload %1$d (%2$s) · Download %3$d (%4$s)</string>
+    <string name="cloud_doc_wifi_waiting">Automatic downloads will start on Wi-Fi.</string>
 </resources>
