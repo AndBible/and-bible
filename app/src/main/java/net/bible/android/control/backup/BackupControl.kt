@@ -71,6 +71,7 @@ import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.common.CommonUtils.determineFileType
@@ -78,15 +79,25 @@ import net.bible.service.common.DbType
 import net.bible.service.db.bookmarksDbStats
 import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.dbFile
+import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
+import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.epub.epubDir
 import net.bible.service.sword.epub.isManuallyInstalledEpub
-import net.bible.service.sword.mybible.isManuallyInstalledMyBibleBook
+import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
 import net.bible.service.sword.esword.isManuallyInstalledESwordBook
+import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
+import net.bible.service.sword.mybible.isManuallyInstalledMyBibleBook
+import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.mysword.isManuallyInstalledMySwordBook
+import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
+import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
+import org.crosswire.jsword.book.sword.SwordBookPath
+import org.crosswire.jsword.book.sword.SwordConstants
 import java.io.BufferedInputStream
 import java.io.Closeable
 import java.io.File
@@ -94,10 +105,12 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -766,6 +779,128 @@ object BackupControl {
 
         ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
     }
+
+    /**
+     * Extract a module zip archive into the SWORD download directory and register the
+     * resulting books with JSword, without any Activity UI.
+     *
+     * This is the shared, headless core of module installation. The Activity-based
+     * [InstallZip] flow delegates here (passing a progress callback), and the cloud
+     * document-sync layer ([net.bible.service.cloudsync.documents.DocumentArchiver]) also
+     * delegates here so that the install path is not duplicated.
+     *
+     * The archive may contain an [ANDBIBLE_BACKUP_MANIFEST_FILENAME] manifest entry
+     * (which is skipped) plus module files at modulesDir-relative paths: SWORD conf files
+     * under mods.d plus data under modules, or sqlite-based MyBible/MySword/e-Sword files,
+     * or an epub directory tree. After extraction, all addManuallyInstalled discovery
+     * functions run so newly extracted books of every supported type are registered.
+     *
+     * @param newInputStream supplies a fresh [InputStream] over the archive (called once).
+     * @param totalEntries number of zip entries, used only to scale [onProgress]; pass 0 to
+     *   skip progress scaling.
+     * @param onProgress optional progress callback receiving a 0..100 percentage.
+     * @throws IOException on extraction failure.
+     */
+    suspend fun extractAndRegisterModuleArchive(
+        newInputStream: () -> InputStream,
+        totalEntries: Int = 0,
+        onProgress: ((percent: Int) -> Unit)? = null,
+    ) = withContext(Dispatchers.IO) {
+        val confFiles = ArrayList<File>()
+        val targetDirectory = SwordBookPath.getSwordDownloadDir()
+        val errors: MutableList<String> = mutableListOf()
+        ZipInputStream(newInputStream()).use { zIn ->
+            var ze: ZipEntry? = zIn.nextEntry
+            var entryNum = 0
+            val buffer = ByteArray(8192)
+            while (ze != null) {
+                val name = ze.name.replace('\\', '/')
+                if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
+                    ze = zIn.nextEntry
+                    continue
+                }
+
+                val file = File(targetDirectory, name)
+                if (name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF))
+                    confFiles.add(file)
+
+                val dir = if (ze.isDirectory) file else file.parentFile
+
+                if (dir != null && !dir.isDirectory && !(dir.mkdirs() || dir.isDirectory))
+                    throw IOException()
+
+                if (ze.isDirectory) {
+                    ze = zIn.nextEntry
+                    continue
+                }
+                try {
+                    FileOutputStream(file).use { fOut ->
+                        var count = zIn.read(buffer)
+                        while (count != -1) {
+                            fOut.write(buffer, 0, count)
+                            count = zIn.read(buffer)
+                        }
+                    }
+                } catch (e: IOException) {
+                    errors.add(file.name)
+                    Log.e(TAG, "Error in writing ${file.name}", e)
+                }
+                entryNum++
+                if (onProgress != null && totalEntries > 0) {
+                    onProgress((entryNum.toFloat() / totalEntries.toFloat() * 100).toInt())
+                }
+                ze = zIn.nextEntry
+            }
+            if (errors.isNotEmpty()) {
+                throw IOException("Could not write module files: ${errors.joinToString(", ")}")
+            }
+        }
+        // Load configuration files & register SWORD books
+        val bookDriver = SwordBookDriver.instance()
+        for (confFile in confFiles) {
+            val me = SwordBookMetaData(confFile, NetUtil.getURI(targetDirectory))
+            me.driver = bookDriver
+            SwordBookDriver.registerNewBook(me)
+        }
+        // Discover & register all other (manually installed) book types
+        addManuallyInstalledMyBibleBooks()
+        addManuallyInstalledMySwordBooks()
+        addManuallyInstalledESwordBooks()
+        addManuallyInstalledEpubBooks()
+        addManuallyInstalledTtfBooks()
+        addManuallyInstalledCsvPromptBooks()
+    }
+
+    /**
+     * Install an `.abmd.zip` module archive (the format produced by [createSingleModuleZip])
+     * headlessly — no Activity, dialogs or progress UI — and report whether the expected
+     * document is now present in [Books.installed].
+     *
+     * @param file the archive to install.
+     * @param expectedInitials initials of the document expected to appear after install;
+     *   if null, success is reported when [Books.installed] grew.
+     * @return true if installation succeeded and the document is registered.
+     */
+    suspend fun installModuleArchive(file: File, expectedInitials: String? = null): Boolean =
+        withContext(Dispatchers.IO) {
+            val countBefore = Books.installed().books.size
+            try {
+                extractAndRegisterModuleArchive({ FileInputStream(file) })
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to install module archive ${file.name}", e)
+                return@withContext false
+            }
+            val installed = Books.installed()
+            val ok = if (expectedInitials != null) {
+                installed.getBook(expectedInitials) != null
+            } else {
+                installed.books.size > countBefore
+            }
+            if (ok) {
+                ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+            }
+            ok
+        }
 
     suspend fun backupPopup(activity: ActivityBase) {
         val intent = Intent(activity, BackupActivity::class.java)
