@@ -161,13 +161,19 @@ class ZipHandler(
      * Extract and register the zip via the shared headless installer in [BackupControl],
      * forwarding per-entry progress to the Activity UI. Extraction/registration logic is
      * not duplicated here — see [BackupControl.extractAndRegisterModuleArchive].
+     *
+     * Any [IOException] from the shared extractor (e.g. write-permission failure) is
+     * re-thrown as [CantOverwrite] so the caller's specialized error dialog is reached.
      */
-    private suspend fun installZipFile() =
+    private suspend fun installZipFile() = try {
         BackupControl.extractAndRegisterModuleArchive(
             newInputStream = { newInputStream() ?: throw FileNotFound() },
             totalEntries = totalEntries,
             onProgress = { percent -> launchProgressUpdate(percent) },
         )
+    } catch (e: IOException) {
+        throw CantOverwrite(listOf(e.message ?: "unknown"))
+    }
 
     private fun launchProgressUpdate(percent: Int) {
         activity.runOnUiThread { updateProgress(percent / totalEntries.coerceAtLeast(1)) }
