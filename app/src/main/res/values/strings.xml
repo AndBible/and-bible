@@ -1903,4 +1903,6 @@
     <string name="cloud_doc_setup_start">Start syncing</string>
     <string name="cloud_doc_header_totals">Upload %1$d (%2$s) · Download %3$d (%4$s)</string>
     <string name="cloud_doc_wifi_waiting">Automatic downloads will start on Wi-Fi.</string>
+    <string name="cloud_doc_select">Select</string>
+    <string name="cloud_doc_bulk_download">Download selected (%1$d)</string>
 </resources>

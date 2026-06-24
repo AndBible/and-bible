@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.cloud
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
@@ -66,11 +67,16 @@ class CloudDocumentsActivity : ActivityBase() {
         title = getString(R.string.document_sync_manage_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        adapter = CloudDocumentsAdapter(onOverflow = { item, anchor -> showItemMenu(item, anchor) })
+        adapter = CloudDocumentsAdapter(
+            onOverflow = { item, anchor -> showItemMenu(item, anchor) },
+            onSelectionChanged = { count -> onSelectionChanged(count) },
+        )
         binding.recycler.apply {
             layoutManager = LinearLayoutManager(this@CloudDocumentsActivity)
             adapter = this@CloudDocumentsActivity.adapter
         }
+
+        binding.primaryAction.setOnClickListener { performBulkAction() }
 
         binding.filters.setOnCheckedChangeListener { _, checkedId ->
             filter = when (checkedId) {
@@ -86,9 +92,64 @@ class CloudDocumentsActivity : ActivityBase() {
         refresh()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menu.add(Menu.NONE, MENU_SELECT, Menu.NONE, R.string.cloud_doc_select)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> { finish(); true }
+        MENU_SELECT -> { enterSelectionMode(); true }
+        android.R.id.home -> {
+            if (adapter.isSelectionMode()) exitSelectionMode() else finish()
+            true
+        }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onBackPressed() {
+        if (adapter.isSelectionMode()) exitSelectionMode() else super.onBackPressed()
+    }
+
+    private fun enterSelectionMode() {
+        adapter.setSelectionMode(true)
+        onSelectionChanged(0)
+    }
+
+    private fun exitSelectionMode() {
+        adapter.setSelectionMode(false)
+        binding.bottomBar.visibility = View.GONE
+    }
+
+    /** Updates the bottom action bar to reflect the current selection. */
+    private fun onSelectionChanged(count: Int) {
+        if (!adapter.isSelectionMode()) {
+            binding.bottomBar.visibility = View.GONE
+            return
+        }
+        binding.bottomBar.visibility = View.VISIBLE
+        binding.primaryAction.text = getString(R.string.cloud_doc_bulk_download, count)
+        binding.primaryAction.isEnabled = count > 0
+    }
+
+    /**
+     * Bulk action for the bottom bar. In normal (non-setup) mode it downloads every
+     * selected item that is available in the cloud (cloud-only or has an update).
+     */
+    private fun performBulkAction() {
+        val selected = adapter.getSelectedInitials()
+        val toDownload = allItems.filter { it.initials in selected && (it.cloudOnly || it.updateAvailable) }
+        if (toDownload.isEmpty()) {
+            exitSelectionMode()
+            return
+        }
+        runSyncAction {
+            for (item in toDownload) {
+                DocumentSync.downloadAndInstall(item.initials)
+            }
+        }
+        exitSelectionMode()
     }
 
     /** Re-scans the cloud + local documents and updates the list. */
@@ -195,5 +256,6 @@ class CloudDocumentsActivity : ActivityBase() {
 
     companion object {
         const val EXTRA_SETUP_MODE = "setupMode"
+        private const val MENU_SELECT = 1
     }
 }

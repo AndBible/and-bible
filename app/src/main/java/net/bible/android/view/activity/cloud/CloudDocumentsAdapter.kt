@@ -49,9 +49,30 @@ enum class CloudDocAction { DOWNLOAD, PUSH, REMOVE_CLOUD, BLOCK, UNBLOCK, TOGGLE
  */
 class CloudDocumentsAdapter(
     private val onOverflow: (DocumentStatusItem, View) -> Unit,
+    /** Invoked whenever the set of selected items changes (selection mode only). */
+    private val onSelectionChanged: (Int) -> Unit = {},
 ) : ListAdapter<DocumentStatusItem, CloudDocumentsAdapter.ViewHolder>(DIFF_CALLBACK) {
 
+    /** Initials of the currently selected items (only meaningful in selection mode). */
+    private val selectedInitials = mutableSetOf<String>()
+    private var selectionMode = false
+
     fun submit(items: List<DocumentStatusItem>) = submitList(items)
+
+    /** Toggles selection mode on/off. Leaving selection mode clears the selection. */
+    fun setSelectionMode(enabled: Boolean) {
+        selectionMode = enabled
+        if (!enabled) selectedInitials.clear()
+        notifyItemRangeChanged(0, itemCount)
+    }
+
+    fun isSelectionMode(): Boolean = selectionMode
+
+    fun getSelectedInitials(): Set<String> = selectedInitials.toSet()
+
+    fun clearSelection() {
+        selectedInitials.clear()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -79,11 +100,31 @@ class CloudDocumentsAdapter(
             statusIcon.setImageResource(statusIconRes(item))
             statusIcon.contentDescription = statusText(context, item)
 
-            // Selection mode is added in Task 13; checkbox stays hidden for now.
-            checkbox.visibility = View.GONE
+            // In selection mode show the checkbox and hide the per-item overflow menu.
+            checkbox.visibility = if (selectionMode) View.VISIBLE else View.GONE
+            checkbox.setOnCheckedChangeListener(null)
+            checkbox.isChecked = item.initials in selectedInitials
+            checkbox.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) selectedInitials.add(item.initials) else selectedInitials.remove(item.initials)
+                onSelectionChanged(selectedInitials.size)
+            }
 
+            overflow.visibility = if (selectionMode) View.GONE else View.VISIBLE
             // The activity builds and shows the popup menu of valid actions for this item.
             overflow.setOnClickListener { onOverflow(item, it) }
+
+            itemView.setOnClickListener {
+                if (selectionMode) checkbox.isChecked = !checkbox.isChecked
+            }
+            itemView.setOnLongClickListener {
+                if (!selectionMode) {
+                    selectionMode = true
+                    selectedInitials.add(item.initials)
+                    notifyItemRangeChanged(0, itemCount)
+                    onSelectionChanged(selectedInitials.size)
+                }
+                true
+            }
         }
 
         private fun subtitleText(item: DocumentStatusItem): String {
