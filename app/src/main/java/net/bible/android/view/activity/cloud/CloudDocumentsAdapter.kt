@@ -70,6 +70,13 @@ class CloudDocumentsAdapter(
 
     fun getSelectedInitials(): Set<String> = selectedInitials.toSet()
 
+    /** Replaces the current selection with the given initials and redraws all rows. */
+    fun selectAll(initials: Collection<String>) {
+        selectedInitials.clear()
+        selectedInitials.addAll(initials)
+        notifyItemRangeChanged(0, itemCount)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_cloud_document, parent, false)

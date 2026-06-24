@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.cloud
 
 import android.os.Bundle
+import android.text.format.Formatter
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -35,6 +36,7 @@ import net.bible.android.view.util.Hourglass
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSync.DocumentStatusItem
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.Books
 
 /**
@@ -51,6 +53,8 @@ class CloudDocumentsActivity : ActivityBase() {
     private lateinit var adapter: CloudDocumentsAdapter
 
     private var setupMode: Boolean = false
+    /** True until the setup-mode UI has been applied after the first scan completes. */
+    private var pendingSetup: Boolean = false
     private var filter: Filter = Filter.ALL
     private var allItems: List<DocumentStatusItem> = emptyList()
 
@@ -63,6 +67,7 @@ class CloudDocumentsActivity : ActivityBase() {
         buildActivityComponent().inject(this)
 
         setupMode = intent.getBooleanExtra(EXTRA_SETUP_MODE, false)
+        pendingSetup = setupMode
 
         title = getString(R.string.document_sync_manage_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -76,7 +81,9 @@ class CloudDocumentsActivity : ActivityBase() {
             adapter = this@CloudDocumentsActivity.adapter
         }
 
-        binding.primaryAction.setOnClickListener { performBulkAction() }
+        binding.primaryAction.setOnClickListener {
+            if (setupMode) performSetupSync() else performBulkAction()
+        }
 
         binding.filters.setOnCheckedChangeListener { _, checkedId ->
             filter = when (checkedId) {
@@ -129,8 +136,48 @@ class CloudDocumentsActivity : ActivityBase() {
             return
         }
         binding.bottomBar.visibility = View.VISIBLE
-        binding.primaryAction.text = getString(R.string.cloud_doc_bulk_download, count)
-        binding.primaryAction.isEnabled = count > 0
+        if (setupMode) {
+            binding.primaryAction.text = getString(R.string.cloud_doc_setup_start)
+            binding.primaryAction.isEnabled = true
+            updateSetupHeader()
+        } else {
+            binding.primaryAction.text = getString(R.string.cloud_doc_bulk_download, count)
+            binding.primaryAction.isEnabled = count > 0
+        }
+    }
+
+    /**
+     * Enters the onboarding setup mode: shows the intro header, selects every scanned
+     * item, and reveals the "Start syncing" bottom bar. Called once after the first scan.
+     */
+    private fun enterSetupMode() {
+        binding.header.visibility = View.VISIBLE
+        adapter.setSelectionMode(true)
+        adapter.selectAll(allItems.map { it.initials })
+        onSelectionChanged(adapter.getSelectedInitials().size)
+    }
+
+    /**
+     * Computes and displays the setup-mode header: how many items (and their total
+     * cloud-known size) would be uploaded vs downloaded, plus a Wi-Fi waiting note when
+     * downloads are deferred until an unmetered connection.
+     */
+    private fun updateSetupHeader() {
+        val selected = adapter.getSelectedInitials()
+        val selectedItems = allItems.filter { it.initials in selected }
+        val uploads = selectedItems.filter { it.localOnly }
+        val downloads = selectedItems.filter { it.cloudOnly || it.updateAvailable }
+        val uploadSize = Formatter.formatShortFileSize(this, uploads.sumOf { it.sizeBytes })
+        val downloadSize = Formatter.formatShortFileSize(this, downloads.sumOf { it.sizeBytes })
+        val totals = getString(
+            R.string.cloud_doc_header_totals,
+            uploads.size, uploadSize, downloads.size, downloadSize,
+        )
+        var text = getString(R.string.cloud_doc_setup_intro) + "\n" + totals
+        if (DocumentSyncSettings.wifiOnly && CommonUtils.isMeteredNetwork) {
+            text += "\n" + getString(R.string.cloud_doc_wifi_waiting)
+        }
+        binding.header.text = text
     }
 
     /**
@@ -152,6 +199,44 @@ class CloudDocumentsActivity : ActivityBase() {
         exitSelectionMode()
     }
 
+    /**
+     * Setup-mode primary action ("Start syncing"). Performs the initial bulk sync over
+     * the current selection: local-only items are pushed, cloud-only/update items are
+     * downloaded. Cloud-only items the user *deselected* are blocked so they are not
+     * downloaded later; deselected local-only items are simply left as-is. When done,
+     * setup mode is dropped and the screen becomes the normal management view.
+     */
+    private fun performSetupSync() {
+        val selected = adapter.getSelectedInitials()
+        val toPush = allItems.filter { it.initials in selected && it.localOnly }
+            .mapNotNull { Books.installed().getBook(it.initials) }
+        val toDownload = allItems.filter { it.initials in selected && (it.cloudOnly || it.updateAvailable) }
+        // Cloud-only items the user opted out of get blocked so they aren't pulled later.
+        val toBlock = allItems.filter { it.initials !in selected && it.cloudOnly }
+
+        runSyncAction {
+            for (initials in toBlock.map { it.initials }) {
+                DocumentSyncSettings.blockList.block(initials)
+            }
+            for (book in toPush) {
+                DocumentSync.pushDocument(book)
+            }
+            for (item in toDownload) {
+                DocumentSync.downloadAndInstall(item.initials)
+            }
+        }
+        // Drop setup mode: refresh() (triggered by runSyncAction) rebuilds the list, and
+        // exitSetupMode() turns the screen into the normal management view.
+        exitSetupMode()
+    }
+
+    /** Leaves setup mode, restoring the plain management view (intro hidden, no selection). */
+    private fun exitSetupMode() {
+        setupMode = false
+        binding.header.visibility = View.GONE
+        exitSelectionMode()
+    }
+
     /** Re-scans the cloud + local documents and updates the list. */
     private fun refresh() = lifecycleScope.launch {
         val hourglass = Hourglass(this@CloudDocumentsActivity)
@@ -162,6 +247,10 @@ class CloudDocumentsActivity : ActivityBase() {
             hourglass.dismiss()
         }
         applyFilter()
+        if (pendingSetup) {
+            pendingSetup = false
+            enterSetupMode()
+        }
     }
 
     private fun applyFilter() {
