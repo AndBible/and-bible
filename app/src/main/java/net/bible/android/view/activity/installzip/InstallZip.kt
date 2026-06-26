@@ -19,6 +19,7 @@ package net.bible.android.view.activity.installzip
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -422,7 +423,15 @@ class InstallZip : ActivityBase() {
             "text/csv",
             "text/comma-separated-values",
         ))
-        val result = awaitIntent(intent)
+        val result = try {
+            awaitIntent(intent)
+        } catch (e: ActivityNotFoundException) {
+            // Some devices lack a documents UI / file manager to handle ACTION_OPEN_DOCUMENT.
+            Log.e(TAG, "No activity found to handle ACTION_OPEN_DOCUMENT", e)
+            ABEventBus.post(ToastEvent(getString(R.string.no_file_manager)))
+            finish()
+            return
+        }
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = result.data!!.data!!
             val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
