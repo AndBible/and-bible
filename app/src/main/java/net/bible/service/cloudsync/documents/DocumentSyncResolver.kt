@@ -42,9 +42,9 @@ data class DocumentSyncAction(val initials: String, val type: DocumentSyncAction
  * Resolves the sync action to perform for each document in [cloudDocs], preserving input order.
  *
  * Decision precedence for each cloud document:
- * 1. **Tombstone (deleted=true)**: UNINSTALL if a [syncTimestamps] record exists and the tombstone
- *    is strictly newer than the last known sync; otherwise NONE (locally-installed-only docs are
- *    never auto-deleted).
+ * 1. **Tombstone (deleted=true)**: UNINSTALL if the document is not [blocked], a [syncTimestamps]
+ *    record exists, and the tombstone is strictly newer than the last known sync; otherwise NONE
+ *    (locally-installed-only docs and blocked docs are never auto-deleted).
  * 2. **Blocked**: SKIP_BLOCKED if the document's initials appear in [blocked].
  * 3. **Not installed locally**: DOWNLOAD.
  * 4. **Cloud newer than local**: UPGRADE (determined via [isNewer]).
@@ -68,7 +68,10 @@ fun resolveDocumentSyncActions(
     val type = when {
         cloud.deleted -> {
             val syncedAt = syncTimestamps[cloud.initials]
-            if (local != null && syncedAt != null && cloud.timestamp > syncedAt)
+            // A blocked document is managed independently on this device, so a tombstone must not
+            // uninstall it — blocking means "this device opts out of sync for this doc", which
+            // includes opting out of remote deletion. The local copy is kept.
+            if (cloud.initials !in blocked && local != null && syncedAt != null && cloud.timestamp > syncedAt)
                 DocumentSyncActionType.UNINSTALL
             else DocumentSyncActionType.NONE
         }

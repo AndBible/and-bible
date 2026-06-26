@@ -101,6 +101,15 @@ class DocumentSyncResolverTest {
         assertEquals(DocumentSyncActionType.NONE, actions.single().type)
     }
 
+    @Test fun tombstoneDoesNotUninstallBlockedDocument() {
+        // A blocked document is managed independently on this device; a "remove from all devices"
+        // tombstone must not uninstall it even when it would otherwise be strictly newer.
+        val actions = resolveDocumentSyncActions(
+            listOf(cloud("KJV", deleted = true, ts = 200)),
+            mapOf(local("KJV")), mapOf("KJV" to 100L), setOf("KJV"), isNewer)
+        assertEquals(DocumentSyncActionType.NONE, actions.single().type)
+    }
+
     @Test fun uninstallDeletesWhenDeletable() {
         // A deletable book: the propagated tombstone removes the local copy and records the sync.
         assertEquals(UninstallDecision(delete = true, advanceTimestamp = true), decideUninstall(canDelete = true))
