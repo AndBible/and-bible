@@ -139,21 +139,18 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(Menu.NONE, MENU_SELECT, Menu.NONE, R.string.cloud_doc_select)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        // Selection mode is entered by long-pressing a row, so no explicit menu item is needed.
         menu.add(Menu.NONE, MENU_SYNC_NOW, Menu.NONE, R.string.cloud_doc_sync_now)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         return true
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(MENU_SELECT)?.isVisible = !adapter.isSelectionMode()
         menu.findItem(MENU_SYNC_NOW)?.isVisible = !DocumentSyncSettings.enabled && !adapter.isSelectionMode()
         return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        MENU_SELECT -> { enterSelectionMode(); true }
         MENU_SYNC_NOW -> { runSyncAction { DocumentSync.pullDocuments(automaticOnly = false) }; true }
         android.R.id.home -> {
             if (adapter.isSelectionMode()) exitSelectionMode() else finish()
@@ -214,12 +211,6 @@ class CloudDocumentsActivity : ActivityBase() {
             binding.loadingBar.visibility = View.GONE
         }
         applyFilter()
-    }
-
-    private fun enterSelectionMode() {
-        adapter.setSelectionMode(true)
-        onSelectionChanged(0)
-        invalidateOptionsMenu()
     }
 
     private fun exitSelectionMode() {
@@ -363,7 +354,6 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     companion object {
-        private const val MENU_SELECT = 1
         private const val MENU_SYNC_NOW = 2
     }
 }

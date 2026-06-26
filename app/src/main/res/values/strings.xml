@@ -1917,7 +1917,6 @@
     <string name="cloud_doc_summary_download">Download %1$d</string>
     <string name="cloud_doc_summary_download_size">Download %1$d (%2$s)</string>
     <string name="cloud_doc_wifi_waiting">Automatic downloads will start on Wi-Fi.</string>
-    <string name="cloud_doc_select">Select multiple</string>
     <string name="cloud_doc_bulk_download">Download selected (%1$d)</string>
     <string name="document_sync_notification_title">Syncing documents</string>
     <string name="document_sync_started">Document sync started</string>

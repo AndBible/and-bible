@@ -98,8 +98,7 @@
             <Button
                 android:id="@+id/primaryAction"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/cloud_doc_select" />
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
     </LinearLayout>
