@@ -161,13 +161,20 @@ object DocumentSync {
 
     suspend fun removeFromCloud(initials: String, name: String, type: DocumentType) {
         val store = store() ?: return
+        val now = System.currentTimeMillis()
         val existing = store.listDocuments().firstOrNull { it.initials == initials }
         val meta = (existing ?: DocumentSyncMeta(
             initials = initials, name = name, documentType = type, version = "0.0",
             size = 0, language = "", sourceDevice = CommonUtils.deviceIdentifier,
             timestamp = 0,
-        )).copy(timestamp = System.currentTimeMillis())
+        )).copy(timestamp = now)
         store.writeTombstone(meta)
+        // Record this device as already knowing the tombstone (sync timestamp == tombstone
+        // timestamp) so the next pull resolves to NONE here — "remove from cloud" removes the
+        // document from the cloud and propagates the deletion to *other* devices, but keeps the
+        // local copy on the device that initiated it. Other devices keep their older sync
+        // timestamp, so the tombstone is strictly newer there and they uninstall locally.
+        DocumentSyncSettings.setSyncTimestamp(initials, now)
     }
 }
 

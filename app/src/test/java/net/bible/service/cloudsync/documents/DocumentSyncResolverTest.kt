@@ -84,6 +84,16 @@ class DocumentSyncResolverTest {
         assertEquals(DocumentSyncActionType.NONE, actions.single().type)
     }
 
+    @Test fun tombstoneIgnoredWhenEqualToLocalSync() {
+        // The device that wrote the tombstone records its own sync timestamp equal to the
+        // tombstone's. The strict `>` comparison must then resolve to NONE, so "remove from
+        // cloud" does not uninstall the document on the very device that initiated it.
+        val actions = resolveDocumentSyncActions(
+            listOf(cloud("KJV", deleted = true, ts = 100)),
+            mapOf(local("KJV")), mapOf("KJV" to 100L), emptySet(), isNewer)
+        assertEquals(DocumentSyncActionType.NONE, actions.single().type)
+    }
+
     @Test fun tombstoneIgnoredWhenNotInstalled() {
         val actions = resolveDocumentSyncActions(
             listOf(cloud("KJV", deleted = true, ts = 200)),
