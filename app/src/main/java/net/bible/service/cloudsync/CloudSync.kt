@@ -103,7 +103,7 @@ object CloudSync {
 
     internal val cloudAdapter: CloudAdapter? get() = _adapter
 
-    const val DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX = "DOCUMENTS"
+    const val DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX = "documents"
 
     suspend fun documentsSyncFolderId(): String? {
         val adapter = _adapter ?: return null
