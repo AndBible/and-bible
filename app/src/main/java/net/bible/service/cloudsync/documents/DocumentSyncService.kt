@@ -108,6 +108,8 @@ class DocumentSyncService : Service() {
     private val notificationManager get() = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val powerManager get() = getSystemService(Context.POWER_SERVICE) as PowerManager
     private var wakeLock: PowerManager.WakeLock? = null
+    /** True only once [startForeground] has actually succeeded. */
+    private var isForeground = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -134,9 +136,12 @@ class DocumentSyncService : Service() {
     private fun startForegroundSafe() {
         try {
             startForeground(DOC_SYNC_NOTIFICATION_ID, buildNotification(null))
+            isForeground = true
         } catch (e: Exception) {
-            // Android 14+ may refuse a dataSync FGS once the daily quota is exhausted.
-            // Keep processing in the background scope rather than crashing.
+            // Android 14+ may refuse a dataSync FGS once the daily quota is exhausted. We never
+            // went foreground, so don't pretend to be one on teardown (isForeground stays false).
+            // Processing continues on the IO scope as a best effort; the OS may still reclaim the
+            // process while backgrounded (device-dependent), which the wakelock partially mitigates.
             Log.e(TAG, "Could not start foreground; processing in background", e)
         }
         acquireWakeLock()
@@ -225,8 +230,11 @@ class DocumentSyncService : Service() {
     private fun stopSelfSafe() {
         if (active.get()) return
         releaseWakeLock()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) stopForeground(STOP_FOREGROUND_REMOVE)
-        else @Suppress("DEPRECATION") stopForeground(true)
+        if (isForeground) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) stopForeground(STOP_FOREGROUND_REMOVE)
+            else @Suppress("DEPRECATION") stopForeground(true)
+            isForeground = false
+        }
         stopSelf()
     }
 
