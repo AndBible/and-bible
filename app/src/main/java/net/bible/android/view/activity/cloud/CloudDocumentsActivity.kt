@@ -75,6 +75,23 @@ fun filterCloudDocuments(
 }
 
 /**
+ * The per-item actions relevant to a document's current sync status, in display order.
+ * Only meaningful actions are offered: a fully-synced item has no Push, a cloud-absent
+ * item has no Download/Remove-from-cloud/Block, etc.
+ */
+fun documentMenuActions(item: DocumentSync.DocumentStatusItem): List<CloudDocAction> = buildList {
+    // Download: the cloud has a copy this device lacks or that is newer.
+    if (item.cloudOnly || item.updateAvailable) add(CloudDocAction.DOWNLOAD)
+    // Push: not in the cloud yet, or the local copy is newer than the cloud copy.
+    if (item.localOnly || item.localNewer) add(CloudDocAction.PUSH)
+    // Remove from cloud: only when a cloud copy exists.
+    if (!item.localOnly) add(CloudDocAction.REMOVE_CLOUD)
+    // Block/unblock the per-device auto-download — only meaningful when a cloud copy exists.
+    if (item.blocked) add(CloudDocAction.UNBLOCK)
+    else if (!item.localOnly) add(CloudDocAction.BLOCK)
+}
+
+/**
  * Management view for the document-sync feature: a list of the user's documents
  * (local and/or in the cloud) with their sync status, a filter selector, and
  * per-item actions (download, push, remove from cloud, block/unblock).
@@ -276,36 +293,26 @@ class CloudDocumentsActivity : ActivityBase() {
         binding.emptyText.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
     }
 
-    /** Builds and shows the popup menu of valid actions for the given item. */
+    /** Builds and shows the popup menu of the actions relevant to the given item's status. */
     private fun showItemMenu(item: DocumentStatusItem, anchor: View) {
         val popup = PopupMenu(this, anchor)
-        val menu = popup.menu
-        val localPresent = !item.cloudOnly
-        val cloudPresent = !item.localOnly
-        // Download: the cloud has a copy this device lacks or that is newer.
-        if (item.cloudOnly || item.updateAvailable) {
-            menu.add(0, CloudDocAction.DOWNLOAD.ordinal, 0, R.string.cloud_doc_action_download)
+        documentMenuActions(item).forEachIndexed { order, action ->
+            popup.menu.add(0, action.ordinal, order, actionLabel(action))
         }
-        // Push: the document is installed locally (upload new, update, or re-push).
-        if (localPresent) {
-            menu.add(0, CloudDocAction.PUSH.ordinal, 1, R.string.cloud_doc_action_push)
-        }
-        // Remove from cloud: only meaningful when a cloud copy exists.
-        if (cloudPresent) {
-            menu.add(0, CloudDocAction.REMOVE_CLOUD.ordinal, 2, R.string.cloud_doc_action_remove_cloud)
-        }
-        if (item.blocked) {
-            menu.add(0, CloudDocAction.UNBLOCK.ordinal, 3, R.string.cloud_doc_action_unblock)
-        } else {
-            menu.add(0, CloudDocAction.BLOCK.ordinal, 3, R.string.cloud_doc_action_block)
-        }
-
         popup.setOnMenuItemClickListener { menuItem ->
-            val action = CloudDocAction.entries.first { it.ordinal == menuItem.itemId }
-            performAction(item, action)
+            performAction(item, CloudDocAction.entries.first { it.ordinal == menuItem.itemId })
             true
         }
         popup.show()
+    }
+
+    private fun actionLabel(action: CloudDocAction): Int = when (action) {
+        CloudDocAction.DOWNLOAD -> R.string.cloud_doc_action_download
+        CloudDocAction.PUSH -> R.string.cloud_doc_action_push
+        CloudDocAction.REMOVE_CLOUD -> R.string.cloud_doc_action_remove_cloud
+        CloudDocAction.BLOCK -> R.string.cloud_doc_action_block
+        CloudDocAction.UNBLOCK -> R.string.cloud_doc_action_unblock
+        CloudDocAction.TOGGLE_SELECT -> 0
     }
 
     private fun performAction(item: DocumentStatusItem, action: CloudDocAction) {

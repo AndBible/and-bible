@@ -57,6 +57,8 @@ object DocumentSync {
         val cloudOnly: Boolean,
         val localOnly: Boolean,
         val updateAvailable: Boolean,
+        /** Local copy is newer than the cloud copy (a push would update the cloud). */
+        val localNewer: Boolean,
         val blocked: Boolean,
         val sizeBytes: Long,
         val category: BookCategory?,
@@ -98,6 +100,7 @@ object DocumentSync {
             val c = cloud[initials]; val b = local[initials]
             val localVersion = b?.let { DocumentArchiver.documentVersion(it) }
             val update = c != null && localVersion != null && versionIsNewer(c.version, localVersion)
+            val localNewer = c != null && localVersion != null && versionIsNewer(localVersion, c.version)
             val category = b?.bookCategory ?: parseCategoryName(c?.category)
             DocumentStatusItem(
                 initials = initials,
@@ -108,6 +111,7 @@ object DocumentSync {
                 cloudOnly = c != null && b == null,
                 localOnly = c == null && b != null,
                 updateAvailable = update,
+                localNewer = localNewer,
                 blocked = initials in blocked,
                 sizeBytes = c?.size ?: 0L,
                 category = category,

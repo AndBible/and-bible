@@ -36,7 +36,7 @@ class CloudDocumentsFilterTest {
         initials = initials, name = name, type = DocumentType.SWORD,
         cloudVersion = "1.0", localVersion = "1.0",
         cloudOnly = cloudOnly, localOnly = localOnly, updateAvailable = updateAvailable,
-        blocked = blocked, sizeBytes = 0, category = category,
+        localNewer = false, blocked = blocked, sizeBytes = 0, category = category,
     )
 
     private val items = listOf(

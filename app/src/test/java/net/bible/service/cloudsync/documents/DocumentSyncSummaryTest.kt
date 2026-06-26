@@ -29,7 +29,7 @@ class DocumentSyncSummaryTest {
     ) = DocumentStatusItem(
         initials = initials, name = initials, type = DocumentType.SWORD,
         cloudVersion = null, localVersion = null, cloudOnly = cloudOnly, localOnly = localOnly,
-        updateAvailable = update, blocked = false, sizeBytes = size, category = BookCategory.BIBLE,
+        updateAvailable = update, localNewer = false, blocked = false, sizeBytes = size, category = BookCategory.BIBLE,
     )
 
     @Test fun splitsUploadsAndDownloadsWithSizes() {
