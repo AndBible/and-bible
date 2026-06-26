@@ -31,54 +31,40 @@
         android:textSize="13sp"
         android:visibility="gone" />
 
-    <HorizontalScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none">
+        android:orientation="horizontal"
+        android:baselineAligned="false"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp">
 
-        <RadioGroup
-            android:id="@+id/filters"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/nameSearch"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="8dp">
+            android:layout_weight="1"
+            android:hint="@string/free_text_search_documents"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1" />
 
-            <RadioButton
-                android:id="@+id/filterAll"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/cloud_doc_filter_all" />
+        <Spinner
+            android:id="@+id/statusSpinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:entries="@array/cloud_doc_status_filters" />
 
-            <RadioButton
-                android:id="@+id/filterInstalled"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/cloud_doc_filter_installed" />
-
-            <RadioButton
-                android:id="@+id/filterCloud"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/cloud_doc_filter_cloud" />
-
-            <RadioButton
-                android:id="@+id/filterUpdates"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/cloud_doc_filter_updates" />
-
-            <RadioButton
-                android:id="@+id/filterBlocked"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/cloud_doc_filter_blocked" />
-        </RadioGroup>
-    </HorizontalScrollView>
+        <Spinner
+            android:id="@+id/categorySpinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:entries="@array/documentTypes" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"

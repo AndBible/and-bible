@@ -22,8 +22,10 @@ import android.text.format.Formatter
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
 import android.widget.PopupMenu
 import androidx.appcompat.app.AlertDialog
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
@@ -85,7 +87,6 @@ class CloudDocumentsActivity : ActivityBase() {
     private var setupMode: Boolean = false
     /** True until the setup-mode UI has been applied after the first scan completes. */
     private var pendingSetup: Boolean = false
-    private var filter: CloudDocFilter = CloudDocFilter.ALL
     private var allItems: List<DocumentStatusItem> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,16 +114,13 @@ class CloudDocumentsActivity : ActivityBase() {
             if (setupMode) performSetupSync() else performBulkAction()
         }
 
-        binding.filters.setOnCheckedChangeListener { _, checkedId ->
-            filter = when (checkedId) {
-                R.id.filterInstalled -> CloudDocFilter.INSTALLED
-                R.id.filterCloud -> CloudDocFilter.CLOUD
-                R.id.filterUpdates -> CloudDocFilter.UPDATES
-                R.id.filterBlocked -> CloudDocFilter.BLOCKED
-                else -> CloudDocFilter.ALL
-            }
-            applyFilter()
+        val filterSelectionListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) = applyFilter()
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
+        binding.statusSpinner.onItemSelectedListener = filterSelectionListener
+        binding.categorySpinner.onItemSelectedListener = filterSelectionListener
+        binding.nameSearch.addTextChangedListener(afterTextChanged = { applyFilter() })
 
         refresh()
     }
@@ -281,9 +279,23 @@ class CloudDocumentsActivity : ActivityBase() {
         }
     }
 
+    /** Maps the category spinner position (the @array/documentTypes order) to a BookCategory; 0 = All. */
+    private fun categoryForSpinnerPosition(pos: Int): BookCategory? = when (pos) {
+        1 -> BookCategory.BIBLE
+        2 -> BookCategory.COMMENTARY
+        3 -> BookCategory.DICTIONARY
+        4 -> BookCategory.GENERAL_BOOK
+        5 -> BookCategory.MAPS
+        6 -> BookCategory.AND_BIBLE
+        else -> null
+    }
+
     private fun applyFilter() {
         if (adapter.isSelectionMode()) exitSelectionMode()
-        val filtered = filterCloudDocuments(allItems, filter, "", null)
+        val status = CloudDocFilter.entries[binding.statusSpinner.selectedItemPosition.coerceIn(0, CloudDocFilter.entries.lastIndex)]
+        val category = categoryForSpinnerPosition(binding.categorySpinner.selectedItemPosition)
+        val name = binding.nameSearch.text?.toString().orEmpty()
+        val filtered = filterCloudDocuments(allItems, status, name, category)
         adapter.submit(filtered)
         binding.emptyText.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
         binding.recycler.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
