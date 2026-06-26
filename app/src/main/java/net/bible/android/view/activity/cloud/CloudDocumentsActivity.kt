@@ -349,7 +349,9 @@ class CloudDocumentsActivity : ActivityBase() {
             .setTitle(R.string.cloud_doc_action_remove_cloud)
             .setMessage(R.string.cloud_doc_remove_confirm)
             .setPositiveButton(R.string.okay) { _, _ ->
-                runSyncAction { DocumentSync.removeFromCloud(item.initials, item.name, item.type) }
+                // Run via the foreground service like other transfers, so it shows a notification
+                // and survives leaving the screen.
+                DocumentSyncService.start(this, emptyList(), emptyList(), removeInitials = listOf(item.initials))
             }
             .setNegativeButton(R.string.cancel, null)
             .show()

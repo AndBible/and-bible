@@ -23,13 +23,14 @@ import org.junit.Test
 
 class DocumentSyncOpsTest {
     @Test
-    fun buildsPushesThenDownloadsInOrder() {
-        val ops = buildDocumentSyncOps(listOf("KJV", "FinRK"), listOf("ESV"))
+    fun buildsPushesThenDownloadsThenRemovalsInOrder() {
+        val ops = buildDocumentSyncOps(listOf("KJV", "FinRK"), listOf("ESV"), listOf("NIV"))
         assertEquals(
             listOf(
                 DocumentSyncOp.Push("KJV"),
                 DocumentSyncOp.Push("FinRK"),
                 DocumentSyncOp.Download("ESV"),
+                DocumentSyncOp.Remove("NIV"),
             ),
             ops,
         )

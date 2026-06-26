@@ -16,18 +16,26 @@
  */
 package net.bible.service.cloudsync.documents
 
-/** A single document-sync transfer the [DocumentSyncService] queue can process. */
+/** A single document-sync operation the [DocumentSyncService] queue can process. */
 sealed class DocumentSyncOp {
     abstract val initials: String
     /** Upload a locally installed document to the cloud. */
     data class Push(override val initials: String) : DocumentSyncOp()
     /** Download + install a document from the cloud. */
     data class Download(override val initials: String) : DocumentSyncOp()
+    /** Remove a document from the cloud (write a tombstone). */
+    data class Remove(override val initials: String) : DocumentSyncOp()
 }
 
-/** Builds the ordered op list for a transfer batch: all pushes first, then all downloads. */
-fun buildDocumentSyncOps(pushInitials: List<String>, downloadInitials: List<String>): List<DocumentSyncOp> =
-    pushInitials.map { DocumentSyncOp.Push(it) } + downloadInitials.map { DocumentSyncOp.Download(it) }
+/** Builds the ordered op list for a batch: pushes, then downloads, then removals. */
+fun buildDocumentSyncOps(
+    pushInitials: List<String>,
+    downloadInitials: List<String>,
+    removeInitials: List<String> = emptyList(),
+): List<DocumentSyncOp> =
+    pushInitials.map { DocumentSyncOp.Push(it) } +
+        downloadInitials.map { DocumentSyncOp.Download(it) } +
+        removeInitials.map { DocumentSyncOp.Remove(it) }
 
 /** Notification/progress label, e.g. "KJV (2/5)". */
 fun documentSyncProgressText(name: String, current: Int, total: Int): String = "$name ($current/$total)"

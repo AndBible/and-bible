@@ -69,18 +69,25 @@ class DocumentSyncService : Service() {
         private const val START = "action_document_sync"
         private const val EXTRA_PUSH = "pushInitials"
         private const val EXTRA_DOWNLOAD = "downloadInitials"
+        private const val EXTRA_REMOVE = "removeInitials"
 
         /**
-         * Enqueues a transfer batch and starts the foreground service. Manual callers pass
-         * explicit pushes/downloads (they bypass the wifi-only guard by design); auto callers
-         * must apply their guards first. No-op if both lists are empty.
+         * Enqueues a batch (pushes/downloads/removals) and starts the foreground service. Manual
+         * callers pass explicit ops (they bypass the wifi-only guard by design); auto callers must
+         * apply their guards first. No-op if all lists are empty.
          */
-        fun start(context: Context, pushInitials: List<String>, downloadInitials: List<String>) {
-            if (pushInitials.isEmpty() && downloadInitials.isEmpty()) return
+        fun start(
+            context: Context,
+            pushInitials: List<String>,
+            downloadInitials: List<String>,
+            removeInitials: List<String> = emptyList(),
+        ) {
+            if (pushInitials.isEmpty() && downloadInitials.isEmpty() && removeInitials.isEmpty()) return
             val intent = Intent(context, DocumentSyncService::class.java).apply {
                 action = START
                 putStringArrayListExtra(EXTRA_PUSH, ArrayList(pushInitials))
                 putStringArrayListExtra(EXTRA_DOWNLOAD, ArrayList(downloadInitials))
+                putStringArrayListExtra(EXTRA_REMOVE, ArrayList(removeInitials))
             }
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent)
@@ -108,7 +115,8 @@ class DocumentSyncService : Service() {
         if (intent?.action != START) { if (!active.get()) stopSelfSafe(); return START_NOT_STICKY }
         val push = intent.getStringArrayListExtra(EXTRA_PUSH) ?: arrayListOf()
         val download = intent.getStringArrayListExtra(EXTRA_DOWNLOAD) ?: arrayListOf()
-        val ops = buildDocumentSyncOps(push, download)
+        val remove = intent.getStringArrayListExtra(EXTRA_REMOVE) ?: arrayListOf()
+        val ops = buildDocumentSyncOps(push, download, remove)
         if (ops.isEmpty()) { if (!active.get()) stopSelfSafe(); return START_NOT_STICKY }
 
         // fresh == this batch starts a new drain session (no drain currently running).
@@ -153,6 +161,7 @@ class DocumentSyncService : Service() {
                 when (op) {
                     is DocumentSyncOp.Push -> Books.installed().getBook(op.initials)?.let { DocumentSync.pushDocument(it) }
                     is DocumentSyncOp.Download -> DocumentSync.downloadAndInstall(op.initials)
+                    is DocumentSyncOp.Remove -> DocumentSync.removeFromCloud(op.initials)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Document sync op failed: ${op.initials}", e)

@@ -199,12 +199,14 @@ object DocumentSync {
         } catch (e: Exception) { Log.e(TAG, "Failed uninstalling $initials", e) }
     }
 
-    suspend fun removeFromCloud(initials: String, name: String, type: DocumentType) {
+    suspend fun removeFromCloud(initials: String) {
         val store = store() ?: return
         val now = System.currentTimeMillis()
         val existing = store.listDocuments().firstOrNull { it.initials == initials }
+        // Remove is only offered when a cloud copy exists, so `existing` is normally present;
+        // the fallback just guards against a race where it disappeared.
         val meta = (existing ?: DocumentSyncMeta(
-            initials = initials, name = name, documentType = type, version = "0.0",
+            initials = initials, name = initials, documentType = DocumentType.SWORD, version = "0.0",
             size = 0, language = "", sourceDevice = CommonUtils.deviceIdentifier,
             timestamp = 0,
         )).copy(timestamp = now)
