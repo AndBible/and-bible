@@ -131,6 +131,11 @@ class CloudDocumentsActivity : ActivityBase() {
         return true
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(MENU_SELECT)?.isVisible = !adapter.isSelectionMode()
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         MENU_SELECT -> { enterSelectionMode(); true }
         android.R.id.home -> {
@@ -148,11 +153,13 @@ class CloudDocumentsActivity : ActivityBase() {
     private fun enterSelectionMode() {
         adapter.setSelectionMode(true)
         onSelectionChanged(0)
+        invalidateOptionsMenu()
     }
 
     private fun exitSelectionMode() {
         adapter.setSelectionMode(false)
         binding.bottomBar.visibility = View.GONE
+        invalidateOptionsMenu()
     }
 
     /** Updates the bottom action bar to reflect the current selection. */
@@ -181,6 +188,7 @@ class CloudDocumentsActivity : ActivityBase() {
         adapter.setSelectionMode(true)
         adapter.selectAll(allItems.map { it.initials })
         onSelectionChanged(adapter.getSelectedInitials().size)
+        invalidateOptionsMenu()
     }
 
     /**
