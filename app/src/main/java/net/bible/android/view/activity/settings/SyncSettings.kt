@@ -27,6 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -299,10 +300,13 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
     private fun updateDocumentSyncVisibility() {
         // signedIn is used as a proxy for "a cloud adapter is configured": CloudSync.cloudAdapter
         // is internal and there is no persistent configured-but-signed-out adapter state.
-        val adapterConfigured = CloudSync.signedIn
+        // The whole Document sync category shows only when signed in, so Synced documents stays
+        // reachable for manual sync even when automatic sync is off. Wi-Fi-only is relevant only
+        // while automatic sync is enabled.
+        preferenceScreen.findPreference<PreferenceCategory>("document_sync_category")?.isVisible =
+            CloudSync.signedIn
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_documents_wifi_only")?.isVisible =
             DocumentSyncSettings.enabled
-        preferenceScreen.findPreference<Preference>("document_sync_manage")?.isEnabled = adapterConfigured
     }
 
     override fun onResume() {

@@ -1886,6 +1886,7 @@
     <!-- Document sync: settings UI -->
     <string name="document_sync_title">Documents</string>
     <string name="document_sync_contents">Installed Bibles, commentaries and other documents</string>
+    <string name="document_sync_category_title">Document sync</string>
     <string name="document_sync_wifi_only_title">Sync documents on Wi-Fi only</string>
     <string name="document_sync_wifi_only_summary">Automatic document transfers wait for an unmetered (Wi-Fi) connection</string>
     <string name="document_sync_manage_summary">View and manage documents stored in the cloud</string>
