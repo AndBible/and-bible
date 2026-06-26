@@ -104,6 +104,9 @@ class CloudDocumentsActivity : ActivityBase() {
 
     private var allItems: List<DocumentStatusItem> = emptyList()
 
+    /** Number of in-flight operations driving the loading bar (see [setBusy]). */
+    private var busyCount = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCloudDocumentsBinding.inflate(layoutInflater)
@@ -176,12 +179,19 @@ class CloudDocumentsActivity : ActivityBase() {
     fun onEventMainThread(event: DocumentSyncProgressEvent) {
         // Per-document progress is shown in the foreground-service notification; in the activity
         // a plain loading indicator is enough. Refresh the list once the transfer finishes.
-        if (event.running) {
-            binding.loadingBar.visibility = View.VISIBLE
-        } else {
-            binding.loadingBar.visibility = View.GONE
-            refresh()
-        }
+        setBusy(event.running)
+        // When a transfer finishes, re-scan behind the same loading bar (not the swipe spinner)
+        // so the indicator stays continuous across transfer → refresh.
+        if (!event.running) lifecycleScope.launch { refreshFromNetwork() }
+    }
+
+    /**
+     * Shows/hides the loading bar with a counter, so overlapping operations (e.g. "Sync now"'s
+     * scan followed by the service download) keep the bar on continuously instead of flickering.
+     */
+    private fun setBusy(busy: Boolean) {
+        busyCount = (busyCount + if (busy) 1 else -1).coerceAtLeast(0)
+        binding.loadingBar.visibility = if (busyCount > 0) View.VISIBLE else View.GONE
     }
 
     /**
@@ -207,11 +217,11 @@ class CloudDocumentsActivity : ActivityBase() {
 
     /** Re-scans from the network behind the non-blocking [loadingBar], then updates the list. */
     private suspend fun refreshFromNetwork() {
-        binding.loadingBar.visibility = View.VISIBLE
+        setBusy(true)
         try {
             allItems = withContext(Dispatchers.IO) { DocumentSync.scan() }
         } finally {
-            binding.loadingBar.visibility = View.GONE
+            setBusy(false)
         }
         applyFilter()
     }
@@ -350,12 +360,12 @@ class CloudDocumentsActivity : ActivityBase() {
      * non-blocking [loadingBar], then re-scans. Does not block the UI with a modal.
      */
     private fun runSyncAction(block: suspend () -> Unit) = lifecycleScope.launch {
-        binding.loadingBar.visibility = View.VISIBLE
+        setBusy(true)
         try {
             withContext(Dispatchers.IO) { block() }
             allItems = withContext(Dispatchers.IO) { DocumentSync.scan() }
         } finally {
-            binding.loadingBar.visibility = View.GONE
+            setBusy(false)
         }
         applyFilter()
     }
