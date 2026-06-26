@@ -70,14 +70,6 @@
             tools:text="v2.6 · 1.2 MB · Update available" />
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/statusIcon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginStart="8dp"
-        app:tint="@color/grey_600"
-        tools:src="@drawable/ic_baseline_check_circle_24" />
-
     <ImageButton
         android:id="@+id/overflow"
         android:layout_width="40dp"

@@ -89,21 +89,16 @@ class CloudDocumentsAdapter(
         private val typeIcon: ImageView = itemView.findViewById(R.id.typeIcon)
         private val title: TextView = itemView.findViewById(R.id.title)
         private val subtitle: TextView = itemView.findViewById(R.id.subtitle)
-        private val statusIcon: ImageView = itemView.findViewById(R.id.statusIcon)
         private val checkbox: CheckBox = itemView.findViewById(R.id.checkbox)
         private val overflow: ImageButton = itemView.findViewById(R.id.overflow)
 
         fun bind(item: DocumentStatusItem) {
-            val context = itemView.context
             // Icon by book category (Bible/Commentary/Dictionary/…), matching the
             // Download Documents list. Cloud-only items may lack a category → generic book.
             typeIcon.setImageResource(item.category?.imageResource ?: R.drawable.ic_book_24dp)
             title.text = item.name
 
             subtitle.text = subtitleText(item)
-
-            statusIcon.setImageResource(statusIconRes(item))
-            statusIcon.contentDescription = statusText(context, item)
 
             // In selection mode show the checkbox and hide the per-item overflow menu.
             checkbox.visibility = if (selectionMode) View.VISIBLE else View.GONE
@@ -152,15 +147,6 @@ class CloudDocumentsAdapter(
             item.cloudOnly -> context.getString(R.string.cloud_doc_status_cloud_only)
             item.localOnly -> context.getString(R.string.cloud_doc_status_local_only)
             else -> context.getString(R.string.cloud_doc_status_synced)
-        }
-
-        /** Status icon (single-colour vector, tinted in the layout for e-ink safety). */
-        private fun statusIconRes(item: DocumentStatusItem): Int = when {
-            item.blocked -> R.drawable.ic_sync_disabled_green_24dp
-            item.updateAvailable -> R.drawable.ic_baseline_refresh_24
-            item.cloudOnly -> R.drawable.ic_file_download_24dp
-            item.localOnly -> R.drawable.ic_baseline_cloud_24
-            else -> R.drawable.ic_baseline_check_circle_24
         }
 
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<DocumentStatusItem>() {
