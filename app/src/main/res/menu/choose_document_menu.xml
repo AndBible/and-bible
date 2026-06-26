@@ -38,4 +38,18 @@
 		android:title="@string/install_zip"
 		android:icon="@drawable/ic_unarchive_white_24dp"
 		appcompat:showAsAction="never"/>
+	
+	<item android:id="@+id/documentOrdering"
+		android:title="@string/document_ordering"
+		android:icon="@drawable/ic_baseline_sort_24"
+		appcompat:showAsAction="never">
+		<menu>
+			<item android:id="@+id/orderAlphabetical"
+				android:title="@string/sort_by_alphabetical"
+				android:checkable="true"/>
+			<item android:id="@+id/orderCustom"
+				android:title="@string/document_order_custom"
+				android:checkable="true"/>
+		</menu>
+	</item>
 </menu>

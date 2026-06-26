@@ -16,20 +16,26 @@
  */
 package net.bible.android.view.activity.base
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
-import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
-import android.widget.ListView
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +46,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentSelectionBinding
+import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DownloadControl
@@ -48,11 +55,14 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.DocumentSearch
 import net.bible.android.database.DocumentSearchDao
+import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.download.BadDocumentAction
+import net.bible.android.view.activity.download.DocumentListItem
 import net.bible.android.view.activity.download.isBadDocument
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.navigation.ChooseDocument
+import net.bible.android.view.activity.navigation.DocumentItemAdapter
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Ref
@@ -67,7 +77,9 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookFilter
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
+import org.crosswire.jsword.versification.system.SystemKJV
 import java.util.*
 import javax.inject.Inject
 
@@ -112,8 +124,13 @@ abstract class DocumentSelectionBase(
     optionsMenuId: Int,
     private val actionModeMenuId: Int,
     private val enableLoadingIndicator: Boolean = true,
-    ) : ListActivityBase(optionsMenuId), ActionModeActivity
+    ) : CustomTitlebarActivityBase(optionsMenuId), ActionModeActivity
 {
+    // Override this property in subclasses to enable/disable custom ordering
+    protected open val supportsCustomOrdering: Boolean = false
+    
+    // Public getter for adapter access
+    internal fun supportsCustomOrdering(): Boolean = supportsCustomOrdering
     @Inject lateinit var downloadControl: DownloadControl
 
     protected lateinit var binding: DocumentSelectionBinding
@@ -121,6 +138,8 @@ abstract class DocumentSelectionBase(
     protected val isLoading = MutableStateFlow(false)
 
     protected lateinit var documentItemAdapter: ArrayAdapter<Book>
+    protected lateinit var documentRecyclerAdapter: DocumentAdapter
+    protected lateinit var recyclerView: RecyclerView
     protected var selectedDocumentFilterNo = 0
     private val filterMutex = Mutex()
     // language spinner
@@ -142,13 +161,36 @@ abstract class DocumentSelectionBase(
 
     @Inject lateinit var documentControl: DocumentControl
 
-    private lateinit var listActionModeHelper: ListActionModeHelper
+    internal lateinit var listActionModeHelper: ListActionModeHelper
     private var showOkButton: Boolean = false
+    
+    // ItemTouchHelper for drag and drop
+    val itemTouchHelper by lazy {
+        val cb = object: ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                val adapter = recyclerView.adapter as DocumentAdapter
+                val from = viewHolder.adapterPosition
+                val to = target.adapterPosition
+                adapter.moveItem(from, to)
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                // Not implemented
+            }
+            
+            override fun isLongPressDragEnabled(): Boolean {
+                // Disable default long press drag, we handle it manually via drag handle
+                return false
+            }
+        }
+        ItemTouchHelper(cb)
+    }
 
     /** ask subclass for documents to be displayed
      */
     protected abstract suspend fun getDocumentsFromSource(refresh: Boolean): List<Book>
-    protected abstract fun handleDocumentSelection(selectedDocument: Book)
+    internal abstract fun handleDocumentSelection(selectedDocument: Book)
     protected abstract fun sortLanguages(languages: Collection<Language>?): List<Language>
 
     /** Called when the activity is first created.  */
@@ -169,14 +211,26 @@ abstract class DocumentSelectionBase(
     }
 
     protected fun initialiseView() {
-        listAdapter = documentItemAdapter
-        // prepare action mode
-        listActionModeHelper = ListActionModeHelper(listView, actionModeMenuId, true)
-        //listView.choiceMode = AbsListView.CHOICE_MODE_SINGLE
-        // trigger action mode on long press
-        listView.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id ->
-            listActionModeHelper.startActionMode(this@DocumentSelectionBase, position)
+        recyclerView = findViewById(android.R.id.list)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.setHasFixedSize(true)
+        
+        // Only create DocumentItemAdapter if it's not already set by a subclass (like DownloadActivity)
+        if (!this::documentItemAdapter.isInitialized) {
+            documentItemAdapter = DocumentItemAdapter(this)
         }
+        
+        documentRecyclerAdapter = DocumentAdapter(this)
+        documentRecyclerAdapter.setHasStableIds(true)
+        recyclerView.adapter = documentRecyclerAdapter
+        
+        // Attach ItemTouchHelper for drag and drop
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+        
+        // For now, disable action mode since it's ListView-specific
+        // TODO: Create RecyclerView-compatible action mode helper  
+        // listActionModeHelper = ListActionModeHelper(recyclerView, actionModeMenuId, true)
+        
         languageList.clear()
         displayedDocuments.clear()
 
@@ -352,21 +406,8 @@ abstract class DocumentSelectionBase(
             return localLanguage
         }
 
-    override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
-        try {
-            if (position >= 0 && position < displayedDocuments.size) {
-                val selectedBook = displayedDocuments[position]
-                Log.i(TAG, "Selected " + selectedBook.initials)
-                handleDocumentSelection(selectedBook)
-
-                // prevent the item remaining highlighted.  Unfortunately the highlight is cleared before the selection is handled.
-                listView.setItemChecked(position, false)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "document selection error", e)
-            Dialogs.showErrorMsg(R.string.error_occurred, e)
-        }
-    }
+    // This method is now handled by the RecyclerView adapter's click listener
+    // The original onListItemClick logic is moved to handleDocumentSelection
 
     internal fun reloadDocuments() = lifecycleScope.launch {
         populateMasterDocumentList(false)
@@ -384,10 +425,10 @@ abstract class DocumentSelectionBase(
             isLoading.value = true
             showPreLoadMessage(refresh)
             filterMutex.withLock {
-                if (this@DocumentSelectionBase::documentItemAdapter.isInitialized) {
-                    documentItemAdapter.clear()
+                if (this@DocumentSelectionBase::documentRecyclerAdapter.isInitialized) {
+                    displayedDocuments.clear()
+                    documentRecyclerAdapter.notifyDataSetChanged()
                 }
-                displayedDocuments.clear()
             }
         }
         withContext(Dispatchers.Default) {
@@ -416,7 +457,7 @@ abstract class DocumentSelectionBase(
                 populateLanguageList()
                 setDefaultLanguage()
                 isPopulated = true
-                if (this@DocumentSelectionBase::documentItemAdapter.isInitialized) {
+                if (this@DocumentSelectionBase::documentRecyclerAdapter.isInitialized) {
                     filterDocuments()
                 }
             } finally {
@@ -430,7 +471,8 @@ abstract class DocumentSelectionBase(
     fun filterDocuments() {
         if(!isPopulated) return
         // documents list has changed so force action mode to exit, if displayed, because selections are invalidated
-        listActionModeHelper.exitActionMode()
+        // TODO: Re-enable when action mode is supported for RecyclerView
+        // listActionModeHelper.exitActionMode()
         lifecycleScope.launch {
             filterMutex.withLock {
                 try {
@@ -456,31 +498,65 @@ abstract class DocumentSelectionBase(
                             }
                         }
 
-                        displayedDocuments.sortWith(
-                            compareBy(
-                                {
-                                    when(downloadControl.getDocumentStatus(it).documentInstallStatus) {
-                                        DocumentStatus.DocumentInstallStatus.BEING_INSTALLED -> 0
-                                        DocumentStatus.DocumentInstallStatus.UPGRADE_AVAILABLE -> 1
-                                        else -> 2
-                                    }
-                                },
-                                { SwordDocumentFacade.getDocumentByInitials(it.initials) == null },
-                                { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
-                                {
-                                    when (it.bookCategory) {
-                                        BookCategory.BIBLE -> 0
-                                        BookCategory.COMMENTARY -> 1
-                                        BookCategory.DICTIONARY -> 2
-                                        BookCategory.GENERAL_BOOK -> 4
-                                        BookCategory.MAPS -> 5
-                                        BookCategory.AND_BIBLE -> 6
-                                        else -> 7
-                                    }
-                                },
-                                { it.abbreviation.lowercase(Locale(it.language.code)) }
+                        val useCustomOrder = CommonUtils.settings.getBoolean("use_custom_document_order", false)
+                        
+                        if (useCustomOrder) {
+                            displayedDocuments.sortWith(
+                                compareBy(
+                                    {
+                                        when(downloadControl.getDocumentStatus(it).documentInstallStatus) {
+                                            DocumentStatus.DocumentInstallStatus.BEING_INSTALLED -> 0
+                                            DocumentStatus.DocumentInstallStatus.UPGRADE_AVAILABLE -> 1
+                                            else -> 2
+                                        }
+                                    },
+                                    { SwordDocumentFacade.getDocumentByInitials(it.initials) == null },
+                                    { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
+                                    {
+                                        when (it.bookCategory) {
+                                            BookCategory.BIBLE -> 0
+                                            BookCategory.COMMENTARY -> 1
+                                            BookCategory.DICTIONARY -> 2
+                                            BookCategory.GENERAL_BOOK -> 4
+                                            BookCategory.MAPS -> 5
+                                            BookCategory.AND_BIBLE -> 6
+                                            else -> 7
+                                        }
+                                    },
+                                    { 
+                                        // Get custom order from database, default to a high value for unordered items
+                                        DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getBook(it.initials)?.customOrder ?: Int.MAX_VALUE
+                                    },
+                                    { it.abbreviation.lowercase(Locale(it.language.code)) }
+                                )
                             )
-                        )
+                        } else {
+                            displayedDocuments.sortWith(
+                                compareBy(
+                                    {
+                                        when(downloadControl.getDocumentStatus(it).documentInstallStatus) {
+                                            DocumentStatus.DocumentInstallStatus.BEING_INSTALLED -> 0
+                                            DocumentStatus.DocumentInstallStatus.UPGRADE_AVAILABLE -> 1
+                                            else -> 2
+                                        }
+                                    },
+                                    { SwordDocumentFacade.getDocumentByInitials(it.initials) == null },
+                                    { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
+                                    {
+                                        when (it.bookCategory) {
+                                            BookCategory.BIBLE -> 0
+                                            BookCategory.COMMENTARY -> 1
+                                            BookCategory.DICTIONARY -> 2
+                                            BookCategory.GENERAL_BOOK -> 4
+                                            BookCategory.MAPS -> 5
+                                            BookCategory.AND_BIBLE -> 6
+                                            else -> 7
+                                        }
+                                    },
+                                    { it.abbreviation.lowercase(Locale(it.language.code)) }
+                                )
+                            )
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error initialising view", e)
@@ -490,8 +566,7 @@ abstract class DocumentSelectionBase(
                     )
                 }
                 withContext(Dispatchers.Main) {
-                    documentItemAdapter.clear()
-                    documentItemAdapter.addAll(displayedDocuments)
+                    documentRecyclerAdapter.notifyDataSetChanged()
                     binding.resultCount.text = getString(R.string.document_filter_results, displayedDocuments.size)
                 }
             }
@@ -615,7 +690,9 @@ abstract class DocumentSelectionBase(
     }
 
     override fun isItemChecked(position: Int): Boolean {
-        return listView.isItemChecked(position)
+        // RecyclerView doesn't have built-in single choice mode like ListView
+        // For now, we don't need this functionality in RecyclerView implementation
+        return false
     }
 
     /**
@@ -636,6 +713,46 @@ abstract class DocumentSelectionBase(
      */
     protected open fun setInitialDocumentType() {
         selectedDocumentFilterNo = if(intent?.getBooleanExtra("addons", false) == true) 6 else CommonUtils.settings.getInt("selected_document_filter_no", 0)
+    }
+
+    fun updateCustomOrderAfterMove() {
+        lifecycleScope.launch {
+            updateCustomOrder()
+        }
+    }
+    
+    protected fun notifyDataSetChanged() {
+        if (this::documentRecyclerAdapter.isInitialized) {
+            documentRecyclerAdapter.notifyDataSetChanged()
+        } else {
+            Log.w(TAG, "Could not update RecyclerView Adapter")
+        }
+    }
+    
+    private suspend fun updateCustomOrder() {
+        // Update custom order for all documents based on their current position within their category
+        val documentsByCategory = displayedDocuments.groupBy { it.bookCategory }
+        
+        documentsByCategory.forEach { (category, documents) ->
+            documents.forEachIndexed { index, document ->
+                val swordDocInfo = DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getBook(document.initials)
+                if (swordDocInfo != null) {
+                    swordDocInfo.customOrder = index
+                    DatabaseContainer.instance.repoDb.swordDocumentInfoDao().update(swordDocInfo)
+                } else {
+                    // Create new SwordDocumentInfo if it doesn't exist
+                    val newDocInfo = SwordDocumentInfo(
+                        initials = document.initials,
+                        name = document.name,
+                        abbreviation = document.abbreviation,
+                        language = document.language.code,
+                        repository = "", // Default empty repository
+                        customOrder = index
+                    )
+                    DatabaseContainer.instance.repoDb.swordDocumentInfoDao().insert(newDocInfo)
+                }
+            }
+        }
     }
 
     fun setShowOkButtonBar(visible: Boolean) {
@@ -660,3 +777,85 @@ abstract class DocumentSelectionBase(
 }
 
 val Book.installedDocument get() = Books.installed().getBook(initials)
+
+class DocumentViewHolder(val layout: ViewGroup): RecyclerView.ViewHolder(layout)
+
+class DocumentAdapter(private val activity: DocumentSelectionBase): RecyclerView.Adapter<DocumentViewHolder>() {
+    private val documents get() = activity.displayedDocuments
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DocumentViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.document_list_item, parent, false) as ViewGroup
+        return DocumentViewHolder(view)
+    }
+
+    override fun getItemId(position: Int): Long = documents[position].initials.hashCode().toLong()
+
+    override fun getItemCount() = documents.size
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onBindViewHolder(holder: DocumentViewHolder, position: Int) {
+        val document = documents[position]
+        val dragHolder = holder.layout.findViewById<ImageView>(R.id.dragHolder)
+        
+        // Show drag handle only in custom order mode AND if the activity supports custom ordering
+        val useCustomOrder = activity.supportsCustomOrdering() && CommonUtils.settings.getBoolean("use_custom_document_order", false)
+        dragHolder.visibility = if (useCustomOrder) View.VISIBLE else View.GONE
+        
+        if (useCustomOrder) {
+            dragHolder.setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                    activity.itemTouchHelper.startDrag(holder)
+                }
+                true
+            }
+        }
+        
+        // Setup the document view using DocumentListItem
+        val documentListItem = holder.layout as DocumentListItem
+        documentListItem.document = document
+        documentListItem.recommendedDocuments = activity.recommendedDocuments.value
+        
+        // Initialize binding before calling setIcons()
+        val bindings = DocumentListItemBinding.bind(holder.layout)
+        documentListItem.binding = bindings
+        documentListItem.setIcons()
+        bindings.documentAbbreviation.text = document.abbreviation
+        
+        var name = document.name
+        if (document is AbstractPassageBook) {
+            val bible = document
+            // display v11n name if not KJV
+            if (SystemKJV.V11N_NAME != bible.versification.name) {
+                name += " (" + bible.versification.name + ")"
+            }
+        }
+        bindings.documentName.text = name
+        
+        bindings.aboutButton.setOnClickListener {
+            activity.handleAbout(listOf(document))
+        }
+        
+        holder.layout.setOnClickListener {
+            activity.handleDocumentSelection(document)
+        }
+        
+        // TODO: Re-enable long click for action mode when RecyclerView support is added
+        // holder.layout.setOnLongClickListener {
+        //     activity.listActionModeHelper.startActionMode(activity, position)
+        //     true
+        // }
+    }
+
+    fun moveItem(from: Int, to: Int) {
+        if (from == to) return
+
+        val document = documents[from]
+        documents.removeAt(from)
+        documents.add(to, document)
+        
+        notifyItemMoved(from, to)
+        
+        // Update custom order in database
+        activity.updateCustomOrderAfterMove()
+    }
+}

@@ -52,6 +52,7 @@ import net.bible.android.database.migrations.myDocumentMigrations
 import net.bible.android.database.migrations.progressMigrations
 import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
+import net.bible.android.database.migrations.repoMigrations
 import net.bible.android.database.migrations.workspacesMigrations
 import net.bible.android.database.temporaryMigrations
 import net.bible.service.db.oldmigrations.oldMigrations
@@ -253,7 +254,7 @@ class DatabaseContainer {
             application, RepoDatabase::class.java, RepoDatabase.dbFileName
         )
             .allowMainThreadQueries()
-            .addMigrations()
+            .addMigrations(*repoMigrations)
             .openHelperFactory(dbFactory)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()

@@ -491,6 +491,12 @@
     <string name="sort_by_date">Date order</string>
     <string name="sort_by_bible_book">Biblical order</string>
     <string name="sort_by_alphabetical">Alphabetical order</string>
+    
+    <!-- Document ordering -->
+    <string name="document_ordering">Document ordering</string>
+    <string name="document_order_custom">Custom order</string>
+    <string name="move_up">Move up</string>
+    <string name="move_down">Move down</string>
     <!-- notes = user notes ("My Notes") that are attached to bookmark -->
     <string name="filter_by_notes">Search notes</string>
 
