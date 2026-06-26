@@ -126,6 +126,8 @@ class CloudDocumentsActivity : ActivityBase() {
         binding.categorySpinner.onItemSelectedListener = filterSelectionListener
         binding.nameSearch.addTextChangedListener(afterTextChanged = { applyFilter() })
 
+        binding.swipeRefresh.setOnRefreshListener { refresh() }
+
         refresh()
         ABEventBus.register(this)
     }
@@ -283,18 +285,21 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     /** Re-scans the cloud + local documents and updates the list. */
-    private fun refresh() = lifecycleScope.launch {
-        val hourglass = Hourglass(this@CloudDocumentsActivity)
-        hourglass.show()
-        try {
-            allItems = withContext(Dispatchers.IO) { DocumentSync.scan() }
-        } finally {
-            hourglass.dismiss()
-        }
-        applyFilter()
-        if (pendingSetup) {
-            pendingSetup = false
-            enterSetupMode()
+    private fun refresh() {
+        // post() so the spinner shows even when refresh() is triggered programmatically
+        // (e.g. from onCreate) before the SwipeRefreshLayout has been laid out.
+        binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = true }
+        lifecycleScope.launch {
+            try {
+                allItems = withContext(Dispatchers.IO) { DocumentSync.scan() }
+            } finally {
+                binding.swipeRefresh.isRefreshing = false
+            }
+            applyFilter()
+            if (pendingSetup) {
+                pendingSetup = false
+                enterSetupMode()
+            }
         }
     }
 
@@ -318,8 +323,9 @@ class CloudDocumentsActivity : ActivityBase() {
         val name = binding.nameSearch.text?.toString().orEmpty()
         val filtered = filterCloudDocuments(allItems, status, name, category)
         adapter.submit(filtered)
+        // emptyText overlays the (empty) recycler; the recycler stays visible so that
+        // pull-to-refresh keeps working even when the list is empty.
         binding.emptyText.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
-        binding.recycler.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
     }
 
     /** Builds and shows the popup menu of valid actions for the given item. */
