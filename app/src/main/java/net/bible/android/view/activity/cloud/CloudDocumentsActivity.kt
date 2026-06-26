@@ -35,7 +35,6 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ActivityCloudDocumentsBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.util.Hourglass
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSync.DocumentStatusItem
@@ -318,18 +317,27 @@ class CloudDocumentsActivity : ActivityBase() {
     private fun performAction(item: DocumentStatusItem, action: CloudDocAction) {
         when (action) {
             CloudDocAction.REMOVE_CLOUD -> confirmRemoveFromCloud(item)
+            // Block/unblock only writes the local block list (a SharedPreferences set) and
+            // affects nothing in the cloud, so update the row in memory instead of doing a
+            // network re-scan — the action is then instant.
             CloudDocAction.BLOCK -> {
                 DocumentSyncSettings.blockList.block(item.initials)
-                refresh()
+                setBlockedInList(item.initials, true)
             }
             CloudDocAction.UNBLOCK -> {
                 DocumentSyncSettings.blockList.unblock(item.initials)
-                refresh()
+                setBlockedInList(item.initials, false)
             }
             CloudDocAction.DOWNLOAD -> DocumentSyncService.start(this, emptyList(), listOf(item.initials))
             CloudDocAction.PUSH -> DocumentSyncService.start(this, listOf(item.initials), emptyList())
             CloudDocAction.TOGGLE_SELECT -> { /* Selection mode added in Task 13. */ }
         }
+    }
+
+    /** Reflects a block/unblock in the in-memory list without a network re-scan. */
+    private fun setBlockedInList(initials: String, blocked: Boolean) {
+        allItems = allItems.map { if (it.initials == initials) it.copy(blocked = blocked) else it }
+        applyFilter()
     }
 
     private fun confirmRemoveFromCloud(item: DocumentStatusItem) {
@@ -343,16 +351,19 @@ class CloudDocumentsActivity : ActivityBase() {
             .show()
     }
 
-    /** Runs a suspending DocumentSync action with an hourglass, then re-scans. */
+    /**
+     * Runs a suspending cloud action (e.g. remove-from-cloud) in the background behind the
+     * non-blocking [loadingBar], then re-scans. Does not block the UI with a modal.
+     */
     private fun runSyncAction(block: suspend () -> Unit) = lifecycleScope.launch {
-        val hourglass = Hourglass(this@CloudDocumentsActivity)
-        hourglass.show()
+        binding.loadingBar.visibility = View.VISIBLE
         try {
             withContext(Dispatchers.IO) { block() }
+            allItems = withContext(Dispatchers.IO) { DocumentSync.scan() }
         } finally {
-            hourglass.dismiss()
+            binding.loadingBar.visibility = View.GONE
         }
-        refresh()
+        applyFilter()
     }
 
     companion object {
