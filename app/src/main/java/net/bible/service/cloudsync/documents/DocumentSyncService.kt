@@ -1,0 +1,213 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+package net.bible.service.cloudsync.documents
+
+import android.app.NotificationManager
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.os.IBinder
+import android.os.PowerManager
+import android.util.Log
+import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import net.bible.android.BibleApplication
+import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
+import net.bible.service.cloudsync.SYNC_NOTIFICATION_CHANNEL
+import net.bible.service.common.BuildVariant
+import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
+import net.bible.service.common.CommonUtils
+import org.crosswire.jsword.book.Books
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+
+private const val DOC_SYNC_NOTIFICATION_ID = 6
+private const val WAKELOCK_TAG = "andbible:docsync-wakelock"
+private const val WAKELOCK_TIMEOUT_MS = 30L * 60 * 1000 // 30 minutes
+private const val TAG = "DocumentSyncService"
+
+/**
+ * Posted on [ABEventBus] as document transfers progress. [running] is false once the
+ * queue is drained. [current]/[total] count completed-or-in-progress vs total ops in
+ * the active batch; [currentName] is the document being transferred (null at start/end).
+ */
+class DocumentSyncProgressEvent(
+    val running: Boolean,
+    val current: Int,
+    val total: Int,
+    val currentName: String?,
+)
+
+/**
+ * Foreground service that runs all document-sync transfers (push/download) off the UI
+ * thread, with a single per-document progress notification. Callers enqueue ops via
+ * [start]; a single consumer coroutine drains the queue and posts [DocumentSyncProgressEvent].
+ */
+class DocumentSyncService : Service() {
+    companion object {
+        private const val START = "action_document_sync"
+        private const val EXTRA_PUSH = "pushInitials"
+        private const val EXTRA_DOWNLOAD = "downloadInitials"
+
+        /**
+         * Enqueues a transfer batch and starts the foreground service. Manual callers pass
+         * explicit pushes/downloads (they bypass the wifi-only guard by design); auto callers
+         * must apply their guards first. No-op if both lists are empty.
+         */
+        fun start(context: Context, pushInitials: List<String>, downloadInitials: List<String>) {
+            if (pushInitials.isEmpty() && downloadInitials.isEmpty()) return
+            val intent = Intent(context, DocumentSyncService::class.java).apply {
+                action = START
+                putStringArrayListExtra(EXTRA_PUSH, ArrayList(pushInitials))
+                putStringArrayListExtra(EXTRA_DOWNLOAD, ArrayList(downloadInitials))
+            }
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent)
+                else context.startService(intent)
+            } catch (e: Exception) {
+                // e.g. Android 12+ background-start restriction or 14+ dataSync quota.
+                Log.e(TAG, "Could not start document sync service", e)
+            }
+        }
+    }
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val queue = ConcurrentLinkedQueue<DocumentSyncOp>()
+    private val active = AtomicBoolean(false)
+    private val total = AtomicInteger(0)
+    private val done = AtomicInteger(0)
+
+    private val notificationManager get() = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private val powerManager get() = getSystemService(Context.POWER_SERVICE) as PowerManager
+    private var wakeLock: PowerManager.WakeLock? = null
+
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action != START) { stopSelfSafe(); return START_NOT_STICKY }
+        val push = intent.getStringArrayListExtra(EXTRA_PUSH) ?: arrayListOf()
+        val download = intent.getStringArrayListExtra(EXTRA_DOWNLOAD) ?: arrayListOf()
+        val ops = buildDocumentSyncOps(push, download)
+        if (ops.isEmpty()) { stopSelfSafe(); return START_NOT_STICKY }
+
+        // fresh == this batch starts a new drain session (no drain currently running).
+        val fresh = active.compareAndSet(false, true)
+        if (fresh) { done.set(0); total.set(0) }
+        queue.addAll(ops)
+        total.addAndGet(ops.size)
+        if (fresh) {
+            startForegroundSafe()
+            drain()
+        }
+        return START_NOT_STICKY
+    }
+
+    private fun startForegroundSafe() {
+        try {
+            startForeground(DOC_SYNC_NOTIFICATION_ID, buildNotification(null, 0, total.get()))
+        } catch (e: Exception) {
+            // Android 14+ may refuse a dataSync FGS once the daily quota is exhausted.
+            // Keep processing in the background scope rather than crashing.
+            Log.e(TAG, "Could not start foreground; processing in background", e)
+        }
+        acquireWakeLock()
+    }
+
+    private fun drain() = scope.launch {
+        ABEventBus.post(DocumentSyncProgressEvent(true, 0, total.get(), null))
+        while (true) {
+            val op = queue.poll()
+            if (op == null) {
+                // No more work: relinquish ownership, then re-check for a late enqueue.
+                active.set(false)
+                if (queue.peek() == null) break
+                if (!active.compareAndSet(false, true)) break // another start() took over
+                continue
+            }
+            val current = done.get() + 1
+            val totalNow = total.get()
+            updateNotification(op.initials, current, totalNow)
+            ABEventBus.post(DocumentSyncProgressEvent(true, current, totalNow, op.initials))
+            try {
+                when (op) {
+                    is DocumentSyncOp.Push -> Books.installed().getBook(op.initials)?.let { DocumentSync.pushDocument(it) }
+                    is DocumentSyncOp.Download -> DocumentSync.downloadAndInstall(op.initials)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Document sync op failed: ${op.initials}", e)
+                ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
+            }
+            done.incrementAndGet()
+        }
+        ABEventBus.post(DocumentSyncProgressEvent(false, done.get(), total.get(), null))
+        stopSelfSafe()
+    }
+
+    private fun notificationChannel(): String =
+        if (BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else SYNC_NOTIFICATION_CHANNEL
+
+    private fun buildNotification(name: String?, current: Int, total: Int) =
+        NotificationCompat.Builder(this, notificationChannel())
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setSilent(true)
+            .setOngoing(true)
+            .setSmallIcon(if (CommonUtils.isDiscrete) R.drawable.ic_calc_24 else R.drawable.ic_syncdb_24dp)
+            .setContentTitle(getString(R.string.document_sync_notification_title))
+            .apply {
+                if (name != null) {
+                    setContentText(documentSyncProgressText(name, current, total))
+                    setProgress(total, current, false)
+                }
+            }
+            .build()
+
+    private fun updateNotification(name: String, current: Int, total: Int) {
+        notificationManager.notify(DOC_SYNC_NOTIFICATION_ID, buildNotification(name, current, total))
+    }
+
+    private fun acquireWakeLock() {
+        if (wakeLock?.isHeld == true) return
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG).also {
+            it.acquire(WAKELOCK_TIMEOUT_MS)
+        }
+    }
+
+    private fun releaseWakeLock() {
+        wakeLock?.let { if (it.isHeld) it.release() }
+        wakeLock = null
+    }
+
+    private fun stopSelfSafe() {
+        releaseWakeLock()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) stopForeground(STOP_FOREGROUND_REMOVE)
+        else @Suppress("DEPRECATION") stopForeground(true)
+        stopSelf()
+    }
+
+    override fun onDestroy() {
+        releaseWakeLock()
+        scope.cancel()
+        super.onDestroy()
+    }
+}

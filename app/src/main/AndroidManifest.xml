@@ -376,6 +376,10 @@
             android:foregroundServiceType="dataSync" />
 
         <service
+            android:name="net.bible.service.cloudsync.documents.DocumentSyncService"
+            android:foregroundServiceType="dataSync" />
+
+        <service
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService"
             android:foregroundServiceType="mediaPlayback" />
 
