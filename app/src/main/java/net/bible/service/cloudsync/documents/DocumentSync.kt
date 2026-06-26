@@ -187,6 +187,10 @@ object DocumentSync {
         if (automaticOnly && (!DocumentSyncSettings.enabled || !DocumentSyncSettings.isAutoTransferAllowed)) return
         val store = store() ?: return
         val cloudMetas = store.listDocuments()
+        // Keep the cache fresh on every pull (not only when something is transferred), so with
+        // automatic sync on the management view can trust the cache without hitting the network.
+        DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao()
+            .replaceAll(cloudMetas.map { it.toCacheEntity() })
         val local = installedSyncableBooks().associateBy { it.initials }
         val cloudDocs = cloudMetas.map {
             CloudDocument(it.initials, it.name, it.documentType, it.version, it.size, it.timestamp, it.deleted)

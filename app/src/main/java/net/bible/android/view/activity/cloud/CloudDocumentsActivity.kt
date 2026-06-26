@@ -246,8 +246,9 @@ class CloudDocumentsActivity : ActivityBase() {
         }
         allItems = cached
         applyFilter()
-        // Refresh from the network in the background, behind a non-blocking progress bar.
-        if (signedIn) refreshFromNetwork()
+        // With automatic sync on, the sync cycle keeps the cache fresh, so trust it on open and
+        // don't hit the network (the user can still pull-to-refresh). With sync off, refresh now.
+        if (signedIn && !DocumentSyncSettings.enabled) refreshFromNetwork()
     }
 
     /** Re-scans from the network behind the non-blocking [loadingBar], then updates the list. */
