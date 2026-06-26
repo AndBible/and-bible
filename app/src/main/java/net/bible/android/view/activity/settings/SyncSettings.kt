@@ -122,6 +122,9 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         pref.summary = "${getString(category.contentDescription)}$lastSyncStr"
     }
 
+    /** Guards the document-sync enable flow so rapid repeated toggles can't launch it twice. */
+    private var documentEnableInProgress = false
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = PreferenceStore()
         setPreferencesFromResource(R.xml.sync_settings, rootKey)
@@ -138,13 +141,26 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             setOnPreferenceChangeListener { _, newValue ->
                 val enable = newValue as Boolean
                 if (enable) {
-                    lifecycleScope.launch {
-                        var signedIn = CloudSync.signedIn
-                        if (!signedIn) signedIn = CloudSync.signIn(activity as ActivityBase) == true
-                        if (signedIn) {
-                            val items = withContext(Dispatchers.IO) { DocumentSync.scan() }
-                            val summary = computeDocumentSyncSummary(items, DocumentSyncSettings.blockList.all())
-                            showEnableDocumentsDialog(summary)
+                    // Set the guard synchronously so a second tap before the hourglass shows is
+                    // ignored — otherwise repeated taps launch the sign-in/scan/dialog flow (and
+                    // its background transfer) multiple times in parallel.
+                    if (!documentEnableInProgress) {
+                        documentEnableInProgress = true
+                        lifecycleScope.launch {
+                            val hourglass = Hourglass(requireContext())
+                            hourglass.show()   // blocks the UI until the dialog appears
+                            try {
+                                var signedIn = CloudSync.signedIn
+                                if (!signedIn) signedIn = CloudSync.signIn(activity as ActivityBase) == true
+                                if (signedIn) {
+                                    val items = withContext(Dispatchers.IO) { DocumentSync.scan() }
+                                    val summary = computeDocumentSyncSummary(items, DocumentSyncSettings.blockList.all())
+                                    showEnableDocumentsDialog(summary)
+                                }
+                            } finally {
+                                hourglass.dismiss()
+                                documentEnableInProgress = false
+                            }
                         }
                     }
                     false   // committed in the dialog's positive button
