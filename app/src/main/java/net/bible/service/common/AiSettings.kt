@@ -113,6 +113,11 @@ object AiSettings {
         get() = getOrDefault().rawLogRetentionDays
         set(value) = update { copy(rawLogRetentionDays = value) }
 
+    /** When true, auto-hide the agent log panel when a task finishes (unless it errored). */
+    var autoHideAgentLogOnCompletion: Boolean
+        get() = getOrDefault().autoHideAgentLogOnCompletion
+        set(value) = update { copy(autoHideAgentLogOnCompletion = value) }
+
     /**
      * Language name for AI prompts (e.g. "suomi", "English", "Tagalog").
      * If aiLanguage is null, returns the app's display language.

@@ -222,18 +222,20 @@ android {
             }
         }
         debug {
+            // Debug builds default to a ".debug" applicationId suffix so they can be
+            // installed alongside the production app. local.properties is gitignored, so
+            // relying on APP_SUFFIX there is not portable; APP_SUFFIX (when present) still
+            // overrides this default for setups that need a different suffix.
+            var appSuffix = ".debug"
             val propsFile = rootProject.file("local.properties")
             if (propsFile.exists()) {
                 val props = Properties()
                 FileInputStream(propsFile).use { props.load(it) }
 
-                val appSuffix: String? = props["APP_SUFFIX"] as String?
-                println("App suffix: $appSuffix")
-
-                if (appSuffix != null) {
-                    applicationIdSuffix = appSuffix
-                }
+                (props["APP_SUFFIX"] as String?)?.let { appSuffix = it }
             }
+            println("App suffix: $appSuffix")
+            applicationIdSuffix = appSuffix
 //			minifyEnabled true
 //			useProguard true
 //			proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"

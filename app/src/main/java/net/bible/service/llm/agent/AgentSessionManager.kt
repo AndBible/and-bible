@@ -79,9 +79,23 @@ class AgentLogUpdatedEvent(
     val entry: AgentLogEntry
 )
 
+/** Terminal outcome of an agent session, carried on [AgentSessionStatusChangedEvent]. */
+enum class AgentStopReason { COMPLETED, ERROR, CANCELLED }
+
+/**
+ * Whether the agent log panel should auto-hide for a terminal session state.
+ * Pure function — unit tested in AgentLogAutoHideTest. Hides for any non-error
+ * terminal reason when the setting is enabled; keeps the panel visible on error
+ * (so the user can read it) and ignores the start event (reason == null).
+ */
+fun shouldAutoHideAgentLog(settingEnabled: Boolean, reason: AgentStopReason?): Boolean =
+    settingEnabled && reason != null && reason != AgentStopReason.ERROR
+
 class AgentSessionStatusChangedEvent(
     val workspaceId: IdType,
-    val isRunning: Boolean
+    val isRunning: Boolean,
+    /** Terminal outcome when [isRunning] is false; null on the start event. */
+    val stopReason: AgentStopReason? = null
 )
 
 /** Posted when the agent is waiting for user to return to grant permission. */
@@ -134,7 +148,7 @@ class AgentSession(val workspaceId: IdType) {
         ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, true))
     }
 
-    fun stop(message: String? = null) {
+    fun stop(message: String? = null, reason: AgentStopReason = AgentStopReason.CANCELLED) {
         if (message != null) {
             val hasRawLog = rawLlmLog?.isEmpty() == false
             addLogEntry(AgentLogEntry.info(message, showRawLogLink = hasRawLog))
@@ -142,7 +156,7 @@ class AgentSession(val workspaceId: IdType) {
         this.isRunning = false
         this.job?.cancel()
         this.job = null
-        ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, false))
+        ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, false, reason))
     }
 
     fun addLogEntry(entry: AgentLogEntry) {
@@ -656,7 +670,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 val hasRawLog = session.rawLlmLog?.isEmpty() == false
                 session.addLogEntry(AgentLogEntry.error(event.message, details = event.cause?.message, showRawLogLink = hasRawLog))
                 persistRawLogFromIterations(session, prompt)
-                session.stop()
+                session.stop(reason = AgentStopReason.ERROR)
             }
             is AgentEvent.Cancelled -> {
                 val hasRawLog = session.rawLlmLog?.isEmpty() == false
@@ -670,7 +684,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     /** Stops the session, attaches total cost, and persists raw log. Used by all completion event handlers. */
     private fun completeSession(session: AgentSession, event: CompletionEvent, prompt: AgentPrompt) {
         val app = BibleApplication.application
-        session.stop(app.getString(R.string.agent_log_completed))
+        session.stop(app.getString(R.string.agent_log_completed), AgentStopReason.COMPLETED)
         attachTotalCost(session, event.usage, event.model, event.configuredModelId)
         persistRawLog(
             session, prompt,

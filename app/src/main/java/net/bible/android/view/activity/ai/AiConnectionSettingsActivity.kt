@@ -100,6 +100,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
     private lateinit var commentaryMaxResponsePref: Preference
     private lateinit var maxIterationsPref: Preference
     private lateinit var askModelBeforeRunPref: SwitchPreferenceCompat
+    private lateinit var autoHideAgentLogPref: SwitchPreferenceCompat
     private lateinit var advancedCategory: PreferenceCategory
     private lateinit var customAgentSystemPromptPref: Preference
     private lateinit var customTextTransformSystemPromptPref: Preference
@@ -125,6 +126,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         commentaryMaxResponsePref = preferenceScreen.findPreference("commentary_max_response_chars")!!
         maxIterationsPref = preferenceScreen.findPreference("agent_max_iterations")!!
         askModelBeforeRunPref = preferenceScreen.findPreference("ask_model_before_run")!!
+        autoHideAgentLogPref = preferenceScreen.findPreference("auto_hide_agent_log_on_completion")!!
         advancedCategory = preferenceScreen.findPreference("ai_advanced_category")!!
         customAgentSystemPromptPref = preferenceScreen.findPreference("custom_agent_system_prompt")!!
         customTextTransformSystemPromptPref = preferenceScreen.findPreference("custom_text_transform_system_prompt")!!
@@ -152,6 +154,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         setupCommentaryMaxResponse()
         setupMaxIterations()
         setupAskModelBeforeRun()
+        setupAutoHideAgentLog()
         setupCustomSystemPrompts()
         setupUsage()
     }
@@ -432,6 +435,14 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         askModelBeforeRunPref.isChecked = settings.askModelBeforeRun
         askModelBeforeRunPref.setOnPreferenceChangeListener { _, newValue ->
             settings.askModelBeforeRun = newValue as Boolean
+            true
+        }
+    }
+
+    private fun setupAutoHideAgentLog() {
+        autoHideAgentLogPref.isChecked = settings.autoHideAgentLogOnCompletion
+        autoHideAgentLogPref.setOnPreferenceChangeListener { _, newValue ->
+            settings.autoHideAgentLogOnCompletion = newValue as Boolean
             true
         }
     }
