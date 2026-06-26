@@ -224,6 +224,10 @@ class CloudDocumentsActivity : ActivityBase() {
 
     /** Updates the bottom action bar to reflect the current selection. */
     private fun onSelectionChanged(count: Int) {
+        // Selection mode is entered from the adapter (long-press), so refresh the options menu
+        // here too — otherwise the overflow icon lingers in selection mode with its only item
+        // (Sync now) hidden, opening an empty menu.
+        invalidateOptionsMenu()
         if (!adapter.isSelectionMode()) {
             binding.bottomBar.visibility = View.GONE
             return
