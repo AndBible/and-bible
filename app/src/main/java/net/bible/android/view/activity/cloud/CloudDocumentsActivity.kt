@@ -173,26 +173,34 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     /**
-     * Sign-in-first access gate. Attempts sign-in when not already signed in, then
-     * loads the document list from the cache (Task 3). If sign-in fails AND there is
-     * no cached list, shows a toast and closes the activity.
+     * Sign-in-first access gate. Attempts sign-in when not already signed in, renders the
+     * cached document list immediately, then refreshes from the network in the background.
+     * If sign-in fails AND there is no cached list, shows a toast and closes the activity.
      */
     private fun openOrGate() = lifecycleScope.launch {
         var signedIn = CloudSync.signedIn
         if (!signedIn) signedIn = CloudSync.signIn(this@CloudDocumentsActivity) == true
-        // post() so the spinner shows even before the SwipeRefreshLayout has been laid out.
-        binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = true }
-        val items = try {
-            withContext(Dispatchers.IO) { DocumentSync.scan() }
-        } finally {
-            binding.swipeRefresh.isRefreshing = false
-        }
-        if (!signedIn && items.isEmpty()) {
+        // Render the cached listing instantly so the view never blocks on the network.
+        val cached = withContext(Dispatchers.IO) { DocumentSync.scanCached() }
+        if (!signedIn && cached.isEmpty()) {
             Toast.makeText(this@CloudDocumentsActivity, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
             finish()
             return@launch
         }
-        allItems = items
+        allItems = cached
+        applyFilter()
+        // Refresh from the network in the background, behind a non-blocking progress bar.
+        if (signedIn) refreshFromNetwork()
+    }
+
+    /** Re-scans from the network behind the non-blocking [loadingBar], then updates the list. */
+    private suspend fun refreshFromNetwork() {
+        binding.loadingBar.visibility = View.VISIBLE
+        try {
+            allItems = withContext(Dispatchers.IO) { DocumentSync.scan() }
+        } finally {
+            binding.loadingBar.visibility = View.GONE
+        }
         applyFilter()
     }
 

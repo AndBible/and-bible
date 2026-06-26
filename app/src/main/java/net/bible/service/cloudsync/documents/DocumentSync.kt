@@ -76,6 +76,17 @@ object DocumentSync {
         return buildStatusItems(cloudMetas, local)
     }
 
+    /**
+     * Builds the status list from the local cloud-listing cache only, without any network
+     * access. Lets the management view render instantly on open; [scan] then refreshes from
+     * the network in the background.
+     */
+    suspend fun scanCached(): List<DocumentStatusItem> {
+        val cacheDao = DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao()
+        val local = installedSyncableBooks().associateBy { it.initials }
+        return buildStatusItems(cacheDao.all().map { it.toMeta() }, local)
+    }
+
     private fun buildStatusItems(
         cloudMetas: List<DocumentSyncMeta>,
         local: Map<String, Book>,
