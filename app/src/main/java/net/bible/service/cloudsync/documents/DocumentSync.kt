@@ -165,8 +165,10 @@ object DocumentSync {
     }
 
     suspend fun pullDocuments(automaticOnly: Boolean) {
-        if (!DocumentSyncSettings.enabled) return
-        if (automaticOnly && !DocumentSyncSettings.isAutoTransferAllowed) return
+        // The scheduled (automatic) pull requires automatic sync to be enabled and transfers to
+        // be allowed on the current network. Manual "Sync now" (automaticOnly = false) bypasses
+        // both — the user explicitly asked for it, even with automatic sync off.
+        if (automaticOnly && (!DocumentSyncSettings.enabled || !DocumentSyncSettings.isAutoTransferAllowed)) return
         val store = store() ?: return
         val cloudMetas = store.listDocuments()
         val local = installedSyncableBooks().associateBy { it.initials }
