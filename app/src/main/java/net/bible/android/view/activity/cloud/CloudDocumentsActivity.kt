@@ -180,8 +180,13 @@ class CloudDocumentsActivity : ActivityBase() {
     private fun openOrGate() = lifecycleScope.launch {
         var signedIn = CloudSync.signedIn
         if (!signedIn) signedIn = CloudSync.signIn(this@CloudDocumentsActivity) == true
-        // refresh() reads from cache when signed-in scan is unavailable (Task 3).
-        val items = withContext(Dispatchers.IO) { DocumentSync.scan() }
+        // post() so the spinner shows even before the SwipeRefreshLayout has been laid out.
+        binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = true }
+        val items = try {
+            withContext(Dispatchers.IO) { DocumentSync.scan() }
+        } finally {
+            binding.swipeRefresh.isRefreshing = false
+        }
         if (!signedIn && items.isEmpty()) {
             Toast.makeText(this@CloudDocumentsActivity, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
             finish()

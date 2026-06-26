@@ -51,10 +51,14 @@ class DocumentSyncSummaryTest {
     @Test fun blockedItemsAreExcluded() {
         val items = listOf(
             item("DL", cloudOnly = true, size = 200),
-            item("BLK", cloudOnly = true, size = 999),
+            item("BLK_DL", cloudOnly = true, size = 999),
+            item("UP", localOnly = true, size = 100),
+            item("BLK_UP", localOnly = true, size = 888),
         )
-        val s = computeDocumentSyncSummary(items, blocked = setOf("BLK"))
+        val s = computeDocumentSyncSummary(items, blocked = setOf("BLK_DL", "BLK_UP"))
         assertEquals(listOf("DL"), s.downloadInitials)
         assertEquals(200L, s.downloadBytes)
+        assertEquals(listOf("UP"), s.uploadInitials)
+        assertEquals(100L, s.uploadBytes)
     }
 }

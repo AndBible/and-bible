@@ -281,6 +281,8 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
     }
 
     private fun updateDocumentSyncVisibility() {
+        // signedIn is used as a proxy for "a cloud adapter is configured": CloudSync.cloudAdapter
+        // is internal and there is no persistent configured-but-signed-out adapter state.
         val adapterConfigured = CloudSync.signedIn
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_documents_wifi_only")?.isVisible =
             DocumentSyncSettings.enabled
