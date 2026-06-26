@@ -106,9 +106,14 @@ class CloudDocumentsAdapter(
             subtitle.text = subtitleText(item)
 
             // In selection mode only downloadable items are selectable; already-installed /
-            // synced items are dimmed and have no checkbox (bulk action only downloads).
+            // synced items are dimmed. Their checkbox is INVISIBLE (not GONE) so every row stays
+            // aligned — the checkbox slot is reserved for all rows in selection mode.
             val downloadable = isDownloadable(item)
-            checkbox.visibility = if (selectionMode && downloadable) View.VISIBLE else View.GONE
+            checkbox.visibility = when {
+                !selectionMode -> View.GONE
+                downloadable -> View.VISIBLE
+                else -> View.INVISIBLE
+            }
             itemView.alpha = if (selectionMode && !downloadable) 0.4f else 1f
             checkbox.setOnCheckedChangeListener(null)
             checkbox.isChecked = item.initials in selectedInitials
