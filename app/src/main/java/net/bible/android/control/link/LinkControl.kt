@@ -416,7 +416,12 @@ class LinkControl @Inject constructor(
         if (windowMode == WindowMode.WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
         } else if (checkIfOpenLinksInDedicatedWindow() && !forceOpenHere) {
-            windowControl.showLink(document ?: defaultDocument, key)
+            // Pass document through (it may be null for non-specific links, e.g. cross
+            // references in Bibles or in EPUBs) so the links window keeps its current
+            // Bible version instead of being forced to a specific one (#2502).
+            // WindowControl.showLink substitutes a default Bible only when the links
+            // window has no Bible document of its own yet.
+            windowControl.showLink(document, key)
         } else { // old style - open links in current window
             currentPageManager.setCurrentDocumentAndKey(document ?: defaultDocument, key)
         }
