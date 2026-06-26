@@ -1918,4 +1918,5 @@
     <string name="cloud_doc_select">Select multiple</string>
     <string name="cloud_doc_bulk_download">Download selected (%1$d)</string>
     <string name="document_sync_notification_title">Syncing documents</string>
+    <string name="document_sync_started">Document sync started</string>
 </resources>

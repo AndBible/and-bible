@@ -24,6 +24,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
@@ -33,14 +34,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ActivityCloudDocumentsBinding
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.util.Hourglass
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSync.DocumentStatusItem
+import net.bible.service.cloudsync.documents.DocumentSyncProgressEvent
+import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.cloudsync.documents.documentSyncProgressText
 import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.book.Books
 
 enum class CloudDocFilter { ALL, INSTALLED, CLOUD, UPDATES, BLOCKED }
 
@@ -123,6 +127,7 @@ class CloudDocumentsActivity : ActivityBase() {
         binding.nameSearch.addTextChangedListener(afterTextChanged = { applyFilter() })
 
         refresh()
+        ABEventBus.register(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -148,6 +153,26 @@ class CloudDocumentsActivity : ActivityBase() {
     @Suppress("DEPRECATION")
     override fun onBackPressed() {
         if (adapter.isSelectionMode()) exitSelectionMode() else super.onBackPressed()
+    }
+
+    override fun onDestroy() {
+        ABEventBus.unregister(this)
+        super.onDestroy()
+    }
+
+    @Suppress("unused") // called by greenrobot EventBus on the main thread
+    fun onEventMainThread(event: DocumentSyncProgressEvent) {
+        if (event.running) {
+            binding.syncProgress.visibility = View.VISIBLE
+            binding.syncProgressBar.max = event.total
+            binding.syncProgressBar.progress = event.current
+            binding.syncProgressText.text = event.currentName
+                ?.let { documentSyncProgressText(it, event.current, event.total) }
+                ?: getString(R.string.synchronizing)
+        } else {
+            binding.syncProgress.visibility = View.GONE
+            refresh()
+        }
     }
 
     private fun enterSelectionMode() {
@@ -220,16 +245,8 @@ class CloudDocumentsActivity : ActivityBase() {
      */
     private fun performBulkAction() {
         val selected = adapter.getSelectedInitials()
-        val toDownload = allItems.filter { it.initials in selected && (it.cloudOnly || it.updateAvailable) }
-        if (toDownload.isEmpty()) {
-            exitSelectionMode()
-            return
-        }
-        runSyncAction {
-            for (item in toDownload) {
-                DocumentSync.downloadAndInstall(item.initials)
-            }
-        }
+        val toDownload = allItems.filter { it.initials in selected && (it.cloudOnly || it.updateAvailable) }.map { it.initials }
+        DocumentSyncService.start(this, pushInitials = emptyList(), downloadInitials = toDownload)
         exitSelectionMode()
     }
 
@@ -245,26 +262,17 @@ class CloudDocumentsActivity : ActivityBase() {
         // defers enabling until here, so backing out of setup leaves sync off).
         DocumentSyncSettings.enabled = true
         val selected = adapter.getSelectedInitials()
-        val toPush = allItems.filter { it.initials in selected && it.localOnly }
-            .mapNotNull { Books.installed().getBook(it.initials) }
-        val toDownload = allItems.filter { it.initials in selected && (it.cloudOnly || it.updateAvailable) }
+        val toPush = allItems.filter { it.initials in selected && it.localOnly }.map { it.initials }
+        val toDownload = allItems.filter { it.initials in selected && (it.cloudOnly || it.updateAvailable) }.map { it.initials }
         // Cloud-only items the user opted out of get blocked so they aren't pulled later.
-        val toBlock = allItems.filter { it.initials !in selected && it.cloudOnly }
-
-        runSyncAction {
-            for (initials in toBlock.map { it.initials }) {
-                DocumentSyncSettings.blockList.block(initials)
-            }
-            for (book in toPush) {
-                DocumentSync.pushDocument(book)
-            }
-            for (item in toDownload) {
-                DocumentSync.downloadAndInstall(item.initials)
-            }
+        val toBlock = allItems.filter { it.initials !in selected && it.cloudOnly }.map { it.initials }
+        for (initials in toBlock) DocumentSyncSettings.blockList.block(initials)
+        DocumentSyncService.start(this, pushInitials = toPush, downloadInitials = toDownload)
+        if (toPush.isNotEmpty() || toDownload.isNotEmpty()) {
+            Toast.makeText(this, R.string.document_sync_started, Toast.LENGTH_SHORT).show()
         }
-        // Drop setup mode: refresh() (triggered by runSyncAction) rebuilds the list, and
-        // exitSetupMode() turns the screen into the normal management view.
         exitSetupMode()
+        refresh()
     }
 
     /** Leaves setup mode, restoring the plain management view (intro hidden, no selection). */
@@ -357,11 +365,8 @@ class CloudDocumentsActivity : ActivityBase() {
                 DocumentSyncSettings.blockList.unblock(item.initials)
                 refresh()
             }
-            CloudDocAction.DOWNLOAD -> runSyncAction { DocumentSync.downloadAndInstall(item.initials) }
-            CloudDocAction.PUSH -> {
-                val book = Books.installed().getBook(item.initials)
-                if (book != null) runSyncAction { DocumentSync.pushDocument(book) }
-            }
+            CloudDocAction.DOWNLOAD -> DocumentSyncService.start(this, emptyList(), listOf(item.initials))
+            CloudDocAction.PUSH -> DocumentSyncService.start(this, listOf(item.initials), emptyList())
             CloudDocAction.TOGGLE_SELECT -> { /* Selection mode added in Task 13. */ }
         }
     }
