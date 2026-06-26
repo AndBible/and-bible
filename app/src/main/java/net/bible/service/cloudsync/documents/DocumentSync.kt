@@ -20,6 +20,7 @@
 package net.bible.service.cloudsync.documents
 
 import android.util.Log
+import net.bible.android.BibleApplication
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -30,9 +31,6 @@ import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
-
-/** Wall-clock budget for DOWNLOAD/UPGRADE actions in a single pull cycle (ms). */
-private const val PULL_DOWNLOAD_BUDGET_MS = 150_000L
 
 object DocumentSync {
     private const val TAG = "DocumentSync"
@@ -117,13 +115,6 @@ object DocumentSync {
         } finally { archive.delete() }
     }
 
-    suspend fun uploadDocument(book: Book) {
-        if (!DocumentSyncSettings.enabled || !DocumentSyncSettings.automatic) return
-        if (DocumentSyncSettings.blockList.isBlocked(book.initials)) return
-        if (!DocumentSyncSettings.isAutoTransferAllowed) return
-        pushDocument(book)
-    }
-
     suspend fun downloadAndInstall(initials: String) {
         val store = store() ?: return
         val meta = store.listDocuments().firstOrNull { it.initials == initials && !it.deleted } ?: return
@@ -149,21 +140,14 @@ object DocumentSync {
         val actions = resolveDocumentSyncActions(
             cloudDocs, localDocs, syncTimestamps,
             DocumentSyncSettings.blockList.all(), ::versionIsNewer)
-        val start = System.currentTimeMillis()
-        var deferred = 0
+        val toDownload = mutableListOf<String>()
         for (action in actions) when (action.type) {
-            DocumentSyncActionType.DOWNLOAD, DocumentSyncActionType.UPGRADE -> {
-                if ((System.currentTimeMillis() - start) > PULL_DOWNLOAD_BUDGET_MS) {
-                    deferred++
-                } else {
-                    downloadAndInstall(action.initials)
-                }
-            }
+            DocumentSyncActionType.DOWNLOAD, DocumentSyncActionType.UPGRADE -> toDownload.add(action.initials)
             DocumentSyncActionType.UNINSTALL -> uninstallLocal(action.initials, local)
             DocumentSyncActionType.SKIP_BLOCKED, DocumentSyncActionType.NONE -> {}
         }
-        if (deferred > 0) {
-            Log.i(TAG, "Document pull: deferred $deferred document download(s) to next sync cycle (time budget reached)")
+        if (toDownload.isNotEmpty()) {
+            DocumentSyncService.start(BibleApplication.application, pushInitials = emptyList(), downloadInitials = toDownload)
         }
     }
 

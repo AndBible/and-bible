@@ -17,12 +17,11 @@
 package net.bible.android.control.versification
 
 import android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import net.bible.android.BibleApplication
 import net.bible.android.database.SwordDocumentInfo
-import net.bible.service.cloudsync.documents.DocumentSync
+import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.cloudsync.documents.shouldAutoUpload
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
@@ -40,7 +39,6 @@ import org.crosswire.jsword.versification.VersificationsMapper
  */
 object BookInstallWatcher {
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
-    private val syncScope = CoroutineScope(Dispatchers.IO)
 
     fun startListening() {
         Books.installed().addBooksListener(object : BooksListener {
@@ -49,11 +47,18 @@ object BookInstallWatcher {
                 Activator.deactivate(book)
                 initialiseRequiredMapping(book)
                 addBookToDb(book)
-                if (DocumentSyncSettings.enabled && DocumentSyncSettings.automatic) {
-                    syncScope.launch {
-                        try { DocumentSync.uploadDocument(book) }
-                        catch (e: Exception) { Log.e(TAG, "Document sync upload failed for ${book.initials}", e) }
-                    }
+                if (shouldAutoUpload(
+                        DocumentSyncSettings.enabled,
+                        DocumentSyncSettings.automatic,
+                        DocumentSyncSettings.blockList.isBlocked(book.initials),
+                        DocumentSyncSettings.isAutoTransferAllowed,
+                    )
+                ) {
+                    DocumentSyncService.start(
+                        BibleApplication.application,
+                        pushInitials = listOf(book.initials),
+                        downloadInitials = emptyList(),
+                    )
                 }
                 AndBibleAddons.clearCaches()
                 SwordContentFacade.clearCaches()
