@@ -108,12 +108,15 @@ class DocumentSyncService : Service() {
     private val notificationManager get() = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val powerManager get() = getSystemService(Context.POWER_SERVICE) as PowerManager
     private var wakeLock: PowerManager.WakeLock? = null
-    /** True only once [startForeground] has actually succeeded. */
-    private var isForeground = false
+    /** True only once [startForeground] has actually succeeded. Read on IO, written on main. */
+    @Volatile private var isForeground = false
+    /** Most recent start id, so teardown via [stopSelfResult] can't kill a just-started batch. */
+    @Volatile private var lastStartId = 0
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        lastStartId = startId
         if (intent?.action != START) { if (!active.get()) stopSelfSafe(); return START_NOT_STICKY }
         val push = intent.getStringArrayListExtra(EXTRA_PUSH) ?: arrayListOf()
         val download = intent.getStringArrayListExtra(EXTRA_DOWNLOAD) ?: arrayListOf()
@@ -235,7 +238,10 @@ class DocumentSyncService : Service() {
             else @Suppress("DEPRECATION") stopForeground(true)
             isForeground = false
         }
-        stopSelf()
+        // stopSelfResult (not bare stopSelf) so a START intent delivered after this drain finished
+        // but before AMS destroys us cancels the teardown — otherwise onDestroy()'s scope.cancel()
+        // would kill the freshly-started batch's in-flight transfer.
+        stopSelfResult(lastStartId)
     }
 
     override fun onDestroy() {
