@@ -274,11 +274,21 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         val message = if (summary.isEmpty) {
             getString(R.string.document_sync_enable_dialog_nothing)
         } else {
-            var m = getString(
-                R.string.cloud_doc_header_totals,
-                summary.uploadCount, Formatter.formatShortFileSize(ctx, summary.uploadBytes),
-                summary.downloadCount, Formatter.formatShortFileSize(ctx, summary.downloadBytes),
-            )
+            // Only mention a direction that has items, and only show its size when known
+            // (a local-only document with no declared install size reports 0 bytes).
+            val parts = buildList {
+                if (summary.uploadCount > 0) add(
+                    if (summary.uploadBytes > 0)
+                        getString(R.string.cloud_doc_summary_upload_size, summary.uploadCount, Formatter.formatShortFileSize(ctx, summary.uploadBytes))
+                    else getString(R.string.cloud_doc_summary_upload, summary.uploadCount)
+                )
+                if (summary.downloadCount > 0) add(
+                    if (summary.downloadBytes > 0)
+                        getString(R.string.cloud_doc_summary_download_size, summary.downloadCount, Formatter.formatShortFileSize(ctx, summary.downloadBytes))
+                    else getString(R.string.cloud_doc_summary_download, summary.downloadCount)
+                )
+            }
+            var m = parts.joinToString("\n")
             if (DocumentSyncSettings.wifiOnly && CommonUtils.isMeteredNetwork) {
                 m += "\n" + getString(R.string.cloud_doc_wifi_waiting)
             }

@@ -32,6 +32,7 @@ import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBookMetaData
 
 object DocumentSync {
     private const val TAG = "DocumentSync"
@@ -89,6 +90,10 @@ object DocumentSync {
         return buildStatusItems(cacheDao.all().map { it.toMeta() }, local)
     }
 
+    /** Installed module size in bytes from the SWORD conf, or null if not declared. */
+    private fun localInstallSizeBytes(book: Book): Long? =
+        book.bookMetaData.getProperty(SwordBookMetaData.KEY_INSTALL_SIZE)?.toLongOrNull()
+
     private fun buildStatusItems(
         cloudMetas: List<DocumentSyncMeta>,
         local: Map<String, Book>,
@@ -113,7 +118,9 @@ object DocumentSync {
                 updateAvailable = update,
                 localNewer = localNewer,
                 blocked = initials in blocked,
-                sizeBytes = c?.size ?: 0L,
+                // Cloud size is the exact packaged size; for a local-only document not yet in
+                // the cloud, fall back to the installed module size so the upload size isn't 0.
+                sizeBytes = c?.size ?: b?.let { localInstallSizeBytes(it) } ?: 0L,
                 category = category,
             )
         }
