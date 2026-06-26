@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.cloud
 
 import android.os.Bundle
-import android.text.format.Formatter
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -37,13 +36,13 @@ import net.bible.android.activity.databinding.ActivityCloudDocumentsBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.util.Hourglass
+import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSync.DocumentStatusItem
 import net.bible.service.cloudsync.documents.DocumentSyncProgressEvent
 import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.cloudsync.documents.documentSyncProgressText
-import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.BookCategory
 
 enum class CloudDocFilter { ALL, INSTALLED, CLOUD, UPDATES, BLOCKED }
@@ -88,9 +87,6 @@ class CloudDocumentsActivity : ActivityBase() {
     private lateinit var binding: ActivityCloudDocumentsBinding
     private lateinit var adapter: CloudDocumentsAdapter
 
-    private var setupMode: Boolean = false
-    /** True until the setup-mode UI has been applied after the first scan completes. */
-    private var pendingSetup: Boolean = false
     private var allItems: List<DocumentStatusItem> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,9 +94,6 @@ class CloudDocumentsActivity : ActivityBase() {
         binding = ActivityCloudDocumentsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         buildActivityComponent().inject(this)
-
-        setupMode = intent.getBooleanExtra(EXTRA_SETUP_MODE, false)
-        pendingSetup = setupMode
 
         title = getString(R.string.document_sync_manage_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -114,9 +107,7 @@ class CloudDocumentsActivity : ActivityBase() {
             adapter = this@CloudDocumentsActivity.adapter
         }
 
-        binding.primaryAction.setOnClickListener {
-            if (setupMode) performSetupSync() else performBulkAction()
-        }
+        binding.primaryAction.setOnClickListener { performBulkAction() }
 
         val filterSelectionListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) = applyFilter()
@@ -128,23 +119,27 @@ class CloudDocumentsActivity : ActivityBase() {
 
         binding.swipeRefresh.setOnRefreshListener { refresh() }
 
-        refresh()
+        openOrGate()
         ABEventBus.register(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menu.add(Menu.NONE, MENU_SELECT, Menu.NONE, R.string.cloud_doc_select)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.add(Menu.NONE, MENU_SYNC_NOW, Menu.NONE, R.string.cloud_doc_sync_now)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         return true
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(MENU_SELECT)?.isVisible = !adapter.isSelectionMode()
+        menu.findItem(MENU_SYNC_NOW)?.isVisible = !DocumentSyncSettings.enabled && !adapter.isSelectionMode()
         return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         MENU_SELECT -> { enterSelectionMode(); true }
+        MENU_SYNC_NOW -> { runSyncAction { DocumentSync.pullDocuments(automaticOnly = false) }; true }
         android.R.id.home -> {
             if (adapter.isSelectionMode()) exitSelectionMode() else finish()
             true
@@ -177,6 +172,25 @@ class CloudDocumentsActivity : ActivityBase() {
         }
     }
 
+    /**
+     * Sign-in-first access gate. Attempts sign-in when not already signed in, then
+     * loads the document list from the cache (Task 3). If sign-in fails AND there is
+     * no cached list, shows a toast and closes the activity.
+     */
+    private fun openOrGate() = lifecycleScope.launch {
+        var signedIn = CloudSync.signedIn
+        if (!signedIn) signedIn = CloudSync.signIn(this@CloudDocumentsActivity) == true
+        // refresh() reads from cache when signed-in scan is unavailable (Task 3).
+        val items = withContext(Dispatchers.IO) { DocumentSync.scan() }
+        if (!signedIn && items.isEmpty()) {
+            Toast.makeText(this@CloudDocumentsActivity, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
+            finish()
+            return@launch
+        }
+        allItems = items
+        applyFilter()
+    }
+
     private fun enterSelectionMode() {
         adapter.setSelectionMode(true)
         onSelectionChanged(0)
@@ -196,54 +210,13 @@ class CloudDocumentsActivity : ActivityBase() {
             return
         }
         binding.bottomBar.visibility = View.VISIBLE
-        if (setupMode) {
-            binding.primaryAction.text = getString(R.string.cloud_doc_setup_start)
-            binding.primaryAction.isEnabled = true
-            updateSetupHeader()
-        } else {
-            binding.primaryAction.text = getString(R.string.cloud_doc_bulk_download, count)
-            binding.primaryAction.isEnabled = count > 0
-        }
+        binding.primaryAction.text = getString(R.string.cloud_doc_bulk_download, count)
+        binding.primaryAction.isEnabled = count > 0
     }
 
     /**
-     * Enters the onboarding setup mode: shows the intro header, selects every scanned
-     * item, and reveals the "Start syncing" bottom bar. Called once after the first scan.
-     */
-    private fun enterSetupMode() {
-        binding.header.visibility = View.VISIBLE
-        adapter.setSelectionMode(true)
-        adapter.selectAll(allItems.map { it.initials })
-        onSelectionChanged(adapter.getSelectedInitials().size)
-        invalidateOptionsMenu()
-    }
-
-    /**
-     * Computes and displays the setup-mode header: how many items (and their total
-     * cloud-known size) would be uploaded vs downloaded, plus a Wi-Fi waiting note when
-     * downloads are deferred until an unmetered connection.
-     */
-    private fun updateSetupHeader() {
-        val selected = adapter.getSelectedInitials()
-        val selectedItems = allItems.filter { it.initials in selected }
-        val uploads = selectedItems.filter { it.localOnly }
-        val downloads = selectedItems.filter { it.cloudOnly || it.updateAvailable }
-        val uploadSize = Formatter.formatShortFileSize(this, uploads.sumOf { it.sizeBytes })
-        val downloadSize = Formatter.formatShortFileSize(this, downloads.sumOf { it.sizeBytes })
-        val totals = getString(
-            R.string.cloud_doc_header_totals,
-            uploads.size, uploadSize, downloads.size, downloadSize,
-        )
-        var text = getString(R.string.cloud_doc_setup_intro) + "\n" + totals
-        if (DocumentSyncSettings.wifiOnly && CommonUtils.isMeteredNetwork) {
-            text += "\n" + getString(R.string.cloud_doc_wifi_waiting)
-        }
-        binding.header.text = text
-    }
-
-    /**
-     * Bulk action for the bottom bar. In normal (non-setup) mode it downloads every
-     * selected item that is available in the cloud (cloud-only or has an update).
+     * Bulk action for the bottom bar: downloads every selected item that is available
+     * in the cloud (cloud-only or has an update).
      */
     private fun performBulkAction() {
         val selected = adapter.getSelectedInitials()
@@ -252,42 +225,10 @@ class CloudDocumentsActivity : ActivityBase() {
         exitSelectionMode()
     }
 
-    /**
-     * Setup-mode primary action ("Start syncing"). Performs the initial bulk sync over
-     * the current selection: local-only items are pushed, cloud-only/update items are
-     * downloaded. Cloud-only items the user *deselected* are blocked so they are not
-     * downloaded later; deselected local-only items are simply left as-is. When done,
-     * setup mode is dropped and the screen becomes the normal management view.
-     */
-    private fun performSetupSync() {
-        // "Start syncing" is the commit point: enable document sync now (auto mode
-        // defers enabling until here, so backing out of setup leaves sync off).
-        DocumentSyncSettings.enabled = true
-        val selected = adapter.getSelectedInitials()
-        val toPush = allItems.filter { it.initials in selected && it.localOnly }.map { it.initials }
-        val toDownload = allItems.filter { it.initials in selected && (it.cloudOnly || it.updateAvailable) }.map { it.initials }
-        // Cloud-only items the user opted out of get blocked so they aren't pulled later.
-        val toBlock = allItems.filter { it.initials !in selected && it.cloudOnly }.map { it.initials }
-        for (initials in toBlock) DocumentSyncSettings.blockList.block(initials)
-        DocumentSyncService.start(this, pushInitials = toPush, downloadInitials = toDownload)
-        if (toPush.isNotEmpty() || toDownload.isNotEmpty()) {
-            Toast.makeText(this, R.string.document_sync_started, Toast.LENGTH_SHORT).show()
-        }
-        exitSetupMode()
-        refresh()
-    }
-
-    /** Leaves setup mode, restoring the plain management view (intro hidden, no selection). */
-    private fun exitSetupMode() {
-        setupMode = false
-        binding.header.visibility = View.GONE
-        exitSelectionMode()
-    }
-
     /** Re-scans the cloud + local documents and updates the list. */
     private fun refresh() {
         // post() so the spinner shows even when refresh() is triggered programmatically
-        // (e.g. from onCreate) before the SwipeRefreshLayout has been laid out.
+        // (e.g. from a post-action callback) before the SwipeRefreshLayout has been laid out.
         binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = true }
         lifecycleScope.launch {
             try {
@@ -296,10 +237,6 @@ class CloudDocumentsActivity : ActivityBase() {
                 binding.swipeRefresh.isRefreshing = false
             }
             applyFilter()
-            if (pendingSetup) {
-                pendingSetup = false
-                enterSetupMode()
-            }
         }
     }
 
@@ -315,9 +252,7 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     private fun applyFilter() {
-        // Don't tear down selection while onboarding setup mode is active — setup
-        // intentionally keeps the list in selection mode with everything pre-selected.
-        if (!setupMode && adapter.isSelectionMode()) exitSelectionMode()
+        if (adapter.isSelectionMode()) exitSelectionMode()
         val status = CloudDocFilter.entries[binding.statusSpinner.selectedItemPosition.coerceIn(0, CloudDocFilter.entries.lastIndex)]
         val category = categoryForSpinnerPosition(binding.categorySpinner.selectedItemPosition)
         val name = binding.nameSearch.text?.toString().orEmpty()
@@ -401,7 +336,7 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     companion object {
-        const val EXTRA_SETUP_MODE = "setupMode"
         private const val MENU_SELECT = 1
+        private const val MENU_SYNC_NOW = 2
     }
 }
