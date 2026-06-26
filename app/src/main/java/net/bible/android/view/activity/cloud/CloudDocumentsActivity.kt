@@ -37,7 +37,37 @@ import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSync.DocumentStatusItem
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.CommonUtils
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+
+enum class CloudDocFilter { ALL, INSTALLED, CLOUD, UPDATES, BLOCKED }
+
+/**
+ * Pure filter used by the cloud documents management view: keeps items matching the
+ * selected status, a case-insensitive name substring, and (when non-null) an exact
+ * book category. A null [category] argument means "any category"; an item whose own
+ * category is null only matches when [category] is null.
+ */
+fun filterCloudDocuments(
+    items: List<DocumentSync.DocumentStatusItem>,
+    status: CloudDocFilter,
+    nameQuery: String,
+    category: BookCategory?,
+): List<DocumentSync.DocumentStatusItem> {
+    val query = nameQuery.trim()
+    return items.filter { item ->
+        val statusOk = when (status) {
+            CloudDocFilter.ALL -> true
+            CloudDocFilter.INSTALLED -> !item.cloudOnly
+            CloudDocFilter.CLOUD -> !item.localOnly
+            CloudDocFilter.UPDATES -> item.updateAvailable
+            CloudDocFilter.BLOCKED -> item.blocked
+        }
+        val nameOk = query.isEmpty() || item.name.contains(query, ignoreCase = true)
+        val categoryOk = category == null || item.category == category
+        statusOk && nameOk && categoryOk
+    }
+}
 
 /**
  * Management view for the document-sync feature: a list of the user's documents
@@ -55,10 +85,8 @@ class CloudDocumentsActivity : ActivityBase() {
     private var setupMode: Boolean = false
     /** True until the setup-mode UI has been applied after the first scan completes. */
     private var pendingSetup: Boolean = false
-    private var filter: Filter = Filter.ALL
+    private var filter: CloudDocFilter = CloudDocFilter.ALL
     private var allItems: List<DocumentStatusItem> = emptyList()
-
-    private enum class Filter { ALL, INSTALLED, CLOUD, UPDATES, BLOCKED }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,11 +115,11 @@ class CloudDocumentsActivity : ActivityBase() {
 
         binding.filters.setOnCheckedChangeListener { _, checkedId ->
             filter = when (checkedId) {
-                R.id.filterInstalled -> Filter.INSTALLED
-                R.id.filterCloud -> Filter.CLOUD
-                R.id.filterUpdates -> Filter.UPDATES
-                R.id.filterBlocked -> Filter.BLOCKED
-                else -> Filter.ALL
+                R.id.filterInstalled -> CloudDocFilter.INSTALLED
+                R.id.filterCloud -> CloudDocFilter.CLOUD
+                R.id.filterUpdates -> CloudDocFilter.UPDATES
+                R.id.filterBlocked -> CloudDocFilter.BLOCKED
+                else -> CloudDocFilter.ALL
             }
             applyFilter()
         }
@@ -255,15 +283,7 @@ class CloudDocumentsActivity : ActivityBase() {
 
     private fun applyFilter() {
         if (adapter.isSelectionMode()) exitSelectionMode()
-        val filtered = allItems.filter { item ->
-            when (filter) {
-                Filter.ALL -> true
-                Filter.INSTALLED -> !item.cloudOnly
-                Filter.CLOUD -> !item.localOnly
-                Filter.UPDATES -> item.updateAvailable
-                Filter.BLOCKED -> item.blocked
-            }
-        }
+        val filtered = filterCloudDocuments(allItems, filter, "", null)
         adapter.submit(filtered)
         binding.emptyText.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
         binding.recycler.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
