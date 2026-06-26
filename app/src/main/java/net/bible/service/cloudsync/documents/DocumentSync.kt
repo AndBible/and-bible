@@ -21,6 +21,7 @@ package net.bible.service.cloudsync.documents
 
 import android.util.Log
 import net.bible.android.BibleApplication
+import net.bible.android.database.toMeta
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -62,9 +63,24 @@ object DocumentSync {
     )
 
     suspend fun scan(): List<DocumentStatusItem> {
-        val store = store() ?: return emptyList()
-        val cloud = store.listDocuments().filter { !it.deleted }.associateBy { it.initials }
+        val cacheDao = DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao()
+        val store = store()
         val local = installedSyncableBooks().associateBy { it.initials }
+        val cloudMetas: List<DocumentSyncMeta> = if (store != null) {
+            val live = store.listDocuments()
+            cacheDao.replaceAll(live.map { it.toCacheEntity() })   // refresh cache from network
+            live
+        } else {
+            cacheDao.all().map { it.toMeta() }                     // offline / not signed in: use cache
+        }
+        return buildStatusItems(cloudMetas, local)
+    }
+
+    private fun buildStatusItems(
+        cloudMetas: List<DocumentSyncMeta>,
+        local: Map<String, Book>,
+    ): List<DocumentStatusItem> {
+        val cloud = cloudMetas.filter { !it.deleted }.associateBy { it.initials }
         val blocked = DocumentSyncSettings.blockList.all()
         val allInitials = (cloud.keys + local.keys).toSortedSet()
         return allInitials.map { initials ->
