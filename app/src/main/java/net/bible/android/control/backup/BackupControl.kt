@@ -69,6 +69,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
 import net.bible.service.download.isPseudoBook
+import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
@@ -465,7 +466,7 @@ object BackupControl {
         val books = Dialogs.multiselect(
             callingActivity,
             R.string.backup_modules_title,
-            Books.installed().books.filter { !it.isPseudoBook }.sortedBy { it.language }
+            Books.installed().books.filter { !it.isPseudoBook && !it.isMyDocument }.sortedBy { it.language }
         ) {
             callingActivity.getString(R.string.something_with_parenthesis, it.name, "${it.initials}, ${it.language.code}")
         }
