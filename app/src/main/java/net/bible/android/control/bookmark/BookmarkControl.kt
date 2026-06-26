@@ -82,7 +82,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
-import kotlin.math.min
 
 abstract class BookmarkEvent
 
@@ -725,36 +724,17 @@ open class BookmarkControl @Inject constructor(
     }
 
     private fun addText(b: BaseBookmarkWithNotes, texts: List<String>, wholeVerse: Boolean = false) {
-        val startOffset = if(wholeVerse) 0 else b.startOffset ?: 0
-        var startVerse = texts.firstOrNull() ?: run {
+        val result = computeBookmarkTexts(texts, b.startOffset, b.endOffset, wholeVerse) ?: run {
             b.startText = ""
             b.endText = ""
             b.text = application.getString(R.string.error_occurred)
             b.fullText = b.text
             return
         }
-        var endOffset = if(wholeVerse) startVerse.length else b.endOffset ?: startVerse.length
-        val start = startVerse.slice(0 until min(startOffset, startVerse.length))
-        if(texts.size == 1) {
-            val end = startVerse.slice(endOffset until startVerse.length)
-            b.text = startVerse.slice(startOffset until min(endOffset, startVerse.length)).trim()
-            b.startText = start
-            b.endText = end
-            b.fullText = """$start${b.text}$end""".trim()
-        } else if(texts.size > 1) {
-            startVerse = startVerse.slice(startOffset until startVerse.length)
-            val lastVerse = texts.last()
-            endOffset = if(wholeVerse) lastVerse.length else b.endOffset ?: lastVerse.length
-            val endVerse = lastVerse.slice(0 until min(lastVerse.length, endOffset))
-            val end = lastVerse.slice(endOffset until lastVerse.length)
-            val middleVerses = if(texts.size > 2) {
-                texts.slice(1 until texts.size-1).joinToString(" ")
-            } else ""
-            b.startText = start
-            b.endText = end
-            b.text = "$startVerse$middleVerses$endVerse".trim()
-            b.fullText = """$start${b.text}$end""".trim()
-        }
+        b.startText = result.startText
+        b.text = result.text
+        b.endText = result.endText
+        b.fullText = result.fullText
     }
 
     private fun addText(b: BibleBookmarkWithNotes) {
@@ -1128,4 +1108,55 @@ open class BookmarkControl @Inject constructor(
         private const val TAG = "BookmarkControl"
     }
 
+}
+
+/** Display texts computed for a bookmark: the unselected prefix, the selected text, the
+ *  unselected suffix, and the combined full text. */
+internal data class BookmarkTexts(
+    val startText: String,
+    val text: String,
+    val endText: String,
+    val fullText: String,
+)
+
+/**
+ * Splits the given verse [texts] into the unselected prefix ([BookmarkTexts.startText]), the
+ * selected text ([BookmarkTexts.text]) and the unselected suffix ([BookmarkTexts.endText]) using
+ * the bookmark's character offsets.
+ *
+ * [startOffset]/[endOffset] originate from the WebView text selection (or imported/synced data) and
+ * may be out of range relative to the current verse text — e.g. when the bookmark was created against
+ * a different module revision, or from invalid stored data (a negative offset has been observed in
+ * the wild, causing StringIndexOutOfBoundsException). The offsets are therefore clamped to valid
+ * bounds so rendering never throws. For in-range offsets the result is identical to slicing directly.
+ *
+ * Returns `null` when there is no verse text to render (caller substitutes an error message).
+ */
+internal fun computeBookmarkTexts(
+    texts: List<String>,
+    startOffset: Int?,
+    endOffset: Int?,
+    wholeVerse: Boolean,
+): BookmarkTexts? {
+    val firstVerse = texts.firstOrNull() ?: return null
+    val start0 = (if (wholeVerse) 0 else startOffset ?: 0).coerceIn(0, firstVerse.length)
+    return if (texts.size == 1) {
+        val end0 = (if (wholeVerse) firstVerse.length else endOffset ?: firstVerse.length)
+            .coerceIn(start0, firstVerse.length)
+        val startText = firstVerse.substring(0, start0)
+        val text = firstVerse.substring(start0, end0).trim()
+        val endText = firstVerse.substring(end0)
+        BookmarkTexts(startText, text, endText, "$startText$text$endText".trim())
+    } else {
+        val startText = firstVerse.substring(0, start0)
+        val startSelection = firstVerse.substring(start0)
+        val lastVerse = texts.last()
+        val end0 = (if (wholeVerse) lastVerse.length else endOffset ?: lastVerse.length)
+            .coerceIn(0, lastVerse.length)
+        val endSelection = lastVerse.substring(0, end0)
+        val endText = lastVerse.substring(end0)
+        val middleVerses = if (texts.size > 2) texts.slice(1 until texts.size - 1).joinToString(" ") else ""
+        val text = "$startSelection$middleVerses$endSelection".trim()
+        BookmarkTexts(startText, text, endText, "$startText$text$endText".trim())
+    }
 }
