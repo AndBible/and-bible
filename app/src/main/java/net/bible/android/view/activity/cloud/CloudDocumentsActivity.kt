@@ -302,7 +302,9 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     private fun applyFilter() {
-        if (adapter.isSelectionMode()) exitSelectionMode()
+        // Don't tear down selection while onboarding setup mode is active — setup
+        // intentionally keeps the list in selection mode with everything pre-selected.
+        if (!setupMode && adapter.isSelectionMode()) exitSelectionMode()
         val status = CloudDocFilter.entries[binding.statusSpinner.selectedItemPosition.coerceIn(0, CloudDocFilter.entries.lastIndex)]
         val category = categoryForSpinnerPosition(binding.categorySpinner.selectedItemPosition)
         val name = binding.nameSearch.text?.toString().orEmpty()
