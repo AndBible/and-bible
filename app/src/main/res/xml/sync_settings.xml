@@ -63,6 +63,15 @@
             android:summary="@string/auth_folder_path_summary"
             android:icon="@drawable/outline_shield_24"
             />
+		<SwitchPreferenceCompat
+			android:key="sync_documents_wifi_only"
+			android:defaultValue="true"
+			android:title="@string/document_sync_wifi_only_title"
+			android:summary="@string/document_sync_wifi_only_summary" />
+		<Preference
+			android:key="document_sync_manage"
+			android:title="@string/document_sync_manage_title"
+			android:summary="@string/document_sync_manage_summary" />
 	</PreferenceCategory>
 
 	<PreferenceCategory
@@ -105,29 +114,10 @@
 			android:defaultValue="false"
 			android:icon="@drawable/ic_baseline_check_circle_24"
 			/>
-	</PreferenceCategory>
-
-	<PreferenceCategory
-		android:key="document_sync_category"
-		android:title="@string/document_sync_title">
 		<SwitchPreferenceCompat android:key="sync_enable_documents"
 			android:title="@string/document_sync_title"
 			android:summary="@string/document_sync_contents"
 			android:defaultValue="false"
 			android:icon="@drawable/ic_baseline_description_gray_24" />
-		<SwitchPreferenceCompat android:key="sync_documents_automatic"
-			android:title="@string/document_sync_automatic_title"
-			android:summary="@string/document_sync_automatic_summary"
-			android:defaultValue="true"
-			android:dependency="sync_enable_documents" />
-		<SwitchPreferenceCompat android:key="sync_documents_wifi_only"
-			android:title="@string/document_sync_wifi_only_title"
-			android:summary="@string/document_sync_wifi_only_summary"
-			android:defaultValue="true"
-			android:dependency="sync_enable_documents" />
-		<Preference android:key="document_sync_manage"
-			android:title="@string/document_sync_manage_title"
-			android:summary="@string/document_sync_manage_summary"
-			android:dependency="sync_enable_documents" />
 	</PreferenceCategory>
 </PreferenceScreen>
