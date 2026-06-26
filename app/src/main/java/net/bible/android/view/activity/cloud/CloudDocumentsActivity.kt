@@ -41,7 +41,6 @@ import net.bible.service.cloudsync.documents.DocumentSync.DocumentStatusItem
 import net.bible.service.cloudsync.documents.DocumentSyncProgressEvent
 import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
-import net.bible.service.cloudsync.documents.documentSyncProgressText
 import org.crosswire.jsword.book.BookCategory
 
 enum class CloudDocFilter { ALL, INSTALLED, CLOUD, UPDATES, BLOCKED }
@@ -175,15 +174,12 @@ class CloudDocumentsActivity : ActivityBase() {
 
     @Suppress("unused") // called by greenrobot EventBus on the main thread
     fun onEventMainThread(event: DocumentSyncProgressEvent) {
+        // Per-document progress is shown in the foreground-service notification; in the activity
+        // a plain loading indicator is enough. Refresh the list once the transfer finishes.
         if (event.running) {
-            binding.syncProgress.visibility = View.VISIBLE
-            binding.syncProgressBar.max = event.total
-            binding.syncProgressBar.progress = event.current
-            binding.syncProgressText.text = event.currentName
-                ?.let { documentSyncProgressText(it, event.current, event.total) }
-                ?: getString(R.string.synchronizing)
+            binding.loadingBar.visibility = View.VISIBLE
         } else {
-            binding.syncProgress.visibility = View.GONE
+            binding.loadingBar.visibility = View.GONE
             refresh()
         }
     }
