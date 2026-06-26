@@ -105,11 +105,11 @@ class DocumentSyncService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action != START) { stopSelfSafe(); return START_NOT_STICKY }
+        if (intent?.action != START) { if (!active.get()) stopSelfSafe(); return START_NOT_STICKY }
         val push = intent.getStringArrayListExtra(EXTRA_PUSH) ?: arrayListOf()
         val download = intent.getStringArrayListExtra(EXTRA_DOWNLOAD) ?: arrayListOf()
         val ops = buildDocumentSyncOps(push, download)
-        if (ops.isEmpty()) { stopSelfSafe(); return START_NOT_STICKY }
+        if (ops.isEmpty()) { if (!active.get()) stopSelfSafe(); return START_NOT_STICKY }
 
         // fresh == this batch starts a new drain session (no drain currently running).
         val fresh = active.compareAndSet(false, true)
