@@ -62,7 +62,16 @@ class CloudDocumentsAdapter(
     private val selectedInitials = mutableSetOf<String>()
     private var selectionMode = false
 
-    fun submit(items: List<DocumentStatusItem>) = submitList(items)
+    fun submit(items: List<DocumentStatusItem>) {
+        // A refresh can remove items or flip them to non-downloadable (e.g. just downloaded
+        // elsewhere). Drop those from the selection so the bottom-bar count and the bulk action
+        // stay consistent with what's actually selectable now.
+        if (selectionMode) {
+            val selectable = items.filter { isDownloadable(it) }.mapTo(mutableSetOf()) { it.initials }
+            if (selectedInitials.retainAll(selectable)) onSelectionChanged(selectedInitials.size)
+        }
+        submitList(items)
+    }
 
     /** Toggles selection mode on/off. Leaving selection mode clears the selection. */
     fun setSelectionMode(enabled: Boolean) {

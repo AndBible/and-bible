@@ -159,12 +159,13 @@ class CloudDocumentsActivity : ActivityBase() {
         binding.primaryAction.setOnClickListener { performBulkAction() }
 
         val filterSelectionListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) = applyFilter()
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) =
+                applyFilter(resetSelection = true)
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
         binding.statusSpinner.onItemSelectedListener = filterSelectionListener
         binding.categorySpinner.onItemSelectedListener = filterSelectionListener
-        binding.nameSearch.addTextChangedListener(afterTextChanged = { applyFilter() })
+        binding.nameSearch.addTextChangedListener(afterTextChanged = { applyFilter(resetSelection = true) })
 
         binding.swipeRefresh.setOnRefreshListener { refresh() }
 
@@ -322,8 +323,13 @@ class CloudDocumentsActivity : ActivityBase() {
         else -> null
     }
 
-    private fun applyFilter() {
-        if (adapter.isSelectionMode()) exitSelectionMode()
+    /**
+     * @param resetSelection exit selection mode first. True only when the user changed a filter
+     *   input (a new filter makes the current selection meaningless); false for data refreshes,
+     *   which must NOT silently drop the user out of selection mode and discard their picks.
+     */
+    private fun applyFilter(resetSelection: Boolean = false) {
+        if (resetSelection && adapter.isSelectionMode()) exitSelectionMode()
         val status = CloudDocFilter.entries[binding.statusSpinner.selectedItemPosition.coerceIn(0, CloudDocFilter.entries.lastIndex)]
         val category = categoryForSpinnerPosition(binding.categorySpinner.selectedItemPosition)
         val name = binding.nameSearch.text?.toString().orEmpty()
