@@ -248,7 +248,9 @@ class CloudDocumentsActivity : ActivityBase() {
         applyFilter()
         // With automatic sync on, the sync cycle keeps the cache fresh, so trust it on open and
         // don't hit the network (the user can still pull-to-refresh). With sync off, refresh now.
-        if (signedIn && !DocumentSyncSettings.enabled) refreshFromNetwork()
+        // Exception: an empty cache (e.g. a fresh device before its first sync cycle) would show
+        // only local docs, so refresh from the network even when automatic sync is on.
+        if (signedIn && (!DocumentSyncSettings.enabled || cached.isEmpty())) refreshFromNetwork()
     }
 
     /** Re-scans from the network behind the non-blocking [loadingBar], then updates the list. */
