@@ -19,8 +19,10 @@ package net.bible.android.view.activity.settings
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.format.Formatter
 import android.view.MenuItem
 import android.webkit.URLUtil
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
@@ -28,7 +30,9 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.control.event.ABEventBus
@@ -41,7 +45,11 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.cloudsync.CloudAdapters
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.documents.DocumentSync
+import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.cloudsync.documents.DocumentSyncSummary
+import net.bible.service.cloudsync.documents.computeDocumentSyncSummary
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -134,13 +142,15 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                         var signedIn = CloudSync.signedIn
                         if (!signedIn) signedIn = CloudSync.signIn(activity as ActivityBase) == true
                         if (signedIn) {
-                            DocumentSyncSettings.enabled = true
-                            startActivity(Intent(requireContext(), CloudDocumentsActivity::class.java))
+                            val items = withContext(Dispatchers.IO) { DocumentSync.scan() }
+                            val summary = computeDocumentSyncSummary(items, DocumentSyncSettings.blockList.all())
+                            showEnableDocumentsDialog(summary)
                         }
                     }
-                    false
+                    false   // committed in the dialog's positive button
                 } else {
                     DocumentSyncSettings.enabled = false
+                    updateDocumentSyncVisibility()
                     true
                 }
             }
@@ -149,6 +159,9 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             startActivity(Intent(requireContext(), CloudDocumentsActivity::class.java))
             true
         }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_documents")?.isChecked =
+            DocumentSyncSettings.enabled
+        updateDocumentSyncVisibility()
         preferenceScreen.findPreference<Preference>("cloud_sync_reset")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
@@ -239,10 +252,46 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         }
     }
 
+    private fun showEnableDocumentsDialog(summary: DocumentSyncSummary) {
+        val ctx = requireContext()
+        val message = if (summary.isEmpty) {
+            getString(R.string.document_sync_enable_dialog_nothing)
+        } else {
+            var m = getString(
+                R.string.cloud_doc_header_totals,
+                summary.uploadCount, Formatter.formatShortFileSize(ctx, summary.uploadBytes),
+                summary.downloadCount, Formatter.formatShortFileSize(ctx, summary.downloadBytes),
+            )
+            if (DocumentSyncSettings.wifiOnly && CommonUtils.isMeteredNetwork) {
+                m += "\n" + getString(R.string.cloud_doc_wifi_waiting)
+            }
+            m
+        }
+        AlertDialog.Builder(ctx)
+            .setTitle(R.string.document_sync_enable_dialog_title)
+            .setMessage(message)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                DocumentSyncSettings.enabled = true
+                DocumentSyncService.start(ctx, summary.uploadInitials, summary.downloadInitials)
+                updateDocumentSyncVisibility()
+                preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_documents")?.isChecked = true
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun updateDocumentSyncVisibility() {
+        val adapterConfigured = CloudSync.signedIn
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_documents_wifi_only")?.isVisible =
+            DocumentSyncSettings.enabled
+        preferenceScreen.findPreference<Preference>("document_sync_manage")?.isEnabled = adapterConfigured
+    }
+
     override fun onResume() {
         super.onResume()
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_documents")?.isChecked =
             DocumentSyncSettings.enabled
+        updateDocumentSyncVisibility()
     }
 }
 
