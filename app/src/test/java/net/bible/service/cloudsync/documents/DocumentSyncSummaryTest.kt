@@ -30,6 +30,7 @@ class DocumentSyncSummaryTest {
         initials = initials, name = initials, type = DocumentType.SWORD,
         cloudVersion = null, localVersion = null, cloudOnly = cloudOnly, localOnly = localOnly,
         updateAvailable = update, localNewer = false, blocked = false, sizeBytes = size, category = BookCategory.BIBLE,
+        canDeleteLocal = true,
     )
 
     @Test fun splitsUploadsAndDownloadsWithSizes() {

@@ -27,44 +27,58 @@ class CloudDocumentsMenuTest {
     private fun item(
         cloudOnly: Boolean = false, localOnly: Boolean = false,
         update: Boolean = false, localNewer: Boolean = false, blocked: Boolean = false,
+        canDeleteLocal: Boolean = true,
     ) = DocumentStatusItem(
         initials = "KJV", name = "KJV", type = DocumentType.SWORD,
         cloudVersion = "1.0", localVersion = "1.0",
         cloudOnly = cloudOnly, localOnly = localOnly, updateAvailable = update,
         localNewer = localNewer, blocked = blocked, sizeBytes = 0, category = BookCategory.BIBLE,
+        canDeleteLocal = canDeleteLocal,
     )
 
     @Test fun cloudOnlyOffersDownloadRemoveBlock() {
         assertEquals(
             listOf(CloudDocAction.DOWNLOAD, CloudDocAction.REMOVE_CLOUD, CloudDocAction.BLOCK),
-            documentMenuActions(item(cloudOnly = true)),
+            documentMenuActions(item(cloudOnly = true), syncEnabled = true),
         )
     }
 
     @Test fun localOnlyOffersOnlyPush() {
-        assertEquals(listOf(CloudDocAction.PUSH), documentMenuActions(item(localOnly = true)))
+        assertEquals(listOf(CloudDocAction.PUSH), documentMenuActions(item(localOnly = true), syncEnabled = true))
     }
 
     @Test fun fullySyncedHasNoPushOrDownload() {
         // Same version on both sides: neither push nor download is meaningful.
         assertEquals(
             listOf(CloudDocAction.REMOVE_CLOUD, CloudDocAction.BLOCK),
-            documentMenuActions(item()),
+            documentMenuActions(item(), syncEnabled = true),
         )
     }
 
     @Test fun cloudNewerOffersDownloadNotPush() {
-        val actions = documentMenuActions(item(update = true))
+        val actions = documentMenuActions(item(update = true), syncEnabled = true)
         assertEquals(listOf(CloudDocAction.DOWNLOAD, CloudDocAction.REMOVE_CLOUD, CloudDocAction.BLOCK), actions)
     }
 
     @Test fun localNewerOffersPushNotDownload() {
-        val actions = documentMenuActions(item(localNewer = true))
+        val actions = documentMenuActions(item(localNewer = true), syncEnabled = true)
         assertEquals(listOf(CloudDocAction.PUSH, CloudDocAction.REMOVE_CLOUD, CloudDocAction.BLOCK), actions)
     }
 
     @Test fun blockedOffersUnblockNotBlock() {
-        val actions = documentMenuActions(item(cloudOnly = true, blocked = true))
+        val actions = documentMenuActions(item(cloudOnly = true, blocked = true), syncEnabled = true)
         assertEquals(listOf(CloudDocAction.DOWNLOAD, CloudDocAction.REMOVE_CLOUD, CloudDocAction.UNBLOCK), actions)
+    }
+
+    @Test fun syncEnabledHidesRemoveForUndeletableLocal() {
+        // Last Bible: with sync on, remove would delete it locally, so it isn't offered.
+        val actions = documentMenuActions(item(canDeleteLocal = false), syncEnabled = true)
+        assertEquals(listOf(CloudDocAction.BLOCK), actions)
+    }
+
+    @Test fun syncDisabledStillOffersRemoveForUndeletableLocal() {
+        // With sync off, remove only touches the cloud (local copy kept), so it's still offered.
+        val actions = documentMenuActions(item(canDeleteLocal = false), syncEnabled = false)
+        assertEquals(listOf(CloudDocAction.REMOVE_CLOUD, CloudDocAction.BLOCK), actions)
     }
 }

@@ -37,6 +37,7 @@ class CloudDocumentsFilterTest {
         cloudVersion = "1.0", localVersion = "1.0",
         cloudOnly = cloudOnly, localOnly = localOnly, updateAvailable = updateAvailable,
         localNewer = false, blocked = blocked, sizeBytes = 0, category = category,
+        canDeleteLocal = true,
     )
 
     private val items = listOf(

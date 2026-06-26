@@ -21,6 +21,7 @@ package net.bible.service.cloudsync.documents
 
 import android.util.Log
 import net.bible.android.BibleApplication
+import net.bible.android.control.document.canDelete
 import net.bible.android.database.toMeta
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
@@ -63,6 +64,8 @@ object DocumentSync {
         val blocked: Boolean,
         val sizeBytes: Long,
         val category: BookCategory?,
+        /** Whether the locally installed copy may be deleted (false e.g. for the last Bible). */
+        val canDeleteLocal: Boolean,
     )
 
     suspend fun scan(): List<DocumentStatusItem> {
@@ -122,6 +125,8 @@ object DocumentSync {
                 // the cloud, fall back to the installed module size so the upload size isn't 0.
                 sizeBytes = c?.size ?: b?.let { localInstallSizeBytes(it) } ?: 0L,
                 category = category,
+                // No local copy → nothing to delete locally; otherwise honour the last-Bible guard.
+                canDeleteLocal = b?.canDelete ?: true,
             )
         }
     }
@@ -211,11 +216,15 @@ object DocumentSync {
             timestamp = 0,
         )).copy(timestamp = now)
         store.writeTombstone(meta)
-        // Record this device as already knowing the tombstone (sync timestamp == tombstone
-        // timestamp) so the next pull resolves to NONE here — "remove from cloud" removes the
-        // document from the cloud and propagates the deletion to *other* devices, but keeps the
-        // local copy on the device that initiated it. Other devices keep their older sync
-        // timestamp, so the tombstone is strictly newer there and they uninstall locally.
+        // Other devices (older sync timestamp) see the tombstone as strictly newer and uninstall
+        // locally. With sync ENABLED here, "Remove from all devices" also deletes the local copy
+        // on this device — otherwise it would be orphaned (gone from the cloud, no longer synced).
+        // With sync OFF (manual "Remove from cloud"), the local copy is kept; it won't be
+        // re-downloaded because automatic pull is off.
+        if (DocumentSyncSettings.enabled) {
+            Books.installed().getBook(initials)?.let { SwordDocumentFacade.deleteDocument(it) }
+        }
+        // Record this device as already knowing the tombstone so our own next pull is a no-op.
         DocumentSyncSettings.setSyncTimestamp(initials, now)
     }
 }

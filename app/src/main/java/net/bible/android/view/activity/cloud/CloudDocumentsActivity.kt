@@ -77,13 +77,17 @@ fun filterCloudDocuments(
  * Only meaningful actions are offered: a fully-synced item has no Push, a cloud-absent
  * item has no Download/Remove-from-cloud/Block, etc.
  */
-fun documentMenuActions(item: DocumentSync.DocumentStatusItem): List<CloudDocAction> = buildList {
+fun documentMenuActions(
+    item: DocumentSync.DocumentStatusItem,
+    syncEnabled: Boolean,
+): List<CloudDocAction> = buildList {
     // Download: the cloud has a copy this device lacks or that is newer.
     if (item.cloudOnly || item.updateAvailable) add(CloudDocAction.DOWNLOAD)
     // Push: not in the cloud yet, or the local copy is newer than the cloud copy.
     if (item.localOnly || item.localNewer) add(CloudDocAction.PUSH)
-    // Remove from cloud: only when a cloud copy exists.
-    if (!item.localOnly) add(CloudDocAction.REMOVE_CLOUD)
+    // Remove: only when a cloud copy exists. With sync enabled it also deletes the local copy,
+    // so suppress it when the local copy can't be deleted (e.g. the last Bible).
+    if (!item.localOnly && !(syncEnabled && !item.canDeleteLocal)) add(CloudDocAction.REMOVE_CLOUD)
     // Block/unblock the per-device auto-download — only meaningful when a cloud copy exists.
     if (item.blocked) add(CloudDocAction.UNBLOCK)
     else if (!item.localOnly) add(CloudDocAction.BLOCK)
@@ -308,7 +312,7 @@ class CloudDocumentsActivity : ActivityBase() {
     /** Builds and shows the popup menu of the actions relevant to the given item's status. */
     private fun showItemMenu(item: DocumentStatusItem, anchor: View) {
         val popup = PopupMenu(this, anchor)
-        documentMenuActions(item).forEachIndexed { order, action ->
+        documentMenuActions(item, DocumentSyncSettings.enabled).forEachIndexed { order, action ->
             popup.menu.add(0, action.ordinal, order, actionLabel(action))
         }
         popup.setOnMenuItemClickListener { menuItem ->
@@ -321,7 +325,10 @@ class CloudDocumentsActivity : ActivityBase() {
     private fun actionLabel(action: CloudDocAction): Int = when (action) {
         CloudDocAction.DOWNLOAD -> R.string.cloud_doc_action_download
         CloudDocAction.PUSH -> R.string.cloud_doc_action_push
-        CloudDocAction.REMOVE_CLOUD -> R.string.cloud_doc_action_remove_cloud
+        // With sync on, remove deletes everywhere (incl. this device); with sync off, cloud only.
+        CloudDocAction.REMOVE_CLOUD ->
+            if (DocumentSyncSettings.enabled) R.string.cloud_doc_action_remove_all_devices
+            else R.string.cloud_doc_action_remove_cloud
         CloudDocAction.BLOCK -> R.string.cloud_doc_action_block
         CloudDocAction.UNBLOCK -> R.string.cloud_doc_action_unblock
         CloudDocAction.TOGGLE_SELECT -> 0
@@ -354,12 +361,16 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     private fun confirmRemoveFromCloud(item: DocumentStatusItem) {
+        val enabled = DocumentSyncSettings.enabled
+        val title = if (enabled) R.string.cloud_doc_action_remove_all_devices else R.string.cloud_doc_action_remove_cloud
+        val message = if (enabled) R.string.cloud_doc_remove_all_confirm else R.string.cloud_doc_remove_cloud_confirm
         AlertDialog.Builder(this)
-            .setTitle(R.string.cloud_doc_action_remove_cloud)
-            .setMessage(R.string.cloud_doc_remove_confirm)
+            .setTitle(title)
+            .setMessage(getString(message, item.name))
             .setPositiveButton(R.string.okay) { _, _ ->
                 // Run via the foreground service like other transfers, so it shows a notification
-                // and survives leaving the screen.
+                // and survives leaving the screen. removeFromCloud also deletes the local copy
+                // when sync is enabled.
                 DocumentSyncService.start(this, emptyList(), emptyList(), removeInitials = listOf(item.initials))
             }
             .setNegativeButton(R.string.cancel, null)
