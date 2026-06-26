@@ -171,6 +171,9 @@ defineExpose({editMode});
   &.constraintDisplayHeight {
     @extend .visible-scrollbar;
     overflow-y: auto;
+    // Keep scrolling of a long note inside the display area; don't chain to the
+    // Bible document behind the (non-blocking) modal.
+    overscroll-behavior: contain;
     max-height: calc(var(--max-height) - 17px);
   }
 }
@@ -191,6 +194,13 @@ defineExpose({editMode});
   &.constraintDisplayHeight {
     padding-top: 0;
     padding-bottom: 0;
+    // Bound the editor height and make it scroll within the modal. Without this the
+    // auto-growing textarea overflows the (non-blocking) modal, so touch/scroll gestures
+    // fall through to the Bible document behind it (the note "scrolls the Bible instead").
+    // overscroll-behavior: contain additionally stops scroll chaining to the background.
+    max-height: var(--max-height);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }
 

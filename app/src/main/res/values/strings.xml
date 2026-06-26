@@ -1306,6 +1306,7 @@
     <string name="sqlite_invalid_file">Invalid module file or filename: %s</string>
     <string name="sqlite_cant_write">Can not (over)write the file</string>
     <string name="install_failed_reason">Installing module failed for the following reason: %s.</string>
+    <string name="no_file_manager">No app was found for choosing a file. Please install a file manager and try again.</string>
 
     <!-- Other / uncategorized -->
     <string name="app_opened_elsewhere">App opened elsewhere</string>
