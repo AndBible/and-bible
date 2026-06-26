@@ -48,10 +48,9 @@ class DocumentSyncOpsTest {
 
     @Test
     fun shouldAutoUploadOnlyWhenAllConditionsMet() {
-        assertTrue(shouldAutoUpload(enabled = true, automatic = true, blocked = false, autoTransferAllowed = true))
-        assertFalse(shouldAutoUpload(enabled = false, automatic = true, blocked = false, autoTransferAllowed = true))
-        assertFalse(shouldAutoUpload(enabled = true, automatic = false, blocked = false, autoTransferAllowed = true))
-        assertFalse(shouldAutoUpload(enabled = true, automatic = true, blocked = true, autoTransferAllowed = true))
-        assertFalse(shouldAutoUpload(enabled = true, automatic = true, blocked = false, autoTransferAllowed = false))
+        assertTrue(shouldAutoUpload(enabled = true, blocked = false, autoTransferAllowed = true))
+        assertFalse(shouldAutoUpload(enabled = false, blocked = false, autoTransferAllowed = true))
+        assertFalse(shouldAutoUpload(enabled = true, blocked = true, autoTransferAllowed = true))
+        assertFalse(shouldAutoUpload(enabled = true, blocked = false, autoTransferAllowed = false))
     }
 }

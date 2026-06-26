@@ -33,5 +33,5 @@ fun buildDocumentSyncOps(pushInitials: List<String>, downloadInitials: List<Stri
 fun documentSyncProgressText(name: String, current: Int, total: Int): String = "$name ($current/$total)"
 
 /** Whether an installed document should be auto-uploaded on install. */
-fun shouldAutoUpload(enabled: Boolean, automatic: Boolean, blocked: Boolean, autoTransferAllowed: Boolean): Boolean =
-    enabled && automatic && !blocked && autoTransferAllowed
+fun shouldAutoUpload(enabled: Boolean, blocked: Boolean, autoTransferAllowed: Boolean): Boolean =
+    enabled && !blocked && autoTransferAllowed

@@ -49,7 +49,6 @@ object BookInstallWatcher {
                 addBookToDb(book)
                 if (shouldAutoUpload(
                         DocumentSyncSettings.enabled,
-                        DocumentSyncSettings.automatic,
                         DocumentSyncSettings.blockList.isBlocked(book.initials),
                         DocumentSyncSettings.isAutoTransferAllowed,
                     )

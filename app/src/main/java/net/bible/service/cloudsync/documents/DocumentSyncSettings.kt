@@ -23,7 +23,6 @@ import net.bible.service.common.CommonUtils
 
 object DocumentSyncSettings {
     private const val ENABLED = "sync_enable_documents"
-    private const val AUTOMATIC = "sync_documents_automatic"
     private const val WIFI_ONLY = "sync_documents_wifi_only"
     private const val BLOCKED = "sync_documents_blocked"
     private const val TS_PREFIX = "doc_sync_ts_"
@@ -31,10 +30,6 @@ object DocumentSyncSettings {
     var enabled: Boolean
         get() = CommonUtils.settings.getBoolean(ENABLED, false)
         set(value) = CommonUtils.settings.setBoolean(ENABLED, value)
-
-    var automatic: Boolean
-        get() = CommonUtils.settings.getBoolean(AUTOMATIC, true)
-        set(value) = CommonUtils.settings.setBoolean(AUTOMATIC, value)
 
     var wifiOnly: Boolean
         get() = CommonUtils.settings.getBoolean(WIFI_ONLY, true)

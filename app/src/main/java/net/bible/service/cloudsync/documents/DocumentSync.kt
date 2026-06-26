@@ -128,7 +128,7 @@ object DocumentSync {
 
     suspend fun pullDocuments(automaticOnly: Boolean) {
         if (!DocumentSyncSettings.enabled) return
-        if (automaticOnly && (!DocumentSyncSettings.automatic || !DocumentSyncSettings.isAutoTransferAllowed)) return
+        if (automaticOnly && !DocumentSyncSettings.isAutoTransferAllowed) return
         val store = store() ?: return
         val cloudMetas = store.listDocuments()
         val local = installedSyncableBooks().associateBy { it.initials }
