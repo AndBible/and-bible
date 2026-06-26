@@ -22,6 +22,7 @@ package net.bible.service.cloudsync.documents
 import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.control.document.canDelete
+import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.toMeta
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
@@ -34,12 +35,26 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
+import java.util.Collections
 
 object DocumentSync {
     private const val TAG = "DocumentSync"
 
-    fun versionIsNewer(cloudVersion: String, localVersion: String): Boolean =
-        try { Version(cloudVersion) > Version(localVersion) } catch (e: Exception) { false }
+    /**
+     * Whether [cloudVersion] is strictly newer than [localVersion].
+     *
+     * Equal raw version strings short-circuit to `false` (not newer) *before* attempting a
+     * numeric parse. This matters because JSword's [Version] only accepts `\d+(.\d+){0,3}` and
+     * throws on anything else — and MyBible/MySword/eSword/EPUB documents (exactly the kinds this
+     * feature targets) frequently carry non-numeric or date versions. Without the equality check,
+     * a non-parseable version would always compare as "not newer", which is fine for the equal
+     * case but means a non-numeric version that genuinely differs is treated conservatively as
+     * not-newer (no auto-propagation) rather than guessing an order we cannot reliably determine.
+     */
+    fun versionIsNewer(cloudVersion: String, localVersion: String): Boolean {
+        if (cloudVersion == localVersion) return false
+        return try { Version(cloudVersion) > Version(localVersion) } catch (e: Exception) { false }
+    }
 
     private suspend fun store(): DocumentStore? {
         val adapter = CloudSync.cloudAdapter ?: return null
@@ -144,6 +159,15 @@ object DocumentSync {
 
     suspend fun pushDocument(book: Book) {
         val store = store() ?: return
+        val localVersion = DocumentArchiver.documentVersion(book)
+        // Check the cloud BEFORE packaging — packaging zips the whole module (potentially tens of
+        // MB), which is wasteful when the cloud already holds the same/newer version. This is the
+        // common case for an auto-push that echoes a just-downloaded module (see the
+        // installingFromSync guard in downloadAndInstall) or any redundant re-push.
+        val existing = store.listDocuments().firstOrNull { it.initials == book.initials && !it.deleted }
+        if (existing != null && !versionIsNewer(localVersion, existing.version)) {
+            Log.i(TAG, "Cloud has same/newer ${book.initials}; skipping upload"); return
+        }
         val archive = DocumentArchiver.packageDocument(book)
         try {
             val cipherKey = DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getBook(book.initials)?.cipherKey
@@ -151,7 +175,7 @@ object DocumentSync {
                 initials = book.initials,
                 name = book.name,
                 documentType = DocumentArchiver.documentTypeOf(book),
-                version = DocumentArchiver.documentVersion(book),
+                version = localVersion,
                 size = archive.length(),
                 language = book.language.code,
                 category = book.bookCategory.name,
@@ -159,25 +183,55 @@ object DocumentSync {
                 timestamp = System.currentTimeMillis(),
                 cipherKey = cipherKey,
             )
-            // Skip if cloud already has same/newer version
-            val existing = store.listDocuments().firstOrNull { it.initials == book.initials && !it.deleted }
-            if (existing != null && !versionIsNewer(meta.version, existing.version)) {
-                Log.i(TAG, "Cloud has same/newer ${book.initials}; skipping upload"); return
-            }
             store.uploadDocument(meta, archive)
             DocumentSyncSettings.setSyncTimestamp(book.initials, meta.timestamp)
         } finally { archive.delete() }
     }
 
+    /**
+     * Initials currently being installed from a sync download. The install fires `bookAdded`,
+     * which would otherwise immediately enqueue a redundant auto-push of the very module we just
+     * downloaded. [BookInstallWatcher] consults [isInstallingFromSync] to suppress that echo.
+     */
+    private val installingFromSync: MutableSet<String> = Collections.synchronizedSet(HashSet())
+
+    fun isInstallingFromSync(initials: String): Boolean = installingFromSync.contains(initials)
+
     suspend fun downloadAndInstall(initials: String) {
         val store = store() ?: return
         val meta = store.listDocuments().firstOrNull { it.initials == initials && !it.deleted } ?: return
         val archive = store.downloadArchive(initials, meta.version)
+        installingFromSync.add(initials)
         try {
             if (DocumentArchiver.installArchive(archive, initials)) {
+                applyCipherKey(initials, meta.cipherKey)
                 DocumentSyncSettings.setSyncTimestamp(initials, meta.timestamp)
             }
-        } finally { archive.delete() }
+        } finally {
+            archive.delete()
+            installingFromSync.remove(initials)
+        }
+    }
+
+    /**
+     * Persists and applies the encryption key for a freshly downloaded SWORD module. Without this
+     * an encrypted module syncs but stays locked, rendering no readable content. The key travels
+     * in the document's [DocumentSyncMeta] (the user's own private cloud account).
+     */
+    private fun applyCipherKey(initials: String, cipherKey: String?) {
+        if (cipherKey == null) return
+        val book = Books.installed().getBook(initials) ?: return
+        book.unlock(cipherKey)
+        val dao = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+        // bookAdded inserts a row (cipherKey = null) during install, so normally update it; insert
+        // as a fallback in case the row is missing.
+        val existing = dao.getBook(initials)
+        if (existing != null) {
+            existing.cipherKey = cipherKey
+            dao.update(existing)
+        } else {
+            dao.insert(SwordDocumentInfo(initials, book.name, book.abbreviation, book.language.name, "", cipherKey))
+        }
     }
 
     suspend fun pullDocuments(automaticOnly: Boolean) {
@@ -214,8 +268,16 @@ object DocumentSync {
     private fun uninstallLocal(initials: String, local: Map<String, Book>) {
         val book = local[initials] ?: return
         try {
-            SwordDocumentFacade.deleteDocument(book)
-            DocumentSyncSettings.setSyncTimestamp(initials, System.currentTimeMillis())
+            val decision = decideUninstall(book.canDelete)
+            if (decision.delete) {
+                SwordDocumentFacade.deleteDocument(book)
+            } else {
+                // e.g. the last remaining Bible — keep it rather than leave the device with none.
+                Log.i(TAG, "Tombstone for $initials not applied: book is not deletable")
+            }
+            if (decision.advanceTimestamp) {
+                DocumentSyncSettings.setSyncTimestamp(initials, System.currentTimeMillis())
+            }
         } catch (e: Exception) { Log.e(TAG, "Failed uninstalling $initials", e) }
     }
 
@@ -237,7 +299,12 @@ object DocumentSync {
         // With sync OFF (manual "Remove from cloud"), the local copy is kept; it won't be
         // re-downloaded because automatic pull is off.
         if (DocumentSyncSettings.enabled) {
-            Books.installed().getBook(initials)?.let { SwordDocumentFacade.deleteDocument(it) }
+            Books.installed().getBook(initials)?.let { book ->
+                // Same last-Bible guard as the propagated uninstall: never delete an undeletable
+                // local document even when the user removed it from the cloud here.
+                if (book.canDelete) SwordDocumentFacade.deleteDocument(book)
+                else Log.i(TAG, "Keeping local $initials after cloud removal: book is not deletable")
+            }
         }
         // Record this device as already knowing the tombstone so our own next pull is a no-op.
         DocumentSyncSettings.setSyncTimestamp(initials, now)

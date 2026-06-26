@@ -79,3 +79,23 @@ fun resolveDocumentSyncActions(
     }
     DocumentSyncAction(cloud.initials, type)
 }
+
+/**
+ * Outcome of applying a propagated [DocumentSyncActionType.UNINSTALL] tombstone on *this* device.
+ *
+ * @property delete delete the local copy — only when the book is actually deletable.
+ * @property advanceTimestamp record the tombstone as seen so it isn't re-evaluated every cycle.
+ */
+data class UninstallDecision(val delete: Boolean, val advanceTimestamp: Boolean)
+
+/**
+ * Decides what a receiving device should do for a propagated UNINSTALL.
+ *
+ * The tombstone is unconditionally acknowledged ([advanceTimestamp] always true) so a
+ * non-deletable book doesn't trigger a fresh uninstall attempt on every sync cycle, but the
+ * local copy is deleted only when [canDelete] is true. This is the guard that prevents a
+ * tombstone from silently deleting the *last* Bible on a receiving device: the initiating
+ * device's menu guard only protects its own UI, so the pull-flow delete must re-check here.
+ */
+fun decideUninstall(canDelete: Boolean): UninstallDecision =
+    UninstallDecision(delete = canDelete, advanceTimestamp = true)

@@ -100,4 +100,16 @@ class DocumentSyncResolverTest {
             emptyMap(), mapOf("KJV" to 100L), emptySet(), isNewer)
         assertEquals(DocumentSyncActionType.NONE, actions.single().type)
     }
+
+    @Test fun uninstallDeletesWhenDeletable() {
+        // A deletable book: the propagated tombstone removes the local copy and records the sync.
+        assertEquals(UninstallDecision(delete = true, advanceTimestamp = true), decideUninstall(canDelete = true))
+    }
+
+    @Test fun uninstallKeepsUndeletableButStillAdvancesTimestamp() {
+        // The critical data-loss guard: an undeletable book (e.g. the last Bible on the receiving
+        // device) must NOT be deleted, yet the timestamp must still advance so the tombstone isn't
+        // re-evaluated — and re-attempted — on every subsequent sync cycle.
+        assertEquals(UninstallDecision(delete = false, advanceTimestamp = true), decideUninstall(canDelete = false))
+    }
 }

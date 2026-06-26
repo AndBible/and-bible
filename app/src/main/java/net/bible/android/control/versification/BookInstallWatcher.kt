@@ -19,6 +19,7 @@ package net.bible.android.control.versification
 import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.database.SwordDocumentInfo
+import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.cloudsync.documents.shouldAutoUpload
@@ -47,7 +48,10 @@ object BookInstallWatcher {
                 Activator.deactivate(book)
                 initialiseRequiredMapping(book)
                 addBookToDb(book)
-                if (shouldAutoUpload(
+                // Suppress the echo: a module installed *by* a sync download must not immediately
+                // be auto-pushed back to the cloud it just came from.
+                if (!DocumentSync.isInstallingFromSync(book.initials)
+                    && shouldAutoUpload(
                         DocumentSyncSettings.enabled,
                         DocumentSyncSettings.blockList.isBlocked(book.initials),
                         DocumentSyncSettings.isAutoTransferAllowed,
