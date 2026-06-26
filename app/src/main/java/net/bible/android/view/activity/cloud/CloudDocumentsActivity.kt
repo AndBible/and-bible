@@ -94,6 +94,28 @@ fun documentMenuActions(
 }
 
 /**
+ * The expected list state right after a remove, applied optimistically before the background
+ * removal completes. With sync on (removes everywhere) or for a cloud-only item, the row drops;
+ * otherwise (manual mode, local copy kept) the row becomes local-only.
+ */
+fun applyOptimisticRemoval(
+    items: List<DocumentSync.DocumentStatusItem>,
+    initials: String,
+    syncEnabled: Boolean,
+): List<DocumentSync.DocumentStatusItem> {
+    val item = items.firstOrNull { it.initials == initials } ?: return items
+    return if (syncEnabled || item.cloudOnly) {
+        items.filterNot { it.initials == initials }
+    } else {
+        items.map {
+            if (it.initials == initials)
+                it.copy(cloudOnly = false, localOnly = true, cloudVersion = null, updateAvailable = false, localNewer = false)
+            else it
+        }
+    }
+}
+
+/**
  * Management view for the document-sync feature: a list of the user's documents
  * (local and/or in the cloud) with their sync status, a filter selector, and
  * per-item actions (download, push, remove from cloud, block/unblock).
@@ -372,6 +394,10 @@ class CloudDocumentsActivity : ActivityBase() {
                 // and survives leaving the screen. removeFromCloud also deletes the local copy
                 // when sync is enabled.
                 DocumentSyncService.start(this, emptyList(), emptyList(), removeInitials = listOf(item.initials))
+                // Optimistic update: reflect the expected end-state immediately for snappier
+                // feedback. The post-completion refresh confirms (or reverts) it.
+                allItems = applyOptimisticRemoval(allItems, item.initials, DocumentSyncSettings.enabled)
+                applyFilter()
             }
             .setNegativeButton(R.string.cancel, null)
             .show()

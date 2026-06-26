@@ -81,4 +81,23 @@ class CloudDocumentsMenuTest {
         val actions = documentMenuActions(item(canDeleteLocal = false), syncEnabled = false)
         assertEquals(listOf(CloudDocAction.REMOVE_CLOUD, CloudDocAction.BLOCK), actions)
     }
+
+    @Test fun optimisticRemovalDropsRowWhenSyncEnabled() {
+        val items = listOf(item())
+        assertEquals(emptyList<DocumentStatusItem>(), applyOptimisticRemoval(items, "KJV", syncEnabled = true))
+    }
+
+    @Test fun optimisticRemovalDropsCloudOnlyRowWhenSyncDisabled() {
+        val items = listOf(item(cloudOnly = true))
+        assertEquals(emptyList<DocumentStatusItem>(), applyOptimisticRemoval(items, "KJV", syncEnabled = false))
+    }
+
+    @Test fun optimisticRemovalKeepsLocalCopyAsLocalOnlyWhenSyncDisabled() {
+        // Synced (local + cloud), sync off: cloud copy goes, local copy stays → local-only.
+        val result = applyOptimisticRemoval(listOf(item()), "KJV", syncEnabled = false)
+        val row = result.single()
+        assertEquals(true, row.localOnly)
+        assertEquals(false, row.cloudOnly)
+        assertEquals(null, row.cloudVersion)
+    }
 }
