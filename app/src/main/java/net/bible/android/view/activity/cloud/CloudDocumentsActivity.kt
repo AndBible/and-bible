@@ -104,8 +104,10 @@ class CloudDocumentsActivity : ActivityBase() {
 
     private var allItems: List<DocumentStatusItem> = emptyList()
 
-    /** Number of in-flight operations driving the loading bar (see [setBusy]). */
+    /** Count of in-flight local async operations (scan / Sync now) driving the loading bar. */
     private var busyCount = 0
+    /** Whether a foreground-service transfer is in progress (its progress events repeat). */
+    private var transferRunning = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -178,20 +180,27 @@ class CloudDocumentsActivity : ActivityBase() {
     @Suppress("unused") // called by greenrobot EventBus on the main thread
     fun onEventMainThread(event: DocumentSyncProgressEvent) {
         // Per-document progress is shown in the foreground-service notification; in the activity
-        // a plain loading indicator is enough. Refresh the list once the transfer finishes.
-        setBusy(event.running)
+        // a plain loading indicator is enough. The service posts running=true repeatedly (once
+        // per document) and running=false once, so this is a plain boolean state — NOT a counter.
+        transferRunning = event.running
+        updateLoadingBar()
         // When a transfer finishes, re-scan behind the same loading bar (not the swipe spinner)
         // so the indicator stays continuous across transfer → refresh.
         if (!event.running) lifecycleScope.launch { refreshFromNetwork() }
     }
 
     /**
-     * Shows/hides the loading bar with a counter, so overlapping operations (e.g. "Sync now"'s
-     * scan followed by the service download) keep the bar on continuously instead of flickering.
+     * Brackets a local async operation (scan, Sync now) with the loading bar. Balanced
+     * true/false calls only; the service transfer state is tracked separately by
+     * [transferRunning] because its progress events repeat. Overlapping sources keep the bar on.
      */
     private fun setBusy(busy: Boolean) {
         busyCount = (busyCount + if (busy) 1 else -1).coerceAtLeast(0)
-        binding.loadingBar.visibility = if (busyCount > 0) View.VISIBLE else View.GONE
+        updateLoadingBar()
+    }
+
+    private fun updateLoadingBar() {
+        binding.loadingBar.visibility = if (transferRunning || busyCount > 0) View.VISIBLE else View.GONE
     }
 
     /**
