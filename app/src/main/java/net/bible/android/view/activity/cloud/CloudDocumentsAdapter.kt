@@ -51,7 +51,12 @@ class CloudDocumentsAdapter(
     private val onOverflow: (DocumentStatusItem, View) -> Unit,
     /** Invoked whenever the set of selected items changes (selection mode only). */
     private val onSelectionChanged: (Int) -> Unit = {},
+    /** Invoked when a long-press tries to start selection but nothing is downloadable. */
+    private val onNothingToDownload: () -> Unit = {},
 ) : ListAdapter<DocumentStatusItem, CloudDocumentsAdapter.ViewHolder>(DIFF_CALLBACK) {
+
+    /** Bulk selection only downloads, so only cloud-only / updatable items are selectable. */
+    private fun isDownloadable(item: DocumentStatusItem) = item.cloudOnly || item.updateAvailable
 
     /** Initials of the currently selected items (only meaningful in selection mode). */
     private val selectedInitials = mutableSetOf<String>()
@@ -100,8 +105,11 @@ class CloudDocumentsAdapter(
 
             subtitle.text = subtitleText(item)
 
-            // In selection mode show the checkbox and hide the per-item overflow menu.
-            checkbox.visibility = if (selectionMode) View.VISIBLE else View.GONE
+            // In selection mode only downloadable items are selectable; already-installed /
+            // synced items are dimmed and have no checkbox (bulk action only downloads).
+            val downloadable = isDownloadable(item)
+            checkbox.visibility = if (selectionMode && downloadable) View.VISIBLE else View.GONE
+            itemView.alpha = if (selectionMode && !downloadable) 0.4f else 1f
             checkbox.setOnCheckedChangeListener(null)
             checkbox.isChecked = item.initials in selectedInitials
             checkbox.setOnCheckedChangeListener { _, isChecked ->
@@ -114,14 +122,18 @@ class CloudDocumentsAdapter(
             overflow.setOnClickListener { onOverflow(item, it) }
 
             itemView.setOnClickListener {
-                if (selectionMode) checkbox.isChecked = !checkbox.isChecked
+                if (selectionMode && downloadable) checkbox.isChecked = !checkbox.isChecked
             }
             itemView.setOnLongClickListener {
                 if (!selectionMode) {
-                    selectionMode = true
-                    selectedInitials.add(item.initials)
-                    notifyItemRangeChanged(0, itemCount)
-                    onSelectionChanged(selectedInitials.size)
+                    if (currentList.none { isDownloadable(it) }) {
+                        onNothingToDownload()
+                    } else {
+                        selectionMode = true
+                        if (downloadable) selectedInitials.add(item.initials)
+                        notifyItemRangeChanged(0, itemCount)
+                        onSelectionChanged(selectedInitials.size)
+                    }
                 }
                 true
             }

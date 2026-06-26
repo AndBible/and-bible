@@ -116,6 +116,9 @@ class CloudDocumentsActivity : ActivityBase() {
         adapter = CloudDocumentsAdapter(
             onOverflow = { item, anchor -> showItemMenu(item, anchor) },
             onSelectionChanged = { count -> onSelectionChanged(count) },
+            onNothingToDownload = {
+                Toast.makeText(this, R.string.cloud_doc_nothing_to_download, Toast.LENGTH_SHORT).show()
+            },
         )
         binding.recycler.apply {
             layoutManager = LinearLayoutManager(this@CloudDocumentsActivity)
