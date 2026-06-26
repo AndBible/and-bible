@@ -37,9 +37,6 @@ fun buildDocumentSyncOps(
         downloadInitials.map { DocumentSyncOp.Download(it) } +
         removeInitials.map { DocumentSyncOp.Remove(it) }
 
-/** Notification/progress label, e.g. "KJV (2/5)". */
-fun documentSyncProgressText(name: String, current: Int, total: Int): String = "$name ($current/$total)"
-
 /** Whether an installed document should be auto-uploaded on install. */
 fun shouldAutoUpload(enabled: Boolean, blocked: Boolean, autoTransferAllowed: Boolean): Boolean =
     enabled && !blocked && autoTransferAllowed

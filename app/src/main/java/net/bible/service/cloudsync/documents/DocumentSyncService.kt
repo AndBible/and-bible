@@ -155,7 +155,7 @@ class DocumentSyncService : Service() {
             }
             val current = done.get() + 1
             val totalNow = total.get()
-            updateNotification(op.initials, current, totalNow)
+            updateNotification(op, current, totalNow)
             ABEventBus.post(DocumentSyncProgressEvent(true, current, totalNow, op.initials))
             try {
                 when (op) {
@@ -176,7 +176,7 @@ class DocumentSyncService : Service() {
     private fun notificationChannel(): String =
         if (BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else SYNC_NOTIFICATION_CHANNEL
 
-    private fun buildNotification(name: String?, current: Int, total: Int) =
+    private fun buildNotification(contentText: String?, current: Int, total: Int) =
         NotificationCompat.Builder(this, notificationChannel())
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSilent(true)
@@ -184,15 +184,25 @@ class DocumentSyncService : Service() {
             .setSmallIcon(if (CommonUtils.isDiscrete) R.drawable.ic_calc_24 else R.drawable.ic_syncdb_24dp)
             .setContentTitle(getString(R.string.document_sync_notification_title))
             .apply {
-                if (name != null) {
-                    setContentText(documentSyncProgressText(name, current, total))
+                if (contentText != null) {
+                    setContentText(contentText)
                     setProgress(total, current, false)
                 }
             }
             .build()
 
-    private fun updateNotification(name: String, current: Int, total: Int) {
-        notificationManager.notify(DOC_SYNC_NOTIFICATION_ID, buildNotification(name, current, total))
+    /** Direction-specific progress line, e.g. "Downloading KJV (2/5)". */
+    private fun opNotificationText(op: DocumentSyncOp, current: Int, total: Int): String {
+        val resId = when (op) {
+            is DocumentSyncOp.Download -> R.string.document_sync_downloading
+            is DocumentSyncOp.Push -> R.string.document_sync_uploading
+            is DocumentSyncOp.Remove -> R.string.document_sync_removing
+        }
+        return getString(resId, op.initials, current, total)
+    }
+
+    private fun updateNotification(op: DocumentSyncOp, current: Int, total: Int) {
+        notificationManager.notify(DOC_SYNC_NOTIFICATION_ID, buildNotification(opNotificationText(op, current, total), current, total))
     }
 
     private fun acquireWakeLock() {

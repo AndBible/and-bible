@@ -42,12 +42,6 @@ class DocumentSyncOpsTest {
     }
 
     @Test
-    fun progressTextFormatsNameAndCounts() {
-        assertEquals("KJV (2/5)", documentSyncProgressText("KJV", 2, 5))
-        assertEquals("ESV (1/1)", documentSyncProgressText("ESV", 1, 1))
-    }
-
-    @Test
     fun shouldAutoUploadOnlyWhenAllConditionsMet() {
         assertTrue(shouldAutoUpload(enabled = true, blocked = false, autoTransferAllowed = true))
         assertFalse(shouldAutoUpload(enabled = false, blocked = false, autoTransferAllowed = true))

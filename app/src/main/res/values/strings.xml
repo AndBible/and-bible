@@ -1920,6 +1920,9 @@
     <string name="cloud_doc_bulk_download">Download selected (%1$d)</string>
     <string name="cloud_doc_nothing_to_download">All available documents are already downloaded.</string>
     <string name="document_sync_notification_title">Syncing documents</string>
+    <string name="document_sync_downloading">Downloading %1$s (%2$d/%3$d)</string>
+    <string name="document_sync_uploading">Uploading %1$s (%2$d/%3$d)</string>
+    <string name="document_sync_removing">Removing %1$s (%2$d/%3$d)</string>
     <string name="document_sync_started">Document sync started</string>
     <string name="document_sync_enable_dialog_title">Start syncing documents?</string>
     <string name="document_sync_enable_dialog_nothing">No documents to transfer yet. Newly installed documents will sync automatically.</string>
