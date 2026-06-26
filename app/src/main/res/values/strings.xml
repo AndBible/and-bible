@@ -1410,6 +1410,9 @@
     <string name="agent_max_iterations_summary">Maximum iterations before asking to continue (0 = unlimited)</string>
     <string name="ask_model_before_run_title">Ask model before run</string>
     <string name="ask_model_before_run_summary">Show a model selection dialog before executing a prompt (skipped when the prompt has an explicit model override)</string>
+    <string name="auto_hide_agent_log_title">Hide AI panel when done</string>
+    <string name="auto_hide_agent_log_summary">Automatically hide the AI panel when a task finishes successfully or is cancelled. On error the panel stays visible.</string>
+    <string name="ai_task_completed">AI task completed</string>
     <string name="custom_agent_system_prompt_title">Agent system prompt</string>
     <string name="custom_system_prompt_summary">Editing not recommended unless you know what you are doing</string>
     <string name="custom_text_transform_system_prompt_title">Text transformation system prompt</string>

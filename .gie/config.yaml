@@ -73,6 +73,13 @@ host_mounts:
 # manual mkdir is needed.
 shared_caches:
   - { name: cache, host_subpath: home-caches, container_path: ~/.cache }
+  # Persist ~/.android so the generated debug.keystore (and thus the debug
+  # signing key) stays identical across `gie new` sessions. Without this the
+  # keystore lives on the ephemeral overlay and is regenerated each session,
+  # giving a new signing key every time — so `adb install -r` of a debug build
+  # fails with INSTALL_FAILED_UPDATE_INCOMPATIBLE against a previous session's
+  # install. A stable key lets debug builds upgrade in place.
+  - { name: android-home, host_subpath: android-home, container_path: ~/.android }
 
 # Egress allowlist applied in strict mode. These cover Android Gradle
 # builds, npm/Vue.js dependencies, and apt updates. adb-server traffic
