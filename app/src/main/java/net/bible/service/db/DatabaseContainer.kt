@@ -248,6 +248,16 @@ class DatabaseContainer {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
+    val cloudDocumentsCacheDb: TemporaryDatabase =
+        Room.databaseBuilder(
+            application, TemporaryDatabase::class.java, "cloud-documents-cache.sqlite3"
+        )
+            .allowMainThreadQueries()
+            .addMigrations(*temporaryMigrations)
+            .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+
     val repoDb: RepoDatabase =
         Room.databaseBuilder(
             application, RepoDatabase::class.java, RepoDatabase.dbFileName

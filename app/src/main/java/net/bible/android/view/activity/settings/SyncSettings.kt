@@ -17,28 +17,40 @@
 
 package net.bible.android.view.activity.settings
 
+import android.content.Intent
 import android.os.Bundle
+import android.text.format.Formatter
 import android.view.MenuItem
 import android.webkit.URLUtil
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.cloudsync.CloudAdapters
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.documents.DocumentSync
+import net.bible.service.cloudsync.documents.DocumentSyncService
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.cloudsync.documents.DocumentSyncSummary
+import net.bible.service.cloudsync.documents.computeDocumentSyncSummary
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -111,6 +123,9 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         pref.summary = "${getString(category.contentDescription)}$lastSyncStr"
     }
 
+    /** Guards the document-sync enable flow so rapid repeated toggles can't launch it twice. */
+    private var documentEnableInProgress = false
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = PreferenceStore()
         setPreferencesFromResource(R.xml.sync_settings, rootKey)
@@ -123,6 +138,47 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_mydocuments")!!.run { setupDrivePref(this) }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_ai_settings")!!.run { setupDrivePref(this) }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_progress")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_documents")!!.run {
+            setOnPreferenceChangeListener { _, newValue ->
+                val enable = newValue as Boolean
+                if (enable) {
+                    // Set the guard synchronously so a second tap before the hourglass shows is
+                    // ignored — otherwise repeated taps launch the sign-in/scan/dialog flow (and
+                    // its background transfer) multiple times in parallel.
+                    if (!documentEnableInProgress) {
+                        documentEnableInProgress = true
+                        lifecycleScope.launch {
+                            val hourglass = Hourglass(requireContext())
+                            hourglass.show()   // blocks the UI until the dialog appears
+                            try {
+                                var signedIn = CloudSync.signedIn
+                                if (!signedIn) signedIn = CloudSync.signIn(activity as ActivityBase) == true
+                                if (signedIn) {
+                                    val items = withContext(Dispatchers.IO) { DocumentSync.scan() }
+                                    val summary = computeDocumentSyncSummary(items, DocumentSyncSettings.blockList.all())
+                                    showEnableDocumentsDialog(summary)
+                                }
+                            } finally {
+                                hourglass.dismiss()
+                                documentEnableInProgress = false
+                            }
+                        }
+                    }
+                    false   // committed in the dialog's positive button
+                } else {
+                    DocumentSyncSettings.enabled = false
+                    updateDocumentSyncVisibility()
+                    true
+                }
+            }
+        }
+        preferenceScreen.findPreference<Preference>("document_sync_manage")!!.setOnPreferenceClickListener {
+            startActivity(Intent(requireContext(), CloudDocumentsActivity::class.java))
+            true
+        }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_documents")?.isChecked =
+            DocumentSyncSettings.enabled
+        updateDocumentSyncVisibility()
         preferenceScreen.findPreference<Preference>("cloud_sync_reset")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
@@ -211,6 +267,63 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 true
             }
         }
+    }
+
+    private fun showEnableDocumentsDialog(summary: DocumentSyncSummary) {
+        val ctx = requireContext()
+        val message = if (summary.isEmpty) {
+            getString(R.string.document_sync_enable_dialog_nothing)
+        } else {
+            // Only mention a direction that has items, and only show its size when known
+            // (a local-only document with no declared install size reports 0 bytes).
+            val parts = buildList {
+                if (summary.uploadCount > 0) add(
+                    if (summary.uploadBytes > 0)
+                        getString(R.string.cloud_doc_summary_upload_size, summary.uploadCount, Formatter.formatShortFileSize(ctx, summary.uploadBytes))
+                    else getString(R.string.cloud_doc_summary_upload, summary.uploadCount)
+                )
+                if (summary.downloadCount > 0) add(
+                    if (summary.downloadBytes > 0)
+                        getString(R.string.cloud_doc_summary_download_size, summary.downloadCount, Formatter.formatShortFileSize(ctx, summary.downloadBytes))
+                    else getString(R.string.cloud_doc_summary_download, summary.downloadCount)
+                )
+            }
+            var m = parts.joinToString("\n")
+            if (DocumentSyncSettings.wifiOnly && CommonUtils.isMeteredNetwork) {
+                m += "\n" + getString(R.string.cloud_doc_wifi_waiting)
+            }
+            m
+        }
+        AlertDialog.Builder(ctx)
+            .setTitle(R.string.document_sync_enable_dialog_title)
+            .setMessage(message)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                DocumentSyncSettings.enabled = true
+                DocumentSyncService.start(ctx, summary.uploadInitials, summary.downloadInitials)
+                updateDocumentSyncVisibility()
+                preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_documents")?.isChecked = true
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun updateDocumentSyncVisibility() {
+        // signedIn is used as a proxy for "a cloud adapter is configured": CloudSync.cloudAdapter
+        // is internal and there is no persistent configured-but-signed-out adapter state.
+        // The whole Document sync category shows only when signed in, so Synced documents stays
+        // reachable for manual sync even when automatic sync is off. Wi-Fi-only is relevant only
+        // while automatic sync is enabled.
+        preferenceScreen.findPreference<PreferenceCategory>("document_sync_category")?.isVisible =
+            CloudSync.signedIn
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_documents_wifi_only")?.isVisible =
+            DocumentSyncSettings.enabled
+    }
+
+    override fun onResume() {
+        super.onResume()
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_documents")?.isChecked =
+            DocumentSyncSettings.enabled
+        updateDocumentSyncVisibility()
     }
 }
 

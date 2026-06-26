@@ -118,19 +118,31 @@ abstract class WorkspaceDatabase: SyncableRoomDatabase() {
     }
 }
 
-val temporaryMigrations: Array<Migration> = arrayOf()
+val temporaryMigrations: Array<Migration> = arrayOf(
+    makeMigration(1..2) { db ->
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `CachedCloudDocument` (" +
+                "`initials` TEXT NOT NULL, `name` TEXT NOT NULL, `documentType` TEXT NOT NULL, " +
+                "`version` TEXT NOT NULL, `size` INTEGER NOT NULL, `language` TEXT NOT NULL, " +
+                "`category` TEXT NOT NULL, `sourceDevice` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, " +
+                "`cipherKey` TEXT, `deleted` INTEGER NOT NULL, PRIMARY KEY(`initials`))"
+        )
+    },
+)
 
-const val TEMPORARY_DATABASE_VERSION = 1
+const val TEMPORARY_DATABASE_VERSION = 2
 
 @Database(
     entities = [
         DocumentSearch::class,
+        CachedCloudDocument::class,
     ],
     version = TEMPORARY_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
 abstract class TemporaryDatabase: RoomDatabase() {
     abstract fun documentSearchDao(): DocumentSearchDao
+    abstract fun cloudDocumentCacheDao(): CloudDocumentCacheDao
 }
 
 const val REPO_DATABASE_VERSION = 1

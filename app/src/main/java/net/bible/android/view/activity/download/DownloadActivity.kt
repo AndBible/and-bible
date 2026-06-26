@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -39,7 +39,9 @@ import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.DocumentConfiguration
+import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.db.DatabaseContainer
@@ -454,6 +456,11 @@ open class DownloadActivity : DocumentSelectionBase(
         return true
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.manage_cloud_documents)?.isVisible = DocumentSyncSettings.enabled
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     /**
      * on Click handlers
      */
@@ -500,6 +507,10 @@ open class DownloadActivity : DocumentSelectionBase(
                     populateMasterDocumentList(true)
                 }
                 isHandled  = true
+            }
+            R.id.manage_cloud_documents -> {
+                startActivity(Intent(this, CloudDocumentsActivity::class.java))
+                isHandled = true
             }
         }
         if (!isHandled) {

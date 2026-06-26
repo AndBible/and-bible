@@ -225,6 +225,12 @@
             android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.cloud.CloudDocumentsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/document_sync_manage_title"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"
@@ -367,6 +373,10 @@
             />
         <service
             android:name="net.bible.service.cloudsync.SyncService"
+            android:foregroundServiceType="dataSync" />
+
+        <service
+            android:name="net.bible.service.cloudsync.documents.DocumentSyncService"
             android:foregroundServiceType="dataSync" />
 
         <service

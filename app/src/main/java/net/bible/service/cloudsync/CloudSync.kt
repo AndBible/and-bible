@@ -35,6 +35,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
+import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
@@ -99,6 +100,17 @@ object CloudSync {
     private val adapter: CloudAdapter get() = _adapter!!
 
     val signedIn get() = _adapter != null && adapter.signedIn
+
+    internal val cloudAdapter: CloudAdapter? get() = _adapter
+
+    const val DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX = "documents"
+
+    suspend fun documentsSyncFolderId(): String? {
+        val adapter = _adapter ?: return null
+        val name = "${app.applicationInfo.packageName}-sync-$DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX"
+        val existing = adapter.listFiles(name = name).firstOrNull()
+        return existing?.id ?: adapter.createNewFolder(name).id
+    }
 
     private val signInMutex = Mutex()
     suspend fun signIn(activity: ActivityBase): Boolean? {
@@ -416,6 +428,11 @@ object CloudSync {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
                     ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
                 }
+            }
+            try {
+                DocumentSync.pullDocuments(automaticOnly = true)
+            } catch (e: Exception) {
+                Log.e(TAG, "Document sync pull failed", e)
             }
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
         }

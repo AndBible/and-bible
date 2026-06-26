@@ -55,19 +55,13 @@ import net.bible.service.sword.epub.EPUB_OPTIMIZER_VERSION
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.epub.epubInitials
-import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.esword.addESwordBook
-import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
-import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.mysword.addMySwordBook
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
-import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBookDriver
-import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.book.sword.SwordGenBook
@@ -80,7 +74,6 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import kotlin.math.roundToInt
 
 /**
  * Install SWORD module from a zip file
@@ -165,68 +158,26 @@ class ZipHandler(
     }
 
 
-    private suspend fun installZipFile() = withContext(Dispatchers.IO) {
-        val confFiles = ArrayList<File>()
-        val targetDirectory = SwordBookPath.getSwordDownloadDir()
-        val errors: MutableList<String> = mutableListOf()
-        ZipInputStream(newInputStream()).use { zIn ->
-            var ze: ZipEntry?
-            var count: Int
-            var entryNum = 0
-            val buffer = ByteArray(8192)
-            ze = zIn.nextEntry
-            while (ze != null) {
-                val name = ze.name.replace('\\', '/')
-                if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
-                    ze = zIn.nextEntry
-                    continue
-                }
+    /**
+     * Extract and register the zip via the shared headless installer in [BackupControl],
+     * forwarding per-entry progress to the Activity UI. Extraction/registration logic is
+     * not duplicated here — see [BackupControl.extractAndRegisterModuleArchive].
+     *
+     * Any [IOException] from the shared extractor (e.g. write-permission failure) is
+     * re-thrown as [CantOverwrite] so the caller's specialized error dialog is reached.
+     */
+    private suspend fun installZipFile() = try {
+        BackupControl.extractAndRegisterModuleArchive(
+            newInputStream = { newInputStream() ?: throw FileNotFound() },
+            totalEntries = totalEntries,
+            onProgress = { percent -> launchProgressUpdate(percent) },
+        )
+    } catch (e: IOException) {
+        throw CantOverwrite(listOf(e.message ?: "unknown"))
+    }
 
-                val file = File(targetDirectory, name)
-                if (name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF))
-                    confFiles.add(file)
-
-                val dir = if (ze.isDirectory) file else file.parentFile
-
-                if (!dir.isDirectory && !(dir.mkdirs() || dir.isDirectory))
-                    throw IOException()
-
-                if (ze.isDirectory) {
-                    ze = zIn.nextEntry
-                    continue
-                }
-                try {
-                    FileOutputStream(file).use { fOut ->
-                        count = zIn.read(buffer)
-                        while (count != -1) {
-                            fOut.write(buffer, 0, count)
-                            count = zIn.read(buffer)
-                        }
-                    }
-                } catch (e: IOException) {
-                    errors.add(file.name)
-                    Log.e(TAG, "Error in writing ${file.name}", e);
-                }
-                onProgressUpdate(++entryNum)
-                ze = zIn.nextEntry
-            }
-            if(errors.isNotEmpty()) {
-                throw CantOverwrite(errors)
-            }
-        }
-        // Load configuration files & register books
-        val bookDriver = SwordBookDriver.instance()
-        for (confFile in confFiles) {
-            val me = SwordBookMetaData(confFile, NetUtil.getURI(targetDirectory))
-            me.driver = bookDriver
-            SwordBookDriver.registerNewBook(me)
-        }
-        addManuallyInstalledMyBibleBooks()
-        addManuallyInstalledMySwordBooks()
-        addManuallyInstalledESwordBooks()
-        addManuallyInstalledEpubBooks()
-        addManuallyInstalledTtfBooks()
-        addManuallyInstalledCsvPromptBooks()
+    private fun launchProgressUpdate(percent: Int) {
+        activity.runOnUiThread { updateProgress(percent / totalEntries.coerceAtLeast(1)) }
     }
 
     suspend fun execute() = withContext(Dispatchers.Main) {
@@ -301,11 +252,6 @@ class ZipHandler(
         }
         finish(finishResult)
 
-    }
-
-    private suspend fun onProgressUpdate(value: Int)  = withContext(Dispatchers.Main) {
-        val progressNow = (value.toFloat() / totalEntries.toFloat() * 100).roundToInt()
-        updateProgress(progressNow/totalEntries)
     }
 
     enum class InstallResult {ERROR, INVALID_MODULE, CANCEL, OK, IGNORE}
