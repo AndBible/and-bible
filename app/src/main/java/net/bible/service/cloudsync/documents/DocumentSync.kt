@@ -83,6 +83,17 @@ object DocumentSync {
     }
 
     /**
+     * Refreshes the local cloud-listing cache from the network. Call after any sync operation
+     * (push/download/remove) so the cached status is current even when the management view isn't
+     * open to trigger its own scan.
+     */
+    suspend fun refreshCache() {
+        val store = store() ?: return
+        val cacheDao = DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao()
+        cacheDao.replaceAll(store.listDocuments().map { it.toCacheEntity() })
+    }
+
+    /**
      * Builds the status list from the local cloud-listing cache only, without any network
      * access. Lets the management view render instantly on open; [scan] then refreshes from
      * the network in the background.

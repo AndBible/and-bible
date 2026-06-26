@@ -133,7 +133,7 @@ class DocumentSyncService : Service() {
 
     private fun startForegroundSafe() {
         try {
-            startForeground(DOC_SYNC_NOTIFICATION_ID, buildNotification(null, 0, total.get()))
+            startForeground(DOC_SYNC_NOTIFICATION_ID, buildNotification(null))
         } catch (e: Exception) {
             // Android 14+ may refuse a dataSync FGS once the daily quota is exhausted.
             // Keep processing in the background scope rather than crashing.
@@ -169,6 +169,9 @@ class DocumentSyncService : Service() {
             }
             done.incrementAndGet()
         }
+        // Refresh the cloud-listing cache so the management view shows the new state even if it
+        // isn't open to run its own scan (e.g. after auto-upload on install).
+        try { DocumentSync.refreshCache() } catch (e: Exception) { Log.e(TAG, "Cache refresh failed", e) }
         ABEventBus.post(DocumentSyncProgressEvent(false, done.get(), total.get(), null))
         stopSelfSafe()
     }
@@ -176,7 +179,7 @@ class DocumentSyncService : Service() {
     private fun notificationChannel(): String =
         if (BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else SYNC_NOTIFICATION_CHANNEL
 
-    private fun buildNotification(contentText: String?, current: Int, total: Int) =
+    private fun buildNotification(contentText: String?) =
         NotificationCompat.Builder(this, notificationChannel())
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSilent(true)
@@ -186,7 +189,9 @@ class DocumentSyncService : Service() {
             .apply {
                 if (contentText != null) {
                     setContentText(contentText)
-                    setProgress(total, current, false)
+                    // Indeterminate: per-document byte progress isn't available, and an op count
+                    // would sit at 100% for a single document. The count is in the text instead.
+                    setProgress(0, 0, true)
                 }
             }
             .build()
@@ -202,7 +207,7 @@ class DocumentSyncService : Service() {
     }
 
     private fun updateNotification(op: DocumentSyncOp, current: Int, total: Int) {
-        notificationManager.notify(DOC_SYNC_NOTIFICATION_ID, buildNotification(opNotificationText(op, current, total), current, total))
+        notificationManager.notify(DOC_SYNC_NOTIFICATION_ID, buildNotification(opNotificationText(op, current, total)))
     }
 
     private fun acquireWakeLock() {
