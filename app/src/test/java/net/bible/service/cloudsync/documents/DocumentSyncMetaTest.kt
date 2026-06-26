@@ -59,4 +59,22 @@ class DocumentSyncMetaTest {
             "size":1,"language":"en","sourceDevice":"d","timestamp":1}"""
         assertEquals(false, DocumentSyncMeta.fromJson(json).deleted)
     }
+
+    @Test fun categoryRoundTrips() {
+        val meta = DocumentSyncMeta(
+            initials = "KJV", name = "King James", documentType = DocumentType.SWORD,
+            version = "2.6", size = 100, language = "en", sourceDevice = "dev1",
+            timestamp = 123L, category = "BIBLE",
+        )
+        val parsed = DocumentSyncMeta.fromJson(meta.toJson())
+        assertEquals("BIBLE", parsed.category)
+    }
+
+    @Test fun categoryDefaultsToEmptyWhenMissing() {
+        // Old-client JSON without a "category" key must still parse.
+        val json = """{"initials":"KJV","name":"King James","documentType":"SWORD",
+            "version":"2.6","size":100,"language":"en","sourceDevice":"dev1","timestamp":123}"""
+        val parsed = DocumentSyncMeta.fromJson(json)
+        assertEquals("", parsed.category)
+    }
 }

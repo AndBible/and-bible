@@ -34,6 +34,7 @@ data class DocumentSyncMeta(
     val version: String,
     val size: Long,
     val language: String,
+    val category: String = "",
     val sourceDevice: String,
     val timestamp: Long,
     val cipherKey: String? = null,
