@@ -25,8 +25,10 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 
 /** Wall-clock budget for DOWNLOAD/UPGRADE actions in a single pull cycle (ms). */
@@ -45,7 +47,7 @@ object DocumentSync {
     }
 
     private fun installedSyncableBooks(): List<Book> =
-        Books.installed().books.filter { !it.isPseudoBook }
+        Books.installed().books.filter { !it.isPseudoBook && !it.isMyDocument }
 
     data class DocumentStatusItem(
         val initials: String,
@@ -58,6 +60,7 @@ object DocumentSync {
         val updateAvailable: Boolean,
         val blocked: Boolean,
         val sizeBytes: Long,
+        val category: BookCategory?,
     )
 
     suspend fun scan(): List<DocumentStatusItem> {
@@ -70,6 +73,7 @@ object DocumentSync {
             val c = cloud[initials]; val b = local[initials]
             val localVersion = b?.let { DocumentArchiver.documentVersion(it) }
             val update = c != null && localVersion != null && versionIsNewer(c.version, localVersion)
+            val category = b?.bookCategory ?: parseCategoryName(c?.category)
             DocumentStatusItem(
                 initials = initials,
                 name = c?.name ?: b?.name ?: initials,
@@ -81,6 +85,7 @@ object DocumentSync {
                 updateAvailable = update,
                 blocked = initials in blocked,
                 sizeBytes = c?.size ?: 0L,
+                category = category,
             )
         }
     }
@@ -97,6 +102,7 @@ object DocumentSync {
                 version = DocumentArchiver.documentVersion(book),
                 size = archive.length(),
                 language = book.language.code,
+                category = book.bookCategory.name,
                 sourceDevice = CommonUtils.deviceIdentifier,
                 timestamp = System.currentTimeMillis(),
                 cipherKey = cipherKey,
@@ -180,3 +186,7 @@ object DocumentSync {
         store.writeTombstone(meta)
     }
 }
+
+/** Parses a stored BookCategory enum name; null for null/blank/unknown names. */
+fun parseCategoryName(name: String?): BookCategory? =
+    name?.takeIf { it.isNotBlank() }?.let { runCatching { BookCategory.valueOf(it) }.getOrNull() }
