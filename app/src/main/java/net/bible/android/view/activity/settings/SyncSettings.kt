@@ -134,14 +134,25 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                         var signedIn = CloudSync.signedIn
                         if (!signedIn) signedIn = CloudSync.signIn(activity as ActivityBase) == true
                         if (signedIn) {
-                            DocumentSyncSettings.enabled = true
-                            startActivity(
-                                Intent(requireContext(), CloudDocumentsActivity::class.java)
-                                    .putExtra(CloudDocumentsActivity.EXTRA_SETUP_MODE, DocumentSyncSettings.automatic)
-                            )
+                            if (DocumentSyncSettings.automatic) {
+                                // Auto mode: do NOT enable yet — CloudDocumentsActivity's
+                                // "Start syncing" performs the commit. Backing out leaves it off.
+                                startActivity(
+                                    Intent(requireContext(), CloudDocumentsActivity::class.java)
+                                        .putExtra(CloudDocumentsActivity.EXTRA_SETUP_MODE, true)
+                                )
+                            } else {
+                                // Manual mode: no Start CTA, so enabling the switch is the commit.
+                                DocumentSyncSettings.enabled = true
+                                startActivity(
+                                    Intent(requireContext(), CloudDocumentsActivity::class.java)
+                                        .putExtra(CloudDocumentsActivity.EXTRA_SETUP_MODE, false)
+                                )
+                            }
                         }
-                        activity?.recreate()
                     }
+                    // Never flip the switch on optimistically; onResume reflects the real state
+                    // once the user returns from the management/setup screen.
                     false
                 } else {
                     DocumentSyncSettings.enabled = false
@@ -241,6 +252,12 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 true
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_documents")?.isChecked =
+            DocumentSyncSettings.enabled
     }
 }
 

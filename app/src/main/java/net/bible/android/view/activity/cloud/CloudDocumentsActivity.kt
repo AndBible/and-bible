@@ -241,6 +241,9 @@ class CloudDocumentsActivity : ActivityBase() {
      * setup mode is dropped and the screen becomes the normal management view.
      */
     private fun performSetupSync() {
+        // "Start syncing" is the commit point: enable document sync now (auto mode
+        // defers enabling until here, so backing out of setup leaves sync off).
+        DocumentSyncSettings.enabled = true
         val selected = adapter.getSelectedInitials()
         val toPush = allItems.filter { it.initials in selected && it.localOnly }
             .mapNotNull { Books.installed().getBook(it.initials) }
