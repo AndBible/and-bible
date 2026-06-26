@@ -29,8 +29,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import net.bible.android.activity.R
+import net.bible.android.view.activity.download.imageResource
 import net.bible.service.cloudsync.documents.DocumentSync.DocumentStatusItem
-import net.bible.service.cloudsync.documents.DocumentType
 
 /** Per-item action that can be triggered from a row's overflow menu.
  *
@@ -95,7 +95,9 @@ class CloudDocumentsAdapter(
 
         fun bind(item: DocumentStatusItem) {
             val context = itemView.context
-            typeIcon.setImageResource(typeIconRes(item.type))
+            // Icon by book category (Bible/Commentary/Dictionary/…), matching the
+            // Download Documents list. Cloud-only items may lack a category → generic book.
+            typeIcon.setImageResource(item.category?.imageResource ?: R.drawable.ic_book_24dp)
             title.text = item.name
 
             subtitle.text = subtitleText(item)
@@ -159,11 +161,6 @@ class CloudDocumentsAdapter(
             item.cloudOnly -> R.drawable.ic_file_download_24dp
             item.localOnly -> R.drawable.ic_baseline_cloud_24
             else -> R.drawable.ic_baseline_check_circle_24
-        }
-
-        private fun typeIconRes(type: DocumentType): Int = when (type) {
-            DocumentType.SWORD -> R.drawable.ic_bible_24dp
-            else -> R.drawable.ic_book_24dp
         }
 
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<DocumentStatusItem>() {

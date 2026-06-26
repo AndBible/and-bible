@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -37,8 +37,8 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 
-val Book.imageResource: Int
-    get() = when(bookCategory) {
+val BookCategory.imageResource: Int
+    get() = when(this) {
         BookCategory.BIBLE -> if(CommonUtils.isDiscrete) R.drawable.ic_baseline_menu_book_24 else  R.drawable.ic_bible_24dp
         BookCategory.COMMENTARY -> R.drawable.ic_commentary
         BookCategory.DICTIONARY -> R.drawable.ic_dictionary_24dp
@@ -47,6 +47,9 @@ val Book.imageResource: Int
         BookCategory.AND_BIBLE -> R.drawable.ic_addon_24dp
         else -> R.drawable.ic_book_24dp
     }
+
+val Book.imageResource: Int
+    get() = bookCategory.imageResource
 
 fun Book.isRecommended(recommendedDocuments: DocumentConfiguration?): Boolean =
     recommendedDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
