@@ -75,19 +75,37 @@ class DocumentStore(
         writeMeta(folderId, meta)
     }
 
-    suspend fun downloadArchive(initials: String, version: String): File {
-        val folderId = folderFor(initials)?.id ?: error("No cloud folder for $initials")
-        val file = adapter.listFiles(parentsIds = listOf(folderId), name = "$version.abmd.zip").first()
+    /**
+     * Downloads the archive for [initials] at [version], or returns null if the folder or the
+     * named archive is absent — e.g. a concurrent push/tombstone on another device removed it
+     * between the caller's listing and now. Returning null lets the caller skip gracefully and
+     * retry on the next pull rather than crashing the whole batch.
+     */
+    suspend fun downloadArchive(initials: String, version: String): File? {
+        val folderId = folderFor(initials)?.id ?: return null
+        val file = adapter.listFiles(parentsIds = listOf(folderId), name = "$version.abmd.zip").firstOrNull()
+            ?: return null
         val tmp = CommonUtils.tmpFile
-        tmp.outputStream().use { adapter.download(file.id, it) }
+        try {
+            tmp.outputStream().use { adapter.download(file.id, it) }
+        } catch (e: Exception) {
+            // The temp file was created before the download; delete it so a failed (e.g. network
+            // drop) download doesn't leak a potentially large orphan in the tmp dir.
+            tmp.delete()
+            throw e
+        }
         return tmp
     }
 
     suspend fun writeTombstone(meta: DocumentSyncMeta) {
         val folderId = ensureFolder(meta.initials)
+        // Commit the tombstone meta FIRST, then drop the archives. A leftover archive under a
+        // deleted=true meta is harmless (readers ignore archives for a tombstone); the dangerous
+        // state is a deleted archive under a still-live meta, which would make the document
+        // un-downloadable on other devices if we crashed between the two steps.
+        writeMeta(folderId, meta.copy(deleted = true))
         adapter.listFiles(parentsIds = listOf(folderId))
             .filter { it.name.endsWith(".abmd.zip") }
             .forEach { adapter.delete(it.id) }
-        writeMeta(folderId, meta.copy(deleted = true))
     }
 }

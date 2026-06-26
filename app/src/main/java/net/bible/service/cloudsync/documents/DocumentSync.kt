@@ -200,9 +200,17 @@ object DocumentSync {
     suspend fun downloadAndInstall(initials: String) {
         val store = store() ?: return
         val meta = store.listDocuments().firstOrNull { it.initials == initials && !it.deleted } ?: return
-        val archive = store.downloadArchive(initials, meta.version)
+        val archive = store.downloadArchive(initials, meta.version) ?: return
         installingFromSync.add(initials)
         try {
+            // Integrity guard: meta.size is the exact packaged (zip) size recorded at push time, so
+            // a length mismatch means a truncated/partial download. installArchive only checks that
+            // the book registers, not that its data is complete, and a "success" would set the sync
+            // timestamp and never re-download — leaving a permanently broken module. Skip and retry.
+            if (meta.size > 0 && archive.length() != meta.size) {
+                Log.w(TAG, "Downloaded $initials size ${archive.length()} != expected ${meta.size}; skipping install")
+                return
+            }
             if (DocumentArchiver.installArchive(archive, initials)) {
                 applyCipherKey(initials, meta.cipherKey)
                 DocumentSyncSettings.setSyncTimestamp(initials, meta.timestamp)
