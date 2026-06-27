@@ -403,9 +403,16 @@ object BackupControl {
         } else if (b.isManuallyInstalledEpub) {
             addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))
         } else if (b.isManuallyInstalledTtf) {
-            // Font modules have byte-array metadata (no configFile), so they must be packaged
-            // by their .ttf file rather than via the generic SWORD configFile branch below.
-            addModuleFile(outFile, b.ttfFile)
+            // Manually-installed font modules have byte-array metadata (no configFile), so they
+            // must be packaged by their .ttf file rather than via the generic SWORD configFile
+            // branch below. Skip gracefully if the underlying file has gone missing, so one
+            // broken font module can't abort the whole backup/sync operation.
+            val ttfFile = b.ttfFile
+            if (ttfFile.exists()) {
+                addModuleFile(outFile, ttfFile)
+            } else {
+                Log.w(TAG, "Skipping font module ${b.initials}: file not found ${ttfFile.path}")
+            }
         } else {
             val configFile = bmd.configFile
             val rootDir = configFile.parentFile!!.parentFile!!
