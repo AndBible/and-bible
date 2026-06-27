@@ -65,14 +65,20 @@ All of document-sync's per-device state moves into one database, renamed from `C
 - **`DocumentSyncDatabase`** — file `document-sync.sqlite3`, `DOCUMENT_SYNC_DATABASE_VERSION = 1`.
   **Not backed up** (absent from `ALL_DB_FILENAMES`), **not synced** (absent from
   `SyncableDatabaseDefinition`), and **cleared in its entirety on cloud sign-out**.
-- Contents:
-  - A key/value settings table set (boolean / long / string DAOs, mirroring `SettingsDatabase`'s
-    pattern) backing `DocumentSyncSettings`: `enabled`, `wifiOnly`, `autoDownload`, `autoUpload`,
-    `autoDelete`, `syncNow*`, `blockList`, `showRemovedDocuments`.
-  - `CachedCloudDocument` table + `CloudDocumentCacheDao` (moved as-is).
-  - **Listing watermark** — a single long kv entry (`listing_watermark`).
-  - **Per-document sync timestamps** — long kv entries (`doc_sync_ts_<initials>`), moved out of
-    `SettingsDatabase`.
+- Contents (four tables):
+  - **`DocumentSyncSettings`** — a **singleton entity** (fixed `@PrimaryKey = SINGLETON_ID`),
+    following the `GlobalAiSettings` / `AiSettings` pattern: DAO `get(): DocumentSyncSettings?`
+    (`SELECT … LIMIT 1`) + `set()` (`@Insert REPLACE`); the accessor reads `dao.get() ?:
+    DocumentSyncSettings()` and writes via `update { copy(...) }`. Holds the **user preferences
+    only**: `enabled`, `wifiOnly`, `autoDownload`, `autoUpload`, `autoDelete`, `syncNowDownload`,
+    `syncNowUpload`, `syncNowDelete`, `showRemovedDocuments`, `blockList: Set<String>`.
+  - **`CloudListingState`** — a second singleton entity holding the operational **listing
+    watermark** (`watermark: Long`). Kept separate from settings: the watermark is derived sync
+    state, not a user preference.
+  - **`CloudDocumentSyncTimestamp(initials @PrimaryKey, timestamp: Long)`** — per-document
+    last-sync timestamps (replacing the `doc_sync_ts_*` keys), a keyed table for natural per-document
+    upsert.
+  - **`CachedCloudDocument`** table + `CloudDocumentCacheDao` (moved as-is).
 
 **Rationale.** Document-sync state is entirely device-local: the cloud account itself (OAuth /
 NextCloud credentials) is device-local and re-established per device, so document-sync setup is
@@ -185,12 +191,15 @@ correctness guarantee against arbitrary skew — the reset action is that guaran
 
 ## Key components
 
-- `database/Databases.kt`: rename `CacheDatabase` → `DocumentSyncDatabase` (new file name + kv
-  settings tables alongside `CachedCloudDocument`); `DatabaseContainer` registration + first-run
+- `database/Databases.kt`: rename `CacheDatabase` → `DocumentSyncDatabase` (new file name); add the
+  `DocumentSyncSettings` + `CloudListingState` singleton entities and the `CloudDocumentSyncTimestamp`
+  table alongside `CachedCloudDocument`, with their DAOs; `DatabaseContainer` registration + first-run
   deletion of the old `cloud-documents-cache.sqlite3`.
-- `cloudsync/documents/DocumentSyncSettings.kt`: re-back onto `DocumentSyncDatabase` DAOs instead of
-  `CommonUtils.settings`; add `listing_watermark` accessors; keep `syncTimestamp` semantics but in
-  the new DB.
+- `cloudsync/documents/DocumentSyncSettings.kt`: becomes an accessor `object` over the two singleton
+  entities (settings + listing state) and the timestamp DAO, following the `AiSettings` pattern
+  (`get() ?: default`, `update { copy(...) }`), instead of `CommonUtils.settings`. Adds `watermark`
+  get/set; `syncTimestamp(initials)` / `setSyncTimestamp` now read/write the
+  `CloudDocumentSyncTimestamp` table; `blockList` is backed by the settings singleton's `Set<String>`.
 - `cloudsync/documents/DocumentStore.kt`: add `listChangedDocuments(watermark)`; `listDocuments()`
   becomes `listChangedDocuments(0)`.
 - `cloudsync/documents/DocumentSync.kt`: `refreshCache()` incremental merge via the new pure
