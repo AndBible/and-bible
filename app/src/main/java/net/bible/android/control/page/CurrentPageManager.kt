@@ -234,7 +234,11 @@ open class CurrentPageManager @Inject constructor(
 
     fun getBookPage(book: Book?, key: Key?): CurrentPage? {
         return if (book == null) {
-            if(key is VerseKey<*>) {
+            // A non-specific verse link may arrive either as a raw VerseKey or wrapped in a
+            // BookAndKey with a null document (e.g. a Bible cross reference opened from an EPUB).
+            // Unwrap BookAndKey so such links still route to the Bible page.
+            val verseKey = if (key is BookAndKey) key.key else key
+            if(verseKey is VerseKey<*>) {
                 return currentBible
             } else null
         } else {
