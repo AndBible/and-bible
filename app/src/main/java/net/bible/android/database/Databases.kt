@@ -153,12 +153,18 @@ const val DOCUMENT_SYNC_DATABASE_VERSION = 1
 @Database(
     entities = [
         CachedCloudDocument::class,
+        DocumentSyncPreferences::class,
+        CloudListingState::class,
+        CloudDocumentSyncTimestamp::class,
     ],
     version = DOCUMENT_SYNC_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
 abstract class DocumentSyncDatabase: RoomDatabase() {
     abstract fun cloudDocumentCacheDao(): CloudDocumentCacheDao
+    abstract fun documentSyncPreferencesDao(): DocumentSyncPreferencesDao
+    abstract fun cloudListingStateDao(): CloudListingStateDao
+    abstract fun cloudDocumentSyncTimestampDao(): CloudDocumentSyncTimestampDao
 }
 
 const val REPO_DATABASE_VERSION = 1
