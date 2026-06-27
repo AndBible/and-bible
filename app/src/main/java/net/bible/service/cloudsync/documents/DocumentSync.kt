@@ -96,6 +96,11 @@ object DocumentSync {
      * Incrementally refreshes the cloud-listing cache: fetches only metas changed since the stored
      * watermark, merges them into the cache (upsert + purge), and advances the watermark. With
      * nothing changed this is two round-trips and no downloads. Watermark 0 (cold start) lists all.
+     *
+     * The read-merge-write (cache + watermark) is not wrapped in a single transaction; it relies on
+     * callers being serialized — the sync cycle and the single-threaded [DocumentSyncService] drain
+     * never run it concurrently. (Even if they did, the watermark only ever advances via [mergeCloudListing]'s
+     * maxOf guard, so the worst case is a redundant re-list, never a backward step or data loss.)
      */
     suspend fun refreshCache() {
         val store = store() ?: return
@@ -330,19 +335,32 @@ object DocumentSync {
 
     suspend fun removeFromCloud(initials: String) {
         val store = store() ?: return
+        val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
         // Mark the cache entry as a tombstone up front (before the slow network writes) so the
-        // management view is correct even if it is closed and reopened mid-operation.
-        DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao().markDeleted(initials)
+        // management view is correct even if it is closed and reopened mid-operation. Capture the
+        // pre-state so a *failed* cloud write can revert it — otherwise the cache would show a
+        // tombstone that doesn't exist in the cloud, and an incremental refresh would not re-fetch
+        // it to self-correct (the live meta's createdTime is unchanged, so it stays below the
+        // watermark). Only the cloud tombstone write is guarded: once it succeeds the mark is
+        // correct, so a later local-delete failure must not revert it.
+        val cachedBefore = cacheDao.all().firstOrNull { it.initials == initials }
+        cacheDao.markDeleted(initials)
         val now = System.currentTimeMillis()
-        val existing = store.readMeta(initials)
-        // Remove is only offered when a cloud copy exists, so `existing` is normally present;
-        // the fallback just guards against a race where it disappeared.
-        val meta = (existing ?: DocumentSyncMeta(
-            initials = initials, name = initials, documentType = DocumentType.SWORD, version = "0.0",
-            size = 0, language = "", sourceDevice = CommonUtils.deviceIdentifier,
-            timestamp = 0,
-        )).copy(timestamp = now)
-        store.writeTombstone(meta)
+        try {
+            val existing = store.readMeta(initials)
+            // Remove is only offered when a cloud copy exists, so `existing` is normally present;
+            // the fallback just guards against a race where it disappeared.
+            val meta = (existing ?: DocumentSyncMeta(
+                initials = initials, name = initials, documentType = DocumentType.SWORD, version = "0.0",
+                size = 0, language = "", sourceDevice = CommonUtils.deviceIdentifier,
+                timestamp = 0,
+            )).copy(timestamp = now)
+            store.writeTombstone(meta)
+        } catch (e: Exception) {
+            if (cachedBefore != null) cacheDao.insertAll(listOf(cachedBefore))
+            else cacheDao.deleteByInitials(initials)
+            throw e
+        }
         // Other devices (older sync timestamp) see the tombstone as strictly newer and uninstall
         // locally. With sync ENABLED here, "Remove from all devices" also deletes the local copy
         // on this device — otherwise it would be orphaned (gone from the cloud, no longer synced).
