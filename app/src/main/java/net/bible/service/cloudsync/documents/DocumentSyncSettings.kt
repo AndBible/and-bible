@@ -19,74 +19,71 @@
 
 package net.bible.service.cloudsync.documents
 
+import net.bible.android.database.CloudDocumentSyncTimestamp
+import net.bible.android.database.CloudListingState
+import net.bible.android.database.DocumentSyncPreferences
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
 
 object DocumentSyncSettings {
-    private const val ENABLED = "sync_enable_documents"
-    private const val WIFI_ONLY = "sync_documents_wifi_only"
-    private const val AUTO_DOWNLOAD = "sync_documents_auto_download"
-    private const val AUTO_UPLOAD = "sync_documents_auto_upload"
-    private const val AUTO_DELETE = "sync_documents_auto_delete"
-    private const val SYNC_NOW_DOWNLOAD = "sync_documents_sync_now_download"
-    private const val SYNC_NOW_UPLOAD = "sync_documents_sync_now_upload"
-    private const val SYNC_NOW_DELETE = "sync_documents_sync_now_delete"
-    private const val BLOCKED = "sync_documents_blocked"
-    private const val SHOW_REMOVED = "sync_documents_show_removed"
-    private const val TS_PREFIX = "doc_sync_ts_"
+    private val prefsDao get() = DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao()
+    private val listingDao get() = DatabaseContainer.instance.documentSyncDb.cloudListingStateDao()
+    private val tsDao get() = DatabaseContainer.instance.documentSyncDb.cloudDocumentSyncTimestampDao()
+
+    private fun prefs(): DocumentSyncPreferences = prefsDao.get() ?: DocumentSyncPreferences()
+    private fun update(transform: DocumentSyncPreferences.() -> DocumentSyncPreferences) =
+        prefsDao.set(prefs().transform())
 
     var enabled: Boolean
-        get() = CommonUtils.settings.getBoolean(ENABLED, false)
-        set(value) = CommonUtils.settings.setBoolean(ENABLED, value)
+        get() = prefs().enabled
+        set(value) = update { copy(enabled = value) }
 
     var wifiOnly: Boolean
-        get() = CommonUtils.settings.getBoolean(WIFI_ONLY, true)
-        set(value) = CommonUtils.settings.setBoolean(WIFI_ONLY, value)
+        get() = prefs().wifiOnly
+        set(value) = update { copy(wifiOnly = value) }
 
-    // Per-device: whether the management view includes removed (tombstoned) cloud documents.
     var showRemovedDocuments: Boolean
-        get() = CommonUtils.settings.getBoolean(SHOW_REMOVED, false)
-        set(value) = CommonUtils.settings.setBoolean(SHOW_REMOVED, value)
+        get() = prefs().showRemovedDocuments
+        set(value) = update { copy(showRemovedDocuments = value) }
 
-    // Per-device automatic-operation toggles (default on = current behaviour). These gate the
-    // automatic sync cycle and install-time auto-upload only; manual actions ignore them.
     var autoDownload: Boolean
-        get() = CommonUtils.settings.getBoolean(AUTO_DOWNLOAD, true)
-        set(value) = CommonUtils.settings.setBoolean(AUTO_DOWNLOAD, value)
+        get() = prefs().autoDownload
+        set(value) = update { copy(autoDownload = value) }
 
     var autoUpload: Boolean
-        get() = CommonUtils.settings.getBoolean(AUTO_UPLOAD, true)
-        set(value) = CommonUtils.settings.setBoolean(AUTO_UPLOAD, value)
+        get() = prefs().autoUpload
+        set(value) = update { copy(autoUpload = value) }
 
     var autoDelete: Boolean
-        get() = CommonUtils.settings.getBoolean(AUTO_DELETE, true)
-        set(value) = CommonUtils.settings.setBoolean(AUTO_DELETE, value)
+        get() = prefs().autoDelete
+        set(value) = update { copy(autoDelete = value) }
 
-    // Remembered checkbox state for the manual "Sync now" operation picker (default all on).
     var syncNowDownload: Boolean
-        get() = CommonUtils.settings.getBoolean(SYNC_NOW_DOWNLOAD, true)
-        set(value) = CommonUtils.settings.setBoolean(SYNC_NOW_DOWNLOAD, value)
+        get() = prefs().syncNowDownload
+        set(value) = update { copy(syncNowDownload = value) }
 
     var syncNowUpload: Boolean
-        get() = CommonUtils.settings.getBoolean(SYNC_NOW_UPLOAD, true)
-        set(value) = CommonUtils.settings.setBoolean(SYNC_NOW_UPLOAD, value)
+        get() = prefs().syncNowUpload
+        set(value) = update { copy(syncNowUpload = value) }
 
     var syncNowDelete: Boolean
-        get() = CommonUtils.settings.getBoolean(SYNC_NOW_DELETE, true)
-        set(value) = CommonUtils.settings.setBoolean(SYNC_NOW_DELETE, value)
+        get() = prefs().syncNowDelete
+        set(value) = update { copy(syncNowDelete = value) }
 
     val blockList: DocumentBlockList = DocumentBlockList(object : StringSetStore {
-        override fun get(): Set<String> =
-            CommonUtils.settings.getString(BLOCKED, "")
-                ?.split("\n")?.filter { it.isNotEmpty() }?.toSet() ?: emptySet()
-        override fun set(value: Set<String>) =
-            CommonUtils.settings.setString(BLOCKED, value.joinToString("\n"))
+        override fun get(): Set<String> = prefs().blockList
+        override fun set(value: Set<String>) = update { copy(blockList = value) }
     })
 
-    fun syncTimestamp(initials: String): Long? =
-        CommonUtils.settings.getLong("$TS_PREFIX$initials", -1L).takeIf { it >= 0 }
+    /** Incremental-listing watermark: max observed cloud meta createdTime. 0 ⇒ cold start. */
+    var watermark: Long
+        get() = (listingDao.get() ?: CloudListingState()).watermark
+        set(value) = listingDao.set(CloudListingState(watermark = value))
+
+    fun syncTimestamp(initials: String): Long? = tsDao.get(initials)
 
     fun setSyncTimestamp(initials: String, ts: Long) =
-        CommonUtils.settings.setLong("$TS_PREFIX$initials", ts)
+        tsDao.set(CloudDocumentSyncTimestamp(initials, ts))
 
     val isAutoTransferAllowed: Boolean
         get() = !wifiOnly || !CommonUtils.isMeteredNetwork
