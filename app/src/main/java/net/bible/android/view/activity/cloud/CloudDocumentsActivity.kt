@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.cloud
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -26,6 +27,7 @@ import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -217,15 +219,28 @@ class CloudDocumentsActivity : ActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Selection mode is entered by long-pressing a row, so no explicit menu item is needed.
-        menu.add(Menu.NONE, MENU_SYNC_NOW, Menu.NONE, R.string.cloud_doc_sync_now)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-        menu.add(Menu.NONE, MENU_SHOW_REMOVED, Menu.NONE, R.string.cloud_doc_show_removed).apply {
+        // Explicit order args keep the display order: Sync now → Re-scan → Show removed.
+        menu.add(Menu.NONE, MENU_SYNC_NOW, 0, R.string.cloud_doc_sync_now).apply {
+            setIcon(R.drawable.ic_syncdb_24dp)
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        }
+        menu.add(Menu.NONE, MENU_RESCAN, 1, R.string.cloud_doc_rescan).apply {
+            setIcon(R.drawable.ic_baseline_refresh_gray_24)
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        }
+        menu.add(Menu.NONE, MENU_SHOW_REMOVED, 2, R.string.cloud_doc_show_removed).apply {
+            setIcon(R.drawable.ic_cloud_off_24dp)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
             isCheckable = true
         }
-        menu.add(Menu.NONE, MENU_RESCAN, Menu.NONE, R.string.cloud_doc_rescan)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         return true
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
+        // The ActionBar overflow hides item icons by default; show them so the menu reads at a glance.
+        if (menu is MenuBuilder) menu.setOptionalIconsVisible(true)
+        return super.onMenuOpened(featureId, menu)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
