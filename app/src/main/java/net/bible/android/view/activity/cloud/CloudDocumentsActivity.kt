@@ -231,12 +231,14 @@ class CloudDocumentsActivity : ActivityBase() {
             DocumentSyncSettings.showRemovedDocuments = show
             item.isChecked = show
             // Rebuild the spinner (adds/removes the "Removed" entry) and reset to ALL if the
-            // currently-selected filter no longer exists, then re-scan with the new flag.
+            // currently-selected filter no longer exists, then re-render from the cache.
             if (!show && binding.statusSpinner.selectedItemPosition == CloudDocFilter.REMOVED.ordinal) {
                 binding.statusSpinner.setSelection(CloudDocFilter.ALL.ordinal)
             }
             setupStatusFilter()
-            refresh()
+            // Tombstones are already in the cloud-listing cache, so toggling their visibility is a
+            // local re-render — no network fetch, just a quick cache read behind the loading bar.
+            renderFromCache()
             true
         }
         android.R.id.home -> {
@@ -304,6 +306,22 @@ class CloudDocumentsActivity : ActivityBase() {
         // Exception: an empty cache (e.g. a fresh device before its first sync cycle) would show
         // only local docs, so refresh from the network even when automatic sync is on.
         if (signedIn && (!DocumentSyncSettings.enabled || cached.isEmpty())) refreshFromNetwork()
+    }
+
+    /**
+     * Re-renders the list from the local cloud-listing cache only — no network — behind the
+     * non-blocking [loadingBar]. Used when only the local view changes (e.g. toggling "show
+     * removed documents"): the cache already holds the full cloud listing, tombstones included,
+     * so there is nothing to fetch.
+     */
+    private fun renderFromCache() = lifecycleScope.launch {
+        setBusy(true)
+        try {
+            allItems = withContext(Dispatchers.IO) { DocumentSync.scanCached(DocumentSyncSettings.showRemovedDocuments) }
+        } finally {
+            setBusy(false)
+        }
+        applyFilter()
     }
 
     /** Re-scans from the network behind the non-blocking [loadingBar], then updates the list. */
