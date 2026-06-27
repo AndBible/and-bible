@@ -21,11 +21,17 @@ import kotlinx.coroutines.runBlocking
 import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
+import org.crosswire.common.util.NetUtil
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBookDriver
+import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -35,7 +41,11 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.File
+import java.io.FileInputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
 
 /**
  * Round-trip tests for the shared module backup/restore core
@@ -61,6 +71,11 @@ class ModuleBackupRoundTripTest {
 
     @After
     fun tearDown() {
+        // Books.installed() is a process-global singleton; drop anything we registered so it
+        // can't leak into other tests sharing the same JVM.
+        for (initials in listOf("TTF_TestFont", "TestDict")) {
+            Books.installed().getBook(initials)?.let { Books.installed().removeBook(it) }
+        }
         File(SharedConstants.modulesDir, "ttf").deleteRecursively()
     }
 
@@ -99,5 +114,95 @@ class ModuleBackupRoundTripTest {
         val installed = BackupControl.installModuleArchive(zipFile, "TTF_TestFont")
         assertTrue("TTF font should reinstall from the backup archive", installed)
         assertNotNull(Books.installed().getBook("TTF_TestFont"))
+    }
+
+    /**
+     * Full round-trip of a regular SWORD module. Uses a minimal RawLD dictionary because it is
+     * the simplest valid module to fabricate (two uncompressed data files, no versification
+     * index). A dictionary also exercises the DICTIONARY/GENERAL_BOOK/MAPS special-casing in
+     * `addBookToZip`, where the data dir walked is the parent of the DataPath file prefix.
+     *
+     * Asserts: registration works, the packaged zip leads with the manifest entry and contains
+     * the conf plus both data files, and reinstalling from the archive re-registers the module
+     * with its content intact.
+     */
+    @Test
+    fun rawLdDictionaryRoundTrips() = runBlocking {
+        val book = registerMinimalRawLdDictionary()
+        assertNotNull("Fabricated RawLD dictionary should register", book)
+        assertTrue(
+            "Dictionary entry should be readable",
+            book.getRawText(book.getKey("strong")).contains("The test definition body.")
+        )
+
+        val zipFile = File(CommonUtils.tmpDir, "rawld-roundtrip.abmd.zip")
+        if (zipFile.exists()) zipFile.delete()
+        BackupControl.createSingleModuleZip(book, zipFile)
+
+        ZipInputStream(FileInputStream(zipFile)).use { zis ->
+            assertEquals(
+                "Manifest must be the first zip entry (AndBibleBackupManifest.fromUri reads it first)",
+                ANDBIBLE_BACKUP_MANIFEST_FILENAME, zis.nextEntry?.name
+            )
+        }
+        ZipFile(zipFile).use { zf ->
+            assertNotNull("conf must be packaged", zf.getEntry("mods.d/testdict.conf"))
+            assertNotNull("index data must be packaged", zf.getEntry("modules/lexdict/rawld/testdict/test.idx"))
+            assertNotNull("entry data must be packaged", zf.getEntry("modules/lexdict/rawld/testdict/test.dat"))
+        }
+
+        // Wipe the on-disk module + registration, then restore purely from the archive.
+        val downloadDir = SwordBookPath.getSwordDownloadDir()
+        File(downloadDir, "mods.d/testdict.conf").delete()
+        File(downloadDir, "modules/lexdict/rawld/testdict").deleteRecursively()
+        Books.installed().removeBook(book)
+        assertNull(Books.installed().getBook("TestDict"))
+
+        val installed = BackupControl.installModuleArchive(zipFile, "TestDict")
+        assertTrue("Dictionary should reinstall from the backup archive", installed)
+        val restored = Books.installed().getBook("TestDict")
+        assertNotNull(restored)
+        assertTrue(
+            "Restored module content must be intact",
+            restored.getRawText(restored.getKey("strong")).contains("The test definition body.")
+        )
+    }
+
+    /**
+     * Writes a minimal single-entry RawLD (2-byte) dictionary into the SWORD download dir and
+     * registers it the same way restore does (file-based [SwordBookMetaData] +
+     * [SwordBookDriver.registerNewBook]), returning the registered book.
+     *
+     * RawLD layout: `.dat` holds `key\nbody`; `.idx` holds one 6-byte record =
+     * uint32-LE offset + uint16-LE length, both little-endian.
+     */
+    private fun registerMinimalRawLdDictionary(): Book {
+        val downloadDir = SwordBookPath.getSwordDownloadDir()
+        val conf = """
+            [TestDict]
+            DataPath=./modules/lexdict/rawld/testdict/test
+            ModDrv=RawLD
+            SourceType=Plaintext
+            Encoding=UTF-8
+            Lang=en
+            Description=Test Dictionary
+            DistributionLicense=Public Domain
+        """.trimIndent()
+
+        val confFile = File(downloadDir, "mods.d/testdict.conf")
+        confFile.parentFile!!.mkdirs()
+        confFile.writeText(conf)
+
+        val dataDir = File(downloadDir, "modules/lexdict/rawld/testdict").apply { mkdirs() }
+        val datBytes = "strong\nThe test definition body.".toByteArray(Charsets.UTF_8)
+        File(dataDir, "test.dat").writeBytes(datBytes)
+        val idxBytes = ByteBuffer.allocate(6).order(ByteOrder.LITTLE_ENDIAN)
+            .putInt(0).putShort(datBytes.size.toShort()).array()
+        File(dataDir, "test.idx").writeBytes(idxBytes)
+
+        val bmd = SwordBookMetaData(confFile, NetUtil.getURI(downloadDir))
+        bmd.driver = SwordBookDriver.instance()
+        SwordBookDriver.registerNewBook(bmd)
+        return Books.installed().getBook("TestDict")
     }
 }
