@@ -74,7 +74,7 @@ class CloudDocumentsFilterTest {
     }
 
     @Test fun categoryFilterMatchesExactCategory() {
-        assertEquals(listOf("KJV", "ESV"), filterCloudDocuments(items, CloudDocFilter.ALL, "", BookCategory.BIBLE).map { it.initials })
+        assertEquals(listOf("KJV", "ESV", "GONE"), filterCloudDocuments(items, CloudDocFilter.ALL, "", BookCategory.BIBLE).map { it.initials })
     }
 
     @Test fun nullCategoryItemMatchesOnlyAllCategory() {
