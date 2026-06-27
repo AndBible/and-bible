@@ -1920,6 +1920,9 @@
     <string name="cloud_doc_remove_all_confirm">Remove %1$s from the cloud and from all your devices, including this one?</string>
     <string name="cloud_doc_remove_cloud_confirm">Remove %1$s from the cloud? The copy on this device is kept; devices with document sync on will also remove it.</string>
     <string name="cloud_doc_sync_now">Sync now</string>
+    <string name="cloud_doc_sync_now_download">Download new and updated documents</string>
+    <string name="cloud_doc_sync_now_upload">Upload local documents to the cloud</string>
+    <string name="cloud_doc_sync_now_delete">Apply removals from other devices</string>
     <string name="document_sync_signin_required">Sign in to your cloud account to manage synced documents.</string>
     <string name="cloud_doc_summary_upload">Upload %1$d</string>
     <string name="cloud_doc_summary_upload_size">Upload %1$d (%2$s)</string>

@@ -181,13 +181,12 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(MENU_SYNC_NOW)?.isVisible = !DocumentSyncSettings.enabled && !adapter.isSelectionMode()
+        menu.findItem(MENU_SYNC_NOW)?.isVisible = CloudSync.signedIn && !adapter.isSelectionMode()
         return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        // TODO Task 6 replaces this with the operation-picker dialog
-        MENU_SYNC_NOW -> { runSyncAction { DocumentSync.runSync(download = true, upload = true, delete = true, manual = true) }; true }
+        MENU_SYNC_NOW -> { showSyncNowDialog(); true }
         android.R.id.home -> {
             if (adapter.isSelectionMode()) exitSelectionMode() else finish()
             true
@@ -408,6 +407,45 @@ class CloudDocumentsActivity : ActivityBase() {
                 // feedback. The post-completion refresh confirms (or reverts) it.
                 allItems = applyOptimisticRemoval(allItems, item.initials, DocumentSyncSettings.enabled)
                 applyFilter()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    /**
+     * "Sync now" is a manual, infrequent action, so it asks which operations to run this time
+     * (download / upload / delete), pre-filled from the remembered last choice. The chosen
+     * operations run via [DocumentSync.runSync] with manual = true, bypassing the enabled and
+     * Wi-Fi-only guards but still honouring the block list.
+     */
+    private fun showSyncNowDialog() {
+        val labels = arrayOf(
+            getString(R.string.cloud_doc_sync_now_download),
+            getString(R.string.cloud_doc_sync_now_upload),
+            getString(R.string.cloud_doc_sync_now_delete),
+        )
+        val checked = booleanArrayOf(
+            DocumentSyncSettings.syncNowDownload,
+            DocumentSyncSettings.syncNowUpload,
+            DocumentSyncSettings.syncNowDelete,
+        )
+        AlertDialog.Builder(this)
+            .setTitle(R.string.cloud_doc_sync_now)
+            .setMultiChoiceItems(labels, checked) { _, which, isChecked -> checked[which] = isChecked }
+            .setPositiveButton(R.string.okay) { _, _ ->
+                DocumentSyncSettings.syncNowDownload = checked[0]
+                DocumentSyncSettings.syncNowUpload = checked[1]
+                DocumentSyncSettings.syncNowDelete = checked[2]
+                if (checked.any { it }) {
+                    runSyncAction {
+                        DocumentSync.runSync(
+                            download = checked[0],
+                            upload = checked[1],
+                            delete = checked[2],
+                            manual = true,
+                        )
+                    }
+                }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
