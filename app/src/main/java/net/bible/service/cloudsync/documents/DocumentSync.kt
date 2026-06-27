@@ -111,15 +111,19 @@ object DocumentSync {
     }
 
     /**
-     * Tears document sync down on sign-out: disables automatic sync and drops the
-     * cloud-listing cache. The cache mirrors the listing of the cloud account the user
-     * just disconnected from, so it must not survive into a later sign-in (possibly a
-     * different account). Mirrors the DB-sync sign-out, which clears its own sync status.
-     * The block list and Wi-Fi-only preference are per-device and intentionally kept.
+     * Tears document sync down on sign-out by wiping the entire [net.bible.android.database.DocumentSyncDatabase]:
+     * settings, the cloud-listing cache, the listing watermark, and per-document sync timestamps.
+     * All of it is device-local state tied to the account just disconnected — a later sign-in may
+     * target a different cloud account and must start clean (sync off, empty block list, cold-start
+     * listing). Mirrors the DB-sync sign-out, which clears its own per-database sync status.
      */
     suspend fun onSignOut() {
-        DocumentSyncSettings.enabled = false
-        DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao().clear()
+        DatabaseContainer.instance.documentSyncDb.apply {
+            cloudDocumentCacheDao().clear()
+            documentSyncPreferencesDao().clear()
+            cloudListingStateDao().clear()
+            cloudDocumentSyncTimestampDao().clear()
+        }
     }
 
     /**
