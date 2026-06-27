@@ -63,6 +63,22 @@ class DocumentSyncSummaryTest {
         assertEquals(listOf("DL"), s.downloadInitials)
     }
 
+    @Test fun uploadAndDownloadSetsAreDisjoint() {
+        // assembleStatusItems guarantees the upload-side flags (localOnly / localNewer) and the
+        // download-side flags (cloudOnly / updateAvailable) are mutually exclusive per item, so the
+        // summary must never place the same initials in both buckets nor double-count one.
+        val items = listOf(
+            item("UP", localOnly = true, size = 1),
+            item("LN", localNewer = true, size = 2),
+            item("DL", cloudOnly = true, size = 3),
+            item("UPD", update = true, size = 4),
+            item("SYNCED", size = 5),
+        )
+        val s = computeDocumentSyncSummary(items, blocked = emptySet())
+        assertEquals(emptySet<String>(), s.uploadInitials.toSet() intersect s.downloadInitials.toSet())
+        assertEquals(s.uploadCount + s.downloadCount, (s.uploadInitials + s.downloadInitials).toSet().size)
+    }
+
     @Test fun blockedItemsAreExcluded() {
         val items = listOf(
             item("DL", cloudOnly = true, size = 200),

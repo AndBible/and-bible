@@ -90,4 +90,16 @@ class CloudDocumentsFilterTest {
     @Test fun removedKeepsOnlyTombstones() {
         assertEquals(listOf("GONE"), filterCloudDocuments(items, CloudDocFilter.REMOVED, "", null).map { it.initials })
     }
+
+    @Test fun tombstoneExcludedFromAllNonRemovedStatusFilters() {
+        // A removed (tombstone) document may still carry last-known blocked / update-available flags,
+        // but it must surface only under ALL and REMOVED — never INSTALLED/CLOUD/UPDATES/BLOCKED.
+        val ghost = listOf(item("GHOST", blocked = true, updateAvailable = true, cloudDeleted = true))
+        assertEquals(listOf("GHOST"), filterCloudDocuments(ghost, CloudDocFilter.ALL, "", null).map { it.initials })
+        assertEquals(listOf("GHOST"), filterCloudDocuments(ghost, CloudDocFilter.REMOVED, "", null).map { it.initials })
+        for (status in listOf(CloudDocFilter.INSTALLED, CloudDocFilter.CLOUD, CloudDocFilter.UPDATES, CloudDocFilter.BLOCKED)) {
+            assertEquals("$status must exclude tombstones",
+                emptyList<String>(), filterCloudDocuments(ghost, status, "", null).map { it.initials })
+        }
+    }
 }

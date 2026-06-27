@@ -110,6 +110,32 @@ class DocumentSyncResolverTest {
         assertEquals(DocumentSyncActionType.NONE, actions.single().type)
     }
 
+    @Test fun preservesInputOrderAcrossMultipleDocuments() {
+        // buildDocumentSyncOps and the service rely on resolveDocumentSyncActions emitting exactly
+        // one action per cloud doc, in input order. The single-document tests above cannot catch an
+        // ordering regression, so cover all five action types in one ordered pass here.
+        val cloudDocs = listOf(
+            cloud("AAA"),                              // not installed         → DOWNLOAD
+            cloud("BBB", "2.0"),                       // cloud newer           → UPGRADE
+            cloud("CCC", deleted = true, ts = 200),    // tombstone, synced 100 → UNINSTALL
+            cloud("DDD"),                              // blocked               → SKIP_BLOCKED
+            cloud("EEE", "1.0"),                       // local same version    → NONE
+        )
+        val installed = mapOf(local("BBB", "1.0"), local("CCC"), local("EEE", "1.0"))
+        val actions = resolveDocumentSyncActions(cloudDocs, installed, mapOf("CCC" to 100L), setOf("DDD"), isNewer)
+        assertEquals(listOf("AAA", "BBB", "CCC", "DDD", "EEE"), actions.map { it.initials })
+        assertEquals(
+            listOf(
+                DocumentSyncActionType.DOWNLOAD,
+                DocumentSyncActionType.UPGRADE,
+                DocumentSyncActionType.UNINSTALL,
+                DocumentSyncActionType.SKIP_BLOCKED,
+                DocumentSyncActionType.NONE,
+            ),
+            actions.map { it.type },
+        )
+    }
+
     @Test fun uninstallDeletesWhenDeletable() {
         // A deletable book: the propagated tombstone removes the local copy and records the sync.
         assertEquals(UninstallDecision(delete = true, advanceTimestamp = true), decideUninstall(canDelete = true))
