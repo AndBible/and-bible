@@ -456,7 +456,6 @@ class CloudDocumentsActivity : ActivityBase() {
         CloudDocAction.UNBLOCK -> R.string.cloud_doc_action_unblock
         CloudDocAction.RESTORE -> R.string.cloud_doc_action_restore
         CloudDocAction.PURGE -> R.string.cloud_doc_action_purge
-        CloudDocAction.TOGGLE_SELECT -> 0
     }
 
     private fun performAction(item: DocumentStatusItem, action: CloudDocAction) {
@@ -479,7 +478,6 @@ class CloudDocumentsActivity : ActivityBase() {
             // fresh, non-deleted meta + uploaded archive (same engine path as Push).
             CloudDocAction.RESTORE -> DocumentSyncService.start(this, listOf(item.initials), emptyList())
             CloudDocAction.PURGE -> confirmPurge(item)
-            CloudDocAction.TOGGLE_SELECT -> { /* Selection mode added in Task 13. */ }
         }
     }
 
