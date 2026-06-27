@@ -176,6 +176,14 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             startActivity(Intent(requireContext(), CloudDocumentsActivity::class.java))
             true
         }
+        // The auto-operation and Wi-Fi-only toggles persist into DocumentSyncSettings (the
+        // DocumentSyncDatabase singleton the sync engine reads), NOT the generic PreferenceStore
+        // SharedPreferences — otherwise the UI and the engine would read/write different stores
+        // and the toggles would silently have no effect.
+        val documentSyncDataStore = DocumentSyncPrefsDataStore()
+        for (key in DOCUMENT_SYNC_TOGGLE_KEYS) {
+            preferenceScreen.findPreference<SwitchPreferenceCompat>(key)?.preferenceDataStore = documentSyncDataStore
+        }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_documents")?.isChecked =
             DocumentSyncSettings.enabled
         updateDocumentSyncVisibility()
@@ -337,4 +345,36 @@ private class SharedPrefsDataStore : PreferenceDataStore() {
         else prefs.edit().putString(key, value).apply()
     }
     override fun getString(key: String, defValue: String?): String? = prefs.getString(key, defValue)
+}
+
+/** Preference keys whose value lives in [DocumentSyncSettings], not the generic PreferenceStore. */
+private val DOCUMENT_SYNC_TOGGLE_KEYS = listOf(
+    "sync_documents_auto_download",
+    "sync_documents_auto_upload",
+    "sync_documents_auto_delete",
+    "sync_documents_wifi_only",
+)
+
+/**
+ * Routes the document-sync toggle preferences to [DocumentSyncSettings] (backed by the
+ * DocumentSyncDatabase singleton), so the switches in the UI and the values the sync engine
+ * reads are one and the same store.
+ */
+private class DocumentSyncPrefsDataStore : PreferenceDataStore() {
+    override fun getBoolean(key: String, defValue: Boolean): Boolean = when (key) {
+        "sync_documents_auto_download" -> DocumentSyncSettings.autoDownload
+        "sync_documents_auto_upload" -> DocumentSyncSettings.autoUpload
+        "sync_documents_auto_delete" -> DocumentSyncSettings.autoDelete
+        "sync_documents_wifi_only" -> DocumentSyncSettings.wifiOnly
+        else -> defValue
+    }
+
+    override fun putBoolean(key: String, value: Boolean) {
+        when (key) {
+            "sync_documents_auto_download" -> DocumentSyncSettings.autoDownload = value
+            "sync_documents_auto_upload" -> DocumentSyncSettings.autoUpload = value
+            "sync_documents_auto_delete" -> DocumentSyncSettings.autoDelete = value
+            "sync_documents_wifi_only" -> DocumentSyncSettings.wifiOnly = value
+        }
+    }
 }
