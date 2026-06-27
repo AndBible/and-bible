@@ -36,6 +36,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
 import net.bible.service.cloudsync.documents.DocumentSync
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
@@ -431,7 +432,12 @@ object CloudSync {
                 }
             }
             try {
-                DocumentSync.pullDocuments(automaticOnly = true)
+                DocumentSync.runSync(
+                    download = DocumentSyncSettings.autoDownload,
+                    upload = DocumentSyncSettings.autoUpload,
+                    delete = DocumentSyncSettings.autoDelete,
+                    manual = false,
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "Document sync pull failed", e)
             }

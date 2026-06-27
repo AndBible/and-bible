@@ -186,7 +186,8 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        MENU_SYNC_NOW -> { runSyncAction { DocumentSync.pullDocuments(automaticOnly = false) }; true }
+        // TODO Task 6 replaces this with the operation-picker dialog
+        MENU_SYNC_NOW -> { runSyncAction { DocumentSync.runSync(download = true, upload = true, delete = true, manual = true) }; true }
         android.R.id.home -> {
             if (adapter.isSelectionMode()) exitSelectionMode() else finish()
             true

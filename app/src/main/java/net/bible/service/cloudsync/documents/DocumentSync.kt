@@ -254,15 +254,19 @@ object DocumentSync {
         }
     }
 
-    suspend fun pullDocuments(automaticOnly: Boolean) {
-        // The scheduled (automatic) pull requires automatic sync to be enabled and transfers to
-        // be allowed on the current network. Manual "Sync now" (automaticOnly = false) bypasses
-        // both — the user explicitly asked for it, even with automatic sync off.
-        if (automaticOnly && (!DocumentSyncSettings.enabled || !DocumentSyncSettings.isAutoTransferAllowed)) return
+    /**
+     * Runs document sync for the selected operations. Used by both the automatic cycle and the
+     * manual "Sync now". [download] enqueues DOWNLOAD/UPGRADE, [delete] applies tombstone-driven
+     * UNINSTALLs, [upload] pushes local-only / local-newer documents. Block list and (for
+     * automatic runs) the enabled + Wi-Fi-only guards always apply; a [manual] run bypasses the
+     * enabled/Wi-Fi guards because the user asked for it explicitly.
+     */
+    suspend fun runSync(download: Boolean, upload: Boolean, delete: Boolean, manual: Boolean) {
+        if (!manual && (!DocumentSyncSettings.enabled || !DocumentSyncSettings.isAutoTransferAllowed)) return
         val store = store() ?: return
         val cloudMetas = store.listDocuments()
-        // Keep the cache fresh on every pull (not only when something is transferred), so with
-        // automatic sync on the management view can trust the cache without hitting the network.
+        // Keep the cache fresh on every run (not only when something transfers), so with automatic
+        // sync on the management view can trust the cache without hitting the network.
         DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao()
             .replaceAll(cloudMetas.map { it.toCacheEntity() })
         val local = installedSyncableBooks().associateBy { it.initials }
@@ -270,18 +274,22 @@ object DocumentSync {
             CloudDocument(it.initials, it.name, it.documentType, it.version, it.size, it.timestamp, it.deleted)
         }
         val localDocs = local.mapValues { (i, b) -> LocalDocument(i, DocumentArchiver.documentVersion(b)) }
+        val blocked = DocumentSyncSettings.blockList.all()
         val syncTimestamps = local.keys.mapNotNull { i -> DocumentSyncSettings.syncTimestamp(i)?.let { i to it } }.toMap()
-        val actions = resolveDocumentSyncActions(
-            cloudDocs, localDocs, syncTimestamps,
-            DocumentSyncSettings.blockList.all(), ::versionIsNewer)
+        val actions = selectSyncActions(
+            resolveDocumentSyncActions(cloudDocs, localDocs, syncTimestamps, blocked, ::versionIsNewer),
+            allowDownload = download,
+            allowDelete = delete,
+        )
         val toDownload = mutableListOf<String>()
         for (action in actions) when (action.type) {
             DocumentSyncActionType.DOWNLOAD, DocumentSyncActionType.UPGRADE -> toDownload.add(action.initials)
             DocumentSyncActionType.UNINSTALL -> uninstallLocal(action.initials, local)
             DocumentSyncActionType.SKIP_BLOCKED, DocumentSyncActionType.NONE -> {}
         }
-        if (toDownload.isNotEmpty()) {
-            DocumentSyncService.start(BibleApplication.application, pushInitials = emptyList(), downloadInitials = toDownload)
+        val toUpload = if (upload) resolveUploads(localDocs, cloudDocs, blocked, ::versionIsNewer) else emptyList()
+        if (toUpload.isNotEmpty() || toDownload.isNotEmpty()) {
+            DocumentSyncService.start(BibleApplication.application, pushInitials = toUpload, downloadInitials = toDownload)
         }
     }
 
