@@ -330,7 +330,10 @@ class DatabaseContainer {
     }
 
     private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, aiSettingsDb, progressDb)
-    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb)
+    // documentSyncDb is intentionally NOT backed up or vacuumed (device-local, sign-out-scoped cache),
+    // but it must still be closed by closeAll() on reset()/restore — otherwise the old Room handle
+    // leaks and the next container opens a second handle to the same file (SQLite lock risk).
+    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, documentSyncDb)
 
     val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
 
