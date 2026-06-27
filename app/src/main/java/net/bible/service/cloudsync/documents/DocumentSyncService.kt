@@ -71,11 +71,12 @@ class DocumentSyncService : Service() {
         private const val EXTRA_DOWNLOAD = "downloadInitials"
         private const val EXTRA_REMOVE = "removeInitials"
         private const val EXTRA_PURGE = "purgeInitials"
+        private const val EXTRA_UNINSTALL = "uninstallInitials"
 
         /**
-         * Enqueues a batch (pushes/downloads/removals/purges) and starts the foreground service.
-         * Manual callers pass explicit ops (they bypass the wifi-only guard by design); auto callers
-         * must apply their guards first. No-op if all lists are empty.
+         * Enqueues a batch (pushes/downloads/removals/purges/uninstalls) and starts the foreground
+         * service. Manual callers pass explicit ops (they bypass the wifi-only guard by design); auto
+         * callers must apply their guards first. No-op if all lists are empty.
          */
         fun start(
             context: Context,
@@ -83,15 +84,17 @@ class DocumentSyncService : Service() {
             downloadInitials: List<String>,
             removeInitials: List<String> = emptyList(),
             purgeInitials: List<String> = emptyList(),
+            uninstallInitials: List<String> = emptyList(),
         ) {
-            if (pushInitials.isEmpty() && downloadInitials.isEmpty() &&
-                removeInitials.isEmpty() && purgeInitials.isEmpty()) return
+            if (pushInitials.isEmpty() && downloadInitials.isEmpty() && removeInitials.isEmpty() &&
+                purgeInitials.isEmpty() && uninstallInitials.isEmpty()) return
             val intent = Intent(context, DocumentSyncService::class.java).apply {
                 action = START
                 putStringArrayListExtra(EXTRA_PUSH, ArrayList(pushInitials))
                 putStringArrayListExtra(EXTRA_DOWNLOAD, ArrayList(downloadInitials))
                 putStringArrayListExtra(EXTRA_REMOVE, ArrayList(removeInitials))
                 putStringArrayListExtra(EXTRA_PURGE, ArrayList(purgeInitials))
+                putStringArrayListExtra(EXTRA_UNINSTALL, ArrayList(uninstallInitials))
             }
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent)
@@ -126,7 +129,8 @@ class DocumentSyncService : Service() {
         val download = intent.getStringArrayListExtra(EXTRA_DOWNLOAD) ?: arrayListOf()
         val remove = intent.getStringArrayListExtra(EXTRA_REMOVE) ?: arrayListOf()
         val purge = intent.getStringArrayListExtra(EXTRA_PURGE) ?: arrayListOf()
-        val ops = buildDocumentSyncOps(push, download, remove, purge)
+        val uninstall = intent.getStringArrayListExtra(EXTRA_UNINSTALL) ?: arrayListOf()
+        val ops = buildDocumentSyncOps(push, download, remove, purge, uninstall)
         if (ops.isEmpty()) { if (!active.get()) stopSelfSafe(); return START_NOT_STICKY }
 
         // fresh == this batch starts a new drain session (no drain currently running).
@@ -176,6 +180,7 @@ class DocumentSyncService : Service() {
                     is DocumentSyncOp.Download -> DocumentSync.downloadAndInstall(op.initials)
                     is DocumentSyncOp.Remove -> DocumentSync.removeFromCloud(op.initials)
                     is DocumentSyncOp.Purge -> DocumentSync.purgeTombstone(op.initials)
+                    is DocumentSyncOp.Uninstall -> DocumentSync.uninstallLocal(op.initials)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Document sync op failed: ${op.initials}", e)
@@ -218,6 +223,8 @@ class DocumentSyncService : Service() {
             is DocumentSyncOp.Remove -> R.string.document_sync_removing
             // Purging deletes the removed-document marker — also a "removing from cloud" action.
             is DocumentSyncOp.Purge -> R.string.document_sync_removing
+            // Uninstall removes the local copy after a remote removal — also "removing".
+            is DocumentSyncOp.Uninstall -> R.string.document_sync_removing
         }
         return getString(resId, op.initials, current, total)
     }

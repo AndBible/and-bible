@@ -51,6 +51,21 @@ class DocumentSyncOpsTest {
     }
 
     @Test
+    fun buildsUninstallsLastAfterPurges() {
+        val ops = buildDocumentSyncOps(listOf("KJV"), listOf("ESV"), listOf("NIV"), listOf("GONE"), listOf("OLD"))
+        assertEquals(
+            listOf(
+                DocumentSyncOp.Push("KJV"),
+                DocumentSyncOp.Download("ESV"),
+                DocumentSyncOp.Remove("NIV"),
+                DocumentSyncOp.Purge("GONE"),
+                DocumentSyncOp.Uninstall("OLD"),
+            ),
+            ops,
+        )
+    }
+
+    @Test
     fun buildsEmptyWhenNoInitials() {
         assertEquals(emptyList<DocumentSyncOp>(), buildDocumentSyncOps(emptyList(), emptyList()))
     }

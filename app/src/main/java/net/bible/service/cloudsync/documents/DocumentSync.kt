@@ -268,19 +268,32 @@ object DocumentSync {
             allowDelete = delete,
         )
         val toDownload = mutableListOf<String>()
+        val toUninstall = mutableListOf<String>()
         for (action in actions) when (action.type) {
             DocumentSyncActionType.DOWNLOAD, DocumentSyncActionType.UPGRADE -> toDownload.add(action.initials)
-            DocumentSyncActionType.UNINSTALL -> uninstallLocal(action.initials, local)
+            // Tombstone-driven local removals run on the service queue too (like downloads/uploads),
+            // so a manual "Sync now" survives leaving the view and shows the progress notification.
+            DocumentSyncActionType.UNINSTALL -> toUninstall.add(action.initials)
             DocumentSyncActionType.SKIP_BLOCKED, DocumentSyncActionType.NONE -> {}
         }
         val toUpload = if (upload) resolveUploads(localDocs, cloudDocs, blocked, ::versionIsNewer) else emptyList()
-        if (toUpload.isNotEmpty() || toDownload.isNotEmpty()) {
-            DocumentSyncService.start(BibleApplication.application, pushInitials = toUpload, downloadInitials = toDownload)
+        if (toUpload.isNotEmpty() || toDownload.isNotEmpty() || toUninstall.isNotEmpty()) {
+            DocumentSyncService.start(
+                BibleApplication.application,
+                pushInitials = toUpload,
+                downloadInitials = toDownload,
+                uninstallInitials = toUninstall,
+            )
         }
     }
 
-    private fun uninstallLocal(initials: String, local: Map<String, Book>) {
-        val book = local[initials] ?: return
+    /**
+     * Uninstalls the local copy of [initials] after it was removed from the cloud elsewhere
+     * (tombstone-driven). Looks the book up by initials so it can run from the sync-service queue.
+     * Honours the last-deletable guard (e.g. never removes the last remaining Bible).
+     */
+    fun uninstallLocal(initials: String) {
+        val book = installedSyncableBooks().firstOrNull { it.initials == initials } ?: return
         try {
             val decision = decideUninstall(book.canDelete)
             if (decision.delete) {

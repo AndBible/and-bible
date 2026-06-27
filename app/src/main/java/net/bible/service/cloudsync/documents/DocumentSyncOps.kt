@@ -27,19 +27,26 @@ sealed class DocumentSyncOp {
     data class Remove(override val initials: String) : DocumentSyncOp()
     /** Permanently delete a document's tombstone (removed-document marker) from the cloud. */
     data class Purge(override val initials: String) : DocumentSyncOp()
+    /** Uninstall a document's local copy after it was removed from the cloud elsewhere. */
+    data class Uninstall(override val initials: String) : DocumentSyncOp()
 }
 
-/** Builds the ordered op list for a batch: pushes, then downloads, then removals, then purges. */
+/**
+ * Builds the ordered op list for a batch: pushes, then downloads, then removals, then purges,
+ * then local uninstalls.
+ */
 fun buildDocumentSyncOps(
     pushInitials: List<String>,
     downloadInitials: List<String>,
     removeInitials: List<String> = emptyList(),
     purgeInitials: List<String> = emptyList(),
+    uninstallInitials: List<String> = emptyList(),
 ): List<DocumentSyncOp> =
     pushInitials.map { DocumentSyncOp.Push(it) } +
         downloadInitials.map { DocumentSyncOp.Download(it) } +
         removeInitials.map { DocumentSyncOp.Remove(it) } +
-        purgeInitials.map { DocumentSyncOp.Purge(it) }
+        purgeInitials.map { DocumentSyncOp.Purge(it) } +
+        uninstallInitials.map { DocumentSyncOp.Uninstall(it) }
 
 /** Whether an installed document should be auto-uploaded (on install or in the sync cycle). */
 fun shouldAutoUpload(enabled: Boolean, autoUpload: Boolean, blocked: Boolean, autoTransferAllowed: Boolean): Boolean =
