@@ -6,8 +6,9 @@
 This is the single source of truth for the document-sync feature. It consolidates and
 supersedes all earlier design notes — the initial design, testing corrections, background
 service, settings-UX simplification, the **per-device direction control** notes, the
-**removed-documents view** notes, and the **incremental cloud-listing** design — folding in
-the refinements made during hands-on testing. It describes the feature as built.
+**removed-documents view** notes, the **incremental cloud-listing** design, and the
+**"Sync now" preview & cloud-storage-accounting** follow-up — folding in the refinements
+made during hands-on testing. It describes the feature as built.
 
 ## Summary
 
@@ -109,6 +110,14 @@ Document sync   (category shown only when signed in)
   **Synced documents** reachable for manual sync even when automatic sync is off.
 - The three auto toggles and Wi-Fi-only are shown only while document sync is enabled
   (`updateDocumentSyncVisibility()`), reinforcing that they shape *automatic* behaviour only.
+- The **cloud info** line (`cloud_sync_info` = `CloudSync.bytesUsed()`) now includes the space
+  used by synced *document archives*, not just the synced databases (bookmarks, workspaces, …).
+  `CloudSync.bytesUsed()` adds `DocumentSync.cloudBytesUsed()`, which sums the cloud ZIP sizes of
+  non-deleted documents from the **local listing cache** (no network) — fast and consistent with
+  the existing instant DB-size reads. The summed quantity is `DocumentSyncMeta.size` (the exact
+  packaged ZIP size recorded at push time), **not** the unpacked install size; tombstones are
+  excluded. If the cache has never been populated the contribution is 0. There is deliberately no
+  network refresh when opening Sync settings (cache-based by decision).
 
 ### Per-device automatic-operation toggles
 
@@ -174,12 +183,23 @@ There is no in-activity "setup mode"; the summary is the dialog.
 - **`uninstallLocal(initials)`** — uninstall the local copy after a remote removal (tombstone-driven),
   honouring the last-deletable guard (never removes the last Bible). Looks the book up by initials so
   it can run from the service queue.
+- **`computeSyncPlan(download, upload, delete)`** — the single source of truth for "what would this
+  sync do", shared by both the actual run and the manual "Sync now" preview. Contains the resolution
+  body: `store()` guard → `refreshCache()` → build `cloudDocs` / `localDocs` / `blocked` /
+  `syncTimestamps` → `selectSyncActions(resolveDocumentSyncActions(...))` → derive `toDownload`
+  (DOWNLOAD/UPGRADE), `toUninstall` (UNINSTALL), and (when `upload`) `toUpload` via `resolveUploads`.
+  It also sums transfer bytes into a `SyncPlan(toDownload, toUpload, toUninstall, downloadBytes,
+  uploadBytes)`: `downloadBytes` = cloud ZIP sizes of `toDownload` (from the cloud metas),
+  `uploadBytes` = local install sizes of `toUpload` (`localInstallSizeBytes`, the same estimate as the
+  enable dialog). The pure helper `sumPlanBytes(initials, sizeByInitials)` does the summing and is
+  unit-tested. When `store()` is null it returns an empty plan (empty lists, zero bytes).
 - **`runSync(download, upload, delete, manual)`** — the single code path for both the automatic
   cycle and manual "Sync now" (generalises the former `pullDocuments`). Automatic runs require
-  `enabled` + `isAutoTransferAllowed`; a `manual` run bypasses both. Refreshes the cache, resolves
-  actions, filters them by the `download`/`delete` flags (`selectSyncActions`), and **enqueues all
-  work on the service**: DOWNLOAD/UPGRADE as Download ops, tombstone-driven UNINSTALLs as Uninstall
-  ops, and (when `upload`) local-only / local-newer pushes (`resolveUploads`) as Push ops.
+  `enabled` + `isAutoTransferAllowed`; a `manual` run bypasses both. It delegates to
+  `computeSyncPlan(...)` and **enqueues all of the resulting work on the service**: `toDownload` as
+  Download ops, `toUninstall` (tombstone-driven) as Uninstall ops, and `toUpload` as Push ops.
+  Because the plan is derived from the same resolver path, a removal intent is respected (a
+  document tombstoned in the cloud but still installed locally is **not** re-pushed).
 
 ### Resolver and selection (pure, unit-tested)
 
@@ -354,10 +374,22 @@ of local + cloud documents.
   already-installed/synced rows are dimmed with the checkbox reserved (INVISIBLE). Bulk action downloads
   the selected items. The overflow menu hides in selection mode.
 - **"Sync now"** (overflow, shown whenever signed in, hidden in selection mode): a full manual sync with
-  an **operation picker** — an AlertDialog with Download / Upload / Delete checkboxes, pre-filled from the
-  remembered last choice (`syncNow*` prefs). Confirm runs `runSync(download, upload, delete, manual=true)`,
-  bypassing the `enabled` and Wi-Fi-only guards but honouring the block list and tombstones. This makes
-  "Sync now" genuinely bidirectional (it previously never uploaded).
+  an **operation picker that previews the transfer**. Behind the non-blocking loading bar it computes
+  the plan once with all three directions on (`DocumentSync.computeSyncPlan(true, true, true)`, on
+  `Dispatchers.IO`), so every row's count is available regardless of the remembered checkbox state.
+  The AlertDialog shows the three Download / Upload / Delete checkboxes (pre-filled from the remembered
+  `syncNow*` prefs), each label keeping its descriptive sentence plus a second line with the count:
+  Download from `plan.toDownload`/`downloadBytes`, Upload from `plan.toUpload`/`uploadBytes`, Delete
+  from `plan.toUninstall` (**count only, no size** — a removal transfers nothing measurable). The count
+  line uses the `cloud_doc_sync_now_count_size` plural when count > 0 and bytes > 0, the
+  `cloud_doc_sync_now_count` plural when count > 0 but size is unknown (bytes == 0), and
+  `cloud_doc_sync_now_count_none` ("Nothing to transfer") when count == 0 (`getQuantityString` +
+  `Formatter.formatShortFileSize`; `CheckedTextView` wraps the two-line label). On confirm it persists
+  the checkbox states and starts the transfer **directly from the already-computed plan** (including
+  only the checked directions) — `DocumentSyncService.start(...)` with no second `refreshCache`/network
+  round-trip. Starting the service directly (rather than `runSync(manual = true)`) keeps the manual
+  semantics: the block list is already applied during resolution and manual transfers bypass the
+  `enabled`/Wi-Fi guards. This makes "Sync now" genuinely bidirectional (it previously never uploaded).
 - **Overflow order & icons:** Sync now → Re-scan from cloud → Show removed documents, each with an icon
   (forced visible in the ActionBar overflow via `onMenuOpened` + `setOptionalIconsVisible`).
 - **"Re-scan from cloud"** (overflow): calls `resetListingCache()` then a full `scan()` — clears the
@@ -392,6 +424,8 @@ Kotlin-only → `./gradlew testStandardGoogleplayDebugUnitTest`. Pure, unit-test
 - `shouldAutoUpload` — guard combinations incl. the `autoUpload` gate.
 - `computeDocumentSyncSummary` — uploads (local-only + local-newer) / downloads split + sizes,
   block-list exclusion. The upload split mirrors `resolveUploads`.
+- `sumPlanBytes` — missing initials contribute 0, sums match the size map, empty input = 0.
+- `sumCloudBytes` — non-deleted metas summed, tombstones excluded, empty list = 0.
 - `assembleStatusItems` — tombstone include/exclude by `includeDeleted`; tombstone+local → local-only +
   `cloudDeleted`; no-regression on the default path.
 - `documentMenuActions` — relevant actions per status, last-Bible suppression, and tombstone rows
@@ -408,13 +442,17 @@ Kotlin-only → `./gradlew testStandardGoogleplayDebugUnitTest`. Pure, unit-test
 - Sign-out wipes the whole `DocumentSyncDatabase` (prefs + cache + watermark + timestamps).
 
 Service/activity wiring (dialogs, sign-in/cache gate, notification, loading bar, selection mode,
-spinner rebuild, the operation picker, the show-removed toggle, the re-scan/reset action, and the
-adapter `createdTimeAtLeast` server-side filtering on both Google Drive and NextCloud) is verified by
-manual on-device testing.
+spinner rebuild, the operation picker with its transfer preview, the show-removed toggle, the
+re-scan/reset action, the cloud-storage figure including document archives, and the adapter
+`createdTimeAtLeast` server-side filtering on both Google Drive and NextCloud) is verified by
+manual on-device testing. `computeSyncPlan` and `cloudBytesUsed` touch the DB/network/`Context`
+and are covered by the build + manual check (their pure pieces — `sumPlanBytes`, `sumCloudBytes`,
+and the resolver functions — are unit-tested).
 
 ## Key components
 
-- `service/cloudsync/documents/`: `DocumentSync` (`runSync`, `scan`/`scanCached` with `includeDeleted`,
+- `service/cloudsync/documents/`: `DocumentSync` (`runSync`, `computeSyncPlan`/`SyncPlan`/`sumPlanBytes`,
+  `cloudBytesUsed`/`sumCloudBytes`, `scan`/`scanCached` with `includeDeleted`,
   `refreshCache` (incremental), `resetListingCache`, `onSignOut`, `assembleStatusItems`/`LocalDoc`,
   `pushDocument`, `downloadAndInstall`, `removeFromCloud`, `purgeTombstone`, `uninstallLocal`),
   `DocumentSyncService` (Push/Download/Remove/Purge/Uninstall ops; `start`/`stop`),
@@ -435,13 +473,13 @@ manual on-device testing.
   the re-scan/reset action, `CloudDocAction`, `CloudDocFilter`), `CloudDocumentsAdapter`.
 - `res/`: `ic_cloud_off_24dp`, `ic_cloud_download_24dp`, `ic_cloud_upload_24dp`, `sync_settings.xml`,
   `item_cloud_document.xml`, `strings.xml`.
-- Touchpoints: `BookInstallWatcher`, `CloudSync.synchronize`/`signOut`, `SyncSettings`,
+- Touchpoints: `BookInstallWatcher`, `CloudSync.synchronize`/`signOut`/`bytesUsed`, `SyncSettings`,
   `DocumentControl.canDelete`.
 
 ## Future considerations
 
 - Per-document byte transfer progress (needs a cloud-adapter progress callback).
-- Total cloud storage display / cap warning for very large stores.
+- A cloud-storage cap warning for very large stores (the total is now displayed in Sync settings).
 - A bulk "purge all tombstones" action, and a removed-count indicator, if tombstones get numerous.
 - De-duplicate the per-push `listDocuments()` in large bulk uploads (list once, thread metas through
   the batch) — only if bulk uploads prove slow after the parallel-listing win.
