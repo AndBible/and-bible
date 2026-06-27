@@ -23,17 +23,24 @@ import android.util.Log
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.asyncMap
 import java.io.File
 
 private const val TAG = "DocumentStore"
 
 /**
- * Max concurrent meta.json reads in [DocumentStore.listDocuments]. Each cloud document is an
- * independent, read-only fetch, so they fan out; the bound matches the proven DB-patch download
- * concurrency in CloudSync and keeps the adapter within sane request-rate limits.
+ * Trailing overlap (ms) re-queried below the watermark each incremental listing — absorbs
+ * NextCloud's one-second createdTime resolution and minor clock skew. Re-reading a meta already in
+ * the cache is idempotent; this is a safety overlap, not a skew guarantee (the reset action is).
  */
-private const val LIST_CONCURRENCY = 6
+private const val LISTING_MARGIN_MS = 5_000L
+
+/** Result of an incremental cloud listing — only the metas whose meta.json changed since a watermark. */
+data class ChangedListing(
+    val changedMetas: List<DocumentSyncMeta>,
+    val currentInitials: Set<String>,
+    val matchedCreatedTimes: List<Long>,
+    val failedCreatedTimes: List<Long>,
+)
 
 class DocumentStore(
     private val adapter: CloudAdapter,
@@ -45,23 +52,52 @@ class DocumentStore(
     private suspend fun ensureFolder(initials: String): String =
         folderFor(initials)?.id ?: adapter.createNewFolder(initials, rootFolderId).id
 
-    private suspend fun readMeta(folderId: String): DocumentSyncMeta? {
-        val metaFile = adapter.listFiles(parentsIds = listOf(folderId), name = DOCUMENT_META_FILENAME)
-            .firstOrNull() ?: return null
+    private suspend fun downloadMeta(metaFile: CloudFile): DocumentSyncMeta? {
         val tmp = CommonUtils.tmpFile
         return try {
             tmp.outputStream().use { adapter.download(metaFile.id, it) }
             DocumentSyncMeta.fromJson(tmp.readText())
         } catch (e: Exception) {
-            Log.e(TAG, "Failed reading meta for folder $folderId", e); null
+            Log.e(TAG, "Failed reading meta ${metaFile.id}", e); null
         } finally { tmp.delete() }
     }
 
-    suspend fun listDocuments(): List<DocumentSyncMeta> =
-        // Each folder's meta.json is an independent read-only fetch (two round-trips: listFiles +
-        // download), so fan them out with bounded concurrency instead of one-at-a-time — this is
-        // the hot path behind every scan / sync / push / remove.
-        adapter.getFolders(rootFolderId).asyncMap(LIST_CONCURRENCY) { readMeta(it.id) }.filterNotNull()
+    /** Reads the current meta.json for one document by initials (single folder), or null if absent. */
+    suspend fun readMeta(initials: String): DocumentSyncMeta? {
+        val folderId = folderFor(initials)?.id ?: return null
+        val metaFile = adapter.listFiles(parentsIds = listOf(folderId), name = DOCUMENT_META_FILENAME)
+            .firstOrNull() ?: return null
+        return downloadMeta(metaFile)
+    }
+
+    /**
+     * Lists only the documents whose meta.json changed since [watermark] (server-side
+     * createdTimeAtLeast filter, minus a small overlap margin), in one batched call across all
+     * folders. Also returns the current folder set (for new-document discovery + purge detection)
+     * and the matched/failed createdTimes so the merge can advance the watermark safely.
+     * Pass watermark = 0 for a full (cold-start) listing.
+     */
+    suspend fun listChangedDocuments(watermark: Long): ChangedListing {
+        val folders = adapter.getFolders(rootFolderId)
+        val since = maxOf(0L, watermark - LISTING_MARGIN_MS)
+        val metaFiles = adapter.listFiles(
+            parentsIds = folders.map { it.id },
+            name = DOCUMENT_META_FILENAME,
+            createdTimeAtLeast = since,
+        )
+        val changed = mutableListOf<DocumentSyncMeta>()
+        val matched = mutableListOf<Long>()
+        val failed = mutableListOf<Long>()
+        for (f in metaFiles) {
+            matched.add(f.createdTime)
+            val meta = downloadMeta(f)
+            if (meta != null) changed.add(meta) else failed.add(f.createdTime)
+        }
+        return ChangedListing(changed, folders.map { it.name }.toSet(), matched, failed)
+    }
+
+    /** Full listing of all live + tombstoned cloud metas (cold-start path: watermark 0). */
+    suspend fun listDocuments(): List<DocumentSyncMeta> = listChangedDocuments(0).changedMetas
 
     private suspend fun writeMeta(folderId: String, meta: DocumentSyncMeta) {
         // delete existing meta.json then upload fresh (acts as the atomic commit point)
