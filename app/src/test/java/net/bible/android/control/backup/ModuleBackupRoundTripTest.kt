@@ -24,14 +24,18 @@ import net.bible.android.TestBibleApplication
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
+import net.bible.service.sword.ttf.isManuallyInstalledTtf
 import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.NullBackend
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookDriver
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -77,6 +81,7 @@ class ModuleBackupRoundTripTest {
             Books.installed().getBook(initials)?.let { Books.installed().removeBook(it) }
         }
         File(SharedConstants.modulesDir, "ttf").deleteRecursively()
+        File(SharedConstants.modulesDir, "mods.d/FontPack.conf").delete()
     }
 
     /**
@@ -114,6 +119,66 @@ class ModuleBackupRoundTripTest {
         val installed = BackupControl.installModuleArchive(zipFile, "TTF_TestFont")
         assertTrue("TTF font should reinstall from the backup archive", installed)
         assertNotNull(Books.installed().getBook("TTF_TestFont"))
+    }
+
+    /**
+     * A downloaded font add-on module (e.g. "FontPack") carries the same `AndBibleProvidesFont`
+     * property as a manually-installed `.ttf`, but is a real SWORD module with an on-disk `.conf`
+     * and font files under its DataPath dir. It must be packaged via the generic SWORD branch
+     * (conf + whole data dir), NOT the single-file TTF branch — which would package only the first
+     * font and crash with FileNotFoundException when its hard-coded `ttfFile` path doesn't exist
+     * (OSTicket #3351: "Document sync op failed: FontPack").
+     *
+     * Regression guard: such a module must (a) not be classified as a manually-installed TTF, and
+     * (b) package its conf plus every font file without throwing — even when one referenced font
+     * file is missing on disk.
+     */
+    @Test
+    fun fontPackAddonPackagesViaSwordBranchNotTtfFile() = runBlocking {
+        val downloadDir = SwordBookPath.getSwordDownloadDir()
+
+        // Font files live under the DataPath dir (./ttf/), in an `and-bible/` subdir as real
+        // FontPack modules ship them. One font exists; a second is referenced by the conf's
+        // AndBibleProvidesFont but intentionally absent on disk.
+        val fontDir = File(downloadDir, "ttf/and-bible").apply { mkdirs() }
+        File(fontDir, "SILEOTSR.ttf").writeBytes(byteArrayOf(0x00, 0x01, 0x02, 0x03))
+
+        val conf = """
+            [FontPack]
+            Description=And Bible Font Pack
+            Category=And Bible
+            ModDrv=RawGenBook
+            DataPath=./ttf/
+            Encoding=UTF-8
+            AndBibleProvidesFont=SIL Ezra SR;and-bible/SILEOTSR.ttf
+            AndBibleProvidesFont=Missing Font;and-bible/MISSING.ttf
+        """.trimIndent()
+        val confFile = File(downloadDir, "mods.d/FontPack.conf").apply {
+            parentFile!!.mkdirs()
+            writeText(conf)
+        }
+
+        // File-based metadata → configFile != null, the distinguisher from a manual TTF.
+        val bmd = SwordBookMetaData(confFile, NetUtil.getURI(downloadDir))
+        val book: Book = SwordBook(bmd, NullBackend())
+
+        assertFalse(
+            "A FontPack add-on with an on-disk .conf must NOT be treated as a manually-installed TTF",
+            book.isManuallyInstalledTtf
+        )
+
+        val zipFile = File(CommonUtils.tmpDir, "fontpack-pkg.abmd.zip")
+        if (zipFile.exists()) zipFile.delete()
+        BackupControl.createSingleModuleZip(book, zipFile)
+
+        ZipFile(zipFile).use { zf ->
+            val entries = zf.entries().toList().map { it.name }.toSet()
+            assertTrue("conf must be packaged; entries=$entries", entries.contains("mods.d/FontPack.conf"))
+            assertTrue(
+                "existing font file must be packaged via the data dir; entries=$entries",
+                entries.contains("ttf/and-bible/SILEOTSR.ttf")
+            )
+        }
     }
 
     /**
