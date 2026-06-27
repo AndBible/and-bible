@@ -117,6 +117,21 @@
 		android:title="@string/document_sync_category_title"
 		>
 		<SwitchPreferenceCompat
+			android:key="sync_documents_auto_download"
+			android:defaultValue="true"
+			android:title="@string/document_sync_auto_download_title"
+			android:summary="@string/document_sync_auto_download_summary" />
+		<SwitchPreferenceCompat
+			android:key="sync_documents_auto_upload"
+			android:defaultValue="true"
+			android:title="@string/document_sync_auto_upload_title"
+			android:summary="@string/document_sync_auto_upload_summary" />
+		<SwitchPreferenceCompat
+			android:key="sync_documents_auto_delete"
+			android:defaultValue="true"
+			android:title="@string/document_sync_auto_delete_title"
+			android:summary="@string/document_sync_auto_delete_summary" />
+		<SwitchPreferenceCompat
 			android:key="sync_documents_wifi_only"
 			android:defaultValue="true"
 			android:title="@string/document_sync_wifi_only_title"

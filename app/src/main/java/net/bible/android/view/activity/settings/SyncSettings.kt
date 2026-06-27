@@ -317,6 +317,9 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             CloudSync.signedIn
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_documents_wifi_only")?.isVisible =
             DocumentSyncSettings.enabled
+        for (key in listOf("sync_documents_auto_download", "sync_documents_auto_upload", "sync_documents_auto_delete")) {
+            preferenceScreen.findPreference<SwitchPreferenceCompat>(key)?.isVisible = DocumentSyncSettings.enabled
+        }
     }
 
     override fun onResume() {

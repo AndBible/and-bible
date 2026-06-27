@@ -1888,6 +1888,12 @@
     <string name="document_sync_title">Documents</string>
     <string name="document_sync_contents">Installed Bibles, commentaries and other documents</string>
     <string name="document_sync_category_title">Document sync</string>
+    <string name="document_sync_auto_download_title">Download automatically</string>
+    <string name="document_sync_auto_download_summary">Automatically download new and updated documents from the cloud to this device</string>
+    <string name="document_sync_auto_upload_title">Upload automatically</string>
+    <string name="document_sync_auto_upload_summary">Automatically upload documents installed on this device to the cloud</string>
+    <string name="document_sync_auto_delete_title">Apply removals automatically</string>
+    <string name="document_sync_auto_delete_summary">Automatically remove documents from this device when they are removed on another device</string>
     <string name="document_sync_wifi_only_title">Sync documents on Wi-Fi only</string>
     <string name="document_sync_wifi_only_summary">Automatic document transfers wait for an unmetered (Wi-Fi) connection</string>
     <string name="document_sync_manage_summary">View and manage documents stored in the cloud</string>
