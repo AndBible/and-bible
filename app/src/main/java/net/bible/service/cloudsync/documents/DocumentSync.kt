@@ -109,6 +109,18 @@ object DocumentSync {
     }
 
     /**
+     * Tears document sync down on sign-out: disables automatic sync and drops the
+     * cloud-listing cache. The cache mirrors the listing of the cloud account the user
+     * just disconnected from, so it must not survive into a later sign-in (possibly a
+     * different account). Mirrors the DB-sync sign-out, which clears its own sync status.
+     * The block list and Wi-Fi-only preference are per-device and intentionally kept.
+     */
+    suspend fun onSignOut() {
+        DocumentSyncSettings.enabled = false
+        DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao().clear()
+    }
+
+    /**
      * Builds the status list from the local cloud-listing cache only, without any network
      * access. Lets the management view render instantly on open; [scan] then refreshes from
      * the network in the background.

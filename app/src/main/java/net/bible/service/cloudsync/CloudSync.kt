@@ -137,6 +137,7 @@ object CloudSync {
     suspend fun signOut() {
         _adapter?.signOut()
         _adapter = null
+        DocumentSync.onSignOut()
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
             val category = dbDef.category
