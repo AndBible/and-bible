@@ -19,6 +19,7 @@ package net.bible.android.view.activity.cloud
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.format.Formatter
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -559,42 +560,69 @@ class CloudDocumentsActivity : ActivityBase() {
     }
 
     /**
-     * "Sync now" is a manual, infrequent action, so it asks which operations to run this time
-     * (download / upload / delete), pre-filled from the remembered last choice. The chosen
-     * operations run via [DocumentSync.runSync] with manual = true, bypassing the enabled and
-     * Wi-Fi-only guards but still honouring the block list.
+     * "Sync now" is a manual, infrequent action. It first resolves what each operation would
+     * transfer (via [DocumentSync.computeSyncPlan]) and shows per-direction counts/sizes, then asks
+     * which operations to run (download / upload / delete), pre-filled from the remembered last
+     * choice. The chosen directions are dispatched straight to [DocumentSyncService] from the
+     * resolved plan; the block list is already applied during resolution and a manual run bypasses
+     * the enabled and Wi-Fi-only guards.
      */
-    private fun showSyncNowDialog() {
-        val labels = arrayOf(
-            getString(R.string.cloud_doc_sync_now_download),
-            getString(R.string.cloud_doc_sync_now_upload),
-            getString(R.string.cloud_doc_sync_now_delete),
+    private fun showSyncNowDialog() = lifecycleScope.launch {
+        // Resolve what each operation would actually transfer (same resolver path as the real run),
+        // behind the non-blocking loading bar, so the dialog can show counts/sizes per direction.
+        setBusy(true)
+        val plan = try {
+            withContext(Dispatchers.IO) { DocumentSync.computeSyncPlan(download = true, upload = true, delete = true) }
+        } catch (e: Exception) {
+            // e.g. a network failure while refreshing the cloud listing: surface it instead of
+            // silently showing no dialog, mirroring the automatic sync cycle's error handling.
+            Toast.makeText(this@CloudDocumentsActivity, R.string.sync_error, Toast.LENGTH_SHORT).show()
+            return@launch
+        } finally {
+            setBusy(false)
+        }
+        val labels = arrayOf<CharSequence>(
+            getString(R.string.cloud_doc_sync_now_download) + "\n" + countLabel(plan.toDownload.size, plan.downloadBytes),
+            getString(R.string.cloud_doc_sync_now_upload) + "\n" + countLabel(plan.toUpload.size, plan.uploadBytes),
+            // Removals transfer nothing measurable, so show the count only (no size).
+            getString(R.string.cloud_doc_sync_now_delete) + "\n" + countLabel(plan.toUninstall.size, null),
         )
         val checked = booleanArrayOf(
             DocumentSyncSettings.syncNowDownload,
             DocumentSyncSettings.syncNowUpload,
             DocumentSyncSettings.syncNowDelete,
         )
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this@CloudDocumentsActivity)
             .setTitle(R.string.cloud_doc_sync_now)
             .setMultiChoiceItems(labels, checked) { _, which, isChecked -> checked[which] = isChecked }
             .setPositiveButton(R.string.okay) { _, _ ->
                 DocumentSyncSettings.syncNowDownload = checked[0]
                 DocumentSyncSettings.syncNowUpload = checked[1]
                 DocumentSyncSettings.syncNowDelete = checked[2]
-                if (checked.any { it }) {
-                    runSyncAction {
-                        DocumentSync.runSync(
-                            download = checked[0],
-                            upload = checked[1],
-                            delete = checked[2],
-                            manual = true,
-                        )
-                    }
-                }
+                // Start the transfer directly from the already-resolved plan, including only the
+                // checked directions — no second cache refresh. start() ignores empty lists.
+                DocumentSyncService.start(
+                    this@CloudDocumentsActivity,
+                    pushInitials = if (checked[1]) plan.toUpload else emptyList(),
+                    downloadInitials = if (checked[0]) plan.toDownload else emptyList(),
+                    uninstallInitials = if (checked[2]) plan.toUninstall else emptyList(),
+                )
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+    }
+
+    /**
+     * Second-line label for a "Sync now" operation: a pluralised document count with an optional
+     * size, or "nothing to transfer" when the operation has no work. [bytes] is null for removals
+     * (no size) and ignored when not greater than zero (size unknown, e.g. a local-only document
+     * with no declared install size).
+     */
+    private fun countLabel(count: Int, bytes: Long?): String = when {
+        count == 0 -> getString(R.string.cloud_doc_sync_now_count_none)
+        bytes != null && bytes > 0 ->
+            resources.getQuantityString(R.plurals.cloud_doc_sync_now_count_size, count, count, Formatter.formatShortFileSize(this, bytes))
+        else -> resources.getQuantityString(R.plurals.cloud_doc_sync_now_count, count, count)
     }
 
     /**

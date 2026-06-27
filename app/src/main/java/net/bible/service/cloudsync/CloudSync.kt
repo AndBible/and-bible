@@ -579,6 +579,6 @@ object CloudSync {
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
             dbDef.bytesUsed
-        }.sum()
+        }.sum() + DocumentSync.cloudBytesUsed()
 
 }

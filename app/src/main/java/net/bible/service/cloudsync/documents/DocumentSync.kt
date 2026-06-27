@@ -159,6 +159,12 @@ object DocumentSync {
         return buildStatusItems(cacheDao.all().map { it.toMeta() }, local, includeDeleted)
     }
 
+    /** Cloud storage used by synced document archives, read from the local listing cache (no network). */
+    suspend fun cloudBytesUsed(): Long = withContext(Dispatchers.IO) {
+        val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
+        sumCloudBytes(cacheDao.all().map { it.toMeta() })
+    }
+
     /** Installed module size in bytes from the SWORD conf, or null if not declared. */
     private fun localInstallSizeBytes(book: Book): Long? =
         book.bookMetaData.getProperty(SwordBookMetaData.KEY_INSTALL_SIZE)?.toLongOrNull()
@@ -275,7 +281,23 @@ object DocumentSync {
      */
     suspend fun runSync(download: Boolean, upload: Boolean, delete: Boolean, manual: Boolean) {
         if (!manual && (!DocumentSyncSettings.enabled || !DocumentSyncSettings.isAutoTransferAllowed)) return
-        store() ?: return
+        val plan = computeSyncPlan(download, upload, delete)
+        DocumentSyncService.start(
+            BibleApplication.application,
+            pushInitials = plan.toUpload,
+            downloadInitials = plan.toDownload,
+            uninstallInitials = plan.toUninstall,
+        )
+    }
+
+    /**
+     * Resolves what document sync would transfer for the selected operations, using the same
+     * resolver path as [runSync] (full cloud cache incl. tombstones + per-document sync timestamps).
+     * Refreshes the listing cache first. Returns an empty plan when not signed in. The manual
+     * "Sync now" preview calls this with all directions true to show per-direction counts.
+     */
+    suspend fun computeSyncPlan(download: Boolean, upload: Boolean, delete: Boolean): SyncPlan {
+        store() ?: return SyncPlan(emptyList(), emptyList(), emptyList(), 0L, 0L)
         // Incrementally refresh the cache (fast no-op when nothing changed), then resolve actions
         // from the freshly-merged full cloud picture held in the cache.
         refreshCache()
@@ -302,14 +324,15 @@ object DocumentSync {
             DocumentSyncActionType.SKIP_BLOCKED, DocumentSyncActionType.NONE -> {}
         }
         val toUpload = if (upload) resolveUploads(localDocs, cloudDocs, blocked, ::versionIsNewer) else emptyList()
-        if (toUpload.isNotEmpty() || toDownload.isNotEmpty() || toUninstall.isNotEmpty()) {
-            DocumentSyncService.start(
-                BibleApplication.application,
-                pushInitials = toUpload,
-                downloadInitials = toDownload,
-                uninstallInitials = toUninstall,
-            )
-        }
+        val cloudSizeByInitials = cloudMetas.associate { it.initials to it.size }
+        val localSizeByInitials = local.mapValues { (_, b) -> localInstallSizeBytes(b) ?: 0L }
+        return SyncPlan(
+            toDownload = toDownload,
+            toUpload = toUpload,
+            toUninstall = toUninstall,
+            downloadBytes = sumPlanBytes(toDownload, cloudSizeByInitials),
+            uploadBytes = sumPlanBytes(toUpload, localSizeByInitials),
+        )
     }
 
     /**
@@ -394,6 +417,25 @@ object DocumentSync {
         refreshCache()
     }
 }
+
+/** Total cloud archive bytes for non-deleted documents (the ZIP sizes stored in the cloud). */
+fun sumCloudBytes(metas: List<DocumentSyncMeta>): Long =
+    metas.filterNot { it.deleted }.sumOf { it.size }
+
+/** What a sync run would transfer, used by the manual "Sync now" preview and by [DocumentSync.runSync]. */
+data class SyncPlan(
+    val toDownload: List<String>,
+    val toUpload: List<String>,
+    val toUninstall: List<String>,
+    /** Sum of cloud ZIP sizes for [toDownload]. */
+    val downloadBytes: Long,
+    /** Sum of local install sizes for [toUpload] (the same estimate the enable dialog shows). */
+    val uploadBytes: Long,
+)
+
+/** Sum the byte sizes of [initials] looked up in [sizeByInitials]; unknown initials contribute 0. */
+fun sumPlanBytes(initials: List<String>, sizeByInitials: Map<String, Long>): Long =
+    initials.sumOf { sizeByInitials[it] ?: 0L }
 
 /** Parses a stored BookCategory enum name; null for null/blank/unknown names. */
 fun parseCategoryName(name: String?): BookCategory? =

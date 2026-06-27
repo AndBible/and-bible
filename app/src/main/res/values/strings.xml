@@ -1937,6 +1937,15 @@
     <string name="cloud_doc_summary_download">Download %1$d</string>
     <string name="cloud_doc_summary_download_size">Download %1$d (%2$s)</string>
     <string name="cloud_doc_wifi_waiting">Automatic downloads will start on Wi-Fi.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d document</item>
+        <item quantity="other">%1$d documents</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d document (%2$s)</item>
+        <item quantity="other">%1$d documents (%2$s)</item>
+    </plurals>
+    <string name="cloud_doc_sync_now_count_none">Nothing to transfer</string>
     <string name="cloud_doc_bulk_download">Download selected (%1$d)</string>
     <string name="cloud_doc_nothing_to_download">All available documents are already downloaded.</string>
     <string name="document_sync_notification_title">Syncing documents</string>
