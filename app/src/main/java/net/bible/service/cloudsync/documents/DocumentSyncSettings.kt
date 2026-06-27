@@ -24,6 +24,12 @@ import net.bible.service.common.CommonUtils
 object DocumentSyncSettings {
     private const val ENABLED = "sync_enable_documents"
     private const val WIFI_ONLY = "sync_documents_wifi_only"
+    private const val AUTO_DOWNLOAD = "sync_documents_auto_download"
+    private const val AUTO_UPLOAD = "sync_documents_auto_upload"
+    private const val AUTO_DELETE = "sync_documents_auto_delete"
+    private const val SYNC_NOW_DOWNLOAD = "sync_documents_sync_now_download"
+    private const val SYNC_NOW_UPLOAD = "sync_documents_sync_now_upload"
+    private const val SYNC_NOW_DELETE = "sync_documents_sync_now_delete"
     private const val BLOCKED = "sync_documents_blocked"
     private const val TS_PREFIX = "doc_sync_ts_"
 
@@ -34,6 +40,33 @@ object DocumentSyncSettings {
     var wifiOnly: Boolean
         get() = CommonUtils.settings.getBoolean(WIFI_ONLY, true)
         set(value) = CommonUtils.settings.setBoolean(WIFI_ONLY, value)
+
+    // Per-device automatic-operation toggles (default on = current behaviour). These gate the
+    // automatic sync cycle and install-time auto-upload only; manual actions ignore them.
+    var autoDownload: Boolean
+        get() = CommonUtils.settings.getBoolean(AUTO_DOWNLOAD, true)
+        set(value) = CommonUtils.settings.setBoolean(AUTO_DOWNLOAD, value)
+
+    var autoUpload: Boolean
+        get() = CommonUtils.settings.getBoolean(AUTO_UPLOAD, true)
+        set(value) = CommonUtils.settings.setBoolean(AUTO_UPLOAD, value)
+
+    var autoDelete: Boolean
+        get() = CommonUtils.settings.getBoolean(AUTO_DELETE, true)
+        set(value) = CommonUtils.settings.setBoolean(AUTO_DELETE, value)
+
+    // Remembered checkbox state for the manual "Sync now" operation picker (default all on).
+    var syncNowDownload: Boolean
+        get() = CommonUtils.settings.getBoolean(SYNC_NOW_DOWNLOAD, true)
+        set(value) = CommonUtils.settings.setBoolean(SYNC_NOW_DOWNLOAD, value)
+
+    var syncNowUpload: Boolean
+        get() = CommonUtils.settings.getBoolean(SYNC_NOW_UPLOAD, true)
+        set(value) = CommonUtils.settings.setBoolean(SYNC_NOW_UPLOAD, value)
+
+    var syncNowDelete: Boolean
+        get() = CommonUtils.settings.getBoolean(SYNC_NOW_DELETE, true)
+        set(value) = CommonUtils.settings.setBoolean(SYNC_NOW_DELETE, value)
 
     val blockList: DocumentBlockList = DocumentBlockList(object : StringSetStore {
         override fun get(): Set<String> =
