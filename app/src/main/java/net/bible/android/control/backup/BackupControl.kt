@@ -91,6 +91,8 @@ import net.bible.service.sword.mybible.isManuallyInstalledMyBibleBook
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.mysword.isManuallyInstalledMySwordBook
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
+import net.bible.service.sword.ttf.isManuallyInstalledTtf
+import net.bible.service.sword.ttf.ttfFile
 import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -400,6 +402,10 @@ object BackupControl {
             addModuleFile(outFile, b.dbFile)
         } else if (b.isManuallyInstalledEpub) {
             addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))
+        } else if (b.isManuallyInstalledTtf) {
+            // Font modules have byte-array metadata (no configFile), so they must be packaged
+            // by their .ttf file rather than via the generic SWORD configFile branch below.
+            addModuleFile(outFile, b.ttfFile)
         } else {
             val configFile = bmd.configFile
             val rootDir = configFile.parentFile!!.parentFile!!
