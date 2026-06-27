@@ -86,28 +86,42 @@ object DocumentSync {
     )
 
     suspend fun scan(includeDeleted: Boolean = false): List<DocumentStatusItem> {
-        val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
-        val store = store()
-        val local = installedSyncableBooks().associateBy { it.initials }
-        val cloudMetas: List<DocumentSyncMeta> = if (store != null) {
-            val live = store.listDocuments()
-            cacheDao.replaceAll(live.map { it.toCacheEntity() })   // refresh cache from network
-            live
-        } else {
-            cacheDao.all().map { it.toMeta() }                     // offline / not signed in: use cache
-        }
-        return buildStatusItems(cloudMetas, local, includeDeleted)
+        if (store() != null) refreshCache()   // signed in: incremental network refresh into the cache
+        return scanCached(includeDeleted)     // offline / after refresh: build from the cache
     }
 
     /**
-     * Refreshes the local cloud-listing cache from the network. Call after any sync operation
-     * (push/download/remove) so the cached status is current even when the management view isn't
-     * open to trigger its own scan.
+     * Incrementally refreshes the cloud-listing cache: fetches only metas changed since the stored
+     * watermark, merges them into the cache (upsert + purge), and advances the watermark. With
+     * nothing changed this is two round-trips and no downloads. Watermark 0 (cold start) lists all.
      */
     suspend fun refreshCache() {
         val store = store() ?: return
         val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
-        cacheDao.replaceAll(store.listDocuments().map { it.toCacheEntity() })
+        val watermark = DocumentSyncSettings.watermark
+        val listing = store.listChangedDocuments(watermark)
+        val merged = mergeCloudListing(
+            oldCache = cacheDao.all().map { it.toMeta() },
+            changed = listing.changedMetas,
+            currentInitials = listing.currentInitials,
+            oldWatermark = watermark,
+            matchedCreatedTimes = listing.matchedCreatedTimes,
+            failedCreatedTimes = listing.failedCreatedTimes,
+        )
+        cacheDao.replaceAll(merged.cache.map { it.toCacheEntity() })
+        DocumentSyncSettings.watermark = merged.watermark
+    }
+
+    /**
+     * Clears the listing cache and watermark so the next [scan]/[refreshCache] cold-starts a full
+     * authoritative listing. User preferences (block list, toggles) are intentionally kept — this is
+     * "re-scan the cloud", not a sign-out. Recovery path for a rare clock-skew silent miss.
+     */
+    suspend fun resetListingCache() {
+        DatabaseContainer.instance.documentSyncDb.apply {
+            cloudDocumentCacheDao().clear()
+            cloudListingStateDao().clear()
+        }
     }
 
     /**
@@ -166,7 +180,7 @@ object DocumentSync {
         // MB), which is wasteful when the cloud already holds the same/newer version. This is the
         // common case for an auto-push that echoes a just-downloaded module (see the
         // installingFromSync guard in downloadAndInstall) or any redundant re-push.
-        val existing = store.listDocuments().firstOrNull { it.initials == book.initials && !it.deleted }
+        val existing = store.readMeta(book.initials)?.takeIf { !it.deleted }
         if (existing != null && !versionIsNewer(localVersion, existing.version)) {
             Log.i(TAG, "Cloud has same/newer ${book.initials}; skipping upload"); return
         }
@@ -201,7 +215,7 @@ object DocumentSync {
 
     suspend fun downloadAndInstall(initials: String) {
         val store = store() ?: return
-        val meta = store.listDocuments().firstOrNull { it.initials == initials && !it.deleted } ?: return
+        val meta = store.readMeta(initials)?.takeIf { !it.deleted } ?: return
         val archive = store.downloadArchive(initials, meta.version) ?: return
         installingFromSync.add(initials)
         try {
@@ -253,12 +267,11 @@ object DocumentSync {
      */
     suspend fun runSync(download: Boolean, upload: Boolean, delete: Boolean, manual: Boolean) {
         if (!manual && (!DocumentSyncSettings.enabled || !DocumentSyncSettings.isAutoTransferAllowed)) return
-        val store = store() ?: return
-        val cloudMetas = store.listDocuments()
-        // Keep the cache fresh on every run (not only when something transfers), so with automatic
-        // sync on the management view can trust the cache without hitting the network.
-        DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
-            .replaceAll(cloudMetas.map { it.toCacheEntity() })
+        store() ?: return
+        // Incrementally refresh the cache (fast no-op when nothing changed), then resolve actions
+        // from the freshly-merged full cloud picture held in the cache.
+        refreshCache()
+        val cloudMetas = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao().all().map { it.toMeta() }
         val local = installedSyncableBooks().associateBy { it.initials }
         val cloudDocs = cloudMetas.map {
             CloudDocument(it.initials, it.name, it.documentType, it.version, it.size, it.timestamp, it.deleted)
@@ -318,7 +331,7 @@ object DocumentSync {
         // management view is correct even if it is closed and reopened mid-operation.
         DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao().markDeleted(initials)
         val now = System.currentTimeMillis()
-        val existing = store.listDocuments().firstOrNull { it.initials == initials }
+        val existing = store.readMeta(initials)
         // Remove is only offered when a cloud copy exists, so `existing` is normally present;
         // the fallback just guards against a race where it disappeared.
         val meta = (existing ?: DocumentSyncMeta(
