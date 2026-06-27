@@ -81,9 +81,11 @@ object DocumentSync {
         val category: BookCategory?,
         /** Whether the locally installed copy may be deleted (false e.g. for the last Bible). */
         val canDeleteLocal: Boolean,
+        /** The cloud meta for this document is a tombstone (removed from the cloud). */
+        val cloudDeleted: Boolean = false,
     )
 
-    suspend fun scan(): List<DocumentStatusItem> {
+    suspend fun scan(includeDeleted: Boolean = false): List<DocumentStatusItem> {
         val cacheDao = DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao()
         val store = store()
         val local = installedSyncableBooks().associateBy { it.initials }
@@ -94,7 +96,7 @@ object DocumentSync {
         } else {
             cacheDao.all().map { it.toMeta() }                     // offline / not signed in: use cache
         }
-        return buildStatusItems(cloudMetas, local)
+        return buildStatusItems(cloudMetas, local, includeDeleted)
     }
 
     /**
@@ -125,10 +127,10 @@ object DocumentSync {
      * access. Lets the management view render instantly on open; [scan] then refreshes from
      * the network in the background.
      */
-    suspend fun scanCached(): List<DocumentStatusItem> {
+    suspend fun scanCached(includeDeleted: Boolean = false): List<DocumentStatusItem> {
         val cacheDao = DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao()
         val local = installedSyncableBooks().associateBy { it.initials }
-        return buildStatusItems(cacheDao.all().map { it.toMeta() }, local)
+        return buildStatusItems(cacheDao.all().map { it.toMeta() }, local, includeDeleted)
     }
 
     /** Installed module size in bytes from the SWORD conf, or null if not declared. */
@@ -138,35 +140,19 @@ object DocumentSync {
     private fun buildStatusItems(
         cloudMetas: List<DocumentSyncMeta>,
         local: Map<String, Book>,
+        includeDeleted: Boolean = false,
     ): List<DocumentStatusItem> {
-        val cloud = cloudMetas.filter { !it.deleted }.associateBy { it.initials }
-        val blocked = DocumentSyncSettings.blockList.all()
-        val allInitials = (cloud.keys + local.keys).toSortedSet()
-        return allInitials.map { initials ->
-            val c = cloud[initials]; val b = local[initials]
-            val localVersion = b?.let { DocumentArchiver.documentVersion(it) }
-            val update = c != null && localVersion != null && versionIsNewer(c.version, localVersion)
-            val localNewer = c != null && localVersion != null && versionIsNewer(localVersion, c.version)
-            val category = b?.bookCategory ?: parseCategoryName(c?.category)
-            DocumentStatusItem(
-                initials = initials,
-                name = c?.name ?: b?.name ?: initials,
-                type = b?.let { DocumentArchiver.documentTypeOf(it) } ?: c?.documentType ?: DocumentType.SWORD,
-                cloudVersion = c?.version,
-                localVersion = localVersion,
-                cloudOnly = c != null && b == null,
-                localOnly = c == null && b != null,
-                updateAvailable = update,
-                localNewer = localNewer,
-                blocked = initials in blocked,
-                // Cloud size is the exact packaged size; for a local-only document not yet in
-                // the cloud, fall back to the installed module size so the upload size isn't 0.
-                sizeBytes = c?.size ?: b?.let { localInstallSizeBytes(it) } ?: 0L,
-                category = category,
-                // No local copy → nothing to delete locally; otherwise honour the last-Bible guard.
-                canDeleteLocal = b?.canDelete ?: true,
+        val localDocs = local.mapValues { (_, b) ->
+            LocalDoc(
+                name = b.name,
+                version = DocumentArchiver.documentVersion(b),
+                category = b.bookCategory,
+                type = DocumentArchiver.documentTypeOf(b),
+                canDelete = b.canDelete,
+                installSizeBytes = localInstallSizeBytes(b),
             )
         }
+        return assembleStatusItems(cloudMetas, localDocs, DocumentSyncSettings.blockList.all(), includeDeleted)
     }
 
     suspend fun pushDocument(book: Book) {
@@ -342,3 +328,64 @@ object DocumentSync {
 /** Parses a stored BookCategory enum name; null for null/blank/unknown names. */
 fun parseCategoryName(name: String?): BookCategory? =
     name?.takeIf { it.isNotBlank() }?.let { runCatching { BookCategory.valueOf(it) }.getOrNull() }
+
+/**
+ * Local document facts the status list needs, extracted from a [Book] so the assembly logic
+ * below stays pure and unit-testable (no Android / JSword dependencies).
+ */
+data class LocalDoc(
+    val name: String,
+    val version: String,
+    val category: BookCategory,
+    val type: DocumentType,
+    val canDelete: Boolean,
+    val installSizeBytes: Long?,
+)
+
+/**
+ * Pure builder of the management view's status rows from cloud metas + local documents.
+ *
+ * When [includeDeleted] is false (the default), cloud tombstones are dropped entirely — a
+ * document removed from the cloud but still installed locally then shows as a normal local-only
+ * row, exactly as before this feature. When true, tombstones become their own rows: because the
+ * archive is gone, a tombstone is treated as "no downloadable cloud copy" for the
+ * cloudOnly / update / localNewer computations, and flagged via [DocumentSync.DocumentStatusItem.cloudDeleted].
+ */
+fun assembleStatusItems(
+    cloudMetas: List<DocumentSyncMeta>,
+    localDocs: Map<String, LocalDoc>,
+    blocked: Set<String>,
+    includeDeleted: Boolean,
+): List<DocumentSync.DocumentStatusItem> {
+    val cloud = (if (includeDeleted) cloudMetas else cloudMetas.filter { !it.deleted })
+        .associateBy { it.initials }
+    val allInitials = (cloud.keys + localDocs.keys).toSortedSet()
+    return allInitials.map { initials ->
+        val c = cloud[initials]
+        val b = localDocs[initials]
+        // A tombstone has no downloadable archive: treat the live cloud copy as absent for the
+        // cloudOnly / update / localNewer computations, but keep its meta for display + the flag.
+        val liveCloud = c?.takeIf { !it.deleted }
+        val localVersion = b?.version
+        val update = liveCloud != null && localVersion != null &&
+            DocumentSync.versionIsNewer(liveCloud.version, localVersion)
+        val localNewer = liveCloud != null && localVersion != null &&
+            DocumentSync.versionIsNewer(localVersion, liveCloud.version)
+        DocumentSync.DocumentStatusItem(
+            initials = initials,
+            name = c?.name ?: b?.name ?: initials,
+            type = b?.type ?: c?.documentType ?: DocumentType.SWORD,
+            cloudVersion = c?.version,
+            localVersion = localVersion,
+            cloudOnly = liveCloud != null && b == null,
+            localOnly = liveCloud == null && b != null,
+            updateAvailable = update,
+            localNewer = localNewer,
+            blocked = initials in blocked,
+            sizeBytes = liveCloud?.size ?: b?.installSizeBytes ?: 0L,
+            category = b?.category ?: parseCategoryName(c?.category),
+            canDeleteLocal = b?.canDelete ?: true,
+            cloudDeleted = c?.deleted == true,
+        )
+    }
+}
