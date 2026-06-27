@@ -117,4 +117,18 @@ class CloudDocumentsMenuTest {
         assertEquals(false, installed.contains(CloudDocAction.BLOCK))
         assertEquals(false, installed.contains(CloudDocAction.REMOVE_CLOUD))
     }
+
+    @Test fun optimisticPurgeDropsNotInstalledTombstone() {
+        // No local copy: purging the tombstone leaves nothing, so the row drops out.
+        assertEquals(emptyList<DocumentStatusItem>(), applyOptimisticPurge(listOf(item(cloudDeleted = true)), "KJV"))
+    }
+
+    @Test fun optimisticPurgeKeepsInstalledTombstoneAsLocalOnly() {
+        // Local copy remains: purging only removes the cloud marker, so the row becomes a plain
+        // local-only document (no longer a tombstone, no cloud version).
+        val row = applyOptimisticPurge(listOf(item(localOnly = true, cloudDeleted = true)), "KJV").single()
+        assertEquals(false, row.cloudDeleted)
+        assertEquals(true, row.localOnly)
+        assertEquals(null, row.cloudVersion)
+    }
 }

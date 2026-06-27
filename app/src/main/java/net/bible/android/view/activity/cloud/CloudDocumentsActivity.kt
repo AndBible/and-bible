@@ -125,6 +125,27 @@ fun applyOptimisticRemoval(
 }
 
 /**
+ * The expected list state right after purging a tombstone (deleting the removed-document marker
+ * from the cloud), applied optimistically before the background purge completes. A tombstone with
+ * a local copy becomes a plain local-only row — the cloud marker is gone but the install remains;
+ * a tombstone with no local copy drops out of the list entirely. The post-completion refresh
+ * confirms (or reverts) it.
+ */
+fun applyOptimisticPurge(
+    items: List<DocumentSync.DocumentStatusItem>,
+    initials: String,
+): List<DocumentSync.DocumentStatusItem> {
+    val item = items.firstOrNull { it.initials == initials } ?: return items
+    return if (item.localOnly) {
+        items.map {
+            if (it.initials == initials) it.copy(cloudDeleted = false, cloudVersion = null) else it
+        }
+    } else {
+        items.filterNot { it.initials == initials }
+    }
+}
+
+/**
  * Management view for the document-sync feature: a list of the user's documents
  * (local and/or in the cloud) with their sync status, a filter selector, and
  * per-item actions (download, push, remove from cloud, block/unblock).
@@ -476,6 +497,10 @@ class CloudDocumentsActivity : ActivityBase() {
             .setTitle(R.string.cloud_doc_action_purge)
             .setMessage(getString(R.string.cloud_doc_purge_confirm, item.name))
             .setPositiveButton(R.string.okay) { _, _ ->
+                // Optimistic update: reflect the expected end-state immediately for snappier
+                // feedback. The re-scan inside runSyncAction confirms (or reverts) it.
+                allItems = applyOptimisticPurge(allItems, item.initials)
+                applyFilter()
                 runSyncAction { DocumentSync.purgeTombstone(item.initials) }
             }
             .setNegativeButton(R.string.cancel, null)
