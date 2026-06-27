@@ -22,6 +22,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -171,6 +172,7 @@ class CloudDocumentsActivity : ActivityBase() {
                 applyFilter(resetSelection = true)
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
+        setupStatusFilter()
         binding.statusSpinner.onItemSelectedListener = filterSelectionListener
         binding.categorySpinner.onItemSelectedListener = filterSelectionListener
         binding.nameSearch.addTextChangedListener(afterTextChanged = { applyFilter(resetSelection = true) })
@@ -185,16 +187,37 @@ class CloudDocumentsActivity : ActivityBase() {
         // Selection mode is entered by long-pressing a row, so no explicit menu item is needed.
         menu.add(Menu.NONE, MENU_SYNC_NOW, Menu.NONE, R.string.cloud_doc_sync_now)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.add(Menu.NONE, MENU_SHOW_REMOVED, Menu.NONE, R.string.cloud_doc_show_removed).apply {
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+            isCheckable = true
+        }
         return true
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(MENU_SYNC_NOW)?.isVisible = CloudSync.signedIn && !adapter.isSelectionMode()
+        menu.findItem(MENU_SHOW_REMOVED)?.apply {
+            isVisible = CloudSync.signedIn && !adapter.isSelectionMode()
+            isChecked = DocumentSyncSettings.showRemovedDocuments
+        }
         return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         MENU_SYNC_NOW -> { showSyncNowDialog(); true }
+        MENU_SHOW_REMOVED -> {
+            val show = !DocumentSyncSettings.showRemovedDocuments
+            DocumentSyncSettings.showRemovedDocuments = show
+            item.isChecked = show
+            // Rebuild the spinner (adds/removes the "Removed" entry) and reset to ALL if the
+            // currently-selected filter no longer exists, then re-scan with the new flag.
+            if (!show && binding.statusSpinner.selectedItemPosition == CloudDocFilter.REMOVED.ordinal) {
+                binding.statusSpinner.setSelection(CloudDocFilter.ALL.ordinal)
+            }
+            setupStatusFilter()
+            refresh()
+            true
+        }
         android.R.id.home -> {
             if (adapter.isSelectionMode()) exitSelectionMode() else finish()
             true
@@ -247,7 +270,7 @@ class CloudDocumentsActivity : ActivityBase() {
         var signedIn = CloudSync.signedIn
         if (!signedIn) signedIn = CloudSync.signIn(this@CloudDocumentsActivity) == true
         // Render the cached listing instantly so the view never blocks on the network.
-        val cached = withContext(Dispatchers.IO) { DocumentSync.scanCached() }
+        val cached = withContext(Dispatchers.IO) { DocumentSync.scanCached(DocumentSyncSettings.showRemovedDocuments) }
         if (!signedIn && cached.isEmpty()) {
             Toast.makeText(this@CloudDocumentsActivity, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
             finish()
@@ -266,7 +289,7 @@ class CloudDocumentsActivity : ActivityBase() {
     private suspend fun refreshFromNetwork() {
         setBusy(true)
         try {
-            allItems = withContext(Dispatchers.IO) { DocumentSync.scan() }
+            allItems = withContext(Dispatchers.IO) { DocumentSync.scan(DocumentSyncSettings.showRemovedDocuments) }
         } finally {
             setBusy(false)
         }
@@ -312,12 +335,34 @@ class CloudDocumentsActivity : ActivityBase() {
         binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = true }
         lifecycleScope.launch {
             try {
-                allItems = withContext(Dispatchers.IO) { DocumentSync.scan() }
+                allItems = withContext(Dispatchers.IO) { DocumentSync.scan(DocumentSyncSettings.showRemovedDocuments) }
             } finally {
                 binding.swipeRefresh.isRefreshing = false
             }
             applyFilter()
         }
+    }
+
+    /**
+     * (Re)populates the status-filter spinner. The "Removed" entry is appended only while
+     * [DocumentSyncSettings.showRemovedDocuments] is on; because REMOVED is the last CloudDocFilter
+     * value, omitting it keeps the spinner-position → enum mapping correct for the other filters.
+     * The current selection is preserved when still in range, otherwise reset to ALL (position 0).
+     */
+    private fun setupStatusFilter() {
+        val labels = mutableListOf(
+            getString(R.string.cloud_doc_filter_all),
+            getString(R.string.cloud_doc_filter_installed),
+            getString(R.string.cloud_doc_filter_cloud),
+            getString(R.string.cloud_doc_filter_updates),
+            getString(R.string.cloud_doc_filter_blocked),
+        )
+        if (DocumentSyncSettings.showRemovedDocuments) labels.add(getString(R.string.cloud_doc_filter_removed))
+        val previous = binding.statusSpinner.selectedItemPosition
+        binding.statusSpinner.adapter = ArrayAdapter(
+            this, android.R.layout.simple_spinner_item, labels,
+        ).apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+        binding.statusSpinner.setSelection(previous.coerceIn(0, labels.lastIndex))
     }
 
     /** Maps the category spinner position (the @array/documentTypes order) to a BookCategory; 0 = All. */
@@ -391,8 +436,10 @@ class CloudDocumentsActivity : ActivityBase() {
             }
             CloudDocAction.DOWNLOAD -> DocumentSyncService.start(this, emptyList(), listOf(item.initials))
             CloudDocAction.PUSH -> DocumentSyncService.start(this, listOf(item.initials), emptyList())
-            CloudDocAction.RESTORE -> { /* Restore action implementation added in Task 6. */ }
-            CloudDocAction.PURGE -> { /* Purge action implementation added in Task 7. */ }
+            // Restore = re-push the still-installed local copy; the tombstone is overwritten by a
+            // fresh, non-deleted meta + uploaded archive (same engine path as Push).
+            CloudDocAction.RESTORE -> DocumentSyncService.start(this, listOf(item.initials), emptyList())
+            CloudDocAction.PURGE -> confirmPurge(item)
             CloudDocAction.TOGGLE_SELECT -> { /* Selection mode added in Task 13. */ }
         }
     }
@@ -419,6 +466,17 @@ class CloudDocumentsActivity : ActivityBase() {
                 // feedback. The post-completion refresh confirms (or reverts) it.
                 allItems = applyOptimisticRemoval(allItems, item.initials, DocumentSyncSettings.enabled)
                 applyFilter()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun confirmPurge(item: DocumentStatusItem) {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.cloud_doc_action_purge)
+            .setMessage(getString(R.string.cloud_doc_purge_confirm, item.name))
+            .setPositiveButton(R.string.okay) { _, _ ->
+                runSyncAction { DocumentSync.purgeTombstone(item.initials) }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
@@ -471,7 +529,7 @@ class CloudDocumentsActivity : ActivityBase() {
         setBusy(true)
         try {
             withContext(Dispatchers.IO) { block() }
-            allItems = withContext(Dispatchers.IO) { DocumentSync.scan() }
+            allItems = withContext(Dispatchers.IO) { DocumentSync.scan(DocumentSyncSettings.showRemovedDocuments) }
         } finally {
             setBusy(false)
         }
@@ -480,5 +538,6 @@ class CloudDocumentsActivity : ActivityBase() {
 
     companion object {
         private const val MENU_SYNC_NOW = 2
+        private const val MENU_SHOW_REMOVED = 3
     }
 }

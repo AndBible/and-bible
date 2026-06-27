@@ -168,6 +168,11 @@ class CloudDocumentsAdapter(
     companion object {
         /** Maps a document status to a localised, human-readable status label. */
         fun statusText(context: android.content.Context, item: DocumentStatusItem): String = when {
+            item.cloudDeleted -> {
+                val removed = context.getString(R.string.cloud_doc_status_removed)
+                if (item.localOnly) "$removed · ${context.getString(R.string.cloud_doc_status_still_installed)}"
+                else removed
+            }
             item.blocked -> context.getString(R.string.cloud_doc_status_blocked)
             item.updateAvailable -> context.getString(R.string.cloud_doc_status_update)
             item.cloudOnly -> context.getString(R.string.cloud_doc_status_cloud_only)

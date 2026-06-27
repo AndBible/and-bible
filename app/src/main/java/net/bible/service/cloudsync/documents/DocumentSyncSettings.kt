@@ -31,6 +31,7 @@ object DocumentSyncSettings {
     private const val SYNC_NOW_UPLOAD = "sync_documents_sync_now_upload"
     private const val SYNC_NOW_DELETE = "sync_documents_sync_now_delete"
     private const val BLOCKED = "sync_documents_blocked"
+    private const val SHOW_REMOVED = "sync_documents_show_removed"
     private const val TS_PREFIX = "doc_sync_ts_"
 
     var enabled: Boolean
@@ -40,6 +41,11 @@ object DocumentSyncSettings {
     var wifiOnly: Boolean
         get() = CommonUtils.settings.getBoolean(WIFI_ONLY, true)
         set(value) = CommonUtils.settings.setBoolean(WIFI_ONLY, value)
+
+    // Per-device: whether the management view includes removed (tombstoned) cloud documents.
+    var showRemovedDocuments: Boolean
+        get() = CommonUtils.settings.getBoolean(SHOW_REMOVED, false)
+        set(value) = CommonUtils.settings.setBoolean(SHOW_REMOVED, value)
 
     // Per-device automatic-operation toggles (default on = current behaviour). These gate the
     // automatic sync cycle and install-time auto-upload only; manual actions ignore them.

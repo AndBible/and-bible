@@ -1911,6 +1911,11 @@
     <string name="cloud_doc_filter_cloud">In cloud</string>
     <string name="cloud_doc_filter_updates">Updates</string>
     <string name="cloud_doc_filter_blocked">Blocked</string>
+    <string name="cloud_doc_filter_removed">Removed</string>
+    <string name="cloud_doc_show_removed">Show removed documents</string>
+    <string name="cloud_doc_status_removed">Removed from cloud</string>
+    <string name="cloud_doc_status_still_installed">still installed here</string>
+    <string name="cloud_doc_purge_confirm">Permanently remove \"%1$s\" from the cloud history? If it is still installed on another device, that device may upload it back to the cloud on its next sync.</string>
     <string name="cloud_doc_action_download">Download</string>
     <string name="cloud_doc_action_push">Push to cloud</string>
     <string name="cloud_doc_action_remove_cloud">Remove from cloud</string>
@@ -1918,7 +1923,7 @@
     <string name="cloud_doc_action_block">Don\'t sync to this device</string>
     <string name="cloud_doc_action_unblock">Allow on this device</string>
     <string name="cloud_doc_action_restore">Restore to cloud</string>
-    <string name="cloud_doc_action_purge">Delete permanently</string>
+    <string name="cloud_doc_action_purge">Remove from cloud history</string>
     <string name="cloud_doc_remove_all_confirm">Remove %1$s from the cloud and from all your devices, including this one?</string>
     <string name="cloud_doc_remove_cloud_confirm">Remove %1$s from the cloud? The copy on this device is kept; devices with document sync on will also remove it.</string>
     <string name="cloud_doc_sync_now">Sync now</string>

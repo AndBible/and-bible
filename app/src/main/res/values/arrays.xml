@@ -61,14 +61,6 @@
 		<item>@string/doc_type_addons</item>
 	</string-array>
 
-	<string-array name="cloud_doc_status_filters">
-		<item>@string/cloud_doc_filter_all</item>
-		<item>@string/cloud_doc_filter_installed</item>
-		<item>@string/cloud_doc_filter_cloud</item>
-		<item>@string/cloud_doc_filter_updates</item>
-		<item>@string/cloud_doc_filter_blocked</item>
-	</string-array>
-
 	<!-- Bible/commentary toolbar button press actions -->
 	<string-array name="prefs_toolbar_button_action_descriptions">
 		<item>@string/prefs_toolbar_button_action_default</item>
