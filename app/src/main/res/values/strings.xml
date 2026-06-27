@@ -1917,6 +1917,8 @@
     <string name="cloud_doc_action_remove_all_devices">Remove from all devices</string>
     <string name="cloud_doc_action_block">Don\'t sync to this device</string>
     <string name="cloud_doc_action_unblock">Allow on this device</string>
+    <string name="cloud_doc_action_restore">Restore to cloud</string>
+    <string name="cloud_doc_action_purge">Delete permanently</string>
     <string name="cloud_doc_remove_all_confirm">Remove %1$s from the cloud and from all your devices, including this one?</string>
     <string name="cloud_doc_remove_cloud_confirm">Remove %1$s from the cloud? The copy on this device is kept; devices with document sync on will also remove it.</string>
     <string name="cloud_doc_sync_now">Sync now</string>

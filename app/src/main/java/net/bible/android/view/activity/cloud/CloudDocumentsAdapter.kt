@@ -37,7 +37,7 @@ import net.bible.service.cloudsync.documents.DocumentSync.DocumentStatusItem
  * TOGGLE_SELECT is reserved for the selection-mode task (Task 13); it is defined
  * here so the selection UI can be added without changing this enum's callers.
  */
-enum class CloudDocAction { DOWNLOAD, PUSH, REMOVE_CLOUD, BLOCK, UNBLOCK, TOGGLE_SELECT }
+enum class CloudDocAction { DOWNLOAD, PUSH, REMOVE_CLOUD, BLOCK, UNBLOCK, RESTORE, PURGE, TOGGLE_SELECT }
 
 /**
  * RecyclerView adapter for the cloud documents management list. Each row shows a

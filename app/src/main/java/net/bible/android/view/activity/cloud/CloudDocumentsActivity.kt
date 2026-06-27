@@ -81,6 +81,13 @@ fun documentMenuActions(
     item: DocumentSync.DocumentStatusItem,
     syncEnabled: Boolean,
 ): List<CloudDocAction> = buildList {
+    // A removed (tombstoned) document: the cloud archive is gone, so the only paths forward are
+    // re-uploading a still-installed local copy, or purging the tombstone entirely.
+    if (item.cloudDeleted) {
+        if (item.localOnly) add(CloudDocAction.RESTORE)
+        add(CloudDocAction.PURGE)
+        return@buildList
+    }
     // Download: the cloud has a copy this device lacks or that is newer.
     if (item.cloudOnly || item.updateAvailable) add(CloudDocAction.DOWNLOAD)
     // Push: not in the cloud yet, or the local copy is newer than the cloud copy.
@@ -362,6 +369,8 @@ class CloudDocumentsActivity : ActivityBase() {
             else R.string.cloud_doc_action_remove_cloud
         CloudDocAction.BLOCK -> R.string.cloud_doc_action_block
         CloudDocAction.UNBLOCK -> R.string.cloud_doc_action_unblock
+        CloudDocAction.RESTORE -> R.string.cloud_doc_action_restore
+        CloudDocAction.PURGE -> R.string.cloud_doc_action_purge
         CloudDocAction.TOGGLE_SELECT -> 0
     }
 
@@ -381,6 +390,8 @@ class CloudDocumentsActivity : ActivityBase() {
             }
             CloudDocAction.DOWNLOAD -> DocumentSyncService.start(this, emptyList(), listOf(item.initials))
             CloudDocAction.PUSH -> DocumentSyncService.start(this, listOf(item.initials), emptyList())
+            CloudDocAction.RESTORE -> { /* Restore action implementation added in Task 6. */ }
+            CloudDocAction.PURGE -> { /* Purge action implementation added in Task 7. */ }
             CloudDocAction.TOGGLE_SELECT -> { /* Selection mode added in Task 13. */ }
         }
     }

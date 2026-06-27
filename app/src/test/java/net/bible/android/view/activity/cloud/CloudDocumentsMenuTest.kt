@@ -27,13 +27,13 @@ class CloudDocumentsMenuTest {
     private fun item(
         cloudOnly: Boolean = false, localOnly: Boolean = false,
         update: Boolean = false, localNewer: Boolean = false, blocked: Boolean = false,
-        canDeleteLocal: Boolean = true,
+        canDeleteLocal: Boolean = true, cloudDeleted: Boolean = false,
     ) = DocumentStatusItem(
         initials = "KJV", name = "KJV", type = DocumentType.SWORD,
         cloudVersion = "1.0", localVersion = "1.0",
         cloudOnly = cloudOnly, localOnly = localOnly, updateAvailable = update,
         localNewer = localNewer, blocked = blocked, sizeBytes = 0, category = BookCategory.BIBLE,
-        canDeleteLocal = canDeleteLocal,
+        canDeleteLocal = canDeleteLocal, cloudDeleted = cloudDeleted,
     )
 
     @Test fun cloudOnlyOffersDownloadRemoveBlock() {
@@ -99,5 +99,22 @@ class CloudDocumentsMenuTest {
         assertEquals(true, row.localOnly)
         assertEquals(false, row.cloudOnly)
         assertEquals(null, row.cloudVersion)
+    }
+
+    @Test fun tombstoneInstalledLocallyOffersRestoreAndPurge() {
+        val actions = documentMenuActions(item(localOnly = true, cloudDeleted = true), syncEnabled = true)
+        assertEquals(listOf(CloudDocAction.RESTORE, CloudDocAction.PURGE), actions)
+    }
+
+    @Test fun tombstoneNotInstalledOffersOnlyPurge() {
+        val actions = documentMenuActions(item(cloudDeleted = true), syncEnabled = true)
+        assertEquals(listOf(CloudDocAction.PURGE), actions)
+    }
+
+    @Test fun tombstoneNeverOffersDownloadOrBlock() {
+        val installed = documentMenuActions(item(localOnly = true, cloudDeleted = true), syncEnabled = false)
+        assertEquals(false, installed.contains(CloudDocAction.DOWNLOAD))
+        assertEquals(false, installed.contains(CloudDocAction.BLOCK))
+        assertEquals(false, installed.contains(CloudDocAction.REMOVE_CLOUD))
     }
 }
