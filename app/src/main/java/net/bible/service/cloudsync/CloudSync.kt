@@ -36,6 +36,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
 import net.bible.service.cloudsync.documents.DocumentSync
+import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
@@ -138,6 +139,10 @@ object CloudSync {
     suspend fun signOut() {
         _adapter?.signOut()
         _adapter = null
+        // Stop any in-flight document transfers before wiping their state: they belong to the
+        // account just disconnected. store() already returns null now (_adapter == null), so a
+        // running drain would no-op anyway, but cancelling it promptly avoids a needless drain.
+        DocumentSyncService.stop(app)
         DocumentSync.onSignOut()
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()

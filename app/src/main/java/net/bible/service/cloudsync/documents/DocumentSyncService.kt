@@ -104,6 +104,14 @@ class DocumentSyncService : Service() {
                 Log.e(TAG, "Could not start document sync service", e)
             }
         }
+
+        /**
+         * Stops the service, cancelling any in-flight drain (onDestroy → scope.cancel()). Used on
+         * sign-out so transfers tied to the disconnected cloud account don't keep running against it.
+         */
+        fun stop(context: Context) {
+            context.stopService(Intent(context, DocumentSyncService::class.java))
+        }
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -124,14 +132,14 @@ class DocumentSyncService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lastStartId = startId
-        if (intent?.action != START) { if (!active.get()) stopSelfSafe(); return START_NOT_STICKY }
+        if (intent?.action != START) { if (!active.get()) stopSelfSafe(startId); return START_NOT_STICKY }
         val push = intent.getStringArrayListExtra(EXTRA_PUSH) ?: arrayListOf()
         val download = intent.getStringArrayListExtra(EXTRA_DOWNLOAD) ?: arrayListOf()
         val remove = intent.getStringArrayListExtra(EXTRA_REMOVE) ?: arrayListOf()
         val purge = intent.getStringArrayListExtra(EXTRA_PURGE) ?: arrayListOf()
         val uninstall = intent.getStringArrayListExtra(EXTRA_UNINSTALL) ?: arrayListOf()
         val ops = buildDocumentSyncOps(push, download, remove, purge, uninstall)
-        if (ops.isEmpty()) { if (!active.get()) stopSelfSafe(); return START_NOT_STICKY }
+        if (ops.isEmpty()) { if (!active.get()) stopSelfSafe(startId); return START_NOT_STICKY }
 
         // fresh == this batch starts a new drain session (no drain currently running).
         val fresh = active.compareAndSet(false, true)
@@ -161,10 +169,17 @@ class DocumentSyncService : Service() {
 
     private fun drain() = scope.launch {
         ABEventBus.post(DocumentSyncProgressEvent(true, 0, total.get(), null))
+        // The start id this drain session is responsible for. Captured while we still own the
+        // queue (active == true): a fresh start() arriving after we relinquish advances
+        // lastStartId beyond this value, so stopSelfResult(stopId) then returns false and won't
+        // tear down that newer batch. Using the live lastStartId here instead would let a stale
+        // teardown stop a just-started drain (it gets overwritten by onStartCommand on its first line).
+        var stopId = lastStartId
         while (true) {
             val op = queue.poll()
             if (op == null) {
                 // No more work: relinquish ownership, then re-check for a late enqueue.
+                stopId = lastStartId
                 active.set(false)
                 if (queue.peek() == null) break
                 if (!active.compareAndSet(false, true)) break // another start() took over
@@ -192,7 +207,7 @@ class DocumentSyncService : Service() {
         // isn't open to run its own scan (e.g. after auto-upload on install).
         try { DocumentSync.refreshCache() } catch (e: Exception) { Log.e(TAG, "Cache refresh failed", e) }
         ABEventBus.post(DocumentSyncProgressEvent(false, done.get(), total.get(), null))
-        stopSelfSafe()
+        stopSelfSafe(stopId)
     }
 
     private fun notificationChannel(): String =
@@ -245,7 +260,7 @@ class DocumentSyncService : Service() {
         wakeLock = null
     }
 
-    private fun stopSelfSafe() {
+    private fun stopSelfSafe(stopId: Int) {
         if (active.get()) return
         releaseWakeLock()
         if (isForeground) {
@@ -255,8 +270,9 @@ class DocumentSyncService : Service() {
         }
         // stopSelfResult (not bare stopSelf) so a START intent delivered after this drain finished
         // but before AMS destroys us cancels the teardown — otherwise onDestroy()'s scope.cancel()
-        // would kill the freshly-started batch's in-flight transfer.
-        stopSelfResult(lastStartId)
+        // would kill the freshly-started batch's in-flight transfer. stopId is the id of the drain
+        // session being torn down, not the live lastStartId, so a newer start is never matched.
+        stopSelfResult(stopId)
     }
 
     override fun onDestroy() {
