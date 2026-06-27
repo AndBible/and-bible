@@ -16,6 +16,18 @@
   <string name="speak">Bicara</string>
   <string name="help">Bantuan</string>
   <!--Help dialog strings (phase 3 UI Help links)-->
+  <string name="help_read_more_link">Baca selengkapnya di panduan</string>
+  <string name="help_full_documentation_link">Telusuri dokumentasi lengkap</string>
+  <string name="help_prompt_edit_text">Prompt kustom memungkinkan Anda membuat instruksi AI yang dapat digunakan ulang untuk studi Anda. Atur nama, deskripsi, template, konteks di mana instruksi akan muncul, dan opsional penyedia/model kustom. Prompt bawaan tidak dapat diedit langsung — gunakan \"Salin untuk dikustomisasi\" untuk membuat versi Anda sendiri.</string>
+  <string name="help_tool_info_text">Alat AI adalah fungsi khusus yang dapat dipanggil AI untuk membaca data Anda atau membuat perubahan atas nama Anda. Alat baca (ayat-ayat, tafsiran, kamus, penanda buku) tidak pernah memerlukan izin. Alat tulis (membuat penanda buku, catatan, entri lembar studi) dikendalikan oleh sistem izin.</string>
+  <string name="help_ai_settings_text">Pengaturan AI adalah tempat Anda mengelola prompt dan kategori. Dari sini Anda dapat membuat prompt baru, mengatur dalam kategori, impor/ekspor prompt sebagai CSV, memasang paket prompt tambahan, dan mengakses pengaturan koneksi AI.</string>
+  <string name="help_ai_connection_text">Konfigurasikan penyedia AI, model, izin, dan opsi koneksi lainnya di sini. Setiap penyedia membutuhkan kunci API-nya sendiri. Anda dapat menambahkan beberapa penyedia dan memilih model default.</string>
+  <string name="help_ai_providers_text">Kelola penyedia AI (Google Gemini, OpenAI, Anthropic, dll.). Setiap penyedia membutuhkan kunci API-nya sendiri. Anda dapat menambahkan beberapa penyedia dan menetapkan yang berbeda untuk prompt tertentu.</string>
+  <string name="help_ai_models_text">Kelola model untuk penyedia ini. Anda dapat memperbarui daftar model dari API penyedia untuk mendapatkan rilis terbaru, atau menambahkan nama model secara manual jika tidak ada dalam daftar yang diambil.</string>
+  <string name="help_ai_document_filter_text">Batasi Alkitab, tafsiran, dan modul lain yang dapat dibaca agen AI. Secara default AI melihat semua modul yang terpasang; pemfilteran membantu mengurangi gangguan dan biaya saat Anda hanya ingin mempertimbangkan sumber tertentu.</string>
+  <string name="help_global_tool_permissions_text">Konfigurasikan izin untuk alat AI individual. Untuk setiap alat baca, pilih apakah AI boleh menggunakannya (Aktif atau Nonaktif). Untuk setiap alat tulis, pilih Selalu izinkan, Selalu tolak, atau Tanya (yang menggunakan mode izin global yang diatur di pengaturan Koneksi AI).</string>
+  <string name="help_reading_progress_text">Progres membaca Alkitab dan hafalan Anda secara sekilas. Tandai pasal sebagai sudah dibaca secara manual dengan tombol \"Tandai sebagai sudah dibaca\", atau aktifkan pelacakan otomatis. Latihan hafalan juga dimasukkan ke tampilan ini.</string>
+  <string name="help_memorize_text">Tampilan Hafalan membantu Anda menghafal bagian-bagian firman. Gunakan Blur Kata, Acak Kata, Ketik Kata, atau Urut Kata untuk berlatih. Latihan yang berhasil secara otomatis menandai ayat-ayat sebagai sudah dihafal (ini dapat dinonaktifkan).</string>
   <string name="information">Informasi</string>
   <string name="other">Lainnya</string>
   <string name="contact">Kontak</string>
