@@ -109,7 +109,12 @@ class CloudDocumentsAdapter(
         fun bind(item: DocumentStatusItem) {
             // Icon by book category (Bible/Commentary/Dictionary/…), matching the
             // Download Documents list. Cloud-only items may lack a category → generic book.
-            typeIcon.setImageResource(item.category?.imageResource ?: R.drawable.ic_book_24dp)
+            // Removed (tombstone) documents get a distinct cloud-off icon instead, reinforcing
+            // the "Removed from cloud" status at a glance.
+            typeIcon.setImageResource(
+                if (item.cloudDeleted) R.drawable.ic_cloud_off_24dp
+                else item.category?.imageResource ?: R.drawable.ic_book_24dp
+            )
             title.text = item.name
 
             subtitle.text = subtitleText(item)
