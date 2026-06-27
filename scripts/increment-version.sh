@@ -140,9 +140,15 @@ else
     echo -e "${YELLOW}Warning: No previous tag found.${NC}"
 fi
 
-# Extract the fixed footer from the current changelog (starts at the line matching major.minor version)
+# Extract the fixed footer from the current changelog. The footer is the stable
+# boilerplate that gets carried forward each release; the auto-generated summary
+# is prepended above it. The footer starts at the first line introducing the
+# major.minor version, in either of the two conventions used over time:
+#   - a line that is exactly "<major.minor>"            (e.g. "5.1")
+#   - a line beginning with "AndBible <major.minor>"    (e.g. "AndBible 5.1 stable release!")
 MAJOR_MINOR=$(echo "$BASE_VERSION_NAME" | sed 's/\.[0-9]*$//')
-CHANGELOG_FOOTER=$(sed -n "/^${MAJOR_MINOR}$/,\$p" "$CURRENT_CHANGELOG")
+MAJOR_MINOR_RE=$(echo "$MAJOR_MINOR" | sed 's/\./\\./g')
+CHANGELOG_FOOTER=$(sed -n "/^\(AndBible \)\?${MAJOR_MINOR_RE}\([^0-9]\|$\)/,\$p" "$CURRENT_CHANGELOG")
 
 if [[ -z "$CHANGELOG_FOOTER" ]]; then
     echo -e "${YELLOW}Warning: Could not extract changelog footer from $CURRENT_CHANGELOG${NC}"
