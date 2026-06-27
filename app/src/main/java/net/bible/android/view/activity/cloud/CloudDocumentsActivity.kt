@@ -223,6 +223,8 @@ class CloudDocumentsActivity : ActivityBase() {
             setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
             isCheckable = true
         }
+        menu.add(Menu.NONE, MENU_RESCAN, Menu.NONE, R.string.cloud_doc_rescan)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         return true
     }
 
@@ -232,6 +234,7 @@ class CloudDocumentsActivity : ActivityBase() {
             isVisible = CloudSync.signedIn && !adapter.isSelectionMode()
             isChecked = DocumentSyncSettings.showRemovedDocuments
         }
+        menu.findItem(MENU_RESCAN)?.isVisible = CloudSync.signedIn && !adapter.isSelectionMode()
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -250,6 +253,10 @@ class CloudDocumentsActivity : ActivityBase() {
             // Tombstones are already in the cloud-listing cache, so toggling their visibility is a
             // local re-render — no network fetch, just a quick cache read behind the loading bar.
             renderFromCache()
+            true
+        }
+        MENU_RESCAN -> {
+            runSyncAction { DocumentSync.resetListingCache() }   // clears cache+watermark, then re-scans
             true
         }
         android.R.id.home -> {
@@ -593,5 +600,6 @@ class CloudDocumentsActivity : ActivityBase() {
     companion object {
         private const val MENU_SYNC_NOW = 2
         private const val MENU_SHOW_REMOVED = 3
+        private const val MENU_RESCAN = 4
     }
 }
