@@ -5,9 +5,9 @@
 
 This is the single source of truth for the document-sync feature. It consolidates and
 supersedes all earlier design notes — the initial design, testing corrections, background
-service, settings-UX simplification, the **per-device direction control** notes, and the
-**removed-documents view** notes — folding in the refinements made during hands-on testing.
-It describes the feature as built.
+service, settings-UX simplification, the **per-device direction control** notes, the
+**removed-documents view** notes, and the **incremental cloud-listing** design — folding in
+the refinements made during hands-on testing. It describes the feature as built.
 
 ## Summary
 
@@ -150,8 +150,14 @@ There is no in-activity "setup mode"; the summary is the dialog.
   (excluding pseudo-books and MyDocuments).
 - **`scanCached(includeDeleted = false)`** — cache-only, no network; used to render the view
   instantly on open and to re-render local-only view changes.
-- **`refreshCache()`** — refresh the cloud-listing cache from the network (called after every
-  service drain, and on every sync run).
+- **`refreshCache()`** — **incrementally** refresh the cloud-listing cache from the network (called
+  after every service drain, and on every sync run): fetch only metas changed since the stored
+  watermark, merge them into the cache (upsert + purge) via the pure `mergeCloudListing`, and advance
+  the watermark. With nothing changed this is two round-trips and no downloads. See *Cloud-listing
+  cache* below.
+- **`resetListingCache()`** — clears the cache + watermark (keeping user prefs) so the next
+  `scan()`/`refreshCache()` cold-starts a full authoritative listing. Backs the manual "Re-scan from
+  cloud" action; recovery path for a rare clock-skew silent miss.
 - **`pushDocument(book)`** — package + upload if the cloud is missing/older; record sync timestamp.
   Re-checks the cloud (skips packaging if same/newer already there). Used for Push and Restore.
 - **`downloadAndInstall(initials)`** — download newest zip + install (integrity-checks the zip size
@@ -160,7 +166,8 @@ There is no in-activity "setup mode"; the summary is the dialog.
   also delete the local copy on this device (so it isn't orphaned); with sync **off**, keep the
   local copy. Records this device's sync timestamp = tombstone timestamp so its own next pull is
   a no-op. **Marks the cached entry `deleted` up front** (before the slow network writes) so the
-  management view is correct if reopened mid-operation.
+  management view is correct if reopened mid-operation; if the cloud tombstone write fails the mark is
+  reverted (otherwise an incremental refresh wouldn't re-fetch the still-live meta to self-correct).
 - **`purgeTombstone(initials)`** — permanently delete a tombstone's whole cloud folder
   (`DocumentStore.deleteDocument`), then `refreshCache()`. **Deletes the cached entry up front**
   for the same reopen-correctness reason. Manual only.
@@ -228,30 +235,74 @@ on a slow link the user assumes the action failed and leaves).
 `SyncService` (DB sync, "Synchronizing…") and `DocumentSyncService` are separate foreground
 services with separate notifications; both can be briefly visible during an auto-sync cycle.
 
-## Cloud-listing cache (`CacheDatabase`)
+## Per-device state & cloud-listing cache (`DocumentSyncDatabase`)
 
-`CachedCloudDocument` (mirrors `DocumentSyncMeta`) + `CloudDocumentCacheDao` live in
-`CacheDatabase` (`cloud-documents-cache.sqlite3`, `CACHE_DATABASE_VERSION` 1) — a non-backed-up,
-non-synced Room DB that is the dedicated home for pure derived caches (kept separate from
-`TemporaryDatabase`, which is single-purpose search scratch, so neither carries the other's schema).
-Pure derived data, cleared on cloud sign-out. The DAO offers `all` / `replaceAll` / `clear`, plus
-`deleteByInitials` and `markDeleted` for up-front optimistic mutations (purge / remove).
+All of document-sync's per-device state lives in one Room database, **`DocumentSyncDatabase`**
+(`document-sync.sqlite3`, `DOCUMENT_SYNC_DATABASE_VERSION` 1) — **not backed up** (absent from
+`ALL_DB_FILENAMES`), **not synced** (absent from `SyncableDatabaseDefinition`), and **cleared in its
+entirety on cloud sign-out**. Document-sync state is entirely device-local (the cloud account itself is
+re-established per device), so there is nothing to back up or sync; co-locating it makes that lifecycle
+explicit. Four tables:
 
-- Written whenever `scan()` / `runSync()` fetch a live listing, and after every service drain.
+- **`DocumentSyncPreferences`** — a singleton entity (fixed `@PrimaryKey`), `AiSettings`-style (DAO
+  `get(): DocumentSyncPreferences?` + `@Insert REPLACE`; the `DocumentSyncSettings` accessor reads
+  `dao.get() ?: DocumentSyncPreferences()` and writes `update { copy(...) }`). Holds the **user
+  preferences**: `enabled`, `wifiOnly`, `autoDownload`, `autoUpload`, `autoDelete`, `syncNow*`,
+  `showRemovedDocuments`, and `blockList: Set<String>`. (The entity is `DocumentSyncPreferences`;
+  `DocumentSyncSettings` is the accessor `object` over it.)
+- **`CloudListingState`** — a second singleton holding the operational **listing watermark**
+  (`watermark: Long`). Kept separate from prefs: it is derived sync state, and it must share the
+  cache's lifecycle (a stale watermark over an empty cache would silently hide documents).
+- **`CloudDocumentSyncTimestamp(initials @PrimaryKey, timestamp)`** — per-document last-sync timestamps.
+- **`CachedCloudDocument`** (mirrors `DocumentSyncMeta`) + `CloudDocumentCacheDao`: the cloud-listing
+  cache. DAO offers `all` / `insertAll` / `replaceAll` / `clear`, plus `deleteByInitials` and
+  `markDeleted` for up-front optimistic mutations (purge / remove; reverted if the cloud write fails).
+
+Cache behaviour:
+- Refreshed incrementally whenever `scan()` / `runSync()` fetch a live listing, and after every service
+  drain (see *Incremental listing* below).
 - **With automatic sync on**, the management view trusts the cache on open and does **not** hit the
   network (the sync cycle keeps it fresh); pull-to-refresh is available. **With sync off**, the view
   refreshes from the network on open.
-- The cache includes tombstones (`listDocuments` returns all metas), so the removed-documents view and
-  the up-front optimistic cache mutations work without a network round-trip.
+- The cache includes tombstones, so the removed-documents view and the up-front optimistic cache
+  mutations work without a network round-trip.
 
-### Parallel listing
+**Sign-out** wipes the whole `DocumentSyncDatabase` (prefs + cache + watermark + timestamps) in one
+transaction, and `CloudSync.signOut()` first stops any running `DocumentSyncService`. The next sign-in
+starts from defaults — correct, because it may target a different cloud account. (No migration of the
+old `SettingsDatabase` keys / `cloud-documents-cache.sqlite3` file: document sync is unreleased, so
+those are left dead and the orphaned cache file is deleted on first run.)
 
-`DocumentStore.listDocuments()` — the hot path behind scan/refreshCache/runSync/pushDocument/
-downloadAndInstall/removeFromCloud — fetches each folder's `meta.json` with **bounded concurrency**
-(`asyncMap(6)`) rather than one-at-a-time. Each `readMeta` is an independent read-only fetch (two
-round-trips) with its own unique temp file, so the fan-out is safe; the bound of 6 matches the
-proven DB-patch download concurrency in `CloudSync`. The single-threaded transfer drain is
-intentionally *not* parallelised (install safety, above).
+### Incremental listing
+
+Listing the cloud store used to download **every** `meta.json` (`~1 + 2N` round-trips for `N`
+documents) on every sync cycle and after every service drain — so a no-op sync still paid the full
+cost. This now mirrors DB sync's minimal listing:
+
+- **`DocumentStore.listChangedDocuments(watermark)`** — one `getFolders(root)` (current folders →
+  new-document discovery + purge detection) + one batched `listFiles(name = meta.json,
+  createdTimeAtLeast = max(0, watermark − MARGIN))`, then download/parse **only** the changed metas
+  (bounded concurrency, `asyncMap(6)`; each `readMeta` is an independent read-only fetch with its own
+  unique temp file, so the fan-out is safe). Returns the parsed metas, the set of all current folder
+  names, and the matched/failed `createdTime`s. `listDocuments()` is just `listChangedDocuments(0)`,
+  and **cold start is `watermark = 0`** (returns everything) — same code path.
+- This works because `DocumentStore.writeMeta` commits a meta change by **deleting and re-uploading**
+  `meta.json`, so every mutation (upload, upgrade, tombstone) gets a fresh `createdTime` — exactly what
+  `createdTimeAtLeast` needs.
+- **`mergeCloudListing` (pure, unit-tested)** — upserts changed metas, purges cache rows whose folder
+  vanished (`initials ∉ currentInitials`), and advances the watermark **without ever stepping over a
+  failure**: no failures → `max(matchedCreatedTimes)`; some failures → `min(failedCreatedTimes) − 1`
+  (advance past every strictly-older success, leave the earliest failure and newer to be re-fetched).
+  Floored at the old watermark, so it never regresses.
+- **Trailing MARGIN** (a few seconds): `createdTimeAtLeast = watermark − MARGIN` re-queries a small
+  window each cycle to absorb NextCloud's one-second timestamp resolution and minor clock skew (the
+  same accepted risk DB sync runs). Re-reading a cached meta is idempotent. The **"Re-scan from cloud"**
+  reset action (`resetListingCache`, cold-starts a full listing) is the explicit recovery for the rare
+  silent-miss case — a path DB sync does not even offer.
+
+The single-threaded transfer drain is intentionally *not* parallelised (install safety, above).
+Per-operation single-document reads (`pushDocument`'s cloud re-check, `removeFromCloud`,
+`downloadAndInstall`) touch one folder and are unchanged.
 
 ## Management view (`CloudDocumentsActivity`)
 
@@ -298,7 +349,7 @@ of local + cloud documents.
   dialog notes that a device still holding a local copy may re-upload it on its next sync (the tombstone
   is the signal that prevents that). The list updates optimistically (`applyOptimisticPurge`): an installed
   tombstone becomes a plain local-only row, an uninstalled one drops out.
-- **Block / unblock:** instant — updates the row in memory (a local SharedPreferences set), no network.
+- **Block / unblock:** instant — updates the row in memory (a local set in `DocumentSyncDatabase`), no network.
 - **Selection mode:** entered by long-press (no menu item). Only downloadable items are selectable;
   already-installed/synced rows are dimmed with the checkbox reserved (INVISIBLE). Bulk action downloads
   the selected items. The overflow menu hides in selection mode.
@@ -307,13 +358,18 @@ of local + cloud documents.
   remembered last choice (`syncNow*` prefs). Confirm runs `runSync(download, upload, delete, manual=true)`,
   bypassing the `enabled` and Wi-Fi-only guards but honouring the block list and tombstones. This makes
   "Sync now" genuinely bidirectional (it previously never uploaded).
+- **Overflow order & icons:** Sync now → Re-scan from cloud → Show removed documents, each with an icon
+  (forced visible in the ActionBar overflow via `onMenuOpened` + `setOptionalIconsVisible`).
+- **"Re-scan from cloud"** (overflow): calls `resetListingCache()` then a full `scan()` — clears the
+  cache + watermark and cold-starts an authoritative listing. The recovery for a clock-skew silent miss.
 
 ## Network policy & block list
 
 - **Wi-Fi-only** (default on): automatic transfers wait for an unmetered connection
   (`isAutoTransferAllowed = !wifiOnly || !isMeteredNetwork`); manual actions always proceed.
-- **Block list:** a per-device SharedPreferences set of initials that won't auto-download to this
-  device. Not synced. Honoured by the resolver and `shouldAutoUpload`, and by `resolveUploads`.
+- **Block list:** a per-device set of initials (stored in `DocumentSyncDatabase`) that won't
+  auto-download to this device. Not synced. Honoured by the resolver and `shouldAutoUpload`, and by
+  `resolveUploads`.
 
 ## Auto paths
 
@@ -341,29 +397,46 @@ Kotlin-only → `./gradlew testStandardGoogleplayDebugUnitTest`. Pure, unit-test
 - `documentMenuActions` — relevant actions per status, last-Bible suppression, and tombstone rows
   (Restore only when installed locally; Purge always; never Download/Push/Remove/Block).
 - `applyOptimisticRemoval` / `applyOptimisticPurge` — expected list state per sync/install state.
-- `filterCloudDocuments` — status (incl. REMOVED) × name × category.
+- `filterCloudDocuments` — status (incl. REMOVED) × name × category; tombstones excluded from every
+  non-removed status filter even when they carry blocked/update flags.
 - `CloudDocumentCacheMapping` — `DocumentSyncMeta` ↔ `CachedCloudDocument` round-trip.
+- `mergeCloudListing` — upsert of changed metas; purge of vanished folders; watermark advances to the
+  max matched `createdTime` with no failures, and only to just below the earliest failure otherwise
+  (never steps over a failure, never pinned by one); cold start (`watermark = 0`) ingests the full set.
+- `DocumentSyncSettings` / `DocumentSyncEntities` — singleton get-or-default, independent-column
+  round-trips, per-key timestamp isolation, watermark + block-list round-trip.
+- Sign-out wipes the whole `DocumentSyncDatabase` (prefs + cache + watermark + timestamps).
 
 Service/activity wiring (dialogs, sign-in/cache gate, notification, loading bar, selection mode,
-spinner rebuild, the operation picker, the show-removed toggle) is verified by manual on-device testing.
+spinner rebuild, the operation picker, the show-removed toggle, the re-scan/reset action, and the
+adapter `createdTimeAtLeast` server-side filtering on both Google Drive and NextCloud) is verified by
+manual on-device testing.
 
 ## Key components
 
 - `service/cloudsync/documents/`: `DocumentSync` (`runSync`, `scan`/`scanCached` with `includeDeleted`,
-  `assembleStatusItems`/`LocalDoc`, `pushDocument`, `downloadAndInstall`, `removeFromCloud`,
-  `purgeTombstone`, `uninstallLocal`), `DocumentSyncService` (Push/Download/Remove/Purge/Uninstall ops),
+  `refreshCache` (incremental), `resetListingCache`, `onSignOut`, `assembleStatusItems`/`LocalDoc`,
+  `pushDocument`, `downloadAndInstall`, `removeFromCloud`, `purgeTombstone`, `uninstallLocal`),
+  `DocumentSyncService` (Push/Download/Remove/Purge/Uninstall ops; `start`/`stop`),
   `DocumentSyncOps` (`buildDocumentSyncOps`, `selectSyncActions`, `shouldAutoUpload`),
-  `DocumentSyncResolver` (`resolveDocumentSyncActions`, `resolveUploads`), `DocumentSyncMeta`,
-  `DocumentSyncSettings` (three auto toggles + `showRemovedDocuments` + remembered Sync-now choice),
-  `DocumentStore` (parallel `listDocuments`, `deleteDocument`), `DocumentArchiver`, `DocumentBlockList`,
-  `CloudDocumentCacheMapping`.
-- `database/`: `CachedCloudDocument` + `CloudDocumentCacheDao` (`deleteByInitials`, `markDeleted`) in
-  `CacheDatabase` (dedicated pure-derived-cache DB, separate from `TemporaryDatabase`).
+  `DocumentSyncResolver` (`resolveDocumentSyncActions`, `resolveUploads`),
+  `DocumentListingMerge` (`mergeCloudListing`), `DocumentSyncMeta`,
+  `DocumentSyncSettings` (accessor over the `DocumentSyncDatabase` singletons: toggles, watermark,
+  per-doc timestamps, block list, remembered Sync-now choice),
+  `DocumentStore` (`listChangedDocuments`/`listDocuments`, `readMeta`, `writeMeta`, `writeTombstone`,
+  `deleteDocument`), `DocumentArchiver`, `DocumentBlockList`, `CloudDocumentCacheMapping`.
+- `database/`: `DocumentSyncDatabase` (`document-sync.sqlite3`; not backed up / not synced / wiped on
+  sign-out) holding `DocumentSyncPreferences` + `CloudListingState` singletons,
+  `CloudDocumentSyncTimestamp`, and `CachedCloudDocument` + `CloudDocumentCacheDao`
+  (`deleteByInitials`, `markDeleted`); registered in `DatabaseContainer` (closed on reset; first-run
+  deletion of the old `cloud-documents-cache.sqlite3`).
 - `view/activity/cloud/`: `CloudDocumentsActivity` (`documentMenuActions`, `filterCloudDocuments`,
   `applyOptimisticRemoval`/`applyOptimisticPurge`, `setupStatusFilter`, `renderFromCache`,
-  `CloudDocAction`, `CloudDocFilter`), `CloudDocumentsAdapter`.
-- `res/`: `ic_cloud_off_24dp`, `sync_settings.xml`, `item_cloud_document.xml`, `strings.xml`.
-- Touchpoints: `BookInstallWatcher`, `CloudSync.synchronize`, `SyncSettings`, `DocumentControl.canDelete`.
+  the re-scan/reset action, `CloudDocAction`, `CloudDocFilter`), `CloudDocumentsAdapter`.
+- `res/`: `ic_cloud_off_24dp`, `ic_cloud_download_24dp`, `ic_cloud_upload_24dp`, `sync_settings.xml`,
+  `item_cloud_document.xml`, `strings.xml`.
+- Touchpoints: `BookInstallWatcher`, `CloudSync.synchronize`/`signOut`, `SyncSettings`,
+  `DocumentControl.canDelete`.
 
 ## Future considerations
 
@@ -374,3 +447,8 @@ spinner rebuild, the operation picker, the show-removed toggle) is verified by m
   the batch) — only if bulk uploads prove slow after the parallel-listing win.
 - Confirm `OwnCloudClient` thread-safety for the unbounded NextCloud `listFiles` fan-out (a DB-sync
   concern, not document sync).
+- A per-document sequence number in `meta.json` could make incremental detection skew-proof (like DB
+  sync's patch numbers), removing the residual NextCloud clock-skew risk — only worth it if skew misses
+  prove real in practice.
+- If a generic (non-document-sync) derived cache is ever needed, it gets its own database rather than
+  reusing `DocumentSyncDatabase`.
