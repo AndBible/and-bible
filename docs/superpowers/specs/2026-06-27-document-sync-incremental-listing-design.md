@@ -66,12 +66,14 @@ All of document-sync's per-device state moves into one database, renamed from `C
   **Not backed up** (absent from `ALL_DB_FILENAMES`), **not synced** (absent from
   `SyncableDatabaseDefinition`), and **cleared in its entirety on cloud sign-out**.
 - Contents (four tables):
-  - **`DocumentSyncSettings`** — a **singleton entity** (fixed `@PrimaryKey = SINGLETON_ID`),
-    following the `GlobalAiSettings` / `AiSettings` pattern: DAO `get(): DocumentSyncSettings?`
-    (`SELECT … LIMIT 1`) + `set()` (`@Insert REPLACE`); the accessor reads `dao.get() ?:
-    DocumentSyncSettings()` and writes via `update { copy(...) }`. Holds the **user preferences
-    only**: `enabled`, `wifiOnly`, `autoDownload`, `autoUpload`, `autoDelete`, `syncNowDownload`,
-    `syncNowUpload`, `syncNowDelete`, `showRemovedDocuments`, `blockList: Set<String>`.
+  - **`DocumentSyncPreferences`** — a **singleton entity** (fixed `@PrimaryKey = SINGLETON_ID`),
+    following the `GlobalAiSettings` / `AiSettings` pattern: DAO `get(): DocumentSyncPreferences?`
+    (`SELECT … LIMIT 1`) + `set()` (`@Insert REPLACE`); the `DocumentSyncSettings` accessor object
+    reads `dao.get() ?: DocumentSyncPreferences()` and writes via `update { copy(...) }`. (The
+    *entity* is `DocumentSyncPreferences`; `DocumentSyncSettings` is the accessor `object` over it —
+    they are deliberately distinct so there are not two types named `DocumentSyncSettings`.) Holds
+    the **user preferences only**: `enabled`, `wifiOnly`, `autoDownload`, `autoUpload`, `autoDelete`,
+    `syncNowDownload`, `syncNowUpload`, `syncNowDelete`, `showRemovedDocuments`, `blockList: Set<String>`.
   - **`CloudListingState`** — a second singleton entity holding the operational **listing
     watermark** (`watermark: Long`). Kept separate from settings: the watermark is derived sync
     state, not a user preference.
@@ -192,7 +194,7 @@ correctness guarantee against arbitrary skew — the reset action is that guaran
 ## Key components
 
 - `database/Databases.kt`: rename `CacheDatabase` → `DocumentSyncDatabase` (new file name); add the
-  `DocumentSyncSettings` + `CloudListingState` singleton entities and the `CloudDocumentSyncTimestamp`
+  `DocumentSyncPreferences` + `CloudListingState` singleton entities and the `CloudDocumentSyncTimestamp`
   table alongside `CachedCloudDocument`, with their DAOs; `DatabaseContainer` registration + first-run
   deletion of the old `cloud-documents-cache.sqlite3`.
 - `cloudsync/documents/DocumentSyncSettings.kt`: becomes an accessor `object` over the two singleton
