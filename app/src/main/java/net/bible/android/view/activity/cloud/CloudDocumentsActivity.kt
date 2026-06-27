@@ -42,6 +42,7 @@ import net.bible.service.cloudsync.documents.DocumentSync.DocumentStatusItem
 import net.bible.service.cloudsync.documents.DocumentSyncProgressEvent
 import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.BookCategory
 
 enum class CloudDocFilter { ALL, INSTALLED, CLOUD, UPDATES, BLOCKED, REMOVED }
@@ -199,6 +200,16 @@ class CloudDocumentsActivity : ActivityBase() {
         binding.nameSearch.addTextChangedListener(afterTextChanged = { applyFilter(resetSelection = true) })
 
         binding.swipeRefresh.setOnRefreshListener { refresh() }
+
+        // Honour the no-animations preference (default on for e-ink): a continuously animating
+        // indeterminate bar causes constant screen refresh / ghosting on e-ink. Set the bar to a
+        // static determinate state once, while it is still GONE — its presence then means "working"
+        // and its disappearance means "done", with no motion. (Material forbids switching the
+        // indeterminate mode while the indicator is visible, so this must be done up front.)
+        if (CommonUtils.settings.disableAnimations) {
+            binding.loadingBar.isIndeterminate = false
+            binding.loadingBar.progress = 100
+        }
 
         openOrGate()
         ABEventBus.register(this)

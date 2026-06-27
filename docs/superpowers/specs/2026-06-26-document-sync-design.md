@@ -279,7 +279,9 @@ of local + cloud documents.
 - **Loading indicator:** a Material `LinearProgressIndicator` overlaid at the top, shown via a
   `setBusy` counter for local async ops plus a boolean for the repeating transfer events, so it stays
   on continuously across overlapping operations without flicker or getting stuck. Pull-to-refresh
-  keeps its own swipe spinner.
+  keeps its own swipe spinner. When animations are disabled (default on e-ink), the bar is set to a
+  static determinate state up front rather than the animating indeterminate one — visible "working"
+  feedback with no continuous motion (e-ink ghosting).
 - **Per-item popup menu (`documentMenuActions`, pure + tested):** only relevant actions.
   - Normal rows: Download (cloud-only or cloud newer), Push (local-only or local newer), Remove (cloud
     copy exists), Block/Unblock. A fully-synced item has no Push.
