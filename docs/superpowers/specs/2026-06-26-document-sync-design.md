@@ -331,7 +331,8 @@ Kotlin-only → `./gradlew testStandardGoogleplayDebugUnitTest`. Pure, unit-test
   excluded (a still-installed local copy is never auto-pushed over a tombstone).
 - `buildDocumentSyncOps` — push → download → remove → purge → uninstall order.
 - `shouldAutoUpload` — guard combinations incl. the `autoUpload` gate.
-- `computeDocumentSyncSummary` — uploads/downloads split + sizes, block-list exclusion.
+- `computeDocumentSyncSummary` — uploads (local-only + local-newer) / downloads split + sizes,
+  block-list exclusion. The upload split mirrors `resolveUploads`.
 - `assembleStatusItems` — tombstone include/exclude by `includeDeleted`; tombstone+local → local-only +
   `cloudDeleted`; no-regression on the default path.
 - `documentMenuActions` — relevant actions per status, last-Bible suppression, and tombstone rows

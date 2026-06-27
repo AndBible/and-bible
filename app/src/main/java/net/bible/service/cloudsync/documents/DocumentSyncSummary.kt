@@ -32,12 +32,14 @@ data class DocumentSyncSummary(
 }
 
 /**
- * From a [DocumentSync.scan] result, compute uploads (local-only) and downloads
- * (cloud-only or update-available), excluding [blocked] documents.
+ * From a [DocumentSync.scan] result, compute uploads (local-only or local-newer-than-cloud) and
+ * downloads (cloud-only or update-available), excluding [blocked] documents. The upload split
+ * mirrors [resolveUploads] so the enable dialog's count matches what the first sync actually pushes
+ * — a locally-newer document is pushed as an upgrade, so it must be counted here too.
  */
 fun computeDocumentSyncSummary(items: List<DocumentStatusItem>, blocked: Set<String>): DocumentSyncSummary {
     val eligible = items.filterNot { it.initials in blocked }
-    val uploads = eligible.filter { it.localOnly }
+    val uploads = eligible.filter { it.localOnly || it.localNewer }
     val downloads = eligible.filter { it.cloudOnly || it.updateAvailable }
     return DocumentSyncSummary(
         uploadInitials = uploads.map { it.initials },

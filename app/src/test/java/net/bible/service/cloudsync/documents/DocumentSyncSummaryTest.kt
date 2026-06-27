@@ -25,11 +25,11 @@ import org.junit.Test
 class DocumentSyncSummaryTest {
     private fun item(
         initials: String, localOnly: Boolean = false, cloudOnly: Boolean = false,
-        update: Boolean = false, size: Long = 0,
+        update: Boolean = false, localNewer: Boolean = false, size: Long = 0,
     ) = DocumentStatusItem(
         initials = initials, name = initials, type = DocumentType.SWORD,
         cloudVersion = null, localVersion = null, cloudOnly = cloudOnly, localOnly = localOnly,
-        updateAvailable = update, localNewer = false, blocked = false, sizeBytes = size, category = BookCategory.BIBLE,
+        updateAvailable = update, localNewer = localNewer, blocked = false, sizeBytes = size, category = BookCategory.BIBLE,
         canDeleteLocal = true,
     )
 
@@ -47,6 +47,20 @@ class DocumentSyncSummaryTest {
         assertEquals(250L, s.downloadBytes)
         assertEquals(1, s.uploadCount)
         assertEquals(2, s.downloadCount)
+    }
+
+    @Test fun localNewerCountsAsUpload() {
+        // A locally-newer document is pushed as an upgrade by resolveUploads, so the enable dialog
+        // must count it as an upload too (it was previously omitted, under-reporting the count).
+        val items = listOf(
+            item("UP", localOnly = true, size = 100),
+            item("LN", localNewer = true, size = 30),
+            item("DL", cloudOnly = true, size = 200),
+        )
+        val s = computeDocumentSyncSummary(items, blocked = emptySet())
+        assertEquals(listOf("UP", "LN"), s.uploadInitials)
+        assertEquals(130L, s.uploadBytes)
+        assertEquals(listOf("DL"), s.downloadInitials)
     }
 
     @Test fun blockedItemsAreExcluded() {
