@@ -86,7 +86,7 @@ object DocumentSync {
     )
 
     suspend fun scan(includeDeleted: Boolean = false): List<DocumentStatusItem> {
-        val cacheDao = DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao()
+        val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
         val store = store()
         val local = installedSyncableBooks().associateBy { it.initials }
         val cloudMetas: List<DocumentSyncMeta> = if (store != null) {
@@ -106,7 +106,7 @@ object DocumentSync {
      */
     suspend fun refreshCache() {
         val store = store() ?: return
-        val cacheDao = DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao()
+        val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
         cacheDao.replaceAll(store.listDocuments().map { it.toCacheEntity() })
     }
 
@@ -119,7 +119,7 @@ object DocumentSync {
      */
     suspend fun onSignOut() {
         DocumentSyncSettings.enabled = false
-        DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao().clear()
+        DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao().clear()
     }
 
     /**
@@ -128,7 +128,7 @@ object DocumentSync {
      * the network in the background.
      */
     suspend fun scanCached(includeDeleted: Boolean = false): List<DocumentStatusItem> {
-        val cacheDao = DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao()
+        val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
         val local = installedSyncableBooks().associateBy { it.initials }
         return buildStatusItems(cacheDao.all().map { it.toMeta() }, local, includeDeleted)
     }
@@ -253,7 +253,7 @@ object DocumentSync {
         val cloudMetas = store.listDocuments()
         // Keep the cache fresh on every run (not only when something transfers), so with automatic
         // sync on the management view can trust the cache without hitting the network.
-        DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao()
+        DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
             .replaceAll(cloudMetas.map { it.toCacheEntity() })
         val local = installedSyncableBooks().associateBy { it.initials }
         val cloudDocs = cloudMetas.map {
@@ -312,7 +312,7 @@ object DocumentSync {
         val store = store() ?: return
         // Mark the cache entry as a tombstone up front (before the slow network writes) so the
         // management view is correct even if it is closed and reopened mid-operation.
-        DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao().markDeleted(initials)
+        DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao().markDeleted(initials)
         val now = System.currentTimeMillis()
         val existing = store.listDocuments().firstOrNull { it.initials == initials }
         // Remove is only offered when a cloud copy exists, so `existing` is normally present;
@@ -351,7 +351,7 @@ object DocumentSync {
         val store = store() ?: return
         // Drop the cache entry up front (before the slow network delete) so the management view is
         // correct even if it is closed and reopened mid-operation — scanCached reads the cache.
-        DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao().deleteByInitials(initials)
+        DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao().deleteByInitials(initials)
         store.deleteDocument(initials)
         refreshCache()
     }

@@ -137,25 +137,27 @@ abstract class TemporaryDatabase: RoomDatabase() {
     abstract fun documentSearchDao(): DocumentSearchDao
 }
 
-const val CACHE_DATABASE_VERSION = 1
+const val DOCUMENT_SYNC_DATABASE_VERSION = 1
 
 /**
- * Home for pure derived caches — data that is rebuildable from an authoritative source and is
- * therefore never backed up and never synced (cleared on cloud sign-out). Currently the cloud
- * document-listing cache; further such caches can be added here as they share this lifecycle.
+ * Home for all per-device document-sync state — settings, the cloud-listing cache, the listing
+ * watermark, and per-document sync timestamps. Entirely device-local: never backed up (absent from
+ * ALL_DB_FILENAMES), never synced (absent from SyncableDatabaseDefinition), and wiped on cloud
+ * sign-out. Document-sync setup is re-established per device (the cloud account itself is
+ * device-local), so there is nothing here to back up or sync.
  *
- * Kept separate from [TemporaryDatabase] on purpose: that one is single-purpose search scratch with
- * its own (multi-file) lifecycle, and conflating the two schemas in one class would force every
- * file instantiated from it to carry the union of both schemas plus unused DAOs.
+ * Kept separate from [TemporaryDatabase]: that one is single-purpose search scratch with its own
+ * (multi-file) lifecycle, and conflating the two schemas in one class would force every file
+ * instantiated from it to carry the union of both schemas plus unused DAOs.
  */
 @Database(
     entities = [
         CachedCloudDocument::class,
     ],
-    version = CACHE_DATABASE_VERSION
+    version = DOCUMENT_SYNC_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
-abstract class CacheDatabase: RoomDatabase() {
+abstract class DocumentSyncDatabase: RoomDatabase() {
     abstract fun cloudDocumentCacheDao(): CloudDocumentCacheDao
 }
 

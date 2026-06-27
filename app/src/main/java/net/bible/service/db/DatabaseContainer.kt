@@ -26,7 +26,7 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
-import net.bible.android.database.CacheDatabase
+import net.bible.android.database.DocumentSyncDatabase
 import net.bible.android.database.LogEntry
 import net.bible.android.database.OldMonolithicAppDatabase
 import net.bible.android.database.REPO_DATABASE_VERSION
@@ -84,6 +84,8 @@ class DataBaseNotReady: Exception()
 class DatabaseContainer {
     init {
         backupDatabaseIfNeeded()
+        // The cloud-document cache DB was renamed to document-sync.sqlite3; drop the orphaned file.
+        if (!application.isRunningTests) application.deleteDatabase("cloud-documents-cache.sqlite3")
         migrateOldDatabaseIfNeeded()
     }
 
@@ -249,9 +251,9 @@ class DatabaseContainer {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
-    val cloudDocumentsCacheDb: CacheDatabase =
+    val documentSyncDb: DocumentSyncDatabase =
         Room.databaseBuilder(
-            application, CacheDatabase::class.java, "cloud-documents-cache.sqlite3"
+            application, DocumentSyncDatabase::class.java, "document-sync.sqlite3"
         )
             .allowMainThreadQueries()
             .openHelperFactory(dbFactory)
