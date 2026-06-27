@@ -126,14 +126,14 @@ fun selectSyncActions(
  * Initials of locally installed documents that should be pushed to the cloud: those with no live
  * cloud copy (local-only) or whose local version is strictly newer than the cloud copy. [blocked]
  * documents are excluded (this device opts out of syncing them). A tombstoned cloud entry counts
- * as "no live copy". [isNewer] is the same comparator used elsewhere: returns true when its first
- * argument is strictly newer than its second.
+ * as "no live copy". [isNewer] is the same comparator used elsewhere: returns true when [candidate]
+ * is strictly newer than [baseline].
  */
 fun resolveUploads(
     localDocs: Map<String, LocalDocument>,
     cloudDocs: List<CloudDocument>,
     blocked: Set<String>,
-    isNewer: (cloudVersion: String, localVersion: String) -> Boolean,
+    isNewer: (candidate: String, baseline: String) -> Boolean,
 ): List<String> {
     val liveCloud = cloudDocs.filterNot { it.deleted }.associateBy { it.initials }
     return localDocs.values
