@@ -1005,6 +1005,7 @@
   <string name="sqlite_invalid_file">Ugyldig modulfil eller filnavn: %s</string>
   <string name="sqlite_cant_write">Kan ikke (over)skrive filen</string>
   <string name="install_failed_reason">Installation af modul mislykkedes af følgende årsag: %s.</string>
+  <string name="no_file_manager">Der blev ikke fundet nogen app til at vælge en fil. Installér venligst en filhåndtering og prøv igen.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">App åbnet andetsteds</string>
   <string name="open_here">Åbn her</string>
@@ -1105,6 +1106,9 @@
   <string name="agent_max_iterations_summary">Maksimalt antal iterationer før der spørges om at fortsætte (0 = ubegrænset)</string>
   <string name="ask_model_before_run_title">Spørg om model før kørsel</string>
   <string name="ask_model_before_run_summary">Vis en modelvalgs-dialog før en prompt udføres (springes over når prompten har en eksplicit modeloverskrivning)</string>
+  <string name="auto_hide_agent_log_title">Skjul AI-panel når færdig</string>
+  <string name="auto_hide_agent_log_summary">Skjul automatisk AI-panelet, når en opgave afsluttes med succes eller annulleres. Ved fejl forbliver panelet synligt.</string>
+  <string name="ai_task_completed">AI-opgave fuldført</string>
   <string name="custom_agent_system_prompt_title">Agents systemprompt</string>
   <string name="custom_system_prompt_summary">Redigering anbefales ikke medmindre du ved hvad du gør</string>
   <string name="custom_text_transform_system_prompt_title">Systemprompt til teksttransformation</string>
@@ -1550,4 +1554,64 @@
   <string name="scroll_helper_line_style_thick_solid">Tyk hel linje</string>
   <string name="prefs_page_buttons_title">Siderulleknapper</string>
   <string name="prefs_page_buttons_summary">Vis synlige op/ned-knapper på skærmen</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumenter</string>
+  <string name="document_sync_contents">Installerede bibler, kommentarer og andre dokumenter</string>
+  <string name="document_sync_category_title">Dokumentsynkronisering</string>
+  <string name="document_sync_auto_download_title">Hent automatisk</string>
+  <string name="document_sync_auto_download_summary">Hent automatisk nye og opdaterede dokumenter fra skyen til denne enhed</string>
+  <string name="document_sync_auto_upload_title">Upload automatisk</string>
+  <string name="document_sync_auto_upload_summary">Upload automatisk dokumenter installeret på denne enhed til skyen</string>
+  <string name="document_sync_auto_delete_title">Anvend fjernelser automatisk</string>
+  <string name="document_sync_auto_delete_summary">Fjern automatisk dokumenter fra denne enhed, når de fjernes på en anden enhed</string>
+  <string name="document_sync_wifi_only_title">Synkronisér kun dokumenter via Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Automatiske dokumentoverførsler venter på en forbindelse uden datatakst (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Se og administrér dokumenter gemt i skyen</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Synkroniserede dokumenter</string>
+  <string name="cloud_doc_status_synced">Synkroniseret</string>
+  <string name="cloud_doc_status_local_only">Kun på denne enhed</string>
+  <string name="cloud_doc_status_cloud_only">Kun i skyen</string>
+  <string name="cloud_doc_status_update">Opdatering tilgængelig</string>
+  <string name="cloud_doc_status_blocked">Blokeret på denne enhed</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Alle</string>
+  <string name="cloud_doc_filter_installed">Installeret</string>
+  <string name="cloud_doc_filter_cloud">I skyen</string>
+  <string name="cloud_doc_filter_updates">Opdateringer</string>
+  <string name="cloud_doc_filter_blocked">Blokeret</string>
+  <string name="cloud_doc_filter_removed">Fjernet</string>
+  <string name="cloud_doc_show_removed">Vis fjernede dokumenter</string>
+  <string name="cloud_doc_status_removed">Fjernet fra skyen</string>
+  <string name="cloud_doc_status_still_installed">stadig installeret her</string>
+  <string name="cloud_doc_purge_confirm">Fjern permanent \"%1$s\" fra skyens historik? Hvis det stadig er installeret på en anden enhed, kan den enhed uploade det tilbage til skyen ved sin næste synkronisering.</string>
+  <string name="cloud_doc_action_download">Hent</string>
+  <string name="cloud_doc_action_push">Upload til skyen</string>
+  <string name="cloud_doc_action_remove_cloud">Fjern fra skyen</string>
+  <string name="cloud_doc_action_remove_all_devices">Fjern fra alle enheder</string>
+  <string name="cloud_doc_action_block">Synkronisér ikke til denne enhed</string>
+  <string name="cloud_doc_action_unblock">Tillad på denne enhed</string>
+  <string name="cloud_doc_action_restore">Gendan til skyen</string>
+  <string name="cloud_doc_action_purge">Fjern fra skyens historik</string>
+  <string name="cloud_doc_remove_all_confirm">Fjern %1$s fra skyen og fra alle dine enheder, inklusive denne?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Fjern %1$s fra skyen? Kopien på denne enhed bevares; enheder med dokumentsynkronisering slået til vil også fjerne det.</string>
+  <string name="cloud_doc_sync_now">Synkronisér nu</string>
+  <string name="cloud_doc_sync_now_download">Hent nye og opdaterede dokumenter</string>
+  <string name="cloud_doc_sync_now_upload">Upload lokale dokumenter til skyen</string>
+  <string name="cloud_doc_sync_now_delete">Anvend fjernelser fra andre enheder</string>
+  <string name="document_sync_signin_required">Log ind på din skykonto for at administrere synkroniserede dokumenter.</string>
+  <string name="cloud_doc_summary_upload">Upload %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Upload %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Hent %1$d</string>
+  <string name="cloud_doc_summary_download_size">Hent %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Automatiske hentninger starter via Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Hent valgte (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Alle tilgængelige dokumenter er allerede hentet.</string>
+  <string name="document_sync_notification_title">Synkroniserer dokumenter</string>
+  <string name="document_sync_downloading">Henter %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Uploader %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Fjerner %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Dokumentsynkronisering startet</string>
+  <string name="document_sync_enable_dialog_title">Start synkronisering af dokumenter?</string>
+  <string name="document_sync_enable_dialog_nothing">Ingen dokumenter at overføre endnu. Nyligt installerede dokumenter synkroniseres automatisk.</string>
 </resources>

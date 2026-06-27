@@ -1063,6 +1063,7 @@ Hifadhidata iliyopo ambayo kifaa hiki hakikusawazishwa nayo imepatikana katika W
   <string name="sqlite_invalid_file">Faili la moduli au jina la faili si sahihi: %s</string>
   <string name="sqlite_cant_write">Haiwezi kuandika (juu ya) faili</string>
   <string name="install_failed_reason">Kusanikisha moduli kumeshindwa kwa sababu ifuatayo: %s.</string>
+  <string name="no_file_manager">Hakuna programu iliyopatikana ya kuchagua faili. Tafadhali sakinisha kidhibiti faili kisha ujaribu tena.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Programu imefunguliwa mahali pengine</string>
   <string name="open_here">Fungua hapa</string>
@@ -1164,6 +1165,9 @@ Usionyeshe ujumbe huu tena</string>
   <string name="agent_max_iterations_summary">Marudio ya juu zaidi kabla ya kuuliza kuendelea (0 = bila kikomo)</string>
   <string name="ask_model_before_run_title">Uliza mfano kabla ya kuendesha</string>
   <string name="ask_model_before_run_summary">Onyesha mazungumzo ya uteuzi wa mfano kabla ya kutekeleza agizo (kurukwa agizo lina upinzani wa mfano uliowekwa wazi)</string>
+  <string name="auto_hide_agent_log_title">Ficha paneli ya AI ikikamilika</string>
+  <string name="auto_hide_agent_log_summary">Ficha kiotomatiki paneli ya AI wakati kazi inapokamilika kwa mafanikio au inapoghairiwa. Ikiwa kuna hitilafu, paneli hubaki ikionekana.</string>
+  <string name="ai_task_completed">Kazi ya AI imekamilika</string>
   <string name="custom_agent_system_prompt_title">Maagizo ya mfumo wa wakala</string>
   <string name="custom_system_prompt_summary">Kuhariri hakupendekezwi isipokuwa unajua unachofanya</string>
   <string name="custom_text_transform_system_prompt_title">Maagizo ya mfumo wa mabadiliko ya maandishi</string>
@@ -1609,4 +1613,64 @@ Usionyeshe ujumbe huu tena</string>
   <string name="scroll_helper_line_style_thick_solid">Mstari mnene imara</string>
   <string name="prefs_page_buttons_title">Vitufe vya kusogeza ukurasa</string>
   <string name="prefs_page_buttons_summary">Onyesha vitufe vinavyoonekana vya ukurasa juu/chini kwenye skrini</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Hati</string>
+  <string name="document_sync_contents">Biblia, maoni na hati nyingine zilizosakinishwa</string>
+  <string name="document_sync_category_title">Usawazishaji wa hati</string>
+  <string name="document_sync_auto_download_title">Pakua kiotomatiki</string>
+  <string name="document_sync_auto_download_summary">Pakua kiotomatiki hati mpya na zilizosasishwa kutoka winguni hadi kwenye kifaa hiki</string>
+  <string name="document_sync_auto_upload_title">Pakia kiotomatiki</string>
+  <string name="document_sync_auto_upload_summary">Pakia kiotomatiki hati zilizosakinishwa kwenye kifaa hiki hadi winguni</string>
+  <string name="document_sync_auto_delete_title">Tekeleza maondoaji kiotomatiki</string>
+  <string name="document_sync_auto_delete_summary">Ondoa kiotomatiki hati kutoka kwenye kifaa hiki zinapoondolewa kwenye kifaa kingine</string>
+  <string name="document_sync_wifi_only_title">Sawazisha hati kwa Wi-Fi pekee</string>
+  <string name="document_sync_wifi_only_summary">Uhamishaji wa hati kiotomatiki husubiri muunganisho usiopimwa (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Tazama na dhibiti hati zilizohifadhiwa winguni</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Hati zilizosawazishwa</string>
+  <string name="cloud_doc_status_synced">Imesawazishwa</string>
+  <string name="cloud_doc_status_local_only">Kwenye kifaa hiki pekee</string>
+  <string name="cloud_doc_status_cloud_only">Winguni pekee</string>
+  <string name="cloud_doc_status_update">Sasisho linapatikana</string>
+  <string name="cloud_doc_status_blocked">Imezuiwa kwenye kifaa hiki</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Zote</string>
+  <string name="cloud_doc_filter_installed">Zilizosakinishwa</string>
+  <string name="cloud_doc_filter_cloud">Winguni</string>
+  <string name="cloud_doc_filter_updates">Sasisho</string>
+  <string name="cloud_doc_filter_blocked">Zilizozuiwa</string>
+  <string name="cloud_doc_filter_removed">Zilizoondolewa</string>
+  <string name="cloud_doc_show_removed">Onyesha hati zilizoondolewa</string>
+  <string name="cloud_doc_status_removed">Imeondolewa winguni</string>
+  <string name="cloud_doc_status_still_installed">bado imesakinishwa hapa</string>
+  <string name="cloud_doc_purge_confirm">Ondoa kabisa \"%1$s\" kutoka kwenye historia ya wingu? Ikiwa bado imesakinishwa kwenye kifaa kingine, kifaa hicho kinaweza kuipakia tena winguni katika usawazishaji wake unaofuata.</string>
+  <string name="cloud_doc_action_download">Pakua</string>
+  <string name="cloud_doc_action_push">Pakia winguni</string>
+  <string name="cloud_doc_action_remove_cloud">Ondoa kutoka winguni</string>
+  <string name="cloud_doc_action_remove_all_devices">Ondoa kutoka vifaa vyote</string>
+  <string name="cloud_doc_action_block">Usisawazishe kwenye kifaa hiki</string>
+  <string name="cloud_doc_action_unblock">Ruhusu kwenye kifaa hiki</string>
+  <string name="cloud_doc_action_restore">Rejesha winguni</string>
+  <string name="cloud_doc_action_purge">Ondoa kutoka historia ya wingu</string>
+  <string name="cloud_doc_remove_all_confirm">Ondoa %1$s kutoka winguni na kutoka vifaa vyako vyote, ikiwa ni pamoja na hiki?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Ondoa %1$s kutoka winguni? Nakala iliyo kwenye kifaa hiki itahifadhiwa; vifaa vyenye usawazishaji wa hati pia vitaiondoa.</string>
+  <string name="cloud_doc_sync_now">Sawazisha sasa</string>
+  <string name="cloud_doc_sync_now_download">Pakua hati mpya na zilizosasishwa</string>
+  <string name="cloud_doc_sync_now_upload">Pakia hati za ndani winguni</string>
+  <string name="cloud_doc_sync_now_delete">Tekeleza maondoaji kutoka vifaa vingine</string>
+  <string name="document_sync_signin_required">Ingia kwenye akaunti yako ya wingu ili kudhibiti hati zilizosawazishwa.</string>
+  <string name="cloud_doc_summary_upload">Pakia %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Pakia %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Pakua %1$d</string>
+  <string name="cloud_doc_summary_download_size">Pakua %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Upakuaji kiotomatiki utaanza kwa Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Pakua zilizochaguliwa (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Hati zote zinazopatikana tayari zimepakuliwa.</string>
+  <string name="document_sync_notification_title">Inasawazisha hati</string>
+  <string name="document_sync_downloading">Inapakua %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Inapakia %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Inaondoa %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Usawazishaji wa hati umeanza</string>
+  <string name="document_sync_enable_dialog_title">Anza kusawazisha hati?</string>
+  <string name="document_sync_enable_dialog_nothing">Hakuna hati za kuhamisha bado. Hati mpya zilizosakinishwa zitasawazishwa kiotomatiki.</string>
 </resources>

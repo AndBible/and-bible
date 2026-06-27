@@ -1169,6 +1169,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="sqlite_invalid_file">Geçersiz modül dosyası veya dosya adı: %s</string>
   <string name="sqlite_cant_write">Dosya (üzerine) yazılamıyor</string>
   <string name="install_failed_reason">Modülün yüklenmesi aşağıdaki nedenden dolayı başarısız oldu: %s.</string>
+  <string name="no_file_manager">Dosya seçmek için bir uygulama bulunamadı. Lütfen bir dosya yöneticisi yükleyip tekrar deneyin.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Uygulama başka bir yerde açıldı</string>
   <string name="open_here">Burayı açın</string>
@@ -1271,6 +1272,9 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="agent_max_iterations_summary">Devam etmeyi sormadan önce maksimum yineleme sayısı (0 = sınırsız)</string>
   <string name="ask_model_before_run_title">Çalıştırmadan önce model sor</string>
   <string name="ask_model_before_run_summary">Bir istem çalıştırılmadan önce model seçimi iletişim kutusunu göster (istemde açık bir model geçersiz kılma varsa atlanır)</string>
+  <string name="auto_hide_agent_log_title">İşlem bitince yapay zeka panelini gizle</string>
+  <string name="auto_hide_agent_log_summary">Bir görev başarıyla tamamlandığında veya iptal edildiğinde yapay zeka panelini otomatik olarak gizler. Hata durumunda panel görünür kalır.</string>
+  <string name="ai_task_completed">Yapay zeka görevi tamamlandı</string>
   <string name="custom_agent_system_prompt_title">Ajan sistem istemi</string>
   <string name="custom_system_prompt_summary">Ne yaptığınızı bilmiyorsanız düzenleme önerilmez</string>
   <string name="custom_text_transform_system_prompt_title">Metin dönüşüm sistem istemi</string>
@@ -1716,4 +1720,64 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="scroll_helper_line_style_thick_solid">Kalın düz çizgi</string>
   <string name="prefs_page_buttons_title">Sayfa kaydırma düğmeleri</string>
   <string name="prefs_page_buttons_summary">Ekranda görünür sayfa yukarı/aşağı düğmelerini göster</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Belgeler</string>
+  <string name="document_sync_contents">Yüklü kutsal kitaplar, yorum kitapları ve diğer belgeler</string>
+  <string name="document_sync_category_title">Belge senkronizasyonu</string>
+  <string name="document_sync_auto_download_title">Otomatik indir</string>
+  <string name="document_sync_auto_download_summary">Yeni ve güncellenen belgeleri buluttan bu cihaza otomatik olarak indirir</string>
+  <string name="document_sync_auto_upload_title">Otomatik yükle</string>
+  <string name="document_sync_auto_upload_summary">Bu cihazda yüklü belgeleri buluta otomatik olarak yükler</string>
+  <string name="document_sync_auto_delete_title">Kaldırmaları otomatik uygula</string>
+  <string name="document_sync_auto_delete_summary">Başka bir cihazda kaldırılan belgeleri bu cihazdan otomatik olarak kaldırır</string>
+  <string name="document_sync_wifi_only_title">Belgeleri yalnızca Wi-Fi üzerinden senkronize et</string>
+  <string name="document_sync_wifi_only_summary">Otomatik belge aktarımları ücretsiz (Wi-Fi) bir bağlantıyı bekler</string>
+  <string name="document_sync_manage_summary">Bulutta saklanan belgeleri görüntüleyin ve yönetin</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Senkronize edilen belgeler</string>
+  <string name="cloud_doc_status_synced">Senkronize edildi</string>
+  <string name="cloud_doc_status_local_only">Yalnızca bu cihazda</string>
+  <string name="cloud_doc_status_cloud_only">Yalnızca bulutta</string>
+  <string name="cloud_doc_status_update">Güncelleme mevcut</string>
+  <string name="cloud_doc_status_blocked">Bu cihazda engellendi</string>
+  <string name="cloud_doc_version_prefix">s%1$s</string>
+  <string name="cloud_doc_filter_all">Tümü</string>
+  <string name="cloud_doc_filter_installed">Yüklü</string>
+  <string name="cloud_doc_filter_cloud">Bulutta</string>
+  <string name="cloud_doc_filter_updates">Güncellemeler</string>
+  <string name="cloud_doc_filter_blocked">Engellenenler</string>
+  <string name="cloud_doc_filter_removed">Kaldırılanlar</string>
+  <string name="cloud_doc_show_removed">Kaldırılan belgeleri göster</string>
+  <string name="cloud_doc_status_removed">Buluttan kaldırıldı</string>
+  <string name="cloud_doc_status_still_installed">hâlâ burada yüklü</string>
+  <string name="cloud_doc_purge_confirm">\"%1$s\" belgesi bulut geçmişinden kalıcı olarak kaldırılsın mı? Başka bir cihazda hâlâ yüklüyse, o cihaz bir sonraki senkronizasyonunda belgeyi tekrar buluta yükleyebilir.</string>
+  <string name="cloud_doc_action_download">İndir</string>
+  <string name="cloud_doc_action_push">Buluta yükle</string>
+  <string name="cloud_doc_action_remove_cloud">Buluttan kaldır</string>
+  <string name="cloud_doc_action_remove_all_devices">Tüm cihazlardan kaldır</string>
+  <string name="cloud_doc_action_block">Bu cihaza senkronize etme</string>
+  <string name="cloud_doc_action_unblock">Bu cihazda izin ver</string>
+  <string name="cloud_doc_action_restore">Buluta geri yükle</string>
+  <string name="cloud_doc_action_purge">Bulut geçmişinden kaldır</string>
+  <string name="cloud_doc_remove_all_confirm">%1$s belgesi bu cihaz da dahil olmak üzere buluttan ve tüm cihazlarınızdan kaldırılsın mı?</string>
+  <string name="cloud_doc_remove_cloud_confirm">%1$s belgesi buluttan kaldırılsın mı? Bu cihazdaki kopya korunur; belge senkronizasyonu açık olan cihazlar da belgeyi kaldıracaktır.</string>
+  <string name="cloud_doc_sync_now">Şimdi senkronize et</string>
+  <string name="cloud_doc_sync_now_download">Yeni ve güncellenen belgeleri indir</string>
+  <string name="cloud_doc_sync_now_upload">Yerel belgeleri buluta yükle</string>
+  <string name="cloud_doc_sync_now_delete">Diğer cihazlardan gelen kaldırmaları uygula</string>
+  <string name="document_sync_signin_required">Senkronize edilen belgeleri yönetmek için bulut hesabınızda oturum açın.</string>
+  <string name="cloud_doc_summary_upload">%1$d yükle</string>
+  <string name="cloud_doc_summary_upload_size">%1$d yükle (%2$s)</string>
+  <string name="cloud_doc_summary_download">%1$d indir</string>
+  <string name="cloud_doc_summary_download_size">%1$d indir (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Otomatik indirmeler Wi-Fi üzerinde başlayacak.</string>
+  <string name="cloud_doc_bulk_download">Seçilenleri indir (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Mevcut tüm belgeler zaten indirildi.</string>
+  <string name="document_sync_notification_title">Belgeler senkronize ediliyor</string>
+  <string name="document_sync_downloading">%1$s indiriliyor (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">%1$s yükleniyor (%2$d/%3$d)</string>
+  <string name="document_sync_removing">%1$s kaldırılıyor (%2$d/%3$d)</string>
+  <string name="document_sync_started">Belge senkronizasyonu başladı</string>
+  <string name="document_sync_enable_dialog_title">Belge senkronizasyonu başlatılsın mı?</string>
+  <string name="document_sync_enable_dialog_nothing">Henüz aktarılacak belge yok. Yeni yüklenen belgeler otomatik olarak senkronize edilecek.</string>
 </resources>

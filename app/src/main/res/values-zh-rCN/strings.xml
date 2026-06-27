@@ -1133,6 +1133,7 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="sqlite_invalid_file">模块名称或文件名无效：%s</string>
   <string name="sqlite_cant_write">无法写入（覆盖）该文件</string>
   <string name="install_failed_reason">无法安装模块，因为%s。</string>
+  <string name="no_file_manager">未找到可用于选择文件的应用。请安装一个文件管理器后重试。</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">软件已在别处打开</string>
   <string name="open_here">在这里打开</string>
@@ -1234,6 +1235,9 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="agent_max_iterations_summary">询问是否继续前的最大迭代次数（0 = 不限）</string>
   <string name="ask_model_before_run_title">运行前询问模型</string>
   <string name="ask_model_before_run_summary">执行提示词前显示模型选择对话框（当提示词有明确的模型指定时跳过）</string>
+  <string name="auto_hide_agent_log_title">完成后隐藏 AI 面板</string>
+  <string name="auto_hide_agent_log_summary">当任务成功完成或被取消时，自动隐藏 AI 面板。出错时面板将保持可见。</string>
+  <string name="ai_task_completed">AI 任务已完成</string>
   <string name="custom_agent_system_prompt_title">代理系统提示词</string>
   <string name="custom_system_prompt_summary">除非您了解操作内容，否则不建议编辑</string>
   <string name="custom_text_transform_system_prompt_title">文本转换系统提示词</string>
@@ -1679,4 +1683,64 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="scroll_helper_line_style_thick_solid">粗实线</string>
   <string name="prefs_page_buttons_title">翻页按钮</string>
   <string name="prefs_page_buttons_summary">在屏幕上显示可见的向上/向下翻页按钮</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">文档</string>
+  <string name="document_sync_contents">已安装的圣经、注释及其他文档</string>
+  <string name="document_sync_category_title">文档同步</string>
+  <string name="document_sync_auto_download_title">自动下载</string>
+  <string name="document_sync_auto_download_summary">自动将云端的新文档和更新文档下载到此设备</string>
+  <string name="document_sync_auto_upload_title">自动上传</string>
+  <string name="document_sync_auto_upload_summary">自动将此设备上已安装的文档上传到云端</string>
+  <string name="document_sync_auto_delete_title">自动应用移除操作</string>
+  <string name="document_sync_auto_delete_summary">当某文档在其他设备上被移除时，自动从此设备移除该文档</string>
+  <string name="document_sync_wifi_only_title">仅在 Wi-Fi 下同步文档</string>
+  <string name="document_sync_wifi_only_summary">自动文档传输将等待非按流量计费的（Wi-Fi）连接</string>
+  <string name="document_sync_manage_summary">查看和管理存储在云端的文档</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">已同步文档</string>
+  <string name="cloud_doc_status_synced">已同步</string>
+  <string name="cloud_doc_status_local_only">仅在此设备上</string>
+  <string name="cloud_doc_status_cloud_only">仅在云端</string>
+  <string name="cloud_doc_status_update">有可用更新</string>
+  <string name="cloud_doc_status_blocked">已在此设备上屏蔽</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">全部</string>
+  <string name="cloud_doc_filter_installed">已安装</string>
+  <string name="cloud_doc_filter_cloud">在云端</string>
+  <string name="cloud_doc_filter_updates">更新</string>
+  <string name="cloud_doc_filter_blocked">已屏蔽</string>
+  <string name="cloud_doc_filter_removed">已移除</string>
+  <string name="cloud_doc_show_removed">显示已移除的文档</string>
+  <string name="cloud_doc_status_removed">已从云端移除</string>
+  <string name="cloud_doc_status_still_installed">仍安装在此处</string>
+  <string name="cloud_doc_purge_confirm">永久从云端历史记录中移除 \"%1$s\"？如果该文档仍安装在其他设备上，该设备可能会在下次同步时将其重新上传到云端。</string>
+  <string name="cloud_doc_action_download">下载</string>
+  <string name="cloud_doc_action_push">推送到云端</string>
+  <string name="cloud_doc_action_remove_cloud">从云端移除</string>
+  <string name="cloud_doc_action_remove_all_devices">从所有设备移除</string>
+  <string name="cloud_doc_action_block">不同步到此设备</string>
+  <string name="cloud_doc_action_unblock">允许在此设备上同步</string>
+  <string name="cloud_doc_action_restore">恢复到云端</string>
+  <string name="cloud_doc_action_purge">从云端历史记录中移除</string>
+  <string name="cloud_doc_remove_all_confirm">从云端及您的所有设备（包括此设备）移除 %1$s？</string>
+  <string name="cloud_doc_remove_cloud_confirm">从云端移除 %1$s？此设备上的副本将保留；已开启文档同步的设备也会将其移除。</string>
+  <string name="cloud_doc_sync_now">立即同步</string>
+  <string name="cloud_doc_sync_now_download">下载新文档和更新文档</string>
+  <string name="cloud_doc_sync_now_upload">将本地文档上传到云端</string>
+  <string name="cloud_doc_sync_now_delete">应用来自其他设备的移除操作</string>
+  <string name="document_sync_signin_required">登录您的云账户以管理已同步文档。</string>
+  <string name="cloud_doc_summary_upload">上传 %1$d</string>
+  <string name="cloud_doc_summary_upload_size">上传 %1$d（%2$s）</string>
+  <string name="cloud_doc_summary_download">下载 %1$d</string>
+  <string name="cloud_doc_summary_download_size">下载 %1$d（%2$s）</string>
+  <string name="cloud_doc_wifi_waiting">自动下载将在 Wi-Fi 下开始。</string>
+  <string name="cloud_doc_bulk_download">下载所选（%1$d）</string>
+  <string name="cloud_doc_nothing_to_download">所有可用文档均已下载。</string>
+  <string name="document_sync_notification_title">正在同步文档</string>
+  <string name="document_sync_downloading">正在下载 %1$s（%2$d/%3$d）</string>
+  <string name="document_sync_uploading">正在上传 %1$s（%2$d/%3$d）</string>
+  <string name="document_sync_removing">正在移除 %1$s（%2$d/%3$d）</string>
+  <string name="document_sync_started">文档同步已开始</string>
+  <string name="document_sync_enable_dialog_title">开始同步文档？</string>
+  <string name="document_sync_enable_dialog_nothing">暂无可传输的文档。新安装的文档将自动同步。</string>
 </resources>

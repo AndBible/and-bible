@@ -1005,6 +1005,7 @@
   <string name="sqlite_invalid_file">غلط ماڈیول فائل یا فائل نام: %s</string>
   <string name="sqlite_cant_write">فائل لکھ/اوور رائٹ نہیں کر سکتے</string>
   <string name="install_failed_reason">ماڈیول انسٹال مندرجہ ذیل وجہ سے ناکام ہوئی: %s۔</string>
+  <string name="no_file_manager">فائل منتخب کرنے کے لیے کوئی ایپ نہیں ملی۔ براہ کرم فائل مینیجر انسٹال کریں اور دوبارہ کوشش کریں۔</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">ایپ کسی اور جگہ کھولی گئی</string>
   <string name="open_here">یہاں کھولیں</string>
@@ -1105,6 +1106,9 @@
   <string name="agent_max_iterations_summary">جاری رکھنے کا سوال پوچھنے سے پہلے زیادہ سے زیادہ تکرار (0 = لامحدود)</string>
   <string name="ask_model_before_run_title">چلانے سے پہلے ماڈل پوچھیں</string>
   <string name="ask_model_before_run_summary">پرامپٹ چلانے سے پہلے ماڈل انتخاب ڈائلاگ دکھائیں (جب پرامپٹ کا واضح ماڈل اوور رائڈ ہو تو چھوڑ دیں)</string>
+  <string name="auto_hide_agent_log_title">مکمل ہونے پر AI پینل چھپائیں</string>
+  <string name="auto_hide_agent_log_summary">جب کوئی کام کامیابی سے مکمل ہو جائے یا منسوخ کیا جائے تو AI پینل خود بخود چھپائیں۔ خرابی کی صورت میں پینل نظر آتا رہے گا۔</string>
+  <string name="ai_task_completed">AI کام مکمل ہو گیا</string>
   <string name="custom_agent_system_prompt_title">ایجنٹ سسٹم پرامپٹ</string>
   <string name="custom_system_prompt_summary">ترمیم کی سفارش نہیں جب تک آپ کو معلوم نہ ہو کہ آپ کیا کر رہے ہیں</string>
   <string name="custom_text_transform_system_prompt_title">متن تبدیلی سسٹم پرامپٹ</string>
@@ -1550,4 +1554,64 @@
   <string name="scroll_helper_line_style_thick_solid">موٹی ٹھوس لائن</string>
   <string name="prefs_page_buttons_title">صفحہ اسکرول بٹن</string>
   <string name="prefs_page_buttons_summary">اسکرین پر نظر آنے والے صفحہ اوپر/نیچے بٹن دکھائیں</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">دستاویزات</string>
+  <string name="document_sync_contents">انسٹال شدہ بائبلیں، تفاسیر اور دیگر دستاویزات</string>
+  <string name="document_sync_category_title">دستاویزات کی ہم آہنگی</string>
+  <string name="document_sync_auto_download_title">خود بخود ڈاؤنلوڈ کریں</string>
+  <string name="document_sync_auto_download_summary">کلاؤڈ سے نئی اور اپ ڈیٹ شدہ دستاویزات خود بخود اس ڈیوائس پر ڈاؤنلوڈ کریں</string>
+  <string name="document_sync_auto_upload_title">خود بخود اپ لوڈ کریں</string>
+  <string name="document_sync_auto_upload_summary">اس ڈیوائس پر انسٹال شدہ دستاویزات خود بخود کلاؤڈ پر اپ لوڈ کریں</string>
+  <string name="document_sync_auto_delete_title">حذف خود بخود لاگو کریں</string>
+  <string name="document_sync_auto_delete_summary">جب دستاویزات کسی دوسری ڈیوائس پر حذف کی جائیں تو انہیں خود بخود اس ڈیوائس سے ہٹائیں</string>
+  <string name="document_sync_wifi_only_title">دستاویزات صرف Wi-Fi پر ہم آہنگ کریں</string>
+  <string name="document_sync_wifi_only_summary">خودکار دستاویزات کی منتقلی غیر میٹرڈ (Wi-Fi) کنکشن کا انتظار کرتی ہے</string>
+  <string name="document_sync_manage_summary">کلاؤڈ میں محفوظ دستاویزات دیکھیں اور ان کا انتظام کریں</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">ہم آہنگ دستاویزات</string>
+  <string name="cloud_doc_status_synced">ہم آہنگ</string>
+  <string name="cloud_doc_status_local_only">صرف اس ڈیوائس پر</string>
+  <string name="cloud_doc_status_cloud_only">صرف کلاؤڈ میں</string>
+  <string name="cloud_doc_status_update">اپ ڈیٹ دستیاب ہے</string>
+  <string name="cloud_doc_status_blocked">اس ڈیوائس پر مسدود</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">تمام</string>
+  <string name="cloud_doc_filter_installed">انسٹال شدہ</string>
+  <string name="cloud_doc_filter_cloud">کلاؤڈ میں</string>
+  <string name="cloud_doc_filter_updates">اپ ڈیٹس</string>
+  <string name="cloud_doc_filter_blocked">مسدود</string>
+  <string name="cloud_doc_filter_removed">ہٹائی گئی</string>
+  <string name="cloud_doc_show_removed">ہٹائی گئی دستاویزات دکھائیں</string>
+  <string name="cloud_doc_status_removed">کلاؤڈ سے ہٹائی گئی</string>
+  <string name="cloud_doc_status_still_installed">اب بھی یہاں انسٹال شدہ</string>
+  <string name="cloud_doc_purge_confirm">\"%1$s\" کو کلاؤڈ کی تاریخ سے مستقل طور پر ہٹا دیں؟ اگر یہ کسی دوسری ڈیوائس پر اب بھی انسٹال ہے، تو وہ ڈیوائس اگلی ہم آہنگی پر اسے دوبارہ کلاؤڈ پر اپ لوڈ کر سکتی ہے۔</string>
+  <string name="cloud_doc_action_download">ڈاؤنلوڈ کریں</string>
+  <string name="cloud_doc_action_push">کلاؤڈ پر اپ لوڈ کریں</string>
+  <string name="cloud_doc_action_remove_cloud">کلاؤڈ سے ہٹائیں</string>
+  <string name="cloud_doc_action_remove_all_devices">تمام ڈیوائسز سے ہٹائیں</string>
+  <string name="cloud_doc_action_block">اس ڈیوائس پر ہم آہنگ نہ کریں</string>
+  <string name="cloud_doc_action_unblock">اس ڈیوائس پر اجازت دیں</string>
+  <string name="cloud_doc_action_restore">کلاؤڈ پر بحال کریں</string>
+  <string name="cloud_doc_action_purge">کلاؤڈ کی تاریخ سے ہٹائیں</string>
+  <string name="cloud_doc_remove_all_confirm">%1$s کو کلاؤڈ اور آپ کی تمام ڈیوائسز سے، بشمول اس ڈیوائس کے، ہٹا دیں؟</string>
+  <string name="cloud_doc_remove_cloud_confirm">%1$s کو کلاؤڈ سے ہٹا دیں؟ اس ڈیوائس پر موجود کاپی برقرار رہے گی؛ جن ڈیوائسز پر دستاویزات کی ہم آہنگی آن ہے وہ بھی اسے ہٹا دیں گی۔</string>
+  <string name="cloud_doc_sync_now">ابھی ہم آہنگ کریں</string>
+  <string name="cloud_doc_sync_now_download">نئی اور اپ ڈیٹ شدہ دستاویزات ڈاؤنلوڈ کریں</string>
+  <string name="cloud_doc_sync_now_upload">مقامی دستاویزات کلاؤڈ پر اپ لوڈ کریں</string>
+  <string name="cloud_doc_sync_now_delete">دیگر ڈیوائسز سے حذف لاگو کریں</string>
+  <string name="document_sync_signin_required">ہم آہنگ دستاویزات کا انتظام کرنے کے لیے اپنے کلاؤڈ اکاؤنٹ میں سائن ان کریں۔</string>
+  <string name="cloud_doc_summary_upload">%1$d اپ لوڈ کریں</string>
+  <string name="cloud_doc_summary_upload_size">%1$d اپ لوڈ کریں (%2$s)</string>
+  <string name="cloud_doc_summary_download">%1$d ڈاؤنلوڈ کریں</string>
+  <string name="cloud_doc_summary_download_size">%1$d ڈاؤنلوڈ کریں (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">خودکار ڈاؤنلوڈز Wi-Fi پر شروع ہوں گی۔</string>
+  <string name="cloud_doc_bulk_download">منتخب شدہ ڈاؤنلوڈ کریں (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">تمام دستیاب دستاویزات پہلے ہی ڈاؤنلوڈ ہو چکی ہیں۔</string>
+  <string name="document_sync_notification_title">دستاویزات ہم آہنگ ہو رہی ہیں</string>
+  <string name="document_sync_downloading">%1$s ڈاؤنلوڈ ہو رہی ہے (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">%1$s اپ لوڈ ہو رہی ہے (%2$d/%3$d)</string>
+  <string name="document_sync_removing">%1$s ہٹائی جا رہی ہے (%2$d/%3$d)</string>
+  <string name="document_sync_started">دستاویزات کی ہم آہنگی شروع ہو گئی</string>
+  <string name="document_sync_enable_dialog_title">دستاویزات ہم آہنگ کرنا شروع کریں؟</string>
+  <string name="document_sync_enable_dialog_nothing">ابھی منتقل کرنے کے لیے کوئی دستاویزات نہیں ہیں۔ نئی انسٹال شدہ دستاویزات خود بخود ہم آہنگ ہو جائیں گی۔</string>
 </resources>

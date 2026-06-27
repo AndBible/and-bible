@@ -1069,6 +1069,7 @@ W chmurze znajduje się baza danych, która nie jest zsynchronizowana z tym urz�
   <string name="sqlite_invalid_file">Nieprawidłowy plik modułu lub nazwa pliku: %s</string>
   <string name="sqlite_cant_write">Nie można zapisać pliku</string>
   <string name="install_failed_reason">Instalacja modułu nie powiodła się z następującego powodu: %s.</string>
+  <string name="no_file_manager">Nie znaleziono aplikacji do wyboru pliku. Zainstaluj menedżera plików i spróbuj ponownie.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikacja jest otwarta gdzieś indziej</string>
   <string name="open_here">Otwórz tutaj</string>
@@ -1170,6 +1171,9 @@ Nie wyświetlaj tego ponownie</string>
   <string name="agent_max_iterations_summary">Maksymalna liczba iteracji przed pytaniem o kontynuację (0 = bez limitu)</string>
   <string name="ask_model_before_run_title">Pytaj o model przed uruchomieniem</string>
   <string name="ask_model_before_run_summary">Pokaż okno wyboru modelu przed wykonaniem promptu (pomijane, gdy prompt ma jawne nadpisanie modelu)</string>
+  <string name="auto_hide_agent_log_title">Ukryj panel AI po zakończeniu</string>
+  <string name="auto_hide_agent_log_summary">Automatycznie ukrywaj panel AI, gdy zadanie zakończy się pomyślnie lub zostanie anulowane. W przypadku błędu panel pozostaje widoczny.</string>
+  <string name="ai_task_completed">Zadanie AI zakończone</string>
   <string name="custom_agent_system_prompt_title">Prompt systemowy agenta</string>
   <string name="custom_system_prompt_summary">Edycja niezalecana, chyba że wiesz co robisz</string>
   <string name="custom_text_transform_system_prompt_title">Prompt systemowy transformacji tekstu</string>
@@ -1615,4 +1619,64 @@ Nie wyświetlaj tego ponownie</string>
   <string name="scroll_helper_line_style_thick_solid">Gruba linia ciągła</string>
   <string name="prefs_page_buttons_title">Przyciski przewijania strony</string>
   <string name="prefs_page_buttons_summary">Pokaż widoczne przyciski przewijania w górę/dół na ekranie</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumenty</string>
+  <string name="document_sync_contents">Zainstalowane Biblie, komentarze i inne dokumenty</string>
+  <string name="document_sync_category_title">Synchronizacja dokumentów</string>
+  <string name="document_sync_auto_download_title">Pobieraj automatycznie</string>
+  <string name="document_sync_auto_download_summary">Automatycznie pobieraj nowe i zaktualizowane dokumenty z chmury na to urządzenie</string>
+  <string name="document_sync_auto_upload_title">Wysyłaj automatycznie</string>
+  <string name="document_sync_auto_upload_summary">Automatycznie wysyłaj do chmury dokumenty zainstalowane na tym urządzeniu</string>
+  <string name="document_sync_auto_delete_title">Stosuj usunięcia automatycznie</string>
+  <string name="document_sync_auto_delete_summary">Automatycznie usuwaj dokumenty z tego urządzenia, gdy zostaną usunięte na innym urządzeniu</string>
+  <string name="document_sync_wifi_only_title">Synchronizuj dokumenty tylko przez Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Automatyczne transfery dokumentów czekają na połączenie bez limitu danych (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Wyświetl dokumenty przechowywane w chmurze i zarządzaj nimi</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Synchronizowane dokumenty</string>
+  <string name="cloud_doc_status_synced">Zsynchronizowano</string>
+  <string name="cloud_doc_status_local_only">Tylko na tym urządzeniu</string>
+  <string name="cloud_doc_status_cloud_only">Tylko w chmurze</string>
+  <string name="cloud_doc_status_update">Dostępna aktualizacja</string>
+  <string name="cloud_doc_status_blocked">Zablokowano na tym urządzeniu</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Wszystkie</string>
+  <string name="cloud_doc_filter_installed">Zainstalowane</string>
+  <string name="cloud_doc_filter_cloud">W chmurze</string>
+  <string name="cloud_doc_filter_updates">Aktualizacje</string>
+  <string name="cloud_doc_filter_blocked">Zablokowane</string>
+  <string name="cloud_doc_filter_removed">Usunięte</string>
+  <string name="cloud_doc_show_removed">Pokaż usunięte dokumenty</string>
+  <string name="cloud_doc_status_removed">Usunięto z chmury</string>
+  <string name="cloud_doc_status_still_installed">nadal zainstalowane tutaj</string>
+  <string name="cloud_doc_purge_confirm">Trwale usunąć \"%1$s\" z historii chmury? Jeśli dokument jest nadal zainstalowany na innym urządzeniu, urządzenie to może ponownie wysłać go do chmury przy następnej synchronizacji.</string>
+  <string name="cloud_doc_action_download">Pobierz</string>
+  <string name="cloud_doc_action_push">Wyślij do chmury</string>
+  <string name="cloud_doc_action_remove_cloud">Usuń z chmury</string>
+  <string name="cloud_doc_action_remove_all_devices">Usuń ze wszystkich urządzeń</string>
+  <string name="cloud_doc_action_block">Nie synchronizuj na tym urządzeniu</string>
+  <string name="cloud_doc_action_unblock">Zezwól na tym urządzeniu</string>
+  <string name="cloud_doc_action_restore">Przywróć do chmury</string>
+  <string name="cloud_doc_action_purge">Usuń z historii chmury</string>
+  <string name="cloud_doc_remove_all_confirm">Usunąć %1$s z chmury i ze wszystkich urządzeń, w tym z tego?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Usunąć %1$s z chmury? Kopia na tym urządzeniu zostanie zachowana; urządzenia z włączoną synchronizacją dokumentów również ją usuną.</string>
+  <string name="cloud_doc_sync_now">Synchronizuj teraz</string>
+  <string name="cloud_doc_sync_now_download">Pobierz nowe i zaktualizowane dokumenty</string>
+  <string name="cloud_doc_sync_now_upload">Wyślij lokalne dokumenty do chmury</string>
+  <string name="cloud_doc_sync_now_delete">Zastosuj usunięcia z innych urządzeń</string>
+  <string name="document_sync_signin_required">Zaloguj się do konta w chmurze, aby zarządzać synchronizowanymi dokumentami.</string>
+  <string name="cloud_doc_summary_upload">Wyślij %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Wyślij %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Pobierz %1$d</string>
+  <string name="cloud_doc_summary_download_size">Pobierz %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Automatyczne pobieranie rozpocznie się po połączeniu z Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Pobierz wybrane (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Wszystkie dostępne dokumenty są już pobrane.</string>
+  <string name="document_sync_notification_title">Synchronizowanie dokumentów</string>
+  <string name="document_sync_downloading">Pobieranie %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Wysyłanie %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Usuwanie %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Rozpoczęto synchronizację dokumentów</string>
+  <string name="document_sync_enable_dialog_title">Rozpocząć synchronizację dokumentów?</string>
+  <string name="document_sync_enable_dialog_nothing">Brak dokumentów do przesłania. Nowo zainstalowane dokumenty będą synchronizowane automatycznie.</string>
 </resources>

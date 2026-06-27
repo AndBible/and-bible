@@ -1166,6 +1166,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="sqlite_invalid_file">Ogiltig modulfil eller ogiltigt filnamn: %s</string>
   <string name="sqlite_cant_write">Kan inte skriva (över) filen</string>
   <string name="install_failed_reason">Installation av modulen misslyckades av följande orsak: %s</string>
+  <string name="no_file_manager">Ingen app hittades för att välja en fil. Installera en filhanterare och försök igen.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">App öppnad på annan plats</string>
   <string name="open_here">Öppna här</string>
@@ -1268,6 +1269,9 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="agent_max_iterations_summary">Maximalt antal iterationer innan fortsättning efterfrågas (0 = obegränsat)</string>
   <string name="ask_model_before_run_title">Fråga om modell innan körning</string>
   <string name="ask_model_before_run_summary">Visa en modellvalsdialog innan en prompt körs (hoppas över om prompten har en explicit modellöverstyrning)</string>
+  <string name="auto_hide_agent_log_title">Dölj AI-panelen när klart</string>
+  <string name="auto_hide_agent_log_summary">Dölj AI-panelen automatiskt när en uppgift slutförs eller avbryts. Vid fel förblir panelen synlig.</string>
+  <string name="ai_task_completed">AI-uppgift slutförd</string>
   <string name="custom_agent_system_prompt_title">Agentens systemprompt</string>
   <string name="custom_system_prompt_summary">Redigering rekommenderas inte om du inte vet vad du gör</string>
   <string name="custom_text_transform_system_prompt_title">Systemprompt för textomvandling</string>
@@ -1713,4 +1717,64 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="scroll_helper_line_style_thick_solid">Tjock heldragen linje</string>
   <string name="prefs_page_buttons_title">Sidrullningsknappar</string>
   <string name="prefs_page_buttons_summary">Visa synliga sidupp/nedknappar på skärmen</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokument</string>
+  <string name="document_sync_contents">Installerade biblar, kommentarer och andra dokument</string>
+  <string name="document_sync_category_title">Dokumentsynkronisering</string>
+  <string name="document_sync_auto_download_title">Ladda ner automatiskt</string>
+  <string name="document_sync_auto_download_summary">Ladda automatiskt ner nya och uppdaterade dokument från molnet till den här enheten</string>
+  <string name="document_sync_auto_upload_title">Ladda upp automatiskt</string>
+  <string name="document_sync_auto_upload_summary">Ladda automatiskt upp dokument som installerats på den här enheten till molnet</string>
+  <string name="document_sync_auto_delete_title">Tillämpa borttagningar automatiskt</string>
+  <string name="document_sync_auto_delete_summary">Ta automatiskt bort dokument från den här enheten när de tas bort på en annan enhet</string>
+  <string name="document_sync_wifi_only_title">Synkronisera dokument endast via Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Automatiska dokumentöverföringar väntar på en anslutning utan datakostnad (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Visa och hantera dokument som lagras i molnet</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Synkroniserade dokument</string>
+  <string name="cloud_doc_status_synced">Synkroniserad</string>
+  <string name="cloud_doc_status_local_only">Endast på den här enheten</string>
+  <string name="cloud_doc_status_cloud_only">Endast i molnet</string>
+  <string name="cloud_doc_status_update">Uppdatering tillgänglig</string>
+  <string name="cloud_doc_status_blocked">Blockerad på den här enheten</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Alla</string>
+  <string name="cloud_doc_filter_installed">Installerade</string>
+  <string name="cloud_doc_filter_cloud">I molnet</string>
+  <string name="cloud_doc_filter_updates">Uppdateringar</string>
+  <string name="cloud_doc_filter_blocked">Blockerade</string>
+  <string name="cloud_doc_filter_removed">Borttagna</string>
+  <string name="cloud_doc_show_removed">Visa borttagna dokument</string>
+  <string name="cloud_doc_status_removed">Borttagen från molnet</string>
+  <string name="cloud_doc_status_still_installed">fortfarande installerad här</string>
+  <string name="cloud_doc_purge_confirm">Ta bort \"%1$s\" permanent från molnhistoriken? Om den fortfarande är installerad på en annan enhet kan den enheten ladda upp den till molnet igen vid nästa synkronisering.</string>
+  <string name="cloud_doc_action_download">Ladda ner</string>
+  <string name="cloud_doc_action_push">Ladda upp till molnet</string>
+  <string name="cloud_doc_action_remove_cloud">Ta bort från molnet</string>
+  <string name="cloud_doc_action_remove_all_devices">Ta bort från alla enheter</string>
+  <string name="cloud_doc_action_block">Synkronisera inte till den här enheten</string>
+  <string name="cloud_doc_action_unblock">Tillåt på den här enheten</string>
+  <string name="cloud_doc_action_restore">Återställ till molnet</string>
+  <string name="cloud_doc_action_purge">Ta bort från molnhistoriken</string>
+  <string name="cloud_doc_remove_all_confirm">Ta bort %1$s från molnet och från alla dina enheter, inklusive den här?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Ta bort %1$s från molnet? Kopian på den här enheten behålls; enheter med dokumentsynkronisering på tar också bort den.</string>
+  <string name="cloud_doc_sync_now">Synkronisera nu</string>
+  <string name="cloud_doc_sync_now_download">Ladda ner nya och uppdaterade dokument</string>
+  <string name="cloud_doc_sync_now_upload">Ladda upp lokala dokument till molnet</string>
+  <string name="cloud_doc_sync_now_delete">Tillämpa borttagningar från andra enheter</string>
+  <string name="document_sync_signin_required">Logga in på ditt molnkonto för att hantera synkroniserade dokument.</string>
+  <string name="cloud_doc_summary_upload">Ladda upp %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Ladda upp %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Ladda ner %1$d</string>
+  <string name="cloud_doc_summary_download_size">Ladda ner %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Automatiska nedladdningar startar via Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Ladda ner valda (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Alla tillgängliga dokument är redan nedladdade.</string>
+  <string name="document_sync_notification_title">Synkroniserar dokument</string>
+  <string name="document_sync_downloading">Laddar ner %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Laddar upp %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Tar bort %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Dokumentsynkronisering startad</string>
+  <string name="document_sync_enable_dialog_title">Starta synkronisering av dokument?</string>
+  <string name="document_sync_enable_dialog_nothing">Inga dokument att överföra ännu. Nyinstallerade dokument synkroniseras automatiskt.</string>
 </resources>

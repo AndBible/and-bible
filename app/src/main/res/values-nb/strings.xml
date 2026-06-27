@@ -1064,6 +1064,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="sqlite_invalid_file">Ugyldig modulfil eller filnavn: %s</string>
   <string name="sqlite_cant_write">Kan ikke (over)skrive filen</string>
   <string name="install_failed_reason">Installasjon av modul mislyktes av følgende årsak: %s.</string>
+  <string name="no_file_manager">Fant ingen app for å velge en fil. Installer en filbehandler og prøv igjen.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Appen åpnet et annet sted</string>
   <string name="open_here">Åpne her</string>
@@ -1164,6 +1165,9 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="agent_max_iterations_summary">Maksimale iterasjoner før man spør om å fortsette (0 = ubegrenset)</string>
   <string name="ask_model_before_run_title">Spør om modell før kjøring</string>
   <string name="ask_model_before_run_summary">Vis en modellvalgsdialog før prompten kjøres (hoppes over når prompten har en eksplisitt modelloverstyring)</string>
+  <string name="auto_hide_agent_log_title">Skjul KI-panelet når ferdig</string>
+  <string name="auto_hide_agent_log_summary">Skjul KI-panelet automatisk når en oppgave fullføres eller avbrytes. Ved feil forblir panelet synlig.</string>
+  <string name="ai_task_completed">KI-oppgave fullført</string>
   <string name="custom_agent_system_prompt_title">Agentsystemmelding</string>
   <string name="custom_system_prompt_summary">Redigering anbefales ikke med mindre du vet hva du gjør</string>
   <string name="custom_text_transform_system_prompt_title">Teksttransformasjonssystemmelding</string>
@@ -1609,4 +1613,64 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="scroll_helper_line_style_thick_solid">Tykk heltrukket linje</string>
   <string name="prefs_page_buttons_title">Siderulleknapper</string>
   <string name="prefs_page_buttons_summary">Vis synlige side opp/ned-knapper på skjermen</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumenter</string>
+  <string name="document_sync_contents">Installerte bibler, bibelkommentarer og andre dokumenter</string>
+  <string name="document_sync_category_title">Dokumentsynkronisering</string>
+  <string name="document_sync_auto_download_title">Last ned automatisk</string>
+  <string name="document_sync_auto_download_summary">Last automatisk ned nye og oppdaterte dokumenter fra skyen til denne enheten</string>
+  <string name="document_sync_auto_upload_title">Last opp automatisk</string>
+  <string name="document_sync_auto_upload_summary">Last automatisk opp dokumenter som er installert på denne enheten til skyen</string>
+  <string name="document_sync_auto_delete_title">Bruk fjerninger automatisk</string>
+  <string name="document_sync_auto_delete_summary">Fjern automatisk dokumenter fra denne enheten når de fjernes på en annen enhet</string>
+  <string name="document_sync_wifi_only_title">Synkroniser dokumenter kun over Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Automatiske dokumentoverføringer venter på en tilkobling uten datakvote (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Vis og behandle dokumenter lagret i skyen</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Synkroniserte dokumenter</string>
+  <string name="cloud_doc_status_synced">Synkronisert</string>
+  <string name="cloud_doc_status_local_only">Kun på denne enheten</string>
+  <string name="cloud_doc_status_cloud_only">Kun i skyen</string>
+  <string name="cloud_doc_status_update">Oppdatering tilgjengelig</string>
+  <string name="cloud_doc_status_blocked">Blokkert på denne enheten</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Alle</string>
+  <string name="cloud_doc_filter_installed">Installert</string>
+  <string name="cloud_doc_filter_cloud">I skyen</string>
+  <string name="cloud_doc_filter_updates">Oppdateringer</string>
+  <string name="cloud_doc_filter_blocked">Blokkert</string>
+  <string name="cloud_doc_filter_removed">Fjernet</string>
+  <string name="cloud_doc_show_removed">Vis fjernede dokumenter</string>
+  <string name="cloud_doc_status_removed">Fjernet fra skyen</string>
+  <string name="cloud_doc_status_still_installed">fortsatt installert her</string>
+  <string name="cloud_doc_purge_confirm">Vil du fjerne \"%1$s\" permanent fra skyhistorikken? Hvis det fortsatt er installert på en annen enhet, kan den enheten laste det opp til skyen igjen ved neste synkronisering.</string>
+  <string name="cloud_doc_action_download">Last ned</string>
+  <string name="cloud_doc_action_push">Last opp til skyen</string>
+  <string name="cloud_doc_action_remove_cloud">Fjern fra skyen</string>
+  <string name="cloud_doc_action_remove_all_devices">Fjern fra alle enheter</string>
+  <string name="cloud_doc_action_block">Ikke synkroniser til denne enheten</string>
+  <string name="cloud_doc_action_unblock">Tillat på denne enheten</string>
+  <string name="cloud_doc_action_restore">Gjenopprett til skyen</string>
+  <string name="cloud_doc_action_purge">Fjern fra skyhistorikken</string>
+  <string name="cloud_doc_remove_all_confirm">Vil du fjerne %1$s fra skyen og fra alle enhetene dine, inkludert denne?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Vil du fjerne %1$s fra skyen? Kopien på denne enheten beholdes; enheter med dokumentsynkronisering på vil også fjerne det.</string>
+  <string name="cloud_doc_sync_now">Synkroniser nå</string>
+  <string name="cloud_doc_sync_now_download">Last ned nye og oppdaterte dokumenter</string>
+  <string name="cloud_doc_sync_now_upload">Last opp lokale dokumenter til skyen</string>
+  <string name="cloud_doc_sync_now_delete">Bruk fjerninger fra andre enheter</string>
+  <string name="document_sync_signin_required">Logg inn på skykontoen din for å behandle synkroniserte dokumenter.</string>
+  <string name="cloud_doc_summary_upload">Last opp %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Last opp %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Last ned %1$d</string>
+  <string name="cloud_doc_summary_download_size">Last ned %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Automatiske nedlastinger starter på Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Last ned valgte (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Alle tilgjengelige dokumenter er allerede lastet ned.</string>
+  <string name="document_sync_notification_title">Synkroniserer dokumenter</string>
+  <string name="document_sync_downloading">Laster ned %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Laster opp %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Fjerner %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Dokumentsynkronisering startet</string>
+  <string name="document_sync_enable_dialog_title">Starte synkronisering av dokumenter?</string>
+  <string name="document_sync_enable_dialog_nothing">Ingen dokumenter å overføre ennå. Nylig installerte dokumenter synkroniseres automatisk.</string>
 </resources>

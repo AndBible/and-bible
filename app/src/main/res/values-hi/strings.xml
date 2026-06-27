@@ -1134,6 +1134,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="sqlite_invalid_file">अमान्य मॉड्यूल फ़ाइल या फ़ाइलनाम: %s</string>
   <string name="sqlite_cant_write">फ़ाइल (ओवर)राइट नहीं की जा सकती</string>
   <string name="install_failed_reason">निम्नलिखित कारण से मॉड्यूल इंस्टॉल करना विफल रहा: %s।</string>
+  <string name="no_file_manager">फ़ाइल चुनने के लिए कोई ऐप नहीं मिला। कृपया एक फ़ाइल मैनेजर इंस्टॉल करें और फिर से प्रयास करें।</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">ऐप कहीं और खोला गया</string>
   <string name="open_here">यहाँ खोलें</string>
@@ -1234,6 +1235,9 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="agent_max_iterations_summary">जारी रखने के लिए पूछने से पहले अधिकतम पुनरावृत्तियां (0 = असीमित)</string>
   <string name="ask_model_before_run_title">चलाने से पहले मॉडल पूछें</string>
   <string name="ask_model_before_run_summary">प्रॉम्प्ट चलाने से पहले मॉडल चयन डायलॉग दिखाएं (जब प्रॉम्प्ट में स्पष्ट मॉडल ओवरराइड हो तो छोड़ें)</string>
+  <string name="auto_hide_agent_log_title">कार्य पूरा होने पर AI पैनल छिपाएं</string>
+  <string name="auto_hide_agent_log_summary">जब कोई कार्य सफलतापूर्वक समाप्त हो जाए या रद्द कर दिया जाए, तब AI पैनल को स्वचालित रूप से छिपाएं। त्रुटि की स्थिति में पैनल दिखता रहता है।</string>
+  <string name="ai_task_completed">AI कार्य पूर्ण हुआ</string>
   <string name="custom_agent_system_prompt_title">एजेंट system prompt</string>
   <string name="custom_system_prompt_summary">संपादन की अनुशंसा नहीं है जब तक आप जानते नहीं कि आप क्या कर रहे हैं</string>
   <string name="custom_text_transform_system_prompt_title">टेक्स्ट रूपांतरण system prompt</string>
@@ -1679,4 +1683,64 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="scroll_helper_line_style_thick_solid">मोटी ठोस रेखा</string>
   <string name="prefs_page_buttons_title">पेज स्क्रॉल बटन</string>
   <string name="prefs_page_buttons_summary">स्क्रीन पर दृश्यमान पेज ऊपर/नीचे बटन दिखाएं</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">दस्तावेज़</string>
+  <string name="document_sync_contents">इंस्टॉल की गई बाइबिल, कमेंटरी और अन्य दस्तावेज़</string>
+  <string name="document_sync_category_title">दस्तावेज़ सिंक</string>
+  <string name="document_sync_auto_download_title">स्वचालित रूप से डाउनलोड करें</string>
+  <string name="document_sync_auto_download_summary">क्लाउड से नए और अपडेट किए गए दस्तावेज़ स्वचालित रूप से इस डिवाइस पर डाउनलोड करें</string>
+  <string name="document_sync_auto_upload_title">स्वचालित रूप से अपलोड करें</string>
+  <string name="document_sync_auto_upload_summary">इस डिवाइस पर इंस्टॉल किए गए दस्तावेज़ स्वचालित रूप से क्लाउड पर अपलोड करें</string>
+  <string name="document_sync_auto_delete_title">हटाने की क्रियाएं स्वचालित रूप से लागू करें</string>
+  <string name="document_sync_auto_delete_summary">जब किसी अन्य डिवाइस पर दस्तावेज़ हटाए जाएं, तब उन्हें इस डिवाइस से स्वचालित रूप से हटाएं</string>
+  <string name="document_sync_wifi_only_title">केवल Wi-Fi पर दस्तावेज़ सिंक करें</string>
+  <string name="document_sync_wifi_only_summary">स्वचालित दस्तावेज़ स्थानांतरण किसी अनमीटर्ड (Wi-Fi) कनेक्शन की प्रतीक्षा करते हैं</string>
+  <string name="document_sync_manage_summary">क्लाउड में संग्रहीत दस्तावेज़ देखें और प्रबंधित करें</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">सिंक किए गए दस्तावेज़</string>
+  <string name="cloud_doc_status_synced">सिंक किया गया</string>
+  <string name="cloud_doc_status_local_only">केवल इस डिवाइस पर</string>
+  <string name="cloud_doc_status_cloud_only">केवल क्लाउड में</string>
+  <string name="cloud_doc_status_update">अपडेट उपलब्ध है</string>
+  <string name="cloud_doc_status_blocked">इस डिवाइस पर अवरुद्ध</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">सभी</string>
+  <string name="cloud_doc_filter_installed">इंस्टॉल किए गए</string>
+  <string name="cloud_doc_filter_cloud">क्लाउड में</string>
+  <string name="cloud_doc_filter_updates">अपडेट</string>
+  <string name="cloud_doc_filter_blocked">अवरुद्ध</string>
+  <string name="cloud_doc_filter_removed">हटाए गए</string>
+  <string name="cloud_doc_show_removed">हटाए गए दस्तावेज़ दिखाएं</string>
+  <string name="cloud_doc_status_removed">क्लाउड से हटाया गया</string>
+  <string name="cloud_doc_status_still_installed">अभी भी यहां इंस्टॉल है</string>
+  <string name="cloud_doc_purge_confirm">क्लाउड इतिहास से \"%1$s\" को स्थायी रूप से हटाएं? यदि यह किसी अन्य डिवाइस पर अभी भी इंस्टॉल है, तो वह डिवाइस अगले सिंक पर इसे फिर से क्लाउड पर अपलोड कर सकता है।</string>
+  <string name="cloud_doc_action_download">डाउनलोड</string>
+  <string name="cloud_doc_action_push">क्लाउड पर अपलोड करें</string>
+  <string name="cloud_doc_action_remove_cloud">क्लाउड से हटाएं</string>
+  <string name="cloud_doc_action_remove_all_devices">सभी डिवाइस से हटाएं</string>
+  <string name="cloud_doc_action_block">इस डिवाइस पर सिंक न करें</string>
+  <string name="cloud_doc_action_unblock">इस डिवाइस पर अनुमति दें</string>
+  <string name="cloud_doc_action_restore">क्लाउड पर पुनर्स्थापित करें</string>
+  <string name="cloud_doc_action_purge">क्लाउड इतिहास से हटाएं</string>
+  <string name="cloud_doc_remove_all_confirm">%1$s को क्लाउड से और इस सहित आपके सभी डिवाइस से हटाएं?</string>
+  <string name="cloud_doc_remove_cloud_confirm">%1$s को क्लाउड से हटाएं? इस डिवाइस की प्रति रखी जाती है; जिन डिवाइसों पर दस्तावेज़ सिंक चालू है, वे भी इसे हटा देंगे।</string>
+  <string name="cloud_doc_sync_now">अभी सिंक करें</string>
+  <string name="cloud_doc_sync_now_download">नए और अपडेट किए गए दस्तावेज़ डाउनलोड करें</string>
+  <string name="cloud_doc_sync_now_upload">स्थानीय दस्तावेज़ क्लाउड पर अपलोड करें</string>
+  <string name="cloud_doc_sync_now_delete">अन्य डिवाइस से हटाने की क्रियाएं लागू करें</string>
+  <string name="document_sync_signin_required">सिंक किए गए दस्तावेज़ प्रबंधित करने के लिए अपने क्लाउड खाते में साइन इन करें।</string>
+  <string name="cloud_doc_summary_upload">%1$d अपलोड करें</string>
+  <string name="cloud_doc_summary_upload_size">%1$d अपलोड करें (%2$s)</string>
+  <string name="cloud_doc_summary_download">%1$d डाउनलोड करें</string>
+  <string name="cloud_doc_summary_download_size">%1$d डाउनलोड करें (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">स्वचालित डाउनलोड Wi-Fi पर शुरू होंगे।</string>
+  <string name="cloud_doc_bulk_download">चयनित डाउनलोड करें (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">सभी उपलब्ध दस्तावेज़ पहले ही डाउनलोड हो चुके हैं।</string>
+  <string name="document_sync_notification_title">दस्तावेज़ सिंक हो रहे हैं</string>
+  <string name="document_sync_downloading">%1$s डाउनलोड हो रहा है (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">%1$s अपलोड हो रहा है (%2$d/%3$d)</string>
+  <string name="document_sync_removing">%1$s हटाया जा रहा है (%2$d/%3$d)</string>
+  <string name="document_sync_started">दस्तावेज़ सिंक शुरू हुआ</string>
+  <string name="document_sync_enable_dialog_title">दस्तावेज़ सिंक करना शुरू करें?</string>
+  <string name="document_sync_enable_dialog_nothing">अभी स्थानांतरित करने के लिए कोई दस्तावेज़ नहीं है। नए इंस्टॉल किए गए दस्तावेज़ स्वचालित रूप से सिंक होंगे।</string>
 </resources>

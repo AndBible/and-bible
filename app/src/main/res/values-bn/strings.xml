@@ -1117,6 +1117,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="sqlite_invalid_file">অবৈধ মডিউল ফাইল বা ফাইলের নাম:%s</string>
   <string name="sqlite_cant_write">পারবেন না ফাইলটি (ওভাররাইট করুন)</string>
   <string name="install_failed_reason">নিম্নলিখিত কারণে মডিউল ইনস্টল করা ব্যর্থ হয়েছে:%s</string>
+  <string name="no_file_manager">ফাইল নির্বাচন করার জন্য কোনো অ্যাপ পাওয়া যায়নি। অনুগ্রহ করে একটি ফাইল ম্যানেজার ইনস্টল করে আবার চেষ্টা করুন।</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">অ্যাপ অন্য কোথাও খোলা হয়েছে</string>
   <string name="open_here">এখানে খুলুন</string>
@@ -1218,6 +1219,9 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="agent_max_iterations_summary">চালিয়ে যেতে জিজ্ঞাসার আগে সর্বোচ্চ পুনরাবৃত্তি (০ = সীমাহীন)</string>
   <string name="ask_model_before_run_title">চালানোর আগে মডেল জিজ্ঞাসা করুন</string>
   <string name="ask_model_before_run_summary">একটি প্রম্পট কার্যকর করার আগে মডেল নির্বাচন ডায়ালগ দেখান (প্রম্পটে স্পষ্ট মডেল ওভাররাইড থাকলে এড়ানো হবে)</string>
+  <string name="auto_hide_agent_log_title">সম্পন্ন হলে AI প্যানেল লুকান</string>
+  <string name="auto_hide_agent_log_summary">কোনো কাজ সফলভাবে শেষ হলে বা বাতিল হলে AI প্যানেল স্বয়ংক্রিয়ভাবে লুকান। ত্রুটি ঘটলে প্যানেলটি দৃশ্যমান থাকবে।</string>
+  <string name="ai_task_completed">AI কাজ সম্পন্ন হয়েছে</string>
   <string name="custom_agent_system_prompt_title">এজেন্ট সিস্টেম প্রম্পট</string>
   <string name="custom_system_prompt_summary">আপনি কী করছেন জানলে ছাড়া সম্পাদনা করা প্রস্তাবিত নয়</string>
   <string name="custom_text_transform_system_prompt_title">টেক্সট রূপান্তর সিস্টেম প্রম্পট</string>
@@ -1663,4 +1667,64 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="scroll_helper_line_style_thick_solid">মোটা কঠিন রেখা</string>
   <string name="prefs_page_buttons_title">পৃষ্ঠা স্ক্রোল বোতাম</string>
   <string name="prefs_page_buttons_summary">স্ক্রিনে দৃশ্যমান পেজ আপ/ডাউন বোতাম দেখান</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">নথিপত্র</string>
+  <string name="document_sync_contents">ইনস্টল করা বাইবেল, ব্যাক্ষা এবং অন্যান্য নথিপত্র</string>
+  <string name="document_sync_category_title">নথিপত্র সিঙ্ক</string>
+  <string name="document_sync_auto_download_title">স্বয়ংক্রিয়ভাবে ডাউনলোড করুন</string>
+  <string name="document_sync_auto_download_summary">ক্লাউড থেকে নতুন এবং আপডেট করা নথিপত্র স্বয়ংক্রিয়ভাবে এই ডিভাইসে ডাউনলোড করুন</string>
+  <string name="document_sync_auto_upload_title">স্বয়ংক্রিয়ভাবে আপলোড করুন</string>
+  <string name="document_sync_auto_upload_summary">এই ডিভাইসে ইনস্টল করা নথিপত্র স্বয়ংক্রিয়ভাবে ক্লাউডে আপলোড করুন</string>
+  <string name="document_sync_auto_delete_title">স্বয়ংক্রিয়ভাবে অপসারণ প্রয়োগ করুন</string>
+  <string name="document_sync_auto_delete_summary">অন্য ডিভাইসে নথিপত্র অপসারণ করা হলে স্বয়ংক্রিয়ভাবে এই ডিভাইস থেকেও সেগুলি অপসারণ করুন</string>
+  <string name="document_sync_wifi_only_title">শুধুমাত্র Wi-Fi-তে নথিপত্র সিঙ্ক করুন</string>
+  <string name="document_sync_wifi_only_summary">স্বয়ংক্রিয় নথিপত্র স্থানান্তর একটি আনমিটার্ড (Wi-Fi) সংযোগের জন্য অপেক্ষা করবে</string>
+  <string name="document_sync_manage_summary">ক্লাউডে সংরক্ষিত নথিপত্র দেখুন ও পরিচালনা করুন</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">সিঙ্ক করা নথিপত্র</string>
+  <string name="cloud_doc_status_synced">সিঙ্ক করা হয়েছে</string>
+  <string name="cloud_doc_status_local_only">শুধুমাত্র এই ডিভাইসে</string>
+  <string name="cloud_doc_status_cloud_only">শুধুমাত্র ক্লাউডে</string>
+  <string name="cloud_doc_status_update">আপডেট উপলব্ধ</string>
+  <string name="cloud_doc_status_blocked">এই ডিভাইসে অবরুদ্ধ</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">সব</string>
+  <string name="cloud_doc_filter_installed">ইনস্টল করা</string>
+  <string name="cloud_doc_filter_cloud">ক্লাউডে</string>
+  <string name="cloud_doc_filter_updates">আপডেট</string>
+  <string name="cloud_doc_filter_blocked">অবরুদ্ধ</string>
+  <string name="cloud_doc_filter_removed">অপসারিত</string>
+  <string name="cloud_doc_show_removed">অপসারিত নথিপত্র দেখান</string>
+  <string name="cloud_doc_status_removed">ক্লাউড থেকে অপসারিত</string>
+  <string name="cloud_doc_status_still_installed">এখনও এখানে ইনস্টল করা আছে</string>
+  <string name="cloud_doc_purge_confirm">ক্লাউড ইতিহাস থেকে \"%1$s\" স্থায়ীভাবে অপসারণ করবেন? যদি এটি অন্য কোনো ডিভাইসে এখনও ইনস্টল করা থাকে, তবে সেই ডিভাইসটি পরবর্তী সিঙ্কের সময় এটি আবার ক্লাউডে আপলোড করতে পারে।</string>
+  <string name="cloud_doc_action_download">ডাউনলোড</string>
+  <string name="cloud_doc_action_push">ক্লাউডে আপলোড করুন</string>
+  <string name="cloud_doc_action_remove_cloud">ক্লাউড থেকে অপসারণ করুন</string>
+  <string name="cloud_doc_action_remove_all_devices">সব ডিভাইস থেকে অপসারণ করুন</string>
+  <string name="cloud_doc_action_block">এই ডিভাইসে সিঙ্ক করবেন না</string>
+  <string name="cloud_doc_action_unblock">এই ডিভাইসে অনুমতি দিন</string>
+  <string name="cloud_doc_action_restore">ক্লাউডে পুনরুদ্ধার করুন</string>
+  <string name="cloud_doc_action_purge">ক্লাউড ইতিহাস থেকে অপসারণ করুন</string>
+  <string name="cloud_doc_remove_all_confirm">এই ডিভাইস সহ ক্লাউড এবং আপনার সব ডিভাইস থেকে %1$s অপসারণ করবেন?</string>
+  <string name="cloud_doc_remove_cloud_confirm">ক্লাউড থেকে %1$s অপসারণ করবেন? এই ডিভাইসের কপিটি রাখা হবে; নথিপত্র সিঙ্ক চালু থাকা ডিভাইসগুলিও এটি অপসারণ করবে।</string>
+  <string name="cloud_doc_sync_now">এখন সিঙ্ক করুন</string>
+  <string name="cloud_doc_sync_now_download">নতুন এবং আপডেট করা নথিপত্র ডাউনলোড করুন</string>
+  <string name="cloud_doc_sync_now_upload">স্থানীয় নথিপত্র ক্লাউডে আপলোড করুন</string>
+  <string name="cloud_doc_sync_now_delete">অন্যান্য ডিভাইস থেকে অপসারণ প্রয়োগ করুন</string>
+  <string name="document_sync_signin_required">সিঙ্ক করা নথিপত্র পরিচালনা করতে আপনার ক্লাউড অ্যাকাউন্টে সাইন ইন করুন।</string>
+  <string name="cloud_doc_summary_upload">আপলোড %1$d</string>
+  <string name="cloud_doc_summary_upload_size">আপলোড %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">ডাউনলোড %1$d</string>
+  <string name="cloud_doc_summary_download_size">ডাউনলোড %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Wi-Fi-তে স্বয়ংক্রিয় ডাউনলোড শুরু হবে।</string>
+  <string name="cloud_doc_bulk_download">নির্বাচিত ডাউনলোড করুন (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">উপলব্ধ সব নথিপত্র ইতিমধ্যে ডাউনলোড করা হয়েছে।</string>
+  <string name="document_sync_notification_title">নথিপত্র সিঙ্ক করা হচ্ছে</string>
+  <string name="document_sync_downloading">%1$s ডাউনলোড করা হচ্ছে (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">%1$s আপলোড করা হচ্ছে (%2$d/%3$d)</string>
+  <string name="document_sync_removing">%1$s অপসারণ করা হচ্ছে (%2$d/%3$d)</string>
+  <string name="document_sync_started">নথিপত্র সিঙ্ক শুরু হয়েছে</string>
+  <string name="document_sync_enable_dialog_title">নথিপত্র সিঙ্ক করা শুরু করবেন?</string>
+  <string name="document_sync_enable_dialog_nothing">স্থানান্তর করার জন্য এখনও কোনো নথিপত্র নেই। নতুন ইনস্টল করা নথিপত্র স্বয়ংক্রিয়ভাবে সিঙ্ক হবে।</string>
 </resources>

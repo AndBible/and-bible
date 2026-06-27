@@ -1005,6 +1005,7 @@
   <string name="sqlite_invalid_file">ไฟล์โมดูลหรือชื่อไฟล์ไม่ถูกต้อง: %s</string>
   <string name="sqlite_cant_write">ไม่สามารถ(เขียนทับ)ไฟล์ได้</string>
   <string name="install_failed_reason">การติดตั้งโมดูลล้มเหลวด้วยเหตุผลต่อไปนี้: %s</string>
+  <string name="no_file_manager">ไม่พบแอปสำหรับเลือกไฟล์ กรุณาติดตั้งตัวจัดการไฟล์แล้วลองใหม่อีกครั้ง</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">แอปเปิดอยู่ที่อื่น</string>
   <string name="open_here">เปิดที่นี่</string>
@@ -1105,6 +1106,9 @@
   <string name="agent_max_iterations_summary">จำนวนการทำซ้ำสูงสุดก่อนถามว่าจะดำเนินการต่อหรือไม่ (0 = ไม่จำกัด)</string>
   <string name="ask_model_before_run_title">ถามโมเดลก่อนเรียกใช้</string>
   <string name="ask_model_before_run_summary">แสดงกล่องโต้ตอบเลือกโมเดลก่อนเรียกใช้พรอมต์ (ข้ามเมื่อพรอมต์มีการกำหนดโมเดลอย่างชัดเจน)</string>
+  <string name="auto_hide_agent_log_title">ซ่อนแผง AI เมื่อเสร็จสิ้น</string>
+  <string name="auto_hide_agent_log_summary">ซ่อนแผง AI โดยอัตโนมัติเมื่องานเสร็จสมบูรณ์หรือถูกยกเลิก เมื่อเกิดข้อผิดพลาด แผงจะยังคงแสดงอยู่</string>
+  <string name="ai_task_completed">งาน AI เสร็จสมบูรณ์</string>
   <string name="custom_agent_system_prompt_title">พรอมต์ระบบของ Agent</string>
   <string name="custom_system_prompt_summary">ไม่แนะนำให้แก้ไขหากไม่มีความรู้เพียงพอ</string>
   <string name="custom_text_transform_system_prompt_title">พรอมต์ระบบสำหรับการแปลงข้อความ</string>
@@ -1550,4 +1554,64 @@
   <string name="scroll_helper_line_style_thick_solid">เส้นหนาทึบ</string>
   <string name="prefs_page_buttons_title">ปุ่มเลื่อนหน้า</string>
   <string name="prefs_page_buttons_summary">แสดงปุ่มเลื่อนขึ้น/ลงบนหน้าจอ</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">เอกสาร</string>
+  <string name="document_sync_contents">พระคัมภีร์ อรรถกถา และเอกสารอื่น ๆ ที่ติดตั้งไว้</string>
+  <string name="document_sync_category_title">การซิงค์เอกสาร</string>
+  <string name="document_sync_auto_download_title">ดาวน์โหลดอัตโนมัติ</string>
+  <string name="document_sync_auto_download_summary">ดาวน์โหลดเอกสารใหม่และที่อัปเดตจากคลาวด์มายังอุปกรณ์นี้โดยอัตโนมัติ</string>
+  <string name="document_sync_auto_upload_title">อัปโหลดอัตโนมัติ</string>
+  <string name="document_sync_auto_upload_summary">อัปโหลดเอกสารที่ติดตั้งบนอุปกรณ์นี้ไปยังคลาวด์โดยอัตโนมัติ</string>
+  <string name="document_sync_auto_delete_title">นำการลบไปใช้โดยอัตโนมัติ</string>
+  <string name="document_sync_auto_delete_summary">ลบเอกสารออกจากอุปกรณ์นี้โดยอัตโนมัติเมื่อถูกลบบนอุปกรณ์อื่น</string>
+  <string name="document_sync_wifi_only_title">ซิงค์เอกสารผ่าน Wi-Fi เท่านั้น</string>
+  <string name="document_sync_wifi_only_summary">การถ่ายโอนเอกสารอัตโนมัติจะรอการเชื่อมต่อแบบไม่จำกัดปริมาณ (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">ดูและจัดการเอกสารที่จัดเก็บไว้ในคลาวด์</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">เอกสารที่ซิงค์แล้ว</string>
+  <string name="cloud_doc_status_synced">ซิงค์แล้ว</string>
+  <string name="cloud_doc_status_local_only">บนอุปกรณ์นี้เท่านั้น</string>
+  <string name="cloud_doc_status_cloud_only">ในคลาวด์เท่านั้น</string>
+  <string name="cloud_doc_status_update">มีการอัปเดต</string>
+  <string name="cloud_doc_status_blocked">ถูกบล็อกบนอุปกรณ์นี้</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">ทั้งหมด</string>
+  <string name="cloud_doc_filter_installed">ติดตั้งแล้ว</string>
+  <string name="cloud_doc_filter_cloud">ในคลาวด์</string>
+  <string name="cloud_doc_filter_updates">การอัปเดต</string>
+  <string name="cloud_doc_filter_blocked">ถูกบล็อก</string>
+  <string name="cloud_doc_filter_removed">ถูกลบแล้ว</string>
+  <string name="cloud_doc_show_removed">แสดงเอกสารที่ถูกลบ</string>
+  <string name="cloud_doc_status_removed">ลบออกจากคลาวด์แล้ว</string>
+  <string name="cloud_doc_status_still_installed">ยังคงติดตั้งอยู่ที่นี่</string>
+  <string name="cloud_doc_purge_confirm">ลบ \"%1$s\" ออกจากประวัติคลาวด์อย่างถาวรหรือไม่? หากยังคงติดตั้งอยู่บนอุปกรณ์อื่น อุปกรณ์นั้นอาจอัปโหลดกลับขึ้นคลาวด์ในการซิงค์ครั้งถัดไป</string>
+  <string name="cloud_doc_action_download">ดาวน์โหลด</string>
+  <string name="cloud_doc_action_push">อัปโหลดขึ้นคลาวด์</string>
+  <string name="cloud_doc_action_remove_cloud">ลบออกจากคลาวด์</string>
+  <string name="cloud_doc_action_remove_all_devices">ลบออกจากทุกอุปกรณ์</string>
+  <string name="cloud_doc_action_block">ไม่ซิงค์ไปยังอุปกรณ์นี้</string>
+  <string name="cloud_doc_action_unblock">อนุญาตบนอุปกรณ์นี้</string>
+  <string name="cloud_doc_action_restore">กู้คืนสู่คลาวด์</string>
+  <string name="cloud_doc_action_purge">ลบออกจากประวัติคลาวด์</string>
+  <string name="cloud_doc_remove_all_confirm">ลบ %1$s ออกจากคลาวด์และจากทุกอุปกรณ์ของคุณ รวมถึงอุปกรณ์นี้หรือไม่?</string>
+  <string name="cloud_doc_remove_cloud_confirm">ลบ %1$s ออกจากคลาวด์หรือไม่? สำเนาบนอุปกรณ์นี้จะถูกเก็บไว้ อุปกรณ์ที่เปิดการซิงค์เอกสารจะลบออกด้วยเช่นกัน</string>
+  <string name="cloud_doc_sync_now">ซิงค์ตอนนี้</string>
+  <string name="cloud_doc_sync_now_download">ดาวน์โหลดเอกสารใหม่และที่อัปเดต</string>
+  <string name="cloud_doc_sync_now_upload">อัปโหลดเอกสารในเครื่องไปยังคลาวด์</string>
+  <string name="cloud_doc_sync_now_delete">นำการลบจากอุปกรณ์อื่นไปใช้</string>
+  <string name="document_sync_signin_required">ลงชื่อเข้าใช้บัญชีคลาวด์ของคุณเพื่อจัดการเอกสารที่ซิงค์</string>
+  <string name="cloud_doc_summary_upload">อัปโหลด %1$d</string>
+  <string name="cloud_doc_summary_upload_size">อัปโหลด %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">ดาวน์โหลด %1$d</string>
+  <string name="cloud_doc_summary_download_size">ดาวน์โหลด %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">การดาวน์โหลดอัตโนมัติจะเริ่มเมื่อใช้ Wi-Fi</string>
+  <string name="cloud_doc_bulk_download">ดาวน์โหลดที่เลือก (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">ดาวน์โหลดเอกสารที่มีอยู่ทั้งหมดแล้ว</string>
+  <string name="document_sync_notification_title">กำลังซิงค์เอกสาร</string>
+  <string name="document_sync_downloading">กำลังดาวน์โหลด %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">กำลังอัปโหลด %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">กำลังลบ %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">เริ่มการซิงค์เอกสารแล้ว</string>
+  <string name="document_sync_enable_dialog_title">เริ่มการซิงค์เอกสารหรือไม่?</string>
+  <string name="document_sync_enable_dialog_nothing">ยังไม่มีเอกสารที่จะถ่ายโอน เอกสารที่ติดตั้งใหม่จะซิงค์โดยอัตโนมัติ</string>
 </resources>

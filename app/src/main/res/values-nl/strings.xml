@@ -1118,6 +1118,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="sqlite_invalid_file">Ongeldige modulebestand of bestandsnaam: %s</string>
   <string name="sqlite_cant_write">Kan het bestand niet (over)schrijven</string>
   <string name="install_failed_reason">Installeren van module is mislukt door de volgende oorzaak: %s.</string>
+  <string name="no_file_manager">Er is geen app gevonden om een bestand te kiezen. Installeer een bestandsbeheerder en probeer het opnieuw.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">App ergens anders geopend</string>
   <string name="open_here">Hier openen</string>
@@ -1220,6 +1221,9 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="agent_max_iterations_summary">Maximum aantal iteraties voordat om verdere instructies gevraagd wordt (0 = onbeperkt)</string>
   <string name="ask_model_before_run_title">Model vragen voor uitvoering</string>
   <string name="ask_model_before_run_summary">Toon een modelselectiedialogvenster voordat een prompt wordt uitgevoerd (overgeslagen als de prompt een expliciete modeloverschrijving heeft)</string>
+  <string name="auto_hide_agent_log_title">AI-paneel verbergen na voltooiing</string>
+  <string name="auto_hide_agent_log_summary">Verberg het AI-paneel automatisch wanneer een taak met succes is voltooid of geannuleerd. Bij een fout blijft het paneel zichtbaar.</string>
+  <string name="ai_task_completed">AI-taak voltooid</string>
   <string name="custom_agent_system_prompt_title">Systeem-prompt voor agent</string>
   <string name="custom_system_prompt_summary">Bewerken wordt afgeraden tenzij u weet wat u doet</string>
   <string name="custom_text_transform_system_prompt_title">Systeem-prompt voor teksttransformatie</string>
@@ -1665,4 +1669,64 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="scroll_helper_line_style_thick_solid">Dikke doorgetrokken lijn</string>
   <string name="prefs_page_buttons_title">Pagina-scrollknoppen</string>
   <string name="prefs_page_buttons_summary">Zichtbare knoppen voor pagina omhoog/omlaag op het scherm tonen</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Documenten</string>
+  <string name="document_sync_contents">Geïnstalleerde bijbels, commentaren en andere documenten</string>
+  <string name="document_sync_category_title">Documentsynchronisatie</string>
+  <string name="document_sync_auto_download_title">Automatisch downloaden</string>
+  <string name="document_sync_auto_download_summary">Download nieuwe en bijgewerkte documenten automatisch vanuit de cloud naar dit apparaat</string>
+  <string name="document_sync_auto_upload_title">Automatisch uploaden</string>
+  <string name="document_sync_auto_upload_summary">Upload documenten die op dit apparaat zijn geïnstalleerd automatisch naar de cloud</string>
+  <string name="document_sync_auto_delete_title">Verwijderingen automatisch toepassen</string>
+  <string name="document_sync_auto_delete_summary">Verwijder documenten automatisch van dit apparaat wanneer ze op een ander apparaat worden verwijderd</string>
+  <string name="document_sync_wifi_only_title">Documenten alleen via wifi synchroniseren</string>
+  <string name="document_sync_wifi_only_summary">Automatische documentoverdrachten wachten op een verbinding zonder datalimiet (wifi)</string>
+  <string name="document_sync_manage_summary">Bekijk en beheer documenten die in de cloud zijn opgeslagen</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Gesynchroniseerde documenten</string>
+  <string name="cloud_doc_status_synced">Gesynchroniseerd</string>
+  <string name="cloud_doc_status_local_only">Alleen op dit apparaat</string>
+  <string name="cloud_doc_status_cloud_only">Alleen in cloud</string>
+  <string name="cloud_doc_status_update">Update beschikbaar</string>
+  <string name="cloud_doc_status_blocked">Geblokkeerd op dit apparaat</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Alle</string>
+  <string name="cloud_doc_filter_installed">Geïnstalleerd</string>
+  <string name="cloud_doc_filter_cloud">In cloud</string>
+  <string name="cloud_doc_filter_updates">Updates</string>
+  <string name="cloud_doc_filter_blocked">Geblokkeerd</string>
+  <string name="cloud_doc_filter_removed">Verwijderd</string>
+  <string name="cloud_doc_show_removed">Verwijderde documenten tonen</string>
+  <string name="cloud_doc_status_removed">Verwijderd uit de cloud</string>
+  <string name="cloud_doc_status_still_installed">hier nog geïnstalleerd</string>
+  <string name="cloud_doc_purge_confirm">\"%1$s\" definitief uit de cloudgeschiedenis verwijderen? Als het nog op een ander apparaat is geïnstalleerd, kan dat apparaat het bij de volgende synchronisatie weer naar de cloud uploaden.</string>
+  <string name="cloud_doc_action_download">Downloaden</string>
+  <string name="cloud_doc_action_push">Naar cloud uploaden</string>
+  <string name="cloud_doc_action_remove_cloud">Verwijderen uit cloud</string>
+  <string name="cloud_doc_action_remove_all_devices">Van alle apparaten verwijderen</string>
+  <string name="cloud_doc_action_block">Niet synchroniseren naar dit apparaat</string>
+  <string name="cloud_doc_action_unblock">Toestaan op dit apparaat</string>
+  <string name="cloud_doc_action_restore">Terugzetten naar cloud</string>
+  <string name="cloud_doc_action_purge">Verwijderen uit cloudgeschiedenis</string>
+  <string name="cloud_doc_remove_all_confirm">%1$s verwijderen uit de cloud en van al uw apparaten, inclusief dit apparaat?</string>
+  <string name="cloud_doc_remove_cloud_confirm">%1$s verwijderen uit de cloud? De kopie op dit apparaat blijft behouden; apparaten met documentsynchronisatie aan verwijderen het ook.</string>
+  <string name="cloud_doc_sync_now">Nu synchroniseren</string>
+  <string name="cloud_doc_sync_now_download">Nieuwe en bijgewerkte documenten downloaden</string>
+  <string name="cloud_doc_sync_now_upload">Lokale documenten naar de cloud uploaden</string>
+  <string name="cloud_doc_sync_now_delete">Verwijderingen van andere apparaten toepassen</string>
+  <string name="document_sync_signin_required">Meld u aan bij uw cloudaccount om gesynchroniseerde documenten te beheren.</string>
+  <string name="cloud_doc_summary_upload">%1$d uploaden</string>
+  <string name="cloud_doc_summary_upload_size">%1$d uploaden (%2$s)</string>
+  <string name="cloud_doc_summary_download">%1$d downloaden</string>
+  <string name="cloud_doc_summary_download_size">%1$d downloaden (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Automatische downloads starten zodra er wifi is.</string>
+  <string name="cloud_doc_bulk_download">Geselecteerde downloaden (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Alle beschikbare documenten zijn al gedownload.</string>
+  <string name="document_sync_notification_title">Documenten synchroniseren</string>
+  <string name="document_sync_downloading">%1$s downloaden (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">%1$s uploaden (%2$d/%3$d)</string>
+  <string name="document_sync_removing">%1$s verwijderen (%2$d/%3$d)</string>
+  <string name="document_sync_started">Documentsynchronisatie gestart</string>
+  <string name="document_sync_enable_dialog_title">Documenten synchroniseren starten?</string>
+  <string name="document_sync_enable_dialog_nothing">Nog geen documenten om over te dragen. Nieuw geïnstalleerde documenten worden automatisch gesynchroniseerd.</string>
 </resources>

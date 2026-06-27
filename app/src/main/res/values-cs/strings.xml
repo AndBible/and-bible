@@ -1158,6 +1158,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="sqlite_invalid_file">Neplatný modul nebo jméno souboru: %s</string>
   <string name="sqlite_cant_write">Soubor nelze zapsat (přepsat)</string>
   <string name="install_failed_reason">Instalace modulu selhala; důvod: %s.</string>
+  <string name="no_file_manager">Nebyla nalezena žádná aplikace pro výběr souboru. Nainstalujte prosím správce souborů a zkuste to znovu.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikace spuštěna jinde</string>
   <string name="open_here">Otevřít zde</string>
@@ -1260,6 +1261,9 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="agent_max_iterations_summary">Maximální počet iterací před dotazem na pokračování (0 = neomezeno)</string>
   <string name="ask_model_before_run_title">Dotázat se na model před spuštěním</string>
   <string name="ask_model_before_run_summary">Zobrazit dialog výběru modelu před spuštěním výzvy (přeskočeno, pokud má výzva explicitní přepsání modelu)</string>
+  <string name="auto_hide_agent_log_title">Po dokončení skrýt panel AI</string>
+  <string name="auto_hide_agent_log_summary">Automaticky skryje panel AI, když je úloha úspěšně dokončena nebo zrušena. Při chybě zůstane panel viditelný.</string>
+  <string name="ai_task_completed">Úloha AI dokončena</string>
   <string name="custom_agent_system_prompt_title">Systémový prompt agenta</string>
   <string name="custom_system_prompt_summary">Úpravy se nedoporučují, pokud nevíte, co děláte</string>
   <string name="custom_text_transform_system_prompt_title">Systémový prompt transformace textu</string>
@@ -1705,4 +1709,64 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="scroll_helper_line_style_thick_solid">Silná plná čára</string>
   <string name="prefs_page_buttons_title">Tlačítka posuvu stránky</string>
   <string name="prefs_page_buttons_summary">Zobrazit na obrazovce viditelná tlačítka pro posun stránky nahoru/dolů</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumenty</string>
+  <string name="document_sync_contents">Nainstalované bible, komentáře a další dokumenty</string>
+  <string name="document_sync_category_title">Synchronizace dokumentů</string>
+  <string name="document_sync_auto_download_title">Stahovat automaticky</string>
+  <string name="document_sync_auto_download_summary">Automaticky stahovat nové a aktualizované dokumenty z cloudu do tohoto zařízení</string>
+  <string name="document_sync_auto_upload_title">Nahrávat automaticky</string>
+  <string name="document_sync_auto_upload_summary">Automaticky nahrávat do cloudu dokumenty nainstalované na tomto zařízení</string>
+  <string name="document_sync_auto_delete_title">Automaticky aplikovat odstranění</string>
+  <string name="document_sync_auto_delete_summary">Automaticky odstranit dokumenty z tohoto zařízení, když jsou odstraněny na jiném zařízení</string>
+  <string name="document_sync_wifi_only_title">Synchronizovat dokumenty pouze přes Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Automatické přenosy dokumentů čekají na neměřené připojení (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Zobrazit a spravovat dokumenty uložené v cloudu</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Synchronizované dokumenty</string>
+  <string name="cloud_doc_status_synced">Synchronizováno</string>
+  <string name="cloud_doc_status_local_only">Pouze na tomto zařízení</string>
+  <string name="cloud_doc_status_cloud_only">Pouze v cloudu</string>
+  <string name="cloud_doc_status_update">Dostupná aktualizace</string>
+  <string name="cloud_doc_status_blocked">Blokováno na tomto zařízení</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Vše</string>
+  <string name="cloud_doc_filter_installed">Nainstalováno</string>
+  <string name="cloud_doc_filter_cloud">V cloudu</string>
+  <string name="cloud_doc_filter_updates">Aktualizace</string>
+  <string name="cloud_doc_filter_blocked">Blokováno</string>
+  <string name="cloud_doc_filter_removed">Odstraněno</string>
+  <string name="cloud_doc_show_removed">Zobrazit odstraněné dokumenty</string>
+  <string name="cloud_doc_status_removed">Odstraněno z cloudu</string>
+  <string name="cloud_doc_status_still_installed">stále nainstalováno zde</string>
+  <string name="cloud_doc_purge_confirm">Trvale odstranit \"%1$s\" z historie cloudu? Pokud je stále nainstalován na jiném zařízení, může jej toto zařízení při příští synchronizaci znovu nahrát do cloudu.</string>
+  <string name="cloud_doc_action_download">Stáhnout</string>
+  <string name="cloud_doc_action_push">Nahrát do cloudu</string>
+  <string name="cloud_doc_action_remove_cloud">Odstranit z cloudu</string>
+  <string name="cloud_doc_action_remove_all_devices">Odstranit ze všech zařízení</string>
+  <string name="cloud_doc_action_block">Nesynchronizovat na toto zařízení</string>
+  <string name="cloud_doc_action_unblock">Povolit na tomto zařízení</string>
+  <string name="cloud_doc_action_restore">Obnovit do cloudu</string>
+  <string name="cloud_doc_action_purge">Odstranit z historie cloudu</string>
+  <string name="cloud_doc_remove_all_confirm">Odstranit %1$s z cloudu a ze všech vašich zařízení, včetně tohoto?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Odstranit %1$s z cloudu? Kopie na tomto zařízení zůstane zachována; zařízení se zapnutou synchronizací dokumentů jej rovněž odstraní.</string>
+  <string name="cloud_doc_sync_now">Synchronizovat nyní</string>
+  <string name="cloud_doc_sync_now_download">Stáhnout nové a aktualizované dokumenty</string>
+  <string name="cloud_doc_sync_now_upload">Nahrát místní dokumenty do cloudu</string>
+  <string name="cloud_doc_sync_now_delete">Aplikovat odstranění z jiných zařízení</string>
+  <string name="document_sync_signin_required">Pro správu synchronizovaných dokumentů se přihlaste ke svému cloudovému účtu.</string>
+  <string name="cloud_doc_summary_upload">Nahrát %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Nahrát %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Stáhnout %1$d</string>
+  <string name="cloud_doc_summary_download_size">Stáhnout %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Automatické stahování se spustí přes Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Stáhnout vybrané (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Všechny dostupné dokumenty jsou již stažené.</string>
+  <string name="document_sync_notification_title">Synchronizace dokumentů</string>
+  <string name="document_sync_downloading">Stahování %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Nahrávání %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Odstraňování %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Synchronizace dokumentů zahájena</string>
+  <string name="document_sync_enable_dialog_title">Zahájit synchronizaci dokumentů?</string>
+  <string name="document_sync_enable_dialog_nothing">Zatím nejsou žádné dokumenty k přenosu. Nově nainstalované dokumenty se synchronizují automaticky.</string>
 </resources>

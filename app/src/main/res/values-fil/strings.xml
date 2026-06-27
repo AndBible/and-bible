@@ -1005,6 +1005,7 @@
   <string name="sqlite_invalid_file">Di-wastong module file o filename: %s</string>
   <string name="sqlite_cant_write">Hindi ma-(over)write ang file</string>
   <string name="install_failed_reason">Nabigo ang pag-install ng module dahil sa sumusunod na dahilan: %s.</string>
+  <string name="no_file_manager">Walang nahanap na app para pumili ng file. Mangyaring mag-install ng file manager at subukang muli.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Binuksan ang app sa ibang lugar</string>
   <string name="open_here">Buksan dito</string>
@@ -1105,6 +1106,9 @@
   <string name="agent_max_iterations_summary">Maximum na iterasyon bago magtanong na magpatuloy (0 = walang limitasyon)</string>
   <string name="ask_model_before_run_title">Itanong ang modelo bago tumakbo</string>
   <string name="ask_model_before_run_summary">Magpakita ng dialog para sa pagpili ng modelo bago i-execute ang prompt (nilalaktawan kapag ang prompt ay may tahasang model override)</string>
+  <string name="auto_hide_agent_log_title">Itago ang AI panel kapag tapos na</string>
+  <string name="auto_hide_agent_log_summary">Awtomatikong itago ang AI panel kapag matagumpay na natapos o kinansela ang isang gawain. Kapag may error, mananatiling nakikita ang panel.</string>
+  <string name="ai_task_completed">Natapos na ang gawain ng AI</string>
   <string name="custom_agent_system_prompt_title">System prompt ng agent</string>
   <string name="custom_system_prompt_summary">Hindi inirerekomenda ang pag-edit maliban kung alam mo ang iyong ginagawa</string>
   <string name="custom_text_transform_system_prompt_title">System prompt ng text transformation</string>
@@ -1550,4 +1554,64 @@
   <string name="scroll_helper_line_style_thick_solid">Makapal na solidong linya</string>
   <string name="prefs_page_buttons_title">Mga button ng pag-scroll ng pahina</string>
   <string name="prefs_page_buttons_summary">Magpakita ng mga nakikitang button ng page up/down sa screen</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Mga dokumento</string>
+  <string name="document_sync_contents">Mga naka-install na bibliya, komentaryo at iba pang dokumento</string>
+  <string name="document_sync_category_title">Pag-sync ng dokumento</string>
+  <string name="document_sync_auto_download_title">I-download nang awtomatiko</string>
+  <string name="document_sync_auto_download_summary">Awtomatikong i-download ang mga bago at na-update na dokumento mula sa cloud patungo sa device na ito</string>
+  <string name="document_sync_auto_upload_title">I-upload nang awtomatiko</string>
+  <string name="document_sync_auto_upload_summary">Awtomatikong i-upload sa cloud ang mga dokumentong naka-install sa device na ito</string>
+  <string name="document_sync_auto_delete_title">Awtomatikong ilapat ang mga pagtanggal</string>
+  <string name="document_sync_auto_delete_summary">Awtomatikong tanggalin ang mga dokumento sa device na ito kapag tinanggal ang mga ito sa ibang device</string>
+  <string name="document_sync_wifi_only_title">I-sync ang mga dokumento sa Wi-Fi lamang</string>
+  <string name="document_sync_wifi_only_summary">Maghihintay ang awtomatikong paglipat ng dokumento sa isang unmetered (Wi-Fi) na koneksyon</string>
+  <string name="document_sync_manage_summary">Tingnan at pamahalaan ang mga dokumentong naka-imbak sa cloud</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Mga naka-sync na dokumento</string>
+  <string name="cloud_doc_status_synced">Naka-sync</string>
+  <string name="cloud_doc_status_local_only">Sa device na ito lamang</string>
+  <string name="cloud_doc_status_cloud_only">Sa cloud lamang</string>
+  <string name="cloud_doc_status_update">May available na update</string>
+  <string name="cloud_doc_status_blocked">Naka-block sa device na ito</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Lahat</string>
+  <string name="cloud_doc_filter_installed">Naka-install</string>
+  <string name="cloud_doc_filter_cloud">Sa cloud</string>
+  <string name="cloud_doc_filter_updates">Mga update</string>
+  <string name="cloud_doc_filter_blocked">Naka-block</string>
+  <string name="cloud_doc_filter_removed">Tinanggal</string>
+  <string name="cloud_doc_show_removed">Ipakita ang mga tinanggal na dokumento</string>
+  <string name="cloud_doc_status_removed">Tinanggal sa cloud</string>
+  <string name="cloud_doc_status_still_installed">naka-install pa rin dito</string>
+  <string name="cloud_doc_purge_confirm">Permanenteng tanggalin ang \"%1$s\" sa history ng cloud? Kung naka-install pa rin ito sa ibang device, maaaring i-upload ito muli ng device na iyon sa cloud sa susunod nitong pag-sync.</string>
+  <string name="cloud_doc_action_download">I-download</string>
+  <string name="cloud_doc_action_push">I-upload sa cloud</string>
+  <string name="cloud_doc_action_remove_cloud">Tanggalin sa cloud</string>
+  <string name="cloud_doc_action_remove_all_devices">Tanggalin sa lahat ng device</string>
+  <string name="cloud_doc_action_block">Huwag i-sync sa device na ito</string>
+  <string name="cloud_doc_action_unblock">Payagan sa device na ito</string>
+  <string name="cloud_doc_action_restore">I-restore sa cloud</string>
+  <string name="cloud_doc_action_purge">Tanggalin sa history ng cloud</string>
+  <string name="cloud_doc_remove_all_confirm">Tanggalin ang %1$s sa cloud at sa lahat ng iyong device, kabilang ang isang ito?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Tanggalin ang %1$s sa cloud? Mananatili ang kopya sa device na ito; tatanggalin din ito ng mga device na may naka-on na pag-sync ng dokumento.</string>
+  <string name="cloud_doc_sync_now">I-sync ngayon</string>
+  <string name="cloud_doc_sync_now_download">I-download ang mga bago at na-update na dokumento</string>
+  <string name="cloud_doc_sync_now_upload">I-upload sa cloud ang mga lokal na dokumento</string>
+  <string name="cloud_doc_sync_now_delete">Ilapat ang mga pagtanggal mula sa ibang device</string>
+  <string name="document_sync_signin_required">Mag-sign in sa iyong cloud account para pamahalaan ang mga naka-sync na dokumento.</string>
+  <string name="cloud_doc_summary_upload">I-upload %1$d</string>
+  <string name="cloud_doc_summary_upload_size">I-upload %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">I-download %1$d</string>
+  <string name="cloud_doc_summary_download_size">I-download %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Magsisimula ang mga awtomatikong pag-download sa Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">I-download ang napili (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Na-download na ang lahat ng available na dokumento.</string>
+  <string name="document_sync_notification_title">Sino-sync ang mga dokumento</string>
+  <string name="document_sync_downloading">Dino-download ang %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Ina-upload ang %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Tinatanggal ang %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Nagsimula ang pag-sync ng dokumento</string>
+  <string name="document_sync_enable_dialog_title">Simulan ang pag-sync ng mga dokumento?</string>
+  <string name="document_sync_enable_dialog_nothing">Wala pang dokumentong ililipat. Awtomatikong mag-si-sync ang mga bagong naka-install na dokumento.</string>
 </resources>

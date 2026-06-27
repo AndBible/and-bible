@@ -1005,6 +1005,7 @@
   <string name="sqlite_invalid_file">Tệp module hoặc tên tệp không hợp lệ: %s</string>
   <string name="sqlite_cant_write">Không thể ghi (hoặc ghi đè) tệp</string>
   <string name="install_failed_reason">Cài đặt module thất bại vì lý do sau: %s.</string>
+  <string name="no_file_manager">Không tìm thấy ứng dụng nào để chọn tệp. Vui lòng cài đặt trình quản lý tệp rồi thử lại.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Ứng dụng đã mở ở nơi khác</string>
   <string name="open_here">Mở tại đây</string>
@@ -1105,6 +1106,9 @@
   <string name="agent_max_iterations_summary">Số vòng lặp tối đa trước khi hỏi để tiếp tục (0 = không giới hạn)</string>
   <string name="ask_model_before_run_title">Hỏi mô hình trước khi chạy</string>
   <string name="ask_model_before_run_summary">Hiển thị hộp thoại chọn mô hình trước khi thực thi lệnh nhắc (bỏ qua khi lệnh nhắc có ghi đè mô hình rõ ràng)</string>
+  <string name="auto_hide_agent_log_title">Ẩn bảng AI khi hoàn tất</string>
+  <string name="auto_hide_agent_log_summary">Tự động ẩn bảng AI khi một tác vụ hoàn tất thành công hoặc bị hủy. Khi có lỗi, bảng vẫn hiển thị.</string>
+  <string name="ai_task_completed">Tác vụ AI đã hoàn tất</string>
   <string name="custom_agent_system_prompt_title">Lệnh hệ thống tác nhân</string>
   <string name="custom_system_prompt_summary">Không khuyến nghị chỉnh sửa trừ khi bạn biết mình đang làm gì</string>
   <string name="custom_text_transform_system_prompt_title">Lệnh hệ thống chuyển đổi văn bản</string>
@@ -1550,4 +1554,64 @@
   <string name="scroll_helper_line_style_thick_solid">Đường liền dày</string>
   <string name="prefs_page_buttons_title">Nút cuộn trang</string>
   <string name="prefs_page_buttons_summary">Hiển thị nút lên/xuống trang trên màn hình</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Tài liệu</string>
+  <string name="document_sync_contents">Các bản Kinh Thánh, sách chú giải và tài liệu khác đã cài đặt</string>
+  <string name="document_sync_category_title">Đồng bộ tài liệu</string>
+  <string name="document_sync_auto_download_title">Tự động tải xuống</string>
+  <string name="document_sync_auto_download_summary">Tự động tải các tài liệu mới và đã cập nhật từ đám mây về thiết bị này</string>
+  <string name="document_sync_auto_upload_title">Tự động tải lên</string>
+  <string name="document_sync_auto_upload_summary">Tự động tải các tài liệu đã cài đặt trên thiết bị này lên đám mây</string>
+  <string name="document_sync_auto_delete_title">Tự động áp dụng việc xóa bỏ</string>
+  <string name="document_sync_auto_delete_summary">Tự động xóa tài liệu khỏi thiết bị này khi chúng bị xóa trên thiết bị khác</string>
+  <string name="document_sync_wifi_only_title">Chỉ đồng bộ tài liệu qua Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Việc truyền tài liệu tự động sẽ chờ kết nối không tính theo lưu lượng (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Xem và quản lý các tài liệu được lưu trữ trên đám mây</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Tài liệu đã đồng bộ</string>
+  <string name="cloud_doc_status_synced">Đã đồng bộ</string>
+  <string name="cloud_doc_status_local_only">Chỉ trên thiết bị này</string>
+  <string name="cloud_doc_status_cloud_only">Chỉ trên đám mây</string>
+  <string name="cloud_doc_status_update">Có bản cập nhật</string>
+  <string name="cloud_doc_status_blocked">Bị chặn trên thiết bị này</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Tất cả</string>
+  <string name="cloud_doc_filter_installed">Đã cài đặt</string>
+  <string name="cloud_doc_filter_cloud">Trên đám mây</string>
+  <string name="cloud_doc_filter_updates">Bản cập nhật</string>
+  <string name="cloud_doc_filter_blocked">Bị chặn</string>
+  <string name="cloud_doc_filter_removed">Đã xóa</string>
+  <string name="cloud_doc_show_removed">Hiển thị tài liệu đã xóa</string>
+  <string name="cloud_doc_status_removed">Đã xóa khỏi đám mây</string>
+  <string name="cloud_doc_status_still_installed">vẫn còn cài đặt tại đây</string>
+  <string name="cloud_doc_purge_confirm">Xóa vĩnh viễn \"%1$s\" khỏi lịch sử đám mây? Nếu tài liệu vẫn được cài đặt trên một thiết bị khác, thiết bị đó có thể tải lại lên đám mây trong lần đồng bộ tiếp theo.</string>
+  <string name="cloud_doc_action_download">Tải xuống</string>
+  <string name="cloud_doc_action_push">Tải lên đám mây</string>
+  <string name="cloud_doc_action_remove_cloud">Xóa khỏi đám mây</string>
+  <string name="cloud_doc_action_remove_all_devices">Xóa khỏi tất cả thiết bị</string>
+  <string name="cloud_doc_action_block">Không đồng bộ về thiết bị này</string>
+  <string name="cloud_doc_action_unblock">Cho phép trên thiết bị này</string>
+  <string name="cloud_doc_action_restore">Khôi phục lên đám mây</string>
+  <string name="cloud_doc_action_purge">Xóa khỏi lịch sử đám mây</string>
+  <string name="cloud_doc_remove_all_confirm">Xóa %1$s khỏi đám mây và khỏi tất cả thiết bị của bạn, bao gồm cả thiết bị này?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Xóa %1$s khỏi đám mây? Bản sao trên thiết bị này được giữ lại; các thiết bị bật đồng bộ tài liệu cũng sẽ xóa nó.</string>
+  <string name="cloud_doc_sync_now">Đồng bộ ngay</string>
+  <string name="cloud_doc_sync_now_download">Tải các tài liệu mới và đã cập nhật</string>
+  <string name="cloud_doc_sync_now_upload">Tải các tài liệu cục bộ lên đám mây</string>
+  <string name="cloud_doc_sync_now_delete">Áp dụng việc xóa bỏ từ các thiết bị khác</string>
+  <string name="document_sync_signin_required">Đăng nhập vào tài khoản đám mây của bạn để quản lý các tài liệu đã đồng bộ.</string>
+  <string name="cloud_doc_summary_upload">Tải lên %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Tải lên %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Tải xuống %1$d</string>
+  <string name="cloud_doc_summary_download_size">Tải xuống %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Việc tải xuống tự động sẽ bắt đầu khi có Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Tải các mục đã chọn (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Tất cả tài liệu khả dụng đã được tải xuống.</string>
+  <string name="document_sync_notification_title">Đang đồng bộ tài liệu</string>
+  <string name="document_sync_downloading">Đang tải xuống %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Đang tải lên %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Đang xóa %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Đã bắt đầu đồng bộ tài liệu</string>
+  <string name="document_sync_enable_dialog_title">Bắt đầu đồng bộ tài liệu?</string>
+  <string name="document_sync_enable_dialog_nothing">Chưa có tài liệu nào để truyền. Các tài liệu mới cài đặt sẽ tự động đồng bộ.</string>
 </resources>

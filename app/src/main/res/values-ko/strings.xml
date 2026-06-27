@@ -1165,6 +1165,7 @@
   <string name="sqlite_invalid_file">잘못된 모듈 파일 또는 파일명: %s</string>
   <string name="sqlite_cant_write">파일을 (덮어)쓸 수 없습니다</string>
   <string name="install_failed_reason">다음 이유로 모듈 설치에 실패했습니다: %s.</string>
+  <string name="no_file_manager">파일을 선택할 수 있는 앱을 찾을 수 없습니다. 파일 관리자를 설치한 후 다시 시도하세요.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">앱이 다른 곳에서 열렸습니다</string>
   <string name="open_here">여기서 열기</string>
@@ -1267,6 +1268,9 @@
   <string name="agent_max_iterations_summary">계속할지 묻기 전 최대 반복 횟수 (0 = 무제한)</string>
   <string name="ask_model_before_run_title">실행 전 모델 선택</string>
   <string name="ask_model_before_run_summary">프롬프트 실행 전 모델 선택 대화상자 표시 (프롬프트에 명시적 모델 지정 시 건너뜀)</string>
+  <string name="auto_hide_agent_log_title">완료 시 AI 패널 숨기기</string>
+  <string name="auto_hide_agent_log_summary">작업이 성공적으로 완료되거나 취소되면 AI 패널을 자동으로 숨깁니다. 오류가 발생하면 패널이 계속 표시됩니다.</string>
+  <string name="ai_task_completed">AI 작업 완료됨</string>
   <string name="custom_agent_system_prompt_title">에이전트 시스템 프롬프트</string>
   <string name="custom_system_prompt_summary">무엇을 하는지 모를 경우 편집하지 않는 것이 좋습니다</string>
   <string name="custom_text_transform_system_prompt_title">텍스트 변환 시스템 프롬프트</string>
@@ -1712,4 +1716,64 @@
   <string name="scroll_helper_line_style_thick_solid">굵은 실선</string>
   <string name="prefs_page_buttons_title">페이지 스크롤 버튼</string>
   <string name="prefs_page_buttons_summary">화면에 페이지 위/아래 버튼 표시</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">문서</string>
+  <string name="document_sync_contents">설치된 성경, 주석 및 기타 문서</string>
+  <string name="document_sync_category_title">문서 동기화</string>
+  <string name="document_sync_auto_download_title">자동으로 다운로드</string>
+  <string name="document_sync_auto_download_summary">클라우드에서 새 문서 및 업데이트된 문서를 이 기기로 자동으로 다운로드합니다</string>
+  <string name="document_sync_auto_upload_title">자동으로 업로드</string>
+  <string name="document_sync_auto_upload_summary">이 기기에 설치된 문서를 클라우드로 자동으로 업로드합니다</string>
+  <string name="document_sync_auto_delete_title">제거 자동 적용</string>
+  <string name="document_sync_auto_delete_summary">다른 기기에서 문서가 제거되면 이 기기에서도 자동으로 제거합니다</string>
+  <string name="document_sync_wifi_only_title">Wi-Fi에서만 문서 동기화</string>
+  <string name="document_sync_wifi_only_summary">자동 문서 전송은 데이터 무제한(Wi-Fi) 연결을 기다립니다</string>
+  <string name="document_sync_manage_summary">클라우드에 저장된 문서를 보고 관리합니다</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">동기화된 문서</string>
+  <string name="cloud_doc_status_synced">동기화됨</string>
+  <string name="cloud_doc_status_local_only">이 기기에만 있음</string>
+  <string name="cloud_doc_status_cloud_only">클라우드에만 있음</string>
+  <string name="cloud_doc_status_update">업데이트 사용 가능</string>
+  <string name="cloud_doc_status_blocked">이 기기에서 차단됨</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">전체</string>
+  <string name="cloud_doc_filter_installed">설치됨</string>
+  <string name="cloud_doc_filter_cloud">클라우드</string>
+  <string name="cloud_doc_filter_updates">업데이트</string>
+  <string name="cloud_doc_filter_blocked">차단됨</string>
+  <string name="cloud_doc_filter_removed">제거됨</string>
+  <string name="cloud_doc_show_removed">제거된 문서 표시</string>
+  <string name="cloud_doc_status_removed">클라우드에서 제거됨</string>
+  <string name="cloud_doc_status_still_installed">여기에 여전히 설치됨</string>
+  <string name="cloud_doc_purge_confirm">클라우드 기록에서 \"%1$s\"을(를) 영구적으로 제거하시겠습니까? 다른 기기에 여전히 설치되어 있는 경우 해당 기기가 다음 동기화 시 클라우드로 다시 업로드할 수 있습니다.</string>
+  <string name="cloud_doc_action_download">다운로드</string>
+  <string name="cloud_doc_action_push">클라우드로 업로드</string>
+  <string name="cloud_doc_action_remove_cloud">클라우드에서 제거</string>
+  <string name="cloud_doc_action_remove_all_devices">모든 기기에서 제거</string>
+  <string name="cloud_doc_action_block">이 기기에 동기화 안 함</string>
+  <string name="cloud_doc_action_unblock">이 기기에서 허용</string>
+  <string name="cloud_doc_action_restore">클라우드로 복원</string>
+  <string name="cloud_doc_action_purge">클라우드 기록에서 제거</string>
+  <string name="cloud_doc_remove_all_confirm">이 기기를 포함한 모든 기기와 클라우드에서 %1$s을(를) 제거하시겠습니까?</string>
+  <string name="cloud_doc_remove_cloud_confirm">클라우드에서 %1$s을(를) 제거하시겠습니까? 이 기기의 사본은 유지됩니다. 문서 동기화가 켜진 기기에서도 제거됩니다.</string>
+  <string name="cloud_doc_sync_now">지금 동기화</string>
+  <string name="cloud_doc_sync_now_download">새 문서 및 업데이트된 문서 다운로드</string>
+  <string name="cloud_doc_sync_now_upload">로컬 문서를 클라우드로 업로드</string>
+  <string name="cloud_doc_sync_now_delete">다른 기기의 제거 사항 적용</string>
+  <string name="document_sync_signin_required">동기화된 문서를 관리하려면 클라우드 계정에 로그인하세요.</string>
+  <string name="cloud_doc_summary_upload">업로드 %1$d</string>
+  <string name="cloud_doc_summary_upload_size">업로드 %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">다운로드 %1$d</string>
+  <string name="cloud_doc_summary_download_size">다운로드 %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">자동 다운로드는 Wi-Fi에서 시작됩니다.</string>
+  <string name="cloud_doc_bulk_download">선택 항목 다운로드 (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">사용 가능한 모든 문서가 이미 다운로드되었습니다.</string>
+  <string name="document_sync_notification_title">문서 동기화 중</string>
+  <string name="document_sync_downloading">%1$s 다운로드 중 (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">%1$s 업로드 중 (%2$d/%3$d)</string>
+  <string name="document_sync_removing">%1$s 제거 중 (%2$d/%3$d)</string>
+  <string name="document_sync_started">문서 동기화 시작됨</string>
+  <string name="document_sync_enable_dialog_title">문서 동기화를 시작하시겠습니까?</string>
+  <string name="document_sync_enable_dialog_nothing">아직 전송할 문서가 없습니다. 새로 설치된 문서는 자동으로 동기화됩니다.</string>
 </resources>

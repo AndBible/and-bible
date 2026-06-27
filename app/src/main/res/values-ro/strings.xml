@@ -1169,6 +1169,7 @@
   <string name="sqlite_invalid_file">Fișier sau nume de fișier incorect: %s</string>
   <string name="sqlite_cant_write">Nu se poate (supra)scrie fișierul</string>
   <string name="install_failed_reason">Instalarea modulului a eșuat din următorul motiv: %s.</string>
+  <string name="no_file_manager">Nu a fost găsită nicio aplicație pentru alegerea unui fișier. Te rugăm să instalezi un manager de fișiere și să încerci din nou.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplicație deschisă în altă parte</string>
   <string name="open_here">Deschide aici</string>
@@ -1271,6 +1272,9 @@
   <string name="agent_max_iterations_summary">Număr maxim de iterații înainte de a întreba dacă se continuă (0 = nelimitat)</string>
   <string name="ask_model_before_run_title">Întreabă modelul înainte de rulare</string>
   <string name="ask_model_before_run_summary">Afișează un dialog de selectare a modelului înainte de executarea unui prompt (omis când promptul are o înlocuire explicită de model)</string>
+  <string name="auto_hide_agent_log_title">Ascunde panoul AI la finalizare</string>
+  <string name="auto_hide_agent_log_summary">Ascunde automat panoul AI atunci când o sarcină se încheie cu succes sau este anulată. În caz de eroare, panoul rămâne vizibil.</string>
+  <string name="ai_task_completed">Sarcină AI finalizată</string>
   <string name="custom_agent_system_prompt_title">Prompt de sistem al agentului</string>
   <string name="custom_system_prompt_summary">Editarea nu este recomandată dacă nu știi ce faci</string>
   <string name="custom_text_transform_system_prompt_title">Prompt de sistem pentru transformarea textului</string>
@@ -1716,4 +1720,64 @@
   <string name="scroll_helper_line_style_thick_solid">Linie groasă continuă</string>
   <string name="prefs_page_buttons_title">Butoane derulare pagină</string>
   <string name="prefs_page_buttons_summary">Afișează butoane vizibile pentru pagina sus/jos pe ecran</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Documente</string>
+  <string name="document_sync_contents">Biblii, comentarii și alte documente instalate</string>
+  <string name="document_sync_category_title">Sincronizare documente</string>
+  <string name="document_sync_auto_download_title">Descarcă automat</string>
+  <string name="document_sync_auto_download_summary">Descarcă automat documentele noi și actualizate din cloud pe acest dispozitiv</string>
+  <string name="document_sync_auto_upload_title">Încarcă automat</string>
+  <string name="document_sync_auto_upload_summary">Încarcă automat în cloud documentele instalate pe acest dispozitiv</string>
+  <string name="document_sync_auto_delete_title">Aplică automat eliminările</string>
+  <string name="document_sync_auto_delete_summary">Elimină automat documentele de pe acest dispozitiv atunci când sunt eliminate pe alt dispozitiv</string>
+  <string name="document_sync_wifi_only_title">Sincronizează documentele doar pe Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Transferurile automate de documente așteaptă o conexiune fără limită de trafic (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Vizualizează și gestionează documentele stocate în cloud</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Documente sincronizate</string>
+  <string name="cloud_doc_status_synced">Sincronizat</string>
+  <string name="cloud_doc_status_local_only">Doar pe acest dispozitiv</string>
+  <string name="cloud_doc_status_cloud_only">Doar în cloud</string>
+  <string name="cloud_doc_status_update">Actualizare disponibilă</string>
+  <string name="cloud_doc_status_blocked">Blocat pe acest dispozitiv</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Toate</string>
+  <string name="cloud_doc_filter_installed">Instalate</string>
+  <string name="cloud_doc_filter_cloud">În cloud</string>
+  <string name="cloud_doc_filter_updates">Actualizări</string>
+  <string name="cloud_doc_filter_blocked">Blocate</string>
+  <string name="cloud_doc_filter_removed">Eliminate</string>
+  <string name="cloud_doc_show_removed">Afișează documentele eliminate</string>
+  <string name="cloud_doc_status_removed">Eliminat din cloud</string>
+  <string name="cloud_doc_status_still_installed">încă instalat aici</string>
+  <string name="cloud_doc_purge_confirm">Elimini definitiv \"%1$s\" din istoricul cloud? Dacă este încă instalat pe alt dispozitiv, acel dispozitiv îl poate încărca din nou în cloud la următoarea sincronizare.</string>
+  <string name="cloud_doc_action_download">Descarcă</string>
+  <string name="cloud_doc_action_push">Încarcă în cloud</string>
+  <string name="cloud_doc_action_remove_cloud">Elimină din cloud</string>
+  <string name="cloud_doc_action_remove_all_devices">Elimină de pe toate dispozitivele</string>
+  <string name="cloud_doc_action_block">Nu sincroniza pe acest dispozitiv</string>
+  <string name="cloud_doc_action_unblock">Permite pe acest dispozitiv</string>
+  <string name="cloud_doc_action_restore">Restaurează în cloud</string>
+  <string name="cloud_doc_action_purge">Elimină din istoricul cloud</string>
+  <string name="cloud_doc_remove_all_confirm">Elimini %1$s din cloud și de pe toate dispozitivele tale, inclusiv acesta?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Elimini %1$s din cloud? Copia de pe acest dispozitiv este păstrată; dispozitivele cu sincronizarea documentelor activată îl vor elimina și ele.</string>
+  <string name="cloud_doc_sync_now">Sincronizează acum</string>
+  <string name="cloud_doc_sync_now_download">Descarcă documentele noi și actualizate</string>
+  <string name="cloud_doc_sync_now_upload">Încarcă documentele locale în cloud</string>
+  <string name="cloud_doc_sync_now_delete">Aplică eliminările de pe alte dispozitive</string>
+  <string name="document_sync_signin_required">Conectează-te la contul tău cloud pentru a gestiona documentele sincronizate.</string>
+  <string name="cloud_doc_summary_upload">Încarcă %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Încarcă %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Descarcă %1$d</string>
+  <string name="cloud_doc_summary_download_size">Descarcă %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Descărcările automate vor începe pe Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Descarcă selecția (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Toate documentele disponibile sunt deja descărcate.</string>
+  <string name="document_sync_notification_title">Se sincronizează documentele</string>
+  <string name="document_sync_downloading">Se descarcă %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Se încarcă %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Se elimină %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Sincronizarea documentelor a început</string>
+  <string name="document_sync_enable_dialog_title">Pornești sincronizarea documentelor?</string>
+  <string name="document_sync_enable_dialog_nothing">Niciun document de transferat încă. Documentele nou instalate se vor sincroniza automat.</string>
 </resources>

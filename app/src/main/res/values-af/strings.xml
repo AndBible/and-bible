@@ -1125,6 +1125,7 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="sqlite_invalid_file">Ongeldige modulelêer of lêernaam: %s</string>
   <string name="sqlite_cant_write">Kan nie die lêer (oor) skryf nie</string>
   <string name="install_failed_reason">Die installeringsmodule het om die volgende rede misluk: %s.</string>
+  <string name="no_file_manager">Geen toepassing is gevind om \'n lêer te kies nie. Installeer asseblief \'n lêerbestuurder en probeer weer.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Toep is elders oopgemaak</string>
   <string name="open_here">Maak hier oop </string>
@@ -1226,6 +1227,9 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="agent_max_iterations_summary">Maksimum herhalings voor om voort te gaan gevra word (0 = onbeperk)</string>
   <string name="ask_model_before_run_title">Vra model voor uitvoering</string>
   <string name="ask_model_before_run_summary">Wys \'n modelkeusedialoog voor \'n opdrag uitgevoer word (oorgesla wanneer die opdrag \'n uitdruklike modeloorskrywing het)</string>
+  <string name="auto_hide_agent_log_title">Versteek KI-paneel wanneer klaar</string>
+  <string name="auto_hide_agent_log_summary">Versteek die KI-paneel outomaties wanneer \'n taak suksesvol voltooi of gekanselleer word. By \'n fout bly die paneel sigbaar.</string>
+  <string name="ai_task_completed">KI-taak voltooi</string>
   <string name="custom_agent_system_prompt_title">Agent-stelselopdrag</string>
   <string name="custom_system_prompt_summary">Wysig nie aanbeveel tensy jy weet wat jy doen nie</string>
   <string name="custom_text_transform_system_prompt_title">Teksomsettingstelselopdrag</string>
@@ -1671,4 +1675,64 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="scroll_helper_line_style_thick_solid">Dik soliede lyn</string>
   <string name="prefs_page_buttons_title">Bladsyrolknoppies</string>
   <string name="prefs_page_buttons_summary">Wys sigbare bladsy-op/af-knoppies op skerm</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumente</string>
+  <string name="document_sync_contents">Geïnstalleerde Bybels, kommentare en ander dokumente</string>
+  <string name="document_sync_category_title">Dokumentsinkronisering</string>
+  <string name="document_sync_auto_download_title">Laai outomaties af</string>
+  <string name="document_sync_auto_download_summary">Laai nuwe en bygewerkte dokumente outomaties van die wolk na hierdie toestel af</string>
+  <string name="document_sync_auto_upload_title">Laai outomaties op</string>
+  <string name="document_sync_auto_upload_summary">Laai dokumente wat op hierdie toestel geïnstalleer is outomaties na die wolk op</string>
+  <string name="document_sync_auto_delete_title">Pas verwyderings outomaties toe</string>
+  <string name="document_sync_auto_delete_summary">Verwyder dokumente outomaties van hierdie toestel wanneer hulle op \'n ander toestel verwyder word</string>
+  <string name="document_sync_wifi_only_title">Sinkroniseer dokumente slegs op Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Outomatiese dokumentoordragte wag vir \'n onbeperkte (Wi-Fi) verbinding</string>
+  <string name="document_sync_manage_summary">Bekyk en bestuur dokumente wat in die wolk gestoor word</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Gesinkroniseerde dokumente</string>
+  <string name="cloud_doc_status_synced">Gesinkroniseer</string>
+  <string name="cloud_doc_status_local_only">Slegs op hierdie toestel</string>
+  <string name="cloud_doc_status_cloud_only">Slegs in die wolk</string>
+  <string name="cloud_doc_status_update">Bywerking beskikbaar</string>
+  <string name="cloud_doc_status_blocked">Geblokkeer op hierdie toestel</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Almal</string>
+  <string name="cloud_doc_filter_installed">Geïnstalleer</string>
+  <string name="cloud_doc_filter_cloud">In die wolk</string>
+  <string name="cloud_doc_filter_updates">Bywerkings</string>
+  <string name="cloud_doc_filter_blocked">Geblokkeer</string>
+  <string name="cloud_doc_filter_removed">Verwyder</string>
+  <string name="cloud_doc_show_removed">Wys verwyderde dokumente</string>
+  <string name="cloud_doc_status_removed">Verwyder uit die wolk</string>
+  <string name="cloud_doc_status_still_installed">steeds hier geïnstalleer</string>
+  <string name="cloud_doc_purge_confirm">Verwyder \"%1$s\" permanent uit die wolkgeskiedenis? As dit steeds op \'n ander toestel geïnstalleer is, kan daardie toestel dit met sy volgende sinkronisering terug na die wolk oplaai.</string>
+  <string name="cloud_doc_action_download">Laai af</string>
+  <string name="cloud_doc_action_push">Laai op na wolk</string>
+  <string name="cloud_doc_action_remove_cloud">Verwyder uit die wolk</string>
+  <string name="cloud_doc_action_remove_all_devices">Verwyder van alle toestelle</string>
+  <string name="cloud_doc_action_block">Moenie na hierdie toestel sinkroniseer nie</string>
+  <string name="cloud_doc_action_unblock">Laat toe op hierdie toestel</string>
+  <string name="cloud_doc_action_restore">Herstel na die wolk</string>
+  <string name="cloud_doc_action_purge">Verwyder uit wolkgeskiedenis</string>
+  <string name="cloud_doc_remove_all_confirm">Verwyder %1$s uit die wolk en van al jou toestelle, insluitend hierdie een?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Verwyder %1$s uit die wolk? Die kopie op hierdie toestel word behou; toestelle met dokumentsinkronisering aan sal dit ook verwyder.</string>
+  <string name="cloud_doc_sync_now">Sinkroniseer nou</string>
+  <string name="cloud_doc_sync_now_download">Laai nuwe en bygewerkte dokumente af</string>
+  <string name="cloud_doc_sync_now_upload">Laai plaaslike dokumente na die wolk op</string>
+  <string name="cloud_doc_sync_now_delete">Pas verwyderings van ander toestelle toe</string>
+  <string name="document_sync_signin_required">Meld by jou wolkrekening aan om gesinkroniseerde dokumente te bestuur.</string>
+  <string name="cloud_doc_summary_upload">Laai %1$d op</string>
+  <string name="cloud_doc_summary_upload_size">Laai %1$d op (%2$s)</string>
+  <string name="cloud_doc_summary_download">Laai %1$d af</string>
+  <string name="cloud_doc_summary_download_size">Laai %1$d af (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Outomatiese aflaaie sal op Wi-Fi begin.</string>
+  <string name="cloud_doc_bulk_download">Laai gekose af (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Alle beskikbare dokumente is reeds afgelaai.</string>
+  <string name="document_sync_notification_title">Sinkroniseer dokumente</string>
+  <string name="document_sync_downloading">Laai %1$s af (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Laai %1$s op (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Verwyder %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Dokumentsinkronisering begin</string>
+  <string name="document_sync_enable_dialog_title">Begin dokumente sinkroniseer?</string>
+  <string name="document_sync_enable_dialog_nothing">Nog geen dokumente om oor te dra nie. Nuut geïnstalleerde dokumente sal outomaties sinkroniseer.</string>
 </resources>

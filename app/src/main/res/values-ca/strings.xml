@@ -1005,6 +1005,7 @@
   <string name="sqlite_invalid_file">Fitxer o nom de fitxer del mòdul no vàlid: %s</string>
   <string name="sqlite_cant_write">No es pot (sobre)escriure el fitxer</string>
   <string name="install_failed_reason">La instal·lació del mòdul ha fallat pel motiu següent: %s.</string>
+  <string name="no_file_manager">No s\'ha trobat cap aplicació per triar un fitxer. Instal·leu un gestor de fitxers i torneu-ho a provar.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">L\'aplicació s\'ha obert en un altre lloc</string>
   <string name="open_here">Obre aquí</string>
@@ -1105,6 +1106,9 @@
   <string name="agent_max_iterations_summary">Màxim d\'iteracions abans de demanar confirmació per continuar (0 = il·limitat)</string>
   <string name="ask_model_before_run_title">Demana el model abans d\'executar</string>
   <string name="ask_model_before_run_summary">Mostra un diàleg de selecció de model abans d\'executar un missatge (s\'omet quan el missatge té una substitució de model explícita)</string>
+  <string name="auto_hide_agent_log_title">Amaga el tauler d\'IA en acabar</string>
+  <string name="auto_hide_agent_log_summary">Amaga automàticament el tauler d\'IA quan una tasca acaba correctament o es cancel·la. Si hi ha un error, el tauler es manté visible.</string>
+  <string name="ai_task_completed">Tasca d\'IA completada</string>
   <string name="custom_agent_system_prompt_title">Missatge del sistema de l\'agent</string>
   <string name="custom_system_prompt_summary">No es recomana editar-lo llevat que sàpigues el que fas</string>
   <string name="custom_text_transform_system_prompt_title">Missatge del sistema de transformació de text</string>
@@ -1550,4 +1554,64 @@
   <string name="scroll_helper_line_style_thick_solid">Línia contínua gruixuda</string>
   <string name="prefs_page_buttons_title">Botons de desplaçament de pàgina</string>
   <string name="prefs_page_buttons_summary">Mostra botons visibles de pàgina amunt/avall a la pantalla</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Documents</string>
+  <string name="document_sync_contents">Bíblies, comentaris i altres documents instal·lats</string>
+  <string name="document_sync_category_title">Sincronització de documents</string>
+  <string name="document_sync_auto_download_title">Baixa automàticament</string>
+  <string name="document_sync_auto_download_summary">Baixa automàticament els documents nous i actualitzats del núvol a aquest dispositiu</string>
+  <string name="document_sync_auto_upload_title">Puja automàticament</string>
+  <string name="document_sync_auto_upload_summary">Puja automàticament al núvol els documents instal·lats en aquest dispositiu</string>
+  <string name="document_sync_auto_delete_title">Aplica les supressions automàticament</string>
+  <string name="document_sync_auto_delete_summary">Suprimeix automàticament els documents d\'aquest dispositiu quan se suprimeixen en un altre dispositiu</string>
+  <string name="document_sync_wifi_only_title">Sincronitza els documents només amb Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Les transferències automàtiques de documents esperen una connexió sense limitacions de dades (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Visualitza i gestiona els documents emmagatzemats al núvol</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Documents sincronitzats</string>
+  <string name="cloud_doc_status_synced">Sincronitzat</string>
+  <string name="cloud_doc_status_local_only">Només en aquest dispositiu</string>
+  <string name="cloud_doc_status_cloud_only">Només al núvol</string>
+  <string name="cloud_doc_status_update">Actualització disponible</string>
+  <string name="cloud_doc_status_blocked">Bloquejat en aquest dispositiu</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Tots</string>
+  <string name="cloud_doc_filter_installed">Instal·lats</string>
+  <string name="cloud_doc_filter_cloud">Al núvol</string>
+  <string name="cloud_doc_filter_updates">Actualitzacions</string>
+  <string name="cloud_doc_filter_blocked">Bloquejats</string>
+  <string name="cloud_doc_filter_removed">Suprimits</string>
+  <string name="cloud_doc_show_removed">Mostra els documents suprimits</string>
+  <string name="cloud_doc_status_removed">Suprimit del núvol</string>
+  <string name="cloud_doc_status_still_installed">encara instal·lat aquí</string>
+  <string name="cloud_doc_purge_confirm">Voleu suprimir permanentment \"%1$s\" de l\'historial del núvol? Si encara està instal·lat en un altre dispositiu, aquest dispositiu pot tornar-lo a pujar al núvol en la propera sincronització.</string>
+  <string name="cloud_doc_action_download">Baixa</string>
+  <string name="cloud_doc_action_push">Puja al núvol</string>
+  <string name="cloud_doc_action_remove_cloud">Suprimeix del núvol</string>
+  <string name="cloud_doc_action_remove_all_devices">Suprimeix de tots els dispositius</string>
+  <string name="cloud_doc_action_block">No sincronitzis amb aquest dispositiu</string>
+  <string name="cloud_doc_action_unblock">Permet en aquest dispositiu</string>
+  <string name="cloud_doc_action_restore">Restaura al núvol</string>
+  <string name="cloud_doc_action_purge">Suprimeix de l\'historial del núvol</string>
+  <string name="cloud_doc_remove_all_confirm">Voleu suprimir %1$s del núvol i de tots els vostres dispositius, inclòs aquest?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Voleu suprimir %1$s del núvol? La còpia d\'aquest dispositiu es conserva; els dispositius amb la sincronització de documents activada també la suprimiran.</string>
+  <string name="cloud_doc_sync_now">Sincronitza ara</string>
+  <string name="cloud_doc_sync_now_download">Baixa els documents nous i actualitzats</string>
+  <string name="cloud_doc_sync_now_upload">Puja els documents locals al núvol</string>
+  <string name="cloud_doc_sync_now_delete">Aplica les supressions d\'altres dispositius</string>
+  <string name="document_sync_signin_required">Inicieu la sessió al vostre compte del núvol per gestionar els documents sincronitzats.</string>
+  <string name="cloud_doc_summary_upload">Puja %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Puja %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Baixa %1$d</string>
+  <string name="cloud_doc_summary_download_size">Baixa %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Les baixades automàtiques començaran amb Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Baixa els seleccionats (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Ja s\'han baixat tots els documents disponibles.</string>
+  <string name="document_sync_notification_title">S\'estan sincronitzant els documents</string>
+  <string name="document_sync_downloading">S\'està baixant %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">S\'està pujant %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">S\'està suprimint %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">S\'ha iniciat la sincronització de documents</string>
+  <string name="document_sync_enable_dialog_title">Voleu començar a sincronitzar els documents?</string>
+  <string name="document_sync_enable_dialog_nothing">Encara no hi ha documents per transferir. Els documents nous instal·lats es sincronitzaran automàticament.</string>
 </resources>
