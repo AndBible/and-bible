@@ -23,9 +23,17 @@ import android.util.Log
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.asyncMap
 import java.io.File
 
 private const val TAG = "DocumentStore"
+
+/**
+ * Bounded concurrency for the independent, read-only meta.json fetches in [DocumentStore.listChangedDocuments].
+ * Each fetch is a self-contained download with no shared state, so fanning them out is safe; the bound of 6
+ * matches the DB-sync fan-out and keeps the device from opening an unbounded number of connections at once.
+ */
+private const val LIST_CONCURRENCY = 6
 
 /**
  * Trailing overlap (ms) re-queried below the watermark each incremental listing — absorbs
@@ -85,14 +93,12 @@ class DocumentStore(
             name = DOCUMENT_META_FILENAME,
             createdTimeAtLeast = since,
         )
-        val changed = mutableListOf<DocumentSyncMeta>()
-        val matched = mutableListOf<Long>()
-        val failed = mutableListOf<Long>()
-        for (f in metaFiles) {
-            matched.add(f.createdTime)
-            val meta = downloadMeta(f)
-            if (meta != null) changed.add(meta) else failed.add(f.createdTime)
-        }
+        // Each meta read is an independent read-only fetch, so fan them out with bounded concurrency.
+        // The merge is order-independent, so the concurrent map + null-partition is correct.
+        val matched = metaFiles.map { it.createdTime }
+        val results = metaFiles.asyncMap(LIST_CONCURRENCY) { it to downloadMeta(it) }
+        val changed = results.mapNotNull { it.second }
+        val failed = results.filter { it.second == null }.map { it.first.createdTime }
         return ChangedListing(changed, folders.map { it.name }.toSet(), matched, failed)
     }
 

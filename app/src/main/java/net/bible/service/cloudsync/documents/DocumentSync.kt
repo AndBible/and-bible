@@ -35,6 +35,8 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.Collections
 
 object DocumentSync {
@@ -131,12 +133,13 @@ object DocumentSync {
      * target a different cloud account and must start clean (sync off, empty block list, cold-start
      * listing). Mirrors the DB-sync sign-out, which clears its own per-database sync status.
      */
-    suspend fun onSignOut() {
-        DatabaseContainer.instance.documentSyncDb.apply {
-            cloudDocumentCacheDao().clear()
-            documentSyncPreferencesDao().clear()
-            cloudListingStateDao().clear()
-            cloudDocumentSyncTimestampDao().clear()
+    suspend fun onSignOut() = withContext(Dispatchers.IO) {
+        val db = DatabaseContainer.instance.documentSyncDb
+        db.runInTransaction {
+            db.cloudDocumentCacheDao().clear()
+            db.documentSyncPreferencesDao().clear()
+            db.cloudListingStateDao().clear()
+            db.cloudDocumentSyncTimestampDao().clear()
         }
     }
 
