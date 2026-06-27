@@ -310,6 +310,9 @@ object DocumentSync {
 
     suspend fun removeFromCloud(initials: String) {
         val store = store() ?: return
+        // Mark the cache entry as a tombstone up front (before the slow network writes) so the
+        // management view is correct even if it is closed and reopened mid-operation.
+        DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao().markDeleted(initials)
         val now = System.currentTimeMillis()
         val existing = store.listDocuments().firstOrNull { it.initials == initials }
         // Remove is only offered when a cloud copy exists, so `existing` is normally present;
@@ -346,6 +349,9 @@ object DocumentSync {
      */
     suspend fun purgeTombstone(initials: String) {
         val store = store() ?: return
+        // Drop the cache entry up front (before the slow network delete) so the management view is
+        // correct even if it is closed and reopened mid-operation — scanCached reads the cache.
+        DatabaseContainer.instance.cloudDocumentsCacheDb.cloudDocumentCacheDao().deleteByInitials(initials)
         store.deleteDocument(initials)
         refreshCache()
     }

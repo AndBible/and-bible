@@ -57,6 +57,14 @@ interface CloudDocumentCacheDao {
     @Query("DELETE FROM CachedCloudDocument")
     fun clear()
 
+    /** Drops one cached entry (e.g. an optimistic purge of a removed-document marker). */
+    @Query("DELETE FROM CachedCloudDocument WHERE initials = :initials")
+    fun deleteByInitials(initials: String)
+
+    /** Marks one cached entry as a tombstone (e.g. an optimistic remove-from-cloud). */
+    @Query("UPDATE CachedCloudDocument SET deleted = 1 WHERE initials = :initials")
+    fun markDeleted(initials: String)
+
     @Transaction
     fun replaceAll(items: List<CachedCloudDocument>) {
         clear()
