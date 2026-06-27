@@ -914,7 +914,9 @@ object BackupControl {
         activity.awaitIntent(intent)
     }
 
-    private var moduleDir: File = SharedConstants.modulesDir
+    // Tracks SharedConstants.modulesDir live rather than capturing it once at object load, so
+    // zip-entry relativization stays correct if the modules dir changes (e.g. across tests).
+    private val moduleDir: File get() = SharedConstants.modulesDir
     private lateinit var internalDbDir : File
     val internalDbBackupDir: File // copy of db is created in this dir when doing backups
         get() {
