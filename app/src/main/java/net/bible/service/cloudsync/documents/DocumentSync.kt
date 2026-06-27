@@ -159,6 +159,12 @@ object DocumentSync {
         return buildStatusItems(cacheDao.all().map { it.toMeta() }, local, includeDeleted)
     }
 
+    /** Cloud storage used by synced document archives, read from the local listing cache (no network). */
+    suspend fun cloudBytesUsed(): Long = withContext(Dispatchers.IO) {
+        val cacheDao = DatabaseContainer.instance.documentSyncDb.cloudDocumentCacheDao()
+        sumCloudBytes(cacheDao.all().map { it.toMeta() })
+    }
+
     /** Installed module size in bytes from the SWORD conf, or null if not declared. */
     private fun localInstallSizeBytes(book: Book): Long? =
         book.bookMetaData.getProperty(SwordBookMetaData.KEY_INSTALL_SIZE)?.toLongOrNull()
@@ -394,6 +400,10 @@ object DocumentSync {
         refreshCache()
     }
 }
+
+/** Total cloud archive bytes for non-deleted documents (the ZIP sizes stored in the cloud). */
+fun sumCloudBytes(metas: List<DocumentSyncMeta>): Long =
+    metas.filterNot { it.deleted }.sumOf { it.size }
 
 /** Parses a stored BookCategory enum name; null for null/blank/unknown names. */
 fun parseCategoryName(name: String?): BookCategory? =
