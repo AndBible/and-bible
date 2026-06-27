@@ -108,4 +108,16 @@ class DocumentStore(
             .filter { it.name.endsWith(".abmd.zip") }
             .forEach { adapter.delete(it.id) }
     }
+
+    /**
+     * Permanently deletes a document's entire cloud folder (its meta + any residual archives),
+     * keyed by initials. Used to purge a tombstone from the cloud history. A no-op when the
+     * folder is absent. Children are deleted first, then the folder, so the removal is explicit
+     * regardless of whether the adapter cascades folder deletes.
+     */
+    suspend fun deleteDocument(initials: String) {
+        val folder = folderFor(initials) ?: return
+        adapter.listFiles(parentsIds = listOf(folder.id)).forEach { adapter.delete(it.id) }
+        adapter.delete(folder.id)
+    }
 }

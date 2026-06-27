@@ -323,6 +323,19 @@ object DocumentSync {
         // Record this device as already knowing the tombstone so our own next pull is a no-op.
         DocumentSyncSettings.setSyncTimestamp(initials, now)
     }
+
+    /**
+     * Permanently removes a tombstone (the removed-document marker) from the cloud, so the
+     * document no longer appears in the "show removed documents" view. Note: if the document is
+     * still installed on another device that has not yet applied the removal, that device may
+     * re-upload it on its next sync — the tombstone is the signal that prevents that. Manual
+     * action only; bypasses no guards because it touches only this account's cloud store.
+     */
+    suspend fun purgeTombstone(initials: String) {
+        val store = store() ?: return
+        store.deleteDocument(initials)
+        refreshCache()
+    }
 }
 
 /** Parses a stored BookCategory enum name; null for null/blank/unknown names. */
