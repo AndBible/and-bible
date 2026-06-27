@@ -201,10 +201,31 @@ class DocumentSyncResolverTest {
     }
 
     @Test
-    fun resolveUploads_treatsTombstonedCloudAsMissing() {
+    fun resolveUploads_excludesTombstonedCloud() {
+        // A tombstone is a deletion intent: a still-installed local copy (e.g. auto-delete disabled)
+        // must NOT be auto-pushed back, or the sync cycle would resurrect a document deleted
+        // elsewhere. Restoring is an explicit manual action, not part of resolveUploads.
         val local = mapOf("KJV" to LocalDocument("KJV", "1.0"))
         val cloud = listOf(CloudDocument("KJV", "KJV", DocumentType.SWORD, "9.0", 0, 0, deleted = true))
-        // A tombstone is not a live cloud copy, so a still-installed local doc is local-only → upload.
-        assertEquals(listOf("KJV"), resolveUploads(local, cloud, emptySet(), newer))
+        assertEquals(emptyList<String>(), resolveUploads(local, cloud, emptySet(), newer))
+    }
+
+    @Test
+    fun resolveUploads_excludesTombstonedEvenWhenLocalVersionNewer() {
+        // Even a locally-newer copy must not be auto-resurrected over a tombstone.
+        val local = mapOf("KJV" to LocalDocument("KJV", "9.0"))
+        val cloud = listOf(CloudDocument("KJV", "KJV", DocumentType.SWORD, "1.0", 0, 0, deleted = true))
+        assertEquals(emptyList<String>(), resolveUploads(local, cloud, emptySet(), newer))
+    }
+
+    @Test
+    fun resolveUploads_tombstoneDoesNotBlockOtherLocalOnlyDocs() {
+        // A tombstone for one document must not suppress an unrelated genuinely-local-only upload.
+        val local = mapOf(
+            "KJV" to LocalDocument("KJV", "1.0"),
+            "ESV" to LocalDocument("ESV", "1.0"),
+        )
+        val cloud = listOf(CloudDocument("KJV", "KJV", DocumentType.SWORD, "1.0", 0, 0, deleted = true))
+        assertEquals(listOf("ESV"), resolveUploads(local, cloud, emptySet(), newer))
     }
 }

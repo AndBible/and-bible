@@ -182,8 +182,11 @@ There is no in-activity "setup mode"; the summary is the dialog.
   `DOWNLOAD`; cloud newer → `UPGRADE`; else `NONE`. "Newest wins" via `Version` comparison.
 - **`selectSyncActions(actions, allowDownload, allowDelete)`** — drops DOWNLOAD/UPGRADE when
   `allowDownload=false` and UNINSTALL when `allowDelete=false`; SKIP_BLOCKED/NONE never execute.
-- **`resolveUploads(localDocs, cloudDocs, blocked, isNewer)`** — initials to push: local-only plus
-  local-newer-than-cloud, minus blocked. Shares its core with `computeDocumentSyncSummary`'s upload split.
+- **`resolveUploads(localDocs, cloudDocs, blocked, isNewer)`** — initials to push: local-only (no cloud
+  entry at all) plus local-newer-than a *live* cloud copy, minus blocked. A **tombstoned** cloud entry is
+  never auto-pushed: a still-installed local copy of a document deleted elsewhere (auto-delete off, or an
+  own "Remove from cloud" with the local copy kept) must not be silently resurrected by the sync cycle —
+  restoring is the explicit manual Restore action, which calls `pushDocument` directly.
 - **`shouldAutoUpload(enabled, autoUpload, blocked, autoTransferAllowed)`** — guards install-time auto-upload.
 
 ### Status assembly (`assembleStatusItems`, pure, unit-tested)
@@ -324,7 +327,8 @@ Kotlin-only → `./gradlew testStandardGoogleplayDebugUnitTest`. Pure, unit-test
 - `resolveDocumentSyncActions` — download/upgrade/uninstall/skip/none, incl. the equal-timestamp
   tombstone invariant.
 - `selectSyncActions` — download-off drops DOWNLOAD/UPGRADE; delete-off drops UNINSTALL.
-- `resolveUploads` — local-only + local-newer included; fully-synced / cloud-only / blocked excluded.
+- `resolveUploads` — local-only + local-newer included; fully-synced / cloud-only / blocked / tombstoned
+  excluded (a still-installed local copy is never auto-pushed over a tombstone).
 - `buildDocumentSyncOps` — push → download → remove → purge → uninstall order.
 - `shouldAutoUpload` — guard combinations incl. the `autoUpload` gate.
 - `computeDocumentSyncSummary` — uploads/downloads split + sizes, block-list exclusion.

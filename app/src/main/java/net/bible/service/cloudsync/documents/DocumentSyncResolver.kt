@@ -123,11 +123,20 @@ fun selectSyncActions(
 }
 
 /**
- * Initials of locally installed documents that should be pushed to the cloud: those with no live
- * cloud copy (local-only) or whose local version is strictly newer than the cloud copy. [blocked]
- * documents are excluded (this device opts out of syncing them). A tombstoned cloud entry counts
- * as "no live copy". [isNewer] is the same comparator used elsewhere: returns true when [candidate]
- * is strictly newer than [baseline].
+ * Initials of locally installed documents that should be pushed to the cloud by an automatic sync
+ * run or a manual "Sync now": those with no cloud entry at all (genuinely local-only) or whose local
+ * version is strictly newer than a *live* cloud copy. [blocked] documents are excluded (this device
+ * opts out of syncing them).
+ *
+ * A document whose cloud entry is a **tombstone** (deleted=true) is never auto-pushed. A tombstone is
+ * a deletion intent that automatic upload must respect; otherwise a device that merely keeps a local
+ * copy of a document deleted elsewhere (e.g. auto-delete disabled, or its own "Remove from cloud"
+ * with the local copy kept) would silently resurrect it on the next sync cycle, defeating deletion
+ * propagation. Restoring a removed document is an explicit manual action (the Restore menu item calls
+ * pushDocument directly, bypassing this resolver).
+ *
+ * [isNewer] is the same comparator used elsewhere: returns true when [candidate] is strictly newer
+ * than [baseline].
  */
 fun resolveUploads(
     localDocs: Map<String, LocalDocument>,
@@ -135,12 +144,14 @@ fun resolveUploads(
     blocked: Set<String>,
     isNewer: (candidate: String, baseline: String) -> Boolean,
 ): List<String> {
-    val liveCloud = cloudDocs.filterNot { it.deleted }.associateBy { it.initials }
+    val cloudByInitials = cloudDocs.associateBy { it.initials }
     return localDocs.values
         .filter { it.initials !in blocked }
         .filter { local ->
-            val cloud = liveCloud[local.initials]
-            cloud == null || isNewer(local.version, cloud.version)
+            when (val cloud = cloudByInitials[local.initials]) {
+                null -> true              // never in the cloud → push the local-only document
+                else -> !cloud.deleted && isNewer(local.version, cloud.version)
+            }
         }
         .map { it.initials }
 }
