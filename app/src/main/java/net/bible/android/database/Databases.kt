@@ -26,7 +26,6 @@ import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
 import net.bible.android.database.migrations.Migration
 import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
 import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
-import net.bible.android.database.migrations.makeMigration
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 import net.bible.service.llm.AgentPrompt
@@ -122,6 +121,11 @@ val temporaryMigrations: Array<Migration> = arrayOf()
 
 const val TEMPORARY_DATABASE_VERSION = 1
 
+/**
+ * Ephemeral search-index scratch space. Instantiated against two separate files (the download list
+ * and the document-selection list) so their searches don't clobber each other — same schema, two
+ * independent data spaces. Never backed up, never synced.
+ */
 @Database(
     entities = [
         DocumentSearch::class,
@@ -131,6 +135,36 @@ const val TEMPORARY_DATABASE_VERSION = 1
 @TypeConverters(Converters::class)
 abstract class TemporaryDatabase: RoomDatabase() {
     abstract fun documentSearchDao(): DocumentSearchDao
+}
+
+const val DOCUMENT_SYNC_DATABASE_VERSION = 1
+
+/**
+ * Home for all per-device document-sync state — settings, the cloud-listing cache, the listing
+ * watermark, and per-document sync timestamps. Entirely device-local: never backed up (absent from
+ * ALL_DB_FILENAMES), never synced (absent from SyncableDatabaseDefinition), and wiped on cloud
+ * sign-out. Document-sync setup is re-established per device (the cloud account itself is
+ * device-local), so there is nothing here to back up or sync.
+ *
+ * Kept separate from [TemporaryDatabase]: that one is single-purpose search scratch with its own
+ * (multi-file) lifecycle, and conflating the two schemas in one class would force every file
+ * instantiated from it to carry the union of both schemas plus unused DAOs.
+ */
+@Database(
+    entities = [
+        CachedCloudDocument::class,
+        DocumentSyncPreferences::class,
+        CloudListingState::class,
+        CloudDocumentSyncTimestamp::class,
+    ],
+    version = DOCUMENT_SYNC_DATABASE_VERSION
+)
+@TypeConverters(Converters::class)
+abstract class DocumentSyncDatabase: RoomDatabase() {
+    abstract fun cloudDocumentCacheDao(): CloudDocumentCacheDao
+    abstract fun documentSyncPreferencesDao(): DocumentSyncPreferencesDao
+    abstract fun cloudListingStateDao(): CloudListingStateDao
+    abstract fun cloudDocumentSyncTimestampDao(): CloudDocumentSyncTimestampDao
 }
 
 const val REPO_DATABASE_VERSION = 1

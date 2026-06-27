@@ -1154,6 +1154,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="sqlite_invalid_file">Неверный файл модуля или имя файла: %s</string>
   <string name="sqlite_cant_write">Невозможно (пере)записать файл</string>
   <string name="install_failed_reason">Установка модуля не удалась по следующей причине: %s.</string>
+  <string name="no_file_manager">Не найдено приложение для выбора файла. Установите файловый менеджер и попробуйте снова.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Приложение открыто в другом месте</string>
   <string name="open_here">Открыть здесь</string>
@@ -1256,6 +1257,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="agent_max_iterations_summary">Максимальное количество итераций перед запросом на продолжение (0 = без ограничений)</string>
   <string name="ask_model_before_run_title">Спрашивать модель перед запуском</string>
   <string name="ask_model_before_run_summary">Показывать диалог выбора модели перед выполнением промпта (пропускается, если для промпта явно задана модель)</string>
+  <string name="auto_hide_agent_log_title">Скрывать панель ИИ по завершении</string>
+  <string name="auto_hide_agent_log_summary">Автоматически скрывать панель ИИ, когда задача успешно завершена или отменена. При ошибке панель остаётся видимой.</string>
+  <string name="ai_task_completed">Задача ИИ выполнена</string>
   <string name="custom_agent_system_prompt_title">Системный промпт агента</string>
   <string name="custom_system_prompt_summary">Редактирование не рекомендуется, если вы не знаете, что делаете</string>
   <string name="custom_text_transform_system_prompt_title">Системный промпт преобразования текста</string>
@@ -1701,4 +1705,64 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="scroll_helper_line_style_thick_solid">Толстая сплошная линия</string>
   <string name="prefs_page_buttons_title">Кнопки прокрутки страницы</string>
   <string name="prefs_page_buttons_summary">Показывать кнопки прокрутки страницы вверх/вниз на экране</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Документы</string>
+  <string name="document_sync_contents">Установленные Библии, комментарии и другие документы</string>
+  <string name="document_sync_category_title">Синхронизация документов</string>
+  <string name="document_sync_auto_download_title">Скачивать автоматически</string>
+  <string name="document_sync_auto_download_summary">Автоматически скачивать новые и обновлённые документы из облака на это устройство</string>
+  <string name="document_sync_auto_upload_title">Выгружать автоматически</string>
+  <string name="document_sync_auto_upload_summary">Автоматически выгружать в облако документы, установленные на этом устройстве</string>
+  <string name="document_sync_auto_delete_title">Применять удаления автоматически</string>
+  <string name="document_sync_auto_delete_summary">Автоматически удалять документы с этого устройства, когда они удаляются на другом устройстве</string>
+  <string name="document_sync_wifi_only_title">Синхронизировать документы только по Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Автоматическая передача документов ожидает безлимитного (Wi-Fi) подключения</string>
+  <string name="document_sync_manage_summary">Просмотр и управление документами, хранящимися в облаке</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Синхронизированные документы</string>
+  <string name="cloud_doc_status_synced">Синхронизировано</string>
+  <string name="cloud_doc_status_local_only">Только на этом устройстве</string>
+  <string name="cloud_doc_status_cloud_only">Только в облаке</string>
+  <string name="cloud_doc_status_update">Доступно обновление</string>
+  <string name="cloud_doc_status_blocked">Заблокировано на этом устройстве</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Все</string>
+  <string name="cloud_doc_filter_installed">Установленные</string>
+  <string name="cloud_doc_filter_cloud">В облаке</string>
+  <string name="cloud_doc_filter_updates">Обновления</string>
+  <string name="cloud_doc_filter_blocked">Заблокированные</string>
+  <string name="cloud_doc_filter_removed">Удалённые</string>
+  <string name="cloud_doc_show_removed">Показывать удалённые документы</string>
+  <string name="cloud_doc_status_removed">Удалено из облака</string>
+  <string name="cloud_doc_status_still_installed">всё ещё установлено здесь</string>
+  <string name="cloud_doc_purge_confirm">Окончательно удалить \"%1$s\" из истории облака? Если документ всё ещё установлен на другом устройстве, то при следующей синхронизации оно может снова выгрузить его в облако.</string>
+  <string name="cloud_doc_action_download">Скачать</string>
+  <string name="cloud_doc_action_push">Выгрузить в облако</string>
+  <string name="cloud_doc_action_remove_cloud">Удалить из облака</string>
+  <string name="cloud_doc_action_remove_all_devices">Удалить со всех устройств</string>
+  <string name="cloud_doc_action_block">Не синхронизировать на это устройство</string>
+  <string name="cloud_doc_action_unblock">Разрешить на этом устройстве</string>
+  <string name="cloud_doc_action_restore">Восстановить в облако</string>
+  <string name="cloud_doc_action_purge">Удалить из истории облака</string>
+  <string name="cloud_doc_remove_all_confirm">Удалить %1$s из облака и со всех ваших устройств, включая это?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Удалить %1$s из облака? Копия на этом устройстве сохранится; устройства с включённой синхронизацией документов также удалят его.</string>
+  <string name="cloud_doc_sync_now">Синхронизировать сейчас</string>
+  <string name="cloud_doc_sync_now_download">Скачать новые и обновлённые документы</string>
+  <string name="cloud_doc_sync_now_upload">Выгрузить локальные документы в облако</string>
+  <string name="cloud_doc_sync_now_delete">Применить удаления с других устройств</string>
+  <string name="document_sync_signin_required">Войдите в свою облачную учётную запись, чтобы управлять синхронизированными документами.</string>
+  <string name="cloud_doc_summary_upload">Выгрузить %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Выгрузить %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Скачать %1$d</string>
+  <string name="cloud_doc_summary_download_size">Скачать %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Автоматическое скачивание начнётся при подключении к Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Скачать выбранные (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Все доступные документы уже скачаны.</string>
+  <string name="document_sync_notification_title">Синхронизация документов</string>
+  <string name="document_sync_downloading">Скачивание %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Выгрузка %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Удаление %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Синхронизация документов начата</string>
+  <string name="document_sync_enable_dialog_title">Начать синхронизацию документов?</string>
+  <string name="document_sync_enable_dialog_nothing">Пока нет документов для передачи. Новые установленные документы будут синхронизироваться автоматически.</string>
 </resources>

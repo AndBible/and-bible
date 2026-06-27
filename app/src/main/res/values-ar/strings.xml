@@ -1092,6 +1092,7 @@
   <string name="sqlite_invalid_file">ملف الوحدة أو اسم الملف غير صالح: %s</string>
   <string name="sqlite_cant_write">لا يمكن (الكتابة فوق) الملف</string>
   <string name="install_failed_reason">فشل تثبيت الوحدة للسبب التالي: %s.</string>
+  <string name="no_file_manager">لم يتم العثور على تطبيق لاختيار ملف. يرجى تثبيت مدير ملفات والمحاولة مرة أخرى.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">تم فتح التطبيق في مكان آخر</string>
   <string name="open_here">فتح هنا</string>
@@ -1192,6 +1193,9 @@
   <string name="agent_max_iterations_summary">الحد الأقصى للتكرارات قبل طلب المتابعة (0 = غير محدود)</string>
   <string name="ask_model_before_run_title">سؤال عن النموذج قبل التشغيل</string>
   <string name="ask_model_before_run_summary">عرض مربع حوار اختيار النموذج قبل تنفيذ موجّه (يُتخطى عند وجود تجاوز نموذج صريح في الموجّه)</string>
+  <string name="auto_hide_agent_log_title">إخفاء لوحة الذكاء الاصطناعي عند الانتهاء</string>
+  <string name="auto_hide_agent_log_summary">إخفاء لوحة الذكاء الاصطناعي تلقائياً عند انتهاء المهمة بنجاح أو عند إلغائها. في حالة حدوث خطأ تبقى اللوحة ظاهرة.</string>
+  <string name="ai_task_completed">اكتملت مهمة الذكاء الاصطناعي</string>
   <string name="custom_agent_system_prompt_title">موجّه النظام للوكيل</string>
   <string name="custom_system_prompt_summary">لا يُنصح بالتعديل إلا إذا كنت تعرف ما تفعله</string>
   <string name="custom_text_transform_system_prompt_title">موجّه النظام لتحويل النص</string>
@@ -1637,4 +1641,64 @@
   <string name="scroll_helper_line_style_thick_solid">خط صلب سميك</string>
   <string name="prefs_page_buttons_title">أزرار تمرير الصفحة</string>
   <string name="prefs_page_buttons_summary">عرض أزرار أعلى/أسفل الصفحة على الشاشة</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">المستندات</string>
+  <string name="document_sync_contents">الأناجيل والتعليقات والمستندات الأخرى المثبَّتة</string>
+  <string name="document_sync_category_title">مزامنة المستندات</string>
+  <string name="document_sync_auto_download_title">التحميل تلقائياً</string>
+  <string name="document_sync_auto_download_summary">تحميل المستندات الجديدة والمحدَّثة تلقائياً من السحابة إلى هذا الجهاز</string>
+  <string name="document_sync_auto_upload_title">الرفع تلقائياً</string>
+  <string name="document_sync_auto_upload_summary">رفع المستندات المثبَّتة على هذا الجهاز تلقائياً إلى السحابة</string>
+  <string name="document_sync_auto_delete_title">تطبيق عمليات الإزالة تلقائياً</string>
+  <string name="document_sync_auto_delete_summary">إزالة المستندات تلقائياً من هذا الجهاز عند إزالتها على جهاز آخر</string>
+  <string name="document_sync_wifi_only_title">مزامنة المستندات عبر Wi-Fi فقط</string>
+  <string name="document_sync_wifi_only_summary">تنتظر عمليات نقل المستندات التلقائية اتصالاً غير محدود (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">عرض وإدارة المستندات المخزَّنة في السحابة</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">المستندات المتزامنة</string>
+  <string name="cloud_doc_status_synced">تمت المزامنة</string>
+  <string name="cloud_doc_status_local_only">على هذا الجهاز فقط</string>
+  <string name="cloud_doc_status_cloud_only">في السحابة فقط</string>
+  <string name="cloud_doc_status_update">يتوفر تحديث</string>
+  <string name="cloud_doc_status_blocked">محظور على هذا الجهاز</string>
+  <string name="cloud_doc_version_prefix">الإصدار %1$s</string>
+  <string name="cloud_doc_filter_all">الكل</string>
+  <string name="cloud_doc_filter_installed">مثبَّت</string>
+  <string name="cloud_doc_filter_cloud">في السحابة</string>
+  <string name="cloud_doc_filter_updates">التحديثات</string>
+  <string name="cloud_doc_filter_blocked">محظور</string>
+  <string name="cloud_doc_filter_removed">مُزال</string>
+  <string name="cloud_doc_show_removed">إظهار المستندات المُزالة</string>
+  <string name="cloud_doc_status_removed">مُزال من السحابة</string>
+  <string name="cloud_doc_status_still_installed">لا يزال مثبَّتاً هنا</string>
+  <string name="cloud_doc_purge_confirm">هل تريد إزالة \"%1$s\" نهائياً من سجل السحابة؟ إذا كان لا يزال مثبَّتاً على جهاز آخر، فقد يقوم ذلك الجهاز برفعه مرة أخرى إلى السحابة عند المزامنة التالية.</string>
+  <string name="cloud_doc_action_download">تحميل</string>
+  <string name="cloud_doc_action_push">رفع إلى السحابة</string>
+  <string name="cloud_doc_action_remove_cloud">إزالة من السحابة</string>
+  <string name="cloud_doc_action_remove_all_devices">إزالة من جميع الأجهزة</string>
+  <string name="cloud_doc_action_block">عدم المزامنة إلى هذا الجهاز</string>
+  <string name="cloud_doc_action_unblock">السماح على هذا الجهاز</string>
+  <string name="cloud_doc_action_restore">استعادة إلى السحابة</string>
+  <string name="cloud_doc_action_purge">إزالة من سجل السحابة</string>
+  <string name="cloud_doc_remove_all_confirm">هل تريد إزالة %1$s من السحابة ومن جميع أجهزتك، بما في ذلك هذا الجهاز؟</string>
+  <string name="cloud_doc_remove_cloud_confirm">هل تريد إزالة %1$s من السحابة؟ سيتم الاحتفاظ بالنسخة الموجودة على هذا الجهاز؛ كما ستقوم الأجهزة التي تعمل عليها مزامنة المستندات بإزالته أيضاً.</string>
+  <string name="cloud_doc_sync_now">المزامنة الآن</string>
+  <string name="cloud_doc_sync_now_download">تحميل المستندات الجديدة والمحدَّثة</string>
+  <string name="cloud_doc_sync_now_upload">رفع المستندات المحلية إلى السحابة</string>
+  <string name="cloud_doc_sync_now_delete">تطبيق عمليات الإزالة من الأجهزة الأخرى</string>
+  <string name="document_sync_signin_required">سجِّل الدخول إلى حسابك السحابي لإدارة المستندات المتزامنة.</string>
+  <string name="cloud_doc_summary_upload">رفع %1$d</string>
+  <string name="cloud_doc_summary_upload_size">رفع %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">تحميل %1$d</string>
+  <string name="cloud_doc_summary_download_size">تحميل %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">ستبدأ عمليات التحميل التلقائية عند الاتصال بشبكة Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">تحميل المحدد (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">جميع المستندات المتاحة محمَّلة بالفعل.</string>
+  <string name="document_sync_notification_title">جارٍ مزامنة المستندات</string>
+  <string name="document_sync_downloading">جارٍ تحميل %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">جارٍ رفع %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">جارٍ إزالة %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">بدأت مزامنة المستندات</string>
+  <string name="document_sync_enable_dialog_title">هل تريد بدء مزامنة المستندات؟</string>
+  <string name="document_sync_enable_dialog_nothing">لا توجد مستندات للنقل بعد. ستتم مزامنة المستندات المثبَّتة حديثاً تلقائياً.</string>
 </resources>

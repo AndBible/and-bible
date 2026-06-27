@@ -1165,6 +1165,7 @@
   <string name="sqlite_invalid_file">தவறான தொகுதி கோப்பு அல்லது கோப்புப் பெயர்: %s</string>
   <string name="sqlite_cant_write">கோபினை (மேல்)எழுத இயலவில்லை</string>
   <string name="install_failed_reason">பின்வரும் காரணத்தால் மாடியுளை நிறுவ இயலவில்லை: %s.</string>
+  <string name="no_file_manager">கோப்பைத் தேர்ந்தெடுக்க எந்த செயலியும் கிடைக்கவில்லை. ஒரு கோப்பு மேலாளரை நிறுவி மீண்டும் முயற்சிக்கவும்.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">செயலி வேறெங்கோ திறக்கப்பட்டிருக்கிறது</string>
   <string name="open_here">இங்கேயே திற</string>
@@ -1267,6 +1268,9 @@
   <string name="agent_max_iterations_summary">தொடரலாமா என கேட்பதற்கு முன் அதிகபட்ச மறுசெய்கைகள் (0 = வரம்பற்றது)</string>
   <string name="ask_model_before_run_title">இயக்குவதற்கு முன் மாடல் கேளு</string>
   <string name="ask_model_before_run_summary">வரைவை இயக்குவதற்கு முன் மாடல் தேர்வு உரையாடலை காட்டு (வரைவுக்கு வெளிப்படையான மாடல் மேலீடு இருந்தால் தவிர்க்கப்படும்)</string>
+  <string name="auto_hide_agent_log_title">முடிந்ததும் AI பலகத்தை மறை</string>
+  <string name="auto_hide_agent_log_summary">ஒரு பணி வெற்றிகரமாக முடிந்ததும் அல்லது ரத்து செய்யப்பட்டதும் AI பலகத்தைத் தானாக மறைக்கவும். பிழை ஏற்பட்டால் பலகம் காணப்படும்.</string>
+  <string name="ai_task_completed">AI பணி முடிந்தது</string>
   <string name="custom_agent_system_prompt_title">முகவர் சிஸ்டம் வரைவு</string>
   <string name="custom_system_prompt_summary">என்ன செய்கிறீர்கள் என தெரியாவிட்டால் திருத்துவது பரிந்துரைக்கப்படவில்லை</string>
   <string name="custom_text_transform_system_prompt_title">உரை மாற்று சிஸ்டம் வரைவு</string>
@@ -1712,4 +1716,64 @@
   <string name="scroll_helper_line_style_thick_solid">தடிமனான திட கோடு</string>
   <string name="prefs_page_buttons_title">பக்க உருட்டல் பொத்தான்கள்</string>
   <string name="prefs_page_buttons_summary">திரையில் தெரியும் பக்கம் மேலே/கீழே பொத்தான்களை காட்டு</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">கோப்புகள்</string>
+  <string name="document_sync_contents">நிறுவப்பட்ட திருவிவிலியங்கள், விளக்க உரைகள் மற்றும் பிற கோப்புகள்</string>
+  <string name="document_sync_category_title">கோப்பு ஒத்திசைவு</string>
+  <string name="document_sync_auto_download_title">தானாகத் தரவிறக்கு</string>
+  <string name="document_sync_auto_download_summary">மேகத்திலிருந்து புதிய மற்றும் புதுப்பிக்கப்பட்ட கோப்புகளை இந்த சாதனத்திற்குத் தானாகத் தரவிறக்கவும்</string>
+  <string name="document_sync_auto_upload_title">தானாகப் பதிவேற்று</string>
+  <string name="document_sync_auto_upload_summary">இந்த சாதனத்தில் நிறுவப்பட்ட கோப்புகளை மேகத்திற்குத் தானாகப் பதிவேற்றவும்</string>
+  <string name="document_sync_auto_delete_title">நீக்கங்களைத் தானாகப் பயன்படுத்து</string>
+  <string name="document_sync_auto_delete_summary">மற்றொரு சாதனத்தில் கோப்புகள் நீக்கப்படும்போது அவற்றை இந்த சாதனத்திலிருந்து தானாக நீக்கவும்</string>
+  <string name="document_sync_wifi_only_title">Wi-Fi-யில் மட்டும் கோப்புகளை ஒத்திசை</string>
+  <string name="document_sync_wifi_only_summary">தானியங்கி கோப்பு பரிமாற்றங்கள் கட்டணமற்ற (Wi-Fi) இணைப்புக்காகக் காத்திருக்கும்</string>
+  <string name="document_sync_manage_summary">மேகத்தில் சேமிக்கப்பட்ட கோப்புகளைப் பார்த்து நிர்வகிக்கவும்</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">ஒத்திசைக்கப்பட்ட கோப்புகள்</string>
+  <string name="cloud_doc_status_synced">ஒத்திசைக்கப்பட்டது</string>
+  <string name="cloud_doc_status_local_only">இந்த சாதனத்தில் மட்டும்</string>
+  <string name="cloud_doc_status_cloud_only">மேகத்தில் மட்டும்</string>
+  <string name="cloud_doc_status_update">புதுப்பிப்பு கிடைக்கிறது</string>
+  <string name="cloud_doc_status_blocked">இந்த சாதனத்தில் தடுக்கப்பட்டது</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">அனைத்தும்</string>
+  <string name="cloud_doc_filter_installed">நிறுவப்பட்டது</string>
+  <string name="cloud_doc_filter_cloud">மேகத்தில்</string>
+  <string name="cloud_doc_filter_updates">புதுப்பிப்புகள்</string>
+  <string name="cloud_doc_filter_blocked">தடுக்கப்பட்டது</string>
+  <string name="cloud_doc_filter_removed">நீக்கப்பட்டது</string>
+  <string name="cloud_doc_show_removed">நீக்கப்பட்ட கோப்புகளைக் காட்டு</string>
+  <string name="cloud_doc_status_removed">மேகத்திலிருந்து நீக்கப்பட்டது</string>
+  <string name="cloud_doc_status_still_installed">இங்கே இன்னும் நிறுவப்பட்டுள்ளது</string>
+  <string name="cloud_doc_purge_confirm">\"%1$s\" ஐ மேக வரலாற்றிலிருந்து நிரந்தரமாக நீக்கவா? அது மற்றொரு சாதனத்தில் இன்னும் நிறுவப்பட்டிருந்தால், அந்த சாதனம் அதன் அடுத்த ஒத்திசைவின் போது அதை மீண்டும் மேகத்திற்குப் பதிவேற்றக்கூடும்.</string>
+  <string name="cloud_doc_action_download">தரவிறக்கம்</string>
+  <string name="cloud_doc_action_push">மேகத்திற்குப் பதிவேற்று</string>
+  <string name="cloud_doc_action_remove_cloud">மேகத்திலிருந்து நீக்கு</string>
+  <string name="cloud_doc_action_remove_all_devices">அனைத்து சாதனங்களிலிருந்தும் நீக்கு</string>
+  <string name="cloud_doc_action_block">இந்த சாதனத்திற்கு ஒத்திசைக்காதே</string>
+  <string name="cloud_doc_action_unblock">இந்த சாதனத்தில் அனுமதி</string>
+  <string name="cloud_doc_action_restore">மேகத்திற்கு மீட்டமை</string>
+  <string name="cloud_doc_action_purge">மேக வரலாற்றிலிருந்து நீக்கு</string>
+  <string name="cloud_doc_remove_all_confirm">%1$s ஐ மேகத்திலிருந்தும் இந்த சாதனம் உட்பட உங்கள் அனைத்து சாதனங்களிலிருந்தும் நீக்கவா?</string>
+  <string name="cloud_doc_remove_cloud_confirm">%1$s ஐ மேகத்திலிருந்து நீக்கவா? இந்த சாதனத்தில் உள்ள நகல் வைத்துக்கொள்ளப்படும்; கோப்பு ஒத்திசைவு இயக்கப்பட்ட சாதனங்களும் அதை நீக்கும்.</string>
+  <string name="cloud_doc_sync_now">இப்போது ஒத்திசை</string>
+  <string name="cloud_doc_sync_now_download">புதிய மற்றும் புதுப்பிக்கப்பட்ட கோப்புகளைத் தரவிறக்கு</string>
+  <string name="cloud_doc_sync_now_upload">உள்ளூர் கோப்புகளை மேகத்திற்குப் பதிவேற்று</string>
+  <string name="cloud_doc_sync_now_delete">பிற சாதனங்களிலிருந்து நீக்கங்களைப் பயன்படுத்து</string>
+  <string name="document_sync_signin_required">ஒத்திசைக்கப்பட்ட கோப்புகளை நிர்வகிக்க உங்கள் மேக கணக்கில் உள்நுழையவும்.</string>
+  <string name="cloud_doc_summary_upload">%1$d பதிவேற்று</string>
+  <string name="cloud_doc_summary_upload_size">%1$d பதிவேற்று (%2$s)</string>
+  <string name="cloud_doc_summary_download">%1$d தரவிறக்கு</string>
+  <string name="cloud_doc_summary_download_size">%1$d தரவிறக்கு (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">தானியங்கி தரவிறக்கங்கள் Wi-Fi-யில் தொடங்கும்.</string>
+  <string name="cloud_doc_bulk_download">தேர்ந்தெடுத்தவற்றைத் தரவிறக்கு (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">கிடைக்கும் அனைத்து கோப்புகளும் ஏற்கனவே தரவிறக்கப்பட்டுள்ளன.</string>
+  <string name="document_sync_notification_title">கோப்புகளை ஒத்திசைக்கிறது</string>
+  <string name="document_sync_downloading">%1$s தரவிறக்குகிறது (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">%1$s பதிவேற்றுகிறது (%2$d/%3$d)</string>
+  <string name="document_sync_removing">%1$s நீக்குகிறது (%2$d/%3$d)</string>
+  <string name="document_sync_started">கோப்பு ஒத்திசைவு தொடங்கியது</string>
+  <string name="document_sync_enable_dialog_title">கோப்புகளை ஒத்திசைக்கத் தொடங்கவா?</string>
+  <string name="document_sync_enable_dialog_nothing">இன்னும் பரிமாற்ற கோப்புகள் எதுவும் இல்லை. புதிதாக நிறுவப்பட்ட கோப்புகள் தானாக ஒத்திசைக்கப்படும்.</string>
 </resources>

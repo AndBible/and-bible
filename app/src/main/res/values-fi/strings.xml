@@ -1061,6 +1061,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="sqlite_invalid_file">Tiedostonimi tai tiedosto viallinen: %s</string>
   <string name="sqlite_cant_write">Ei voitu (yli)kirjoittaa tiedostoa</string>
   <string name="install_failed_reason">Moduulin asentaminen epäonnistui seuraavasta syystä: %s.</string>
+  <string name="no_file_manager">Tiedoston valintaan ei löytynyt sovellusta. Asenna tiedostonhallinta ja yritä uudelleen.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Sovellus avattu muualla</string>
   <string name="open_here">Avaa täällä</string>
@@ -1161,6 +1162,9 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="agent_max_iterations_summary">Iteraatioiden enimmäismäärä ennen jatkamisen kysymistä (0 = rajoittamaton)</string>
   <string name="ask_model_before_run_title">Kysy malli ennen suoritusta</string>
   <string name="ask_model_before_run_summary">Näytä mallin valintaikkuna ennen kehotteen suorittamista (ohitetaan, kun kehotteella on oma mallimääritys)</string>
+  <string name="auto_hide_agent_log_title">Piilota tekoälypaneeli, kun valmis</string>
+  <string name="auto_hide_agent_log_summary">Piilota tekoälypaneeli automaattisesti, kun tehtävä valmistuu onnistuneesti tai perutaan. Virhetilanteessa paneeli jää näkyviin.</string>
+  <string name="ai_task_completed">Tekoälytehtävä valmis</string>
   <string name="custom_agent_system_prompt_title">Agentin järjestelmäkehote</string>
   <string name="custom_system_prompt_summary">Muokkaus ei ole suositeltavaa, ellei tiedä mitä tekee</string>
   <string name="custom_text_transform_system_prompt_title">Tekstinmuunnoksen järjestelmäkehote</string>
@@ -1606,4 +1610,64 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="scroll_helper_line_style_thick_solid">Paksu yhtenäinen viiva</string>
   <string name="prefs_page_buttons_title">Sivunvaihtopainikkeet</string>
   <string name="prefs_page_buttons_summary">Näytä näkyvät sivunvaihtopainikkeet ruudulla</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumentit</string>
+  <string name="document_sync_contents">Asennetut raamatut, kommentaarit ja muut dokumentit</string>
+  <string name="document_sync_category_title">Dokumenttien synkronointi</string>
+  <string name="document_sync_auto_download_title">Lataa automaattisesti</string>
+  <string name="document_sync_auto_download_summary">Lataa uudet ja päivitetyt dokumentit pilvestä tähän laitteeseen automaattisesti</string>
+  <string name="document_sync_auto_upload_title">Lähetä automaattisesti</string>
+  <string name="document_sync_auto_upload_summary">Lähetä tähän laitteeseen asennetut dokumentit pilveen automaattisesti</string>
+  <string name="document_sync_auto_delete_title">Poista automaattisesti</string>
+  <string name="document_sync_auto_delete_summary">Poista dokumentit tästä laitteesta automaattisesti, kun ne poistetaan toisella laitteella</string>
+  <string name="document_sync_wifi_only_title">Synkronoi dokumentit vain Wi-Fi-yhteydellä</string>
+  <string name="document_sync_wifi_only_summary">Automaattiset dokumenttisiirrot odottavat maksuttoman (Wi-Fi) yhteyden saatavuutta</string>
+  <string name="document_sync_manage_summary">Tarkastele ja hallitse pilveen tallennettuja dokumentteja</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Synkronoidut dokumentit</string>
+  <string name="cloud_doc_status_synced">Synkronoitu</string>
+  <string name="cloud_doc_status_local_only">Vain tällä laitteella</string>
+  <string name="cloud_doc_status_cloud_only">Vain pilvessä</string>
+  <string name="cloud_doc_status_update">Päivitys saatavilla</string>
+  <string name="cloud_doc_status_blocked">Estetty tällä laitteella</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Kaikki</string>
+  <string name="cloud_doc_filter_installed">Asennetut</string>
+  <string name="cloud_doc_filter_cloud">Pilvessä</string>
+  <string name="cloud_doc_filter_updates">Päivitykset</string>
+  <string name="cloud_doc_filter_blocked">Estetyt</string>
+  <string name="cloud_doc_filter_removed">Poistetut</string>
+  <string name="cloud_doc_show_removed">Näytä poistetut dokumentit</string>
+  <string name="cloud_doc_status_removed">Poistettu pilvestä</string>
+  <string name="cloud_doc_status_still_installed">edelleen asennettu tähän</string>
+  <string name="cloud_doc_purge_confirm">Poistetaanko \"%1$s\" pysyvästi pilvihistoriasta? Jos se on edelleen asennettuna toisella laitteella, kyseinen laite voi lähettää sen takaisin pilveen seuraavalla synkronoinnilla.</string>
+  <string name="cloud_doc_action_download">Lataa</string>
+  <string name="cloud_doc_action_push">Lähetä pilveen</string>
+  <string name="cloud_doc_action_remove_cloud">Poista pilvestä</string>
+  <string name="cloud_doc_action_remove_all_devices">Poista kaikilta laitteilta</string>
+  <string name="cloud_doc_action_block">Älä synkronoi tähän laitteeseen</string>
+  <string name="cloud_doc_action_unblock">Salli tällä laitteella</string>
+  <string name="cloud_doc_action_restore">Palauta pilveen</string>
+  <string name="cloud_doc_action_purge">Poista pilvihistoriasta</string>
+  <string name="cloud_doc_remove_all_confirm">Poistetaanko %1$s pilvestä ja kaikilta laitteiltasi, mukaan lukien tämä laite?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Poistetaanko %1$s pilvestä? Tämän laitteen kopio säilytetään; laitteet, joissa dokumenttien synkronointi on käytössä, poistavat sen myös.</string>
+  <string name="cloud_doc_sync_now">Synkronoi nyt</string>
+  <string name="cloud_doc_sync_now_download">Lataa uudet ja päivitetyt dokumentit</string>
+  <string name="cloud_doc_sync_now_upload">Lähetä paikalliset dokumentit pilveen</string>
+  <string name="cloud_doc_sync_now_delete">Toteuta poistot muilta laitteilta</string>
+  <string name="document_sync_signin_required">Kirjaudu pilvitiliisi hallitaksesi synkronoituja dokumentteja.</string>
+  <string name="cloud_doc_summary_upload">Lähetä %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Lähetä %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Lataa %1$d</string>
+  <string name="cloud_doc_summary_download_size">Lataa %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Automaattiset lataukset alkavat Wi-Fi-yhteydellä.</string>
+  <string name="cloud_doc_bulk_download">Lataa valitut (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Kaikki saatavilla olevat dokumentit on jo ladattu.</string>
+  <string name="document_sync_notification_title">Synkronoidaan dokumentteja</string>
+  <string name="document_sync_downloading">Ladataan %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Lähetetään %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Poistetaan %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Dokumenttien synkronointi aloitettu</string>
+  <string name="document_sync_enable_dialog_title">Aloitetaanko dokumenttien synkronointi?</string>
+  <string name="document_sync_enable_dialog_nothing">Ei vielä siirrettäviä dokumentteja. Uudet asennetut dokumentit synkronoidaan automaattisesti.</string>
 </resources>

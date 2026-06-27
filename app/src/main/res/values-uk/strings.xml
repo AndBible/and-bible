@@ -1149,6 +1149,7 @@
   <string name="sqlite_invalid_file">Недійсний файл модуля або назва файлу: %s</string>
   <string name="sqlite_cant_write">Неможливо (пере)записати файл</string>
   <string name="install_failed_reason">Не вдалося встановити модуль з наступної причини: %s.</string>
+  <string name="no_file_manager">Не знайдено застосунку для вибору файлу. Будь ласка, встановіть файловий менеджер і спробуйте ще раз.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Додаток відкрито в іншому місці</string>
   <string name="open_here">Відкрити тут</string>
@@ -1251,6 +1252,9 @@
   <string name="agent_max_iterations_summary">Максимальна кількість ітерацій перед запитом на продовження (0 = необмежено)</string>
   <string name="ask_model_before_run_title">Запитувати модель перед запуском</string>
   <string name="ask_model_before_run_summary">Показувати діалог вибору моделі перед виконанням промпту (пропускається, якщо промпт має явне перевизначення моделі)</string>
+  <string name="auto_hide_agent_log_title">Приховувати панель ШІ після завершення</string>
+  <string name="auto_hide_agent_log_summary">Автоматично приховувати панель ШІ, коли завдання успішно завершено або скасовано. У разі помилки панель залишається видимою.</string>
+  <string name="ai_task_completed">Завдання ШІ виконано</string>
   <string name="custom_agent_system_prompt_title">Системний промпт агента</string>
   <string name="custom_system_prompt_summary">Редагування не рекомендується, якщо ви не знаєте, що робите</string>
   <string name="custom_text_transform_system_prompt_title">Системний промпт перетворення тексту</string>
@@ -1696,4 +1700,64 @@
   <string name="scroll_helper_line_style_thick_solid">Товста суцільна лінія</string>
   <string name="prefs_page_buttons_title">Кнопки прокручування сторінки</string>
   <string name="prefs_page_buttons_summary">Показувати видимі кнопки прокручування сторінки вгору/вниз на екрані</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Ресурси</string>
+  <string name="document_sync_contents">Встановлені біблії, коментарі та інші ресурси</string>
+  <string name="document_sync_category_title">Синхронізація ресурсів</string>
+  <string name="document_sync_auto_download_title">Завантажувати автоматично</string>
+  <string name="document_sync_auto_download_summary">Автоматично завантажувати нові та оновлені ресурси з хмари на цей пристрій</string>
+  <string name="document_sync_auto_upload_title">Вивантажувати автоматично</string>
+  <string name="document_sync_auto_upload_summary">Автоматично вивантажувати ресурси, встановлені на цьому пристрої, до хмари</string>
+  <string name="document_sync_auto_delete_title">Застосовувати видалення автоматично</string>
+  <string name="document_sync_auto_delete_summary">Автоматично видаляти ресурси з цього пристрою, коли їх видалено на іншому пристрої</string>
+  <string name="document_sync_wifi_only_title">Синхронізувати ресурси лише через Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Автоматична передача ресурсів очікує на безлімітне (Wi-Fi) з\'єднання</string>
+  <string name="document_sync_manage_summary">Переглядайте та керуйте ресурсами, що зберігаються в хмарі</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Синхронізовані ресурси</string>
+  <string name="cloud_doc_status_synced">Синхронізовано</string>
+  <string name="cloud_doc_status_local_only">Лише на цьому пристрої</string>
+  <string name="cloud_doc_status_cloud_only">Лише в хмарі</string>
+  <string name="cloud_doc_status_update">Доступне оновлення</string>
+  <string name="cloud_doc_status_blocked">Заблоковано на цьому пристрої</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Усі</string>
+  <string name="cloud_doc_filter_installed">Встановлені</string>
+  <string name="cloud_doc_filter_cloud">У хмарі</string>
+  <string name="cloud_doc_filter_updates">Оновлення</string>
+  <string name="cloud_doc_filter_blocked">Заблоковані</string>
+  <string name="cloud_doc_filter_removed">Видалені</string>
+  <string name="cloud_doc_show_removed">Показувати видалені ресурси</string>
+  <string name="cloud_doc_status_removed">Видалено з хмари</string>
+  <string name="cloud_doc_status_still_installed">досі встановлено тут</string>
+  <string name="cloud_doc_purge_confirm">Остаточно видалити \"%1$s\" з історії хмари? Якщо ресурс досі встановлено на іншому пристрої, той пристрій може знову вивантажити його до хмари під час наступної синхронізації.</string>
+  <string name="cloud_doc_action_download">Завантажити</string>
+  <string name="cloud_doc_action_push">Вивантажити до хмари</string>
+  <string name="cloud_doc_action_remove_cloud">Видалити з хмари</string>
+  <string name="cloud_doc_action_remove_all_devices">Видалити з усіх пристроїв</string>
+  <string name="cloud_doc_action_block">Не синхронізувати на цей пристрій</string>
+  <string name="cloud_doc_action_unblock">Дозволити на цьому пристрої</string>
+  <string name="cloud_doc_action_restore">Відновити до хмари</string>
+  <string name="cloud_doc_action_purge">Видалити з історії хмари</string>
+  <string name="cloud_doc_remove_all_confirm">Видалити %1$s з хмари та з усіх ваших пристроїв, включно з цим?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Видалити %1$s з хмари? Копія на цьому пристрої залишиться; пристрої з увімкненою синхронізацією ресурсів також видалять його.</string>
+  <string name="cloud_doc_sync_now">Синхронізувати зараз</string>
+  <string name="cloud_doc_sync_now_download">Завантажити нові та оновлені ресурси</string>
+  <string name="cloud_doc_sync_now_upload">Вивантажити локальні ресурси до хмари</string>
+  <string name="cloud_doc_sync_now_delete">Застосувати видалення з інших пристроїв</string>
+  <string name="document_sync_signin_required">Увійдіть до свого хмарного облікового запису, щоб керувати синхронізованими ресурсами.</string>
+  <string name="cloud_doc_summary_upload">Вивантажити %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Вивантажити %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Завантажити %1$d</string>
+  <string name="cloud_doc_summary_download_size">Завантажити %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Автоматичне завантаження розпочнеться через Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Завантажити вибрані (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Усі доступні ресурси вже завантажено.</string>
+  <string name="document_sync_notification_title">Синхронізація ресурсів</string>
+  <string name="document_sync_downloading">Завантаження %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Вивантаження %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Видалення %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Синхронізацію ресурсів розпочато</string>
+  <string name="document_sync_enable_dialog_title">Розпочати синхронізацію ресурсів?</string>
+  <string name="document_sync_enable_dialog_nothing">Поки що немає ресурсів для передачі. Нещодавно встановлені ресурси синхронізуватимуться автоматично.</string>
 </resources>

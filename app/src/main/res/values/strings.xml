@@ -1883,4 +1883,67 @@
     <string name="scroll_helper_line_style_thick_solid">Thick solid line</string>
     <string name="prefs_page_buttons_title">Page scroll buttons</string>
     <string name="prefs_page_buttons_summary">Show visible page up/down buttons on screen</string>
+
+    <!-- Document sync: settings UI -->
+    <string name="document_sync_title">Documents</string>
+    <string name="document_sync_contents">Installed Bibles, commentaries and other documents</string>
+    <string name="document_sync_category_title">Document sync</string>
+    <string name="document_sync_auto_download_title">Download automatically</string>
+    <string name="document_sync_auto_download_summary">Automatically download new and updated documents from the cloud to this device</string>
+    <string name="document_sync_auto_upload_title">Upload automatically</string>
+    <string name="document_sync_auto_upload_summary">Automatically upload documents installed on this device to the cloud</string>
+    <string name="document_sync_auto_delete_title">Apply removals automatically</string>
+    <string name="document_sync_auto_delete_summary">Automatically remove documents from this device when they are removed on another device</string>
+    <string name="document_sync_wifi_only_title">Sync documents on Wi-Fi only</string>
+    <string name="document_sync_wifi_only_summary">Automatic document transfers wait for an unmetered (Wi-Fi) connection</string>
+    <string name="document_sync_manage_summary">View and manage documents stored in the cloud</string>
+
+    <!-- Document sync: cloud documents management view -->
+    <string name="document_sync_manage_title">Synced documents</string>
+    <string name="cloud_doc_status_synced">Synced</string>
+    <string name="cloud_doc_status_local_only">On this device only</string>
+    <string name="cloud_doc_status_cloud_only">In cloud only</string>
+    <string name="cloud_doc_status_update">Update available</string>
+    <string name="cloud_doc_status_blocked">Blocked on this device</string>
+    <string name="cloud_doc_version_prefix">v%1$s</string>
+    <string name="cloud_doc_filter_all">All</string>
+    <string name="cloud_doc_filter_installed">Installed</string>
+    <string name="cloud_doc_filter_cloud">In cloud</string>
+    <string name="cloud_doc_filter_updates">Updates</string>
+    <string name="cloud_doc_filter_blocked">Blocked</string>
+    <string name="cloud_doc_filter_removed">Removed</string>
+    <string name="cloud_doc_show_removed">Show removed documents</string>
+    <string name="cloud_doc_status_removed">Removed from cloud</string>
+    <string name="cloud_doc_status_still_installed">still installed here</string>
+    <string name="cloud_doc_purge_confirm">Permanently remove \"%1$s\" from the cloud history? If it is still installed on another device, that device may upload it back to the cloud on its next sync.</string>
+    <string name="cloud_doc_action_download">Download</string>
+    <string name="cloud_doc_action_push">Push to cloud</string>
+    <string name="cloud_doc_action_remove_cloud">Remove from cloud</string>
+    <string name="cloud_doc_action_remove_all_devices">Remove from all devices</string>
+    <string name="cloud_doc_action_block">Don\'t sync to this device</string>
+    <string name="cloud_doc_action_unblock">Allow on this device</string>
+    <string name="cloud_doc_action_restore">Restore to cloud</string>
+    <string name="cloud_doc_action_purge">Remove from cloud history</string>
+    <string name="cloud_doc_remove_all_confirm">Remove %1$s from the cloud and from all your devices, including this one?</string>
+    <string name="cloud_doc_remove_cloud_confirm">Remove %1$s from the cloud? The copy on this device is kept; devices with document sync on will also remove it.</string>
+    <string name="cloud_doc_sync_now">Sync now</string>
+    <string name="cloud_doc_rescan">Re-scan from cloud</string>
+    <string name="cloud_doc_sync_now_download">Download new and updated documents</string>
+    <string name="cloud_doc_sync_now_upload">Upload local documents to the cloud</string>
+    <string name="cloud_doc_sync_now_delete">Apply removals from other devices</string>
+    <string name="document_sync_signin_required">Sign in to your cloud account to manage synced documents.</string>
+    <string name="cloud_doc_summary_upload">Upload %1$d</string>
+    <string name="cloud_doc_summary_upload_size">Upload %1$d (%2$s)</string>
+    <string name="cloud_doc_summary_download">Download %1$d</string>
+    <string name="cloud_doc_summary_download_size">Download %1$d (%2$s)</string>
+    <string name="cloud_doc_wifi_waiting">Automatic downloads will start on Wi-Fi.</string>
+    <string name="cloud_doc_bulk_download">Download selected (%1$d)</string>
+    <string name="cloud_doc_nothing_to_download">All available documents are already downloaded.</string>
+    <string name="document_sync_notification_title">Syncing documents</string>
+    <string name="document_sync_downloading">Downloading %1$s (%2$d/%3$d)</string>
+    <string name="document_sync_uploading">Uploading %1$s (%2$d/%3$d)</string>
+    <string name="document_sync_removing">Removing %1$s (%2$d/%3$d)</string>
+    <string name="document_sync_started">Document sync started</string>
+    <string name="document_sync_enable_dialog_title">Start syncing documents?</string>
+    <string name="document_sync_enable_dialog_nothing">No documents to transfer yet. Newly installed documents will sync automatically.</string>
 </resources>

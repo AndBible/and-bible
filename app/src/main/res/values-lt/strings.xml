@@ -1156,6 +1156,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="sqlite_invalid_file">Neteisingas modulio failas ar failo pavadinimas: %s</string>
   <string name="sqlite_cant_write">Nepavyksta (per)rašyti failo</string>
   <string name="install_failed_reason">Nepavyko įdiegti modulio dėl šios priežasties: %s.</string>
+  <string name="no_file_manager">Nerasta programėlė failui pasirinkti. Įdiekite failų tvarkyklę ir bandykite dar kartą.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Programėlė atverta kitur</string>
   <string name="open_here">Atverti čia</string>
@@ -1258,6 +1259,9 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="agent_max_iterations_summary">Maksimalus iteracijų skaičius prieš paklausiant tęsti (0 = neribota)</string>
   <string name="ask_model_before_run_title">Klausti modelio prieš vykdymą</string>
   <string name="ask_model_before_run_summary">Rodyti modelio pasirinkimo dialogą prieš vykdant užklausą (praleidžiama, kai užklausa turi aiškų modelio pasirinkimą)</string>
+  <string name="auto_hide_agent_log_title">Baigus paslėpti DI skydelį</string>
+  <string name="auto_hide_agent_log_summary">Automatiškai paslėpti DI skydelį, kai užduotis sėkmingai baigiama arba atsisakoma. Įvykus klaidai skydelis lieka matomas.</string>
+  <string name="ai_task_completed">DI užduotis baigta</string>
   <string name="custom_agent_system_prompt_title">Agento sistemos raginimas</string>
   <string name="custom_system_prompt_summary">Redaguoti nerekomenduojama, nebent žinote, ką darote</string>
   <string name="custom_text_transform_system_prompt_title">Teksto transformacijos sistemos raginimas</string>
@@ -1703,4 +1707,64 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="scroll_helper_line_style_thick_solid">Stora ištisinė linija</string>
   <string name="prefs_page_buttons_title">Puslapio slinkimo mygtukai</string>
   <string name="prefs_page_buttons_summary">Rodyti matomus puslapio aukštyn/žemyn mygtukus ekrane</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumentai</string>
+  <string name="document_sync_contents">Įdiegtos biblijos, komentarai ir kiti dokumentai</string>
+  <string name="document_sync_category_title">Dokumentų sinchronizavimas</string>
+  <string name="document_sync_auto_download_title">Atsisiųsti automatiškai</string>
+  <string name="document_sync_auto_download_summary">Automatiškai atsisiųsti naujus ir atnaujintus dokumentus iš debesies į šį įrenginį</string>
+  <string name="document_sync_auto_upload_title">Įkelti automatiškai</string>
+  <string name="document_sync_auto_upload_summary">Automatiškai įkelti šiame įrenginyje įdiegtus dokumentus į debesį</string>
+  <string name="document_sync_auto_delete_title">Taikyti pašalinimus automatiškai</string>
+  <string name="document_sync_auto_delete_summary">Automatiškai pašalinti dokumentus iš šio įrenginio, kai jie pašalinami kitame įrenginyje</string>
+  <string name="document_sync_wifi_only_title">Sinchronizuoti dokumentus tik per Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Automatinis dokumentų perkėlimas laukia neapmokestinamo (Wi-Fi) ryšio</string>
+  <string name="document_sync_manage_summary">Peržiūrėti ir tvarkyti debesyje saugomus dokumentus</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Sinchronizuoti dokumentai</string>
+  <string name="cloud_doc_status_synced">Sinchronizuota</string>
+  <string name="cloud_doc_status_local_only">Tik šiame įrenginyje</string>
+  <string name="cloud_doc_status_cloud_only">Tik debesyje</string>
+  <string name="cloud_doc_status_update">Galimas atnaujinimas</string>
+  <string name="cloud_doc_status_blocked">Užblokuota šiame įrenginyje</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Visi</string>
+  <string name="cloud_doc_filter_installed">Įdiegti</string>
+  <string name="cloud_doc_filter_cloud">Debesyje</string>
+  <string name="cloud_doc_filter_updates">Atnaujinimai</string>
+  <string name="cloud_doc_filter_blocked">Užblokuoti</string>
+  <string name="cloud_doc_filter_removed">Pašalinti</string>
+  <string name="cloud_doc_show_removed">Rodyti pašalintus dokumentus</string>
+  <string name="cloud_doc_status_removed">Pašalinta iš debesies</string>
+  <string name="cloud_doc_status_still_installed">vis dar įdiegta čia</string>
+  <string name="cloud_doc_purge_confirm">Visam laikui pašalinti \"%1$s\" iš debesies istorijos? Jei jis vis dar įdiegtas kitame įrenginyje, tas įrenginys gali jį vėl įkelti į debesį per kitą sinchronizavimą.</string>
+  <string name="cloud_doc_action_download">Atsisiųsti</string>
+  <string name="cloud_doc_action_push">Įkelti į debesį</string>
+  <string name="cloud_doc_action_remove_cloud">Pašalinti iš debesies</string>
+  <string name="cloud_doc_action_remove_all_devices">Pašalinti iš visų įrenginių</string>
+  <string name="cloud_doc_action_block">Nesinchronizuoti į šį įrenginį</string>
+  <string name="cloud_doc_action_unblock">Leisti šiame įrenginyje</string>
+  <string name="cloud_doc_action_restore">Atkurti į debesį</string>
+  <string name="cloud_doc_action_purge">Pašalinti iš debesies istorijos</string>
+  <string name="cloud_doc_remove_all_confirm">Pašalinti %1$s iš debesies ir iš visų jūsų įrenginių, įskaitant šį?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Pašalinti %1$s iš debesies? Kopija šiame įrenginyje išsaugoma; įrenginiai, kuriuose įjungtas dokumentų sinchronizavimas, taip pat ją pašalins.</string>
+  <string name="cloud_doc_sync_now">Sinchronizuoti dabar</string>
+  <string name="cloud_doc_sync_now_download">Atsisiųsti naujus ir atnaujintus dokumentus</string>
+  <string name="cloud_doc_sync_now_upload">Įkelti vietinius dokumentus į debesį</string>
+  <string name="cloud_doc_sync_now_delete">Taikyti pašalinimus iš kitų įrenginių</string>
+  <string name="document_sync_signin_required">Prisijunkite prie savo debesies paskyros, kad galėtumėte tvarkyti sinchronizuotus dokumentus.</string>
+  <string name="cloud_doc_summary_upload">Įkelti %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Įkelti %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Atsisiųsti %1$d</string>
+  <string name="cloud_doc_summary_download_size">Atsisiųsti %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Automatinis atsisiuntimas prasidės per Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Atsisiųsti pažymėtus (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Visi galimi dokumentai jau atsisiųsti.</string>
+  <string name="document_sync_notification_title">Sinchronizuojami dokumentai</string>
+  <string name="document_sync_downloading">Atsisiunčiama %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Įkeliama %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Šalinama %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Dokumentų sinchronizavimas pradėtas</string>
+  <string name="document_sync_enable_dialog_title">Pradėti sinchronizuoti dokumentus?</string>
+  <string name="document_sync_enable_dialog_nothing">Kol kas nėra dokumentų perkelti. Naujai įdiegti dokumentai bus sinchronizuojami automatiškai.</string>
 </resources>

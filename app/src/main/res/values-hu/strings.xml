@@ -1121,6 +1121,7 @@ jelentse be az észlelt problémát</string>
   <string name="sqlite_invalid_file">Érvénytelen modul fájl vagy fájlnév: %s</string>
   <string name="sqlite_cant_write">A fájl (felül)írása nem sikerült</string>
   <string name="install_failed_reason">A modul telepítése nem sikerült: %s</string>
+  <string name="no_file_manager">Nem található alkalmazás a fájl kiválasztásához. Telepítsen egy fájlkezelőt, és próbálja újra.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Az alkalmazás meg van nyitva máshol.</string>
   <string name="open_here">Megnyitás itt</string>
@@ -1223,6 +1224,9 @@ jelentse be az észlelt problémát</string>
   <string name="agent_max_iterations_summary">Maximális iterációszám folytatás kérdése előtt (0 = korlátlan)</string>
   <string name="ask_model_before_run_title">Modell kérdése futtatás előtt</string>
   <string name="ask_model_before_run_summary">Modellválasztó párbeszédablak megjelenítése prompt végrehajtása előtt (kihagyva, ha a prompthoz explicit modell van megadva)</string>
+  <string name="auto_hide_agent_log_title">AI-panel elrejtése befejezéskor</string>
+  <string name="auto_hide_agent_log_summary">Automatikusan elrejti az AI-panelt, amikor egy feladat sikeresen befejeződik vagy megszakad. Hiba esetén a panel látható marad.</string>
+  <string name="ai_task_completed">AI-feladat befejezve</string>
   <string name="custom_agent_system_prompt_title">Ügynök rendszerprompt</string>
   <string name="custom_system_prompt_summary">Szerkesztése nem javasolt, hacsak nem tudja, mit csinál</string>
   <string name="custom_text_transform_system_prompt_title">Szövegátalakítás rendszerprompt</string>
@@ -1668,4 +1672,64 @@ jelentse be az észlelt problémát</string>
   <string name="scroll_helper_line_style_thick_solid">Vastag folytonos vonal</string>
   <string name="prefs_page_buttons_title">Lapozógombok</string>
   <string name="prefs_page_buttons_summary">Látható fel/le lapozógombok megjelenítése a képernyőn</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumentumok</string>
+  <string name="document_sync_contents">Telepített Bibliák, kommentárok és más dokumentumok</string>
+  <string name="document_sync_category_title">Dokumentumok szinkronizálása</string>
+  <string name="document_sync_auto_download_title">Automatikus letöltés</string>
+  <string name="document_sync_auto_download_summary">Automatikusan letölti az új és frissített dokumentumokat a felhőből erre az eszközre</string>
+  <string name="document_sync_auto_upload_title">Automatikus feltöltés</string>
+  <string name="document_sync_auto_upload_summary">Automatikusan feltölti az ezen az eszközön telepített dokumentumokat a felhőbe</string>
+  <string name="document_sync_auto_delete_title">Eltávolítások automatikus alkalmazása</string>
+  <string name="document_sync_auto_delete_summary">Automatikusan eltávolítja a dokumentumokat erről az eszközről, amikor azokat egy másik eszközön eltávolítják</string>
+  <string name="document_sync_wifi_only_title">Dokumentumok szinkronizálása csak Wi-Fi-n</string>
+  <string name="document_sync_wifi_only_summary">Az automatikus dokumentumátvitelek megvárják a nem korlátozott (Wi-Fi) kapcsolatot</string>
+  <string name="document_sync_manage_summary">A felhőben tárolt dokumentumok megtekintése és kezelése</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Szinkronizált dokumentumok</string>
+  <string name="cloud_doc_status_synced">Szinkronizálva</string>
+  <string name="cloud_doc_status_local_only">Csak ezen az eszközön</string>
+  <string name="cloud_doc_status_cloud_only">Csak a felhőben</string>
+  <string name="cloud_doc_status_update">Elérhető frissítés</string>
+  <string name="cloud_doc_status_blocked">Letiltva ezen az eszközön</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Mind</string>
+  <string name="cloud_doc_filter_installed">Telepítve</string>
+  <string name="cloud_doc_filter_cloud">A felhőben</string>
+  <string name="cloud_doc_filter_updates">Frissítések</string>
+  <string name="cloud_doc_filter_blocked">Letiltva</string>
+  <string name="cloud_doc_filter_removed">Eltávolítva</string>
+  <string name="cloud_doc_show_removed">Eltávolított dokumentumok megjelenítése</string>
+  <string name="cloud_doc_status_removed">Eltávolítva a felhőből</string>
+  <string name="cloud_doc_status_still_installed">itt még telepítve van</string>
+  <string name="cloud_doc_purge_confirm">Véglegesen eltávolítja a(z) \"%1$s\" elemet a felhőelőzményekből? Ha még telepítve van egy másik eszközön, az az eszköz a következő szinkronizáláskor visszatöltheti a felhőbe.</string>
+  <string name="cloud_doc_action_download">Letöltés</string>
+  <string name="cloud_doc_action_push">Feltöltés a felhőbe</string>
+  <string name="cloud_doc_action_remove_cloud">Eltávolítás a felhőből</string>
+  <string name="cloud_doc_action_remove_all_devices">Eltávolítás az összes eszközről</string>
+  <string name="cloud_doc_action_block">Ne szinkronizálja erre az eszközre</string>
+  <string name="cloud_doc_action_unblock">Engedélyezés ezen az eszközön</string>
+  <string name="cloud_doc_action_restore">Visszaállítás a felhőbe</string>
+  <string name="cloud_doc_action_purge">Eltávolítás a felhőelőzményekből</string>
+  <string name="cloud_doc_remove_all_confirm">Eltávolítja a(z) %1$s elemet a felhőből és az összes eszközéről, beleértve ezt is?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Eltávolítja a(z) %1$s elemet a felhőből? Az ezen az eszközön lévő példány megmarad; a dokumentumszinkronizálással rendelkező eszközök szintén eltávolítják.</string>
+  <string name="cloud_doc_sync_now">Szinkronizálás most</string>
+  <string name="cloud_doc_sync_now_download">Új és frissített dokumentumok letöltése</string>
+  <string name="cloud_doc_sync_now_upload">Helyi dokumentumok feltöltése a felhőbe</string>
+  <string name="cloud_doc_sync_now_delete">Eltávolítások alkalmazása más eszközökről</string>
+  <string name="document_sync_signin_required">Jelentkezzen be a felhőfiókjába a szinkronizált dokumentumok kezeléséhez.</string>
+  <string name="cloud_doc_summary_upload">Feltöltés: %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Feltöltés: %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Letöltés: %1$d</string>
+  <string name="cloud_doc_summary_download_size">Letöltés: %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Az automatikus letöltések Wi-Fi-n indulnak el.</string>
+  <string name="cloud_doc_bulk_download">Kijelöltek letöltése (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Minden elérhető dokumentum már le van töltve.</string>
+  <string name="document_sync_notification_title">Dokumentumok szinkronizálása</string>
+  <string name="document_sync_downloading">Letöltés: %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Feltöltés: %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Eltávolítás: %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Dokumentumszinkronizálás elindítva</string>
+  <string name="document_sync_enable_dialog_title">Elkezdi a dokumentumok szinkronizálását?</string>
+  <string name="document_sync_enable_dialog_nothing">Még nincs átvihető dokumentum. Az újonnan telepített dokumentumok automatikusan szinkronizálódnak.</string>
 </resources>

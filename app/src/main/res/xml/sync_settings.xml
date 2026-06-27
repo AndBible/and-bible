@@ -105,5 +105,45 @@
 			android:defaultValue="false"
 			android:icon="@drawable/ic_baseline_check_circle_24"
 			/>
+		<SwitchPreferenceCompat android:key="sync_enable_documents"
+			android:title="@string/document_sync_title"
+			android:summary="@string/document_sync_contents"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_baseline_description_gray_24" />
+	</PreferenceCategory>
+
+	<PreferenceCategory
+		android:key="document_sync_category"
+		android:title="@string/document_sync_category_title"
+		>
+		<SwitchPreferenceCompat
+			android:key="sync_documents_auto_download"
+			android:defaultValue="true"
+			android:title="@string/document_sync_auto_download_title"
+			android:summary="@string/document_sync_auto_download_summary"
+			android:icon="@drawable/ic_cloud_download_24dp" />
+		<SwitchPreferenceCompat
+			android:key="sync_documents_auto_upload"
+			android:defaultValue="true"
+			android:title="@string/document_sync_auto_upload_title"
+			android:summary="@string/document_sync_auto_upload_summary"
+			android:icon="@drawable/ic_cloud_upload_24dp" />
+		<SwitchPreferenceCompat
+			android:key="sync_documents_auto_delete"
+			android:defaultValue="true"
+			android:title="@string/document_sync_auto_delete_title"
+			android:summary="@string/document_sync_auto_delete_summary"
+			android:icon="@drawable/ic_delete_24dp" />
+		<SwitchPreferenceCompat
+			android:key="sync_documents_wifi_only"
+			android:defaultValue="true"
+			android:title="@string/document_sync_wifi_only_title"
+			android:summary="@string/document_sync_wifi_only_summary"
+			android:icon="@drawable/ic_wifi_24dp" />
+		<Preference
+			android:key="document_sync_manage"
+			android:title="@string/document_sync_manage_title"
+			android:summary="@string/document_sync_manage_summary"
+			android:icon="@drawable/ic_baseline_cloud_24" />
 	</PreferenceCategory>
 </PreferenceScreen>

@@ -34,4 +34,7 @@
 		android:title="@string/custom_repositories"
 		android:icon="@drawable/ic_unarchive_white_24dp"
 		appcompat:showAsAction="never"/>
+	<item android:id="@+id/manage_cloud_documents"
+		android:title="@string/document_sync_manage_title"
+		android:showAsAction="never"/>
 </menu>

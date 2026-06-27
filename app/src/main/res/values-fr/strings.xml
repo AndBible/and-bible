@@ -1131,6 +1131,7 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="sqlite_invalid_file">Fichier de module ou nom de fichier invalide : %s</string>
   <string name="sqlite_cant_write">Impossible d’écrire ou de réécrire le fichier</string>
   <string name="install_failed_reason">L’installation du module a échoué pour la raison suivante : %s.</string>
+  <string name="no_file_manager">Aucune application n\'a été trouvée pour choisir un fichier. Veuillez installer un gestionnaire de fichiers et réessayer.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Application ouverte ailleurs</string>
   <string name="open_here">Ouvrir ici</string>
@@ -1233,6 +1234,9 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="agent_max_iterations_summary">Nombre maximum d\'itérations avant de demander de continuer (0 = illimité)</string>
   <string name="ask_model_before_run_title">Demander le modèle avant l\'exécution</string>
   <string name="ask_model_before_run_summary">Afficher une boîte de dialogue de sélection de modèle avant d\'exécuter une invite (ignoré si l\'invite a un modèle explicitement défini)</string>
+  <string name="auto_hide_agent_log_title">Masquer le panneau IA une fois terminé</string>
+  <string name="auto_hide_agent_log_summary">Masquer automatiquement le panneau IA lorsqu\'une tâche se termine avec succès ou est annulée. En cas d\'erreur, le panneau reste visible.</string>
+  <string name="ai_task_completed">Tâche IA terminée</string>
   <string name="custom_agent_system_prompt_title">Prompt système de l\'agent</string>
   <string name="custom_system_prompt_summary">Modification déconseillée sauf si vous savez ce que vous faites</string>
   <string name="custom_text_transform_system_prompt_title">Prompt système de transformation de texte</string>
@@ -1678,4 +1682,64 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="scroll_helper_line_style_thick_solid">Ligne épaisse continue</string>
   <string name="prefs_page_buttons_title">Boutons de défilement par page</string>
   <string name="prefs_page_buttons_summary">Afficher les boutons visibles de défilement page haut/bas à l\'écran</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Documents</string>
+  <string name="document_sync_contents">Bibles, commentaires et autres documents installés</string>
+  <string name="document_sync_category_title">Synchronisation des documents</string>
+  <string name="document_sync_auto_download_title">Télécharger automatiquement</string>
+  <string name="document_sync_auto_download_summary">Télécharger automatiquement les documents nouveaux et mis à jour depuis le cloud vers cet appareil</string>
+  <string name="document_sync_auto_upload_title">Téléverser automatiquement</string>
+  <string name="document_sync_auto_upload_summary">Téléverser automatiquement vers le cloud les documents installés sur cet appareil</string>
+  <string name="document_sync_auto_delete_title">Appliquer les suppressions automatiquement</string>
+  <string name="document_sync_auto_delete_summary">Supprimer automatiquement les documents de cet appareil lorsqu\'ils sont supprimés sur un autre appareil</string>
+  <string name="document_sync_wifi_only_title">Synchroniser les documents en Wi-Fi uniquement</string>
+  <string name="document_sync_wifi_only_summary">Les transferts automatiques de documents attendent une connexion non facturée à l\'usage (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Afficher et gérer les documents stockés dans le cloud</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Documents synchronisés</string>
+  <string name="cloud_doc_status_synced">Synchronisé</string>
+  <string name="cloud_doc_status_local_only">Sur cet appareil uniquement</string>
+  <string name="cloud_doc_status_cloud_only">Dans le cloud uniquement</string>
+  <string name="cloud_doc_status_update">Mise à jour disponible</string>
+  <string name="cloud_doc_status_blocked">Bloqué sur cet appareil</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Tous</string>
+  <string name="cloud_doc_filter_installed">Installés</string>
+  <string name="cloud_doc_filter_cloud">Dans le cloud</string>
+  <string name="cloud_doc_filter_updates">Mises à jour</string>
+  <string name="cloud_doc_filter_blocked">Bloqués</string>
+  <string name="cloud_doc_filter_removed">Supprimés</string>
+  <string name="cloud_doc_show_removed">Afficher les documents supprimés</string>
+  <string name="cloud_doc_status_removed">Supprimé du cloud</string>
+  <string name="cloud_doc_status_still_installed">toujours installé ici</string>
+  <string name="cloud_doc_purge_confirm">Supprimer définitivement \"%1$s\" de l\'historique du cloud ? S\'il est encore installé sur un autre appareil, cet appareil pourra le téléverser à nouveau vers le cloud lors de sa prochaine synchronisation.</string>
+  <string name="cloud_doc_action_download">Télécharger</string>
+  <string name="cloud_doc_action_push">Téléverser vers le cloud</string>
+  <string name="cloud_doc_action_remove_cloud">Supprimer du cloud</string>
+  <string name="cloud_doc_action_remove_all_devices">Supprimer de tous les appareils</string>
+  <string name="cloud_doc_action_block">Ne pas synchroniser sur cet appareil</string>
+  <string name="cloud_doc_action_unblock">Autoriser sur cet appareil</string>
+  <string name="cloud_doc_action_restore">Restaurer vers le cloud</string>
+  <string name="cloud_doc_action_purge">Supprimer de l\'historique du cloud</string>
+  <string name="cloud_doc_remove_all_confirm">Supprimer %1$s du cloud et de tous vos appareils, y compris celui-ci ?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Supprimer %1$s du cloud ? La copie sur cet appareil est conservée ; les appareils dont la synchronisation des documents est activée le supprimeront également.</string>
+  <string name="cloud_doc_sync_now">Synchroniser maintenant</string>
+  <string name="cloud_doc_sync_now_download">Télécharger les documents nouveaux et mis à jour</string>
+  <string name="cloud_doc_sync_now_upload">Téléverser les documents locaux vers le cloud</string>
+  <string name="cloud_doc_sync_now_delete">Appliquer les suppressions des autres appareils</string>
+  <string name="document_sync_signin_required">Connectez-vous à votre compte cloud pour gérer les documents synchronisés.</string>
+  <string name="cloud_doc_summary_upload">Téléverser %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Téléverser %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Télécharger %1$d</string>
+  <string name="cloud_doc_summary_download_size">Télécharger %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Les téléchargements automatiques commenceront en Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Télécharger la sélection (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Tous les documents disponibles sont déjà téléchargés.</string>
+  <string name="document_sync_notification_title">Synchronisation des documents</string>
+  <string name="document_sync_downloading">Téléchargement de %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Téléversement de %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Suppression de %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Synchronisation des documents démarrée</string>
+  <string name="document_sync_enable_dialog_title">Démarrer la synchronisation des documents ?</string>
+  <string name="document_sync_enable_dialog_nothing">Aucun document à transférer pour le moment. Les documents nouvellement installés seront synchronisés automatiquement.</string>
 </resources>

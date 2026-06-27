@@ -1145,6 +1145,7 @@ lahko.
   <string name="sqlite_invalid_file">Nepravilna datoteka ali ime modula:%s</string>
   <string name="sqlite_cant_write">Datoteke ni mogoče (pre)pisati</string>
   <string name="install_failed_reason">Namestitev modula ni uspela iz naslednjega razloga: %s.</string>
+  <string name="no_file_manager">Aplikacije za izbiro datoteke ni bilo mogoče najti. Namestite upravitelja datotek in poskusite znova.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikacija se je odprla drugje</string>
   <string name="open_here">Odpri tukaj</string>
@@ -1248,6 +1249,9 @@ Tega sporočila ne prikaži več
   <string name="agent_max_iterations_summary">Največje število ponovitev, preden vpraša za nadaljevanje (0 = neomejeno)</string>
   <string name="ask_model_before_run_title">Vprašaj za model pred izvedbo</string>
   <string name="ask_model_before_run_summary">Prikaži pogovorno okno za izbiro modela pred izvajanjem poziva (preskočeno, ko ima poziv izrecno preglasitev modela)</string>
+  <string name="auto_hide_agent_log_title">Skrij ploščo UI po končanju</string>
+  <string name="auto_hide_agent_log_summary">Samodejno skrij ploščo UI, ko se opravilo uspešno zaključi ali se prekliče. Ob napaki plošča ostane vidna.</string>
+  <string name="ai_task_completed">Opravilo UI je zaključeno</string>
   <string name="custom_agent_system_prompt_title">Sistemski poziv agenta</string>
   <string name="custom_system_prompt_summary">Urejanje ni priporočljivo, razen če veste, kaj počnete</string>
   <string name="custom_text_transform_system_prompt_title">Sistemski poziv za pretvorbo besedila</string>
@@ -1693,4 +1697,64 @@ Tega sporočila ne prikaži več
   <string name="scroll_helper_line_style_thick_solid">Debela polna črta</string>
   <string name="prefs_page_buttons_title">Gumbi za pomikanje strani</string>
   <string name="prefs_page_buttons_summary">Prikaži vidne gumbe za pomikanje strani navzgor/navzdol na zaslonu</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumenti</string>
+  <string name="document_sync_contents">Nameščene biblije, komentarji in drugi dokumenti</string>
+  <string name="document_sync_category_title">Sinhronizacija dokumentov</string>
+  <string name="document_sync_auto_download_title">Prenesi samodejno</string>
+  <string name="document_sync_auto_download_summary">Samodejno prenesi nove in posodobljene dokumente iz oblaka v to napravo</string>
+  <string name="document_sync_auto_upload_title">Naloži samodejno</string>
+  <string name="document_sync_auto_upload_summary">Samodejno naloži dokumente, nameščene na tej napravi, v oblak</string>
+  <string name="document_sync_auto_delete_title">Samodejno uveljavi odstranitve</string>
+  <string name="document_sync_auto_delete_summary">Samodejno odstrani dokumente iz te naprave, ko so odstranjeni na drugi napravi</string>
+  <string name="document_sync_wifi_only_title">Sinhroniziraj dokumente samo prek Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Samodejni prenosi dokumentov počakajo na neomejeno (Wi-Fi) povezavo</string>
+  <string name="document_sync_manage_summary">Oglej si in upravljaj dokumente, shranjene v oblaku</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Sinhronizirani dokumenti</string>
+  <string name="cloud_doc_status_synced">Sinhronizirano</string>
+  <string name="cloud_doc_status_local_only">Samo na tej napravi</string>
+  <string name="cloud_doc_status_cloud_only">Samo v oblaku</string>
+  <string name="cloud_doc_status_update">Posodobitev je na voljo</string>
+  <string name="cloud_doc_status_blocked">Blokirano na tej napravi</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Vse</string>
+  <string name="cloud_doc_filter_installed">Nameščeno</string>
+  <string name="cloud_doc_filter_cloud">V oblaku</string>
+  <string name="cloud_doc_filter_updates">Posodobitve</string>
+  <string name="cloud_doc_filter_blocked">Blokirano</string>
+  <string name="cloud_doc_filter_removed">Odstranjeno</string>
+  <string name="cloud_doc_show_removed">Pokaži odstranjene dokumente</string>
+  <string name="cloud_doc_status_removed">Odstranjeno iz oblaka</string>
+  <string name="cloud_doc_status_still_installed">še vedno nameščeno tukaj</string>
+  <string name="cloud_doc_purge_confirm">Trajno odstranim \"%1$s\" iz zgodovine oblaka? Če je še vedno nameščeno na drugi napravi, lahko ta naprava dokument ob naslednji sinhronizaciji znova naloži v oblak.</string>
+  <string name="cloud_doc_action_download">Prenesi</string>
+  <string name="cloud_doc_action_push">Naloži v oblak</string>
+  <string name="cloud_doc_action_remove_cloud">Odstrani iz oblaka</string>
+  <string name="cloud_doc_action_remove_all_devices">Odstrani z vseh naprav</string>
+  <string name="cloud_doc_action_block">Ne sinhroniziraj v to napravo</string>
+  <string name="cloud_doc_action_unblock">Dovoli na tej napravi</string>
+  <string name="cloud_doc_action_restore">Povrni v oblak</string>
+  <string name="cloud_doc_action_purge">Odstrani iz zgodovine oblaka</string>
+  <string name="cloud_doc_remove_all_confirm">Odstranim %1$s iz oblaka in z vseh vaših naprav, vključno s to?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Odstranim %1$s iz oblaka? Kopija na tej napravi se ohrani; naprave z vklopljeno sinhronizacijo dokumentov jo bodo prav tako odstranile.</string>
+  <string name="cloud_doc_sync_now">Sinhroniziraj zdaj</string>
+  <string name="cloud_doc_sync_now_download">Prenesi nove in posodobljene dokumente</string>
+  <string name="cloud_doc_sync_now_upload">Naloži lokalne dokumente v oblak</string>
+  <string name="cloud_doc_sync_now_delete">Uveljavi odstranitve z drugih naprav</string>
+  <string name="document_sync_signin_required">Za upravljanje sinhroniziranih dokumentov se prijavite v svoj oblačni račun.</string>
+  <string name="cloud_doc_summary_upload">Naloži %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Naloži %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Prenesi %1$d</string>
+  <string name="cloud_doc_summary_download_size">Prenesi %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Samodejni prenosi se bodo začeli prek Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Prenesi izbrano (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Vsi razpoložljivi dokumenti so že preneseni.</string>
+  <string name="document_sync_notification_title">Sinhroniziranje dokumentov</string>
+  <string name="document_sync_downloading">Prenašanje %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Nalaganje %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Odstranjevanje %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Sinhronizacija dokumentov se je začela</string>
+  <string name="document_sync_enable_dialog_title">Začnem sinhronizirati dokumente?</string>
+  <string name="document_sync_enable_dialog_nothing">Trenutno ni dokumentov za prenos. Na novo nameščeni dokumenti se bodo sinhronizirali samodejno.</string>
 </resources>

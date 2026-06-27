@@ -1,0 +1,226 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "c18e038b74d4446605e2b99f1cee1533",
+    "entities": [
+      {
+        "tableName": "CachedCloudDocument",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`initials` TEXT NOT NULL, `name` TEXT NOT NULL, `documentType` TEXT NOT NULL, `version` TEXT NOT NULL, `size` INTEGER NOT NULL, `language` TEXT NOT NULL, `category` TEXT NOT NULL, `sourceDevice` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `cipherKey` TEXT, `deleted` INTEGER NOT NULL, PRIMARY KEY(`initials`))",
+        "fields": [
+          {
+            "fieldPath": "initials",
+            "columnName": "initials",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "documentType",
+            "columnName": "documentType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceDevice",
+            "columnName": "sourceDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cipherKey",
+            "columnName": "cipherKey",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "deleted",
+            "columnName": "deleted",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "initials"
+          ]
+        }
+      },
+      {
+        "tableName": "DocumentSyncPreferences",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `enabled` INTEGER NOT NULL DEFAULT 0, `wifiOnly` INTEGER NOT NULL DEFAULT 1, `autoDownload` INTEGER NOT NULL DEFAULT 1, `autoUpload` INTEGER NOT NULL DEFAULT 1, `autoDelete` INTEGER NOT NULL DEFAULT 1, `syncNowDownload` INTEGER NOT NULL DEFAULT 1, `syncNowUpload` INTEGER NOT NULL DEFAULT 1, `syncNowDelete` INTEGER NOT NULL DEFAULT 1, `showRemovedDocuments` INTEGER NOT NULL DEFAULT 0, `blockList` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "enabled",
+            "columnName": "enabled",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "wifiOnly",
+            "columnName": "wifiOnly",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "autoDownload",
+            "columnName": "autoDownload",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "autoUpload",
+            "columnName": "autoUpload",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "autoDelete",
+            "columnName": "autoDelete",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "syncNowDownload",
+            "columnName": "syncNowDownload",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "syncNowUpload",
+            "columnName": "syncNowUpload",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "syncNowDelete",
+            "columnName": "syncNowDelete",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "showRemovedDocuments",
+            "columnName": "showRemovedDocuments",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "blockList",
+            "columnName": "blockList",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "CloudListingState",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `watermark` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "watermark",
+            "columnName": "watermark",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "CloudDocumentSyncTimestamp",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`initials` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`initials`))",
+        "fields": [
+          {
+            "fieldPath": "initials",
+            "columnName": "initials",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "initials"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c18e038b74d4446605e2b99f1cee1533')"
+    ]
+  }
+}

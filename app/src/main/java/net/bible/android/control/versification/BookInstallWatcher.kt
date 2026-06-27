@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -17,7 +17,12 @@
 package net.bible.android.control.versification
 
 import android.util.Log
+import net.bible.android.BibleApplication
 import net.bible.android.database.SwordDocumentInfo
+import net.bible.service.cloudsync.documents.DocumentSync
+import net.bible.service.cloudsync.documents.DocumentSyncService
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.cloudsync.documents.shouldAutoUpload
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
@@ -35,6 +40,7 @@ import org.crosswire.jsword.versification.VersificationsMapper
  */
 object BookInstallWatcher {
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+
     fun startListening() {
         Books.installed().addBooksListener(object : BooksListener {
             override fun bookAdded(ev: BooksEvent) {
@@ -42,11 +48,29 @@ object BookInstallWatcher {
                 Activator.deactivate(book)
                 initialiseRequiredMapping(book)
                 addBookToDb(book)
+                // Suppress the echo: a module installed *by* a sync download must not immediately
+                // be auto-pushed back to the cloud it just came from.
+                if (!DocumentSync.isInstallingFromSync(book.initials)
+                    && shouldAutoUpload(
+                        DocumentSyncSettings.enabled,
+                        DocumentSyncSettings.autoUpload,
+                        DocumentSyncSettings.blockList.isBlocked(book.initials),
+                        DocumentSyncSettings.isAutoTransferAllowed,
+                    )
+                ) {
+                    DocumentSyncService.start(
+                        BibleApplication.application,
+                        pushInitials = listOf(book.initials),
+                        downloadInitials = emptyList(),
+                    )
+                }
                 AndBibleAddons.clearCaches()
                 SwordContentFacade.clearCaches()
             }
 
             override fun bookRemoved(ev: BooksEvent) {
+                // Document sync: local uninstall does NOT propagate to the cloud by default.
+                // "Remove from sync" (tombstone) is an explicit action in CloudDocumentsActivity.
                 AndBibleAddons.clearCaches()
                 removeBookFromDb(ev.book)
                 SwordContentFacade.clearCaches()

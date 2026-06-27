@@ -1107,6 +1107,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="sqlite_invalid_file">Άκυρο αρχείο προσθέτου ή όνομα αρχείου: %s</string>
   <string name="sqlite_cant_write">Αδυναμία (επαν)εγγραφής αρχείου</string>
   <string name="install_failed_reason">Εγκατάσταση προσθέτου απέτυχε για τον ακόλουθο λόγο: %s.</string>
+  <string name="no_file_manager">Δεν βρέθηκε εφαρμογή για την επιλογή αρχείου. Εγκαταστήστε έναν διαχειριστή αρχείων και δοκιμάστε ξανά.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Εφαρμογή ήδη ανοιχτή</string>
   <string name="open_here">Άνοιγμα εδώ</string>
@@ -1208,6 +1209,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="agent_max_iterations_summary">Μέγιστες επαναλήψεις πριν ζητηθεί συνέχεια (0 = απεριόριστες)</string>
   <string name="ask_model_before_run_title">Ερώτηση μοντέλου πριν την εκτέλεση</string>
   <string name="ask_model_before_run_summary">Εμφάνιση διαλόγου επιλογής μοντέλου πριν την εκτέλεση εντολής (παραλείπεται όταν η εντολή έχει ρητή παράκαμψη μοντέλου)</string>
+  <string name="auto_hide_agent_log_title">Απόκρυψη πίνακα AI όταν ολοκληρωθεί</string>
+  <string name="auto_hide_agent_log_summary">Αυτόματη απόκρυψη του πίνακα AI όταν μια εργασία ολοκληρωθεί με επιτυχία ή ακυρωθεί. Σε περίπτωση σφάλματος ο πίνακας παραμένει ορατός.</string>
+  <string name="ai_task_completed">Η εργασία AI ολοκληρώθηκε</string>
   <string name="custom_agent_system_prompt_title">Εντολή συστήματος πράκτορα</string>
   <string name="custom_system_prompt_summary">Δεν συνιστάται επεξεργασία εκτός αν γνωρίζετε τι κάνετε</string>
   <string name="custom_text_transform_system_prompt_title">Εντολή συστήματος μετασχηματισμού κειμένου</string>
@@ -1653,4 +1657,64 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="scroll_helper_line_style_thick_solid">Παχιά συνεχής γραμμή</string>
   <string name="prefs_page_buttons_title">Κουμπιά κύλισης σελίδας</string>
   <string name="prefs_page_buttons_summary">Εμφάνιση ορατών κουμπιών κύλισης σελίδας πάνω/κάτω στην οθόνη</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Έγγραφα</string>
+  <string name="document_sync_contents">Εγκατεστημένες Βίβλοι, σχόλια και άλλα έγγραφα</string>
+  <string name="document_sync_category_title">Συγχρονισμός εγγράφων</string>
+  <string name="document_sync_auto_download_title">Αυτόματη λήψη</string>
+  <string name="document_sync_auto_download_summary">Αυτόματη λήψη νέων και ενημερωμένων εγγράφων από το σύννεφο σε αυτή τη συσκευή</string>
+  <string name="document_sync_auto_upload_title">Αυτόματη μεταφόρτωση</string>
+  <string name="document_sync_auto_upload_summary">Αυτόματη μεταφόρτωση των εγγράφων που είναι εγκατεστημένα σε αυτή τη συσκευή στο σύννεφο</string>
+  <string name="document_sync_auto_delete_title">Αυτόματη εφαρμογή αφαιρέσεων</string>
+  <string name="document_sync_auto_delete_summary">Αυτόματη αφαίρεση εγγράφων από αυτή τη συσκευή όταν αφαιρούνται σε άλλη συσκευή</string>
+  <string name="document_sync_wifi_only_title">Συγχρονισμός εγγράφων μόνο μέσω Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Οι αυτόματες μεταφορές εγγράφων περιμένουν σύνδεση χωρίς χρέωση ανά όγκο δεδομένων (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Προβολή και διαχείριση εγγράφων που είναι αποθηκευμένα στο σύννεφο</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Συγχρονισμένα έγγραφα</string>
+  <string name="cloud_doc_status_synced">Συγχρονισμένο</string>
+  <string name="cloud_doc_status_local_only">Μόνο σε αυτή τη συσκευή</string>
+  <string name="cloud_doc_status_cloud_only">Μόνο στο σύννεφο</string>
+  <string name="cloud_doc_status_update">Διαθέσιμη ενημέρωση</string>
+  <string name="cloud_doc_status_blocked">Αποκλεισμένο σε αυτή τη συσκευή</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Όλα</string>
+  <string name="cloud_doc_filter_installed">Εγκατεστημένα</string>
+  <string name="cloud_doc_filter_cloud">Στο σύννεφο</string>
+  <string name="cloud_doc_filter_updates">Ενημερώσεις</string>
+  <string name="cloud_doc_filter_blocked">Αποκλεισμένα</string>
+  <string name="cloud_doc_filter_removed">Αφαιρεμένα</string>
+  <string name="cloud_doc_show_removed">Εμφάνιση αφαιρεμένων εγγράφων</string>
+  <string name="cloud_doc_status_removed">Αφαιρέθηκε από το σύννεφο</string>
+  <string name="cloud_doc_status_still_installed">εξακολουθεί να είναι εγκατεστημένο εδώ</string>
+  <string name="cloud_doc_purge_confirm">Οριστική αφαίρεση του \"%1$s\" από το ιστορικό του σύννεφου; Εάν εξακολουθεί να είναι εγκατεστημένο σε άλλη συσκευή, η συσκευή αυτή ενδέχεται να το μεταφορτώσει ξανά στο σύννεφο κατά τον επόμενο συγχρονισμό της.</string>
+  <string name="cloud_doc_action_download">Λήψη</string>
+  <string name="cloud_doc_action_push">Μεταφόρτωση στο σύννεφο</string>
+  <string name="cloud_doc_action_remove_cloud">Αφαίρεση από το σύννεφο</string>
+  <string name="cloud_doc_action_remove_all_devices">Αφαίρεση από όλες τις συσκευές</string>
+  <string name="cloud_doc_action_block">Να μη συγχρονίζεται σε αυτή τη συσκευή</string>
+  <string name="cloud_doc_action_unblock">Να επιτρέπεται σε αυτή τη συσκευή</string>
+  <string name="cloud_doc_action_restore">Επαναφορά στο σύννεφο</string>
+  <string name="cloud_doc_action_purge">Αφαίρεση από το ιστορικό του σύννεφου</string>
+  <string name="cloud_doc_remove_all_confirm">Αφαίρεση του %1$s από το σύννεφο και από όλες τις συσκευές σας, συμπεριλαμβανομένης αυτής;</string>
+  <string name="cloud_doc_remove_cloud_confirm">Αφαίρεση του %1$s από το σύννεφο; Το αντίγραφο σε αυτή τη συσκευή διατηρείται· οι συσκευές με ενεργό τον συγχρονισμό εγγράφων θα το αφαιρέσουν επίσης.</string>
+  <string name="cloud_doc_sync_now">Συγχρονισμός τώρα</string>
+  <string name="cloud_doc_sync_now_download">Λήψη νέων και ενημερωμένων εγγράφων</string>
+  <string name="cloud_doc_sync_now_upload">Μεταφόρτωση τοπικών εγγράφων στο σύννεφο</string>
+  <string name="cloud_doc_sync_now_delete">Εφαρμογή αφαιρέσεων από άλλες συσκευές</string>
+  <string name="document_sync_signin_required">Συνδεθείτε στον λογαριασμό σύννεφου για να διαχειριστείτε τα συγχρονισμένα έγγραφα.</string>
+  <string name="cloud_doc_summary_upload">Μεταφόρτωση %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Μεταφόρτωση %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Λήψη %1$d</string>
+  <string name="cloud_doc_summary_download_size">Λήψη %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Οι αυτόματες λήψεις θα ξεκινήσουν μέσω Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Λήψη επιλεγμένων (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Όλα τα διαθέσιμα έγγραφα έχουν ήδη ληφθεί.</string>
+  <string name="document_sync_notification_title">Συγχρονισμός εγγράφων</string>
+  <string name="document_sync_downloading">Λήψη του %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Μεταφόρτωση του %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Αφαίρεση του %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Ο συγχρονισμός εγγράφων ξεκίνησε</string>
+  <string name="document_sync_enable_dialog_title">Έναρξη συγχρονισμού εγγράφων;</string>
+  <string name="document_sync_enable_dialog_nothing">Δεν υπάρχουν ακόμη έγγραφα προς μεταφορά. Τα νέα εγκατεστημένα έγγραφα θα συγχρονίζονται αυτόματα.</string>
 </resources>

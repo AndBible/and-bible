@@ -1132,6 +1132,7 @@ Google డ్రైవ్ ని ఉపయోగిస్తున్నప�
   <string name="sqlite_invalid_file">%s: చెల్లని మాడ్యూల్ ఫైల్ లేదా ఫైల్ పేరు</string>
   <string name="sqlite_cant_write">(ఫైల్‌ను ఓవర్‌రైట్ చేయడం) సాధ్యం కాదు</string>
   <string name="install_failed_reason">కింది కారణాల వల్ల మాడ్యూల్‌ని ఇన్‌స్టాల్ చేయడం విఫలమైంది: %s.</string>
+  <string name="no_file_manager">ఫైల్‌ను ఎంచుకోవడానికి ఏ యాప్ కనుగొనబడలేదు. దయచేసి ఒక ఫైల్ మేనేజర్‌ను ఇన్‌స్టాల్ చేసి మళ్లీ ప్రయత్నించండి.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">యాప్ మరెక్కడా తెరవబడింది</string>
   <string name="open_here">ఇక్కడ తెరవండి</string>
@@ -1234,6 +1235,9 @@ Don\'t show this message again
   <string name="agent_max_iterations_summary">కొనసాగించమని అడగడానికి ముందు గరిష్ట ఇటరేషన్లు (0 = అపరిమితం)</string>
   <string name="ask_model_before_run_title">రన్ చేసే ముందు మోడల్ అడగండి</string>
   <string name="ask_model_before_run_summary">ప్రాంప్ట్ అమలు చేసే ముందు మోడల్ ఎంపిక డైలాగ్ చూపించు (ప్రాంప్ట్‌కు స్పష్టమైన మోడల్ ఓవర్‌రైడ్ ఉన్నప్పుడు వదిలివేయబడుతుంది)</string>
+  <string name="auto_hide_agent_log_title">పూర్తయినప్పుడు AI ప్యానెల్‌ను దాచు</string>
+  <string name="auto_hide_agent_log_summary">ఒక పని విజయవంతంగా ముగిసినప్పుడు లేదా రద్దు చేయబడినప్పుడు AI ప్యానెల్‌ను స్వయంచాలకంగా దాచు. లోపం ఏర్పడినప్పుడు ప్యానెల్ కనిపిస్తూనే ఉంటుంది.</string>
+  <string name="ai_task_completed">AI పని పూర్తయింది</string>
   <string name="custom_agent_system_prompt_title">ఏజెంట్ సిస్టమ్ ప్రాంప్ట్</string>
   <string name="custom_system_prompt_summary">మీకు ఏమి చేస్తున్నారో తెలిసే వరకు సవరణ సిఫారసు చేయబడదు</string>
   <string name="custom_text_transform_system_prompt_title">వచన రూపాంతర సిస్టమ్ ప్రాంప్ట్</string>
@@ -1679,4 +1683,64 @@ Don\'t show this message again
   <string name="scroll_helper_line_style_thick_solid">మందమైన ఘన రేఖ</string>
   <string name="prefs_page_buttons_title">పేజీ స్క్రోల్ బటన్లు</string>
   <string name="prefs_page_buttons_summary">స్క్రీన్‌పై కనిపించే పేజీ పైకి/కిందికి బటన్లు చూపించు</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">పత్రాలు</string>
+  <string name="document_sync_contents">ఇన్‌స్టాల్ చేసిన బైబిళ్లు, వ్యాఖ్యానాలు మరియు ఇతర పత్రాలు</string>
+  <string name="document_sync_category_title">పత్రాల సింక్</string>
+  <string name="document_sync_auto_download_title">స్వయంచాలకంగా డవున్‌లోడ్ చేయి</string>
+  <string name="document_sync_auto_download_summary">క్లౌడ్ నుండి ఈ పరికరానికి కొత్త మరియు నవీకరించిన పత్రాలను స్వయంచాలకంగా డవున్‌లోడ్ చేయి</string>
+  <string name="document_sync_auto_upload_title">స్వయంచాలకంగా అప్‌లోడ్ చేయి</string>
+  <string name="document_sync_auto_upload_summary">ఈ పరికరంలో ఇన్‌స్టాల్ చేసిన పత్రాలను స్వయంచాలకంగా క్లౌడ్‌కు అప్‌లోడ్ చేయి</string>
+  <string name="document_sync_auto_delete_title">తొలగింపులను స్వయంచాలకంగా వర్తింపజేయి</string>
+  <string name="document_sync_auto_delete_summary">పత్రాలు మరో పరికరంలో తొలగించబడినప్పుడు వాటిని ఈ పరికరం నుండి స్వయంచాలకంగా తొలగించు</string>
+  <string name="document_sync_wifi_only_title">Wi-Fiలో మాత్రమే పత్రాలను సింక్ చేయి</string>
+  <string name="document_sync_wifi_only_summary">స్వయంచాలక పత్రాల బదిలీలు మీటర్ లేని (Wi-Fi) కనెక్షన్ కోసం వేచి ఉంటాయి</string>
+  <string name="document_sync_manage_summary">క్లౌడ్‌లో నిల్వ చేసిన పత్రాలను చూడండి మరియు నిర్వహించండి</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">సింక్ చేసిన పత్రాలు</string>
+  <string name="cloud_doc_status_synced">సింక్ చేయబడింది</string>
+  <string name="cloud_doc_status_local_only">ఈ పరికరంలో మాత్రమే</string>
+  <string name="cloud_doc_status_cloud_only">క్లౌడ్‌లో మాత్రమే</string>
+  <string name="cloud_doc_status_update">నవీకరణ అందుబాటులో ఉంది</string>
+  <string name="cloud_doc_status_blocked">ఈ పరికరంలో నిరోధించబడింది</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">అన్నీ</string>
+  <string name="cloud_doc_filter_installed">ఇన్‌స్టాల్ చేయబడింది</string>
+  <string name="cloud_doc_filter_cloud">క్లౌడ్‌లో</string>
+  <string name="cloud_doc_filter_updates">నవీకరణలు</string>
+  <string name="cloud_doc_filter_blocked">నిరోధించబడింది</string>
+  <string name="cloud_doc_filter_removed">తొలగించబడింది</string>
+  <string name="cloud_doc_show_removed">తొలగించిన పత్రాలను చూపు</string>
+  <string name="cloud_doc_status_removed">క్లౌడ్ నుండి తొలగించబడింది</string>
+  <string name="cloud_doc_status_still_installed">ఇక్కడ ఇంకా ఇన్‌స్టాల్ చేయబడింది</string>
+  <string name="cloud_doc_purge_confirm">క్లౌడ్ చరిత్ర నుండి \"%1$s\"ని శాశ్వతంగా తొలగించాలా? ఇది మరో పరికరంలో ఇంకా ఇన్‌స్టాల్ చేయబడి ఉంటే, ఆ పరికరం తదుపరి సింక్‌లో దాన్ని తిరిగి క్లౌడ్‌కు అప్‌లోడ్ చేయవచ్చు.</string>
+  <string name="cloud_doc_action_download">డవున్‌లోడ్</string>
+  <string name="cloud_doc_action_push">క్లౌడ్‌కు అప్‌లోడ్ చేయి</string>
+  <string name="cloud_doc_action_remove_cloud">క్లౌడ్ నుండి తొలగించు</string>
+  <string name="cloud_doc_action_remove_all_devices">అన్ని పరికరాల నుండి తొలగించు</string>
+  <string name="cloud_doc_action_block">ఈ పరికరానికి సింక్ చేయవద్దు</string>
+  <string name="cloud_doc_action_unblock">ఈ పరికరంలో అనుమతించు</string>
+  <string name="cloud_doc_action_restore">క్లౌడ్‌కు పునరుద్ధరించు</string>
+  <string name="cloud_doc_action_purge">క్లౌడ్ చరిత్ర నుండి తొలగించు</string>
+  <string name="cloud_doc_remove_all_confirm">%1$sని క్లౌడ్ నుండి మరియు ఈ పరికరంతో సహా మీ అన్ని పరికరాల నుండి తొలగించాలా?</string>
+  <string name="cloud_doc_remove_cloud_confirm">%1$sని క్లౌడ్ నుండి తొలగించాలా? ఈ పరికరంలోని కాపీ ఉంచబడుతుంది; పత్రాల సింక్ ఆన్‌లో ఉన్న పరికరాలు కూడా దాన్ని తొలగిస్తాయి.</string>
+  <string name="cloud_doc_sync_now">ఇప్పుడు సింక్ చేయి</string>
+  <string name="cloud_doc_sync_now_download">కొత్త మరియు నవీకరించిన పత్రాలను డవున్‌లోడ్ చేయి</string>
+  <string name="cloud_doc_sync_now_upload">స్థానిక పత్రాలను క్లౌడ్‌కు అప్‌లోడ్ చేయి</string>
+  <string name="cloud_doc_sync_now_delete">ఇతర పరికరాల నుండి తొలగింపులను వర్తింపజేయి</string>
+  <string name="document_sync_signin_required">సింక్ చేసిన పత్రాలను నిర్వహించడానికి మీ క్లౌడ్ ఖాతాలోకి సైన్ ఇన్ చేయండి.</string>
+  <string name="cloud_doc_summary_upload">అప్‌లోడ్ %1$d</string>
+  <string name="cloud_doc_summary_upload_size">అప్‌లోడ్ %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">డవున్‌లోడ్ %1$d</string>
+  <string name="cloud_doc_summary_download_size">డవున్‌లోడ్ %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">స్వయంచాలక డవున్‌లోడ్‌లు Wi-Fiలో ప్రారంభమవుతాయి.</string>
+  <string name="cloud_doc_bulk_download">ఎంచుకున్నవి డవున్‌లోడ్ చేయి (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">అందుబాటులో ఉన్న అన్ని పత్రాలు ఇప్పటికే డవున్‌లోడ్ చేయబడ్డాయి.</string>
+  <string name="document_sync_notification_title">పత్రాలను సింక్ చేస్తోంది</string>
+  <string name="document_sync_downloading">%1$sని డవున్‌లోడ్ చేస్తోంది (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">%1$sని అప్‌లోడ్ చేస్తోంది (%2$d/%3$d)</string>
+  <string name="document_sync_removing">%1$sని తొలగిస్తోంది (%2$d/%3$d)</string>
+  <string name="document_sync_started">పత్రాల సింక్ ప్రారంభమైంది</string>
+  <string name="document_sync_enable_dialog_title">పత్రాలను సింక్ చేయడం ప్రారంభించాలా?</string>
+  <string name="document_sync_enable_dialog_nothing">ఇంకా బదిలీ చేయడానికి పత్రాలు లేవు. కొత్తగా ఇన్‌స్టాల్ చేసిన పత్రాలు స్వయంచాలకంగా సింక్ అవుతాయి.</string>
 </resources>

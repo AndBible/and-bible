@@ -1090,6 +1090,7 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="sqlite_invalid_file">Ungültige Moduldatei oder Dateiname: %s</string>
   <string name="sqlite_cant_write">Datei konnte nicht überschrieben werden</string>
   <string name="install_failed_reason">Die Modulinstallation ist aus folgendem Grund fehlgeschlagen: %s</string>
+  <string name="no_file_manager">Es wurde keine App zum Auswählen einer Datei gefunden. Bitte installiere einen Dateimanager und versuche es erneut.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Die Anwendung ist woanders geöffnet</string>
   <string name="open_here">Hier öffnen</string>
@@ -1191,6 +1192,9 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="agent_max_iterations_summary">Maximale Iterationen vor Nachfrage zum Fortfahren (0 = unbegrenzt)</string>
   <string name="ask_model_before_run_title">Vor der Ausführung nach Modell fragen</string>
   <string name="ask_model_before_run_summary">Vor der Ausführung eines Prompts einen Modellauswahldialog anzeigen (wird übersprungen, wenn der Prompt eine explizite Modellüberschreibung hat)</string>
+  <string name="auto_hide_agent_log_title">KI-Bereich nach Abschluss ausblenden</string>
+  <string name="auto_hide_agent_log_summary">Den KI-Bereich automatisch ausblenden, wenn eine Aufgabe erfolgreich abgeschlossen oder abgebrochen wird. Bei einem Fehler bleibt der Bereich sichtbar.</string>
+  <string name="ai_task_completed">KI-Aufgabe abgeschlossen</string>
   <string name="custom_agent_system_prompt_title">Agenten-Systemprompt</string>
   <string name="custom_system_prompt_summary">Bearbeitung nicht empfohlen, sofern du weißt, was du tust</string>
   <string name="custom_text_transform_system_prompt_title">Systemprompt für Texttransformation</string>
@@ -1636,4 +1640,64 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="scroll_helper_line_style_thick_solid">Dicke durchgezogene Linie</string>
   <string name="prefs_page_buttons_title">Seitenscrolling-Schaltflächen</string>
   <string name="prefs_page_buttons_summary">Sichtbare Seite-hoch/runter-Schaltflächen auf dem Bildschirm anzeigen</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumente</string>
+  <string name="document_sync_contents">Installierte Bibeln, Kommentare und andere Dokumente</string>
+  <string name="document_sync_category_title">Dokumentsynchronisierung</string>
+  <string name="document_sync_auto_download_title">Automatisch herunterladen</string>
+  <string name="document_sync_auto_download_summary">Neue und aktualisierte Dokumente automatisch aus der Cloud auf dieses Gerät herunterladen</string>
+  <string name="document_sync_auto_upload_title">Automatisch hochladen</string>
+  <string name="document_sync_auto_upload_summary">Auf diesem Gerät installierte Dokumente automatisch in die Cloud hochladen</string>
+  <string name="document_sync_auto_delete_title">Entfernungen automatisch anwenden</string>
+  <string name="document_sync_auto_delete_summary">Dokumente automatisch von diesem Gerät entfernen, wenn sie auf einem anderen Gerät entfernt werden</string>
+  <string name="document_sync_wifi_only_title">Dokumente nur über WLAN synchronisieren</string>
+  <string name="document_sync_wifi_only_summary">Automatische Dokumentübertragungen warten auf eine nicht getaktete (WLAN-)Verbindung</string>
+  <string name="document_sync_manage_summary">In der Cloud gespeicherte Dokumente anzeigen und verwalten</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Synchronisierte Dokumente</string>
+  <string name="cloud_doc_status_synced">Synchronisiert</string>
+  <string name="cloud_doc_status_local_only">Nur auf diesem Gerät</string>
+  <string name="cloud_doc_status_cloud_only">Nur in der Cloud</string>
+  <string name="cloud_doc_status_update">Update verfügbar</string>
+  <string name="cloud_doc_status_blocked">Auf diesem Gerät blockiert</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Alle</string>
+  <string name="cloud_doc_filter_installed">Installiert</string>
+  <string name="cloud_doc_filter_cloud">In der Cloud</string>
+  <string name="cloud_doc_filter_updates">Updates</string>
+  <string name="cloud_doc_filter_blocked">Blockiert</string>
+  <string name="cloud_doc_filter_removed">Entfernt</string>
+  <string name="cloud_doc_show_removed">Entfernte Dokumente anzeigen</string>
+  <string name="cloud_doc_status_removed">Aus der Cloud entfernt</string>
+  <string name="cloud_doc_status_still_installed">hier noch installiert</string>
+  <string name="cloud_doc_purge_confirm">\"%1$s\" dauerhaft aus dem Cloud-Verlauf entfernen? Wenn es auf einem anderen Gerät noch installiert ist, kann dieses Gerät es bei der nächsten Synchronisierung wieder in die Cloud hochladen.</string>
+  <string name="cloud_doc_action_download">Herunterladen</string>
+  <string name="cloud_doc_action_push">In die Cloud hochladen</string>
+  <string name="cloud_doc_action_remove_cloud">Aus der Cloud entfernen</string>
+  <string name="cloud_doc_action_remove_all_devices">Von allen Geräten entfernen</string>
+  <string name="cloud_doc_action_block">Nicht auf dieses Gerät synchronisieren</string>
+  <string name="cloud_doc_action_unblock">Auf diesem Gerät erlauben</string>
+  <string name="cloud_doc_action_restore">In die Cloud wiederherstellen</string>
+  <string name="cloud_doc_action_purge">Aus dem Cloud-Verlauf entfernen</string>
+  <string name="cloud_doc_remove_all_confirm">%1$s aus der Cloud und von allen deinen Geräten einschließlich diesem entfernen?</string>
+  <string name="cloud_doc_remove_cloud_confirm">%1$s aus der Cloud entfernen? Die Kopie auf diesem Gerät bleibt erhalten; Geräte mit aktivierter Dokumentsynchronisierung entfernen sie ebenfalls.</string>
+  <string name="cloud_doc_sync_now">Jetzt synchronisieren</string>
+  <string name="cloud_doc_sync_now_download">Neue und aktualisierte Dokumente herunterladen</string>
+  <string name="cloud_doc_sync_now_upload">Lokale Dokumente in die Cloud hochladen</string>
+  <string name="cloud_doc_sync_now_delete">Entfernungen von anderen Geräten anwenden</string>
+  <string name="document_sync_signin_required">Melde dich bei deinem Cloud-Konto an, um synchronisierte Dokumente zu verwalten.</string>
+  <string name="cloud_doc_summary_upload">%1$d hochladen</string>
+  <string name="cloud_doc_summary_upload_size">%1$d hochladen (%2$s)</string>
+  <string name="cloud_doc_summary_download">%1$d herunterladen</string>
+  <string name="cloud_doc_summary_download_size">%1$d herunterladen (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Automatische Downloads starten bei WLAN.</string>
+  <string name="cloud_doc_bulk_download">Ausgewählte herunterladen (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Alle verfügbaren Dokumente sind bereits heruntergeladen.</string>
+  <string name="document_sync_notification_title">Dokumente werden synchronisiert</string>
+  <string name="document_sync_downloading">%1$s wird heruntergeladen (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">%1$s wird hochgeladen (%2$d/%3$d)</string>
+  <string name="document_sync_removing">%1$s wird entfernt (%2$d/%3$d)</string>
+  <string name="document_sync_started">Dokumentsynchronisierung gestartet</string>
+  <string name="document_sync_enable_dialog_title">Dokumentsynchronisierung starten?</string>
+  <string name="document_sync_enable_dialog_nothing">Noch keine Dokumente zu übertragen. Neu installierte Dokumente werden automatisch synchronisiert.</string>
 </resources>

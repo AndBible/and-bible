@@ -1084,6 +1084,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="sqlite_invalid_file">Vigane mooduli või faili nimi: %s</string>
   <string name="sqlite_cant_write">Faili ei saa (üle)kirjutada</string>
   <string name="install_failed_reason">Mooduli paigaldus ebaõnnestus: %s.</string>
+  <string name="no_file_manager">Faili valimiseks ei leitud ühtegi rakendust. Palun paigaldage failihaldur ja proovige uuesti.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Rakendus avatud mujal</string>
   <string name="open_here">Ava siin</string>
@@ -1186,6 +1187,9 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="agent_max_iterations_summary">Maksimaalsed iteratsioonid enne jätkamise küsimist (0 = piiramatu)</string>
   <string name="ask_model_before_run_title">Küsi mudel enne käivitamist</string>
   <string name="ask_model_before_run_summary">Näita mudelivaliku dialoogi enne käsu täitmist (jäetakse vahele, kui käsul on selge mudeli alistamine)</string>
+  <string name="auto_hide_agent_log_title">Peida AI-paneel pärast lõpetamist</string>
+  <string name="auto_hide_agent_log_summary">Peida AI-paneel automaatselt, kui ülesanne lõpeb edukalt või tühistatakse. Vea korral jääb paneel nähtavale.</string>
+  <string name="ai_task_completed">AI-ülesanne lõpetatud</string>
   <string name="custom_agent_system_prompt_title">Agendi süsteemi käsk</string>
   <string name="custom_system_prompt_summary">Muutmine pole soovitatav, kui sa ei tea, mida teed</string>
   <string name="custom_text_transform_system_prompt_title">Teksti teisendamise süsteemi käsk</string>
@@ -1631,4 +1635,64 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="scroll_helper_line_style_thick_solid">Paks pidevjoon</string>
   <string name="prefs_page_buttons_title">Lehekülje kerimise nupud</string>
   <string name="prefs_page_buttons_summary">Näita ekraanil nähtavaid lehekülje üles/alla kerimise nuppe</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumendid</string>
+  <string name="document_sync_contents">Paigaldatud piiblid, kommentaarid ja muud dokumendid</string>
+  <string name="document_sync_category_title">Dokumentide sünkroonimine</string>
+  <string name="document_sync_auto_download_title">Lae alla automaatselt</string>
+  <string name="document_sync_auto_download_summary">Lae uued ja uuendatud dokumendid pilvest automaatselt sellesse seadmesse</string>
+  <string name="document_sync_auto_upload_title">Lae üles automaatselt</string>
+  <string name="document_sync_auto_upload_summary">Lae sellesse seadmesse paigaldatud dokumendid automaatselt pilve</string>
+  <string name="document_sync_auto_delete_title">Rakenda eemaldamised automaatselt</string>
+  <string name="document_sync_auto_delete_summary">Eemalda dokumendid sellest seadmest automaatselt, kui need eemaldatakse teises seadmes</string>
+  <string name="document_sync_wifi_only_title">Sünkrooni dokumente ainult Wi-Fi kaudu</string>
+  <string name="document_sync_wifi_only_summary">Automaatsed dokumentide ülekanded ootavad piiramatu (Wi-Fi) ühenduse järele</string>
+  <string name="document_sync_manage_summary">Vaata ja halda pilves talletatud dokumente</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Sünkroonitud dokumendid</string>
+  <string name="cloud_doc_status_synced">Sünkroonitud</string>
+  <string name="cloud_doc_status_local_only">Ainult selles seadmes</string>
+  <string name="cloud_doc_status_cloud_only">Ainult pilves</string>
+  <string name="cloud_doc_status_update">Uuendus saadaval</string>
+  <string name="cloud_doc_status_blocked">Selles seadmes blokeeritud</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Kõik</string>
+  <string name="cloud_doc_filter_installed">Paigaldatud</string>
+  <string name="cloud_doc_filter_cloud">Pilves</string>
+  <string name="cloud_doc_filter_updates">Uuendused</string>
+  <string name="cloud_doc_filter_blocked">Blokeeritud</string>
+  <string name="cloud_doc_filter_removed">Eemaldatud</string>
+  <string name="cloud_doc_show_removed">Näita eemaldatud dokumente</string>
+  <string name="cloud_doc_status_removed">Pilvest eemaldatud</string>
+  <string name="cloud_doc_status_still_installed">on siin endiselt paigaldatud</string>
+  <string name="cloud_doc_purge_confirm">Kas eemaldada \"%1$s\" pilve ajaloost jäädavalt? Kui see on endiselt paigaldatud teises seadmes, võib see seade selle järgmisel sünkroonimisel pilve tagasi laadida.</string>
+  <string name="cloud_doc_action_download">Lae alla</string>
+  <string name="cloud_doc_action_push">Lae pilve</string>
+  <string name="cloud_doc_action_remove_cloud">Eemalda pilvest</string>
+  <string name="cloud_doc_action_remove_all_devices">Eemalda kõigist seadmetest</string>
+  <string name="cloud_doc_action_block">Ära sünkrooni sellesse seadmesse</string>
+  <string name="cloud_doc_action_unblock">Luba selles seadmes</string>
+  <string name="cloud_doc_action_restore">Taasta pilve</string>
+  <string name="cloud_doc_action_purge">Eemalda pilve ajaloost</string>
+  <string name="cloud_doc_remove_all_confirm">Kas eemaldada %1$s pilvest ja kõigist teie seadmetest, kaasa arvatud sellest?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Kas eemaldada %1$s pilvest? Selles seadmes olev koopia säilitatakse; sisselülitatud dokumentide sünkroonimisega seadmed eemaldavad selle samuti.</string>
+  <string name="cloud_doc_sync_now">Sünkrooni kohe</string>
+  <string name="cloud_doc_sync_now_download">Lae alla uued ja uuendatud dokumendid</string>
+  <string name="cloud_doc_sync_now_upload">Lae kohalikud dokumendid pilve</string>
+  <string name="cloud_doc_sync_now_delete">Rakenda teiste seadmete eemaldamised</string>
+  <string name="document_sync_signin_required">Sünkroonitud dokumentide haldamiseks logige sisse oma pilvekontole.</string>
+  <string name="cloud_doc_summary_upload">Lae üles %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Lae üles %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Lae alla %1$d</string>
+  <string name="cloud_doc_summary_download_size">Lae alla %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Automaatsed allalaadimised algavad Wi-Fi võrgus.</string>
+  <string name="cloud_doc_bulk_download">Lae alla valitud (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Kõik saadaolevad dokumendid on juba alla laaditud.</string>
+  <string name="document_sync_notification_title">Dokumentide sünkroonimine</string>
+  <string name="document_sync_downloading">Allalaadimine: %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Üleslaadimine: %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Eemaldamine: %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Dokumentide sünkroonimine alustatud</string>
+  <string name="document_sync_enable_dialog_title">Kas alustada dokumentide sünkroonimist?</string>
+  <string name="document_sync_enable_dialog_nothing">Ülekandmiseks pole veel dokumente. Äsja paigaldatud dokumendid sünkroonitakse automaatselt.</string>
 </resources>

@@ -1078,6 +1078,7 @@ En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="sqlite_invalid_file">Malĝusta dosiero de modulo aŭ dosiernomo: %s</string>
   <string name="sqlite_cant_write">Ne povas (super)skribi la dosieron</string>
   <string name="install_failed_reason">Instalado de modulo malsukcesis pro la jena kialo: %s.</string>
+  <string name="no_file_manager">Neniu aplikaĵo troviĝis por elekti dosieron. Bonvolu instali dosieradministrilon kaj reprovi.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikaĵo malfermita ie alie</string>
   <string name="open_here">Malfermi tie ĉi</string>
@@ -1179,6 +1180,9 @@ Ne montri tion ĉi denove</string>
   <string name="agent_max_iterations_summary">Maksimuma nombro da ripetoj (iteracioj) antaŭ ol montri demandon ĉu pluigi (0 = senlima)</string>
   <string name="ask_model_before_run_title">Demandi pri modelo antaŭ ol plenumi</string>
   <string name="ask_model_before_run_summary">Montri fenestron kun elekto de modelo antaŭ ol plenumi demandon al artefarita intelekto (preterpasita, kiam la demando precize difinas modelon)</string>
+  <string name="auto_hide_agent_log_title">Kaŝi AI-panelon post fino</string>
+  <string name="auto_hide_agent_log_summary">Aŭtomate kaŝi la AI-panelon kiam tasko sukcese finiĝas aŭ estas nuligita. Ĉe eraro la panelo restas videbla.</string>
+  <string name="ai_task_completed">AI-tasko finita</string>
   <string name="custom_agent_system_prompt_title">Sistema demando de agento</string>
   <string name="custom_system_prompt_summary">Redaktado ne rekomendata krom se vi scias kion vi faras</string>
   <string name="custom_text_transform_system_prompt_title">Sistema demando por transformi tekston</string>
@@ -1624,4 +1628,64 @@ Ne montri tion ĉi denove</string>
   <string name="scroll_helper_line_style_thick_solid">Dika kontinua linio</string>
   <string name="prefs_page_buttons_title">Paĝa rulumbuton</string>
   <string name="prefs_page_buttons_summary">Montri videblajn paĝo-supren/malsupren butonojn sur ekrano</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumentoj</string>
+  <string name="document_sync_contents">Instalitaj biblioj, komentaroj kaj aliaj dokumentoj</string>
+  <string name="document_sync_category_title">Dokumenta sinkronigo</string>
+  <string name="document_sync_auto_download_title">Elŝuti aŭtomate</string>
+  <string name="document_sync_auto_download_summary">Aŭtomate elŝuti novajn kaj ĝisdatigitajn dokumentojn el la nubo al ĉi tiu aparato</string>
+  <string name="document_sync_auto_upload_title">Alŝuti aŭtomate</string>
+  <string name="document_sync_auto_upload_summary">Aŭtomate alŝuti dokumentojn instalitajn sur ĉi tiu aparato al la nubo</string>
+  <string name="document_sync_auto_delete_title">Apliki forigojn aŭtomate</string>
+  <string name="document_sync_auto_delete_summary">Aŭtomate forigi dokumentojn de ĉi tiu aparato kiam ili estas forigitaj sur alia aparato</string>
+  <string name="document_sync_wifi_only_title">Sinkronigi dokumentojn nur per Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Aŭtomataj dokumentaj transmetoj atendas senmezuran (Wi-Fi) konekton</string>
+  <string name="document_sync_manage_summary">Vidi kaj administri dokumentojn konservitajn en la nubo</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Sinkronigitaj dokumentoj</string>
+  <string name="cloud_doc_status_synced">Sinkronigita</string>
+  <string name="cloud_doc_status_local_only">Nur sur ĉi tiu aparato</string>
+  <string name="cloud_doc_status_cloud_only">Nur en la nubo</string>
+  <string name="cloud_doc_status_update">Ĝisdatigo disponebla</string>
+  <string name="cloud_doc_status_blocked">Blokita sur ĉi tiu aparato</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Ĉiuj</string>
+  <string name="cloud_doc_filter_installed">Instalitaj</string>
+  <string name="cloud_doc_filter_cloud">En la nubo</string>
+  <string name="cloud_doc_filter_updates">Ĝisdatigoj</string>
+  <string name="cloud_doc_filter_blocked">Blokitaj</string>
+  <string name="cloud_doc_filter_removed">Forigitaj</string>
+  <string name="cloud_doc_show_removed">Montri forigitajn dokumentojn</string>
+  <string name="cloud_doc_status_removed">Forigita el la nubo</string>
+  <string name="cloud_doc_status_still_installed">ankoraŭ instalita ĉi tie</string>
+  <string name="cloud_doc_purge_confirm">Ĉu definitive forigi \"%1$s\" el la nuba historio? Se ĝi ankoraŭ estas instalita sur alia aparato, tiu aparato povus realŝuti ĝin al la nubo ĉe sia sekva sinkronigo.</string>
+  <string name="cloud_doc_action_download">Elŝuti</string>
+  <string name="cloud_doc_action_push">Alŝuti al nubo</string>
+  <string name="cloud_doc_action_remove_cloud">Forigi el la nubo</string>
+  <string name="cloud_doc_action_remove_all_devices">Forigi de ĉiuj aparatoj</string>
+  <string name="cloud_doc_action_block">Ne sinkronigi al ĉi tiu aparato</string>
+  <string name="cloud_doc_action_unblock">Permesi sur ĉi tiu aparato</string>
+  <string name="cloud_doc_action_restore">Restarigi al la nubo</string>
+  <string name="cloud_doc_action_purge">Forigi el la nuba historio</string>
+  <string name="cloud_doc_remove_all_confirm">Ĉu forigi %1$s el la nubo kaj de ĉiuj viaj aparatoj, inkluzive de ĉi tiu?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Ĉu forigi %1$s el la nubo? La kopio sur ĉi tiu aparato konserviĝas; aparatoj kun ŝaltita dokumenta sinkronigo ankaŭ forigos ĝin.</string>
+  <string name="cloud_doc_sync_now">Sinkronigi nun</string>
+  <string name="cloud_doc_sync_now_download">Elŝuti novajn kaj ĝisdatigitajn dokumentojn</string>
+  <string name="cloud_doc_sync_now_upload">Alŝuti lokajn dokumentojn al la nubo</string>
+  <string name="cloud_doc_sync_now_delete">Apliki forigojn de aliaj aparatoj</string>
+  <string name="document_sync_signin_required">Ensalutu al via nuba konto por administri sinkronigitajn dokumentojn.</string>
+  <string name="cloud_doc_summary_upload">Alŝuti %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Alŝuti %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Elŝuti %1$d</string>
+  <string name="cloud_doc_summary_download_size">Elŝuti %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Aŭtomataj elŝutoj komenciĝos per Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Elŝuti elektitajn (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Ĉiuj disponeblaj dokumentoj jam estas elŝutitaj.</string>
+  <string name="document_sync_notification_title">Sinkronigado de dokumentoj</string>
+  <string name="document_sync_downloading">Elŝutado de %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Alŝutado de %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Forigado de %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Dokumenta sinkronigo komenciĝis</string>
+  <string name="document_sync_enable_dialog_title">Ĉu komenci sinkronigi dokumentojn?</string>
+  <string name="document_sync_enable_dialog_nothing">Ankoraŭ neniuj dokumentoj por transmeti. Nove instalitaj dokumentoj sinkroniĝos aŭtomate.</string>
 </resources>

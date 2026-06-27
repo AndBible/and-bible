@@ -1079,6 +1079,7 @@
   <string name="sqlite_invalid_file">קובץ מודול או שם קובץ לא תקין: %s</string>
   <string name="sqlite_cant_write">לא ניתן לשמור את הקובץ</string>
   <string name="install_failed_reason">התקנת המודול נכשלה מהסיבה הבאה: %s.</string>
+  <string name="no_file_manager">לא נמצא יישום לבחירת קובץ. נא להתקין מנהל קבצים ולנסות שוב.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">היישום נפתח במקום אחר</string>
   <string name="open_here">פתח כאן</string>
@@ -1181,6 +1182,9 @@
   <string name="agent_max_iterations_summary">מקסימום איטרציות לפני בקשה להמשך (0 = ללא הגבלה)</string>
   <string name="ask_model_before_run_title">שאל מודל לפני הרצה</string>
   <string name="ask_model_before_run_summary">הצג תיבת בחירת מודל לפני הפעלת הנחיה (מדולג כאשר להנחיה יש עקיפת מודל מפורשת)</string>
+  <string name="auto_hide_agent_log_title">הסתרת חלונית הבינה המלאכותית בסיום</string>
+  <string name="auto_hide_agent_log_summary">הסתרה אוטומטית של חלונית הבינה המלאכותית כאשר משימה מסתיימת בהצלחה או מבוטלת. במקרה של שגיאה החלונית נשארת גלויה.</string>
+  <string name="ai_task_completed">משימת הבינה המלאכותית הושלמה</string>
   <string name="custom_agent_system_prompt_title">הנחיית מערכת לסוכן</string>
   <string name="custom_system_prompt_summary">עריכה לא מומלצת אלא אם יודע מה עושה</string>
   <string name="custom_text_transform_system_prompt_title">הנחיית מערכת להמרת טקסט</string>
@@ -1626,4 +1630,64 @@
   <string name="scroll_helper_line_style_thick_solid">קו רציף עבה</string>
   <string name="prefs_page_buttons_title">כפתורי גלילת עמוד</string>
   <string name="prefs_page_buttons_summary">הצג כפתורי עמוד למעלה/למטה גלויים על המסך</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">מסמכים</string>
+  <string name="document_sync_contents">תנ\"כים, פרשנויות ומסמכים אחרים מותקנים</string>
+  <string name="document_sync_category_title">סנכרון מסמכים</string>
+  <string name="document_sync_auto_download_title">הורדה אוטומטית</string>
+  <string name="document_sync_auto_download_summary">הורדה אוטומטית של מסמכים חדשים ומעודכנים מהענן אל מכשיר זה</string>
+  <string name="document_sync_auto_upload_title">העלאה אוטומטית</string>
+  <string name="document_sync_auto_upload_summary">העלאה אוטומטית של מסמכים המותקנים במכשיר זה אל הענן</string>
+  <string name="document_sync_auto_delete_title">החלת הסרות אוטומטית</string>
+  <string name="document_sync_auto_delete_summary">הסרה אוטומטית של מסמכים ממכשיר זה כאשר הם מוסרים במכשיר אחר</string>
+  <string name="document_sync_wifi_only_title">סנכרון מסמכים ברשת Wi-Fi בלבד</string>
+  <string name="document_sync_wifi_only_summary">העברות מסמכים אוטומטיות ימתינו לחיבור ללא חיוב לפי נפח (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">הצגה וניהול של מסמכים המאוחסנים בענן</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">מסמכים מסונכרנים</string>
+  <string name="cloud_doc_status_synced">מסונכרן</string>
+  <string name="cloud_doc_status_local_only">במכשיר זה בלבד</string>
+  <string name="cloud_doc_status_cloud_only">בענן בלבד</string>
+  <string name="cloud_doc_status_update">קיים עדכון</string>
+  <string name="cloud_doc_status_blocked">חסום במכשיר זה</string>
+  <string name="cloud_doc_version_prefix">גרסה %1$s</string>
+  <string name="cloud_doc_filter_all">הכל</string>
+  <string name="cloud_doc_filter_installed">מותקנים</string>
+  <string name="cloud_doc_filter_cloud">בענן</string>
+  <string name="cloud_doc_filter_updates">עדכונים</string>
+  <string name="cloud_doc_filter_blocked">חסומים</string>
+  <string name="cloud_doc_filter_removed">הוסרו</string>
+  <string name="cloud_doc_show_removed">הצגת מסמכים שהוסרו</string>
+  <string name="cloud_doc_status_removed">הוסר מהענן</string>
+  <string name="cloud_doc_status_still_installed">עדיין מותקן כאן</string>
+  <string name="cloud_doc_purge_confirm">להסיר לצמיתות את \"%1$s\" מהיסטוריית הענן? אם הוא עדיין מותקן במכשיר אחר, מכשיר זה עשוי להעלות אותו חזרה לענן בסנכרון הבא שלו.</string>
+  <string name="cloud_doc_action_download">הורדה</string>
+  <string name="cloud_doc_action_push">העלאה לענן</string>
+  <string name="cloud_doc_action_remove_cloud">הסרה מהענן</string>
+  <string name="cloud_doc_action_remove_all_devices">הסרה מכל המכשירים</string>
+  <string name="cloud_doc_action_block">לא לסנכרן למכשיר זה</string>
+  <string name="cloud_doc_action_unblock">לאפשר במכשיר זה</string>
+  <string name="cloud_doc_action_restore">שחזור לענן</string>
+  <string name="cloud_doc_action_purge">הסרה מהיסטוריית הענן</string>
+  <string name="cloud_doc_remove_all_confirm">להסיר את %1$s מהענן ומכל המכשירים שלך, כולל מכשיר זה?</string>
+  <string name="cloud_doc_remove_cloud_confirm">להסיר את %1$s מהענן? העותק במכשיר זה יישמר; מכשירים שבהם סנכרון המסמכים מופעל יסירו אותו גם הם.</string>
+  <string name="cloud_doc_sync_now">סנכרון כעת</string>
+  <string name="cloud_doc_sync_now_download">הורדת מסמכים חדשים ומעודכנים</string>
+  <string name="cloud_doc_sync_now_upload">העלאת מסמכים מקומיים אל הענן</string>
+  <string name="cloud_doc_sync_now_delete">החלת הסרות ממכשירים אחרים</string>
+  <string name="document_sync_signin_required">יש להתחבר לחשבון הענן שלך כדי לנהל מסמכים מסונכרנים.</string>
+  <string name="cloud_doc_summary_upload">העלאה %1$d</string>
+  <string name="cloud_doc_summary_upload_size">העלאה %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">הורדה %1$d</string>
+  <string name="cloud_doc_summary_download_size">הורדה %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">הורדות אוטומטיות יתחילו ברשת Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">הורדת הנבחרים (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">כל המסמכים הזמינים כבר הורדו.</string>
+  <string name="document_sync_notification_title">מסנכרן מסמכים</string>
+  <string name="document_sync_downloading">מוריד את %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">מעלה את %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">מסיר את %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">סנכרון המסמכים החל</string>
+  <string name="document_sync_enable_dialog_title">להתחיל סנכרון מסמכים?</string>
+  <string name="document_sync_enable_dialog_nothing">אין עדיין מסמכים להעברה. מסמכים שיותקנו יסונכרנו אוטומטית.</string>
 </resources>

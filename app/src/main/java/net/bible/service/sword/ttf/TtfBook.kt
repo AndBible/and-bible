@@ -54,6 +54,13 @@ val Book.ttfFile: File get() {
     return File(File(SharedConstants.modulesDir, "ttf"), fileName)
 }
 
+/**
+ * A TTF font module is identified solely by the synthesized `AndBibleProvidesFont` property
+ * (its metadata is byte-array-constructed, so it has no on-disk `.conf`). Used by backup to
+ * package the underlying `.ttf` file instead of falling into the generic SWORD branch.
+ */
+val Book.isManuallyInstalledTtf get() = bookMetaData.getProperty("AndBibleProvidesFont") != null
+
 fun addTtfBook(file: File) {
     if (!(file.canRead() && file.isFile && file.extension.lowercase() == "ttf")) return
     

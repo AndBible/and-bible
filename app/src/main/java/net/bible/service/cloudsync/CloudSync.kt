@@ -35,6 +35,9 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
+import net.bible.service.cloudsync.documents.DocumentSync
+import net.bible.service.cloudsync.documents.DocumentSyncService
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
@@ -100,6 +103,17 @@ object CloudSync {
 
     val signedIn get() = _adapter != null && adapter.signedIn
 
+    internal val cloudAdapter: CloudAdapter? get() = _adapter
+
+    const val DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX = "documents"
+
+    suspend fun documentsSyncFolderId(): String? {
+        val adapter = _adapter ?: return null
+        val name = "${app.applicationInfo.packageName}-sync-$DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX"
+        val existing = adapter.listFiles(name = name).firstOrNull()
+        return existing?.id ?: adapter.createNewFolder(name).id
+    }
+
     private val signInMutex = Mutex()
     suspend fun signIn(activity: ActivityBase): Boolean? {
         if(signInMutex.isLocked) {
@@ -125,6 +139,11 @@ object CloudSync {
     suspend fun signOut() {
         _adapter?.signOut()
         _adapter = null
+        // Stop any in-flight document transfers before wiping their state: they belong to the
+        // account just disconnected. store() already returns null now (_adapter == null), so a
+        // running drain would no-op anyway, but cancelling it promptly avoids a needless drain.
+        DocumentSyncService.stop(app)
+        DocumentSync.onSignOut()
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
             val category = dbDef.category
@@ -416,6 +435,16 @@ object CloudSync {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
                     ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
                 }
+            }
+            try {
+                DocumentSync.runSync(
+                    download = DocumentSyncSettings.autoDownload,
+                    upload = DocumentSyncSettings.autoUpload,
+                    delete = DocumentSyncSettings.autoDelete,
+                    manual = false,
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Document sync pull failed", e)
             }
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
         }

@@ -1005,6 +1005,7 @@
   <string name="sqlite_invalid_file">Fail modul atau nama fail tidak sah: %s</string>
   <string name="sqlite_cant_write">Tidak dapat menulis (menimpa) fail</string>
   <string name="install_failed_reason">Pemasangan modul gagal kerana sebab berikut: %s.</string>
+  <string name="no_file_manager">Tiada aplikasi ditemui untuk memilih fail. Sila pasang pengurus fail dan cuba lagi.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikasi dibuka di tempat lain</string>
   <string name="open_here">Buka di sini</string>
@@ -1105,6 +1106,9 @@
   <string name="agent_max_iterations_summary">Lelaran maksimum sebelum meminta untuk meneruskan (0 = tanpa had)</string>
   <string name="ask_model_before_run_title">Tanya model sebelum jalankan</string>
   <string name="ask_model_before_run_summary">Tunjukkan dialog pemilihan model sebelum melaksanakan prompt (dilangkau apabila prompt mempunyai gantian model yang jelas)</string>
+  <string name="auto_hide_agent_log_title">Sembunyikan panel AI apabila selesai</string>
+  <string name="auto_hide_agent_log_summary">Sembunyikan panel AI secara automatik apabila tugas selesai dengan jayanya atau dibatalkan. Apabila ralat berlaku, panel kekal kelihatan.</string>
+  <string name="ai_task_completed">Tugas AI selesai</string>
   <string name="custom_agent_system_prompt_title">Prompt sistem ejen</string>
   <string name="custom_system_prompt_summary">Pengeditan tidak disyorkan kecuali anda tahu apa yang anda lakukan</string>
   <string name="custom_text_transform_system_prompt_title">Prompt sistem transformasi teks</string>
@@ -1550,4 +1554,64 @@
   <string name="scroll_helper_line_style_thick_solid">Garisan padu tebal</string>
   <string name="prefs_page_buttons_title">Butang tatal halaman</string>
   <string name="prefs_page_buttons_summary">Tunjukkan butang halaman naik/turun yang kelihatan pada skrin</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumen</string>
+  <string name="document_sync_contents">Alkitab, ulasan dan dokumen lain yang dipasang</string>
+  <string name="document_sync_category_title">Penyegerakan dokumen</string>
+  <string name="document_sync_auto_download_title">Muat turun automatik</string>
+  <string name="document_sync_auto_download_summary">Muat turun dokumen baharu dan dikemas kini dari awan ke peranti ini secara automatik</string>
+  <string name="document_sync_auto_upload_title">Muat naik automatik</string>
+  <string name="document_sync_auto_upload_summary">Muat naik dokumen yang dipasang pada peranti ini ke awan secara automatik</string>
+  <string name="document_sync_auto_delete_title">Gunakan pembuangan secara automatik</string>
+  <string name="document_sync_auto_delete_summary">Buang dokumen daripada peranti ini secara automatik apabila ia dibuang pada peranti lain</string>
+  <string name="document_sync_wifi_only_title">Segerakkan dokumen melalui Wi-Fi sahaja</string>
+  <string name="document_sync_wifi_only_summary">Pemindahan dokumen automatik menunggu sambungan tanpa had (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Lihat dan urus dokumen yang disimpan dalam awan</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Dokumen disegerakkan</string>
+  <string name="cloud_doc_status_synced">Disegerakkan</string>
+  <string name="cloud_doc_status_local_only">Pada peranti ini sahaja</string>
+  <string name="cloud_doc_status_cloud_only">Dalam awan sahaja</string>
+  <string name="cloud_doc_status_update">Kemas kini tersedia</string>
+  <string name="cloud_doc_status_blocked">Disekat pada peranti ini</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Semua</string>
+  <string name="cloud_doc_filter_installed">Dipasang</string>
+  <string name="cloud_doc_filter_cloud">Dalam awan</string>
+  <string name="cloud_doc_filter_updates">Kemas kini</string>
+  <string name="cloud_doc_filter_blocked">Disekat</string>
+  <string name="cloud_doc_filter_removed">Dibuang</string>
+  <string name="cloud_doc_show_removed">Tunjukkan dokumen yang dibuang</string>
+  <string name="cloud_doc_status_removed">Dibuang daripada awan</string>
+  <string name="cloud_doc_status_still_installed">masih dipasang di sini</string>
+  <string name="cloud_doc_purge_confirm">Buang \"%1$s\" daripada sejarah awan secara kekal? Jika ia masih dipasang pada peranti lain, peranti itu mungkin memuat naiknya semula ke awan pada penyegerakan seterusnya.</string>
+  <string name="cloud_doc_action_download">Muat turun</string>
+  <string name="cloud_doc_action_push">Muat naik ke awan</string>
+  <string name="cloud_doc_action_remove_cloud">Buang daripada awan</string>
+  <string name="cloud_doc_action_remove_all_devices">Buang daripada semua peranti</string>
+  <string name="cloud_doc_action_block">Jangan segerakkan ke peranti ini</string>
+  <string name="cloud_doc_action_unblock">Benarkan pada peranti ini</string>
+  <string name="cloud_doc_action_restore">Pulihkan ke awan</string>
+  <string name="cloud_doc_action_purge">Buang daripada sejarah awan</string>
+  <string name="cloud_doc_remove_all_confirm">Buang %1$s daripada awan dan daripada semua peranti anda, termasuk peranti ini?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Buang %1$s daripada awan? Salinan pada peranti ini dikekalkan; peranti yang mempunyai penyegerakan dokumen dihidupkan juga akan membuangnya.</string>
+  <string name="cloud_doc_sync_now">Segerakkan sekarang</string>
+  <string name="cloud_doc_sync_now_download">Muat turun dokumen baharu dan dikemas kini</string>
+  <string name="cloud_doc_sync_now_upload">Muat naik dokumen tempatan ke awan</string>
+  <string name="cloud_doc_sync_now_delete">Gunakan pembuangan daripada peranti lain</string>
+  <string name="document_sync_signin_required">Log masuk ke akaun awan anda untuk mengurus dokumen yang disegerakkan.</string>
+  <string name="cloud_doc_summary_upload">Muat naik %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Muat naik %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Muat turun %1$d</string>
+  <string name="cloud_doc_summary_download_size">Muat turun %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Muat turun automatik akan bermula pada Wi-Fi.</string>
+  <string name="cloud_doc_bulk_download">Muat turun yang dipilih (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Semua dokumen yang tersedia telah dimuat turun.</string>
+  <string name="document_sync_notification_title">Menyegerakkan dokumen</string>
+  <string name="document_sync_downloading">Memuat turun %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Memuat naik %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Membuang %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Penyegerakan dokumen bermula</string>
+  <string name="document_sync_enable_dialog_title">Mula menyegerakkan dokumen?</string>
+  <string name="document_sync_enable_dialog_nothing">Tiada dokumen untuk dipindahkan lagi. Dokumen yang baharu dipasang akan disegerakkan secara automatik.</string>
 </resources>
