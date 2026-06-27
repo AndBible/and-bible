@@ -29,7 +29,7 @@ import net.bible.service.cloudsync.documents.DocumentType
 
 /**
  * A cached snapshot of one cloud document's metadata (mirrors DocumentSyncMeta).
- * Lives in TemporaryDatabase — never backed up, never synced. Pure derived data.
+ * Lives in CacheDatabase — never backed up, never synced. Pure derived data.
  */
 @Entity(tableName = "CachedCloudDocument")
 data class CachedCloudDocument(

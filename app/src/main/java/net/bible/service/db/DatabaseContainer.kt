@@ -26,6 +26,7 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
+import net.bible.android.database.CacheDatabase
 import net.bible.android.database.LogEntry
 import net.bible.android.database.OldMonolithicAppDatabase
 import net.bible.android.database.REPO_DATABASE_VERSION
@@ -248,12 +249,11 @@ class DatabaseContainer {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
-    val cloudDocumentsCacheDb: TemporaryDatabase =
+    val cloudDocumentsCacheDb: CacheDatabase =
         Room.databaseBuilder(
-            application, TemporaryDatabase::class.java, "cloud-documents-cache.sqlite3"
+            application, CacheDatabase::class.java, "cloud-documents-cache.sqlite3"
         )
             .allowMainThreadQueries()
-            .addMigrations(*temporaryMigrations)
             .openHelperFactory(dbFactory)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()

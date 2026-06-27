@@ -26,7 +26,6 @@ import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
 import net.bible.android.database.migrations.Migration
 import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
 import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
-import net.bible.android.database.migrations.makeMigration
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 import net.bible.service.llm.AgentPrompt
@@ -118,30 +117,45 @@ abstract class WorkspaceDatabase: SyncableRoomDatabase() {
     }
 }
 
-val temporaryMigrations: Array<Migration> = arrayOf(
-    makeMigration(1..2) { db ->
-        db.execSQL(
-            "CREATE TABLE IF NOT EXISTS `CachedCloudDocument` (" +
-                "`initials` TEXT NOT NULL, `name` TEXT NOT NULL, `documentType` TEXT NOT NULL, " +
-                "`version` TEXT NOT NULL, `size` INTEGER NOT NULL, `language` TEXT NOT NULL, " +
-                "`category` TEXT NOT NULL, `sourceDevice` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, " +
-                "`cipherKey` TEXT, `deleted` INTEGER NOT NULL, PRIMARY KEY(`initials`))"
-        )
-    },
-)
+val temporaryMigrations: Array<Migration> = arrayOf()
 
-const val TEMPORARY_DATABASE_VERSION = 2
+const val TEMPORARY_DATABASE_VERSION = 1
 
+/**
+ * Ephemeral search-index scratch space. Instantiated against two separate files (the download list
+ * and the document-selection list) so their searches don't clobber each other — same schema, two
+ * independent data spaces. Never backed up, never synced.
+ */
 @Database(
     entities = [
         DocumentSearch::class,
-        CachedCloudDocument::class,
     ],
     version = TEMPORARY_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
 abstract class TemporaryDatabase: RoomDatabase() {
     abstract fun documentSearchDao(): DocumentSearchDao
+}
+
+const val CACHE_DATABASE_VERSION = 1
+
+/**
+ * Home for pure derived caches — data that is rebuildable from an authoritative source and is
+ * therefore never backed up and never synced (cleared on cloud sign-out). Currently the cloud
+ * document-listing cache; further such caches can be added here as they share this lifecycle.
+ *
+ * Kept separate from [TemporaryDatabase] on purpose: that one is single-purpose search scratch with
+ * its own (multi-file) lifecycle, and conflating the two schemas in one class would force every
+ * file instantiated from it to carry the union of both schemas plus unused DAOs.
+ */
+@Database(
+    entities = [
+        CachedCloudDocument::class,
+    ],
+    version = CACHE_DATABASE_VERSION
+)
+@TypeConverters(Converters::class)
+abstract class CacheDatabase: RoomDatabase() {
     abstract fun cloudDocumentCacheDao(): CloudDocumentCacheDao
 }
 

@@ -228,13 +228,14 @@ on a slow link the user assumes the action failed and leaves).
 `SyncService` (DB sync, "Synchronizing…") and `DocumentSyncService` are separate foreground
 services with separate notifications; both can be briefly visible during an auto-sync cycle.
 
-## Cloud-listing cache (`TemporaryDatabase`)
+## Cloud-listing cache (`CacheDatabase`)
 
 `CachedCloudDocument` (mirrors `DocumentSyncMeta`) + `CloudDocumentCacheDao` live in
-`TemporaryDatabase` — a non-backed-up, non-synced Room DB — in a dedicated instance
-`cloud-documents-cache.sqlite3` (`TEMPORARY_DATABASE_VERSION` 2, migration adds the table). Pure
-derived data. The DAO offers `all` / `replaceAll` / `clear`, plus `deleteByInitials` and
-`markDeleted` for up-front optimistic mutations (purge / remove).
+`CacheDatabase` (`cloud-documents-cache.sqlite3`, `CACHE_DATABASE_VERSION` 1) — a non-backed-up,
+non-synced Room DB that is the dedicated home for pure derived caches (kept separate from
+`TemporaryDatabase`, which is single-purpose search scratch, so neither carries the other's schema).
+Pure derived data, cleared on cloud sign-out. The DAO offers `all` / `replaceAll` / `clear`, plus
+`deleteByInitials` and `markDeleted` for up-front optimistic mutations (purge / remove).
 
 - Written whenever `scan()` / `runSync()` fetch a live listing, and after every service drain.
 - **With automatic sync on**, the management view trusts the cache on open and does **not** hit the
@@ -357,7 +358,7 @@ spinner rebuild, the operation picker, the show-removed toggle) is verified by m
   `DocumentStore` (parallel `listDocuments`, `deleteDocument`), `DocumentArchiver`, `DocumentBlockList`,
   `CloudDocumentCacheMapping`.
 - `database/`: `CachedCloudDocument` + `CloudDocumentCacheDao` (`deleteByInitials`, `markDeleted`) in
-  `TemporaryDatabase`.
+  `CacheDatabase` (dedicated pure-derived-cache DB, separate from `TemporaryDatabase`).
 - `view/activity/cloud/`: `CloudDocumentsActivity` (`documentMenuActions`, `filterCloudDocuments`,
   `applyOptimisticRemoval`/`applyOptimisticPurge`, `setupStatusFilter`, `renderFromCache`,
   `CloudDocAction`, `CloudDocFilter`), `CloudDocumentsAdapter`.
