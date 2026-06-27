@@ -515,11 +515,13 @@ class CloudDocumentsActivity : ActivityBase() {
             .setTitle(R.string.cloud_doc_action_purge)
             .setMessage(getString(R.string.cloud_doc_purge_confirm, item.name))
             .setPositiveButton(R.string.okay) { _, _ ->
-                // Optimistic update: reflect the expected end-state immediately for snappier
-                // feedback. The re-scan inside runSyncAction confirms (or reverts) it.
+                // Run the purge via the foreground service like the other transfers, so it shows a
+                // notification and survives leaving the screen. Reflect the expected end-state
+                // optimistically for snappier feedback; the service's completion event re-scans to
+                // confirm (or revert) it.
+                DocumentSyncService.start(this, emptyList(), emptyList(), purgeInitials = listOf(item.initials))
                 allItems = applyOptimisticPurge(allItems, item.initials)
                 applyFilter()
-                runSyncAction { DocumentSync.purgeTombstone(item.initials) }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
