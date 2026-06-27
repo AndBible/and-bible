@@ -121,4 +121,90 @@ class DocumentSyncResolverTest {
         // re-evaluated — and re-attempted — on every subsequent sync cycle.
         assertEquals(UninstallDecision(delete = false, advanceTimestamp = true), decideUninstall(canDelete = false))
     }
+
+    // --- selectSyncActions ---
+
+    private val sampleActions = listOf(
+        DocumentSyncAction("DL", DocumentSyncActionType.DOWNLOAD),
+        DocumentSyncAction("UP", DocumentSyncActionType.UPGRADE),
+        DocumentSyncAction("RM", DocumentSyncActionType.UNINSTALL),
+        DocumentSyncAction("BK", DocumentSyncActionType.SKIP_BLOCKED),
+        DocumentSyncAction("NO", DocumentSyncActionType.NONE),
+    )
+
+    @Test
+    fun selectSyncActions_allowAll_keepsExecutableDropsNonExecutable() {
+        val result = selectSyncActions(sampleActions, allowDownload = true, allowDelete = true)
+        assertEquals(
+            listOf(
+                DocumentSyncAction("DL", DocumentSyncActionType.DOWNLOAD),
+                DocumentSyncAction("UP", DocumentSyncActionType.UPGRADE),
+                DocumentSyncAction("RM", DocumentSyncActionType.UNINSTALL),
+            ),
+            result,
+        )
+    }
+
+    @Test
+    fun selectSyncActions_downloadOff_dropsDownloadAndUpgrade() {
+        val result = selectSyncActions(sampleActions, allowDownload = false, allowDelete = true)
+        assertEquals(listOf(DocumentSyncAction("RM", DocumentSyncActionType.UNINSTALL)), result)
+    }
+
+    @Test
+    fun selectSyncActions_deleteOff_dropsUninstall() {
+        val result = selectSyncActions(sampleActions, allowDownload = true, allowDelete = false)
+        assertEquals(
+            listOf(
+                DocumentSyncAction("DL", DocumentSyncActionType.DOWNLOAD),
+                DocumentSyncAction("UP", DocumentSyncActionType.UPGRADE),
+            ),
+            result,
+        )
+    }
+
+    @Test
+    fun selectSyncActions_allOff_keepsNothing() {
+        assertEquals(emptyList<DocumentSyncAction>(), selectSyncActions(sampleActions, allowDownload = false, allowDelete = false))
+    }
+
+    // --- resolveUploads ---
+
+    private val newer: (String, String) -> Boolean = { a, b -> a > b } // simple lexical comparator for tests
+
+    @Test
+    fun resolveUploads_includesLocalOnly() {
+        val local = mapOf("KJV" to LocalDocument("KJV", "1.0"))
+        val result = resolveUploads(local, cloudDocs = emptyList(), blocked = emptySet(), isNewer = newer)
+        assertEquals(listOf("KJV"), result)
+    }
+
+    @Test
+    fun resolveUploads_includesLocalNewerThanCloud() {
+        val local = mapOf("KJV" to LocalDocument("KJV", "2.0"))
+        val cloud = listOf(CloudDocument("KJV", "KJV", DocumentType.SWORD, "1.0", 0, 0, deleted = false))
+        val result = resolveUploads(local, cloud, blocked = emptySet(), isNewer = newer)
+        assertEquals(listOf("KJV"), result)
+    }
+
+    @Test
+    fun resolveUploads_excludesFullySynced() {
+        val local = mapOf("KJV" to LocalDocument("KJV", "1.0"))
+        val cloud = listOf(CloudDocument("KJV", "KJV", DocumentType.SWORD, "1.0", 0, 0, deleted = false))
+        assertEquals(emptyList<String>(), resolveUploads(local, cloud, emptySet(), newer))
+    }
+
+    @Test
+    fun resolveUploads_excludesBlocked() {
+        val local = mapOf("KJV" to LocalDocument("KJV", "1.0"))
+        assertEquals(emptyList<String>(), resolveUploads(local, emptyList(), blocked = setOf("KJV"), isNewer = newer))
+    }
+
+    @Test
+    fun resolveUploads_treatsTombstonedCloudAsMissing() {
+        val local = mapOf("KJV" to LocalDocument("KJV", "1.0"))
+        val cloud = listOf(CloudDocument("KJV", "KJV", DocumentType.SWORD, "9.0", 0, 0, deleted = true))
+        // A tombstone is not a live cloud copy, so a still-installed local doc is local-only → upload.
+        assertEquals(listOf("KJV"), resolveUploads(local, cloud, emptySet(), newer))
+    }
 }
