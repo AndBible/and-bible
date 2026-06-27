@@ -1762,6 +1762,7 @@
   <string name="cloud_doc_remove_all_confirm">Elimini %1$s din cloud și de pe toate dispozitivele tale, inclusiv acesta?</string>
   <string name="cloud_doc_remove_cloud_confirm">Elimini %1$s din cloud? Copia de pe acest dispozitiv este păstrată; dispozitivele cu sincronizarea documentelor activată îl vor elimina și ele.</string>
   <string name="cloud_doc_sync_now">Sincronizează acum</string>
+  <string name="cloud_doc_rescan">Rescanează din cloud</string>
   <string name="cloud_doc_sync_now_download">Descarcă documentele noi și actualizate</string>
   <string name="cloud_doc_sync_now_upload">Încarcă documentele locale în cloud</string>
   <string name="cloud_doc_sync_now_delete">Aplică eliminările de pe alte dispozitive</string>
@@ -1771,6 +1772,7 @@
   <string name="cloud_doc_summary_download">Descarcă %1$d</string>
   <string name="cloud_doc_summary_download_size">Descarcă %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Descărcările automate vor începe pe Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Nimic de transferat</string>
   <string name="cloud_doc_bulk_download">Descarcă selecția (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Toate documentele disponibile sunt deja descărcate.</string>
   <string name="document_sync_notification_title">Se sincronizează documentele</string>

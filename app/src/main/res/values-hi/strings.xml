@@ -1725,6 +1725,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="cloud_doc_remove_all_confirm">%1$s को क्लाउड से और इस सहित आपके सभी डिवाइस से हटाएं?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s को क्लाउड से हटाएं? इस डिवाइस की प्रति रखी जाती है; जिन डिवाइसों पर दस्तावेज़ सिंक चालू है, वे भी इसे हटा देंगे।</string>
   <string name="cloud_doc_sync_now">अभी सिंक करें</string>
+  <string name="cloud_doc_rescan">क्लाउड से फिर से स्कैन करें</string>
   <string name="cloud_doc_sync_now_download">नए और अपडेट किए गए दस्तावेज़ डाउनलोड करें</string>
   <string name="cloud_doc_sync_now_upload">स्थानीय दस्तावेज़ क्लाउड पर अपलोड करें</string>
   <string name="cloud_doc_sync_now_delete">अन्य डिवाइस से हटाने की क्रियाएं लागू करें</string>
@@ -1734,6 +1735,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="cloud_doc_summary_download">%1$d डाउनलोड करें</string>
   <string name="cloud_doc_summary_download_size">%1$d डाउनलोड करें (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">स्वचालित डाउनलोड Wi-Fi पर शुरू होंगे।</string>
+  <string name="cloud_doc_sync_now_count_none">स्थानांतरित करने के लिए कुछ नहीं</string>
   <string name="cloud_doc_bulk_download">चयनित डाउनलोड करें (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">सभी उपलब्ध दस्तावेज़ पहले ही डाउनलोड हो चुके हैं।</string>
   <string name="document_sync_notification_title">दस्तावेज़ सिंक हो रहे हैं</string>

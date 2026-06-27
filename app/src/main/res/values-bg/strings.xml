@@ -1596,6 +1596,7 @@
   <string name="cloud_doc_remove_all_confirm">Да се премахне ли %1$s от облака и от всичките ви устройства, включително това?</string>
   <string name="cloud_doc_remove_cloud_confirm">Да се премахне ли %1$s от облака? Копието на това устройство се запазва; устройствата с включено синхронизиране на ресурси също ще го премахнат.</string>
   <string name="cloud_doc_sync_now">Синхронизирай сега</string>
+  <string name="cloud_doc_rescan">Сканирай отново от облака</string>
   <string name="cloud_doc_sync_now_download">Изтегли нови и обновени ресурси</string>
   <string name="cloud_doc_sync_now_upload">Качи локалните ресурси в облака</string>
   <string name="cloud_doc_sync_now_delete">Приложи премахванията от други устройства</string>
@@ -1605,6 +1606,7 @@
   <string name="cloud_doc_summary_download">Изтегляне %1$d</string>
   <string name="cloud_doc_summary_download_size">Изтегляне %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Автоматичните изтегляния ще започнат при Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Нищо за прехвърляне</string>
   <string name="cloud_doc_bulk_download">Изтегли избраните (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Всички налични ресурси вече са изтеглени.</string>
   <string name="document_sync_notification_title">Синхронизиране на ресурси</string>

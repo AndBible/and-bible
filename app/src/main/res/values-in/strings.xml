@@ -1653,6 +1653,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="cloud_doc_remove_all_confirm">Hapus %1$s dari cloud dan dari semua perangkat Anda, termasuk perangkat ini?</string>
   <string name="cloud_doc_remove_cloud_confirm">Hapus %1$s dari cloud? Salinan di perangkat ini tetap disimpan; perangkat dengan sinkronisasi dokumen aktif juga akan menghapusnya.</string>
   <string name="cloud_doc_sync_now">Sinkronkan sekarang</string>
+  <string name="cloud_doc_rescan">Pindai ulang dari cloud</string>
   <string name="cloud_doc_sync_now_download">Unduh dokumen baru dan yang diperbarui</string>
   <string name="cloud_doc_sync_now_upload">Unggah dokumen lokal ke cloud</string>
   <string name="cloud_doc_sync_now_delete">Terapkan penghapusan dari perangkat lain</string>
@@ -1662,6 +1663,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="cloud_doc_summary_download">Unduh %1$d</string>
   <string name="cloud_doc_summary_download_size">Unduh %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Unduhan otomatis akan dimulai saat Wi-Fi aktif.</string>
+  <string name="cloud_doc_sync_now_count_none">Tidak ada yang ditransfer</string>
   <string name="cloud_doc_bulk_download">Unduh yang dipilih (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Semua dokumen yang tersedia sudah diunduh.</string>
   <string name="document_sync_notification_title">Menyinkronkan dokumen</string>

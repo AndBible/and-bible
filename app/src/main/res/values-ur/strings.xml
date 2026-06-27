@@ -1596,6 +1596,7 @@
   <string name="cloud_doc_remove_all_confirm">%1$s کو کلاؤڈ اور آپ کی تمام ڈیوائسز سے، بشمول اس ڈیوائس کے، ہٹا دیں؟</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s کو کلاؤڈ سے ہٹا دیں؟ اس ڈیوائس پر موجود کاپی برقرار رہے گی؛ جن ڈیوائسز پر دستاویزات کی ہم آہنگی آن ہے وہ بھی اسے ہٹا دیں گی۔</string>
   <string name="cloud_doc_sync_now">ابھی ہم آہنگ کریں</string>
+  <string name="cloud_doc_rescan">کلاؤڈ سے دوبارہ اسکین کریں</string>
   <string name="cloud_doc_sync_now_download">نئی اور اپ ڈیٹ شدہ دستاویزات ڈاؤنلوڈ کریں</string>
   <string name="cloud_doc_sync_now_upload">مقامی دستاویزات کلاؤڈ پر اپ لوڈ کریں</string>
   <string name="cloud_doc_sync_now_delete">دیگر ڈیوائسز سے حذف لاگو کریں</string>
@@ -1605,6 +1606,7 @@
   <string name="cloud_doc_summary_download">%1$d ڈاؤنلوڈ کریں</string>
   <string name="cloud_doc_summary_download_size">%1$d ڈاؤنلوڈ کریں (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">خودکار ڈاؤنلوڈز Wi-Fi پر شروع ہوں گی۔</string>
+  <string name="cloud_doc_sync_now_count_none">منتقل کرنے کے لیے کچھ نہیں</string>
   <string name="cloud_doc_bulk_download">منتخب شدہ ڈاؤنلوڈ کریں (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">تمام دستیاب دستاویزات پہلے ہی ڈاؤنلوڈ ہو چکی ہیں۔</string>
   <string name="document_sync_notification_title">دستاویزات ہم آہنگ ہو رہی ہیں</string>

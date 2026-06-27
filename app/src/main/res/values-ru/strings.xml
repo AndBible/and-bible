@@ -1747,6 +1747,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="cloud_doc_remove_all_confirm">Удалить %1$s из облака и со всех ваших устройств, включая это?</string>
   <string name="cloud_doc_remove_cloud_confirm">Удалить %1$s из облака? Копия на этом устройстве сохранится; устройства с включённой синхронизацией документов также удалят его.</string>
   <string name="cloud_doc_sync_now">Синхронизировать сейчас</string>
+  <string name="cloud_doc_rescan">Пересканировать облако</string>
   <string name="cloud_doc_sync_now_download">Скачать новые и обновлённые документы</string>
   <string name="cloud_doc_sync_now_upload">Выгрузить локальные документы в облако</string>
   <string name="cloud_doc_sync_now_delete">Применить удаления с других устройств</string>
@@ -1756,6 +1757,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="cloud_doc_summary_download">Скачать %1$d</string>
   <string name="cloud_doc_summary_download_size">Скачать %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Автоматическое скачивание начнётся при подключении к Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Нечего передавать</string>
   <string name="cloud_doc_bulk_download">Скачать выбранные (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Все доступные документы уже скачаны.</string>
   <string name="document_sync_notification_title">Синхронизация документов</string>

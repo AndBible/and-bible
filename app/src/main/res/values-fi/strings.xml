@@ -1652,6 +1652,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="cloud_doc_remove_all_confirm">Poistetaanko %1$s pilvestä ja kaikilta laitteiltasi, mukaan lukien tämä laite?</string>
   <string name="cloud_doc_remove_cloud_confirm">Poistetaanko %1$s pilvestä? Tämän laitteen kopio säilytetään; laitteet, joissa dokumenttien synkronointi on käytössä, poistavat sen myös.</string>
   <string name="cloud_doc_sync_now">Synkronoi nyt</string>
+  <string name="cloud_doc_rescan">Hae uudelleen pilvestä</string>
   <string name="cloud_doc_sync_now_download">Lataa uudet ja päivitetyt dokumentit</string>
   <string name="cloud_doc_sync_now_upload">Lähetä paikalliset dokumentit pilveen</string>
   <string name="cloud_doc_sync_now_delete">Toteuta poistot muilta laitteilta</string>
@@ -1661,6 +1662,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="cloud_doc_summary_download">Lataa %1$d</string>
   <string name="cloud_doc_summary_download_size">Lataa %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automaattiset lataukset alkavat Wi-Fi-yhteydellä.</string>
+  <string name="cloud_doc_sync_now_count_none">Ei siirrettävää</string>
   <string name="cloud_doc_bulk_download">Lataa valitut (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Kaikki saatavilla olevat dokumentit on jo ladattu.</string>
   <string name="document_sync_notification_title">Synkronoidaan dokumentteja</string>

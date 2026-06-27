@@ -1596,6 +1596,7 @@
   <string name="cloud_doc_remove_all_confirm">%1$s लाई बादलबाट र यो सहित तपाईंका सबै यन्त्रहरूबाट हटाउने हो?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s लाई बादलबाट हटाउने हो? यस यन्त्रको प्रतिलिपि राखिन्छ; कागजात सिंक सक्रिय भएका यन्त्रहरूले पनि यसलाई हटाउनेछन्।</string>
   <string name="cloud_doc_sync_now">अहिले सिंक गर्नुहोस्</string>
+  <string name="cloud_doc_rescan">बादलबाट पुनः स्क्यान गर्नुहोस्</string>
   <string name="cloud_doc_sync_now_download">नयाँ र अद्यावधिक कागजातहरू डाउनलोड गर्नुहोस्</string>
   <string name="cloud_doc_sync_now_upload">स्थानीय कागजातहरू बादलमा अपलोड गर्नुहोस्</string>
   <string name="cloud_doc_sync_now_delete">अन्य यन्त्रहरूबाट हटाइएकाहरू लागू गर्नुहोस्</string>
@@ -1605,6 +1606,7 @@
   <string name="cloud_doc_summary_download">%1$d डाउनलोड</string>
   <string name="cloud_doc_summary_download_size">%1$d डाउनलोड (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">स्वचालित डाउनलोडहरू Wi-Fi मा सुरु हुनेछन्।</string>
+  <string name="cloud_doc_sync_now_count_none">स्थानान्तरण गर्न केही छैन</string>
   <string name="cloud_doc_bulk_download">चयन गरिएका डाउनलोड गर्नुहोस् (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">उपलब्ध सबै कागजातहरू पहिले नै डाउनलोड भइसकेका छन्।</string>
   <string name="document_sync_notification_title">कागजातहरू सिंक गर्दै</string>

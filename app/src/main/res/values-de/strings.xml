@@ -1682,6 +1682,7 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="cloud_doc_remove_all_confirm">%1$s aus der Cloud und von allen deinen Geräten einschließlich diesem entfernen?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s aus der Cloud entfernen? Die Kopie auf diesem Gerät bleibt erhalten; Geräte mit aktivierter Dokumentsynchronisierung entfernen sie ebenfalls.</string>
   <string name="cloud_doc_sync_now">Jetzt synchronisieren</string>
+  <string name="cloud_doc_rescan">Erneut aus der Cloud abrufen</string>
   <string name="cloud_doc_sync_now_download">Neue und aktualisierte Dokumente herunterladen</string>
   <string name="cloud_doc_sync_now_upload">Lokale Dokumente in die Cloud hochladen</string>
   <string name="cloud_doc_sync_now_delete">Entfernungen von anderen Geräten anwenden</string>
@@ -1691,6 +1692,7 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="cloud_doc_summary_download">%1$d herunterladen</string>
   <string name="cloud_doc_summary_download_size">%1$d herunterladen (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatische Downloads starten bei WLAN.</string>
+  <string name="cloud_doc_sync_now_count_none">Nichts zu übertragen</string>
   <string name="cloud_doc_bulk_download">Ausgewählte herunterladen (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Alle verfügbaren Dokumente sind bereits heruntergeladen.</string>
   <string name="document_sync_notification_title">Dokumente werden synchronisiert</string>

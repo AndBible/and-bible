@@ -1715,6 +1715,7 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="cloud_doc_remove_all_confirm">Remover %1$s da nuvem e de todos os seus dispositivos, incluindo este?</string>
   <string name="cloud_doc_remove_cloud_confirm">Remover %1$s da nuvem? A cópia neste dispositivo é mantida; os dispositivos com a sincronização de documentos ativada também irão removê-lo.</string>
   <string name="cloud_doc_sync_now">Sincronizar agora</string>
+  <string name="cloud_doc_rescan">Reanalisar da nuvem</string>
   <string name="cloud_doc_sync_now_download">Baixar documentos novos e atualizados</string>
   <string name="cloud_doc_sync_now_upload">Enviar documentos locais para a nuvem</string>
   <string name="cloud_doc_sync_now_delete">Aplicar remoções de outros dispositivos</string>
@@ -1724,6 +1725,7 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="cloud_doc_summary_download">Baixar %1$d</string>
   <string name="cloud_doc_summary_download_size">Baixar %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Os downloads automáticos começarão no Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Nada para transferir</string>
   <string name="cloud_doc_bulk_download">Baixar selecionados (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Todos os documentos disponíveis já foram baixados.</string>
   <string name="document_sync_notification_title">Sincronizando documentos</string>

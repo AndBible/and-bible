@@ -1596,6 +1596,7 @@
   <string name="cloud_doc_remove_all_confirm">Voleu suprimir %1$s del núvol i de tots els vostres dispositius, inclòs aquest?</string>
   <string name="cloud_doc_remove_cloud_confirm">Voleu suprimir %1$s del núvol? La còpia d\'aquest dispositiu es conserva; els dispositius amb la sincronització de documents activada també la suprimiran.</string>
   <string name="cloud_doc_sync_now">Sincronitza ara</string>
+  <string name="cloud_doc_rescan">Torna a escanejar des del núvol</string>
   <string name="cloud_doc_sync_now_download">Baixa els documents nous i actualitzats</string>
   <string name="cloud_doc_sync_now_upload">Puja els documents locals al núvol</string>
   <string name="cloud_doc_sync_now_delete">Aplica les supressions d\'altres dispositius</string>
@@ -1605,6 +1606,7 @@
   <string name="cloud_doc_summary_download">Baixa %1$d</string>
   <string name="cloud_doc_summary_download_size">Baixa %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Les baixades automàtiques començaran amb Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Res a transferir</string>
   <string name="cloud_doc_bulk_download">Baixa els seleccionats (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Ja s\'han baixat tots els documents disponibles.</string>
   <string name="document_sync_notification_title">S\'estan sincronitzant els documents</string>

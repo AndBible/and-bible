@@ -1596,6 +1596,7 @@
   <string name="cloud_doc_remove_all_confirm">%1$s をクラウドおよびこのデバイスを含むすべてのデバイスから削除しますか？</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s をクラウドから削除しますか？このデバイス上のコピーは保持されます。ドキュメント同期が有効なデバイスでも削除されます。</string>
   <string name="cloud_doc_sync_now">今すぐ同期</string>
+  <string name="cloud_doc_rescan">クラウドから再スキャン</string>
   <string name="cloud_doc_sync_now_download">新しいドキュメントや更新されたドキュメントをダウンロード</string>
   <string name="cloud_doc_sync_now_upload">ローカルのドキュメントをクラウドへアップロード</string>
   <string name="cloud_doc_sync_now_delete">他のデバイスからの削除を適用</string>
@@ -1605,6 +1606,7 @@
   <string name="cloud_doc_summary_download">ダウンロード %1$d件</string>
   <string name="cloud_doc_summary_download_size">ダウンロード %1$d件 (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">自動ダウンロードはWi-Fi接続時に開始されます。</string>
+  <string name="cloud_doc_sync_now_count_none">転送するものはありません</string>
   <string name="cloud_doc_bulk_download">選択した項目をダウンロード (%1$d件)</string>
   <string name="cloud_doc_nothing_to_download">利用可能なドキュメントはすべてダウンロード済みです。</string>
   <string name="document_sync_notification_title">ドキュメントを同期中</string>

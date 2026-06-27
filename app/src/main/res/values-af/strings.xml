@@ -1717,6 +1717,7 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="cloud_doc_remove_all_confirm">Verwyder %1$s uit die wolk en van al jou toestelle, insluitend hierdie een?</string>
   <string name="cloud_doc_remove_cloud_confirm">Verwyder %1$s uit die wolk? Die kopie op hierdie toestel word behou; toestelle met dokumentsinkronisering aan sal dit ook verwyder.</string>
   <string name="cloud_doc_sync_now">Sinkroniseer nou</string>
+  <string name="cloud_doc_rescan">Herskandeer vanaf die wolk</string>
   <string name="cloud_doc_sync_now_download">Laai nuwe en bygewerkte dokumente af</string>
   <string name="cloud_doc_sync_now_upload">Laai plaaslike dokumente na die wolk op</string>
   <string name="cloud_doc_sync_now_delete">Pas verwyderings van ander toestelle toe</string>
@@ -1726,6 +1727,7 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="cloud_doc_summary_download">Laai %1$d af</string>
   <string name="cloud_doc_summary_download_size">Laai %1$d af (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Outomatiese aflaaie sal op Wi-Fi begin.</string>
+  <string name="cloud_doc_sync_now_count_none">Niks om oor te dra nie</string>
   <string name="cloud_doc_bulk_download">Laai gekose af (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Alle beskikbare dokumente is reeds afgelaai.</string>
   <string name="document_sync_notification_title">Sinkroniseer dokumente</string>

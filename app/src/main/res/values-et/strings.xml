@@ -1677,6 +1677,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="cloud_doc_remove_all_confirm">Kas eemaldada %1$s pilvest ja kõigist teie seadmetest, kaasa arvatud sellest?</string>
   <string name="cloud_doc_remove_cloud_confirm">Kas eemaldada %1$s pilvest? Selles seadmes olev koopia säilitatakse; sisselülitatud dokumentide sünkroonimisega seadmed eemaldavad selle samuti.</string>
   <string name="cloud_doc_sync_now">Sünkrooni kohe</string>
+  <string name="cloud_doc_rescan">Skanni pilvest uuesti</string>
   <string name="cloud_doc_sync_now_download">Lae alla uued ja uuendatud dokumendid</string>
   <string name="cloud_doc_sync_now_upload">Lae kohalikud dokumendid pilve</string>
   <string name="cloud_doc_sync_now_delete">Rakenda teiste seadmete eemaldamised</string>
@@ -1686,6 +1687,7 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="cloud_doc_summary_download">Lae alla %1$d</string>
   <string name="cloud_doc_summary_download_size">Lae alla %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automaatsed allalaadimised algavad Wi-Fi võrgus.</string>
+  <string name="cloud_doc_sync_now_count_none">Pole midagi üle kanda</string>
   <string name="cloud_doc_bulk_download">Lae alla valitud (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Kõik saadaolevad dokumendid on juba alla laaditud.</string>
   <string name="document_sync_notification_title">Dokumentide sünkroonimine</string>

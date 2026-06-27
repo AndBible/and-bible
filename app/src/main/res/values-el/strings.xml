@@ -1699,6 +1699,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="cloud_doc_remove_all_confirm">Αφαίρεση του %1$s από το σύννεφο και από όλες τις συσκευές σας, συμπεριλαμβανομένης αυτής;</string>
   <string name="cloud_doc_remove_cloud_confirm">Αφαίρεση του %1$s από το σύννεφο; Το αντίγραφο σε αυτή τη συσκευή διατηρείται· οι συσκευές με ενεργό τον συγχρονισμό εγγράφων θα το αφαιρέσουν επίσης.</string>
   <string name="cloud_doc_sync_now">Συγχρονισμός τώρα</string>
+  <string name="cloud_doc_rescan">Επανασάρωση από το σύννεφο</string>
   <string name="cloud_doc_sync_now_download">Λήψη νέων και ενημερωμένων εγγράφων</string>
   <string name="cloud_doc_sync_now_upload">Μεταφόρτωση τοπικών εγγράφων στο σύννεφο</string>
   <string name="cloud_doc_sync_now_delete">Εφαρμογή αφαιρέσεων από άλλες συσκευές</string>
@@ -1708,6 +1709,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="cloud_doc_summary_download">Λήψη %1$d</string>
   <string name="cloud_doc_summary_download_size">Λήψη %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Οι αυτόματες λήψεις θα ξεκινήσουν μέσω Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Τίποτα προς μεταφορά</string>
   <string name="cloud_doc_bulk_download">Λήψη επιλεγμένων (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Όλα τα διαθέσιμα έγγραφα έχουν ήδη ληφθεί.</string>
   <string name="document_sync_notification_title">Συγχρονισμός εγγράφων</string>

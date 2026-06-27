@@ -1683,6 +1683,7 @@
   <string name="cloud_doc_remove_all_confirm">هل تريد إزالة %1$s من السحابة ومن جميع أجهزتك، بما في ذلك هذا الجهاز؟</string>
   <string name="cloud_doc_remove_cloud_confirm">هل تريد إزالة %1$s من السحابة؟ سيتم الاحتفاظ بالنسخة الموجودة على هذا الجهاز؛ كما ستقوم الأجهزة التي تعمل عليها مزامنة المستندات بإزالته أيضاً.</string>
   <string name="cloud_doc_sync_now">المزامنة الآن</string>
+  <string name="cloud_doc_rescan">إعادة الفحص من السحابة</string>
   <string name="cloud_doc_sync_now_download">تحميل المستندات الجديدة والمحدَّثة</string>
   <string name="cloud_doc_sync_now_upload">رفع المستندات المحلية إلى السحابة</string>
   <string name="cloud_doc_sync_now_delete">تطبيق عمليات الإزالة من الأجهزة الأخرى</string>
@@ -1692,6 +1693,7 @@
   <string name="cloud_doc_summary_download">تحميل %1$d</string>
   <string name="cloud_doc_summary_download_size">تحميل %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">ستبدأ عمليات التحميل التلقائية عند الاتصال بشبكة Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">لا يوجد شيء لنقله</string>
   <string name="cloud_doc_bulk_download">تحميل المحدد (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">جميع المستندات المتاحة محمَّلة بالفعل.</string>
   <string name="document_sync_notification_title">جارٍ مزامنة المستندات</string>

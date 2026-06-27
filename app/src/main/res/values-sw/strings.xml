@@ -1655,6 +1655,7 @@ Usionyeshe ujumbe huu tena</string>
   <string name="cloud_doc_remove_all_confirm">Ondoa %1$s kutoka winguni na kutoka vifaa vyako vyote, ikiwa ni pamoja na hiki?</string>
   <string name="cloud_doc_remove_cloud_confirm">Ondoa %1$s kutoka winguni? Nakala iliyo kwenye kifaa hiki itahifadhiwa; vifaa vyenye usawazishaji wa hati pia vitaiondoa.</string>
   <string name="cloud_doc_sync_now">Sawazisha sasa</string>
+  <string name="cloud_doc_rescan">Changanua upya kutoka winguni</string>
   <string name="cloud_doc_sync_now_download">Pakua hati mpya na zilizosasishwa</string>
   <string name="cloud_doc_sync_now_upload">Pakia hati za ndani winguni</string>
   <string name="cloud_doc_sync_now_delete">Tekeleza maondoaji kutoka vifaa vingine</string>
@@ -1664,6 +1665,7 @@ Usionyeshe ujumbe huu tena</string>
   <string name="cloud_doc_summary_download">Pakua %1$d</string>
   <string name="cloud_doc_summary_download_size">Pakua %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Upakuaji kiotomatiki utaanza kwa Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Hakuna cha kuhamisha</string>
   <string name="cloud_doc_bulk_download">Pakua zilizochaguliwa (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Hati zote zinazopatikana tayari zimepakuliwa.</string>
   <string name="document_sync_notification_title">Inasawazisha hati</string>

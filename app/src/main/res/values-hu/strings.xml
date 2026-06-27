@@ -1714,6 +1714,7 @@ jelentse be az észlelt problémát</string>
   <string name="cloud_doc_remove_all_confirm">Eltávolítja a(z) %1$s elemet a felhőből és az összes eszközéről, beleértve ezt is?</string>
   <string name="cloud_doc_remove_cloud_confirm">Eltávolítja a(z) %1$s elemet a felhőből? Az ezen az eszközön lévő példány megmarad; a dokumentumszinkronizálással rendelkező eszközök szintén eltávolítják.</string>
   <string name="cloud_doc_sync_now">Szinkronizálás most</string>
+  <string name="cloud_doc_rescan">Újraolvasás a felhőből</string>
   <string name="cloud_doc_sync_now_download">Új és frissített dokumentumok letöltése</string>
   <string name="cloud_doc_sync_now_upload">Helyi dokumentumok feltöltése a felhőbe</string>
   <string name="cloud_doc_sync_now_delete">Eltávolítások alkalmazása más eszközökről</string>
@@ -1723,6 +1724,7 @@ jelentse be az észlelt problémát</string>
   <string name="cloud_doc_summary_download">Letöltés: %1$d</string>
   <string name="cloud_doc_summary_download_size">Letöltés: %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Az automatikus letöltések Wi-Fi-n indulnak el.</string>
+  <string name="cloud_doc_sync_now_count_none">Nincs mit átvinni</string>
   <string name="cloud_doc_bulk_download">Kijelöltek letöltése (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Minden elérhető dokumentum már le van töltve.</string>
   <string name="document_sync_notification_title">Dokumentumok szinkronizálása</string>

@@ -1711,6 +1711,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="cloud_doc_remove_all_confirm">%1$s verwijderen uit de cloud en van al uw apparaten, inclusief dit apparaat?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s verwijderen uit de cloud? De kopie op dit apparaat blijft behouden; apparaten met documentsynchronisatie aan verwijderen het ook.</string>
   <string name="cloud_doc_sync_now">Nu synchroniseren</string>
+  <string name="cloud_doc_rescan">Opnieuw scannen vanuit cloud</string>
   <string name="cloud_doc_sync_now_download">Nieuwe en bijgewerkte documenten downloaden</string>
   <string name="cloud_doc_sync_now_upload">Lokale documenten naar de cloud uploaden</string>
   <string name="cloud_doc_sync_now_delete">Verwijderingen van andere apparaten toepassen</string>
@@ -1720,6 +1721,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="cloud_doc_summary_download">%1$d downloaden</string>
   <string name="cloud_doc_summary_download_size">%1$d downloaden (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatische downloads starten zodra er wifi is.</string>
+  <string name="cloud_doc_sync_now_count_none">Niets over te dragen</string>
   <string name="cloud_doc_bulk_download">Geselecteerde downloaden (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Alle beschikbare documenten zijn al gedownload.</string>
   <string name="document_sync_notification_title">Documenten synchroniseren</string>

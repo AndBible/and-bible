@@ -1725,6 +1725,7 @@ Don\'t show this message again
   <string name="cloud_doc_remove_all_confirm">%1$sని క్లౌడ్ నుండి మరియు ఈ పరికరంతో సహా మీ అన్ని పరికరాల నుండి తొలగించాలా?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$sని క్లౌడ్ నుండి తొలగించాలా? ఈ పరికరంలోని కాపీ ఉంచబడుతుంది; పత్రాల సింక్ ఆన్‌లో ఉన్న పరికరాలు కూడా దాన్ని తొలగిస్తాయి.</string>
   <string name="cloud_doc_sync_now">ఇప్పుడు సింక్ చేయి</string>
+  <string name="cloud_doc_rescan">క్లౌడ్ నుండి మళ్లీ స్కాన్ చేయి</string>
   <string name="cloud_doc_sync_now_download">కొత్త మరియు నవీకరించిన పత్రాలను డవున్‌లోడ్ చేయి</string>
   <string name="cloud_doc_sync_now_upload">స్థానిక పత్రాలను క్లౌడ్‌కు అప్‌లోడ్ చేయి</string>
   <string name="cloud_doc_sync_now_delete">ఇతర పరికరాల నుండి తొలగింపులను వర్తింపజేయి</string>
@@ -1734,6 +1735,7 @@ Don\'t show this message again
   <string name="cloud_doc_summary_download">డవున్‌లోడ్ %1$d</string>
   <string name="cloud_doc_summary_download_size">డవున్‌లోడ్ %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">స్వయంచాలక డవున్‌లోడ్‌లు Wi-Fiలో ప్రారంభమవుతాయి.</string>
+  <string name="cloud_doc_sync_now_count_none">బదిలీ చేయడానికి ఏమీ లేదు</string>
   <string name="cloud_doc_bulk_download">ఎంచుకున్నవి డవున్‌లోడ్ చేయి (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">అందుబాటులో ఉన్న అన్ని పత్రాలు ఇప్పటికే డవున్‌లోడ్ చేయబడ్డాయి.</string>
   <string name="document_sync_notification_title">పత్రాలను సింక్ చేస్తోంది</string>

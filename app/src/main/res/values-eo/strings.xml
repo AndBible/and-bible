@@ -1670,6 +1670,7 @@ Ne montri tion ĉi denove</string>
   <string name="cloud_doc_remove_all_confirm">Ĉu forigi %1$s el la nubo kaj de ĉiuj viaj aparatoj, inkluzive de ĉi tiu?</string>
   <string name="cloud_doc_remove_cloud_confirm">Ĉu forigi %1$s el la nubo? La kopio sur ĉi tiu aparato konserviĝas; aparatoj kun ŝaltita dokumenta sinkronigo ankaŭ forigos ĝin.</string>
   <string name="cloud_doc_sync_now">Sinkronigi nun</string>
+  <string name="cloud_doc_rescan">Reskani el la nubo</string>
   <string name="cloud_doc_sync_now_download">Elŝuti novajn kaj ĝisdatigitajn dokumentojn</string>
   <string name="cloud_doc_sync_now_upload">Alŝuti lokajn dokumentojn al la nubo</string>
   <string name="cloud_doc_sync_now_delete">Apliki forigojn de aliaj aparatoj</string>
@@ -1679,6 +1680,7 @@ Ne montri tion ĉi denove</string>
   <string name="cloud_doc_summary_download">Elŝuti %1$d</string>
   <string name="cloud_doc_summary_download_size">Elŝuti %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Aŭtomataj elŝutoj komenciĝos per Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Nenio por transigi</string>
   <string name="cloud_doc_bulk_download">Elŝuti elektitajn (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Ĉiuj disponeblaj dokumentoj jam estas elŝutitaj.</string>
   <string name="document_sync_notification_title">Sinkronigado de dokumentoj</string>

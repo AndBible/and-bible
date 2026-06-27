@@ -1596,6 +1596,7 @@
   <string name="cloud_doc_remove_all_confirm">ลบ %1$s ออกจากคลาวด์และจากทุกอุปกรณ์ของคุณ รวมถึงอุปกรณ์นี้หรือไม่?</string>
   <string name="cloud_doc_remove_cloud_confirm">ลบ %1$s ออกจากคลาวด์หรือไม่? สำเนาบนอุปกรณ์นี้จะถูกเก็บไว้ อุปกรณ์ที่เปิดการซิงค์เอกสารจะลบออกด้วยเช่นกัน</string>
   <string name="cloud_doc_sync_now">ซิงค์ตอนนี้</string>
+  <string name="cloud_doc_rescan">สแกนจากคลาวด์อีกครั้ง</string>
   <string name="cloud_doc_sync_now_download">ดาวน์โหลดเอกสารใหม่และที่อัปเดต</string>
   <string name="cloud_doc_sync_now_upload">อัปโหลดเอกสารในเครื่องไปยังคลาวด์</string>
   <string name="cloud_doc_sync_now_delete">นำการลบจากอุปกรณ์อื่นไปใช้</string>
@@ -1605,6 +1606,7 @@
   <string name="cloud_doc_summary_download">ดาวน์โหลด %1$d</string>
   <string name="cloud_doc_summary_download_size">ดาวน์โหลด %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">การดาวน์โหลดอัตโนมัติจะเริ่มเมื่อใช้ Wi-Fi</string>
+  <string name="cloud_doc_sync_now_count_none">ไม่มีอะไรต้องถ่ายโอน</string>
   <string name="cloud_doc_bulk_download">ดาวน์โหลดที่เลือก (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">ดาวน์โหลดเอกสารที่มีอยู่ทั้งหมดแล้ว</string>
   <string name="document_sync_notification_title">กำลังซิงค์เอกสาร</string>

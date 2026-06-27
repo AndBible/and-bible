@@ -1762,6 +1762,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="cloud_doc_remove_all_confirm">%1$s belgesi bu cihaz da dahil olmak üzere buluttan ve tüm cihazlarınızdan kaldırılsın mı?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s belgesi buluttan kaldırılsın mı? Bu cihazdaki kopya korunur; belge senkronizasyonu açık olan cihazlar da belgeyi kaldıracaktır.</string>
   <string name="cloud_doc_sync_now">Şimdi senkronize et</string>
+  <string name="cloud_doc_rescan">Buluttan yeniden tara</string>
   <string name="cloud_doc_sync_now_download">Yeni ve güncellenen belgeleri indir</string>
   <string name="cloud_doc_sync_now_upload">Yerel belgeleri buluta yükle</string>
   <string name="cloud_doc_sync_now_delete">Diğer cihazlardan gelen kaldırmaları uygula</string>
@@ -1771,6 +1772,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="cloud_doc_summary_download">%1$d indir</string>
   <string name="cloud_doc_summary_download_size">%1$d indir (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Otomatik indirmeler Wi-Fi üzerinde başlayacak.</string>
+  <string name="cloud_doc_sync_now_count_none">Aktarılacak bir şey yok</string>
   <string name="cloud_doc_bulk_download">Seçilenleri indir (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Mevcut tüm belgeler zaten indirildi.</string>
   <string name="document_sync_notification_title">Belgeler senkronize ediliyor</string>

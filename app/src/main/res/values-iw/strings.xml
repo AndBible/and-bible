@@ -1672,6 +1672,7 @@
   <string name="cloud_doc_remove_all_confirm">להסיר את %1$s מהענן ומכל המכשירים שלך, כולל מכשיר זה?</string>
   <string name="cloud_doc_remove_cloud_confirm">להסיר את %1$s מהענן? העותק במכשיר זה יישמר; מכשירים שבהם סנכרון המסמכים מופעל יסירו אותו גם הם.</string>
   <string name="cloud_doc_sync_now">סנכרון כעת</string>
+  <string name="cloud_doc_rescan">סריקה מחדש מהענן</string>
   <string name="cloud_doc_sync_now_download">הורדת מסמכים חדשים ומעודכנים</string>
   <string name="cloud_doc_sync_now_upload">העלאת מסמכים מקומיים אל הענן</string>
   <string name="cloud_doc_sync_now_delete">החלת הסרות ממכשירים אחרים</string>
@@ -1681,6 +1682,7 @@
   <string name="cloud_doc_summary_download">הורדה %1$d</string>
   <string name="cloud_doc_summary_download_size">הורדה %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">הורדות אוטומטיות יתחילו ברשת Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">אין מה להעביר</string>
   <string name="cloud_doc_bulk_download">הורדת הנבחרים (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">כל המסמכים הזמינים כבר הורדו.</string>
   <string name="document_sync_notification_title">מסנכרן מסמכים</string>

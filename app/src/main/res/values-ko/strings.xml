@@ -1758,6 +1758,7 @@
   <string name="cloud_doc_remove_all_confirm">이 기기를 포함한 모든 기기와 클라우드에서 %1$s을(를) 제거하시겠습니까?</string>
   <string name="cloud_doc_remove_cloud_confirm">클라우드에서 %1$s을(를) 제거하시겠습니까? 이 기기의 사본은 유지됩니다. 문서 동기화가 켜진 기기에서도 제거됩니다.</string>
   <string name="cloud_doc_sync_now">지금 동기화</string>
+  <string name="cloud_doc_rescan">클라우드에서 다시 스캔</string>
   <string name="cloud_doc_sync_now_download">새 문서 및 업데이트된 문서 다운로드</string>
   <string name="cloud_doc_sync_now_upload">로컬 문서를 클라우드로 업로드</string>
   <string name="cloud_doc_sync_now_delete">다른 기기의 제거 사항 적용</string>
@@ -1767,6 +1768,7 @@
   <string name="cloud_doc_summary_download">다운로드 %1$d</string>
   <string name="cloud_doc_summary_download_size">다운로드 %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">자동 다운로드는 Wi-Fi에서 시작됩니다.</string>
+  <string name="cloud_doc_sync_now_count_none">전송할 항목이 없습니다</string>
   <string name="cloud_doc_bulk_download">선택 항목 다운로드 (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">사용 가능한 모든 문서가 이미 다운로드되었습니다.</string>
   <string name="document_sync_notification_title">문서 동기화 중</string>

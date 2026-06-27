@@ -1758,6 +1758,7 @@
   <string name="cloud_doc_remove_all_confirm">%1$s ஐ மேகத்திலிருந்தும் இந்த சாதனம் உட்பட உங்கள் அனைத்து சாதனங்களிலிருந்தும் நீக்கவா?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s ஐ மேகத்திலிருந்து நீக்கவா? இந்த சாதனத்தில் உள்ள நகல் வைத்துக்கொள்ளப்படும்; கோப்பு ஒத்திசைவு இயக்கப்பட்ட சாதனங்களும் அதை நீக்கும்.</string>
   <string name="cloud_doc_sync_now">இப்போது ஒத்திசை</string>
+  <string name="cloud_doc_rescan">மேகத்திலிருந்து மீண்டும் ஸ்கேன் செய்</string>
   <string name="cloud_doc_sync_now_download">புதிய மற்றும் புதுப்பிக்கப்பட்ட கோப்புகளைத் தரவிறக்கு</string>
   <string name="cloud_doc_sync_now_upload">உள்ளூர் கோப்புகளை மேகத்திற்குப் பதிவேற்று</string>
   <string name="cloud_doc_sync_now_delete">பிற சாதனங்களிலிருந்து நீக்கங்களைப் பயன்படுத்து</string>
@@ -1767,6 +1768,7 @@
   <string name="cloud_doc_summary_download">%1$d தரவிறக்கு</string>
   <string name="cloud_doc_summary_download_size">%1$d தரவிறக்கு (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">தானியங்கி தரவிறக்கங்கள் Wi-Fi-யில் தொடங்கும்.</string>
+  <string name="cloud_doc_sync_now_count_none">பரிமாற்ற எதுவும் இல்லை</string>
   <string name="cloud_doc_bulk_download">தேர்ந்தெடுத்தவற்றைத் தரவிறக்கு (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">கிடைக்கும் அனைத்து கோப்புகளும் ஏற்கனவே தரவிறக்கப்பட்டுள்ளன.</string>
   <string name="document_sync_notification_title">கோப்புகளை ஒத்திசைக்கிறது</string>
