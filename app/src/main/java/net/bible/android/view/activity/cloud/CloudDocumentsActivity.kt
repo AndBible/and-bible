@@ -43,7 +43,7 @@ import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import org.crosswire.jsword.book.BookCategory
 
-enum class CloudDocFilter { ALL, INSTALLED, CLOUD, UPDATES, BLOCKED }
+enum class CloudDocFilter { ALL, INSTALLED, CLOUD, UPDATES, BLOCKED, REMOVED }
 
 /**
  * Pure filter used by the cloud documents management view: keeps items matching the
@@ -60,11 +60,12 @@ fun filterCloudDocuments(
     val query = nameQuery.trim()
     return items.filter { item ->
         val statusOk = when (status) {
-            CloudDocFilter.ALL -> true
-            CloudDocFilter.INSTALLED -> !item.cloudOnly
-            CloudDocFilter.CLOUD -> !item.localOnly
-            CloudDocFilter.UPDATES -> item.updateAvailable
-            CloudDocFilter.BLOCKED -> item.blocked
+            CloudDocFilter.ALL -> !item.cloudDeleted || category == null
+            CloudDocFilter.INSTALLED -> !item.cloudOnly && !item.cloudDeleted
+            CloudDocFilter.CLOUD -> !item.localOnly && !item.cloudDeleted
+            CloudDocFilter.UPDATES -> item.updateAvailable && !item.cloudDeleted
+            CloudDocFilter.BLOCKED -> item.blocked && !item.cloudDeleted
+            CloudDocFilter.REMOVED -> item.cloudDeleted
         }
         val nameOk = query.isEmpty() || item.name.contains(query, ignoreCase = true)
         val categoryOk = category == null || item.category == category

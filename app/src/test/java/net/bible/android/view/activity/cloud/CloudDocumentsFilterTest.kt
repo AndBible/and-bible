@@ -32,12 +32,13 @@ class CloudDocumentsFilterTest {
         updateAvailable: Boolean = false,
         blocked: Boolean = false,
         category: BookCategory? = BookCategory.BIBLE,
+        cloudDeleted: Boolean = false,
     ) = DocumentStatusItem(
         initials = initials, name = name, type = DocumentType.SWORD,
         cloudVersion = "1.0", localVersion = "1.0",
         cloudOnly = cloudOnly, localOnly = localOnly, updateAvailable = updateAvailable,
         localNewer = false, blocked = blocked, sizeBytes = 0, category = category,
-        canDeleteLocal = true,
+        canDeleteLocal = true, cloudDeleted = cloudDeleted,
     )
 
     private val items = listOf(
@@ -46,10 +47,11 @@ class CloudDocumentsFilterTest {
         item("MHC", name = "Matthew Henry", updateAvailable = true, category = BookCategory.COMMENTARY),
         item("STRONGS", name = "Strongs", blocked = true, category = BookCategory.DICTIONARY),
         item("NOCAT", name = "Unknown", cloudOnly = true, category = null),
+        item("GONE", name = "Removed Book", cloudDeleted = true, category = BookCategory.BIBLE),
     )
 
     @Test fun allStatusNoQueryReturnsEverything() {
-        assertEquals(5, filterCloudDocuments(items, CloudDocFilter.ALL, "", null).size)
+        assertEquals(6, filterCloudDocuments(items, CloudDocFilter.ALL, "", null).size)
     }
 
     @Test fun installedExcludesCloudOnly() {
@@ -83,5 +85,9 @@ class CloudDocumentsFilterTest {
     @Test fun combinesStatusNameAndCategory() {
         val r = filterCloudDocuments(items, CloudDocFilter.CLOUD, "english", BookCategory.BIBLE)
         assertEquals(listOf("ESV"), r.map { it.initials })
+    }
+
+    @Test fun removedKeepsOnlyTombstones() {
+        assertEquals(listOf("GONE"), filterCloudDocuments(items, CloudDocFilter.REMOVED, "", null).map { it.initials })
     }
 }
