@@ -53,6 +53,7 @@ object BookInstallWatcher {
                 if (!DocumentSync.isInstallingFromSync(book.initials)
                     && shouldAutoUpload(
                         DocumentSyncSettings.enabled,
+                        true,
                         DocumentSyncSettings.blockList.isBlocked(book.initials),
                         DocumentSyncSettings.isAutoTransferAllowed,
                     )

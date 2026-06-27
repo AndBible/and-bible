@@ -37,6 +37,6 @@ fun buildDocumentSyncOps(
         downloadInitials.map { DocumentSyncOp.Download(it) } +
         removeInitials.map { DocumentSyncOp.Remove(it) }
 
-/** Whether an installed document should be auto-uploaded on install. */
-fun shouldAutoUpload(enabled: Boolean, blocked: Boolean, autoTransferAllowed: Boolean): Boolean =
-    enabled && !blocked && autoTransferAllowed
+/** Whether an installed document should be auto-uploaded (on install or in the sync cycle). */
+fun shouldAutoUpload(enabled: Boolean, autoUpload: Boolean, blocked: Boolean, autoTransferAllowed: Boolean): Boolean =
+    enabled && autoUpload && !blocked && autoTransferAllowed
