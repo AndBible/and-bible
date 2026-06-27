@@ -23,9 +23,17 @@ import android.util.Log
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.asyncMap
 import java.io.File
 
 private const val TAG = "DocumentStore"
+
+/**
+ * Max concurrent meta.json reads in [DocumentStore.listDocuments]. Each cloud document is an
+ * independent, read-only fetch, so they fan out; the bound matches the proven DB-patch download
+ * concurrency in CloudSync and keeps the adapter within sane request-rate limits.
+ */
+private const val LIST_CONCURRENCY = 6
 
 class DocumentStore(
     private val adapter: CloudAdapter,
@@ -50,7 +58,10 @@ class DocumentStore(
     }
 
     suspend fun listDocuments(): List<DocumentSyncMeta> =
-        adapter.getFolders(rootFolderId).mapNotNull { readMeta(it.id) }
+        // Each folder's meta.json is an independent read-only fetch (two round-trips: listFiles +
+        // download), so fan them out with bounded concurrency instead of one-at-a-time — this is
+        // the hot path behind every scan / sync / push / remove.
+        adapter.getFolders(rootFolderId).asyncMap(LIST_CONCURRENCY) { readMeta(it.id) }.filterNotNull()
 
     private suspend fun writeMeta(folderId: String, meta: DocumentSyncMeta) {
         // delete existing meta.json then upload fresh (acts as the atomic commit point)
