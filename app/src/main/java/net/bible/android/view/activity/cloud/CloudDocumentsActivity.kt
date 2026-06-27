@@ -573,6 +573,11 @@ class CloudDocumentsActivity : ActivityBase() {
         setBusy(true)
         val plan = try {
             withContext(Dispatchers.IO) { DocumentSync.computeSyncPlan(download = true, upload = true, delete = true) }
+        } catch (e: Exception) {
+            // e.g. a network failure while refreshing the cloud listing: surface it instead of
+            // silently showing no dialog, mirroring the automatic sync cycle's error handling.
+            Toast.makeText(this@CloudDocumentsActivity, R.string.sync_error, Toast.LENGTH_SHORT).show()
+            return@launch
         } finally {
             setBusy(false)
         }
