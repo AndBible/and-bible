@@ -1731,6 +1731,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="cloud_doc_remove_all_confirm">要從雲端及您所有的裝置（包括此裝置）移除 %1$s 嗎？</string>
   <string name="cloud_doc_remove_cloud_confirm">要從雲端移除 %1$s 嗎？此裝置上的副本會保留；已開啟文件同步的裝置也會將其移除。</string>
   <string name="cloud_doc_sync_now">立即同步</string>
+  <string name="cloud_doc_rescan">從雲端重新掃描</string>
   <string name="cloud_doc_sync_now_download">下載新的及已更新的文件</string>
   <string name="cloud_doc_sync_now_upload">將本機文件上傳到雲端</string>
   <string name="cloud_doc_sync_now_delete">套用來自其他裝置的移除</string>
@@ -1740,6 +1741,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="cloud_doc_summary_download">下載 %1$d</string>
   <string name="cloud_doc_summary_download_size">下載 %1$d（%2$s）</string>
   <string name="cloud_doc_wifi_waiting">自動下載將在連上 Wi-Fi 時開始。</string>
+  <string name="cloud_doc_sync_now_count_none">沒有需要傳輸的項目</string>
   <string name="cloud_doc_bulk_download">下載已選取（%1$d）</string>
   <string name="cloud_doc_nothing_to_download">所有可用的文件皆已下載。</string>
   <string name="document_sync_notification_title">正在同步文件</string>

@@ -1596,6 +1596,7 @@
   <string name="cloud_doc_remove_all_confirm">Fjern %1$s fra skyen og fra alle dine enheder, inklusive denne?</string>
   <string name="cloud_doc_remove_cloud_confirm">Fjern %1$s fra skyen? Kopien på denne enhed bevares; enheder med dokumentsynkronisering slået til vil også fjerne det.</string>
   <string name="cloud_doc_sync_now">Synkronisér nu</string>
+  <string name="cloud_doc_rescan">Scan igen fra skyen</string>
   <string name="cloud_doc_sync_now_download">Hent nye og opdaterede dokumenter</string>
   <string name="cloud_doc_sync_now_upload">Upload lokale dokumenter til skyen</string>
   <string name="cloud_doc_sync_now_delete">Anvend fjernelser fra andre enheder</string>
@@ -1605,6 +1606,7 @@
   <string name="cloud_doc_summary_download">Hent %1$d</string>
   <string name="cloud_doc_summary_download_size">Hent %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatiske hentninger starter via Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Intet at overføre</string>
   <string name="cloud_doc_bulk_download">Hent valgte (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Alle tilgængelige dokumenter er allerede hentet.</string>
   <string name="document_sync_notification_title">Synkroniserer dokumenter</string>

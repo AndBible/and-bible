@@ -1759,6 +1759,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="cloud_doc_remove_all_confirm">Ta bort %1$s från molnet och från alla dina enheter, inklusive den här?</string>
   <string name="cloud_doc_remove_cloud_confirm">Ta bort %1$s från molnet? Kopian på den här enheten behålls; enheter med dokumentsynkronisering på tar också bort den.</string>
   <string name="cloud_doc_sync_now">Synkronisera nu</string>
+  <string name="cloud_doc_rescan">Sök igenom molnet på nytt</string>
   <string name="cloud_doc_sync_now_download">Ladda ner nya och uppdaterade dokument</string>
   <string name="cloud_doc_sync_now_upload">Ladda upp lokala dokument till molnet</string>
   <string name="cloud_doc_sync_now_delete">Tillämpa borttagningar från andra enheter</string>
@@ -1768,6 +1769,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="cloud_doc_summary_download">Ladda ner %1$d</string>
   <string name="cloud_doc_summary_download_size">Ladda ner %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatiska nedladdningar startar via Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Inget att överföra</string>
   <string name="cloud_doc_bulk_download">Ladda ner valda (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Alla tillgängliga dokument är redan nedladdade.</string>
   <string name="document_sync_notification_title">Synkroniserar dokument</string>

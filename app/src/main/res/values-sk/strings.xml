@@ -1757,6 +1757,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="cloud_doc_remove_all_confirm">Odstrániť %1$s z cloudu a zo všetkých vašich zariadení, vrátane tohto?</string>
   <string name="cloud_doc_remove_cloud_confirm">Odstrániť %1$s z cloudu? Kópia na tomto zariadení sa zachová; zariadenia so zapnutou synchronizáciou dokumentov ho tiež odstránia.</string>
   <string name="cloud_doc_sync_now">Synchronizovať teraz</string>
+  <string name="cloud_doc_rescan">Znova preskenovať z cloudu</string>
   <string name="cloud_doc_sync_now_download">Stiahnuť nové a aktualizované dokumenty</string>
   <string name="cloud_doc_sync_now_upload">Nahrať lokálne dokumenty do cloudu</string>
   <string name="cloud_doc_sync_now_delete">Aplikovať odstránenia z iných zariadení</string>
@@ -1766,6 +1767,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="cloud_doc_summary_download">Stiahnuť %1$d</string>
   <string name="cloud_doc_summary_download_size">Stiahnuť %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatické sťahovanie sa spustí cez Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Nič na prenos</string>
   <string name="cloud_doc_bulk_download">Stiahnuť vybrané (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Všetky dostupné dokumenty sú už stiahnuté.</string>
   <string name="document_sync_notification_title">Synchronizujú sa dokumenty</string>

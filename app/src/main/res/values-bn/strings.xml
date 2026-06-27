@@ -1709,6 +1709,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="cloud_doc_remove_all_confirm">এই ডিভাইস সহ ক্লাউড এবং আপনার সব ডিভাইস থেকে %1$s অপসারণ করবেন?</string>
   <string name="cloud_doc_remove_cloud_confirm">ক্লাউড থেকে %1$s অপসারণ করবেন? এই ডিভাইসের কপিটি রাখা হবে; নথিপত্র সিঙ্ক চালু থাকা ডিভাইসগুলিও এটি অপসারণ করবে।</string>
   <string name="cloud_doc_sync_now">এখন সিঙ্ক করুন</string>
+  <string name="cloud_doc_rescan">ক্লাউড থেকে পুনরায় স্ক্যান করুন</string>
   <string name="cloud_doc_sync_now_download">নতুন এবং আপডেট করা নথিপত্র ডাউনলোড করুন</string>
   <string name="cloud_doc_sync_now_upload">স্থানীয় নথিপত্র ক্লাউডে আপলোড করুন</string>
   <string name="cloud_doc_sync_now_delete">অন্যান্য ডিভাইস থেকে অপসারণ প্রয়োগ করুন</string>
@@ -1718,6 +1719,7 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="cloud_doc_summary_download">ডাউনলোড %1$d</string>
   <string name="cloud_doc_summary_download_size">ডাউনলোড %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Wi-Fi-তে স্বয়ংক্রিয় ডাউনলোড শুরু হবে।</string>
+  <string name="cloud_doc_sync_now_count_none">স্থানান্তর করার কিছু নেই</string>
   <string name="cloud_doc_bulk_download">নির্বাচিত ডাউনলোড করুন (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">উপলব্ধ সব নথিপত্র ইতিমধ্যে ডাউনলোড করা হয়েছে।</string>
   <string name="document_sync_notification_title">নথিপত্র সিঙ্ক করা হচ্ছে</string>

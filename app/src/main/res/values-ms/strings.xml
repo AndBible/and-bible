@@ -1596,6 +1596,7 @@
   <string name="cloud_doc_remove_all_confirm">Buang %1$s daripada awan dan daripada semua peranti anda, termasuk peranti ini?</string>
   <string name="cloud_doc_remove_cloud_confirm">Buang %1$s daripada awan? Salinan pada peranti ini dikekalkan; peranti yang mempunyai penyegerakan dokumen dihidupkan juga akan membuangnya.</string>
   <string name="cloud_doc_sync_now">Segerakkan sekarang</string>
+  <string name="cloud_doc_rescan">Imbas semula daripada awan</string>
   <string name="cloud_doc_sync_now_download">Muat turun dokumen baharu dan dikemas kini</string>
   <string name="cloud_doc_sync_now_upload">Muat naik dokumen tempatan ke awan</string>
   <string name="cloud_doc_sync_now_delete">Gunakan pembuangan daripada peranti lain</string>
@@ -1605,6 +1606,7 @@
   <string name="cloud_doc_summary_download">Muat turun %1$d</string>
   <string name="cloud_doc_summary_download_size">Muat turun %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Muat turun automatik akan bermula pada Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Tiada apa-apa untuk dipindahkan</string>
   <string name="cloud_doc_bulk_download">Muat turun yang dipilih (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Semua dokumen yang tersedia telah dimuat turun.</string>
   <string name="document_sync_notification_title">Menyegerakkan dokumen</string>

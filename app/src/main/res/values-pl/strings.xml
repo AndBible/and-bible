@@ -1661,6 +1661,7 @@ Nie wyświetlaj tego ponownie</string>
   <string name="cloud_doc_remove_all_confirm">Usunąć %1$s z chmury i ze wszystkich urządzeń, w tym z tego?</string>
   <string name="cloud_doc_remove_cloud_confirm">Usunąć %1$s z chmury? Kopia na tym urządzeniu zostanie zachowana; urządzenia z włączoną synchronizacją dokumentów również ją usuną.</string>
   <string name="cloud_doc_sync_now">Synchronizuj teraz</string>
+  <string name="cloud_doc_rescan">Skanuj ponownie z chmury</string>
   <string name="cloud_doc_sync_now_download">Pobierz nowe i zaktualizowane dokumenty</string>
   <string name="cloud_doc_sync_now_upload">Wyślij lokalne dokumenty do chmury</string>
   <string name="cloud_doc_sync_now_delete">Zastosuj usunięcia z innych urządzeń</string>
@@ -1670,6 +1671,7 @@ Nie wyświetlaj tego ponownie</string>
   <string name="cloud_doc_summary_download">Pobierz %1$d</string>
   <string name="cloud_doc_summary_download_size">Pobierz %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatyczne pobieranie rozpocznie się po połączeniu z Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Nic do przesłania</string>
   <string name="cloud_doc_bulk_download">Pobierz wybrane (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Wszystkie dostępne dokumenty są już pobrane.</string>
   <string name="document_sync_notification_title">Synchronizowanie dokumentów</string>

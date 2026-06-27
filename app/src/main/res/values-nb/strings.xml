@@ -1655,6 +1655,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="cloud_doc_remove_all_confirm">Vil du fjerne %1$s fra skyen og fra alle enhetene dine, inkludert denne?</string>
   <string name="cloud_doc_remove_cloud_confirm">Vil du fjerne %1$s fra skyen? Kopien på denne enheten beholdes; enheter med dokumentsynkronisering på vil også fjerne det.</string>
   <string name="cloud_doc_sync_now">Synkroniser nå</string>
+  <string name="cloud_doc_rescan">Skann på nytt fra skyen</string>
   <string name="cloud_doc_sync_now_download">Last ned nye og oppdaterte dokumenter</string>
   <string name="cloud_doc_sync_now_upload">Last opp lokale dokumenter til skyen</string>
   <string name="cloud_doc_sync_now_delete">Bruk fjerninger fra andre enheter</string>
@@ -1664,6 +1665,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="cloud_doc_summary_download">Last ned %1$d</string>
   <string name="cloud_doc_summary_download_size">Last ned %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatiske nedlastinger starter på Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Ingenting å overføre</string>
   <string name="cloud_doc_bulk_download">Last ned valgte (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Alle tilgjengelige dokumenter er allerede lastet ned.</string>
   <string name="document_sync_notification_title">Synkroniserer dokumenter</string>

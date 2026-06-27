@@ -1751,6 +1751,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="cloud_doc_remove_all_confirm">Odstranit %1$s z cloudu a ze všech vašich zařízení, včetně tohoto?</string>
   <string name="cloud_doc_remove_cloud_confirm">Odstranit %1$s z cloudu? Kopie na tomto zařízení zůstane zachována; zařízení se zapnutou synchronizací dokumentů jej rovněž odstraní.</string>
   <string name="cloud_doc_sync_now">Synchronizovat nyní</string>
+  <string name="cloud_doc_rescan">Znovu prohledat z cloudu</string>
   <string name="cloud_doc_sync_now_download">Stáhnout nové a aktualizované dokumenty</string>
   <string name="cloud_doc_sync_now_upload">Nahrát místní dokumenty do cloudu</string>
   <string name="cloud_doc_sync_now_delete">Aplikovat odstranění z jiných zařízení</string>
@@ -1760,6 +1761,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="cloud_doc_summary_download">Stáhnout %1$d</string>
   <string name="cloud_doc_summary_download_size">Stáhnout %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatické stahování se spustí přes Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Není co přenést</string>
   <string name="cloud_doc_bulk_download">Stáhnout vybrané (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Všechny dostupné dokumenty jsou již stažené.</string>
   <string name="document_sync_notification_title">Synchronizace dokumentů</string>

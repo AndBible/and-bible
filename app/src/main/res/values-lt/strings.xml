@@ -1749,6 +1749,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="cloud_doc_remove_all_confirm">Pašalinti %1$s iš debesies ir iš visų jūsų įrenginių, įskaitant šį?</string>
   <string name="cloud_doc_remove_cloud_confirm">Pašalinti %1$s iš debesies? Kopija šiame įrenginyje išsaugoma; įrenginiai, kuriuose įjungtas dokumentų sinchronizavimas, taip pat ją pašalins.</string>
   <string name="cloud_doc_sync_now">Sinchronizuoti dabar</string>
+  <string name="cloud_doc_rescan">Iš naujo nuskaityti iš debesies</string>
   <string name="cloud_doc_sync_now_download">Atsisiųsti naujus ir atnaujintus dokumentus</string>
   <string name="cloud_doc_sync_now_upload">Įkelti vietinius dokumentus į debesį</string>
   <string name="cloud_doc_sync_now_delete">Taikyti pašalinimus iš kitų įrenginių</string>
@@ -1758,6 +1759,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="cloud_doc_summary_download">Atsisiųsti %1$d</string>
   <string name="cloud_doc_summary_download_size">Atsisiųsti %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatinis atsisiuntimas prasidės per Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Nėra ką perkelti</string>
   <string name="cloud_doc_bulk_download">Atsisiųsti pažymėtus (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Visi galimi dokumentai jau atsisiųsti.</string>
   <string name="document_sync_notification_title">Sinchronizuojami dokumentai</string>

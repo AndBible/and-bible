@@ -1596,6 +1596,7 @@
   <string name="cloud_doc_remove_all_confirm">Xóa %1$s khỏi đám mây và khỏi tất cả thiết bị của bạn, bao gồm cả thiết bị này?</string>
   <string name="cloud_doc_remove_cloud_confirm">Xóa %1$s khỏi đám mây? Bản sao trên thiết bị này được giữ lại; các thiết bị bật đồng bộ tài liệu cũng sẽ xóa nó.</string>
   <string name="cloud_doc_sync_now">Đồng bộ ngay</string>
+  <string name="cloud_doc_rescan">Quét lại từ đám mây</string>
   <string name="cloud_doc_sync_now_download">Tải các tài liệu mới và đã cập nhật</string>
   <string name="cloud_doc_sync_now_upload">Tải các tài liệu cục bộ lên đám mây</string>
   <string name="cloud_doc_sync_now_delete">Áp dụng việc xóa bỏ từ các thiết bị khác</string>
@@ -1605,6 +1606,7 @@
   <string name="cloud_doc_summary_download">Tải xuống %1$d</string>
   <string name="cloud_doc_summary_download_size">Tải xuống %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Việc tải xuống tự động sẽ bắt đầu khi có Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Không có gì để chuyển</string>
   <string name="cloud_doc_bulk_download">Tải các mục đã chọn (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Tất cả tài liệu khả dụng đã được tải xuống.</string>
   <string name="document_sync_notification_title">Đang đồng bộ tài liệu</string>

@@ -1754,6 +1754,7 @@ informe los problemas a los mantenedores de texto
   <string name="cloud_doc_remove_all_confirm">¿Eliminar %1$s de la nube y de todos tus dispositivos, incluido este?</string>
   <string name="cloud_doc_remove_cloud_confirm">¿Eliminar %1$s de la nube? Se conserva la copia de este dispositivo; los dispositivos con la sincronización de documentos activada también la eliminarán.</string>
   <string name="cloud_doc_sync_now">Sincronizar ahora</string>
+  <string name="cloud_doc_rescan">Volver a escanear desde la nube</string>
   <string name="cloud_doc_sync_now_download">Descargar documentos nuevos y actualizados</string>
   <string name="cloud_doc_sync_now_upload">Subir documentos locales a la nube</string>
   <string name="cloud_doc_sync_now_delete">Aplicar las eliminaciones de otros dispositivos</string>
@@ -1763,6 +1764,7 @@ informe los problemas a los mantenedores de texto
   <string name="cloud_doc_summary_download">Descargar %1$d</string>
   <string name="cloud_doc_summary_download_size">Descargar %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Las descargas automáticas empezarán cuando haya Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Nada que transferir</string>
   <string name="cloud_doc_bulk_download">Descargar seleccionados (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Todos los documentos disponibles ya están descargados.</string>
   <string name="document_sync_notification_title">Sincronizando documentos</string>

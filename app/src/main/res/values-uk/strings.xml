@@ -1742,6 +1742,7 @@
   <string name="cloud_doc_remove_all_confirm">Видалити %1$s з хмари та з усіх ваших пристроїв, включно з цим?</string>
   <string name="cloud_doc_remove_cloud_confirm">Видалити %1$s з хмари? Копія на цьому пристрої залишиться; пристрої з увімкненою синхронізацією ресурсів також видалять його.</string>
   <string name="cloud_doc_sync_now">Синхронізувати зараз</string>
+  <string name="cloud_doc_rescan">Пересканувати з хмари</string>
   <string name="cloud_doc_sync_now_download">Завантажити нові та оновлені ресурси</string>
   <string name="cloud_doc_sync_now_upload">Вивантажити локальні ресурси до хмари</string>
   <string name="cloud_doc_sync_now_delete">Застосувати видалення з інших пристроїв</string>
@@ -1751,6 +1752,7 @@
   <string name="cloud_doc_summary_download">Завантажити %1$d</string>
   <string name="cloud_doc_summary_download_size">Завантажити %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Автоматичне завантаження розпочнеться через Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Немає що передавати</string>
   <string name="cloud_doc_bulk_download">Завантажити вибрані (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Усі доступні ресурси вже завантажено.</string>
   <string name="document_sync_notification_title">Синхронізація ресурсів</string>

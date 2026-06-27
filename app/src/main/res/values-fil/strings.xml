@@ -1596,6 +1596,7 @@
   <string name="cloud_doc_remove_all_confirm">Tanggalin ang %1$s sa cloud at sa lahat ng iyong device, kabilang ang isang ito?</string>
   <string name="cloud_doc_remove_cloud_confirm">Tanggalin ang %1$s sa cloud? Mananatili ang kopya sa device na ito; tatanggalin din ito ng mga device na may naka-on na pag-sync ng dokumento.</string>
   <string name="cloud_doc_sync_now">I-sync ngayon</string>
+  <string name="cloud_doc_rescan">Muling i-scan mula sa cloud</string>
   <string name="cloud_doc_sync_now_download">I-download ang mga bago at na-update na dokumento</string>
   <string name="cloud_doc_sync_now_upload">I-upload sa cloud ang mga lokal na dokumento</string>
   <string name="cloud_doc_sync_now_delete">Ilapat ang mga pagtanggal mula sa ibang device</string>
@@ -1605,6 +1606,7 @@
   <string name="cloud_doc_summary_download">I-download %1$d</string>
   <string name="cloud_doc_summary_download_size">I-download %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Magsisimula ang mga awtomatikong pag-download sa Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Walang ililipat</string>
   <string name="cloud_doc_bulk_download">I-download ang napili (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Na-download na ang lahat ng available na dokumento.</string>
   <string name="document_sync_notification_title">Sino-sync ang mga dokumento</string>

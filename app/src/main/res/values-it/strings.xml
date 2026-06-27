@@ -1701,6 +1701,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="cloud_doc_remove_all_confirm">Rimuovere %1$s dal cloud e da tutti i tuoi dispositivi, incluso questo?</string>
   <string name="cloud_doc_remove_cloud_confirm">Rimuovere %1$s dal cloud? La copia su questo dispositivo viene mantenuta; i dispositivi con la sincronizzazione documenti attiva la rimuoveranno anch\'essi.</string>
   <string name="cloud_doc_sync_now">Sincronizza ora</string>
+  <string name="cloud_doc_rescan">Ri-scansiona dal cloud</string>
   <string name="cloud_doc_sync_now_download">Scarica i documenti nuovi e aggiornati</string>
   <string name="cloud_doc_sync_now_upload">Carica i documenti locali nel cloud</string>
   <string name="cloud_doc_sync_now_delete">Applica le rimozioni dagli altri dispositivi</string>
@@ -1710,6 +1711,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="cloud_doc_summary_download">Scarica %1$d</string>
   <string name="cloud_doc_summary_download_size">Scarica %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">I download automatici inizieranno tramite Wi-Fi.</string>
+  <string name="cloud_doc_sync_now_count_none">Niente da trasferire</string>
   <string name="cloud_doc_bulk_download">Scarica i selezionati (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Tutti i documenti disponibili sono già stati scaricati.</string>
   <string name="document_sync_notification_title">Sincronizzazione documenti</string>

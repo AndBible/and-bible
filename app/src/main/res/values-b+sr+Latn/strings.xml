@@ -1732,6 +1732,7 @@ Nemojte više prikazivati ovu poruku ponovo</string>
   <string name="cloud_doc_remove_all_confirm">Ukloniti %1$s iz oblaka i sa svih vaših uređaja, uključujući i ovaj?</string>
   <string name="cloud_doc_remove_cloud_confirm">Ukloniti %1$s iz oblaka? Kopija na ovom uređaju se zadržava; uređaji sa uključenom sinhronizacijom dokumenata će ga takođe ukloniti.</string>
   <string name="cloud_doc_sync_now">Sinhronizuj sada</string>
+  <string name="cloud_doc_rescan">Ponovo skeniraj iz oblaka</string>
   <string name="cloud_doc_sync_now_download">Preuzmi nove i ažurirane dokumente</string>
   <string name="cloud_doc_sync_now_upload">Otpremi lokalne dokumente u oblak</string>
   <string name="cloud_doc_sync_now_delete">Primeni uklanjanja sa drugih uređaja</string>
@@ -1741,6 +1742,7 @@ Nemojte više prikazivati ovu poruku ponovo</string>
   <string name="cloud_doc_summary_download">Preuzmi %1$d</string>
   <string name="cloud_doc_summary_download_size">Preuzmi %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatska preuzimanja će započeti preko Wi-Fi-ja.</string>
+  <string name="cloud_doc_sync_now_count_none">Nema ničega za prenos</string>
   <string name="cloud_doc_bulk_download">Preuzmi izabrano (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Svi dostupni dokumenti su već preuzeti.</string>
   <string name="document_sync_notification_title">Sinhronizacija dokumenata</string>
