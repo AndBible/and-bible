@@ -28,6 +28,7 @@ import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.view.ActionMode
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
@@ -216,6 +217,9 @@ class CloudDocumentsActivity : ActivityBase() {
     /** Whether a foreground-service transfer is in progress (its progress events repeat). */
     private var transferRunning = false
 
+    /** The active selection-mode Contextual Action Bar, or null when not in selection mode. */
+    private var actionMode: ActionMode? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCloudDocumentsBinding.inflate(layoutInflater)
@@ -228,16 +232,11 @@ class CloudDocumentsActivity : ActivityBase() {
         adapter = CloudDocumentsAdapter(
             onOverflow = { item, anchor -> showItemMenu(item, anchor) },
             onSelectionChanged = { count -> onSelectionChanged(count) },
-            onNothingToDownload = {
-                Toast.makeText(this, R.string.cloud_doc_nothing_to_download, Toast.LENGTH_SHORT).show()
-            },
         )
         binding.recycler.apply {
             layoutManager = LinearLayoutManager(this@CloudDocumentsActivity)
             adapter = this@CloudDocumentsActivity.adapter
         }
-
-        binding.primaryAction.setOnClickListener { performBulkAction() }
 
         val filterSelectionListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) =
@@ -416,36 +415,150 @@ class CloudDocumentsActivity : ActivityBase() {
         applyFilter()
     }
 
-    private fun exitSelectionMode() {
-        adapter.setSelectionMode(false)
-        binding.bottomBar.visibility = View.GONE
-        invalidateOptionsMenu()
+    /** The currently selected rows, resolved from the adapter's selected initials. */
+    private fun selectedItems(): List<DocumentStatusItem> {
+        val selected = adapter.getSelectedInitials()
+        return allItems.filter { it.initials in selected }
     }
 
-    /** Updates the bottom action bar to reflect the current selection. */
+    private val selectionActionModeCallback = object : ActionMode.Callback {
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            mode.menuInflater.inflate(R.menu.cloud_documents_selection, menu)
+            return true
+        }
+
+        // Re-evaluated on every selection change: show only the actions at least one selected row supports.
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            val actions = bulkMenuActions(selectedItems(), DocumentSyncSettings.enabled)
+            menu.findItem(R.id.bulk_download).isVisible = CloudDocAction.DOWNLOAD in actions
+            menu.findItem(R.id.bulk_upload).isVisible = CloudDocAction.PUSH in actions
+            menu.findItem(R.id.bulk_remove).isVisible = CloudDocAction.REMOVE_CLOUD in actions
+            menu.findItem(R.id.bulk_dont_sync).isVisible = CloudDocAction.BLOCK in actions
+            menu.findItem(R.id.bulk_allow_sync).isVisible = CloudDocAction.UNBLOCK in actions
+            menu.findItem(R.id.bulk_restore).isVisible = CloudDocAction.RESTORE in actions
+            menu.findItem(R.id.bulk_purge).isVisible = CloudDocAction.PURGE in actions
+            return true
+        }
+
+        override fun onActionItemClicked(mode: ActionMode, menuItem: MenuItem): Boolean {
+            val action = when (menuItem.itemId) {
+                R.id.bulk_download -> CloudDocAction.DOWNLOAD
+                R.id.bulk_upload -> CloudDocAction.PUSH
+                R.id.bulk_remove -> CloudDocAction.REMOVE_CLOUD
+                R.id.bulk_dont_sync -> CloudDocAction.BLOCK
+                R.id.bulk_allow_sync -> CloudDocAction.UNBLOCK
+                R.id.bulk_restore -> CloudDocAction.RESTORE
+                R.id.bulk_purge -> CloudDocAction.PURGE
+                else -> return false
+            }
+            performBulkAction(action)
+            return true
+        }
+
+        override fun onDestroyActionMode(mode: ActionMode) {
+            actionMode = null
+            adapter.setSelectionMode(false)
+        }
+    }
+
+    private fun exitSelectionMode() {
+        actionMode?.finish()
+    }
+
+    /** Starts / updates / ends the Contextual Action Bar as the selection changes. */
     private fun onSelectionChanged(count: Int) {
-        // Selection mode is entered from the adapter (long-press), so refresh the options menu
-        // here too — otherwise the overflow icon lingers in selection mode with its only item
-        // (Sync now) hidden, opening an empty menu.
-        invalidateOptionsMenu()
-        if (!adapter.isSelectionMode()) {
-            binding.bottomBar.visibility = View.GONE
+        if (!adapter.isSelectionMode() || count == 0) {
+            actionMode?.finish()
             return
         }
-        binding.bottomBar.visibility = View.VISIBLE
-        binding.primaryAction.text = getString(R.string.cloud_doc_bulk_download, count)
-        binding.primaryAction.isEnabled = count > 0
+        if (actionMode == null) actionMode = startSupportActionMode(selectionActionModeCallback)
+        actionMode?.apply {
+            title = getString(R.string.cloud_doc_selected_count, count)
+            invalidate()   // re-run onPrepareActionMode for the new selection
+        }
     }
 
     /**
-     * Bulk action for the bottom bar: downloads every selected item that is available
-     * in the cloud (cloud-only or has an update).
+     * Runs a bulk [action] over the selected rows it applies to (others are skipped). Destructive
+     * actions (remove / purge) confirm first; the rest dispatch immediately. A skipped count is
+     * surfaced as a brief toast.
      */
-    private fun performBulkAction() {
-        val selected = adapter.getSelectedInitials()
-        val toDownload = allItems.filter { it.initials in selected && (it.cloudOnly || it.updateAvailable) }.map { it.initials }
-        DocumentSyncService.start(this, pushInitials = emptyList(), downloadInitials = toDownload)
-        exitSelectionMode()
+    private fun performBulkAction(action: CloudDocAction) {
+        val selected = selectedItems()
+        val applicable = applicableInitials(action, selected, DocumentSyncSettings.enabled)
+        val skipped = selected.size - applicable.size
+        if (applicable.isEmpty()) { exitSelectionMode(); return }
+        when (action) {
+            CloudDocAction.REMOVE_CLOUD -> confirmBulkRemove(applicable, skipped)
+            CloudDocAction.PURGE -> confirmBulkPurge(applicable, skipped)
+            else -> {
+                dispatchBulk(action, applicable)
+                reportSkipped(skipped)
+                exitSelectionMode()
+            }
+        }
+    }
+
+    /** Dispatches a non-destructive bulk action over [initials]. */
+    private fun dispatchBulk(action: CloudDocAction, initials: List<String>) {
+        when (action) {
+            CloudDocAction.DOWNLOAD -> DocumentSyncService.start(this, emptyList(), initials)
+            // Restore is a re-push of the still-installed local copy — same engine path as Push.
+            CloudDocAction.PUSH, CloudDocAction.RESTORE -> DocumentSyncService.start(this, initials, emptyList())
+            CloudDocAction.BLOCK -> {
+                initials.forEach { DocumentSyncSettings.blockList.block(it) }
+                allItems = allItems.map { if (it.initials in initials) it.copy(blocked = true) else it }
+                applyFilter()
+            }
+            CloudDocAction.UNBLOCK -> {
+                initials.forEach { DocumentSyncSettings.blockList.unblock(it) }
+                allItems = allItems.map { if (it.initials in initials) it.copy(blocked = false) else it }
+                applyFilter()
+            }
+            else -> {}
+        }
+    }
+
+    private fun confirmBulkRemove(initials: List<String>, skipped: Int) {
+        val enabled = DocumentSyncSettings.enabled
+        val title = if (enabled) R.string.cloud_doc_action_remove_all_devices else R.string.cloud_doc_action_remove_cloud
+        val message = resources.getQuantityString(
+            if (enabled) R.plurals.cloud_doc_bulk_remove_all_confirm else R.plurals.cloud_doc_bulk_remove_cloud_confirm,
+            initials.size, initials.size,
+        )
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                DocumentSyncService.start(this, emptyList(), emptyList(), removeInitials = initials)
+                initials.forEach { allItems = applyOptimisticRemoval(allItems, it, enabled) }
+                applyFilter()
+                reportSkipped(skipped)
+                exitSelectionMode()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun confirmBulkPurge(initials: List<String>, skipped: Int) {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.cloud_doc_action_purge)
+            .setMessage(resources.getQuantityString(R.plurals.cloud_doc_bulk_purge_confirm, initials.size, initials.size))
+            .setPositiveButton(R.string.okay) { _, _ ->
+                DocumentSyncService.start(this, emptyList(), emptyList(), purgeInitials = initials)
+                initials.forEach { allItems = applyOptimisticPurge(allItems, it) }
+                applyFilter()
+                reportSkipped(skipped)
+                exitSelectionMode()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun reportSkipped(skipped: Int) {
+        if (skipped > 0) {
+            Toast.makeText(this, getString(R.string.cloud_doc_bulk_skipped, skipped), Toast.LENGTH_SHORT).show()
+        }
     }
 
     /** Re-scans the cloud + local documents and updates the list. */

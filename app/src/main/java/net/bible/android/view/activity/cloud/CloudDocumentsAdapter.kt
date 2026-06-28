@@ -47,24 +47,18 @@ class CloudDocumentsAdapter(
     private val onOverflow: (DocumentStatusItem, View) -> Unit,
     /** Invoked whenever the set of selected items changes (selection mode only). */
     private val onSelectionChanged: (Int) -> Unit = {},
-    /** Invoked when a long-press tries to start selection but nothing is downloadable. */
-    private val onNothingToDownload: () -> Unit = {},
 ) : ListAdapter<DocumentStatusItem, CloudDocumentsAdapter.ViewHolder>(DIFF_CALLBACK) {
-
-    /** Bulk selection only downloads, so only cloud-only / updatable items are selectable. */
-    private fun isDownloadable(item: DocumentStatusItem) = item.cloudOnly || item.updateAvailable
 
     /** Initials of the currently selected items (only meaningful in selection mode). */
     private val selectedInitials = mutableSetOf<String>()
     private var selectionMode = false
 
     fun submit(items: List<DocumentStatusItem>) {
-        // A refresh can remove items or flip them to non-downloadable (e.g. just downloaded
-        // elsewhere). Drop those from the selection so the bottom-bar count and the bulk action
-        // stay consistent with what's actually selectable now.
+        // A refresh can drop rows (e.g. a document removed elsewhere). Keep in the selection only
+        // the initials still present in the new list, so the CAB count stays consistent.
         if (selectionMode) {
-            val selectable = items.filter { isDownloadable(it) }.mapTo(mutableSetOf()) { it.initials }
-            if (selectedInitials.retainAll(selectable)) onSelectionChanged(selectedInitials.size)
+            val present = items.mapTo(mutableSetOf()) { it.initials }
+            if (selectedInitials.retainAll(present)) onSelectionChanged(selectedInitials.size)
         }
         submitList(items)
     }
@@ -108,16 +102,9 @@ class CloudDocumentsAdapter(
 
             subtitle.text = subtitleText(item)
 
-            // In selection mode only downloadable items are selectable; already-installed /
-            // synced items are dimmed. Their checkbox is INVISIBLE (not GONE) so every row stays
-            // aligned — the checkbox slot is reserved for all rows in selection mode.
-            val downloadable = isDownloadable(item)
-            checkbox.visibility = when {
-                !selectionMode -> View.GONE
-                downloadable -> View.VISIBLE
-                else -> View.INVISIBLE
-            }
-            itemView.alpha = if (selectionMode && !downloadable) 0.4f else 1f
+            // In selection mode every row is selectable: show a checkable box and let taps toggle it.
+            checkbox.visibility = if (selectionMode) View.VISIBLE else View.GONE
+            itemView.alpha = 1f
             checkbox.setOnCheckedChangeListener(null)
             checkbox.isChecked = item.initials in selectedInitials
             checkbox.setOnCheckedChangeListener { _, isChecked ->
@@ -130,18 +117,14 @@ class CloudDocumentsAdapter(
             overflow.setOnClickListener { onOverflow(item, it) }
 
             itemView.setOnClickListener {
-                if (selectionMode && downloadable) checkbox.isChecked = !checkbox.isChecked
+                if (selectionMode) checkbox.isChecked = !checkbox.isChecked
             }
             itemView.setOnLongClickListener {
                 if (!selectionMode) {
-                    if (currentList.none { isDownloadable(it) }) {
-                        onNothingToDownload()
-                    } else {
-                        selectionMode = true
-                        if (downloadable) selectedInitials.add(item.initials)
-                        notifyItemRangeChanged(0, itemCount)
-                        onSelectionChanged(selectedInitials.size)
-                    }
+                    selectionMode = true
+                    selectedInitials.add(item.initials)
+                    notifyItemRangeChanged(0, itemCount)
+                    onSelectionChanged(selectedInitials.size)
                 }
                 true
             }

@@ -1950,8 +1950,20 @@
         <item quantity="other">%1$d documents (%2$s)</item>
     </plurals>
     <string name="cloud_doc_sync_now_count_none">Nothing to transfer</string>
-    <string name="cloud_doc_bulk_download">Download selected (%1$d)</string>
-    <string name="cloud_doc_nothing_to_download">All available documents are already downloaded.</string>
+    <string name="cloud_doc_selected_count">%1$d selected</string>
+    <string name="cloud_doc_bulk_skipped">Skipped %1$d not applicable</string>
+    <plurals name="cloud_doc_bulk_remove_all_confirm">
+        <item quantity="one">Remove %1$d document from the cloud and from all your devices, including this one?</item>
+        <item quantity="other">Remove %1$d documents from the cloud and from all your devices, including this one?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_confirm">
+        <item quantity="one">Remove %1$d document from the cloud? Copies on this device are kept.</item>
+        <item quantity="other">Remove %1$d documents from the cloud? Copies on this device are kept.</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_confirm">
+        <item quantity="one">Permanently remove %1$d document from the cloud history?</item>
+        <item quantity="other">Permanently remove %1$d documents from the cloud history?</item>
+    </plurals>
     <string name="document_sync_notification_title">Syncing documents</string>
     <string name="document_sync_downloading">Downloading %1$s (%2$d/%3$d)</string>
     <string name="document_sync_uploading">Uploading %1$s (%2$d/%3$d)</string>
