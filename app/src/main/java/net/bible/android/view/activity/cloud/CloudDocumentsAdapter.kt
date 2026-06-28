@@ -167,7 +167,9 @@ class CloudDocumentsAdapter(
                 if (item.localOnly) "$removed · ${context.getString(R.string.cloud_doc_status_still_installed)}"
                 else removed
             }
-            item.blocked -> context.getString(R.string.cloud_doc_status_blocked)
+            item.blocked ->
+                if (item.localOnly) context.getString(R.string.cloud_doc_status_wont_sync)
+                else context.getString(R.string.cloud_doc_status_blocked)
             item.updateAvailable -> context.getString(R.string.cloud_doc_status_update)
             item.cloudOnly -> context.getString(R.string.cloud_doc_status_cloud_only)
             item.localOnly -> context.getString(R.string.cloud_doc_status_local_only)

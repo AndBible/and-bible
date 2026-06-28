@@ -1905,6 +1905,7 @@
     <string name="cloud_doc_status_cloud_only">In cloud only</string>
     <string name="cloud_doc_status_update">Update available</string>
     <string name="cloud_doc_status_blocked">Blocked on this device</string>
+    <string name="cloud_doc_status_wont_sync">Won\'t sync to cloud</string>
     <string name="cloud_doc_version_prefix">v%1$s</string>
     <string name="cloud_doc_filter_all">All</string>
     <string name="cloud_doc_filter_installed">Installed</string>
@@ -1924,6 +1925,8 @@
     <string name="cloud_doc_action_block">Don\'t sync to this device</string>
     <string name="cloud_doc_action_unblock">Allow on this device</string>
     <string name="cloud_doc_action_restore">Restore to cloud</string>
+    <string name="cloud_doc_action_dont_sync">Do not sync to cloud</string>
+    <string name="cloud_doc_action_allow_sync">Sync to cloud</string>
     <string name="cloud_doc_action_purge">Remove from cloud history</string>
     <string name="cloud_doc_remove_all_confirm">Remove %1$s from the cloud and from all your devices, including this one?</string>
     <string name="cloud_doc_remove_cloud_confirm">Remove %1$s from the cloud? The copy on this device is kept; devices with document sync on will also remove it.</string>

@@ -102,9 +102,30 @@ fun documentMenuActions(
     // Remove: only when a cloud copy exists. With sync enabled it also deletes the local copy,
     // so suppress it when the local copy can't be deleted (e.g. the last Bible).
     if (!item.localOnly && !(syncEnabled && !item.canDeleteLocal)) add(CloudDocAction.REMOVE_CLOUD)
-    // Block/unblock the per-device auto-download — only meaningful when a cloud copy exists.
+    // Block/unblock the per-device sync opt-out. For a local-only document this means
+    // "do not sync to cloud" (the block list already excludes it from auto-upload); for a
+    // cloud-backed document it also blocks auto-download to this device.
     if (item.blocked) add(CloudDocAction.UNBLOCK)
-    else if (!item.localOnly) add(CloudDocAction.BLOCK)
+    else add(CloudDocAction.BLOCK)
+}
+
+/**
+ * The string resource for a per-item action's menu label. Context-sensitive: for a local-only
+ * document, Block/Unblock read as "do not sync to cloud" / "sync to cloud"; for a cloud-backed
+ * document they keep the block-on-this-device wording. Remove adapts to whether sync is enabled
+ * (it then deletes everywhere, otherwise cloud only).
+ */
+fun actionLabelRes(action: CloudDocAction, localOnly: Boolean, syncEnabled: Boolean): Int = when (action) {
+    CloudDocAction.DOWNLOAD -> R.string.cloud_doc_action_download
+    CloudDocAction.PUSH -> R.string.cloud_doc_action_push
+    CloudDocAction.REMOVE_CLOUD ->
+        if (syncEnabled) R.string.cloud_doc_action_remove_all_devices else R.string.cloud_doc_action_remove_cloud
+    CloudDocAction.BLOCK ->
+        if (localOnly) R.string.cloud_doc_action_dont_sync else R.string.cloud_doc_action_block
+    CloudDocAction.UNBLOCK ->
+        if (localOnly) R.string.cloud_doc_action_allow_sync else R.string.cloud_doc_action_unblock
+    CloudDocAction.RESTORE -> R.string.cloud_doc_action_restore
+    CloudDocAction.PURGE -> R.string.cloud_doc_action_purge
 }
 
 /**
@@ -472,26 +493,13 @@ class CloudDocumentsActivity : ActivityBase() {
     private fun showItemMenu(item: DocumentStatusItem, anchor: View) {
         val popup = PopupMenu(this, anchor)
         documentMenuActions(item, DocumentSyncSettings.enabled).forEachIndexed { order, action ->
-            popup.menu.add(0, action.ordinal, order, actionLabel(action))
+            popup.menu.add(0, action.ordinal, order, actionLabelRes(action, item.localOnly, DocumentSyncSettings.enabled))
         }
         popup.setOnMenuItemClickListener { menuItem ->
             performAction(item, CloudDocAction.entries.first { it.ordinal == menuItem.itemId })
             true
         }
         popup.show()
-    }
-
-    private fun actionLabel(action: CloudDocAction): Int = when (action) {
-        CloudDocAction.DOWNLOAD -> R.string.cloud_doc_action_download
-        CloudDocAction.PUSH -> R.string.cloud_doc_action_push
-        // With sync on, remove deletes everywhere (incl. this device); with sync off, cloud only.
-        CloudDocAction.REMOVE_CLOUD ->
-            if (DocumentSyncSettings.enabled) R.string.cloud_doc_action_remove_all_devices
-            else R.string.cloud_doc_action_remove_cloud
-        CloudDocAction.BLOCK -> R.string.cloud_doc_action_block
-        CloudDocAction.UNBLOCK -> R.string.cloud_doc_action_unblock
-        CloudDocAction.RESTORE -> R.string.cloud_doc_action_restore
-        CloudDocAction.PURGE -> R.string.cloud_doc_action_purge
     }
 
     private fun performAction(item: DocumentStatusItem, action: CloudDocAction) {
