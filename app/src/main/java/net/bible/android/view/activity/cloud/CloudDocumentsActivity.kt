@@ -48,7 +48,7 @@ import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.BookCategory
 
-enum class CloudDocFilter { ALL, INSTALLED, CLOUD, UPDATES, BLOCKED, REMOVED }
+enum class CloudDocFilter { ALL, INSTALLED, CLOUD, UPDATES, BLOCKED, DEVICE_ONLY, REMOVED }
 
 /**
  * Pure filter used by the cloud documents management view: keeps items matching the
@@ -70,6 +70,7 @@ fun filterCloudDocuments(
             CloudDocFilter.CLOUD -> !item.localOnly && !item.cloudDeleted
             CloudDocFilter.UPDATES -> item.updateAvailable && !item.cloudDeleted
             CloudDocFilter.BLOCKED -> item.blocked && !item.cloudDeleted
+            CloudDocFilter.DEVICE_ONLY -> item.localOnly && !item.cloudDeleted
             CloudDocFilter.REMOVED -> item.cloudDeleted
         }
         val nameOk = query.isEmpty() || item.name.contains(query, ignoreCase = true)
@@ -429,6 +430,7 @@ class CloudDocumentsActivity : ActivityBase() {
             getString(R.string.cloud_doc_filter_cloud),
             getString(R.string.cloud_doc_filter_updates),
             getString(R.string.cloud_doc_filter_blocked),
+            getString(R.string.cloud_doc_filter_device_only),
         )
         if (DocumentSyncSettings.showRemovedDocuments) labels.add(getString(R.string.cloud_doc_filter_removed))
         val previous = binding.statusSpinner.selectedItemPosition
