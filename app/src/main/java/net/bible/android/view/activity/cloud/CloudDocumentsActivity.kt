@@ -129,6 +129,31 @@ fun actionLabelRes(action: CloudDocAction, localOnly: Boolean, syncEnabled: Bool
 }
 
 /**
+ * The bulk actions offered for a multi-selection: the union of [documentMenuActions] over
+ * [selected], in canonical [CloudDocAction] declaration order. An action is offered when at least
+ * one selected item supports it; it then operates only on that supporting subset (see
+ * [applicableInitials]). An empty selection yields no actions.
+ */
+fun bulkMenuActions(
+    selected: List<DocumentSync.DocumentStatusItem>,
+    syncEnabled: Boolean,
+): List<CloudDocAction> {
+    val supported = selected.flatMapTo(mutableSetOf()) { documentMenuActions(it, syncEnabled) }
+    return CloudDocAction.entries.filter { it in supported }
+}
+
+/**
+ * Initials of the [selected] items that support [action] — the exact subset a bulk [action] runs on.
+ * Items that don't support it (e.g. a device-only row under a bulk Download) are skipped.
+ */
+fun applicableInitials(
+    action: CloudDocAction,
+    selected: List<DocumentSync.DocumentStatusItem>,
+    syncEnabled: Boolean,
+): List<String> =
+    selected.filter { action in documentMenuActions(it, syncEnabled) }.map { it.initials }
+
+/**
  * The expected list state right after a remove, applied optimistically before the background
  * removal completes. With sync on (removes everywhere) or for a cloud-only item, the row drops;
  * otherwise (manual mode, local copy kept) the row becomes local-only.
