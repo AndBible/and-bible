@@ -1,13 +1,15 @@
 # Document Sync — Consolidated Design
 
-**Date:** 2026-06-26 (last consolidated 2026-06-27)
+**Date:** 2026-06-26 (last consolidated 2026-06-28)
 **Status:** Implemented
 
 This is the single source of truth for the document-sync feature. It consolidates and
 supersedes all earlier design notes — the initial design, testing corrections, background
 service, settings-UX simplification, the **per-device direction control** notes, the
-**removed-documents view** notes, the **incremental cloud-listing** design, and the
-**"Sync now" preview & cloud-storage-accounting** follow-up — folding in the refinements
+**removed-documents view** notes, the **incremental cloud-listing** design, the
+**"Sync now" preview & cloud-storage-accounting** follow-up, and the **management-view
+improvements** (device-only "do not sync to cloud", bulk actions via a Contextual Action
+Bar, and the "Only on this device" filter) — folding in the refinements
 made during hands-on testing. It describes the feature as built.
 
 ## Summary
@@ -337,13 +339,18 @@ of local + cloud documents.
   Name, plus a subtitle of version · size · status text. Colours match the Download Documents list
   (`@color/grey_600` icons, theme `textAppearance`). Status is conveyed by text (and the icon), never
   colour — grayscale/e-ink safe. Removed rows read "Removed from cloud" (+ "still installed here" when
-  a local copy remains).
-- **Filters:** name search + status spinner + category spinner. The status spinner is built
-  programmatically; `CloudDocFilter.REMOVED` is the **last** enum value and its "Removed" entry is
-  appended only while the "Show removed documents" toggle is on (so the position→enum mapping stays
-  correct for the other filters). Removed documents appear under **ALL** and **REMOVED**, and are
-  excluded from INSTALLED / CLOUD / UPDATES / BLOCKED. Turning the toggle off while REMOVED is selected
-  resets the selection to ALL.
+  a local copy remains). A device-only document the user has marked "do not sync to cloud" (blocked
+  while local-only) reads "Won't sync to cloud"; a blocked cloud-backed document reads "Blocked".
+- **Filters:** name search + status spinner + category spinner. Status filters are
+  `ALL · INSTALLED · CLOUD · UPDATES · BLOCKED · DEVICE_ONLY · REMOVED`. **Only on this device**
+  (`DEVICE_ONLY = localOnly && !cloudDeleted`) shows documents installed here but absent from the cloud
+  — the strict subset of INSTALLED (`!cloudOnly && !cloudDeleted`) that excludes cloud-backed local
+  copies; the candidates for pushing or for marking "do not sync to cloud". The status spinner is built
+  programmatically; `CloudDocFilter.REMOVED` is the **last** enum value (with `DEVICE_ONLY` immediately
+  before it) and its "Removed" entry is appended only while the "Show removed documents" toggle is on
+  (so the position→enum mapping stays correct for the other filters). Removed documents appear under
+  **ALL** and **REMOVED**, and are excluded from INSTALLED / CLOUD / UPDATES / BLOCKED / DEVICE_ONLY.
+  Turning the toggle off while REMOVED is selected resets the selection to ALL.
 - **Show removed documents (overflow toggle):** a checkable item (per-device pref
   `showRemovedDocuments`, default off). Toggling re-renders from the **cache only**
   (`renderFromCache` → `scanCached`) behind the non-blocking loading bar — tombstones are already
@@ -354,9 +361,13 @@ of local + cloud documents.
   keeps its own swipe spinner. When animations are disabled (default on e-ink), the bar is set to a
   static determinate state up front rather than the animating indeterminate one — visible "working"
   feedback with no continuous motion (e-ink ghosting).
-- **Per-item popup menu (`documentMenuActions`, pure + tested):** only relevant actions.
+- **Per-item popup menu (`documentMenuActions`, pure + tested):** only relevant actions. Labels are
+  resolved by the pure `actionLabelRes(action, localOnly, syncEnabled)`.
   - Normal rows: Download (cloud-only or cloud newer), Push (local-only or local newer), Remove (cloud
-    copy exists), Block/Unblock. A fully-synced item has no Push.
+    copy exists), Block/Unblock. A fully-synced item has no Push. Block/Unblock are offered for **every**
+    row (including device-only). The label is context-sensitive: for a **local-only** row, Block reads
+    "Do not sync to cloud" / Unblock "Sync to cloud"; for a **cloud-backed** row, "Block" / "Unblock"
+    (which also blocks auto-download to this device).
   - Removed (tombstone) rows: **Restore to cloud** (only when installed locally — re-pushes the local
     copy via the service; no dialog, like Push) and **Remove from cloud history** (purge). No
     Download/Push/Remove/Block.
@@ -369,10 +380,22 @@ of local + cloud documents.
   dialog notes that a device still holding a local copy may re-upload it on its next sync (the tombstone
   is the signal that prevents that). The list updates optimistically (`applyOptimisticPurge`): an installed
   tombstone becomes a plain local-only row, an uninstalled one drops out.
-- **Block / unblock:** instant — updates the row in memory (a local set in `DocumentSyncDatabase`), no network.
-- **Selection mode:** entered by long-press (no menu item). Only downloadable items are selectable;
-  already-installed/synced rows are dimmed with the checkbox reserved (INVISIBLE). Bulk action downloads
-  the selected items. The overflow menu hides in selection mode.
+- **Block / unblock (incl. "do not sync to cloud"):** instant — updates the row in memory (a local set
+  in `DocumentSyncDatabase`), no network. The same per-device block list backs both directions:
+  blocking a device-only document excludes it from auto-upload (`resolveUploads`), blocking a
+  cloud-backed one also excludes it from auto-download (the resolver). One concept, context-sensitive
+  wording.
+- **Selection mode (Contextual Action Bar):** entered by long-press (no menu item); **every** row is
+  selectable (checkbox shown for all rows, no dimming). The CAB title shows the selected count and
+  overlays the app bar (so the normal overflow is hidden). Its actions are the **union** of the
+  per-item actions over the selection (`bulkMenuActions`, pure + tested): Download / Upload / Remove as
+  ActionBar icons, and Do-not-sync / Allow-sync / Restore / Purge in the overflow. An action is offered
+  when **at least one** selected row supports it; running it applies only to that supporting subset
+  (`applicableInitials`, pure + tested), and a brief toast reports any skipped rows ("Skipped N not
+  applicable"). Remove and Purge confirm with a count-based dialog (the single-item last-Bible guard is
+  inherited via `documentMenuActions`, so an undeletable Bible is simply never in the Remove subset);
+  the rest dispatch straight to `DocumentSyncService`. The selection is resolved against the full list,
+  not the filtered view, so it survives a filter change.
 - **"Sync now"** (overflow, shown whenever signed in, hidden in selection mode): a full manual sync with
   an **operation picker that previews the transfer**. Behind the non-blocking loading bar it computes
   the plan once with all three directions on (`DocumentSync.computeSyncPlan(true, true, true)`, on
@@ -399,9 +422,11 @@ of local + cloud documents.
 
 - **Wi-Fi-only** (default on): automatic transfers wait for an unmetered connection
   (`isAutoTransferAllowed = !wifiOnly || !isMeteredNetwork`); manual actions always proceed.
-- **Block list:** a per-device set of initials (stored in `DocumentSyncDatabase`) that won't
-  auto-download to this device. Not synced. Honoured by the resolver and `shouldAutoUpload`, and by
-  `resolveUploads`.
+- **Block list:** a per-device set of initials (stored in `DocumentSyncDatabase`) that this device opts
+  out of syncing — excluded from auto-download **and** auto-upload **and** tombstone-driven uninstall.
+  Not synced. Honoured by the resolver, `shouldAutoUpload`, and `resolveUploads`. Surfaced in the
+  management view per row: as "Block" for a cloud-backed document (no auto-download here) and as
+  "Do not sync to cloud" for a device-only document (no auto-upload).
 
 ## Auto paths
 
@@ -428,11 +453,18 @@ Kotlin-only → `./gradlew testStandardGoogleplayDebugUnitTest`. Pure, unit-test
 - `sumCloudBytes` — non-deleted metas summed, tombstones excluded, empty list = 0.
 - `assembleStatusItems` — tombstone include/exclude by `includeDeleted`; tombstone+local → local-only +
   `cloudDeleted`; no-regression on the default path.
-- `documentMenuActions` — relevant actions per status, last-Bible suppression, and tombstone rows
-  (Restore only when installed locally; Purge always; never Download/Push/Remove/Block).
+- `documentMenuActions` — relevant actions per status, last-Bible suppression, Block/Unblock offered
+  for local-only rows too, and tombstone rows (Restore only when installed locally; Purge always; never
+  Download/Push/Remove/Block).
+- `actionLabelRes` — context-sensitive Block/Unblock labels (local-only "do not sync to cloud" vs
+  cloud "block"), and Remove wording by `syncEnabled`.
+- `bulkMenuActions` / `applicableInitials` — union of per-item actions over a heterogeneous selection
+  in canonical order; per-action applicable subset (download skips non-downloadable, block skips
+  already-blocked, remove respects the last-Bible guard).
 - `applyOptimisticRemoval` / `applyOptimisticPurge` — expected list state per sync/install state.
-- `filterCloudDocuments` — status (incl. REMOVED) × name × category; tombstones excluded from every
-  non-removed status filter even when they carry blocked/update flags.
+- `filterCloudDocuments` — status (incl. REMOVED and DEVICE_ONLY) × name × category; DEVICE_ONLY is the
+  strict local-only subset distinct from INSTALLED; tombstones excluded from every non-removed status
+  filter even when they carry blocked/update flags.
 - `CloudDocumentCacheMapping` — `DocumentSyncMeta` ↔ `CachedCloudDocument` round-trip.
 - `mergeCloudListing` — upsert of changed metas; purge of vanished folders; watermark advances to the
   max matched `createdTime` with no failures, and only to just below the earliest failure otherwise
@@ -468,11 +500,14 @@ and the resolver functions — are unit-tested).
   `CloudDocumentSyncTimestamp`, and `CachedCloudDocument` + `CloudDocumentCacheDao`
   (`deleteByInitials`, `markDeleted`); registered in `DatabaseContainer` (closed on reset; first-run
   deletion of the old `cloud-documents-cache.sqlite3`).
-- `view/activity/cloud/`: `CloudDocumentsActivity` (`documentMenuActions`, `filterCloudDocuments`,
+- `view/activity/cloud/`: `CloudDocumentsActivity` (`documentMenuActions`, `actionLabelRes`,
+  `bulkMenuActions`/`applicableInitials`, `filterCloudDocuments`,
   `applyOptimisticRemoval`/`applyOptimisticPurge`, `setupStatusFilter`, `renderFromCache`,
-  the re-scan/reset action, `CloudDocAction`, `CloudDocFilter`), `CloudDocumentsAdapter`.
-- `res/`: `ic_cloud_off_24dp`, `ic_cloud_download_24dp`, `ic_cloud_upload_24dp`, `sync_settings.xml`,
-  `item_cloud_document.xml`, `strings.xml`.
+  the re-scan/reset action, the selection-mode `ActionMode` Contextual Action Bar, `CloudDocAction`,
+  `CloudDocFilter` incl. `DEVICE_ONLY`), `CloudDocumentsAdapter` (every row selectable in selection mode).
+- `res/`: `ic_cloud_off_24dp`, `ic_cloud_download_24dp`, `ic_cloud_upload_24dp`, `ic_delete_24dp`,
+  `sync_settings.xml`, `item_cloud_document.xml`, `menu/cloud_documents_selection.xml` (the CAB menu),
+  `strings.xml`.
 - Touchpoints: `BookInstallWatcher`, `CloudSync.synchronize`/`signOut`/`bytesUsed`, `SyncSettings`,
   `DocumentControl.canDelete`.
 
