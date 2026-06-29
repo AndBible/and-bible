@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.cloud
 
+import net.bible.android.activity.R
 import net.bible.service.cloudsync.documents.DocumentSync.DocumentStatusItem
 import net.bible.service.cloudsync.documents.DocumentType
 import org.crosswire.jsword.book.BookCategory
@@ -43,8 +44,32 @@ class CloudDocumentsMenuTest {
         )
     }
 
-    @Test fun localOnlyOffersOnlyPush() {
-        assertEquals(listOf(CloudDocAction.PUSH), documentMenuActions(item(localOnly = true), syncEnabled = true))
+    @Test fun localOnlyOffersPushAndBlock() {
+        // A device-only document can now be marked "do not sync to cloud" (BLOCK) in addition to Push.
+        assertEquals(
+            listOf(CloudDocAction.PUSH, CloudDocAction.BLOCK),
+            documentMenuActions(item(localOnly = true), syncEnabled = true),
+        )
+    }
+
+    @Test fun blockedLocalOnlyOffersUnblock() {
+        assertEquals(
+            listOf(CloudDocAction.PUSH, CloudDocAction.UNBLOCK),
+            documentMenuActions(item(localOnly = true, blocked = true), syncEnabled = true),
+        )
+    }
+
+    @Test fun actionLabelIsContextSensitiveForBlock() {
+        // Local-only: "do not sync to cloud"; cloud document: the existing "block" wording.
+        assertEquals(R.string.cloud_doc_action_dont_sync, actionLabelRes(CloudDocAction.BLOCK, localOnly = true, syncEnabled = true))
+        assertEquals(R.string.cloud_doc_action_allow_sync, actionLabelRes(CloudDocAction.UNBLOCK, localOnly = true, syncEnabled = true))
+        assertEquals(R.string.cloud_doc_action_block, actionLabelRes(CloudDocAction.BLOCK, localOnly = false, syncEnabled = true))
+        assertEquals(R.string.cloud_doc_action_unblock, actionLabelRes(CloudDocAction.UNBLOCK, localOnly = false, syncEnabled = true))
+    }
+
+    @Test fun actionLabelRemoveDependsOnSyncEnabled() {
+        assertEquals(R.string.cloud_doc_action_remove_all_devices, actionLabelRes(CloudDocAction.REMOVE_CLOUD, localOnly = false, syncEnabled = true))
+        assertEquals(R.string.cloud_doc_action_remove_cloud, actionLabelRes(CloudDocAction.REMOVE_CLOUD, localOnly = false, syncEnabled = false))
     }
 
     @Test fun fullySyncedHasNoPushOrDownload() {

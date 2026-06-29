@@ -91,6 +91,28 @@ class CloudDocumentsFilterTest {
         assertEquals(listOf("GONE"), filterCloudDocuments(items, CloudDocFilter.REMOVED, "", null).map { it.initials })
     }
 
+    @Test fun deviceOnlyKeepsOnlyLocalOnlyDocuments() {
+        // Only KJV is installed on this device and absent from the cloud.
+        assertEquals(listOf("KJV"), filterCloudDocuments(items, CloudDocFilter.DEVICE_ONLY, "", null).map { it.initials })
+    }
+
+    @Test fun deviceOnlyExcludesTombstones() {
+        // A still-installed tombstone is local-only in the data model but must not appear here —
+        // it belongs under REMOVED, not "Only on this device".
+        val ghost = listOf(item("GHOST", localOnly = true, cloudDeleted = true))
+        assertEquals(emptyList<String>(), filterCloudDocuments(ghost, CloudDocFilter.DEVICE_ONLY, "", null).map { it.initials })
+    }
+
+    @Test fun deviceOnlyDiffersFromInstalled() {
+        // INSTALLED includes the synced/cloud-backed local copies; DEVICE_ONLY is the strict subset.
+        val both = listOf(
+            item("LOCALONLY", localOnly = true),
+            item("SYNCED"),                 // installed AND in cloud (neither localOnly nor cloudOnly)
+        )
+        assertEquals(listOf("LOCALONLY", "SYNCED"), filterCloudDocuments(both, CloudDocFilter.INSTALLED, "", null).map { it.initials })
+        assertEquals(listOf("LOCALONLY"), filterCloudDocuments(both, CloudDocFilter.DEVICE_ONLY, "", null).map { it.initials })
+    }
+
     @Test fun tombstoneExcludedFromAllNonRemovedStatusFilters() {
         // A removed (tombstone) document may still carry last-known blocked / update-available flags,
         // but it must surface only under ALL and REMOVED — never INSTALLED/CLOUD/UPDATES/BLOCKED.
