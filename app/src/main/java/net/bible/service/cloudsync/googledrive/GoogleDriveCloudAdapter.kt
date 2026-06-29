@@ -31,6 +31,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.http.FileContent
+import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.DateTime
@@ -58,6 +59,12 @@ import kotlin.coroutines.resumeWithException
 
 const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
 const val FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
+
+// The Google API client defaults to a 20s connect/read timeout. That is too aggressive for large
+// document downloads (and the per-read timeout can fire mid-transfer) on slow or flaky mobile
+// connections — e.g. e-ink devices — surfacing as a premature SocketTimeoutException (OSTicket 3355).
+private const val CLOUD_CONNECT_TIMEOUT_MS = 60_000
+private const val CLOUD_READ_TIMEOUT_MS = 120_000
 
 private fun DriveFile.toSyncFile() = CloudFile(
     id = id,
@@ -104,14 +111,23 @@ class GoogleDriveCloudAdapter: CloudAdapter {
         if (!signedIn) {
             throw IllegalStateException("Not signed in")
         }
-        return _service?: Drive.Builder(
-            NetHttpTransport(),
-            GsonFactory.getDefaultInstance(),
-            GoogleAccountCredential
+        return _service ?: run {
+            val credential = GoogleAccountCredential
                 .usingOAuth2(BibleApplication.application, Collections.singleton(DriveScopes.DRIVE_APPDATA))
                 .setSelectedAccount(account)
-        ).setApplicationName("AndBible").build().also {
-            _service = it
+            // Keep the credential's auth handling but extend the default 20s timeouts (see constants).
+            val requestInitializer = HttpRequestInitializer { request ->
+                credential.initialize(request)
+                request.connectTimeout = CLOUD_CONNECT_TIMEOUT_MS
+                request.readTimeout = CLOUD_READ_TIMEOUT_MS
+            }
+            Drive.Builder(
+                NetHttpTransport(),
+                GsonFactory.getDefaultInstance(),
+                requestInitializer
+            ).setApplicationName("AndBible").build().also {
+                _service = it
+            }
         }
     }
 
