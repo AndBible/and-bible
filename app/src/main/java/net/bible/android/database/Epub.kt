@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -29,6 +29,7 @@ import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import net.bible.android.database.migrations.Migration
+import net.bible.android.database.migrations.makeMigration
 import org.jdom2.Element
 
 @Entity
@@ -58,6 +59,12 @@ class StyleSheet(
     @PrimaryKey(autoGenerate = true) var id: Long = 0,
 )
 
+@Entity
+class EpubMeta(
+    @PrimaryKey val id: Int = 0,
+    val totalCharacters: Int,
+)
+
 @Dao
 interface EpubDao {
     @Insert fun insert(vararg items: EpubFragment): List<Long>
@@ -82,18 +89,28 @@ interface EpubDao {
 
     @Query("SELECT * FROM StyleSheet WHERE origId=:origId")
     fun styleSheets(origId: String): List<StyleSheet>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insert(meta: EpubMeta)
+
+    @Query("SELECT * FROM EpubMeta WHERE id = 0")
+    fun getMeta(): EpubMeta?
 }
 
 
-const val EPUB_DATABASE_VERSION = 1
+const val EPUB_DATABASE_VERSION = 2
 
-val epubMigrations = arrayOf<Migration>()
+private val addEpubMeta = makeMigration(1..2) { db ->
+    db.execSQL("CREATE TABLE IF NOT EXISTS `EpubMeta` (`id` INTEGER NOT NULL, `totalCharacters` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+}
+
+val epubMigrations = arrayOf<Migration>(addEpubMeta)
 
 @Database(
     entities = [
         EpubHtmlToFrag::class,
         EpubFragment::class,
         StyleSheet::class,
+        EpubMeta::class,
     ],
     version = EPUB_DATABASE_VERSION
 )
