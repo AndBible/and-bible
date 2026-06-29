@@ -249,6 +249,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.SCROLL_HELPER_LINE_STYLE -> R.string.prefs_scroll_helper_line_style_title
                 TextDisplaySettings.Types.PAGE_BUTTONS -> R.string.prefs_page_buttons_title
                 TextDisplaySettings.Types.ORDINALS -> R.string.prefs_show_ordinals_title
+                TextDisplaySettings.Types.SHOW_READING_PROGRESS -> R.string.prefs_show_reading_progress_title
             }
             return application.getString(id)
         }

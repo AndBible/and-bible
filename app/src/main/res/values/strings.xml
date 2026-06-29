@@ -1871,6 +1871,8 @@
     <string name="prefs_show_ai_doc_markers_summary">Show marker icons for AI-generated document pages linked to verses</string>
     <string name="prefs_show_ordinals_title">Show ordinal numbers</string>
     <string name="prefs_show_ordinals_summary">Show ordinal position markers in text</string>
+    <string name="prefs_show_reading_progress_title">Reading progress</string>
+    <string name="prefs_show_reading_progress_summary">Show how far through the book you are (percentage, page or chapter)</string>
 
     <string name="prefs_page_scroll_amount_title">Page scroll amount</string>
     <string name="prefs_page_scroll_amount_summary">How much of the page to scroll with page up/down</string>

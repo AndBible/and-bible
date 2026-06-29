@@ -218,6 +218,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var scrollHelperLineStyle: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showPageButtons: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showOrdinals: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showReadingProgress: Boolean? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -254,6 +255,7 @@ class WorkspaceEntities {
             SCROLL_HELPER_LINE_STYLE,
             PAGE_BUTTONS,
             ORDINALS,
+            SHOW_READING_PROGRESS,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -291,6 +293,7 @@ class WorkspaceEntities {
             Types.SCROLL_HELPER_LINE_STYLE -> scrollHelperLineStyle
             Types.PAGE_BUTTONS -> showPageButtons
             Types.ORDINALS -> showOrdinals
+            Types.SHOW_READING_PROGRESS -> showReadingProgress
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -329,6 +332,7 @@ class WorkspaceEntities {
                 Types.SCROLL_HELPER_LINE_STYLE -> scrollHelperLineStyle = value as Int?
                 Types.PAGE_BUTTONS -> showPageButtons = value as Boolean?
                 Types.ORDINALS -> showOrdinals = value as Boolean?
+                Types.SHOW_READING_PROGRESS -> showReadingProgress = value as Boolean?
             }
         }
 
@@ -399,6 +403,7 @@ class WorkspaceEntities {
                 scrollHelperLineStyle = 0,
                 showPageButtons = false,
                 showOrdinals = false,
+                showReadingProgress = false,
             )
 
             fun actual(
