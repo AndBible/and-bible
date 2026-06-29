@@ -37,6 +37,7 @@ import net.bible.android.misc.wrapString
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.isMyDocument
@@ -137,11 +138,29 @@ open class OsisDocument(
             if (ordRange == null) "null"
             else json.encodeToString(serializer(), listOf(ordRange.first, ordRange.last))
 
+        val readingProgress: String = when {
+            book.isEpub -> book.epubBackend
+                ?.let { ReadingProgressInfo.forEpub(it.maxOrdinal, it.totalCharacters).asJson }
+                ?: "null"
+            book.bookCategory == BookCategory.COMMENTARY && book is SwordBook -> {
+                val vr = when (val k = key) {
+                    is VerseRange -> k
+                    is Verse -> VerseRange(k.versification, k, k)
+                    else -> null
+                }
+                vr?.let {
+                    ReadingProgressInfo.forVerseKey(book.versification, it.toV11n(book.versification)).asJson
+                } ?: "null"
+            }
+            else -> "null"
+        }
+
         return mapOf(
             "id" to wrapString(sanitizeId("${book.initials}-${key.uniqueId}")),
             "type" to wrapString("osis"),
             "osisFragment" to mapToJson(osisFragment.toHashMap),
             "ordinalRange" to ordinalRange,
+            "readingProgress" to readingProgress,
             "bookInitials" to wrapString(book.initials),
             "bookCategory" to wrapString(book.bookCategory.name),
             "bookAbbreviation" to wrapString(book.abbreviation),
@@ -201,6 +220,7 @@ class BibleDocument(
             put("targetOrdinals", json.encodeToString(serializer(), targetOrdinals))
             put("chapterReadCount", json.encodeToString(serializer(),
                 ProgressControl.getChapterReadCount(swordBook.versification, verseRange.start.book, verseRange.start.chapter)))
+            put("readingProgress", ReadingProgressInfo.forVerseKey(swordBook.versification, vrInV11n).asJson)
         }
     }
 }
