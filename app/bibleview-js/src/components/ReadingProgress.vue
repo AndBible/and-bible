@@ -16,13 +16,15 @@
   -->
 
 <template>
-  <div v-if="text" class="reading-progress">
+  <div v-if="text" class="reading-progress" :style="{bottom}">
     <div class="reading-progress-text">{{ text }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{ text: string | null }>();
+// `bottom` is computed by the parent (BibleView) to respect the bottom offset /
+// window button bar and to stack above the page-number overlay when it is shown.
+withDefaults(defineProps<{ text: string | null; bottom?: string }>(), {bottom: '0px'});
 </script>
 
 <style lang="scss">
@@ -30,10 +32,9 @@ defineProps<{ text: string | null }>();
   z-index: 5;
   position: fixed;
   right: 2mm;
-  bottom: 0;
-  // Stacked one row above where the page-number overlay sits (it is 0.5cm tall at
-  // margin-bottom 2mm), so the two never overlap when both are enabled.
-  margin-bottom: calc(2mm + 0.6cm);
+  // `bottom` is set inline from the parent; `margin-bottom` matches the page-number
+  // overlay's 2mm gap from the bottom edge.
+  margin-bottom: 2mm;
   padding: 0 2mm;
   height: 0.5cm;
   display: flex;

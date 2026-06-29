@@ -71,7 +71,7 @@
         {{ pageNumber }}
       </div>
     </div>
-    <ReadingProgress v-if="config.showReadingProgress" :text="progressText"/>
+    <ReadingProgress v-if="config.showReadingProgress" :text="progressText" :bottom="readingProgressBottom"/>
     <template v-if="appSettings.einkMode && config.scrollHelperLines && config.pageScrollAmount < 100">
       <div
           v-for="pos in helperLinePositions"
@@ -452,6 +452,13 @@ const helperLineClass = computed(() => {
 const pageNumberBottom = computed(() =>
     appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`
 );
+
+const readingProgressBottom = computed(() => {
+    // Same base as the page-number overlay so we clear the window button bar / bottom offset.
+    const base = appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`;
+    // Stack above the page-number overlay (~0.7cm tall at the same base) when it is also shown.
+    return config.showPageNumber ? `calc(${base} + 0.7cm)` : base;
+});
 
 const pageNumber = computed(() => {
     const num = (scrollY.value - scrollYAtStart.value) / scrollAmount.value;
