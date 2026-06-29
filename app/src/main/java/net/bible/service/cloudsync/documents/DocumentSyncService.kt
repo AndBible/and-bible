@@ -189,10 +189,13 @@ class DocumentSyncService : Service() {
             val totalNow = total.get()
             updateNotification(op, current, totalNow)
             ABEventBus.post(DocumentSyncProgressEvent(true, current, totalNow, op.initials))
+            lastDownloadPct = -1
             try {
                 when (op) {
                     is DocumentSyncOp.Push -> Books.installed().getBook(op.initials)?.let { DocumentSync.pushDocument(it) }
-                    is DocumentSyncOp.Download -> DocumentSync.downloadAndInstall(op.initials)
+                    is DocumentSyncOp.Download -> DocumentSync.downloadAndInstall(op.initials) { downloaded, totalBytes ->
+                        updateDownloadProgress(op, current, totalNow, downloaded, totalBytes)
+                    }
                     is DocumentSyncOp.Remove -> DocumentSync.removeFromCloud(op.initials)
                     is DocumentSyncOp.Purge -> DocumentSync.purgeTombstone(op.initials)
                     is DocumentSyncOp.Uninstall -> DocumentSync.uninstallLocal(op.initials)
@@ -254,6 +257,23 @@ class DocumentSyncService : Service() {
 
     private fun updateNotification(op: DocumentSyncOp, current: Int, total: Int) {
         notificationManager.notify(DOC_SYNC_NOTIFICATION_ID, buildNotification(opNotificationText(op, current, total)))
+    }
+
+    /** Last whole-percent shown for the in-progress download, to skip redundant notification posts. */
+    private var lastDownloadPct = -1
+
+    /**
+     * Updates the notification with download progress. Shows a percentage when the total size is
+     * known; otherwise leaves the plain "Downloading X (n/m)" text (no fabricated percent). Posts
+     * only when the whole percent changes, so frequent byte callbacks don't spam the notifier.
+     */
+    private fun updateDownloadProgress(op: DocumentSyncOp, current: Int, total: Int, downloaded: Long, totalBytes: Long) {
+        if (totalBytes <= 0) return
+        val pct = (downloaded.coerceAtMost(totalBytes) * 100 / totalBytes).toInt()
+        if (pct == lastDownloadPct) return
+        lastDownloadPct = pct
+        val text = getString(R.string.document_sync_downloading_progress, op.initials, current, total, pct)
+        notificationManager.notify(DOC_SYNC_NOTIFICATION_ID, buildNotification(text))
     }
 
     private fun acquireWakeLock() {

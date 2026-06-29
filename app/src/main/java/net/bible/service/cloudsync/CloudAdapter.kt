@@ -30,6 +30,14 @@ data class CloudFile(
     val parentId: String
 )
 
+/**
+ * Reports cumulative bytes written so far during a [CloudAdapter.download]. Fired periodically as
+ * the transfer progresses (e.g. per download chunk), giving callers visible liveness/progress for
+ * large downloads. The callback may throw to abort the download cooperatively (the Google Drive
+ * adapter uses this to honour coroutine cancellation at a chunk boundary).
+ */
+typealias DownloadProgressListener = (bytesDownloaded: Long) -> Unit
+
 interface CloudAdapter {
     val signedIn: Boolean
     suspend fun signIn(activity: ActivityBase): Boolean
@@ -42,7 +50,7 @@ interface CloudAdapter {
         createdTimeAtLeast: Long? = null
     ): List<CloudFile>
     suspend fun getFolders(parentId: String): List<CloudFile>
-    suspend fun download(id: String, outputStream: OutputStream)
+    suspend fun download(id: String, outputStream: OutputStream, onProgress: DownloadProgressListener? = null)
     suspend fun createNewFolder(name: String, parentId: String? = null): CloudFile
     suspend fun upload(name: String, file: File, parentId: String): CloudFile
     suspend fun delete(id: String)

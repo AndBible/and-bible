@@ -35,6 +35,7 @@ import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
+import net.bible.service.cloudsync.DownloadProgressListener
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.TAG
@@ -178,11 +179,14 @@ class NextCloudAdapter(
     override suspend fun getFolders(parentId: String): List<CloudFile> =
         listFiles(parentsIds = listOf(parentId), mimeType = FOLDER_MIMETYPE)
 
-    override suspend fun download(id: String, outputStream: OutputStream) {
+    override suspend fun download(id: String, outputStream: OutputStream, onProgress: DownloadProgressListener?) {
         val tmpFile = File(CommonUtils.tmpDir, id)
         val operation = DownloadFileRemoteOperation(id, CommonUtils.tmpDir.absolutePath)
         operation.execute()
-        outputStream.write(tmpFile.readBytes())
+        val bytes = tmpFile.readBytes()
+        outputStream.write(bytes)
+        // This adapter downloads in one shot (no chunked progress), so just report the final size.
+        onProgress?.invoke(bytes.size.toLong())
         tmpFile.delete()
     }
 
