@@ -71,6 +71,7 @@
         {{ pageNumber }}
       </div>
     </div>
+    <ReadingProgress v-if="config.showReadingProgress" :text="progressText"/>
     <template v-if="appSettings.einkMode && config.scrollHelperLines && config.pageScrollAmount < 100">
       <div
           v-for="pos in helperLinePositions"
@@ -159,6 +160,8 @@ import {AnyDocument, BibleViewDocumentType} from "@/types/documents";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import ChapterNavigationButtons from "@/components/ChapterNavigationButtons.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import ReadingProgress from "@/components/ReadingProgress.vue";
+import {ProgressDoc, useReadingProgress} from "@/composables/use-reading-progress";
 
 console.log("BibleView setup");
 useAddonFonts();
@@ -220,6 +223,7 @@ onMounted(() => {
 onUnmounted(() => mounted.value = false)
 
 const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll, lineHeight);
+const {progressText} = useReadingProgress(config, documents as ProgressDoc[], currentVerse, calculatedConfig, topElement, strings);
 
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);

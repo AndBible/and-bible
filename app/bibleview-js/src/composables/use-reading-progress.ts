@@ -32,7 +32,7 @@ import {
 const MIN_TEXT_FOR_MEASURE = 400;
 
 type LayoutConfig = { value: { pageHeight: number; marginLeft: number; marginRight: number } };
-type ProgressDoc = { readingProgress?: DocumentReadingProgress | null; ordinalRange?: number[] };
+export type ProgressDoc = { readingProgress?: DocumentReadingProgress | null; ordinalRange?: number[] };
 type ProgressStrings = {
     readingProgressPercent: string;
     readingProgressPage: string;
