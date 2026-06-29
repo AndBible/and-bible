@@ -340,7 +340,19 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         return frag.ordinalStart .. frag.ordinalEnd
     }
 
-    val maxOrdinal: Int get() = dao.fragments().maxOfOrNull { it.ordinalEnd } ?: 0
+    /** Total ordinal span of the whole book (anchor ordinals restart per spine item). */
+    val bookOrdinalSpan: Int get() = dao.fragments().sumOf { it.ordinalEnd - it.ordinalStart + 1 }
+
+    /** Sum of the ordinal spans of all fragments preceding [key] in book order. */
+    fun fragmentOffset(key: Key): Int {
+        val targetId = getFragment(key)?.id ?: return 0
+        var offset = 0
+        for (frag in dao.fragments().sortedBy { it.id }) {
+            if (frag.id == targetId) break
+            offset += frag.ordinalEnd - frag.ordinalStart + 1
+        }
+        return offset
+    }
 
     /**
      * Total visible-text character count of the whole book. Computed once from the

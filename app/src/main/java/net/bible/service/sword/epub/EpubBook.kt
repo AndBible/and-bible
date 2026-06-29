@@ -128,7 +128,8 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
     override fun readRawContent(state: EpubBackendState, key: Key): String = state.read(key)
     fun delete() = state.delete()
     fun getOrdinalRange(key: Key) = state.getOrdinalRange(key)
-    val maxOrdinal get() = state.maxOrdinal
+    val bookOrdinalSpan get() = state.bookOrdinalSpan
+    fun fragmentOffset(key: Key) = state.fragmentOffset(key)
     val totalCharacters get() = state.totalCharacters
 }
 

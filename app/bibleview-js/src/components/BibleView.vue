@@ -222,8 +222,8 @@ onMounted(() => {
 })
 onUnmounted(() => mounted.value = false)
 
-const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll, lineHeight);
-const {progressText} = useReadingProgress(config, documents as ProgressDoc[], currentVerse, calculatedConfig, topElement, strings);
+const {currentVerse, currentKey} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll, lineHeight);
+const {progressText} = useReadingProgress(config, documents as ProgressDoc[], currentVerse, currentKey, calculatedConfig, topElement, strings);
 
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);

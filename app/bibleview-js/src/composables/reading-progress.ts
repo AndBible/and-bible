@@ -42,23 +42,34 @@ export function layoutSignature(parts: (number | string)[]): string {
     return parts.join("|");
 }
 
-type ProgressDoc = { readingProgress?: DocumentReadingProgress | null; ordinalRange?: number[] };
+export type ProgressDoc = {
+    readingProgress?: DocumentReadingProgress | null;
+    ordinalRange?: number[];
+    osisRef?: string;
+};
 
 /**
- * Resolve the reading-progress payload of the document the reader is currently in:
- * the one whose ordinalRange contains currentVerse, else the first document that has
- * progress metadata.
+ * Resolve the document the reader is currently in (the one we report progress for).
+ * Matches by osisRef (currentKey) first — required for EPUB, whose anchor ordinals
+ * restart per spine item so ordinal containment is ambiguous across loaded fragments.
+ * Falls back to ordinal containment (correct for Bible, whose ordinals are absolute),
+ * then to the first document that has progress metadata.
  */
 export function resolveReadingProgress(
     documents: ProgressDoc[],
     currentVerse: number | null,
-): DocumentReadingProgress | null {
+    currentKey: string,
+): ProgressDoc | null {
     const withRp = documents.filter(d => !!d.readingProgress);
     if (withRp.length === 0) return null;
-    if (currentVerse !== null) {
-        const match = withRp.find(d =>
-            !!d.ordinalRange && currentVerse >= d.ordinalRange[0] && currentVerse <= d.ordinalRange[1]);
-        if (match) return match.readingProgress!;
+    if (currentKey) {
+        const byKey = withRp.find(d => d.osisRef === currentKey);
+        if (byKey) return byKey;
     }
-    return withRp[0].readingProgress!;
+    if (currentVerse !== null) {
+        const byOrdinal = withRp.find(d =>
+            !!d.ordinalRange && currentVerse >= d.ordinalRange[0] && currentVerse <= d.ordinalRange[1]);
+        if (byOrdinal) return byOrdinal;
+    }
+    return withRp[0];
 }

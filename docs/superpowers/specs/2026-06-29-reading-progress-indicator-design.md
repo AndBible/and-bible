@@ -71,12 +71,31 @@ that reuses the same verse-key helper.
 
 ### Percentage
 
+**Bible / commentary** — verse ordinals are *absolute* within the book's versification:
+
 `percent = clamp01((currentOrdinal − unitStart) / (unitEnd − unitStart)) × 100`
 
 - `currentOrdinal` — top visible ordinal, already flowing via `verse-notifier`.
-- `unitStart` / `unitEnd` — provided per-document in metadata (see below).
-- `percent` depends only on ordinals, so it is monotonic and smooth while scrolling.
-- Guard against a zero-length unit (`unitEnd == unitStart`) → indicator hidden.
+- `unitStart` / `unitEnd` — the book's first/last absolute verse ordinal (per-document metadata).
+
+**EPUB / general book** — anchor ordinals **restart at 0 for every spine item** (see
+`SwordContentFacade.addAnchors`, called once per spine item with `ordinal = 0`). A
+single ordinal is therefore *not* a whole-book position. Whole-book position is the
+**cumulative ordinal offset** of the current fragment plus the in-fragment offset:
+
+```
+globalOrdinal = fragmentOffset + (currentOrdinal − fragmentLocalStart)
+percent       = clamp01(globalOrdinal / bookOrdinalSpan) × 100
+```
+
+- `fragmentOffset` — sum of all earlier fragments' ordinal spans (per-document metadata).
+- `bookOrdinalSpan` — total ordinal span of the whole book (per-document metadata).
+- `fragmentLocalStart` — the fragment's local `ordinalRange[0]` (already in metadata).
+- The current fragment is resolved by `currentKey` (osisRef), **not** ordinal
+  containment — local ordinals overlap across loaded fragments.
+
+`percent` is monotonic and smooth while scrolling. Guard against a zero-length unit
+(`bookOrdinalSpan == 0`, or Bible `unitEnd == unitStart`) → indicator hidden.
 
 ### EPUB page estimate
 
@@ -119,10 +138,13 @@ fields relevant to the type; absent/`null` when the type is unsupported.
 
 - **`OsisDocument` — EPUB branch (`book.isEpub`):**
   ```json
-  { "kind": "book", "unitStart": 0, "unitEnd": <maxOrdinal>, "charCount": <bookCharCount> }
+  { "kind": "book", "fragmentOffset": <n>, "bookOrdinalSpan": <n>, "charCount": <bookCharCount> }
   ```
-  - `maxOrdinal` = `dao.fragments().maxOf { it.ordinalEnd }` (cheap query, not stored).
+  - `fragmentOffset` = `EpubBackend.fragmentOffset(key)` — sum of earlier fragments' spans.
+  - `bookOrdinalSpan` = `EpubBackend.bookOrdinalSpan` — total of all fragment spans.
   - `charCount` = `EpubBackendState.totalCharacters` (stored, see below).
+  - The fragment's local ordinal range is carried separately as the document's
+    `ordinalRange` (from `SwordContentFacade.ordinalRangeFor`).
   - General books are a later extension.
 - **`OsisDocument` — commentary branch (`book.bookCategory == COMMENTARY`, `book is SwordBook`, `key is VerseRange`):**
   ```json
@@ -166,7 +188,7 @@ The per-EPUB optimized database (`EpubDatabase`, one per book, built once by
 - **Already-installed books (db v1, no value):** `EpubBackendState.totalCharacters`
   getter computes it lazily once from the fragment texts, upserts it into the table,
   and returns it. This avoids forcing a costly re-optimization of every installed EPUB.
-- `maxOrdinal` is **not** stored — it is derived on demand from the fragments.
+- `fragmentOffset` / `bookOrdinalSpan` are **not** stored — derived on demand from the fragments.
 
 `totalCharacters` counts visible text characters of the book (the same text content
 used for rendering/search), summed across fragments.

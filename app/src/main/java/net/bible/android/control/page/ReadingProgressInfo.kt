@@ -29,18 +29,27 @@ import org.crosswire.jsword.versification.Versification
  */
 data class ReadingProgressInfo(
     val kind: String,            // "bible" or "book"
-    val unitStart: Int,
-    val unitEnd: Int,
+    // Bible/commentary: absolute verse-ordinal span of the current book.
+    val unitStart: Int? = null,
+    val unitEnd: Int? = null,
     val chapterCount: Int? = null,
     val currentChapter: Int? = null,
+    // EPUB/general book: position of the current fragment within the whole book.
+    // EPUB anchor ordinals restart at 0 for every spine item, so whole-book position
+    // is the cumulative ordinal offset of the current fragment plus the in-fragment
+    // offset (computed client-side from the fragment's local ordinal range).
+    val fragmentOffset: Int? = null,
+    val bookOrdinalSpan: Int? = null,
     val charCount: Int? = null,
 ) {
     val asJson: String get() = mapToJson(buildMap {
         put("kind", wrapString(kind))
-        put("unitStart", unitStart.toString())
-        put("unitEnd", unitEnd.toString())
+        unitStart?.let { put("unitStart", it.toString()) }
+        unitEnd?.let { put("unitEnd", it.toString()) }
         chapterCount?.let { put("chapterCount", it.toString()) }
         currentChapter?.let { put("currentChapter", it.toString()) }
+        fragmentOffset?.let { put("fragmentOffset", it.toString()) }
+        bookOrdinalSpan?.let { put("bookOrdinalSpan", it.toString()) }
         charCount?.let { put("charCount", it.toString()) }
     })
 
@@ -59,12 +68,15 @@ data class ReadingProgressInfo(
             )
         }
 
-        /** Progress relative to the whole EPUB/general book. */
-        fun forEpub(maxOrdinal: Int, charCount: Int): ReadingProgressInfo =
+        /**
+         * Progress relative to the whole EPUB/general book. [fragmentOffset] is the sum
+         * of all earlier fragments' ordinal spans; [bookOrdinalSpan] is the total.
+         */
+        fun forEpub(fragmentOffset: Int, bookOrdinalSpan: Int, charCount: Int): ReadingProgressInfo =
             ReadingProgressInfo(
                 kind = "book",
-                unitStart = 0,
-                unitEnd = maxOrdinal,
+                fragmentOffset = fragmentOffset,
+                bookOrdinalSpan = bookOrdinalSpan,
                 charCount = charCount,
             )
     }

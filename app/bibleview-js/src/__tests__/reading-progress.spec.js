@@ -56,25 +56,33 @@ describe("layoutSignature", () => {
 });
 
 describe("resolveReadingProgress", () => {
-    const bookRp = {kind: "book", unitStart: 0, unitEnd: 1000, charCount: 50000};
+    const bookRp = {kind: "book", fragmentOffset: 0, bookOrdinalSpan: 1000, charCount: 50000};
     const genRp = {kind: "bible", unitStart: 0, unitEnd: 100, chapterCount: 50, currentChapter: 1};
     const exodRp = {kind: "bible", unitStart: 101, unitEnd: 200, chapterCount: 40, currentChapter: 1};
 
     it("returns null when no document has progress", () => {
-        expect(resolveReadingProgress([{}], 5)).toBeNull();
-        expect(resolveReadingProgress([], 5)).toBeNull();
+        expect(resolveReadingProgress([{}], 5, "")).toBeNull();
+        expect(resolveReadingProgress([], 5, "")).toBeNull();
     });
-    it("picks the document whose ordinalRange contains currentVerse", () => {
+    it("matches by osisRef (currentKey) first — required for EPUB overlapping ordinals", () => {
+        // Two EPUB fragments with overlapping local ordinal ranges; only the key disambiguates.
+        const fragA = {readingProgress: bookRp, ordinalRange: [0, 400], osisRef: "12"};
+        const fragB = {readingProgress: bookRp, ordinalRange: [0, 350], osisRef: "13"};
+        const docs = [fragA, fragB];
+        expect(resolveReadingProgress(docs, 100, "13")).toBe(fragB);
+        expect(resolveReadingProgress(docs, 100, "12")).toBe(fragA);
+    });
+    it("falls back to ordinal containment when no key matches (Bible absolute ordinals)", () => {
         const docs = [
-            {readingProgress: genRp, ordinalRange: [0, 100]},
-            {readingProgress: exodRp, ordinalRange: [101, 200]},
+            {readingProgress: genRp, ordinalRange: [0, 100], osisRef: "Gen.1"},
+            {readingProgress: exodRp, ordinalRange: [101, 200], osisRef: "Exod.1"},
         ];
-        expect(resolveReadingProgress(docs, 150)).toBe(exodRp);
-        expect(resolveReadingProgress(docs, 5)).toBe(genRp);
+        expect(resolveReadingProgress(docs, 150, "")).toBe(docs[1]);
+        expect(resolveReadingProgress(docs, 5, "")).toBe(docs[0]);
     });
-    it("falls back to the first progress doc when currentVerse is null or unmatched", () => {
-        const docs = [{readingProgress: bookRp, ordinalRange: [0, 1000]}];
-        expect(resolveReadingProgress(docs, null)).toBe(bookRp);
-        expect(resolveReadingProgress(docs, 99999)).toBe(bookRp);
+    it("falls back to the first progress doc when nothing matches", () => {
+        const docs = [{readingProgress: bookRp, ordinalRange: [0, 1000], osisRef: "1"}];
+        expect(resolveReadingProgress(docs, null, "")).toBe(docs[0]);
+        expect(resolveReadingProgress(docs, 99999, "nope")).toBe(docs[0]);
     });
 });

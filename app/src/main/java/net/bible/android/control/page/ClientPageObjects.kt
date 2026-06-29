@@ -140,7 +140,7 @@ open class OsisDocument(
 
         val readingProgress: String = when {
             book.isEpub -> book.epubBackend
-                ?.let { ReadingProgressInfo.forEpub(it.maxOrdinal, it.totalCharacters).asJson }
+                ?.let { ReadingProgressInfo.forEpub(it.fragmentOffset(key), it.bookOrdinalSpan, it.totalCharacters).asJson }
                 ?: "null"
             book.bookCategory == BookCategory.COMMENTARY && book is SwordBook -> {
                 val vr = when (val k = key) {

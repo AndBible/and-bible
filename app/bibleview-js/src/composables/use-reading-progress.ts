@@ -17,7 +17,6 @@
 
 import {computed, ComputedRef, nextTick, onMounted, ref, Ref, watch} from "vue";
 import {Config} from "@/composables/config";
-import {DocumentReadingProgress} from "@/types/documents";
 import {sprintf} from "@/utils";
 import {
     computeCurrentPage,
@@ -25,14 +24,18 @@ import {
     computeTotalPages,
     estimateCharsPerPage,
     layoutSignature,
+    ProgressDoc,
     resolveReadingProgress,
 } from "@/composables/reading-progress";
 
-// Minimum rendered text length before we trust a chars-per-page measurement.
-const MIN_TEXT_FOR_MEASURE = 400;
+export type {ProgressDoc};
+
+// Minimum rendered text length, and at least one full screen of content, before we
+// trust a chars-per-page measurement — avoids locking onto an unrepresentative first
+// fragment (e.g. a short title page).
+const MIN_TEXT_FOR_MEASURE = 2000;
 
 type LayoutConfig = { value: { pageHeight: number; marginLeft: number; marginRight: number } };
-export type ProgressDoc = { readingProgress?: DocumentReadingProgress | null; ordinalRange?: number[] };
 type ProgressStrings = {
     readingProgressPercent: string;
     readingProgressPage: string;
@@ -43,6 +46,7 @@ export function useReadingProgress(
     config: Config,
     documents: ProgressDoc[],
     currentVerse: Ref<number | null>,
+    currentKey: Ref<string>,
     calculatedConfig: LayoutConfig,
     topElement: Ref<HTMLElement | null>,
     strings: ProgressStrings,
@@ -65,8 +69,9 @@ export function useReadingProgress(
         const el = topElement.value;
         if (!el) return;
         const textLength = el.textContent?.length ?? 0;
-        if (textLength < MIN_TEXT_FOR_MEASURE) return;
-        const cpp = estimateCharsPerPage(textLength, el.scrollHeight, calculatedConfig.value.pageHeight);
+        const pageHeight = calculatedConfig.value.pageHeight;
+        if (textLength < MIN_TEXT_FOR_MEASURE || el.scrollHeight < pageHeight) return;
+        const cpp = estimateCharsPerPage(textLength, el.scrollHeight, pageHeight);
         if (cpp !== null) {
             charsPerPageCache.set(sig, cpp);
             charsPerPage.value = cpp;
@@ -83,17 +88,27 @@ export function useReadingProgress(
     onMounted(() => nextTick(remeasure));
 
     const progressText = computed<string | null>(() => {
-        const rp = resolveReadingProgress(documents, currentVerse.value);
+        const doc = resolveReadingProgress(documents, currentVerse.value, currentKey.value);
+        const rp = doc?.readingProgress;
         if (!rp) return null;
-        const ordinal = currentVerse.value ?? rp.unitStart;
-        const percent = computePercent(ordinal, rp.unitStart, rp.unitEnd);
+
+        if (rp.kind === "bible") {
+            const percent = computePercent(currentVerse.value ?? rp.unitStart, rp.unitStart, rp.unitEnd);
+            if (percent === null) return null;
+            return sprintf(strings.readingProgressChapter, Math.round(percent), rp.currentChapter, rp.chapterCount);
+        }
+
+        // kind === "book" (EPUB / general book). Anchor ordinals restart per spine item,
+        // so derive the whole-book ordinal from the current fragment's cumulative offset
+        // plus the in-fragment offset (currentVerse relative to the fragment's local start).
+        const fragStart = doc!.ordinalRange?.[0] ?? 0;
+        const fragEnd = doc!.ordinalRange?.[1] ?? fragStart;
+        const within = Math.min(Math.max(0, (currentVerse.value ?? fragStart) - fragStart), Math.max(0, fragEnd - fragStart));
+        const globalOrdinal = rp.fragmentOffset + within;
+        const percent = computePercent(globalOrdinal, 0, rp.bookOrdinalSpan);
         if (percent === null) return null;
         const pct = Math.round(percent);
 
-        if (rp.kind === "bible") {
-            return sprintf(strings.readingProgressChapter, pct, rp.currentChapter, rp.chapterCount);
-        }
-        // kind === "book" (EPUB / general book)
         if (charsPerPage.value === null) {
             return sprintf(strings.readingProgressPercent, pct);
         }

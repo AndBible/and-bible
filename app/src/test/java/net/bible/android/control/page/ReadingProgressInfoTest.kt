@@ -40,7 +40,7 @@ class ReadingProgressInfoTest {
         val lastChapter = kjv.getLastChapter(BibleBook.GEN)
         val lastOrdinal = Verse(kjv, BibleBook.GEN, lastChapter, kjv.getLastVerse(BibleBook.GEN, lastChapter)).ordinal
         assertEquals(lastOrdinal, info.unitEnd)
-        assertTrue(info.unitEnd > info.unitStart)
+        assertTrue(info.unitEnd!! > info.unitStart!!)
         assertEquals(null, info.charCount)
     }
 
@@ -61,11 +61,12 @@ class ReadingProgressInfoTest {
 
     @Test
     fun forEpub_buildsBookKind() {
-        val info = ReadingProgressInfo.forEpub(maxOrdinal = 1000, charCount = 50_000)
+        val info = ReadingProgressInfo.forEpub(fragmentOffset = 1500, bookOrdinalSpan = 8000, charCount = 50_000)
         assertEquals("book", info.kind)
-        assertEquals(0, info.unitStart)
-        assertEquals(1000, info.unitEnd)
+        assertEquals(1500, info.fragmentOffset)
+        assertEquals(8000, info.bookOrdinalSpan)
         assertEquals(50_000, info.charCount)
         assertEquals(null, info.chapterCount)
+        assertEquals(null, info.unitStart)
     }
 }

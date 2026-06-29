@@ -34,7 +34,7 @@ export type BibleViewDocumentType = "multi" | "osis" | "error" | "bible" | "note
 
 export type DocumentReadingProgress =
     | { kind: "bible", unitStart: number, unitEnd: number, chapterCount: number, currentChapter: number }
-    | { kind: "book", unitStart: number, unitEnd: number, charCount: number }
+    | { kind: "book", fragmentOffset: number, bookOrdinalSpan: number, charCount: number }
 
 export interface BaseDocument {
     id: string
