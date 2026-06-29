@@ -24,6 +24,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.database.EpubFragment
+import net.bible.android.database.EpubMeta
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
@@ -337,5 +338,39 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     fun getOrdinalRange(key: Key): IntRange {
         val frag = getFragment(key) ?: return 0..0
         return frag.ordinalStart .. frag.ordinalEnd
+    }
+
+    /** Total ordinal span of the whole book (anchor ordinals restart per spine item). */
+    val bookOrdinalSpan: Int get() = dao.fragments().sumOf { it.ordinalEnd - it.ordinalStart + 1 }
+
+    /** Sum of the ordinal spans of all fragments preceding [key] in book order. */
+    fun fragmentOffset(key: Key): Int {
+        val targetId = getFragment(key)?.id ?: return 0
+        var offset = 0
+        for (frag in dao.fragments().sortedBy { it.id }) {
+            if (frag.id == targetId) break
+            offset += frag.ordinalEnd - frag.ordinalStart + 1
+        }
+        return offset
+    }
+
+    /**
+     * Total visible-text character count of the whole book. Computed once from the
+     * fragment BVA text and cached in the EpubMeta table; subsequent reads are O(1).
+     * This avoids forcing a re-optimization of already-installed EPUBs.
+     */
+    val totalCharacters: Int get() {
+        dao.getMeta()?.let { return it.totalCharacters }
+        var total = 0
+        for (frag in dao.fragments()) {
+            val doc = useSaxBuilder { it.build(StringReader(read(getKey(frag)))) }
+            for (bva in useXPathInstance { xp ->
+                xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(doc)
+            }) {
+                total += bva.text.length
+            }
+        }
+        dao.insert(EpubMeta(totalCharacters = total))
+        return total
     }
 }

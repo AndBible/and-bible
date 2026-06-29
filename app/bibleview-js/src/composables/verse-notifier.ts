@@ -90,5 +90,5 @@ export function useVerseNotifier(
     }, 50);
 
     setupWindowEventListener('scroll', onScroll)
-    return {currentVerse}
+    return {currentVerse, currentKey}
 }

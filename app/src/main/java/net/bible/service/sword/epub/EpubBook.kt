@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -128,6 +128,9 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
     override fun readRawContent(state: EpubBackendState, key: Key): String = state.read(key)
     fun delete() = state.delete()
     fun getOrdinalRange(key: Key) = state.getOrdinalRange(key)
+    val bookOrdinalSpan get() = state.bookOrdinalSpan
+    fun fragmentOffset(key: Key) = state.fragmentOffset(key)
+    val totalCharacters get() = state.totalCharacters
 }
 
 val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyType.TREE) {

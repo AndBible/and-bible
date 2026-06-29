@@ -152,6 +152,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.SCROLL_HELPER_LINES -> ScrollHelperLinesPreference(settings)
         Types.SCROLL_HELPER_LINE_STYLE -> ScrollHelperLineStylePreference(settings)
         Types.PAGE_BUTTONS -> PageButtonsPreference(settings)
+        Types.SHOW_READING_PROGRESS -> ItemPreference(settings, Types.SHOW_READING_PROGRESS)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {

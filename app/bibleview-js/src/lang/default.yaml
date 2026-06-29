@@ -77,6 +77,9 @@ markedAsMemorized: Memorized
 removeFromTargets: Remove from Goals
 viewReadingProgress: Read/Memory Progress
 viewReadingProgressSettings: Read/Memory Settings
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: Listen in Loop
 viewHelp: View help
 verseNoteLong: Write a note

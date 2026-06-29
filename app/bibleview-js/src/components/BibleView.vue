@@ -71,6 +71,7 @@
         {{ pageNumber }}
       </div>
     </div>
+    <ReadingProgress v-if="config.showReadingProgress" :text="progressText" :bottom="readingProgressBottom"/>
     <template v-if="appSettings.einkMode && config.scrollHelperLines && config.pageScrollAmount < 100">
       <div
           v-for="pos in helperLinePositions"
@@ -159,6 +160,8 @@ import {AnyDocument, BibleViewDocumentType} from "@/types/documents";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import ChapterNavigationButtons from "@/components/ChapterNavigationButtons.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import ReadingProgress from "@/components/ReadingProgress.vue";
+import {ProgressDoc, useReadingProgress} from "@/composables/use-reading-progress";
 
 console.log("BibleView setup");
 useAddonFonts();
@@ -219,7 +222,8 @@ onMounted(() => {
 })
 onUnmounted(() => mounted.value = false)
 
-const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll, lineHeight);
+const {currentVerse, currentKey} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll, lineHeight);
+const {progressText} = useReadingProgress(config, documents as ProgressDoc[], currentVerse, currentKey, calculatedConfig, topElement, strings);
 
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);
@@ -448,6 +452,13 @@ const helperLineClass = computed(() => {
 const pageNumberBottom = computed(() =>
     appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`
 );
+
+const readingProgressBottom = computed(() => {
+    // Same base as the page-number overlay so we clear the window button bar / bottom offset.
+    const base = appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`;
+    // Stack above the page-number overlay (~0.7cm tall at the same base) when it is also shown.
+    return config.showPageNumber ? `calc(${base} + 0.7cm)` : base;
+});
 
 const pageNumber = computed(() => {
     const num = (scrollY.value - scrollYAtStart.value) / scrollAmount.value;
