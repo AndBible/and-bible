@@ -20,6 +20,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class DocumentSyncOpsTest {
     @Test
@@ -77,5 +80,36 @@ class DocumentSyncOpsTest {
         assertFalse(shouldAutoUpload(enabled = true, autoUpload = false, blocked = false, autoTransferAllowed = true))
         assertFalse(shouldAutoUpload(enabled = true, autoUpload = true, blocked = true, autoTransferAllowed = true))
         assertFalse(shouldAutoUpload(enabled = true, autoUpload = true, blocked = false, autoTransferAllowed = false))
+    }
+
+    @Test
+    fun transientNetworkErrorRecognisesIOExceptions() {
+        // The exact failure from ticket 3355: a download timeout from Google Drive.
+        assertTrue(isTransientNetworkError(SocketTimeoutException("timeout")))
+        assertTrue(isTransientNetworkError(UnknownHostException("no network")))
+        assertTrue(isTransientNetworkError(IOException("connection reset")))
+    }
+
+    @Test
+    fun transientNetworkErrorWalksCauseChain() {
+        val wrapped = RuntimeException("download failed", SocketTimeoutException("timeout"))
+        assertTrue(isTransientNetworkError(wrapped))
+    }
+
+    @Test
+    fun transientNetworkErrorIsFalseForAppErrors() {
+        assertFalse(isTransientNetworkError(null))
+        assertFalse(isTransientNetworkError(IllegalStateException("bad state")))
+        assertFalse(isTransientNetworkError(RuntimeException("oops", IllegalArgumentException("nested"))))
+    }
+
+    @Test
+    fun transientNetworkErrorTerminatesOnCyclicCauseChain() {
+        // A cause chain that loops back must not iterate forever.
+        val a = RuntimeException("a")
+        val b = RuntimeException("b")
+        a.initCause(b)
+        b.initCause(a)
+        assertFalse(isTransientNetworkError(a))
     }
 }

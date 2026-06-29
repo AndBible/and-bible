@@ -198,8 +198,16 @@ class DocumentSyncService : Service() {
                     is DocumentSyncOp.Uninstall -> DocumentSync.uninstallLocal(op.initials)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Document sync op failed: ${op.initials}", e)
-                ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
+                if (isTransientNetworkError(e)) {
+                    // Transient connectivity failure (timeout, dropped connection). Not an app
+                    // error: the op is retried next sync (its timestamp only advances on success),
+                    // so don't alarm the user with the "error/Report" notification for a network
+                    // blip. Mirrors CloudSync's IOException handling for the database sync.
+                    Log.w(TAG, "Document sync op failed (network); will retry next sync: ${op.initials}", e)
+                } else {
+                    Log.e(TAG, "Document sync op failed: ${op.initials}", e)
+                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
+                }
             }
             done.incrementAndGet()
         }
