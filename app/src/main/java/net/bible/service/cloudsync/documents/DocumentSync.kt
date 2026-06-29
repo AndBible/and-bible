@@ -227,10 +227,17 @@ object DocumentSync {
 
     fun isInstallingFromSync(initials: String): Boolean = installingFromSync.contains(initials)
 
-    suspend fun downloadAndInstall(initials: String) {
+    /**
+     * Downloads and installs [initials] from the cloud. [onProgress] (if given) reports
+     * `(bytesDownloaded, totalBytes)` as the archive transfers, for a progress notification;
+     * `totalBytes` is the recorded archive size (`<= 0` when unknown for older uploads).
+     */
+    suspend fun downloadAndInstall(initials: String, onProgress: ((bytesDownloaded: Long, totalBytes: Long) -> Unit)? = null) {
         val store = store() ?: return
         val meta = store.readMeta(initials)?.takeIf { !it.deleted } ?: return
-        val archive = store.downloadArchive(initials, meta.version) ?: return
+        val archive = store.downloadArchive(initials, meta.version,
+            onProgress?.let { cb -> { bytes -> cb(bytes, meta.size) } }
+        ) ?: return
         installingFromSync.add(initials)
         try {
             // Integrity guard: meta.size is the exact packaged (zip) size recorded at push time, so

@@ -16,6 +16,8 @@
  */
 package net.bible.service.cloudsync.documents
 
+import java.io.IOException
+
 /** A single document-sync operation the [DocumentSyncService] queue can process. */
 sealed class DocumentSyncOp {
     abstract val initials: String
@@ -51,3 +53,24 @@ fun buildDocumentSyncOps(
 /** Whether an installed document should be auto-uploaded (on install or in the sync cycle). */
 fun shouldAutoUpload(enabled: Boolean, autoUpload: Boolean, blocked: Boolean, autoTransferAllowed: Boolean): Boolean =
     enabled && autoUpload && !blocked && autoTransferAllowed
+
+/**
+ * Whether a sync-op failure is a transient network error (timeout, dropped connection, host
+ * unreachable) rather than a genuine app error. Such failures must not raise the user-facing
+ * "An error has occurred" notification (with its "Report" button): a connectivity blip is not a
+ * bug to report, and the op is naturally retried on the next sync because its sync timestamp is
+ * only advanced on success. Mirrors [net.bible.service.cloudsync.CloudSync]'s database-sync
+ * handling, which silently swallows [IOException] as "probably network down".
+ *
+ * Walks the cause chain so a network failure wrapped in a higher-level exception is still
+ * recognised (e.g. an [IOException] surfaced from a coroutine/JSword wrapper).
+ */
+fun isTransientNetworkError(e: Throwable?): Boolean {
+    var cur = e
+    val seen = HashSet<Throwable>()
+    while (cur != null && seen.add(cur)) {
+        if (cur is IOException) return true
+        cur = cur.cause
+    }
+    return false
+}

@@ -31,6 +31,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.http.FileContent
+import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.DateTime
@@ -38,13 +39,16 @@ import com.google.api.services.drive.model.File as DriveFile
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.coroutineContext
 import net.bible.android.BibleApplication
 import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
+import net.bible.service.cloudsync.DownloadProgressListener
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.TAG
@@ -58,6 +62,17 @@ import kotlin.coroutines.resumeWithException
 
 const val webClientId = "533479479097-kk5bfksbgtfuq3gfkkrt2eb51ltgkvmn.apps.googleusercontent.com"
 const val FOLDER_MIMETYPE = "application/vnd.google-apps.folder"
+
+// The Google API client defaults to a 20s connect/read timeout. That is too aggressive for large
+// document downloads (and the per-read timeout can fire mid-transfer) on slow or flaky mobile
+// connections — e.g. e-ink devices — surfacing as a premature SocketTimeoutException (OSTicket 3355).
+private const val CLOUD_CONNECT_TIMEOUT_MS = 60_000
+private const val CLOUD_READ_TIMEOUT_MS = 120_000
+
+// Download in moderately sized chunks (instead of the API client's 32MB default). Smaller chunks
+// give finer progress/liveness feedback and a smaller unit of work to retry if one chunk stalls,
+// at the cost of a few more requests — a good trade-off on the slow/flaky connections this targets.
+private const val DOWNLOAD_CHUNK_SIZE = 8 * 1024 * 1024
 
 private fun DriveFile.toSyncFile() = CloudFile(
     id = id,
@@ -104,14 +119,23 @@ class GoogleDriveCloudAdapter: CloudAdapter {
         if (!signedIn) {
             throw IllegalStateException("Not signed in")
         }
-        return _service?: Drive.Builder(
-            NetHttpTransport(),
-            GsonFactory.getDefaultInstance(),
-            GoogleAccountCredential
+        return _service ?: run {
+            val credential = GoogleAccountCredential
                 .usingOAuth2(BibleApplication.application, Collections.singleton(DriveScopes.DRIVE_APPDATA))
                 .setSelectedAccount(account)
-        ).setApplicationName("AndBible").build().also {
-            _service = it
+            // Keep the credential's auth handling but extend the default 20s timeouts (see constants).
+            val requestInitializer = HttpRequestInitializer { request ->
+                credential.initialize(request)
+                request.connectTimeout = CLOUD_CONNECT_TIMEOUT_MS
+                request.readTimeout = CLOUD_READ_TIMEOUT_MS
+            }
+            Drive.Builder(
+                NetHttpTransport(),
+                GsonFactory.getDefaultInstance(),
+                requestInitializer
+            ).setApplicationName("AndBible").build().also {
+                _service = it
+            }
         }
     }
 
@@ -279,9 +303,25 @@ class GoogleDriveCloudAdapter: CloudAdapter {
 
     override fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = emptyList()
 
-    override suspend fun download(id: String, outputStream: OutputStream) {
-       service.files().get(id).executeMediaAndDownloadTo(outputStream)
-    }
+    override suspend fun download(id: String, outputStream: OutputStream, onProgress: DownloadProgressListener?): Unit =
+        withContext(Dispatchers.IO) {
+            val get = service.files().get(id)
+            if (onProgress != null) {
+                // Capture the context here (suspend scope); the progress callback below runs on the
+                // blocking download thread and can't itself suspend.
+                val ctx = coroutineContext
+                get.mediaHttpDownloader?.apply {
+                    setChunkSize(DOWNLOAD_CHUNK_SIZE)
+                    setProgressListener { dl ->
+                        // Cooperatively abort at this chunk boundary if the sync coroutine was
+                        // cancelled (sign-out / service stop), instead of blocking to the read timeout.
+                        ctx.ensureActive()
+                        onProgress(dl.numBytesDownloaded)
+                    }
+                }
+            }
+            get.executeMediaAndDownloadTo(outputStream)
+        }
 
     override suspend fun createNewFolder(name: String, parentId: String?): CloudFile =
         service.files()

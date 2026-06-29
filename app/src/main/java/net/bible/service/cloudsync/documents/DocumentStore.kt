@@ -22,6 +22,7 @@ package net.bible.service.cloudsync.documents
 import android.util.Log
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
+import net.bible.service.cloudsync.DownloadProgressListener
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import java.io.File
@@ -134,13 +135,13 @@ class DocumentStore(
      * between the caller's listing and now. Returning null lets the caller skip gracefully and
      * retry on the next pull rather than crashing the whole batch.
      */
-    suspend fun downloadArchive(initials: String, version: String): File? {
+    suspend fun downloadArchive(initials: String, version: String, onProgress: DownloadProgressListener? = null): File? {
         val folderId = folderFor(initials)?.id ?: return null
         val file = adapter.listFiles(parentsIds = listOf(folderId), name = "$version.abmd.zip").firstOrNull()
             ?: return null
         val tmp = CommonUtils.tmpFile
         try {
-            tmp.outputStream().use { adapter.download(file.id, it) }
+            tmp.outputStream().use { adapter.download(file.id, it, onProgress) }
         } catch (e: Exception) {
             // The temp file was created before the download; delete it so a failed (e.g. network
             // drop) download doesn't leak a potentially large orphan in the tmp dir.
