@@ -274,6 +274,9 @@
     <string name="full_screen_hide_buttons_pref_title">Hide window button bar in fullscreen</string>
     <string name="full_screen_hide_buttons_pref_summary">When switching to fullscreen mode, hide automatically window button bar that is on the bottom of the screen</string>
 
+    <string name="prefs_hide_status_bar_title">Hide status bar</string>
+    <string name="prefs_hide_status_bar_summary">Hide the Android status bar (clock, notifications) while keeping AndBible\'s own toolbar visible. Useful for distraction-free reading and e-ink devices. Swipe from the top edge to reveal it temporarily.</string>
+
     <string name="prefs_dictionaries_cat">Dictionaries</string>
     <string name="choose_strongs_greek_dictionary_title">Strongs Greek dictionary</string>
     <string name="choose_strongs_greek_dictionary_summary">Choose Strongs dictionary for Greek word definitions</string>
