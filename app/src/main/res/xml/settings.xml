@@ -198,10 +198,12 @@
 	</PreferenceCategory>
 
 	<PreferenceCategory android:title="@string/prefs_eink_settings_cat">
-		<SwitchPreferenceCompat android:key="monochrome_mode"
-			android:title="@string/prefs_e_ink_mode_title"
-			android:summary="@string/prefs_eink_mode_summary"
-			android:defaultValue="false"
+		<ListPreference android:key="display_color_mode"
+			android:title="@string/prefs_display_color_mode_title"
+			android:summary="@string/prefs_display_color_mode_summary"
+			android:entries="@array/prefs_display_color_mode_names"
+			android:entryValues="@array/prefs_display_color_mode_values"
+			android:defaultValue="normal"
 			android:icon="@drawable/ic_eink_24dp"
 			/>
 		<SwitchPreferenceCompat android:key="eink_mode"

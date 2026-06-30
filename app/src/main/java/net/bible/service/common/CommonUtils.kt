@@ -450,7 +450,11 @@ object CommonUtils : CommonUtilsBase() {
         fun removeLong(key: String) = setLong(key, null)
         fun removeBoolean(key: String) = setBoolean(key, null)
 
-        val monochromeMode: Boolean get() = getBoolean("monochrome_mode", isOnyxDevice)
+        val displayColorMode: DisplayColorMode get() =
+            DisplayColorMode.fromValue(getString("display_color_mode", null))
+                ?: if (isOnyxDevice) DisplayColorMode.BW else DisplayColorMode.NORMAL
+        val monochromeMode: Boolean get() = displayColorMode != DisplayColorMode.NORMAL
+        val colorEinkMode: Boolean get() = displayColorMode == DisplayColorMode.COLOR_EINK
         val einkMode: Boolean get() = getBoolean("eink_mode", false)
         val disableAnimations: Boolean get() = getBoolean("disable_animations", isOnyxDevice)
         val disableClickToEdit: Boolean get() = getBoolean("disable_click_to_edit", false)
@@ -1751,6 +1755,18 @@ object CommonUtils : CommonUtilsBase() {
             Log.i(TAG, "Renaming long setting 'gdrive_sync_interval' → 'cloud_sync_interval'")
             longDao.set("cloud_sync_interval", oldInterval)
             longDao.set("gdrive_sync_interval", null)
+        }
+
+        // Migrate boolean monochrome_mode → tri-state display_color_mode
+        val strDao = stringSettings
+        if (strDao.byKey("display_color_mode") == null) {
+            val oldMono = boolDao.byKey("monochrome_mode")
+            if (oldMono != null) {
+                val newValue = if (oldMono.value) DisplayColorMode.BW.value else DisplayColorMode.NORMAL.value
+                Log.i(TAG, "Migrating 'monochrome_mode'=${oldMono.value} → 'display_color_mode'=$newValue")
+                strDao.set("display_color_mode", newValue)
+                boolDao.set("monochrome_mode", null)
+            }
         }
     }
 

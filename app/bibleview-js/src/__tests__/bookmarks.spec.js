@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {useBookmarks, useGlobalBookmarks, verseHighlighting} from "@/composables/bookmarks";
+import {useBookmarks, useGlobalBookmarks, verseHighlighting, bookmarkHighlightColor} from "@/composables/bookmarks";
 import {ref} from "vue";
 import Color from "color";
 import {useConfig} from "@/composables/config";
@@ -496,5 +496,42 @@ describe("abbreviate tests", () => {
         expect(abbreviated("höpö höpö", 15)).toBe("höpö höpö")
         expect(abbreviated("höpö höpö höpö", 15)).toBe("höpö höpö höpö")
         expect(abbreviated("höpö höpö höpö höpö", 15)).toBe("höpö höpö...")
+    });
+});
+
+describe("color e-ink accent colors", () => {
+    const label = {color: 0xFF0000};
+
+    it("highlight: bw mode returns gray, color-eink returns the real color (day)", () => {
+        const normal = bookmarkHighlightColor(label, 1, {monochromeMode: false, colorEinkMode: false, nightMode: false});
+        const bw = bookmarkHighlightColor(label, 1, {monochromeMode: true, colorEinkMode: false, nightMode: false});
+        const colorEink = bookmarkHighlightColor(label, 1, {monochromeMode: true, colorEinkMode: true, nightMode: false});
+        expect(bw.hex()).toEqual("#D2D2D2");          // 210,210,210
+        expect(colorEink.string()).toEqual(normal.string());
+        expect(colorEink.hex()).not.toEqual(bw.hex());
+    });
+
+    it("highlight: bw night mode returns darker gray", () => {
+        const bwNight = bookmarkHighlightColor(label, 1, {monochromeMode: true, colorEinkMode: false, nightMode: true});
+        expect(bwNight.hex()).toEqual("#B4B4B4");      // 180,180,180
+    });
+
+    function underlineCss(appSettings) {
+        return verseHighlighting({
+            highlightLabels: [],
+            highlightLabelCount: new Map(),
+            underlineLabels: [{label: {color: 0xFF0000}, id: 1}],
+            underlineLabelCount: new Map([[1, 1]]),
+            highlightColorFn: (v) => Color(v.color),
+            appSettings,
+        });
+    }
+
+    it("underline: bw mode uses black, color-eink uses the label color (day)", () => {
+        const bw = underlineCss({monochromeMode: true, colorEinkMode: false, nightMode: false});
+        const colorEink = underlineCss({monochromeMode: true, colorEinkMode: true, nightMode: false});
+        expect(bw).toContain(Color("black").string());
+        expect(colorEink).toContain(new Color(0xFF0000).hsl().string());
+        expect(colorEink).not.toContain(Color("black").string());
     });
 });
