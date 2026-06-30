@@ -17,6 +17,7 @@
 package net.bible.android.view.util
 
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.ScrollView
@@ -49,7 +50,7 @@ class VolumeButtonScrollTest {
      */
     private fun <T : View> T.laidOut(h: Int = 200): T = apply {
         layout(0, 0, 100, h)
-        if (this is android.view.ViewGroup) {
+        if (this is ViewGroup) {
             for (i in 0 until childCount) getChildAt(i).laidOut(h)
         }
     }
@@ -118,5 +119,42 @@ class VolumeButtonScrollTest {
     @Test
     fun `pageDelta scales with height`() {
         assertThat(VolumeButtonScroll.pageDelta(1000, down = true), equalTo(900))
+    }
+
+    /**
+     * Smoke-test scroll() over each per-type dispatch arm. The test asserts no exception
+     * is thrown — this catches wrong API signatures / NoSuchMethodError, which is the most
+     * likely silent breakage in the per-type dispatch (the AbsListView branch in particular
+     * uses a different API shape: smoothScrollBy(distance, duration) / scrollListBy(distance)
+     * rather than smoothScrollBy(0, delta) / scrollBy(0, delta)).
+     */
+    private fun exerciseScroll(view: View) {
+        view.laidOut()
+        VolumeButtonScroll.scroll(view, down = true, animate = false)
+        VolumeButtonScroll.scroll(view, down = false, animate = false)
+        VolumeButtonScroll.scroll(view, down = true, animate = true)
+        VolumeButtonScroll.scroll(view, down = false, animate = true)
+        // Reaching here without an exception is the assertion.
+        assertThat(true, equalTo(true))
+    }
+
+    @Test
+    fun `scroll on RecyclerView does not throw`() {
+        exerciseScroll(RecyclerView(context))
+    }
+
+    @Test
+    fun `scroll on ListView (AbsListView) does not throw`() {
+        exerciseScroll(ListView(context))
+    }
+
+    @Test
+    fun `scroll on ScrollView does not throw`() {
+        exerciseScroll(ScrollView(context))
+    }
+
+    @Test
+    fun `scroll on NestedScrollView does not throw`() {
+        exerciseScroll(NestedScrollView(context))
     }
 }
