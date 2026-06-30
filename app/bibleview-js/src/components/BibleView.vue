@@ -619,6 +619,7 @@ $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
   .night.noAnimation & {
     border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
   }
+  // Accent blue at lower alpha (cannot reuse $colorEinkAccent — different alpha)
   .colorEink & {
     background-color: rgba(0, 0, 255, 0.25);
   }

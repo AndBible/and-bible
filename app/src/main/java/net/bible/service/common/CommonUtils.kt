@@ -1761,7 +1761,7 @@ object CommonUtils : CommonUtilsBase() {
         if (strDao.byKey("display_color_mode") == null) {
             val oldMono = boolDao.byKey("monochrome_mode")
             if (oldMono != null) {
-                val newValue = if (oldMono.value) "bw" else "normal"
+                val newValue = if (oldMono.value) DisplayColorMode.BW.value else DisplayColorMode.NORMAL.value
                 Log.i(TAG, "Migrating 'monochrome_mode'=${oldMono.value} → 'display_color_mode'=$newValue")
                 strDao.set("display_color_mode", newValue)
                 boolDao.set("monochrome_mode", null)
