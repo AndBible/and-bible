@@ -133,6 +133,12 @@ class DocumentSyncService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lastStartId = startId
         if (intent?.action != START) { if (!active.get()) stopSelfSafe(startId); return START_NOT_STICKY }
+        // We were started via startForegroundService(): Android requires a matching startForeground()
+        // within ~5s for EVERY such start — including a batch that arrives while an earlier drain is
+        // still running (the non-fresh path below) — or it kills the process with
+        // ForegroundServiceDidNotStartInTimeException. startForeground is idempotent on the same
+        // notification id, so calling it again for a non-fresh batch (or an empty one) is safe.
+        startForegroundSafe()
         val push = intent.getStringArrayListExtra(EXTRA_PUSH) ?: arrayListOf()
         val download = intent.getStringArrayListExtra(EXTRA_DOWNLOAD) ?: arrayListOf()
         val remove = intent.getStringArrayListExtra(EXTRA_REMOVE) ?: arrayListOf()
@@ -147,7 +153,6 @@ class DocumentSyncService : Service() {
         queue.addAll(ops)
         total.addAndGet(ops.size)
         if (fresh) {
-            startForegroundSafe()
             drain()
         }
         return START_NOT_STICKY
