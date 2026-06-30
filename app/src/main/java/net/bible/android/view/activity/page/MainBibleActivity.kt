@@ -293,6 +293,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
     override val integrateWithHistoryManager: Boolean = true
     override val disableBaseSetupUi: Boolean = true
+    override val enableGenericVolumeScroll: Boolean get() = false
     /**
      * Called when the activity is first created.
      */

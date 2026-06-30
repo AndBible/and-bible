@@ -22,6 +22,7 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -49,6 +50,7 @@ import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.comingFromStartupActivity
 import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.util.UiUtils.setActionBarColor
+import net.bible.android.view.util.VolumeButtonScroll
 import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -222,6 +224,34 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
             return
         }
         super.onBackPressed()
+    }
+
+    /**
+     * Whether this activity should let the base class handle volume-key page scrolling.
+     * Screens that own the volume keys themselves (e.g. MainBibleActivity) override to false.
+     */
+    protected open val enableGenericVolumeScroll: Boolean get() = true
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (enableGenericVolumeScroll &&
+            (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) &&
+            CommonUtils.settings.getBoolean("volume_keys_scroll", true)
+        ) {
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+            if (audioManager?.isMusicActive != true) {
+                val root = findViewById<View>(android.R.id.content)
+                val scrollable = root?.let { VolumeButtonScroll.findScrollableView(it) }
+                if (scrollable != null) {
+                    VolumeButtonScroll.scroll(
+                        scrollable,
+                        down = keyCode == KeyEvent.KEYCODE_VOLUME_DOWN,
+                        animate = !CommonUtils.settings.disableAnimations
+                    )
+                    return true
+                }
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     /** called by Android 2.0 +
