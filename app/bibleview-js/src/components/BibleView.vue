@@ -151,6 +151,7 @@ import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
 import {black, useConfig, white} from "@/composables/config";
+import {calcHelperLinePositions, calcPageScrollDistance} from "@/composables/page-scroll";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {useModal} from "@/composables/modal";
 import {useCustomCss} from "@/composables/custom-css";
@@ -419,27 +420,27 @@ setupEventBusListener("reset_loading_count", () => {
 });
 
 const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
-const scrollAmount = computed(() => {
-    let amount = calculatedConfig.value.pageHeight * (config.pageScrollAmount / 100);
-    if (config.pageScrollAmount === 100 && (documentType.value !== "bible" || (documentType.value === "bible" && !config.topMargin))) {
-        amount -= 1.5*lineHeight.value; // 1.5 times because last line might be otherwise displayed partially
-    }
-    return amount;
-})
+const scrollAmount = computed(() =>
+    calcPageScrollDistance(
+        calculatedConfig.value.pageHeight,
+        calculatedConfig.value.topMargin,
+        config.pageScrollAmount,
+        lineHeight.value,
+    )
+)
 
 function scrollUpDown(up = false) {
     doScrolling(window.scrollY + (up ? -scrollAmount.value : scrollAmount.value), 0)
 }
 
-const helperLinePercents: Record<number, number[]> = {25: [25, 50, 75], 33: [33, 66], 50: [50], 66: [33, 66], 75: [25, 75]};
-
-const helperLinePositions = computed(() => {
-    const percents = helperLinePercents[config.pageScrollAmount];
-    if (!percents) return [];
-    const topOff = calculatedConfig.value.topOffset;
-    const pageH = calculatedConfig.value.pageHeight;
-    return percents.map(p => topOff + pageH * (p / 100));
-});
+const helperLinePositions = computed(() =>
+    calcHelperLinePositions(
+        config.pageScrollAmount,
+        calculatedConfig.value.topOffset,
+        calculatedConfig.value.pageHeight,
+        calculatedConfig.value.topMargin,
+    )
+);
 
 const helperLineClass = computed(() => {
     switch (config.scrollHelperLineStyle) {
