@@ -1434,7 +1434,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun showSystemUI(setNavBarColor: Boolean=true) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.decorView.windowInsetsController?.apply {
-                show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                if (CommonUtils.settings.hideStatusBar) {
+                    // Keep the navigation bar (and AndBible's own toolbar) visible, but hide only
+                    // the Android status bar. Swiping from the top edge reveals it transiently.
+                    show(WindowInsets.Type.navigationBars())
+                    hide(WindowInsets.Type.statusBars())
+                    systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                } else {
+                    show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                }
                 if (!ScreenSettings.nightMode) {
                     var appearance = WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
                     if (CommonUtils.settings.monochromeMode) {
@@ -1448,6 +1456,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
         } else {
             var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
+            if (CommonUtils.settings.hideStatusBar) {
+                // Hide only the status bar (not the navigation bar) while keeping the toolbar.
+                uiFlags = (uiFlags
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!ScreenSettings.nightMode) {
                     uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR

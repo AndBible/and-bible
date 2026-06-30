@@ -454,6 +454,7 @@ object CommonUtils : CommonUtilsBase() {
         val einkMode: Boolean get() = getBoolean("eink_mode", false)
         val disableAnimations: Boolean get() = getBoolean("disable_animations", isOnyxDevice)
         val disableClickToEdit: Boolean get() = getBoolean("disable_click_to_edit", false)
+        val hideStatusBar: Boolean get() = getBoolean("hide_status_bar", false)
         val notesContentType: String get() = getString("notes_content_type", "HTML") ?: "HTML"
         val fontSizeMultiplier: Int get() = getInt("font_size_multiplier", 100)
         val fontSizeMultiplierFloat: Float get() = getInt("font_size_multiplier", 100) / 100F
