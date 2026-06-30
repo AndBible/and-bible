@@ -18,7 +18,7 @@
 <template>
   <div
       @click="ambiguousSelection?.handle"
-      :class="{night: appSettings.nightMode, noAnimation: appSettings.disableAnimations, monochrome: appSettings.monochromeMode}"
+      :class="{night: appSettings.nightMode, noAnimation: appSettings.disableAnimations, monochrome: appSettings.monochromeMode, colorEink: appSettings.colorEinkMode}"
       :style="topStyle"
       :dir="direction"
   >
@@ -506,6 +506,8 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 $dayAlpha: 0.07;
 $nightAlpha: 0.3;
 $borderDistance: 0;
+$colorEinkAccent: rgba(0, 0, 255, 0.6);
+$colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 
 .active-window-corner {
   position: fixed;
@@ -525,6 +527,12 @@ $borderDistance: 0;
   }
   .monochrome.night & {
     border-color: white;
+  }
+  .colorEink & {
+    border-color: $colorEinkAccent;
+  }
+  .colorEink.night & {
+    border-color: $colorEinkAccentNight;
   }
 }
 
@@ -582,6 +590,12 @@ $borderDistance: 0;
   .monochrome.night & {
     border-color: white;
   }
+  .colorEink & {
+    border-color: $colorEinkAccent;
+  }
+  .colorEink.night & {
+    border-color: $colorEinkAccentNight;
+  }
 }
 
 .top-margin {
@@ -604,6 +618,19 @@ $borderDistance: 0;
   }
   .night.noAnimation & {
     border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
+  }
+  .colorEink & {
+    background-color: rgba(0, 0, 255, 0.25);
+  }
+  .colorEink.night & {
+    background-color: rgba(196, 196, 255, 0.35);
+  }
+  .colorEink.noAnimation & {
+    background-color: unset;
+    border-bottom: 1px dashed $colorEinkAccent;
+  }
+  .colorEink.night.noAnimation & {
+    border-bottom: 1px dashed $colorEinkAccentNight;
   }
 }
 
@@ -767,6 +794,14 @@ a {
   &.helper-line-thick-solid {
     border-top: 2px solid var(--text-color);
     opacity: 0.3;
+  }
+
+  .colorEink & {
+    border-top-color: $colorEinkAccent;
+    opacity: 1;
+  }
+  .colorEink.night & {
+    border-top-color: $colorEinkAccentNight;
   }
 }
 
