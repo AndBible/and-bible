@@ -229,7 +229,12 @@ class DocumentSyncService : Service() {
     private fun notificationChannel(): String =
         if (BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else SYNC_NOTIFICATION_CHANNEL
 
-    private fun buildNotification(contentText: String?) =
+    /**
+     * Builds the sync notification. [progressPct] (0-100) drives a determinate progress bar when the
+     * download size is known; otherwise an ongoing op with text shows an indeterminate bar, and the
+     * initial no-text notification shows no bar at all.
+     */
+    private fun buildNotification(contentText: String?, progressPct: Int? = null) =
         NotificationCompat.Builder(this, notificationChannel())
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSilent(true)
@@ -237,11 +242,13 @@ class DocumentSyncService : Service() {
             .setSmallIcon(if (CommonUtils.isDiscrete) R.drawable.ic_calc_24 else R.drawable.ic_syncdb_24dp)
             .setContentTitle(getString(R.string.document_sync_notification_title))
             .apply {
-                if (contentText != null) {
-                    setContentText(contentText)
-                    // Indeterminate: per-document byte progress isn't available, and an op count
-                    // would sit at 100% for a single document. The count is in the text instead.
-                    setProgress(0, 0, true)
+                if (contentText != null) setContentText(contentText)
+                when {
+                    // Determinate bar once we know the download size and a byte percentage.
+                    progressPct != null -> setProgress(100, progressPct, false)
+                    // Indeterminate: per-document byte progress isn't yet available (op start, push,
+                    // remove), and an op count would sit at 100% for a single document.
+                    contentText != null -> setProgress(0, 0, true)
                 }
             }
             .build()
@@ -268,17 +275,17 @@ class DocumentSyncService : Service() {
     private var lastDownloadPct = -1
 
     /**
-     * Updates the notification with download progress. Shows a percentage when the total size is
-     * known; otherwise leaves the plain "Downloading X (n/m)" text (no fabricated percent). Posts
-     * only when the whole percent changes, so frequent byte callbacks don't spam the notifier.
+     * Updates the notification with download progress. Drives a determinate progress bar with the
+     * download percentage when the total size is known; otherwise (size unknown) leaves the prior
+     * indeterminate notification untouched. Posts only when the whole percent changes, so frequent
+     * byte callbacks don't spam the notifier.
      */
     private fun updateDownloadProgress(op: DocumentSyncOp, current: Int, total: Int, downloaded: Long, totalBytes: Long) {
         if (totalBytes <= 0) return
         val pct = (downloaded.coerceAtMost(totalBytes) * 100 / totalBytes).toInt()
         if (pct == lastDownloadPct) return
         lastDownloadPct = pct
-        val text = getString(R.string.document_sync_downloading_progress, op.initials, current, total, pct)
-        notificationManager.notify(DOC_SYNC_NOTIFICATION_ID, buildNotification(text))
+        notificationManager.notify(DOC_SYNC_NOTIFICATION_ID, buildNotification(opNotificationText(op, current, total), pct))
     }
 
     private fun acquireWakeLock() {
