@@ -1923,6 +1923,7 @@
     <string name="cloud_doc_filter_updates">Updates</string>
     <string name="cloud_doc_filter_blocked">Blocked</string>
     <string name="cloud_doc_filter_device_only">Only on this device</string>
+    <string name="cloud_doc_filter_cloud_only">In cloud only</string>
     <string name="cloud_doc_filter_removed">Removed</string>
     <string name="cloud_doc_show_removed">Show removed documents</string>
     <string name="cloud_doc_status_removed">Removed from cloud</string>
