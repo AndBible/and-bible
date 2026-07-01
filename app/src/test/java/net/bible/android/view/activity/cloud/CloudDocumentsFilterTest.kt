@@ -113,6 +113,34 @@ class CloudDocumentsFilterTest {
         assertEquals(listOf("LOCALONLY"), filterCloudDocuments(both, CloudDocFilter.DEVICE_ONLY, "", null).map { it.initials })
     }
 
+    @Test fun cloudOnlyKeepsOnlyCloudOnlyDocuments() {
+        // ESV and NOCAT exist only in the cloud and are not installed on this device.
+        assertEquals(listOf("ESV", "NOCAT"), filterCloudDocuments(items, CloudDocFilter.CLOUD_ONLY, "", null).map { it.initials })
+    }
+
+    @Test fun cloudOnlyExcludesTombstones() {
+        // A cloud-only tombstone belongs under REMOVED, not "In cloud only".
+        val ghost = listOf(item("GHOST", cloudOnly = true, cloudDeleted = true))
+        assertEquals(emptyList<String>(), filterCloudDocuments(ghost, CloudDocFilter.CLOUD_ONLY, "", null).map { it.initials })
+    }
+
+    @Test fun cloudOnlyDiffersFromCloud() {
+        // CLOUD includes the synced/local-backed cloud copies; CLOUD_ONLY is the strict subset.
+        val both = listOf(
+            item("CLOUDONLY", cloudOnly = true),
+            item("SYNCED"),                 // installed AND in cloud (neither localOnly nor cloudOnly)
+        )
+        assertEquals(listOf("CLOUDONLY", "SYNCED"), filterCloudDocuments(both, CloudDocFilter.CLOUD, "", null).map { it.initials })
+        assertEquals(listOf("CLOUDONLY"), filterCloudDocuments(both, CloudDocFilter.CLOUD_ONLY, "", null).map { it.initials })
+    }
+
+    @Test fun deviceOnlyAndCloudOnlyAreMutuallyExclusive() {
+        // The two opposite filters never both match the same document, and together exclude synced items.
+        val deviceOnly = filterCloudDocuments(items, CloudDocFilter.DEVICE_ONLY, "", null).map { it.initials }.toSet()
+        val cloudOnly = filterCloudDocuments(items, CloudDocFilter.CLOUD_ONLY, "", null).map { it.initials }.toSet()
+        assertEquals(emptySet<String>(), deviceOnly intersect cloudOnly)
+    }
+
     @Test fun tombstoneExcludedFromAllNonRemovedStatusFilters() {
         // A removed (tombstone) document may still carry last-known blocked / update-available flags,
         // but it must surface only under ALL and REMOVED — never INSTALLED/CLOUD/UPDATES/BLOCKED.
