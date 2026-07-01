@@ -1711,6 +1711,16 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="cloud_doc_summary_download">Scarica %1$d</string>
   <string name="cloud_doc_summary_download_size">Scarica %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">I download automatici inizieranno tramite Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d documento</item>
+    <item quantity="many">%1$d documenti</item>
+    <item quantity="other">%1$d documenti</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d documento (%2$s)</item>
+    <item quantity="many">%1$d documenti (%2$s)</item>
+    <item quantity="other">%1$d documenti (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Niente da trasferire</string>
   <string name="cloud_doc_bulk_download">Scarica i selezionati (%1$d)</string>
   <string name="cloud_doc_nothing_to_download">Tutti i documenti disponibili sono già stati scaricati.</string>

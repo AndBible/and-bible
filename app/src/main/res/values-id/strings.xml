@@ -1062,6 +1062,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="sqlite_invalid_file">File atau nama file modul tidak valid: %s</string>
   <string name="sqlite_cant_write">Tidak dapat (me-overwrite) menulis file</string>
   <string name="install_failed_reason">Penginstalan modul gagal karena alasan berikut: %s.</string>
+  <string name="no_file_manager">Tidak ada aplikasi yang ditemukan untuk memilih berkas. Silakan pasang pengelola berkas dan coba lagi.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikasi dibuka di tempat lain</string>
   <string name="open_here">Buka di sini</string>
@@ -1162,6 +1163,9 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="agent_max_iterations_summary">Iterasi maksimum sebelum meminta untuk melanjutkan (0 = tidak terbatas)</string>
   <string name="ask_model_before_run_title">Tanya model sebelum dijalankan</string>
   <string name="ask_model_before_run_summary">Tampilkan dialog pemilihan model sebelum menjalankan prompt (dilewati jika prompt memiliki penggantian model yang ditentukan)</string>
+  <string name="auto_hide_agent_log_title">Sembunyikan panel AI setelah selesai</string>
+  <string name="auto_hide_agent_log_summary">Secara otomatis sembunyikan panel AI ketika tugas selesai dengan sukses atau dibatalkan. Jika terjadi kesalahan, panel tetap terlihat.</string>
+  <string name="ai_task_completed">Tugas AI selesai</string>
   <string name="custom_agent_system_prompt_title">Prompt sistem agen</string>
   <string name="custom_system_prompt_summary">Pengeditan tidak disarankan kecuali Anda tahu apa yang Anda lakukan</string>
   <string name="custom_text_transform_system_prompt_title">Prompt sistem transformasi teks</string>
@@ -1607,4 +1611,66 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="scroll_helper_line_style_thick_solid">Garis tebal solid</string>
   <string name="prefs_page_buttons_title">Tombol gulir halaman</string>
   <string name="prefs_page_buttons_summary">Tampilkan tombol naik/turun halaman di layar</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Dokumen</string>
+  <string name="document_sync_contents">Alkitab, tafsiran, dan dokumen lain yang terpasang</string>
+  <string name="document_sync_category_title">Sinkronisasi dokumen</string>
+  <string name="document_sync_auto_download_title">Unduh otomatis</string>
+  <string name="document_sync_auto_download_summary">Secara otomatis unduh dokumen baru dan yang diperbarui dari cloud ke perangkat ini</string>
+  <string name="document_sync_auto_upload_title">Unggah otomatis</string>
+  <string name="document_sync_auto_upload_summary">Secara otomatis unggah dokumen yang terpasang di perangkat ini ke cloud</string>
+  <string name="document_sync_auto_delete_title">Terapkan penghapusan otomatis</string>
+  <string name="document_sync_auto_delete_summary">Secara otomatis hapus dokumen dari perangkat ini ketika dokumen tersebut dihapus di perangkat lain</string>
+  <string name="document_sync_wifi_only_title">Sinkronkan dokumen hanya melalui Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">Transfer dokumen otomatis menunggu koneksi tanpa kuota (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Lihat dan kelola dokumen yang tersimpan di cloud</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Dokumen tersinkronisasi</string>
+  <string name="cloud_doc_status_synced">Tersinkronisasi</string>
+  <string name="cloud_doc_status_local_only">Hanya di perangkat ini</string>
+  <string name="cloud_doc_status_cloud_only">Hanya di cloud</string>
+  <string name="cloud_doc_status_update">Pembaruan tersedia</string>
+  <string name="cloud_doc_status_blocked">Diblokir di perangkat ini</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Semua</string>
+  <string name="cloud_doc_filter_installed">Terpasang</string>
+  <string name="cloud_doc_filter_cloud">Di cloud</string>
+  <string name="cloud_doc_filter_updates">Pembaruan</string>
+  <string name="cloud_doc_filter_blocked">Diblokir</string>
+  <string name="cloud_doc_filter_removed">Dihapus</string>
+  <string name="cloud_doc_show_removed">Tampilkan dokumen yang dihapus</string>
+  <string name="cloud_doc_status_removed">Dihapus dari cloud</string>
+  <string name="cloud_doc_status_still_installed">masih terpasang di sini</string>
+  <string name="cloud_doc_purge_confirm">Hapus permanen \"%1$s\" dari riwayat cloud? Jika dokumen masih terpasang di perangkat lain, perangkat tersebut mungkin mengunggahnya kembali ke cloud pada sinkronisasi berikutnya.</string>
+  <string name="cloud_doc_action_download">Unduh</string>
+  <string name="cloud_doc_action_push">Unggah ke cloud</string>
+  <string name="cloud_doc_action_remove_cloud">Hapus dari cloud</string>
+  <string name="cloud_doc_action_remove_all_devices">Hapus dari semua perangkat</string>
+  <string name="cloud_doc_action_block">Jangan sinkronkan ke perangkat ini</string>
+  <string name="cloud_doc_action_unblock">Izinkan di perangkat ini</string>
+  <string name="cloud_doc_action_restore">Pulihkan ke cloud</string>
+  <string name="cloud_doc_action_purge">Hapus dari riwayat cloud</string>
+  <string name="cloud_doc_remove_all_confirm">Hapus %1$s dari cloud dan dari semua perangkat Anda, termasuk perangkat ini?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Hapus %1$s dari cloud? Salinan di perangkat ini tetap disimpan; perangkat dengan sinkronisasi dokumen aktif juga akan menghapusnya.</string>
+  <string name="cloud_doc_sync_now">Sinkronkan sekarang</string>
+  <string name="cloud_doc_rescan">Pindai ulang dari cloud</string>
+  <string name="cloud_doc_sync_now_download">Unduh dokumen baru dan yang diperbarui</string>
+  <string name="cloud_doc_sync_now_upload">Unggah dokumen lokal ke cloud</string>
+  <string name="cloud_doc_sync_now_delete">Terapkan penghapusan dari perangkat lain</string>
+  <string name="document_sync_signin_required">Masuk ke akun cloud Anda untuk mengelola dokumen tersinkronisasi.</string>
+  <string name="cloud_doc_summary_upload">Unggah %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Unggah %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Unduh %1$d</string>
+  <string name="cloud_doc_summary_download_size">Unduh %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">Unduhan otomatis akan dimulai saat Wi-Fi aktif.</string>
+  <string name="cloud_doc_sync_now_count_none">Tidak ada yang ditransfer</string>
+  <string name="cloud_doc_bulk_download">Unduh yang dipilih (%1$d)</string>
+  <string name="cloud_doc_nothing_to_download">Semua dokumen yang tersedia sudah diunduh.</string>
+  <string name="document_sync_notification_title">Menyinkronkan dokumen</string>
+  <string name="document_sync_downloading">Mengunduh %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Mengunggah %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Menghapus %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Sinkronisasi dokumen dimulai</string>
+  <string name="document_sync_enable_dialog_title">Mulai menyinkronkan dokumen?</string>
+  <string name="document_sync_enable_dialog_nothing">Belum ada dokumen untuk ditransfer. Dokumen yang baru dipasang akan disinkronkan secara otomatis.</string>
 </resources>

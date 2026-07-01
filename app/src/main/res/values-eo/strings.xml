@@ -1078,7 +1078,7 @@ En la datumbazo troviĝas %s. Kion vi volas fari?</string>
   <string name="sqlite_invalid_file">Malĝusta dosiero de modulo aŭ dosiernomo: %s</string>
   <string name="sqlite_cant_write">Ne povas (super)skribi la dosieron</string>
   <string name="install_failed_reason">Instalado de modulo malsukcesis pro la jena kialo: %s.</string>
-  <string name="no_file_manager">Neniu aplikaĵo troviĝis por elekti dosieron. Bonvolu instali dosieradministrilon kaj reprovi.</string>
+  <string name="no_file_manager">Neniu aplikaĵo troviĝis por elekti dosieron. Instalu dosieradministrilon kaj reprovu.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplikaĵo malfermita ie alie</string>
   <string name="open_here">Malfermi tie ĉi</string>
@@ -1180,8 +1180,8 @@ Ne montri tion ĉi denove</string>
   <string name="agent_max_iterations_summary">Maksimuma nombro da ripetoj (iteracioj) antaŭ ol montri demandon ĉu pluigi (0 = senlima)</string>
   <string name="ask_model_before_run_title">Demandi pri modelo antaŭ ol plenumi</string>
   <string name="ask_model_before_run_summary">Montri fenestron kun elekto de modelo antaŭ ol plenumi demandon al artefarita intelekto (preterpasita, kiam la demando precize difinas modelon)</string>
-  <string name="auto_hide_agent_log_title">Kaŝi AI-panelon post fino</string>
-  <string name="auto_hide_agent_log_summary">Aŭtomate kaŝi la AI-panelon kiam tasko sukcese finiĝas aŭ estas nuligita. Ĉe eraro la panelo restas videbla.</string>
+  <string name="auto_hide_agent_log_title">Kaŝi panelon post fino</string>
+  <string name="auto_hide_agent_log_summary">Aŭtomate kaŝi la panelon de artefarita intelekto kiam tasko sukcese finiĝas aŭ estas nuligita. Ĉe eraro la panelo restos videbla.</string>
   <string name="ai_task_completed">AI-tasko finita</string>
   <string name="custom_agent_system_prompt_title">Sistema demando de agento</string>
   <string name="custom_system_prompt_summary">Redaktado ne rekomendata krom se vi scias kion vi faras</string>
