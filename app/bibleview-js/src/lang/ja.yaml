@@ -2,8 +2,8 @@
 bookmarks: ブックマーク
 bookmarksAndNotes: ブックマーク＆マイノート
 openMyNotes: マイノートで開く
-openStudyPad: スタディパッドで開く（%s）
-noteText: 脚注（%s）
+openStudyPad: "スタディパッドで開く（%s）"
+noteText: "脚注（%s）"
 noteTextWithoutType: 脚注
 crossReferenceText: 相互参照
 findAllOccurrences: すべての出現箇所を検索
@@ -23,8 +23,8 @@ myDocumentEmptyPlaceholder: タップしてこのページの編集を開始
 inputPlaceholder: ここに入力
 inputReference: 聖書の参照を入力
 invalidReference: 節が見つかりません
-bookmarkAccurate: ブックマークが %s に作成されました
-bookmarkInaccurate: ブックマークの書情報が保存されていません。コンテンツは %s に表示されます。
+bookmarkAccurate: "ブックマークが %s に作成されました"
+bookmarkInaccurate: "ブックマークの書情報が保存されていません。コンテンツは %s に表示されます。"
 defaultBook: デフォルトの聖書文書
 ok: OK
 yes: "はい"
@@ -39,10 +39,8 @@ externalLink: 外部リンクを開く
 referenceLink: 参照リンクを開く
 openFootnote: 脚注を開く
 noMyNotesTitle: この章にマイノートはありません。
-noMyNotesDescription: >-
-  聖書文書でブックマークを作成して始めましょう。ブックマークがここに表示され、個人のノートを追加できます。
-emptyStudyPad: >-
-  スタディパッドが空です。テキストエントリを作成するか、このスタディパッドに対応するブックマークラベルでブックマークを作成して追加を始めましょう。
+noMyNotesDescription: 聖書文書でブックマークを作成して始めましょう。ブックマークがここに表示され、個人のノートを追加できます。
+emptyStudyPad: スタディパッドが空です。テキストエントリを作成するか、このスタディパッドに対応するブックマークラベルでブックマークを作成して追加を始めましょう。
 doYouWantToDeleteEntry: このスタディパッドのエントリを削除しますか？
 removeStudyPadConfirmationTitle: スタディパッドのエントリを削除しますか？
 dragHelp: ドラッグして並べ替え
@@ -54,7 +52,7 @@ assignLabelsMenuEntry1: ラベルを選択または編集…
 favouriteLabels: お気に入りラベル
 recentLabels: 最近使ったラベル
 bookmarkLabels: ブックマークラベル
-refParserHelp: 英語以外の言語で参照を使用するには %s モジュールをインストールしてください。
+refParserHelp: "英語以外の言語で参照を使用するには %s モジュールをインストールしてください。"
 openDownloads: アドオンのダウンロードへ
 verseShare: 共有
 verseSpeak: 読み上げ
@@ -75,6 +73,9 @@ markedAsMemorized: 暗記済み
 removeFromTargets: 目標 -
 viewReadingProgress: 読書/暗記の進捗
 viewReadingProgressSettings: 読書/暗記の設定
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: ループ再生
 viewHelp: ヘルプを表示
 verseNoteLong: ノートを書く

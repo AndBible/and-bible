@@ -2,8 +2,8 @@
 bookmarks: Mga Bookmark
 bookmarksAndNotes: Mga Bookmark at My Notes
 openMyNotes: Buksan sa My Notes
-openStudyPad: Buksan sa Study Pad (%s)
-noteText: Mga Talababa (%s)
+openStudyPad: "Buksan sa Study Pad (%s)"
+noteText: "Mga Talababa (%s)"
 noteTextWithoutType: Mga Talababa
 crossReferenceText: Mga Cross Reference
 findAllOccurrences: Hanapin ang lahat ng pagkakataon
@@ -23,15 +23,15 @@ myDocumentEmptyPlaceholder: I-tap upang simulan ang pag-edit ng pahinang ito
 inputPlaceholder: Sumulat dito
 inputReference: Ilagay ang sanggunian sa Bibliya
 invalidReference: Hindi nahanap ang talata
-bookmarkAccurate: Ang bookmark ay nilikha sa %s
+bookmarkAccurate: "Ang bookmark ay nilikha sa %s"
 bookmarkInaccurate: "Hindi naimbak ang impormasyon ng aklat ng bookmark, ang nilalaman ay ipinapakita sa %s."
 defaultBook: default na dokumento ng Bibliya
 ok: OK
 yes: "Oo"
-ambiguousSelection: "Anong aksyon ang nais mong gawin?"
+ambiguousSelection: Anong aksyon ang nais mong gawin?
 cancel: Kanselahin
-removeBookmarkConfirmationTitle: "Alisin ang bookmark?"
-removeBookmarkConfirmation: "Sigurado ka bang nais mong alisin ang bookmark na ito?"
+removeBookmarkConfirmationTitle: Alisin ang bookmark?
+removeBookmarkConfirmation: Sigurado ka bang nais mong alisin ang bookmark na ito?
 createdAt: "Nilikha: %s"
 lastUpdatedOn: "Huling na-update: %s"
 strongsAndMorph: Kahulugan at Morpholohiya
@@ -39,12 +39,10 @@ externalLink: Buksan ang external na link
 referenceLink: Buksan ang reference na link
 openFootnote: Buksan ang talababa
 noMyNotesTitle: Walang My Notes para sa kabanatang ito.
-noMyNotesDescription: >-
-  Magsimula sa pamamagitan ng paglikha ng mga bookmark sa isang dokumento ng Bibliya. Ang mga bookmark ay lilitaw dito at maaari kang magdagdag ng iyong personal na mga tala sa kanila.
-emptyStudyPad: >-
-  Walang laman ang study pad. Simulan ang pagdaragdag sa study pad na ito sa pamamagitan ng paglikha ng mga text entry dito o sa pamamagitan ng paglikha ng mga bookmark na may label ng bookmark na tumutugma sa study pad na ito.
-doYouWantToDeleteEntry: "Tanggalin ang entry na ito sa study pad?"
-removeStudyPadConfirmationTitle: "Alisin ang entry sa study pad?"
+noMyNotesDescription: Magsimula sa pamamagitan ng paglikha ng mga bookmark sa isang dokumento ng Bibliya. Ang mga bookmark ay lilitaw dito at maaari kang magdagdag ng iyong personal na mga tala sa kanila.
+emptyStudyPad: Walang laman ang study pad. Simulan ang pagdaragdag sa study pad na ito sa pamamagitan ng paglikha ng mga text entry dito o sa pamamagitan ng paglikha ng mga bookmark na may label ng bookmark na tumutugma sa study pad na ito.
+doYouWantToDeleteEntry: Tanggalin ang entry na ito sa study pad?
+removeStudyPadConfirmationTitle: Alisin ang entry sa study pad?
 dragHelp: I-drag upang muling ayusin
 openAll: Buksan ang lahat ng sanggunian
 editBookmarkPlaceholder: I-tap upang i-edit ang My Notes para sa bookmark na ito
@@ -54,7 +52,7 @@ assignLabelsMenuEntry1: Pumili o mag-edit ng mga label…
 favouriteLabels: Mga Paboritong Label
 recentLabels: Mga Kamakailang Label
 bookmarkLabels: Mga label ng bookmark
-refParserHelp: Mangyaring i-install ang %s module upang gumamit ng mga sanggunian sa mga wika bukod sa Ingles.
+refParserHelp: "Mangyaring i-install ang %s module upang gumamit ng mga sanggunian sa mga wika bukod sa Ingles."
 openDownloads: Pumunta sa mga pag-download ng Add-on
 verseShare: I-share
 verseSpeak: Magsalita
@@ -75,6 +73,9 @@ markedAsMemorized: Nakabisa na
 removeFromTargets: Layunin -
 viewReadingProgress: Progreso sa Pagbabasa/Pagkabisa
 viewReadingProgressSettings: Mga Setting ng Pagbabasa/Pagkabisa
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: Makinig sa Loop
 viewHelp: Tingnan ang tulong
 verseNoteLong: Sumulat ng tala

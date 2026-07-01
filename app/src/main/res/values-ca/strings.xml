@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Mostra els números de capítol i verset</string>
   <string name="prefs_e_ink_mode_title">Mode blanc i negre</string>
   <string name="prefs_eink_mode_summary">Utilitza l\'aplicació en mode monocrom (sense colors), fet que la fa més adequada per a dispositius de tinta electrònica.</string>
+  <string name="prefs_display_color_mode_title">Mode de color</string>
+  <string name="prefs_display_color_mode_summary">Trieu com es mostren els colors. La tinta electrònica en color manté una base en blanc i negre però mostra els colors dels marcadors, l\'indicador de finestra activa i les línies auxiliars en color — per a pantalles de tinta electrònica en color.</string>
+  <string name="prefs_display_color_mode_normal">Normal</string>
+  <string name="prefs_display_color_mode_bw">Blanc i negre</string>
+  <string name="prefs_display_color_mode_color_eink">Tinta electrònica en color</string>
   <string name="prefs_eink_settings_cat">Configuració de tinta electrònica</string>
   <string name="prefs_eink_display_title">Funcions de tinta electrònica</string>
   <string name="prefs_eink_display_summary">Activa les funcions específiques de tinta electrònica (botons de desplaçament de pàgina, línies d\'ajuda de desplaçament)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">No mostris la superposició semitransparent de referència bíblica quan l\'aplicació estigui en mode de pantalla completa</string>
   <string name="full_screen_hide_buttons_pref_title">Amaga la barra de botons de finestra en pantalla completa</string>
   <string name="full_screen_hide_buttons_pref_summary">En canviar al mode de pantalla completa, amaga automàticament la barra de botons de finestra que hi ha a la part inferior de la pantalla</string>
+  <string name="prefs_hide_status_bar_title">Amaga la barra d\'estat</string>
+  <string name="prefs_hide_status_bar_summary">Amaga la barra d\'estat d\'Android (rellotge, notificacions) mantenint visible la barra d\'eines pròpia d\'AndBible. Útil per a una lectura sense distraccions i per a dispositius de tinta electrònica. Llisqueu des de la vora superior per revelar-la temporalment.</string>
   <string name="prefs_dictionaries_cat">Diccionaris</string>
   <string name="choose_strongs_greek_dictionary_title">Diccionari grec de Strong</string>
   <string name="choose_strongs_greek_dictionary_summary">Tria el diccionari de Strong per a les definicions de paraules gregues</string>
@@ -1543,6 +1550,8 @@
   <string name="prefs_show_ai_doc_markers_summary">Mostra icones de marcador per a les pàgines de documents generats per la IA vinculades a versets</string>
   <string name="prefs_show_ordinals_title">Mostra els números ordinals</string>
   <string name="prefs_show_ordinals_summary">Mostra marcadors de posició ordinal al text</string>
+  <string name="prefs_show_reading_progress_title">Progrés de lectura</string>
+  <string name="prefs_show_reading_progress_summary">Mostra fins a quin punt heu avançat en el llibre (percentatge, pàgina o capítol)</string>
   <string name="prefs_page_scroll_amount_title">Quantitat de desplaçament de pàgina</string>
   <string name="prefs_page_scroll_amount_summary">Quant de la pàgina es desplaça amb avançar/retrocedir pàgina</string>
   <string name="prefs_scroll_helper_lines_title">Línies d\'ajuda de desplaçament</string>
@@ -1574,12 +1583,15 @@
   <string name="cloud_doc_status_cloud_only">Només al núvol</string>
   <string name="cloud_doc_status_update">Actualització disponible</string>
   <string name="cloud_doc_status_blocked">Bloquejat en aquest dispositiu</string>
+  <string name="cloud_doc_status_wont_sync">No es sincronitzarà al núvol</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Tots</string>
   <string name="cloud_doc_filter_installed">Instal·lats</string>
   <string name="cloud_doc_filter_cloud">Al núvol</string>
   <string name="cloud_doc_filter_updates">Actualitzacions</string>
   <string name="cloud_doc_filter_blocked">Bloquejats</string>
+  <string name="cloud_doc_filter_device_only">Només en aquest dispositiu</string>
+  <string name="cloud_doc_filter_cloud_only">Només al núvol</string>
   <string name="cloud_doc_filter_removed">Suprimits</string>
   <string name="cloud_doc_show_removed">Mostra els documents suprimits</string>
   <string name="cloud_doc_status_removed">Suprimit del núvol</string>
@@ -1592,6 +1604,8 @@
   <string name="cloud_doc_action_block">No sincronitzis amb aquest dispositiu</string>
   <string name="cloud_doc_action_unblock">Permet en aquest dispositiu</string>
   <string name="cloud_doc_action_restore">Restaura al núvol</string>
+  <string name="cloud_doc_action_dont_sync">No sincronitzis al núvol</string>
+  <string name="cloud_doc_action_allow_sync">Sincronitza al núvol</string>
   <string name="cloud_doc_action_purge">Suprimeix de l\'historial del núvol</string>
   <string name="cloud_doc_remove_all_confirm">Voleu suprimir %1$s del núvol i de tots els vostres dispositius, inclòs aquest?</string>
   <string name="cloud_doc_remove_cloud_confirm">Voleu suprimir %1$s del núvol? La còpia d\'aquest dispositiu es conserva; els dispositius amb la sincronització de documents activada també la suprimiran.</string>
@@ -1607,8 +1621,8 @@
   <string name="cloud_doc_summary_download_size">Baixa %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Les baixades automàtiques començaran amb Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Res a transferir</string>
-  <string name="cloud_doc_bulk_download">Baixa els seleccionats (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Ja s\'han baixat tots els documents disponibles.</string>
+  <string name="cloud_doc_selected_count">%1$d seleccionats</string>
+  <string name="cloud_doc_bulk_skipped">%1$d omesos per no ser aplicables</string>
   <string name="document_sync_notification_title">S\'estan sincronitzant els documents</string>
   <string name="document_sync_downloading">S\'està baixant %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">S\'està pujant %1$s (%2$d/%3$d)</string>

@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">장 &amp; 절 번호 보이기</string>
   <string name="prefs_e_ink_mode_title">흑백 모드</string>
   <string name="prefs_eink_mode_summary">전자책 디바이스에 알맞게 앱을 흑백 모드(컬러 없음)로 사용합니다.</string>
+  <string name="prefs_display_color_mode_title">색상 모드</string>
+  <string name="prefs_display_color_mode_summary">색상이 표시되는 방식을 선택하세요. 컬러 잉크(e-ink) 모드는 흑백 바탕을 유지하면서 북마크 색상, 활성 창 표시기, 도우미 선을 컬러로 표시합니다 — 컬러 전자책 화면용입니다.</string>
+  <string name="prefs_display_color_mode_normal">일반</string>
+  <string name="prefs_display_color_mode_bw">흑백</string>
+  <string name="prefs_display_color_mode_color_eink">컬러 전자책(e-ink)</string>
   <string name="prefs_eink_settings_cat">E-ink 설정</string>
   <string name="prefs_eink_display_title">E-ink 기능</string>
   <string name="prefs_eink_display_summary">E-ink 전용 기능 활성화 (페이지 스크롤 버튼, 스크롤 보조선)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">앱이 전체 화면 모드에 있을 때 반투명한 성경 참조 오버레이를 보여주지 않음</string>
   <string name="full_screen_hide_buttons_pref_title">전체 화면에서 윈도우 버튼 바를 숨김</string>
   <string name="full_screen_hide_buttons_pref_summary">전체 화면 모드로 전환되면 화면 아래에 있는 윈도우 버튼을 자동으로 숨깁니다</string>
+  <string name="prefs_hide_status_bar_title">상태 표시줄 숨기기</string>
+  <string name="prefs_hide_status_bar_summary">AndBible의 도구 모음은 그대로 유지하면서 안드로이드 상태 표시줄(시계, 알림)을 숨깁니다. 방해받지 않는 독서와 전자책(e-ink) 기기에 유용합니다. 위쪽 가장자리에서 아래로 스와이프하면 일시적으로 다시 표시됩니다.</string>
   <string name="prefs_dictionaries_cat">사전</string>
   <string name="choose_strongs_greek_dictionary_title">스트롱 그리스어 사전</string>
   <string name="choose_strongs_greek_dictionary_summary">그리스어 단어의 스트롱 사전을 선택합니다</string>
@@ -1705,6 +1712,8 @@
   <string name="prefs_show_ai_doc_markers_summary">구절에 연결된 AI 생성 문서 페이지의 마커 아이콘 표시</string>
   <string name="prefs_show_ordinals_title">순서 번호 표시</string>
   <string name="prefs_show_ordinals_summary">텍스트에 순서 위치 마커 표시</string>
+  <string name="prefs_show_reading_progress_title">읽기 진행률</string>
+  <string name="prefs_show_reading_progress_summary">현재까지 읽은 정도를 표시합니다 (백분율, 페이지 또는 장)</string>
   <string name="prefs_page_scroll_amount_title">페이지 스크롤 양</string>
   <string name="prefs_page_scroll_amount_summary">페이지 위/아래로 스크롤할 양</string>
   <string name="prefs_scroll_helper_lines_title">스크롤 보조선</string>
@@ -1736,12 +1745,15 @@
   <string name="cloud_doc_status_cloud_only">클라우드에만 있음</string>
   <string name="cloud_doc_status_update">업데이트 사용 가능</string>
   <string name="cloud_doc_status_blocked">이 기기에서 차단됨</string>
+  <string name="cloud_doc_status_wont_sync">클라우드에 동기화되지 않음</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">전체</string>
   <string name="cloud_doc_filter_installed">설치됨</string>
   <string name="cloud_doc_filter_cloud">클라우드</string>
   <string name="cloud_doc_filter_updates">업데이트</string>
   <string name="cloud_doc_filter_blocked">차단됨</string>
+  <string name="cloud_doc_filter_device_only">이 기기에만 있음</string>
+  <string name="cloud_doc_filter_cloud_only">클라우드에만 있음</string>
   <string name="cloud_doc_filter_removed">제거됨</string>
   <string name="cloud_doc_show_removed">제거된 문서 표시</string>
   <string name="cloud_doc_status_removed">클라우드에서 제거됨</string>
@@ -1754,6 +1766,8 @@
   <string name="cloud_doc_action_block">이 기기에 동기화 안 함</string>
   <string name="cloud_doc_action_unblock">이 기기에서 허용</string>
   <string name="cloud_doc_action_restore">클라우드로 복원</string>
+  <string name="cloud_doc_action_dont_sync">클라우드에 동기화하지 않음</string>
+  <string name="cloud_doc_action_allow_sync">클라우드에 동기화</string>
   <string name="cloud_doc_action_purge">클라우드 기록에서 제거</string>
   <string name="cloud_doc_remove_all_confirm">이 기기를 포함한 모든 기기와 클라우드에서 %1$s을(를) 제거하시겠습니까?</string>
   <string name="cloud_doc_remove_cloud_confirm">클라우드에서 %1$s을(를) 제거하시겠습니까? 이 기기의 사본은 유지됩니다. 문서 동기화가 켜진 기기에서도 제거됩니다.</string>
@@ -1769,8 +1783,8 @@
   <string name="cloud_doc_summary_download_size">다운로드 %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">자동 다운로드는 Wi-Fi에서 시작됩니다.</string>
   <string name="cloud_doc_sync_now_count_none">전송할 항목이 없습니다</string>
-  <string name="cloud_doc_bulk_download">선택 항목 다운로드 (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">사용 가능한 모든 문서가 이미 다운로드되었습니다.</string>
+  <string name="cloud_doc_selected_count">%1$d개 선택됨</string>
+  <string name="cloud_doc_bulk_skipped">해당되지 않아 %1$d개 건너뜀</string>
   <string name="document_sync_notification_title">문서 동기화 중</string>
   <string name="document_sync_downloading">%1$s 다운로드 중 (%2$d/%3$d)</string>
   <string name="document_sync_uploading">%1$s 업로드 중 (%2$d/%3$d)</string>

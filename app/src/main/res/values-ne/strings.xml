@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">अध्याय र श्लोक नम्बरहरू देखाउनुहोस्</string>
   <string name="prefs_e_ink_mode_title">कालो र सेतो मोड</string>
   <string name="prefs_eink_mode_summary">अनुप्रयोग एकरंगी मोडमा (कुनै रंग नभई) प्रयोग गर्नुहोस्, जसले E-ink उपकरणहरूको लागि उपयुक्त बनाउँछ।</string>
+  <string name="prefs_display_color_mode_title">रङ मोड</string>
+  <string name="prefs_display_color_mode_summary">रङहरू कसरी देखाइन्छन् भन्ने छान्नुहोस्। रङ e-ink ले कालो र सेतो आधार राख्दछ तर बुकमार्क रङहरू, सक्रिय-विन्डो सूचक र सहायक रेखाहरू रङमा देखाउँछ — रङ e-ink स्क्रिनहरूको लागि।</string>
+  <string name="prefs_display_color_mode_normal">सामान्य</string>
+  <string name="prefs_display_color_mode_bw">कालो र सेतो</string>
+  <string name="prefs_display_color_mode_color_eink">रङ e-ink</string>
   <string name="prefs_eink_settings_cat">E-ink सेटिङहरू</string>
   <string name="prefs_eink_display_title">E-ink सुविधाहरू</string>
   <string name="prefs_eink_display_summary">E-ink विशिष्ट सुविधाहरू सक्षम गर्नुहोस् (पृष्ठ स्क्रोल बटनहरू, स्क्रोल सहायक रेखाहरू)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">अनुप्रयोग पूर्णस्क्रिन मोडमा हुँदा अर्ध-पारदर्शी बाइबल सन्दर्भ ओभरले नदेखाउनुहोस्</string>
   <string name="full_screen_hide_buttons_pref_title">पूर्णस्क्रिनमा विन्डो बटन बार लुकाउनुहोस्</string>
   <string name="full_screen_hide_buttons_pref_summary">पूर्णस्क्रिन मोडमा स्विच गर्दा, स्क्रिनको तलमा रहेको विन्डो बटन बार स्वचालित रूपमा लुकाउनुहोस्</string>
+  <string name="prefs_hide_status_bar_title">स्थिति पट्टी लुकाउनुहोस्</string>
+  <string name="prefs_hide_status_bar_summary">एन्डबाइबलको आफ्नै टूलबार देखिरहँदा एन्ड्रोइड स्थिति पट्टी (घडी, सूचनाहरू) लुकाउनुहोस्। ध्यान भङ्ग नहुने पठन र e-ink डिभाइसहरूको लागि उपयोगी। यसलाई अस्थायी रूपमा देखाउनको लागि माथिल्लो किनारबाट स्वाइप गर्नुहोस्।</string>
   <string name="prefs_dictionaries_cat">शब्दकोशहरू</string>
   <string name="choose_strongs_greek_dictionary_title">Strong\'s ग्रीक शब्दकोश</string>
   <string name="choose_strongs_greek_dictionary_summary">ग्रीक शब्द परिभाषाहरूको लागि Strong\'s शब्दकोश छान्नुहोस्</string>
@@ -1543,6 +1550,8 @@
   <string name="prefs_show_ai_doc_markers_summary">श्लोकहरूसँग जोडिएका AI-उत्पन्न कागजात पृष्ठहरूको लागि मार्कर आइकनहरू देखाउनुहोस्</string>
   <string name="prefs_show_ordinals_title">क्रमसंख्या देखाउनुहोस्</string>
   <string name="prefs_show_ordinals_summary">पाठमा क्रमसंख्या स्थान मार्करहरू देखाउनुहोस्</string>
+  <string name="prefs_show_reading_progress_title">पठन प्रगति</string>
+  <string name="prefs_show_reading_progress_summary">तपाईं पुस्तकमा कति पुगिसक्नुभयो देखाउनुहोस् (प्रतिशत, पृष्ठ वा अध्याय)</string>
   <string name="prefs_page_scroll_amount_title">पृष्ठ स्क्रोल मात्रा</string>
   <string name="prefs_page_scroll_amount_summary">पृष्ठ माथि/तलसँग पृष्ठको कति भाग स्क्रोल गर्ने</string>
   <string name="prefs_scroll_helper_lines_title">स्क्रोल सहायक रेखाहरू</string>
@@ -1574,12 +1583,15 @@
   <string name="cloud_doc_status_cloud_only">बादलमा मात्र</string>
   <string name="cloud_doc_status_update">अद्यावधिक उपलब्ध</string>
   <string name="cloud_doc_status_blocked">यस यन्त्रमा अवरुद्ध</string>
+  <string name="cloud_doc_status_wont_sync">क्लाउडमा समन्वय हुनेछैन</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">सबै</string>
   <string name="cloud_doc_filter_installed">स्थापित</string>
   <string name="cloud_doc_filter_cloud">बादलमा</string>
   <string name="cloud_doc_filter_updates">अद्यावधिकहरू</string>
   <string name="cloud_doc_filter_blocked">अवरुद्ध</string>
+  <string name="cloud_doc_filter_device_only">यो डिभाइसमा मात्र</string>
+  <string name="cloud_doc_filter_cloud_only">क्लाउडमा मात्र</string>
   <string name="cloud_doc_filter_removed">हटाइएका</string>
   <string name="cloud_doc_show_removed">हटाइएका कागजातहरू देखाउनुहोस्</string>
   <string name="cloud_doc_status_removed">बादलबाट हटाइयो</string>
@@ -1592,6 +1604,8 @@
   <string name="cloud_doc_action_block">यस यन्त्रमा सिंक नगर्नुहोस्</string>
   <string name="cloud_doc_action_unblock">यस यन्त्रमा अनुमति दिनुहोस्</string>
   <string name="cloud_doc_action_restore">बादलमा पुनर्स्थापना गर्नुहोस्</string>
+  <string name="cloud_doc_action_dont_sync">क्लाउडमा समन्वय नगर्नुहोस्</string>
+  <string name="cloud_doc_action_allow_sync">क्लाउडमा समन्वय गर्नुहोस्</string>
   <string name="cloud_doc_action_purge">बादल इतिहासबाट हटाउनुहोस्</string>
   <string name="cloud_doc_remove_all_confirm">%1$s लाई बादलबाट र यो सहित तपाईंका सबै यन्त्रहरूबाट हटाउने हो?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s लाई बादलबाट हटाउने हो? यस यन्त्रको प्रतिलिपि राखिन्छ; कागजात सिंक सक्रिय भएका यन्त्रहरूले पनि यसलाई हटाउनेछन्।</string>
@@ -1607,8 +1621,8 @@
   <string name="cloud_doc_summary_download_size">%1$d डाउनलोड (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">स्वचालित डाउनलोडहरू Wi-Fi मा सुरु हुनेछन्।</string>
   <string name="cloud_doc_sync_now_count_none">स्थानान्तरण गर्न केही छैन</string>
-  <string name="cloud_doc_bulk_download">चयन गरिएका डाउनलोड गर्नुहोस् (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">उपलब्ध सबै कागजातहरू पहिले नै डाउनलोड भइसकेका छन्।</string>
+  <string name="cloud_doc_selected_count">%1$d चयन गरियो</string>
+  <string name="cloud_doc_bulk_skipped">%1$d लागू नहुने छोडियो</string>
   <string name="document_sync_notification_title">कागजातहरू सिंक गर्दै</string>
   <string name="document_sync_downloading">%1$s डाउनलोड गर्दै (%2$d/%3$d)</string>
   <string name="document_sync_uploading">%1$s अपलोड गर्दै (%2$d/%3$d)</string>

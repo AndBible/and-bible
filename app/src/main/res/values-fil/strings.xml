@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Ipakita ang mga numero ng kabanata at talata</string>
   <string name="prefs_e_ink_mode_title">Black &amp; white mode</string>
   <string name="prefs_eink_mode_summary">Gamitin ang application sa monochrome mode (walang kulay), na mas angkop para sa mga E-ink device.</string>
+  <string name="prefs_display_color_mode_title">Mode ng kulay</string>
+  <string name="prefs_display_color_mode_summary">Piliin kung paano ipapakita ang mga kulay. Ang color e-ink ay nagpapanatili ng itim at puting base ngunit nagpapakita ng mga kulay ng bookmark, ang tagapahiwatig ng aktibong window, at mga tulong na linya sa kulay — para sa mga color e-ink na screen.</string>
+  <string name="prefs_display_color_mode_normal">Normal</string>
+  <string name="prefs_display_color_mode_bw">Itim at puti</string>
+  <string name="prefs_display_color_mode_color_eink">Color e-ink</string>
   <string name="prefs_eink_settings_cat">Mga setting ng E-ink</string>
   <string name="prefs_eink_display_title">Mga tampok ng E-ink</string>
   <string name="prefs_eink_display_summary">I-enable ang mga tampok na partikular sa e-ink (mga button na scroll ng pahina, mga linya ng tulong sa pag-scroll)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Huwag ipakita ang semi-transparent na Bible reference overlay kapag ang app ay nasa fullscreen mode</string>
   <string name="full_screen_hide_buttons_pref_title">Itago ang window button bar sa fullscreen</string>
   <string name="full_screen_hide_buttons_pref_summary">Kapag lumipat sa fullscreen mode, awtomatikong itago ang window button bar na nasa ibaba ng screen</string>
+  <string name="prefs_hide_status_bar_title">Itago ang status bar</string>
+  <string name="prefs_hide_status_bar_summary">Itago ang status bar ng Android (orasan, mga notification) habang nananatiling nakikita ang sariling toolbar ng AndBible. Kapaki-pakinabang para sa distraction-free na pagbabasa at mga e-ink device. I-swipe mula sa itaas na gilid upang ipakita ito pansamantala.</string>
   <string name="prefs_dictionaries_cat">Mga Diksyonaryo</string>
   <string name="choose_strongs_greek_dictionary_title">Diksyonaryong Griyego ng Strong\'s</string>
   <string name="choose_strongs_greek_dictionary_summary">Pumili ng diksyonaryo ng Strong\'s para sa mga kahulugan ng salitang Griyego</string>
@@ -1543,6 +1550,8 @@
   <string name="prefs_show_ai_doc_markers_summary">Ipakita ang mga marker icon para sa mga AI-generated na pahina ng dokumento na naka-link sa mga talata</string>
   <string name="prefs_show_ordinals_title">Ipakita ang mga ordinal na numero</string>
   <string name="prefs_show_ordinals_summary">Ipakita ang mga ordinal position marker sa teksto</string>
+  <string name="prefs_show_reading_progress_title">Progreso ng pagbabasa</string>
+  <string name="prefs_show_reading_progress_summary">Ipakita kung gaano ka na malayo sa aklat (porsyento, pahina, o kabanata)</string>
   <string name="prefs_page_scroll_amount_title">Dami ng page scroll</string>
   <string name="prefs_page_scroll_amount_summary">Gaano karami ng pahina ang i-scroll sa page up/down</string>
   <string name="prefs_scroll_helper_lines_title">Mga linya ng scroll helper</string>
@@ -1574,12 +1583,15 @@
   <string name="cloud_doc_status_cloud_only">Sa cloud lamang</string>
   <string name="cloud_doc_status_update">May available na update</string>
   <string name="cloud_doc_status_blocked">Naka-block sa device na ito</string>
+  <string name="cloud_doc_status_wont_sync">Hindi mag-sync sa cloud</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Lahat</string>
   <string name="cloud_doc_filter_installed">Naka-install</string>
   <string name="cloud_doc_filter_cloud">Sa cloud</string>
   <string name="cloud_doc_filter_updates">Mga update</string>
   <string name="cloud_doc_filter_blocked">Naka-block</string>
+  <string name="cloud_doc_filter_device_only">Sa device na ito lang</string>
+  <string name="cloud_doc_filter_cloud_only">Sa cloud lang</string>
   <string name="cloud_doc_filter_removed">Tinanggal</string>
   <string name="cloud_doc_show_removed">Ipakita ang mga tinanggal na dokumento</string>
   <string name="cloud_doc_status_removed">Tinanggal sa cloud</string>
@@ -1592,6 +1604,8 @@
   <string name="cloud_doc_action_block">Huwag i-sync sa device na ito</string>
   <string name="cloud_doc_action_unblock">Payagan sa device na ito</string>
   <string name="cloud_doc_action_restore">I-restore sa cloud</string>
+  <string name="cloud_doc_action_dont_sync">Huwag i-sync sa cloud</string>
+  <string name="cloud_doc_action_allow_sync">I-sync sa cloud</string>
   <string name="cloud_doc_action_purge">Tanggalin sa history ng cloud</string>
   <string name="cloud_doc_remove_all_confirm">Tanggalin ang %1$s sa cloud at sa lahat ng iyong device, kabilang ang isang ito?</string>
   <string name="cloud_doc_remove_cloud_confirm">Tanggalin ang %1$s sa cloud? Mananatili ang kopya sa device na ito; tatanggalin din ito ng mga device na may naka-on na pag-sync ng dokumento.</string>
@@ -1607,8 +1621,8 @@
   <string name="cloud_doc_summary_download_size">I-download %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Magsisimula ang mga awtomatikong pag-download sa Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Walang ililipat</string>
-  <string name="cloud_doc_bulk_download">I-download ang napili (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Na-download na ang lahat ng available na dokumento.</string>
+  <string name="cloud_doc_selected_count">%1$d napili</string>
+  <string name="cloud_doc_bulk_skipped">%1$d na hindi naaangkop ay nilaktawan</string>
   <string name="document_sync_notification_title">Sino-sync ang mga dokumento</string>
   <string name="document_sync_downloading">Dino-download ang %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Ina-upload ang %1$s (%2$d/%3$d)</string>

@@ -2,8 +2,8 @@
 bookmarks: Закладки
 bookmarksAndNotes: Закладки і Мої Примітки
 openMyNotes: Відкрити в Мої Примітки
-openStudyPad: Відкрити в Блокноті (%s)
-noteText: Виноски (%s)
+openStudyPad: "Відкрити в Блокноті (%s)"
+noteText: "Виноски (%s)"
 noteTextWithoutType: Виноски
 crossReferenceText: Перехресні посилання
 findAllOccurrences: Знайти всі випадки
@@ -17,21 +17,21 @@ footnoteTypeVariant: Варіант
 footnoteTypeAlternative: Альтернативний
 footnoteTypeTranslation: Переклад
 clearLog: Очистити журнал помилок
-editTextPlaceholder: "Торкніться, щоб редагувати текст"
+editTextPlaceholder: Торкніться, щоб редагувати текст
 myDocumentEdit: Змінити сторінку
-myDocumentEmptyPlaceholder: "Натисніть, щоб почати редагувати цю сторінку"
+myDocumentEmptyPlaceholder: Натисніть, щоб почати редагувати цю сторінку
 inputPlaceholder: Пишіть тут
 inputReference: Введіть біблійне посилання
 invalidReference: Вірш не знайдено
-bookmarkAccurate: Закладка була створена в %s
+bookmarkAccurate: "Закладка була створена в %s"
 bookmarkInaccurate: "Закладка інформації про книгу не збереглась, вміст відображається в %s."
 defaultBook: Біблійний ресурс за замовчуванням
 ok: OK
 yes: "Так"
-ambiguousSelection: "Яку дію ви хочете зробити?"
+ambiguousSelection: Яку дію ви хочете зробити?
 cancel: Скасувати
-removeBookmarkConfirmationTitle: "Видалити закладку?"
-removeBookmarkConfirmation: "Ви впевнені, що хочете видалити цю закладку?"
+removeBookmarkConfirmationTitle: Видалити закладку?
+removeBookmarkConfirmation: Ви впевнені, що хочете видалити цю закладку?
 createdAt: "Створено: %s"
 lastUpdatedOn: "Останнє оновлення: %s"
 strongsAndMorph: Визначення та морфологія
@@ -39,15 +39,13 @@ externalLink: Відкрити зовнішнє посилання
 referenceLink: Відкрити посилання
 openFootnote: Відкрити виноску
 noMyNotesTitle: У цьому розділі немає приміток.
-noMyNotesDescription: >-
-  Почніть із створення закладок у біблійному документі. Потім тут з’являться закладки, до яких ви можете додати свої особисті примітки, нотатки.
-emptyStudyPad: >-
-  Порожній блокнот. Почніть додавати до цього блокноту, створюючи тут текстові записи або закладки з мітками, яка відповідає цему блокноту.
-doYouWantToDeleteEntry: "Видалити цей запис в блокноті?"
-removeStudyPadConfirmationTitle: "Видалити запис у блокноті?"
-dragHelp: "Перетягніть, щоб змінити порядок"
+noMyNotesDescription: Почніть із створення закладок у біблійному документі. Потім тут з’являться закладки, до яких ви можете додати свої особисті примітки, нотатки.
+emptyStudyPad: Порожній блокнот. Почніть додавати до цього блокноту, створюючи тут текстові записи або закладки з мітками, яка відповідає цему блокноту.
+doYouWantToDeleteEntry: Видалити цей запис в блокноті?
+removeStudyPadConfirmationTitle: Видалити запис у блокноті?
+dragHelp: Перетягніть, щоб змінити порядок
 openAll: Відкрити всі посилання
-editBookmarkPlaceholder: "Торкніться, щоб редагувати Мої примітки для цієї закладки"
+editBookmarkPlaceholder: Торкніться, щоб редагувати Мої примітки для цієї закладки
 onlyLabel: Тільки мітку
 wholeBookmark: Всю закладку
 assignLabelsMenuEntry1: Вибір або редагування міток…
@@ -75,6 +73,9 @@ markedAsMemorized: Завчено
 removeFromTargets: Мета -
 viewReadingProgress: Прогрес читання/завчення
 viewReadingProgressSettings: Налаштування читання/завчення
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · гл %s/%s"
 listenInLoop: Слухати в циклі
 viewHelp: Переглянути довідку
 verseNoteLong: Написати нотатку
@@ -93,7 +94,7 @@ editActionContentLabel: Вміст
 editActionContentPlaceholder: Введіть текст для додавання у документ...
 experimentalFeatureTitle: Експериментальне
 experimentalFeatureHelpTitle: Про експериментальні функції
-experimentalFeatureHelpContent: "Експериментальні функції -- це нові можливості, які все ще розробляються і пробуються. Вони не є досконалими і можуть бути суттєво змінені або видалені у наступних версіях застосунку."
+experimentalFeatureHelpContent: Експериментальні функції -- це нові можливості, які все ще розробляються і пробуються. Вони не є досконалими і можуть бути суттєво змінені або видалені у наступних версіях застосунку.
 insertParagraphBreak: Вставити перехід на новий абзац
 insertSubtitle: Вставити підзаголовок
 xmlParseError: Помилка читання XML
@@ -107,7 +108,7 @@ wordScramble: Перемішка слів
 wordType: Тип
 wordOrder: Порядок
 typeEverything: Вводити повні слова
-tapToStartTyping: "Натисніть тут, щоб почати вводити"
+tapToStartTyping: Натисніть тут, щоб почати вводити
 wordVisibility: Видимість слів
 wordVisibilityLight: Світла
 wordVisibilityDim: Тьмяна

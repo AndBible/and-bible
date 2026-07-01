@@ -73,6 +73,9 @@ markedAsMemorized: Dihafal
 removeFromTargets: Matlamat -
 viewReadingProgress: Kemajuan Baca/Hafal
 viewReadingProgressSettings: Tetapan Baca/Hafal
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · bab %s/%s"
 listenInLoop: Dengar dalam Gelung
 viewHelp: Lihat bantuan
 verseNoteLong: Tulis nota

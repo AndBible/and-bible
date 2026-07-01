@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Vis kapittel- og versnummer</string>
   <string name="prefs_e_ink_mode_title">Svart/hvitt-modus</string>
   <string name="prefs_eink_mode_summary">Sett applikasjonen i monokrom modus (ingen farger) for å tilpasse til bl.a. E-ink-enheter.</string>
+  <string name="prefs_display_color_mode_title">Fargemodus</string>
+  <string name="prefs_display_color_mode_summary">Velg hvordan farger vises. Farge e-ink beholder en svart-hvitt-base, men viser bokmerkefarger, indikatoren for aktivt vindu og hjelpelinjer i farger — for e-ink-skjermer med farger.</string>
+  <string name="prefs_display_color_mode_normal">Normal</string>
+  <string name="prefs_display_color_mode_bw">Svart-hvitt</string>
+  <string name="prefs_display_color_mode_color_eink">Farge e-ink</string>
   <string name="prefs_eink_settings_cat">E-ink-innstillinger</string>
   <string name="prefs_eink_display_title">E-ink-funksjoner</string>
   <string name="prefs_eink_display_summary">Aktiver e-ink-spesifikke funksjoner (siderulleknapper, rullehjelplinjer)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Ikke vis det gjennomsiktige bibelreferanseoverlegget når appen er i fullskjermmodus</string>
   <string name="full_screen_hide_buttons_pref_title">Skjul vindusknapper i fullskjerm</string>
   <string name="full_screen_hide_buttons_pref_summary">Skjul knapperader i bunnen av et vindu når man går til fullskjermmodus</string>
+  <string name="prefs_hide_status_bar_title">Skjul statusfelt</string>
+  <string name="prefs_hide_status_bar_summary">Skjul Androids statusfelt (klokke, varsler) samtidig som AndBibles egen verktøylinje forblir synlig. Nyttig for distraksjonsfri lesing og e-ink-enheter. Sveip fra toppkanten for å vise det midlertidig.</string>
   <string name="prefs_dictionaries_cat">Ordbøker</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs gresk ordbok</string>
   <string name="choose_strongs_greek_dictionary_summary">Velg Strongs ordbok for greske ordforklaringer</string>
@@ -493,7 +500,12 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="speak_help_auto_bookmark">Et høytlesingsbokmerke legges automatisk til når høytlesing settes på pause eller stoppes. Automatisk genererte bokmerker er merket med det spesielle høytlesingsbokmerket. Hvis du starter ved et høytlesingsbokmerke, vil bokmerket flyttes til verset du stopper eller setter på pause neste gang. Bare høytlesingsgrupper vil flyttes, andre grupper vil bli stående.</string>
   <string name="speak_help_playback_settings">Spesielle avspillingsinnstillinger (under \"Avspillingsinnstillinger\" på høytlesingsskjermen) lagres til høytlesingsbokmerker når denne innstillingen er valgt. Når du starter høytlesing fra et høytlesingsbokmerke, lastes de lagrede avspillingsinnstillingene fra bokmerket.</string>
   <string name="speak_help_playback_settings_example">
-</string>
+        For eksempel hvis du hører på Genesis og Romerbrevet og
+        ønsker å høre Genesis lest opp raskt uten kapittelbytte-varsler,
+        men Romerbrevet saktere med hørbare signaltoner ved kapittelbytter, kan
+        du ha forskjellige avspillingsinnstillinger for disse bøkene,
+        når disse innstillingene lagres til de tilhørende bokmerkene.
+    </string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -1602,6 +1614,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="prefs_show_ai_doc_markers_summary">Vis markørikon for KI-genererte dokumentsider knyttet til vers</string>
   <string name="prefs_show_ordinals_title">Vis ordinaltall</string>
   <string name="prefs_show_ordinals_summary">Vis ordinale posisjonsmarkører i tekst</string>
+  <string name="prefs_show_reading_progress_title">Lesefremdrift</string>
+  <string name="prefs_show_reading_progress_summary">Vis hvor langt du har kommet i boken (prosent, side eller kapittel)</string>
   <string name="prefs_page_scroll_amount_title">Siderullemengde</string>
   <string name="prefs_page_scroll_amount_summary">Hvor mye av siden som rulles med side opp/ned</string>
   <string name="prefs_scroll_helper_lines_title">Rullehjelplinjer</string>
@@ -1633,12 +1647,15 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="cloud_doc_status_cloud_only">Kun i skyen</string>
   <string name="cloud_doc_status_update">Oppdatering tilgjengelig</string>
   <string name="cloud_doc_status_blocked">Blokkert på denne enheten</string>
+  <string name="cloud_doc_status_wont_sync">Synkroniseres ikke til skyen</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Alle</string>
   <string name="cloud_doc_filter_installed">Installert</string>
   <string name="cloud_doc_filter_cloud">I skyen</string>
   <string name="cloud_doc_filter_updates">Oppdateringer</string>
   <string name="cloud_doc_filter_blocked">Blokkert</string>
+  <string name="cloud_doc_filter_device_only">Kun på denne enheten</string>
+  <string name="cloud_doc_filter_cloud_only">Kun i skyen</string>
   <string name="cloud_doc_filter_removed">Fjernet</string>
   <string name="cloud_doc_show_removed">Vis fjernede dokumenter</string>
   <string name="cloud_doc_status_removed">Fjernet fra skyen</string>
@@ -1651,6 +1668,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="cloud_doc_action_block">Ikke synkroniser til denne enheten</string>
   <string name="cloud_doc_action_unblock">Tillat på denne enheten</string>
   <string name="cloud_doc_action_restore">Gjenopprett til skyen</string>
+  <string name="cloud_doc_action_dont_sync">Ikke synkroniser til skyen</string>
+  <string name="cloud_doc_action_allow_sync">Synkroniser til skyen</string>
   <string name="cloud_doc_action_purge">Fjern fra skyhistorikken</string>
   <string name="cloud_doc_remove_all_confirm">Vil du fjerne %1$s fra skyen og fra alle enhetene dine, inkludert denne?</string>
   <string name="cloud_doc_remove_cloud_confirm">Vil du fjerne %1$s fra skyen? Kopien på denne enheten beholdes; enheter med dokumentsynkronisering på vil også fjerne det.</string>
@@ -1666,8 +1685,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="cloud_doc_summary_download_size">Last ned %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatiske nedlastinger starter på Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Ingenting å overføre</string>
-  <string name="cloud_doc_bulk_download">Last ned valgte (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Alle tilgjengelige dokumenter er allerede lastet ned.</string>
+  <string name="cloud_doc_selected_count">%1$d valgt</string>
+  <string name="cloud_doc_bulk_skipped">Hoppet over %1$d ikke aktuelle</string>
   <string name="document_sync_notification_title">Synkroniserer dokumenter</string>
   <string name="document_sync_downloading">Laster ned %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Laster opp %1$s (%2$d/%3$d)</string>

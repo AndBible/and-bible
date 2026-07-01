@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Arată numărul capitolului și al versetului</string>
   <string name="prefs_e_ink_mode_title">Fond negru sau alb</string>
   <string name="prefs_eink_mode_summary">Folosește o singură culoare pentru aplicație (pentru a fi mai potrivită ecranelor E-ink).</string>
+  <string name="prefs_display_color_mode_title">Mod culoare</string>
+  <string name="prefs_display_color_mode_summary">Alege modul în care sunt afișate culorile. Modul e-ink color păstrează o bază alb-negru, dar arată culorile semnelor de carte, indicatorul ferestrei active și liniile ajutătoare în culoare — pentru ecrane e-ink color.</string>
+  <string name="prefs_display_color_mode_normal">Normal</string>
+  <string name="prefs_display_color_mode_bw">Alb-negru</string>
+  <string name="prefs_display_color_mode_color_eink">E-ink color</string>
   <string name="prefs_eink_settings_cat">Reglări e-ink</string>
   <string name="prefs_eink_display_title">Caracteristici e-ink</string>
   <string name="prefs_eink_display_summary">Activează caracteristici specifice e-ink (butoane de răsfoire a paginilor, linii ajutătoare de răsfoire)</string>
@@ -222,6 +227,8 @@
   <string name="hide_bible_reference_overlay_summary">Nu arăta suprapunerea semi-transparentă a trimiterilor biblice cînd aplicația este pe tot ecranul</string>
   <string name="full_screen_hide_buttons_pref_title">Ascunde butoanele de jos</string>
   <string name="full_screen_hide_buttons_pref_summary">Cînd se dă pe tot ecranul, ascunde automat butoanele care se află în partea de jos a ecranului</string>
+  <string name="prefs_hide_status_bar_title">Ascunde bara de stare</string>
+  <string name="prefs_hide_status_bar_summary">Ascunde bara de stare Android (ceas, notificări), păstrând vizibilă bara de instrumente proprie a AndBible\'ului. Util pentru citit fără distrageri și pentru dispozitive e-ink. Trage de la marginea de sus pentru a o arăta temporar.</string>
   <string name="prefs_dictionaries_cat">Dicționare</string>
   <string name="choose_strongs_greek_dictionary_title">Dicționarul grecesc Strong</string>
   <string name="choose_strongs_greek_dictionary_summary">Alege dicționarul Strong pentru definițiile cuvintelor grecești</string>
@@ -1709,6 +1716,8 @@
   <string name="prefs_show_ai_doc_markers_summary">Afișează pictogramele marcatorilor pentru paginile de documente generate de AI legate de versete</string>
   <string name="prefs_show_ordinals_title">Afișează numerele ordinale</string>
   <string name="prefs_show_ordinals_summary">Afișează marcatori de poziție ordinală în text</string>
+  <string name="prefs_show_reading_progress_title">Progres de citire</string>
+  <string name="prefs_show_reading_progress_summary">Arată cât de mult din carte ai citit (procent, pagină sau capitol)</string>
   <string name="prefs_page_scroll_amount_title">Cantitate derulare pagină</string>
   <string name="prefs_page_scroll_amount_summary">Cât din pagină să fie derulată la pagina sus/jos</string>
   <string name="prefs_scroll_helper_lines_title">Linii ajutătoare de derulare</string>
@@ -1740,12 +1749,15 @@
   <string name="cloud_doc_status_cloud_only">Doar în cloud</string>
   <string name="cloud_doc_status_update">Actualizare disponibilă</string>
   <string name="cloud_doc_status_blocked">Blocat pe acest dispozitiv</string>
+  <string name="cloud_doc_status_wont_sync">Nu se sincronizează cu cloud-ul</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Toate</string>
   <string name="cloud_doc_filter_installed">Instalate</string>
   <string name="cloud_doc_filter_cloud">În cloud</string>
   <string name="cloud_doc_filter_updates">Actualizări</string>
   <string name="cloud_doc_filter_blocked">Blocate</string>
+  <string name="cloud_doc_filter_device_only">Doar pe acest dispozitiv</string>
+  <string name="cloud_doc_filter_cloud_only">Doar în cloud</string>
   <string name="cloud_doc_filter_removed">Eliminate</string>
   <string name="cloud_doc_show_removed">Afișează documentele eliminate</string>
   <string name="cloud_doc_status_removed">Eliminat din cloud</string>
@@ -1758,6 +1770,8 @@
   <string name="cloud_doc_action_block">Nu sincroniza pe acest dispozitiv</string>
   <string name="cloud_doc_action_unblock">Permite pe acest dispozitiv</string>
   <string name="cloud_doc_action_restore">Restaurează în cloud</string>
+  <string name="cloud_doc_action_dont_sync">Nu sincroniza cu cloud-ul</string>
+  <string name="cloud_doc_action_allow_sync">Sincronizează cu cloud-ul</string>
   <string name="cloud_doc_action_purge">Elimină din istoricul cloud</string>
   <string name="cloud_doc_remove_all_confirm">Elimini %1$s din cloud și de pe toate dispozitivele tale, inclusiv acesta?</string>
   <string name="cloud_doc_remove_cloud_confirm">Elimini %1$s din cloud? Copia de pe acest dispozitiv este păstrată; dispozitivele cu sincronizarea documentelor activată îl vor elimina și ele.</string>
@@ -1773,8 +1787,8 @@
   <string name="cloud_doc_summary_download_size">Descarcă %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Descărcările automate vor începe pe Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Nimic de transferat</string>
-  <string name="cloud_doc_bulk_download">Descarcă selecția (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Toate documentele disponibile sunt deja descărcate.</string>
+  <string name="cloud_doc_selected_count">%1$d selectate</string>
+  <string name="cloud_doc_bulk_skipped">%1$d omise, nu se aplică</string>
   <string name="document_sync_notification_title">Se sincronizează documentele</string>
   <string name="document_sync_downloading">Se descarcă %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Se încarcă %1$s (%2$d/%3$d)</string>

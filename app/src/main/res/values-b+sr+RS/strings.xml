@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Прикажи бројеве поглавља и стихова</string>
   <string name="prefs_e_ink_mode_title">Црно-бели режим</string>
   <string name="prefs_eink_mode_summary">Користите апликацију у монохроматском (једнобојном) режиму, прилагођеном за E-ink уређаје.</string>
+  <string name="prefs_display_color_mode_title">Режим боја</string>
+  <string name="prefs_display_color_mode_summary">Изаберите како се боје приказују. Боја е-инк задржава црно-белу основу, али приказује боје обележивача, индикатор активног прозора и помоћне линије у боји — за е-инк екране у боји.</string>
+  <string name="prefs_display_color_mode_normal">Нормално</string>
+  <string name="prefs_display_color_mode_bw">Црно-бело</string>
+  <string name="prefs_display_color_mode_color_eink">Е-инк у боји</string>
   <string name="prefs_eink_settings_cat">Подешавања е-мастила</string>
   <string name="prefs_eink_display_title">Функције е-мастила</string>
   <string name="prefs_eink_display_summary">Омогући функције специфичне за е-мастило (дугмад за скроловање страница, линије помагача за скроловање)</string>
@@ -222,6 +227,8 @@
   <string name="hide_bible_reference_overlay_summary">Не приказуј полу-провидни прекривајући приказ за референце Библије када је апликација у режиму целог екрана</string>
   <string name="full_screen_hide_buttons_pref_title">Сакриј линију дугмића прозора у режиму целог екрана</string>
   <string name="full_screen_hide_buttons_pref_summary">Аутоматски сакриј линију дугмића прозора са дна екрана, када се пребацује у режим рада целог екрана.</string>
+  <string name="prefs_hide_status_bar_title">Сакриј статусну траку</string>
+  <string name="prefs_hide_status_bar_summary">Сакрије Android статусну траку (сат, обавештења) уз задржавање сопствене траке алата AndBible-а видљивом. Корисно за читање без ометања и е-инк уређаје. Превуците од горње ивице да бисте је привремено приказали.</string>
   <string name="prefs_dictionaries_cat">Речници</string>
   <string name="choose_strongs_greek_dictionary_title">Стронгов речник грчког језика</string>
   <string name="choose_strongs_greek_dictionary_summary">Изабери Стронгов речник за дефиниције грчких речи</string>
@@ -1681,6 +1688,8 @@
   <string name="prefs_show_ai_doc_markers_summary">Прикажи иконе маркера за АИ-генерисане странице докумената повезане са стиховима</string>
   <string name="prefs_show_ordinals_title">Прикажи редне бројеве</string>
   <string name="prefs_show_ordinals_summary">Прикажи маркере редних позиција у тексту</string>
+  <string name="prefs_show_reading_progress_title">Напредак читања</string>
+  <string name="prefs_show_reading_progress_summary">Прикажите колико сте далеко у књизи (проценат, страница или поглавље)</string>
   <string name="prefs_page_scroll_amount_title">Количина скроловања странице</string>
   <string name="prefs_page_scroll_amount_summary">Колико странице скроловати при скроловању горе/доле</string>
   <string name="prefs_scroll_helper_lines_title">Линије помагача за скроловање</string>
@@ -1712,12 +1721,15 @@
   <string name="cloud_doc_status_cloud_only">Само у облаку</string>
   <string name="cloud_doc_status_update">Доступно ажурирање</string>
   <string name="cloud_doc_status_blocked">Блокирано на овом уређају</string>
+  <string name="cloud_doc_status_wont_sync">Неће се синхронизовати са облаком</string>
   <string name="cloud_doc_version_prefix">в%1$s</string>
   <string name="cloud_doc_filter_all">Све</string>
   <string name="cloud_doc_filter_installed">Инсталирано</string>
   <string name="cloud_doc_filter_cloud">У облаку</string>
   <string name="cloud_doc_filter_updates">Ажурирања</string>
   <string name="cloud_doc_filter_blocked">Блокирано</string>
+  <string name="cloud_doc_filter_device_only">Само на овом уређају</string>
+  <string name="cloud_doc_filter_cloud_only">Само у облаку</string>
   <string name="cloud_doc_filter_removed">Уклоњено</string>
   <string name="cloud_doc_show_removed">Прикажи уклоњене документе</string>
   <string name="cloud_doc_status_removed">Уклоњено из облака</string>
@@ -1730,6 +1742,8 @@
   <string name="cloud_doc_action_block">Не синхронизуј на овај уређај</string>
   <string name="cloud_doc_action_unblock">Дозволи на овом уређају</string>
   <string name="cloud_doc_action_restore">Врати у облак</string>
+  <string name="cloud_doc_action_dont_sync">Не синхронизуј са облаком</string>
+  <string name="cloud_doc_action_allow_sync">Синхронизуј са облаком</string>
   <string name="cloud_doc_action_purge">Уклони из историје облака</string>
   <string name="cloud_doc_remove_all_confirm">Уклонити %1$s из облака и са свих ваших уређаја, укључујући и овај?</string>
   <string name="cloud_doc_remove_cloud_confirm">Уклонити %1$s из облака? Копија на овом уређају се задржава; уређаји са укљученом синхронизацијом докумената ће га такође уклонити.</string>
@@ -1745,8 +1759,8 @@
   <string name="cloud_doc_summary_download_size">Преузми %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Аутоматска преузимања ће почети уз Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Нема ничега за пренос</string>
-  <string name="cloud_doc_bulk_download">Преузми изабрано (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Сви доступни документи су већ преузети.</string>
+  <string name="cloud_doc_selected_count">%1$d изабрано</string>
+  <string name="cloud_doc_bulk_skipped">Прескочено %1$d неприменљиво</string>
   <string name="document_sync_notification_title">Синхронизација докумената</string>
   <string name="document_sync_downloading">Преузимање %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Отпремање %1$s (%2$d/%3$d)</string>

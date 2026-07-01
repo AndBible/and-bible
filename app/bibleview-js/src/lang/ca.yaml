@@ -2,13 +2,13 @@
 bookmarks: Marcadors
 bookmarksAndNotes: Marcadors i les meves notes
 openMyNotes: Obre a les meves notes
-openStudyPad: Obre al bloc d'estudi (%s)
-noteText: Notes a peu de pàgina (%s)
+openStudyPad: "Obre al bloc d'estudi (%s)"
+noteText: "Notes a peu de pàgina (%s)"
 noteTextWithoutType: Notes a peu de pàgina
 crossReferenceText: Referències creuades
 findAllOccurrences: Cerca totes les ocurrències
-reportError: Informa d'un error
-errorTitle: S'ha produït un error
+reportError: "Informa d'un error"
+errorTitle: "S'ha produït un error"
 warningTitle: Avís
 normalTitle: Tingues en compte
 footnoteTypeStudy: Estudi
@@ -16,45 +16,43 @@ footnoteTypeExplanation: Explicació
 footnoteTypeVariant: Variant
 footnoteTypeAlternative: Alternativa
 footnoteTypeTranslation: Traducció
-clearLog: Esborra el registre d'errors
+clearLog: "Esborra el registre d'errors"
 editTextPlaceholder: Toca per editar el text
 myDocumentEdit: Edita la pàgina
 myDocumentEmptyPlaceholder: Toca per començar a editar aquesta pàgina
 inputPlaceholder: Escriu aquí
 inputReference: Introdueix una referència bíblica
 invalidReference: Verset no trobat
-bookmarkAccurate: S'ha creat el marcador a %s
-bookmarkInaccurate: La informació del llibre del marcador no s'ha desat; el contingut es mostra a %s.
+bookmarkAccurate: "S'ha creat el marcador a %s"
+bookmarkInaccurate: "La informació del llibre del marcador no s'ha desat; el contingut es mostra a %s."
 defaultBook: document bíblic predeterminat
-ok: D'acord
+ok: "D'acord"
 yes: "Sí"
-ambiguousSelection: "Quina acció vols fer?"
+ambiguousSelection: Quina acció vols fer?
 cancel: Cancel·la
-removeBookmarkConfirmationTitle: "Elimina el marcador?"
-removeBookmarkConfirmation: "Segur que vols eliminar aquest marcador?"
+removeBookmarkConfirmationTitle: Elimina el marcador?
+removeBookmarkConfirmation: Segur que vols eliminar aquest marcador?
 createdAt: "Creat: %s"
 lastUpdatedOn: "Darrera actualització: %s"
 strongsAndMorph: Definició i morfologia
-externalLink: Obre l'enllaç extern
-referenceLink: Obre l'enllaç de referència
+externalLink: "Obre l'enllaç extern"
+referenceLink: "Obre l'enllaç de referència"
 openFootnote: Obre la nota a peu de pàgina
 noMyNotesTitle: No hi ha cap nota personal per a aquest capítol.
-noMyNotesDescription: >-
-  Comença creant marcadors en un document bíblic. Els marcadors apareixeran aquí i podràs afegir-hi les teves notes personals.
-emptyStudyPad: >-
-  Bloc d'estudi buit. Comença afegint entrades de text aquí o creant marcadors amb una etiqueta que correspongui a aquest bloc d'estudi.
+noMyNotesDescription: Comença creant marcadors en un document bíblic. Els marcadors apareixeran aquí i podràs afegir-hi les teves notes personals.
+emptyStudyPad: "Bloc d'estudi buit. Comença afegint entrades de text aquí o creant marcadors amb una etiqueta que correspongui a aquest bloc d'estudi."
 doYouWantToDeleteEntry: "Vols suprimir aquesta entrada del bloc d'estudi?"
 removeStudyPadConfirmationTitle: "Elimina l'entrada del bloc d'estudi?"
 dragHelp: Arrossega per reordenar
 openAll: Obre totes les referències
-editBookmarkPlaceholder: Toca per editar les meves notes d'aquest marcador
-onlyLabel: Només l'etiqueta
+editBookmarkPlaceholder: "Toca per editar les meves notes d'aquest marcador"
+onlyLabel: "Només l'etiqueta"
 wholeBookmark: Tot el marcador
 assignLabelsMenuEntry1: Selecciona o edita etiquetes…
 favouriteLabels: Etiquetes favorites
 recentLabels: Etiquetes recents
 bookmarkLabels: Etiquetes del marcador
-refParserHelp: Instal·la el mòdul %s per usar referències en altres idiomes que no siguin l'anglès.
+refParserHelp: "Instal·la el mòdul %s per usar referències en altres idiomes que no siguin l'anglès."
 openDownloads: Ves a les descàrregues de complements
 verseShare: Comparteix
 verseSpeak: Parla
@@ -69,14 +67,17 @@ verseMemorizeLong: Memoritza versets bíblics
 addMemorizationTarget: Objectiu +
 addMemorizationTargetLong: Estableix com a objectiu de memorització
 removeMemorizationTarget: Objectiu -
-removeMemorizationTargetLong: Elimina l'objectiu de memorització
+removeMemorizationTargetLong: "Elimina l'objectiu de memorització"
 markAsMemorized: Marca com a memoritzat
 markedAsMemorized: Memoritzat
 removeFromTargets: Objectiu -
 viewReadingProgress: Progrés de lectura/memòria
 viewReadingProgressSettings: Configuració de lectura/memòria
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · cap. %s/%s"
 listenInLoop: Escolta en bucle
-viewHelp: Visualitza l'ajuda
+viewHelp: "Visualitza l'ajuda"
 verseNoteLong: Escriu una nota
 verseParagraphBreakLong: Salt de paràgraf
 addBookmark: Marcador
@@ -84,19 +85,19 @@ selectCustomIconTitle: Selecciona una icona personalitzada
 bookmarkSettingsTitle: Configura els paràmetres del marcador
 subtitlePlaceholder: Text del subtítol
 customIconLabel: Icona personalitzada
-editActionLabel: Acció d'edició
+editActionLabel: "Acció d'edició"
 editActionModeLabel: Mode
 editActionModeNone: Cap
 editActionModeAppend: Afegeix al final
 editActionModePrepend: Afegeix al principi
 editActionContentLabel: Contingut
-editActionContentPlaceholder: Introdueix el text que s'afegirà al document...
+editActionContentPlaceholder: "Introdueix el text que s'afegirà al document..."
 experimentalFeatureTitle: Experimental
 experimentalFeatureHelpTitle: Sobre les funcions experimentals
-experimentalFeatureHelpContent: Les funcions experimentals són noves capacitats que encara s'estan desenvolupant i provant. Pot ser que no funcionin perfectament i podrien canviar significativament o eliminar-se en versions futures de l'aplicació.
+experimentalFeatureHelpContent: "Les funcions experimentals són noves capacitats que encara s'estan desenvolupant i provant. Pot ser que no funcionin perfectament i podrien canviar significativament o eliminar-se en versions futures de l'aplicació."
 insertParagraphBreak: Insereix un salt de paràgraf
 insertSubtitle: Insereix un subtítol
-xmlParseError: Error d'anàlisi XML
+xmlParseError: "Error d'anàlisi XML"
 invalidTag: Etiqueta no vàlida
 invalidClosingTag: Etiqueta de tancament no vàlida
 unmatchedClosingTag: Etiqueta de tancament sense correspondència
@@ -112,11 +113,11 @@ wordVisibility: Visibilitat de les paraules
 wordVisibilityLight: Clar
 wordVisibilityDim: Tènue
 wordVisibilityHidden: Ocult
-errorHeatmap: Mapa de calor d'errors
+errorHeatmap: "Mapa de calor d'errors"
 hideUsedButtons: Amaga els botons de paraules usades
 more: Més
 llmAction: IA
-llmActionLong: Acció d'IA
+llmActionLong: "Acció d'IA"
 aiDocumentRegenerate: Regenera
 aiDocumentDelete: Suprimeix
 aiGeneratedBy: "Generat per %s"

@@ -1,9 +1,9 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Đánh dấu
-bookmarksAndNotes: Đánh dấu & Ghi chú của tôi
+bookmarksAndNotes: "Đánh dấu & Ghi chú của tôi"
 openMyNotes: Mở trong Ghi chú của tôi
-openStudyPad: Mở trong Sổ tay nghiên cứu (%s)
-noteText: Chú thích (%s)
+openStudyPad: "Mở trong Sổ tay nghiên cứu (%s)"
+noteText: "Chú thích (%s)"
 noteTextWithoutType: Chú thích
 crossReferenceText: Tham chiếu chéo
 findAllOccurrences: Tìm tất cả các lần xuất hiện
@@ -23,28 +23,26 @@ myDocumentEmptyPlaceholder: Nhấn để bắt đầu chỉnh sửa trang này
 inputPlaceholder: Viết tại đây
 inputReference: Nhập tham chiếu Kinh Thánh
 invalidReference: Không tìm thấy câu
-bookmarkAccurate: Đánh dấu đã được tạo trong %s
+bookmarkAccurate: "Đánh dấu đã được tạo trong %s"
 bookmarkInaccurate: "Thông tin sách đánh dấu chưa được lưu, nội dung được hiển thị trong %s."
 defaultBook: tài liệu Kinh Thánh mặc định
 ok: OK
 yes: "Có"
-ambiguousSelection: "Bạn muốn thực hiện hành động nào?"
+ambiguousSelection: Bạn muốn thực hiện hành động nào?
 cancel: Hủy
-removeBookmarkConfirmationTitle: "Xóa đánh dấu?"
-removeBookmarkConfirmation: "Bạn có chắc chắn muốn xóa đánh dấu này không?"
+removeBookmarkConfirmationTitle: Xóa đánh dấu?
+removeBookmarkConfirmation: Bạn có chắc chắn muốn xóa đánh dấu này không?
 createdAt: "Đã tạo: %s"
 lastUpdatedOn: "Cập nhật lần cuối: %s"
-strongsAndMorph: Định nghĩa & Hình thái học
+strongsAndMorph: "Định nghĩa & Hình thái học"
 externalLink: Mở liên kết ngoài
 referenceLink: Mở liên kết tham chiếu
 openFootnote: Mở chú thích
 noMyNotesTitle: Không có Ghi chú của tôi cho chương này.
-noMyNotesDescription: >-
-  Bắt đầu bằng cách tạo đánh dấu trong tài liệu Kinh Thánh. Các đánh dấu sẽ xuất hiện tại đây và bạn có thể thêm ghi chú cá nhân vào đó.
-emptyStudyPad: >-
-  Sổ tay nghiên cứu trống. Bắt đầu thêm nội dung bằng cách tạo mục văn bản tại đây hoặc tạo đánh dấu với nhãn tương ứng với sổ tay nghiên cứu này.
-doYouWantToDeleteEntry: "Xóa mục sổ tay nghiên cứu này?"
-removeStudyPadConfirmationTitle: "Xóa mục sổ tay nghiên cứu?"
+noMyNotesDescription: Bắt đầu bằng cách tạo đánh dấu trong tài liệu Kinh Thánh. Các đánh dấu sẽ xuất hiện tại đây và bạn có thể thêm ghi chú cá nhân vào đó.
+emptyStudyPad: Sổ tay nghiên cứu trống. Bắt đầu thêm nội dung bằng cách tạo mục văn bản tại đây hoặc tạo đánh dấu với nhãn tương ứng với sổ tay nghiên cứu này.
+doYouWantToDeleteEntry: Xóa mục sổ tay nghiên cứu này?
+removeStudyPadConfirmationTitle: Xóa mục sổ tay nghiên cứu?
 dragHelp: Kéo để sắp xếp lại
 openAll: Mở tất cả tham chiếu
 editBookmarkPlaceholder: Nhấn để chỉnh sửa Ghi chú của tôi cho đánh dấu này
@@ -54,7 +52,7 @@ assignLabelsMenuEntry1: Chọn hoặc chỉnh sửa nhãn…
 favouriteLabels: Nhãn yêu thích
 recentLabels: Nhãn gần đây
 bookmarkLabels: Nhãn đánh dấu
-refParserHelp: Vui lòng cài đặt mô-đun %s để sử dụng tham chiếu bằng ngôn ngữ khác ngoài tiếng Anh.
+refParserHelp: "Vui lòng cài đặt mô-đun %s để sử dụng tham chiếu bằng ngôn ngữ khác ngoài tiếng Anh."
 openDownloads: Đến tải xuống tiện ích bổ sung
 verseShare: Chia sẻ
 verseSpeak: Đọc
@@ -75,6 +73,9 @@ markedAsMemorized: Đã ghi nhớ
 removeFromTargets: Mục tiêu -
 viewReadingProgress: Tiến độ đọc/ghi nhớ
 viewReadingProgressSettings: Cài đặt đọc/ghi nhớ
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: Nghe lặp lại
 viewHelp: Xem trợ giúp
 verseNoteLong: Viết ghi chú

@@ -2,8 +2,8 @@
 bookmarks: Könyvjelzők
 bookmarksAndNotes: Könyvjelzők és Jegyzetek
 openMyNotes: Megnyitás Saját Jegyzetként
-openStudyPad: Megnyitás Jegyzetlapon (%s)
-noteText: Lábjegyzetek (%s)
+openStudyPad: "Megnyitás Jegyzetlapon (%s)"
+noteText: "Lábjegyzetek (%s)"
 noteTextWithoutType: Lábjegyezetek
 crossReferenceText: Kereszthivatkozások
 findAllOccurrences: Összes előfordulás mutatása
@@ -23,28 +23,26 @@ myDocumentEmptyPlaceholder: Koppintson az oldal szerkesztésének megkezdéséhe
 inputPlaceholder: Ide írjon
 inputReference: Bibliahivatkozás megadása
 invalidReference: Vers nem található
-bookmarkAccurate: Könyvjelző létrehozva (%s)
+bookmarkAccurate: "Könyvjelző létrehozva (%s)"
 bookmarkInaccurate: "A könyvjelző könyv információ nem került tárolásra, a tartalom %s-ban/ben látható."
 defaultBook: alapértelmezett Biblia
 ok: Ok
 yes: "Igen"
-ambiguousSelection: "Mit szeretne tenni?"
+ambiguousSelection: Mit szeretne tenni?
 cancel: Mégsem
-removeBookmarkConfirmationTitle: "Könyvjelző törlése?"
-removeBookmarkConfirmation: "Biztos hogy törli?"
+removeBookmarkConfirmationTitle: Könyvjelző törlése?
+removeBookmarkConfirmation: Biztos hogy törli?
 createdAt: "Létrehozva: %s"
 lastUpdatedOn: "Útóljára módosítva: %s"
-strongsAndMorph: Definiciók & Morfológia
+strongsAndMorph: "Definiciók & Morfológia"
 externalLink: Külső hivatkozás megnyitása
 referenceLink: Referencia megnyitása
 openFootnote: Lábjegyzet megnyitása
 noMyNotesTitle: Nincsenek Saját Jegyzetek ehhez a fejezethez.
-noMyNotesDescription: >-
-  Az elmentett könyvjelzők itt fognak megjelenni, később személyes jegyzeteket is fűzhet hozzájuk.
-emptyStudyPad: >-
-  Üres jegyzetlap. Ide egyszerűen felvehet jegyzeteket, könyvjelzőket. A könyvjelzők automatikusan ennek a jegyzetlapnak megfelelő címkét fognak kapni.
-doYouWantToDeleteEntry: "Törli ezt a jegyzetet?"
-removeStudyPadConfirmationTitle: "Törli ezt a jegyzetet?"
+noMyNotesDescription: Az elmentett könyvjelzők itt fognak megjelenni, később személyes jegyzeteket is fűzhet hozzájuk.
+emptyStudyPad: Üres jegyzetlap. Ide egyszerűen felvehet jegyzeteket, könyvjelzőket. A könyvjelzők automatikusan ennek a jegyzetlapnak megfelelő címkét fognak kapni.
+doYouWantToDeleteEntry: Törli ezt a jegyzetet?
+removeStudyPadConfirmationTitle: Törli ezt a jegyzetet?
 dragHelp: Húzza el más sorrendbe tevéshez
 openAll: Minden hivatkozás megnyitása
 editBookmarkPlaceholder: Nyomja meg a könyvjelzőhöz tartozó Saját Jegyzet szerkesztéséhez
@@ -75,6 +73,9 @@ markedAsMemorized: Memorizálva
 removeFromTargets: Cél -
 viewReadingProgress: Olvasási/memorizálási haladás
 viewReadingProgressSettings: Olvasási/memorizálási beállítások
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · fej. %s/%s"
 listenInLoop: Ismételt lejátszás
 viewHelp: Súgó megnyitása
 verseNoteLong: Jegyzet hozzáadása
@@ -93,7 +94,7 @@ editActionContentLabel: Tartalom
 editActionContentPlaceholder: Írja be a dokumentumhoz adandó szöveget...
 experimentalFeatureTitle: Kísérleti
 experimentalFeatureHelpTitle: A kísérleti funkciókról
-experimentalFeatureHelpContent: "A kísérleti funkciók olyan új képességek, amelyek még fejlesztés és tesztelés alatt állnak. Előfordulhat, hogy nem működnek tökéletesen, és az alkalmazás jövőbeli verzióiban jelentősen megváltozhatnak vagy eltávolíthatók."
+experimentalFeatureHelpContent: A kísérleti funkciók olyan új képességek, amelyek még fejlesztés és tesztelés alatt állnak. Előfordulhat, hogy nem működnek tökéletesen, és az alkalmazás jövőbeli verzióiban jelentősen megváltozhatnak vagy eltávolíthatók.
 insertParagraphBreak: Bekezdéstörés beszúrása
 insertSubtitle: Alcím beszúrása
 xmlParseError: XML-elemzési hiba

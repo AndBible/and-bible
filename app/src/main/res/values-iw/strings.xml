@@ -90,6 +90,11 @@
   <string name="prefs_show_verseno_summary">הצגת מספרי פרקים ופסוקים</string>
   <string name="prefs_e_ink_mode_title">מצב שחור-לבן</string>
   <string name="prefs_eink_mode_summary">האפליקציה תעבוד במצב מונוכרומטי (ללא צבעים), מה שמתאים יותר למכשירי דיו אלקטרוני</string>
+  <string name="prefs_display_color_mode_title">מצב צבע</string>
+  <string name="prefs_display_color_mode_summary">בחר כיצד צבעים מוצגים. מצב דיו אלקטרוני צבעוני משמר בסיס שחור-לבן אך מציג צבעי סימניות, סמן החלון הפעיל וקווי עזר בצבע — למסכי דיו אלקטרוני צבעוניים.</string>
+  <string name="prefs_display_color_mode_normal">רגיל</string>
+  <string name="prefs_display_color_mode_bw">שחור-לבן</string>
+  <string name="prefs_display_color_mode_color_eink">דיו אלקטרוני צבעוני</string>
   <string name="prefs_eink_settings_cat">הגדרות E-ink</string>
   <string name="prefs_eink_display_title">תכונות E-ink</string>
   <string name="prefs_eink_display_summary">הפעל תכונות ייחודיות ל-E-ink (כפתורי גלילת עמוד, קווי עזר לגלילה)</string>
@@ -224,6 +229,8 @@
   <string name="hide_bible_reference_overlay_summary">אל תציג את את מראה המקום בשכבה השקופה-למחצה כשהיישום במצב מסך מלא</string>
   <string name="full_screen_hide_buttons_pref_title">להסתיר תפריט במסך מלא</string>
   <string name="full_screen_hide_buttons_pref_summary">כשעוברים לתצוגה במסך מלא, הסתר אוטומטית את שורת הכפתורים בתחתית המסך</string>
+  <string name="prefs_hide_status_bar_title">הסתר את שורת המצב</string>
+  <string name="prefs_hide_status_bar_summary">הסתר את שורת המצב של אנדרואיד (שעון, התראות) בעת שסרגל הכלים של AndBible נשאר גלוי. שימושי לקריאה ללא הפרעות ולמכשירי דיו אלקטרוני. החלק מהקצה העליון כדי לחשוף אותה באופן זמני.</string>
   <string name="prefs_dictionaries_cat">מילונים</string>
   <string name="choose_strongs_greek_dictionary_title">מילון היוונית של סטרונג</string>
   <string name="choose_strongs_greek_dictionary_summary">בחר מילון סטרונג לפרשנות מילים ביוונית</string>
@@ -1619,6 +1626,8 @@
   <string name="prefs_show_ai_doc_markers_summary">הצג סמלי סמן עבור עמודי מסמך שנוצרו על ידי בינה מלאכותית ומקושרים לפסוקים</string>
   <string name="prefs_show_ordinals_title">הצג מספרים סידוריים</string>
   <string name="prefs_show_ordinals_summary">הצג סמני מיקום סידוריים בטקסט</string>
+  <string name="prefs_show_reading_progress_title">התקדמות הקריאה</string>
+  <string name="prefs_show_reading_progress_summary">הצג את מידת התקדמותך בספר (אחוזים, עמוד או פרק)</string>
   <string name="prefs_page_scroll_amount_title">כמות גלילת עמוד</string>
   <string name="prefs_page_scroll_amount_summary">כמה מהעמוד לגלול עם עמוד למעלה/למטה</string>
   <string name="prefs_scroll_helper_lines_title">קווי עזר לגלילה</string>
@@ -1650,12 +1659,15 @@
   <string name="cloud_doc_status_cloud_only">בענן בלבד</string>
   <string name="cloud_doc_status_update">קיים עדכון</string>
   <string name="cloud_doc_status_blocked">חסום במכשיר זה</string>
+  <string name="cloud_doc_status_wont_sync">לא יסונכרן לעננה</string>
   <string name="cloud_doc_version_prefix">גרסה %1$s</string>
   <string name="cloud_doc_filter_all">הכל</string>
   <string name="cloud_doc_filter_installed">מותקנים</string>
   <string name="cloud_doc_filter_cloud">בענן</string>
   <string name="cloud_doc_filter_updates">עדכונים</string>
   <string name="cloud_doc_filter_blocked">חסומים</string>
+  <string name="cloud_doc_filter_device_only">רק במכשיר זה</string>
+  <string name="cloud_doc_filter_cloud_only">בעננה בלבד</string>
   <string name="cloud_doc_filter_removed">הוסרו</string>
   <string name="cloud_doc_show_removed">הצגת מסמכים שהוסרו</string>
   <string name="cloud_doc_status_removed">הוסר מהענן</string>
@@ -1668,6 +1680,8 @@
   <string name="cloud_doc_action_block">לא לסנכרן למכשיר זה</string>
   <string name="cloud_doc_action_unblock">לאפשר במכשיר זה</string>
   <string name="cloud_doc_action_restore">שחזור לענן</string>
+  <string name="cloud_doc_action_dont_sync">אל תסנכרן לעננה</string>
+  <string name="cloud_doc_action_allow_sync">סנכרן לעננה</string>
   <string name="cloud_doc_action_purge">הסרה מהיסטוריית הענן</string>
   <string name="cloud_doc_remove_all_confirm">להסיר את %1$s מהענן ומכל המכשירים שלך, כולל מכשיר זה?</string>
   <string name="cloud_doc_remove_cloud_confirm">להסיר את %1$s מהענן? העותק במכשיר זה יישמר; מכשירים שבהם סנכרון המסמכים מופעל יסירו אותו גם הם.</string>
@@ -1683,8 +1697,8 @@
   <string name="cloud_doc_summary_download_size">הורדה %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">הורדות אוטומטיות יתחילו ברשת Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">אין מה להעביר</string>
-  <string name="cloud_doc_bulk_download">הורדת הנבחרים (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">כל המסמכים הזמינים כבר הורדו.</string>
+  <string name="cloud_doc_selected_count">‏%1$d נבחרו</string>
+  <string name="cloud_doc_bulk_skipped">‏%1$d שאינם רלוונטיים נדלגו</string>
   <string name="document_sync_notification_title">מסנכרן מסמכים</string>
   <string name="document_sync_downloading">מוריד את %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">מעלה את %1$s (%2$d/%3$d)</string>

@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Εμφάνιση αριθμών κεφαλαίου και εδαφίων</string>
   <string name="prefs_e_ink_mode_title">Ασπρόμαυρη εμφάνιση</string>
   <string name="prefs_eink_mode_summary">Χρήση μονόχρωμου στυλ (χωρίς χρώματα), κατάλληλο για συσκευές E-ink.</string>
+  <string name="prefs_display_color_mode_title">Λειτουργία χρωμάτων</string>
+  <string name="prefs_display_color_mode_summary">Επιλέξτε πώς εμφανίζονται τα χρώματα. Η λειτουργία έγχρωμου e-ink διατηρεί μια βάση ασπρόμαυρου, αλλά εμφανίζει τα χρώματα σελιδοδεικτών, την ένδειξη ενεργού παραθύρου και τις βοηθητικές γραμμές έγχρωμα — για έγχρωμες οθόνες e-ink.</string>
+  <string name="prefs_display_color_mode_normal">Κανονική</string>
+  <string name="prefs_display_color_mode_bw">Ασπρόμαυρη</string>
+  <string name="prefs_display_color_mode_color_eink">Έγχρωμο e-ink</string>
   <string name="prefs_eink_settings_cat">Ρυθμίσεις E-ink</string>
   <string name="prefs_eink_display_title">Λειτουργίες E-ink</string>
   <string name="prefs_eink_display_summary">Ενεργοποίηση λειτουργιών ειδικά για E-ink (κουμπιά κύλισης σελίδας, βοηθητικές γραμμές κύλισης)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Απόκρυψη της ημι-διάφανης επικάλυψης βιβλικής παραπομπής κατά την λειτουργία πλήρους οθόνης</string>
   <string name="full_screen_hide_buttons_pref_title">Απόκρυψη μπάρας κουμπιών παραθύρου στην πλήρη οθόνη</string>
   <string name="full_screen_hide_buttons_pref_summary">Στην εναλλαγή στην πλήρη οθόνη, αυτόματη απόκρυψη της μπάρας κουμπιών παραθύρου που βρίσκεται στο κάτω μέρος της οθόνης</string>
+  <string name="prefs_hide_status_bar_title">Απόκρυψη γραμμής κατάστασης</string>
+  <string name="prefs_hide_status_bar_summary">Απόκρυψη της γραμμής κατάστασης του Android (ώρα, ειδοποιήσεις) διατηρώντας ορατή τη γραμμή εργαλείων του AndBible. Χρήσιμο για ανάγνωση χωρίς περισπασμούς και για συσκευές e-ink. Σύρετε από την επάνω άκρη για να την εμφανίσετε προσωρινά.</string>
   <string name="prefs_dictionaries_cat">Λεξικά</string>
   <string name="choose_strongs_greek_dictionary_title">Ελληνικό λεξικό Strongs</string>
   <string name="choose_strongs_greek_dictionary_summary">Επιλογή λεξικού Strongs για ερμηνεία ελληνικών λέξεων</string>
@@ -1646,6 +1653,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="prefs_show_ai_doc_markers_summary">Εμφάνιση εικονιδίων δεικτών για σελίδες εγγράφων που δημιουργήθηκαν από AI και συνδέονται με στίχους</string>
   <string name="prefs_show_ordinals_title">Εμφάνιση τακτικών αριθμών</string>
   <string name="prefs_show_ordinals_summary">Εμφάνιση δεικτών τακτικής θέσης στο κείμενο</string>
+  <string name="prefs_show_reading_progress_title">Πρόοδος ανάγνωσης</string>
+  <string name="prefs_show_reading_progress_summary">Εμφάνιση της προόδου σας στο βιβλίο (ποσοστό, σελίδα ή κεφάλαιο)</string>
   <string name="prefs_page_scroll_amount_title">Ποσότητα κύλισης σελίδας</string>
   <string name="prefs_page_scroll_amount_summary">Πόσο μέρος της σελίδας να κυλιστεί με τα κουμπιά πάνω/κάτω</string>
   <string name="prefs_scroll_helper_lines_title">Βοηθητικές γραμμές κύλισης</string>
@@ -1677,12 +1686,15 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="cloud_doc_status_cloud_only">Μόνο στο σύννεφο</string>
   <string name="cloud_doc_status_update">Διαθέσιμη ενημέρωση</string>
   <string name="cloud_doc_status_blocked">Αποκλεισμένο σε αυτή τη συσκευή</string>
+  <string name="cloud_doc_status_wont_sync">Δεν θα συγχρονιστεί με το σύννεφο</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Όλα</string>
   <string name="cloud_doc_filter_installed">Εγκατεστημένα</string>
   <string name="cloud_doc_filter_cloud">Στο σύννεφο</string>
   <string name="cloud_doc_filter_updates">Ενημερώσεις</string>
   <string name="cloud_doc_filter_blocked">Αποκλεισμένα</string>
+  <string name="cloud_doc_filter_device_only">Μόνο σε αυτή τη συσκευή</string>
+  <string name="cloud_doc_filter_cloud_only">Μόνο στο σύννεφο</string>
   <string name="cloud_doc_filter_removed">Αφαιρεμένα</string>
   <string name="cloud_doc_show_removed">Εμφάνιση αφαιρεμένων εγγράφων</string>
   <string name="cloud_doc_status_removed">Αφαιρέθηκε από το σύννεφο</string>
@@ -1695,6 +1707,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="cloud_doc_action_block">Να μη συγχρονίζεται σε αυτή τη συσκευή</string>
   <string name="cloud_doc_action_unblock">Να επιτρέπεται σε αυτή τη συσκευή</string>
   <string name="cloud_doc_action_restore">Επαναφορά στο σύννεφο</string>
+  <string name="cloud_doc_action_dont_sync">Να μη συγχρονίζεται με το σύννεφο</string>
+  <string name="cloud_doc_action_allow_sync">Συγχρονισμός με το σύννεφο</string>
   <string name="cloud_doc_action_purge">Αφαίρεση από το ιστορικό του σύννεφου</string>
   <string name="cloud_doc_remove_all_confirm">Αφαίρεση του %1$s από το σύννεφο και από όλες τις συσκευές σας, συμπεριλαμβανομένης αυτής;</string>
   <string name="cloud_doc_remove_cloud_confirm">Αφαίρεση του %1$s από το σύννεφο; Το αντίγραφο σε αυτή τη συσκευή διατηρείται· οι συσκευές με ενεργό τον συγχρονισμό εγγράφων θα το αφαιρέσουν επίσης.</string>
@@ -1710,8 +1724,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="cloud_doc_summary_download_size">Λήψη %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Οι αυτόματες λήψεις θα ξεκινήσουν μέσω Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Τίποτα προς μεταφορά</string>
-  <string name="cloud_doc_bulk_download">Λήψη επιλεγμένων (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Όλα τα διαθέσιμα έγγραφα έχουν ήδη ληφθεί.</string>
+  <string name="cloud_doc_selected_count">%1$d επιλεγμένα</string>
+  <string name="cloud_doc_bulk_skipped">Παραλείφθηκαν %1$d μη εφαρμόσιμα</string>
   <string name="document_sync_notification_title">Συγχρονισμός εγγράφων</string>
   <string name="document_sync_downloading">Λήψη του %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Μεταφόρτωση του %1$s (%2$d/%3$d)</string>

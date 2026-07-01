@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Tampilkan nomor pasal &amp; ayat</string>
   <string name="prefs_e_ink_mode_title">Mode hitam &amp; putih</string>
   <string name="prefs_eink_mode_summary">Gunakan aplikasi dalam mode monokrom (tanpa warna), sehingga lebih sesuai untuk perangkat E-ink.</string>
+  <string name="prefs_display_color_mode_title">Mode warna</string>
+  <string name="prefs_display_color_mode_summary">Pilih bagaimana warna ditampilkan. Mode e-ink warna tetap menggunakan dasar hitam &amp; putih namun menampilkan warna penanda buku, indikator jendela aktif, dan garis bantu dalam warna — untuk layar e-ink berwarna.</string>
+  <string name="prefs_display_color_mode_normal">Normal</string>
+  <string name="prefs_display_color_mode_bw">Hitam &amp; putih</string>
+  <string name="prefs_display_color_mode_color_eink">E-ink warna</string>
   <string name="prefs_eink_settings_cat">Pengaturan E-ink</string>
   <string name="prefs_eink_display_title">Fitur E-ink</string>
   <string name="prefs_eink_display_summary">Aktifkan fitur khusus e-ink (tombol gulir halaman, garis pembantu gulir)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Jangan tampilkan overlay referensi Alkitab semi-transparan saat aplikasi dalam mode layar penuh</string>
   <string name="full_screen_hide_buttons_pref_title">Sembunyikan bilah tombol jendela saat layar penuh</string>
   <string name="full_screen_hide_buttons_pref_summary">Saat beralih ke mode layar penuh, sembunyikan otomatis bilah tombol jendela yang ada di bagian bawah layar</string>
+  <string name="prefs_hide_status_bar_title">Sembunyikan bilah status</string>
+  <string name="prefs_hide_status_bar_summary">Sembunyikan bilah status Android (jam, notifikasi) sambil tetap menampilkan bilah alat AndBible sendiri. Berguna untuk membaca tanpa gangguan dan perangkat e-ink. Usap dari tepi atas untuk menampilkannya sementara.</string>
   <string name="prefs_dictionaries_cat">Kamus</string>
   <string name="choose_strongs_greek_dictionary_title">Kamus Yunani Strongs</string>
   <string name="choose_strongs_greek_dictionary_summary">Pilih kamus Strongs untuk definisi kata Yunani</string>
@@ -1600,6 +1607,8 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="prefs_show_ai_doc_markers_summary">Tampilkan ikon penanda untuk halaman dokumen yang dihasilkan AI yang terhubung ke ayat</string>
   <string name="prefs_show_ordinals_title">Tampilkan nomor urut</string>
   <string name="prefs_show_ordinals_summary">Tampilkan penanda posisi urut dalam teks</string>
+  <string name="prefs_show_reading_progress_title">Kemajuan membaca</string>
+  <string name="prefs_show_reading_progress_summary">Tampilkan seberapa jauh Anda membaca buku ini (persentase, halaman, atau pasal)</string>
   <string name="prefs_page_scroll_amount_title">Jumlah gulir halaman</string>
   <string name="prefs_page_scroll_amount_summary">Seberapa banyak halaman yang digulir saat menekan naik/turun halaman</string>
   <string name="prefs_scroll_helper_lines_title">Garis panduan gulir</string>
@@ -1631,12 +1640,15 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="cloud_doc_status_cloud_only">Hanya di cloud</string>
   <string name="cloud_doc_status_update">Pembaruan tersedia</string>
   <string name="cloud_doc_status_blocked">Diblokir di perangkat ini</string>
+  <string name="cloud_doc_status_wont_sync">Tidak akan disinkronkan ke cloud</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Semua</string>
   <string name="cloud_doc_filter_installed">Terpasang</string>
   <string name="cloud_doc_filter_cloud">Di cloud</string>
   <string name="cloud_doc_filter_updates">Pembaruan</string>
   <string name="cloud_doc_filter_blocked">Diblokir</string>
+  <string name="cloud_doc_filter_device_only">Hanya di perangkat ini</string>
+  <string name="cloud_doc_filter_cloud_only">Hanya di cloud</string>
   <string name="cloud_doc_filter_removed">Dihapus</string>
   <string name="cloud_doc_show_removed">Tampilkan dokumen yang dihapus</string>
   <string name="cloud_doc_status_removed">Dihapus dari cloud</string>
@@ -1649,6 +1661,8 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="cloud_doc_action_block">Jangan sinkronkan ke perangkat ini</string>
   <string name="cloud_doc_action_unblock">Izinkan di perangkat ini</string>
   <string name="cloud_doc_action_restore">Pulihkan ke cloud</string>
+  <string name="cloud_doc_action_dont_sync">Jangan sinkronkan ke cloud</string>
+  <string name="cloud_doc_action_allow_sync">Sinkronkan ke cloud</string>
   <string name="cloud_doc_action_purge">Hapus dari riwayat cloud</string>
   <string name="cloud_doc_remove_all_confirm">Hapus %1$s dari cloud dan dari semua perangkat Anda, termasuk perangkat ini?</string>
   <string name="cloud_doc_remove_cloud_confirm">Hapus %1$s dari cloud? Salinan di perangkat ini tetap disimpan; perangkat dengan sinkronisasi dokumen aktif juga akan menghapusnya.</string>
@@ -1664,8 +1678,8 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="cloud_doc_summary_download_size">Unduh %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Unduhan otomatis akan dimulai saat Wi-Fi aktif.</string>
   <string name="cloud_doc_sync_now_count_none">Tidak ada yang ditransfer</string>
-  <string name="cloud_doc_bulk_download">Unduh yang dipilih (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Semua dokumen yang tersedia sudah diunduh.</string>
+  <string name="cloud_doc_selected_count">%1$d dipilih</string>
+  <string name="cloud_doc_bulk_skipped">%1$d dilewati karena tidak berlaku</string>
   <string name="document_sync_notification_title">Menyinkronkan dokumen</string>
   <string name="document_sync_downloading">Mengunduh %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Mengunggah %1$s (%2$d/%3$d)</string>

@@ -2,8 +2,8 @@
 bookmarks: Semne de carte
 bookmarksAndNotes: Semne de carte și Notițele mele
 openMyNotes: Deschide în Notițele mele
-openStudyPad: Deschide în Notițe de studiu (%s)
-noteText: Note de subsol (%s)
+openStudyPad: "Deschide în Notițe de studiu (%s)"
+noteText: "Note de subsol (%s)"
 noteTextWithoutType: Note de subsol
 crossReferenceText: Trimiteri
 findAllOccurrences: Caută toate evenimentele
@@ -23,15 +23,15 @@ myDocumentEmptyPlaceholder: Apasă pentru a începe modificarea acestei pagini
 inputPlaceholder: Scrie aici
 inputReference: Introdu trimiterea biblică
 invalidReference: Versetul nu a fost găsit
-bookmarkAccurate: Semnul de carte a fost creat în %s
+bookmarkAccurate: "Semnul de carte a fost creat în %s"
 bookmarkInaccurate: "Informațiile semnelor de carte nu sînt stocate, conținutul este afișat în %s."
 defaultBook: Biblia prestabilită
 ok: Aprobă
 yes: "Da"
-ambiguousSelection: "Ce vrei să faci?"
+ambiguousSelection: Ce vrei să faci?
 cancel: Renunță
-removeBookmarkConfirmationTitle: "Elimini semnul de carte?"
-removeBookmarkConfirmation: "Sigur vrei să elimini acest semn de carte?"
+removeBookmarkConfirmationTitle: Elimini semnul de carte?
+removeBookmarkConfirmation: Sigur vrei să elimini acest semn de carte?
 createdAt: "Creat: %s"
 lastUpdatedOn: "Ultima actualizare: %s"
 strongsAndMorph: Definiție și morfologie
@@ -39,12 +39,10 @@ externalLink: Deschide legătura externă
 referenceLink: Deschide legătura trimiterii
 openFootnote: Deschide nota de subsol
 noMyNotesTitle: Nu sînt notițe pentru acest capitol.
-noMyNotesDescription: >-
-  Începe prin a crea semne de carte într-un document biblic. Semnele de carte vor apărea apoi aici și poți adăuga la ele notițele tale.
-emptyStudyPad: >-
-  Nu sînt notițe de studiu. Adaugă notițe scriind ceva aici sau prin crearea de semne de carte cu o etichetă de semn de carte care corespunde acestor notițe de studiu.
-doYouWantToDeleteEntry: "Ștergi această notiță de studiu?"
-removeStudyPadConfirmationTitle: "Elimini notița de studiu?"
+noMyNotesDescription: Începe prin a crea semne de carte într-un document biblic. Semnele de carte vor apărea apoi aici și poți adăuga la ele notițele tale.
+emptyStudyPad: Nu sînt notițe de studiu. Adaugă notițe scriind ceva aici sau prin crearea de semne de carte cu o etichetă de semn de carte care corespunde acestor notițe de studiu.
+doYouWantToDeleteEntry: Ștergi această notiță de studiu?
+removeStudyPadConfirmationTitle: Elimini notița de studiu?
 dragHelp: Trage pentru a aranja
 openAll: Deschide toate trimiterile
 editBookmarkPlaceholder: Atinge pentru a modifica notițele acestui semn de carte
@@ -54,7 +52,7 @@ assignLabelsMenuEntry1: Alege sau modifică etichete…
 favouriteLabels: Etichete preferate
 recentLabels: Etichete recente
 bookmarkLabels: Etichetele semnelor de carte
-refParserHelp: Instalează extensia %s pentru a utiliza trimiteri în alte limbi decît engleza.
+refParserHelp: "Instalează extensia %s pentru a utiliza trimiteri în alte limbi decît engleza."
 openDownloads: Descarcă extensii
 verseShare: Trimite
 verseSpeak: Vorbește
@@ -75,6 +73,9 @@ markedAsMemorized: Memorat
 removeFromTargets: Obiectiv -
 viewReadingProgress: Progres citire/memorare
 viewReadingProgressSettings: Setări citire/memorare
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · cap %s/%s"
 listenInLoop: Ascultă în buclă
 viewHelp: Vizualizează ajutorul
 verseNoteLong: Scrie o notiță

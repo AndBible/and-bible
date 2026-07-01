@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Bölüm ve ayet rakamlarını göster</string>
   <string name="prefs_e_ink_mode_title">Siyah beyaz modu</string>
   <string name="prefs_eink_mode_summary">Uygulamayı tek renk kipinde (renksiz) kullan, bu seçenek e-mürekkep cihazlar için daha uygundur.</string>
+  <string name="prefs_display_color_mode_title">Renk modu</string>
+  <string name="prefs_display_color_mode_summary">Renklerin nasıl görüntüleneceğini seçin. Renkli e-kağıt, siyah beyaz tabanı korur ancak yer imi renklerini, etkin pencere göstergesini ve yardımcı çizgileri renkli olarak gösterir — renkli e-kağıt ekranlar için.</string>
+  <string name="prefs_display_color_mode_normal">Normal</string>
+  <string name="prefs_display_color_mode_bw">Siyah beyaz</string>
+  <string name="prefs_display_color_mode_color_eink">Renkli e-kağıt</string>
   <string name="prefs_eink_settings_cat">E-ink ayarları</string>
   <string name="prefs_eink_display_title">E-ink özellikleri</string>
   <string name="prefs_eink_display_summary">E-ink özelliklerini etkinleştir (sayfa kaydırma düğmeleri, kaydırma yardımcı çizgileri)</string>
@@ -222,6 +227,8 @@
   <string name="hide_bible_reference_overlay_summary">Uygulama tam ekrandayken yarı-şeffaf İncil’e gönderme yapan katmanı gösterme</string>
   <string name="full_screen_hide_buttons_pref_title">Tam ekranda pencere düğme çubuğunu gizle</string>
   <string name="full_screen_hide_buttons_pref_summary">Tam ekran moduna geçerken, ekranın altındaki pencere düğme çubuğunu otomatik olarak gizle</string>
+  <string name="prefs_hide_status_bar_title">Durum çubuğunu gizle</string>
+  <string name="prefs_hide_status_bar_summary">AndBible\'ın kendi araç çubuğunu görünür tutarken Android durum çubuğunu (saat, bildirimler) gizleyin. Dikkat dağıtmayan okuma ve e-kağıt cihazlar için kullanışlıdır. Geçici olarak göstermek için üst kenardan aşağı kaydırın.</string>
   <string name="prefs_dictionaries_cat">Sözlükler</string>
   <string name="choose_strongs_greek_dictionary_title">Strong’un Grekçe sözlüğü</string>
   <string name="choose_strongs_greek_dictionary_summary">Grekçe kelimelerin tanımları için Strong’un sözlüğünü seçin</string>
@@ -1709,6 +1716,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="prefs_show_ai_doc_markers_summary">Ayetlere bağlı AI tarafından oluşturulan belge sayfaları için işaret simgelerini göster</string>
   <string name="prefs_show_ordinals_title">Sıra numaralarını göster</string>
   <string name="prefs_show_ordinals_summary">Metinde sıra konumu işaretlerini göster</string>
+  <string name="prefs_show_reading_progress_title">Okuma ilerlemesi</string>
+  <string name="prefs_show_reading_progress_summary">Kitapta ne kadar ilerlediğinizi gösterin (yüzde, sayfa veya bölüm)</string>
   <string name="prefs_page_scroll_amount_title">Sayfa kaydırma miktarı</string>
   <string name="prefs_page_scroll_amount_summary">Sayfa yukarı/aşağı ile sayfanın ne kadarının kaydırılacağı</string>
   <string name="prefs_scroll_helper_lines_title">Kaydırma kılavuz çizgileri</string>
@@ -1740,12 +1749,15 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="cloud_doc_status_cloud_only">Yalnızca bulutta</string>
   <string name="cloud_doc_status_update">Güncelleme mevcut</string>
   <string name="cloud_doc_status_blocked">Bu cihazda engellendi</string>
+  <string name="cloud_doc_status_wont_sync">Buluta senkronize edilmeyecek</string>
   <string name="cloud_doc_version_prefix">s%1$s</string>
   <string name="cloud_doc_filter_all">Tümü</string>
   <string name="cloud_doc_filter_installed">Yüklü</string>
   <string name="cloud_doc_filter_cloud">Bulutta</string>
   <string name="cloud_doc_filter_updates">Güncellemeler</string>
   <string name="cloud_doc_filter_blocked">Engellenenler</string>
+  <string name="cloud_doc_filter_device_only">Yalnızca bu cihazda</string>
+  <string name="cloud_doc_filter_cloud_only">Yalnızca bulutta</string>
   <string name="cloud_doc_filter_removed">Kaldırılanlar</string>
   <string name="cloud_doc_show_removed">Kaldırılan belgeleri göster</string>
   <string name="cloud_doc_status_removed">Buluttan kaldırıldı</string>
@@ -1758,6 +1770,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="cloud_doc_action_block">Bu cihaza senkronize etme</string>
   <string name="cloud_doc_action_unblock">Bu cihazda izin ver</string>
   <string name="cloud_doc_action_restore">Buluta geri yükle</string>
+  <string name="cloud_doc_action_dont_sync">Buluta senkronize etme</string>
+  <string name="cloud_doc_action_allow_sync">Buluta senkronize et</string>
   <string name="cloud_doc_action_purge">Bulut geçmişinden kaldır</string>
   <string name="cloud_doc_remove_all_confirm">%1$s belgesi bu cihaz da dahil olmak üzere buluttan ve tüm cihazlarınızdan kaldırılsın mı?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s belgesi buluttan kaldırılsın mı? Bu cihazdaki kopya korunur; belge senkronizasyonu açık olan cihazlar da belgeyi kaldıracaktır.</string>
@@ -1773,8 +1787,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="cloud_doc_summary_download_size">%1$d indir (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Otomatik indirmeler Wi-Fi üzerinde başlayacak.</string>
   <string name="cloud_doc_sync_now_count_none">Aktarılacak bir şey yok</string>
-  <string name="cloud_doc_bulk_download">Seçilenleri indir (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Mevcut tüm belgeler zaten indirildi.</string>
+  <string name="cloud_doc_selected_count">%1$d seçildi</string>
+  <string name="cloud_doc_bulk_skipped">%1$d uygulanamadığı için atlandı</string>
   <string name="document_sync_notification_title">Belgeler senkronize ediliyor</string>
   <string name="document_sync_downloading">%1$s indiriliyor (%2$d/%3$d)</string>
   <string name="document_sync_uploading">%1$s yükleniyor (%2$d/%3$d)</string>

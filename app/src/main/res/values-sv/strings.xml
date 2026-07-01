@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Visa kapitel- &amp; versnummer</string>
   <string name="prefs_e_ink_mode_title">Svartvitt läge</string>
   <string name="prefs_eink_mode_summary">Använd appen i monokromt läge (inga färger) för att göra den mer lämpad för E-Ink-enheter.</string>
+  <string name="prefs_display_color_mode_title">Färgläge</string>
+  <string name="prefs_display_color_mode_summary">Välj hur färger visas. Färg-e-ink behåller en svartvit grund men visar bokmärkesfärger, indikatorn för det aktiva fönstret och hjälplinjer i färg – för e-inkskärmar med färg.</string>
+  <string name="prefs_display_color_mode_normal">Normal</string>
+  <string name="prefs_display_color_mode_bw">Svartvit</string>
+  <string name="prefs_display_color_mode_color_eink">Färg-e-ink</string>
   <string name="prefs_eink_settings_cat">E-ink-inställningar</string>
   <string name="prefs_eink_display_title">E-ink-funktioner</string>
   <string name="prefs_eink_display_summary">Aktivera e-ink-specifika funktioner (sidrullningsknappar, rullningshjälpslinjer)</string>
@@ -222,6 +227,8 @@
   <string name="hide_bible_reference_overlay_summary">Visa inte meddelanderuta om nuvarande bibelställe när appen är i helskärmsläge</string>
   <string name="full_screen_hide_buttons_pref_title">Dölj fönsterknappar i fullskärm</string>
   <string name="full_screen_hide_buttons_pref_summary">Vid byte till fullskärmsläge, dölj automatiskt fönsterknapplistan som är i botten av skärmen</string>
+  <string name="prefs_hide_status_bar_title">Dölj statusfältet</string>
+  <string name="prefs_hide_status_bar_summary">Dölj Androids statusfält (klocka, aviseringar) samtidigt som AndBibles egen verktygsfält förblir synligt. Praktiskt för distraktionsfri läsning och e-inkenheter. Svep från den övre kanten för att visa det tillfälligt.</string>
   <string name="prefs_dictionaries_cat">Uppslagsbok</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs grekiska ordbok</string>
   <string name="choose_strongs_greek_dictionary_summary">Välj Strongs ordbok för grekiska orddefinitioner</string>
@@ -1706,6 +1713,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="prefs_show_ai_doc_markers_summary">Visa markeringsikoner för AI-genererade dokumentsidor kopplade till verser</string>
   <string name="prefs_show_ordinals_title">Visa ordinaltal</string>
   <string name="prefs_show_ordinals_summary">Visa ordinalpositionsmarkeringar i texten</string>
+  <string name="prefs_show_reading_progress_title">Läsframsteg</string>
+  <string name="prefs_show_reading_progress_summary">Visa hur långt in i boken du är (procent, sida eller kapitel)</string>
   <string name="prefs_page_scroll_amount_title">Sidrullningsmängd</string>
   <string name="prefs_page_scroll_amount_summary">Hur stor del av sidan som scrollas med sidupp/ned</string>
   <string name="prefs_scroll_helper_lines_title">Rullningshjälpslinjer</string>
@@ -1737,12 +1746,15 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="cloud_doc_status_cloud_only">Endast i molnet</string>
   <string name="cloud_doc_status_update">Uppdatering tillgänglig</string>
   <string name="cloud_doc_status_blocked">Blockerad på den här enheten</string>
+  <string name="cloud_doc_status_wont_sync">Synkroniseras inte till molnet</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Alla</string>
   <string name="cloud_doc_filter_installed">Installerade</string>
   <string name="cloud_doc_filter_cloud">I molnet</string>
   <string name="cloud_doc_filter_updates">Uppdateringar</string>
   <string name="cloud_doc_filter_blocked">Blockerade</string>
+  <string name="cloud_doc_filter_device_only">Endast på den här enheten</string>
+  <string name="cloud_doc_filter_cloud_only">Endast i molnet</string>
   <string name="cloud_doc_filter_removed">Borttagna</string>
   <string name="cloud_doc_show_removed">Visa borttagna dokument</string>
   <string name="cloud_doc_status_removed">Borttagen från molnet</string>
@@ -1755,6 +1767,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="cloud_doc_action_block">Synkronisera inte till den här enheten</string>
   <string name="cloud_doc_action_unblock">Tillåt på den här enheten</string>
   <string name="cloud_doc_action_restore">Återställ till molnet</string>
+  <string name="cloud_doc_action_dont_sync">Synkronisera inte till molnet</string>
+  <string name="cloud_doc_action_allow_sync">Synkronisera till molnet</string>
   <string name="cloud_doc_action_purge">Ta bort från molnhistoriken</string>
   <string name="cloud_doc_remove_all_confirm">Ta bort %1$s från molnet och från alla dina enheter, inklusive den här?</string>
   <string name="cloud_doc_remove_cloud_confirm">Ta bort %1$s från molnet? Kopian på den här enheten behålls; enheter med dokumentsynkronisering på tar också bort den.</string>
@@ -1770,8 +1784,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="cloud_doc_summary_download_size">Ladda ner %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatiska nedladdningar startar via Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Inget att överföra</string>
-  <string name="cloud_doc_bulk_download">Ladda ner valda (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Alla tillgängliga dokument är redan nedladdade.</string>
+  <string name="cloud_doc_selected_count">%1$d valda</string>
+  <string name="cloud_doc_bulk_skipped">Hoppade över %1$d som inte gäller</string>
   <string name="document_sync_notification_title">Synkroniserar dokument</string>
   <string name="document_sync_downloading">Laddar ner %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Laddar upp %1$s (%2$d/%3$d)</string>

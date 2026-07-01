@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Näita peatüki ja salmi numbreid</string>
   <string name="prefs_e_ink_mode_title">Mustvalge režiim</string>
   <string name="prefs_eink_mode_summary">Kasuta mustvalget režiimi, mis teeb selle sobivamaks e-lugeritele.</string>
+  <string name="prefs_display_color_mode_title">Värvirežiim</string>
+  <string name="prefs_display_color_mode_summary">Vali, kuidas värve kuvatakse. Värviline e-tint hoiab must-valge põhja, kuid näitab järjehoidjate värve, aktiivse akna indikaatorit ja abijooni värvilisena — värvilise e-tindiga ekraanide jaoks.</string>
+  <string name="prefs_display_color_mode_normal">Tavaline</string>
+  <string name="prefs_display_color_mode_bw">Must-valge</string>
+  <string name="prefs_display_color_mode_color_eink">Värviline e-tint</string>
   <string name="prefs_eink_settings_cat">E-tindi seaded</string>
   <string name="prefs_eink_display_title">E-tindi funktsioonid</string>
   <string name="prefs_eink_display_summary">Luba e-tindile omased funktsioonid (lehekülje kerimise nupud, kerimise abijooned)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Ära näita poolläbipaistvat piibli viite ülekattet, kui rakendus on täisekraanil</string>
   <string name="full_screen_hide_buttons_pref_title">Peida täisekraani akna nupud</string>
   <string name="full_screen_hide_buttons_pref_summary">Lülitudes täisekraanile, peida automaatselt ekraani allosas olev akna ikooni riba.</string>
+  <string name="prefs_hide_status_bar_title">Peida olekurida</string>
+  <string name="prefs_hide_status_bar_summary">Peida Androidi olekurida (kell, teavitused), säilitades AndBible\'i oma tööriistariba nähtavana. Kasulik segamatuks lugemiseks ja e-tindiga seadmete jaoks. Selle ajutiseks nähtavaks tegemiseks pühi ülemisest servast.</string>
   <string name="prefs_dictionaries_cat">Sõnaraamatud</string>
   <string name="choose_strongs_greek_dictionary_title">Strongi kreeka sõnastik</string>
   <string name="choose_strongs_greek_dictionary_summary">Vali Strongi sõnaraamat kreekakeelsete sõnade definitsioonide jaoks</string>
@@ -1624,6 +1631,8 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="prefs_show_ai_doc_markers_summary">Näita markeri ikoone AI-genereeritud dokumendi lehtede jaoks, mis on seotud salmidega</string>
   <string name="prefs_show_ordinals_title">Näita järjenumbreid</string>
   <string name="prefs_show_ordinals_summary">Näita tekstis järjestuse positsioonide markereid</string>
+  <string name="prefs_show_reading_progress_title">Lugemise edenemine</string>
+  <string name="prefs_show_reading_progress_summary">Näita, kui kaugele raamatus oled jõudnud (protsent, lehekülg või peatükk)</string>
   <string name="prefs_page_scroll_amount_title">Lehekülje kerimise suurus</string>
   <string name="prefs_page_scroll_amount_summary">Kui palju lehekülge keritakse lehekülje üles/alla kerimisega</string>
   <string name="prefs_scroll_helper_lines_title">Kerimise abijooned</string>
@@ -1655,12 +1664,15 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="cloud_doc_status_cloud_only">Ainult pilves</string>
   <string name="cloud_doc_status_update">Uuendus saadaval</string>
   <string name="cloud_doc_status_blocked">Selles seadmes blokeeritud</string>
+  <string name="cloud_doc_status_wont_sync">Pilve ei sünkroonita</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Kõik</string>
   <string name="cloud_doc_filter_installed">Paigaldatud</string>
   <string name="cloud_doc_filter_cloud">Pilves</string>
   <string name="cloud_doc_filter_updates">Uuendused</string>
   <string name="cloud_doc_filter_blocked">Blokeeritud</string>
+  <string name="cloud_doc_filter_device_only">Ainult sellel seadmel</string>
+  <string name="cloud_doc_filter_cloud_only">Ainult pilves</string>
   <string name="cloud_doc_filter_removed">Eemaldatud</string>
   <string name="cloud_doc_show_removed">Näita eemaldatud dokumente</string>
   <string name="cloud_doc_status_removed">Pilvest eemaldatud</string>
@@ -1673,6 +1685,8 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="cloud_doc_action_block">Ära sünkrooni sellesse seadmesse</string>
   <string name="cloud_doc_action_unblock">Luba selles seadmes</string>
   <string name="cloud_doc_action_restore">Taasta pilve</string>
+  <string name="cloud_doc_action_dont_sync">Ära sünkrooni pilve</string>
+  <string name="cloud_doc_action_allow_sync">Sünkrooni pilve</string>
   <string name="cloud_doc_action_purge">Eemalda pilve ajaloost</string>
   <string name="cloud_doc_remove_all_confirm">Kas eemaldada %1$s pilvest ja kõigist teie seadmetest, kaasa arvatud sellest?</string>
   <string name="cloud_doc_remove_cloud_confirm">Kas eemaldada %1$s pilvest? Selles seadmes olev koopia säilitatakse; sisselülitatud dokumentide sünkroonimisega seadmed eemaldavad selle samuti.</string>
@@ -1688,8 +1702,8 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="cloud_doc_summary_download_size">Lae alla %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automaatsed allalaadimised algavad Wi-Fi võrgus.</string>
   <string name="cloud_doc_sync_now_count_none">Pole midagi üle kanda</string>
-  <string name="cloud_doc_bulk_download">Lae alla valitud (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Kõik saadaolevad dokumendid on juba alla laaditud.</string>
+  <string name="cloud_doc_selected_count">%1$d valitud</string>
+  <string name="cloud_doc_bulk_skipped">Jäeti vahele %1$d mitterakenduvat</string>
   <string name="document_sync_notification_title">Dokumentide sünkroonimine</string>
   <string name="document_sync_downloading">Allalaadimine: %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Üleslaadimine: %1$s (%2$d/%3$d)</string>

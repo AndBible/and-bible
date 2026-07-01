@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Toon hoofdstuk- en versnummers</string>
   <string name="prefs_e_ink_mode_title">Zwart-wit-weergave</string>
   <string name="prefs_eink_mode_summary">Gebruik de applicatie in monochrome modus (geen kleur), meer geschikt voor e-readers.</string>
+  <string name="prefs_display_color_mode_title">Kleurmodus</string>
+  <string name="prefs_display_color_mode_summary">Kies hoe kleuren worden weergegeven. Kleur e-ink houdt een zwart-witbasis aan, maar toont bladwijzerkleuren, de indicator voor het actieve venster en hulplijnen in kleur — voor kleur e-ink-schermen.</string>
+  <string name="prefs_display_color_mode_normal">Normaal</string>
+  <string name="prefs_display_color_mode_bw">Zwart-wit</string>
+  <string name="prefs_display_color_mode_color_eink">Kleur e-ink</string>
   <string name="prefs_eink_settings_cat">E-ink instellingen</string>
   <string name="prefs_eink_display_title">E-ink functies</string>
   <string name="prefs_eink_display_summary">Schakel e-ink specifieke functies in (paginascrolknoppen, scrolhulplijnen)</string>
@@ -221,6 +226,8 @@
   <string name="hide_bible_reference_overlay_summary">De semitransparante laag met Schriftverwijzing niet tonen als de app in volledig-scherm-weergave wordt gebruikt.</string>
   <string name="full_screen_hide_buttons_pref_title">Verberg vensterknoppen-balk in volledig scherm</string>
   <string name="full_screen_hide_buttons_pref_summary">Bij het overschakelen naar volledig-scherm-weergave wordt de balk met vensterknoppen onderaan het scherm automatisch verborgen.</string>
+  <string name="prefs_hide_status_bar_title">Statusbalk verbergen</string>
+  <string name="prefs_hide_status_bar_summary">Verberg de statusbalk van Android (klok, meldingen) terwijl de eigen werkbalk van AndBible zichtbaar blijft. Handig voor afleidingsvrij lezen en e-ink-apparaten. Veeg vanaf de bovenrand om deze tijdelijk weer te geven.</string>
   <string name="prefs_dictionaries_cat">Woordenboeken</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs Grieks woordenboek</string>
   <string name="choose_strongs_greek_dictionary_summary">Kies Strongs-woordenboek voor betekenis Griekse woorden</string>
@@ -1658,6 +1665,8 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="prefs_show_ai_doc_markers_summary">Markeringspictogrammen tonen voor AI-gegenereerde documentpagina\'s die aan verzen zijn gekoppeld</string>
   <string name="prefs_show_ordinals_title">Rangnummers tonen</string>
   <string name="prefs_show_ordinals_summary">Rangpositiemarkeringen in de tekst tonen</string>
+  <string name="prefs_show_reading_progress_title">Leesvoortgang</string>
+  <string name="prefs_show_reading_progress_summary">Toon hoe ver je bent in het boek (percentage, pagina of hoofdstuk)</string>
   <string name="prefs_page_scroll_amount_title">Pagina-scrolhoeveelheid</string>
   <string name="prefs_page_scroll_amount_summary">Hoeveel van de pagina er wordt gescrolld met pagina omhoog/omlaag</string>
   <string name="prefs_scroll_helper_lines_title">Scrolhulplijnen</string>
@@ -1689,12 +1698,15 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="cloud_doc_status_cloud_only">Alleen in cloud</string>
   <string name="cloud_doc_status_update">Update beschikbaar</string>
   <string name="cloud_doc_status_blocked">Geblokkeerd op dit apparaat</string>
+  <string name="cloud_doc_status_wont_sync">Wordt niet naar cloud gesynchroniseerd</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Alle</string>
   <string name="cloud_doc_filter_installed">Geïnstalleerd</string>
   <string name="cloud_doc_filter_cloud">In cloud</string>
   <string name="cloud_doc_filter_updates">Updates</string>
   <string name="cloud_doc_filter_blocked">Geblokkeerd</string>
+  <string name="cloud_doc_filter_device_only">Alleen op dit apparaat</string>
+  <string name="cloud_doc_filter_cloud_only">Alleen in cloud</string>
   <string name="cloud_doc_filter_removed">Verwijderd</string>
   <string name="cloud_doc_show_removed">Verwijderde documenten tonen</string>
   <string name="cloud_doc_status_removed">Verwijderd uit de cloud</string>
@@ -1707,6 +1719,8 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="cloud_doc_action_block">Niet synchroniseren naar dit apparaat</string>
   <string name="cloud_doc_action_unblock">Toestaan op dit apparaat</string>
   <string name="cloud_doc_action_restore">Terugzetten naar cloud</string>
+  <string name="cloud_doc_action_dont_sync">Niet synchroniseren naar cloud</string>
+  <string name="cloud_doc_action_allow_sync">Synchroniseren naar cloud</string>
   <string name="cloud_doc_action_purge">Verwijderen uit cloudgeschiedenis</string>
   <string name="cloud_doc_remove_all_confirm">%1$s verwijderen uit de cloud en van al uw apparaten, inclusief dit apparaat?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s verwijderen uit de cloud? De kopie op dit apparaat blijft behouden; apparaten met documentsynchronisatie aan verwijderen het ook.</string>
@@ -1722,8 +1736,8 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="cloud_doc_summary_download_size">%1$d downloaden (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatische downloads starten zodra er wifi is.</string>
   <string name="cloud_doc_sync_now_count_none">Niets over te dragen</string>
-  <string name="cloud_doc_bulk_download">Geselecteerde downloaden (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Alle beschikbare documenten zijn al gedownload.</string>
+  <string name="cloud_doc_selected_count">%1$d geselecteerd</string>
+  <string name="cloud_doc_bulk_skipped">%1$d overgeslagen (niet van toepassing)</string>
   <string name="document_sync_notification_title">Documenten synchroniseren</string>
   <string name="document_sync_downloading">%1$s downloaden (%2$d/%3$d)</string>
   <string name="document_sync_uploading">%1$s uploaden (%2$d/%3$d)</string>

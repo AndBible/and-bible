@@ -2,8 +2,8 @@
 bookmarks: Zakładki
 bookmarksAndNotes: Zakładki i moje notatki
 openMyNotes: Otwórz w moich notatkach
-openStudyPad: Otwórz w bloczku notatek (%s)
-noteText: Przypis (%s)
+openStudyPad: "Otwórz w bloczku notatek (%s)"
+noteText: "Przypis (%s)"
 noteTextWithoutType: Przypisy
 crossReferenceText: Odsyłacze wewnętrzne
 findAllOccurrences: Pokaż wszystkie
@@ -17,21 +17,21 @@ footnoteTypeVariant: wariant
 footnoteTypeAlternative: alternatywa
 footnoteTypeTranslation: tłumaczenie
 clearLog: Wymaż dziennik błędów
-editTextPlaceholder: "Stuknij, aby edytować"
+editTextPlaceholder: Stuknij, aby edytować
 myDocumentEdit: Edytuj stronę
-myDocumentEmptyPlaceholder: "Dotknij, aby rozpocząć edycję tej strony"
+myDocumentEmptyPlaceholder: Dotknij, aby rozpocząć edycję tej strony
 inputPlaceholder: Pisz tutaj
 inputReference: Wprowadź odsyłacz biblijny
 invalidReference: Nie znaleziono wersetu
-bookmarkAccurate: Zakładka utworzona w %s
+bookmarkAccurate: "Zakładka utworzona w %s"
 bookmarkInaccurate: "Brak informacji o księdze w zakładce, wyświetlanie zawartości w: %s."
 defaultBook: domyślny dokument Biblii
 ok: Potwierdź
 yes: "Tak"
-ambiguousSelection: "Co chcesz zrobić?"
+ambiguousSelection: Co chcesz zrobić?
 cancel: Anuluj
-removeBookmarkConfirmationTitle: "Czy usunąć zakładkę?"
-removeBookmarkConfirmation: "Czy na pewno chcesz usunąć tę zakładkę?"
+removeBookmarkConfirmationTitle: Czy usunąć zakładkę?
+removeBookmarkConfirmation: Czy na pewno chcesz usunąć tę zakładkę?
 createdAt: "Utworzono: %s"
 lastUpdatedOn: "Zmodyfikowano: %s"
 strongsAndMorph: Definicja i morfologia
@@ -39,15 +39,13 @@ externalLink: Otwórz odsyłacz zewnętrzny
 referenceLink: Otwórz odsyłacz wewnętrzny
 openFootnote: Otwórz przypis
 noMyNotesTitle: Brak notatki w tym rozdziale.
-noMyNotesDescription: >-
-  Najpierw utwórz zakładki w dokumencie Biblii. Utworzone zakładki pojawią się tutaj i będzie można dodać do nich osobiste notatki.
-emptyStudyPad: >-
-  Pusty bloczek notatek. Aby rozpocząć zapełnianie go, utwórz tutaj notatkę lub utwórz zakładkę z etykietą powiązaną z tym bloczkiem.
-doYouWantToDeleteEntry: "Czy usunąć ten wpis bloczka notatek?"
-removeStudyPadConfirmationTitle: "Czy usunąć wpis bloczka notatek?"
-dragHelp: "Przeciągnij, aby zmienić kolejność"
+noMyNotesDescription: Najpierw utwórz zakładki w dokumencie Biblii. Utworzone zakładki pojawią się tutaj i będzie można dodać do nich osobiste notatki.
+emptyStudyPad: Pusty bloczek notatek. Aby rozpocząć zapełnianie go, utwórz tutaj notatkę lub utwórz zakładkę z etykietą powiązaną z tym bloczkiem.
+doYouWantToDeleteEntry: Czy usunąć ten wpis bloczka notatek?
+removeStudyPadConfirmationTitle: Czy usunąć wpis bloczka notatek?
+dragHelp: Przeciągnij, aby zmienić kolejność
 openAll: Otwórz wszystkie odsyłacze
-editBookmarkPlaceholder: "Stuknij, aby edytować notkę dla tej zakładki"
+editBookmarkPlaceholder: Stuknij, aby edytować notkę dla tej zakładki
 onlyLabel: Tylko etykietę
 wholeBookmark: Całą zakładkę
 assignLabelsMenuEntry1: Wybierz lub edytuj etykiety…
@@ -75,6 +73,9 @@ markedAsMemorized: Zapamiętane
 removeFromTargets: Cel -
 viewReadingProgress: Postęp czytania/nauki
 viewReadingProgressSettings: Ustawienia czytania/nauki
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · rozdz. %s/%s"
 listenInLoop: Słuchaj w pętli
 viewHelp: Wyświetl pomoc
 verseNoteLong: Napisz notatkę
@@ -93,7 +94,7 @@ editActionContentLabel: Treść
 editActionContentPlaceholder: Wprowadź tekst do dodania do dokumentu…
 experimentalFeatureTitle: Eksperymentalne
 experimentalFeatureHelpTitle: O eksperymentalnych funkcjach
-experimentalFeatureHelpContent: "Eksperymentalne funkcje są nowymi możliwościami aplikacji, nad którymi wciąż trwają prace i testy. Mogą one nie działać bezbłędnie i zostać znacząco zmienione lub usunięte w przyszłych wersjach aplikacji."
+experimentalFeatureHelpContent: Eksperymentalne funkcje są nowymi możliwościami aplikacji, nad którymi wciąż trwają prace i testy. Mogą one nie działać bezbłędnie i zostać znacząco zmienione lub usunięte w przyszłych wersjach aplikacji.
 insertParagraphBreak: Dodaj nową linię
 insertSubtitle: Dodaj podtytuł
 xmlParseError: Błąd przetwarzania XML
@@ -107,7 +108,7 @@ wordScramble: Pomieszaj słowa
 wordType: Typ
 wordOrder: Kolejność
 typeEverything: Wpisz całe słowa
-tapToStartTyping: "Dotknij tutaj, aby rozpocząć pisanie"
+tapToStartTyping: Dotknij tutaj, aby rozpocząć pisanie
 wordVisibility: Widoczność słów
 wordVisibilityLight: Jasne
 wordVisibilityDim: Przyciemnione

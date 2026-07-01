@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Fejezet- és versszámok mutatása</string>
   <string name="prefs_e_ink_mode_title">Fekete-fehér mód</string>
   <string name="prefs_eink_mode_summary">Az alkalmazás használata színek nélkül, jobb olvashatóság e-ink képernyőn.</string>
+  <string name="prefs_display_color_mode_title">Szín mód</string>
+  <string name="prefs_display_color_mode_summary">Válassza ki, hogyan jelenjenek meg a színek. A színes e-ink mód fekete-fehér alapot tart, de színesben mutatja a könyvjelző színeket, az aktív ablak jelzőjét és a segédvonalakat — színes e-ink képernyőkhöz.</string>
+  <string name="prefs_display_color_mode_normal">Normál</string>
+  <string name="prefs_display_color_mode_bw">Fekete-fehér</string>
+  <string name="prefs_display_color_mode_color_eink">Színes e-ink</string>
   <string name="prefs_eink_settings_cat">E-ink beállítások</string>
   <string name="prefs_eink_display_title">E-ink funkciók</string>
   <string name="prefs_eink_display_summary">E-ink-specifikus funkciók engedélyezése (lapozógombok, görgetési segédvonalak)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">A félig átlátszó Biblia referenciák elrejtése teljes képernyős módban</string>
   <string name="full_screen_hide_buttons_pref_title">Ablakvezérlő gombok sávjának elrejtése teljes képernyős módban</string>
   <string name="full_screen_hide_buttons_pref_summary">Ablakvezérlőgombok elrejtése teljesképernyős módban</string>
+  <string name="prefs_hide_status_bar_title">Állapotsor elrejtése</string>
+  <string name="prefs_hide_status_bar_summary">Rejtse el az Android állapotsorát (óra, értesítések), miközben az AndBible saját eszköztára látható marad. Hasznos a zavartalan olvasáshoz és e-ink eszközökhöz. Húzza le a felső szélről az ideiglenes megjelenítéséhez.</string>
   <string name="prefs_dictionaries_cat">Szótárak</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs görög szótár</string>
   <string name="choose_strongs_greek_dictionary_summary">Strong szótár kiválasztása görög szó definíciókhoz</string>
@@ -1661,6 +1668,8 @@ jelentse be az észlelt problémát</string>
   <string name="prefs_show_ai_doc_markers_summary">Jelölő ikonok megjelenítése a versekhez kapcsolt AI-generált dokumentumoldalakhoz</string>
   <string name="prefs_show_ordinals_title">Sorszámok megjelenítése</string>
   <string name="prefs_show_ordinals_summary">Sorszámos pozíciójelölők megjelenítése a szövegben</string>
+  <string name="prefs_show_reading_progress_title">Olvasási előrehaladás</string>
+  <string name="prefs_show_reading_progress_summary">Megjeleníti, mennyire jutott előre a könyvben (százalék, oldal vagy fejezet)</string>
   <string name="prefs_page_scroll_amount_title">Lapozás mértéke</string>
   <string name="prefs_page_scroll_amount_summary">Mennyit gördüljön az oldal felfelé/lefelé lapozáskor</string>
   <string name="prefs_scroll_helper_lines_title">Segédvonalak görgetéshez</string>
@@ -1692,12 +1701,15 @@ jelentse be az észlelt problémát</string>
   <string name="cloud_doc_status_cloud_only">Csak a felhőben</string>
   <string name="cloud_doc_status_update">Elérhető frissítés</string>
   <string name="cloud_doc_status_blocked">Letiltva ezen az eszközön</string>
+  <string name="cloud_doc_status_wont_sync">Nem szinkronizálódik a felhővel</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Mind</string>
   <string name="cloud_doc_filter_installed">Telepítve</string>
   <string name="cloud_doc_filter_cloud">A felhőben</string>
   <string name="cloud_doc_filter_updates">Frissítések</string>
   <string name="cloud_doc_filter_blocked">Letiltva</string>
+  <string name="cloud_doc_filter_device_only">Csak ezen az eszközön</string>
+  <string name="cloud_doc_filter_cloud_only">Csak a felhőben</string>
   <string name="cloud_doc_filter_removed">Eltávolítva</string>
   <string name="cloud_doc_show_removed">Eltávolított dokumentumok megjelenítése</string>
   <string name="cloud_doc_status_removed">Eltávolítva a felhőből</string>
@@ -1710,6 +1722,8 @@ jelentse be az észlelt problémát</string>
   <string name="cloud_doc_action_block">Ne szinkronizálja erre az eszközre</string>
   <string name="cloud_doc_action_unblock">Engedélyezés ezen az eszközön</string>
   <string name="cloud_doc_action_restore">Visszaállítás a felhőbe</string>
+  <string name="cloud_doc_action_dont_sync">Ne szinkronizálja a felhővel</string>
+  <string name="cloud_doc_action_allow_sync">Szinkronizálás a felhővel</string>
   <string name="cloud_doc_action_purge">Eltávolítás a felhőelőzményekből</string>
   <string name="cloud_doc_remove_all_confirm">Eltávolítja a(z) %1$s elemet a felhőből és az összes eszközéről, beleértve ezt is?</string>
   <string name="cloud_doc_remove_cloud_confirm">Eltávolítja a(z) %1$s elemet a felhőből? Az ezen az eszközön lévő példány megmarad; a dokumentumszinkronizálással rendelkező eszközök szintén eltávolítják.</string>
@@ -1725,8 +1739,8 @@ jelentse be az észlelt problémát</string>
   <string name="cloud_doc_summary_download_size">Letöltés: %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Az automatikus letöltések Wi-Fi-n indulnak el.</string>
   <string name="cloud_doc_sync_now_count_none">Nincs mit átvinni</string>
-  <string name="cloud_doc_bulk_download">Kijelöltek letöltése (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Minden elérhető dokumentum már le van töltve.</string>
+  <string name="cloud_doc_selected_count">%1$d kiválasztva</string>
+  <string name="cloud_doc_bulk_skipped">%1$d kihagyva, nem alkalmazható</string>
   <string name="document_sync_notification_title">Dokumentumok szinkronizálása</string>
   <string name="document_sync_downloading">Letöltés: %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Feltöltés: %1$s (%2$d/%3$d)</string>

@@ -2,8 +2,8 @@
 bookmarks: Segnalibri
 bookmarksAndNotes: Segnalibri e Annotazioni
 openMyNotes: Apri in Annotazioni
-openStudyPad: Apri in Appunti di studio (%s)
-noteText: Note a piè di pagina (%s)
+openStudyPad: "Apri in Appunti di studio (%s)"
+noteText: "Note a piè di pagina (%s)"
 noteTextWithoutType: Note fine pagina
 crossReferenceText: Riferimenti incrociati
 findAllOccurrences: Trova tutte le occorrenze
@@ -23,15 +23,15 @@ myDocumentEmptyPlaceholder: Tocca per iniziare a modificare questa pagina
 inputPlaceholder: Scrivi qui
 inputReference: Inserisci un riferimento biblico
 invalidReference: Versetto non trovato
-bookmarkAccurate: Segnalibro creato in %s
+bookmarkAccurate: "Segnalibro creato in %s"
 bookmarkInaccurate: "Informazioni del segnalibro non salvate, il contenuto è mostrato in %s."
 defaultBook: documento Bibbia predefinito
 ok: OK
 yes: "Sì"
-ambiguousSelection: "Quale azione vuoi eseguire?"
+ambiguousSelection: Quale azione vuoi eseguire?
 cancel: Annulla
-removeBookmarkConfirmationTitle: "Cancellare il segnalibro?"
-removeBookmarkConfirmation: "Sei sicuro di voler eliminare questo segnalibro?"
+removeBookmarkConfirmationTitle: Cancellare il segnalibro?
+removeBookmarkConfirmation: Sei sicuro di voler eliminare questo segnalibro?
 createdAt: "Creato: %s"
 lastUpdatedOn: "Ultimo aggiornamento: %s"
 strongsAndMorph: Definizione e Morfologia
@@ -39,12 +39,10 @@ externalLink: Apri link esterno
 referenceLink: Apri link di riferimento
 openFootnote: Apri nota a piè di pagina
 noMyNotesTitle: Le Annotazioni per questo capitolo sono vuote.
-noMyNotesDescription: >-
-  Inizia creando dei segnalibri in un documento della Bibbia. I segnalibri appariranno qui e potrai aggiungere le tue annotazioni personali.
-emptyStudyPad: >-
-  Appunti di studio vuoti. Inizia aggiungendo una voce qui, o creando dei segnalibri con un'etichetta che corrisponda a questi appunti. 
-doYouWantToDeleteEntry: "Eliminare voce degli appunti di studio?"
-removeStudyPadConfirmationTitle: "Eliminare voce degli appunti di studio?"
+noMyNotesDescription: Inizia creando dei segnalibri in un documento della Bibbia. I segnalibri appariranno qui e potrai aggiungere le tue annotazioni personali.
+emptyStudyPad: "Appunti di studio vuoti. Inizia aggiungendo una voce qui, o creando dei segnalibri con un'etichetta che corrisponda a questi appunti. "
+doYouWantToDeleteEntry: Eliminare voce degli appunti di studio?
+removeStudyPadConfirmationTitle: Eliminare voce degli appunti di studio?
 dragHelp: Trascina per riordinare
 openAll: Apri tutti i riferimenti
 editBookmarkPlaceholder: Tocca per modificare le Annotazioni per questo segnalibro
@@ -54,7 +52,7 @@ assignLabelsMenuEntry1: Scegli o modifica etichette...
 favouriteLabels: Etichette preferite
 recentLabels: Etichette recenti
 bookmarkLabels: Etichette dei segnalibri
-refParserHelp: Per favore installa il modulo %s per usare riferimenti in lingue diverse dall'inglese.
+refParserHelp: "Per favore installa il modulo %s per usare riferimenti in lingue diverse dall'inglese."
 openDownloads: Scarica estensioni
 verseShare: Condividi
 verseSpeak: Parla
@@ -75,12 +73,15 @@ markedAsMemorized: Memorizzato
 removeFromTargets: Obiettivo -
 viewReadingProgress: Progresso lettura/memorizzazione
 viewReadingProgressSettings: Impostazioni lettura/memorizzazione
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: Ascolta in loop
 viewHelp: Visualizza aiuto
 verseNoteLong: Scrivi una nota
 verseParagraphBreakLong: Interruzione di paragrafo
 addBookmark: Segnalibro
-selectCustomIconTitle: Scegli icona per l'evidenziazione
+selectCustomIconTitle: "Scegli icona per l'evidenziazione"
 bookmarkSettingsTitle: Configura le impostazioni dei segnalibri
 subtitlePlaceholder: Testo dei sottotitoli
 customIconLabel: Icona personalizzata
@@ -93,7 +94,7 @@ editActionContentLabel: Contenuto
 editActionContentPlaceholder: Inserisci il testo da aggiungere al documento...
 experimentalFeatureTitle: Sperimentale
 experimentalFeatureHelpTitle: Informazioni sulle funzionalità sperimentali
-experimentalFeatureHelpContent: Le funzionalità sperimentali sono nuove funzionalità ancora in fase di sviluppo e test. Potrebbero non funzionare perfettamente e potrebbero subire modifiche significative o essere rimosse nelle versioni future dell'app.
+experimentalFeatureHelpContent: "Le funzionalità sperimentali sono nuove funzionalità ancora in fase di sviluppo e test. Potrebbero non funzionare perfettamente e potrebbero subire modifiche significative o essere rimosse nelle versioni future dell'app."
 insertParagraphBreak: Inserisci interruzione di paragrafo
 insertSubtitle: Inserisci sottotitolo
 xmlParseError: Errore di analisi XML

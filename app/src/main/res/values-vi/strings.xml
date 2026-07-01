@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Hiển thị số chương &amp; câu</string>
   <string name="prefs_e_ink_mode_title">Chế độ đen &amp; trắng</string>
   <string name="prefs_eink_mode_summary">Sử dụng ứng dụng ở chế độ đơn sắc (không màu), phù hợp hơn cho các thiết bị E-ink.</string>
+  <string name="prefs_display_color_mode_title">Chế độ màu</string>
+  <string name="prefs_display_color_mode_summary">Chọn cách hiển thị màu sắc. Chế độ e-ink màu giữ nền đen trắng nhưng hiển thị màu đánh dấu, chỉ báo cửa sổ đang hoạt động và các đường trợ giúp bằng màu — dành cho màn hình e-ink màu.</string>
+  <string name="prefs_display_color_mode_normal">Bình thường</string>
+  <string name="prefs_display_color_mode_bw">Đen &amp; trắng</string>
+  <string name="prefs_display_color_mode_color_eink">E-ink màu</string>
   <string name="prefs_eink_settings_cat">Cài đặt E-ink</string>
   <string name="prefs_eink_display_title">Tính năng E-ink</string>
   <string name="prefs_eink_display_summary">Bật các tính năng dành riêng cho E-ink (nút cuộn trang, đường kẻ hỗ trợ cuộn)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Không hiển thị lớp phủ tham chiếu Kinh Thánh bán trong suốt khi ứng dụng ở chế độ toàn màn hình</string>
   <string name="full_screen_hide_buttons_pref_title">Ẩn thanh nút cửa sổ khi toàn màn hình</string>
   <string name="full_screen_hide_buttons_pref_summary">Khi chuyển sang chế độ toàn màn hình, tự động ẩn thanh nút cửa sổ ở phía dưới màn hình</string>
+  <string name="prefs_hide_status_bar_title">Ẩn thanh trạng thái</string>
+  <string name="prefs_hide_status_bar_summary">Ẩn thanh trạng thái của Android (đồng hồ, thông báo) trong khi vẫn giữ thanh công cụ riêng của AndBible. Hữu ích cho việc đọc không bị phân tâm và thiết bị e-ink. Vuốt từ mép trên để hiện lại tạm thời.</string>
   <string name="prefs_dictionaries_cat">Từ điển</string>
   <string name="choose_strongs_greek_dictionary_title">Từ điển Hy Lạp Strong\'s</string>
   <string name="choose_strongs_greek_dictionary_summary">Chọn từ điển Strong\'s để tra định nghĩa từ tiếng Hy Lạp</string>
@@ -1543,6 +1550,8 @@
   <string name="prefs_show_ai_doc_markers_summary">Hiển thị biểu tượng đánh dấu cho các trang tài liệu do AI tạo được liên kết với câu</string>
   <string name="prefs_show_ordinals_title">Hiển thị số thứ tự</string>
   <string name="prefs_show_ordinals_summary">Hiển thị đánh dấu vị trí thứ tự trong văn bản</string>
+  <string name="prefs_show_reading_progress_title">Tiến độ đọc</string>
+  <string name="prefs_show_reading_progress_summary">Hiển thị bạn đã đọc được bao xa (phần trăm, trang hoặc chương)</string>
   <string name="prefs_page_scroll_amount_title">Lượng cuộn trang</string>
   <string name="prefs_page_scroll_amount_summary">Cuộn bao nhiêu trang khi nhấn cuộn lên/xuống</string>
   <string name="prefs_scroll_helper_lines_title">Đường hỗ trợ cuộn</string>
@@ -1574,12 +1583,15 @@
   <string name="cloud_doc_status_cloud_only">Chỉ trên đám mây</string>
   <string name="cloud_doc_status_update">Có bản cập nhật</string>
   <string name="cloud_doc_status_blocked">Bị chặn trên thiết bị này</string>
+  <string name="cloud_doc_status_wont_sync">Sẽ không đồng bộ lên đám mây</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Tất cả</string>
   <string name="cloud_doc_filter_installed">Đã cài đặt</string>
   <string name="cloud_doc_filter_cloud">Trên đám mây</string>
   <string name="cloud_doc_filter_updates">Bản cập nhật</string>
   <string name="cloud_doc_filter_blocked">Bị chặn</string>
+  <string name="cloud_doc_filter_device_only">Chỉ trên thiết bị này</string>
+  <string name="cloud_doc_filter_cloud_only">Chỉ trên đám mây</string>
   <string name="cloud_doc_filter_removed">Đã xóa</string>
   <string name="cloud_doc_show_removed">Hiển thị tài liệu đã xóa</string>
   <string name="cloud_doc_status_removed">Đã xóa khỏi đám mây</string>
@@ -1592,6 +1604,8 @@
   <string name="cloud_doc_action_block">Không đồng bộ về thiết bị này</string>
   <string name="cloud_doc_action_unblock">Cho phép trên thiết bị này</string>
   <string name="cloud_doc_action_restore">Khôi phục lên đám mây</string>
+  <string name="cloud_doc_action_dont_sync">Không đồng bộ lên đám mây</string>
+  <string name="cloud_doc_action_allow_sync">Đồng bộ lên đám mây</string>
   <string name="cloud_doc_action_purge">Xóa khỏi lịch sử đám mây</string>
   <string name="cloud_doc_remove_all_confirm">Xóa %1$s khỏi đám mây và khỏi tất cả thiết bị của bạn, bao gồm cả thiết bị này?</string>
   <string name="cloud_doc_remove_cloud_confirm">Xóa %1$s khỏi đám mây? Bản sao trên thiết bị này được giữ lại; các thiết bị bật đồng bộ tài liệu cũng sẽ xóa nó.</string>
@@ -1607,8 +1621,8 @@
   <string name="cloud_doc_summary_download_size">Tải xuống %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Việc tải xuống tự động sẽ bắt đầu khi có Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Không có gì để chuyển</string>
-  <string name="cloud_doc_bulk_download">Tải các mục đã chọn (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Tất cả tài liệu khả dụng đã được tải xuống.</string>
+  <string name="cloud_doc_selected_count">Đã chọn %1$d</string>
+  <string name="cloud_doc_bulk_skipped">Đã bỏ qua %1$d không áp dụng</string>
   <string name="document_sync_notification_title">Đang đồng bộ tài liệu</string>
   <string name="document_sync_downloading">Đang tải xuống %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Đang tải lên %1$s (%2$d/%3$d)</string>

@@ -2,8 +2,8 @@
 bookmarks: ที่คั่นหน้า
 bookmarksAndNotes: ที่คั่นหน้าและบันทึกของฉัน
 openMyNotes: เปิดในบันทึกของฉัน
-openStudyPad: เปิดในแผ่นบันทึกการศึกษา (%s)
-noteText: เชิงอรรถ (%s)
+openStudyPad: "เปิดในแผ่นบันทึกการศึกษา (%s)"
+noteText: "เชิงอรรถ (%s)"
 noteTextWithoutType: เชิงอรรถ
 crossReferenceText: การอ้างอิงข้าม
 findAllOccurrences: ค้นหาทุกตำแหน่ง
@@ -23,15 +23,15 @@ myDocumentEmptyPlaceholder: แตะเพื่อเริ่มแก้ไ�
 inputPlaceholder: เขียนที่นี่
 inputReference: ป้อนข้อพระคัมภีร์
 invalidReference: ไม่พบข้อพระคัมภีร์
-bookmarkAccurate: สร้างที่คั่นหน้าใน %s แล้ว
-bookmarkInaccurate: ไม่ได้บันทึกข้อมูลหนังสือของที่คั่นหน้า เนื้อหาแสดงใน %s
+bookmarkAccurate: "สร้างที่คั่นหน้าใน %s แล้ว"
+bookmarkInaccurate: "ไม่ได้บันทึกข้อมูลหนังสือของที่คั่นหน้า เนื้อหาแสดงใน %s"
 defaultBook: พระคัมภีร์เริ่มต้น
 ok: ตกลง
 yes: "ใช่"
-ambiguousSelection: "คุณต้องการดำเนินการใด?"
+ambiguousSelection: คุณต้องการดำเนินการใด?
 cancel: ยกเลิก
-removeBookmarkConfirmationTitle: "ลบที่คั่นหน้า?"
-removeBookmarkConfirmation: "คุณแน่ใจหรือไม่ว่าต้องการลบที่คั่นหน้านี้?"
+removeBookmarkConfirmationTitle: ลบที่คั่นหน้า?
+removeBookmarkConfirmation: คุณแน่ใจหรือไม่ว่าต้องการลบที่คั่นหน้านี้?
 createdAt: "สร้างเมื่อ: %s"
 lastUpdatedOn: "อัปเดตล่าสุด: %s"
 strongsAndMorph: คำจำกัดความและสัณฐานวิทยา
@@ -39,12 +39,10 @@ externalLink: เปิดลิงก์ภายนอก
 referenceLink: เปิดลิงก์อ้างอิง
 openFootnote: เปิดเชิงอรรถ
 noMyNotesTitle: ไม่มีบันทึกของฉันสำหรับบทนี้
-noMyNotesDescription: >-
-  เริ่มต้นด้วยการสร้างที่คั่นหน้าในพระคัมภีร์ ที่คั่นหน้าจะปรากฏที่นี่และคุณสามารถเพิ่มบันทึกส่วนตัวได้
-emptyStudyPad: >-
-  แผ่นบันทึกการศึกษายังว่างเปล่า เริ่มต้นด้วยการเพิ่มข้อความหรือสร้างที่คั่นหน้าที่มีป้ายกำกับตรงกับแผ่นบันทึกนี้
-doYouWantToDeleteEntry: "ลบรายการแผ่นบันทึกการศึกษานี้?"
-removeStudyPadConfirmationTitle: "ลบรายการแผ่นบันทึกการศึกษา?"
+noMyNotesDescription: เริ่มต้นด้วยการสร้างที่คั่นหน้าในพระคัมภีร์ ที่คั่นหน้าจะปรากฏที่นี่และคุณสามารถเพิ่มบันทึกส่วนตัวได้
+emptyStudyPad: แผ่นบันทึกการศึกษายังว่างเปล่า เริ่มต้นด้วยการเพิ่มข้อความหรือสร้างที่คั่นหน้าที่มีป้ายกำกับตรงกับแผ่นบันทึกนี้
+doYouWantToDeleteEntry: ลบรายการแผ่นบันทึกการศึกษานี้?
+removeStudyPadConfirmationTitle: ลบรายการแผ่นบันทึกการศึกษา?
 dragHelp: ลากเพื่อจัดเรียงใหม่
 openAll: เปิดการอ้างอิงทั้งหมด
 editBookmarkPlaceholder: แตะเพื่อแก้ไขบันทึกของฉันสำหรับที่คั่นหน้านี้
@@ -54,7 +52,7 @@ assignLabelsMenuEntry1: เลือกหรือแก้ไขป้าย�
 favouriteLabels: ป้ายกำกับโปรด
 recentLabels: ป้ายกำกับล่าสุด
 bookmarkLabels: ป้ายกำกับที่คั่นหน้า
-refParserHelp: โปรดติดตั้งโมดูล %s เพื่อใช้การอ้างอิงในภาษาอื่นนอกจากภาษาอังกฤษ
+refParserHelp: "โปรดติดตั้งโมดูล %s เพื่อใช้การอ้างอิงในภาษาอื่นนอกจากภาษาอังกฤษ"
 openDownloads: ไปที่ดาวน์โหลดส่วนเสริม
 verseShare: แชร์
 verseSpeak: อ่านออกเสียง
@@ -75,6 +73,9 @@ markedAsMemorized: ท่องจำแล้ว
 removeFromTargets: เป้าหมาย -
 viewReadingProgress: ความคืบหน้าการอ่าน/ท่องจำ
 viewReadingProgressSettings: การตั้งค่าการอ่าน/ท่องจำ
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: ฟังแบบวนซ้ำ
 viewHelp: ดูวิธีใช้
 verseNoteLong: เขียนบันทึก

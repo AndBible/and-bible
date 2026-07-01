@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Показать номера глав и стихов</string>
   <string name="prefs_e_ink_mode_title">Черно-белый режим</string>
   <string name="prefs_eink_mode_summary">Используйте приложение в монохромном режиме (без цветов), что делает его более подходящим для устройств E-ink.</string>
+  <string name="prefs_display_color_mode_title">Цветовой режим</string>
+  <string name="prefs_display_color_mode_summary">Выберите способ отображения цветов. Цветной e-ink сохраняет чёрно-белую основу, но показывает цвета закладок, индикатор активного окна и вспомогательные линии в цвете — для цветных экранов e-ink.</string>
+  <string name="prefs_display_color_mode_normal">Обычный</string>
+  <string name="prefs_display_color_mode_bw">Чёрно-белый</string>
+  <string name="prefs_display_color_mode_color_eink">Цветной e-ink</string>
   <string name="prefs_eink_settings_cat">Настройки E-ink</string>
   <string name="prefs_eink_display_title">Функции E-ink</string>
   <string name="prefs_eink_display_summary">Включить функции для E-ink-устройств (кнопки прокрутки страниц, вспомогательные линии прокрутки)</string>
@@ -221,6 +226,8 @@
   <string name="hide_bible_reference_overlay_summary">Не показывать полупрозрачное наложение со ссылкой на Библию, когда приложение находится в полноэкранном режиме</string>
   <string name="full_screen_hide_buttons_pref_title">Скрыть панель кнопок окна в полноэкранном режиме</string>
   <string name="full_screen_hide_buttons_pref_summary">При переключении в полноэкранный режим автоматически скрывать панель кнопок окна, расположенную внизу экрана</string>
+  <string name="prefs_hide_status_bar_title">Скрыть строку состояния</string>
+  <string name="prefs_hide_status_bar_summary">Скрыть строку состояния Android (часы, уведомления), сохранив видимой собственную панель инструментов AndBible. Полезно для чтения без отвлечений и устройств e-ink. Проведите пальцем от верхнего края, чтобы временно показать её.</string>
   <string name="prefs_dictionaries_cat">Словари</string>
   <string name="choose_strongs_greek_dictionary_title">Греческий словарь Стронга</string>
   <string name="choose_strongs_greek_dictionary_summary">Выберите словарь Стронга для определений греческих слов</string>
@@ -1694,6 +1701,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="prefs_show_ai_doc_markers_summary">Показывать значки маркеров для страниц AI-документов, связанных со стихами</string>
   <string name="prefs_show_ordinals_title">Показывать порядковые номера</string>
   <string name="prefs_show_ordinals_summary">Показывать маркеры порядкового положения в тексте</string>
+  <string name="prefs_show_reading_progress_title">Прогресс чтения</string>
+  <string name="prefs_show_reading_progress_summary">Показывать, как далеко вы продвинулись в книге (в процентах, страницах или главах)</string>
   <string name="prefs_page_scroll_amount_title">Величина прокрутки страницы</string>
   <string name="prefs_page_scroll_amount_summary">Насколько прокручивать страницу при нажатии кнопок вверх/вниз</string>
   <string name="prefs_scroll_helper_lines_title">Вспомогательные линии прокрутки</string>
@@ -1725,12 +1734,15 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="cloud_doc_status_cloud_only">Только в облаке</string>
   <string name="cloud_doc_status_update">Доступно обновление</string>
   <string name="cloud_doc_status_blocked">Заблокировано на этом устройстве</string>
+  <string name="cloud_doc_status_wont_sync">Не будет синхронизироваться с облаком</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Все</string>
   <string name="cloud_doc_filter_installed">Установленные</string>
   <string name="cloud_doc_filter_cloud">В облаке</string>
   <string name="cloud_doc_filter_updates">Обновления</string>
   <string name="cloud_doc_filter_blocked">Заблокированные</string>
+  <string name="cloud_doc_filter_device_only">Только на этом устройстве</string>
+  <string name="cloud_doc_filter_cloud_only">Только в облаке</string>
   <string name="cloud_doc_filter_removed">Удалённые</string>
   <string name="cloud_doc_show_removed">Показывать удалённые документы</string>
   <string name="cloud_doc_status_removed">Удалено из облака</string>
@@ -1743,6 +1755,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="cloud_doc_action_block">Не синхронизировать на это устройство</string>
   <string name="cloud_doc_action_unblock">Разрешить на этом устройстве</string>
   <string name="cloud_doc_action_restore">Восстановить в облако</string>
+  <string name="cloud_doc_action_dont_sync">Не синхронизировать с облаком</string>
+  <string name="cloud_doc_action_allow_sync">Синхронизировать с облаком</string>
   <string name="cloud_doc_action_purge">Удалить из истории облака</string>
   <string name="cloud_doc_remove_all_confirm">Удалить %1$s из облака и со всех ваших устройств, включая это?</string>
   <string name="cloud_doc_remove_cloud_confirm">Удалить %1$s из облака? Копия на этом устройстве сохранится; устройства с включённой синхронизацией документов также удалят его.</string>
@@ -1758,8 +1772,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="cloud_doc_summary_download_size">Скачать %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Автоматическое скачивание начнётся при подключении к Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Нечего передавать</string>
-  <string name="cloud_doc_bulk_download">Скачать выбранные (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Все доступные документы уже скачаны.</string>
+  <string name="cloud_doc_selected_count">Выбрано: %1$d</string>
+  <string name="cloud_doc_bulk_skipped">Пропущено %1$d неприменимых</string>
   <string name="document_sync_notification_title">Синхронизация документов</string>
   <string name="document_sync_downloading">Скачивание %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Выгрузка %1$s (%2$d/%3$d)</string>
