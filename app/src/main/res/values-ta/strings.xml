@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">அதிகாரம் &amp; வசனம் எண்களைக் காட்டு</string>
   <string name="prefs_e_ink_mode_title">கருப்பு &amp; வெள்ளை முறை</string>
   <string name="prefs_eink_mode_summary">மோனோக்ரோம் பயன்முறையில் (வண்ணங்கள் இல்லாமல்), E-ink கருவிகளுக்கு மிகவும் பொருத்தமானதாக இருக்கும்.</string>
+  <string name="prefs_display_color_mode_title">வண்ண பயன்முறை</string>
+  <string name="prefs_display_color_mode_summary">வண்ணங்கள் எவ்வாறு காட்டப்படும் என்பதைத் தேர்வு செய்யவும். வண்ண e-ink பயன்முறையில் கருப்பு &amp; வெள்ளை அடிப்படை இருந்தாலும், புக்மார்க் வண்ணங்கள், செயலில் உள்ள சாளர குறிகாட்டி மற்றும் உதவி கோடுகள் வண்ணத்தில் காட்டப்படும் — வண்ண e-ink திரைகளுக்கு.</string>
+  <string name="prefs_display_color_mode_normal">இயல்பானது</string>
+  <string name="prefs_display_color_mode_bw">கருப்பு &amp; வெள்ளை</string>
+  <string name="prefs_display_color_mode_color_eink">வண்ண e-ink</string>
   <string name="prefs_eink_settings_cat">E-ink அமைப்புகள்</string>
   <string name="prefs_eink_display_title">E-ink அம்சங்கள்</string>
   <string name="prefs_eink_display_summary">E-ink சிறப்பு அம்சங்களை இயக்கு (பக்க உருட்டு பொத்தான்கள், உருட்டு உதவிக் கோடுகள்)</string>
@@ -222,6 +227,8 @@
   <string name="hide_bible_reference_overlay_summary">முழுத்திரை பயன்முறையில் இருக்கும்போது, அரை-வெளிப்படையான விவிலிய குறிப்பு மேலடுக்கைக் மறை</string>
   <string name="full_screen_hide_buttons_pref_title">முழு திரை பயன் முறையில் சாரல பொத்தான் பட்டையை மறை</string>
   <string name="full_screen_hide_buttons_pref_summary">முழு திரை நிலைக்கு செல்லும் பொழுது திரை அடியில் தெரியும் சாரல பொத்தானை தானாக மறை</string>
+  <string name="prefs_hide_status_bar_title">நிலைப் பட்டியை மறை</string>
+  <string name="prefs_hide_status_bar_summary">AndBible இன் சொந்த கருவிப்பட்டியை காட்டியபடியே Android நிலைப் பட்டியை (நேரம், அறிவிப்புகள்) மறைக்கவும். திசைதிருப்பல் இல்லாத வாசிப்புக்கும் e-ink கருவிகளுக்கும் பயனுள்ளது. அதை தற்காலிகமாக காண மேல் ஓரத்திலிருந்து ஸ்வைப் செய்யவும்.</string>
   <string name="prefs_dictionaries_cat">அகராதிகள்</string>
   <string name="choose_strongs_greek_dictionary_title">Strong கிரேக்க அகராதி</string>
   <string name="choose_strongs_greek_dictionary_summary">கிரேக்க சொற்களின் விளக்கங்களுக்கு Strongs அகராதியை தேர்வு செய்யவும்</string>
@@ -1705,6 +1712,8 @@
   <string name="prefs_show_ai_doc_markers_summary">வசனங்களுடன் இணைக்கப்பட்ட AI-உருவாக்கிய ஆவண பக்கங்களுக்கான குறி சின்னங்களை காட்டு</string>
   <string name="prefs_show_ordinals_title">வரிசை எண்களை காட்டு</string>
   <string name="prefs_show_ordinals_summary">உரையில் வரிசை நிலை குறிகளை காட்டு</string>
+  <string name="prefs_show_reading_progress_title">வாசிப்பு முன்னேற்றம்</string>
+  <string name="prefs_show_reading_progress_summary">நீங்கள் புத்தகத்தில் எவ்வளவு தூரம் வந்துள்ளீர்கள் என்பதைக் காட்டு (சதவீதம், பக்கம் அல்லது அதிகாரம்)</string>
   <string name="prefs_page_scroll_amount_title">பக்க உருட்டல் அளவு</string>
   <string name="prefs_page_scroll_amount_summary">பக்கம் மேலே/கீழே செல்லும்போது எவ்வளவு உருட்டல்</string>
   <string name="prefs_scroll_helper_lines_title">உருட்டல் உதவி கோடுகள்</string>
@@ -1736,12 +1745,15 @@
   <string name="cloud_doc_status_cloud_only">மேகத்தில் மட்டும்</string>
   <string name="cloud_doc_status_update">புதுப்பிப்பு கிடைக்கிறது</string>
   <string name="cloud_doc_status_blocked">இந்த சாதனத்தில் தடுக்கப்பட்டது</string>
+  <string name="cloud_doc_status_wont_sync">மேகத்திற்கு ஒத்திசைக்கப்படாது</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">அனைத்தும்</string>
   <string name="cloud_doc_filter_installed">நிறுவப்பட்டது</string>
   <string name="cloud_doc_filter_cloud">மேகத்தில்</string>
   <string name="cloud_doc_filter_updates">புதுப்பிப்புகள்</string>
   <string name="cloud_doc_filter_blocked">தடுக்கப்பட்டது</string>
+  <string name="cloud_doc_filter_device_only">இந்தக் கருவியில் மட்டும்</string>
+  <string name="cloud_doc_filter_cloud_only">மேகத்தில் மட்டும்</string>
   <string name="cloud_doc_filter_removed">நீக்கப்பட்டது</string>
   <string name="cloud_doc_show_removed">நீக்கப்பட்ட கோப்புகளைக் காட்டு</string>
   <string name="cloud_doc_status_removed">மேகத்திலிருந்து நீக்கப்பட்டது</string>
@@ -1754,6 +1766,8 @@
   <string name="cloud_doc_action_block">இந்த சாதனத்திற்கு ஒத்திசைக்காதே</string>
   <string name="cloud_doc_action_unblock">இந்த சாதனத்தில் அனுமதி</string>
   <string name="cloud_doc_action_restore">மேகத்திற்கு மீட்டமை</string>
+  <string name="cloud_doc_action_dont_sync">மேகத்திற்கு ஒத்திசைக்க வேண்டாம்</string>
+  <string name="cloud_doc_action_allow_sync">மேகத்திற்கு ஒத்திசை</string>
   <string name="cloud_doc_action_purge">மேக வரலாற்றிலிருந்து நீக்கு</string>
   <string name="cloud_doc_remove_all_confirm">%1$s ஐ மேகத்திலிருந்தும் இந்த சாதனம் உட்பட உங்கள் அனைத்து சாதனங்களிலிருந்தும் நீக்கவா?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s ஐ மேகத்திலிருந்து நீக்கவா? இந்த சாதனத்தில் உள்ள நகல் வைத்துக்கொள்ளப்படும்; கோப்பு ஒத்திசைவு இயக்கப்பட்ட சாதனங்களும் அதை நீக்கும்.</string>
@@ -1769,8 +1783,8 @@
   <string name="cloud_doc_summary_download_size">%1$d தரவிறக்கு (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">தானியங்கி தரவிறக்கங்கள் Wi-Fi-யில் தொடங்கும்.</string>
   <string name="cloud_doc_sync_now_count_none">பரிமாற்ற எதுவும் இல்லை</string>
-  <string name="cloud_doc_bulk_download">தேர்ந்தெடுத்தவற்றைத் தரவிறக்கு (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">கிடைக்கும் அனைத்து கோப்புகளும் ஏற்கனவே தரவிறக்கப்பட்டுள்ளன.</string>
+  <string name="cloud_doc_selected_count">%1$d தேர்ந்தெடுக்கப்பட்டது</string>
+  <string name="cloud_doc_bulk_skipped">%1$d பொருந்தாதவை தவிர்க்கப்பட்டன</string>
   <string name="document_sync_notification_title">கோப்புகளை ஒத்திசைக்கிறது</string>
   <string name="document_sync_downloading">%1$s தரவிறக்குகிறது (%2$d/%3$d)</string>
   <string name="document_sync_uploading">%1$s பதிவேற்றுகிறது (%2$d/%3$d)</string>

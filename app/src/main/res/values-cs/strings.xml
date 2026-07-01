@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Zobrazit kapitoly a čísla veršů</string>
   <string name="prefs_e_ink_mode_title">Černobílý mód </string>
   <string name="prefs_eink_mode_summary">Používat monochromatické zobrazení (bez barev), usnadňuje čtení na zařízeních s E-ink displayem.</string>
+  <string name="prefs_display_color_mode_title">Barevný režim</string>
+  <string name="prefs_display_color_mode_summary">Zvolte, jak se zobrazují barvy. Barevný e-ink zachovává černobílý základ, ale zobrazuje barvy záložek, indikátor aktivního okna a pomocné čáry v barvě — pro barevné e-inkové obrazovky.</string>
+  <string name="prefs_display_color_mode_normal">Normální</string>
+  <string name="prefs_display_color_mode_bw">Černobílý</string>
+  <string name="prefs_display_color_mode_color_eink">Barevný e-ink</string>
   <string name="prefs_eink_settings_cat">Nastavení e-ink</string>
   <string name="prefs_eink_display_title">Funkce e-ink</string>
   <string name="prefs_eink_display_summary">Povolit funkce specifické pro e-ink (tlačítka stránkování, pomocné čáry pro posouvání)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Nezobrazovat poloprůhledné okno s aktuální pozicí v Bibli při celoobrazovkovém režimu</string>
   <string name="full_screen_hide_buttons_pref_title">Skrýt panel tlačítek v režimu celé obrazovky</string>
   <string name="full_screen_hide_buttons_pref_summary">Při přechodu do režimu celé obrazovky automaticky skrýt spodní lištu tlačítek</string>
+  <string name="prefs_hide_status_bar_title">Skrýt stavový řádek</string>
+  <string name="prefs_hide_status_bar_summary">Skryje stavový řádek Androidu (hodiny, oznámení) a zároveň ponechá viditelný vlastní panel nástrojů AndBible. Užitečné pro čtení bez rušivých prvků a pro e-inková zařízení. Přejetím od horního okraje jej dočasně zobrazíte.</string>
   <string name="prefs_dictionaries_cat">Slovníky</string>
   <string name="choose_strongs_greek_dictionary_title">Strongův řecký slovník</string>
   <string name="choose_strongs_greek_dictionary_summary">Vybrat Strongův slovník definicí řeckých slov</string>
@@ -1698,6 +1705,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="prefs_show_ai_doc_markers_summary">Zobrazit ikony značek pro stránky dokumentů generovaných AI propojených s verši</string>
   <string name="prefs_show_ordinals_title">Zobrazit pořadová čísla</string>
   <string name="prefs_show_ordinals_summary">Zobrazit v textu značky pořadové pozice</string>
+  <string name="prefs_show_reading_progress_title">Průběh čtení</string>
+  <string name="prefs_show_reading_progress_summary">Zobrazuje, jak daleko jste v knize (procenta, strana nebo kapitola)</string>
   <string name="prefs_page_scroll_amount_title">Množství posuvu stránky</string>
   <string name="prefs_page_scroll_amount_summary">O kolik se stránka posune při posuvu nahoru/dolů</string>
   <string name="prefs_scroll_helper_lines_title">Pomocné čáry posuvu</string>
@@ -1729,12 +1738,15 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="cloud_doc_status_cloud_only">Pouze v cloudu</string>
   <string name="cloud_doc_status_update">Dostupná aktualizace</string>
   <string name="cloud_doc_status_blocked">Blokováno na tomto zařízení</string>
+  <string name="cloud_doc_status_wont_sync">Nebude se synchronizovat do cloudu</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Vše</string>
   <string name="cloud_doc_filter_installed">Nainstalováno</string>
   <string name="cloud_doc_filter_cloud">V cloudu</string>
   <string name="cloud_doc_filter_updates">Aktualizace</string>
   <string name="cloud_doc_filter_blocked">Blokováno</string>
+  <string name="cloud_doc_filter_device_only">Pouze v tomto zařízení</string>
+  <string name="cloud_doc_filter_cloud_only">Pouze v cloudu</string>
   <string name="cloud_doc_filter_removed">Odstraněno</string>
   <string name="cloud_doc_show_removed">Zobrazit odstraněné dokumenty</string>
   <string name="cloud_doc_status_removed">Odstraněno z cloudu</string>
@@ -1747,6 +1759,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="cloud_doc_action_block">Nesynchronizovat na toto zařízení</string>
   <string name="cloud_doc_action_unblock">Povolit na tomto zařízení</string>
   <string name="cloud_doc_action_restore">Obnovit do cloudu</string>
+  <string name="cloud_doc_action_dont_sync">Nesynchronizovat do cloudu</string>
+  <string name="cloud_doc_action_allow_sync">Synchronizovat do cloudu</string>
   <string name="cloud_doc_action_purge">Odstranit z historie cloudu</string>
   <string name="cloud_doc_remove_all_confirm">Odstranit %1$s z cloudu a ze všech vašich zařízení, včetně tohoto?</string>
   <string name="cloud_doc_remove_cloud_confirm">Odstranit %1$s z cloudu? Kopie na tomto zařízení zůstane zachována; zařízení se zapnutou synchronizací dokumentů jej rovněž odstraní.</string>
@@ -1762,8 +1776,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="cloud_doc_summary_download_size">Stáhnout %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatické stahování se spustí přes Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Není co přenést</string>
-  <string name="cloud_doc_bulk_download">Stáhnout vybrané (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Všechny dostupné dokumenty jsou již stažené.</string>
+  <string name="cloud_doc_selected_count">Vybráno: %1$d</string>
+  <string name="cloud_doc_bulk_skipped">Přeskočeno %1$d nepoužitelných</string>
   <string name="document_sync_notification_title">Synchronizace dokumentů</string>
   <string name="document_sync_downloading">Stahování %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Nahrávání %1$s (%2$d/%3$d)</string>

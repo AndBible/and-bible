@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Показвай номерата на глави и стихове</string>
   <string name="prefs_e_ink_mode_title">Черно-бял режим</string>
   <string name="prefs_eink_mode_summary">Използвай приложението в монохромен режим (без цветове), което го прави по-подходящо за устройства с E-ink екран.</string>
+  <string name="prefs_display_color_mode_title">Цветови режим</string>
+  <string name="prefs_display_color_mode_summary">Изберете как да се показват цветовете. Цветовият e-ink запазва черно-бяла основа, но показва цветовете на отметките, индикатора за активния прозорец и помощните линии в цвят — за цветни e-ink екрани.</string>
+  <string name="prefs_display_color_mode_normal">Нормален</string>
+  <string name="prefs_display_color_mode_bw">Черно-бял</string>
+  <string name="prefs_display_color_mode_color_eink">Цветен e-ink</string>
   <string name="prefs_eink_settings_cat">E-ink настройки</string>
   <string name="prefs_eink_display_title">E-ink функции</string>
   <string name="prefs_eink_display_summary">Активирай специфични E-ink функции (бутони за превъртане на страница, помощни линии за превъртане)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Да не се показва полупрозрачното наслагване с библейска препратка, когато приложението е в режим на цял екран</string>
   <string name="full_screen_hide_buttons_pref_title">Скриване на лентата с бутони при цял екран</string>
   <string name="full_screen_hide_buttons_pref_summary">При превключване в режим на цял екран автоматично се скрива лентата с бутони на прозореца в долната част на екрана</string>
+  <string name="prefs_hide_status_bar_title">Скрий лентата на състоянието</string>
+  <string name="prefs_hide_status_bar_summary">Скрива лентата на състоянието на Android (часовник, известия), като запазва видима собствената лента с инструменти на AndBible. Полезно за четене без разсейване и за e-ink устройства. Плъзнете от горния край, за да я покажете временно.</string>
   <string name="prefs_dictionaries_cat">Речници</string>
   <string name="choose_strongs_greek_dictionary_title">Гръцки речник на Стронг</string>
   <string name="choose_strongs_greek_dictionary_summary">Изберете речника на Стронг за дефиниции на гръцки думи</string>
@@ -1543,6 +1550,8 @@
   <string name="prefs_show_ai_doc_markers_summary">Показвай икони за маркери на AI-генерирани документни страници, свързани със стихове</string>
   <string name="prefs_show_ordinals_title">Показвай поредни номера</string>
   <string name="prefs_show_ordinals_summary">Показвай маркери за поредна позиция в текста</string>
+  <string name="prefs_show_reading_progress_title">Напредък на четенето</string>
+  <string name="prefs_show_reading_progress_summary">Показва докъде сте стигнали в книгата (процент, страница или глава)</string>
   <string name="prefs_page_scroll_amount_title">Количество превъртане на страница</string>
   <string name="prefs_page_scroll_amount_summary">Колко от страницата да се превърта при страница нагоре/надолу</string>
   <string name="prefs_scroll_helper_lines_title">Помощни линии за превъртане</string>
@@ -1574,12 +1583,15 @@
   <string name="cloud_doc_status_cloud_only">Само в облака</string>
   <string name="cloud_doc_status_update">Налично обновление</string>
   <string name="cloud_doc_status_blocked">Блокиран на това устройство</string>
+  <string name="cloud_doc_status_wont_sync">Няма да се синхронизира с облака</string>
   <string name="cloud_doc_version_prefix">в%1$s</string>
   <string name="cloud_doc_filter_all">Всички</string>
   <string name="cloud_doc_filter_installed">Инсталирани</string>
   <string name="cloud_doc_filter_cloud">В облака</string>
   <string name="cloud_doc_filter_updates">Обновления</string>
   <string name="cloud_doc_filter_blocked">Блокирани</string>
+  <string name="cloud_doc_filter_device_only">Само на това устройство</string>
+  <string name="cloud_doc_filter_cloud_only">Само в облака</string>
   <string name="cloud_doc_filter_removed">Премахнати</string>
   <string name="cloud_doc_show_removed">Показвай премахнатите ресурси</string>
   <string name="cloud_doc_status_removed">Премахнат от облака</string>
@@ -1592,6 +1604,8 @@
   <string name="cloud_doc_action_block">Не синхронизирай на това устройство</string>
   <string name="cloud_doc_action_unblock">Разреши на това устройство</string>
   <string name="cloud_doc_action_restore">Възстанови в облака</string>
+  <string name="cloud_doc_action_dont_sync">Не синхронизирай с облака</string>
+  <string name="cloud_doc_action_allow_sync">Синхронизирай с облака</string>
   <string name="cloud_doc_action_purge">Премахни от историята на облака</string>
   <string name="cloud_doc_remove_all_confirm">Да се премахне ли %1$s от облака и от всичките ви устройства, включително това?</string>
   <string name="cloud_doc_remove_cloud_confirm">Да се премахне ли %1$s от облака? Копието на това устройство се запазва; устройствата с включено синхронизиране на ресурси също ще го премахнат.</string>
@@ -1607,8 +1621,8 @@
   <string name="cloud_doc_summary_download_size">Изтегляне %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Автоматичните изтегляния ще започнат при Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Нищо за прехвърляне</string>
-  <string name="cloud_doc_bulk_download">Изтегли избраните (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Всички налични ресурси вече са изтеглени.</string>
+  <string name="cloud_doc_selected_count">%1$d избрани</string>
+  <string name="cloud_doc_bulk_skipped">Пропуснати %1$d неприложими</string>
   <string name="document_sync_notification_title">Синхронизиране на ресурси</string>
   <string name="document_sync_downloading">Изтегляне на %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Качване на %1$s (%2$d/%3$d)</string>

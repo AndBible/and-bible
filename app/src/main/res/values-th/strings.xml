@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">แสดงเลขบทและข้อ</string>
   <string name="prefs_e_ink_mode_title">โหมดขาวดำ</string>
   <string name="prefs_eink_mode_summary">ใช้แอปพลิเคชันในโหมดโมโนโครม (ไม่มีสี) เหมาะสำหรับอุปกรณ์ E-ink</string>
+  <string name="prefs_display_color_mode_title">โหมดสี</string>
+  <string name="prefs_display_color_mode_summary">เลือกวิธีการแสดงสี โหมดอีอิงค์สีจะคงพื้นฐานสีขาวดำแต่แสดงสีของที่คั่นหน้า ตัวบ่งชี้หน้าต่างที่ใช้งานอยู่ และเส้นช่วยเป็นสี — สำหรับหน้าจออีอิงค์สี</string>
+  <string name="prefs_display_color_mode_normal">ปกติ</string>
+  <string name="prefs_display_color_mode_bw">ขาวดำ</string>
+  <string name="prefs_display_color_mode_color_eink">อีอิงค์สี</string>
   <string name="prefs_eink_settings_cat">การตั้งค่า E-ink</string>
   <string name="prefs_eink_display_title">คุณสมบัติ E-ink</string>
   <string name="prefs_eink_display_summary">เปิดใช้งานคุณสมบัติเฉพาะ E-ink (ปุ่มเลื่อนหน้า เส้นช่วยการเลื่อน)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">ไม่แสดงการอ้างอิงพระคัมภีร์แบบกึ่งโปร่งแสงเมื่อแอปอยู่ในโหมดเต็มหน้าจอ</string>
   <string name="full_screen_hide_buttons_pref_title">ซ่อนแถบปุ่มหน้าต่างในโหมดเต็มหน้าจอ</string>
   <string name="full_screen_hide_buttons_pref_summary">เมื่อสลับไปยังโหมดเต็มหน้าจอ ซ่อนแถบปุ่มหน้าต่างที่ด้านล่างของหน้าจออัตโนมัติ</string>
+  <string name="prefs_hide_status_bar_title">ซ่อนแถบสถานะ</string>
+  <string name="prefs_hide_status_bar_summary">ซ่อนแถบสถานะของ Android (นาฬิกา การแจ้งเตือน) โดยยังคงแถบเครื่องมือของ AndBible เองไว้ให้เห็น มีประโยชน์สำหรับการอ่านแบบไม่มีสิ่งรบกวนและอุปกรณ์อีอิงค์ ปัดจากขอบบนเพื่อแสดงชั่วคราว</string>
   <string name="prefs_dictionaries_cat">พจนานุกรม</string>
   <string name="choose_strongs_greek_dictionary_title">พจนานุกรมภาษากรีก Strongs</string>
   <string name="choose_strongs_greek_dictionary_summary">เลือกพจนานุกรม Strongs สำหรับคำจำกัดความภาษากรีก</string>
@@ -1543,6 +1550,8 @@
   <string name="prefs_show_ai_doc_markers_summary">แสดงไอคอนเครื่องหมายสำหรับหน้าเอกสารที่ AI สร้างและเชื่อมโยงกับข้อพระคัมภีร์</string>
   <string name="prefs_show_ordinals_title">แสดงเลขลำดับ</string>
   <string name="prefs_show_ordinals_summary">แสดงเครื่องหมายตำแหน่งลำดับในข้อความ</string>
+  <string name="prefs_show_reading_progress_title">ความคืบหน้าการอ่าน</string>
+  <string name="prefs_show_reading_progress_summary">แสดงว่าคุณอ่านหนังสือไปถึงไหนแล้ว (เปอร์เซ็นต์ หน้า หรือบท)</string>
   <string name="prefs_page_scroll_amount_title">ปริมาณการเลื่อนหน้า</string>
   <string name="prefs_page_scroll_amount_summary">ปริมาณการเลื่อนหน้าด้วยปุ่มเลื่อนขึ้น/ลง</string>
   <string name="prefs_scroll_helper_lines_title">เส้นช่วยเลื่อน</string>
@@ -1574,12 +1583,15 @@
   <string name="cloud_doc_status_cloud_only">ในคลาวด์เท่านั้น</string>
   <string name="cloud_doc_status_update">มีการอัปเดต</string>
   <string name="cloud_doc_status_blocked">ถูกบล็อกบนอุปกรณ์นี้</string>
+  <string name="cloud_doc_status_wont_sync">จะไม่ซิงค์ไปยังคลาวด์</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">ทั้งหมด</string>
   <string name="cloud_doc_filter_installed">ติดตั้งแล้ว</string>
   <string name="cloud_doc_filter_cloud">ในคลาวด์</string>
   <string name="cloud_doc_filter_updates">การอัปเดต</string>
   <string name="cloud_doc_filter_blocked">ถูกบล็อก</string>
+  <string name="cloud_doc_filter_device_only">อยู่ในอุปกรณ์นี้เท่านั้น</string>
+  <string name="cloud_doc_filter_cloud_only">อยู่ในคลาวด์เท่านั้น</string>
   <string name="cloud_doc_filter_removed">ถูกลบแล้ว</string>
   <string name="cloud_doc_show_removed">แสดงเอกสารที่ถูกลบ</string>
   <string name="cloud_doc_status_removed">ลบออกจากคลาวด์แล้ว</string>
@@ -1592,6 +1604,8 @@
   <string name="cloud_doc_action_block">ไม่ซิงค์ไปยังอุปกรณ์นี้</string>
   <string name="cloud_doc_action_unblock">อนุญาตบนอุปกรณ์นี้</string>
   <string name="cloud_doc_action_restore">กู้คืนสู่คลาวด์</string>
+  <string name="cloud_doc_action_dont_sync">ไม่ซิงค์ไปยังคลาวด์</string>
+  <string name="cloud_doc_action_allow_sync">ซิงค์ไปยังคลาวด์</string>
   <string name="cloud_doc_action_purge">ลบออกจากประวัติคลาวด์</string>
   <string name="cloud_doc_remove_all_confirm">ลบ %1$s ออกจากคลาวด์และจากทุกอุปกรณ์ของคุณ รวมถึงอุปกรณ์นี้หรือไม่?</string>
   <string name="cloud_doc_remove_cloud_confirm">ลบ %1$s ออกจากคลาวด์หรือไม่? สำเนาบนอุปกรณ์นี้จะถูกเก็บไว้ อุปกรณ์ที่เปิดการซิงค์เอกสารจะลบออกด้วยเช่นกัน</string>
@@ -1607,8 +1621,8 @@
   <string name="cloud_doc_summary_download_size">ดาวน์โหลด %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">การดาวน์โหลดอัตโนมัติจะเริ่มเมื่อใช้ Wi-Fi</string>
   <string name="cloud_doc_sync_now_count_none">ไม่มีอะไรต้องถ่ายโอน</string>
-  <string name="cloud_doc_bulk_download">ดาวน์โหลดที่เลือก (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">ดาวน์โหลดเอกสารที่มีอยู่ทั้งหมดแล้ว</string>
+  <string name="cloud_doc_selected_count">เลือกแล้ว %1$d รายการ</string>
+  <string name="cloud_doc_bulk_skipped">ข้าม %1$d รายการที่ไม่เกี่ยวข้อง</string>
   <string name="document_sync_notification_title">กำลังซิงค์เอกสาร</string>
   <string name="document_sync_downloading">กำลังดาวน์โหลด %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">กำลังอัปโหลด %1$s (%2$d/%3$d)</string>

@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Wys hoofstuk &amp; vers nommers</string>
   <string name="prefs_e_ink_mode_title">Swart &amp; wit modus</string>
   <string name="prefs_eink_mode_summary">Gebruik die toep in monochroom-modus (geen kleure nie), wat dit meer geskik maak vir E-ink-toestelle.</string>
+  <string name="prefs_display_color_mode_title">Kleurmodus</string>
+  <string name="prefs_display_color_mode_summary">Kies hoe kleure vertoon word. Kleur e-ink behou \'n swart-en-wit basis, maar wys boekmerkkleure, die aktiewe-vensteraanduier en hulplyne in kleur — vir kleur e-ink skerms.</string>
+  <string name="prefs_display_color_mode_normal">Normaal</string>
+  <string name="prefs_display_color_mode_bw">Swart en wit</string>
+  <string name="prefs_display_color_mode_color_eink">Kleur e-ink</string>
   <string name="prefs_eink_settings_cat">E-ink instellings</string>
   <string name="prefs_eink_display_title">E-ink funksies</string>
   <string name="prefs_eink_display_summary">Aktiveer e-ink spesifieke funksies (bladerblaai-knoppies, blaai-hulpslyne)</string>
@@ -222,6 +227,8 @@ Woordafbreking</string>
   <string name="hide_bible_reference_overlay_summary">Moenie die semi-deursigtige Bybel verwysings oorleg wys wanneer toep in volskerm modus is nie</string>
   <string name="full_screen_hide_buttons_pref_title">Versteek venster knoppiebalk in volskerm</string>
   <string name="full_screen_hide_buttons_pref_summary">Wanneer na volskerm modus oorskakel, verberg outomaties die venster knoppiebalk wat aan die onderkant van die skerm is</string>
+  <string name="prefs_hide_status_bar_title">Verberg statusbalk</string>
+  <string name="prefs_hide_status_bar_summary">Verberg die Android-statusbalk (klok, kennisgewings) terwyl AndBible se eie nutsbalk sigbaar bly. Nuttig vir afleidingsvrye lees en e-ink toestelle. Swiep vanaf die boonste rand om dit tydelik te wys.</string>
   <string name="prefs_dictionaries_cat">Woordeboeke</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs Griekse woordeboek</string>
   <string name="choose_strongs_greek_dictionary_summary">Kies Strongs woordeboek vir Griekse woord definisies</string>
@@ -1664,6 +1671,8 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="prefs_show_ai_doc_markers_summary">Wys merkikoontjies vir KI-gegenereerde dokumentbladsye wat aan verse gekoppel is</string>
   <string name="prefs_show_ordinals_title">Wys rangtelwoorde</string>
   <string name="prefs_show_ordinals_summary">Wys rangtelwoordposisiemerkings in teks</string>
+  <string name="prefs_show_reading_progress_title">Leesvordering</string>
+  <string name="prefs_show_reading_progress_summary">Wys hoe ver jy in die boek is (persentasie, bladsy of hoofstuk)</string>
   <string name="prefs_page_scroll_amount_title">Bladsyrolhoeveelheid</string>
   <string name="prefs_page_scroll_amount_summary">Hoeveel van die bladsy om met bladsy op/af te rol</string>
   <string name="prefs_scroll_helper_lines_title">Rolhulplyne</string>
@@ -1695,12 +1704,15 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="cloud_doc_status_cloud_only">Slegs in die wolk</string>
   <string name="cloud_doc_status_update">Bywerking beskikbaar</string>
   <string name="cloud_doc_status_blocked">Geblokkeer op hierdie toestel</string>
+  <string name="cloud_doc_status_wont_sync">Sal nie na die wolk sinkroniseer nie</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Almal</string>
   <string name="cloud_doc_filter_installed">Geïnstalleer</string>
   <string name="cloud_doc_filter_cloud">In die wolk</string>
   <string name="cloud_doc_filter_updates">Bywerkings</string>
   <string name="cloud_doc_filter_blocked">Geblokkeer</string>
+  <string name="cloud_doc_filter_device_only">Slegs op hierdie toestel</string>
+  <string name="cloud_doc_filter_cloud_only">Slegs in die wolk</string>
   <string name="cloud_doc_filter_removed">Verwyder</string>
   <string name="cloud_doc_show_removed">Wys verwyderde dokumente</string>
   <string name="cloud_doc_status_removed">Verwyder uit die wolk</string>
@@ -1713,6 +1725,8 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="cloud_doc_action_block">Moenie na hierdie toestel sinkroniseer nie</string>
   <string name="cloud_doc_action_unblock">Laat toe op hierdie toestel</string>
   <string name="cloud_doc_action_restore">Herstel na die wolk</string>
+  <string name="cloud_doc_action_dont_sync">Moet nie na die wolk sinkroniseer nie</string>
+  <string name="cloud_doc_action_allow_sync">Sinkroniseer na die wolk</string>
   <string name="cloud_doc_action_purge">Verwyder uit wolkgeskiedenis</string>
   <string name="cloud_doc_remove_all_confirm">Verwyder %1$s uit die wolk en van al jou toestelle, insluitend hierdie een?</string>
   <string name="cloud_doc_remove_cloud_confirm">Verwyder %1$s uit die wolk? Die kopie op hierdie toestel word behou; toestelle met dokumentsinkronisering aan sal dit ook verwyder.</string>
@@ -1728,8 +1742,8 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="cloud_doc_summary_download_size">Laai %1$d af (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Outomatiese aflaaie sal op Wi-Fi begin.</string>
   <string name="cloud_doc_sync_now_count_none">Niks om oor te dra nie</string>
-  <string name="cloud_doc_bulk_download">Laai gekose af (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Alle beskikbare dokumente is reeds afgelaai.</string>
+  <string name="cloud_doc_selected_count">%1$d gekies</string>
+  <string name="cloud_doc_bulk_skipped">%1$d nie-toepaslike oorgeslaan</string>
   <string name="document_sync_notification_title">Sinkroniseer dokumente</string>
   <string name="document_sync_downloading">Laai %1$s af (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Laai %1$s op (%2$d/%3$d)</string>

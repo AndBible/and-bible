@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Rodyti skyrių &amp; eilučių numerius</string>
   <string name="prefs_e_ink_mode_title">Nespalvotasis režimas</string>
   <string name="prefs_eink_mode_summary">Naudoti programėlę nespalvotame režime (be spalvų), taip paverčiant ją labiau tinkama elektroninio popieriaus įrenginiams.</string>
+  <string name="prefs_display_color_mode_title">Spalvų režimas</string>
+  <string name="prefs_display_color_mode_summary">Pasirinkite, kaip rodomos spalvos. Spalvotas el. rašalas išlaiko juodai baltą pagrindą, tačiau rodo žymių spalvas, aktyvaus lango indikatorių ir pagalbines linijas spalvotai — skirta spalvotiems el. rašalo ekranams.</string>
+  <string name="prefs_display_color_mode_normal">Normalus</string>
+  <string name="prefs_display_color_mode_bw">Juoda ir balta</string>
+  <string name="prefs_display_color_mode_color_eink">Spalvotas el. rašalas</string>
   <string name="prefs_eink_settings_cat">El. rašalo nustatymai</string>
   <string name="prefs_eink_display_title">El. rašalo funkcijos</string>
   <string name="prefs_eink_display_summary">Įjungti el. rašalui skirtas funkcijas (puslapio slinkimo mygtukai, slinkimo pagalbinės linijos)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Nerodyti pusiau permatomo Biblijos nuorodų sluoksnio, kai programėlė yra atidaryta visame ekrane</string>
   <string name="full_screen_hide_buttons_pref_title">Viso ekrano režime slėpti lango mygtukų juostą</string>
   <string name="full_screen_hide_buttons_pref_summary">Perjungiant į viso ekrano režimą, automatiškai paslėpti ekrano apačioje esančią lango mygtukų juostą</string>
+  <string name="prefs_hide_status_bar_title">Slėpti būsenos juostą</string>
+  <string name="prefs_hide_status_bar_summary">Slėpti Android būsenos juostą (laikrodį, pranešimus), paliekant AndBible savo įrankių juostą matomą. Naudinga skaitymui netrukdant ir el. rašalo įrenginiams. Braukite nuo viršutinio krašto, kad laikinai ją parodytumėte.</string>
   <string name="prefs_dictionaries_cat">Žodynai</string>
   <string name="choose_strongs_greek_dictionary_title">Strongo graikų žodynas</string>
   <string name="choose_strongs_greek_dictionary_summary">Pasirinkite graikiškų žodžių apibrėžimų Strongo žodyną</string>
@@ -1696,6 +1703,8 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="prefs_show_ai_doc_markers_summary">Rodyti žymeklio piktogramas DI sugeneruotiems dokumentų puslapiams, susietiems su eilutėmis</string>
   <string name="prefs_show_ordinals_title">Rodyti eilės numerius</string>
   <string name="prefs_show_ordinals_summary">Rodyti eilės padėties žymeklius tekste</string>
+  <string name="prefs_show_reading_progress_title">Skaitymo eiga</string>
+  <string name="prefs_show_reading_progress_summary">Rodyti, kiek toli esate perskaitę knygą (procentais, puslapiais ar skyriais)</string>
   <string name="prefs_page_scroll_amount_title">Puslapio slinkties kiekis</string>
   <string name="prefs_page_scroll_amount_summary">Kiek puslapio slinkti spaudžiant puslapį aukštyn / žemyn</string>
   <string name="prefs_scroll_helper_lines_title">Slinkimo pagalbinės linijos</string>
@@ -1727,12 +1736,15 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="cloud_doc_status_cloud_only">Tik debesyje</string>
   <string name="cloud_doc_status_update">Galimas atnaujinimas</string>
   <string name="cloud_doc_status_blocked">Užblokuota šiame įrenginyje</string>
+  <string name="cloud_doc_status_wont_sync">Nebus sinchronizuota su debesiu</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Visi</string>
   <string name="cloud_doc_filter_installed">Įdiegti</string>
   <string name="cloud_doc_filter_cloud">Debesyje</string>
   <string name="cloud_doc_filter_updates">Atnaujinimai</string>
   <string name="cloud_doc_filter_blocked">Užblokuoti</string>
+  <string name="cloud_doc_filter_device_only">Tik šiame įrenginyje</string>
+  <string name="cloud_doc_filter_cloud_only">Tik debesyje</string>
   <string name="cloud_doc_filter_removed">Pašalinti</string>
   <string name="cloud_doc_show_removed">Rodyti pašalintus dokumentus</string>
   <string name="cloud_doc_status_removed">Pašalinta iš debesies</string>
@@ -1745,6 +1757,8 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="cloud_doc_action_block">Nesinchronizuoti į šį įrenginį</string>
   <string name="cloud_doc_action_unblock">Leisti šiame įrenginyje</string>
   <string name="cloud_doc_action_restore">Atkurti į debesį</string>
+  <string name="cloud_doc_action_dont_sync">Nesinchronizuoti su debesiu</string>
+  <string name="cloud_doc_action_allow_sync">Sinchronizuoti su debesiu</string>
   <string name="cloud_doc_action_purge">Pašalinti iš debesies istorijos</string>
   <string name="cloud_doc_remove_all_confirm">Pašalinti %1$s iš debesies ir iš visų jūsų įrenginių, įskaitant šį?</string>
   <string name="cloud_doc_remove_cloud_confirm">Pašalinti %1$s iš debesies? Kopija šiame įrenginyje išsaugoma; įrenginiai, kuriuose įjungtas dokumentų sinchronizavimas, taip pat ją pašalins.</string>
@@ -1760,8 +1774,8 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="cloud_doc_summary_download_size">Atsisiųsti %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatinis atsisiuntimas prasidės per Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Nėra ką perkelti</string>
-  <string name="cloud_doc_bulk_download">Atsisiųsti pažymėtus (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Visi galimi dokumentai jau atsisiųsti.</string>
+  <string name="cloud_doc_selected_count">Pasirinkta %1$d</string>
+  <string name="cloud_doc_bulk_skipped">Praleista %1$d netaikoma</string>
   <string name="document_sync_notification_title">Sinchronizuojami dokumentai</string>
   <string name="document_sync_downloading">Atsisiunčiama %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Įkeliama %1$s (%2$d/%3$d)</string>

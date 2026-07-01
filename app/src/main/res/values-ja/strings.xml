@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">章と節の番号を表示します</string>
   <string name="prefs_e_ink_mode_title">白黒モード</string>
   <string name="prefs_eink_mode_summary">モノクロモード（色なし）でアプリを使用します。電子インクデバイスに適しています。</string>
+  <string name="prefs_display_color_mode_title">カラーモード</string>
+  <string name="prefs_display_color_mode_summary">色の表示方法を選択します。カラーE-Inkは白黒をベースにしつつ、ブックマークの色、アクティブウィンドウの表示、補助線をカラーで表示します — カラーE-Ink画面向けです。</string>
+  <string name="prefs_display_color_mode_normal">通常</string>
+  <string name="prefs_display_color_mode_bw">白黒</string>
+  <string name="prefs_display_color_mode_color_eink">カラーE-Ink</string>
   <string name="prefs_eink_settings_cat">電子インク設定</string>
   <string name="prefs_eink_display_title">電子インク機能</string>
   <string name="prefs_eink_display_summary">電子インク専用機能を有効にします（ページスクロールボタン、スクロール補助線）</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">アプリがフルスクリーンモードのとき、半透明の聖書参照オーバーレイを表示しません</string>
   <string name="full_screen_hide_buttons_pref_title">フルスクリーン時にウィンドウボタンバーを非表示</string>
   <string name="full_screen_hide_buttons_pref_summary">フルスクリーンモードに切り替えると、画面下部のウィンドウボタンバーを自動的に非表示にします</string>
+  <string name="prefs_hide_status_bar_title">ステータスバーを隠す</string>
+  <string name="prefs_hide_status_bar_summary">AndBible自体のツールバーは表示したまま、Androidのステータスバー（時計、通知）を隠します。集中して読書したい場合やE-Inkデバイスに便利です。上端からスワイプすると一時的に表示できます。</string>
   <string name="prefs_dictionaries_cat">辞書</string>
   <string name="choose_strongs_greek_dictionary_title">ストロングスギリシャ語辞書</string>
   <string name="choose_strongs_greek_dictionary_summary">ギリシャ語の語義用ストロングス辞書を選択します</string>
@@ -1543,6 +1550,8 @@
   <string name="prefs_show_ai_doc_markers_summary">節にリンクされたAI生成ドキュメントページのマーカーアイコンを表示します</string>
   <string name="prefs_show_ordinals_title">序数を表示</string>
   <string name="prefs_show_ordinals_summary">テキスト内の序数位置マーカーを表示します</string>
+  <string name="prefs_show_reading_progress_title">読書の進捗</string>
+  <string name="prefs_show_reading_progress_summary">読んでいる本の進み具合を表示します（割合、ページ、または章）</string>
   <string name="prefs_page_scroll_amount_title">ページスクロール量</string>
   <string name="prefs_page_scroll_amount_summary">ページアップ/ダウン時のスクロール量</string>
   <string name="prefs_scroll_helper_lines_title">スクロールヘルパーライン</string>
@@ -1574,12 +1583,15 @@
   <string name="cloud_doc_status_cloud_only">クラウドのみ</string>
   <string name="cloud_doc_status_update">更新あり</string>
   <string name="cloud_doc_status_blocked">このデバイスでブロック中</string>
+  <string name="cloud_doc_status_wont_sync">クラウドに同期しません</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">すべて</string>
   <string name="cloud_doc_filter_installed">インストール済み</string>
   <string name="cloud_doc_filter_cloud">クラウド内</string>
   <string name="cloud_doc_filter_updates">更新</string>
   <string name="cloud_doc_filter_blocked">ブロック中</string>
+  <string name="cloud_doc_filter_device_only">この端末のみ</string>
+  <string name="cloud_doc_filter_cloud_only">クラウドのみ</string>
   <string name="cloud_doc_filter_removed">削除済み</string>
   <string name="cloud_doc_show_removed">削除済みドキュメントを表示</string>
   <string name="cloud_doc_status_removed">クラウドから削除済み</string>
@@ -1592,6 +1604,8 @@
   <string name="cloud_doc_action_block">このデバイスへ同期しない</string>
   <string name="cloud_doc_action_unblock">このデバイスで許可</string>
   <string name="cloud_doc_action_restore">クラウドへ復元</string>
+  <string name="cloud_doc_action_dont_sync">クラウドに同期しない</string>
+  <string name="cloud_doc_action_allow_sync">クラウドに同期する</string>
   <string name="cloud_doc_action_purge">クラウド履歴から削除</string>
   <string name="cloud_doc_remove_all_confirm">%1$s をクラウドおよびこのデバイスを含むすべてのデバイスから削除しますか？</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s をクラウドから削除しますか？このデバイス上のコピーは保持されます。ドキュメント同期が有効なデバイスでも削除されます。</string>
@@ -1607,8 +1621,8 @@
   <string name="cloud_doc_summary_download_size">ダウンロード %1$d件 (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">自動ダウンロードはWi-Fi接続時に開始されます。</string>
   <string name="cloud_doc_sync_now_count_none">転送するものはありません</string>
-  <string name="cloud_doc_bulk_download">選択した項目をダウンロード (%1$d件)</string>
-  <string name="cloud_doc_nothing_to_download">利用可能なドキュメントはすべてダウンロード済みです。</string>
+  <string name="cloud_doc_selected_count">%1$d件選択中</string>
+  <string name="cloud_doc_bulk_skipped">対象外のため%1$d件をスキップしました</string>
   <string name="document_sync_notification_title">ドキュメントを同期中</string>
   <string name="document_sync_downloading">%1$s をダウンロード中 (%2$d/%3$d)</string>
   <string name="document_sync_uploading">%1$s をアップロード中 (%2$d/%3$d)</string>

@@ -73,6 +73,9 @@ markedAsMemorized: कण्ठस्थ गरियो
 removeFromTargets: लक्ष्य -
 viewReadingProgress: पठन/कण्ठस्थ प्रगति
 viewReadingProgressSettings: पठन/कण्ठस्थ सेटिङहरू
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · अ. %s/%s"
 listenInLoop: लूपमा सुन्नुहोस्
 viewHelp: सहायता हेर्नुहोस्
 verseNoteLong: टिप्पणी लेख्नुहोस्

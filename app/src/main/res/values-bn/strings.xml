@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">দেখান অধ্যায় &amp; পদ সংখ্যা্গুলি</string>
   <string name="prefs_e_ink_mode_title">কালো &amp; সাদা মোড</string>
   <string name="prefs_eink_mode_summary">একরঙা মোডে অ্যাপ্লিকেশন ব্যবহার করুন (কোনও রঙ নেই), এটি ই-কালি ডিভাইসের জন্য আরও উপযুক্ত করে তোলে।</string>
+  <string name="prefs_display_color_mode_title">রঙের মোড</string>
+  <string name="prefs_display_color_mode_summary">রঙ কীভাবে প্রদর্শিত হবে তা নির্বাচন করুন। কালার ই-ইঙ্ক একটি সাদা-কালো ভিত্তি বজায় রাখে কিন্তু বুকমার্কের রঙ, সক্রিয়-উইন্ডো নির্দেশক এবং সহায়ক রেখা রঙে দেখায় — কালার ই-ইঙ্ক স্ক্রিনের জন্য।</string>
+  <string name="prefs_display_color_mode_normal">স্বাভাবিক</string>
+  <string name="prefs_display_color_mode_bw">সাদা-কালো</string>
+  <string name="prefs_display_color_mode_color_eink">কালার ই-ইঙ্ক</string>
   <string name="prefs_eink_settings_cat">ই-ইঙ্ক সেটিংস</string>
   <string name="prefs_eink_display_title">ই-ইঙ্ক বৈশিষ্ট্য</string>
   <string name="prefs_eink_display_summary">ই-ইঙ্ক নির্দিষ্ট বৈশিষ্ট্য সক্ষম করুন (পৃষ্ঠা স্ক্রোল বোতাম, স্ক্রোল সহায়ক রেখা)</string>
@@ -222,6 +227,8 @@
   <string name="hide_bible_reference_overlay_summary">অ্যাপ পূর্ণস্ক্রীন মোডে থাকা অবস্থায় আধা-স্বচ্ছ বাইবেল রেফারেন্স আচ্ছাদনে দেখাবেন না</string>
   <string name="full_screen_hide_buttons_pref_title">পূর্ণ স্ক্রিনে উইন্ডো বোতাম বারটি লুকান</string>
   <string name="full_screen_hide_buttons_pref_summary">ফুলস্ক্রিন মোডে স্যুইচ করার সময়, স্ক্রিনের নীচে থাকা উইন্ডো বোতাম বারটি স্বয়ংক্রিয়ভাবে লুকান</string>
+  <string name="prefs_hide_status_bar_title">স্ট্যাটাস বার লুকান</string>
+  <string name="prefs_hide_status_bar_summary">এ্যন্ড বাইবেলের নিজস্ব টুলবার দৃশ্যমান রেখে অ্যান্ড্রয়েডের স্ট্যাটাস বার (ঘড়ি, বিজ্ঞপ্তি) লুকান। বিভ্রান্তিমুক্ত পঠন এবং ই-ইঙ্ক ডিভাইসের জন্য উপযোগী। এটি সাময়িকভাবে দেখাতে উপরের প্রান্ত থেকে সোয়াইপ করুন।</string>
   <string name="prefs_dictionaries_cat">অভিধান</string>
   <string name="choose_strongs_greek_dictionary_title">শক্তিশালী গ্রীক অভিধান</string>
   <string name="choose_strongs_greek_dictionary_summary">গ্রীক শব্দ সংজ্ঞার জন্য শক্তিশালী অভিধান চয়ন করুন</string>
@@ -1656,6 +1663,8 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="prefs_show_ai_doc_markers_summary">পদের সাথে সংযুক্ত AI-উৎপন্ন নথির পৃষ্ঠার মার্কার আইকন দেখান</string>
   <string name="prefs_show_ordinals_title">ক্রমিক সংখ্যা দেখান</string>
   <string name="prefs_show_ordinals_summary">টেক্সটে ক্রমিক অবস্থান মার্কার দেখান</string>
+  <string name="prefs_show_reading_progress_title">পঠন অগ্রগতি</string>
+  <string name="prefs_show_reading_progress_summary">আপনি বইয়ের কতদূর পড়েছেন তা দেখান (শতাংশ, পৃষ্ঠা বা অধ্যায়)</string>
   <string name="prefs_page_scroll_amount_title">পৃষ্ঠা স্ক্রোলের পরিমাণ</string>
   <string name="prefs_page_scroll_amount_summary">পেজ আপ/ডাউনে কতটুকু স্ক্রোল হবে</string>
   <string name="prefs_scroll_helper_lines_title">স্ক্রোল সহায়ক রেখা</string>
@@ -1687,12 +1696,15 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="cloud_doc_status_cloud_only">শুধুমাত্র ক্লাউডে</string>
   <string name="cloud_doc_status_update">আপডেট উপলব্ধ</string>
   <string name="cloud_doc_status_blocked">এই ডিভাইসে অবরুদ্ধ</string>
+  <string name="cloud_doc_status_wont_sync">ক্লাউডে সিঙ্ক হবে না</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">সব</string>
   <string name="cloud_doc_filter_installed">ইনস্টল করা</string>
   <string name="cloud_doc_filter_cloud">ক্লাউডে</string>
   <string name="cloud_doc_filter_updates">আপডেট</string>
   <string name="cloud_doc_filter_blocked">অবরুদ্ধ</string>
+  <string name="cloud_doc_filter_device_only">শুধুমাত্র এই ডিভাইসে</string>
+  <string name="cloud_doc_filter_cloud_only">শুধুমাত্র ক্লাউডে</string>
   <string name="cloud_doc_filter_removed">অপসারিত</string>
   <string name="cloud_doc_show_removed">অপসারিত নথিপত্র দেখান</string>
   <string name="cloud_doc_status_removed">ক্লাউড থেকে অপসারিত</string>
@@ -1705,6 +1717,8 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="cloud_doc_action_block">এই ডিভাইসে সিঙ্ক করবেন না</string>
   <string name="cloud_doc_action_unblock">এই ডিভাইসে অনুমতি দিন</string>
   <string name="cloud_doc_action_restore">ক্লাউডে পুনরুদ্ধার করুন</string>
+  <string name="cloud_doc_action_dont_sync">ক্লাউডে সিঙ্ক করবেন না</string>
+  <string name="cloud_doc_action_allow_sync">ক্লাউডে সিঙ্ক করুন</string>
   <string name="cloud_doc_action_purge">ক্লাউড ইতিহাস থেকে অপসারণ করুন</string>
   <string name="cloud_doc_remove_all_confirm">এই ডিভাইস সহ ক্লাউড এবং আপনার সব ডিভাইস থেকে %1$s অপসারণ করবেন?</string>
   <string name="cloud_doc_remove_cloud_confirm">ক্লাউড থেকে %1$s অপসারণ করবেন? এই ডিভাইসের কপিটি রাখা হবে; নথিপত্র সিঙ্ক চালু থাকা ডিভাইসগুলিও এটি অপসারণ করবে।</string>
@@ -1720,8 +1734,8 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="cloud_doc_summary_download_size">ডাউনলোড %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Wi-Fi-তে স্বয়ংক্রিয় ডাউনলোড শুরু হবে।</string>
   <string name="cloud_doc_sync_now_count_none">স্থানান্তর করার কিছু নেই</string>
-  <string name="cloud_doc_bulk_download">নির্বাচিত ডাউনলোড করুন (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">উপলব্ধ সব নথিপত্র ইতিমধ্যে ডাউনলোড করা হয়েছে।</string>
+  <string name="cloud_doc_selected_count">%1$d নির্বাচিত</string>
+  <string name="cloud_doc_bulk_skipped">%1$d প্রাসঙ্গিক নয় বলে এড়িয়ে যাওয়া হয়েছে</string>
   <string name="document_sync_notification_title">নথিপত্র সিঙ্ক করা হচ্ছে</string>
   <string name="document_sync_downloading">%1$s ডাউনলোড করা হচ্ছে (%2$d/%3$d)</string>
   <string name="document_sync_uploading">%1$s আপলোড করা হচ্ছে (%2$d/%3$d)</string>

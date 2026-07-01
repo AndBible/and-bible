@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Näytä luku- ja jaenumerot</string>
   <string name="prefs_e_ink_mode_title">Mustavalkoinen tila</string>
   <string name="prefs_eink_mode_summary">Käytä sovellusta kaksivärisessä tilassa, joka soveltuu paremmin E-ink-näytöllä varustettuihin laitteisiin.</string>
+  <string name="prefs_display_color_mode_title">Värien tila</string>
+  <string name="prefs_display_color_mode_summary">Valitse, miten värit näytetään. Värillinen e-ink-tila pitää mustavalkoisen perustan, mutta näyttää kirjanmerkkien värit, aktiivisen ikkunan merkin ja apuviivat värillisinä — värillisille e-ink-näytöille.</string>
+  <string name="prefs_display_color_mode_normal">Normaali</string>
+  <string name="prefs_display_color_mode_bw">Mustavalkoinen</string>
+  <string name="prefs_display_color_mode_color_eink">Värillinen e-ink</string>
   <string name="prefs_eink_settings_cat">E-ink-asetukset</string>
   <string name="prefs_eink_display_title">E-ink-ominaisuudet</string>
   <string name="prefs_eink_display_summary">Ota käyttöön e-ink-erityisominaisuudet (sivunvaihtopainikkeet, vierityksen apuviivat)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Älä näytä puoliksi läpinäkyvää raamattuviitteen näyttöä kun sovellus on kokoruudun tilassa</string>
   <string name="full_screen_hide_buttons_pref_title">Piilota ikkunoiden painikepaneeli kokoruututilassa</string>
   <string name="full_screen_hide_buttons_pref_summary">Kun vaihdat kokoruututilaan, piilota automaattisesti ikkunoiden painikepaneeli, joka sijaitsee ruudun alalaidassa.</string>
+  <string name="prefs_hide_status_bar_title">Piilota tilarivi</string>
+  <string name="prefs_hide_status_bar_summary">Piilota Androidin tilarivi (kello, ilmoitukset) säilyttäen AndBiblen oman työkalurivin näkyvissä. Hyödyllinen häiriöttömään lukemiseen ja e-ink-laitteille. Pyyhkäise yläreunasta näyttääksesi sen tilapäisesti.</string>
   <string name="prefs_dictionaries_cat">Sanakirjat</string>
   <string name="choose_strongs_greek_dictionary_title">Strongin Kreikan sanakirja</string>
   <string name="choose_strongs_greek_dictionary_summary">Valitse Strongin sanakirja Kreikankielisten sanojen selityksille</string>
@@ -1599,6 +1606,8 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="prefs_show_ai_doc_markers_summary">Näytä merkkikuvakkeet tekoälyn luomille dokumenttisivuille jotka on linkitetty jakeisiin</string>
   <string name="prefs_show_ordinals_title">Näytä järjestysnumerot</string>
   <string name="prefs_show_ordinals_summary">Näytä järjestysnumeroiden merkit tekstissä</string>
+  <string name="prefs_show_reading_progress_title">Lukemisen edistyminen</string>
+  <string name="prefs_show_reading_progress_summary">Näytä, kuinka pitkällä kirjassa olet (prosentti, sivu tai luku)</string>
   <string name="prefs_page_scroll_amount_title">Sivun vierityksen määrä</string>
   <string name="prefs_page_scroll_amount_summary">Kuinka paljon sivua vieritetään sivunvaihdolla</string>
   <string name="prefs_scroll_helper_lines_title">Vierityksen apuviivat</string>
@@ -1630,12 +1639,15 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="cloud_doc_status_cloud_only">Vain pilvessä</string>
   <string name="cloud_doc_status_update">Päivitys saatavilla</string>
   <string name="cloud_doc_status_blocked">Estetty tällä laitteella</string>
+  <string name="cloud_doc_status_wont_sync">Ei synkronoida pilveen</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Kaikki</string>
   <string name="cloud_doc_filter_installed">Asennetut</string>
   <string name="cloud_doc_filter_cloud">Pilvessä</string>
   <string name="cloud_doc_filter_updates">Päivitykset</string>
   <string name="cloud_doc_filter_blocked">Estetyt</string>
+  <string name="cloud_doc_filter_device_only">Vain tällä laitteella</string>
+  <string name="cloud_doc_filter_cloud_only">Vain pilvessä</string>
   <string name="cloud_doc_filter_removed">Poistetut</string>
   <string name="cloud_doc_show_removed">Näytä poistetut dokumentit</string>
   <string name="cloud_doc_status_removed">Poistettu pilvestä</string>
@@ -1648,6 +1660,8 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="cloud_doc_action_block">Älä synkronoi tähän laitteeseen</string>
   <string name="cloud_doc_action_unblock">Salli tällä laitteella</string>
   <string name="cloud_doc_action_restore">Palauta pilveen</string>
+  <string name="cloud_doc_action_dont_sync">Älä synkronoi pilveen</string>
+  <string name="cloud_doc_action_allow_sync">Synkronoi pilveen</string>
   <string name="cloud_doc_action_purge">Poista pilvihistoriasta</string>
   <string name="cloud_doc_remove_all_confirm">Poistetaanko %1$s pilvestä ja kaikilta laitteiltasi, mukaan lukien tämä laite?</string>
   <string name="cloud_doc_remove_cloud_confirm">Poistetaanko %1$s pilvestä? Tämän laitteen kopio säilytetään; laitteet, joissa dokumenttien synkronointi on käytössä, poistavat sen myös.</string>
@@ -1663,8 +1677,8 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="cloud_doc_summary_download_size">Lataa %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automaattiset lataukset alkavat Wi-Fi-yhteydellä.</string>
   <string name="cloud_doc_sync_now_count_none">Ei siirrettävää</string>
-  <string name="cloud_doc_bulk_download">Lataa valitut (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Kaikki saatavilla olevat dokumentit on jo ladattu.</string>
+  <string name="cloud_doc_selected_count">%1$d valittu</string>
+  <string name="cloud_doc_bulk_skipped">Ohitettiin %1$d, ei koske niitä</string>
   <string name="document_sync_notification_title">Synkronoidaan dokumentteja</string>
   <string name="document_sync_downloading">Ladataan %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Lähetetään %1$s (%2$d/%3$d)</string>

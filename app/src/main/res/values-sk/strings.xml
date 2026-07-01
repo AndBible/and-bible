@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Zobraziť kapitolu a číslo verša</string>
   <string name="prefs_e_ink_mode_title">Čierno-biely režim</string>
   <string name="prefs_eink_mode_summary">Používať aplikáciu v monochromatickom režime (bez farieb), vďaka čomu je vhodnejšia pre zariadenia s elektronickým atramentom. </string>
+  <string name="prefs_display_color_mode_title">Farebný režim</string>
+  <string name="prefs_display_color_mode_summary">Vyberte, ako sa zobrazujú farby. Farebný e-ink zachováva čiernobiely základ, ale zobrazuje farby záložiek, indikátor aktívneho okna a pomocné čiary vo farbe — pre farebné e-ink obrazovky.</string>
+  <string name="prefs_display_color_mode_normal">Normálny</string>
+  <string name="prefs_display_color_mode_bw">Čiernobiely</string>
+  <string name="prefs_display_color_mode_color_eink">Farebný e-ink</string>
   <string name="prefs_eink_settings_cat">Nastavenia e-ink</string>
   <string name="prefs_eink_display_title">Funkcie e-ink</string>
   <string name="prefs_eink_display_summary">Povoliť funkcie pre e-ink (tlačidlá posúvania stránok, pomocné čiary)</string>
@@ -222,6 +227,8 @@
   <string name="hide_bible_reference_overlay_summary">Nezobrazovať polo-transparentné okno s Biblickými referencia pri celo-obrazovkovom režime aplikácie</string>
   <string name="full_screen_hide_buttons_pref_title">Skryť panel tlačidiel pri celoobrázkovom režime</string>
   <string name="full_screen_hide_buttons_pref_summary">Pri prepínaní do režimu celej obrazovky automaticky skryť panel s tlačidlami v spodnej časti obrazovky </string>
+  <string name="prefs_hide_status_bar_title">Skryť stavový riadok</string>
+  <string name="prefs_hide_status_bar_summary">Skryje stavový riadok Androidu (hodiny, upozornenia) a zachová vlastný panel nástrojov AndBible. Užitočné pre čítanie bez rušenia a pre e-ink zariadenia. Potiahnutím od horného okraja ho môžete dočasne zobraziť.</string>
   <string name="prefs_dictionaries_cat">Slovníky</string>
   <string name="choose_strongs_greek_dictionary_title">Strongov grécky slovník </string>
   <string name="choose_strongs_greek_dictionary_summary">Vyberte Strongov slovník pre definície gréckych slov</string>
@@ -1704,6 +1711,8 @@ Režim opakovania bol vypnutý, pretože
   <string name="prefs_show_ai_doc_markers_summary">Zobraziť ikony značiek pre stránky dokumentov generovaných AI prepojených s veršami</string>
   <string name="prefs_show_ordinals_title">Zobraziť poradové čísla</string>
   <string name="prefs_show_ordinals_summary">Zobraziť značky poradovej pozície v texte</string>
+  <string name="prefs_show_reading_progress_title">Pokrok v čítaní</string>
+  <string name="prefs_show_reading_progress_summary">Zobrazí, ako ďaleko ste v knihe (percento, strana alebo kapitola)</string>
   <string name="prefs_page_scroll_amount_title">Množstvo posúvania stránky</string>
   <string name="prefs_page_scroll_amount_summary">Koľko stránky sa posunie pri posúvaní nahor/nadol</string>
   <string name="prefs_scroll_helper_lines_title">Pomocné čiary posúvania</string>
@@ -1735,12 +1744,15 @@ Režim opakovania bol vypnutý, pretože
   <string name="cloud_doc_status_cloud_only">Len v cloude</string>
   <string name="cloud_doc_status_update">Dostupná aktualizácia</string>
   <string name="cloud_doc_status_blocked">Blokované na tomto zariadení</string>
+  <string name="cloud_doc_status_wont_sync">Nebude synchronizované do cloudu</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Všetky</string>
   <string name="cloud_doc_filter_installed">Nainštalované</string>
   <string name="cloud_doc_filter_cloud">V cloude</string>
   <string name="cloud_doc_filter_updates">Aktualizácie</string>
   <string name="cloud_doc_filter_blocked">Blokované</string>
+  <string name="cloud_doc_filter_device_only">Len na tomto zariadení</string>
+  <string name="cloud_doc_filter_cloud_only">Len v cloude</string>
   <string name="cloud_doc_filter_removed">Odstránené</string>
   <string name="cloud_doc_show_removed">Zobraziť odstránené dokumenty</string>
   <string name="cloud_doc_status_removed">Odstránené z cloudu</string>
@@ -1753,6 +1765,8 @@ Režim opakovania bol vypnutý, pretože
   <string name="cloud_doc_action_block">Nesynchronizovať na toto zariadenie</string>
   <string name="cloud_doc_action_unblock">Povoliť na tomto zariadení</string>
   <string name="cloud_doc_action_restore">Obnoviť do cloudu</string>
+  <string name="cloud_doc_action_dont_sync">Nesynchronizovať do cloudu</string>
+  <string name="cloud_doc_action_allow_sync">Synchronizovať do cloudu</string>
   <string name="cloud_doc_action_purge">Odstrániť z histórie cloudu</string>
   <string name="cloud_doc_remove_all_confirm">Odstrániť %1$s z cloudu a zo všetkých vašich zariadení, vrátane tohto?</string>
   <string name="cloud_doc_remove_cloud_confirm">Odstrániť %1$s z cloudu? Kópia na tomto zariadení sa zachová; zariadenia so zapnutou synchronizáciou dokumentov ho tiež odstránia.</string>
@@ -1768,8 +1782,8 @@ Režim opakovania bol vypnutý, pretože
   <string name="cloud_doc_summary_download_size">Stiahnuť %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatické sťahovanie sa spustí cez Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Nič na prenos</string>
-  <string name="cloud_doc_bulk_download">Stiahnuť vybrané (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Všetky dostupné dokumenty sú už stiahnuté.</string>
+  <string name="cloud_doc_selected_count">%1$d vybraných</string>
+  <string name="cloud_doc_bulk_skipped">Preskočené %1$d neuplatniteľných</string>
   <string name="document_sync_notification_title">Synchronizujú sa dokumenty</string>
   <string name="document_sync_downloading">Sťahuje sa %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Nahráva sa %1$s (%2$d/%3$d)</string>

@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Wyświetl numery wersetów i rozdziałów</string>
   <string name="prefs_e_ink_mode_title">Tryb czarno-biały</string>
   <string name="prefs_eink_mode_summary">Wyświetl aplikację bez użycia kolorów w celu lepszego dostosowania do czytników e-książek (E Ink).</string>
+  <string name="prefs_display_color_mode_title">Tryb kolorów</string>
+  <string name="prefs_display_color_mode_summary">Wybierz sposób wyświetlania kolorów. Kolorowy e-ink zachowuje czarno-białą bazę, ale wyświetla kolory zakładek, wskaźnik aktywnego okna i linie pomocnicze w kolorze — dla kolorowych ekranów e-ink.</string>
+  <string name="prefs_display_color_mode_normal">Normalny</string>
+  <string name="prefs_display_color_mode_bw">Czarno-biały</string>
+  <string name="prefs_display_color_mode_color_eink">Kolorowy e-ink</string>
   <string name="prefs_eink_settings_cat">Ustawienia e-ink</string>
   <string name="prefs_eink_display_title">Funkcje e-ink</string>
   <string name="prefs_eink_display_summary">Włącz funkcje specyficzne dla e-ink (przyciski przewijania strony, linie pomocnicze przewijania)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Nie wyświetlaj półprzezroczystej warstwy odsyłaczy biblijnych kiedy aplikacja działa w trybie pełnoekranowym</string>
   <string name="full_screen_hide_buttons_pref_title">Ukryj pasek okna przy pełnym ekranie</string>
   <string name="full_screen_hide_buttons_pref_summary">Po przełączeniu w trym pełnego ekranu, automatycznie ukrywaj pasek przycisków okna na dole ekranu</string>
+  <string name="prefs_hide_status_bar_title">Ukryj pasek stanu</string>
+  <string name="prefs_hide_status_bar_summary">Ukryj pasek stanu Androida (zegar, powiadomienia), zachowując widoczny własny pasek narzędzi AndBible. Przydatne do czytania bez rozpraszania uwagi i na urządzeniach e-ink. Przesuń od górnej krawędzi, aby tymczasowo go wyświetlić.</string>
   <string name="prefs_dictionaries_cat">Słowniki</string>
   <string name="choose_strongs_greek_dictionary_title">Grecki słownik Stronga</string>
   <string name="choose_strongs_greek_dictionary_summary">Wybierz słownik Stronga dla definicji słów w grece</string>
@@ -1608,6 +1615,8 @@ Nie wyświetlaj tego ponownie</string>
   <string name="prefs_show_ai_doc_markers_summary">Pokaż ikony znaczników dla stron dokumentów generowanych przez AI powiązanych z wersetami</string>
   <string name="prefs_show_ordinals_title">Pokaż numery porządkowe</string>
   <string name="prefs_show_ordinals_summary">Pokaż znaczniki pozycji porządkowej w tekście</string>
+  <string name="prefs_show_reading_progress_title">Postęp czytania</string>
+  <string name="prefs_show_reading_progress_summary">Pokazuje, jak daleko jesteś w książce (procent, strona lub rozdział)</string>
   <string name="prefs_page_scroll_amount_title">Ilość przewijania strony</string>
   <string name="prefs_page_scroll_amount_summary">Jak dużą część strony przewijać przy użyciu przycisków strony w górę/dół</string>
   <string name="prefs_scroll_helper_lines_title">Linie pomocnicze przewijania</string>
@@ -1639,12 +1648,15 @@ Nie wyświetlaj tego ponownie</string>
   <string name="cloud_doc_status_cloud_only">Tylko w chmurze</string>
   <string name="cloud_doc_status_update">Dostępna aktualizacja</string>
   <string name="cloud_doc_status_blocked">Zablokowano na tym urządzeniu</string>
+  <string name="cloud_doc_status_wont_sync">Nie będzie synchronizowany z chmurą</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Wszystkie</string>
   <string name="cloud_doc_filter_installed">Zainstalowane</string>
   <string name="cloud_doc_filter_cloud">W chmurze</string>
   <string name="cloud_doc_filter_updates">Aktualizacje</string>
   <string name="cloud_doc_filter_blocked">Zablokowane</string>
+  <string name="cloud_doc_filter_device_only">Tylko na tym urządzeniu</string>
+  <string name="cloud_doc_filter_cloud_only">Tylko w chmurze</string>
   <string name="cloud_doc_filter_removed">Usunięte</string>
   <string name="cloud_doc_show_removed">Pokaż usunięte dokumenty</string>
   <string name="cloud_doc_status_removed">Usunięto z chmury</string>
@@ -1657,6 +1669,8 @@ Nie wyświetlaj tego ponownie</string>
   <string name="cloud_doc_action_block">Nie synchronizuj na tym urządzeniu</string>
   <string name="cloud_doc_action_unblock">Zezwól na tym urządzeniu</string>
   <string name="cloud_doc_action_restore">Przywróć do chmury</string>
+  <string name="cloud_doc_action_dont_sync">Nie synchronizuj z chmurą</string>
+  <string name="cloud_doc_action_allow_sync">Synchronizuj z chmurą</string>
   <string name="cloud_doc_action_purge">Usuń z historii chmury</string>
   <string name="cloud_doc_remove_all_confirm">Usunąć %1$s z chmury i ze wszystkich urządzeń, w tym z tego?</string>
   <string name="cloud_doc_remove_cloud_confirm">Usunąć %1$s z chmury? Kopia na tym urządzeniu zostanie zachowana; urządzenia z włączoną synchronizacją dokumentów również ją usuną.</string>
@@ -1672,8 +1686,8 @@ Nie wyświetlaj tego ponownie</string>
   <string name="cloud_doc_summary_download_size">Pobierz %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatyczne pobieranie rozpocznie się po połączeniu z Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Nic do przesłania</string>
-  <string name="cloud_doc_bulk_download">Pobierz wybrane (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Wszystkie dostępne dokumenty są już pobrane.</string>
+  <string name="cloud_doc_selected_count">Wybrano: %1$d</string>
+  <string name="cloud_doc_bulk_skipped">Pominięto %1$d nieodpowiednich</string>
   <string name="document_sync_notification_title">Synchronizowanie dokumentów</string>
   <string name="document_sync_downloading">Pobieranie %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Wysyłanie %1$s (%2$d/%3$d)</string>

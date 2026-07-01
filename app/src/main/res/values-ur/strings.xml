@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">باب اور آیت نمبر دکھائیں</string>
   <string name="prefs_e_ink_mode_title">سیاہ اور سفید موڈ</string>
   <string name="prefs_eink_mode_summary">ایپ کو یک رنگی موڈ (بغیر رنگ) میں استعمال کریں، جو ای-انک ڈیوائسز کے لیے موزوں ہے۔</string>
+  <string name="prefs_display_color_mode_title">رنگ موڈ</string>
+  <string name="prefs_display_color_mode_summary">رنگ کیسے ظاہر کیے جائیں منتخب کریں۔ کلر ای-انک سیاہ و سفید بنیاد رکھتا ہے مگر بک مارک رنگ، فعال ونڈو اشارہ اور معاون لائنیں رنگ میں دکھاتا ہے — رنگین ای-انک اسکرینوں کے لیے۔</string>
+  <string name="prefs_display_color_mode_normal">عام</string>
+  <string name="prefs_display_color_mode_bw">سیاہ و سفید</string>
+  <string name="prefs_display_color_mode_color_eink">کلر ای-انک</string>
   <string name="prefs_eink_settings_cat">ای-انک ترتیبات</string>
   <string name="prefs_eink_display_title">ای-انک خصوصیات</string>
   <string name="prefs_eink_display_summary">ای-انک مخصوص خصوصیات فعال کریں (صفحہ اسکرول بٹن، اسکرول معاون لائنیں)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">جب ایپ فل اسکرین موڈ میں ہو تو نیم شفاف بائبل حوالہ اوورلے نہ دکھائیں</string>
   <string name="full_screen_hide_buttons_pref_title">فل اسکرین میں ونڈو بٹن بار چھپائیں</string>
   <string name="full_screen_hide_buttons_pref_summary">فل اسکرین موڈ پر سوئچ کرتے وقت، اسکرین کے نیچے موجود ونڈو بٹن بار خودبخود چھپائیں</string>
+  <string name="prefs_hide_status_bar_title">سٹیٹس بار چھپائیں</string>
+  <string name="prefs_hide_status_bar_summary">Android سٹیٹس بار (گھڑی، اطلاعات) چھپائیں جبکہ AndBible کا اپنا ٹول بار نظر آتا رہے۔ خلفشار سے پاک مطالعے اور ای-انک ڈیوائسز کے لیے مفید۔ اسے عارضی طور پر ظاہر کرنے کے لیے اوپری کنارے سے سوائپ کریں۔</string>
   <string name="prefs_dictionaries_cat">لغات</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs یونانی لغت</string>
   <string name="choose_strongs_greek_dictionary_summary">یونانی لفظ کی تعریفات کے لیے Strongs لغت منتخب کریں</string>
@@ -1543,6 +1550,8 @@
   <string name="prefs_show_ai_doc_markers_summary">آیات سے منسلک AI سے بنے دستاویز صفحات کے مارکر آئیکن دکھائیں</string>
   <string name="prefs_show_ordinals_title">ترتیبی نمبر دکھائیں</string>
   <string name="prefs_show_ordinals_summary">متن میں ترتیبی پوزیشن مارکر دکھائیں</string>
+  <string name="prefs_show_reading_progress_title">پڑھنے کی پیشرفت</string>
+  <string name="prefs_show_reading_progress_summary">دکھائیں کہ آپ کتاب میں کہاں تک پہنچے ہیں (فیصد، صفحہ یا باب)</string>
   <string name="prefs_page_scroll_amount_title">صفحہ اسکرول مقدار</string>
   <string name="prefs_page_scroll_amount_summary">صفحہ اوپر/نیچے کے ساتھ کتنا اسکرول کرنا ہے</string>
   <string name="prefs_scroll_helper_lines_title">اسکرول معاون لائنیں</string>
@@ -1574,12 +1583,15 @@
   <string name="cloud_doc_status_cloud_only">صرف کلاؤڈ میں</string>
   <string name="cloud_doc_status_update">اپ ڈیٹ دستیاب ہے</string>
   <string name="cloud_doc_status_blocked">اس ڈیوائس پر مسدود</string>
+  <string name="cloud_doc_status_wont_sync">کلاؤڈ سے ہم آہنگ نہیں ہوگی</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">تمام</string>
   <string name="cloud_doc_filter_installed">انسٹال شدہ</string>
   <string name="cloud_doc_filter_cloud">کلاؤڈ میں</string>
   <string name="cloud_doc_filter_updates">اپ ڈیٹس</string>
   <string name="cloud_doc_filter_blocked">مسدود</string>
+  <string name="cloud_doc_filter_device_only">صرف اس ڈیوائس پر</string>
+  <string name="cloud_doc_filter_cloud_only">صرف کلاؤڈ میں</string>
   <string name="cloud_doc_filter_removed">ہٹائی گئی</string>
   <string name="cloud_doc_show_removed">ہٹائی گئی دستاویزات دکھائیں</string>
   <string name="cloud_doc_status_removed">کلاؤڈ سے ہٹائی گئی</string>
@@ -1592,6 +1604,8 @@
   <string name="cloud_doc_action_block">اس ڈیوائس پر ہم آہنگ نہ کریں</string>
   <string name="cloud_doc_action_unblock">اس ڈیوائس پر اجازت دیں</string>
   <string name="cloud_doc_action_restore">کلاؤڈ پر بحال کریں</string>
+  <string name="cloud_doc_action_dont_sync">کلاؤڈ سے ہم آہنگ نہ کریں</string>
+  <string name="cloud_doc_action_allow_sync">کلاؤڈ سے ہم آہنگ کریں</string>
   <string name="cloud_doc_action_purge">کلاؤڈ کی تاریخ سے ہٹائیں</string>
   <string name="cloud_doc_remove_all_confirm">%1$s کو کلاؤڈ اور آپ کی تمام ڈیوائسز سے، بشمول اس ڈیوائس کے، ہٹا دیں؟</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s کو کلاؤڈ سے ہٹا دیں؟ اس ڈیوائس پر موجود کاپی برقرار رہے گی؛ جن ڈیوائسز پر دستاویزات کی ہم آہنگی آن ہے وہ بھی اسے ہٹا دیں گی۔</string>
@@ -1607,8 +1621,8 @@
   <string name="cloud_doc_summary_download_size">%1$d ڈاؤنلوڈ کریں (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">خودکار ڈاؤنلوڈز Wi-Fi پر شروع ہوں گی۔</string>
   <string name="cloud_doc_sync_now_count_none">منتقل کرنے کے لیے کچھ نہیں</string>
-  <string name="cloud_doc_bulk_download">منتخب شدہ ڈاؤنلوڈ کریں (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">تمام دستیاب دستاویزات پہلے ہی ڈاؤنلوڈ ہو چکی ہیں۔</string>
+  <string name="cloud_doc_selected_count">%1$d منتخب</string>
+  <string name="cloud_doc_bulk_skipped">%1$d نظر انداز کی گئیں (لاگو نہیں)</string>
   <string name="document_sync_notification_title">دستاویزات ہم آہنگ ہو رہی ہیں</string>
   <string name="document_sync_downloading">%1$s ڈاؤنلوڈ ہو رہی ہے (%2$d/%3$d)</string>
   <string name="document_sync_uploading">%1$s اپ لوڈ ہو رہی ہے (%2$d/%3$d)</string>

@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">عرض الإصحاح وأعداد الآية</string>
   <string name="prefs_e_ink_mode_title">وضع أبيض وأسود</string>
   <string name="prefs_eink_mode_summary">استخدم التطبيق في الوضع أحادي اللون (بدون ألوان)، مما يجعله أكثر ملاءمة لأجهزة الحبر الإلكتروني.</string>
+  <string name="prefs_display_color_mode_title">وضع الألوان</string>
+  <string name="prefs_display_color_mode_summary">اختر كيفية عرض الألوان. يحافظ وضع الحبر الإلكتروني الملون على أساس أبيض وأسود لكنه يعرض ألوان الإشارات المرجعية ومؤشر النافذة النشطة والخطوط المساعدة بالألوان — لشاشات الحبر الإلكتروني الملونة.</string>
+  <string name="prefs_display_color_mode_normal">عادي</string>
+  <string name="prefs_display_color_mode_bw">أبيض وأسود</string>
+  <string name="prefs_display_color_mode_color_eink">حبر إلكتروني ملون</string>
   <string name="prefs_eink_settings_cat">إعدادات الحبر الإلكتروني</string>
   <string name="prefs_eink_display_title">ميزات الحبر الإلكتروني</string>
   <string name="prefs_eink_display_summary">تفعيل الميزات الخاصة بشاشات الحبر الإلكتروني (أزرار تمرير الصفحة، وخطوط مساعدة التمرير)</string>
@@ -221,6 +226,8 @@
   <string name="hide_bible_reference_overlay_summary">لا تعرض تراكب مراجع الكتاب المقدس شبه الشفافة عندما يكون التطبيق في وضع ملء الشاشة</string>
   <string name="full_screen_hide_buttons_pref_title">إخفاء شريط زر النافذة في وضع ملء الشاشة</string>
   <string name="full_screen_hide_buttons_pref_summary">عند التبديل إلى وضع ملء الشاشة، إخفاء شريط أزرار النافذة تلقائيًا الموجود أسفل الشاشة</string>
+  <string name="prefs_hide_status_bar_title">إخفاء شريط الحالة</string>
+  <string name="prefs_hide_status_bar_summary">إخفاء شريط حالة أندرويد (الساعة، الإشعارات) مع إبقاء شريط أدوات AndBible الخاص مرئيًا. مفيد للقراءة دون تشتيت ولأجهزة الحبر الإلكتروني. اسحب من الحافة العلوية لإظهاره مؤقتًا.</string>
   <string name="prefs_dictionaries_cat">القواميس</string>
   <string name="choose_strongs_greek_dictionary_title">القاموس اليوناني Strongs</string>
   <string name="choose_strongs_greek_dictionary_summary">اختر قاموس Strongs لتعريفات الكلمات اليونانية</string>
@@ -1630,6 +1637,8 @@
   <string name="prefs_show_ai_doc_markers_summary">عرض أيقونات العلامات لصفحات المستندات المُنشأة بالذكاء الاصطناعي المرتبطة بالآيات</string>
   <string name="prefs_show_ordinals_title">عرض الأرقام الترتيبية</string>
   <string name="prefs_show_ordinals_summary">عرض علامات الموضع الترتيبي في النص</string>
+  <string name="prefs_show_reading_progress_title">تقدم القراءة</string>
+  <string name="prefs_show_reading_progress_summary">إظهار مدى تقدمك في الكتاب (النسبة المئوية، الصفحة أو الفصل)</string>
   <string name="prefs_page_scroll_amount_title">مقدار تمرير الصفحة</string>
   <string name="prefs_page_scroll_amount_summary">مقدار تمرير الصفحة عند الضغط على أعلى/أسفل الصفحة</string>
   <string name="prefs_scroll_helper_lines_title">خطوط مساعدة التمرير</string>
@@ -1661,12 +1670,15 @@
   <string name="cloud_doc_status_cloud_only">في السحابة فقط</string>
   <string name="cloud_doc_status_update">يتوفر تحديث</string>
   <string name="cloud_doc_status_blocked">محظور على هذا الجهاز</string>
+  <string name="cloud_doc_status_wont_sync">لن تتم المزامنة إلى السحابة</string>
   <string name="cloud_doc_version_prefix">الإصدار %1$s</string>
   <string name="cloud_doc_filter_all">الكل</string>
   <string name="cloud_doc_filter_installed">مثبَّت</string>
   <string name="cloud_doc_filter_cloud">في السحابة</string>
   <string name="cloud_doc_filter_updates">التحديثات</string>
   <string name="cloud_doc_filter_blocked">محظور</string>
+  <string name="cloud_doc_filter_device_only">على هذا الجهاز فقط</string>
+  <string name="cloud_doc_filter_cloud_only">في السحابة فقط</string>
   <string name="cloud_doc_filter_removed">مُزال</string>
   <string name="cloud_doc_show_removed">إظهار المستندات المُزالة</string>
   <string name="cloud_doc_status_removed">مُزال من السحابة</string>
@@ -1679,6 +1691,8 @@
   <string name="cloud_doc_action_block">عدم المزامنة إلى هذا الجهاز</string>
   <string name="cloud_doc_action_unblock">السماح على هذا الجهاز</string>
   <string name="cloud_doc_action_restore">استعادة إلى السحابة</string>
+  <string name="cloud_doc_action_dont_sync">عدم المزامنة إلى السحابة</string>
+  <string name="cloud_doc_action_allow_sync">المزامنة إلى السحابة</string>
   <string name="cloud_doc_action_purge">إزالة من سجل السحابة</string>
   <string name="cloud_doc_remove_all_confirm">هل تريد إزالة %1$s من السحابة ومن جميع أجهزتك، بما في ذلك هذا الجهاز؟</string>
   <string name="cloud_doc_remove_cloud_confirm">هل تريد إزالة %1$s من السحابة؟ سيتم الاحتفاظ بالنسخة الموجودة على هذا الجهاز؛ كما ستقوم الأجهزة التي تعمل عليها مزامنة المستندات بإزالته أيضاً.</string>
@@ -1694,8 +1708,8 @@
   <string name="cloud_doc_summary_download_size">تحميل %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">ستبدأ عمليات التحميل التلقائية عند الاتصال بشبكة Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">لا يوجد شيء لنقله</string>
-  <string name="cloud_doc_bulk_download">تحميل المحدد (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">جميع المستندات المتاحة محمَّلة بالفعل.</string>
+  <string name="cloud_doc_selected_count">%1$d محدد</string>
+  <string name="cloud_doc_bulk_skipped">تم تخطي %1$d غير قابل للتطبيق</string>
   <string name="document_sync_notification_title">جارٍ مزامنة المستندات</string>
   <string name="document_sync_downloading">جارٍ تحميل %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">جارٍ رفع %1$s (%2$d/%3$d)</string>

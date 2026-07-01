@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Показати номери розділів та віршів</string>
   <string name="prefs_e_ink_mode_title">Чорний та білий режим</string>
   <string name="prefs_eink_mode_summary">Використовувати програму в монохромному режимі (без кольорів), що робить її більш придатною для пристроїв E-ink.</string>
+  <string name="prefs_display_color_mode_title">Режим кольору</string>
+  <string name="prefs_display_color_mode_summary">Виберіть, як відображаються кольори. Колірний e-ink зберігає чорно-білу основу, але показує кольори закладок, індикатор активного вікна та допоміжні лінії в кольорі — для кольорових екранів e-ink.</string>
+  <string name="prefs_display_color_mode_normal">Звичайний</string>
+  <string name="prefs_display_color_mode_bw">Чорно-білий</string>
+  <string name="prefs_display_color_mode_color_eink">Колірний e-ink</string>
   <string name="prefs_eink_settings_cat">Налаштування E-ink</string>
   <string name="prefs_eink_display_title">Функції E-ink</string>
   <string name="prefs_eink_display_summary">Увімкнути функції для E-ink-пристроїв (кнопки прокручування сторінок, допоміжні лінії прокручування)</string>
@@ -221,6 +226,8 @@
   <string name="hide_bible_reference_overlay_summary">Не показувати напівпрозоре накладання посилань, коли програма перебуває в повноекранному режимі</string>
   <string name="full_screen_hide_buttons_pref_title">Сховати панель кнопок вікна y повноекранному режимі</string>
   <string name="full_screen_hide_buttons_pref_summary">При переході в повноекранний режим, автоматично сховати панель кнопок вікна, що знаходиться внизу екрана</string>
+  <string name="prefs_hide_status_bar_title">Приховати рядок стану</string>
+  <string name="prefs_hide_status_bar_summary">Приховати рядок стану Android (годинник, сповіщення), залишаючи власну панель інструментів AndBible видимою. Корисно для читання без відволікань та для пристроїв e-ink. Проведіть пальцем від верхнього краю, щоб тимчасово показати його.</string>
   <string name="prefs_dictionaries_cat">Словники</string>
   <string name="choose_strongs_greek_dictionary_title">Грецький словник Стронга</string>
   <string name="choose_strongs_greek_dictionary_summary">Виберіть словник Стронга для визначення грецьких слів</string>
@@ -1689,6 +1696,8 @@
   <string name="prefs_show_ai_doc_markers_summary">Показувати піктограми позначок для сторінок ресурсів, згенерованих ШІ, пов\'язаних із віршами</string>
   <string name="prefs_show_ordinals_title">Показувати порядкові номери</string>
   <string name="prefs_show_ordinals_summary">Показувати позначки порядкових позицій у тексті</string>
+  <string name="prefs_show_reading_progress_title">Прогрес читання</string>
+  <string name="prefs_show_reading_progress_summary">Показувати, наскільки далеко ви прочитали книгу (відсоток, сторінка або розділ)</string>
   <string name="prefs_page_scroll_amount_title">Розмір прокручування сторінки</string>
   <string name="prefs_page_scroll_amount_summary">Наскільки прокручувати сторінку кнопками вгору/вниз</string>
   <string name="prefs_scroll_helper_lines_title">Допоміжні лінії прокручування</string>
@@ -1720,12 +1729,15 @@
   <string name="cloud_doc_status_cloud_only">Лише в хмарі</string>
   <string name="cloud_doc_status_update">Доступне оновлення</string>
   <string name="cloud_doc_status_blocked">Заблоковано на цьому пристрої</string>
+  <string name="cloud_doc_status_wont_sync">Не синхронізуватиметься з хмарою</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Усі</string>
   <string name="cloud_doc_filter_installed">Встановлені</string>
   <string name="cloud_doc_filter_cloud">У хмарі</string>
   <string name="cloud_doc_filter_updates">Оновлення</string>
   <string name="cloud_doc_filter_blocked">Заблоковані</string>
+  <string name="cloud_doc_filter_device_only">Тільки на цьому пристрої</string>
+  <string name="cloud_doc_filter_cloud_only">Тільки в хмарі</string>
   <string name="cloud_doc_filter_removed">Видалені</string>
   <string name="cloud_doc_show_removed">Показувати видалені ресурси</string>
   <string name="cloud_doc_status_removed">Видалено з хмари</string>
@@ -1738,6 +1750,8 @@
   <string name="cloud_doc_action_block">Не синхронізувати на цей пристрій</string>
   <string name="cloud_doc_action_unblock">Дозволити на цьому пристрої</string>
   <string name="cloud_doc_action_restore">Відновити до хмари</string>
+  <string name="cloud_doc_action_dont_sync">Не синхронізувати з хмарою</string>
+  <string name="cloud_doc_action_allow_sync">Синхронізувати з хмарою</string>
   <string name="cloud_doc_action_purge">Видалити з історії хмари</string>
   <string name="cloud_doc_remove_all_confirm">Видалити %1$s з хмари та з усіх ваших пристроїв, включно з цим?</string>
   <string name="cloud_doc_remove_cloud_confirm">Видалити %1$s з хмари? Копія на цьому пристрої залишиться; пристрої з увімкненою синхронізацією ресурсів також видалять його.</string>
@@ -1753,8 +1767,8 @@
   <string name="cloud_doc_summary_download_size">Завантажити %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Автоматичне завантаження розпочнеться через Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Немає що передавати</string>
-  <string name="cloud_doc_bulk_download">Завантажити вибрані (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Усі доступні ресурси вже завантажено.</string>
+  <string name="cloud_doc_selected_count">%1$d вибрано</string>
+  <string name="cloud_doc_bulk_skipped">Пропущено %1$d, не стосується</string>
   <string name="document_sync_notification_title">Синхронізація ресурсів</string>
   <string name="document_sync_downloading">Завантаження %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Вивантаження %1$s (%2$d/%3$d)</string>

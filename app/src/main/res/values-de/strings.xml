@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Kapitel- &amp; Versnummern anzeigen</string>
   <string name="prefs_e_ink_mode_title">Schwarz/Weiß Modus</string>
   <string name="prefs_eink_mode_summary">Die Applikation im Monochrommodus (ohne Farben) benutzen, um sie bequemer auf E-Ink - Geräten benutzen zu können.</string>
+  <string name="prefs_display_color_mode_title">Farbmodus</string>
+  <string name="prefs_display_color_mode_summary">Wählen Sie, wie Farben angezeigt werden. Farb-E-Ink behält eine Schwarz-Weiß-Basis bei, zeigt aber Lesezeichenfarben, die Anzeige des aktiven Fensters und Hilfslinien in Farbe an — für Farb-E-Ink-Bildschirme.</string>
+  <string name="prefs_display_color_mode_normal">Normal</string>
+  <string name="prefs_display_color_mode_bw">Schwarz &amp; Weiß</string>
+  <string name="prefs_display_color_mode_color_eink">Farb-E-Ink</string>
   <string name="prefs_eink_settings_cat">E-Ink-Einstellungen</string>
   <string name="prefs_eink_display_title">E-Ink-Funktionen</string>
   <string name="prefs_eink_display_summary">E-Ink-spezifische Funktionen aktivieren (Seitenscrolling-Schaltflächen, Scroll-Hilfslinien)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Die semitransparenten Überlagerungen mit Bibelverweisen ausblenden, wenn die App im Vollbildmodus ist</string>
   <string name="full_screen_hide_buttons_pref_title">Fensterschaltleiste im Vollbildmodus verbergen</string>
   <string name="full_screen_hide_buttons_pref_summary">Dadurch wird im Vollbildmodus automatisch die Fensterschaltleiste am unteren Bildschirmrand ausgeblendet</string>
+  <string name="prefs_hide_status_bar_title">Statusleiste ausblenden</string>
+  <string name="prefs_hide_status_bar_summary">Blenden Sie die Android-Statusleiste (Uhr, Benachrichtigungen) aus, während die eigene Symbolleiste von AndBible sichtbar bleibt. Nützlich für ablenkungsfreies Lesen und E-Ink-Geräte. Wischen Sie vom oberen Rand, um sie vorübergehend einzublenden.</string>
   <string name="prefs_dictionaries_cat">Wörterbücher</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs Wörterbuch Griechisch-Englisch</string>
   <string name="choose_strongs_greek_dictionary_summary">Wähle das Wörterbuch für griechische Wortdefinitionen aus</string>
@@ -1629,6 +1636,8 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="prefs_show_ai_doc_markers_summary">Markierungssymbole für KI-generierte Dokumentseiten anzeigen, die mit Versen verknüpft sind</string>
   <string name="prefs_show_ordinals_title">Ordnungszahlen anzeigen</string>
   <string name="prefs_show_ordinals_summary">Ordnungszahlmarkierungen im Text anzeigen</string>
+  <string name="prefs_show_reading_progress_title">Lesefortschritt</string>
+  <string name="prefs_show_reading_progress_summary">Zeigt an, wie weit Sie im Buch sind (Prozent, Seite oder Kapitel)</string>
   <string name="prefs_page_scroll_amount_title">Seitenscrolling-Ausmaß</string>
   <string name="prefs_page_scroll_amount_summary">Wie viel der Seite beim Seite-hoch/runter-Scrollen gescrollt wird</string>
   <string name="prefs_scroll_helper_lines_title">Scroll-Hilfslinien</string>
@@ -1660,12 +1669,15 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="cloud_doc_status_cloud_only">Nur in der Cloud</string>
   <string name="cloud_doc_status_update">Update verfügbar</string>
   <string name="cloud_doc_status_blocked">Auf diesem Gerät blockiert</string>
+  <string name="cloud_doc_status_wont_sync">Wird nicht mit der Cloud synchronisiert</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Alle</string>
   <string name="cloud_doc_filter_installed">Installiert</string>
   <string name="cloud_doc_filter_cloud">In der Cloud</string>
   <string name="cloud_doc_filter_updates">Updates</string>
   <string name="cloud_doc_filter_blocked">Blockiert</string>
+  <string name="cloud_doc_filter_device_only">Nur auf diesem Gerät</string>
+  <string name="cloud_doc_filter_cloud_only">Nur in der Cloud</string>
   <string name="cloud_doc_filter_removed">Entfernt</string>
   <string name="cloud_doc_show_removed">Entfernte Dokumente anzeigen</string>
   <string name="cloud_doc_status_removed">Aus der Cloud entfernt</string>
@@ -1678,6 +1690,8 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="cloud_doc_action_block">Nicht auf dieses Gerät synchronisieren</string>
   <string name="cloud_doc_action_unblock">Auf diesem Gerät erlauben</string>
   <string name="cloud_doc_action_restore">In die Cloud wiederherstellen</string>
+  <string name="cloud_doc_action_dont_sync">Nicht mit der Cloud synchronisieren</string>
+  <string name="cloud_doc_action_allow_sync">Mit der Cloud synchronisieren</string>
   <string name="cloud_doc_action_purge">Aus dem Cloud-Verlauf entfernen</string>
   <string name="cloud_doc_remove_all_confirm">%1$s aus der Cloud und von allen deinen Geräten einschließlich diesem entfernen?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s aus der Cloud entfernen? Die Kopie auf diesem Gerät bleibt erhalten; Geräte mit aktivierter Dokumentsynchronisierung entfernen sie ebenfalls.</string>
@@ -1693,8 +1707,8 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="cloud_doc_summary_download_size">%1$d herunterladen (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatische Downloads starten bei WLAN.</string>
   <string name="cloud_doc_sync_now_count_none">Nichts zu übertragen</string>
-  <string name="cloud_doc_bulk_download">Ausgewählte herunterladen (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Alle verfügbaren Dokumente sind bereits heruntergeladen.</string>
+  <string name="cloud_doc_selected_count">%1$d ausgewählt</string>
+  <string name="cloud_doc_bulk_skipped">%1$d nicht zutreffend übersprungen</string>
   <string name="document_sync_notification_title">Dokumente werden synchronisiert</string>
   <string name="document_sync_downloading">%1$s wird heruntergeladen (%2$d/%3$d)</string>
   <string name="document_sync_uploading">%1$s wird hochgeladen (%2$d/%3$d)</string>

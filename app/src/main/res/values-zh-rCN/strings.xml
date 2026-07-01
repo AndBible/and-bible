@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">显示章节序号</string>
   <string name="prefs_e_ink_mode_title">黑白模式</string>
   <string name="prefs_eink_mode_summary">在单色环境（没有颜色）下使用应用，对墨水屏更友好。</string>
+  <string name="prefs_display_color_mode_title">颜色模式</string>
+  <string name="prefs_display_color_mode_summary">选择颜色的显示方式。彩色电子墨水以黑白为基础，但会以彩色显示书签颜色、活动窗口指示器和辅助线 — 适用于彩色电子墨水屏幕。</string>
+  <string name="prefs_display_color_mode_normal">正常</string>
+  <string name="prefs_display_color_mode_bw">黑白</string>
+  <string name="prefs_display_color_mode_color_eink">彩色电子墨水</string>
   <string name="prefs_eink_settings_cat">电子墨水设置</string>
   <string name="prefs_eink_display_title">电子墨水功能</string>
   <string name="prefs_eink_display_summary">启用电子墨水专属功能（翻页按钮、滚动辅助线）</string>
@@ -222,6 +227,8 @@
   <string name="hide_bible_reference_overlay_summary">在全屏幕模式下，不显示半透明的圣经参考浮动窗口</string>
   <string name="full_screen_hide_buttons_pref_title">在全屏幕中隐藏窗口按键</string>
   <string name="full_screen_hide_buttons_pref_summary">当切换至全屏幕模式时，自动隐藏下方的窗口按键栏</string>
+  <string name="prefs_hide_status_bar_title">隐藏状态栏</string>
+  <string name="prefs_hide_status_bar_summary">隐藏 Android 状态栏（时钟、通知），同时保持 AndBible 自身的工具栏可见。适用于无干扰阅读和电子墨水设备。从顶部边缘向下滑动可临时显示状态栏。</string>
   <string name="prefs_dictionaries_cat">字典</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs 希腊文字典</string>
   <string name="choose_strongs_greek_dictionary_summary">选择 Strongs 希腊文字典以查找定义</string>
@@ -1672,6 +1679,8 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="prefs_show_ai_doc_markers_summary">为链接到经节的 AI 生成文档页面显示标记图标</string>
   <string name="prefs_show_ordinals_title">显示序数编号</string>
   <string name="prefs_show_ordinals_summary">在文本中显示序数位置标记</string>
+  <string name="prefs_show_reading_progress_title">阅读进度</string>
+  <string name="prefs_show_reading_progress_summary">显示您在书卷中的阅读进度（百分比、页面或章节）</string>
   <string name="prefs_page_scroll_amount_title">翻页滚动幅度</string>
   <string name="prefs_page_scroll_amount_summary">向上/向下翻页时滚动的页面比例</string>
   <string name="prefs_scroll_helper_lines_title">滚动辅助线</string>
@@ -1703,12 +1712,15 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="cloud_doc_status_cloud_only">仅在云端</string>
   <string name="cloud_doc_status_update">有可用更新</string>
   <string name="cloud_doc_status_blocked">已在此设备上屏蔽</string>
+  <string name="cloud_doc_status_wont_sync">不会同步到云端</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">全部</string>
   <string name="cloud_doc_filter_installed">已安装</string>
   <string name="cloud_doc_filter_cloud">在云端</string>
   <string name="cloud_doc_filter_updates">更新</string>
   <string name="cloud_doc_filter_blocked">已屏蔽</string>
+  <string name="cloud_doc_filter_device_only">仅在此设备上</string>
+  <string name="cloud_doc_filter_cloud_only">仅在云端</string>
   <string name="cloud_doc_filter_removed">已移除</string>
   <string name="cloud_doc_show_removed">显示已移除的文档</string>
   <string name="cloud_doc_status_removed">已从云端移除</string>
@@ -1721,6 +1733,8 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="cloud_doc_action_block">不同步到此设备</string>
   <string name="cloud_doc_action_unblock">允许在此设备上同步</string>
   <string name="cloud_doc_action_restore">恢复到云端</string>
+  <string name="cloud_doc_action_dont_sync">不同步到云端</string>
+  <string name="cloud_doc_action_allow_sync">同步到云端</string>
   <string name="cloud_doc_action_purge">从云端历史记录中移除</string>
   <string name="cloud_doc_remove_all_confirm">从云端及您的所有设备（包括此设备）移除 %1$s？</string>
   <string name="cloud_doc_remove_cloud_confirm">从云端移除 %1$s？此设备上的副本将保留；已开启文档同步的设备也会将其移除。</string>
@@ -1736,8 +1750,8 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="cloud_doc_summary_download_size">下载 %1$d（%2$s）</string>
   <string name="cloud_doc_wifi_waiting">自动下载将在 Wi-Fi 下开始。</string>
   <string name="cloud_doc_sync_now_count_none">无需传输</string>
-  <string name="cloud_doc_bulk_download">下载所选（%1$d）</string>
-  <string name="cloud_doc_nothing_to_download">所有可用文档均已下载。</string>
+  <string name="cloud_doc_selected_count">已选择 %1$d 个</string>
+  <string name="cloud_doc_bulk_skipped">已跳过 %1$d 个不适用项</string>
   <string name="document_sync_notification_title">正在同步文档</string>
   <string name="document_sync_downloading">正在下载 %1$s（%2$d/%3$d）</string>
   <string name="document_sync_uploading">正在上传 %1$s（%2$d/%3$d）</string>

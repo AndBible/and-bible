@@ -2,15 +2,15 @@
 bookmarks: Zaznamki
 bookmarksAndNotes: Zaznamki in Moje opombe
 openMyNotes: Odpri v Mojih zaznamkih
-openStudyPad: Odpri v Moji beležnici (%s)
-noteText: Zaznamki (%s)
+openStudyPad: "Odpri v Moji beležnici (%s)"
+noteText: "Zaznamki (%s)"
 noteTextWithoutType: Opombe
 crossReferenceText: Sklici
 findAllOccurrences: Najdi vse pojavitve
 reportError: Prijavite napako
 errorTitle: Zgodila se je napaka
 warningTitle: Opozorilo
-normalTitle: "Prosimo, upoštevajte"
+normalTitle: Prosimo, upoštevajte
 footnoteTypeStudy: Študij
 footnoteTypeExplanation: Pojasnilo
 footnoteTypeVariant: Različica
@@ -23,15 +23,15 @@ myDocumentEmptyPlaceholder: Dotaknite se za začetek urejanja te strani
 inputPlaceholder: Pišite tukaj
 inputReference: Vnesite biblijsko referenco
 invalidReference: Vrstice ni mogoče najti
-bookmarkAccurate: Zaznamek je bil ustvarjen v %s
+bookmarkAccurate: "Zaznamek je bil ustvarjen v %s"
 bookmarkInaccurate: "Informacije o zaznamkih niso shranjene, vsebina je prikazana v %s."
 defaultBook: privzeti biblijski dokument
 ok: OK
 yes: "Da"
-ambiguousSelection: "Katero dejanje želite izvesti?"
+ambiguousSelection: Katero dejanje želite izvesti?
 cancel: Prekliči
-removeBookmarkConfirmationTitle: "Zaznamek odstranim?"
-removeBookmarkConfirmation: "Ali ste prepričani, da želite odstraniti ta zaznamek?"
+removeBookmarkConfirmationTitle: Zaznamek odstranim?
+removeBookmarkConfirmation: Ali ste prepričani, da želite odstraniti ta zaznamek?
 createdAt: "Ustvarjeno: %s"
 lastUpdatedOn: "Nazadnje posodobljeno: %s"
 strongsAndMorph: Strong in oblikoslovje
@@ -39,15 +39,13 @@ externalLink: Odpri zunanjo povezavo
 referenceLink: Odpri zunanjo povezavo
 openFootnote: Odpri zaznamek
 noMyNotesTitle: Za to poglavje ni Mojih opomb.
-noMyNotesDescription: >-
-  Začnite z ustvarjanjem zaznamkov v biblijskem dokumentu. Nato se bodo tukaj prikazali zaznamki, vanje pa lahko dodate svoje osebne zapiske.
-emptyStudyPad: >-
-  Prazna beležnica. Začnite dodajati v to beležnico z ustvarjanjem besedilnih vnosov ali z ustvarjanjem zaznamkov z oznako zaznamka, ki ustreza tej beležnici.
-doYouWantToDeleteEntry: "Želite izbrisati ta vnos v beležnici?"
-removeStudyPadConfirmationTitle: "Želite odstraniti vnos beležnice?"
+noMyNotesDescription: Začnite z ustvarjanjem zaznamkov v biblijskem dokumentu. Nato se bodo tukaj prikazali zaznamki, vanje pa lahko dodate svoje osebne zapiske.
+emptyStudyPad: Prazna beležnica. Začnite dodajati v to beležnico z ustvarjanjem besedilnih vnosov ali z ustvarjanjem zaznamkov z oznako zaznamka, ki ustreza tej beležnici.
+doYouWantToDeleteEntry: Želite izbrisati ta vnos v beležnici?
+removeStudyPadConfirmationTitle: Želite odstraniti vnos beležnice?
 dragHelp: Povlecite za prerazporeditev
 openAll: Odpri vse sklice
-editBookmarkPlaceholder: "Dotaknite se, če želite urediti Moje opombe za ta zaznamek"
+editBookmarkPlaceholder: Dotaknite se, če želite urediti Moje opombe za ta zaznamek
 onlyLabel: Samo oznaka
 wholeBookmark: Celoten zaznamek
 assignLabelsMenuEntry1: Izberite ali uredite oznake...
@@ -75,6 +73,9 @@ markedAsMemorized: Zapomnjen
 removeFromTargets: Cilj -
 viewReadingProgress: Napredek branja/pomnjenja
 viewReadingProgressSettings: Nastavitve branja/pomnjenja
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · pgl %s/%s"
 listenInLoop: Poslušaj v zanki
 viewHelp: Oglejte si pomoč
 verseNoteLong: Zapiši beležko
@@ -90,10 +91,10 @@ editActionModeNone: Nič
 editActionModeAppend: Dodajanje besedila
 editActionModePrepend: Dodaj besedilo na začetku
 editActionContentLabel: Vsebina
-editActionContentPlaceholder: "Vnesite besedilo, ki ga želite dodati v dokument …"
+editActionContentPlaceholder: Vnesite besedilo, ki ga želite dodati v dokument …
 experimentalFeatureTitle: Eksperimentalno
 experimentalFeatureHelpTitle: O eksperimentalnih funkcijah
-experimentalFeatureHelpContent: "Eksperimentalne funkcije so nove zmogljivosti, ki se še vedno razvijajo in preizkušajo. Morda ne delujejo popolnoma in se lahko bistveno spremenijo ali pa se odstranijo v prihodnjih različicah aplikacij."
+experimentalFeatureHelpContent: Eksperimentalne funkcije so nove zmogljivosti, ki se še vedno razvijajo in preizkušajo. Morda ne delujejo popolnoma in se lahko bistveno spremenijo ali pa se odstranijo v prihodnjih različicah aplikacij.
 insertParagraphBreak: Vstavite prelom odstavka
 insertSubtitle: Vstavite podnapise
 xmlParseError: Napaka pri razčlenjevanju XML

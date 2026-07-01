@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Tunjukkan nombor bab &amp; ayat</string>
   <string name="prefs_e_ink_mode_title">Mod hitam &amp; putih</string>
   <string name="prefs_eink_mode_summary">Gunakan aplikasi dalam mod monokrom (tanpa warna), menjadikannya lebih sesuai untuk peranti E-ink.</string>
+  <string name="prefs_display_color_mode_title">Mod warna</string>
+  <string name="prefs_display_color_mode_summary">Pilih bagaimana warna dipaparkan. E-ink warna mengekalkan asas hitam &amp; putih tetapi menunjukkan warna penanda buku, penunjuk tetingkap aktif dan garis bantuan dalam warna — untuk skrin e-ink warna.</string>
+  <string name="prefs_display_color_mode_normal">Biasa</string>
+  <string name="prefs_display_color_mode_bw">Hitam &amp; putih</string>
+  <string name="prefs_display_color_mode_color_eink">E-ink warna</string>
   <string name="prefs_eink_settings_cat">Tetapan E-ink</string>
   <string name="prefs_eink_display_title">Ciri E-ink</string>
   <string name="prefs_eink_display_summary">Aktifkan ciri khusus e-ink (butang tatal halaman, garisan pembantu tatal)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Jangan tunjukkan hamparan rujukan Alkitab separa telus apabila aplikasi dalam mod skrin penuh</string>
   <string name="full_screen_hide_buttons_pref_title">Sembunyikan bar butang tetingkap dalam skrin penuh</string>
   <string name="full_screen_hide_buttons_pref_summary">Apabila beralih ke mod skrin penuh, sembunyikan secara automatik bar butang tetingkap yang berada di bahagian bawah skrin</string>
+  <string name="prefs_hide_status_bar_title">Sembunyikan bar status</string>
+  <string name="prefs_hide_status_bar_summary">Sembunyikan bar status Android (jam, pemberitahuan) sambil mengekalkan bar alat AndBible sendiri kelihatan. Berguna untuk pembacaan tanpa gangguan dan peranti e-ink. Leret dari tepi atas untuk memaparkannya sementara.</string>
   <string name="prefs_dictionaries_cat">Kamus</string>
   <string name="choose_strongs_greek_dictionary_title">Kamus Greek Strong\'s</string>
   <string name="choose_strongs_greek_dictionary_summary">Pilih kamus Strong\'s untuk definisi perkataan Greek</string>
@@ -1543,6 +1550,8 @@
   <string name="prefs_show_ai_doc_markers_summary">Tunjukkan ikon penanda untuk halaman dokumen yang dijana AI yang dikaitkan dengan ayat</string>
   <string name="prefs_show_ordinals_title">Tunjukkan nombor ordinal</string>
   <string name="prefs_show_ordinals_summary">Tunjukkan penanda kedudukan ordinal dalam teks</string>
+  <string name="prefs_show_reading_progress_title">Kemajuan bacaan</string>
+  <string name="prefs_show_reading_progress_summary">Tunjukkan sejauh mana anda telah membaca buku ini (peratusan, halaman atau bab)</string>
   <string name="prefs_page_scroll_amount_title">Jumlah tatal halaman</string>
   <string name="prefs_page_scroll_amount_summary">Berapa banyak halaman yang akan dital dengan halaman naik/turun</string>
   <string name="prefs_scroll_helper_lines_title">Garisan pembantu tatal</string>
@@ -1574,12 +1583,15 @@
   <string name="cloud_doc_status_cloud_only">Dalam awan sahaja</string>
   <string name="cloud_doc_status_update">Kemas kini tersedia</string>
   <string name="cloud_doc_status_blocked">Disekat pada peranti ini</string>
+  <string name="cloud_doc_status_wont_sync">Tidak akan disegerakkan ke awan</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Semua</string>
   <string name="cloud_doc_filter_installed">Dipasang</string>
   <string name="cloud_doc_filter_cloud">Dalam awan</string>
   <string name="cloud_doc_filter_updates">Kemas kini</string>
   <string name="cloud_doc_filter_blocked">Disekat</string>
+  <string name="cloud_doc_filter_device_only">Hanya pada peranti ini</string>
+  <string name="cloud_doc_filter_cloud_only">Hanya dalam awan</string>
   <string name="cloud_doc_filter_removed">Dibuang</string>
   <string name="cloud_doc_show_removed">Tunjukkan dokumen yang dibuang</string>
   <string name="cloud_doc_status_removed">Dibuang daripada awan</string>
@@ -1592,6 +1604,8 @@
   <string name="cloud_doc_action_block">Jangan segerakkan ke peranti ini</string>
   <string name="cloud_doc_action_unblock">Benarkan pada peranti ini</string>
   <string name="cloud_doc_action_restore">Pulihkan ke awan</string>
+  <string name="cloud_doc_action_dont_sync">Jangan segerakkan ke awan</string>
+  <string name="cloud_doc_action_allow_sync">Segerakkan ke awan</string>
   <string name="cloud_doc_action_purge">Buang daripada sejarah awan</string>
   <string name="cloud_doc_remove_all_confirm">Buang %1$s daripada awan dan daripada semua peranti anda, termasuk peranti ini?</string>
   <string name="cloud_doc_remove_cloud_confirm">Buang %1$s daripada awan? Salinan pada peranti ini dikekalkan; peranti yang mempunyai penyegerakan dokumen dihidupkan juga akan membuangnya.</string>
@@ -1607,8 +1621,8 @@
   <string name="cloud_doc_summary_download_size">Muat turun %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Muat turun automatik akan bermula pada Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Tiada apa-apa untuk dipindahkan</string>
-  <string name="cloud_doc_bulk_download">Muat turun yang dipilih (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Semua dokumen yang tersedia telah dimuat turun.</string>
+  <string name="cloud_doc_selected_count">%1$d dipilih</string>
+  <string name="cloud_doc_bulk_skipped">%1$d dilangkau, tidak berkenaan</string>
   <string name="document_sync_notification_title">Menyegerakkan dokumen</string>
   <string name="document_sync_downloading">Memuat turun %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Memuat naik %1$s (%2$d/%3$d)</string>

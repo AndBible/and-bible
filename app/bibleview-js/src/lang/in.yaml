@@ -1,9 +1,9 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Penanda Buku
-bookmarksAndNotes: Penanda Buku & Catatanku
+bookmarksAndNotes: "Penanda Buku & Catatanku"
 openMyNotes: Buka di Catatanku
-openStudyPad: Buka di Lembar Studi (%s)
-noteText: Catatan Kaki (%s)
+openStudyPad: "Buka di Lembar Studi (%s)"
+noteText: "Catatan Kaki (%s)"
 noteTextWithoutType: Catatan Kaki
 crossReferenceText: Referensi silang
 findAllOccurrences: Temukan semua kemunculan
@@ -23,28 +23,26 @@ myDocumentEmptyPlaceholder: Ketuk untuk mulai mengedit halaman ini
 inputPlaceholder: Tulis di sini
 inputReference: Masukkan referensi Alkitab
 invalidReference: Ayat tidak ditemukan
-bookmarkAccurate: Penanda buku dibuat di %s
+bookmarkAccurate: "Penanda buku dibuat di %s"
 bookmarkInaccurate: "Informasi kitab penanda buku tidak tersimpan, konten ditampilkan di %s."
 defaultBook: dokumen Alkitab bawaan
 ok: OK
 yes: "Ya"
-ambiguousSelection: "Tindakan apa yang ingin Anda lakukan?"
+ambiguousSelection: Tindakan apa yang ingin Anda lakukan?
 cancel: Batalkan
-removeBookmarkConfirmationTitle: "Hapus penanda buku?"
-removeBookmarkConfirmation: "Apakah Anda yakin ingin menghapus penanda buku ini?"
+removeBookmarkConfirmationTitle: Hapus penanda buku?
+removeBookmarkConfirmation: Apakah Anda yakin ingin menghapus penanda buku ini?
 createdAt: "Dibuat: %s"
 lastUpdatedOn: "Terakhir diperbarui: %s"
-strongsAndMorph: Definisi & Morfologi
+strongsAndMorph: "Definisi & Morfologi"
 externalLink: Buka tautan eksternal
 referenceLink: Buka tautan referensi
 openFootnote: Buka catatan kaki
 noMyNotesTitle: Tidak ada Catatanku untuk pasal ini.
-noMyNotesDescription: >-
-  Mulailah dengan membuat penanda buku di dokumen Alkitab. Penanda buku akan muncul di sini dan Anda dapat menambahkan catatan pribadi ke dalamnya.
-emptyStudyPad: >-
-  Lembar studi kosong. Mulai tambahkan ke lembar studi ini dengan membuat entri teks di sini atau dengan membuat penanda buku dengan label penanda buku yang sesuai dengan lembar studi ini.
-doYouWantToDeleteEntry: "Hapus entri lembar studi ini?"
-removeStudyPadConfirmationTitle: "Hapus entri lembar studi?"
+noMyNotesDescription: Mulailah dengan membuat penanda buku di dokumen Alkitab. Penanda buku akan muncul di sini dan Anda dapat menambahkan catatan pribadi ke dalamnya.
+emptyStudyPad: Lembar studi kosong. Mulai tambahkan ke lembar studi ini dengan membuat entri teks di sini atau dengan membuat penanda buku dengan label penanda buku yang sesuai dengan lembar studi ini.
+doYouWantToDeleteEntry: Hapus entri lembar studi ini?
+removeStudyPadConfirmationTitle: Hapus entri lembar studi?
 dragHelp: Seret untuk mengatur ulang urutan
 openAll: Buka semua referensi
 editBookmarkPlaceholder: Ketuk untuk mengedit Catatanku untuk penanda buku ini
@@ -54,7 +52,7 @@ assignLabelsMenuEntry1: Pilih atau edit label…
 favouriteLabels: Label Favorit
 recentLabels: Label Terbaru
 bookmarkLabels: Label penanda buku
-refParserHelp: Harap instal modul %s untuk menggunakan referensi dalam bahasa selain bahasa Inggris.
+refParserHelp: "Harap instal modul %s untuk menggunakan referensi dalam bahasa selain bahasa Inggris."
 openDownloads: Buka unduhan Add-on
 verseShare: Bagikan
 verseSpeak: Bicara
@@ -75,6 +73,9 @@ markedAsMemorized: Sudah dihafal
 removeFromTargets: Tujuan -
 viewReadingProgress: Kemajuan Baca/Hafal
 viewReadingProgressSettings: Pengaturan Baca/Hafal
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · bab %s/%s"
 listenInLoop: Dengarkan Berulang
 viewHelp: Lihat bantuan
 verseNoteLong: Tulis catatan

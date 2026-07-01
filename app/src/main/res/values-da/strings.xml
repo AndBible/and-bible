@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Vis kapitel- og versnumre</string>
   <string name="prefs_e_ink_mode_title">Sort/hvid-tilstand</string>
   <string name="prefs_eink_mode_summary">Brug programmet i monokrom tilstand (ingen farver), hvilket gør det mere egnet til e-ink-enheder.</string>
+  <string name="prefs_display_color_mode_title">Farvetilstand</string>
+  <string name="prefs_display_color_mode_summary">Vælg hvordan farver vises. Farve-e-ink beholder en sort-hvid basis, men viser bogmærkefarver, indikatoren for det aktive vindue og hjælpelinjer i farve — til farve-e-ink-skærme.</string>
+  <string name="prefs_display_color_mode_normal">Normal</string>
+  <string name="prefs_display_color_mode_bw">Sort-hvid</string>
+  <string name="prefs_display_color_mode_color_eink">Farve-e-ink</string>
   <string name="prefs_eink_settings_cat">E-ink-indstillinger</string>
   <string name="prefs_eink_display_title">E-ink-funktioner</string>
   <string name="prefs_eink_display_summary">Aktivér e-ink-specifikke funktioner (siderulle-knapper, rullehjælpelinjer)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Vis ikke det halvgennemsigtige Bibel-referenceovertræk, når appen er i fuldskærmstilstand</string>
   <string name="full_screen_hide_buttons_pref_title">Skjul vinduesknaplinje i fuldskærm</string>
   <string name="full_screen_hide_buttons_pref_summary">Når fuldskærmstilstand aktiveres, skjules automatisk vinduesknapplinjen i bunden af skærmen</string>
+  <string name="prefs_hide_status_bar_title">Skjul statuslinje</string>
+  <string name="prefs_hide_status_bar_summary">Skjul Androids statuslinje (ur, notifikationer), mens AndBibles egen værktøjslinje forbliver synlig. Nyttigt til distraktionsfri læsning og e-ink-enheder. Stryg fra den øverste kant for at få den vist midlertidigt.</string>
   <string name="prefs_dictionaries_cat">Ordbøger</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs græske ordbog</string>
   <string name="choose_strongs_greek_dictionary_summary">Vælg Strongs ordbog til græske ordforklaringer</string>
@@ -1543,6 +1550,8 @@
   <string name="prefs_show_ai_doc_markers_summary">Vis markørikon for AI-genererede dokumentsider tilknyttet vers</string>
   <string name="prefs_show_ordinals_title">Vis ordenstal</string>
   <string name="prefs_show_ordinals_summary">Vis placeringsmarkører i teksten</string>
+  <string name="prefs_show_reading_progress_title">Læsefremskridt</string>
+  <string name="prefs_show_reading_progress_summary">Vis hvor langt du er nået i bogen (procent, side eller kapitel)</string>
   <string name="prefs_page_scroll_amount_title">Sidescrullmængde</string>
   <string name="prefs_page_scroll_amount_summary">Hvor meget af siden der rulles ved side op/ned</string>
   <string name="prefs_scroll_helper_lines_title">Rullehjælpelinjer</string>
@@ -1574,12 +1583,15 @@
   <string name="cloud_doc_status_cloud_only">Kun i skyen</string>
   <string name="cloud_doc_status_update">Opdatering tilgængelig</string>
   <string name="cloud_doc_status_blocked">Blokeret på denne enhed</string>
+  <string name="cloud_doc_status_wont_sync">Synkroniseres ikke til skyen</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Alle</string>
   <string name="cloud_doc_filter_installed">Installeret</string>
   <string name="cloud_doc_filter_cloud">I skyen</string>
   <string name="cloud_doc_filter_updates">Opdateringer</string>
   <string name="cloud_doc_filter_blocked">Blokeret</string>
+  <string name="cloud_doc_filter_device_only">Kun på denne enhed</string>
+  <string name="cloud_doc_filter_cloud_only">Kun i skyen</string>
   <string name="cloud_doc_filter_removed">Fjernet</string>
   <string name="cloud_doc_show_removed">Vis fjernede dokumenter</string>
   <string name="cloud_doc_status_removed">Fjernet fra skyen</string>
@@ -1592,6 +1604,8 @@
   <string name="cloud_doc_action_block">Synkronisér ikke til denne enhed</string>
   <string name="cloud_doc_action_unblock">Tillad på denne enhed</string>
   <string name="cloud_doc_action_restore">Gendan til skyen</string>
+  <string name="cloud_doc_action_dont_sync">Synkronisér ikke til skyen</string>
+  <string name="cloud_doc_action_allow_sync">Synkronisér til skyen</string>
   <string name="cloud_doc_action_purge">Fjern fra skyens historik</string>
   <string name="cloud_doc_remove_all_confirm">Fjern %1$s fra skyen og fra alle dine enheder, inklusive denne?</string>
   <string name="cloud_doc_remove_cloud_confirm">Fjern %1$s fra skyen? Kopien på denne enhed bevares; enheder med dokumentsynkronisering slået til vil også fjerne det.</string>
@@ -1607,8 +1621,8 @@
   <string name="cloud_doc_summary_download_size">Hent %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Automatiske hentninger starter via Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Intet at overføre</string>
-  <string name="cloud_doc_bulk_download">Hent valgte (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Alle tilgængelige dokumenter er allerede hentet.</string>
+  <string name="cloud_doc_selected_count">%1$d valgt</string>
+  <string name="cloud_doc_bulk_skipped">Sprang %1$d ikke relevante over</string>
   <string name="document_sync_notification_title">Synkroniserer dokumenter</string>
   <string name="document_sync_downloading">Henter %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Uploader %1$s (%2$d/%3$d)</string>

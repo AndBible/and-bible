@@ -2,8 +2,8 @@
 bookmarks: إشارات مرجعية
 bookmarksAndNotes: الإشارات المرجعية وملاحظاتي
 openMyNotes: فتح في ملاحظاتي
-openStudyPad: فتح في لوحة الدراسة (%s)
-noteText: الحواشي (%s)
+openStudyPad: "فتح في لوحة الدراسة (%s)"
+noteText: "الحواشي (%s)"
 noteTextWithoutType: الحواشي
 crossReferenceText: تخطي المراجع
 findAllOccurrences: ايجاد كل التكرارات
@@ -23,8 +23,8 @@ myDocumentEmptyPlaceholder: انقر لبدء تعديل هذه الصفحة
 inputPlaceholder: اكتب هنا
 inputReference: أدخل مرجع الكتاب المقدس
 invalidReference: الآية غير موجودة
-bookmarkAccurate: تم إنشاء الإشارة المرجعية في %s
-bookmarkInaccurate: لم يتم تخزين معلومات مرجعية المرجعية، يتم عرض المحتوى بتنسيق %s.
+bookmarkAccurate: "تم إنشاء الإشارة المرجعية في %s"
+bookmarkInaccurate: "لم يتم تخزين معلومات مرجعية المرجعية، يتم عرض المحتوى بتنسيق %s."
 defaultBook: وثيقة الكتاب المقدس الافتراضية
 ok: موافق
 yes: "نعم"
@@ -39,10 +39,8 @@ externalLink: افتح رابط خارجي
 referenceLink: افتح رابط المرجع
 openFootnote: افتح الحاشية
 noMyNotesTitle: لا ملاحظاتي لهذا الفصل.
-noMyNotesDescription: >-
-  ابدأ بإنشاء إشارات مرجعية في مستند الكتاب المقدس. ستظهر الإشارات المرجعية هنا ويمكنك إضافة ملاحظاتك الشخصية إليها.
-emptyStudyPad: >-
-  لوحة دراسية فارغة. ابدأ في الإضافة إلى اللوحة الدراسة هذه عن طريق إنشاء مدخلات نصية هنا أو عن طريق إنشاء إشارات مرجعية بعلامة مرجعية تتوافق مع لوحة الدراسة هذه.
+noMyNotesDescription: ابدأ بإنشاء إشارات مرجعية في مستند الكتاب المقدس. ستظهر الإشارات المرجعية هنا ويمكنك إضافة ملاحظاتك الشخصية إليها.
+emptyStudyPad: لوحة دراسية فارغة. ابدأ في الإضافة إلى اللوحة الدراسة هذه عن طريق إنشاء مدخلات نصية هنا أو عن طريق إنشاء إشارات مرجعية بعلامة مرجعية تتوافق مع لوحة الدراسة هذه.
 doYouWantToDeleteEntry: حذف مدخل اللوحة الدراسية هذا؟
 removeStudyPadConfirmationTitle: إزالة مدخل اللوحة الدراسية؟
 dragHelp: اسحب لإعادة ترتيب
@@ -54,7 +52,7 @@ assignLabelsMenuEntry1: تحديد أو تحرير الملصقات ...
 favouriteLabels: الملصقات المفضلة
 recentLabels: الملصقات الحديثة
 bookmarkLabels: تسميات الإشارات المرجعية
-refParserHelp: الرجاء تثبيت %s الوحدة النمطية لاستخدام المراجع بلغات أخرى غير الإنجليزية.
+refParserHelp: "الرجاء تثبيت %s الوحدة النمطية لاستخدام المراجع بلغات أخرى غير الإنجليزية."
 openDownloads: انتقل إلى تنزيلات الإضافات
 verseShare: مشاركة
 verseSpeak: تكلم
@@ -75,6 +73,9 @@ markedAsMemorized: محفوظ
 removeFromTargets: هدف -
 viewReadingProgress: تقدم القراءة والحفظ
 viewReadingProgressSettings: إعدادات القراءة والحفظ
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: الاستماع في حلقة
 viewHelp: عرض المساعدة
 verseNoteLong: كتابة ملاحظة

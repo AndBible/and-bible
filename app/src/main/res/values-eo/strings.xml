@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Montri numerojn de versoj kaj ĉapitroj</string>
   <string name="prefs_e_ink_mode_title">Blank-nigra reĝimo</string>
   <string name="prefs_eink_mode_summary">Vidigi la aplikaĵon sen koloroj por igi ĝin pli taŭga por elektronikaj librolegiloj.</string>
+  <string name="prefs_display_color_mode_title">Kolora reĝimo</string>
+  <string name="prefs_display_color_mode_summary">Elekti kiel koloroj estas montrataj. Kolora elektronika papero konservas nigrablankan bazon sed montras legosignajn kolorojn, la indikilon de la aktiva fenestro kaj helplinjojn kolore — por koloraj elektronikpaperaj ekranoj.</string>
+  <string name="prefs_display_color_mode_normal">Normala</string>
+  <string name="prefs_display_color_mode_bw">Nigrablanka</string>
+  <string name="prefs_display_color_mode_color_eink">Kolora elektronika papero</string>
   <string name="prefs_eink_settings_cat">Elektronika papero</string>
   <string name="prefs_eink_display_title">Elektronik-paperaj ebloj</string>
   <string name="prefs_eink_display_summary">Aktivigi eblojn utilajn por elektronika papero (butonoj por rulumi paĝojn, rulum-help-linioj)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Ne montri travideblan tavolon de bibliaj referencoj kiam la aplikaĵo laboras en plenekrana reĝimo</string>
   <string name="full_screen_hide_buttons_pref_title">Kaŝi strion de fenestraj butonoj en plenekrano</string>
   <string name="full_screen_hide_buttons_pref_summary">Kiam baskuligi al plenekrana reĝimo, aŭtomate kaŝi breton de fenestraj butonoj, kiu aperas ĉe subo de la ekrano</string>
+  <string name="prefs_hide_status_bar_title">Kaŝi statusan breton</string>
+  <string name="prefs_hide_status_bar_summary">Kaŝi la Android-an statusan breton (horloĝo, sciigoj) dum konservado de la propra ilobreto de AndBible videbla. Utila por distraklibera legado kaj elektronikpaperaj aparatoj. Svingu de la supra rando por ĝin montri provizore.</string>
   <string name="prefs_dictionaries_cat">Vortaroj</string>
   <string name="choose_strongs_greek_dictionary_title">Greka vortaro de Strong</string>
   <string name="choose_strongs_greek_dictionary_summary">Elekti vortaron de Strong por difinoj de grekaj vortoj</string>
@@ -1617,6 +1624,8 @@ Ne montri tion ĉi denove</string>
   <string name="prefs_show_ai_doc_markers_summary">Montri markoikonojn por AI-generitaj dokumentpaĝoj ligitaj al versoj</string>
   <string name="prefs_show_ordinals_title">Montri ordajn nombrojn</string>
   <string name="prefs_show_ordinals_summary">Montri ordajn poziciomarkojn en teksto</string>
+  <string name="prefs_show_reading_progress_title">Lega progreso</string>
+  <string name="prefs_show_reading_progress_summary">Montri kiom tra la libro vi estas (procento, paĝo aŭ ĉapitro)</string>
   <string name="prefs_page_scroll_amount_title">Paĝa rulumkvanto</string>
   <string name="prefs_page_scroll_amount_summary">Kiom de la paĝo rulumi per paĝo-supren/malsupren</string>
   <string name="prefs_scroll_helper_lines_title">Rulumo-helpaj linioj</string>
@@ -1648,12 +1657,15 @@ Ne montri tion ĉi denove</string>
   <string name="cloud_doc_status_cloud_only">Nur en la nubo</string>
   <string name="cloud_doc_status_update">Ĝisdatigo disponebla</string>
   <string name="cloud_doc_status_blocked">Blokita sur ĉi tiu aparato</string>
+  <string name="cloud_doc_status_wont_sync">Ne sinkronigos al nubo</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Ĉiuj</string>
   <string name="cloud_doc_filter_installed">Instalitaj</string>
   <string name="cloud_doc_filter_cloud">En la nubo</string>
   <string name="cloud_doc_filter_updates">Ĝisdatigoj</string>
   <string name="cloud_doc_filter_blocked">Blokitaj</string>
+  <string name="cloud_doc_filter_device_only">Nur en ĉi tiu aparato</string>
+  <string name="cloud_doc_filter_cloud_only">Nur en la nubo</string>
   <string name="cloud_doc_filter_removed">Forigitaj</string>
   <string name="cloud_doc_show_removed">Montri forigitajn dokumentojn</string>
   <string name="cloud_doc_status_removed">Forigita el la nubo</string>
@@ -1666,6 +1678,8 @@ Ne montri tion ĉi denove</string>
   <string name="cloud_doc_action_block">Ne sinkronigi al ĉi tiu aparato</string>
   <string name="cloud_doc_action_unblock">Permesi sur ĉi tiu aparato</string>
   <string name="cloud_doc_action_restore">Restarigi al la nubo</string>
+  <string name="cloud_doc_action_dont_sync">Ne sinkronigi al nubo</string>
+  <string name="cloud_doc_action_allow_sync">Sinkronigi al nubo</string>
   <string name="cloud_doc_action_purge">Forigi el la nuba historio</string>
   <string name="cloud_doc_remove_all_confirm">Ĉu forigi %1$s el la nubo kaj de ĉiuj viaj aparatoj, inkluzive de ĉi tiu?</string>
   <string name="cloud_doc_remove_cloud_confirm">Ĉu forigi %1$s el la nubo? La kopio sur ĉi tiu aparato konserviĝas; aparatoj kun ŝaltita dokumenta sinkronigo ankaŭ forigos ĝin.</string>
@@ -1681,8 +1695,8 @@ Ne montri tion ĉi denove</string>
   <string name="cloud_doc_summary_download_size">Elŝuti %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Aŭtomataj elŝutoj komenciĝos per Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Nenio por transigi</string>
-  <string name="cloud_doc_bulk_download">Elŝuti elektitajn (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Ĉiuj disponeblaj dokumentoj jam estas elŝutitaj.</string>
+  <string name="cloud_doc_selected_count">%1$d elektita(j)</string>
+  <string name="cloud_doc_bulk_skipped">Preterlasita(j) %1$d ne-aplikebla(j)</string>
   <string name="document_sync_notification_title">Sinkronigado de dokumentoj</string>
   <string name="document_sync_downloading">Elŝutado de %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Alŝutado de %1$s (%2$d/%3$d)</string>

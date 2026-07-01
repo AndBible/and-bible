@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">अध्याय &amp; छंद संख्या दिखाएँ</string>
   <string name="prefs_e_ink_mode_title">ब्लैक &amp;amp वाइट मोड</string>
   <string name="prefs_eink_mode_summary">मोनोक्रोम मोड (कोई रंग नहीं) में एप्लिकेशन का उपयोग करें, जिससे यह ई-इंक उपकरणों के लिए अधिक उपयुक्त हो।</string>
+  <string name="prefs_display_color_mode_title">रंग मोड</string>
+  <string name="prefs_display_color_mode_summary">रंग कैसे दिखाए जाएं यह चुनें। कलर ई-इंक एक ब्लैक एंड व्हाइट आधार बनाए रखता है लेकिन बुकमार्क रंग, सक्रिय-विंडो संकेतक और सहायक रेखाओं को रंग में दिखाता है — कलर ई-इंक स्क्रीन के लिए।</string>
+  <string name="prefs_display_color_mode_normal">सामान्य</string>
+  <string name="prefs_display_color_mode_bw">ब्लैक एंड व्हाइट</string>
+  <string name="prefs_display_color_mode_color_eink">कलर ई-इंक</string>
   <string name="prefs_eink_settings_cat">E-ink सेटिंग्स</string>
   <string name="prefs_eink_display_title">E-ink फ़ीचर</string>
   <string name="prefs_eink_display_summary">E-ink विशिष्ट सुविधाएँ सक्षम करें (पेज स्क्रॉल बटन, स्क्रॉल सहायक रेखाएं)</string>
@@ -222,6 +227,8 @@
   <string name="hide_bible_reference_overlay_summary">जब ऐप फ़ुलस्क्रीन मोड में हो तो अर्ध-पारदर्शी बाइबिल संदर्भ उपरिशायी न दिखाएँ</string>
   <string name="full_screen_hide_buttons_pref_title">फुलस्क्रीन में विंडो बटन बार छिपाएं</string>
   <string name="full_screen_hide_buttons_pref_summary"> फ़ुलस्क्रीन मोड पर स्विच करते समय, स्वचालित रूप से विंडो बटन बार को छिपाएं जो स्क्रीन के निचले भाग पर है</string>
+  <string name="prefs_hide_status_bar_title">स्टेटस बार छुपाएं</string>
+  <string name="prefs_hide_status_bar_summary">AndBible के अपने टूलबार को दृश्य रखते हुए Android स्टेटस बार (घड़ी, नोटिफिकेशन) को छुपाएं। ध्यान भंग किए बिना पढ़ने और ई-इंक डिवाइस के लिए उपयोगी। इसे अस्थायी रूप से दिखाने के लिए ऊपरी किनारे से स्वाइप करें।</string>
   <string name="prefs_dictionaries_cat">शब्दकोशों</string>
   <string name="choose_strongs_greek_dictionary_title">स्ट्रॉन्ग्स यूनानी शब्दकोश</string>
   <string name="choose_strongs_greek_dictionary_summary">यूनानी शब्द परिभाषाओं के लिए स्ट्रॉन्ग्स शब्दकोश चुनें</string>
@@ -1672,6 +1679,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="prefs_show_ai_doc_markers_summary">छंदों से जुड़े AI-जनित दस्तावेज़ पेजों के लिए मार्कर आइकन दिखाएं</string>
   <string name="prefs_show_ordinals_title">क्रमिक संख्याएं दिखाएं</string>
   <string name="prefs_show_ordinals_summary">टेक्स्ट में क्रमिक स्थिति मार्कर दिखाएं</string>
+  <string name="prefs_show_reading_progress_title">पठन प्रगति</string>
+  <string name="prefs_show_reading_progress_summary">दिखाएं कि आप पुस्तक में कितनी दूर तक पहुंचे हैं (प्रतिशत, पेज या अध्याय)</string>
   <string name="prefs_page_scroll_amount_title">पेज स्क्रॉल मात्रा</string>
   <string name="prefs_page_scroll_amount_summary">पेज ऊपर/नीचे के साथ पेज का कितना हिस्सा स्क्रॉल करें</string>
   <string name="prefs_scroll_helper_lines_title">स्क्रॉल सहायक रेखाएं</string>
@@ -1703,12 +1712,15 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="cloud_doc_status_cloud_only">केवल क्लाउड में</string>
   <string name="cloud_doc_status_update">अपडेट उपलब्ध है</string>
   <string name="cloud_doc_status_blocked">इस डिवाइस पर अवरुद्ध</string>
+  <string name="cloud_doc_status_wont_sync">क्लाउड में सिंक नहीं होगा</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">सभी</string>
   <string name="cloud_doc_filter_installed">इंस्टॉल किए गए</string>
   <string name="cloud_doc_filter_cloud">क्लाउड में</string>
   <string name="cloud_doc_filter_updates">अपडेट</string>
   <string name="cloud_doc_filter_blocked">अवरुद्ध</string>
+  <string name="cloud_doc_filter_device_only">केवल इस डिवाइस पर</string>
+  <string name="cloud_doc_filter_cloud_only">केवल क्लाउड में</string>
   <string name="cloud_doc_filter_removed">हटाए गए</string>
   <string name="cloud_doc_show_removed">हटाए गए दस्तावेज़ दिखाएं</string>
   <string name="cloud_doc_status_removed">क्लाउड से हटाया गया</string>
@@ -1721,6 +1733,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="cloud_doc_action_block">इस डिवाइस पर सिंक न करें</string>
   <string name="cloud_doc_action_unblock">इस डिवाइस पर अनुमति दें</string>
   <string name="cloud_doc_action_restore">क्लाउड पर पुनर्स्थापित करें</string>
+  <string name="cloud_doc_action_dont_sync">क्लाउड में सिंक न करें</string>
+  <string name="cloud_doc_action_allow_sync">क्लाउड में सिंक करें</string>
   <string name="cloud_doc_action_purge">क्लाउड इतिहास से हटाएं</string>
   <string name="cloud_doc_remove_all_confirm">%1$s को क्लाउड से और इस सहित आपके सभी डिवाइस से हटाएं?</string>
   <string name="cloud_doc_remove_cloud_confirm">%1$s को क्लाउड से हटाएं? इस डिवाइस की प्रति रखी जाती है; जिन डिवाइसों पर दस्तावेज़ सिंक चालू है, वे भी इसे हटा देंगे।</string>
@@ -1736,8 +1750,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="cloud_doc_summary_download_size">%1$d डाउनलोड करें (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">स्वचालित डाउनलोड Wi-Fi पर शुरू होंगे।</string>
   <string name="cloud_doc_sync_now_count_none">स्थानांतरित करने के लिए कुछ नहीं</string>
-  <string name="cloud_doc_bulk_download">चयनित डाउनलोड करें (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">सभी उपलब्ध दस्तावेज़ पहले ही डाउनलोड हो चुके हैं।</string>
+  <string name="cloud_doc_selected_count">%1$d चयनित</string>
+  <string name="cloud_doc_bulk_skipped">%1$d लागू नहीं होने के कारण छोड़े गए</string>
   <string name="document_sync_notification_title">दस्तावेज़ सिंक हो रहे हैं</string>
   <string name="document_sync_downloading">%1$s डाउनलोड हो रहा है (%2$d/%3$d)</string>
   <string name="document_sync_uploading">%1$s अपलोड हो रहा है (%2$d/%3$d)</string>

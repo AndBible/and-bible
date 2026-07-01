@@ -1,9 +1,9 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: 즐겨찾기
-bookmarksAndNotes: 즐겨찾기 & 내 참고들
+bookmarksAndNotes: "즐겨찾기 & 내 참고들"
 openMyNotes: 나의 노트에서 열기
-openStudyPad: 스터디 패드 (%s)에서 열기
-noteText: 각주 (%s)
+openStudyPad: "스터디 패드 (%s)에서 열기"
+noteText: "각주 (%s)"
 noteTextWithoutType: 각주
 crossReferenceText: 상호 참조
 findAllOccurrences: 모든 사건보기
@@ -23,15 +23,15 @@ myDocumentEmptyPlaceholder: 탭하여 이 페이지 편집 시작
 inputPlaceholder: 여기에 쓰기
 inputReference: 성경 참조 넣기
 invalidReference: 절이 없음
-bookmarkAccurate: 북마크가 %s에 만들어졌습니다
+bookmarkAccurate: "북마크가 %s에 만들어졌습니다"
 bookmarkInaccurate: "북마크 책 정보는 저장되지 않고, 내용은 %s에 표시됩니다"
 defaultBook: 기본 성경 번역본
 ok: 확인
 yes: "네"
-ambiguousSelection: "어떤 액션을 하시겠습니까?"
+ambiguousSelection: 어떤 액션을 하시겠습니까?
 cancel: 취소
-removeBookmarkConfirmationTitle: "북마크 삭제?"
-removeBookmarkConfirmation: "정말 이 북마크를 삭제할까요?"
+removeBookmarkConfirmationTitle: 북마크 삭제?
+removeBookmarkConfirmation: 정말 이 북마크를 삭제할까요?
 createdAt: "생성됨: %s"
 lastUpdatedOn: "최근 업데이트: %s"
 strongsAndMorph: 정의와 형태
@@ -39,12 +39,10 @@ externalLink: 외부 링크 열기
 referenceLink: 참조 링크 열기
 openFootnote: 각주 열기
 noMyNotesTitle: 이 장에 나의 노트 없음
-noMyNotesDescription: >-
-  성경에 북마크를 만들고 시작하세요. 북마크는 여기에 나타나고 개인 노트를 더할수 있습니다.
-emptyStudyPad: >-
-  빈 스터디 패드. 이 스터디 패드에 텍스트 항목을 만들거나 이 스터디 패드에 해당되는 북마크 이름을 가진 북마크를 만드세요.
-doYouWantToDeleteEntry: "이 스터디 패드 항목을 삭제할까요?"
-removeStudyPadConfirmationTitle: "스터디 패드 항목 지우기?"
+noMyNotesDescription: 성경에 북마크를 만들고 시작하세요. 북마크는 여기에 나타나고 개인 노트를 더할수 있습니다.
+emptyStudyPad: 빈 스터디 패드. 이 스터디 패드에 텍스트 항목을 만들거나 이 스터디 패드에 해당되는 북마크 이름을 가진 북마크를 만드세요.
+doYouWantToDeleteEntry: 이 스터디 패드 항목을 삭제할까요?
+removeStudyPadConfirmationTitle: 스터디 패드 항목 지우기?
 dragHelp: 드래그하여 순서 변경
 openAll: 모든 참조 열기
 editBookmarkPlaceholder: 탭하여 이 북마크의 내 노트 편집
@@ -54,7 +52,7 @@ assignLabelsMenuEntry1: 레이블 선택 또는 편집...
 favouriteLabels: 즐겨찾기 레이블
 recentLabels: 최근 레이블
 bookmarkLabels: 레이블 북마크
-refParserHelp: 영어 이외의 언어로 참조를 사용하려면 %s 모듈을 설치하세요.
+refParserHelp: "영어 이외의 언어로 참조를 사용하려면 %s 모듈을 설치하세요."
 openDownloads: 애드온 다운로드로 이동
 verseShare: 공유
 verseSpeak: 읽기
@@ -75,6 +73,9 @@ markedAsMemorized: 암송 완료
 removeFromTargets: 목표 -
 viewReadingProgress: 읽기/암송 진행 상황
 viewReadingProgressSettings: 읽기/암송 설정
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: 반복 듣기
 viewHelp: 도움말 보기
 verseNoteLong: 노트 쓰기

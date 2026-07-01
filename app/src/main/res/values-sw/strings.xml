@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Onyesha nambari za sura na mstari</string>
   <string name="prefs_e_ink_mode_title">Hali nyeusi na nyeupe</string>
   <string name="prefs_eink_mode_summary">Tumia programu katika hali ya rangi moja (bila rangi), kufaa zaidi kwa vifaa vya E-ink.</string>
+  <string name="prefs_display_color_mode_title">Hali ya rangi</string>
+  <string name="prefs_display_color_mode_summary">Chagua jinsi rangi zinavyoonyeshwa. Hali ya e-ink ya rangi hudumisha msingi mweusi na mweupe lakini huonyesha rangi za alamisho, kionyeshi cha dirisha linalotumika, na mistari ya usaidizi kwa rangi — kwa skrini za e-ink za rangi.</string>
+  <string name="prefs_display_color_mode_normal">Kawaida</string>
+  <string name="prefs_display_color_mode_bw">Nyeusi na nyeupe</string>
+  <string name="prefs_display_color_mode_color_eink">E-ink ya rangi</string>
   <string name="prefs_eink_settings_cat">Mipangilio ya E-ink</string>
   <string name="prefs_eink_display_title">Vipengele vya E-ink</string>
   <string name="prefs_eink_display_summary">Wezesha vipengele maalum vya e-ink (vitufe vya kusogeza kurasa, mistari ya msaada wa kusogeza)</string>
@@ -220,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Usionyeshe kionyeshi cha rejeleo la Biblia chenye uwazi wa nusu wakati programu iko katika hali ya skrini nzima</string>
   <string name="full_screen_hide_buttons_pref_title">Ficha mwambaa wa vitufe vya dirisha katika skrini nzima</string>
   <string name="full_screen_hide_buttons_pref_summary">Unapobadilisha hadi hali ya skrini nzima, ficha kiotomatiki mwambaa wa vitufe vya dirisha ulio chini ya skrini</string>
+  <string name="prefs_hide_status_bar_title">Ficha upau wa hali</string>
+  <string name="prefs_hide_status_bar_summary">Ficha upau wa hali wa Android (saa, arifa) huku ukiendelea kuonyesha upau wa vidhibiti wa AndBible mwenyewe. Inafaa kwa usomaji bila vikengeushi na kwa vifaa vya e-ink. Telezesha kidole kutoka ukingo wa juu ili kuuonyesha kwa muda.</string>
   <string name="prefs_dictionaries_cat">Kamusi</string>
   <string name="choose_strongs_greek_dictionary_title">Kamusi ya Kigiriki ya Strongs</string>
   <string name="choose_strongs_greek_dictionary_summary">Chagua kamusi ya Strongs kwa ufafanuzi wa maneno ya Kigiriki</string>
@@ -1602,6 +1609,8 @@ Usionyeshe ujumbe huu tena</string>
   <string name="prefs_show_ai_doc_markers_summary">Onyesha ikoni za alama kwa kurasa za hati zilizoundwa na AI zilizounganishwa na mistari</string>
   <string name="prefs_show_ordinals_title">Onyesha nambari za mpangilio</string>
   <string name="prefs_show_ordinals_summary">Onyesha alama za nafasi ya mpangilio katika maandishi</string>
+  <string name="prefs_show_reading_progress_title">Maendeleo ya usomaji</string>
+  <string name="prefs_show_reading_progress_summary">Onyesha ni kiasi gani umesoma kitabu (asilimia, ukurasa au sura)</string>
   <string name="prefs_page_scroll_amount_title">Kiasi cha kusogeza ukurasa</string>
   <string name="prefs_page_scroll_amount_summary">Kiasi cha ukurasa cha kusogeza na ukurasa juu/chini</string>
   <string name="prefs_scroll_helper_lines_title">Mistari ya msaada wa kusogeza</string>
@@ -1633,12 +1642,15 @@ Usionyeshe ujumbe huu tena</string>
   <string name="cloud_doc_status_cloud_only">Winguni pekee</string>
   <string name="cloud_doc_status_update">Sasisho linapatikana</string>
   <string name="cloud_doc_status_blocked">Imezuiwa kwenye kifaa hiki</string>
+  <string name="cloud_doc_status_wont_sync">Haitasawazishwa na wingu</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Zote</string>
   <string name="cloud_doc_filter_installed">Zilizosakinishwa</string>
   <string name="cloud_doc_filter_cloud">Winguni</string>
   <string name="cloud_doc_filter_updates">Sasisho</string>
   <string name="cloud_doc_filter_blocked">Zilizozuiwa</string>
+  <string name="cloud_doc_filter_device_only">Kwenye kifaa hiki tu</string>
+  <string name="cloud_doc_filter_cloud_only">Winguni pekee</string>
   <string name="cloud_doc_filter_removed">Zilizoondolewa</string>
   <string name="cloud_doc_show_removed">Onyesha hati zilizoondolewa</string>
   <string name="cloud_doc_status_removed">Imeondolewa winguni</string>
@@ -1651,6 +1663,8 @@ Usionyeshe ujumbe huu tena</string>
   <string name="cloud_doc_action_block">Usisawazishe kwenye kifaa hiki</string>
   <string name="cloud_doc_action_unblock">Ruhusu kwenye kifaa hiki</string>
   <string name="cloud_doc_action_restore">Rejesha winguni</string>
+  <string name="cloud_doc_action_dont_sync">Usisawazishe na wingu</string>
+  <string name="cloud_doc_action_allow_sync">Sawazisha na wingu</string>
   <string name="cloud_doc_action_purge">Ondoa kutoka historia ya wingu</string>
   <string name="cloud_doc_remove_all_confirm">Ondoa %1$s kutoka winguni na kutoka vifaa vyako vyote, ikiwa ni pamoja na hiki?</string>
   <string name="cloud_doc_remove_cloud_confirm">Ondoa %1$s kutoka winguni? Nakala iliyo kwenye kifaa hiki itahifadhiwa; vifaa vyenye usawazishaji wa hati pia vitaiondoa.</string>
@@ -1666,8 +1680,8 @@ Usionyeshe ujumbe huu tena</string>
   <string name="cloud_doc_summary_download_size">Pakua %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Upakuaji kiotomatiki utaanza kwa Wi-Fi.</string>
   <string name="cloud_doc_sync_now_count_none">Hakuna cha kuhamisha</string>
-  <string name="cloud_doc_bulk_download">Pakua zilizochaguliwa (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Hati zote zinazopatikana tayari zimepakuliwa.</string>
+  <string name="cloud_doc_selected_count">%1$d zimechaguliwa</string>
+  <string name="cloud_doc_bulk_skipped">Zimerukwa %1$d hazitumiki</string>
   <string name="document_sync_notification_title">Inasawazisha hati</string>
   <string name="document_sync_downloading">Inapakua %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Inapakia %1$s (%2$d/%3$d)</string>

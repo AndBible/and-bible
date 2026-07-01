@@ -88,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Mostrar números de capítulo y versículo</string>
   <string name="prefs_e_ink_mode_title">Modo negro &amp; blanco</string>
   <string name="prefs_eink_mode_summary">Utilice la aplicación en modo monocromo (sin colores), lo que la hace más adecuada para dispositivos de E-ink.</string>
+  <string name="prefs_display_color_mode_title">Modo de color</string>
+  <string name="prefs_display_color_mode_summary">Elige cómo se muestran los colores. El modo e-ink en color mantiene una base en blanco y negro pero muestra los colores de los marcadores, el indicador de ventana activa y las líneas de ayuda en color — para pantallas e-ink en color.</string>
+  <string name="prefs_display_color_mode_normal">Normal</string>
+  <string name="prefs_display_color_mode_bw">Blanco y negro</string>
+  <string name="prefs_display_color_mode_color_eink">E-ink en color</string>
   <string name="prefs_eink_settings_cat">Ajustes de E-ink</string>
   <string name="prefs_eink_display_title">Funciones E-ink</string>
   <string name="prefs_eink_display_summary">Activar funciones específicas de E-ink (botones de desplazamiento por páginas, líneas auxiliares de desplazamiento)</string>
@@ -222,6 +227,8 @@
   <string name="hide_bible_reference_overlay_summary">No mostrar la superposición semitransparente con referencia de Biblia cuando la aplicación está en modo pantalla completa</string>
   <string name="full_screen_hide_buttons_pref_title">Ocultar barra de botones de ventana en pantalla completa</string>
   <string name="full_screen_hide_buttons_pref_summary">Cuando cambie al modo de pantalla completa, oculte automáticamente la barra de botones de la ventana que se encuentra en la parte inferior de la pantalla</string>
+  <string name="prefs_hide_status_bar_title">Ocultar barra de estado</string>
+  <string name="prefs_hide_status_bar_summary">Oculta la barra de estado de Android (reloj, notificaciones) manteniendo visible la propia barra de herramientas de AndBible. Útil para una lectura sin distracciones y para dispositivos e-ink. Desliza desde el borde superior para mostrarla temporalmente.</string>
   <string name="prefs_dictionaries_cat">Diccionarios</string>
   <string name="choose_strongs_greek_dictionary_title">Diccionario griego de Strong</string>
   <string name="choose_strongs_greek_dictionary_summary">Elegir el diccionario de Strong para las definiciones de palabras griegas</string>
@@ -1701,6 +1708,8 @@ informe los problemas a los mantenedores de texto
   <string name="prefs_show_ai_doc_markers_summary">Mostrar iconos de marcador para páginas de documentos generados por IA vinculadas a versículos</string>
   <string name="prefs_show_ordinals_title">Mostrar números ordinales</string>
   <string name="prefs_show_ordinals_summary">Mostrar marcadores de posición ordinal en el texto</string>
+  <string name="prefs_show_reading_progress_title">Progreso de lectura</string>
+  <string name="prefs_show_reading_progress_summary">Muestra cuánto has avanzado en el libro (porcentaje, página o capítulo)</string>
   <string name="prefs_page_scroll_amount_title">Cantidad de desplazamiento de página</string>
   <string name="prefs_page_scroll_amount_summary">Cuánto desplazar la página con avance/retroceso de página</string>
   <string name="prefs_scroll_helper_lines_title">Líneas guía de desplazamiento</string>
@@ -1732,12 +1741,15 @@ informe los problemas a los mantenedores de texto
   <string name="cloud_doc_status_cloud_only">Solo en la nube</string>
   <string name="cloud_doc_status_update">Actualización disponible</string>
   <string name="cloud_doc_status_blocked">Bloqueado en este dispositivo</string>
+  <string name="cloud_doc_status_wont_sync">No se sincronizará con la nube</string>
   <string name="cloud_doc_version_prefix">v%1$s</string>
   <string name="cloud_doc_filter_all">Todos</string>
   <string name="cloud_doc_filter_installed">Instalados</string>
   <string name="cloud_doc_filter_cloud">En la nube</string>
   <string name="cloud_doc_filter_updates">Actualizaciones</string>
   <string name="cloud_doc_filter_blocked">Bloqueados</string>
+  <string name="cloud_doc_filter_device_only">Solo en este dispositivo</string>
+  <string name="cloud_doc_filter_cloud_only">Solo en la nube</string>
   <string name="cloud_doc_filter_removed">Eliminados</string>
   <string name="cloud_doc_show_removed">Mostrar documentos eliminados</string>
   <string name="cloud_doc_status_removed">Eliminado de la nube</string>
@@ -1750,6 +1762,8 @@ informe los problemas a los mantenedores de texto
   <string name="cloud_doc_action_block">No sincronizar en este dispositivo</string>
   <string name="cloud_doc_action_unblock">Permitir en este dispositivo</string>
   <string name="cloud_doc_action_restore">Restaurar a la nube</string>
+  <string name="cloud_doc_action_dont_sync">No sincronizar con la nube</string>
+  <string name="cloud_doc_action_allow_sync">Sincronizar con la nube</string>
   <string name="cloud_doc_action_purge">Eliminar del historial de la nube</string>
   <string name="cloud_doc_remove_all_confirm">¿Eliminar %1$s de la nube y de todos tus dispositivos, incluido este?</string>
   <string name="cloud_doc_remove_cloud_confirm">¿Eliminar %1$s de la nube? Se conserva la copia de este dispositivo; los dispositivos con la sincronización de documentos activada también la eliminarán.</string>
@@ -1764,19 +1778,9 @@ informe los problemas a los mantenedores de texto
   <string name="cloud_doc_summary_download">Descargar %1$d</string>
   <string name="cloud_doc_summary_download_size">Descargar %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Las descargas automáticas empezarán cuando haya Wi-Fi.</string>
-  <plurals name="cloud_doc_sync_now_count">
-    <item quantity="one">%1$d documento</item>
-    <item quantity="many">%1$d documentos</item>
-    <item quantity="other">%1$d documentos</item>
-  </plurals>
-  <plurals name="cloud_doc_sync_now_count_size">
-    <item quantity="one">%1$d documento (%2$s)</item>
-    <item quantity="many">%1$d documentos (%2$s)</item>
-    <item quantity="other">%1$d documentos (%2$s)</item>
-  </plurals>
   <string name="cloud_doc_sync_now_count_none">Nada que transferir</string>
-  <string name="cloud_doc_bulk_download">Descargar seleccionados (%1$d)</string>
-  <string name="cloud_doc_nothing_to_download">Todos los documentos disponibles ya están descargados.</string>
+  <string name="cloud_doc_selected_count">%1$d seleccionado(s)</string>
+  <string name="cloud_doc_bulk_skipped">%1$d omitido(s) por no aplicable</string>
   <string name="document_sync_notification_title">Sincronizando documentos</string>
   <string name="document_sync_downloading">Descargando %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Subiendo %1$s (%2$d/%3$d)</string>

@@ -73,6 +73,9 @@ markedAsMemorized: حفظ شدہ
 removeFromTargets: ہدف -
 viewReadingProgress: پڑھنے/حفظ کی پیشرفت
 viewReadingProgressSettings: پڑھنے/حفظ کی ترتیبات
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ب %s/%s"
 listenInLoop: لوپ میں سنیں
 viewHelp: مدد دیکھیں
 verseNoteLong: نوٹ لکھیں
