@@ -37,6 +37,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.util.Collections
 
 object DocumentSync {
@@ -88,7 +89,17 @@ object DocumentSync {
     )
 
     suspend fun scan(includeDeleted: Boolean = false): List<DocumentStatusItem> {
-        if (store() != null) refreshCache()   // signed in: incremental network refresh into the cache
+        // Signed in: incrementally refresh the cache from the network (a no-op when signed out).
+        // A network failure — most commonly the device being offline — must NOT crash the caller:
+        // the management view (CloudDocumentsActivity) and the "enable document sync" flow both call
+        // scan(), so an uncaught IOException here would crash the app on opening the sync view while
+        // offline (OSTicket 3362). The network reach is documentsSyncFolderId() -> listFiles(),
+        // which throws IOException when offline; on failure we fall back to the cached listing.
+        try {
+            refreshCache()
+        } catch (e: IOException) {
+            Log.i(TAG, "Network unavailable during document scan; showing cached listing", e)
+        }
         return scanCached(includeDeleted)     // offline / after refresh: build from the cache
     }
 
