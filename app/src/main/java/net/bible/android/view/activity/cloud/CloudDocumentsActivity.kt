@@ -267,7 +267,7 @@ class CloudDocumentsActivity : ActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Selection mode is entered by long-pressing a row, so no explicit menu item is needed.
-        // Explicit order args keep the display order: Sync now → Re-scan → Show removed.
+        // Explicit order args keep the display order: Sync now → Re-scan → Show removed → Help.
         menu.add(Menu.NONE, MENU_SYNC_NOW, 0, R.string.cloud_doc_sync_now).apply {
             setIcon(R.drawable.ic_syncdb_24dp)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
@@ -280,6 +280,10 @@ class CloudDocumentsActivity : ActivityBase() {
             setIcon(R.drawable.ic_cloud_off_24dp)
             setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
             isCheckable = true
+        }
+        menu.add(Menu.NONE, MENU_HELP, 3, R.string.help).apply {
+            setIcon(R.drawable.ic_help_white_24dp)
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
         }
         return true
     }
@@ -298,6 +302,8 @@ class CloudDocumentsActivity : ActivityBase() {
             isChecked = DocumentSyncSettings.showRemovedDocuments
         }
         menu.findItem(MENU_RESCAN)?.isVisible = CloudSync.signedIn && !adapter.isSelectionMode()
+        // Help is documentation, always relevant; hidden only while the selection CAB overlays the app bar.
+        menu.findItem(MENU_HELP)?.isVisible = !adapter.isSelectionMode()
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -320,6 +326,15 @@ class CloudDocumentsActivity : ActivityBase() {
         }
         MENU_RESCAN -> {
             runSyncAction { DocumentSync.resetListingCache() }   // clears cache+watermark, then re-scans
+            true
+        }
+        MENU_HELP -> {
+            CommonUtils.showHelpDialog(
+                activity = this,
+                titleResId = R.string.help,
+                messageResId = R.string.help_document_sync_text,
+                helpPath = "document_sync.html",
+            )
             true
         }
         android.R.id.home -> {
@@ -794,5 +809,6 @@ class CloudDocumentsActivity : ActivityBase() {
         private const val MENU_SYNC_NOW = 2
         private const val MENU_SHOW_REMOVED = 3
         private const val MENU_RESCAN = 4
+        private const val MENU_HELP = 5
     }
 }
