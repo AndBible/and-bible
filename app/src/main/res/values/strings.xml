@@ -1982,4 +1982,5 @@
     <string name="document_sync_started">Document sync started</string>
     <string name="document_sync_enable_dialog_title">Start syncing documents?</string>
     <string name="document_sync_enable_dialog_nothing">No documents to transfer yet. Newly installed documents will sync automatically.</string>
+    <string name="help_document_sync_text">Document sync copies your installed Bibles, commentaries and other documents to the cloud and keeps them in sync across your devices. Use this view to see what is stored in the cloud, download or upload individual documents, remove documents, and control what syncs to this device.</string>
 </resources>
