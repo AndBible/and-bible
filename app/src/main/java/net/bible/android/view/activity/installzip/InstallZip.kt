@@ -54,6 +54,7 @@ import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.epub.EPUB_OPTIMIZER_VERSION
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
+import net.bible.service.sword.epub.deleteEpubModule
 import net.bible.service.sword.epub.epubInitials
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.esword.addESwordBook
@@ -737,13 +738,16 @@ class InstallZip : ActivityBase() {
             val optimizerVersion = ((book as? SwordGenBook)?.backend as? EpubBackend)?.state?.optimizerVersion ?: 1
             if(DatabaseContainer.ready && bookmarksDao.genericBookmarkCountFor(initials) > 0 && optimizerVersion < EPUB_OPTIMIZER_VERSION) {
                 if(CommonUtils.documentUpgradeConfirmation(this@InstallZip)) {
-                    dir.deleteRecursively()
+                    // Remove the internal database too, not just the epub dir: reusing an orphaned
+                    // database when re-optimizing the fresh epub would leave stale fragment rows
+                    // whose files no longer exist.
+                    deleteEpubModule(dir)
                 } else {
                     finish()
                     return@withContext false
                 }
             } else {
-                dir.deleteRecursively()
+                deleteEpubModule(dir)
             }
         }
         dir.mkdirs()
