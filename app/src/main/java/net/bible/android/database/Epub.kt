@@ -27,6 +27,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
+import androidx.room.Transaction
 import androidx.room.TypeConverters
 import net.bible.android.database.migrations.Migration
 import net.bible.android.database.migrations.makeMigration
@@ -94,6 +95,24 @@ interface EpubDao {
 
     @Query("SELECT * FROM EpubMeta WHERE id = 0")
     fun getMeta(): EpubMeta?
+
+    @Query("DELETE FROM EpubFragment") fun deleteAllFragments()
+    @Query("DELETE FROM EpubHtmlToFrag") fun deleteAllHtmlToFrags()
+    @Query("DELETE FROM StyleSheet") fun deleteAllStyleSheets()
+    @Query("DELETE FROM EpubMeta") fun deleteAllMeta()
+
+    /**
+     * Remove all previously-optimized data. Called before re-optimizing so that stale
+     * fragment rows (whose files were deleted when the optimized dir was wiped) cannot
+     * survive and later point the reader at non-existent fragment files.
+     */
+    @Transaction
+    fun clear() {
+        deleteAllFragments()
+        deleteAllHtmlToFrags()
+        deleteAllStyleSheets()
+        deleteAllMeta()
+    }
 }
 
 

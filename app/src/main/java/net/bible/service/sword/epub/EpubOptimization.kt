@@ -226,6 +226,10 @@ fun EpubBackendState.optimizeEpub() {
     optimizeLockFile.outputStream().use { it.write(1)}
     val writeDb = getEpubDatabase(appDbFilename)
     val writeDao = writeDb.epubDao()
+    // The database file lives in internal storage and can outlive the (external) epub dir
+    // when a module is removed via the failure path. Clear any stale rows from a previous
+    // optimization so newly-written fragment files are the only ones referenced.
+    writeDao.clear()
     val start = System.currentTimeMillis()
     for(k in originalIds) {
         val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: application.getString(R.string.nameless)
