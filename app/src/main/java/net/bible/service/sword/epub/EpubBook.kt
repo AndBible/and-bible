@@ -142,6 +142,19 @@ val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyTy
     }
 }
 
+/**
+ * Remove an EPUB module completely: the (external) epub directory *and* its Room database
+ * in internal storage. The database must be deleted explicitly — [File.deleteRecursively] on
+ * the epub dir leaves the database orphaned, and a later re-download of a same-named epub
+ * would reuse it via [getEpubDatabase], resurrecting stale fragment rows that reference
+ * fragment files the fresh optimization never wrote (which then crash the reader).
+ */
+fun deleteEpubModule(epubDir: File) {
+    epubDir.deleteRecursively()
+    val appDbFilename = "epub-${epubInitials(epubDir.name)}.sqlite3"
+    application.deleteDatabase(appDbFilename)
+}
+
 fun addEpubBook(epubDir: File) {
     if(!(epubDir.canRead() && epubDir.isDirectory)) return
 
@@ -149,7 +162,7 @@ fun addEpubBook(epubDir: File) {
     if(optimizeLockFile.exists()) {
         // Optimization has failed, better we remove module so that
         // it does crash every time. Hoping user also sends bug report about crash...
-        epubDir.deleteRecursively()
+        deleteEpubModule(epubDir)
         return
     }
 
@@ -179,15 +192,15 @@ fun addManuallyInstalledEpubBooks(): Boolean {
             addEpubBook(f)
         } catch (e: JDOMParseException) {
             Log.e(TAG, "addEpubBook catched JDOMParseException", e)
-            f.deleteRecursively()
+            deleteEpubModule(f)
             ok = false
         } catch (e: IOException) {
             Log.e(TAG, "addEpubBook catched IOException", e)
-            f.deleteRecursively()
+            deleteEpubModule(f)
             ok = false
         } catch (e: Exception) {
             Log.e(TAG, "addEpubBook catched another exception", e)
-            f.deleteRecursively()
+            deleteEpubModule(f)
             ok = false
         }
     }

@@ -22,13 +22,16 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException
 import android.util.Log
 import io.requery.android.database.sqlite.SQLiteDatabase
 import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
+import net.bible.android.BibleApplication.Companion.application
 import java.io.File
 
 
 data class EpubSearchResult(val fragId: Long, val ordinal: Int, val text: String)
 
 class EpubSearch(val file: File) {
-    private val db = try {
+    // The requery SQLite driver is excluded from the unit-test classpath (see app/build.gradle.kts),
+    // so skip opening the search database under tests — mirrors the dbFactory guard in EpubBook.kt.
+    private val db = if (application.isRunningTests) null else try {
         SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY)
     } catch (e: SQLiteCantOpenDatabaseException) {
         Log.e("EpubSearch", "Could not open database ${file.path}")
