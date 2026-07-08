@@ -87,6 +87,8 @@ import net.bible.android.control.bookmark.StudyPadOrderEvent
 import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
+import net.bible.android.control.event.onMain
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
@@ -918,12 +920,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             "?lang=$lang&fontModuleNames=$fontModuleNames&styleModuleNames=$styleModuleNames&featureModuleNames=$featureModuleNames&rtl=$isRtl&night=$nightMode")
     }
 
-     fun onEvent(e: ReloadAddonsEvent) {
-        val fontModuleNames = json.encodeToString(serializer(), AndBibleAddons.fontModuleNames)
-        val featureModuleNames = json.encodeToString(serializer(), AndBibleAddons.featureModuleNames)
-        val styleModuleNames = json.encodeToString(serializer(), AndBibleAddons.styleModuleNames)
-        executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames, featureModuleNames: $featureModuleNames, styleModuleNames: $styleModuleNames});")
-    }
 
     override fun destroy() {
         toBeDestroyed = true
@@ -936,7 +932,219 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         set(value) {
             if(value == field) return
             if(value) {
-                ABEventBus.register(this)
+                ABEventBus.register(this) {
+                    on<ReloadAddonsEvent> { e ->
+                        val fontModuleNames = json.encodeToString(serializer(), AndBibleAddons.fontModuleNames)
+                        val featureModuleNames = json.encodeToString(serializer(), AndBibleAddons.featureModuleNames)
+                        val styleModuleNames = json.encodeToString(serializer(), AndBibleAddons.styleModuleNames)
+                        executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames, featureModuleNames: $featureModuleNames, styleModuleNames: $styleModuleNames});")
+                    }
+                    on<AppSettingsUpdated> { event ->
+                        updateConfig()
+                    }
+                    on<BookmarksAddedOrUpdatedEvent> { event ->
+                        val document = firstDocument
+
+                        val clientBookmarks = event.bookmarks.map {
+                            when (it) {
+                                is BookmarkEntities.BibleBookmarkWithNotes ->
+                                    ClientBibleBookmark(
+                                        it,
+                                        when (document) {
+                                            is BibleDocument -> document.swordBook.versification
+                                            is MyNotesDocument -> KJVA
+                                            else -> null
+                                        }
+                                    )
+
+                                is BookmarkEntities.GenericBookmarkWithNotes -> ClientGenericBookmark(it)
+                                else -> throw RuntimeException("Invalid type")
+                            }
+                        }.map { it.asJson }
+
+                        val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
+                        executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
+                    }
+                    on<MemorizationDataChangedEvent> { event ->
+                        val doc = firstDocument
+                        if (doc !is BibleDocument && doc !is MemorizeDocument) return@on
+
+                        // Convert KJV ordinals to document versification
+                        val v11n = when (doc) {
+                            is BibleDocument -> doc.swordBook.versification
+                            is MemorizeDocument -> doc.bookInitials?.let {
+                                (SwordDocumentFacade.getDocumentByInitials(it) as? SwordBook)?.versification
+                            }
+                            else -> null
+                        }
+                        fun convertOrdinals(kjvOrdinals: List<Int>): String {
+                            val converted = if (v11n != null) {
+                                kjvOrdinals.map { Verse(KJVA, it).toV11n(v11n).ordinal }
+                            } else {
+                                kjvOrdinals
+                            }
+                            return json.encodeToString(serializer(), converted)
+                        }
+
+                        val addedMemorized = convertOrdinals(event.addedMemorized)
+                        val removedMemorized = convertOrdinals(event.removedMemorized)
+                        val addedTargets = convertOrdinals(event.addedTargets)
+                        val removedTargets = convertOrdinals(event.removedTargets)
+                        executeJavascriptOnUiThread("""bibleView.emit("update_memorization_data", {
+                            addedMemorized: $addedMemorized, removedMemorized: $removedMemorized,
+                            addedTargets: $addedTargets, removedTargets: $removedTargets
+                        });""")
+                    }
+                    on<ChapterReadStatusChangedEvent> { event ->
+                        val doc = firstDocument
+                        if (doc !is BibleDocument) return@on
+                        // Different windows may show the same chapter number across different books, so
+                        // filter by KJV book ordinal here — the Vue-side tracker only checks chapter number.
+                        val docKjvBookOrdinal = doc.verseRange.toV11n(KJVA).start.book.ordinal
+                        if (docKjvBookOrdinal != event.kjvBookOrdinal) return@on
+                        executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
+                            chapter: ${event.chapter}, count: ${event.count}
+                        });""")
+                    }
+                    on<ActiveCycleChangedEvent> { event ->
+                        val doc = firstDocument
+                        if (doc !is BibleDocument) return@on
+                        if (minChapter < 0 || maxChapter < 0) return@on
+                        val v11n = doc.swordBook.versification
+                        val book = doc.verseRange.start.book
+                        for (chapter in minChapter..maxChapter) {
+                            val count = ProgressControl.getChapterReadCount(v11n, book, chapter)
+                            executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
+                                chapter: $chapter, count: $count
+                            });""")
+                        }
+                    }
+                    on<ReadingProgressSettingsChangedEvent> { event ->
+                        val settingsJson = ReadingProgressSettings.getBundleAsJson()
+                        executeJavascriptOnUiThread("""bibleView.emit("update_reading_progress_settings", $settingsJson);""")
+                        updateConfig()
+                    }
+                    on<AiDocPagesChangedEvent> { event ->
+                        // For Bible documents, convert ordinals to target versification.
+                        // For all other documents, pass markers as-is — Vue.js filters by sourceBookInitials/Key.
+                        val v11n = (firstDocument as? BibleDocument)?.swordBook?.versification
+
+                        if (event.markers.isNotEmpty()) {
+                            val markerStr = event.markers.map { ClientAiDocMarker(it, v11n).asJson }.joinToString(",", "[", "]")
+                            executeJavascriptOnUiThread("""bibleView.emit("add_or_update_ai_doc_markers", $markerStr);""")
+                        }
+                        if (event.deletedPageIds.isNotEmpty()) {
+                            val idsStr = json.encodeToString(serializer(), event.deletedPageIds.map { it.toString() })
+                            executeJavascriptOnUiThread("""bibleView.emit("delete_ai_doc_markers", $idsStr);""")
+                        }
+                    }
+                    on<BookmarkNoteModifiedEvent> { event ->
+                        executeJavascriptOnUiThread("""
+                            bibleView.emit("bookmark_note_modified", {id: "${event.bookmarkId}", lastUpdatedOn: ${event.lastUpdatedOn}, notes: ${json.encodeToString(serializer(), event.notes)}});
+                        """)
+                    }
+                    on<StudyPadOrderEvent> { event ->
+                        val doc = firstDocument
+                        if(doc !is StudyPadDocument || doc.label.id != event.labelId) return@on
+                        val studyPadTextEntryJson = json.encodeToString(serializer(), event.newStudyPadTextEntry)
+                        val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
+                        val genericBookmarkToLabels = json.encodeToString(serializer(), event.genericBookmarkToLabelsOrderChanged)
+                        val studyPadItems = json.encodeToString(serializer(), event.studyPadOrderChanged)
+                        executeJavascriptOnUiThread("""
+                            bibleView.emit("add_or_update_study_pad",  {
+                                studyPadTextEntry: $studyPadTextEntryJson,
+                                bookmarkToLabelsOrdered: $bookmarkToLabels,
+                                genericBookmarkToLabelsOrdered: $genericBookmarkToLabels,
+                                studyPadItemsOrdered: $studyPadItems
+                                });
+                        """)
+                    }
+                    on<BookmarkToLabelAddedOrUpdatedEvent> { event ->
+                        val doc = firstDocument
+                        if(doc !is StudyPadDocument || doc.label.id != event.bookmarkToLabel.labelId) return@on
+                        val bookmarkToLabelStr = when(event.bookmarkToLabel) {
+                            is BookmarkEntities.BibleBookmarkToLabel ->json.encodeToString(serializer(), event.bookmarkToLabel)
+                            is BookmarkEntities.GenericBookmarkToLabel -> json.encodeToString(serializer(), event.bookmarkToLabel)
+                            else -> throw RuntimeException("Illegal type")
+                        }
+                        executeJavascriptOnUiThread("""
+                            bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabelStr);
+                        """)
+                    }
+                    on<StudyPadTextEntryDeleted> { event ->
+                        if(firstDocument !is StudyPadDocument) return@on
+                        executeJavascriptOnUiThread("""
+                            bibleView.emit("delete_study_pad_text_entry", "${event.studyPadTextEntryId}");
+                        """)
+                    }
+                    on<LabelAddedOrUpdatedEvent> { event ->
+                        val workspaceId = windowControl.windowRepository.id
+                        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+                        labelOverridesMap = dao.labelOverrides(workspaceId).associateBy { it.labelId }
+                        val overriddenLabel = event.label.withStyleOverrides(labelOverridesMap[event.label.id])
+                        val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
+                        executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
+                    }
+                    on<BookmarksDeletedEvent> { event ->
+                        val bookmarkIds = json.encodeToString(serializer(), event.bookmarkIds)
+                        executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
+                    }
+                    on<LabelsDeletedEvent> { event ->
+                        val labelIds = json.encodeToString(serializer(), event.labelIds)
+                        executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
+                    }
+                    on<CurrentWindowChangedEvent> { event ->
+                        if (window == event.activeWindow) {
+                            bibleJavascriptInterface.notificationsEnabled = true
+                            resumeTiltScroll()
+                        } else {
+                            bibleJavascriptInterface.notificationsEnabled = false
+                            pauseTiltScroll()
+                        }
+                        updateActive()
+                    }
+                    on<ScrollSecondaryWindowEvent> { event ->
+                        if (window == event.window) {
+                            scrollOrJumpToVerse(event.verse)
+                        }
+                    }
+                    on<MainBibleActivity.ConfigurationChanged> { event ->
+                        checkWindows = true
+                    }
+                    on<NumberOfWindowsChangedEvent> { event ->
+                        if(window.isVisible) {
+                            updateOffsets(true)
+                            updateConfig()
+                        }
+                    }
+                    on<MainBibleActivity.FullScreenEvent> { event -> updateOffsets() }
+                    on<MainBibleActivity.SystemInsetsChangedEvent> { event -> updateOffsets() }
+                    on<RestoreButtonsVisibilityChanged> { event -> updateOffsets() }
+                    on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
+                    on<MainBibleActivity.AgentLogOffsetsUpdated> { event ->
+                        Log.i(TAG, "BibleView received AgentLogOffsetsUpdated")
+                        updateOffsets(true)
+                    }
+                    on<WebViewsBuiltEvent> { event ->
+                        checkWindows = true
+                    }
+                    on<WindowSizeChangedEvent> { event ->
+                        Log.i(TAG, "window size changed")
+                        separatorMoving = !event.isFinished
+                        if(!separatorMoving && !mainBibleActivity.isSplitVertically) {
+                            checkWindows = true
+                            doCheckWindows()
+                        }
+                    }
+                    onMain<WebViewsBuiltEvent> { event ->
+                        if(toBeDestroyed)
+                            doDestroy()
+                    }
+                    onMain<AfterRemoveWebViewEvent> { event ->
+                        if(toBeDestroyed)
+                            doDestroy()
+                    }
+                }
             } else {
                 ABEventBus.unregister(this)
             }
@@ -1540,10 +1748,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 """
     }
 
-    fun onEvent(event: AppSettingsUpdated) {
-        updateConfig()
-    }
-
     private fun updateConfig(initial: Boolean = false) {
         executeJavascriptOnUiThread(getUpdateConfigCommand(initial))
     }
@@ -1749,220 +1953,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return this
     }
 
-    fun onEvent(event: BookmarksAddedOrUpdatedEvent) {
-        val document = firstDocument
-
-        val clientBookmarks = event.bookmarks.map {
-            when (it) {
-                is BookmarkEntities.BibleBookmarkWithNotes ->
-                    ClientBibleBookmark(
-                        it,
-                        when (document) {
-                            is BibleDocument -> document.swordBook.versification
-                            is MyNotesDocument -> KJVA
-                            else -> null
-                        }
-                    )
-
-                is BookmarkEntities.GenericBookmarkWithNotes -> ClientGenericBookmark(it)
-                else -> throw RuntimeException("Invalid type")
-            }
-        }.map { it.asJson }
-
-        val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
-        executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
-    }
-
-    fun onEvent(event: MemorizationDataChangedEvent) {
-        val doc = firstDocument
-        if (doc !is BibleDocument && doc !is MemorizeDocument) return
-
-        // Convert KJV ordinals to document versification
-        val v11n = when (doc) {
-            is BibleDocument -> doc.swordBook.versification
-            is MemorizeDocument -> doc.bookInitials?.let {
-                (SwordDocumentFacade.getDocumentByInitials(it) as? SwordBook)?.versification
-            }
-            else -> null
-        }
-        fun convertOrdinals(kjvOrdinals: List<Int>): String {
-            val converted = if (v11n != null) {
-                kjvOrdinals.map { Verse(KJVA, it).toV11n(v11n).ordinal }
-            } else {
-                kjvOrdinals
-            }
-            return json.encodeToString(serializer(), converted)
-        }
-
-        val addedMemorized = convertOrdinals(event.addedMemorized)
-        val removedMemorized = convertOrdinals(event.removedMemorized)
-        val addedTargets = convertOrdinals(event.addedTargets)
-        val removedTargets = convertOrdinals(event.removedTargets)
-        executeJavascriptOnUiThread("""bibleView.emit("update_memorization_data", {
-            addedMemorized: $addedMemorized, removedMemorized: $removedMemorized,
-            addedTargets: $addedTargets, removedTargets: $removedTargets
-        });""")
-    }
-
-    fun onEvent(event: ChapterReadStatusChangedEvent) {
-        val doc = firstDocument
-        if (doc !is BibleDocument) return
-        // Different windows may show the same chapter number across different books, so
-        // filter by KJV book ordinal here — the Vue-side tracker only checks chapter number.
-        val docKjvBookOrdinal = doc.verseRange.toV11n(KJVA).start.book.ordinal
-        if (docKjvBookOrdinal != event.kjvBookOrdinal) return
-        executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-            chapter: ${event.chapter}, count: ${event.count}
-        });""")
-    }
-
-    fun onEvent(event: ActiveCycleChangedEvent) {
-        val doc = firstDocument
-        if (doc !is BibleDocument) return
-        if (minChapter < 0 || maxChapter < 0) return
-        val v11n = doc.swordBook.versification
-        val book = doc.verseRange.start.book
-        for (chapter in minChapter..maxChapter) {
-            val count = ProgressControl.getChapterReadCount(v11n, book, chapter)
-            executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-                chapter: $chapter, count: $count
-            });""")
-        }
-    }
-
-    fun onEvent(event: ReadingProgressSettingsChangedEvent) {
-        val settingsJson = ReadingProgressSettings.getBundleAsJson()
-        executeJavascriptOnUiThread("""bibleView.emit("update_reading_progress_settings", $settingsJson);""")
-        updateConfig()
-    }
-
-    fun onEvent(event: AiDocPagesChangedEvent) {
-        // For Bible documents, convert ordinals to target versification.
-        // For all other documents, pass markers as-is — Vue.js filters by sourceBookInitials/Key.
-        val v11n = (firstDocument as? BibleDocument)?.swordBook?.versification
-
-        if (event.markers.isNotEmpty()) {
-            val markerStr = event.markers.map { ClientAiDocMarker(it, v11n).asJson }.joinToString(",", "[", "]")
-            executeJavascriptOnUiThread("""bibleView.emit("add_or_update_ai_doc_markers", $markerStr);""")
-        }
-        if (event.deletedPageIds.isNotEmpty()) {
-            val idsStr = json.encodeToString(serializer(), event.deletedPageIds.map { it.toString() })
-            executeJavascriptOnUiThread("""bibleView.emit("delete_ai_doc_markers", $idsStr);""")
-        }
-    }
-
-    fun onEvent(event: BookmarkNoteModifiedEvent) {
-        executeJavascriptOnUiThread("""
-            bibleView.emit("bookmark_note_modified", {id: "${event.bookmarkId}", lastUpdatedOn: ${event.lastUpdatedOn}, notes: ${json.encodeToString(serializer(), event.notes)}});
-        """)
-    }
-
-    fun onEvent(event: StudyPadOrderEvent) {
-        val doc = firstDocument
-        if(doc !is StudyPadDocument || doc.label.id != event.labelId) return
-        val studyPadTextEntryJson = json.encodeToString(serializer(), event.newStudyPadTextEntry)
-        val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
-        val genericBookmarkToLabels = json.encodeToString(serializer(), event.genericBookmarkToLabelsOrderChanged)
-        val studyPadItems = json.encodeToString(serializer(), event.studyPadOrderChanged)
-        executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_study_pad",  {
-                studyPadTextEntry: $studyPadTextEntryJson, 
-                bookmarkToLabelsOrdered: $bookmarkToLabels, 
-                genericBookmarkToLabelsOrdered: $genericBookmarkToLabels, 
-                studyPadItemsOrdered: $studyPadItems
-                });
-        """)
-    }
-
-    fun onEvent(event: BookmarkToLabelAddedOrUpdatedEvent) {
-        val doc = firstDocument
-        if(doc !is StudyPadDocument || doc.label.id != event.bookmarkToLabel.labelId) return
-        val bookmarkToLabelStr = when(event.bookmarkToLabel) {
-            is BookmarkEntities.BibleBookmarkToLabel ->json.encodeToString(serializer(), event.bookmarkToLabel)
-            is BookmarkEntities.GenericBookmarkToLabel -> json.encodeToString(serializer(), event.bookmarkToLabel)
-            else -> throw RuntimeException("Illegal type")
-        }
-        executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabelStr);
-        """)
-    }
-
-    fun onEvent(event: StudyPadTextEntryDeleted) {
-        if(firstDocument !is StudyPadDocument) return
-        executeJavascriptOnUiThread("""
-            bibleView.emit("delete_study_pad_text_entry", "${event.studyPadTextEntryId}");
-        """)
-    }
-
-    fun onEvent(event: LabelAddedOrUpdatedEvent) {
-        val workspaceId = windowControl.windowRepository.id
-        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        labelOverridesMap = dao.labelOverrides(workspaceId).associateBy { it.labelId }
-        val overriddenLabel = event.label.withStyleOverrides(labelOverridesMap[event.label.id])
-        val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
-        executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
-    }
-
-    fun onEvent(event: BookmarksDeletedEvent) {
-        val bookmarkIds = json.encodeToString(serializer(), event.bookmarkIds)
-        executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
-    }
-
-    fun onEvent(event: LabelsDeletedEvent) {
-        val labelIds = json.encodeToString(serializer(), event.labelIds)
-        executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
-    }
-
-    fun onEvent(event: CurrentWindowChangedEvent) {
-        if (window == event.activeWindow) {
-            bibleJavascriptInterface.notificationsEnabled = true
-            resumeTiltScroll()
-        } else {
-            bibleJavascriptInterface.notificationsEnabled = false
-            pauseTiltScroll()
-        }
-        updateActive()
-    }
-
-    fun onEvent(event: ScrollSecondaryWindowEvent) {
-        if (window == event.window) {
-            scrollOrJumpToVerse(event.verse)
-        }
-    }
-
     private var checkWindows = false
-
-    fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
-        checkWindows = true
-    }
-
-    fun onEvent(event: NumberOfWindowsChangedEvent) {
-        if(window.isVisible) {
-            updateOffsets(true)
-            updateConfig()
-        }
-    }
-
-    fun onEvent(event: MainBibleActivity.FullScreenEvent) = updateOffsets()
-
-    fun onEvent(event: MainBibleActivity.SystemInsetsChangedEvent) = updateOffsets()
-
-    fun onEvent(event: RestoreButtonsVisibilityChanged) = updateOffsets()
-
-    fun onEvent(event: SpeakTransportVisibilityChanged) = updateOffsets(true)
-
-    fun onEvent(event: MainBibleActivity.AgentLogOffsetsUpdated) {
-        Log.i(TAG, "BibleView received AgentLogOffsetsUpdated")
-        updateOffsets(true)
-    }
 
     private fun updateOffsets(immediate: Boolean = false) {
         if(isTopWindow || isBottomWindow && contentVisible && window.isVisible)
             executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: $immediate, imeOpen: ${mainBibleActivity.imeHeight > 0}});")
-    }
-
-    fun onEvent(event: WebViewsBuiltEvent) {
-        checkWindows = true
     }
 
     private val isTopWindow
@@ -1987,15 +1982,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private var separatorMoving = false
 
-    fun onEvent(event: WindowSizeChangedEvent) {
-        Log.i(TAG, "window size changed")
-        separatorMoving = !event.isFinished
-        if(!separatorMoving && !mainBibleActivity.isSplitVertically) {
-            checkWindows = true
-            doCheckWindows()
-        }
-    }
-
     override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
         super.onSizeChanged(w, h, ow, oh)
         if(lastUpdated != 0L && !separatorMoving && w != ow) {
@@ -2019,16 +2005,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // prevent random verse changes while layout is being rebuild because of window changes
         bibleJavascriptInterface.notificationsEnabled = false
         pauseTiltScroll()
-    }
-
-    fun onEventMainThread(event: WebViewsBuiltEvent) {
-        if(toBeDestroyed)
-            doDestroy()
-    }
-
-    fun onEventMainThread(event: AfterRemoveWebViewEvent) {
-        if(toBeDestroyed)
-            doDestroy()
     }
 
     override fun onAttachedToWindow() {
