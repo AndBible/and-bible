@@ -44,11 +44,12 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 @ActivityScope
 class BibleSpeakActivity : AbstractSpeakActivity() {
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var navigationControl: NavigationControl
+    val windowControl: WindowControl by inject()
+    val navigationControl: NavigationControl by inject()
 
     lateinit var binding: SpeakBibleBinding
 
@@ -57,7 +58,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         super.onCreate(savedInstanceState)
         binding = SpeakBibleBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        buildActivityComponent().inject(this)
         ABEventBus.register(this)
         binding.apply {
             speakSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {

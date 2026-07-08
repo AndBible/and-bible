@@ -47,7 +47,6 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         binding = SpeakSettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        super.buildActivityComponent().inject(this)
         ABEventBus.register(this)
         resetView(SpeakSettings.load())
         binding.apply {

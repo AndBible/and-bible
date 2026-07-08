@@ -50,6 +50,7 @@ import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 /** Allow user to enter search criteria
  *
@@ -65,8 +66,8 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private var selectedTranslations: MutableList<SwordBook> = mutableListOf()
     override val integrateWithHistoryManager: Boolean = true
 
-    @Inject lateinit var searchControl: SearchControl
-    @Inject lateinit var pageControl: PageControl
+    val searchControl: SearchControl by inject()
+    val pageControl: PageControl by inject()
 
     private val documentToSearch: SwordBook
         get() = pageControl.currentPageManager.currentPage.currentDocument as SwordBook
@@ -112,7 +113,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         binding = SearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
         CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
-        buildActivityComponent().inject(this)
 
         if (!searchControl.validateIndex(documentToSearch)) {
             Dialogs.showErrorMsg(R.string.error_occurred) { finish() }

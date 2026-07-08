@@ -46,11 +46,13 @@ import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import java.util.*
 import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 const val SPEAK_NOTIFICATIONS_CHANNEL="speak-notifications"
 
 @ActivityScope
-class TextToSpeechNotificationManager {
+class TextToSpeechNotificationManager : KoinComponent {
     companion object {
         private const val ACTION_UPDATE_NOTIFICATION = "update_notification"
         private const val ACTION_SPEAK_OR_PAUSE="action_speak_or_pause"
@@ -139,7 +141,7 @@ class TextToSpeechNotificationManager {
         }
     }
 
-    @Inject lateinit var speakControl: SpeakControl
+    val speakControl: SpeakControl by inject()
 
     class NotificationReceiver: BroadcastReceiver() {
         val speakControl: SpeakControl by lazy { instance!!.speakControl }

@@ -42,6 +42,7 @@ import org.crosswire.jsword.passage.Key
 import org.jdom2.Element
 import java.util.*
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 /**
  * Choose a bible or commentary to use
@@ -128,14 +129,13 @@ class ChooseDictionaryWord : ListActivityBase() {
         }
     }
     private lateinit var mMatchingKeyList: MutableList<KeyInfo>
-    @Inject lateinit var windowControl: WindowControl
+    val windowControl: WindowControl by inject()
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ChooseDictionaryPageBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        buildActivityComponent().inject(this)
 
         // ensure there is actually a dictionary
         if (windowControl

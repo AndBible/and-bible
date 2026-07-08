@@ -55,7 +55,6 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        buildActivityComponent().inject(this)
         documentItemAdapter = DocumentItemAdapter(this)
         initialiseView()
 

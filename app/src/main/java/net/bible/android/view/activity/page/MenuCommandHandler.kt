@@ -57,6 +57,8 @@ import net.bible.service.common.BuildVariant
 import net.bible.service.common.htmlToSpan
 
 import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 const val contributeLink = "https://github.com/AndBible/and-bible/wiki/How-to-contribute"
 const val needHelpLink = "https://github.com/AndBible/and-bible/wiki/Support"
@@ -69,14 +71,11 @@ const val homepageLink = "https://andbible.org"
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
-    @Inject lateinit var searchControl: SearchControl
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var downloadControl: DownloadControl
+class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinComponent {
+    val searchControl: SearchControl by inject()
+    val windowControl: WindowControl by inject()
+    val downloadControl: DownloadControl by inject()
 
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
 
     private inline val isSamsung get() = BuildVariant.DistributionChannel.isSamsung
 

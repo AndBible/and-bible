@@ -182,6 +182,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.system.exitProcess
+import org.koin.android.ext.android.inject
 
 /** The main activity screen showing Bible text
  *
@@ -206,16 +207,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var mWholeAppWasInBackground = false
 
     // We need to have this here in order to initialize BibleContentManager early enough.
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var bookmarkControl: BookmarkControl
+    val windowControl: WindowControl by inject()
+    val speakControl: SpeakControl by inject()
+    val bookmarkControl: BookmarkControl by inject()
 
     // handle requests from main menu
-    @Inject lateinit var searchControl: SearchControl
-    @Inject lateinit var documentControl: DocumentControl
-    @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var pageControl: PageControl
-    @Inject lateinit var linkControl: LinkControl
+    val searchControl: SearchControl by inject()
+    val documentControl: DocumentControl by inject()
+    val navigationControl: NavigationControl by inject()
+    val pageControl: PageControl by inject()
+    val linkControl: LinkControl by inject()
 
     lateinit var documentViewManager: DocumentViewManager
     lateinit var bibleViewFactory: BibleViewFactory
@@ -320,7 +321,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             navigationView.menu.findItem(R.id.rateButton).isVisible = false
         }
 
-        CommonUtils.buildActivityComponent().inject(this)
 
         windowRepository = WindowRepository(lifecycleScope)
         windowControl.windowRepository = windowRepository

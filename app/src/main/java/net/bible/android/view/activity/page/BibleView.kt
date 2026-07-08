@@ -139,7 +139,6 @@ import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
@@ -174,6 +173,8 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.min
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
@@ -202,7 +203,7 @@ class Selection(
     val noteEditorContent: String? = null,
     /** Content type of the editor: "MARKDOWN" or "HTML" */
     val noteEditorContentType: String? = null,
-)
+) : KoinComponent
 {
     constructor(bookmark: BookmarkEntities.BibleBookmarkWithNotes):
         this(
@@ -237,11 +238,8 @@ class Selection(
             text = text,
         )
 
-    @Transient @Inject lateinit var windowControl: WindowControl
+    @Transient val windowControl: WindowControl by inject()
 
-    init {
-        buildActivityComponent().inject(this)
-    }
 
     val hasRange get() = startOffset != null && endOffset != null
 

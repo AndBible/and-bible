@@ -39,6 +39,7 @@ import org.crosswire.jsword.versification.BibleBook
 import java.util.ArrayList
 
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 /**
  * Choose a chapter to view
@@ -50,8 +51,8 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
     private var mBibleBook = BibleBook.GEN
     private var mBibleChapterNo = 1
 
-    @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var windowControl: WindowControl
+    val navigationControl: NavigationControl by inject()
+    val windowControl: WindowControl by inject()
 
     // background goes white in some circumstances if theme changes so prevent theme change
     override val allowThemeChange = false
@@ -60,7 +61,6 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        buildActivityComponent().inject(this)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val bibleBookNo = intent.getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.defaultBibleBookNo)

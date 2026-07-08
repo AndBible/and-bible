@@ -47,6 +47,7 @@ import net.bible.service.sword.BookAndKeyList
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 class SearchResults : ListActivityBase(R.menu.empty_menu) {
     private lateinit var binding: ListBinding
@@ -58,10 +59,10 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
 
     private var selectedTranslations: List<String> = emptyList()
 
-    @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
-    @Inject lateinit var searchControl: SearchControl
-    @Inject lateinit var linkControl: LinkControl
-    @Inject lateinit var windowControl: WindowControl
+    val searchResultsActionBarManager: SearchResultsActionBarManager by inject()
+    val searchControl: SearchControl by inject()
+    val linkControl: LinkControl by inject()
+    val windowControl: WindowControl by inject()
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +70,6 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         Log.i(TAG, "Displaying Search results view")
         binding = ListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        buildActivityComponent().inject(this)
         searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener)
         setActionBarManager(searchResultsActionBarManager)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

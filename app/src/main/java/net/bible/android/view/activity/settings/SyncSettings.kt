@@ -63,7 +63,6 @@ class SyncSettingsActivity: ActivityBase() {
 
         binding = SettingsDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        super.buildActivityComponent().inject(this)
 
         supportFragmentManager
             .beginTransaction()

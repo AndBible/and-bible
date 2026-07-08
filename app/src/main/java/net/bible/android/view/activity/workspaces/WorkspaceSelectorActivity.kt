@@ -64,6 +64,7 @@ import net.bible.service.common.RecyclerViewSearchHelper
 import net.bible.service.common.setupRecyclerViewSearch
 import net.bible.service.db.DatabaseContainer
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 class WorkspaceViewHolder(val layout: ViewGroup): RecyclerView.ViewHolder(layout)
 
@@ -150,7 +151,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
     private val workspacesToBeDeleted = HashSet<IdType>()
     private val workspacesCreated = HashSet<IdType>()
     private lateinit var resultIntent: Intent
-    @Inject lateinit var windowControl: WindowControl
+    val windowControl: WindowControl by inject()
     internal lateinit var dataSet: MutableList<WorkspaceEntities.Workspace>
     private lateinit var workspaceAdapter: WorkspaceAdapter
 
@@ -217,7 +218,6 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        super.buildActivityComponent().inject(this)
         windowControl.windowRepository.saveIntoDb()
         resultIntent = Intent(this, this::class.java)
         binding = WorkspaceSelectorBinding.inflate(layoutInflater)

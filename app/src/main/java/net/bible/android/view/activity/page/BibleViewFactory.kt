@@ -32,23 +32,22 @@ import java.lang.ref.WeakReference
 import java.util.UUID
 
 import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * Build a new BibleView WebView for a Window
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BibleViewFactory(val mainBibleActivity: MainBibleActivity) {
-    @Inject lateinit var pageControl: PageControl
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var linkControl: LinkControl
-    @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var downloadControl: DownloadControl
-    @Inject lateinit var searchControl: SearchControl
+class BibleViewFactory(val mainBibleActivity: MainBibleActivity) : KoinComponent {
+    val pageControl: PageControl by inject()
+    val windowControl: WindowControl by inject()
+    val linkControl: LinkControl by inject()
+    val bookmarkControl: BookmarkControl by inject()
+    val downloadControl: DownloadControl by inject()
+    val searchControl: SearchControl by inject()
 
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
 
     private val windowPageTiltScrollControlMap: MutableMap<Window, PageTiltScrollControl> = java.util.HashMap()
     private fun getPageTiltScrollControl(window: Window): PageTiltScrollControl {

@@ -119,7 +119,6 @@ class ColorSettingsActivity: ActivityBase() {
 
         binding = SettingsDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        super.buildActivityComponent().inject(this)
         dirty = false
         reset = false
 

@@ -30,6 +30,7 @@ import net.bible.android.view.activity.base.ListActivityBase
 import org.crosswire.jsword.passage.Key
 import java.util.*
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 /** show a list of keys and allow to select an item
  *
@@ -39,7 +40,7 @@ abstract class ChooseKeyBase : ListActivityBase() {
     private val mKeyList: MutableList<Key> = ArrayList()
     private var mKeyArrayAdapter: ArrayAdapter<Key>? = null
 
-    @Inject lateinit var windowControl: WindowControl
+    val windowControl: WindowControl by inject()
     abstract val currentKey: Key?
     abstract val keyList: List<Key>?
     abstract fun itemSelected(key: Key?)
@@ -49,7 +50,6 @@ abstract class ChooseKeyBase : ListActivityBase() {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Key chooser")
         setContentView(R.layout.choose_general_book_key)
-        buildActivityComponent().inject(this)
         prepareList()
         if (keyList?.isEmpty() == true) {
             itemSelected(null)

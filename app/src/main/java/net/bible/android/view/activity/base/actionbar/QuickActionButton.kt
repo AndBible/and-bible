@@ -24,11 +24,13 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.activity.R
 import javax.inject.Inject
 import java.lang.ref.WeakReference
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-abstract class QuickActionButton(private val showAsActionFlags: Int) : MenuItem.OnMenuItemClickListener
+abstract class QuickActionButton(private val showAsActionFlags: Int) : MenuItem.OnMenuItemClickListener, KoinComponent
 {
     private var menuItem: MenuItem? = null
 
@@ -37,7 +39,7 @@ abstract class QuickActionButton(private val showAsActionFlags: Int) : MenuItem.
     protected abstract val title: String
     protected abstract val canShow: Boolean
     private val thisItemId = nextItemId++
-    @Inject lateinit var speakControl: SpeakControl
+    val speakControl: SpeakControl by inject()
     fun addToMenu(menu: Menu) {
         var _menuItem = menuItem
         if (_menuItem == null || menu.findItem(thisItemId) == null) {

@@ -63,6 +63,7 @@ import java.lang.IllegalArgumentException
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 val BookmarkSortOrder.description get() =
     when(this) {
@@ -86,9 +87,9 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     private lateinit var binding: BookmarksBinding
     private var sortButton: MenuItem? = null
-    @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var windowControl: WindowControl
+    val bookmarkControl: BookmarkControl by inject()
+    val speakControl: SpeakControl by inject()
+    val windowControl: WindowControl by inject()
 
     private val labelList: MutableList<Label> = ArrayList()
     private var selectedLabelNo = 0
@@ -111,7 +112,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         binding = BookmarksBinding.inflate(layoutInflater)
         setContentView(binding.root)
         settings.setLong("bookmarks-last-used", System.currentTimeMillis())
-        buildActivityComponent().inject(this)
 
         // if coming Back using History then the LabelNo will be in the intent allowing the correct label to be pre-selected
         val extras = intent.extras

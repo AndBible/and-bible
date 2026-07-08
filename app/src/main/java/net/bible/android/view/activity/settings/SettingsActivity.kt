@@ -103,7 +103,6 @@ class SettingsActivity: ActivityBase() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.settings_activity)
-		super.buildActivityComponent().inject(this)
 
 		supportFragmentManager
 			.beginTransaction()

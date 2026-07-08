@@ -84,7 +84,6 @@ class AiSettingsActivity : ActivityBase() {
         binding = ManagePromptsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        buildActivityComponent().inject(this)
 
         title = getString(R.string.ai_settings)
 

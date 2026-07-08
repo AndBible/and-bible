@@ -225,7 +225,6 @@ class CloudDocumentsActivity : ActivityBase() {
         super.onCreate(savedInstanceState)
         binding = ActivityCloudDocumentsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        buildActivityComponent().inject(this)
 
         title = getString(R.string.document_sync_manage_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

@@ -62,6 +62,8 @@ import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -70,9 +72,9 @@ import net.bible.service.sword.BookAndKeySerialized
 class SpeakControl @Inject constructor(
     private val textToSpeechServiceManager: Lazy<TextToSpeechServiceManager>,
     private val windowControl: WindowControl,
-) {
+) : KoinComponent {
 
-    @Inject lateinit var bookmarkControl: BookmarkControl
+    val bookmarkControl: BookmarkControl by inject()
     private var sleepTimer = lazy { Timer("TTS sleep timer") }
     private var timerTask: TimerTask? = null
     private var _speakPageManager: CurrentPageManager? = null

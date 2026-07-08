@@ -200,7 +200,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         }
         startupViewBinding = StartupViewBinding.inflate(layoutInflater)
         setContentView(spinnerBinding.root)
-        buildActivityComponent().inject(this)
         supportActionBar!!.hide()
 
         lifecycleScope.launch {

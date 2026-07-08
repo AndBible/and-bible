@@ -79,7 +79,6 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
     private var saveMenuItem: MenuItem? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        buildActivityComponent().inject(this)
         data = RepositoryData.fromJSON(intent.getStringExtra("data")!!)
         binding = CustomRepositoryEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)

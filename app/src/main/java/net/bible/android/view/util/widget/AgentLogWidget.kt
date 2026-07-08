@@ -38,7 +38,6 @@ import net.bible.android.view.activity.ai.AgentLogAdapter
 import net.bible.service.device.ScreenSettings
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.service.common.AiSettings
 import net.bible.service.common.DefaultModelChangedEvent
@@ -52,6 +51,8 @@ import net.bible.service.llm.agent.AgentStopReason
 import net.bible.service.llm.agent.LogEntryType
 import net.bible.service.llm.agent.shouldAutoHideAgentLog
 import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * Event posted when the agent log widget visibility changes.
@@ -67,15 +68,14 @@ class AgentLogVisibilityChanged(val visible: Boolean, val height: Int)
  * Shows a collapsible list of log entries from the current agent session.
  * The widget is shown/hidden based on agent activity and user interaction.
  */
-class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayout(context, attributeSet) {
+class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayout(context, attributeSet), KoinComponent {
 
     private val binding = AgentLogWidgetBinding.inflate(
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater,
         this, true
     )
 
-    @Inject
-    lateinit var windowControl: WindowControl
+    val windowControl: WindowControl by inject()
 
     private val adapter = AgentLogAdapter()
     private var isExpanded = false
@@ -89,7 +89,6 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     private val workspaceId: IdType get() = windowControl.windowRepository.id
 
     init {
-        buildActivityComponent().inject(this)
 
         binding.apply {
             logRecyclerView.layoutManager = LinearLayoutManager(context)

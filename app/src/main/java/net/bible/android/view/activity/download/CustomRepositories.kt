@@ -54,7 +54,6 @@ class CustomRepositories : ListActivityBase() {
         super.onCreate(savedInstanceState)
         binding = CustomRepositoriesBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        buildActivityComponent().inject(this)
         listAdapter = createAdapter()
         binding.list.emptyView = binding.emptyListGuidance
         binding.createButton.setOnClickListener { newItem() }

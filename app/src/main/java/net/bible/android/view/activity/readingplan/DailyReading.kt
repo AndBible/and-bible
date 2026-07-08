@@ -49,6 +49,7 @@ import org.crosswire.jsword.versification.BookName
 import java.util.Calendar
 
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 /** Allow user to enter search criteria
  *
@@ -66,8 +67,8 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
     private lateinit var readingsDto: OneDaysReadingsDto
 
-    @Inject lateinit var readingPlanControl: ReadingPlanControl
-    @Inject lateinit var readingPlanActionBarManager: ReadingPlanActionBarManager
+    val readingPlanControl: ReadingPlanControl by inject()
+    val readingPlanActionBarManager: ReadingPlanActionBarManager by inject()
 
     private var readingStatus: ReadingStatus? = null
     private val getReadingStatus: ReadingStatus
@@ -82,7 +83,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        super.buildActivityComponent().inject(this)
 
         Log.i(TAG, "Displaying one day reading plan")
         binding = ReadingPlanOneDayBinding.inflate(layoutInflater)

@@ -45,6 +45,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.index.search.SearchType
 import java.util.*
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 class EpubSearchResults : ListActivityBase(R.menu.empty_menu) {
     private lateinit var binding: ListBinding
@@ -53,8 +54,8 @@ class EpubSearchResults : ListActivityBase(R.menu.empty_menu) {
     override val integrateWithHistoryManager: Boolean = true
     private var searchDocument: Book? = null
 
-    @Inject lateinit var linkControl: LinkControl
-    @Inject lateinit var windowControl: WindowControl
+    val linkControl: LinkControl by inject()
+    val windowControl: WindowControl by inject()
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +63,6 @@ class EpubSearchResults : ListActivityBase(R.menu.empty_menu) {
         Log.i(TAG, "Displaying Search results view")
         binding = ListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        buildActivityComponent().inject(this)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.closeButton.setOnClickListener {
             finish()

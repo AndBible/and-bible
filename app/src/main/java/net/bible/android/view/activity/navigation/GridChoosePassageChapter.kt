@@ -43,6 +43,7 @@ import javax.inject.Inject
 
 import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.BOOK_NO
 import net.bible.android.view.util.buttongrid.ButtonInfo
+import org.koin.android.ext.android.inject
 
 /**
  * Choose a chapter to view
@@ -53,8 +54,8 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
 
     private var mBibleBook = BibleBook.GEN
 
-    @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var windowControl: WindowControl
+    val navigationControl: NavigationControl by inject()
+    val windowControl: WindowControl by inject()
 
     private var navigateToVerse = false
     // background goes white in some circumstances if theme changes so prevent theme change
@@ -64,7 +65,6 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        buildActivityComponent().inject(this)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val bibleBookNo = intent.getIntExtra(BOOK_NO, navigationControl.defaultBibleBookNo)

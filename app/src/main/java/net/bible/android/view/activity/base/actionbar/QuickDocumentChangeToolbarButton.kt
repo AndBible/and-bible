@@ -24,6 +24,8 @@ import androidx.core.view.MenuItemCompat
 import net.bible.android.control.page.window.WindowControl
 import net.bible.service.common.TitleSplitter
 import org.crosswire.jsword.book.Book
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -37,7 +39,7 @@ abstract class QuickDocumentChangeToolbarButton:
     QuickActionButton(MenuItemCompat.SHOW_AS_ACTION_ALWAYS or MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT),
     MenuItem.OnMenuItemClickListener
 {
-    @Inject lateinit var windowControl: WindowControl
+    val windowControl: WindowControl by inject()
     private var mSuggestedDocument: Book? = null
 
     abstract fun getSuggestedDocument(): Book?

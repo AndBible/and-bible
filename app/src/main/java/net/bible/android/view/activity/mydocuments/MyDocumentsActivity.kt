@@ -181,7 +181,6 @@ class MyDocumentsActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        super.buildActivityComponent().inject(this)
         resultIntent = Intent(this, this::class.java)
         binding = MyDocumentsSelectorBinding.inflate(layoutInflater)
         setContentView(binding.root)

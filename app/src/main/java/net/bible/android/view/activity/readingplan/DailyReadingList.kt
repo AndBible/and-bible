@@ -35,6 +35,7 @@ import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.readingplan.OneDaysReadingsDto
 
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 /** show a history list and allow to go to history item
  *
@@ -43,7 +44,7 @@ import javax.inject.Inject
 class DailyReadingList : ListActivityBase() {
     private lateinit var binding: ListBinding
 
-    @Inject lateinit var readingPlanControl: ReadingPlanControl
+    val readingPlanControl: ReadingPlanControl by inject()
 
     private lateinit var readingsList: List<OneDaysReadingsDto>
     private lateinit var adapter: ArrayAdapter<OneDaysReadingsDto>
@@ -57,7 +58,6 @@ class DailyReadingList : ListActivityBase() {
         binding = ListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        buildActivityComponent().inject(this)
 
         readingsList = readingPlanControl.currentPlansReadingList
 

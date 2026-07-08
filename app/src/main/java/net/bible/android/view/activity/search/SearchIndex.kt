@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 /** Create a Lucene search index
  *
@@ -42,8 +43,8 @@ class SearchIndex : CustomTitlebarActivityBase() {
 
     private lateinit var binding: SearchIndexBinding
 
-    @Inject lateinit var searchControl: SearchControl
-    @Inject lateinit var pageControl: PageControl
+    val searchControl: SearchControl by inject()
+    val pageControl: PageControl by inject()
 
     private val documentToIndex: Book?
         get() {
@@ -62,7 +63,6 @@ class SearchIndex : CustomTitlebarActivityBase() {
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        buildActivityComponent().inject(this)
         Log.i(TAG, "Displaying SearchIndex view")
         binding = SearchIndexBinding.inflate(layoutInflater)
         setContentView(binding.root)

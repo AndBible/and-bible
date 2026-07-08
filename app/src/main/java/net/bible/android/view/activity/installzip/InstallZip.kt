@@ -273,7 +273,6 @@ class InstallZip : ActivityBase() {
         binding = ActivityInstallZipBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ABEventBus.register(this)
-        super.buildActivityComponent().inject(this)
         lifecycleScope.launch {
             when (intent?.action) {
                 Intent.ACTION_VIEW -> {

@@ -23,18 +23,16 @@ import net.bible.service.common.CommonUtils.json
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.ReadingPlanInfoDto
 import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-open class ReadingStatus(val planCode: String, val day: Int, private val numReadings: Int) {
-    @Inject
-    lateinit var readingPlanRepo: ReadingPlanRepository
+open class ReadingStatus(val planCode: String, val day: Int, private val numReadings: Int) : KoinComponent {
+    val readingPlanRepo: ReadingPlanRepository by inject()
 
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
 
     @Serializable
     private data class ChapterRead(val readingNumber: Int, var isRead: Boolean = false)

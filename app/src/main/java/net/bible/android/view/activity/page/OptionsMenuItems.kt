@@ -49,6 +49,8 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.FeatureType
 import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 interface OptionsMenuItemInterface {
     var value: Any
@@ -77,11 +79,8 @@ abstract class GeneralPreference(
 
     val subMenu: Boolean = false,
     override val enabled: Boolean = true
-) : OptionsMenuItemInterface {
-    @Inject lateinit var documentControl: DocumentControl
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
+) : OptionsMenuItemInterface, KoinComponent {
+    val documentControl: DocumentControl by inject()
 
     override val inherited: Boolean = false
     override val visible: Boolean

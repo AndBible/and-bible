@@ -80,6 +80,7 @@ import net.bible.service.common.textDisplaySettingsVideo
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 
 class TextDisplaySettingsDataStore(
@@ -506,7 +507,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
     private val isWindow get() = settingsBundle.level == SettingsLevel.WINDOW
     private val isGlobal get() = settingsBundle.level == SettingsLevel.GLOBAL
 
-    @Inject lateinit var windowControl: WindowControl
+    val windowControl: WindowControl by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
@@ -514,7 +515,6 @@ class TextDisplaySettingsActivity: ActivityBase() {
 
         binding = SettingsDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        super.buildActivityComponent().inject(this)
         loadSettingsBundle(settingsBundle)
     }
 

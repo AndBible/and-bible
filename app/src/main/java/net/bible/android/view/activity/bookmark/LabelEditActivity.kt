@@ -60,6 +60,7 @@ import net.bible.service.common.displayName
 import net.bible.service.db.exportStudyPads
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import org.koin.android.ext.android.inject
 
 // Reordered customIconMap with logical categories
 val customIconMap = mapOf(
@@ -109,7 +110,7 @@ val customIconMap = mapOf(
 @ActivityScope
 class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
-    @Inject lateinit var bookmarkControl: BookmarkControl
+    val bookmarkControl: BookmarkControl by inject()
 
     lateinit var binding: BookmarkLabelEditBinding
     private lateinit var initialDataJson: String
@@ -447,7 +448,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         super.onCreate(savedInstanceState)
         binding = BookmarkLabelEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        buildActivityComponent().inject(this)
 
         data = LabelData.fromJSON(intent.getStringExtra("data")!!)
 

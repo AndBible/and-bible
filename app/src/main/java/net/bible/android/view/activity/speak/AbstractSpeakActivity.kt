@@ -31,10 +31,11 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {
-    @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var bookmarkControl: BookmarkControl
+    val speakControl: SpeakControl by inject()
+    val bookmarkControl: BookmarkControl by inject()
     protected lateinit var currentSettings: SpeakSettings
 
     override fun onCreate(savedInstanceState: Bundle?) {

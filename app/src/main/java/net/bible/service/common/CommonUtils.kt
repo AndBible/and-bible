@@ -194,6 +194,8 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
 import kotlin.system.exitProcess
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 @Suppress("DEPRECATION")
 fun htmlToSpan(html: String?): Spanned {
@@ -265,10 +267,10 @@ val BookmarkEntities.Label.displayName get() =
     }
 
 
-open class CommonUtilsBase {
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var bibleTraverser: BibleTraverser
+open class CommonUtilsBase : KoinComponent {
+    val windowControl: WindowControl by inject()
+    val speakControl: SpeakControl by inject()
+    val bibleTraverser: BibleTraverser by inject()
 }
 
 enum class BibleViewSwipeMode {CHAPTER, PAGE, NONE}
@@ -536,12 +538,6 @@ object CommonUtils : CommonUtilsBase() {
         }
 
         println("isAndroid:$isAndroid")
-    }
-
-    fun buildActivityComponent(): ActivityComponent {
-        return DaggerActivityComponent.builder()
-                .applicationComponent(application.applicationComponent)
-                .build()
     }
 
     fun getShareableDocumentText(selection: Selection): String = SwordContentFacade.getSelectionText(
@@ -1206,7 +1202,6 @@ object CommonUtils : CommonUtilsBase() {
 
             DatabaseContainer.ready = true
             DatabaseContainer.instance
-            buildActivityComponent().inject(this@CommonUtils)
             if (ttsNotificationManager == null) {
                 ttsNotificationManager = TextToSpeechNotificationManager()
             }
@@ -1254,7 +1249,6 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.ready = true
             DatabaseContainer.instance
             withContext(Dispatchers.Main) {
-                buildActivityComponent().inject(this@CommonUtils)
                 if (ttsNotificationManager == null) {
                     ttsNotificationManager = TextToSpeechNotificationManager()
                 }

@@ -118,7 +118,6 @@ class PromptEditActivity : ActivityBase() {
         binding = PromptEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        buildActivityComponent().inject(this)
 
         setupTabs()
 

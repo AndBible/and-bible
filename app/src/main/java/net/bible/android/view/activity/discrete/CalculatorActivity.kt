@@ -57,7 +57,6 @@ class CalculatorActivity : ActivityBase() {
         calculatorBinding = CalculatorLayoutBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(calculatorBinding.root)
-        buildActivityComponent().inject(this)
 
         setOnClickListeners()
         setOnTouchListener()

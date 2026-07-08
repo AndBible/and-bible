@@ -51,7 +51,6 @@ class AiConnectionSettingsActivity : ActivityBase() {
         super.onCreate(savedInstanceState)
         binding = SettingsActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        buildActivityComponent().inject(this)
 
         title = getString(R.string.ai_connection_settings)
 

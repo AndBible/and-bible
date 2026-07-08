@@ -46,13 +46,14 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.index.search.SearchType
 
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     private lateinit var binding: EpubSearchBinding
     override val integrateWithHistoryManager: Boolean = true
 
-    @Inject lateinit var pageControl: PageControl
+    val pageControl: PageControl by inject()
 
     private val documentToSearch: Book
         get() = pageControl.currentPageManager.currentPage.currentDocument!!
@@ -109,7 +110,6 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         binding = EpubSearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
         CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
-        buildActivityComponent().inject(this)
         searchType = CommonUtils.settings.getString("epubSearch-SearchType")?.let { SearchType.valueOf(it)}
 
         title = getString(R.string.search_in, documentToSearch.abbreviation)

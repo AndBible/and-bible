@@ -1032,7 +1032,6 @@ class BackupActivity: ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        buildActivityComponent().inject(this)
         binding = BackupViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.apply {

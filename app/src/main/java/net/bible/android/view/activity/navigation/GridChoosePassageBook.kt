@@ -48,6 +48,7 @@ import org.crosswire.jsword.versification.Versification
 import java.util.ArrayList
 
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 
 /**
@@ -61,8 +62,8 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
 
     private var isCurrentlyShowingScripture = false
 
-    @Inject lateinit var navigationControl: NavigationControl
-    @Inject lateinit var windowControl: WindowControl
+    val navigationControl: NavigationControl by inject()
+    val windowControl: WindowControl by inject()
 
     data class ExtraBookInfo(val Color: Int, val GroupA: String, val GroupB: String)
 
@@ -129,7 +130,6 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        buildActivityComponent().inject(this)
 
         val customTitle = intent?.extras?.getCharSequence("title")
         if(customTitle != null)

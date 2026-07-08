@@ -80,6 +80,7 @@ import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.exportStudyPads
 import kotlin.collections.ArrayList
 import java.util.regex.PatternSyntaxException
+import org.koin.android.ext.android.inject
 
 private const val TAG = "BookmarkLabels"
 
@@ -114,8 +115,8 @@ class ManageLabels : ListActivityBase() {
     private val allLabels: MutableList<BookmarkEntities.Label> = ArrayList()
     private val shownLabels: MutableList<Any> = ArrayList()
 
-    @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var windowControl: WindowControl
+    val bookmarkControl: BookmarkControl by inject()
+    val windowControl: WindowControl by inject()
 
     enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS}
     enum class SearchMode {NAME_START, NAME_CONTAINS, CONTENT}
@@ -285,7 +286,6 @@ class ManageLabels : ListActivityBase() {
         super.onCreate(savedInstanceState)
         binding = ManageLabelsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        super.buildActivityComponent().inject(this)
 
         data = ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
 

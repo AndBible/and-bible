@@ -44,7 +44,6 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
     private val bindings = ShareVersesBinding.inflate(inflater, this, true)
 
     init {
-        CommonUtils.buildActivityComponent().inject(this)
         bindings.run {
             // handle special cases for selections of only one verse
             if (!selection.hasRange) {

@@ -36,6 +36,7 @@ import net.bible.android.view.activity.base.SharedActivityState.Companion.curren
 import net.bible.service.history.HistoryItem
 import net.bible.service.history.HistoryManager
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 /** show a history list and allow to go to history item
  *
@@ -46,8 +47,8 @@ class History : ListActivityBase() {
     private lateinit var binding: HistoryBinding
 
     private var mHistoryItemList: List<HistoryItem>? = null
-    @Inject lateinit var historyManager: HistoryManager
-    @Inject lateinit var windowControl: WindowControl
+    val historyManager: HistoryManager by inject()
+    val windowControl: WindowControl by inject()
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +56,6 @@ class History : ListActivityBase() {
         Log.i(TAG, "Displaying History view")
         binding = HistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        buildActivityComponent().inject(this)
         listAdapter = createAdapter()
         val name = currentWorkspaceName
         title = getString(R.string.history_for, name, windowControl.activeWindowPosition + 1)

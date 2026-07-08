@@ -41,7 +41,6 @@ class SearchIndexProgressStatus : ProgressActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.search_index_status)
-        super.buildActivityComponent().inject(this)
         setMainText(getString(R.string.indexing_wait_msg))
         findViewById<View>(R.id.hideButton).setOnClickListener { v: View? -> finish() }
         val docInitials = intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)

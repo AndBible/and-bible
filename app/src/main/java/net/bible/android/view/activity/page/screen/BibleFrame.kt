@@ -37,6 +37,8 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class WindowButtonGestureListener(private val mainBibleActivity: MainBibleActivity): GestureDetector.SimpleOnGestureListener() {
     var gesturePerformed = BibleFrame.GestureType.UNSET
@@ -85,17 +87,13 @@ class BibleFrame(
     val window: Window,
     private val allViews: SplitBibleArea,
     private val mainBibleActivity: MainBibleActivity,
-): FrameLayout(allViews.context) {
-    @Inject
-    lateinit var windowControl: WindowControl
+): FrameLayout(allViews.context), KoinComponent {
+    val windowControl: WindowControl by inject()
     private val bibleViewFactory: BibleViewFactory get() = mainBibleActivity.bibleViewFactory
     enum class GestureType {
         UNSET, SWIPE_UP, SWIPE_DOWN, SWIPE_LEFT, SWIPE_RIGHT, LONG_PRESS, SINGLE_TAP
     }
 
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
 
     fun updatePaddings() {
         val left = if(isLeftWindow) mainBibleActivity.leftOffset1 else 0

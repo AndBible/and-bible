@@ -174,7 +174,6 @@ class MyDocumentPagesActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        super.buildActivityComponent().inject(this)
 
         val docIdStr = intent.getStringExtra("documentId")
         documentInitials = intent.getStringExtra("documentInitials") ?: ""

@@ -38,14 +38,13 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
-import javax.inject.Inject
-import javax.inject.Provider
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
+import org.koin.core.component.inject
 import kotlin.math.min
 
-open class WindowRepository(val scope: CoroutineScope) {
-    @Inject lateinit var currentPageManagerProvider: Provider<CurrentPageManager>
-    @Inject lateinit var historyManagerProvider: Provider<HistoryManager>
-    @Inject lateinit var speakControl: SpeakControl
+open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
+    val speakControl: SpeakControl by inject()
 
     val windowSync: WindowSync = WindowSync(this)
     var unPinnedWeight: Float? = null
@@ -85,10 +84,6 @@ open class WindowRepository(val scope: CoroutineScope) {
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
 
     val sortedWindows: List<Window> get() = windowList.sortedWith(compareBy({it.isLinksWindow}, { !it.isPinMode }))
-
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
 
     fun initialize() {
         if(initialized) return
@@ -236,7 +231,7 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     private fun createNewWindow(sourceWindow_: Window?, first: Boolean = false): Window {
         val sourceWindow = sourceWindow_?: if(initialized) activeWindow else null
-        val pageManager = currentPageManagerProvider.get()
+        val pageManager = get<CurrentPageManager>()
         val winEntity =
             (
                 sourceWindow?.entity?.copy()
@@ -303,7 +298,7 @@ open class WindowRepository(val scope: CoroutineScope) {
             savedEntity = ws.deepCopy()
         }
 
-        val historyManager = historyManagerProvider.get()
+        val historyManager = get<HistoryManager>()
 
         val windowEntities = windowList.mapIndexed { i, it ->
             dao.updateHistoryItems(it.id, historyManager.getEntities(it.id))
@@ -350,9 +345,9 @@ open class WindowRepository(val scope: CoroutineScope) {
         workspaceSettings = entity.workspaceSettings?: WorkspaceEntities.WorkspaceSettings.default
         SpeakSettings.currentSettings = workspaceSettings.speakSettings
 
-        val historyManager = historyManagerProvider.get()
+        val historyManager = get<HistoryManager>()
         for (it in dao.windows(id)) {
-            val pageManager = currentPageManagerProvider.get()
+            val pageManager = get<CurrentPageManager>()
             pageManager.restoreFrom(dao.pageManager(it.id), textDisplaySettings)
             val window = Window(it, pageManager, this)
             windowList.add(window)
@@ -377,7 +372,7 @@ open class WindowRepository(val scope: CoroutineScope) {
                 it.destroy()
         }
         windowList.clear()
-        historyManagerProvider.get().clear()
+        get<HistoryManager>().clear()
         name = ""
     }
 

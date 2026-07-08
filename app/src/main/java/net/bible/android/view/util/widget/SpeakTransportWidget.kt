@@ -43,7 +43,6 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
-import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.common.CommonUtils
@@ -52,19 +51,20 @@ import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): LinearLayout(context, attributeSet) {
+class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): LinearLayout(context, attributeSet), KoinComponent {
 
     private val binding = SpeakTransportWidgetBinding.inflate(
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater,
         this, true
     )
 
-    @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var windowControl: WindowControl
+    val speakControl: SpeakControl by inject()
+    val bookmarkControl: BookmarkControl by inject()
+    val windowControl: WindowControl by inject()
     init {
-        buildActivityComponent().inject(this)
 
         binding.apply {
             val allButtons = listOf(

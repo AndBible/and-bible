@@ -56,7 +56,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.history.HistoryTraversal
 import net.bible.service.history.HistoryTraversalFactory
-import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 var firstTime = true
 
@@ -84,6 +84,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
         CurrentActivityHolder.activate(this)
+        setNewHistoryTraversal(historyTraversalFactory)
 
         if(!doNotInitializeApp) {
             CommonUtils.initializeApp()
@@ -182,8 +183,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         Log.i(TAG, "applyTheme: nightMode = ${ScreenSettings.nightMode}")
         AppCompatDelegate.setDefaultNightMode(newNightMode)
     }
-
-    protected fun buildActivityComponent() = CommonUtils.buildActivityComponent()
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("doNotMarkPaused", doNotMarkPaused)
@@ -409,7 +408,8 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
      * Each activity instance needs its own HistoryTraversal object
      * @param historyTraversalFactory
      */
-    @Inject
+    private val historyTraversalFactory: HistoryTraversalFactory by inject()
+
     fun setNewHistoryTraversal(historyTraversalFactory: HistoryTraversalFactory) {
         // Ensure we don't end up overwriting the initialised class
         if (!::historyTraversal.isInitialized) {

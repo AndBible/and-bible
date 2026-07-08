@@ -39,6 +39,7 @@ import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.readingplan.ReadingPlanInfoDto
 
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 /** do the search and show the search results
  *
@@ -49,7 +50,7 @@ class ReadingPlanSelectorList : ListActivityBase() {
     private lateinit var mReadingPlanList: List<ReadingPlanInfoDto>
     private lateinit var mPlanArrayAdapter: ArrayAdapter<ReadingPlanInfoDto>
 
-    @Inject lateinit var readingPlanControl: ReadingPlanControl
+    val readingPlanControl: ReadingPlanControl by inject()
     override val integrateWithHistoryManager: Boolean = true
 
     /** Called when the activity is first created.  */
@@ -59,7 +60,6 @@ class ReadingPlanSelectorList : ListActivityBase() {
         Log.i(TAG, "Displaying Reading Plan List")
         val binding = ListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        buildActivityComponent().inject(this)
         try {
             mReadingPlanList = readingPlanControl.readingPlanList
             if (readingPlanControl.readingPlanUserDuplicates)

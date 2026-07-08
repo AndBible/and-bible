@@ -71,6 +71,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
 import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 /**
  * Choose Document (Book)
@@ -115,7 +116,7 @@ abstract class DocumentSelectionBase(
     private val enableLoadingIndicator: Boolean = true,
     ) : ListActivityBase(optionsMenuId), ActionModeActivity
 {
-    @Inject lateinit var downloadControl: DownloadControl
+    val downloadControl: DownloadControl by inject()
 
     protected lateinit var binding: DocumentSelectionBinding
 
@@ -143,7 +144,7 @@ abstract class DocumentSelectionBase(
     private var allDocuments = ArrayList<Book>()
     var displayedDocuments = ArrayList<Book>()
 
-    @Inject lateinit var documentControl: DocumentControl
+    val documentControl: DocumentControl by inject()
 
     private lateinit var listActionModeHelper: ListActionModeHelper
     private var showOkButton: Boolean = false

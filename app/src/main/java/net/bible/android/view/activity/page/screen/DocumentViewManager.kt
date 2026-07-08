@@ -29,6 +29,8 @@ import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class WebViewsBuiltEvent
 class AfterRemoveWebViewEvent
@@ -38,14 +40,11 @@ class AfterRemoveWebViewEvent
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DocumentViewManager (val mainBibleActivity: MainBibleActivity) {
-    @Inject lateinit var windowControl: WindowControl
+class DocumentViewManager (val mainBibleActivity: MainBibleActivity) : KoinComponent {
+    val windowControl: WindowControl by inject()
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
     private var lastView: View? = null
     var splitBibleArea: SplitBibleArea? = null
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
 
 	fun destroy() {
         removeView()

@@ -68,10 +68,12 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-open class AgentSessionManagerBase {
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var linkControl: LinkControl
+open class AgentSessionManagerBase : KoinComponent {
+    val windowControl: WindowControl by inject()
+    val linkControl: LinkControl by inject()
 }
 
 class AgentLogUpdatedEvent(
@@ -212,7 +214,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
     @Synchronized
     private fun ensureInitialized() {
         if (!initialized) {
-            CommonUtils.buildActivityComponent().inject(this)
             cleanupOldRawLogs()
             initialized = true
         }

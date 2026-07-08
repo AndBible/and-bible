@@ -50,6 +50,8 @@ import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import java.lang.Exception
 import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 
 /**
@@ -57,14 +59,14 @@ import javax.inject.Inject
  * - takes care of updating widgets when they need to change (via EventBus)
  * - receives events from widgets and acts accordingly
  */
-class SpeakWidgetManager {
+class SpeakWidgetManager : KoinComponent {
     companion object {
         var instance: SpeakWidgetManager? = null
         const val TAG = "SpeakWidget"
     }
 
-    @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var bookmarkControl: BookmarkControl
+    val speakControl: SpeakControl by inject()
+    val bookmarkControl: BookmarkControl by inject()
 
     private val app = BibleApplication.application
     private val resetTitle = app.getString(R.string.app_name_medium)
