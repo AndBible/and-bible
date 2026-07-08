@@ -31,4 +31,4 @@ dependencyResolutionManagement {
     }
 }
 
-include(":app", ":jsword", ":sharedCore")
+include(":app", ":jsword", ":sharedCore", ":strings-gen")
