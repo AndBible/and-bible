@@ -18,6 +18,8 @@ lifecycle = "2.9.1"
 material = "1.12.0"
 koin = "4.1.0"                   # added in Task 2 (latest stable 4.x; adjust if a newer 4.x resolves)
 accrescentBundletool = "0.2.4"
+composeBom = "2026.06.00"        # added in Task 6 (:app Compose host BOM)
+activityCompose = "1.13.0"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -35,6 +37,12 @@ koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin" }
+# Compose (added in Task 6) — :app is a Compose host; versions come from the BOM
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

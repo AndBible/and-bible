@@ -26,6 +26,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.accrescent.bundletool)
+    alias(libs.plugins.kotlin.compose)
 }
 
 val jsDir = "bibleview-js"
@@ -346,6 +347,7 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
     }
 
     namespace = "net.bible.android.activity"
@@ -459,6 +461,13 @@ dependencies {
     }
 
     implementation(project(":sharedCore"))
+
+    implementation(project(":sharedUi"))
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation("de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5")
 
