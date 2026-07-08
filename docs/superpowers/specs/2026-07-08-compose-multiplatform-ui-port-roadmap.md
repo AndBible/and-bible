@@ -168,6 +168,8 @@ Batch size flexes; a large batch may split across multiple plans. This order als
 
 ## 8. Decisions adopted from the AndroidMidiRecorder reference
 
+> **Reference projects available in-repo.** Both reference codebases — `AndroidMidiRecorder` (KMP structure / strings / DI patterns) and `and-bible-ios` (native SWORD data layer, `SwordKit` seam) — will be made available inside this environment for the duration of this program (as git submodules or an equivalent mechanism — exact approach TBD) so any session can study them directly. Their `docs/` folders (the AndroidMidiRecorder 6-phase migration specs/plans, the and-bible-ios `architecture.md`/`data-model.md`/`bridge-guide.md`) are the highest-value material to consult when a phase touches an area they already solved. Local paths to be recorded here once set up.
+
 The reference (`fi.sykero.midirecorder`, same author) is a shipped Android+iOS KMP app with a fully documented 6-phase in-place migration in its `docs/`. Decisions carried in:
 
 - 3-module split (`sharedCore`/`sharedUi`/`app` + build-time `strings-gen`).
