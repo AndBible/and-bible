@@ -86,6 +86,8 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
+import net.bible.android.control.event.onMain
 import net.bible.android.control.progress.ActiveCycleChangedEvent
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.event.ToastEvent
@@ -294,6 +296,118 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override val integrateWithHistoryManager: Boolean = true
     override val disableBaseSetupUi: Boolean = true
     override val enableGenericVolumeScroll: Boolean get() = false
+
+    // Single set of ABEventBus subscriptions, shared by onCreate and unFreeze (which
+    // re-registers after freeze unregistered). `this` inside a handler lambda resolves
+    // to the Subscriptions DSL receiver, so any Activity reference is this@MainBibleActivity.
+    private val eventSubscriptions: ABEventBus.Subscriptions.() -> Unit = {
+        on<SpeakEvent> { event ->
+            if(event.isSpeaking) {
+                transportBarVisible = true
+                updateBottomBars()
+            } else if(event.isStopped) {
+                transportBarVisible = false
+                updateBottomBars()
+            }
+        }
+        on<SpeakTransportWidget.HideTransportEvent> { event ->
+            transportBarVisible = false
+            updateBottomBars()
+        }
+        onMain<CurrentVerseChangedEvent> { passageEvent ->
+            if(paused) return@onMain
+            updateTitle()
+        }
+        onMain<CloudSyncEvent> { event ->
+            binding.syncIcon.visibility = if(event.running) View.VISIBLE else View.INVISIBLE
+        }
+        onMain<AgentLogVisibilityChanged> { event ->
+            Log.i(TAG, "AgentLogVisibilityChanged: visible=${event.visible}, height=${event.height}")
+            agentLogVisible = event.visible
+            agentLogHeight = event.height
+            updateBottomBars()
+            // Trigger BibleView offset updates after values are updated
+            ABEventBus.post(AgentLogOffsetsUpdated())
+        }
+        onMain<SpeakEvent> { speakEvent ->
+            if(!speakEvent.isTemporarilyStopped) {
+                updateBottomBars()
+            }
+            updateActions()
+        }
+        on<CloudSyncEvent> { event ->
+            if (!event.running) {
+                CommonUtils.settings.setLong("globalLastSynchronized", now)
+            }
+        }
+        on<AppToBackgroundEvent> { event ->
+            if (event.isMovedToBackground) {
+                mWholeAppWasInBackground = true
+                stopPeriodicSync()
+                syncScope.launch { synchronize(true) }
+            } else {
+                updateActions()
+                syncScope.launch { startSync() }
+            }
+        }
+        onMain<WorkspacesUpdatedViaSyncEvent> { event ->
+            val entries = event.updated
+            val workspaceDeleted = entries.any {
+                it.tableName == "Workspace" &&
+                it.type == LogEntryTypes.DELETE &&
+                it.entityId1 == currentWorkspaceId
+            }
+            if(workspaceDeleted) {
+                currentWorkspaceId = workspaces.first().id
+            }
+
+            val windowsChanged = entries.any { entry ->
+                entry.tableName in listOf("Window", "PageManager") &&
+                windowRepository.windowList.firstOrNull { it.id == entry.entityId1 } != null
+            }
+
+            val workspaceChanged = entries.any {
+                it.tableName == "Workspace" &&
+                it.type == LogEntryTypes.UPSERT &&
+                it.entityId1 == currentWorkspaceId
+            }
+            if(windowsChanged || workspaceChanged) {
+                currentWorkspaceId = currentWorkspaceId
+            }
+        }
+        onMain<WorkspaceRefreshRequired> { event ->
+            currentWorkspaceId = workspaces.first().id
+        }
+        on<ScreenSettings.NightModeChanged> { event ->
+            if(paused) return@on
+            if(CurrentActivityHolder.currentActivity == this@MainBibleActivity) {
+                refreshIfNightModeChange()
+            }
+        }
+        onMain<MainBibleAfterRestore> { e ->
+            bookmarkControl.reset()
+            documentViewManager.removeView()
+            bibleViewFactory.clear()
+            windowControl.windowSync.setResyncRequired()
+            currentWorkspaceId = IdType.empty()
+        }
+        on<UpdateMainBibleActivityDocuments> { e ->
+            updateDocumentsPending = true
+        }
+        onMain<CurrentWindowChangedEvent> { event ->
+            if(paused) return@onMain
+            updateActions()
+        }
+        onMain<NumberOfWindowsChangedEvent> { event ->
+            if(paused) return@onMain
+            setSoftKeyboardMode()
+        }
+        onMain<PassageChangedEvent> { event ->
+            if(paused) return@onMain
+            updateActions()
+        }
+    }
+
     /**
      * Called when the activity is first created.
      */
@@ -340,7 +454,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         setupUi()
 
         // register for passage change and appToBackground events
-        ABEventBus.register(this)
+        ABEventBus.register(this, eventSubscriptions)
 
         setupToolbarButtons()
         setupToolbarFlingDetection()
@@ -866,21 +980,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    fun onEvent(event: SpeakEvent) {
-        if(event.isSpeaking) {
-            transportBarVisible = true
-            updateBottomBars()
-        } else if(event.isStopped) {
-            transportBarVisible = false
-            updateBottomBars()
-        }
-    }
-
-    fun onEvent(event: SpeakTransportWidget.HideTransportEvent) {
-        transportBarVisible = false
-        updateBottomBars()
-    }
-
     private val dummyStrongsPrefOption
         get() = StrongsPreference(
             SettingsBundle(
@@ -1270,24 +1369,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         startActivityForResult(intent, STD_REQUEST_CODE)
     }
 
-    fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
-        if(paused) return
-        updateTitle()
-    }
-
-    fun onEventMainThread(event: CloudSyncEvent) {
-        binding.syncIcon.visibility = if(event.running) View.VISIBLE else View.INVISIBLE
-    }
-
-    fun onEventMainThread(event: AgentLogVisibilityChanged) {
-        Log.i(TAG, "AgentLogVisibilityChanged: visible=${event.visible}, height=${event.height}")
-        agentLogVisible = event.visible
-        agentLogHeight = event.height
-        updateBottomBars()
-        // Trigger BibleView offset updates after values are updated
-        ABEventBus.post(AgentLogOffsetsUpdated())
-    }
-
     class AgentLogOffsetsUpdated
 
     private fun openLink(uri: Uri) {
@@ -1329,13 +1410,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 windowControl.showLink(doc, key)
             }
         }
-    }
-
-    fun onEventMainThread(speakEvent: SpeakEvent) {
-        if(!speakEvent.isTemporarilyStopped) {
-            updateBottomBars()
-        }
-        updateActions()
     }
 
     private fun menuForDocs(v: View, documents: List<Book>) {
@@ -1650,56 +1724,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    fun onEvent(event: CloudSyncEvent) {
-        if (!event.running) {
-            CommonUtils.settings.setLong("globalLastSynchronized", now)
-        }
-    }
-
     private fun stopPeriodicSync() {
         syncJob?.cancel()
         syncJob = null
-    }
-
-    fun onEvent(event: AppToBackgroundEvent) {
-        if (event.isMovedToBackground) {
-            mWholeAppWasInBackground = true
-            stopPeriodicSync()
-            syncScope.launch { synchronize(true) }
-        } else {
-            updateActions()
-            syncScope.launch { startSync() }
-        }
-    }
-
-    fun onEventMainThread(event: WorkspacesUpdatedViaSyncEvent) {
-        val entries = event.updated
-        val workspaceDeleted = entries.any {
-            it.tableName == "Workspace" &&
-            it.type == LogEntryTypes.DELETE &&
-            it.entityId1 == currentWorkspaceId
-        }
-        if(workspaceDeleted) {
-            currentWorkspaceId = workspaces.first().id
-        }
-
-        val windowsChanged = entries.any { entry ->
-            entry.tableName in listOf("Window", "PageManager") &&
-            windowRepository.windowList.firstOrNull { it.id == entry.entityId1 } != null
-        }
-
-        val workspaceChanged = entries.any {
-            it.tableName == "Workspace" &&
-            it.type == LogEntryTypes.UPSERT &&
-            it.entityId1 == currentWorkspaceId
-        }
-        if(windowsChanged || workspaceChanged) {
-            currentWorkspaceId = currentWorkspaceId
-        }
-    }
-
-    fun onEventMainThread(event: WorkspaceRefreshRequired) {
-        currentWorkspaceId = workspaces.first().id
     }
 
     override fun onScreenTurnedOff() {
@@ -1726,13 +1753,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         ScreenSettings.checkMonitoring()
         applyTheme()
         return true
-    }
-
-    fun onEvent(event: ScreenSettings.NightModeChanged) {
-        if(paused) return
-        if(CurrentActivityHolder.currentActivity == this) {
-            refreshIfNightModeChange()
-        }
     }
 
     private fun updateToolbar() {
@@ -1813,21 +1833,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     class MainBibleAfterRestore
 
-    fun onEventMainThread(e: MainBibleAfterRestore) {
-        bookmarkControl.reset()
-        documentViewManager.removeView()
-        bibleViewFactory.clear()
-        windowControl.windowSync.setResyncRequired()
-        currentWorkspaceId = IdType.empty()
-    }
-
     class UpdateMainBibleActivityDocuments
 
     private var updateDocumentsPending = false
-
-    fun onEvent(e: UpdateMainBibleActivityDocuments) {
-        updateDocumentsPending = true
-    }
 
     private fun updateDocuments() {
         windowControl.windowSync.reloadAllWindows(true)
@@ -2152,16 +2160,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    fun onEventMainThread(event: CurrentWindowChangedEvent) {
-        if(paused) return
-        updateActions()
-    }
-
-    fun onEventMainThread(event: NumberOfWindowsChangedEvent) {
-        if(paused) return
-        setSoftKeyboardMode()
-    }
-
     private fun setSoftKeyboardMode() {
         // Android 15 edge-to-edge enforcement fix:
         // When targeting API 35+, traditional adjustPan/adjustResize may not work properly
@@ -2176,14 +2174,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         }
     }
-
-    /**
-     * called by PassageChangeMediator after a new passage has been changed and displayed
-     */
-    fun onEventMainThread(event: PassageChangedEvent) {
-        if(paused) return
-        updateActions()
-   }
 
     private var paused = false
     override fun onPause() {
@@ -2250,7 +2240,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun unFreeze() {
         if(frozen) {
             windowControl.windowRepository = windowRepository
-            ABEventBus.register(this)
+            ABEventBus.register(this, eventSubscriptions)
             (window.decorView as ViewGroup).removeView(frozenBinding.root)
             super.setContentView(binding.root)
         }
