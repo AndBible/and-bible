@@ -56,9 +56,32 @@ private val FUN = Regex(
     """^override\s+fun\s+(\w+)\s*\(([^)]*)\)\s*(?::\s*String\s*)?=\s*context\.getString\(\s*R\.string\.(\w+)\s*(?:,(.*))?\)\s*$"""
 )
 
+// `override fun NAME(PARAMS)[: String] = context.resources.getQuantityString(R.plurals.KEY, COUNT[, ARGS])`
+private val PLURAL_FUN = Regex(
+    """^override\s+fun\s+(\w+)\s*\(([^)]*)\)\s*(?::\s*String\s*)?=\s*context\.resources\.getQuantityString\(\s*R\.plurals\.(\w+)\s*,\s*(\w+)\s*(?:,(.*))?\)\s*$"""
+)
+
+// `override val NAME: List<String> get() = context.resources.getStringArray(R.array.KEY).toList()`
+private val ARRAY_VAL = Regex(
+    """^override\s+val\s+(\w+)\s*:\s*List<String>\s+get\(\)\s*=\s*context\.resources\.getStringArray\(\s*R\.array\.(\w+)\s*\)\.toList\(\)\s*$"""
+)
+
 private fun parseOverride(decl: String): StringMember {
     VAL.matchEntire(decl)?.let { m ->
         return StringMember(m.groupValues[1], MemberKind.VAL, key = m.groupValues[2])
+    }
+    // PLURAL_FUN / ARRAY_VAL before the generic FUN (the plural/array bodies are more specific).
+    PLURAL_FUN.matchEntire(decl)?.let { m ->
+        val name = m.groupValues[1]
+        val params = splitTopLevel(m.groupValues[2]).map { it.trim() }.filter { it.isNotEmpty() }
+        val fmtArgs = splitTopLevel(m.groupValues[5]).map { it.trim() }.filter { it.isNotEmpty() }
+        return StringMember(
+            name, MemberKind.PLURAL_FUN, key = m.groupValues[3], params = params,
+            pluralCountArg = m.groupValues[4], pluralFmtArgs = fmtArgs,
+        )
+    }
+    ARRAY_VAL.matchEntire(decl)?.let { m ->
+        return StringMember(m.groupValues[1], MemberKind.ARRAY_VAL, key = m.groupValues[2])
     }
     FUN.matchEntire(decl)?.let { m ->
         val name = m.groupValues[1]
@@ -66,9 +89,9 @@ private fun parseOverride(decl: String): StringMember {
         return StringMember(name, MemberKind.FORMAT_FUN, key = m.groupValues[3], params = params)
     }
     error(
-        "AndroidStrings.kt `override` member matches none of the known VAL / FORMAT_FUN " +
-            "shapes — the parser (and the iOS Strings generator) is out of sync with the file. " +
-            "Offending declaration:\n  $decl"
+        "AndroidStrings.kt `override` member matches none of the known VAL / FORMAT_FUN / " +
+            "PLURAL_FUN / ARRAY_VAL shapes — the parser (and the iOS Strings generator) is out of " +
+            "sync with the file. Offending declaration:\n  $decl"
     )
 }
 

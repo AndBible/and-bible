@@ -31,8 +31,8 @@ fun parseStringsInterface(kt: String): List<InterfaceMember> {
     // the two member shapes are unambiguous and the `LocalStrings` val carries an `=`, so a bare
     // `val NAME: String` (no `=`, no `(`) can only be an interface member.
     for (line in src.lineSequence()) {
-        val v = VAL_MEMBER.find(line) ?: continue
-        members += InterfaceMember(v.groupValues[1], isFun = false, signature = line.trim())
+        val m = VAL_MEMBER.find(line) ?: LIST_VAL_MEMBER.find(line) ?: continue
+        members += InterfaceMember(m.groupValues[1], isFun = false, signature = line.trim())
     }
 
     // `fun` signatures may wrap across lines; collapse the whole stripped source to single spaces
@@ -48,6 +48,10 @@ fun parseStringsInterface(kt: String): List<InterfaceMember> {
 /** `val NAME: String` with NOTHING after `String` — excludes `val X: String get() = …`,
  *  `val LocalStrings = …`, and any initialized/computed property. Anchored to a full line. */
 private val VAL_MEMBER = Regex("""^\s*val\s+(\w+)\s*:\s*String\s*$""")
+
+/** `val NAME: List<String>` interface member (a `<string-array>`-backed accessor). Same
+ *  no-initializer, full-line shape as [VAL_MEMBER]. */
+private val LIST_VAL_MEMBER = Regex("""^\s*val\s+(\w+)\s*:\s*List<String>\s*$""")
 
 /** `fun NAME(<anything, incl. wrapped>): String` — non-greedy params, matched over the
  *  whitespace-collapsed source so a multi-line signature is one match. */

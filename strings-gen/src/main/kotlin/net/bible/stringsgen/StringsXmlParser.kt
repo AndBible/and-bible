@@ -34,6 +34,48 @@ fun parseStringsXml(xml: String): Map<String, String> {
     return result
 }
 
+/** Parses <plurals name="k"><item quantity="one">..</item>..</plurals> into name -> (quantity -> template). */
+fun parsePluralsXml(xml: String): Map<String, Map<String, String>> {
+    val doc = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = false }
+        .newDocumentBuilder().parse(xml.byteInputStream())
+    doc.documentElement.normalize()
+    val out = LinkedHashMap<String, Map<String, String>>()
+    val plurals = doc.getElementsByTagName("plurals")
+    for (i in 0 until plurals.length) {
+        val el = plurals.item(i) as? Element ?: continue
+        val name = el.getAttribute("name"); if (name.isEmpty()) continue
+        val items = el.getElementsByTagName("item")
+        val byQty = LinkedHashMap<String, String>()
+        for (j in 0 until items.length) {
+            val it = items.item(j) as? Element ?: continue
+            val q = it.getAttribute("quantity"); if (q.isEmpty()) continue
+            byQty[q] = unescapeAndroid(it.textContent)
+        }
+        out[name] = byQty
+    }
+    return out
+}
+
+/** Parses <string-array name="k"><item>..</item>..</string-array> into name -> ordered items. */
+fun parseStringArraysXml(xml: String): Map<String, List<String>> {
+    val doc = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = false }
+        .newDocumentBuilder().parse(xml.byteInputStream())
+    doc.documentElement.normalize()
+    val out = LinkedHashMap<String, List<String>>()
+    val arrays = doc.getElementsByTagName("string-array")
+    for (i in 0 until arrays.length) {
+        val el = arrays.item(i) as? Element ?: continue
+        val name = el.getAttribute("name"); if (name.isEmpty()) continue
+        val items = el.getElementsByTagName("item")
+        val list = ArrayList<String>()
+        for (j in 0 until items.length) {
+            (items.item(j) as? Element)?.let { list.add(unescapeAndroid(it.textContent)) }
+        }
+        out[name] = list
+    }
+    return out
+}
+
 /** Applies Android string-resource unescaping (XML entities are already resolved by the DOM). */
 private fun unescapeAndroid(raw: String): String {
     // Strip one wrapping pair of double quotes (Android uses "…" to preserve leading/trailing space).

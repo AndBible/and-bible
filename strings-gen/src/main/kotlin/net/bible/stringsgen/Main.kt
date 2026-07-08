@@ -37,6 +37,8 @@ fun main(args: Array<String>) {
     //    dir without a strings.xml. AndBible has BOTH `values/` and `values-en/` (both map to "en"),
     //    so MERGE rather than replace: `values-en` overrides `values` for the shared "en" tag.
     val localeToKeyValues = LinkedHashMap<String, Map<String, String>>()
+    val localeToPlurals = LinkedHashMap<String, Map<String, Map<String, String>>>()
+    val localeToArrays = LinkedHashMap<String, Map<String, List<String>>>()
     val dirs = (resDir.listFiles() ?: emptyArray())
         .filter { it.isDirectory && it.name.startsWith("values") }
         .sortedBy { it.name }
@@ -45,9 +47,11 @@ fun main(args: Array<String>) {
         val xml = File(dir, "strings.xml")
         if (!xml.isFile) continue
         val tag = qualifierToTag(dir.name)
-        val parsed = parseStringsXml(xml.readText())
-        // Merge (values-en overrides values for the shared "en" tag; both map to "en").
-        localeToKeyValues[tag] = (localeToKeyValues[tag].orEmpty()) + parsed
+        val text = xml.readText()
+        // Merge (values-en overrides values for the shared "en" tag; both map to "en") — see [mergeLocale].
+        localeToKeyValues[tag] = mergeLocale(localeToKeyValues[tag], parseStringsXml(text))
+        localeToPlurals[tag] = (localeToPlurals[tag].orEmpty()) + parsePluralsXml(text)
+        localeToArrays[tag] = (localeToArrays[tag].orEmpty()) + parseStringArraysXml(text)
     }
 
     // 2. Recover each member's R.string key from AndroidStrings.kt.
@@ -60,19 +64,23 @@ fun main(args: Array<String>) {
     // 4. Emit + write both files (creating the package dir tree under --out).
     val pkgDir = File(outDir, PACKAGE_DIR)
     pkgDir.mkdirs()
-    File(pkgDir, "StringsData.kt").writeText(emitStringsData(localeToKeyValues))
+    File(pkgDir, "StringsData.kt").writeText(emitStringsData(localeToKeyValues, localeToPlurals, localeToArrays))
     File(pkgDir, "GeneratedStrings.kt").writeText(emitGeneratedStrings(interfaceMembers, mappingByName))
 
     // 5. Summary + loud surfacing of any coverage gap (interface member with no mapping, or a mapped
     //    R.string key absent from the base `en` map — a dropped/missing string that would silently
     //    fall back to the key at runtime).
     val baseKeys = localeToKeyValues["en"]?.keys ?: emptySet()
+    val basePluralKeys = localeToPlurals["en"]?.keys ?: emptySet()
+    val baseArrayKeys = localeToArrays["en"]?.keys ?: emptySet()
     val missingInMapping = interfaceMembers.map { it.name }.filter { it !in mappingByName }
     val missingBaseKeys = LinkedHashSet<String>()
     for (member in interfaceMembers) {
         val sm = mappingByName[member.name] ?: continue
         when (sm.kind) {
             MemberKind.VAL, MemberKind.FORMAT_FUN -> if (sm.key !in baseKeys) missingBaseKeys += sm.key
+            MemberKind.PLURAL_FUN -> if (sm.key !in basePluralKeys) missingBaseKeys += sm.key
+            MemberKind.ARRAY_VAL -> if (sm.key !in baseArrayKeys) missingBaseKeys += sm.key
         }
     }
 
