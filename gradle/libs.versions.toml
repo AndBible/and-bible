@@ -8,6 +8,7 @@ gradle = "9.5.1"                 # informational; the wrapper is the source of t
 room = "2.8.4"                   # bumped from 2.7.2 to a KSP-2.3.9-compatible Room
 coroutines = "1.11.0"            # bumped from 1.10.2 to the reference level
 kotlinxSerialization = "1.8.1"
+atomicfu = "0.33.0"
 coreKtx = "1.16.0"
 jdom = "2.0.6.1"
 commonsText = "1.9"
@@ -27,6 +28,7 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
