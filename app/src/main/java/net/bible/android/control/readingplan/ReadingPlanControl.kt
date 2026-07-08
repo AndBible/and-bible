@@ -20,6 +20,7 @@ package net.bible.android.control.readingplan
 import android.util.Log
 
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -55,15 +56,15 @@ class ReadingPlanControl constructor(
 {
 
     init {
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<ReadingPlansUpdatedViaSyncEvent> { e ->
+                // TODO: Reload readingStatus from db
+            }
+        }
     }
 
     fun destroy() {
         ABEventBus.unregister(this)
-    }
-
-    fun onEventMainThread(e: ReadingPlansUpdatedViaSyncEvent) {
-        // TODO: Reload readingStatus from db
     }
 
     private val readingPlanTextDao = ReadingPlanTextFileDao()

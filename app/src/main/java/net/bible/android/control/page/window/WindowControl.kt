@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
@@ -82,7 +83,18 @@ open class WindowControl constructor() {
     val isSingleWindow get () = !windowRepository.isMultiWindow && windowRepository.minimisedWindows.isEmpty() && !windowRepository.isMaximized
 
     init {
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            on<CurrentVerseChangedEvent> { event ->
+                if(event.window.windowRepository != windowRepository) return@on
+                windowSync.synchronizeWindows(event.window)
+            }
+            on<SynchronizeWindowsEvent> { event ->
+                if(event.forceSyncAll) {
+                    windowSync.setResyncRequired()
+                }
+                windowSync.reloadAllWindows()
+            }
+        }
     }
 
     fun isActiveWindow(window: Window): Boolean = window == windowRepository.activeWindow
@@ -211,18 +223,6 @@ open class WindowControl constructor() {
     fun orientationChange() {
         // causes BibleViews to be created and laid out
         ABEventBus.post(NumberOfWindowsChangedEvent())
-    }
-
-    fun onEvent(event: CurrentVerseChangedEvent) {
-        if(event.window.windowRepository != windowRepository) return
-        windowSync.synchronizeWindows(event.window)
-    }
-
-    fun onEvent(event: SynchronizeWindowsEvent) {
-        if(event.forceSyncAll) {
-            windowSync.setResyncRequired()
-        }
-        windowSync.reloadAllWindows()
     }
 
     var isSeparatorMoving = false

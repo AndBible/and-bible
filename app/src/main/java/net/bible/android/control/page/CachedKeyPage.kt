@@ -19,6 +19,7 @@ package net.bible.android.control.page
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.sword.mydocument.MyDocumentUpdatedEvent
 import net.bible.service.sword.mydocument.isMyDocument
@@ -38,18 +39,16 @@ abstract class CachedKeyPage internal constructor(
     private var mCachedGlobalKeyList: MutableList<Key>? = null
 
     init {
-        ABEventBus.register(this)
-    }
-
-    /**
-     * Called when a MyDocument is updated (pages added/removed).
-     * Clears the cache if the current document matches.
-     */
-    fun onEvent(event: MyDocumentUpdatedEvent) {
-        val doc = currentDocument
-        if (doc != null && doc.isMyDocument && doc.initials == event.initials) {
-            Log.d(TAG, "Clearing cached key list for updated MyDocument: ${event.initials}")
-            mCachedGlobalKeyList = null
+        ABEventBus.register(this) {
+            // Called when a MyDocument is updated (pages added/removed).
+            // Clears the cache if the current document matches.
+            on<MyDocumentUpdatedEvent> { event ->
+                val doc = currentDocument
+                if (doc != null && doc.isMyDocument && doc.initials == event.initials) {
+                    Log.d(TAG, "Clearing cached key list for updated MyDocument: ${event.initials}")
+                    mCachedGlobalKeyList = null
+                }
+            }
         }
     }
 

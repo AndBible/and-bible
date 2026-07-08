@@ -30,6 +30,7 @@ import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.common.toV11n
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
@@ -107,7 +108,91 @@ open class BookmarkControl constructor(
     resourceProvider: ResourceProvider,
 ) {
     init {
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            on<BookmarksUpdatedViaSyncEvent> { e ->
+                val labelUpserts = e.updated.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Label" }.map { it.entityId1 }
+                val labels = dao.labelsById(labelUpserts)
+                for(l in labels) {
+                    ABEventBus.post(LabelAddedOrUpdatedEvent(l))
+                }
+
+                val bookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "BibleBookmark" }.map { it.entityId1 }
+                ABEventBus.post(BookmarksDeletedEvent(bookmarksDeletes))
+
+                val bookmarkUpserts = e.updated.filter {
+                    (it.type == LogEntryTypes.UPSERT && it.tableName == "BibleBookmark") || it.tableName == "BibleBookmarkNotes"
+                }.map { it.entityId1 }.toMutableSet()
+
+                val genericBookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "GenericBookmark" }.map { it.entityId1 }
+                ABEventBus.post(BookmarksDeletedEvent(genericBookmarksDeletes))
+
+                val genericBookmarkUpserts = e.updated.filter {
+                    (it.type == LogEntryTypes.UPSERT && it.tableName == "GenericBookmark") || it.tableName == "GenericBookmarkNotes"
+                }.map { it.entityId1 }.toMutableSet()
+
+                val studyPadTextEntryDeletes = e.updated.filter {
+                    (it.type == LogEntryTypes.DELETE && it.tableName == "StudyPadTextEntry")
+                }.map { it.entityId1 }
+
+                for (studyPadTextEntryId in studyPadTextEntryDeletes) {
+                    ABEventBus.post(StudyPadTextEntryDeleted(studyPadTextEntryId))
+                }
+
+                val studyPadTextEntryTextUpserts = e.updated.filter {
+                    it.type == LogEntryTypes.UPSERT && it.tableName == "StudyPadTextEntryText"
+                }.map { it.entityId1 }
+
+                for(studyPadTextEntryId in studyPadTextEntryTextUpserts) {
+                    val withText = dao.studyPadTextEntryById(studyPadTextEntryId)!!
+                    ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
+                }
+
+                val studyPadTextEntryUpserts = e.updated.filter {
+                    it.type == LogEntryTypes.UPSERT && it.tableName == "StudyPadTextEntry"
+                }.map { it.entityId1 }
+
+                val labelIds = mutableSetOf<IdType>()
+
+                for(studyPadTextEntryId in studyPadTextEntryUpserts) {
+                    val withText = dao.studyPadTextEntryById(studyPadTextEntryId) ?: continue
+                    ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
+                    labelIds.add(withText.labelId)
+                }
+
+                val bookmarkToLabelUpserts = e.updated.filter {
+                    it.type == LogEntryTypes.UPSERT && it.tableName == "BibleBookmarkToLabel"
+                }.map { Pair(it.entityId1, it.entityId2) }
+
+                for(ids in bookmarkToLabelUpserts) {
+                    labelIds.add(ids.second)
+                    bookmarkUpserts.add(ids.first)
+                }
+
+                val genericBookmarkToLabelUpserts = e.updated.filter {
+                    it.type == LogEntryTypes.UPSERT && it.tableName == "GenericBookmarkToLabel"
+                }.map { Pair(it.entityId1, it.entityId2) }
+
+                for(ids in genericBookmarkToLabelUpserts) {
+                    labelIds.add(ids.second)
+                    genericBookmarkUpserts.add(ids.first)
+                }
+
+                for(labelId in labelIds) {
+                    sanitizeStudyPadOrder(labelId, true)
+                }
+
+                for(b in dao.bibleBookmarksByIds(bookmarkUpserts.toList())) {
+                    addLabels(b)
+                    addText(b)
+                    ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
+                }
+                for(b in dao.genericBookmarksByIds(genericBookmarkUpserts.toList())) {
+                    addLabels(b)
+                    addText(b)
+                    ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
+                }
+            }
+        }
     }
 
     val favouriteLabels: List<Label> get() = dao.favouriteLabels()
@@ -516,90 +601,6 @@ open class BookmarkControl constructor(
         addLabels(bookmark)
         addText(bookmark)
         ABEventBus.post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
-    }
-
-    fun onEvent(e: BookmarksUpdatedViaSyncEvent) {
-        val labelUpserts = e.updated.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Label" }.map { it.entityId1 }
-        val labels = dao.labelsById(labelUpserts)
-        for(l in labels) {
-            ABEventBus.post(LabelAddedOrUpdatedEvent(l))
-        }
-
-        val bookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "BibleBookmark" }.map { it.entityId1 }
-        ABEventBus.post(BookmarksDeletedEvent(bookmarksDeletes))
-
-        val bookmarkUpserts = e.updated.filter {
-            (it.type == LogEntryTypes.UPSERT && it.tableName == "BibleBookmark") || it.tableName == "BibleBookmarkNotes"
-        }.map { it.entityId1 }.toMutableSet()
-
-        val genericBookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "GenericBookmark" }.map { it.entityId1 }
-        ABEventBus.post(BookmarksDeletedEvent(genericBookmarksDeletes))
-
-        val genericBookmarkUpserts = e.updated.filter {
-            (it.type == LogEntryTypes.UPSERT && it.tableName == "GenericBookmark") || it.tableName == "GenericBookmarkNotes"
-        }.map { it.entityId1 }.toMutableSet()
-
-        val studyPadTextEntryDeletes = e.updated.filter {
-            (it.type == LogEntryTypes.DELETE && it.tableName == "StudyPadTextEntry")
-        }.map { it.entityId1 }
-
-        for (studyPadTextEntryId in studyPadTextEntryDeletes) {
-            ABEventBus.post(StudyPadTextEntryDeleted(studyPadTextEntryId))
-        }
-
-        val studyPadTextEntryTextUpserts = e.updated.filter {
-            it.type == LogEntryTypes.UPSERT && it.tableName == "StudyPadTextEntryText"
-        }.map { it.entityId1 }
-
-        for(studyPadTextEntryId in studyPadTextEntryTextUpserts) {
-            val withText = dao.studyPadTextEntryById(studyPadTextEntryId)!!
-            ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
-        }
-
-        val studyPadTextEntryUpserts = e.updated.filter {
-            it.type == LogEntryTypes.UPSERT && it.tableName == "StudyPadTextEntry"
-        }.map { it.entityId1 }
-
-        val labelIds = mutableSetOf<IdType>()
-
-        for(studyPadTextEntryId in studyPadTextEntryUpserts) {
-            val withText = dao.studyPadTextEntryById(studyPadTextEntryId) ?: continue
-            ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
-            labelIds.add(withText.labelId)
-        }
-
-        val bookmarkToLabelUpserts = e.updated.filter {
-            it.type == LogEntryTypes.UPSERT && it.tableName == "BibleBookmarkToLabel"
-        }.map { Pair(it.entityId1, it.entityId2) }
-
-        for(ids in bookmarkToLabelUpserts) {
-            labelIds.add(ids.second)
-            bookmarkUpserts.add(ids.first)
-        }
-
-        val genericBookmarkToLabelUpserts = e.updated.filter {
-            it.type == LogEntryTypes.UPSERT && it.tableName == "GenericBookmarkToLabel"
-        }.map { Pair(it.entityId1, it.entityId2) }
-
-        for(ids in genericBookmarkToLabelUpserts) {
-            labelIds.add(ids.second)
-            genericBookmarkUpserts.add(ids.first)
-        }
-
-        for(labelId in labelIds) {
-            sanitizeStudyPadOrder(labelId, true)
-        }
-
-        for(b in dao.bibleBookmarksByIds(bookmarkUpserts.toList())) {
-            addLabels(b)
-            addText(b)
-            ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
-        }
-        for(b in dao.genericBookmarksByIds(genericBookmarkUpserts.toList())) {
-            addLabels(b)
-            addText(b)
-            ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
-        }
     }
 
     /**
