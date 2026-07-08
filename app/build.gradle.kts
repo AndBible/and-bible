@@ -451,8 +451,6 @@ dependencies {
     implementation(libs.koin.core)
     implementation(libs.koin.android)
 
-    implementation("de.greenrobot:eventbus:2.4.1")
-
     implementation("org.apache.commons:commons-lang3:3.12.0") // make sure this is the same version that commons-text depends on
     implementation("org.apache.commons:commons-text:1.9")
 

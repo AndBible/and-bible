@@ -26,6 +26,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
 import net.bible.android.view.activity.download.DocumentListItem
 import net.bible.service.download.FakeBookFactory
@@ -64,7 +65,9 @@ class DocumentDownloadProgressCacheTest {
     @Throws(InterruptedException::class)
     fun sendEventOnProgress() {
         val eventReceiver = EventReceiver()
-        ABEventBus.register(eventReceiver)
+        ABEventBus.register(eventReceiver) {
+            on<DocumentDownloadEvent> { eventReceiver.received = true }
+        }
         documentDownloadProgressCache!!.startMonitoringDownloads()
         testData!!.progress.workDone = 30
         Thread.sleep(10)
@@ -79,9 +82,6 @@ class DocumentDownloadProgressCacheTest {
 
     class EventReceiver {
         var received = false
-        fun onEvent(event: DocumentDownloadEvent?) {
-            received = true
-        }
     }
 
     private inner class TestData {

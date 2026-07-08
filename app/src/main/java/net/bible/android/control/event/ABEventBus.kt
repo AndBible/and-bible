@@ -16,7 +16,6 @@
  */
 package net.bible.android.control.event
 
-import de.greenrobot.event.EventBus
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CoroutineScope
@@ -52,22 +51,6 @@ object ABEventBus {
     /** Coroutine-native stream for new (Compose) subscribers that own a CoroutineScope. */
     val events: Flow<Any> = _events.asSharedFlow()
 
-    // ---- greenrobot back-compat surface (transient; removed once all sites migrate) ----
-    private val greenrobotSubscribers = ArrayList<Any>()
-
-    fun register(subscriber: Any) {
-        EventBus.getDefault().register(subscriber)
-        synchronized(lock) { greenrobotSubscribers.add(subscriber) }
-    }
-
-    fun safelyRegister(subscriber: Any) {
-        val bus = EventBus.getDefault()
-        if (!bus.isRegistered(subscriber)) {
-            bus.register(subscriber)
-            synchronized(lock) { greenrobotSubscribers.add(subscriber) }
-        }
-    }
-
     // ---- new KMP-native DSL surface ----
     fun register(owner: Any, block: Subscriptions.() -> Unit) {
         val subs = ArrayList<Registration>()
@@ -90,36 +73,24 @@ object ABEventBus {
         register(owner, block)
     }
 
-    fun unregister(subscriber: Any) {
-        EventBus.getDefault().unregister(subscriber) // harmless if not a greenrobot subscriber
-        synchronized(lock) {
-            greenrobotSubscribers.remove(subscriber)
-            registrations.remove(subscriber)
-        }
+    fun unregister(owner: Any) {
+        synchronized(lock) { registrations.remove(owner) }
     }
 
     /** Between tests we need to clean up. */
     fun unregisterAll() {
-        val greenrobot: List<Any> = synchronized(lock) {
-            val snapshot = ArrayList(greenrobotSubscribers)
-            greenrobotSubscribers.clear()
-            registrations.clear()
-            snapshot
-        }
-        for (s in greenrobot) EventBus.getDefault().unregister(s)
+        synchronized(lock) { registrations.clear() }
     }
 
     fun post(event: Any) {
-        // 1) greenrobot subscribers (un-migrated onEvent* methods)
-        EventBus.getDefault().post(event)
-        // 2) new DSL handlers — snapshot under lock, invoke outside the lock (re-entrant-safe)
+        // DSL handlers — snapshot under lock, invoke outside the lock (re-entrant-safe)
         val matching = synchronized(lock) {
             registrations.values.flatten().filter { it.type.isInstance(event) }
         }
         for (reg in matching) {
             if (reg.onMain) mainScope.launch { reg.handler(event) } else reg.handler(event)
         }
-        // 3) coroutine-native stream
+        // coroutine-native stream
         _events.tryEmit(event)
     }
 }
