@@ -32,6 +32,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.AgentLogWidgetBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.onMain
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.ai.AgentLogAdapter
@@ -127,7 +128,49 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     }
 
     override fun onAttachedToWindow() {
-        ABEventBus.safelyRegister(this)
+        ABEventBus.safelyRegister(this) {
+            onMain<AgentLogUpdatedEvent> { event ->
+                if (event.workspaceId == workspaceId) {
+                    refreshLogEntries(scrollToBottom = true)
+                }
+            }
+            onMain<AgentSessionStatusChangedEvent> { event ->
+                if (event.workspaceId == workspaceId) {
+                    val entries = AgentSessionManager.getLogEntries(event.workspaceId)
+                    val latestMessage = getLatestMeaningfulMessage(entries)
+                    updateStatusText(latestMessage)
+
+                    // Start/stop status icon animation based on running state
+                    if (event.isRunning) {
+                        startStatusAnimation()
+                    } else {
+                        stopStatusAnimation()
+                    }
+
+                    // Update close/stop button based on running state
+                    updateCloseStopButton(event.isRunning)
+
+                    // Auto-show when agent starts
+                    if (event.isRunning && visibility != View.VISIBLE) {
+                        show()
+                    }
+
+                    // Auto-hide on a terminal state (unless it errored), if enabled by the user.
+                    if (!event.isRunning &&
+                        visibility == View.VISIBLE &&
+                        shouldAutoHideAgentLog(CommonUtils.aiSettings.autoHideAgentLogOnCompletion, event.stopReason)
+                    ) {
+                        hide()
+                        if (event.stopReason == AgentStopReason.COMPLETED) {
+                            ABEventBus.post(ToastEvent(R.string.ai_task_completed))
+                        }
+                    }
+                }
+            }
+            onMain<DefaultModelChangedEvent> { _ ->
+                updateModelSelectorText()
+            }
+        }
         super.onAttachedToWindow()
 
         refreshLogEntries()
@@ -320,59 +363,6 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         iconAnimator = null
         binding.statusIcon.scaleX = 1.0f
         binding.statusIcon.scaleY = 1.0f
-    }
-
-    /**
-     * Handle log update events.
-     */
-    fun onEventMainThread(event: AgentLogUpdatedEvent) {
-        if (event.workspaceId == workspaceId) {
-            refreshLogEntries(scrollToBottom = true)
-        }
-    }
-
-    /**
-     * Handle session status change events.
-     */
-    fun onEventMainThread(event: AgentSessionStatusChangedEvent) {
-        if (event.workspaceId == workspaceId) {
-            val entries = AgentSessionManager.getLogEntries(event.workspaceId)
-            val latestMessage = getLatestMeaningfulMessage(entries)
-            updateStatusText(latestMessage)
-
-            // Start/stop status icon animation based on running state
-            if (event.isRunning) {
-                startStatusAnimation()
-            } else {
-                stopStatusAnimation()
-            }
-
-            // Update close/stop button based on running state
-            updateCloseStopButton(event.isRunning)
-
-            // Auto-show when agent starts
-            if (event.isRunning && visibility != View.VISIBLE) {
-                show()
-            }
-
-            // Auto-hide on a terminal state (unless it errored), if enabled by the user.
-            if (!event.isRunning &&
-                visibility == View.VISIBLE &&
-                shouldAutoHideAgentLog(CommonUtils.aiSettings.autoHideAgentLogOnCompletion, event.stopReason)
-            ) {
-                hide()
-                if (event.stopReason == AgentStopReason.COMPLETED) {
-                    ABEventBus.post(ToastEvent(R.string.ai_task_completed))
-                }
-            }
-        }
-    }
-
-    /**
-     * Refresh the model selector text when the default model changes elsewhere.
-     */
-    fun onEventMainThread(@Suppress("UNUSED_PARAMETER") event: DefaultModelChangedEvent) {
-        updateModelSelectorText()
     }
 
     /**

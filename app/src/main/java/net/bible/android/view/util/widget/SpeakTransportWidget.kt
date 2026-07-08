@@ -32,6 +32,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpeakTransportWidgetBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -123,7 +124,17 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
     }
 
     override fun onAttachedToWindow() {
-        ABEventBus.safelyRegister(this)
+        ABEventBus.safelyRegister(this) {
+            onMain<SpeakSettingsChangedEvent> { ev ->
+                resetView(ev.speakSettings)
+            }
+            onMain<SpeakEvent> { ev ->
+                resetView()
+            }
+            onMain<SpeakProgressEvent> { ev ->
+                binding.statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
+            }
+        }
         super.onAttachedToWindow()
         resetView(SpeakSettings.load())
     }
@@ -213,18 +224,6 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         if(speakSettings != null) {
             binding.bookmarkButton.visibility = if (speakBookmarks.isNotEmpty()) View.VISIBLE else View.GONE
         }
-    }
-
-    fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
-        resetView(ev.speakSettings)
-    }
-
-    fun onEventMainThread(ev: SpeakEvent) {
-        resetView()
-    }
-
-    fun onEventMainThread(ev: SpeakProgressEvent) {
-        binding.statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
     }
 
     companion object {

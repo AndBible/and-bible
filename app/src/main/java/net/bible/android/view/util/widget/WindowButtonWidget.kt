@@ -31,6 +31,8 @@ import androidx.annotation.RequiresApi
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.WindowButtonBinding
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
+import net.bible.android.control.event.onMain
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.window.Window
@@ -58,20 +60,6 @@ class WindowButtonWidget(
 
     init {
         updateSettings()
-    }
-
-    fun onEventMainThread(event: CurrentBibleVerseChanged) {
-        binding.topButtonText.text = window?.pageManager?.titleText?:""
-    }
-
-    fun onEvent(event: CurrentWindowChangedEvent) {
-        updateSettings()
-    }
-
-    fun onEvent(event: WindowChangedEvent) {
-        if(event.window == window) {
-            updateSettings()
-        }
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
@@ -240,7 +228,19 @@ class WindowButtonWidget(
         }
 
     override fun onAttachedToWindow() {
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<CurrentBibleVerseChanged> { event ->
+                binding.topButtonText.text = window?.pageManager?.titleText?:""
+            }
+            on<CurrentWindowChangedEvent> { event ->
+                updateSettings()
+            }
+            on<WindowChangedEvent> { event ->
+                if(event.window == window) {
+                    updateSettings()
+                }
+            }
+        }
         super.onAttachedToWindow()
     }
 
