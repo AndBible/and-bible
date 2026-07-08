@@ -26,7 +26,7 @@ The current View layer is ~37k LOC across 35 Activities and ~46 screen classes, 
 - Keep the Android app continuously runnable and shippable throughout (Strangler Fig, §3).
 
 ### Out of scope (deferred to later programs)
-- **JSword portability to iOS.** Stays a JVM/Android library in `:app`, reached from shared UI only through interface seams.
+- **JSword portability to iOS.** Stays a JVM/Android library in `:app`, kept out of the shared source sets. Shared UI reaches Bible data only through plain view-data + string IDs during this program (see §4.8); the formal `BibleLibrary` seam and the undecided JSword→native-SWORD swap are a future data program.
 - **Room data-layer KMP migration.** Room stays Android-only in `:app`. Shared UI must not import Room/DAO types directly; it goes through repository interfaces so the later Room-KMP migration does not ripple into the UI. This is deferred deliberately — it is a large, higher-risk program in its own right (6 databases incl. `OldMonolithicAppDatabase` migration history, driver-API migrations, minSdk-23 DDL limits, requery-driver/EPUB edge cases), and it carries a hard constraint the UI port does not: AndBible **requires a fresh bundled SQLite** (Room-KMP `BundledSQLiteDriver`) because it relies on SQLite features unavailable in the old Android system SQLite. The reference's framework-driver shortcut therefore does **not** apply here (see §8).
 - **Building the iOS app (`:iosApp`).** No `MainViewController`, no iOS platform implementations beyond what is needed to keep the iOS *compile* green. iOS actuals are written when the real iOS port happens.
 - **The Vue.js WebView Bible renderer.** Already cross-platform; kept as an Android `WebView` via `AndroidView` interop, behind an `expect`/`actual` (or interface) seam so a future `WKWebView` slots in. Ported as part of the main reading-view complex (Batch 12), not rewritten.
@@ -101,6 +101,21 @@ Per-screen state holders (plain Kotlin classes with an injected `CoroutineScope`
 
 Device verification is batched: on-device toggle A/B parity across the four theme modes (dark, light, monochrome/e-ink, no-animations) + RTL is the definition-of-done gate per screen.
 
+### 4.8 Bible-data seam (JSword decoupling) — bounded, incremental, not a full seam now
+JSword types (`Book`, `Key`, `Verse`, `VerseRange`, `Versification`, `SwordBook`, `BookCategory`, `BibleBook`, …) are pervasive: 168 files import `org.crosswire`, but **only 43 are in the view layer** — 115 are in the control/service layer, which stays in `:app` (androidMain) for this program and keeps using JSword freely.
+
+**The rule is scoped to common source sets only.** Shared code (`:sharedCore`/`:sharedUi`, iOS-compiled) must not reference JSword types; androidMain state-holder wrappers may. The burden is therefore proportional to **what each screen displays**, not to total JSword usage.
+
+**UI-port approach (light, per screen):** composables take **plain view-data + an opaque string ID** (book initials like `"KJV"`, an `osisRef` like `"Gen.1.1"` — already platform-neutral, not JSword handles). Actions pass the ID back; the androidMain wrapper resolves ID → JSword object and calls the existing control layer. Per-screen view-models grow incrementally; **no complete JSword abstraction is built in this program.**
+
+**North star (from the `and-bible-ios` / `SwordKit` analysis):** iOS already ships the proof that a thin value-type facade over the Bible engine (`SwordManager`/`SwordModule` + plain structs `ModuleInfo`, `BookInfo`, `VerseKeyReference`) can produce JSword-shaped answers on top of native SWORD. So when defining per-screen view-data, **shape the plain types after that proven vocabulary** — `BookMetadata` (≈ `Book`/`ModuleInfo`), `BookInfo` (≈ `BibleBook`), `VerseRef` (≈ `Verse`/`VerseKeyReference`), `BookCategory` — which maps 1:1 to both JSword and SWORD. This keeps the UI port's incremental types from becoming throwaway and pre-aligns them with the eventual `BibleLibrary`/`BibleBook` `:sharedCore` interface that a future data program will formalize.
+
+**Double payoff:** because the UI ends up depending only on plain view-data + a provider interface, the undecided future JSword→native-SWORD swap (as done in `and-bible-ios` via `libsword`) happens *behind* the seam without touching the UI. This decoupling is the highest-leverage prep for that migration.
+
+**Already-serialized content path:** the reading view's Bible content crosses to the Vue.js WebView as `OsisFragment` JSON via the JS bridge — **identical on Android and iOS today**, so it is already a cross-platform seam. The shared reading-view UI handles the chrome (toolbars, menus, gestures); the content stays behind the existing bridge (Batch 12).
+
+**Explicitly deferred to the future data program (do NOT solve during the UI port):** (a) versification/ordinal identity — JSword normalizes to KJVA while SWORD's `getIndex()` differs; ordinals must never be exposed as a raw backend index; (b) OSIS-fragment production as the canonical text unit (not `renderText` HTML); (c) JSword-parity book-visibility semantics (`DocumentBibleBooks.isVerseInBook`); (d) the serialized/single-threaded concurrency model a native backend imposes. These belong to the seam's formal definition, not to view work.
+
 ---
 
 ## 5. Phase 0 — Foundations
@@ -167,6 +182,9 @@ Decisions **diverging** from the reference because it does not scale to 35 scree
 - **Koin instead of manual DI** (reference's manual container is unmaintainable at this scale).
 - **Per-screen state/actions and per-feature nav graphs** instead of one mega-state and one monolithic NavHost.
 - **Hardened `strings-gen`** with `<plurals>` support and robust parsing.
+
+### Second reference: `and-bible-ios` (native SWORD data layer)
+`AndBible/and-bible-ios` is a shipped native Swift iOS app that runs the **same `bibleview-js` Vue renderer** and uses **native SWORD (`libsword`)** for data instead of JSword. It is not KMP, but it is the authoritative reference for the **Bible-data seam shape** (§4.8): its `SwordKit` layer (value-type facade `SwordManager`/`SwordModule` + plain structs producing JSword-shaped answers) is exactly the intersection a future `:sharedCore` `BibleLibrary`/`BibleBook` interface should target. It also confirms the `OsisFragment` bridge contract is already identical across platforms, and documents the three hard divergences (KJVA ordinals, OSIS text unit, book-visibility) that the future data program must design into the contract. Used here only to shape the UI port's plain view-data vocabulary; the actual seam is future work.
 
 ---
 
