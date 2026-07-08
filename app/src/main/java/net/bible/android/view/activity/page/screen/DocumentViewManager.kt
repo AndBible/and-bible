@@ -28,7 +28,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
-import javax.inject.Inject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

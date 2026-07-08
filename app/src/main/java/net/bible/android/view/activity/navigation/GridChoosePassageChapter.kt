@@ -39,7 +39,6 @@ import org.crosswire.jsword.versification.BibleBook
 
 import java.util.ArrayList
 
-import javax.inject.Inject
 
 import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.BOOK_NO
 import net.bible.android.view.util.buttongrid.ButtonInfo

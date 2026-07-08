@@ -49,7 +49,6 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 /** Allow user to enter search criteria

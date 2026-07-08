@@ -29,7 +29,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import org.crosswire.jsword.passage.Key
 import java.util.*
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 /** show a list of keys and allow to select an item

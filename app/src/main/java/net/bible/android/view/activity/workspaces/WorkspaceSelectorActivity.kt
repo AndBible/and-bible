@@ -63,7 +63,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.RecyclerViewSearchHelper
 import net.bible.service.common.setupRecyclerViewSearch
 import net.bible.service.db.DatabaseContainer
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 class WorkspaceViewHolder(val layout: ViewGroup): RecyclerView.ViewHolder(layout)

@@ -34,7 +34,6 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.readingplan.OneDaysReadingsDto
 
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 /** show a history list and allow to go to history item

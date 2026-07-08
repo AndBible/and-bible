@@ -44,6 +44,8 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.stopKoin
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.RangedPassage
@@ -77,10 +79,18 @@ open class SpeakIntegrationTestBase {
     fun setUp() {
         ShadowLog.stream = System.out
         app = BibleApplication.application as TestBibleApplication
-        val appComponent = app.applicationComponent
-        bookmarkControl = appComponent.bookmarkControl()
-        speakControl = appComponent.speakControl()
-        windowControl = appComponent.windowControl()
+        // Resolve from Koin, matching production: after the Dagger->Koin field-injection
+        // flip (Phase 0, B.2) every production SpeakControl consumer uses `by inject()`
+        // (Koin), so production has a single Koin SpeakControl. Fetching the Dagger
+        // instance here (appComponent.speakControl()) created a SECOND SpeakControl that
+        // co-existed with the Koin one (created via TextToSpeechNotificationManager) —
+        // both register on the shared ABEventBus and double-handle speak events, which
+        // corrupted the autobookmark playback-settings assertions. Driving the same single
+        // Koin instance production uses restores correct behaviour.
+        val koin = GlobalContext.get()
+        bookmarkControl = koin.get()
+        speakControl = koin.get()
+        windowControl = koin.get()
         windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository.initialize()
         speakControl.setupMockedTts()
@@ -92,6 +102,15 @@ open class SpeakIntegrationTestBase {
     @After
     fun tearDown() {
         DatabaseResetter.resetDatabase()
+        // Stop the Koin container so the next test method starts fresh. Koin's global
+        // container is started once (guarded on GlobalContext.getOrNull() in
+        // BibleApplication.onCreate) and reused across Robolectric test methods, so its
+        // singletons (e.g. SpeakControl._speakPageManager / ABEventBus registration)
+        // would otherwise leak state between tests. The old Dagger appComponent was
+        // re-created per app instance, so per-test freshness matches previous behaviour.
+        if (GlobalContext.getOrNull() != null) {
+            stopKoin()
+        }
     }
 }
 

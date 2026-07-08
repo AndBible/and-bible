@@ -79,7 +79,6 @@ import net.bible.service.common.setupPreferenceSearch
 import net.bible.service.common.textDisplaySettingsVideo
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 

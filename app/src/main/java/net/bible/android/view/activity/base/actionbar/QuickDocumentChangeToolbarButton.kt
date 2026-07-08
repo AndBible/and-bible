@@ -19,7 +19,6 @@ package net.bible.android.view.activity.base.actionbar
 import net.bible.service.common.CommonUtils.getResourceInteger
 import android.view.MenuItem
 import net.bible.android.activity.R
-import javax.inject.Inject
 import androidx.core.view.MenuItemCompat
 import net.bible.android.control.page.window.WindowControl
 import net.bible.service.common.TitleSplitter

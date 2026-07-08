@@ -45,7 +45,6 @@ import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.index.search.SearchType
 
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {

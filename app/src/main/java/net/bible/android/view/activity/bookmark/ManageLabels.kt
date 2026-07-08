@@ -63,7 +63,6 @@ import net.bible.service.common.labelsAndBookmarksPlaylist
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
 import java.util.*
-import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.random.Random.Default.nextInt

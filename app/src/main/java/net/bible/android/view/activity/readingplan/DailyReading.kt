@@ -48,7 +48,6 @@ import org.crosswire.jsword.versification.BookName
 
 import java.util.Calendar
 
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 /** Allow user to enter search criteria

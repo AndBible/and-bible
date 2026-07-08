@@ -56,7 +56,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.htmlToSpan
 
-import javax.inject.Inject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

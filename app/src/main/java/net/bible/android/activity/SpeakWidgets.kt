@@ -39,7 +39,6 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.AdvancedSpeakSettings
@@ -49,7 +48,6 @@ import net.bible.service.device.speak.TextCommand
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import java.lang.Exception
-import javax.inject.Inject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -78,9 +76,6 @@ class SpeakWidgetManager : KoinComponent {
             throw IllegalStateException("This is singleton!")
         }
         instance = this
-        DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.application.applicationComponent)
-                .build().inject(this)
         ABEventBus.register(this)
     }
 

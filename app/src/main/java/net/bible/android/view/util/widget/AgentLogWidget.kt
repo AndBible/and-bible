@@ -50,7 +50,6 @@ import net.bible.service.llm.agent.AgentSessionStatusChangedEvent
 import net.bible.service.llm.agent.AgentStopReason
 import net.bible.service.llm.agent.LogEntryType
 import net.bible.service.llm.agent.shouldAutoHideAgentLog
-import javax.inject.Inject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

@@ -170,7 +170,6 @@ import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.URLConnection
 import java.util.*
-import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.min
 import org.koin.core.component.KoinComponent

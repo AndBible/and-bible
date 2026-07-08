@@ -31,7 +31,6 @@ import net.bible.service.common.CommonUtils
 import java.lang.ref.WeakReference
 import java.util.UUID
 
-import javax.inject.Inject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

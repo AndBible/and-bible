@@ -70,7 +70,6 @@ import org.crosswire.jsword.book.BookFilter
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.util.*
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 /**

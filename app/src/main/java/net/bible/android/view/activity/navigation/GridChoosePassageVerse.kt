@@ -38,7 +38,6 @@ import org.crosswire.jsword.versification.BibleBook
 
 import java.util.ArrayList
 
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 /**

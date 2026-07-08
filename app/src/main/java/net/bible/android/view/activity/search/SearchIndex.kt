@@ -32,7 +32,6 @@ import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 /** Create a Lucene search index

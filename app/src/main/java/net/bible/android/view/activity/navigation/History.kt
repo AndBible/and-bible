@@ -35,7 +35,6 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.base.SharedActivityState.Companion.currentWorkspaceName
 import net.bible.service.history.HistoryItem
 import net.bible.service.history.HistoryManager
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 /** show a history list and allow to go to history item

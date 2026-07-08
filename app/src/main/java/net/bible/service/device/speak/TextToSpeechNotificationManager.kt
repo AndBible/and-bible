@@ -37,7 +37,6 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
-import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
@@ -45,7 +44,6 @@ import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import java.util.*
-import javax.inject.Inject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -194,9 +192,6 @@ class TextToSpeechNotificationManager : KoinComponent {
         }
 
         instance = this
-        DaggerActivityComponent.builder()
-                .applicationComponent(app.applicationComponent)
-                .build().inject(this)
 
         val powerManager = app.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)

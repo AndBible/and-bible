@@ -43,7 +43,6 @@ import net.bible.service.common.speakHelpVideo
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 @ActivityScope

@@ -38,7 +38,6 @@ import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.readingplan.ReadingPlanInfoDto
 
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 /** do the search and show the search results

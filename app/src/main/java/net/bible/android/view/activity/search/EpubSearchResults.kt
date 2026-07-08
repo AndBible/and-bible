@@ -44,7 +44,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.index.search.SearchType
 import java.util.*
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 class EpubSearchResults : ListActivityBase(R.menu.empty_menu) {

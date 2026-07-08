@@ -46,7 +46,6 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 class SearchResults : ListActivityBase(R.menu.empty_menu) {

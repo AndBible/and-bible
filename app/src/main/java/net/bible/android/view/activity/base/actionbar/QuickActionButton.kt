@@ -22,7 +22,6 @@ import android.view.MenuItem
 import android.view.View
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.activity.R
-import javax.inject.Inject
 import java.lang.ref.WeakReference
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject

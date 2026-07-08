@@ -47,7 +47,6 @@ import org.crosswire.jsword.versification.Versification
 
 import java.util.ArrayList
 
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 

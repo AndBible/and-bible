@@ -115,8 +115,6 @@ import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.json
-import net.bible.android.view.activity.ActivityComponent
-import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
@@ -188,7 +186,6 @@ import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine

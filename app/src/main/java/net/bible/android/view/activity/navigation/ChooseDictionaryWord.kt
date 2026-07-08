@@ -41,7 +41,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.jdom2.Element
 import java.util.*
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 /**

@@ -53,7 +53,6 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import java.util.*
 import java.util.UUID.randomUUID
-import javax.inject.Inject
 import kotlin.math.abs
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject

@@ -30,7 +30,6 @@ import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {

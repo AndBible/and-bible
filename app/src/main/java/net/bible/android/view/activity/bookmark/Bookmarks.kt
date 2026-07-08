@@ -62,7 +62,6 @@ import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import java.lang.IllegalArgumentException
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.inject.Inject
 import org.koin.android.ext.android.inject
 
 val BookmarkSortOrder.description get() =
