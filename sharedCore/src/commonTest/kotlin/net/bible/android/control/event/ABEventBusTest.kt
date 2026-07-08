@@ -4,10 +4,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.runTest
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.AfterTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 // Base + subtype to prove supertype/interface dispatch is preserved.
 open class BaseTestEvent
@@ -16,7 +16,7 @@ interface MarkerTestEvent
 class MarkerImplEvent : MarkerTestEvent
 
 class ABEventBusTest {
-    @After fun tearDown() = ABEventBus.unregisterAll()
+    @AfterTest fun tearDown() = ABEventBus.unregisterAll()
 
     @Test fun `on delivers synchronously on the posting thread before post returns`() {
         val owner = Any()
