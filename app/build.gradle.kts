@@ -458,6 +458,8 @@ dependencies {
         exclude("org.apache.httpcomponents")
     }
 
+    implementation(project(":sharedCore"))
+
     implementation("de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5")
 
     implementation("org.jdom:jdom2:2.0.6.1")
