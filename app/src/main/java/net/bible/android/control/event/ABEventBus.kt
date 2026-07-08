@@ -88,7 +88,13 @@ object ABEventBus {
             registrations.values.flatten().filter { it.type.isInstance(event) }
         }
         for (reg in matching) {
-            if (reg.onMain) mainScope.launch { reg.handler(event) } else reg.handler(event)
+            if (reg.onMain) {
+                mainScope.launch {
+                    try { reg.handler(event) } catch (e: Throwable) { e.printStackTrace() }
+                }
+            } else {
+                try { reg.handler(event) } catch (e: Throwable) { e.printStackTrace() }
+            }
         }
         // coroutine-native stream
         _events.tryEmit(event)

@@ -84,4 +84,20 @@ class ABEventBusTest {
         job.cancel()
         assertTrue(seen.any { it is SubTestEvent && it.payload == 9 })
     }
+
+    @Test fun `a throwing on handler is isolated - later handlers and the flow still run`() = runTest {
+        val throwingOwner = Any(); val laterOwner = Any()
+        val seen = mutableListOf<String>()
+        val flowSeen = mutableListOf<Any>()
+        // registration order = delivery order (LinkedHashMap): throwing first, then the good one
+        ABEventBus.register(throwingOwner) { on<SubTestEvent> { throw RuntimeException("boom") } }
+        ABEventBus.register(laterOwner) { on<SubTestEvent> { seen.add("later") } }
+        val job = ABEventBus.events.onEach { flowSeen.add(it) }.launchIn(this)
+        kotlinx.coroutines.yield()
+        ABEventBus.post(SubTestEvent(1)) // must NOT propagate the handler's exception
+        kotlinx.coroutines.yield()
+        job.cancel()
+        assertEquals(listOf("later"), seen)                 // later handler still ran
+        assertTrue(flowSeen.any { it is SubTestEvent })      // tryEmit still happened
+    }
 }
