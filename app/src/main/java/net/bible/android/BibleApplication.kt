@@ -69,6 +69,9 @@ import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.bridge.BookIndexer
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.startKoin
 import java.util.Locale
 
 object MyLocaleProvider: LocaleProvider {
@@ -155,6 +158,18 @@ open class BibleApplication : Application() {
 
         // This must be done before accessing JSword to prevent default folders being used
         SwordEnvironmentInitialisation.initialiseJSwordFolders()
+
+        // Initialize the Koin container alongside Dagger. Dagger still owns all
+        // injection for now; Koin's graph is proven here and the flip happens later.
+        // Guard against a double-start: Robolectric reuses one JVM across test
+        // classes, so onCreate (hence startKoin) runs many times in the same
+        // process — start only if no Koin context exists yet.
+        if (GlobalContext.getOrNull() == null) {
+            startKoin {
+                androidContext(this@BibleApplication)
+                modules(net.bible.android.control.coreModule)
+            }
+        }
 
         // Initialize the Dagger injector ApplicationScope objects
         applicationComponent = DaggerApplicationComponent.builder().build()

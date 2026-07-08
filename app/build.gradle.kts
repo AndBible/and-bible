@@ -451,6 +451,9 @@ dependencies {
     annotationProcessor(libs.dagger.compiler)
     ksp(libs.dagger.compiler)
 
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+
     implementation("de.greenrobot:eventbus:2.4.1")
 
     implementation("org.apache.commons:commons-lang3:3.12.0") // make sure this is the same version that commons-text depends on
@@ -486,6 +489,8 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest-library:2.2")
     testImplementation("org.mockito:mockito-core:3.12.4")
     testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.koin.test)
+    testImplementation(libs.koin.test.junit4)
 
     // Android instrumentation testing
 
