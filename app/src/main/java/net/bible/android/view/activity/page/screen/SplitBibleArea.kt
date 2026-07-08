@@ -55,6 +55,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SplitBibleAreaBinding
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.MultiFragmentDocument
@@ -161,7 +162,48 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         addView(bibleReferenceOverlay,
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            on<MainBibleActivity.FullScreenEvent> { event ->
+                if(autoHideWindowButtonBarInFullScreen)
+                    restoreButtonsVisible = !event.isFullScreen
+                buttonsWillAnimate = true
+                toggleWindowButtonVisibility(true, true)
+            }
+            on<CurrentVerseChangedEvent> { event ->
+                if(event.window.windowRepository != windowControl.windowRepository) return@on
+                updateBibleReference()
+                updateMinimizedButtonText(event.window)
+            }
+            on<MainBibleActivity.ConfigurationChanged> { event ->
+                toggleWindowButtonVisibility(true, force=true)
+                resetTouchTimer()
+            }
+            on<MainBibleActivity.UpdateRestoreWindowButtons> { event ->
+                scope.launch {
+                    Log.i(TAG, "on UpdateRestoreWindowButtons")
+                    delay(200)
+                    withContext(Dispatchers.Main) {
+                        updateRestoreButtons()
+                    }
+                }
+            }
+            on<CurrentWindowChangedEvent> { event ->
+                toggleWindowButtonVisibility(true, force=true)
+                resetTouchTimer()
+                updateBibleReference()
+                ensureRestoreButtonVisible()
+            }
+            on<BibleViewInputFocusChanged> { event ->
+                if(event.newFocus) {
+                    ensureBibleViewVisible(event.view)
+                } else {
+                    // reset position
+                }
+            }
+            on<BibleView.BibleViewTouched> { event ->
+                resetTouchTimer()
+            }
+        }
     }
     private val windowRepository = windowControl.windowRepository
 
@@ -415,19 +457,6 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
     }
 
-    fun onEvent(event: MainBibleActivity.FullScreenEvent) {
-        if(autoHideWindowButtonBarInFullScreen)
-            restoreButtonsVisible = !event.isFullScreen
-        buttonsWillAnimate = true
-        toggleWindowButtonVisibility(true, true)
-    }
-
-    fun onEvent(event: CurrentVerseChangedEvent) {
-        if(event.window.windowRepository != windowControl.windowRepository) return
-        updateBibleReference()
-        updateMinimizedButtonText(event.window)
-    }
-
     private fun updateBibleReference() {
         if(bibleReferenceOverlay.visibility != View.VISIBLE) return
         mainBibleActivity.runOnUiThread {
@@ -443,28 +472,6 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         mainBibleActivity.runOnUiThread {
             restoreButtonsList.find { it.window?.id == w.id }?.text = getWindowButtonTitleText(w)
         }
-    }
-
-    fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
-        toggleWindowButtonVisibility(true, force=true)
-        resetTouchTimer()
-    }
-
-    fun onEvent(event: MainBibleActivity.UpdateRestoreWindowButtons) {
-        scope.launch {
-            Log.i(TAG, "on UpdateRestoreWindowButtons")
-            delay(200)
-            withContext(Dispatchers.Main) {
-                updateRestoreButtons()
-            }
-        }
-    }
-
-    fun onEvent(event: CurrentWindowChangedEvent) {
-        toggleWindowButtonVisibility(true, force=true)
-        resetTouchTimer()
-        updateBibleReference()
-        ensureRestoreButtonVisible()
     }
 
     private fun ensureRestoreButtonVisible() = scope.launch {
@@ -501,20 +508,8 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
          */
     }
 
-    fun onEvent(event: BibleViewInputFocusChanged) {
-        if(event.newFocus) {
-            ensureBibleViewVisible(event.view)
-        } else {
-            // reset position
-        }
-    }
-
     private var sleepTimer: Timer = Timer("SplitBibleArea sleep timer")
     private var timerTask: TimerTask? = null
-
-    fun onEvent(event: BibleView.BibleViewTouched) {
-        resetTouchTimer()
-    }
 
     private fun resetTouchTimer() {
         toggleWindowButtonVisibility(true)

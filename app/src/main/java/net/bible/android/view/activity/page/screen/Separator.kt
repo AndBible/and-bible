@@ -28,6 +28,7 @@ import android.widget.LinearLayout
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.page.BibleView
@@ -100,18 +101,17 @@ class Separator(
 
     override fun onAttachedToWindow() {
         updateBackground()
-        ABEventBus.register(this)
-        super.onAttachedToWindow()
-    }
-
-    fun onEvent(event: CurrentWindowChangedEvent) {
-        updateBackground()
-    }
-
-    fun onEvent(event: BibleView.BibleViewTouched) {
-        if(event.onlyTouch) {
-            release()
+        ABEventBus.register(this) {
+            on<CurrentWindowChangedEvent> { event ->
+                updateBackground()
+            }
+            on<BibleView.BibleViewTouched> { event ->
+                if(event.onlyTouch) {
+                    release()
+                }
+            }
         }
+        super.onAttachedToWindow()
     }
 
     fun release() {

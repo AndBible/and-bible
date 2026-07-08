@@ -29,6 +29,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.view.GestureDetectorCompat
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.page.BibleView
@@ -104,10 +105,6 @@ class BibleFrame(
         }
     }
 
-    fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
-        updatePaddings()
-    }
-
     private val isLeftWindow
         get() = mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
 
@@ -118,7 +115,11 @@ class BibleFrame(
 
     init {
         build()
-        ABEventBus.safelyRegister(this)
+        ABEventBus.safelyRegister(this) {
+            on<MainBibleActivity.ConfigurationChanged> { event ->
+                updatePaddings()
+            }
+        }
     }
 
     fun destroy() {

@@ -23,6 +23,7 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.view.util.TouchOwner
 import net.bible.service.common.BibleViewSwipeMode
 import net.bible.service.common.CommonUtils
@@ -51,7 +52,13 @@ class BibleGestureListener(
         minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
         // make it easier to swipe
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            on<MainBibleActivity.FullScreenEvent> { event ->
+                if(!event.isFullScreen) {
+                    lastFullScreenByDoubleTap = false
+                }
+            }
+        }
     }
 
     fun destroy() {
@@ -108,12 +115,6 @@ class BibleGestureListener(
         }
         return false
     }
-
-	fun onEvent(event: MainBibleActivity.FullScreenEvent) {
-		if(!event.isFullScreen) {
-			lastFullScreenByDoubleTap = false
-		}
-	}
 
     override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         e1 ?: return false

@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.event.passage.PassageChangeStartedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
@@ -50,17 +51,6 @@ class DocumentViewManager (val mainBibleActivity: MainBibleActivity) : KoinCompo
         ABEventBus.unregister(this)
         splitBibleArea?.destroy()
     }
-
-    fun onEventMainThread(event: NumberOfWindowsChangedEvent) {
-        buildView()
-    }
-
-	/**
-	 * called just before starting work to change the current passage
-	 */
-	fun onEventMainThread(event: PassageChangeStartedEvent) {
-		buildView()
-	}
 
     fun removeView() {
         parent.removeAllViews()
@@ -99,6 +89,14 @@ class DocumentViewManager (val mainBibleActivity: MainBibleActivity) : KoinCompo
     }
 
     init {
-		ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<NumberOfWindowsChangedEvent> { event ->
+                buildView()
+            }
+            // called just before starting work to change the current passage
+            onMain<PassageChangeStartedEvent> { event ->
+                buildView()
+            }
+        }
     }
 }
