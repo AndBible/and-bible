@@ -30,6 +30,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpeakBibleBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.onMain
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.*
@@ -55,7 +56,12 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         super.onCreate(savedInstanceState)
         binding = SpeakBibleBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<SpeakSettingsChangedEvent> { ev ->
+                currentSettings = ev.speakSettings
+                resetView(ev.speakSettings)
+            }
+        }
         binding.apply {
             speakSpeed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -117,11 +123,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             }
         }
         return false
-    }
-
-    fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
-        currentSettings = ev.speakSettings
-        resetView(ev.speakSettings)
     }
 
     fun onHelpButtonClick() {

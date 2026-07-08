@@ -32,6 +32,7 @@ import android.widget.ListView
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ListBinding
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
@@ -75,13 +76,13 @@ class ReadingPlanSelectorList : ListActivityBase() {
         }
 
         isIntegrateWithHistoryManager = false
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<ReadingPlansUpdatedViaSyncEvent> {
+                recreate()
+            }
+        }
 
         Log.i(TAG, "Finished displaying Reading Plan list")
-    }
-
-    fun onEventMainThread(e: ReadingPlansUpdatedViaSyncEvent) {
-        recreate()
     }
 
     override fun onDestroy() {

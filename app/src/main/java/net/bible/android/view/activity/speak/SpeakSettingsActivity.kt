@@ -27,6 +27,7 @@ import android.widget.TextView
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpeakSettingsBinding
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.AdvancedSpeakSettings
@@ -45,7 +46,12 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         binding = SpeakSettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<SpeakSettingsChangedEvent> { ev ->
+                currentSettings = ev.speakSettings
+                resetView(ev.speakSettings)
+            }
+        }
         resetView(SpeakSettings.load())
         binding.apply {
             synchronize.setOnClickListener { updateSettings() }
@@ -69,11 +75,6 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
             restoreSettingsFromBookmarks.isChecked = AdvancedSpeakSettings.restoreSettingsFromBookmarks
             autoBookmark.isChecked = AdvancedSpeakSettings.autoBookmark
         }
-    }
-
-    fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
-        currentSettings = ev.speakSettings
-        resetView(ev.speakSettings)
     }
 
     fun updateSettings() {

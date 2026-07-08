@@ -22,6 +22,7 @@ import androidx.appcompat.app.ActionBar
 import android.view.Menu
 
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.actionbar.ActionBarManager
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager
@@ -42,11 +43,11 @@ constructor(
 ) : DefaultActionBarManager(), ActionBarManager {
 
     init {
-        ABEventBus.register(this)
-    }
-
-    fun onEvent(e: SpeakEvent) {
-        updateButtons()
+        ABEventBus.register(this) {
+            on<SpeakEvent> {
+                updateButtons()
+            }
+        }
     }
 
     override fun prepareOptionsMenu(activity: Activity, menu: Menu, actionBar: ActionBar) {

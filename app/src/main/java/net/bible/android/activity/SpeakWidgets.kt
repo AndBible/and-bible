@@ -32,6 +32,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkEvent
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
@@ -76,42 +77,46 @@ class SpeakWidgetManager : KoinComponent {
             throw IllegalStateException("This is singleton!")
         }
         instance = this
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            on<SpeakProgressEvent> { ev ->
+                if (ev.speakCommand is TextCommand) {
+                    if (ev.speakCommand.type == TextCommand.TextType.TITLE) {
+                        currentTitle = ev.speakCommand.text
+                        if (currentTitle.isEmpty()) {
+                            currentTitle = resetTitle
+                        }
+                    } else {
+                        currentText = ev.speakCommand.text
+                    }
+
+                    updateWidgetTexts()
+                }
+            }
+            on<SpeakEvent> { ev ->
+                if (ev.isSpeaking) {
+                    currentTitle = resetTitle
+                } else if (!ev.isSpeaking && !ev.isPaused) {
+                    currentTitle = resetTitle
+                    currentText = ""
+                }
+                updateWidgetTexts()
+                updateWidgetSpeakButton(ev.isSpeaking)
+            }
+            on<SpeakSettingsChangedEvent> { ev ->
+                updateSleepTimerButtonIcon(ev.speakSettings)
+            }
+            on<BookmarkEvent> {
+                val manager = AppWidgetManager.getInstance(app)
+                for (widgetId in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
+                    updateBookmarkWidget(app, manager, widgetId)
+                }
+            }
+        }
     }
 
     fun destroy() {
         ABEventBus.unregister(this)
         instance = null
-    }
-
-    fun onEvent(ev: SpeakProgressEvent) {
-        if (ev.speakCommand is TextCommand) {
-            if (ev.speakCommand.type == TextCommand.TextType.TITLE) {
-                currentTitle = ev.speakCommand.text
-                if (currentTitle.isEmpty()) {
-                    currentTitle = resetTitle
-                }
-            } else {
-                currentText = ev.speakCommand.text
-            }
-
-            updateWidgetTexts()
-        }
-    }
-
-    fun onEvent(ev: SpeakEvent) {
-        if (ev.isSpeaking) {
-            currentTitle = resetTitle
-        } else if (!ev.isSpeaking && !ev.isPaused) {
-            currentTitle = resetTitle
-            currentText = ""
-        }
-        updateWidgetTexts()
-        updateWidgetSpeakButton(ev.isSpeaking)
-    }
-
-    fun onEvent(ev: SpeakSettingsChangedEvent) {
-        updateSleepTimerButtonIcon(ev.speakSettings)
     }
 
     private fun updateWidgetSpeakButton(speaking: Boolean) {
@@ -155,13 +160,6 @@ class SpeakWidgetManager : KoinComponent {
             for (id in manager.getAppWidgetIds(ComponentName(app, cls.java))) {
                 manager.partiallyUpdateAppWidget(id, views)
             }
-        }
-    }
-
-    fun onEvent(ev: BookmarkEvent) {
-        val manager = AppWidgetManager.getInstance(app)
-        for (widgetId in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
-            updateBookmarkWidget(app, manager, widgetId)
         }
     }
 
