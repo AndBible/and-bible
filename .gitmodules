@@ -1,3 +1,7 @@
 [submodule "jsword"]
 	path = jsword
 	url = https://github.com/AndBible/jsword.git
+[submodule "docs/superpowers"]
+	path = docs/superpowers
+	url = git@github.com:AndBible/and-bible-superpowers.git
+	update = none
