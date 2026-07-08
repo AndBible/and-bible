@@ -19,17 +19,19 @@ package net.bible.sharedcore.calculator
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class CalculatorControllerTest {
     private var unlocked = false
 
     /**
-     * Test controller. `evaluate` mimics the real host: transformed expression → result string
-     * (only "2+2" is wired). `isPin` matches an exact PIN. Mirrors the real seams.
+     * Test controller. `evaluate` mimics the real host: transformed expression → [EvalResult]
+     * (only "2+2" is wired to Ok; everything else is Malformed). `isPin` matches an exact PIN.
+     * Mirrors the real seams.
      */
     private fun controller(pin: String = "1234") = CalculatorController(
-        evaluate = { expr -> if (expr == "2+2") "4" else null },
+        evaluate = { expr -> if (expr == "2+2") EvalResult.Ok("4") else EvalResult.Malformed },
         isPin = { it == pin },
         onUnlock = { unlocked = true },
     )
@@ -144,7 +146,7 @@ class CalculatorControllerTest {
     @Test fun empty_pin_unlocks_on_non_operation() {
         unlocked = false
         val c = CalculatorController(
-            evaluate = { null },
+            evaluate = { EvalResult.Malformed },
             isPin = { true }, // empty-pin semantics: any non-operation input unlocks
             onUnlock = { unlocked = true },
         )
@@ -161,9 +163,58 @@ class CalculatorControllerTest {
     }
 
     @Test fun failed_evaluation_leaves_display_unchanged() {
-        // evaluate returns null (exception/Infinity in the host) → display untouched.
+        // evaluate returns Malformed (exception in the host) → display untouched.
         val c = controller()
         c.onKey(CalcKey.D9); c.onKey(CalcKey.PLUS); c.onKey(CalcKey.D9); c.onKey(CalcKey.EQUALS)
         assertEquals("9+9", c.display.value)
+    }
+
+    // --- Error surfacing (restores the classic activity's error feedback via LocalStrings) ---
+
+    @Test fun no_error_initially() {
+        assertNull(controller().error.value)
+    }
+
+    @Test fun malformed_expression_sets_wrong_format() {
+        // CalculatorActivity.calculate() catch(Exception) → getString(calc_wrong_format).
+        val c = controller()
+        c.onKey(CalcKey.D9); c.onKey(CalcKey.PLUS); c.onKey(CalcKey.D9); c.onKey(CalcKey.EQUALS)
+        assertEquals(CalcError.WRONG_FORMAT, c.error.value)
+    }
+
+    @Test fun operator_on_empty_display_sets_wrong_format_operand() {
+        // CalculatorActivity.addOperand() else-branch (operationLength == 0) → calc_wrong_format_operand.
+        val c = controller()
+        c.onKey(CalcKey.PLUS)
+        assertEquals(CalcError.WRONG_FORMAT_OPERAND, c.error.value)
+    }
+
+    @Test fun operator_after_operator_sets_wrong_format() {
+        // CalculatorActivity.addOperand() first-branch (operator after operator) → calc_wrong_format.
+        val c = controller()
+        c.onKey(CalcKey.D2); c.onKey(CalcKey.PLUS); c.onKey(CalcKey.MINUS)
+        assertEquals(CalcError.WRONG_FORMAT, c.error.value)
+    }
+
+    @Test fun division_by_zero_sets_division_by_zero_error() {
+        // Host maps Infinity/ArithmeticException → EvalResult.DivByZero → calc_division_by_zero.
+        val c = CalculatorController(
+            evaluate = { EvalResult.DivByZero },
+            isPin = { false },
+            onUnlock = { unlocked = true },
+        )
+        c.onKey(CalcKey.D1); c.onKey(CalcKey.D0); c.onKey(CalcKey.DIV); c.onKey(CalcKey.D0)
+        c.onKey(CalcKey.EQUALS)
+        assertEquals(CalcError.DIVISION_BY_ZERO, c.error.value)
+        assertEquals("10÷0", c.display.value) // display unchanged, mirroring the old activity
+    }
+
+    @Test fun next_keypress_clears_error() {
+        val c = controller()
+        c.onKey(CalcKey.PLUS) // WRONG_FORMAT_OPERAND
+        assertEquals(CalcError.WRONG_FORMAT_OPERAND, c.error.value)
+        c.onKey(CalcKey.D1) // a fresh entry hides the old error
+        assertNull(c.error.value)
+        assertEquals("1", c.display.value)
     }
 }

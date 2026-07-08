@@ -33,17 +33,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import net.bible.sharedcore.calculator.CalcError
 import net.bible.sharedcore.calculator.CalcKey
+import net.bible.sharedui.strings.LocalStrings
 
 /**
  * Stateless Compose keypad mirroring the classic `calculator_layout.xml`: a right-aligned display
  * `Text` above a 4-column grid (rows: C ( ) % ÷ / 7 8 9 × / 4 5 6 − / 1 2 3 + / 0 . =). The `0`
  * button spans two columns like the XML (`layout_weight=2`). Button glyphs are literals; the shown
  * multiply glyph is "×" while the controller records "x" internally, exactly as the old activity.
- * All state lives in [CalculatorController]; this only renders [display] and forwards key taps.
+ * All state lives in [CalculatorController]; this only renders [display] / [error] and forwards
+ * key taps. When [error] is non-null it maps to the localized message via `LocalStrings.current`,
+ * restoring the three error Toasts the classic activity showed (and exercising the strings pipeline).
  */
 @Composable
-fun CalculatorScreen(display: String, onKey: (CalcKey) -> Unit) {
+fun CalculatorScreen(display: String, error: CalcError?, onKey: (CalcKey) -> Unit) {
     Column(modifier = Modifier.fillMaxSize().padding(4.dp)) {
         Box(
             modifier = Modifier.fillMaxWidth().weight(3f).padding(horizontal = 12.dp),
@@ -54,6 +58,21 @@ fun CalculatorScreen(display: String, onKey: (CalcKey) -> Unit) {
                 textAlign = TextAlign.End,
                 fontSize = 40.sp,
                 color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        if (error != null) {
+            val strings = LocalStrings.current
+            val message = when (error) {
+                CalcError.WRONG_FORMAT -> strings.calcWrongFormat
+                CalcError.WRONG_FORMAT_OPERAND -> strings.calcWrongFormatOperand
+                CalcError.DIVISION_BY_ZERO -> strings.calcDivisionByZero
+            }
+            Text(
+                text = message,
+                textAlign = TextAlign.End,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
             )
         }
         KeyRow(listOf(

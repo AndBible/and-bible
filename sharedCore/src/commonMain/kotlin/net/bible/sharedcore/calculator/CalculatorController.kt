@@ -28,6 +28,24 @@ enum class CalcKey {
 }
 
 /**
+ * A user-facing calculator error, mirroring the three Toasts the classic `CalculatorActivity`
+ * showed. The composable maps these to `LocalStrings.current` (`calcWrongFormat` /
+ * `calcWrongFormatOperand` / `calcDivisionByZero`) so the strings pipeline is exercised at runtime.
+ */
+enum class CalcError { WRONG_FORMAT, WRONG_FORMAT_OPERAND, DIVISION_BY_ZERO }
+
+/**
+ * Outcome of the injected arithmetic engine. Richer than a plain `String?` so the controller can
+ * tell a division-by-zero apart from a general parse/eval failure and raise the matching
+ * [CalcError] — the classic activity conflated these (see `CalculatorController` docs).
+ */
+sealed interface EvalResult {
+    data class Ok(val value: String) : EvalResult
+    data object DivByZero : EvalResult
+    data object Malformed : EvalResult
+}
+
+/**
  * Pure calculator display/expression logic shared with the classic `CalculatorActivity`. It is a
  * faithful, framework-free port of that activity's state machine (`addNumber` / `addOperand` /
  * `addParenthesis` / `addDot` / `calculate` / `saveLastExpression`), so the disguise keypad behaves
@@ -36,21 +54,31 @@ enum class CalcKey {
  * The two things it must NOT know are injected as seams, keeping the real PIN and the arithmetic
  * engine (exp4j + BigDecimal, JVM-only) in `:app`:
  *  - [evaluate]: takes the already-normalised ASCII expression (`%`→`/100`, `x`→`*`, `÷`→`/`)
- *    and returns the formatted result string, or `null` on any error (mirrors the old
- *    exception / division-by-zero paths, which left the display unchanged).
+ *    and returns an [EvalResult] — [EvalResult.Ok] with the formatted result string,
+ *    [EvalResult.DivByZero], or [EvalResult.Malformed]. Both failure results leave the display
+ *    unchanged and raise a [CalcError] (mirroring the old exception / division-by-zero paths).
  *  - [isPin]: whether the raw display equals the (leading-zero-stripped) unlock PIN, or the PIN is
  *    blank. The controller adds the "…and the input is not an arithmetic operation" guard itself.
  *  - [onUnlock]: performs the `setResult(RESULT_OK); finish()` unlock.
  *
- * Mirrors `CalculatorActivity.calculate()` (see that file for the exact original semantics).
+ * Mirrors `CalculatorActivity.calculate()` (see that file for the exact original semantics). The
+ * one deliberate improvement: the classic activity's `calc_division_by_zero` Toast was in fact
+ * dead code (`BigDecimal("Infinity")` threw first, so a div-by-zero surfaced as `calc_wrong_format`);
+ * routing div-by-zero through [EvalResult.DivByZero] restores that string's intended meaning.
+ *
+ * [error] holds the current [CalcError] (or `null`). It is cleared on the next key press, so a
+ * fresh entry hides the previous error — matching the transient Toast feedback of the old activity.
  */
 class CalculatorController(
-    private val evaluate: (expr: String) -> String?,
+    private val evaluate: (expr: String) -> EvalResult,
     private val isPin: (input: String) -> Boolean,
     private val onUnlock: () -> Unit,
 ) {
     private val _display = MutableStateFlow("")
     val display: StateFlow<String> = _display.asStateFlow()
+
+    private val _error = MutableStateFlow<CalcError?>(null)
+    val error: StateFlow<CalcError?> = _error.asStateFlow()
 
     private var text: String
         get() = _display.value
@@ -62,6 +90,8 @@ class CalculatorController(
     private var lastExpression = ""
 
     fun onKey(key: CalcKey) {
+        // A fresh key press hides any previous error; the handlers below may raise a new one.
+        _error.value = null
         when (key) {
             CalcKey.D0 -> { if (addNumber("0")) equalClicked = false }
             CalcKey.D1 -> { if (addNumber("1")) equalClicked = false }
@@ -170,7 +200,8 @@ class CalculatorController(
         if (operationLength > 0) {
             val lastInput = text[operationLength - 1].toString()
             if (lastInput == "+" || lastInput == "-" || lastInput == "*" || lastInput == "÷" || lastInput == "%") {
-                // wrong format (operator after operator) → ignore
+                // wrong format (operator after operator) → CalculatorActivity showed calc_wrong_format.
+                _error.value = CalcError.WRONG_FORMAT
             } else if (operand == "%" && defineLastCharacter(lastInput) == IS_NUMBER) {
                 text += operand
                 dotUsed = false
@@ -184,8 +215,10 @@ class CalculatorController(
                 lastExpression = ""
                 done = true
             }
+        } else {
+            // operationLength == 0 → CalculatorActivity showed calc_wrong_format_operand.
+            _error.value = CalcError.WRONG_FORMAT_OPERAND
         }
-        // operationLength == 0 → wrong format operand → ignore
         return done
     }
 
@@ -226,9 +259,16 @@ class CalculatorController(
             .replace("%", "/100")
             .replace("x", "*")
             .replace(Regex("[^\\x00-\\x7F]"), "/")
-        val result = evaluate(expr) ?: return // exception / division-by-zero → display unchanged
-        equalClicked = true
-        text = result
+        when (val result = evaluate(expr)) {
+            is EvalResult.Ok -> {
+                equalClicked = true
+                text = result.value
+            }
+            // Both failures leave the display unchanged (as the old activity did) and raise the
+            // matching CalcError for the composable to render via LocalStrings.
+            EvalResult.DivByZero -> _error.value = CalcError.DIVISION_BY_ZERO
+            EvalResult.Malformed -> _error.value = CalcError.WRONG_FORMAT
+        }
     }
 
     private fun saveLastExpression(input: String) {

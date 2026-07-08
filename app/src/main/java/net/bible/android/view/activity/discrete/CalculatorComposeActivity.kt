@@ -25,6 +25,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.removeLeadingZeroes
 import net.bible.sharedcore.calculator.CalculatorController
+import net.bible.sharedcore.calculator.EvalResult
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.calculator.CalculatorScreen
 import net.bible.sharedui.theme.AbTheme
@@ -61,15 +62,24 @@ class CalculatorComposeActivity : ActivityBase() {
 
     /**
      * Mirrors [CalculatorActivity.calculate]'s arithmetic path: evaluate the normalised expression,
-     * scale to 8 half-up decimals, then strip trailing zeros. Any error (bad format, division by
-     * zero → "Infinity", which `BigDecimal` rejects) returns null, leaving the display unchanged.
+     * scale to 8 half-up decimals, then strip trailing zeros. Division by zero (exp4j yields
+     * `Infinity`/`NaN`, or `BigDecimal` throws `ArithmeticException`) maps to [EvalResult.DivByZero];
+     * any other failure to [EvalResult.Malformed]. Both leave the display unchanged. NB: the classic
+     * activity's division-by-zero Toast was dead code (`BigDecimal("Infinity")` threw first, so it
+     * surfaced as `calc_wrong_format`); this restores the intended `calc_division_by_zero` feedback.
      */
-    private fun evaluate(expr: String): String? = try {
+    private fun evaluate(expr: String): EvalResult = try {
         val raw = ExpressionBuilder(expr).build().evaluate().toString()
-        val scaled = BigDecimal(raw).setScale(8, BigDecimal.ROUND_HALF_UP).toPlainString()
-        scaled.replace(Regex("\\.?0*$"), "")
+        if (raw == "Infinity" || raw == "-Infinity" || raw == "NaN") {
+            EvalResult.DivByZero
+        } else {
+            val scaled = BigDecimal(raw).setScale(8, BigDecimal.ROUND_HALF_UP).toPlainString()
+            EvalResult.Ok(scaled.replace(Regex("\\.?0*$"), ""))
+        }
+    } catch (e: ArithmeticException) {
+        EvalResult.DivByZero
     } catch (e: Exception) {
-        null
+        EvalResult.Malformed
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +92,8 @@ class CalculatorComposeActivity : ActivityBase() {
                     disableAnimations = CommonUtils.settings.disableAnimations,
                 ) {
                     val display by controller.display.collectAsState()
-                    CalculatorScreen(display, controller::onKey)
+                    val error by controller.error.collectAsState()
+                    CalculatorScreen(display, error, controller::onKey)
                 }
             }
         }
