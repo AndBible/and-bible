@@ -49,6 +49,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.ContentMatch
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -139,12 +140,6 @@ class ManageLabels : ListActivityBase() {
         CommonUtils.settings.setBoolean("labels_list_filter_searchInsideTextButtonActive", searchInsideText)
         if (data.mode == Mode.STUDYPAD) {
             CommonUtils.settings.setInt("labels_list_search_mode", searchMode.ordinal)
-        }
-    }
-
-    fun onEventMainThread(e: BookmarksUpdatedViaSyncEvent) {
-        if(e.updated.any { it.tableName == "Label" }) {
-            recreate()
         }
     }
 
@@ -364,7 +359,13 @@ class ManageLabels : ListActivityBase() {
             }
             editSearchText.requestFocus()
         }
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<BookmarksUpdatedViaSyncEvent> { e ->
+                if(e.updated.any { it.tableName == "Label" }) {
+                    recreate()
+                }
+            }
+        }
         reBuildQuickSearchButtonList()
     }
 

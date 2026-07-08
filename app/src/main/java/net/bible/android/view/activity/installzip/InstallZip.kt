@@ -36,6 +36,7 @@ import net.bible.android.activity.databinding.ActivityInstallZipBinding
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.onMain
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
@@ -272,7 +273,11 @@ class InstallZip : ActivityBase() {
         Log.i(TAG, "Install from Zip starting")
         binding = ActivityInstallZipBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<InstallZipEvent> { e ->
+                binding.statusText.text = e.message
+            }
+        }
         lifecycleScope.launch {
             when (intent?.action) {
                 Intent.ACTION_VIEW -> {
@@ -717,10 +722,6 @@ class InstallZip : ActivityBase() {
         importDatabaseFile(category, file)
         unzipFolder.deleteRecursively()
         return true
-    }
-
-    fun onEventMainThread(e: InstallZipEvent) {
-        binding.statusText.text = e.message
     }
 
     private val bookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()

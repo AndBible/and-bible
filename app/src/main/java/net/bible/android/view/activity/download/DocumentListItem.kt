@@ -29,6 +29,7 @@ import net.bible.android.control.download.repo
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
+import net.bible.android.control.event.onMain
 import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.DownloadManager
@@ -101,12 +102,6 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         ABEventBus.unregister(this)
-    }
-
-    fun onEventMainThread(event: DocumentDownloadEvent) {
-        if (event.id == document.repoIdentity) {
-            updateControlState(event.documentStatus)
-        }
     }
 
     fun setIcons(downloadScreen: Boolean = false) = binding.apply {
@@ -184,6 +179,12 @@ class DocumentListItem(context: Context, attrs: AttributeSet?) : LinearLayout(co
      * https://code.google.com/p/android/issues/detail?id=65617
      */
     private fun ensureRegisteredForDownloadEvents() {
-        ABEventBus.safelyRegister(this)
+        ABEventBus.safelyRegister(this) {
+            onMain<DocumentDownloadEvent> { event ->
+                if (event.id == document.repoIdentity) {
+                    updateControlState(event.documentStatus)
+                }
+            }
+        }
     }
 }

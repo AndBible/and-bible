@@ -46,6 +46,7 @@ import net.bible.android.activity.databinding.SpinnerBinding
 import net.bible.android.activity.databinding.StartupViewBinding
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -190,7 +191,11 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "StartupActivity.onCreate")
         super.onCreate(savedInstanceState)
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<InstallZipEvent> { e ->
+                spinnerBinding.progressText.text = e.message
+            }
+        }
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
         if(CommonUtils.isDiscrete) {
             spinnerBinding.imageView.setImageResource(
@@ -423,10 +428,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             startActivity(handlerIntent)
             finish()
         }
-    }
-
-    fun onEventMainThread(e: InstallZipEvent) {
-        spinnerBinding.progressText.text = e.message
     }
 
     companion object {

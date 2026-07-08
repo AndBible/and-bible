@@ -39,6 +39,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ActivityCloudDocumentsBinding
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
@@ -261,7 +262,18 @@ class CloudDocumentsActivity : ActivityBase() {
         }
 
         openOrGate()
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<DocumentSyncProgressEvent> { event ->
+                // Per-document progress is shown in the foreground-service notification; in the activity
+                // a plain loading indicator is enough. The service posts running=true repeatedly (once
+                // per document) and running=false once, so this is a plain boolean state — NOT a counter.
+                transferRunning = event.running
+                updateLoadingBar()
+                // When a transfer finishes, re-scan behind the same loading bar (not the swipe spinner)
+                // so the indicator stays continuous across transfer → refresh.
+                if (!event.running) lifecycleScope.launch { refreshFromNetwork() }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -351,18 +363,6 @@ class CloudDocumentsActivity : ActivityBase() {
     override fun onDestroy() {
         ABEventBus.unregister(this)
         super.onDestroy()
-    }
-
-    @Suppress("unused") // called by greenrobot EventBus on the main thread
-    fun onEventMainThread(event: DocumentSyncProgressEvent) {
-        // Per-document progress is shown in the foreground-service notification; in the activity
-        // a plain loading indicator is enough. The service posts running=true repeatedly (once
-        // per document) and running=false once, so this is a plain boolean state — NOT a counter.
-        transferRunning = event.running
-        updateLoadingBar()
-        // When a transfer finishes, re-scan behind the same loading bar (not the swipe spinner)
-        // so the indicator stays continuous across transfer → refresh.
-        if (!event.running) lifecycleScope.launch { refreshFromNetwork() }
     }
 
     /**

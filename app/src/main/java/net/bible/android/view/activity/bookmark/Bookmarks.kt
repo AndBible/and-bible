@@ -43,6 +43,7 @@ import net.bible.android.activity.databinding.BookmarksBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkCsvUtils
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.speak.SpeakControl
@@ -107,7 +108,11 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<BookmarksUpdatedViaSyncEvent> {
+                recreate()
+            }
+        }
         binding = BookmarksBinding.inflate(layoutInflater)
         setContentView(binding.root)
         settings.setLong("bookmarks-last-used", System.currentTimeMillis())
@@ -141,10 +146,6 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
     override fun onDestroy() {
         super.onDestroy()
         ABEventBus.unregister(this)
-    }
-
-    fun onEventMainThread(e: BookmarksUpdatedViaSyncEvent) {
-        recreate()
     }
 
     private fun initialiseView() {
