@@ -298,4 +298,11 @@
 			android:icon="@drawable/ic_bug_report_white_24dp"
 			/>
 	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/prefs_category_developer">
+		<SwitchPreferenceCompat
+			android:key="use_compose_ui"
+			android:defaultValue="false"
+			android:title="@string/prefs_use_compose_ui"
+			android:summary="@string/prefs_use_compose_ui_summary" />
+	</PreferenceCategory>
 </PreferenceScreen>
