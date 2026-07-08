@@ -22,10 +22,10 @@ import java.util.Locale
 import java.util.Properties
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.plugin.serialization")
-    id("com.google.devtools.ksp")
-    id("app.accrescent.tools.bundletool")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.accrescent.bundletool)
 }
 
 val jsDir = "bibleview-js"
@@ -278,7 +278,10 @@ android {
 
         create("github") {
             dimension = dimDistributionChannelName
-            minSdk = 21
+            // Room 2.8.x requires minSdkVersion 23 (2.7.x allowed 21). Since the app uses
+            // Room pervasively, API 21-22 could not run it anyway; align github with the
+            // app default (23) rather than force the merge with tools:overrideLibrary.
+            minSdk = 23
         }
 
         create("accrescent") {
@@ -293,11 +296,8 @@ android {
     }
 
     compileOptions {
-        val sourceCompatibilityVersion: JavaVersion by rootProject.extra
-        val targetCompatibilityVersion: JavaVersion by rootProject.extra
-
-        sourceCompatibility = sourceCompatibilityVersion
-        targetCompatibility = targetCompatibilityVersion
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     testOptions {
@@ -351,10 +351,8 @@ android {
     namespace = "net.bible.android.activity"
 }
 
-val jvmToolChainVersion: Int by rootProject.extra
-
 kotlin {
-    jvmToolchain(jvmToolChainVersion)
+    jvmToolchain(17)
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
@@ -402,31 +400,22 @@ androidComponents {
 
 
 dependencies {
-    val commonsTextVersion: String by rootProject.extra
-    val jdomVersion: String by rootProject.extra
-    val kotlinVersion: String by rootProject.extra
-    val coroutinesVersion: String by rootProject.extra
-    val kotlinxSerializationVersion: String by rootProject.extra
-    val roomVersion: String by rootProject.extra
-    val coreKtxVersion: String by rootProject.extra
-    val sqliteAndroidVersion: String by rootProject.extra
+    ksp(libs.androidx.room.compiler)
 
-    ksp("androidx.room:room-compiler:$roomVersion")
-
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("androidx.core:core-ktx:$coreKtxVersion")
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.core.ktx)
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.media:media:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.1")
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.14.0")
     implementation("net.objecthunter:exp4j:0.4.8")
-    implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
+    implementation("com.github.requery:sqlite-android:3.49.0")
     implementation("org.yaml:snakeyaml:2.2")
 
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
@@ -448,26 +437,24 @@ dependencies {
 
     implementation("com.google.android.material:material:1.12.0")
 
-    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation(libs.androidx.room.runtime)
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}")
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.android)
 
     implementation("com.madgag.spongycastle:core:1.58.0.0")
     //implementation("com.madgag.spongycastle:prov:1.58.0.0")
     //implementation("com.madgag.spongycastle:pkix:1.58.0.0")
     //implementation("com.madgag.spongycastle:pg:1.58.0.0")
 
-    val daggerVersion = "2.56.2"
-    implementation("com.google.dagger:dagger:$daggerVersion")
-    annotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
-    ksp("com.google.dagger:dagger-compiler:$daggerVersion")
+    implementation(libs.dagger)
+    annotationProcessor(libs.dagger.compiler)
+    ksp(libs.dagger.compiler)
 
     implementation("de.greenrobot:eventbus:2.4.1")
 
     implementation("org.apache.commons:commons-lang3:3.12.0") // make sure this is the same version that commons-text depends on
-    implementation("org.apache.commons:commons-text:$commonsTextVersion")
+    implementation("org.apache.commons:commons-text:1.9")
 
     implementation(project(":jsword")) {
         exclude("org.apache.httpcomponents")
@@ -475,7 +462,7 @@ dependencies {
 
     implementation("de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5")
 
-    implementation("org.jdom:jdom2:$jdomVersion")
+    implementation("org.jdom:jdom2:2.0.6.1")
     implementation("jaxen:jaxen:2.0.0")
 
     implementation("org.commonmark:commonmark:0.24.0")

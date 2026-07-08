@@ -1,0 +1,48 @@
+[versions]
+# Toolchain — reference-matched (do not diverge)
+agp = "9.2.1"
+kotlin = "2.3.21"
+ksp = "2.3.9"
+gradle = "9.5.1"                 # informational; the wrapper is the source of truth
+# AndBible libraries — current values, moved verbatim into the catalog
+room = "2.8.4"                   # bumped from 2.7.2 to a KSP-2.3.9-compatible Room
+coroutines = "1.11.0"            # bumped from 1.10.2 to the reference level
+kotlinxSerialization = "1.8.1"
+coreKtx = "1.16.0"
+jdom = "2.0.6.1"
+commonsText = "1.9"
+sqliteAndroid = "3.49.0"
+appcompat = "1.7.1"
+lifecycle = "2.9.1"
+material = "1.12.0"
+dagger = "2.56.2"                # removed in Task 4; kept here until then
+koin = "4.1.0"                   # added in Task 2 (latest stable 4.x; adjust if a newer 4.x resolves)
+accrescentBundletool = "0.2.4"
+
+[libraries]
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
+dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
+koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koin" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+accrescent-bundletool = { id = "app.accrescent.tools.bundletool", version.ref = "accrescentBundletool" }
+# Pre-staged for Spec 2 (KMP foundations) — declared, NOT applied anywhere yet
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose = { id = "org.jetbrains.compose", version = "1.11.1" }
+android-kotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+androidx-room = { id = "androidx.room", version.ref = "room" }
