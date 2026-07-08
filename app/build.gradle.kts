@@ -447,10 +447,6 @@ dependencies {
     //implementation("com.madgag.spongycastle:pkix:1.58.0.0")
     //implementation("com.madgag.spongycastle:pg:1.58.0.0")
 
-    implementation(libs.dagger)
-    annotationProcessor(libs.dagger.compiler)
-    ksp(libs.dagger.compiler)
-
     implementation(libs.koin.core)
     implementation(libs.koin.android)
 

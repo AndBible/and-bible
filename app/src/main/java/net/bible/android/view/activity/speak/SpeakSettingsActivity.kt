@@ -29,12 +29,10 @@ import net.bible.android.activity.databinding.SpeakSettingsBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.ActivityScope
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.common.automaticSpeakBookmarkingVideo
 import net.bible.service.common.htmlToSpan
 
-@ActivityScope
 class SpeakSettingsActivity : AbstractSpeakActivity() {
     companion object {
         const val TAG = "SpeakSettingsActivity"

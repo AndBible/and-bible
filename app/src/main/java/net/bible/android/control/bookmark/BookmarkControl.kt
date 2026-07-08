@@ -29,7 +29,6 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.common.toV11n
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
@@ -81,7 +80,6 @@ import java.lang.IllegalArgumentException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import javax.inject.Inject
 
 abstract class BookmarkEvent
 
@@ -104,8 +102,7 @@ class StudyPadTextEntryDeleted(val studyPadTextEntryId: IdType)
 
 val LABEL_ALL_ID = IdType.empty()
 
-@ApplicationScope
-open class BookmarkControl @Inject constructor(
+open class BookmarkControl constructor(
     val windowControl: WindowControl,
     resourceProvider: ResourceProvider,
 ) {

@@ -55,10 +55,10 @@ val coreModule = module {
     singleOf(::ReadingPlanControl)
     singleOf(::ReadingPlanRepository)
     singleOf(::SearchControl)
-    // SpeakControl's constructor takes a dagger.Lazy<TextToSpeechServiceManager>, which Koin
+    // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.
-    single { SpeakControl(dagger.Lazy { get<TextToSpeechServiceManager>() }, get()) }
+    single { SpeakControl(lazy { get<TextToSpeechServiceManager>() }, get()) }
     singleOf(::DocumentBibleBooksFactory)
     singleOf(::ReadingPlanActionBarManager)
     singleOf(::ReadingPlanBibleActionBarButton)

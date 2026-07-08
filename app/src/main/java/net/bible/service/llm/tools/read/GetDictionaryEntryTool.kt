@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.context.GlobalContext
 import android.net.Uri
 import net.bible.android.BibleApplication
 import net.bible.android.control.link.isGreekDef
@@ -96,7 +97,7 @@ object GetDictionaryEntryTool : Tool {
         required: [dictionary, key]
     """)
 
-    private val linkControl get() = BibleApplication.application.applicationComponent.linkControl()
+    private val linkControl get() = GlobalContext.get().get<net.bible.android.control.link.LinkControl>()
 
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val dictionary = arguments.optString("dictionary", "").takeIf { it.isNotBlank() } ?: return null

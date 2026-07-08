@@ -15,7 +15,6 @@ sqliteAndroid = "3.49.0"
 appcompat = "1.7.1"
 lifecycle = "2.9.1"
 material = "1.12.0"
-dagger = "2.56.2"                # removed in Task 4; kept here until then
 koin = "4.1.0"                   # added in Task 2 (latest stable 4.x; adjust if a newer 4.x resolves)
 accrescentBundletool = "0.2.4"
 
@@ -28,8 +27,6 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
-dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
-dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }

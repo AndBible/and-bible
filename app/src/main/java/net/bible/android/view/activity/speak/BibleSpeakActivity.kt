@@ -35,7 +35,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.htmlToSpan
@@ -45,7 +44,6 @@ import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
 import org.koin.android.ext.android.inject
 
-@ActivityScope
 class BibleSpeakActivity : AbstractSpeakActivity() {
     val windowControl: WindowControl by inject()
     val navigationControl: NavigationControl by inject()

@@ -55,7 +55,6 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.defaultWorkspaceColor
-import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
@@ -142,7 +141,6 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
     }
 }
 
-@ActivityScope
 class WorkspaceSelectorActivity: ActivityBase() {
     private var finished = false
     private var isDirty: Boolean = false

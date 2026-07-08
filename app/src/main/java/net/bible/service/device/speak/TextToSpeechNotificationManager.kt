@@ -36,7 +36,6 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.ActivityScope
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
@@ -49,7 +48,6 @@ import org.koin.core.component.inject
 
 const val SPEAK_NOTIFICATIONS_CHANNEL="speak-notifications"
 
-@ActivityScope
 class TextToSpeechNotificationManager : KoinComponent {
     companion object {
         private const val ACTION_UPDATE_NOTIFICATION = "update_notification"

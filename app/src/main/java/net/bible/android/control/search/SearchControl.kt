@@ -21,7 +21,6 @@ import android.content.Intent
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
@@ -42,7 +41,6 @@ import org.crosswire.jsword.index.lucene.LuceneIndex
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
-import javax.inject.Inject
 
 /** Data classes for multi-translation search results */
 data class TranslationMatch(
@@ -67,8 +65,7 @@ class MultiSearchResultsDto {
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class SearchControl @Inject constructor(
+class SearchControl constructor(
     private val documentBibleBooksFactory: DocumentBibleBooksFactory,
     private val windowControl: WindowControl,
     )

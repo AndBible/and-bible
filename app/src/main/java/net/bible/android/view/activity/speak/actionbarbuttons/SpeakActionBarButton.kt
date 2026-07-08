@@ -19,8 +19,6 @@ package net.bible.android.view.activity.speak.actionbarbuttons
 import android.util.Log
 import android.view.MenuItem
 import net.bible.service.common.CommonUtils.getResourceString
-import net.bible.android.control.ApplicationScope
-import javax.inject.Inject
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.view.activity.base.Dialogs
@@ -32,8 +30,7 @@ import java.lang.Exception
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-open class SpeakActionBarButton @Inject constructor(
+open class SpeakActionBarButton constructor(
     private val documentControl: DocumentControl
 ) : SpeakActionBarButtonBase() {
     override fun onMenuItemClick(menuItem: MenuItem): Boolean {

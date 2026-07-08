@@ -19,7 +19,6 @@ package net.bible.android.control.readingplan
 
 import android.util.Log
 
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
@@ -42,7 +41,6 @@ import java.util.ArrayList
 import java.util.Calendar
 import java.util.Date
 
-import javax.inject.Inject
 import kotlin.math.roundToLong
 
 
@@ -50,8 +48,7 @@ import kotlin.math.roundToLong
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class ReadingPlanControl @Inject constructor(
+class ReadingPlanControl constructor(
 		private val speakControl: SpeakControl,
 		private val windowControl: WindowControl,
         private val readingPlanRepo: ReadingPlanRepository)

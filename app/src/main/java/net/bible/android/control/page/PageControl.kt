@@ -16,17 +16,14 @@
  */
 package net.bible.android.control.page
 
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.page.window.WindowControl
 import org.crosswire.jsword.passage.Verse
-import javax.inject.Inject
 
 /**
  * SesionFacade for CurrentPage used by View classes
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-open class PageControl @Inject constructor(
+open class PageControl constructor(
     val windowControl: WindowControl
 ) {
 

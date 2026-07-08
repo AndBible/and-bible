@@ -44,7 +44,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.page.Preference as ItemPreference
 import net.bible.android.database.json
-import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
@@ -288,7 +287,6 @@ data class DirtyTypesSerializer(val dirtyTypes: MutableSet<Types>) {
     }
 }
 
-@ActivityScope
 class TextDisplaySettingsActivity: ActivityBase() {
     private lateinit var fragment: TextDisplaySettingsFragment
     private var requiresReload = false

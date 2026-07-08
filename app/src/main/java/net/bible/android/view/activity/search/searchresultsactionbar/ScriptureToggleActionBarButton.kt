@@ -17,8 +17,6 @@
 package net.bible.android.view.activity.search.searchresultsactionbar
 
 import net.bible.service.common.CommonUtils.getResourceString
-import net.bible.android.control.ApplicationScope
-import javax.inject.Inject
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.actionbar.ToggleActionBarButton
 import net.bible.android.activity.R
@@ -27,8 +25,7 @@ import net.bible.android.activity.R
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class ScriptureToggleActionBarButton @Inject constructor(private val searchControl: SearchControl) :
+class ScriptureToggleActionBarButton constructor(private val searchControl: SearchControl) :
     ToggleActionBarButton(R.drawable.ic_action_new, R.drawable.ic_baseline_undo_24) {
     override val title: String get() = if (isOn) {
         getResourceString(R.string.deuterocanonical)

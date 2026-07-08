@@ -20,7 +20,6 @@ package net.bible.service.history
 import android.content.Intent
 import android.util.Log
 
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.Window
@@ -40,7 +39,6 @@ import java.util.ArrayList
 import java.util.HashMap
 import java.util.Stack
 
-import javax.inject.Inject
 
 /**
  * Application managed History List.
@@ -51,8 +49,7 @@ import javax.inject.Inject
 
 class AddHistoryItem(val window: Window? = null)
 
-@ApplicationScope
-class HistoryManager @Inject constructor(private val windowControl: WindowControl) {
+class HistoryManager constructor(private val windowControl: WindowControl) {
 
     private val windowHistoryStackMap = HashMap<IdType, Stack<HistoryItem>>()
 

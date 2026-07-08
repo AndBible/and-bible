@@ -36,8 +36,6 @@ import androidx.core.app.NotificationCompat
 import io.requery.android.database.sqlite.SQLiteDatabase
 import net.bible.android.activity.R
 
-import net.bible.android.control.ApplicationComponent
-import net.bible.android.control.DaggerApplicationComponent
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -104,8 +102,6 @@ open class BibleApplication : Application() {
         // save to a singleton to allow easy access from anywhere
         application = this
     }
-    lateinit var applicationComponent: ApplicationComponent
-        private set
 
     var localeOverrideAtStartUp: String? = null
         private set
@@ -159,8 +155,7 @@ open class BibleApplication : Application() {
         // This must be done before accessing JSword to prevent default folders being used
         SwordEnvironmentInitialisation.initialiseJSwordFolders()
 
-        // Initialize the Koin container alongside Dagger. Dagger still owns all
-        // injection for now; Koin's graph is proven here and the flip happens later.
+        // Initialize the Koin container. Koin is the sole DI framework.
         // Guard against a double-start: Robolectric reuses one JVM across test
         // classes, so onCreate (hence startKoin) runs many times in the same
         // process — start only if no Koin context exists yet.
@@ -171,10 +166,7 @@ open class BibleApplication : Application() {
             }
         }
 
-        // Initialize the Dagger injector ApplicationScope objects
-        applicationComponent = DaggerApplicationComponent.builder().build()
-
-        // ideally this would be installed before initialiseJSwordFolders but the listener depends on applicationComponent
+        // ideally this would be installed before initialiseJSwordFolders but the listener depends on Koin being started
         SwordEnvironmentInitialisation.installJSwordErrorReportListener()
 
         // some changes may be required for different versions

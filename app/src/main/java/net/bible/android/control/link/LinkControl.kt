@@ -20,7 +20,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.OrdinalRange
@@ -64,7 +63,6 @@ import java.io.FileNotFoundException
 import java.net.URLDecoder
 import java.util.*
 import java.util.regex.Pattern
-import javax.inject.Inject
 
 
 /** Control traversal via links pressed by user in a browser e.g. to Strongs
@@ -80,8 +78,7 @@ enum class WindowMode {
 }
 
 
-@ApplicationScope
-class LinkControl @Inject constructor(
+class LinkControl constructor(
     private val windowControl: WindowControl,
 	private val bookmarkControl: BookmarkControl,
 	private val searchControl: SearchControl,

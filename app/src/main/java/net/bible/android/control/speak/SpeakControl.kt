@@ -23,7 +23,6 @@ import android.widget.Toast
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -48,9 +47,7 @@ import org.crosswire.jsword.passage.VerseRange
 
 import java.util.*
 
-import javax.inject.Inject
 
-import dagger.Lazy
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.control.page.CurrentCommentaryPage
@@ -68,8 +65,7 @@ import org.koin.core.component.inject
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class SpeakControl @Inject constructor(
+class SpeakControl constructor(
     private val textToSpeechServiceManager: Lazy<TextToSpeechServiceManager>,
     private val windowControl: WindowControl,
 ) : KoinComponent {
@@ -84,7 +80,7 @@ class SpeakControl @Inject constructor(
     private val ttsServiceManager: TextToSpeechServiceManager get () {
         if(!ttsInitialized)
             ttsInitialized = true
-        return textToSpeechServiceManager.get()
+        return textToSpeechServiceManager.value
     }
     
 

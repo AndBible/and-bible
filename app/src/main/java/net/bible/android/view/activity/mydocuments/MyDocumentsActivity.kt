@@ -52,7 +52,6 @@ import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.android.database.mydocument.MyDocumentContentType
-import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.control.event.ABEventBus
@@ -121,7 +120,6 @@ class MyDocumentAdapter(val activity: MyDocumentsActivity) : RecyclerView.Adapte
     }
 }
 
-@ActivityScope
 class MyDocumentsActivity : ActivityBase() {
     private var finished = false
     private var isDirty: Boolean = false

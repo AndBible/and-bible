@@ -44,7 +44,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseKey
 import java.lang.IllegalArgumentException
 
-import javax.inject.Inject
 
 /** Control instances of the different current document page types
  * Each Window has its own instance of CurrentPageManager, so it is not a singleton.
@@ -72,7 +71,7 @@ val BookCategory.documentCategory: DocumentCategory get() {
     }
 }
 
-open class CurrentPageManager @Inject constructor(
+open class CurrentPageManager constructor(
     bibleTraverser: BibleTraverser,
     val bookmarkControl: BookmarkControl,
     val windowControl: WindowControl,

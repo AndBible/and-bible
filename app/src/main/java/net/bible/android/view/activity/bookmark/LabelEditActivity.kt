@@ -50,7 +50,6 @@ import net.bible.android.activity.databinding.BookmarkLabelEditBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
@@ -106,7 +105,6 @@ val customIconMap = mapOf(
     "robot" to R.drawable.icon_robot
 )
 
-@ActivityScope
 class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
     val bookmarkControl: BookmarkControl by inject()

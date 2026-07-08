@@ -29,7 +29,6 @@ import android.widget.ImageButton
 import android.widget.TextView
 
 import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.readingplan.DailyReading
@@ -38,7 +37,6 @@ import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.service.common.TitleSplitter
 
 import org.apache.commons.lang3.ArrayUtils
-import javax.inject.Inject
 
 /**
  * Show current verse/key and document on left of actionBar
@@ -48,8 +46,7 @@ import javax.inject.Inject
 
 
 
-@ApplicationScope
-class ReadingPlanTitle @Inject
+class ReadingPlanTitle
 constructor(private val readingPlanControl: ReadingPlanControl) {
 
 

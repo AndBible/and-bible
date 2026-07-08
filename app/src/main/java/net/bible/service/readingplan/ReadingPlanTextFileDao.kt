@@ -17,6 +17,7 @@
 
 package net.bible.service.readingplan
 
+import org.koin.core.context.GlobalContext
 import android.util.Log
 
 import net.bible.android.BibleApplication
@@ -49,7 +50,7 @@ import kotlin.math.max
 class ReadingPlanTextFileDao {
     private var cachedPlanProperties: ReadingPlanProperties? = null
     private var cachedReadingList: List<OneDaysReadingsDto>? = null
-    private val readingPlanRepo = BibleApplication.application.applicationComponent.readingPlanRepo()
+    private val readingPlanRepo = GlobalContext.get().get<net.bible.service.db.readingplan.ReadingPlanRepository>()
 
     val readingPlanList: List<ReadingPlanInfoDto>
         get() {

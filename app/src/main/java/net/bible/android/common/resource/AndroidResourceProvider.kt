@@ -17,11 +17,8 @@
 package net.bible.android.common.resource
 
 import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.control.ApplicationScope
-import javax.inject.Inject
 
-@ApplicationScope
-open class AndroidResourceProvider @Inject constructor() : ResourceProvider {
+open class AndroidResourceProvider constructor() : ResourceProvider {
     override fun getString(resourceId: Int): String {
         return application.getString(resourceId)
     }

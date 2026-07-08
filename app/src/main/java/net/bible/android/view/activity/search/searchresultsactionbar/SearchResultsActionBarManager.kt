@@ -16,8 +16,6 @@
  */
 package net.bible.android.view.activity.search.searchresultsactionbar
 
-import net.bible.android.control.ApplicationScope
-import javax.inject.Inject
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager
 import net.bible.android.view.activity.base.actionbar.ActionBarManager
 import android.app.Activity
@@ -29,8 +27,7 @@ import androidx.appcompat.app.ActionBar
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class SearchResultsActionBarManager @Inject constructor(private val scriptureToggleActionBarButton: ScriptureToggleActionBarButton) :
+class SearchResultsActionBarManager constructor(private val scriptureToggleActionBarButton: ScriptureToggleActionBarButton) :
     DefaultActionBarManager(), ActionBarManager {
     fun registerScriptureToggleClickListener(scriptureToggleClickListener: View.OnClickListener) {
         scriptureToggleActionBarButton.registerClickListener(scriptureToggleClickListener)

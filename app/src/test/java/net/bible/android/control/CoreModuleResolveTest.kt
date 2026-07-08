@@ -17,12 +17,12 @@ import org.robolectric.annotation.Config
  * Actually RESOLVES beans from a real Koin container (as opposed to
  * [CoreModuleVerifyTest], which only runs Koin's static [org.koin.test.verify.verify]).
  *
- * verify() special-cases `dagger.Lazy` and so did NOT catch that
+ * verify() special-cases `Lazy` and so did NOT catch that
  * `singleOf(::SpeakControl)` could not be constructed at runtime (SpeakControl's
- * constructor takes a `dagger.Lazy<TextToSpeechServiceManager>`, for which nothing
+ * constructor takes a `kotlin.Lazy<TextToSpeechServiceManager>`, for which nothing
  * is registered — a real `get<SpeakControl>()` threw NoDefinitionFoundException).
  * This test would have caught that regression: it FAILS before the explicit
- * `single { SpeakControl(dagger.Lazy { ... }, get()) }` binding and PASSES after.
+ * `single { SpeakControl(lazy { ... }, get()) }` binding and PASSES after.
  *
  * The Koin container is the production one, started by [net.bible.android.BibleApplication.onCreate]
  * (via [TestBibleApplication]) with androidContext + coreModule.
@@ -34,7 +34,7 @@ class CoreModuleResolveTest {
     @Test
     fun `SpeakControl resolves from a real Koin container`() {
         val koin = GlobalContext.get()
-        // Previously threw NoDefinitionFoundException: No definition found for type 'dagger.Lazy'
+        // Previously threw NoDefinitionFoundException: No definition found for type 'Lazy'
         val speakControl = koin.get<SpeakControl>()
         assertNotNull(speakControl)
         // An action-bar button that depends (transitively) on SpeakControl also resolves.

@@ -25,7 +25,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -47,7 +46,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseKey
-import javax.inject.Inject
 
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -58,8 +56,7 @@ import kotlin.coroutines.suspendCoroutine
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-open class WindowControl @Inject constructor() {
+open class WindowControl constructor() {
     private var _windowRepository: WindowRepository? = null
 
     open var windowRepository: WindowRepository

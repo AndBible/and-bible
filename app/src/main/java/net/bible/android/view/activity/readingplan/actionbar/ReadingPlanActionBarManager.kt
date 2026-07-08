@@ -21,20 +21,17 @@ import android.app.Activity
 import androidx.appcompat.app.ActionBar
 import android.view.Menu
 
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.actionbar.ActionBarManager
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager
 import net.bible.service.device.speak.event.SpeakEvent
 
-import javax.inject.Inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class ReadingPlanActionBarManager @Inject
+class ReadingPlanActionBarManager
 constructor(
     private val readingPlanTitle: ReadingPlanTitle,
     private val pauseActionBarButton: ReadingPlanPauseActionBarButton,

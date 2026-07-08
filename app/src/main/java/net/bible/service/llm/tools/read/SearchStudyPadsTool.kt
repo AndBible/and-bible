@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import org.koin.core.context.GlobalContext
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
@@ -74,7 +75,7 @@ object SearchStudyPadsTool : Tool {
         required: [query]
     """)
 
-    private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
+    private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val query = arguments.optString("query", "").takeIf { it.isNotBlank() } ?: return null
