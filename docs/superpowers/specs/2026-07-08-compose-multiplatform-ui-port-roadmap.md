@@ -27,7 +27,7 @@ The current View layer is ~37k LOC across 35 Activities and ~46 screen classes, 
 
 ### Out of scope (deferred to later programs)
 - **JSword portability to iOS.** Stays a JVM/Android library in `:app`, reached from shared UI only through interface seams.
-- **Room data-layer KMP migration.** Room stays Android-only in `:app`. Shared UI must not import Room/DAO types directly; it goes through repository interfaces so the later Room-KMP migration does not ripple into the UI.
+- **Room data-layer KMP migration.** Room stays Android-only in `:app`. Shared UI must not import Room/DAO types directly; it goes through repository interfaces so the later Room-KMP migration does not ripple into the UI. This is deferred deliberately — it is a large, higher-risk program in its own right (6 databases incl. `OldMonolithicAppDatabase` migration history, driver-API migrations, minSdk-23 DDL limits, requery-driver/EPUB edge cases), and it carries a hard constraint the UI port does not: AndBible **requires a fresh bundled SQLite** (Room-KMP `BundledSQLiteDriver`) because it relies on SQLite features unavailable in the old Android system SQLite. The reference's framework-driver shortcut therefore does **not** apply here (see §8).
 - **Building the iOS app (`:iosApp`).** No `MainViewController`, no iOS platform implementations beyond what is needed to keep the iOS *compile* green. iOS actuals are written when the real iOS port happens.
 - **The Vue.js WebView Bible renderer.** Already cross-platform; kept as an Android `WebView` via `AndroidView` interop, behind an `expect`/`actual` (or interface) seam so a future `WKWebView` slots in. Ported as part of the main reading-view complex (Batch 12), not rewritten.
 - **Navigation unification / single-Activity.** Deferred to the cleanup phase (Batch Z) by design — it is a small fraction of total effort and is best done once every screen is Compose.
@@ -58,7 +58,7 @@ Three-module split (adopted from the AndroidMidiRecorder reference), plus a buil
 |--------|----------|----------|---------|
 | `:sharedCore` | Portable logic: state holders/controllers, repository interfaces, seam interfaces, pure models | **No** | android, jvm (fast Linux tests), iosArm64, iosSimulatorArm64 |
 | `:sharedUi` | All Compose UI: screens, components, theme, `LocalStrings` interface, (later) nav graph | Yes | android, iosArm64, iosSimulatorArm64 |
-| `:app` | Android entry point: Application, Activities (old + thin new hosts), Dagger→Koin bridge, Room, JSword bridge, `AndroidStrings`, platform seam impls, `WebView` | Yes | Android application |
+| `:app` | Android entry point: Application, Activities (old + thin new hosts), Koin Android module, Room, JSword bridge, `AndroidStrings`, platform seam impls, `WebView` | Yes | Android application |
 | `:strings-gen` | Plain Kotlin/JVM build-time tool that generates the iOS `Strings` holder from `res/values-*` | n/a | JVM tool |
 
 Dependency graph: `:app` → `:sharedUi` → `:sharedCore`; `:sharedUi` uses `:strings-gen` only as a build-time `JavaExec` classpath. Existing `:jsword` module stays under `:app`.
@@ -77,8 +77,10 @@ Three layers (from the reference):
 
 Icons: prefer `compose.materialIconsExtended` in commonMain where an existing drawable has a Material equivalent; otherwise keep vector drawables via the resource seam (watch binary size). Fonts (Greek/Hebrew/RTL framework): a `staticCompositionLocalOf<FontFamily>` seam with an Android provider now; iOS provider later.
 
-### 4.3 Dependency injection — Koin (KMP-native)
-The reference used hand-rolled manual DI; its own notes warn this does not scale (its iOS container is ~900 lines of hand-wiring for 5 screens). For 35+ screens, use **Koin**. Dagger stays in `:app` for legacy wiring during transition; new shared code resolves dependencies via Koin, and a bridge exposes existing singletons. DI setup lands in Phase 0.
+### 4.3 Dependency injection — full Dagger → Koin migration early
+The reference used hand-rolled manual DI; its own notes warn this does not scale (its iOS container is ~900 lines of hand-wiring for 5 screens). For 35+ screens, use **Koin** (KMP-native).
+
+Dagger is **fully replaced by Koin as an early prep refactor in Phase 0**, not run in parallel behind a bridge. This is a deliberate change from a dual-DI transition, justified by the footprint: Dagger's object graph is trivial (only 2 components — `ApplicationComponent`, `ActivityComponent`), so the ~69 `@Inject` sites convert as a **uniform, mechanical, low-risk** refactor (`@Inject lateinit var` → `by inject()`, `@Provides` → `single`/`factory`, constructor injection → Koin-resolved). No data/runtime-state risk, no complex scoping puzzle. Doing it fully up front (while the app is still XML) leaves a **single DI system for the entire rest of the program** — the cleaner flow — instead of two mental models and a shrinking bridge. Any `@Inject` in a screen that is later rewritten simply disappears at rewrite time; converting it first is near-zero cost. Koin then serves both `:app` and the shared modules from screen 1.
 
 ### 4.4 State architecture
 Per-screen state holders (plain Kotlin classes with an injected `CoroutineScope`, in `:sharedCore`) — **scoped per screen**, not one mega-state. On Android, thin `AndroidViewModel` wrappers bridge Android-typed surfaces (`Uri`, `Intent`, `Context`). Use the **KMP-capable `androidx.lifecycle` ViewModel** artifact where a lifecycle-scoped VM is wanted. UI state is exposed as `StateFlow`, collected via `collectAsState()`; events flow up via action lambdas (unidirectional, MVI-flavored, no MVI framework). The `ABEventBus`↔`StateFlow` bridge is a Phase 0 deliverable.
@@ -108,7 +110,7 @@ One spec + plan. No user-visible screens beyond a pilot. Deliverables:
 1. **Module scaffold:** create `:sharedCore`, `:sharedUi`, `:strings-gen`; wire `:app` → `:sharedUi` → `:sharedCore`; add KMP + CMP Gradle plugins and the iOS compile targets; version-catalog entries.
 2. **Strings mechanism:** `Strings` interface + `LocalStrings`; `AndroidStrings` `R.string` wrapper + `ProvideAppLocals`; `:strings-gen` generator **with `<plurals>` support** and a real-repo coverage test.
 3. **Theme system:** Compose theme covering all four modes (dark/light/monochrome/no-animations), matching current visual output.
-4. **DI:** Koin setup in shared modules + bridge to existing Dagger/`DatabaseContainer` singletons.
+4. **DI:** full Dagger → Koin migration (§4.3) — Koin modules in `:app` and shared modules; all ~69 `@Inject` sites converted; Dagger removed. Done as an early prep refactor while the app is still XML, gated by the existing Android test suite.
 5. **State architecture + event bridge:** the per-screen state-holder pattern and the `ABEventBus`↔`StateFlow` bridge.
 6. **Routing indirection + debug toggle:** `ScreenLauncher` and the developer setting for old/new selection.
 7. **Design-system starter:** the handful of shared components (buttons, list scaffolding, dialog scaffolding, app bar) needed by the first batches.
@@ -157,7 +159,7 @@ The reference (`fi.sykero.midirecorder`, same author) is a shipped Android+iOS K
 - `LocalStrings` interface + generated iOS holder instead of compose-resources (preserves the translation pipeline).
 - Interfaces for stateful seams; `expect`/`actual` only for narrow primitives.
 - `StateFlow` + action-lambda boundary; plain-class controllers + thin Android VM wrappers.
-- Room-KMP-behind-repositories with the Android framework driver to preserve existing users' DB — **for the later Room migration**, noted here so the UI keeps Room behind interfaces now.
+- Room-KMP-behind-repositories — **for the later Room migration**, noted here so the UI keeps Room behind interfaces now. **Divergence from the reference:** the reference preserves users' DB with the Android *framework* SQLite driver, but AndBible must use the *bundled* modern SQLite (`BundledSQLiteDriver`) because it depends on SQLite features the old system SQLite lacks. This makes the data-format/migration story more involved than the reference's and is a decisive reason the Room migration is its own careful program, not part of this UI port.
 - Linux-first four-gate discipline, incl. the iOS-compile gate on Linux.
 - JetBrains androidx-nav as the navigation library (Voyager fallback), for Batch Z.
 
