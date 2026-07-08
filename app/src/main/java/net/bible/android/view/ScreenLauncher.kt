@@ -20,6 +20,7 @@ package net.bible.android.view
 import android.content.Context
 import android.content.Intent
 import net.bible.android.view.activity.discrete.CalculatorActivity
+import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
@@ -28,17 +29,26 @@ enum class Screen { Calculator }
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
  * implementation per screen from the global `use_compose_ui` debug flag. This is the seed of
- * the future CMP navigation graph (Batch Z). Task 11 attaches the Compose calculator host.
+ * the future CMP navigation graph (Batch Z). Task 11 attached the Compose calculator host.
  */
 object ScreenLauncher {
     fun useComposeFor(@Suppress("UNUSED_PARAMETER") screen: Screen): Boolean =
         CommonUtils.settings.getBoolean("use_compose_ui", false)
 
+    /** The Activity class implementing [screen] under the current `use_compose_ui` flag. */
+    fun targetFor(screen: Screen): Class<*> = when (screen) {
+        Screen.Calculator ->
+            if (useComposeFor(screen)) CalculatorComposeActivity::class.java
+            else CalculatorActivity::class.java
+    }
+
+    /**
+     * Intent for [screen], routed old/new. Callers that need the result (the calculator's PIN
+     * unlock uses `startActivityForResult` / `awaitIntent`) build on this instead of [open].
+     */
+    fun intentFor(context: Context, screen: Screen): Intent = Intent(context, targetFor(screen))
+
     fun open(context: Context, screen: Screen) {
-        val target = when (screen) {
-            // Both branches point at the classic Activity until Task 11 wires the Compose host.
-            Screen.Calculator -> CalculatorActivity::class.java
-        }
-        context.startActivity(Intent(context, target))
+        context.startActivity(intentFor(context, screen))
     }
 }

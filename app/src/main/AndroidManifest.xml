@@ -367,6 +367,11 @@
             android:screenOrientation="portrait"
             />
         <activity
+            android:name="net.bible.android.view.activity.discrete.CalculatorComposeActivity"
+            android:label="@string/app_name_calculator"
+            android:screenOrientation="portrait"
+            />
+        <activity
             android:name="net.bible.android.view.activity.base.ErrorActivity"
             android:label="@string/error_occurred"
             android:exported="true"

@@ -53,7 +53,8 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.firstTime
-import net.bible.android.view.activity.discrete.CalculatorActivity
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.installzip.InstallZip
@@ -390,7 +391,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private suspend fun checkCalculator(): Boolean {
         if(CommonUtils.showCalculator) {
             Log.i(TAG, "Going to Calculator")
-            val handlerIntent = Intent(this, CalculatorActivity::class.java)
+            val handlerIntent = ScreenLauncher.intentFor(this, Screen.Calculator)
             while(true) {
                 when(awaitIntent(handlerIntent).resultCode) {
                     RESULT_OK -> break

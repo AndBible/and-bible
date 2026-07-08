@@ -48,7 +48,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.comingFromStartupActivity
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.discrete.CalculatorActivity
+import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.android.view.util.UiUtils.setActionBarColor
 import net.bible.android.view.util.VolumeButtonScroll
 import net.bible.android.view.util.locale.LocaleHelper
@@ -312,13 +315,14 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         comingFromStartupActivity = false
         if (
             this !is CalculatorActivity
+            && this !is CalculatorComposeActivity
             && !fromStartupActivity
             && this !is StartupActivity
             && CommonUtils.showCalculator
             && wasPaused
             && !returningFromCalculator
         ) {
-            val handlerIntent = Intent(this@ActivityBase, CalculatorActivity::class.java)
+            val handlerIntent = ScreenLauncher.intentFor(this@ActivityBase, Screen.Calculator)
             startActivityForResult(handlerIntent, CALCULATOR_REQUEST)
             returningFromCalculator = true
         } else {
