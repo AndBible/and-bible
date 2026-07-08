@@ -21,6 +21,7 @@ import android.content.Intent
 import android.util.Log
 
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -119,13 +120,10 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
     init {
         // register for BeforePageChangeEvent
         Log.i(TAG, "Registering HistoryManager with EventBus")
-        ABEventBus.safelyRegister(this)
-    }
-
-    /** allow current page to save any settings or data before being changed
-     */
-    fun onEvent(event: AddHistoryItem) {
-        addHistoryItem(event.window)
+        ABEventBus.safelyRegister(this) {
+            // allow current page to save any settings or data before being changed
+            on<AddHistoryItem> { event -> addHistoryItem(event.window) }
+        }
     }
 
     fun canGoBack(): Boolean {

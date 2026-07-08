@@ -37,6 +37,7 @@ import net.bible.android.AI_AGENT_NOTIFICATION_CHANNEL
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -133,7 +134,37 @@ class AgentForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            on<AgentLogUpdatedEvent> { event ->
+                if (event.workspaceId != currentWorkspaceId) return@on
+                updateProgressNotification(event.entry.message)
+                // Renew WakeLock on activity (progress means active processing)
+                wakeLock?.let {
+                    if (it.isHeld) {
+                        it.release()
+                    }
+                    it.acquire(WAKELOCK_TIMEOUT_MS)
+                }
+            }
+            on<AgentPermissionWaitingEvent> { event ->
+                if (event.workspaceId != currentWorkspaceId) return@on
+                if (event.waiting) {
+                    // Release WakeLock while waiting — agent can sleep
+                    releaseWakeLock()
+                    showPermissionNeededNotification(event.toolName)
+                } else {
+                    restoreProgressNotification()
+                    acquireWakeLock()
+                }
+            }
+            on<AgentSessionStatusChangedEvent> { event ->
+                if (event.workspaceId != currentWorkspaceId) return@on
+                if (!event.isRunning) {
+                    // Agent finished — stop service
+                    stopSelfSafe()
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -375,40 +406,6 @@ class AgentForegroundService : Service() {
             if (it.isHeld) it.release()
         }
         wakeLock = null
-    }
-
-    // --- EventBus subscribers ---
-
-    fun onEvent(event: AgentLogUpdatedEvent) {
-        if (event.workspaceId != currentWorkspaceId) return
-        updateProgressNotification(event.entry.message)
-        // Renew WakeLock on activity (progress means active processing)
-        wakeLock?.let {
-            if (it.isHeld) {
-                it.release()
-            }
-            it.acquire(WAKELOCK_TIMEOUT_MS)
-        }
-    }
-
-    fun onEvent(event: AgentPermissionWaitingEvent) {
-        if (event.workspaceId != currentWorkspaceId) return
-        if (event.waiting) {
-            // Release WakeLock while waiting — agent can sleep
-            releaseWakeLock()
-            showPermissionNeededNotification(event.toolName)
-        } else {
-            restoreProgressNotification()
-            acquireWakeLock()
-        }
-    }
-
-    fun onEvent(event: AgentSessionStatusChangedEvent) {
-        if (event.workspaceId != currentWorkspaceId) return
-        if (!event.isRunning) {
-            // Agent finished — stop service
-            stopSelfSafe()
-        }
     }
 
     private fun stopSelfSafe() {

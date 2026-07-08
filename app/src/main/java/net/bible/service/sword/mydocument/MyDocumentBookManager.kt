@@ -20,6 +20,7 @@ package net.bible.service.sword.mydocument
 import android.util.Log
 import kotlinx.serialization.Serializable
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.mydocument.AiDocMarkerInfo
@@ -94,57 +95,57 @@ object MyDocumentBookManager {
         get() = registeredBooks.keys.toSet()
 
     init {
-        ABEventBus.register(this)
-    }
+        /*
+         * Handle sync event: re-register all documents and refresh only the
+         * BibleView windows that display documents affected by the sync.
+         *
+         * Must run on the main thread (onMain) because SwordGenBook
+         * and the JSword Activator are not thread-safe. Running clear() +
+         * registerAllDocuments() on a background thread causes a race condition
+         * where the main thread sees a newly registered book whose internal
+         * key map hasn't been activated yet, leading to NPE in getKey().
+         */
+        ABEventBus.register(this) {
+            onMain<MyDocumentsUpdatedViaSyncEvent> { e ->
+                val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+                val affectedInitials = mutableSetOf<String>()
+                var refreshAll = false
 
-    /**
-     * Handle sync event: re-register all documents and refresh only the
-     * BibleView windows that display documents affected by the sync.
-     *
-     * Must run on the main thread (onEventMainThread) because SwordGenBook
-     * and the JSword Activator are not thread-safe. Running clear() +
-     * registerAllDocuments() on a background thread causes a race condition
-     * where the main thread sees a newly registered book whose internal
-     * key map hasn't been activated yet, leading to NPE in getKey().
-     */
-    fun onEventMainThread(e: MyDocumentsUpdatedViaSyncEvent) {
-        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val affectedInitials = mutableSetOf<String>()
-        var refreshAll = false
+                val documentIds = mutableListOf<IdType>()
+                val pageIds = mutableListOf<IdType>()
 
-        val documentIds = mutableListOf<IdType>()
-        val pageIds = mutableListOf<IdType>()
-
-        for (entry in e.updated) {
-            when (entry.tableName) {
-                "MyDocument" -> documentIds.add(entry.entityId1)
-                "MyDocumentPage" -> {
-                    pageIds.add(entry.entityId1)
-                    // Deleted pages are already gone from DB — can't resolve parent document
-                    if (entry.type == LogEntryTypes.DELETE) refreshAll = true
+                for (entry in e.updated) {
+                    when (entry.tableName) {
+                        "MyDocument" -> documentIds.add(entry.entityId1)
+                        "MyDocumentPage" -> {
+                            pageIds.add(entry.entityId1)
+                            // Deleted pages are already gone from DB — can't resolve parent document
+                            if (entry.type == LogEntryTypes.DELETE) refreshAll = true
+                        }
+                        "MyDocumentPageContent", "AiPageCacheEntry" -> {
+                            pageIds.add(entry.entityId1)
+                        }
+                    }
                 }
-                "MyDocumentPageContent", "AiPageCacheEntry" -> {
-                    pageIds.add(entry.entityId1)
+
+                if (documentIds.isNotEmpty()) {
+                    affectedInitials.addAll(dao.initialsByIds(documentIds))
                 }
+                if (pageIds.isNotEmpty()) {
+                    affectedInitials.addAll(dao.initialsByPageIds(pageIds))
+                }
+
+                clear()
+                registerAllDocuments()
+
+                val initialsToRefresh = if (refreshAll) registeredInitials else affectedInitials
+                for (initials in initialsToRefresh) {
+                    SwordContentFacade.evictBook(initials)
+                    ABEventBus.post(MyDocumentUpdatedEvent(initials))
+                }
+                Log.i(TAG, "Sync update: refreshed ${initialsToRefresh.size} MyDocuments (refreshAll=$refreshAll)")
             }
         }
-
-        if (documentIds.isNotEmpty()) {
-            affectedInitials.addAll(dao.initialsByIds(documentIds))
-        }
-        if (pageIds.isNotEmpty()) {
-            affectedInitials.addAll(dao.initialsByPageIds(pageIds))
-        }
-
-        clear()
-        registerAllDocuments()
-
-        val initialsToRefresh = if (refreshAll) registeredInitials else affectedInitials
-        for (initials in initialsToRefresh) {
-            SwordContentFacade.evictBook(initials)
-            ABEventBus.post(MyDocumentUpdatedEvent(initials))
-        }
-        Log.i(TAG, "Sync update: refreshed ${initialsToRefresh.size} MyDocuments (refreshAll=$refreshAll)")
     }
 
     /**

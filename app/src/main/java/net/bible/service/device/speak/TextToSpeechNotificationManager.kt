@@ -34,6 +34,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.BuildVariant
@@ -196,7 +197,37 @@ class TextToSpeechNotificationManager : KoinComponent {
 
         app.registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
 
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<SpeakEvent> { ev ->
+                Log.i(TAG, "SpeakEvent ${ev.speakState}")
+                if(!ev.isSpeaking && ev.isPaused) {
+                    Log.i(TAG, "Stop foreground (pause)")
+                    buildNotification(false)
+                    stopForeground()
+                }
+                else if (ev.isSpeaking) {
+                    buildNotification(true)
+                    startForeground()
+                }
+                else {
+                    shutdown()
+                }
+            }
+            onMain<SpeakProgressEvent> { ev ->
+                if(ev.speakCommand is TextCommand) {
+                    if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
+                        currentTitle = ev.speakCommand.text
+                        if(currentTitle.isEmpty()) {
+                            currentTitle = getString(R.string.app_name_medium)
+                        }
+                    }
+                    else {
+                        currentText = ev.speakCommand.text
+                    }
+                }
+                buildNotification(speakControl.isSpeaking)
+            }
+        }
     }
 
     fun destroy() {
@@ -217,37 +248,6 @@ class TextToSpeechNotificationManager : KoinComponent {
         else {
             notificationManager.cancel(TTS_NOTIFICATION_ID)
         }
-    }
-
-    fun onEventMainThread(ev: SpeakEvent) {
-        Log.i(TAG, "SpeakEvent ${ev.speakState}")
-        if(!ev.isSpeaking && ev.isPaused) {
-            Log.i(TAG, "Stop foreground (pause)")
-            buildNotification(false)
-            stopForeground()
-        }
-        else if (ev.isSpeaking) {
-            buildNotification(true)
-            startForeground()
-        }
-        else {
-            shutdown()
-        }
-    }
-
-    fun onEventMainThread(ev: SpeakProgressEvent) {
-        if(ev.speakCommand is TextCommand) {
-            if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
-                currentTitle = ev.speakCommand.text
-                if(currentTitle.isEmpty()) {
-                    currentTitle = getString(R.string.app_name_medium)
-                }
-            }
-            else {
-                currentText = ev.speakCommand.text
-            }
-        }
-        buildNotification(speakControl.isSpeaking)
     }
 
     private fun generateAction(icon: Int, title: String, command: String): NotificationCompat.Action {
