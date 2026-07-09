@@ -59,6 +59,14 @@ class DailyReadingComposeActivity : ActivityBase() {
     private var planCodeLoaded: String? = null
     private lateinit var readingsDto: OneDaysReadingsDto
 
+    override val integrateWithHistoryManager: Boolean = true
+
+    /** allow activity to enhance intent to correctly restore state  */
+    override val intentForHistoryList: Intent get() = intent.apply {
+        putExtra(DailyReading.PLAN, readingsDto.readingPlanInfo.planCode)
+        putExtra(DailyReading.DAY, readingsDto.day)
+    }
+
     private val controller: DailyReadingController by lazy {
         DailyReadingController(
             onToggleRead = { readingNo ->
