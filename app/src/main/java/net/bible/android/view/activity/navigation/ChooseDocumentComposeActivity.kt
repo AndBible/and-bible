@@ -212,6 +212,15 @@ class ChooseDocumentComposeActivity : ActivityBase() {
             val rows = withContext(Dispatchers.Default) {
                 // Reuse the classic language grouping so dedup + representative displayName match classic.
                 val grouping = LanguageGrouping(books.mapNotNull { it.language })
+                // Build ONE canonical LangOption per grouping key from classic's representatives
+                // (most-canonical member: 2-letter code, no script, no country). Every DocRow in a
+                // group shares this exact option, so the deduped dropdown entry shows the same
+                // displayName/code classic's spinner would — regardless of which row the controller
+                // keeps when deduping by groupingKey.
+                val langByKey: Map<String, LangOption> = grouping.representatives.mapNotNull { lang ->
+                    val key = grouping.key(lang) ?: return@mapNotNull null
+                    key to LangOption(lang.code ?: "", lang.name, key)
+                }.toMap()
                 // Seed the FTS DAO once (mirror classic populateMasterDocumentList dao.clear()/insertDocuments).
                 runCatching {
                     dao.clear()
@@ -222,7 +231,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                         )
                     })
                 }
-                books.map { it.toDocRow(grouping) }
+                books.map { it.toDocRow(grouping, langByKey) }
             }
             booksById = books.associateBy { it.initials }
             controller.setDocuments(rows, searchIds = null)
@@ -232,8 +241,9 @@ class ChooseDocumentComposeActivity : ActivityBase() {
         }
     }
 
-    private fun Book.toDocRow(grouping: LanguageGrouping): DocRow {
+    private fun Book.toDocRow(grouping: LanguageGrouping, langByKey: Map<String, LangOption>): DocRow {
         val status = downloadControl.getDocumentStatus(this)
+        val key = grouping.key(language) ?: (language.code ?: "")
         // ChooseDocument never loads the recommended/bad-document configs (only DownloadActivity does),
         // so classic isRecommended(null)/isBadDocument(null,…) are always false here.
         return DocRow(
@@ -241,11 +251,8 @@ class ChooseDocumentComposeActivity : ActivityBase() {
             osisId = osisID,
             abbreviation = abbreviation,
             name = name,
-            language = LangOption(
-                code = language.code ?: "",
-                displayName = language.name,
-                groupingKey = grouping.key(language) ?: (language.code ?: ""),
-            ),
+            language = langByKey[key]
+                ?: LangOption(language.code ?: "", language.name, key),
             repository = getProperty(DownloadManager.REPOSITORY_KEY) ?: "",
             category = bookCategory.toDocCategory(),
             installStatus = status.documentInstallStatus.toDocInstallStatus(),
