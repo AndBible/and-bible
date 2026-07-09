@@ -20,6 +20,25 @@ interface Strings {
     val indexingWaitMsg: String
     val noTasksRunning: String
     val doInBackground: String
+
+    // Batch 2 — reading plan
+    val readingPlanSelectorTitle: String
+    val readingPlanTitle: String
+    val planDuplicateUserPlan: String
+    val resetGeneric: String
+    val resetPlanQuestion: String
+    val yes: String
+    val no: String
+    val all: String
+    val setCurrentDay: String
+    val setStartDate: String
+    val importReadingPlan: String
+    val setCurrentDayQuestion: String
+    val selectPassage: String
+    val speak: String
+    val stop: String
+    val pause: String
+    val done: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
