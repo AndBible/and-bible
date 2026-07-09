@@ -21,6 +21,8 @@ import android.content.Context
 import android.content.Intent
 import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
+import net.bible.android.view.activity.navigation.ChooseDictionaryWord
+import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
@@ -38,7 +40,7 @@ import net.bible.android.view.activity.search.SearchIndexProgressStatus
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey }
+enum class Screen { Calculator, History, SearchIndexProgress, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -75,6 +77,9 @@ object ScreenLauncher {
         Screen.ChooseMapKey ->
             if (useComposeFor(screen)) ChooseMapKeyComposeActivity::class.java
             else ChooseMapKey::class.java
+        Screen.ChooseDictionaryWord ->
+            if (useComposeFor(screen)) ChooseDictionaryWordComposeActivity::class.java
+            else ChooseDictionaryWord::class.java
     }
 
     /**

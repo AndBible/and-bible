@@ -241,6 +241,12 @@
             android:label="@string/dictionary"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
+            android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/dictionary"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
             android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/general_book"
