@@ -24,6 +24,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
@@ -85,6 +86,10 @@ private val BookmarkBase = Color(0xFFFFC107)
 private val ActiveWindowBase = Color(0xFF2196F3)
 private val HelperLineBase = Color(0xFF4CAF50)
 
+/** The active [DisplayColorMode], exposed so content (e.g. the passage-grid category palette) can
+ *  grayscale its own non-scheme colors in BW/COLOR_EINK. Defaults to NORMAL outside an [AbTheme]. */
+val LocalDisplayColorMode = staticCompositionLocalOf { DisplayColorMode.NORMAL }
+
 /**
  * AndBible's Material3 theme for the Compose UI path.
  *
@@ -117,6 +122,7 @@ fun AbTheme(
     CompositionLocalProvider(
         LocalAbColors provides accents,
         LocalDisableAnimations provides disableAnimations,
+        LocalDisplayColorMode provides colorMode,
     ) {
         MaterialTheme(colorScheme = scheme, content = content)
     }
