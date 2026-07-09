@@ -19,6 +19,7 @@ package net.bible.android.view.activity.navigation
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -80,6 +81,7 @@ class ChooseDictionaryWordComposeActivity : ActivityBase() {
                 keys = withContext(Dispatchers.IO) { page.cachedGlobalKeyList ?: emptyList() }
                 controller.setAllRows(keys.mapIndexed { i, k -> DictRow(i.toString(), k.name) })
             } catch (e: Exception) {
+                Log.e(TAG, "Error creating dictionary key list", e)
                 controller.showError()
             }
         }
@@ -141,5 +143,9 @@ class ChooseDictionaryWordComposeActivity : ActivityBase() {
         while (result.length < max && words.isNotEmpty()) { result += words[0] + ' '; words.removeAt(0) }
         val append = if (words.isNotEmpty()) "..." else ""
         return "$result$append"
+    }
+
+    companion object {
+        private const val TAG = "ChooseDictionaryWordCompose"
     }
 }

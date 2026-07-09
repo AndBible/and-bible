@@ -37,7 +37,8 @@ import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.speakHelpVideo
 import org.crosswire.jsword.passage.Verse
@@ -150,7 +151,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             s.save(updateBookmark = true)
         }
         else {
-            val intent = Intent(this, GridChoosePassageBook::class.java)
+            val intent = ScreenLauncher.intentFor(this, Screen.GridChoosePassageBook)
             intent.putExtra("isScripture", true)
             intent.putExtra("navigateToVerse", true)
             intent.putExtra("title", getString(R.string.speak_beginning_of_passage))
@@ -172,7 +173,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             val verse = VerseFactory.fromString(v11n, verseStr)
             if(startVerse == null) {
                 startVerse = verse
-                val intent = Intent(this, GridChoosePassageBook::class.java)
+                val intent = ScreenLauncher.intentFor(this, Screen.GridChoosePassageBook)
                 intent.putExtra("isScripture", true)
                 intent.putExtra("navigateToVerse", true)
                 intent.putExtra("title", getString(R.string.speak_ending_of_passage))

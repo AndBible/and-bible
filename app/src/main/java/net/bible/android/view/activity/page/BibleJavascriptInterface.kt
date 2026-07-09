@@ -62,7 +62,8 @@ import net.bible.android.view.activity.progress.ReadHistoryDialog
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.service.common.ReadingProgressSettings
-import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.activity.ai.PromptEditActivity
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
@@ -200,7 +201,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun refChooserDialog(callId: Long) {
         scope.launch {
-            val intent = Intent(mainBibleActivity, GridChoosePassageBook::class.java).apply {
+            val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.GridChoosePassageBook).apply {
                 putExtra("isScripture", true)
                 putExtra("navigateToVerse", true)
             }
