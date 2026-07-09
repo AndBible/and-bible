@@ -25,6 +25,8 @@ import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.HistoryComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
+import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReading
@@ -129,5 +131,13 @@ class ScreenLauncherTest {
         assertEquals(ChooseDictionaryWordComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseDictionaryWord))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ChooseDictionaryWord::class.java, ScreenLauncher.targetFor(Screen.ChooseDictionaryWord))
+    }
+
+    @Test
+    fun gridChoosePassageBook_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(GridChoosePassageComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GridChoosePassageBook))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(GridChoosePassageBook::class.java, ScreenLauncher.targetFor(Screen.GridChoosePassageBook))
     }
 }
