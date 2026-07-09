@@ -12,6 +12,8 @@ interface Strings {
     val calcWrongFormat: String
     val calcWrongFormatOperand: String
     val calcDivisionByZero: String
+    // Intentionally retained to exercise the :strings-gen formatted-string generator path for iOS;
+    // no composable consumes it yet (History's title is host-built).
     fun historyFor(workspace: String, window: Int): String
     val errorOccurred: String
     val okay: String

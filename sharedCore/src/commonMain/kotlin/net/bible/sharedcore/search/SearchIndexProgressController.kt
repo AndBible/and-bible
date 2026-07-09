@@ -44,8 +44,13 @@ class SearchIndexProgressController(
 
     fun setJobs(jobs: List<ProgressJob>) {
         _jobs.value = jobs
-        _noTasks.value = jobs.isEmpty()
+        // A job hides the no-tasks line immediately, but its absence does NOT reveal the line here:
+        // classic parity delays revealing "no tasks running" until [revealNoTasksIfIdle] fires (~4s).
+        if (jobs.isNotEmpty()) _noTasks.value = false
     }
+
+    /** Reveal the "no tasks running" line only if still idle (called after the ~4s classic delay). */
+    fun revealNoTasksIfIdle() { _noTasks.value = _jobs.value.isEmpty() }
 
     fun showError() { _error.value = SearchIndexError.FAILED }
     fun dismissError() { _error.value = null }

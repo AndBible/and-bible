@@ -24,6 +24,8 @@ import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.ActivityBase
@@ -69,7 +71,7 @@ class SearchIndexProgressComposeActivity : ActivityBase() {
                     val noTasks by controller.noTasks.collectAsState()
                     val error by controller.error.collectAsState()
                     SearchIndexProgressScreen(
-                        title = getString(R.string.search),
+                        title = getString(R.string.search_index),
                         jobs = jobs,
                         noTasks = noTasks,
                         error = error,
@@ -83,12 +85,15 @@ class SearchIndexProgressComposeActivity : ActivityBase() {
 
     override fun onResume() {
         super.onResume()
+        lifecycleScope.launch { CommonUtils.requestNotificationPermission(this@SearchIndexProgressComposeActivity) }
         refreshJobs()
         workListener = object : WorkListener {
             override fun workProgressed(ev: WorkEvent) = onWorkEvent(ev)
             override fun workStateChanged(ev: WorkEvent) = onWorkEvent(ev)
         }
         JobManager.addWorkListener(workListener)
+        // Classic parity: the "no tasks running" line appears only after ~4s if still idle.
+        uiHandler.postDelayed({ controller.revealNoTasksIfIdle() }, 4000)
     }
 
     override fun onPause() {
