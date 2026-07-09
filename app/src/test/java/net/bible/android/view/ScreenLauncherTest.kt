@@ -21,6 +21,8 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.HistoryComposeActivity
+import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
+import net.bible.android.view.activity.search.SearchIndexProgressStatus
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -59,5 +61,13 @@ class ScreenLauncherTest {
         assertEquals(HistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.History))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(History::class.java, ScreenLauncher.targetFor(Screen.History))
+    }
+
+    @Test
+    fun searchIndexProgress_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(SearchIndexProgressComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SearchIndexProgress))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(SearchIndexProgressStatus::class.java, ScreenLauncher.targetFor(Screen.SearchIndexProgress))
     }
 }

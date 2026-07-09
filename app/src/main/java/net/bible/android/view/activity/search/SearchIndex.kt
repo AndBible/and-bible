@@ -26,6 +26,8 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SearchIndexBinding
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.search.SearchControl
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.service.sword.SwordDocumentFacade
 
@@ -102,7 +104,7 @@ class SearchIndex : CustomTitlebarActivityBase() {
      */
     private fun monitorProgress() {
         // monitor the progress
-        val intent = Intent(this, SearchIndexProgressStatus::class.java)
+        val intent = ScreenLauncher.intentFor(this, Screen.SearchIndexProgress)
 
         // a search may be pre-defined, if so then pass the pre-defined search through so it can be executed directly
         if (getIntent().extras != null) {

@@ -153,6 +153,11 @@
             android:label="@string/search_index"
             />
         <activity
+            android:name="net.bible.android.view.activity.search.SearchIndexProgressComposeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/search_index"
+            />
+        <activity
             android:name="net.bible.android.view.activity.bookmark.Bookmarks"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/bookmarks_and_mynotes_title"

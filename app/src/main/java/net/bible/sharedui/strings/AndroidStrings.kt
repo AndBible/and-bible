@@ -15,5 +15,4 @@ class AndroidStrings(private val context: Context) : Strings {
     override val indexingWaitMsg: String get() = context.getString(R.string.indexing_wait_msg)
     override val noTasksRunning: String get() = context.getString(R.string.no_tasks_running)
     override val doInBackground: String get() = context.getString(R.string.do_in_background)
-    override val search: String get() = context.getString(R.string.search)
 }

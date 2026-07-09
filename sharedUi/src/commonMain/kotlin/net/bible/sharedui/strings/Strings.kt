@@ -18,7 +18,6 @@ interface Strings {
     val indexingWaitMsg: String
     val noTasksRunning: String
     val doInBackground: String
-    val search: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
