@@ -57,6 +57,16 @@ class DailyReadingControllerTest {
         assertEquals(false, scdCalled) // dismiss does NOT fire the seam
     }
 
+    @Test fun confirm_fires_set_current_day_seam() {
+        var scd = false; var reset = false
+        val c = controller(onSetCurrentDay = { scd = true }, onReset = { reset = true })
+        c.requestSetCurrentDay()
+        c.confirm()
+        assertEquals(true, scd)
+        assertEquals(false, reset)
+        assertNull(c.confirm.value)
+    }
+
     @Test fun error_set_and_clear() {
         val c = controller()
         c.showError()

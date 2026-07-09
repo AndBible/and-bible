@@ -49,6 +49,7 @@ class ReadingPlanSelectorController(
     init { load() }
 
     fun load() {
+        _error.value = null
         try {
             _plans.value = loadPlans()
             _duplicateWarning.value = hasDuplicates()

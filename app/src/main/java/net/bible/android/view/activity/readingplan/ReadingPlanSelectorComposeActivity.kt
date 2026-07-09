@@ -32,10 +32,13 @@ class ReadingPlanSelectorComposeActivity : ActivityBase() {
             },
             hasDuplicates = { readingPlanControl.readingPlanUserDuplicates },
             onSelect = { planCode ->
-                val dto = readingPlanControl.readingPlanList.first { it.planCode == planCode }
-                readingPlanControl.startReadingPlan(dto)
-                setResult(Activity.RESULT_OK, Intent(planCode))
-                finish()
+                val dto = readingPlanControl.readingPlanList.firstOrNull { it.planCode == planCode }
+                if (dto != null) {
+                    readingPlanControl.startReadingPlan(dto)
+                    setResult(Activity.RESULT_OK, Intent(planCode))
+                    finish()
+                }
+                // else: the plan vanished (sync); ignore the tap rather than crash
             },
             onReset = { planCode -> readingPlanControl.reset(planCode) },
         )

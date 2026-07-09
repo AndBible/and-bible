@@ -87,10 +87,9 @@ fun ReadingPlanSelectorScreen(
             onDismiss = { confirmResetCode = null },
         )
     }
-    if (duplicateWarning) {
-        AbErrorDialog(message = strings.planDuplicateUserPlan, confirmText = strings.okay, onDismiss = onDismissDuplicate)
-    }
     if (error != null) {
         AbErrorDialog(message = strings.errorOccurred, confirmText = strings.okay, onDismiss = onDismissError)
+    } else if (duplicateWarning) {
+        AbErrorDialog(message = strings.planDuplicateUserPlan, confirmText = strings.okay, onDismiss = onDismissDuplicate)
     }
 }

@@ -37,6 +37,7 @@ class DailyReadingListController(
     init { load() }
 
     fun load() {
+        _error.value = null
         try { _days.value = loadDays() } catch (e: Exception) { _error.value = ReadingPlanError.FAILED }
     }
 
