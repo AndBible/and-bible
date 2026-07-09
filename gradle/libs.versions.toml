@@ -20,6 +20,8 @@ koin = "4.1.0"                   # added in Task 2 (latest stable 4.x; adjust if
 accrescentBundletool = "0.2.4"
 composeBom = "2026.06.00"        # added in Task 6 (:app Compose host BOM)
 activityCompose = "1.13.0"
+roborazzi = "1.67.0"             # golden-image harness (bumped from 1.54.0 — 1.54 uses AGP's removed TestedExtension; 1.67 uses the new AGP-9 variant API)
+robolectric = "4.14.1"           # bumped from 4.9 — Roborazzi Compose needs NATIVE graphics (>=4.10)
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -43,6 +45,11 @@ androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", versi
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+# Golden-screenshot harness (added in golden-screenshot spike task)
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }
+roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazzi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -55,3 +62,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 compose = { id = "org.jetbrains.compose", version = "1.11.1" }
 android-kotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }

@@ -27,6 +27,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.accrescent.bundletool)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.roborazzi)
 }
 
 val jsDir = "bibleview-js"
@@ -489,8 +490,11 @@ dependencies {
 
     // TESTS
     //testImplementation("com.github.AndBible:robolectric:4.3.1-andbible3")
-    testImplementation("org.robolectric:robolectric:4.9")
+    testImplementation(libs.robolectric)
     //testImplementation("org.robolectric:shadows-multidex:4.3.1")
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.junit.rule)
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("org.hamcrest:hamcrest-library:2.2")
     testImplementation("org.mockito:mockito-core:3.12.4")
