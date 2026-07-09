@@ -3,7 +3,6 @@ package net.bible.sharedcore.state
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import net.bible.android.control.event.ABEventBus

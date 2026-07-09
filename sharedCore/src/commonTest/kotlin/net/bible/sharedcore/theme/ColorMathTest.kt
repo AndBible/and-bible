@@ -11,6 +11,11 @@ class ColorMathTest {
         val r = (g shr 16) and 0xFF; val gr = (g shr 8) and 0xFF; val b = g and 0xFF
         assertEquals(r, gr); assertEquals(gr, b)
         assertEquals(0xFF, (g ushr 24) and 0xFF, "alpha preserved")
+        // A red "error"-role color must gray to equal channels too: this is the color math behind
+        // AbTheme.grayscale() graying the ENTIRE M3 scheme (error included) in BW/COLOR_EINK.
+        val err = toGrayscaleArgb(0xFFBA1A1A.toInt())
+        val er = (err shr 16) and 0xFF; val eg = (err shr 8) and 0xFF; val eb = err and 0xFF
+        assertTrue(er == eg && eg == eb, "error role must be grayscale in monochrome")
     }
     @Test fun accent_stays_colored_in_normal_and_color_eink_but_grays_in_bw() {
         val base = 0xFF2196F3.toInt()

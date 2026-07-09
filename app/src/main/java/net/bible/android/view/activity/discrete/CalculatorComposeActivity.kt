@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.removeLeadingZeroes
+import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.calculator.CalculatorController
 import net.bible.sharedcore.calculator.EvalResult
 import net.bible.sharedui.ProvideAppLocals
@@ -88,6 +89,7 @@ class CalculatorComposeActivity : ActivityBase() {
         setContent {
             ProvideAppLocals {
                 AbTheme(
+                    darkTheme = ScreenSettings.nightMode,
                     colorMode = CommonUtils.settings.displayColorMode,
                     disableAnimations = CommonUtils.settings.disableAnimations,
                 ) {
