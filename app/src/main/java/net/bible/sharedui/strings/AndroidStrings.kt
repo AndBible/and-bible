@@ -12,4 +12,8 @@ class AndroidStrings(private val context: Context) : Strings {
         context.getString(R.string.history_for, workspace, window)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override val okay: String get() = context.getString(R.string.okay)
+    override val indexingWaitMsg: String get() = context.getString(R.string.indexing_wait_msg)
+    override val noTasksRunning: String get() = context.getString(R.string.no_tasks_running)
+    override val doInBackground: String get() = context.getString(R.string.do_in_background)
+    override val search: String get() = context.getString(R.string.search)
 }

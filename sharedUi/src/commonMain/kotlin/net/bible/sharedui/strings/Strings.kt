@@ -15,6 +15,10 @@ interface Strings {
     fun historyFor(workspace: String, window: Int): String
     val errorOccurred: String
     val okay: String
+    val indexingWaitMsg: String
+    val noTasksRunning: String
+    val doInBackground: String
+    val search: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
