@@ -100,6 +100,12 @@
             android:label="@string/chooseBook"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
+            android:name="net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/chooseBook"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
             android:parentActivityName="net.bible.android.view.activity.bookmark.ManageLabels"
             android:name="net.bible.android.view.activity.bookmark.LabelEditActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
