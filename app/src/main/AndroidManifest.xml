@@ -246,6 +246,11 @@
             android:label="@string/general_book"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
+            android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/general_book"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
             android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/doc_type_map"

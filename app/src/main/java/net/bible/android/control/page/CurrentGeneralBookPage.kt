@@ -33,7 +33,8 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
-import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
@@ -106,7 +107,7 @@ class CurrentGeneralBookPage internal constructor(
                         )
                     }
                 }
-                else -> context.startActivityForResult(Intent(context, ChooseGeneralBookKey::class.java), STD_REQUEST_CODE)
+                else -> context.startActivityForResult(ScreenLauncher.intentFor(context, Screen.ChooseGeneralBookKey), STD_REQUEST_CODE)
             }
         }
     }
