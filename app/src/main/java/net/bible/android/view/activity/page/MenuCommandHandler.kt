@@ -46,7 +46,6 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
-import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.ai.AiSettingsActivity
 import net.bible.android.view.activity.settings.SettingsActivity
@@ -92,7 +91,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
             val currentPage = windowControl.activeWindowPageManager.currentPage
             when (menuItem.itemId) {
                 R.id.chooseDocumentButton -> {
-                    val intent = Intent(mainBibleActivity, ChooseDocument::class.java)
+                    val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ChooseDocument)
                     mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
                 }
                 R.id.rateButton -> {

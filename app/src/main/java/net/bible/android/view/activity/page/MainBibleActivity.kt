@@ -868,7 +868,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             override fun onLongPress(e: MotionEvent) {
-                startActivityForResult(Intent(this@MainBibleActivity, ChooseDocument::class.java), STD_REQUEST_CODE)
+                startActivityForResult(ScreenLauncher.intentFor(this@MainBibleActivity, Screen.ChooseDocument), STD_REQUEST_CODE)
             }
 
             override fun onSingleTapUp(e: MotionEvent): Boolean {
@@ -1365,7 +1365,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     /** @param type can be BIBLE or COMMENTARY */
     private fun startDocumentChooser(type: String) {
-        val intent = Intent(this, ChooseDocument::class.java)
+        val intent = ScreenLauncher.intentFor(this, Screen.ChooseDocument)
         intent.putExtra("type", type)
         startActivityForResult(intent, STD_REQUEST_CODE)
     }
