@@ -103,22 +103,18 @@ abstract class CachedKeyPage internal constructor(
     }
 
     fun getKeyPlus(currentKey: Key?, num: Int): Key {
-        val keyPos = findIndexOf(currentKey)
+        // Guard before findIndexOf: the key list can be null (e.g. the underlying
+        // document was deactivated concurrently, or building it failed), and
+        // findIndexOf would otherwise crash. Fall back to the current key.
+        val keyList = cachedGlobalKeyList ?: return currentKey ?: DefaultLeafKeyList("")
+        val keyPos = keyList.indexOf(currentKey)
         // move forward or backward to new posn
         var newKeyPos = keyPos + num
         // check bounds
-        val keyList = cachedGlobalKeyList ?: return currentKey ?: DefaultLeafKeyList("")
         newKeyPos = Math.min(newKeyPos, keyList.size - 1)
         newKeyPos = Math.max(newKeyPos, 0)
         // get the actual key at that posn
         return keyList[newKeyPos]
-    }
-
-
-    /** find index of key in cached key list but cater for TreeKeys too
-     */
-    protected fun findIndexOf(key: Key?): Int {
-        return cachedGlobalKeyList!!.indexOf(key)
     }
 
     companion object {
