@@ -22,11 +22,16 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.BibleTraverser
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookMetaData
+import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.DefaultLeafKeyList
+import org.crosswire.jsword.passage.Key
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -54,8 +59,8 @@ class CachedKeyPageTest {
         // No document set → cachedGlobalKeyList is null.
         val currentKey = DefaultLeafKeyList("some entry", "some-entry")
 
-        assertThat(page.getKeyPlus(currentKey, 1), equalTo(currentKey as org.crosswire.jsword.passage.Key))
-        assertThat(page.getKeyPlus(currentKey, -1), equalTo(currentKey as org.crosswire.jsword.passage.Key))
+        assertThat(page.getKeyPlus(currentKey, 1), equalTo(currentKey as Key))
+        assertThat(page.getKeyPlus(currentKey, -1), equalTo(currentKey as Key))
     }
 
     /** With a null key list and a null current key, getKeyPlus returns an empty leaf key (no crash). */
@@ -64,6 +69,29 @@ class CachedKeyPageTest {
         val page = createPageManager().currentDictionary
 
         val result = page.getKeyPlus(null, 1)
-        assertThat(result, equalTo(DefaultLeafKeyList("") as org.crosswire.jsword.passage.Key))
+        assertThat(result, equalTo(DefaultLeafKeyList("") as Key))
+    }
+
+    /**
+     * A non-null but EMPTY key list must not crash. This is the case newly reachable
+     * after jsword's getGlobalKeyList started returning an empty key list (instead of
+     * null) under the concurrent-deactivation race, and also covers a genuinely empty
+     * document. Bounds clamping would otherwise index an empty list at [0].
+     */
+    @Test
+    fun getKeyPlusWithEmptyKeyListReturnsCurrentKey() {
+        val page = createPageManager().currentGeneralBook
+        val meta = mock(BookMetaData::class.java)
+        // Mark the book "special" so isRemoved short-circuits without touching the
+        // real Books registry; leave AndBibleDoesNotExist unstubbed (returns null).
+        `when`(meta.getProperty("AndBibleSpecial")).thenReturn("1")
+        val book = mock(Book::class.java).apply {
+            `when`(bookMetaData).thenReturn(meta)
+            `when`(globalKeyList).thenReturn(DefaultKeyList()) // non-null, empty
+        }
+        page.onlySetCurrentDocument(book)
+
+        val currentKey = DefaultLeafKeyList("some entry", "some-entry")
+        assertThat(page.getKeyPlus(currentKey, 1), equalTo(currentKey as Key))
     }
 }
