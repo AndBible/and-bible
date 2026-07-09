@@ -35,6 +35,21 @@ class HistoryGoldenTest {
     }
 
     @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
+    fun history_primary_rtl() {
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        captureRtl("History", "primary") {
+            HistoryScreen(
+                title = context.getString(net.bible.android.activity.R.string.history_for, "Workspace", 1),
+                entries = sampleEntries,
+                error = null,
+                onSelect = {},
+                onDismissError = {},
+            )
+        }
+    }
+
+    @Test
     fun history_empty() {
         captureGolden("History", "empty", EDGE_MODE) {
             HistoryScreen(

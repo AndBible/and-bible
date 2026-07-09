@@ -35,6 +35,22 @@ class SearchIndexProgressGoldenTest {
     }
 
     @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
+    fun searchIndexProgress_primary_rtl() {
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        captureRtl("SearchIndexProgress", "primary") {
+            SearchIndexProgressScreen(
+                title = context.getString(net.bible.android.activity.R.string.search_index),
+                jobs = sampleJobs,
+                noTasks = false,
+                error = null,
+                onHide = {},
+                onDismissError = {},
+            )
+        }
+    }
+
+    @Test
     fun searchIndexProgress_noTasks() {
         captureGolden("SearchIndexProgress", "noTasks", EDGE_MODE) {
             SearchIndexProgressScreen(
