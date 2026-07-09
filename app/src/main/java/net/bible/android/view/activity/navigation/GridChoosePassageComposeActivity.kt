@@ -75,7 +75,7 @@ class GridChoosePassageComposeActivity : ActivityBase() {
             longNames = CommonUtils.settings.getBoolean("book_grid_show_long_name", false),
             showProgress = CommonUtils.settings.getBoolean("book_grid_show_progress", true),
         )
-        val baseTitle = (customTitle ?: getString(net.bible.android.activity.R.string.deuterocanonical)).toString()
+        val baseTitle = (customTitle ?: getString(net.bible.android.activity.R.string.choosePassageBookName)).toString()
         val workspaceName = SharedActivityState.currentWorkspaceName
 
         val controller = GridChoosePassageController(
