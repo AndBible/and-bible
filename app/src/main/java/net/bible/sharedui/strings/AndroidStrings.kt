@@ -43,4 +43,23 @@ class AndroidStrings(private val context: Context) : Strings {
     override val menuGroupByCategory: String get() = context.getString(R.string.book_menu_group_by_category)
     override val menuShowLongName: String get() = context.getString(R.string.book_menu_show_long_book_name)
     override val menuShowProgressBars: String get() = context.getString(R.string.book_menu_show_progress_bars)
+
+    // Batch 4 — document selection
+    override fun docFilterResults(count: Int): String = context.getString(R.string.document_filter_results, count)
+    override val docTypeAll: String get() = context.getString(R.string.doc_type_all)
+    override val docTypeBible: String get() = context.getString(R.string.doc_type_bible)
+    override val docTypeCommentary: String get() = context.getString(R.string.doc_type_commentary)
+    override val docTypeDictionary: String get() = context.getString(R.string.doc_type_dictionary)
+    override val docTypeGeneralBook: String get() = context.getString(R.string.doc_type_book)
+    override val docTypeMaps: String get() = context.getString(R.string.doc_type_map)
+    override val docTypeAddon: String get() = context.getString(R.string.doc_type_addons)
+    override val languageLabel: String get() = context.getString(R.string.chooce_language_hint)
+    override val aboutDoc: String get() = context.getString(R.string.about)
+    override val deleteLabel: String get() = context.getString(R.string.delete)
+    override val deleteIndexLabel: String get() = context.getString(R.string.delete_index)
+    override val unlockModule: String get() = context.getString(R.string.unlock_module)
+    override fun deleteDoc(name: String): String = context.getString(R.string.delete_doc, name)
+    override fun deleteSearchIndexDoc(name: String): String = context.getString(R.string.delete_search_index_doc, name)
+    override val cantDeleteDocument: String get() = context.getString(R.string.cant_delete_document)
+    override val downloadDocuments: String get() = context.getString(R.string.download)
 }

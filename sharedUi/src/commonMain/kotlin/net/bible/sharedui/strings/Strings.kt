@@ -54,6 +54,25 @@ interface Strings {
     val menuGroupByCategory: String
     val menuShowLongName: String
     val menuShowProgressBars: String
+
+    // Batch 4 — document selection
+    fun docFilterResults(count: Int): String
+    val docTypeAll: String
+    val docTypeBible: String
+    val docTypeCommentary: String
+    val docTypeDictionary: String
+    val docTypeGeneralBook: String
+    val docTypeMaps: String
+    val docTypeAddon: String
+    val languageLabel: String
+    val aboutDoc: String
+    val deleteLabel: String
+    val deleteIndexLabel: String
+    val unlockModule: String
+    fun deleteDoc(name: String): String
+    fun deleteSearchIndexDoc(name: String): String
+    val cantDeleteDocument: String
+    val downloadDocuments: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
