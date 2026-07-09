@@ -115,6 +115,8 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.defaultWorkspaceColor
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.IntentHelper
@@ -128,7 +130,6 @@ import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.progress.ReadingProgressActivity
-import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.android.view.activity.page.screen.DocumentViewManager
@@ -919,7 +920,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             Log.i(TAG, "Back Long")
             // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
             // been performed on the long press, so will set the cancelled flag for the following up event.
-            val intent = Intent(this, History::class.java)
+            val intent = ScreenLauncher.intentFor(this, Screen.History)
             startActivityForResult(intent, STD_REQUEST_CODE)
             return true
         }

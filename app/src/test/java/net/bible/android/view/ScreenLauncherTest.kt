@@ -19,9 +19,12 @@ package net.bible.android.view
 
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.view.activity.navigation.History
+import net.bible.android.view.activity.navigation.HistoryComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -48,5 +51,13 @@ class ScreenLauncherTest {
     fun flag_on_routes_to_new() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertTrue(ScreenLauncher.useComposeFor(Screen.Calculator))
+    }
+
+    @Test
+    fun history_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(HistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.History))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(History::class.java, ScreenLauncher.targetFor(Screen.History))
     }
 }

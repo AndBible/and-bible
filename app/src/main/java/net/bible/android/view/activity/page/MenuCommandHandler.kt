@@ -37,6 +37,8 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.BugReport
 import net.bible.android.control.search.SearchControl
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.Bookmarks
@@ -45,7 +47,6 @@ import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
-import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.ai.AiSettingsActivity
@@ -172,7 +173,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                 R.id.managePrompts -> {
                     handlerIntent = Intent(mainBibleActivity, AiSettingsActivity::class.java)
                 }
-                R.id.historyButton -> handlerIntent = Intent(mainBibleActivity, History::class.java)
+                R.id.historyButton -> handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.History)
                 R.id.bookmarksButton -> handlerIntent = Intent(mainBibleActivity, Bookmarks::class.java)
                 R.id.studyPadsButton -> {
                     val intent = Intent(mainBibleActivity, ManageLabels::class.java)

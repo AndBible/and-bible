@@ -21,10 +21,12 @@ import android.content.Context
 import android.content.Intent
 import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
+import net.bible.android.view.activity.navigation.History
+import net.bible.android.view.activity.navigation.HistoryComposeActivity
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator }
+enum class Screen { Calculator, History }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -40,6 +42,9 @@ object ScreenLauncher {
         Screen.Calculator ->
             if (useComposeFor(screen)) CalculatorComposeActivity::class.java
             else CalculatorActivity::class.java
+        Screen.History ->
+            if (useComposeFor(screen)) HistoryComposeActivity::class.java
+            else History::class.java
     }
 
     /**
