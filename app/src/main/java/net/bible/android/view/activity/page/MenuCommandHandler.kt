@@ -47,7 +47,6 @@ import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
-import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.ai.AiSettingsActivity
 import net.bible.android.view.activity.settings.SettingsActivity
@@ -197,7 +196,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     }
                 }
                 R.id.dailyReadingPlanButton -> {
-                    handlerIntent = Intent(mainBibleActivity, DailyReading::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ReadingPlan)
                     isHandled = true
                 }
                 R.id.readingProgressButton -> {

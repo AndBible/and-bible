@@ -23,6 +23,8 @@ import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.HistoryComposeActivity
+import net.bible.android.view.activity.readingplan.DailyReading
+import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -32,7 +34,7 @@ import net.bible.android.view.activity.search.SearchIndexProgressStatus
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, ReadingPlanSelector, DailyReadingList }
+enum class Screen { Calculator, History, SearchIndexProgress, ReadingPlanSelector, DailyReadingList, ReadingPlan }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -60,6 +62,9 @@ object ScreenLauncher {
         Screen.DailyReadingList ->
             if (useComposeFor(screen)) DailyReadingListComposeActivity::class.java
             else DailyReadingList::class.java
+        Screen.ReadingPlan ->
+            if (useComposeFor(screen)) DailyReadingComposeActivity::class.java
+            else DailyReading::class.java
     }
 
     /**
