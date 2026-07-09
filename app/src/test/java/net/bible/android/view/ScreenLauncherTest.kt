@@ -21,6 +21,8 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
+import net.bible.android.view.activity.navigation.ChooseDocument
+import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.HistoryComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
@@ -131,6 +133,14 @@ class ScreenLauncherTest {
         assertEquals(ChooseDictionaryWordComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseDictionaryWord))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ChooseDictionaryWord::class.java, ScreenLauncher.targetFor(Screen.ChooseDictionaryWord))
+    }
+
+    @Test
+    fun chooseDocument_routes_old_and_new() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(ChooseDocumentComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseDocument))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(ChooseDocument::class.java, ScreenLauncher.targetFor(Screen.ChooseDocument))
     }
 
     @Test
