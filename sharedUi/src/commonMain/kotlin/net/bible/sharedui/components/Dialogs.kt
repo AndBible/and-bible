@@ -31,3 +31,22 @@ fun AbErrorDialog(message: String, confirmText: String, onDismiss: () -> Unit) {
         text = { Text(message) },
     )
 }
+
+/** A confirm/cancel dialog: optional title, a message, a confirm and a cancel button. */
+@Composable
+fun AbConfirmDialog(
+    title: String?,
+    message: String,
+    confirmText: String,
+    dismissText: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = if (title != null) { { Text(title) } } else null,
+        text = { Text(message) },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(confirmText) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(dismissText) } },
+    )
+}

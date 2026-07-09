@@ -18,18 +18,57 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 
-/** Material3 Scaffold + a simple title-only top app bar. The shared title-bar seed. */
+/** Reusable Material3 top app bar: a title slot, optional up-navigation, and trailing actions. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AbScaffold(title: String, content: @Composable (PaddingValues) -> Unit) {
+fun AbTopAppBar(
+    title: @Composable () -> Unit,
+    onNavigateUp: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
+) {
+    TopAppBar(
+        title = title,
+        navigationIcon = {
+            if (onNavigateUp != null) {
+                IconButton(onClick = onNavigateUp) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                }
+            }
+        },
+        actions = actions,
+    )
+}
+
+/** Scaffold + a simple string-title top app bar. Backward-compatible with the Batch 1 call sites. */
+@Composable
+fun AbScaffold(
+    title: String,
+    onNavigateUp: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
+    content: @Composable (PaddingValues) -> Unit,
+) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text(title) }) },
+        topBar = { AbTopAppBar(title = { Text(title) }, onNavigateUp = onNavigateUp, actions = actions) },
         content = content,
     )
+}
+
+/** Scaffold with a fully custom top bar (e.g. a clickable two-line title). */
+@Composable
+fun AbScaffold(
+    topBar: @Composable () -> Unit,
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    Scaffold(topBar = topBar, content = content)
 }
