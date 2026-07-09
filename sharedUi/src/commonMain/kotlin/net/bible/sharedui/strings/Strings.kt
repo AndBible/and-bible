@@ -45,6 +45,15 @@ interface Strings {
     val mapTitle: String
     val dictionaryTitle: String
     val searchHint: String
+
+    // Batch 3b — grid passage chooser
+    val bible: String
+    val deuterocanonical: String
+    val menuAlphabetical: String
+    val menuRowOrder: String
+    val menuGroupByCategory: String
+    val menuShowLongName: String
+    val menuShowProgressBars: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

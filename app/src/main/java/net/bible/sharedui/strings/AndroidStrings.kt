@@ -36,4 +36,11 @@ class AndroidStrings(private val context: Context) : Strings {
     override val mapTitle: String get() = context.getString(R.string.doc_type_map)
     override val dictionaryTitle: String get() = context.getString(R.string.dictionary)
     override val searchHint: String get() = context.getString(R.string.search)
+    override val bible: String get() = context.getString(R.string.bible)
+    override val deuterocanonical: String get() = context.getString(R.string.deuterocanonical)
+    override val menuAlphabetical: String get() = context.getString(R.string.sort_by_alphabetical)
+    override val menuRowOrder: String get() = context.getString(R.string.book_menu_sort_row_opt)
+    override val menuGroupByCategory: String get() = context.getString(R.string.book_menu_group_by_category)
+    override val menuShowLongName: String get() = context.getString(R.string.book_menu_show_long_book_name)
+    override val menuShowProgressBars: String get() = context.getString(R.string.book_menu_show_progress_bars)
 }
