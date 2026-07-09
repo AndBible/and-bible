@@ -85,6 +85,7 @@ fun DocumentSelectionScreen(
     deleteVisible: Boolean,
     onDismissError: () -> Unit,
     onNavigateUp: () -> Unit,
+    onExitSelection: () -> Unit,
 ) {
     val strings = LocalStrings.current
     // Language dropdown: null = all languages, then the concrete options.
@@ -98,9 +99,9 @@ fun DocumentSelectionScreen(
         selectionMode = selectionMode,
         selectedCount = selectedIds.size,
         onNavigateUp = onNavigateUp,
-        // No dedicated exit-selection callback in this signature: the host dispatches
-        // back/exit-selection through onNavigateUp (it clears selection when in selection mode).
-        onExitSelection = onNavigateUp,
+        // Tapping the selection-CAB Close (X) exits selection mode only; the host wires this to
+        // controller::clearSelection. onNavigateUp still leaves the whole screen (finish()).
+        onExitSelection = onExitSelection,
         actions = topBarActions,
         selectionActions = {
             IconButton(onClick = onSelectionAbout) {
