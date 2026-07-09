@@ -12,6 +12,9 @@ interface Strings {
     val calcWrongFormat: String
     val calcWrongFormatOperand: String
     val calcDivisionByZero: String
+    fun historyFor(workspace: String, window: Int): String
+    val errorOccurred: String
+    val okay: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

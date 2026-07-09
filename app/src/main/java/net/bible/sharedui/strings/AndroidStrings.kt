@@ -8,4 +8,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val calcWrongFormat: String get() = context.getString(R.string.calc_wrong_format)
     override val calcWrongFormatOperand: String get() = context.getString(R.string.calc_wrong_format_operand)
     override val calcDivisionByZero: String get() = context.getString(R.string.calc_division_by_zero)
+    override fun historyFor(workspace: String, window: Int): String =
+        context.getString(R.string.history_for, workspace, window)
+    override val errorOccurred: String get() = context.getString(R.string.error_occurred)
+    override val okay: String get() = context.getString(R.string.okay)
 }
