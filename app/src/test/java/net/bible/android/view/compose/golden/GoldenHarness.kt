@@ -4,7 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
+import com.github.takahirom.roborazzi.RoborazziComposeOptions
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.github.takahirom.roborazzi.inspectionMode
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.theme.AbTheme
@@ -33,8 +36,16 @@ val EDGE_MODE: GoldenMode = GoldenMode.LIGHT
  * Render [content] wrapped exactly as the Compose hosts wrap it (ProvideAppLocals > AbTheme),
  * for the given [mode], and capture it to app/src/test/roborazzi/<screen>_<state>_<tag>.png.
  */
+@OptIn(ExperimentalRoborazziApi::class)
 fun captureGolden(screen: String, state: String, mode: GoldenMode, content: @Composable () -> Unit) {
-    captureRoboImage("src/test/roborazzi/${screen}_${state}_${mode.tag}.png") {
+    // inspectionMode=true sets LocalInspectionMode, which makes Compose's InfiniteTransition
+    // skip its animation LaunchedEffect and hold values at their deterministic initial state.
+    // Without this, animating widgets (e.g. Material3's indeterminate LinearProgressIndicator)
+    // are captured at an arbitrary animation phase, making the golden flaky (record != verify).
+    captureRoboImage(
+        "src/test/roborazzi/${screen}_${state}_${mode.tag}.png",
+        roborazziComposeOptions = RoborazziComposeOptions { inspectionMode(true) },
+    ) {
         val dir = if (mode.rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
         CompositionLocalProvider(LocalLayoutDirection provides dir) {
             ProvideAppLocals {
