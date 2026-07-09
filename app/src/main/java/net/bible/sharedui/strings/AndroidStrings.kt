@@ -32,4 +32,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val stop: String get() = context.getString(R.string.stop)
     override val pause: String get() = context.getString(R.string.pause)
     override val done: String get() = context.getString(R.string.done)
+    override val generalBookTitle: String get() = context.getString(R.string.general_book)
+    override val mapTitle: String get() = context.getString(R.string.doc_type_map)
+    override val dictionaryTitle: String get() = context.getString(R.string.dictionary)
+    override val searchHint: String get() = context.getString(R.string.search)
 }

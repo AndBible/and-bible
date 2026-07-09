@@ -39,6 +39,12 @@ interface Strings {
     val stop: String
     val pause: String
     val done: String
+
+    // Batch 3a — navigation choosers
+    val generalBookTitle: String
+    val mapTitle: String
+    val dictionaryTitle: String
+    val searchHint: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
