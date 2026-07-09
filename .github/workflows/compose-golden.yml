@@ -1,0 +1,77 @@
+name: Compose golden screenshots
+
+on:
+  push:
+    branches:
+      - develop
+      - 'current-stable'
+      - 'release/*'
+    paths:
+      - '**/*.kt'
+      - '**/*.kts'
+      - 'app/src/test/roborazzi/**'
+  pull_request:
+    paths:
+      - '**/*.kt'
+      - '**/*.kts'
+      - 'app/src/test/roborazzi/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-goldens:
+    runs-on: ubuntu-24.04
+    # Native-graphics Robolectric rendering is slow headless (~24 min locally for all goldens; a CI
+    # runner is slower). Give it generous headroom rather than the implicit default.
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 10
+        submodules: recursive
+
+    - name: Initialize jsword submodule with shallow clone
+      run: git submodule update --init --depth=1
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Set up Node.js environment
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    - name: Cache gradle dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+          ~/.android/build-cache
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: ${{ runner.os }}-gradle-
+
+    # Scope to the golden test package: the Roborazzi verify task runs the variant's whole unit-test
+    # suite, which includes an unrelated pre-existing failure (EpubBackendStateTest, needs specific
+    # SWORD modules). We deliberately skip the Sword download above, so scope the run to the golden
+    # tests. Any new golden test must live in net.bible.android.view.compose.golden.* to be covered.
+    - name: Verify Compose golden screenshots
+      run: ./gradlew --console plain verifyRoborazziStandardGoogleplayDebug --tests "net.bible.android.view.compose.golden.*"
+
+    - name: Upload golden diff images on failure
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: roborazzi-diffs
+        path: app/build/outputs/roborazzi/**
+        retention-days: 5
+
+    - name: Before saving cache
+      run: |
+        rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        rm -fr $HOME/.gradle/caches/*/plugin-resolution/
