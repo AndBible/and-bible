@@ -21,6 +21,9 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
+import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.download.DownloadComposeActivity
+import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.History
@@ -149,5 +152,22 @@ class ScreenLauncherTest {
         assertEquals(GridChoosePassageComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GridChoosePassageBook))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(GridChoosePassageBook::class.java, ScreenLauncher.targetFor(Screen.GridChoosePassageBook))
+    }
+
+    @Test
+    fun download_routes_old_and_new() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(DownloadComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Download))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(DownloadActivity::class.java, ScreenLauncher.targetFor(Screen.Download))
+    }
+
+    @Test
+    fun firstDownload_routes_old_and_new() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        // new: same DownloadComposeActivity (the firstDownload extra differentiates behaviour)
+        assertEquals(DownloadComposeActivity::class.java, ScreenLauncher.targetFor(Screen.FirstDownload))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(FirstDownload::class.java, ScreenLauncher.targetFor(Screen.FirstDownload))
     }
 }

@@ -21,6 +21,9 @@ import android.content.Context
 import android.content.Intent
 import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
+import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.download.DownloadComposeActivity
+import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
@@ -44,7 +47,7 @@ import net.bible.android.view.activity.search.SearchIndexProgressStatus
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument }
+enum class Screen { Calculator, History, SearchIndexProgress, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -90,6 +93,15 @@ object ScreenLauncher {
         Screen.ChooseDocument ->
             if (useComposeFor(screen)) ChooseDocumentComposeActivity::class.java
             else ChooseDocument::class.java
+        Screen.Download ->
+            if (useComposeFor(screen)) DownloadComposeActivity::class.java
+            else DownloadActivity::class.java
+        Screen.FirstDownload ->
+            // Compose FirstDownload = the shared DownloadComposeActivity + EXTRA_FIRST_DOWNLOAD.
+            // intentFor stays generic (no extra injected here); callers add
+            // DownloadComposeActivity.EXTRA_FIRST_DOWNLOAD themselves.
+            if (useComposeFor(screen)) DownloadComposeActivity::class.java
+            else FirstDownload::class.java
     }
 
     /**
