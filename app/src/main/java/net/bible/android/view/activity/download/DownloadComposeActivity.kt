@@ -24,6 +24,11 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
@@ -34,6 +39,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -88,8 +96,12 @@ import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.theme.AbTheme
+import org.crosswire.common.progress.JobManager
+import org.crosswire.common.progress.WorkEvent
+import org.crosswire.common.progress.WorkListener
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.koin.android.ext.android.inject
 import java.io.File
@@ -151,6 +163,31 @@ open class DownloadComposeActivity : ActivityBase() {
 
     private val downloadDefaults get() = intent.extras?.getBoolean("download-recommended") == true
 
+    /** FirstDownload onboarding variant (classic [FirstDownload]): shows an OK gate + hides installZip. */
+    private val firstDownload get() = intent.getBooleanExtra(EXTRA_FIRST_DOWNLOAD, false)
+
+    /**
+     * Drives the OK button's enabled state in [firstDownload] mode: true once ≥1 Bible is installed.
+     * Latches (classic `okayButtonEnabled` never flips back off), fed by [downloadCompletionListener].
+     */
+    private val hasBible = MutableStateFlow(false)
+
+    /** Mirror of classic FirstDownload's JobManager WorkListener: enable OK once a Bible finishes downloading. */
+    private val downloadCompletionListener = object : WorkListener {
+        override fun workProgressed(workEvent: WorkEvent) {
+            if (workEvent.job.isFinished) updateHasBible()
+        }
+        // Never called by JSword in practice, so all the work is done in workProgressed (classic note).
+        override fun workStateChanged(workEvent: WorkEvent) {}
+    }
+
+    /** Latching check: once a Bible is installed, OK stays enabled (classic enableOkayButtonIfBibles). */
+    private fun updateHasBible() {
+        if (!hasBible.value) {
+            hasBible.value = Books.installed().books.any { it.bookCategory == BookCategory.BIBLE }
+        }
+    }
+
     private val controller by lazy {
         DocumentSelectionController(
             // classic sortLanguages order (RelevantLanguageSorter): rank by the precomputed index.
@@ -170,6 +207,8 @@ open class DownloadComposeActivity : ActivityBase() {
         super.onCreate(savedInstanceState)
         downloadManager = DownloadManager { }
         repoFactory = RepoFactory(downloadManager)
+
+        if (firstDownload) updateHasBible() // seed the OK gate once on create
 
         controller.setTypeFilter(initialTypeFilter())
         intent.getStringExtra("search")?.let { controller.setQuery(it) }
@@ -226,7 +265,9 @@ open class DownloadComposeActivity : ActivityBase() {
                     val isRefreshing by refreshing.collectAsState()
 
                     val firstSelected = displayed.firstOrNull { it.docId in selectedIds }
+                    val bibleInstalled by hasBible.collectAsState()
 
+                    Box(modifier = Modifier.fillMaxSize()) {
                     DocumentSelectionScreen(
                         title = strings.downloadDocuments,
                         downloadMode = true,
@@ -281,21 +322,50 @@ open class DownloadComposeActivity : ActivityBase() {
                         onNavigateUp = { finish() },
                         onExitSelection = controller::clearSelection,
                     )
+
+                    // FirstDownload onboarding OK gate: overlay a bottom button, enabled once a
+                    // Bible is installed; returns DOWNLOAD_FINISH so StartupActivity proceeds.
+                    if (firstDownload) {
+                        Button(
+                            onClick = { onOkay() },
+                            enabled = bibleInstalled,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                        ) {
+                            Text(strings.okay)
+                        }
+                    }
+                    }
                 }
             }
         }
+    }
+
+    /** Classic FirstDownload.onOkay: return DOWNLOAD_FINISH so StartupActivity advances to the main app. */
+    private fun onOkay() {
+        setResult(DownloadActivity.DOWNLOAD_FINISH)
+        finish()
     }
 
     override fun onStart() {
         super.onStart()
         bridge.register()
         downloadControl.startMonitoringDownloads()
+        if (firstDownload) {
+            updateHasBible()
+            JobManager.addWorkListener(downloadCompletionListener)
+        }
     }
 
     override fun onStop() {
         super.onStop()
         bridge.unregister()
         downloadControl.stopMonitoringDownloads()
+        if (firstDownload) {
+            JobManager.removeWorkListener(downloadCompletionListener)
+        }
     }
 
     // --- Network JSON (ported verbatim from classic DownloadActivity) -----------------------
@@ -706,10 +776,12 @@ open class DownloadComposeActivity : ActivityBase() {
                     onClick = { expanded = false; showErrors() },
                 )
             }
-            DropdownMenuItem(
-                text = { Text(getString(R.string.install_zip)) },
-                onClick = { expanded = false; onInstallZip() },
-            )
+            if (!firstDownload) { // classic FirstDownload hides installZip
+                DropdownMenuItem(
+                    text = { Text(getString(R.string.install_zip)) },
+                    onClick = { expanded = false; onInstallZip() },
+                )
+            }
             DropdownMenuItem(
                 text = { Text(getString(R.string.custom_repositories)) },
                 onClick = { expanded = false; onCustomRepositories() },
@@ -795,6 +867,8 @@ open class DownloadComposeActivity : ActivityBase() {
     }
 
     companion object {
+        /** Intent extra: run the FirstDownload onboarding variant (OK gate + installZip hidden). */
+        const val EXTRA_FIRST_DOWNLOAD = "firstDownload"
         private const val REPO_REFRESH_DATE = "repoRefreshDate"
         private const val REPO_LIST_STALE_AFTER_DAYS: Long = 1
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
