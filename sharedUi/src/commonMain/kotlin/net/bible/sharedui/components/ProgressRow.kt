@@ -27,7 +27,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
+
+/**
+ * An indeterminate linear progress bar for loading states.
+ *
+ * Under inspection (Compose previews / Roborazzi golden tests) it renders a deterministic,
+ * frozen determinate frame instead of the animated indeterminate bar. This is required because
+ * Roborazzi's `inspectionMode(true)` sets `LocalInspectionMode` but does NOT freeze Compose
+ * `InfiniteTransition`, so a real indeterminate `LinearProgressIndicator` captures a bistable
+ * animation frame → non-deterministic golden verify. `LocalInspectionMode` is FALSE in
+ * production, so this branch is inert at runtime (zero behavior change).
+ */
+@Composable
+fun AbLoadingIndicator(modifier: Modifier = Modifier) {
+    if (LocalInspectionMode.current) {
+        LinearProgressIndicator(progress = { 0f }, modifier = modifier)
+    } else {
+        LinearProgressIndicator(modifier = modifier)
+    }
+}
 
 /** A label + linear progress bar; indeterminate when [indeterminate], else determinate at [percent]%. */
 @Composable
@@ -36,7 +56,7 @@ fun ProgressRow(label: String, percent: Int, indeterminate: Boolean, modifier: M
         Text(text = label, style = MaterialTheme.typography.bodyMedium)
         Spacer(Modifier.height(4.dp))
         if (indeterminate) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            AbLoadingIndicator(modifier = Modifier.fillMaxWidth())
         } else {
             LinearProgressIndicator(progress = { percent / 100f }, modifier = Modifier.fillMaxWidth())
         }

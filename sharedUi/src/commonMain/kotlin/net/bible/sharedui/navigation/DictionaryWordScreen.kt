@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.navigation.ChooserError
 import net.bible.sharedcore.navigation.DictRow
 import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.strings.LocalStrings
@@ -57,7 +57,7 @@ fun ChooseDictionaryWordScreen(
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             AbSearchField(value = query, onValueChange = onQueryChange, placeholder = hint)
             if (loading) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
+                AbLoadingIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
             }
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(rows, key = { it.keyId }) { row ->

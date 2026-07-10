@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +41,7 @@ import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbPullToRefresh
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.components.AbSelectionScaffold
@@ -147,7 +147,7 @@ fun DocumentSelectionScreen(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
             )
             if (loading) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
+                AbLoadingIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
             }
             if (onRefresh != null) {
                 AbPullToRefresh(isRefreshing = isRefreshing, onRefresh = onRefresh) {
