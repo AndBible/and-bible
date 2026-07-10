@@ -62,4 +62,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun deleteSearchIndexDoc(name: String): String = context.getString(R.string.delete_search_index_doc, name)
     override val cantDeleteDocument: String get() = context.getString(R.string.cant_delete_document)
     override val downloadDocuments: String get() = context.getString(R.string.download)
+
+    // Batch 4b — download
+    override fun moduleSizeMb(mb: Double): String = context.getString(R.string.module_size_megabytes, mb)
+    override val cancel: String get() = context.getString(R.string.cancel)
 }

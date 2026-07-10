@@ -73,6 +73,10 @@ interface Strings {
     fun deleteSearchIndexDoc(name: String): String
     val cantDeleteDocument: String
     val downloadDocuments: String
+
+    // Batch 4b — download
+    fun moduleSizeMb(mb: Double): String
+    val cancel: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
