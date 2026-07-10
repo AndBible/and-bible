@@ -68,6 +68,63 @@ class DocumentSelectionGoldenTest {
 
     private val resultCount = "5 documents"
 
+    /**
+     * Download-mode fixture: install sizes on every row, a variety of install states including
+     * a NOT_INSTALLED row (renders the download affordance) and a BEING_INSTALLED row
+     * (determinate progress bar + cancel at [downloadInstallingRows]).
+     */
+    private val downloadRows = listOf(
+        DocRow(
+            docId = "ESV2011", osisId = "ESV2011", abbreviation = "ESV", name = "English Standard Version",
+            language = english, repository = "CrossWire", category = DocCategory.BIBLE,
+            installStatus = DocInstallStatus.NOT_INSTALLED, percentDone = 0, recommended = true,
+            badWarn = false, locked = false, enciphered = false, canDelete = false, installSizeMb = 3.8,
+        ),
+        DocRow(
+            docId = "NET", osisId = "NET", abbreviation = "NET", name = "New English Translation",
+            language = english, repository = "CrossWire", category = DocCategory.BIBLE,
+            installStatus = DocInstallStatus.NOT_INSTALLED, percentDone = 0, recommended = false,
+            badWarn = false, locked = false, enciphered = false, canDelete = false, installSizeMb = 5.6,
+        ),
+        DocRow(
+            docId = "KJV", osisId = "KJV", abbreviation = "KJV", name = "King James Version",
+            language = english, repository = "CrossWire", category = DocCategory.BIBLE,
+            installStatus = DocInstallStatus.INSTALLED, percentDone = 0, recommended = false,
+            badWarn = false, locked = false, enciphered = false, canDelete = true, installSizeMb = 4.2,
+        ),
+        DocRow(
+            docId = "MHC", osisId = "MHC", abbreviation = "MHC", name = "Matthew Henry Commentary",
+            language = english, repository = "CrossWire", category = DocCategory.COMMENTARY,
+            installStatus = DocInstallStatus.NOT_INSTALLED, percentDone = 0, recommended = false,
+            badWarn = false, locked = false, enciphered = false, canDelete = false, installSizeMb = 12.5,
+        ),
+        DocRow(
+            docId = "StrongsGreek", osisId = "StrongsGreek", abbreviation = "Strong", name = "Strong's Greek Dictionary",
+            language = greek, repository = "CrossWire", category = DocCategory.DICTIONARY,
+            installStatus = DocInstallStatus.UPGRADE_AVAILABLE, percentDone = 0, recommended = false,
+            badWarn = false, locked = false, enciphered = false, canDelete = true, installSizeMb = 1.1,
+        ),
+        DocRow(
+            docId = "Josephus", osisId = "Josephus", abbreviation = "Jos", name = "Works of Josephus",
+            language = english, repository = "CrossWire", category = DocCategory.GENERAL_BOOK,
+            installStatus = DocInstallStatus.NOT_INSTALLED, percentDone = 0, recommended = false,
+            badWarn = false, locked = false, enciphered = false, canDelete = false, installSizeMb = 8.9,
+        ),
+        DocRow(
+            docId = "Maps", osisId = "Maps", abbreviation = "Maps", name = "Bible Maps",
+            language = english, repository = "CrossWire", category = DocCategory.MAPS,
+            installStatus = DocInstallStatus.NOT_INSTALLED, percentDone = 0, recommended = false,
+            badWarn = false, locked = false, enciphered = false, canDelete = false, installSizeMb = 22.3,
+        ),
+    )
+
+    /** Same as [downloadRows] but with the first NOT_INSTALLED row switched to a mid-download state. */
+    private val downloadInstallingRows = downloadRows.mapIndexed { index, row ->
+        if (index == 0) row.copy(installStatus = DocInstallStatus.BEING_INSTALLED, percentDone = 45) else row
+    }
+
+    private val downloadResultCount = "7 documents"
+
     @Composable
     private fun screen(
         loading: Boolean = false,
@@ -77,12 +134,14 @@ class DocumentSelectionGoldenTest {
         selectedIds: Set<String> = emptySet(),
         deleteVisible: Boolean = false,
         unlockVisible: Boolean = false,
+        downloadMode: Boolean = false,
+        isRefreshing: Boolean = false,
     ) = DocumentSelectionScreen(
-        title = "Documents",
-        downloadMode = false,
+        title = if (downloadMode) "Download documents" else "Documents",
+        downloadMode = downloadMode,
         loading = loading,
-        isRefreshing = false,
-        onRefresh = null,
+        isRefreshing = isRefreshing,
+        onRefresh = if (downloadMode) ({}) else null,
         displayed = displayed,
         languages = languages,
         selectedLanguage = null,
@@ -142,6 +201,32 @@ class DocumentSelectionGoldenTest {
     @Test fun chooseDocument_loading() {
         captureGolden("ChooseDocument", "loading", EDGE_MODE) {
             screen(loading = true, displayed = emptyList())
+        }
+    }
+
+    @Test fun download_populated() {
+        captureMatrix("Download", "populated") {
+            screen(downloadMode = true, displayed = downloadRows, count = downloadResultCount)
+        }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
+    fun download_populated_rtl() {
+        captureRtl("Download", "populated") {
+            screen(downloadMode = true, displayed = downloadRows, count = downloadResultCount)
+        }
+    }
+
+    @Test fun download_installing() {
+        captureGolden("Download", "installing", EDGE_MODE) {
+            screen(downloadMode = true, displayed = downloadInstallingRows, count = downloadResultCount)
+        }
+    }
+
+    @Test fun download_refreshing() {
+        captureGolden("Download", "refreshing", EDGE_MODE) {
+            screen(downloadMode = true, displayed = downloadRows, count = downloadResultCount, isRefreshing = true)
         }
     }
 }
