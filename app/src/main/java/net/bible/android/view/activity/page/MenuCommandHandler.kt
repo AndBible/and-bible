@@ -44,7 +44,6 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.ai.AiSettingsActivity
@@ -203,7 +202,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     isHandled = true
                 }
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
-                    handlerIntent = Intent(mainBibleActivity, DownloadActivity::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.Download)
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
                 R.id.helpButton -> {

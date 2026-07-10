@@ -48,7 +48,8 @@ import net.bible.android.database.DocumentSearch
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.installedDocument
-import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
@@ -387,8 +388,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
     private fun onDownload() {
         try {
             if (downloadControl.checkDownloadOkay()) {
-                // TODO Plan B: ScreenLauncher.intentFor(this, Screen.Download)
-                val handlerIntent = Intent(this, DownloadActivity::class.java)
+                val handlerIntent = ScreenLauncher.intentFor(this, Screen.Download)
                 lifecycleScope.launch {
                     awaitIntent(handlerIntent)
                     ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())

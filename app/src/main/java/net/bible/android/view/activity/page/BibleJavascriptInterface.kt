@@ -57,7 +57,6 @@ import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.progress.ReadingSource
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
-import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.progress.ReadHistoryDialog
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
@@ -364,7 +363,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openDownloads() {
         if (!downloadControl.checkDownloadOkay()) return
-        val intent = Intent(mainBibleActivity, DownloadActivity::class.java)
+        val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.Download)
         intent.putExtra("addons", true)
         mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
     }
