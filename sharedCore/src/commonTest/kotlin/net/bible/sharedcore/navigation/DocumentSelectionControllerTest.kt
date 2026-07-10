@@ -139,4 +139,38 @@ class DocumentSelectionControllerTest {
         c.showError(); assertEquals(ChooserError.FAILED, c.error.value)
         c.dismissError(); assertNull(c.error.value)
     }
+
+    @Test fun updateDownloadStatus_floats_being_installed_and_preserves_selection() {
+        val c = controller()
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE, abbr = "a"), row("b", DocCategory.BIBLE, abbr = "b")), null)
+        c.setTypeFilter(DocTypeFilter.ALL)
+        assertEquals(listOf("a", "b"), c.displayed.value.map { it.docId })
+        // Enter selection and select "a" — a progress tick must NOT wipe this.
+        c.enterSelection(); c.toggle("a")
+        assertTrue(c.selectionMode.value); assertEquals(setOf("a"), c.selectedIds.value)
+
+        // A progress update on the OTHER row -> it becomes BEING_INSTALLED and floats to the top.
+        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 30)
+
+        assertEquals(listOf("b", "a"), c.displayed.value.map { it.docId }) // being-installed floats first
+        val bRow = c.displayed.value.first { it.docId == "b" }
+        assertEquals(DocInstallStatus.BEING_INSTALLED, bRow.installStatus)
+        assertEquals(30, bRow.percentDone)
+        // Selection preserved.
+        assertTrue(c.selectionMode.value); assertEquals(setOf("a"), c.selectedIds.value)
+    }
+
+    @Test fun updateDownloadStatus_noop_when_unchanged() {
+        val c = controller()
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), null)
+        c.setTypeFilter(DocTypeFilter.ALL)
+        c.updateDownloadStatus("a", DocInstallStatus.BEING_INSTALLED, 40)
+        val before = c.displayed.value
+        // Same status+percent -> no change, same list instance (early return).
+        c.updateDownloadStatus("a", DocInstallStatus.BEING_INSTALLED, 40)
+        assertTrue(before === c.displayed.value)
+        // Unknown docId -> no change.
+        c.updateDownloadStatus("does-not-exist", DocInstallStatus.INSTALLED, 100)
+        assertTrue(before === c.displayed.value)
+    }
 }

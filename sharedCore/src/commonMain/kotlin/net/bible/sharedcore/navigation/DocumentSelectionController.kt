@@ -73,6 +73,20 @@ class DocumentSelectionController(
         refilter()
     }
 
+    /** Update one row's live download status/progress and re-sort WITHOUT clearing selection or re-running load. */
+    fun updateDownloadStatus(docId: String, status: DocInstallStatus, percentDone: Int) {
+        val idx = all.indexOfFirst { it.docId == docId }
+        if (idx < 0) return
+        val cur = all[idx]
+        if (cur.installStatus == status && cur.percentDone == percentDone) return
+        all = all.toMutableList().apply { this[idx] = cur.copy(installStatus = status, percentDone = percentDone) }
+        _documents.value = all
+        // re-sort/filter the displayed list (float BEING_INSTALLED to top) but DO NOT clearSelection()
+        val out = computeDisplayed(all, _selectedLanguage.value, _selectedTypeFilter.value, searchIds)
+        _displayed.value = out
+        _resultCount.value = out.size
+    }
+
     fun setSearchResults(osisIds: Set<String>?) { searchIds = osisIds; refilter() }
     fun setQuery(q: String) { _query.value = q } // host observes query, runs FTS when >=3, calls setSearchResults
     fun setLanguage(lang: LangOption?) { _selectedLanguage.value = lang; onStickyLanguage(lang); refilter() }

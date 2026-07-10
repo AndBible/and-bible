@@ -131,7 +131,7 @@ open class DownloadComposeActivity : ActivityBase() {
     private var badDocuments: DocumentConfiguration? = null
     private var pseudoBooks: List<PseudoBook>? = null
 
-    /** docId (Book.initials) -> Book, rebuilt on every (re)load. */
+    /** docId (Book.repoIdentity) -> Book, rebuilt on every (re)load. repoIdentity is unique per repo+initials. */
     private var booksById: Map<String, Book> = emptyMap()
     /** The full loaded book list (for findBookByInitials in the auto-download extras). */
     private var allBooks: List<Book> = emptyList()
@@ -412,8 +412,12 @@ open class DownloadComposeActivity : ActivityBase() {
                     .map { it.toDocRow(grouping, langByKey) }
             }
             allBooks = books
-            booksById = books.associateBy { it.initials }
-            bridge.setRepoIdentityMap(books.associate { it.repoIdentity to it.initials })
+            // docId is the opaque repoIdentity ("repo--initials"), unique per repo+initials, so two
+            // repos exposing the same initials produce two distinct, independently-addressable rows.
+            booksById = books.associateBy { it.repoIdentity }
+            // Progress events already carry repoIdentity as DocumentStatus.id, and docId == repoIdentity now,
+            // so the bridge's repoIdentity -> docId map is the identity.
+            bridge.setRepoIdentityMap(books.associate { it.repoIdentity to it.repoIdentity })
             currentRows = rows
             controller.setDocuments(rows, currentSearchIds)
         } catch (e: Exception) {
@@ -428,7 +432,7 @@ open class DownloadComposeActivity : ActivityBase() {
         val sizeMb = bookMetaData.getProperty(SwordBookMetaData.KEY_INSTALL_SIZE)
             ?.toDoubleOrNull()?.let { it / 1e6 }
         return DocRow(
-            docId = initials,
+            docId = repoIdentity,
             osisId = osisID,
             abbreviation = abbreviation,
             name = name,
@@ -450,23 +454,28 @@ open class DownloadComposeActivity : ActivityBase() {
 
     private fun applyProgress(statusMap: Map<String, RowDownloadStatus>) {
         if (statusMap.isEmpty()) return
-        val updated = currentRows.map { row ->
-            val s = statusMap[row.docId]
-            if (s != null && (row.installStatus != s.status || row.percentDone != s.percentDone)) {
-                row.copy(installStatus = s.status, percentDone = s.percentDone)
-            } else row
+        // Push each row's live status straight into the controller, which re-sorts (floating
+        // BEING_INSTALLED rows to the top, classic notifyDataSetChanged parity) WITHOUT clearing an
+        // active multi-selection — unlike setDocuments()/refilter(), which would call clearSelection()
+        // on every progress tick. Keep the host-side currentRows mirror in sync so a later
+        // refreshRowStatus()/setDocuments() doesn't revert the in-progress status.
+        var mirror = currentRows
+        for ((docId, s) in statusMap) {
+            controller.updateDownloadStatus(docId, s.status, s.percentDone)
+            mirror = mirror.map { row ->
+                if (row.docId == docId && (row.installStatus != s.status || row.percentDone != s.percentDone)) {
+                    row.copy(installStatus = s.status, percentDone = s.percentDone)
+                } else row
+            }
         }
-        if (updated != currentRows) {
-            currentRows = updated
-            controller.setDocuments(updated, currentSearchIds)
-        }
+        currentRows = mirror
     }
 
     /** Refresh one row's status directly from getDocumentStatus (immediate feedback on download start). */
     private fun refreshRowStatus(book: Book) {
         val status = downloadControl.getDocumentStatus(book)
         val updated = currentRows.map { row ->
-            if (row.docId == book.initials) {
+            if (row.docId == book.repoIdentity) {
                 row.copy(
                     installStatus = status.documentInstallStatus.toDocInstallStatus(),
                     percentDone = status.percentDone,
