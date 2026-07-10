@@ -405,6 +405,13 @@
             android:parentActivityName=".StartupActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.download.DownloadComposeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/download"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".StartupActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.download.ProgressStatus"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/progress_status"
