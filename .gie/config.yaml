@@ -121,10 +121,9 @@ defaults:
 # Golden image config. Versions match the repo's documented requirements
 # (CLAUDE.md): Java 17, Node 20.
 golden:
-  ubuntu_version: "25.10"
+  ubuntu_version: "26.04"
   java: amazon-corretto-17
   node: 20
-  python: "3.13"
   # android-tools-adb gives the container an adb-client; the actual
   # adb-server runs on the host (see adb model comment above).
   extra_apt_packages:
