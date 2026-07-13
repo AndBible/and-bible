@@ -28,6 +28,19 @@
     -->
 	<style name="AppTheme" parent="@style/BaseAppTheme"/>
 
+	<!-- Shared window theme for the Compose UI host Activities. Inherits every AppTheme
+	     window attribute (status/nav bar colours, cutout, text direction, edge-to-edge) but
+	     removes the native AppCompat ActionBar: Compose hosts draw their own Material3
+	     TopAppBar (via AbScaffold / AbSelectionScaffold), so the inherited DarkActionBar
+	     would render a second, redundant bar above it (confirmed by ComposeHostActionBarTest).
+	     Every theme-less Compose host is switched to this in AndroidManifest.xml. Excluded:
+	     CalculatorComposeActivity (draws no Compose top bar — keeps the classic look) and
+	     HistoryComposeActivity (deliberately dialog-styled for context retention). -->
+	<style name="Theme.AbCompose" parent="@style/AppTheme">
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
 	<style name="BaseAppTheme" parent="BaseAppTheme1"/>
 
 	<style name="BaseAppTheme1" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">

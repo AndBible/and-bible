@@ -101,6 +101,7 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity"
+            android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/chooseBook"
             android:windowSoftInputMode="adjustResize"
@@ -129,7 +130,7 @@
         <activity
             android:name="net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity"
             android:configChanges="keyboardHidden|locale"
-            android:theme="@style/GridChoosePassageTheme" />
+            android:theme="@style/Theme.AbCompose" />
         <activity
             android:name="net.bible.android.view.activity.search.Search"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -164,6 +165,7 @@
             />
         <activity
             android:name="net.bible.android.view.activity.search.SearchIndexProgressComposeActivity"
+            android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search_index"
             />
@@ -252,6 +254,7 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity"
+            android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"
             android:windowSoftInputMode="adjustResize"
@@ -263,6 +266,7 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity"
+            android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/general_book"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
@@ -273,6 +277,7 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity"
+            android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/doc_type_map"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
@@ -284,6 +289,7 @@
             />
         <activity
             android:name="net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity"
+            android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/rdg_plan_selector_title"
             android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReading"
@@ -296,6 +302,7 @@
             />
         <activity
             android:name="net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity"
+            android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/rdg_plan_title"
             android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReading"
@@ -307,6 +314,7 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.readingplan.DailyReadingComposeActivity"
+            android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/rdg_plan_title"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
@@ -406,6 +414,7 @@
             />
         <activity
             android:name="net.bible.android.view.activity.download.DownloadComposeActivity"
+            android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/download"
             android:windowSoftInputMode="adjustResize"
