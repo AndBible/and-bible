@@ -42,6 +42,10 @@ import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
+import net.bible.android.view.activity.search.EpubSearch
+import net.bible.android.view.activity.search.EpubSearchComposeActivity
+import net.bible.android.view.activity.search.EpubSearchResults
+import net.bible.android.view.activity.search.EpubSearchResultsComposeActivity
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchComposeActivity
 import net.bible.android.view.activity.search.SearchIndex
@@ -53,7 +57,7 @@ import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -117,6 +121,12 @@ object ScreenLauncher {
         Screen.Search ->
             if (useComposeFor(screen)) SearchComposeActivity::class.java
             else Search::class.java
+        Screen.EpubSearch ->
+            if (useComposeFor(screen)) EpubSearchComposeActivity::class.java
+            else EpubSearch::class.java
+        Screen.EpubSearchResults ->
+            if (useComposeFor(screen)) EpubSearchResultsComposeActivity::class.java
+            else EpubSearchResults::class.java
     }
 
     /**
