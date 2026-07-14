@@ -71,7 +71,8 @@ import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.PseudoBook
 import net.bible.android.view.activity.base.installedDocument
-import net.bible.android.view.activity.cloud.CloudDocumentsActivity
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
@@ -789,7 +790,7 @@ open class DownloadComposeActivity : ActivityBase() {
             if (DocumentSyncSettings.enabled) {
                 DropdownMenuItem(
                     text = { Text(getString(R.string.document_sync_manage_title)) },
-                    onClick = { expanded = false; startActivity(Intent(this@DownloadComposeActivity, CloudDocumentsActivity::class.java)) },
+                    onClick = { expanded = false; startActivity(ScreenLauncher.intentFor(this@DownloadComposeActivity, Screen.CloudDocuments)) },
                 )
             }
         }

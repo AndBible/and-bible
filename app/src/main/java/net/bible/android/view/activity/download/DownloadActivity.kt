@@ -39,7 +39,8 @@ import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.DocumentConfiguration
-import net.bible.android.view.activity.cloud.CloudDocumentsActivity
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.CommonUtils.json
@@ -508,7 +509,7 @@ open class DownloadActivity : DocumentSelectionBase(
                 isHandled  = true
             }
             R.id.manage_cloud_documents -> {
-                startActivity(Intent(this, CloudDocumentsActivity::class.java))
+                startActivity(ScreenLauncher.intentFor(this, Screen.CloudDocuments))
                 isHandled = true
             }
         }

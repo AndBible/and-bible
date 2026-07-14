@@ -19,6 +19,8 @@ package net.bible.android.view
 
 import android.content.Context
 import android.content.Intent
+import net.bible.android.view.activity.cloud.CloudDocumentsActivity
+import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.android.view.activity.download.DownloadActivity
@@ -61,7 +63,7 @@ import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -137,6 +139,9 @@ object ScreenLauncher {
         Screen.MyDocumentPages ->
             if (useComposeFor(screen)) MyDocumentPagesComposeActivity::class.java
             else MyDocumentPagesActivity::class.java
+        Screen.CloudDocuments ->
+            if (useComposeFor(screen)) CloudDocumentsComposeActivity::class.java
+            else CloudDocumentsActivity::class.java
     }
 
     /**

@@ -17,7 +17,6 @@
 
 package net.bible.android.view.activity.settings
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.format.Formatter
 import android.view.MenuItem
@@ -39,7 +38,8 @@ import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.cloud.CloudDocumentsActivity
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
@@ -172,7 +172,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             }
         }
         preferenceScreen.findPreference<Preference>("document_sync_manage")!!.setOnPreferenceClickListener {
-            startActivity(Intent(requireContext(), CloudDocumentsActivity::class.java))
+            ScreenLauncher.open(requireContext(), Screen.CloudDocuments)
             true
         }
         // The auto-operation and Wi-Fi-only toggles persist into DocumentSyncSettings (the

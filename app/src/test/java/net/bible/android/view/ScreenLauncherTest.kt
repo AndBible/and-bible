@@ -19,6 +19,8 @@ package net.bible.android.view
 
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.view.activity.cloud.CloudDocumentsActivity
+import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
 import net.bible.android.view.activity.download.DownloadActivity
@@ -239,5 +241,13 @@ class ScreenLauncherTest {
         assertEquals(MyDocumentPagesComposeActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocumentPages))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(MyDocumentPagesActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocumentPages))
+    }
+
+    @Test
+    fun cloudDocuments_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(CloudDocumentsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CloudDocuments))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(CloudDocumentsActivity::class.java, ScreenLauncher.targetFor(Screen.CloudDocuments))
     }
 }
