@@ -68,10 +68,12 @@ class CloudDocumentsController(
     fun setShowRemoved(show: Boolean) {
         _showRemoved.value = show
         // The REMOVED filter is only reachable while removed items are shown; hiding them again
-        // must not strand the view on an empty REMOVED list. When that flip happens the effective
-        // filter changed, so recompute `displayed` (and exit selection mode, like the other
-        // filter-changing setters) — otherwise `displayed` stays the stale REMOVED tombstone list
-        // while `statusFilter` reports ALL.
+        // must not strand the view on the REMOVED list. When that flip happens the effective filter
+        // changed, so reset it to ALL and recompute `displayed` (and exit selection mode, like the
+        // other filter-changing setters) — otherwise `statusFilter` would report REMOVED with the
+        // filter no longer available. Tombstone *presence* is the host's job: onShowRemovedChange
+        // re-loads the list with the new includeDeleted value (classic parity), so this controller
+        // only owns which filter is selected, not whether tombstones are in `_items`.
         if (!show && _statusFilter.value == CloudDocFilter.REMOVED) {
             _statusFilter.value = CloudDocFilter.ALL
             refilter(resetSelection = true)
@@ -81,8 +83,9 @@ class CloudDocumentsController(
 
     private fun refilter(resetSelection: Boolean) {
         if (resetSelection) clearSelection()
-        // Feed the FULL item list (tombstones included) into the pure filter; its ALL branch hides
-        // cloudDeleted rows and REMOVED surfaces them. Do NOT strip tombstones here.
+        // Run the pure filter over the current item list. Classic semantics: ALL keeps everything
+        // (tombstones included when present), REMOVED surfaces only tombstones. Tombstone presence
+        // in `_items` is gated by the host's scan (includeDeleted), not stripped here.
         _displayed.value = filterCloudDocuments(_items.value, _statusFilter.value, _query.value, _categoryFilter.value)
     }
 

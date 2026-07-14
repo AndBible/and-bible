@@ -12,7 +12,7 @@ fun filterCloudDocuments(
     val query = nameQuery.trim()
     return items.filter { item ->
         val statusOk = when (status) {
-            CloudDocFilter.ALL -> !item.cloudDeleted
+            CloudDocFilter.ALL -> true
             CloudDocFilter.INSTALLED -> !item.cloudOnly && !item.cloudDeleted
             CloudDocFilter.CLOUD -> !item.localOnly && !item.cloudDeleted
             CloudDocFilter.UPDATES -> item.updateAvailable && !item.cloudDeleted

@@ -13,9 +13,12 @@ class CloudDocFunctionsTest {
     ) = CloudDocItem(initials, name, category, "1.0", "1.0", cloudOnly, localOnly, updateAvailable,
         localNewer, blocked, canDeleteLocal, cloudDeleted, "4.2 MB")
 
-    @Test fun filter_all_keeps_everything_but_tombstones() {
+    @Test fun filter_all_keeps_everything_including_tombstones() {
+        // Classic parity: ALL returns true for every row, tombstones included. Tombstone presence is
+        // gated at the SCAN (includeDeleted), not by this filter — so when a tombstone reaches the
+        // filter (show-removed on), ALL shows it too, exactly like classic CloudDocumentsActivity.
         val items = listOf(item("A"), item("B", cloudDeleted = true))
-        assertEquals(listOf("A"), filterCloudDocuments(items, CloudDocFilter.ALL, "", null).map { it.initials })
+        assertEquals(listOf("A", "B"), filterCloudDocuments(items, CloudDocFilter.ALL, "", null).map { it.initials })
     }
 
     @Test fun filter_removed_only_tombstones() {

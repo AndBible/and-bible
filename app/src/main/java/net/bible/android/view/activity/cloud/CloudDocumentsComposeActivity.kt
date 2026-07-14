@@ -64,11 +64,13 @@ import org.crosswire.jsword.book.BookCategory
  * off-main, and renders [CloudDocumentsScreen]. No result contract — Cloud communicates via
  * EventBus/service.
  *
- * Tombstone contract (cross-task): the controller's ALL filter already hides `cloudDeleted`
- * tombstones and only REMOVED surfaces them, so this host feeds the FULL cache/scan list
- * (INCLUDING tombstones, `includeDeleted = true`) into [CloudDocumentsController.setItems] and gates
- * the REMOVED filter's *availability* on [DocumentSyncSettings.showRemovedDocuments] (see
- * [statusFilterLabels]) rather than pre-stripping tombstone rows.
+ * Tombstone contract (classic parity): tombstone *presence* is controlled by the SCAN, not the
+ * filter. This host scans with `includeDeleted = DocumentSyncSettings.showRemovedDocuments`, so with
+ * "show removed" OFF the scan strips `cloudDeleted` rows at source (they are absent everywhere) and
+ * with it ON they are fed into [CloudDocumentsController.setItems] and appear under ALL (and every
+ * applicable filter) as well as REMOVED — exactly like classic [CloudDocumentsActivity]. The REMOVED
+ * filter's *availability* is also gated on [DocumentSyncSettings.showRemovedDocuments] (see
+ * [statusFilterLabels]), and toggling the setting re-loads the list (see [handleShowRemovedChange]).
  */
 class CloudDocumentsComposeActivity : ActivityBase() {
     private val bridge = CloudSyncProgressBridge()
@@ -160,9 +162,9 @@ class CloudDocumentsComposeActivity : ActivityBase() {
     private fun openOrGate() = lifecycleScope.launch {
         var signedIn = CloudSync.signedIn
         if (!signedIn) signedIn = CloudSync.signIn(this@CloudDocumentsComposeActivity) == true
-        // Always include tombstones so they reach the controller; REMOVED filter availability (not the
-        // input rows) is gated on showRemovedDocuments — see the class KDoc tombstone contract.
-        val cached = withContext(Dispatchers.IO) { DocumentSync.scanCached(includeDeleted = true) }
+        // Classic parity: the scan gates tombstone presence — includeDeleted follows showRemovedDocuments,
+        // so tombstones are stripped at source when show-removed is off. See the class KDoc tombstone contract.
+        val cached = withContext(Dispatchers.IO) { DocumentSync.scanCached(includeDeleted = DocumentSyncSettings.showRemovedDocuments) }
         if (!signedIn && cached.isEmpty()) {
             Toast.makeText(this@CloudDocumentsComposeActivity, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
             finish(); return@launch
@@ -179,7 +181,21 @@ class CloudDocumentsComposeActivity : ActivityBase() {
     private suspend fun refreshFromNetwork() {
         controller.pushBusy(true)
         try {
-            val items = withContext(Dispatchers.IO) { DocumentSync.scan(includeDeleted = true).map { it.toCloudDocItem() } }
+            val items = withContext(Dispatchers.IO) { DocumentSync.scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() } }
+            controller.setItems(items)
+        } finally { controller.pushBusy(false) }
+    }
+
+    /**
+     * Re-loads the list from the local cloud-listing cache only — no network — with the current
+     * [DocumentSyncSettings.showRemovedDocuments] gating tombstone presence. Ported from classic
+     * `renderFromCache`; used by the "show removed" toggle, where the full listing (tombstones
+     * included) is already cached so there is nothing to fetch.
+     */
+    private fun renderFromCache() = lifecycleScope.launch {
+        controller.pushBusy(true)
+        try {
+            val items = withContext(Dispatchers.IO) { DocumentSync.scanCached(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() } }
             controller.setItems(items)
         } finally { controller.pushBusy(false) }
     }
@@ -188,19 +204,23 @@ class CloudDocumentsComposeActivity : ActivityBase() {
         controller.pushBusy(true)
         try {
             withContext(Dispatchers.IO) { block() }
-            val items = withContext(Dispatchers.IO) { DocumentSync.scan(includeDeleted = true).map { it.toCloudDocItem() } }
+            val items = withContext(Dispatchers.IO) { DocumentSync.scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() } }
             controller.setItems(items)
         } finally { controller.pushBusy(false) }
     }
 
     /**
-     * Persists the "show removed" preference. No re-scan is needed under the feed-all tombstone
-     * model: the controller's item list already contains tombstones, so this toggle only changes
-     * the REMOVED filter's availability (and the controller resets a stranded REMOVED selection to
-     * ALL itself in [CloudDocumentsController.setShowRemoved]).
+     * Persists the "show removed" preference and re-loads the list (classic parity). Because the
+     * scan's `includeDeleted` now follows this flag, toggling it changes the underlying list content
+     * (tombstones appear/disappear across ALL and every applicable filter, not just REMOVED), so a
+     * re-load is required. A cached re-read suffices — the full cloud listing (tombstones included)
+     * is already cached (mirrors classic `renderFromCache`); no network fetch is needed. The
+     * controller has already reset a stranded REMOVED selection to ALL in
+     * [CloudDocumentsController.setShowRemoved] before this runs.
      */
     private fun handleShowRemovedChange(show: Boolean) {
         DocumentSyncSettings.showRemovedDocuments = show
+        renderFromCache()
     }
 
     // --- Per-item + bulk actions (ported from classic performAction / performBulkAction) ----

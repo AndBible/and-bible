@@ -29,7 +29,10 @@ class CloudDocumentsControllerTest {
     @Test fun setItems_populates_displayed_via_filter() {
         val c = controller()
         c.setItems(listOf(item("A"), item("B", cloudDeleted = true)))
-        assertEquals(listOf("A"), c.displayed.value.map { it.initials }) // ALL hides tombstones
+        // Classic parity: ALL keeps everything, tombstones included. In the real app the host's scan
+        // (includeDeleted) decides whether a tombstone reaches the controller at all; here it is
+        // injected directly, so ALL surfaces it.
+        assertEquals(listOf("A", "B"), c.displayed.value.map { it.initials })
     }
 
     @Test fun status_and_category_and_query_filters_compose() {
@@ -167,10 +170,13 @@ class CloudDocumentsControllerTest {
 
         c.setShowRemoved(false)
 
-        // Filter flipped REMOVED → ALL, and `displayed` was recomputed to the ALL result (tombstone
-        // gone) rather than left stale on the REMOVED list.
+        // Filter flipped REMOVED → ALL and `displayed` was recomputed to the ALL result rather than
+        // left stale on the REMOVED list. Under classic semantics the controller does NOT strip
+        // tombstones — presence is the host's job (its re-scan with includeDeleted=false would drop
+        // TOMB from `_items`). Here TOMB was injected directly and is still in `_items`, so the
+        // recomputed ALL result includes it.
         assertEquals(CloudDocFilter.ALL, c.statusFilter.value)
-        assertEquals(listOf("A"), c.displayed.value.map { it.initials })
+        assertEquals(listOf("A", "TOMB"), c.displayed.value.map { it.initials })
         assertEquals(
             filterCloudDocuments(c.items.value, CloudDocFilter.ALL, "", null).map { it.initials },
             c.displayed.value.map { it.initials },
