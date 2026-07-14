@@ -85,18 +85,18 @@ class SearchResultsGoldenTest {
     }
 
     @Test fun expanded() {
-        captureGolden("SearchResults", "expanded", EDGE_MODE, screen(initiallyExpanded = setOf("1 Corinthians 13:4")))
+        captureGolden("SearchResults", "expanded", EDGE_MODE, content = screen(initiallyExpanded = setOf("1 Corinthians 13:4")))
     }
 
     @Test fun scripture_toggle() {
-        captureGolden("SearchResults", "scripture_toggle", EDGE_MODE, screen(scriptureToggleVisible = true, scriptureShown = true))
+        captureGolden("SearchResults", "scripture_toggle", EDGE_MODE, content = screen(scriptureToggleVisible = true, scriptureShown = true))
     }
 
     @Test fun empty() {
-        captureGolden("SearchResults", "empty", EDGE_MODE, screen(rows = emptyList()))
+        captureGolden("SearchResults", "empty", EDGE_MODE, content = screen(rows = emptyList()))
     }
 
     @Test fun loading() {
-        captureGolden("SearchResults", "loading", EDGE_MODE, screen(loading = true))
+        captureGolden("SearchResults", "loading", EDGE_MODE, content = screen(loading = true))
     }
 }

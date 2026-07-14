@@ -34,6 +34,22 @@ class CloudDocumentsGoldenTest {
         item("OLD", "Removed Book", cloudDeleted = true),
     )
 
+    // A dedicated sample that produces ALL EIGHT CloudDocStatus values (one row each) so the BW
+    // status matrix golden pins every status's icon + text label in grayscale — including the two
+    // the 6-row `rows` sample never reaches: WONT_SYNC (blocked && localOnly) and
+    // REMOVED_STILL_INSTALLED (cloudDeleted && localOnly, label "Removed · still installed").
+    // Precedence per cloudDocStatus(): cloudDeleted → blocked → updateAvailable → cloudOnly → localOnly.
+    private val statusRows = listOf(
+        item("SYN", "Synced Bible"),                                                              // SYNCED
+        item("UPD", "Update Available", updateAvailable = true),                                  // UPDATE
+        item("CLD", "Cloud Only Book", category = DocCategory.COMMENTARY, cloudOnly = true),      // CLOUD_ONLY
+        item("LOC", "Local Only Book", localOnly = true),                                         // LOCAL_ONLY
+        item("BLK", "Blocked Book", category = DocCategory.DICTIONARY, blocked = true),           // BLOCKED
+        item("WNT", "Wont Sync Book", blocked = true, localOnly = true),                          // WONT_SYNC
+        item("RMV", "Removed Book", cloudDeleted = true),                                         // REMOVED
+        item("RSI", "Removed Still Installed", cloudDeleted = true, localOnly = true),            // REMOVED_STILL_INSTALLED
+    )
+
     private val statusFilters = listOf(
         CloudDocFilter.ALL to "All", CloudDocFilter.INSTALLED to "Installed", CloudDocFilter.CLOUD to "In cloud",
         CloudDocFilter.UPDATES to "Updates", CloudDocFilter.BLOCKED to "Blocked",
@@ -86,6 +102,8 @@ class CloudDocumentsGoldenTest {
     }
 
     // e-ink status colours: the full status matrix captured in COLOR_EINK is already covered by
-    // cloud_populated's EINK mode. This dedicated case pins the tombstone/blocked rows in BW too.
-    @Test fun cloud_status_bw() = captureGolden("CloudDocuments", "status", GoldenMode.BW) { screen() }
+    // cloud_populated's EINK mode. This dedicated case pins ALL EIGHT statuses in BW — one row each
+    // via statusRows — proving every status (incl. WONT_SYNC + REMOVED_STILL_INSTALLED) reads by
+    // icon + text with colour degraded to grayscale.
+    @Test fun cloud_status_bw() = captureGolden("CloudDocuments", "status", GoldenMode.BW, heightDp = 900) { screen(displayed = statusRows) }
 }

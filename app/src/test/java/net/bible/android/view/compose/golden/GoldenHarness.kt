@@ -8,6 +8,7 @@ import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.RoborazziComposeOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.github.takahirom.roborazzi.inspectionMode
+import com.github.takahirom.roborazzi.size
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.theme.AbTheme
@@ -41,15 +42,21 @@ private fun capture(
     dark: Boolean,
     colorMode: DisplayColorMode,
     rtl: Boolean,
+    heightDp: Int = 0,
     content: @Composable () -> Unit,
 ) {
     // inspectionMode=true sets LocalInspectionMode, which makes Compose's InfiniteTransition
     // skip its animation LaunchedEffect and hold values at their deterministic initial state.
     // Without this, animating widgets (e.g. Material3's indeterminate LinearProgressIndicator)
     // are captured at an arbitrary animation phase, making the golden flaky (record != verify).
+    // heightDp>0 overrides only the device HEIGHT (width stays the default), so a long-list golden
+    // (e.g. the 8-status matrix) can render every row instead of clipping at the default viewport.
     captureRoboImage(
         path,
-        roborazziComposeOptions = RoborazziComposeOptions { inspectionMode(true) },
+        roborazziComposeOptions = RoborazziComposeOptions {
+            inspectionMode(true)
+            if (heightDp > 0) size(0, heightDp)
+        },
     ) {
         val dir = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
         CompositionLocalProvider(LocalLayoutDirection provides dir) {
@@ -60,9 +67,13 @@ private fun capture(
     }
 }
 
-/** Render [content] for [mode] and capture to <screen>_<state>_<tag>.png. */
-fun captureGolden(screen: String, state: String, mode: GoldenMode, content: @Composable () -> Unit) =
-    capture("src/test/roborazzi/${screen}_${state}_${mode.tag}.png", mode.dark, mode.colorMode, mode.rtl, content)
+/**
+ * Render [content] for [mode] and capture to <screen>_<state>_<tag>.png.
+ * [heightDp] > 0 overrides only the device height so a long list renders in full (default: clip
+ * at the standard viewport, keeping every existing golden byte-identical).
+ */
+fun captureGolden(screen: String, state: String, mode: GoldenMode, heightDp: Int = 0, content: @Composable () -> Unit) =
+    capture("src/test/roborazzi/${screen}_${state}_${mode.tag}.png", mode.dark, mode.colorMode, mode.rtl, heightDp, content)
 
 /**
  * Render [content] in the light theme with RTL layout, capturing to <screen>_<state>_light_rtl.png.
@@ -70,9 +81,9 @@ fun captureGolden(screen: String, state: String, mode: GoldenMode, content: @Com
  * forces the layout direction.
  */
 fun captureRtl(screen: String, state: String, content: @Composable () -> Unit) =
-    capture("src/test/roborazzi/${screen}_${state}_light_rtl.png", dark = false, colorMode = DisplayColorMode.NORMAL, rtl = true, content)
+    capture("src/test/roborazzi/${screen}_${state}_light_rtl.png", dark = false, colorMode = DisplayColorMode.NORMAL, rtl = true, content = content)
 
 /** Capture [content] across the full four-mode LTR matrix. */
 fun captureMatrix(screen: String, state: String, content: @Composable () -> Unit) {
-    ALL_MODES.forEach { mode -> captureGolden(screen, state, mode, content) }
+    ALL_MODES.forEach { mode -> captureGolden(screen, state, mode, content = content) }
 }

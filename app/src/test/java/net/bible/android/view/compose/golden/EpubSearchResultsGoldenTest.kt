@@ -55,10 +55,10 @@ class EpubSearchResultsGoldenTest {
     }
 
     @Test fun empty() {
-        captureGolden("EpubSearchResults", "empty", EDGE_MODE, screen(rows = emptyList()))
+        captureGolden("EpubSearchResults", "empty", EDGE_MODE, content = screen(rows = emptyList()))
     }
 
     @Test fun loading() {
-        captureGolden("EpubSearchResults", "loading", EDGE_MODE, screen(loading = true))
+        captureGolden("EpubSearchResults", "loading", EDGE_MODE, content = screen(loading = true))
     }
 }
