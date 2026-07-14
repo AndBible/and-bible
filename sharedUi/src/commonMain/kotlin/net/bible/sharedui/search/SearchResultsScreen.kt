@@ -126,9 +126,7 @@ fun SearchResultsScreen(
                 Modifier.fillMaxSize().padding(padding).padding(16.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                // No dedicated "no results" string exists yet; reuse the adjacent `search` key
-                // (rendered centered) rather than adding a resource, per task brief.
-                Text(strings.search, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+                Text(strings.emptyList, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
             }
             else -> LazyColumn(
                 Modifier.fillMaxSize().padding(padding),

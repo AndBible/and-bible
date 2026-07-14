@@ -58,9 +58,7 @@ fun EpubSearchResultsScreen(
                     Modifier.fillMaxWidth().padding(16.dp).align(Alignment.TopCenter),
                 )
                 rows.isEmpty() -> Text(
-                    // No dedicated "no results" string exists yet; reuse the adjacent `search` key
-                    // (rendered centered) rather than adding a resource, matching Plan A's SearchResults.
-                    strings.search,
+                    strings.emptyList,
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.align(Alignment.Center),

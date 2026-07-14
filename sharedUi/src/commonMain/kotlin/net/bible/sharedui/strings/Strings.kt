@@ -80,6 +80,7 @@ interface Strings {
 
     // Batch 5 — search
     val search: String
+    val emptyList: String
     val searchIndex: String
     val allWords: String
     val anyWord: String

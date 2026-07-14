@@ -19,7 +19,9 @@ package net.bible.android.view.activity.search
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
@@ -111,6 +113,22 @@ class SearchResultsComposeActivity : ActivityBase() {
                     val rows by controller.displayed.collectAsState()
                     val scriptureShown by controller.scriptureShown.collectAsState()
                     val scriptureToggleVisible by controller.scriptureToggleVisible.collectAsState()
+                    val error by controller.error.collectAsState()
+
+                    // Classic showed a dialog then backed out on failure; the shared screen has no error
+                    // slot, so mirror that behaviour host-side: toast + finish once.
+                    LaunchedEffect(error) {
+                        if (error != null) {
+                            Toast.makeText(
+                                this@SearchResultsComposeActivity,
+                                R.string.error_executing_search,
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                            controller.dismissError()
+                            finish()
+                        }
+                    }
+
                     val title = getString(R.string.multi_search_results, results.total, selectedTranslations.size)
                     SearchResultsScreen(
                         title = title,
