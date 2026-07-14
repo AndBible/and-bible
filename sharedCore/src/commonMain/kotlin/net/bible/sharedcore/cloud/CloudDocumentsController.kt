@@ -1,0 +1,116 @@
+package net.bible.sharedcore.cloud
+
+import net.bible.sharedcore.navigation.DocCategory
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+/** The multi-choice "Sync now" dialog's per-direction labels + pre-checked state (host-built). */
+data class SyncNowDialogState(val labels: List<String>, val checked: List<Boolean>)
+
+/**
+ * Framework-free controller for the cloud documents management view. The host flattens
+ * DocumentSync.DocumentStatusItem → [CloudDocItem] and pushes via [setItems]; all cloud/service side
+ * effects happen behind the injected seams. Optimistic updates use the ported pure functions so the
+ * list re-renders before the background transfer completes.
+ */
+class CloudDocumentsController(
+    val syncEnabled: () -> Boolean,
+    private val onAction: (CloudDocAction, String) -> Unit,
+    private val onBulkAction: (CloudDocAction, List<String>) -> Unit,
+    private val onSyncNow: (download: Boolean, upload: Boolean, delete: Boolean) -> Unit,
+    private val onRescan: () -> Unit,
+    private val onSignIn: () -> Unit,
+    private val onOpenGate: () -> Unit,
+    private val onShowRemovedChange: (Boolean) -> Unit,
+) {
+    private val _items = MutableStateFlow<List<CloudDocItem>>(emptyList())
+    val items: StateFlow<List<CloudDocItem>> = _items.asStateFlow()
+    private val _displayed = MutableStateFlow<List<CloudDocItem>>(emptyList())
+    val displayed: StateFlow<List<CloudDocItem>> = _displayed.asStateFlow()
+    private val _statusFilter = MutableStateFlow(CloudDocFilter.ALL)
+    val statusFilter: StateFlow<CloudDocFilter> = _statusFilter.asStateFlow()
+    private val _categoryFilter = MutableStateFlow<DocCategory?>(null)
+    val categoryFilter: StateFlow<DocCategory?> = _categoryFilter.asStateFlow()
+    private val _query = MutableStateFlow("")
+    val query: StateFlow<String> = _query.asStateFlow()
+    private val _selectionMode = MutableStateFlow(false)
+    val selectionMode: StateFlow<Boolean> = _selectionMode.asStateFlow()
+    private val _selectedIds = MutableStateFlow<Set<String>>(emptySet())
+    val selectedIds: StateFlow<Set<String>> = _selectedIds.asStateFlow()
+
+    // busy is a COUNTER-backed boolean: overlapping sources (rescan + a transfer + a per-item op)
+    // each push/pop the counter, so the loading indicator stays on until every source has balanced.
+    // Mirrors the classic busyCount.
+    private var busyCount = 0
+    private val _busy = MutableStateFlow(false)
+    val busy: StateFlow<Boolean> = _busy.asStateFlow()
+
+    private val _transferRunning = MutableStateFlow(false)
+    val transferRunning: StateFlow<Boolean> = _transferRunning.asStateFlow()
+    private val _showRemoved = MutableStateFlow(false)
+    val showRemoved: StateFlow<Boolean> = _showRemoved.asStateFlow()
+    private val _syncNowDialog = MutableStateFlow<SyncNowDialogState?>(null)
+    val syncNowDialog: StateFlow<SyncNowDialogState?> = _syncNowDialog.asStateFlow()
+
+    fun setItems(items: List<CloudDocItem>) {
+        _items.value = items
+        if (_selectionMode.value) {
+            val present = items.mapTo(mutableSetOf()) { it.initials }
+            _selectedIds.value = _selectedIds.value.intersect(present)
+        }
+        refilter(resetSelection = false)
+    }
+
+    fun setStatusFilter(f: CloudDocFilter) { _statusFilter.value = f; refilter(resetSelection = true) }
+    fun setCategoryFilter(c: DocCategory?) { _categoryFilter.value = c; refilter(resetSelection = true) }
+    fun setQuery(q: String) { _query.value = q; refilter(resetSelection = true) }
+    fun setShowRemoved(show: Boolean) {
+        _showRemoved.value = show
+        // The REMOVED filter is only reachable while removed items are shown; hiding them again
+        // must not strand the view on an empty REMOVED list.
+        if (!show && _statusFilter.value == CloudDocFilter.REMOVED) _statusFilter.value = CloudDocFilter.ALL
+        onShowRemovedChange(show)
+    }
+
+    private fun refilter(resetSelection: Boolean) {
+        if (resetSelection) clearSelection()
+        // Feed the FULL item list (tombstones included) into the pure filter; its ALL branch hides
+        // cloudDeleted rows and REMOVED surfaces them. Do NOT strip tombstones here.
+        _displayed.value = filterCloudDocuments(_items.value, _statusFilter.value, _query.value, _categoryFilter.value)
+    }
+
+    fun enterSelection() { _selectionMode.value = true }
+    fun toggle(id: String) { _selectedIds.value = _selectedIds.value.toMutableSet().apply { if (!add(id)) remove(id) } }
+    fun clearSelection() { _selectionMode.value = false; _selectedIds.value = emptySet() }
+    fun selectedItems(): List<CloudDocItem> = _items.value.filter { it.initials in _selectedIds.value }
+
+    fun pushBusy(busy: Boolean) {
+        busyCount = (busyCount + if (busy) 1 else -1).coerceAtLeast(0)
+        _busy.value = busyCount > 0
+    }
+    fun setTransferRunning(running: Boolean) { _transferRunning.value = running }
+
+    fun performAction(item: CloudDocItem, action: CloudDocAction) = onAction(action, item.initials)
+    fun performBulk(action: CloudDocAction) {
+        val applicable = applicableInitials(action, selectedItems(), syncEnabled())
+        if (applicable.isNotEmpty()) onBulkAction(action, applicable)
+    }
+    fun rescan() = onRescan()
+    fun signIn() = onSignIn()
+    fun openGate() = onOpenGate()
+
+    fun showSyncNow(labels: List<String>, checked: List<Boolean>) { _syncNowDialog.value = SyncNowDialogState(labels, checked) }
+    fun confirmSyncNow(selected: List<Boolean>) {
+        _syncNowDialog.value = null
+        onSyncNow(selected.getOrElse(0) { false }, selected.getOrElse(1) { false }, selected.getOrElse(2) { false })
+    }
+    fun dismissSyncNow() { _syncNowDialog.value = null }
+
+    fun applyRemoval(initials: String) { _items.value = applyOptimisticRemoval(_items.value, initials, syncEnabled()); refilter(false) }
+    fun applyPurge(initials: String) { _items.value = applyOptimisticPurge(_items.value, initials); refilter(false) }
+    fun setBlocked(initials: String, blocked: Boolean) {
+        _items.value = _items.value.map { if (it.initials == initials) it.copy(blocked = blocked) else it }
+        refilter(false)
+    }
+}
