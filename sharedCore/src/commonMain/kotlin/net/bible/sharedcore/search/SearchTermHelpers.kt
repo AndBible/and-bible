@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-package net.bible.android.view.activity.search
+package net.bible.sharedcore.search
 
 
 fun prepareSearchTerms(searchTerms_: String): String {

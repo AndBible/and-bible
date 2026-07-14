@@ -37,6 +37,9 @@ import net.bible.android.control.search.GroupedSearchResult
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.TranslationMatch
 import net.bible.service.common.htmlToSpan
+import net.bible.sharedcore.search.prepareSearchTerms
+import net.bible.sharedcore.search.prepareSearchWord
+import net.bible.sharedcore.search.splitSearchTerms
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
