@@ -153,7 +153,6 @@ fun CloudDocumentsScreen(
             AbPullToRefresh(isRefreshing = isRefreshing, onRefresh = onRefresh) {
                 if (displayed.isEmpty()) {
                     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Spacer(Modifier.width(0.dp))
                         Text(strings.emptyList, modifier = Modifier.padding(32.dp), style = MaterialTheme.typography.bodyLarge)
                     }
                 } else {

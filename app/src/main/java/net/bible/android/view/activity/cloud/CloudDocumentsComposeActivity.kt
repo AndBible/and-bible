@@ -21,8 +21,11 @@ import android.text.format.Formatter
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -84,8 +87,6 @@ class CloudDocumentsComposeActivity : ActivityBase() {
             onBulkAction = ::handleBulkAction,
             onSyncNow = ::handleSyncNowConfirm,
             onRescan = { runSyncAction { DocumentSync.resetListingCache() } },
-            onSignIn = { /* gate runs in onCreate */ },
-            onOpenGate = { /* gate runs in onCreate */ },
             onShowRemovedChange = ::handleShowRemovedChange,
         )
     }
@@ -315,7 +316,7 @@ class CloudDocumentsComposeActivity : ActivityBase() {
     @Composable
     private fun OverflowMenu(showRemoved: Boolean) {
         var expanded by remember { mutableStateOf(false) }
-        IconButton(onClick = { expanded = true }) { Text("⋮") } // vertical ellipsis
+        IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = getString(R.string.menu)) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             if (CloudSync.signedIn) {
                 DropdownMenuItem(text = { Text(getString(R.string.cloud_doc_sync_now)) }, onClick = { expanded = false; showSyncNow() })

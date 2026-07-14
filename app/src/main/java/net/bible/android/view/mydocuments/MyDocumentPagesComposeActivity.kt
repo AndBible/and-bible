@@ -165,6 +165,9 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
         if (deletedIds.isNotEmpty()) ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = deletedIds))
     }
 
+    /** Next free stable Long id for a newly-added (create/import) page. */
+    private fun nextLongId(): Long = (entityByLong.keys.maxOrNull() ?: -1L) + 1L
+
     private fun createPage(name: String, type: ContentType) {
         val ct = if (type == ContentType.HTML) MyDocumentContentType.HTML else MyDocumentContentType.MARKDOWN
         addPageToList(name, ct, "")
@@ -185,7 +188,7 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
             orderNumber = controller.pages.value.size,
         )
         dao.insertPageWithContent(page, content)
-        val id = (entityByLong.keys.maxOrNull() ?: -1L) + 1L
+        val id = nextLongId()
         entityByLong = entityByLong + (id to page)
         val ct = if (contentType == MyDocumentContentType.HTML) ContentType.HTML else ContentType.MARKDOWN
         controller.addPage(MyDocPageItem(id, title, ct, isAiGenerated = false))

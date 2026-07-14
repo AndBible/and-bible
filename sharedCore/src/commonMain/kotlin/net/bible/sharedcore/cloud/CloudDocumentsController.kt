@@ -20,8 +20,6 @@ class CloudDocumentsController(
     private val onBulkAction: (CloudDocAction, List<String>) -> Unit,
     private val onSyncNow: (download: Boolean, upload: Boolean, delete: Boolean) -> Unit,
     private val onRescan: () -> Unit,
-    private val onSignIn: () -> Unit,
-    private val onOpenGate: () -> Unit,
     private val onShowRemovedChange: (Boolean) -> Unit,
 ) {
     private val _items = MutableStateFlow<List<CloudDocItem>>(emptyList())
@@ -106,8 +104,6 @@ class CloudDocumentsController(
         if (applicable.isNotEmpty()) onBulkAction(action, applicable)
     }
     fun rescan() = onRescan()
-    fun signIn() = onSignIn()
-    fun openGate() = onOpenGate()
 
     fun showSyncNow(labels: List<String>, checked: List<Boolean>) { _syncNowDialog.value = SyncNowDialogState(labels, checked) }
     fun confirmSyncNow(selected: List<Boolean>) {

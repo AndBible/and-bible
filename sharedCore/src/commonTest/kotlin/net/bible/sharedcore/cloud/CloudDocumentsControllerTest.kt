@@ -24,7 +24,7 @@ class CloudDocumentsControllerTest {
         onBulkAction: (CloudDocAction, List<String>) -> Unit = { _, _ -> },
         onSyncNow: (Boolean, Boolean, Boolean) -> Unit = { _, _, _ -> },
         onShowRemovedChange: (Boolean) -> Unit = {},
-    ) = CloudDocumentsController({ syncEnabled }, onAction, onBulkAction, onSyncNow, {}, {}, {}, onShowRemovedChange)
+    ) = CloudDocumentsController({ syncEnabled }, onAction, onBulkAction, onSyncNow, {}, onShowRemovedChange)
 
     @Test fun setItems_populates_displayed_via_filter() {
         val c = controller()
