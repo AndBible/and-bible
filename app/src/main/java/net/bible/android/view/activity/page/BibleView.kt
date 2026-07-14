@@ -414,6 +414,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val sel = currentSelection
                 val selText = sel?.text?:text?:return true
                 val currentBible = currentPageManager.currentBible.currentDocument ?: return true
+                // Section-less decorated query for highlighting result previews (mirrors Search.kt).
+                val highlightText = searchControl.highlightSearchString(selText, SearchType.PHRASE)
                 val searchText = searchControl.decorateSearchString(
                     selText,
                     SearchType.PHRASE,
@@ -422,6 +424,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 )
                 val searchParams = Bundle().apply {
                     putString(SearchControl.SEARCH_TEXT, searchText)
+                    putString(SearchControl.SEARCH_HIGHLIGHT_TEXT, highlightText)
                     putString(SearchControl.SEARCH_DOCUMENT, currentBible.initials)
                     putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
                 }

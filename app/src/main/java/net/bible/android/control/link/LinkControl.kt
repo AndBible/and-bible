@@ -355,11 +355,15 @@ class LinkControl constructor(
         }
         // The below uses ANY_WORDS because that does not add anything to the search string
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
+        // Section-less decorated query for highlighting result previews (mirrors Search.kt); shows
+        // which word the Strong's number matched.
+        val highlightText = searchControl.highlightSearchString("strong:$ref", SearchType.ANY_WORDS)
         val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, bibleSection, null)
         Log.i(TAG, "Search text:$searchText")
         val activity = CurrentActivityHolder.currentActivity!!
         val searchParams = Bundle()
         searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
+        searchParams.putString(SearchControl.SEARCH_HIGHLIGHT_TEXT, highlightText)
         searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)
 
         searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)

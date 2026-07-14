@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.search
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.service.sword.SwordContentFacade
@@ -100,6 +101,7 @@ class BibleSearchServiceImpl(
         try {
             SearchHighlighter.highlight(SwordContentFacade.readOsisFragment(book, key), terms, lemmaTerms)
         } catch (e: Exception) {
+            Log.e(TAG, "Error reading verse preview", e)
             StyledText.plain("")
         }
 
@@ -114,5 +116,9 @@ class BibleSearchServiceImpl(
         SharedSearchBibleSection.OLD_TESTAMENT -> SearchControl.SearchBibleSection.OT
         SharedSearchBibleSection.NEW_TESTAMENT -> SearchControl.SearchBibleSection.NT
         SharedSearchBibleSection.CURRENT_BOOK -> SearchControl.SearchBibleSection.CURRENT_BOOK
+    }
+
+    companion object {
+        private const val TAG = "BibleSearchService"
     }
 }
