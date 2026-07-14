@@ -280,6 +280,14 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/document_sync_manage_title"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"

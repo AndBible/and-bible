@@ -126,4 +126,16 @@ class ComposeHostActionBarTest {
     @Test fun `MyDocumentPages host theme has no native ActionBar`() {
         assertNull(build<MyDocumentPagesHostProbe>().supportActionBar)
     }
+
+    @Test
+    fun `CloudDocumentsComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        val activity = Robolectric.buildActivity(
+            net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity::class.java
+        ).create().get()
+        assertNull(
+            "CloudDocumentsComposeActivity must use Theme.AbCompose (NoActionBar); a non-null " +
+                "supportActionBar means the manifest entry lost the theme → double app bar.",
+            activity.supportActionBar,
+        )
+    }
 }
