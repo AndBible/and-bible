@@ -42,12 +42,16 @@ import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
+import net.bible.android.view.activity.search.SearchIndex
+import net.bible.android.view.activity.search.SearchIndexComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressStatus
+import net.bible.android.view.activity.search.SearchResults
+import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -69,6 +73,12 @@ object ScreenLauncher {
         Screen.SearchIndexProgress ->
             if (useComposeFor(screen)) SearchIndexProgressComposeActivity::class.java
             else SearchIndexProgressStatus::class.java
+        Screen.SearchIndex ->
+            if (useComposeFor(screen)) SearchIndexComposeActivity::class.java
+            else SearchIndex::class.java
+        Screen.SearchResults ->
+            if (useComposeFor(screen)) SearchResultsComposeActivity::class.java
+            else SearchResults::class.java
         Screen.ReadingPlanSelector ->
             if (useComposeFor(screen)) ReadingPlanSelectorComposeActivity::class.java
             else ReadingPlanSelectorList::class.java
