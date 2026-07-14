@@ -104,4 +104,26 @@ class ComposeHostActionBarTest {
             activity.supportActionBar,
         )
     }
+
+    /** Stand-in for MyDocumentsComposeActivity's window theme (Theme.AbCompose, NoActionBar). */
+    class MyDocumentsHostProbe : ActivityBase() {
+        override val doNotInitializeApp = true
+        override fun onCreate(savedInstanceState: Bundle?) {
+            setTheme(R.style.Theme_AbCompose); super.onCreate(savedInstanceState); setContent { }
+        }
+    }
+    /** Stand-in for MyDocumentPagesComposeActivity's window theme. */
+    class MyDocumentPagesHostProbe : ActivityBase() {
+        override val doNotInitializeApp = true
+        override fun onCreate(savedInstanceState: Bundle?) {
+            setTheme(R.style.Theme_AbCompose); super.onCreate(savedInstanceState); setContent { }
+        }
+    }
+
+    @Test fun `MyDocuments host theme has no native ActionBar`() {
+        assertNull(build<MyDocumentsHostProbe>().supportActionBar)
+    }
+    @Test fun `MyDocumentPages host theme has no native ActionBar`() {
+        assertNull(build<MyDocumentPagesHostProbe>().supportActionBar)
+    }
 }
