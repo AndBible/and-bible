@@ -149,6 +149,12 @@
             android:label="@string/search"
             />
         <activity
+            android:name="net.bible.android.view.activity.search.SearchResultsComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/search"
+            />
+        <activity
             android:name="net.bible.android.view.activity.search.EpubSearchResults"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
