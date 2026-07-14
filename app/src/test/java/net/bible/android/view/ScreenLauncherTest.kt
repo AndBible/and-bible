@@ -40,8 +40,14 @@ import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
+import net.bible.android.view.activity.search.Search
+import net.bible.android.view.activity.search.SearchComposeActivity
+import net.bible.android.view.activity.search.SearchIndex
+import net.bible.android.view.activity.search.SearchIndexComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressStatus
+import net.bible.android.view.activity.search.SearchResults
+import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -169,5 +175,29 @@ class ScreenLauncherTest {
         assertEquals(DownloadComposeActivity::class.java, ScreenLauncher.targetFor(Screen.FirstDownload))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(FirstDownload::class.java, ScreenLauncher.targetFor(Screen.FirstDownload))
+    }
+
+    @Test
+    fun search_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(SearchComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Search))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(Search::class.java, ScreenLauncher.targetFor(Screen.Search))
+    }
+
+    @Test
+    fun searchIndex_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(SearchIndexComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SearchIndex))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(SearchIndex::class.java, ScreenLauncher.targetFor(Screen.SearchIndex))
+    }
+
+    @Test
+    fun searchResults_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(SearchResultsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SearchResults))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(SearchResults::class.java, ScreenLauncher.targetFor(Screen.SearchResults))
     }
 }

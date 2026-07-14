@@ -42,6 +42,8 @@ import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
+import net.bible.android.view.activity.search.Search
+import net.bible.android.view.activity.search.SearchComposeActivity
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchIndexComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
@@ -51,7 +53,7 @@ import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -112,6 +114,9 @@ object ScreenLauncher {
             // DownloadComposeActivity.EXTRA_FIRST_DOWNLOAD themselves.
             if (useComposeFor(screen)) DownloadComposeActivity::class.java
             else FirstDownload::class.java
+        Screen.Search ->
+            if (useComposeFor(screen)) SearchComposeActivity::class.java
+            else Search::class.java
     }
 
     /**
