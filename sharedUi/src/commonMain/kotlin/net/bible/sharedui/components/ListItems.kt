@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 
 /** A two-line (title + secondary) clickable list row, built on primitives (no experimental API). */
@@ -32,6 +33,18 @@ import androidx.compose.ui.unit.dp
 fun TwoLineListItem(
     title: String,
     subtitle: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) = TwoLineListItem(title, AnnotatedString(subtitle), onClick, modifier)
+
+/**
+ * [TwoLineListItem] whose second line is a styled [AnnotatedString] (e.g. an FTS search snippet with
+ * a highlighted match term). The plain-[String] overload delegates here.
+ */
+@Composable
+fun TwoLineListItem(
+    title: String,
+    subtitle: AnnotatedString,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
