@@ -125,6 +125,27 @@ interface Strings {
     fun newPageName(n: Int): String         // R.string.my_document_new_page_name
     fun deleteDocumentConfirmation(name: String): String  // R.string.my_document_delete_confirmation
     fun deletePageConfirmation(name: String): String      // R.string.my_document_page_delete_confirmation
+
+    // Batch 4 remainder — cloud documents management
+    val cloudStatusSynced: String
+    val cloudStatusLocalOnly: String
+    val cloudStatusCloudOnly: String
+    val cloudStatusUpdate: String
+    val cloudStatusBlocked: String
+    val cloudStatusWontSync: String
+    val cloudStatusRemoved: String
+    val cloudStatusStillInstalled: String
+    val cloudActionDownload: String
+    val cloudActionPush: String
+    val cloudActionRemoveCloud: String
+    val cloudActionRemoveAllDevices: String
+    val cloudActionBlock: String
+    val cloudActionDontSync: String
+    val cloudActionUnblock: String
+    val cloudActionAllowSync: String
+    val cloudActionRestore: String
+    val cloudActionPurge: String
+    fun cloudVersionPrefix(version: String): String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
