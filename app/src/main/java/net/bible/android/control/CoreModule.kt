@@ -15,7 +15,9 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.search.BibleSearchServiceImpl
 import net.bible.android.control.search.SearchControl
+import net.bible.android.control.search.SearchIndexServiceImpl
 import net.bible.sharedcore.search.BibleSearchService
+import net.bible.sharedcore.search.SearchIndexService
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
@@ -58,6 +60,7 @@ val coreModule = module {
     singleOf(::ReadingPlanRepository)
     singleOf(::SearchControl)
     singleOf(::BibleSearchServiceImpl) { bind<BibleSearchService>() }
+    singleOf(::SearchIndexServiceImpl) { bind<SearchIndexService>() }
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.

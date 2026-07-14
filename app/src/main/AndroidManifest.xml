@@ -159,6 +159,12 @@
             android:label="@string/search_index"
             />
         <activity
+            android:name="net.bible.android.view.activity.search.SearchIndexComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/search_index"
+            />
+        <activity
             android:name="net.bible.android.view.activity.search.SearchIndexProgressStatus"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search_index"
