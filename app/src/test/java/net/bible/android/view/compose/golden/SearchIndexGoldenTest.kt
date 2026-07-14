@@ -14,13 +14,13 @@ import org.robolectric.annotation.GraphicsMode
 class SearchIndexGoldenTest {
     @Test fun searchIndex_create() {
         captureMatrix("SearchIndex", "create") {
-            SearchIndexScreen("Search Index", isRebuild = false, {}, {}, {})
+            SearchIndexScreen("Search Index", documentName = "ESV", isRebuild = false, {}, {}, {})
         }
     }
 
     @Test fun searchIndex_rebuild() {
         captureGolden("SearchIndex", "rebuild", EDGE_MODE) {
-            SearchIndexScreen("Search Index", isRebuild = true, {}, {}, {})
+            SearchIndexScreen("Search Index", documentName = "ESV", isRebuild = true, {}, {}, {})
         }
     }
 
@@ -28,7 +28,7 @@ class SearchIndexGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun searchIndex_create_rtl() {
         captureRtl("SearchIndex", "create") {
-            SearchIndexScreen("Search Index", isRebuild = false, {}, {}, {})
+            SearchIndexScreen("Search Index", documentName = "ESV", isRebuild = false, {}, {}, {})
         }
     }
 }

@@ -23,6 +23,7 @@ import net.bible.sharedui.strings.LocalStrings
 @Composable
 fun SearchIndexScreen(
     title: String,
+    documentName: String,
     isRebuild: Boolean,
     onCancel: () -> Unit,
     onCreate: () -> Unit,
@@ -31,12 +32,12 @@ fun SearchIndexScreen(
     val strings = LocalStrings.current
     AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
-            Text(if (isRebuild) strings.indexRebuildRequired else strings.indexCreationRequired)
+            Text(if (isRebuild) strings.rebuildIndexFor(documentName) else strings.createIndexFor(documentName))
             Spacer(Modifier.height(16.dp))
             Row {
                 TextButton(onClick = onCancel) { Text(strings.cancel) }
                 Spacer(Modifier.width(8.dp))
-                Button(onClick = onCreate) { Text(strings.create) }
+                Button(onClick = onCreate) { Text(if (isRebuild) strings.rebuildIndexButton else strings.create) }
             }
         }
     }
