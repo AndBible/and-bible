@@ -49,7 +49,10 @@ class AndroidEpubSearchService : EpubSearchService {
             if (!doc.isEpub) return@withContext emptyList()
             val state = doc.epubBackend?.state ?: return@withContext emptyList()
             state.search(adjustSearchText(mode, query))
-                .take(SearchControl.MAX_SEARCH_RESULTS)
+                // Keep one extra row so the host can distinguish ">MAX" from "exactly MAX" and show
+                // the classic "+" overflow affordance (consumer tests size > MAX_SEARCH_RESULTS,
+                // mirroring EpubSearchResults.kt).
+                .take(SearchControl.MAX_SEARCH_RESULTS + 1)
                 .map { kt ->
                     EpubResultRow(
                         keyId = kt.key.osisRef,   // fully-qualified BookAndKey id (stable addressing key)
