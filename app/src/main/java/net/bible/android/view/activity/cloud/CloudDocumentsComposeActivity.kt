@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -92,8 +93,12 @@ class CloudDocumentsComposeActivity : ActivityBase() {
         openOrGate()
         bridge.register()
         // Post-transfer re-scan: when running flips true→false, re-scan behind the loading bar.
+        // drop(1) ignores the StateFlow's replayed initial `false` (which fires immediately at
+        // collect and would otherwise trigger an ungated network scan on every open, racing the
+        // gated scan in openOrGate); we only react to REAL posted DocumentSyncProgressEvents, so
+        // refreshFromNetwork() runs only after a genuine transfer-completion (running=false) event.
         lifecycleScope.launch {
-            bridge.running.collect { running ->
+            bridge.running.drop(1).collect { running ->
                 controller.setTransferRunning(running)
                 if (!running) refreshFromNetwork()
             }
@@ -163,7 +168,9 @@ class CloudDocumentsComposeActivity : ActivityBase() {
             finish(); return@launch
         }
         controller.setShowRemoved(DocumentSyncSettings.showRemovedDocuments) // seed the filter-availability flag
-        controller.setItems(cached.map { it.toCloudDocItem() })
+        // Flatten off-main too: toCloudDocItem() calls Formatter.formatShortFileSize per row.
+        val items = withContext(Dispatchers.IO) { cached.map { it.toCloudDocItem() } }
+        controller.setItems(items)
         if (signedIn && (!DocumentSyncSettings.enabled || cached.isEmpty())) refreshFromNetwork()
     }
 
@@ -172,8 +179,8 @@ class CloudDocumentsComposeActivity : ActivityBase() {
     private suspend fun refreshFromNetwork() {
         controller.pushBusy(true)
         try {
-            val items = withContext(Dispatchers.IO) { DocumentSync.scan(includeDeleted = true) }
-            controller.setItems(items.map { it.toCloudDocItem() })
+            val items = withContext(Dispatchers.IO) { DocumentSync.scan(includeDeleted = true).map { it.toCloudDocItem() } }
+            controller.setItems(items)
         } finally { controller.pushBusy(false) }
     }
 
@@ -181,8 +188,8 @@ class CloudDocumentsComposeActivity : ActivityBase() {
         controller.pushBusy(true)
         try {
             withContext(Dispatchers.IO) { block() }
-            val items = withContext(Dispatchers.IO) { DocumentSync.scan(includeDeleted = true) }
-            controller.setItems(items.map { it.toCloudDocItem() })
+            val items = withContext(Dispatchers.IO) { DocumentSync.scan(includeDeleted = true).map { it.toCloudDocItem() } }
+            controller.setItems(items)
         } finally { controller.pushBusy(false) }
     }
 
