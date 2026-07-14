@@ -36,6 +36,10 @@ import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.HistoryComposeActivity
+import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
+import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
+import net.bible.android.view.mydocuments.MyDocumentsComposeActivity
+import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReadingList
@@ -57,7 +61,7 @@ import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -127,6 +131,12 @@ object ScreenLauncher {
         Screen.EpubSearchResults ->
             if (useComposeFor(screen)) EpubSearchResultsComposeActivity::class.java
             else EpubSearchResults::class.java
+        Screen.MyDocuments ->
+            if (useComposeFor(screen)) MyDocumentsComposeActivity::class.java
+            else MyDocumentsActivity::class.java
+        Screen.MyDocumentPages ->
+            if (useComposeFor(screen)) MyDocumentPagesComposeActivity::class.java
+            else MyDocumentPagesActivity::class.java
     }
 
     /**

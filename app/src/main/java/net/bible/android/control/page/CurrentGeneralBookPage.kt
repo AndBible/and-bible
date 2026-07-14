@@ -31,7 +31,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -98,7 +97,7 @@ class CurrentGeneralBookPage internal constructor(
                     val docId = doc.myDocumentId
                     if (docId != null) {
                         context.startActivityForResult(
-                            Intent(context, MyDocumentPagesActivity::class.java)
+                            ScreenLauncher.intentFor(context, Screen.MyDocumentPages)
                                 .putExtra("documentId", docId.toString())
                                 .putExtra("documentInitials", doc.initials)
                                 .putExtra("documentName", doc.name),

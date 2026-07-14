@@ -40,8 +40,9 @@ import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -191,9 +192,8 @@ class MyDocumentsComposeActivity : ActivityBase() {
         val doc = entityByLong[id] ?: return
         // Classic offers a save-changes prompt here; the auto-save-on-leave contract auto-saves instead.
         if (controller.dirty.value) controller.save()
-        // Task 10 will route this via ScreenLauncher.targetFor(Screen.MyDocumentPages);
-        // launch the classic pages activity directly for now.
-        val intent = Intent(this, MyDocumentPagesActivity::class.java)
+        // Route the pages drill-down through ScreenLauncher so the use_compose_ui flag governs it too.
+        val intent = Intent(this, ScreenLauncher.targetFor(Screen.MyDocumentPages))
             .putExtra("documentId", doc.id.toString())
             .putExtra("documentInitials", doc.initials)
             .putExtra("documentName", doc.name)

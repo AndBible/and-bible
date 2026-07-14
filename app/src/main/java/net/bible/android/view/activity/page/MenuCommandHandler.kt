@@ -44,7 +44,6 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.ai.AiSettingsActivity
 import net.bible.android.view.activity.settings.SettingsActivity
@@ -186,7 +185,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     }
                 }
                 R.id.myDocumentsButton -> {
-                    handlerIntent = Intent(mainBibleActivity, MyDocumentsActivity::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.MyDocuments)
                 }
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {
