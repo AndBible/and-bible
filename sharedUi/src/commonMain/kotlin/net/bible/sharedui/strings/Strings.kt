@@ -92,6 +92,8 @@ interface Strings {
     val create: String
     val rebuildIndex: String
     val openResultsInWindow: String
+    val indexCreationRequired: String
+    val indexRebuildRequired: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

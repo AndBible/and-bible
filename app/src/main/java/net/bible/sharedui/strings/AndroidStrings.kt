@@ -81,4 +81,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val create: String get() = context.getString(R.string.index_create)
     override val rebuildIndex: String get() = context.getString(R.string.rebuild_index)
     override val openResultsInWindow: String get() = context.getString(R.string.open_in_window)
+    // Classic search_index.xml has a single "index required" prompt (index_creation_required);
+    // reuse it for both the create and rebuild prompts.
+    override val indexCreationRequired: String get() = context.getString(R.string.index_creation_required)
+    override val indexRebuildRequired: String get() = context.getString(R.string.index_creation_required)
 }
