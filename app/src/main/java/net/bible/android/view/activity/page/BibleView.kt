@@ -135,7 +135,6 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.activity.page.screen.clipboardKey
-import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.ShareWidget
@@ -429,9 +428,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
                 }
 
-                val intent = Intent(
+                val intent = ScreenLauncher.intentFor(
                     mainBibleActivity,
-                    if (currentBible.indexStatus != IndexStatus.DONE) SearchIndex::class.java else SearchResults::class.java
+                    if (currentBible.indexStatus != IndexStatus.DONE) Screen.SearchIndex else Screen.SearchResults
                 ).apply {
                     putExtras(searchParams)
                 }

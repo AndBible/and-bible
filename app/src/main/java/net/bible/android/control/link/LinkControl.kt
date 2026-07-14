@@ -31,8 +31,8 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.search.SearchIndex
-import net.bible.android.view.activity.search.SearchResults
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
@@ -369,9 +369,9 @@ class LinkControl constructor(
         searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
         var intent: Intent? = null
         intent = if (needToIndex) {
-            Intent(activity, SearchIndex::class.java)
+            ScreenLauncher.intentFor(activity, Screen.SearchIndex)
         } else { //If an indexed Strong's module is in place then do the search - the normal situation
-            Intent(activity, SearchResults::class.java)
+            ScreenLauncher.intentFor(activity, Screen.SearchResults)
         }
         intent.putExtras(searchParams)
         //Add single translation in a list to cover for the multitranslation search page.

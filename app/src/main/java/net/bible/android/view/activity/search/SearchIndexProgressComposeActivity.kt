@@ -28,6 +28,8 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.search.SearchControl
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.pause
@@ -148,13 +150,13 @@ class SearchIndexProgressComposeActivity : ActivityBase() {
                 newIntent = if (documentBeingIndexed?.isEpub == true)
                     Intent(this, EpubSearchResults::class.java)
                 else
-                    Intent(this, SearchResults::class.java)
+                    ScreenLauncher.intentFor(this, Screen.SearchResults)
                 newIntent.putExtras(intent.extras!!)
             } else {
                 newIntent = if (documentBeingIndexed?.isEpub == true)
                     Intent(this, EpubSearch::class.java)
                 else
-                    Intent(this, Search::class.java)
+                    ScreenLauncher.intentFor(this, Screen.Search)
             }
             startActivity(newIntent)
             finish()

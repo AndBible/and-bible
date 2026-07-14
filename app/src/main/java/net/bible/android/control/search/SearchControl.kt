@@ -24,9 +24,9 @@ import kotlinx.coroutines.withContext
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.search.EpubSearch
-import net.bible.android.view.activity.search.Search
-import net.bible.android.view.activity.search.SearchIndex
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
@@ -88,12 +88,12 @@ class SearchControl constructor(
             if(document.isEpub) {
                 Intent(activity, EpubSearch::class.java)
             } else
-                Intent(activity, Search::class.java)
+                ScreenLauncher.intentFor(activity, Screen.Search)
         } else if (document?.bookCategory == BookCategory.GENERAL_BOOK) {
             return null
         } else {
             Log.i(TAG, "Index status is NOT DONE")
-            Intent(activity, SearchIndex::class.java)
+            ScreenLauncher.intentFor(activity, Screen.SearchIndex)
         }
     }
 
