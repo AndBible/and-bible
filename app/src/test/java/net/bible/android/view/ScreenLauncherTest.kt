@@ -40,6 +40,10 @@ import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
+import net.bible.android.view.activity.search.EpubSearch
+import net.bible.android.view.activity.search.EpubSearchComposeActivity
+import net.bible.android.view.activity.search.EpubSearchResults
+import net.bible.android.view.activity.search.EpubSearchResultsComposeActivity
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchComposeActivity
 import net.bible.android.view.activity.search.SearchIndex
@@ -199,5 +203,21 @@ class ScreenLauncherTest {
         assertEquals(SearchResultsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SearchResults))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(SearchResults::class.java, ScreenLauncher.targetFor(Screen.SearchResults))
+    }
+
+    @Test
+    fun epubSearch_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(EpubSearchComposeActivity::class.java, ScreenLauncher.targetFor(Screen.EpubSearch))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(EpubSearch::class.java, ScreenLauncher.targetFor(Screen.EpubSearch))
+    }
+
+    @Test
+    fun epubSearchResults_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(EpubSearchResultsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.EpubSearchResults))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(EpubSearchResults::class.java, ScreenLauncher.targetFor(Screen.EpubSearchResults))
     }
 }

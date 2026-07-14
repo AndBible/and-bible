@@ -148,13 +148,13 @@ class SearchIndexProgressComposeActivity : ActivityBase() {
             val newIntent: Intent
             if (StringUtils.isNotEmpty(intent.getStringExtra(SearchControl.SEARCH_TEXT))) {
                 newIntent = if (documentBeingIndexed?.isEpub == true)
-                    Intent(this, EpubSearchResults::class.java)
+                    ScreenLauncher.intentFor(this, Screen.EpubSearchResults)
                 else
                     ScreenLauncher.intentFor(this, Screen.SearchResults)
                 newIntent.putExtras(intent.extras!!)
             } else {
                 newIntent = if (documentBeingIndexed?.isEpub == true)
-                    Intent(this, EpubSearch::class.java)
+                    ScreenLauncher.intentFor(this, Screen.EpubSearch)
                 else
                     ScreenLauncher.intentFor(this, Screen.Search)
             }

@@ -26,7 +26,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.search.EpubSearch
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
@@ -86,7 +85,7 @@ class SearchControl constructor(
         return if (indexStatus == IndexStatus.DONE) {
             Log.i(TAG, "Index status is DONE")
             if(document.isEpub) {
-                Intent(activity, EpubSearch::class.java)
+                ScreenLauncher.intentFor(activity, Screen.EpubSearch)
             } else
                 ScreenLauncher.intentFor(activity, Screen.Search)
         } else if (document?.bookCategory == BookCategory.GENERAL_BOOK) {
