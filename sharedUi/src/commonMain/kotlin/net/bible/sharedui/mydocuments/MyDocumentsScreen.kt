@@ -74,6 +74,12 @@ fun MyDocumentsScreen(
     onSave: () -> Unit,
     onCancel: () -> Unit,
     onNavigateUp: () -> Unit,
+    // Import name-entry dialog, driven by hoisted host state (the host owns SAF and the picked URIs):
+    // non-null [importNamePrompt] ⇒ show the dialog pre-filled with it; null ⇒ hidden. [onConfirmImport]
+    // receives the chosen name; [onDismissImport] clears the host's pending state on cancel.
+    importNamePrompt: String? = null,
+    onConfirmImport: (String) -> Unit = {},
+    onDismissImport: () -> Unit = {},
 ) {
     val s = LocalStrings.current
     // Local dialog state (which dialog + target item + text buffer). Not hoisted (pure UI).
@@ -152,6 +158,16 @@ fun MyDocumentsScreen(
             confirmText = s.okay, dismissText = s.cancel,
             onConfirm = { createOpen = false; if (it.isNotBlank()) onCreate(it.trim()) },
             onDismiss = { createOpen = false },
+        )
+    }
+    // Import name-entry prompt (parity with classic MyDocumentsActivity.showImportNameDialog): the host
+    // has already picked URIs via SAF and set the pre-fill string; confirm hands the name back to the host.
+    importNamePrompt?.let { prompt ->
+        TextInputDialog(
+            title = s.createTitle, initial = prompt,
+            confirmText = s.okay, dismissText = s.cancel,
+            onConfirm = { if (it.isNotBlank()) onConfirmImport(it.trim()) else onDismissImport() },
+            onDismiss = onDismissImport,
         )
     }
     renameFor?.let { item ->

@@ -27,6 +27,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -70,6 +72,12 @@ class MyDocumentsComposeActivity : ActivityBase() {
     private var finished = false
     private var pendingExportId: Long? = null
 
+    /** SAF-picked URIs awaiting a user-entered name; the import name dialog is shown while non-null. */
+    private var pendingImportUris: List<Uri>? = null
+    /** Pre-fill string for the import name dialog (non-null ⇒ dialog shown). Compose state so the screen
+     * recomposes when the SAF picker returns. */
+    private var importNamePrompt by mutableStateOf<String?>(null)
+
     private val controller by lazy {
         MyDocumentsController(
             onOpen = ::openDocument,
@@ -109,6 +117,9 @@ class MyDocumentsComposeActivity : ActivityBase() {
                         onSave = { controller.save(); finishOk() },
                         onCancel = { finishCanceled() },
                         onNavigateUp = { onBackPressedDispatcher.onBackPressed() },
+                        importNamePrompt = importNamePrompt,
+                        onConfirmImport = ::confirmImport,
+                        onDismissImport = ::dismissImport,
                     )
                 }
             }
@@ -203,21 +214,42 @@ class MyDocumentsComposeActivity : ActivityBase() {
     }
 
     private val importFilesLauncher = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        if (!uris.isNullOrEmpty()) importFromFiles(uris)
+        // Parity with classic showImportNameDialog: don't import immediately — stash the URIs and open the
+        // import name dialog pre-filled with the same default name; import runs on the user's confirm.
+        if (!uris.isNullOrEmpty()) {
+            pendingImportUris = uris
+            // entityByLong mirrors the current document count (avoids referencing the by-lazy `controller`
+            // here, which would create a property-init cycle with importFilesLauncher).
+            importNamePrompt = getString(R.string.my_document_new_name, entityByLong.size + 1)
+        }
     }
+
+    /** Import name dialog confirmed: run the verbatim import with the user's chosen name, then clear pending state. */
+    private fun confirmImport(name: String) {
+        val uris = pendingImportUris
+        importNamePrompt = null
+        pendingImportUris = null
+        if (uris != null) importFromFiles(name, uris)
+    }
+
+    /** Import name dialog dismissed: drop the pending URIs without importing. */
+    private fun dismissImport() {
+        importNamePrompt = null
+        pendingImportUris = null
+    }
+
     private val exportTreeLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         val id = pendingExportId; pendingExportId = null
         if (uri != null && id != null) entityByLong[id]?.let { exportDocumentToFolder(it, uri) }
     }
 
     /**
-     * Import selected text files as a new document. Ported from classic
-     * [MyDocumentsActivity.importDocumentFromFiles] (Dispatchers.IO body). The shared screen has no
-     * import-name dialog, so the document is auto-named (classic prompted for the name); the classic
-     * `dataSet.add + notifyItemInserted` is replaced by [MyDocumentsController.addDocument] on Main.
+     * Import selected text files as a new document under the user-entered [documentName]. Ported from
+     * classic [MyDocumentsActivity.importDocumentFromFiles] (Dispatchers.IO body); the name comes from the
+     * import name dialog (parity with classic). The classic `dataSet.add + notifyItemInserted` is replaced
+     * by [MyDocumentsController.addDocument] on Main.
      */
-    private fun importFromFiles(uris: List<Uri>) {
-        val documentName = getString(R.string.my_document_new_name, controller.documents.value.size + 1)
+    private fun importFromFiles(documentName: String, uris: List<Uri>) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 data class FileEntry(val fileName: String, val content: String)
