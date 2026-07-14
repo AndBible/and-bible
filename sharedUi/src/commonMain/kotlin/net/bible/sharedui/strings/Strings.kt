@@ -77,6 +77,21 @@ interface Strings {
     // Batch 4b — download
     fun moduleSizeMb(mb: Double): String
     val cancel: String
+
+    // Batch 5 — search
+    val search: String
+    val searchIndex: String
+    val allWords: String
+    val anyWord: String
+    val phrase: String
+    val searchAllBible: String
+    val searchOldTestament: String
+    val searchNewTestament: String
+    val searchCurrentBook: String
+    val chooseTranslations: String
+    val create: String
+    val rebuildIndex: String
+    val openResultsInWindow: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

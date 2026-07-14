@@ -66,4 +66,19 @@ class AndroidStrings(private val context: Context) : Strings {
     // Batch 4b — download
     override fun moduleSizeMb(mb: Double): String = context.getString(R.string.module_size_megabytes, mb)
     override val cancel: String get() = context.getString(R.string.cancel)
+
+    // Batch 5 — search
+    override val search: String get() = context.getString(R.string.search)
+    override val searchIndex: String get() = context.getString(R.string.search_index)
+    override val allWords: String get() = context.getString(R.string.search_all_words)
+    override val anyWord: String get() = context.getString(R.string.search_any_word)
+    override val phrase: String get() = context.getString(R.string.search_phrase)
+    override val searchAllBible: String get() = context.getString(R.string.search_all_bible)
+    override val searchOldTestament: String get() = context.getString(R.string.search_old_testament)
+    override val searchNewTestament: String get() = context.getString(R.string.search_new_testament)
+    override val searchCurrentBook: String get() = context.getString(R.string.search_current_book)
+    override val chooseTranslations: String get() = context.getString(R.string.search_translations)
+    override val create: String get() = context.getString(R.string.index_create)
+    override val rebuildIndex: String get() = context.getString(R.string.rebuild_index)
+    override val openResultsInWindow: String get() = context.getString(R.string.open_in_window)
 }
