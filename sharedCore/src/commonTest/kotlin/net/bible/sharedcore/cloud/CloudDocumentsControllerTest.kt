@@ -8,8 +8,15 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class CloudDocumentsControllerTest {
-    private fun item(i: String, cloudOnly: Boolean = false, localOnly: Boolean = false, cloudDeleted: Boolean = false) =
-        CloudDocItem(i, "name-$i", DocCategory.BIBLE, "1.0", "1.0", cloudOnly, localOnly, false, false, false, true, cloudDeleted, "4.2 MB")
+    private fun item(
+        i: String,
+        cloudOnly: Boolean = false,
+        localOnly: Boolean = false,
+        cloudDeleted: Boolean = false,
+        category: DocCategory = DocCategory.BIBLE,
+        name: String = "name-$i",
+    ) =
+        CloudDocItem(i, name, category, "1.0", "1.0", cloudOnly, localOnly, false, false, false, true, cloudDeleted, "4.2 MB")
 
     private fun controller(
         syncEnabled: Boolean = false,
@@ -27,9 +34,47 @@ class CloudDocumentsControllerTest {
 
     @Test fun status_and_category_and_query_filters_compose() {
         val c = controller()
-        c.setItems(listOf(item("KJV"), item("CLD", cloudOnly = true, localOnly = false)))
+        c.setItems(listOf(
+            item("KJV", category = DocCategory.BIBLE, name = "King James"),
+            item("CLD", cloudOnly = true, category = DocCategory.BIBLE, name = "Cloud Bible"),
+            item("DICT", category = DocCategory.DICTIONARY, name = "Strong Dictionary"),
+        ))
+
+        // Status alone.
         c.setStatusFilter(CloudDocFilter.CLOUD_ONLY)
         assertEquals(listOf("CLD"), c.displayed.value.map { it.initials })
+
+        // Category alone (reset status to ALL first so category is the only discriminator).
+        c.setStatusFilter(CloudDocFilter.ALL)
+        c.setCategoryFilter(DocCategory.DICTIONARY)
+        assertEquals(listOf("DICT"), c.displayed.value.map { it.initials })
+
+        // Query alone composes with the standing category filter (DICTIONARY): "bible" matches no
+        // dictionary, so nothing shows even though a bible name matches.
+        c.setQuery("bible")
+        assertTrue(c.displayed.value.isEmpty())
+
+        // Query alone once category is cleared: name substring across all categories.
+        c.setCategoryFilter(null)
+        assertEquals(listOf("CLD"), c.displayed.value.map { it.initials }) // only "Cloud Bible" contains "bible"
+
+        // Status + category + query all composing at once.
+        c.setStatusFilter(CloudDocFilter.ALL)
+        c.setCategoryFilter(DocCategory.BIBLE)
+        c.setQuery("king")
+        assertEquals(listOf("KJV"), c.displayed.value.map { it.initials })
+    }
+
+    @Test fun category_and_query_filters_exit_selection() {
+        val c = controller()
+        c.setItems(listOf(item("A")))
+        c.enterSelection(); c.toggle("A")
+        c.setCategoryFilter(DocCategory.DICTIONARY)
+        assertFalse(c.selectionMode.value); assertTrue(c.selectedIds.value.isEmpty())
+
+        c.enterSelection(); c.toggle("A")
+        c.setQuery("x")
+        assertFalse(c.selectionMode.value); assertTrue(c.selectedIds.value.isEmpty())
     }
 
     @Test fun changing_filter_exits_selection() {
@@ -109,5 +154,28 @@ class CloudDocumentsControllerTest {
         val c = controller(onShowRemovedChange = { reported = it })
         c.setShowRemoved(true)
         assertTrue(c.showRemoved.value); assertEquals(true, reported)
+    }
+
+    @Test fun hiding_removed_from_REMOVED_filter_recomputes_displayed_and_exits_selection() {
+        val c = controller()
+        c.setItems(listOf(item("A"), item("TOMB", cloudDeleted = true)))
+        c.setShowRemoved(true)
+        c.setStatusFilter(CloudDocFilter.REMOVED)
+        assertEquals(listOf("TOMB"), c.displayed.value.map { it.initials }) // tombstone surfaced
+        c.enterSelection(); c.toggle("TOMB")
+        assertTrue(c.selectionMode.value)
+
+        c.setShowRemoved(false)
+
+        // Filter flipped REMOVED → ALL, and `displayed` was recomputed to the ALL result (tombstone
+        // gone) rather than left stale on the REMOVED list.
+        assertEquals(CloudDocFilter.ALL, c.statusFilter.value)
+        assertEquals(listOf("A"), c.displayed.value.map { it.initials })
+        assertEquals(
+            filterCloudDocuments(c.items.value, CloudDocFilter.ALL, "", null).map { it.initials },
+            c.displayed.value.map { it.initials },
+        )
+        // Selection mode exited on the flip, like the other filter-changing setters.
+        assertFalse(c.selectionMode.value); assertTrue(c.selectedIds.value.isEmpty())
     }
 }

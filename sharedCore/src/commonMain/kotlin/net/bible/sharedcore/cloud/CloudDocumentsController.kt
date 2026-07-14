@@ -68,8 +68,14 @@ class CloudDocumentsController(
     fun setShowRemoved(show: Boolean) {
         _showRemoved.value = show
         // The REMOVED filter is only reachable while removed items are shown; hiding them again
-        // must not strand the view on an empty REMOVED list.
-        if (!show && _statusFilter.value == CloudDocFilter.REMOVED) _statusFilter.value = CloudDocFilter.ALL
+        // must not strand the view on an empty REMOVED list. When that flip happens the effective
+        // filter changed, so recompute `displayed` (and exit selection mode, like the other
+        // filter-changing setters) — otherwise `displayed` stays the stale REMOVED tombstone list
+        // while `statusFilter` reports ALL.
+        if (!show && _statusFilter.value == CloudDocFilter.REMOVED) {
+            _statusFilter.value = CloudDocFilter.ALL
+            refilter(resetSelection = true)
+        }
         onShowRemovedChange(show)
     }
 
