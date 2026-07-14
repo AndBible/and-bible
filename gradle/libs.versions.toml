@@ -22,6 +22,7 @@ composeBom = "2026.06.00"        # added in Task 6 (:app Compose host BOM)
 activityCompose = "1.13.0"
 roborazzi = "1.67.0"             # golden-image harness (bumped from 1.54.0 — 1.54 uses AGP's removed TestedExtension; 1.67 uses the new AGP-9 variant API)
 robolectric = "4.14.1"           # bumped from 4.9 — Roborazzi Compose needs NATIVE graphics (>=4.10)
+reorderable = "3.1.0"            # CMP drag-reorder engine (doc-mgmt Task 1); newest with an iosArm64 variant (verified in .module); API identical to 2.4.x; requires Compose>=1.7.0/Kotlin-stdlib>=1.9.0 (both satisfied)
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -44,12 +45,15 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }  # golden-test only (DragHandle etc.); version from the BOM
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 # Golden-screenshot harness (added in golden-screenshot spike task)
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
 roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }
 roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazzi" }
+# CMP drag-reorder library (doc-mgmt Task 1) — wrapped behind net.bible.sharedui.components.AbReorderableColumn
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -41,6 +41,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
+            implementation(libs.reorderable)    // CMP drag-reorder engine (wrapped by AbReorderableColumn)
         }
         iosMain { kotlin.srcDir(iosStringsOutDir) }
     }
