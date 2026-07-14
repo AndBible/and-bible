@@ -102,6 +102,29 @@ interface Strings {
     val helpFts5: String
     fun searchIn(docAbbrev: String): String
     fun searchWithResults2(count: String, docAbbrev: String): String
+
+    // Batch 4 (remainder) — MyDocuments
+    val myDocumentsEmpty: String            // R.string.my_documents_empty
+    val saveAndExit: String                 // R.string.save_and_exit
+    val dismiss: String                     // R.string.dismiss
+    val newItem: String                     // R.string.new_item
+    val importDocument: String              // R.string.my_document_import_document
+    val importPage: String                  // R.string.my_document_import_page
+    val newPageTitle: String                // R.string.my_document_create_page_title (menu + dialog title)
+    val export: String                      // R.string.export
+    val rename: String                      // R.string.rename
+    val exportDocumentLabel: String         // R.string.my_document_export_document
+    val editDescriptionLabel: String        // R.string.my_document_edit_description
+    val noDescription: String               // R.string.my_document_no_description
+    val createTitle: String                 // R.string.my_document_create_title
+    val renameTitle: String                 // R.string.my_document_rename_title
+    val pageRenameTitle: String             // R.string.my_document_page_rename_title
+    val contentTypeLabel: String            // R.string.my_document_content_type_label
+    val cannotDeleteAiDocuments: String     // R.string.my_document_cannot_delete_ai_documents
+    fun newDocumentName(n: Int): String     // R.string.my_document_new_name
+    fun newPageName(n: Int): String         // R.string.my_document_new_page_name
+    fun deleteDocumentConfirmation(name: String): String  // R.string.my_document_delete_confirmation
+    fun deletePageConfirmation(name: String): String      // R.string.my_document_page_delete_confirmation
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

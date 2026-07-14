@@ -94,4 +94,27 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun searchIn(docAbbrev: String): String = context.getString(R.string.search_in, docAbbrev)
     override fun searchWithResults2(count: String, docAbbrev: String): String =
         context.getString(R.string.search_with_results2, count, docAbbrev)
+
+    // Batch 4 (remainder) — MyDocuments
+    override val myDocumentsEmpty: String get() = context.getString(R.string.my_documents_empty)
+    override val saveAndExit: String get() = context.getString(R.string.save_and_exit)
+    override val dismiss: String get() = context.getString(R.string.dismiss)
+    override val newItem: String get() = context.getString(R.string.new_item)
+    override val importDocument: String get() = context.getString(R.string.my_document_import_document)
+    override val importPage: String get() = context.getString(R.string.my_document_import_page)
+    override val newPageTitle: String get() = context.getString(R.string.my_document_create_page_title)
+    override val export: String get() = context.getString(R.string.export)
+    override val rename: String get() = context.getString(R.string.rename)
+    override val exportDocumentLabel: String get() = context.getString(R.string.my_document_export_document)
+    override val editDescriptionLabel: String get() = context.getString(R.string.my_document_edit_description)
+    override val noDescription: String get() = context.getString(R.string.my_document_no_description)
+    override val createTitle: String get() = context.getString(R.string.my_document_create_title)
+    override val renameTitle: String get() = context.getString(R.string.my_document_rename_title)
+    override val pageRenameTitle: String get() = context.getString(R.string.my_document_page_rename_title)
+    override val contentTypeLabel: String get() = context.getString(R.string.my_document_content_type_label)
+    override val cannotDeleteAiDocuments: String get() = context.getString(R.string.my_document_cannot_delete_ai_documents)
+    override fun newDocumentName(n: Int): String = context.getString(R.string.my_document_new_name, n)
+    override fun newPageName(n: Int): String = context.getString(R.string.my_document_new_page_name, n)
+    override fun deleteDocumentConfirmation(name: String): String = context.getString(R.string.my_document_delete_confirmation, name)
+    override fun deletePageConfirmation(name: String): String = context.getString(R.string.my_document_page_delete_confirmation, name)
 }
