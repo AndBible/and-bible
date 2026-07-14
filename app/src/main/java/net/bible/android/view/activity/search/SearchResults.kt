@@ -126,6 +126,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
                 mSearchAdapter = MultiSearchItemAdapter(
                     this@SearchResults,
                     mCurrentlyDisplayedResults,
+                    intent.getStringExtra(SearchControl.SEARCH_HIGHLIGHT_TEXT) ?: "",
                     ::onTranslationPillClick
                 )
                 listAdapter = mSearchAdapter as ListAdapter

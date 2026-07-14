@@ -124,12 +124,22 @@ class SearchControl constructor(
 
         // add search type (all/any/phrase) to search string
         var decorated: String = searchType.decorate(cleanSearchString)
-        originalSearchString = decorated
 
         // add bible section limitation to search text
         decorated = getBibleSectionTerm(bibleSection, currentBookName) + " " + decorated
         return decorated
     }
+
+    /**
+     * The searchType-decorated query WITHOUT the Bible-section term (e.g. `+[Gen-Mal]`). This is the
+     * string used purely to highlight matched words in result previews — it replaces the removed global
+     * mutable `originalSearchString` side-channel that the classic result adapter used to read. Callers
+     * pass this value explicitly (via intent extra to the classic path, directly to the Compose service).
+     * The section term is intentionally excluded because it would otherwise be split into stray
+     * single-character regex matches by the highlighter.
+     */
+    fun highlightSearchString(searchString: String, searchType: SearchType): String =
+        searchType.decorate(cleanSearchString(searchString))
 
     /** Search translations and group results by verse
      */
@@ -264,10 +274,11 @@ class SearchControl constructor(
         get() = isSearchShowingScripture || !currentDocumentContainsNonScripture()
 
     companion object {
-        var originalSearchString: String? = null
         private const val SEARCH_OLD_TESTAMENT = "+[Gen-Mal]"
         private const val SEARCH_NEW_TESTAMENT = "+[Mat-Rev]"
         const val SEARCH_TEXT = "SearchText"
+        /** Section-less decorated query passed to the classic result adapter for highlighting. */
+        const val SEARCH_HIGHLIGHT_TEXT = "SearchHighlightText"
         const val SEARCH_DOCUMENT = "SearchDocument"
         const val TARGET_DOCUMENT = "TargetDocument"
         const val SELECTED_TRANSLATIONS = "SelectedTranslations"

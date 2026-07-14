@@ -34,7 +34,6 @@ import android.widget.TextView
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.MultiSearchResultItemBinding
 import net.bible.android.control.search.GroupedSearchResult
-import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.TranslationMatch
 import net.bible.service.common.htmlToSpan
 import net.bible.sharedcore.search.prepareSearchTerms
@@ -53,6 +52,8 @@ import java.util.regex.Pattern
 class MultiSearchItemAdapter(
     context: Context,
     items: List<GroupedSearchResult>,
+    /** Section-less decorated query used for highlighting (was SearchControl.originalSearchString). */
+    private val searchTerms: String,
     private val onTranslationClick: (SwordBook, Key) -> Unit
 ) : ArrayAdapter<GroupedSearchResult>(context, R.layout.multi_search_result_item, items) {
 
@@ -91,7 +92,6 @@ class MultiSearchItemAdapter(
         // Set verse preview from first translation
         try {
             val textElement = SwordContentFacade.readOsisFragment(firstMatch.book, firstMatch.key)
-            val searchTerms = SearchControl.originalSearchString ?: ""
             val highlightedText = highlightSearchText(searchTerms, textElement)
             binding.versePreview.text = highlightedText
             // For single match, show full text without line limit
@@ -210,7 +210,6 @@ class MultiSearchItemAdapter(
             // Get verse text with abbreviation prefix
             try {
                 val textElement = SwordContentFacade.readOsisFragment(match.book, match.key)
-                val searchTerms = SearchControl.originalSearchString ?: ""
                 val highlightedText = highlightSearchText(searchTerms, textElement)
 
                 // Create text with bold abbreviation prefix, preserving highlighting

@@ -330,6 +330,9 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             intent.putExtra(SECTION_SELECTION_SAVE, sectionRadioSelection)
             intent.putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName)
 
+            // Section-less decorated query for highlighting result previews (formerly the global
+            // SearchControl.originalSearchString side-channel), computed before `text` is decorated.
+            val highlightText = searchControl.highlightSearchString(text, searchType)
             text = searchControl.decorateSearchString(text, searchType, bibleSection, currentBookName)
             Log.i(TAG, "Search text:$text")
 
@@ -337,6 +340,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
             val intent = Intent(this, SearchResults::class.java)
             intent.putExtra(SearchControl.SEARCH_TEXT, text)
+            intent.putExtra(SearchControl.SEARCH_HIGHLIGHT_TEXT, highlightText)
             val currentDocInitials = documentToSearch.initials
             intent.putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials)
             intent.putExtra(SearchControl.TARGET_DOCUMENT, currentDocInitials)
