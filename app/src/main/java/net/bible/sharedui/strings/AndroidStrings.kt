@@ -86,4 +86,11 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun rebuildIndexFor(documentName: String): String =
         context.getString(R.string.rebuild_index_for, documentName)
     override val rebuildIndexButton: String get() = context.getString(R.string.rebuild_index_button)
+
+    // Batch 5 (Plan B) — EPUB search
+    override val ftsQuery: String get() = context.getString(R.string.search_fts_query)
+    override val helpFts5: String get() = context.getString(R.string.help_fts5)
+    override fun searchIn(docAbbrev: String): String = context.getString(R.string.search_in, docAbbrev)
+    override fun searchWithResults2(count: String, docAbbrev: String): String =
+        context.getString(R.string.search_with_results2, count, docAbbrev)
 }

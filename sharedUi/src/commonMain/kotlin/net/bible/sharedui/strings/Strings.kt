@@ -95,6 +95,12 @@ interface Strings {
     fun createIndexFor(documentName: String): String
     fun rebuildIndexFor(documentName: String): String
     val rebuildIndexButton: String
+
+    // Batch 5 (Plan B) — EPUB search
+    val ftsQuery: String
+    val helpFts5: String
+    fun searchIn(docAbbrev: String): String
+    fun searchWithResults2(count: String, docAbbrev: String): String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
