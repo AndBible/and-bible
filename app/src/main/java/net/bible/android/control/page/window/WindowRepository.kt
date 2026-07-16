@@ -39,6 +39,7 @@ import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
 import runOnMainBlocking
+import java.util.Date
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.min
@@ -286,9 +287,6 @@ open class WindowRepository(val scope: CoroutineScope) {
         Log.i(TAG, "saveIntoDb")
         if(!CommonUtils.initialized || !DatabaseContainer.ready) return
         if(stopSpeak) speakControl.stop()
-        workspaceSettings.speakSettings = SpeakSettings.currentSettings
-        SpeakSettings.currentSettings?.save()
-
         val historyManager = historyManagerProvider.get()
 
         data class HistorySnap(val windowId: IdType, val items: List<WorkspaceEntities.HistoryItem>)
@@ -303,6 +301,8 @@ open class WindowRepository(val scope: CoroutineScope) {
         // background threads (e.g. cloud sync, db backup), so snapshot the in-memory state
         // on Main before doing DAO writes on the caller's thread. See #3200.
         val snap = runOnMainBlocking {
+            workspaceSettings.speakSettings = SpeakSettings.currentSettings
+            SpeakSettings.currentSettings?.save()
             val windows = windowList.toList()
             val ws = WorkspaceEntities.Workspace(
                 name = name,
@@ -318,8 +318,7 @@ open class WindowRepository(val scope: CoroutineScope) {
 
             var workspaceToUpdate: WorkspaceEntities.Workspace? = null
             if (ws != savedEntity) {
-                savedEntity = ws.deepCopy()
-                workspaceToUpdate = ws
+                workspaceToUpdate = ws.deepCopy()
             }
 
             val winEntities = ArrayList<WorkspaceEntities.Window>()
@@ -327,17 +326,17 @@ open class WindowRepository(val scope: CoroutineScope) {
             val hist = ArrayList<HistorySnap>(windows.size)
 
             windows.forEachIndexed { i, it ->
-                hist.add(HistorySnap(it.id, historyManager.getEntities(it.id)))
+                hist.add(HistorySnap(it.id, historyManager.getEntities(it.id).map { item ->
+                    item.copy(createdAt = Date(item.createdAt.time))
+                }))
                 val entity = it.entity.apply {
                     orderNumber = i
                 }
                 if (it.savedEntity != entity) {
-                    it.savedEntity = entity.deepCopy()
-                    winEntities.add(entity)
+                    winEntities.add(entity.deepCopy())
                 }
                 if (it.pageManager.isModified) {
-                    it.pageManager.savedEntity = it.pageManager.entity.deepCopy()
-                    pmEntities.add(it.pageManager.entity)
+                    pmEntities.add(it.pageManager.entity.deepCopy())
                 }
             }
             SaveSnap(workspaceToUpdate, winEntities, pmEntities, hist)
@@ -351,6 +350,16 @@ open class WindowRepository(val scope: CoroutineScope) {
         }
         dao.updateWindows(snap.windowEntities)
         dao.updatePageManagers(snap.pageManagers)
+
+        runOnMainBlocking {
+            snap.workspaceToUpdate?.let { savedEntity = it }
+            snap.windowEntities.forEach { entity ->
+                getWindow(entity.id)?.takeIf { it.entity == entity }?.savedEntity = entity
+            }
+            snap.pageManagers.forEach { entity ->
+                getWindow(entity.windowId)?.pageManager?.takeIf { it.entity == entity }?.savedEntity = entity
+            }
+        }
     }
 
     lateinit var savedEntity: WorkspaceEntities.Workspace

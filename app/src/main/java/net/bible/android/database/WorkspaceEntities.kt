@@ -104,7 +104,7 @@ class WorkspaceEntities {
             generalBookPage = generalBookPage?.copy(),
             mapPage = mapPage?.copy(),
             currentCategoryName = currentCategoryName,
-            textDisplaySettings = textDisplaySettings?.copy(),
+            textDisplaySettings = textDisplaySettings?.deepCopy(),
             jsState = jsState
         )
     }
@@ -220,6 +220,12 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showOrdinals: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showReadingProgress: Boolean? = null,
     ) {
+        fun deepCopy(): TextDisplaySettings = copy(
+            marginSize = marginSize?.copy(),
+            colors = colors?.copy(),
+            bookmarksHideLabels = bookmarksHideLabels?.toList(),
+        )
+
         enum class Types {
             FONTSIZE,
             FONTFAMILY,
@@ -568,7 +574,7 @@ class WorkspaceEntities {
             contentsText = contentsText,
             id = id,
             orderNumber = orderNumber,
-            textDisplaySettings = textDisplaySettings?.copy(),
+            textDisplaySettings = textDisplaySettings?.deepCopy(),
             workspaceSettings = workspaceSettings?.deepCopy(),
             unPinnedWeight = unPinnedWeight,
             maximizedWindowId = maximizedWindowId,
@@ -727,4 +733,3 @@ data class SettingsBundle (
     }
 
 }
-
