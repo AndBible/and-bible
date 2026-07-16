@@ -16,10 +16,13 @@
  */
 
 
+import android.os.Looper
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 // Debounce operators from https://gist.github.com/Terenfear/a84863be501d3399889455f391eeefe5
 
@@ -77,6 +80,22 @@ fun debounce(
         }
     }
 }
+
+/**
+ * Runs [block] on the Main thread, blocking the caller until it completes.
+ *
+ * If already on the Main thread, [block] runs immediately (no dispatch, no risk of
+ * deadlocking against Main). If called from a background thread, hops to Main and
+ * blocks until [block] finishes.
+ *
+ * Intended for state that is conceptually "owned" by the Main thread (e.g. in-memory
+ * window/history state) but occasionally needs to be read/snapshotted from background
+ * work such as cloud sync or database backup, without introducing per-field locking.
+ */
+inline fun <T> runOnMainBlocking(crossinline block: () -> T): T =
+    if (Looper.myLooper() == Looper.getMainLooper()) block()
+    else runBlocking(Dispatchers.Main.immediate) { block() }
+
 /**
  * Constructs a function that processes input data and passes the first data to [destinationFunction] and skips all new data for the next [skipMs].
  */

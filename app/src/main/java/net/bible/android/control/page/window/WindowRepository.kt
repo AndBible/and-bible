@@ -38,6 +38,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
+import runOnMainBlocking
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.min
@@ -287,45 +288,69 @@ open class WindowRepository(val scope: CoroutineScope) {
         if(stopSpeak) speakControl.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()
-        val ws = WorkspaceEntities.Workspace(
-            name = name,
-            contentsText = contentText,
-            id = id,
-            orderNumber = orderNumber,
-            textDisplaySettings = textDisplaySettings,
-            workspaceSettings = workspaceSettings,
-            unPinnedWeight = unPinnedWeight,
-            maximizedWindowId = maximizedWindowId,
-            primaryTargetLinksWindowId = primaryTargetLinksWindowId
-        )
-        if(ws != savedEntity) {
-            dao.updateWorkspace(ws)
-            savedEntity = ws.deepCopy()
-        }
 
         val historyManager = historyManagerProvider.get()
 
-        val windowEntities = windowList.mapIndexed { i, it ->
-            dao.updateHistoryItems(it.id, historyManager.getEntities(it.id))
-            val entity = it.entity.apply {
-                orderNumber = i
-            }
-            if(it.savedEntity != entity) {
-                it.savedEntity = entity.deepCopy()
-                entity
-            }
-            else null
-        }.filterNotNull()
+        data class HistorySnap(val windowId: IdType, val items: List<WorkspaceEntities.HistoryItem>)
+        data class SaveSnap(
+            val workspaceToUpdate: WorkspaceEntities.Workspace?,
+            val windowEntities: List<WorkspaceEntities.Window>,
+            val pageManagers: List<WorkspaceEntities.PageManager>,
+            val historySnaps: List<HistorySnap>,
+        )
 
-        val pageManagers = windowList.mapNotNull {
-            if (it.pageManager.isModified) {
-                it.pageManager.savedEntity = it.pageManager.entity.deepCopy()
-                it.pageManager.entity
-            } else null
+        // windowList (and history) is Main-thread-owned; saveIntoDb() can be called from
+        // background threads (e.g. cloud sync, db backup), so snapshot the in-memory state
+        // on Main before doing DAO writes on the caller's thread. See #3200.
+        val snap = runOnMainBlocking {
+            val windows = windowList.toList()
+            val ws = WorkspaceEntities.Workspace(
+                name = name,
+                contentsText = contentText,
+                id = id,
+                orderNumber = orderNumber,
+                textDisplaySettings = textDisplaySettings,
+                workspaceSettings = workspaceSettings,
+                unPinnedWeight = unPinnedWeight,
+                maximizedWindowId = maximizedWindowId,
+                primaryTargetLinksWindowId = primaryTargetLinksWindowId
+            )
+
+            var workspaceToUpdate: WorkspaceEntities.Workspace? = null
+            if (ws != savedEntity) {
+                savedEntity = ws.deepCopy()
+                workspaceToUpdate = ws
+            }
+
+            val winEntities = ArrayList<WorkspaceEntities.Window>()
+            val pmEntities = ArrayList<WorkspaceEntities.PageManager>()
+            val hist = ArrayList<HistorySnap>(windows.size)
+
+            windows.forEachIndexed { i, it ->
+                hist.add(HistorySnap(it.id, historyManager.getEntities(it.id)))
+                val entity = it.entity.apply {
+                    orderNumber = i
+                }
+                if (it.savedEntity != entity) {
+                    it.savedEntity = entity.deepCopy()
+                    winEntities.add(entity)
+                }
+                if (it.pageManager.isModified) {
+                    it.pageManager.savedEntity = it.pageManager.entity.deepCopy()
+                    pmEntities.add(it.pageManager.entity)
+                }
+            }
+            SaveSnap(workspaceToUpdate, winEntities, pmEntities, hist)
         }
 
-        dao.updateWindows(windowEntities)
-        dao.updatePageManagers(pageManagers)
+        snap.workspaceToUpdate?.let { 
+            dao.updateWorkspace(it)
+        }
+        for (historySnap in snap.historySnaps) {
+            dao.updateHistoryItems(historySnap.windowId, historySnap.items)
+        }
+        dao.updateWindows(snap.windowEntities)
+        dao.updatePageManagers(snap.pageManagers)
     }
 
     lateinit var savedEntity: WorkspaceEntities.Workspace
