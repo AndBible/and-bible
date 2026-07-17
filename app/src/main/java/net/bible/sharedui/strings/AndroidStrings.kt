@@ -79,6 +79,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val searchNewTestament: String get() = context.getString(R.string.search_new_testament)
     override val searchCurrentBook: String get() = context.getString(R.string.search_current_book)
     override val chooseTranslations: String get() = context.getString(R.string.search_translations)
+    override val recentSearches: String get() = context.getString(R.string.recent_searches)
     override val create: String get() = context.getString(R.string.index_create)
     override val rebuildIndex: String get() = context.getString(R.string.rebuild_index)
     override val openResultsInWindow: String get() = context.getString(R.string.open_in_window)

@@ -77,6 +77,23 @@ class SearchGoldenTest {
         }
     }
 
+    @Test fun search_recent_menu_open() {
+        captureGolden("Search", "recent_menu_open", EDGE_MODE) {
+            SearchScreen(
+                title = "Search",
+                query = "",
+                searchType = SearchType.ALL_WORDS,
+                bibleSection = SearchBibleSection.ALL,
+                availableTranslations = translations,
+                selectedTranslationIds = emptyList(),
+                onQueryChange = {}, onSearchType = {}, onBibleSection = {},
+                onTranslations = {}, onSubmit = {}, onNavigateUp = {},
+                recentTerms = listOf("grace", "in the beginning", "love"),
+                initiallyRecentMenuOpen = true,
+            )
+        }
+    }
+
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun search_default_rtl() {

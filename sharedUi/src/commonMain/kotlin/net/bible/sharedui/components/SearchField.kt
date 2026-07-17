@@ -50,6 +50,7 @@ fun AbSearchField(
     horizontalPadding: Dp = 16.dp,
     verticalPadding: Dp = 8.dp,
     onImeSearch: (() -> Unit)? = null,
+    onLeadingIconClick: (() -> Unit)? = null,
 ) {
     OutlinedTextField(
         value = value,
@@ -58,7 +59,15 @@ fun AbSearchField(
         // maxLines=1 + ellipsis so the placeholder clips instead of wrapping char-by-char when the
         // field is narrow (as in the compact single-row filter bar).
         placeholder = { Text(placeholder, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+        leadingIcon = {
+            if (onLeadingIconClick != null) {
+                IconButton(onClick = onLeadingIconClick) {
+                    Icon(Icons.Filled.Search, contentDescription = null)
+                }
+            } else {
+                Icon(Icons.Filled.Search, contentDescription = null)
+            }
+        },
         trailingIcon = {
             if (value.isNotEmpty()) {
                 IconButton(onClick = { onValueChange("") }) {

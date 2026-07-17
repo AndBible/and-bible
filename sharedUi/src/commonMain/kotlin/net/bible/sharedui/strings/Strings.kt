@@ -90,6 +90,7 @@ interface Strings {
     val searchNewTestament: String
     val searchCurrentBook: String
     val chooseTranslations: String
+    val recentSearches: String
     val create: String
     val rebuildIndex: String
     val openResultsInWindow: String

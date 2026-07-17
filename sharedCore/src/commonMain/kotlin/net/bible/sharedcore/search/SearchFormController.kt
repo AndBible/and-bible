@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.asStateFlow
 class SearchFormController(
     private val currentBookName: String,
     private val persistTranslations: (List<String>) -> Unit,
+    private val persistRecentTerms: (List<String>) -> Unit = {},
+    loadRecentTerms: () -> List<String> = { emptyList() },
+    private val maxRecentTerms: Int = 10,
 ) {
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
@@ -27,6 +30,18 @@ class SearchFormController(
 
     private val _availableTranslations = MutableStateFlow<List<Pair<String, String>>>(emptyList())
     val availableTranslations: StateFlow<List<Pair<String, String>>> = _availableTranslations.asStateFlow()
+
+    private val _recentTerms = MutableStateFlow(loadRecentTerms())
+    val recentTerms: StateFlow<List<String>> = _recentTerms.asStateFlow()
+
+    /** Add [term] to the front of the recent-terms MRU (trimmed, de-duplicated, capped), and persist. */
+    fun recordRecentTerm(term: String) {
+        val t = term.trim()
+        if (t.isEmpty()) return
+        val updated = (listOf(t) + _recentTerms.value.filter { it != t }).take(maxRecentTerms)
+        _recentTerms.value = updated
+        persistRecentTerms(updated)
+    }
 
     fun setQuery(v: String) { _query.value = v }
     fun setSearchType(v: SearchType) { _searchType.value = v }

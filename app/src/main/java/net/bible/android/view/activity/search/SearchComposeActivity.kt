@@ -76,6 +76,8 @@ class SearchComposeActivity : ActivityBase() {
         controller = SearchFormController(
             currentBookName = currentBookName,
             persistTranslations = { saveSelectedTranslations(it) },
+            persistRecentTerms = { saveRecentTerms(it) },
+            loadRecentTerms = { loadRecentTerms() },
         )
 
         // Available translations: every Bible as id(initials)→abbreviation, sorted by abbreviation.
@@ -108,6 +110,7 @@ class SearchComposeActivity : ActivityBase() {
                     val bibleSection by controller.bibleSection.collectAsState()
                     val availableTranslations by controller.availableTranslations.collectAsState()
                     val selectedTranslationIds by controller.selectedTranslationIds.collectAsState()
+                    val recentTerms by controller.recentTerms.collectAsState()
                     SearchScreen(
                         title = title,
                         query = query,
@@ -121,6 +124,8 @@ class SearchComposeActivity : ActivityBase() {
                         onTranslations = controller::setTranslations,
                         onSubmit = ::onSubmit,
                         onNavigateUp = { finish() },
+                        recentTerms = recentTerms,
+                        onRecentTermSelected = controller::setQuery,
                     )
                 }
             }
@@ -147,6 +152,9 @@ class SearchComposeActivity : ActivityBase() {
     private fun onSubmit() {
         val request = controller.buildRequest()
         if (request.query.isBlank()) return
+
+        // F22: record the term into the recent-searches MRU (persisted via saveRecentTerms).
+        controller.recordRecentTerm(controller.query.value)
 
         // Save state onto our own intent so HistoryManager (integrateWithHistoryManager) can restore
         // the Find screen when the user backs out of the results (parity with classic Search.onSearch).
@@ -195,6 +203,18 @@ class SearchComposeActivity : ActivityBase() {
         return saved.split(",").filter { it in available }
     }
 
+    /** F22: persist the recent-search-terms MRU. Newline-separated (a query may contain commas). */
+    private fun saveRecentTerms(terms: List<String>) {
+        CommonUtils.settings.setString(RECENT_TERMS_KEY, terms.joinToString("\n"))
+    }
+
+    /** F22: load the recent-search-terms MRU (newline-separated). */
+    private fun loadRecentTerms(): List<String> {
+        val saved = CommonUtils.settings.getString(RECENT_TERMS_KEY, null)
+        if (saved.isNullOrBlank()) return emptyList()
+        return saved.split("\n").filter { it.isNotBlank() }
+    }
+
     private fun restoreSearchType(v: String): SearchType? =
         SearchType.entries.firstOrNull { it.name == v }
 
@@ -211,6 +231,7 @@ class SearchComposeActivity : ActivityBase() {
     companion object {
         private const val TAG = "SearchCompose"
         private const val SELECTED_TRANSLATIONS_KEY = "search_selected_translations"
+        private const val RECENT_TERMS_KEY = "search_recent_terms"
 
         // History-restore extra keys (same wire names as classic Search).
         private const val SEARCH_TEXT_SAVE = "Search"
