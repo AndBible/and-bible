@@ -101,10 +101,11 @@ import net.bible.sharedui.strings.LocalStrings
  *   [AiModelsController.startAdd]). The add flow prefers `providerChoices` (guaranteed to include
  *   the just-picked provider even before any `providers` refresh lands).
  *
- * The "show unsupported" filter is intentionally NOT round-tripped through the controller: per the
- * task brief the controller only stores [ModelEditState.showUnsupported] as inert display state (it
- * does not affect [ModelEditState.canSave], and the enumerated controller actions this screen wires
- * do not include a setter for it) — filtering is applied here with screen-local `remember` state.
+ * The "show unsupported" filter is round-tripped through the controller like every other field:
+ * [ModelEditState.showUnsupported] is the single source of truth and [onSetShowUnsupported] wires
+ * the switch to [AiModelsController.setShowUnsupported], analogous to [onSetAsDefault]. (Previously
+ * this was screen-local `remember` state that never reached the controller.) The add flow's
+ * category filter has no controller-side counterpart and remains screen-local `remember` state.
  */
 @Composable
 fun AiModelsScreen(
@@ -121,6 +122,7 @@ fun AiModelsScreen(
     onDelete: (String) -> Unit,
     onSetDefault: (String) -> Unit,
     onSetAsDefault: (Boolean) -> Unit,
+    onSetShowUnsupported: (Boolean) -> Unit,
     onDismiss: () -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
@@ -163,6 +165,7 @@ fun AiModelsScreen(
                 onSave = onSave,
                 onDelete = onDelete,
                 onSetAsDefault = onSetAsDefault,
+                onSetShowUnsupported = onSetShowUnsupported,
                 onDismiss = onDismiss,
             )
         }
@@ -203,8 +206,9 @@ private fun ModelRow(
 
 /**
  * The PICK_MODEL-step add/edit dialog. All field values are driven by [state] (single source of
- * truth, owned by the controller); the "show unsupported" filter and the (add-only) category filter
- * are screen-local (see [AiModelsScreen] doc). [models]/[providers] supply read-only context the
+ * truth, owned by the controller), including the "show unsupported" filter
+ * ([ModelEditState.showUnsupported] / [onSetShowUnsupported]); only the (add-only) category filter
+ * is screen-local (see [AiModelsScreen] doc). [models]/[providers] supply read-only context the
  * controller state doesn't carry directly: the edited model's `supported`/`pricingSummary` (for the
  * edit flow's read-only badge/price display, keyed by [ModelEditState.id]) and the picked provider's
  * display name (for the read-only "Provider" field), respectively.
@@ -219,6 +223,7 @@ private fun ModelFormDialog(
     onSave: () -> Unit,
     onDelete: (String) -> Unit,
     onSetAsDefault: (Boolean) -> Unit,
+    onSetShowUnsupported: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val strings = LocalStrings.current
@@ -228,10 +233,10 @@ private fun ModelFormDialog(
         ?: state.providerId
     val editedModel = models.firstOrNull { it.id == state.id }
 
-    // Screen-local filters for the add flow's picker (see AiModelsScreen doc for why these are not
-    // round-tripped through the controller).
+    // Screen-local filter for the add flow's picker; the category filter has no controller-side
+    // counterpart (see AiModelsScreen doc). The show-unsupported filter itself comes from
+    // state.showUnsupported below, not screen-local state.
     var category by remember(state.providerId) { mutableStateOf("") } // "" = All
-    var showUnsupported by remember(state.providerId) { mutableStateOf(false) }
 
     fun categoryOf(modelId: String) = modelId.substringBefore('/', "")
 
@@ -240,7 +245,7 @@ private fun ModelFormDialog(
     val hasUnsupported = state.availableModels.any { !it.supported }
     // If NO model is supported, the toggle is hidden (only shown for a genuine mix, mirroring
     // classic) but the list must not filter itself down to empty — treat unsupported as visible.
-    val effectiveShowUnsupported = showUnsupported || !hasSupported
+    val effectiveShowUnsupported = state.showUnsupported || !hasSupported
 
     val filteredModels = state.availableModels
         .filter { category.isBlank() || categoryOf(it.modelId) == category }
@@ -288,8 +293,8 @@ private fun ModelFormDialog(
                         if (hasSupported && hasUnsupported) {
                             AbSwitchRow(
                                 label = strings.showUnsupportedModels,
-                                checked = showUnsupported,
-                                onCheckedChange = { showUnsupported = it },
+                                checked = state.showUnsupported,
+                                onCheckedChange = onSetShowUnsupported,
                             )
                             Spacer(Modifier.height(8.dp))
                         }
