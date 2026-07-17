@@ -46,6 +46,22 @@ class SearchGoldenTest {
         }
     }
 
+    @Test fun search_settings_open() {
+        captureGolden("Search", "settings_open", EDGE_MODE) {
+            SearchScreen(
+                title = "Search",
+                query = "in the beginning",
+                searchType = SearchType.PHRASE,
+                bibleSection = SearchBibleSection.OLD_TESTAMENT,
+                availableTranslations = translations,
+                selectedTranslationIds = listOf("esv"),
+                onQueryChange = {}, onSearchType = {}, onBibleSection = {},
+                onTranslations = {}, onSubmit = {}, onNavigateUp = {},
+                initiallySettingsOpen = true,
+            )
+        }
+    }
+
     @Test fun search_empty_translations() {
         captureGolden("Search", "empty_translations", EDGE_MODE) {
             SearchScreen(
