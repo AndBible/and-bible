@@ -16,7 +16,11 @@ data class SearchRequest(
     val bibleSection: SearchBibleSection,
     val translationIds: List<String>,   // Book.initials; addressing key, never a list index
     val currentBookName: String,
+    val isStrongsSearch: Boolean = false,
 )
+
+/** A selectable Bible for the results document selector. [id] is a Book.initials string (addressing key, never an index). */
+data class BibleOption(val id: String, val abbreviation: String, val hasStrongs: Boolean)
 
 data class TranslationMatchVd(val translationId: String, val abbreviation: String, val preview: StyledText)
 data class SwordResultRow(
