@@ -423,7 +423,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val searchParams = Bundle().apply {
                     putString(SearchControl.SEARCH_TEXT, searchText)
                     putString(SearchControl.SEARCH_DOCUMENT, currentBible.initials)
-                    putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
                 }
 
                 val intent = Intent(

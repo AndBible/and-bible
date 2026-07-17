@@ -365,7 +365,6 @@ class LinkControl @Inject constructor(
         searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
         searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)
 
-        searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
         searchParams.putBoolean(SearchControl.IS_STRONGS_SEARCH, true)
         var intent: Intent? = null
         intent = if (needToIndex) {

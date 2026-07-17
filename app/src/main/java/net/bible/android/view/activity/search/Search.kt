@@ -340,7 +340,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             intent.putExtra(SearchControl.SEARCH_TEXT, text)
             val currentDocInitials = documentToSearch.initials
             intent.putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials)
-            intent.putExtra(SearchControl.TARGET_DOCUMENT, currentDocInitials)
 
             // Pass selected translations for multi-translation search
             val translationInitials = ArrayList(selectedTranslations.map { it.initials })
