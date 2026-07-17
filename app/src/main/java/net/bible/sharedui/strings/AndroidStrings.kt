@@ -202,4 +202,21 @@ class AndroidStrings(private val context: Context) : Strings {
     override val providerApiFormatLabel: String get() = context.getString(R.string.ai_provider_api_format)
     override fun providerDeleteConfirm(name: String): String = context.getString(R.string.ai_provider_delete_confirm, name)
     override val apiKeyInstructionsPrefix: String get() = context.getString(R.string.easy_setup_api_key_instructions)
+
+    // Batch 9b — AiModelsScreen
+    override val aiModelsTitle: String get() = context.getString(R.string.ai_models_category)
+    override val addModel: String get() = context.getString(R.string.add_model)
+    override val editModelTitle: String get() = context.getString(R.string.edit_model_title)
+    override fun modelDeleteConfirm(name: String): String = context.getString(R.string.model_delete_confirm, name)
+    override val modelSetDefault: String get() = context.getString(R.string.model_set_default)
+    override val modelSelectProviderLabel: String get() = context.getString(R.string.model_select_provider)
+    override val modelSupportedBadge: String get() = context.getString(R.string.model_supported_badge)
+    override val showUnsupportedModels: String get() = context.getString(R.string.show_also_unsupported_models)
+    override val llmCustomModel: String get() = context.getString(R.string.llm_custom_model)
+    override val llmCustomModelHint: String get() = context.getString(R.string.llm_custom_model_dialog_message)
+    override val llmCustomInputPriceLabel: String get() = context.getString(R.string.llm_custom_input_price_title)
+    override val llmCustomOutputPriceLabel: String get() = context.getString(R.string.llm_custom_output_price_title)
+    override val llmOpenrouterModelLabel: String get() = context.getString(R.string.llm_openrouter_model)
+    override val llmOpenrouterCategoryLabel: String get() = context.getString(R.string.llm_openrouter_category)
+    override val llmOpenrouterCategoryAll: String get() = context.getString(R.string.llm_openrouter_category_all)
 }

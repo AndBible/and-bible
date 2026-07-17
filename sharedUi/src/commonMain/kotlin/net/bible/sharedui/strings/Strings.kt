@@ -210,6 +210,23 @@ interface Strings {
     val providerApiFormatLabel: String         // R.string.ai_provider_api_format
     fun providerDeleteConfirm(name: String): String  // R.string.ai_provider_delete_confirm
     val apiKeyInstructionsPrefix: String       // R.string.easy_setup_api_key_instructions
+
+    // Batch 9b — AiModelsScreen
+    val aiModelsTitle: String                  // R.string.ai_models_category (screen title)
+    val addModel: String                       // R.string.add_model (top-bar action + add-dialog title)
+    val editModelTitle: String                 // R.string.edit_model_title (edit-dialog title)
+    fun modelDeleteConfirm(name: String): String  // R.string.model_delete_confirm
+    val modelSetDefault: String                // R.string.model_set_default (checkbox/switch label)
+    val modelSelectProviderLabel: String       // R.string.model_select_provider (PICK_PROVIDER dialog title + read-only provider field label)
+    val modelSupportedBadge: String            // R.string.model_supported_badge (edit-mode supported indicator)
+    val showUnsupportedModels: String          // R.string.show_also_unsupported_models
+    val llmCustomModel: String                 // R.string.llm_custom_model ("Custom…" picker entry label)
+    val llmCustomModelHint: String             // R.string.llm_custom_model_dialog_message
+    val llmCustomInputPriceLabel: String       // R.string.llm_custom_input_price_title
+    val llmCustomOutputPriceLabel: String      // R.string.llm_custom_output_price_title
+    val llmOpenrouterModelLabel: String        // R.string.llm_openrouter_model
+    val llmOpenrouterCategoryLabel: String     // R.string.llm_openrouter_category
+    val llmOpenrouterCategoryAll: String       // R.string.llm_openrouter_category_all
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
