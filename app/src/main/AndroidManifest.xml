@@ -246,6 +246,14 @@
             android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.ai.AiProvidersComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/ai_providers_category"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.ai.AiModelsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/ai_models_category"
