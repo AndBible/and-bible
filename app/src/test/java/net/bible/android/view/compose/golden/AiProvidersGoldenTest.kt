@@ -64,9 +64,24 @@ class AiProvidersGoldenTest {
         canSave = true,
     )
 
-    private fun screen(editState: ProviderEditState?) = @androidx.compose.runtime.Composable {
+    /** FORM step, editing the builtin provider `p1`: name field disabled (preset displayName),
+     *  NO endpoint/api-format fields — materially different (shorter) dialog than the custom form. */
+    private val builtinEditState = ProviderEditState(
+        id = "p1",
+        step = ProviderEditState.Step.FORM,
+        typeId = "OPENAI",
+        displayName = "OpenAI",
+        apiKey = "sk-abc123",
+        endpoint = "",
+        apiFormatId = "",
+        isCustom = false,
+        apiKeyUrl = "https://platform.openai.com/api-keys",
+        canSave = true,
+    )
+
+    private fun screen(editState: ProviderEditState?, items: List<ProviderVd> = providers) = @androidx.compose.runtime.Composable {
         AiProvidersScreen(
-            providers = providers,
+            providers = items,
             providerTypes = providerTypes,
             editState = editState,
             onUp = {},
@@ -92,4 +107,11 @@ class AiProvidersGoldenTest {
     // taller than the default viewport allows without clipping the api-format dropdown.
     @Test fun edit_custom_matrix() =
         captureMatrix("AiProviders", "edit_custom", heightDp = 900, content = screen(customEditState))
+
+    // Builtin-provider FORM is shorter (no endpoint/api-format fields) — default heightDp is fine.
+    @Test fun edit_builtin_matrix() =
+        captureMatrix("AiProviders", "edit_builtin", content = screen(builtinEditState))
+
+    @Test fun empty() =
+        captureGolden("AiProviders", "empty", EDGE_MODE, content = screen(null, items = emptyList()))
 }
