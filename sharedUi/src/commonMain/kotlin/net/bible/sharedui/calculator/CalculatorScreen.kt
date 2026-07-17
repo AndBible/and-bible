@@ -24,8 +24,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -49,16 +53,26 @@ import net.bible.sharedui.strings.LocalStrings
 @Composable
 fun CalculatorScreen(display: String, error: CalcError?, onKey: (CalcKey) -> Unit) {
     Column(modifier = Modifier.fillMaxSize().padding(4.dp)) {
-        Box(
-            modifier = Modifier.fillMaxWidth().weight(3f).padding(horizontal = 12.dp),
-            contentAlignment = Alignment.BottomEnd,
+        // Grouped display "screen": a tonal surfaceContainer panel so the result reads as a distinct
+        // calculator display rather than a bare Text. Single large display line — the controller
+        // exposes only one `display: String`, so a two-line (expression + result) split is deferred
+        // as a follow-up (it would require new controller state; behaviour must stay untouched).
+        Surface(
+            modifier = Modifier.fillMaxWidth().weight(3f).padding(4.dp),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shape = RoundedCornerShape(16.dp),
         ) {
-            Text(
-                text = display,
-                textAlign = TextAlign.End,
-                fontSize = 40.sp,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            Box(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp),
+                contentAlignment = Alignment.BottomEnd,
+            ) {
+                Text(
+                    text = display,
+                    textAlign = TextAlign.End,
+                    fontSize = 40.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
         }
         if (error != null) {
             val strings = LocalStrings.current
@@ -111,12 +125,45 @@ private fun ColumnScope.KeyRow(keys: List<Pair<String, CalcKey>>, onKey: (CalcKe
     }
 }
 
+/** The visual weight a key carries, driving its M3 colour role (Option 1 hierarchy). Shape is left
+ *  at the M3 default pill for every role — Option 1 changed colour + the display panel only. */
+private enum class CalcRole { DIGIT, OPERATOR, EQUALS, FUNCTION }
+
+private fun roleFor(key: CalcKey): CalcRole = when (key) {
+    CalcKey.PLUS, CalcKey.MINUS, CalcKey.TIMES, CalcKey.DIV -> CalcRole.OPERATOR
+    CalcKey.EQUALS -> CalcRole.EQUALS
+    CalcKey.CLEAR, CalcKey.PARENS, CalcKey.PERCENT -> CalcRole.FUNCTION
+    else -> CalcRole.DIGIT // D0-D9 and DOT: number entry
+}
+
 @Composable
 private fun CalcButton(label: String, key: CalcKey, onKey: (CalcKey) -> Unit, modifier: Modifier) {
-    Button(
-        onClick = { onKey(key) },
-        modifier = modifier.padding(1.dp),
-    ) {
-        Text(text = label, fontSize = 28.sp)
+    val onClick = { onKey(key) }
+    val buttonModifier = modifier.padding(1.dp)
+    val text = @Composable { Text(text = label, fontSize = 28.sp) }
+    when (roleFor(key)) {
+        // Digits → soft tonal (secondaryContainer) — the low-emphasis bulk of the keypad.
+        CalcRole.DIGIT -> FilledTonalButton(onClick = onClick, modifier = buttonModifier) { text() }
+        // Operators ÷ × − + → filled primary, the coloured emphasis.
+        CalcRole.OPERATOR -> Button(onClick = onClick, modifier = buttonModifier) { text() }
+        // "=" → the single strongest accent: a distinct emphasised (tertiary) container so it stands
+        // apart from the primary operators.
+        CalcRole.EQUALS -> Button(
+            onClick = onClick,
+            modifier = buttonModifier,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                contentColor = MaterialTheme.colorScheme.onTertiary,
+            ),
+        ) { text() }
+        // C / ( ) / % → tonal tertiary: distinct hue, low emphasis (utility keys).
+        CalcRole.FUNCTION -> FilledTonalButton(
+            onClick = onClick,
+            modifier = buttonModifier,
+            colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            ),
+        ) { text() }
     }
 }
