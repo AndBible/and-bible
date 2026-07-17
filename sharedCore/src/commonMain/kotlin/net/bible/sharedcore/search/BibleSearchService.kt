@@ -11,6 +11,12 @@ interface BibleSearchService {
     fun containsNonScripture(): Boolean
     /** Whether the results view starts showing scripture (parity with isCurrentlyShowingScripture). */
     fun isCurrentlyShowingScripture(): Boolean
+    /** All installed Bibles as selectable options, each flagged whether it carries Strong's numbers. */
+    fun candidateBibles(): List<BibleOption>
+    /** Persist the results document-selector choice (selected translations + Strong's mode). */
+    fun persistSelection(translationIds: List<String>, strongsSearch: Boolean)
+    /** The subset of [translationIds] that lack a usable search index. */
+    fun unindexedAmong(translationIds: List<String>): List<String>
 }
 
 interface SearchIndexService {
