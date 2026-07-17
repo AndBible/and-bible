@@ -158,11 +158,19 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         // Empty result = cancelled / dismissed / nothing checked -> no change.
         if (selected.isEmpty()) return
 
-        // An unindexed document must be indexed before it can be searched (mirrors Search.onSearch).
+        // An unindexed selected document must be indexed before it can be searched. Carry the full
+        // search context to SearchIndex so that after indexing the flow returns to SearchResults
+        // (SEARCH_TEXT present) and re-runs with the chosen documents. Without SEARCH_TEXT,
+        // SearchIndexProgressStatus falls through to the Search entry screen, which shows
+        // "An error has occurred" when the current window's document is itself unindexed.
         val unindexed = selected.filter { it.indexStatus != IndexStatus.DONE }
         if (unindexed.isNotEmpty()) {
+            val newSelection = ArrayList(selected.map { it.initials })
             startActivity(Intent(this, SearchIndex::class.java).apply {
                 putExtra(SearchControl.SEARCH_DOCUMENT, unindexed.first().initials)
+                putExtra(SearchControl.SEARCH_TEXT, intent.getStringExtra(SearchControl.SEARCH_TEXT))
+                putExtra(SearchControl.IS_STRONGS_SEARCH, isStrongsSearch)
+                putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, newSelection)
             })
             return
         }
