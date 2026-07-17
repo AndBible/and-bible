@@ -63,7 +63,6 @@ import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.activity.ai.PromptEditActivity
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.util.widget.ShareWidget
@@ -876,7 +875,7 @@ class BibleJavascriptInterface(
                 "AltKeyO" -> mainBibleActivity.showOptionsMenu()
                 "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
                 "CtrlKeyW" -> {
-                    val intent = Intent(mainBibleActivity, WorkspaceSelectorActivity::class.java)
+                    val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.WorkspaceSelector)
                     mainBibleActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
                 }
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()

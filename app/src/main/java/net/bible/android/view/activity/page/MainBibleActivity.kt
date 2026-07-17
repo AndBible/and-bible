@@ -137,7 +137,6 @@ import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
-import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.AgentLogVisibilityChanged
 import net.bible.android.view.util.widget.SpeakTransportWidget
@@ -854,7 +853,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val horizontal = abs(e1.x - e2.x).toDouble()
 
                 if (vertical > scaledMinimumDistance && abs(velocityY) > minScaledVelocity) {
-                    val intent = Intent(this@MainBibleActivity, WorkspaceSelectorActivity::class.java)
+                    val intent = ScreenLauncher.intentFor(this@MainBibleActivity, Screen.WorkspaceSelector)
                     startActivityForResult(intent, WORKSPACE_CHANGED)
                     return true
 
@@ -1054,7 +1053,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 fullScreen = true
             })
             R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
-                val intent = Intent(this, WorkspaceSelectorActivity::class.java)
+                val intent = ScreenLauncher.intentFor(this, Screen.WorkspaceSelector)
                 startActivityForResult(intent, WORKSPACE_CHANGED)
             }, opensDialog = true)
             R.id.llmActionsSubMenu -> CommandPreference(
@@ -1345,7 +1344,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             workspaceButton.visibility = if (visibleButtonCount < maxButtons)
             {
                 workspaceButton.setOnClickListener {
-                    val intent = Intent(this@MainBibleActivity, WorkspaceSelectorActivity::class.java)
+                    val intent = ScreenLauncher.intentFor(this@MainBibleActivity, Screen.WorkspaceSelector)
                     startActivityForResult(intent, WORKSPACE_CHANGED)
                 }
                 visibleButtonCount += 1

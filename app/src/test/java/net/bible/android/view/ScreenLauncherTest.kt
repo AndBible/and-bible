@@ -60,6 +60,8 @@ import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakComposeActivity
+import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
+import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -259,5 +261,13 @@ class ScreenLauncherTest {
         assertEquals(BibleSpeakComposeActivity::class.java, ScreenLauncher.targetFor(Screen.BibleSpeak))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(BibleSpeakActivity::class.java, ScreenLauncher.targetFor(Screen.BibleSpeak))
+    }
+
+    @Test
+    fun workspaceSelector_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(WorkspaceSelectorComposeActivity::class.java, ScreenLauncher.targetFor(Screen.WorkspaceSelector))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(WorkspaceSelectorActivity::class.java, ScreenLauncher.targetFor(Screen.WorkspaceSelector))
     }
 }

@@ -62,10 +62,12 @@ import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakComposeActivity
+import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
+import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -147,6 +149,9 @@ object ScreenLauncher {
         Screen.BibleSpeak ->
             if (useComposeFor(screen)) BibleSpeakComposeActivity::class.java
             else BibleSpeakActivity::class.java
+        Screen.WorkspaceSelector ->
+            if (useComposeFor(screen)) WorkspaceSelectorComposeActivity::class.java
+            else WorkspaceSelectorActivity::class.java
     }
 
     /**
