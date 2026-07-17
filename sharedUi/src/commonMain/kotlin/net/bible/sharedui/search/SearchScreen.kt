@@ -109,7 +109,8 @@ fun SearchScreen(
                         selected = bibleSection == section,
                         onClick = { onBibleSection(section) },
                         shape = SegmentedButtonDefaults.itemShape(index, sections.size),
-                    ) { Text(sectionLabels[index]) }
+                        icon = {}, // no default check icon: 4 long labels need the full width
+                    ) { Text(sectionLabels[index], maxLines = 1) }
                 }
             }
 
