@@ -147,6 +147,23 @@ interface Strings {
     val cloudActionRestore: String
     val cloudActionPurge: String
     fun cloudVersionPrefix(version: String): String
+
+    // Speak (Batch 6a)
+    val speakTitle: String
+    val playbackSettingsTitle: String
+    val speakAndPlayEarconsTitle: String
+    val confChangeChapter: String
+    val confChangeTitle: String
+    val confSpeakFootnotes: String
+    val speakSpeedTitle: String
+    val repeatPassage: String
+    val setRepeatPassageRange: String
+    val speakSleepTimerTitle: String
+    val confSpeakSleepTimer: String
+    fun sleepTimerSet(minutes: Int): String
+    val speakAdvancedSettings: String
+    val systemSpeakSettings: String
+    val helpLabel: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
