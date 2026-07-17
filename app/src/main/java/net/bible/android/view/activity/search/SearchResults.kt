@@ -155,7 +155,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             },
             preSelected = { selectedTranslations.contains(it.initials) }
         )
-        // Empty result = cancelled / "select all" / nothing picked -> no change.
+        // Empty result = cancelled / dismissed / nothing checked -> no change.
         if (selected.isEmpty()) return
 
         // An unindexed document must be indexed before it can be searched (mirrors Search.onSearch).
