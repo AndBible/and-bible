@@ -47,6 +47,7 @@ class SearchResultsController(
      * Otherwise re-runs the stored request with the new translations.
      */
     fun selectTranslations(ids: List<String>, onNeedIndex: (unindexed: List<String>, ids: List<String>) -> Unit) {
+        if (ids.isEmpty()) return
         _selectedTranslations.value = ids
         service.persistSelection(ids, isStrongsSearch)
         val unindexed = service.unindexedAmong(ids)

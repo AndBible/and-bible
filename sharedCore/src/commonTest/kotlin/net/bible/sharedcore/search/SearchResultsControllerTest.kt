@@ -84,6 +84,20 @@ class SearchResultsControllerTest {
         assertEquals("x", fake.lastRequest?.query)
     }
 
+    @Test fun selectTranslations_empty_is_noop() = runTest(UnconfinedTestDispatcher()) {
+        val c = SearchResultsController(fake, backgroundScope)
+        c.run(SearchRequest("x", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), "", isStrongsSearch = true))
+        val countAfterRun = fake.searchCount
+        fake.persistedIds = null; fake.persistedStrongs = null
+        var needIndexCalled = false
+        c.selectTranslations(emptyList()) { _, _ -> needIndexCalled = true }
+        // Unchecking everything then pressing OK must not clobber the selection or run an empty search.
+        assertNull(fake.persistedIds)
+        assertFalse(needIndexCalled)
+        assertEquals(countAfterRun, fake.searchCount)
+        assertEquals(listOf("KJV"), c.selectedTranslations.value)
+    }
+
     @Test fun selectTranslations_unindexed_calls_onNeedIndex_and_does_not_rerun() = runTest(UnconfinedTestDispatcher()) {
         fake.unindexed = listOf("ESV")
         val c = SearchResultsController(fake, backgroundScope)
