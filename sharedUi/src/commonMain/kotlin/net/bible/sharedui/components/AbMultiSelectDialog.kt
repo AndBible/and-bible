@@ -45,6 +45,10 @@ import androidx.compose.ui.unit.dp
  * @param options the selectable items.
  * @param idOf     stable identity for an option (also the value reported to [onConfirm]).
  * @param labelOf  the human-readable row label.
+ * @param selectAllText  when non-null, shows a neutral "select all / select none" toggle above the
+ *   option list (opt-in; existing callers passing nothing get no toggle, unchanged behavior).
+ * @param selectNoneText label shown instead of [selectAllText] once everything is already selected;
+ *   falls back to [selectAllText] itself when not given.
  */
 @Composable
 fun <T> AbMultiSelectDialog(
@@ -57,6 +61,8 @@ fun <T> AbMultiSelectDialog(
     dismissText: String,
     onConfirm: (List<String>) -> Unit,
     onDismiss: () -> Unit,
+    selectAllText: String? = null,
+    selectNoneText: String? = null,
 ) {
     // Local working copy of the checked set; committed to the host only on Confirm.
     val checked = remember(options, selectedIds) {
@@ -67,6 +73,15 @@ fun <T> AbMultiSelectDialog(
         title = { Text(title) },
         text = {
             LazyColumn(Modifier.heightIn(max = 400.dp)) {
+                if (selectAllText != null) {
+                    item {
+                        val allSelected = options.isNotEmpty() && checked.size == options.size
+                        TextButton(onClick = {
+                            if (allSelected) checked.clear()
+                            else { checked.clear(); checked.addAll(options.map { idOf(it) }) }
+                        }) { Text(if (allSelected) (selectNoneText ?: selectAllText) else selectAllText) }
+                    }
+                }
                 items(options, key = { idOf(it) }) { option ->
                     val id = idOf(option)
                     val isChecked = checked.contains(id)
