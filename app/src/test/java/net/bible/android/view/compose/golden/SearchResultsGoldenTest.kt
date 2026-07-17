@@ -102,6 +102,11 @@ class SearchResultsGoldenTest {
         captureGolden("SearchResults", "expanded", EDGE_MODE, content = screen(initiallyExpanded = setOf("1 Corinthians 13:4")))
     }
 
+    /** F19: a multi-match row NOT expanded must still show its match chips (dedicated fixture, isolated from the matrix). */
+    @Test fun collapsed_multi() {
+        captureGolden("SearchResults", "collapsed_multi", EDGE_MODE, content = screen())
+    }
+
     @Test fun scripture_toggle() {
         captureGolden("SearchResults", "scripture_toggle", EDGE_MODE, content = screen(scriptureToggleVisible = true, scriptureShown = true))
     }

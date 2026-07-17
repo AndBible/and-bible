@@ -220,31 +220,40 @@ private fun ResultCard(
                     }
                 }
             }
-            Text(
-                styledTextToAnnotatedString(row.primaryPreview),
-                style = MaterialTheme.typography.bodyMedium,
-            )
             if (multi && expanded) {
-                Spacer(Modifier.height(8.dp))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    row.matches.forEach { match ->
-                        AssistChip(
-                            onClick = { onSelect(row.referenceName, match.translationId) },
-                            label = { Text(match.abbreviation) },
+                // F20: expanded = per-translation breakdown only (no primary duplication).
+                Spacer(Modifier.height(4.dp))
+                row.matches.forEach { match: TranslationMatchVd ->
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(row.referenceName, match.translationId) }
+                            .padding(vertical = 4.dp),
+                    ) {
+                        Text(match.abbreviation, style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            styledTextToAnnotatedString(match.preview),
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
-                Spacer(Modifier.height(4.dp))
-                row.matches.forEach { match: TranslationMatchVd ->
-                    Text(
-                        match.abbreviation,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(top = 4.dp),
-                    )
-                    Text(
-                        styledTextToAnnotatedString(match.preview),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
+            } else {
+                // Collapsed (single OR multi): one primary preview.
+                Text(
+                    styledTextToAnnotatedString(row.primaryPreview),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                if (multi) {
+                    // F19: show which translations matched even while collapsed.
+                    Spacer(Modifier.height(8.dp))
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        row.matches.forEach { match ->
+                            AssistChip(
+                                onClick = { onSelect(row.referenceName, match.translationId) },
+                                label = { Text(match.abbreviation) },
+                            )
+                        }
+                    }
                 }
             }
         }
