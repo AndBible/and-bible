@@ -44,7 +44,9 @@ import net.bible.android.control.search.MultiSearchResultsDto
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.Key
 import javax.inject.Inject
 
@@ -57,6 +59,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     override val integrateWithHistoryManager: Boolean = true
 
     private var selectedTranslations: List<String> = emptyList()
+    private var isStrongsSearch = false
+    private var documentSelectorMenuItem: MenuItem? = null
 
     @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
     @Inject lateinit var searchControl: SearchControl
@@ -79,6 +83,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             ?: intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?.let { listOf(it) }
             ?: emptyList()
 
+        isStrongsSearch = intent.getBooleanExtra(SearchControl.IS_STRONGS_SEARCH, false)
+
         binding.closeButton.setOnClickListener {
             finish()
         }
@@ -89,6 +95,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_results_actionbar_menu, menu)
+        documentSelectorMenuItem = menu.findItem(R.id.changeSearchDocuments)
+        updateDocumentSelectorTitle()
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -100,6 +108,10 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             }
             R.id.openResultsInWindow -> {
                 openResultsInAWindow()
+                true
+            }
+            R.id.changeSearchDocuments -> {
+                lifecycleScope.launch { showDocumentSelector() }
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -115,6 +127,49 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         }
         linkControl.showLink(FakeBookFactory.multiDocument, lst)
         finish()
+    }
+
+    private fun allBibles(): List<SwordBook> =
+        SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().sortedBy { it.abbreviation }
+
+    private fun updateDocumentSelectorTitle() {
+        val byInitials = allBibles().associateBy { it.initials }
+        val label = selectedTranslations
+            .mapNotNull { byInitials[it]?.abbreviation }
+            .joinToString(", ")
+            .ifEmpty { getString(R.string.choose_translations) }
+        documentSelectorMenuItem?.title = label
+    }
+
+    private suspend fun showDocumentSelector() {
+        val candidates = candidateSearchDocuments(isStrongsSearch, allBibles())
+        if (candidates.isEmpty()) return
+
+        val selected = Dialogs.multiselect(
+            context = this,
+            title = getString(R.string.choose_translations),
+            items = candidates,
+            itemToString = { book ->
+                if (book.indexStatus == IndexStatus.DONE) "${book.abbreviation} - ${book.name}"
+                else "${book.abbreviation} - ${book.name} (${getString(R.string.search_index_not_created)})"
+            },
+            preSelected = { selectedTranslations.contains(it.initials) }
+        )
+        // Empty result = cancelled / "select all" / nothing picked -> no change.
+        if (selected.isEmpty()) return
+
+        // An unindexed document must be indexed before it can be searched (mirrors Search.onSearch).
+        val unindexed = selected.filter { it.indexStatus != IndexStatus.DONE }
+        if (unindexed.isNotEmpty()) {
+            startActivity(Intent(this, SearchIndex::class.java).apply {
+                putExtra(SearchControl.SEARCH_DOCUMENT, unindexed.first().initials)
+            })
+            return
+        }
+
+        selectedTranslations = selected.map { it.initials }
+        updateDocumentSelectorTitle()
+        prepareResults()
     }
 
     private suspend fun prepareResults() {
@@ -171,6 +226,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             withContext(Dispatchers.Main) {
                 val resultCount = mSearchResultsHolder?.size ?: 0
                 supportActionBar?.title = getString(R.string.multi_search_results, resultCount, selectedTranslations.size)
+                updateDocumentSelectorTitle()
                 Toast.makeText(
                     this@SearchResults,
                     getString(R.string.search_result_count, resultCount),
