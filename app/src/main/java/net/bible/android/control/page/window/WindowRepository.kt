@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -41,6 +41,7 @@ import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.min
 
 open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
@@ -50,7 +51,13 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     var unPinnedWeight: Float? = null
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
-    var windowList: MutableList<Window> = ArrayList()
+    // CopyOnWriteArrayList (not a plain ArrayList): windowList is iterated on the background
+    // cloud-sync thread (saveIntoDb, via MainBibleActivity.synchronize/periodicSync on
+    // Dispatchers.IO) while the main thread structurally modifies it (opening/closing/moving
+    // windows). A fail-fast ArrayList throws ConcurrentModificationException in that race
+    // (OSTicket 3374); a copy-on-write list gives iterators a stable snapshot instead. Window
+    // counts are tiny, so the copy-on-mutation cost is negligible.
+    var windowList: MutableList<Window> = CopyOnWriteArrayList()
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
     var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
     var maximizedWindowId: IdType? = null

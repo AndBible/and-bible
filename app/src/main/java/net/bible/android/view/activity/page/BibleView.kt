@@ -425,7 +425,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     putString(SearchControl.SEARCH_TEXT, searchText)
                     putString(SearchControl.SEARCH_HIGHLIGHT_TEXT, highlightText)
                     putString(SearchControl.SEARCH_DOCUMENT, currentBible.initials)
-                    putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
                 }
 
                 val intent = ScreenLauncher.intentFor(

@@ -148,7 +148,6 @@ class SearchComposeActivity : ActivityBase() {
             putExtra(SearchControl.SEARCH_TEXT, decorated)
             putExtra(SearchControl.SEARCH_HIGHLIGHT_TEXT, highlightText)
             putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials)
-            putExtra(SearchControl.TARGET_DOCUMENT, currentDocInitials)
             putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, ArrayList(request.translationIds))
         }
         startActivity(intent)
