@@ -156,4 +156,11 @@ class AndroidStrings(private val context: Context) : Strings {
     override val speakAdvancedSettings: String get() = context.getString(R.string.speak_advanced_settings)
     override val systemSpeakSettings: String get() = context.getString(R.string.system_speak_settings)
     override val helpLabel: String get() = context.getString(R.string.help)
+
+    override val speakSettingsTitle: String get() = context.getString(R.string.speak_settings_title)
+    override val confSpeakSynchronize: String get() = context.getString(R.string.conf_speak_synchronize)
+    override val confReplaceDivinename: String get() = context.getString(R.string.conf_replace_divinename)
+    override val speakBookmarkingSettingsTitle: String get() = context.getString(R.string.speak_bookmarking_settings_title)
+    override val confSpeakAutoBookmark: String get() = context.getString(R.string.conf_speak_auto_bookmark)
+    override val confSavePlaybackSettingsToBookmarks: String get() = context.getString(R.string.conf_save_playback_settings_to_bookmarks)
 }

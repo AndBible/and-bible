@@ -164,6 +164,14 @@ interface Strings {
     val speakAdvancedSettings: String
     val systemSpeakSettings: String
     val helpLabel: String
+
+    // Advanced Speak settings (Batch 6b)
+    val speakSettingsTitle: String
+    val confSpeakSynchronize: String
+    val confReplaceDivinename: String
+    val speakBookmarkingSettingsTitle: String
+    val confSpeakAutoBookmark: String
+    val confSavePlaybackSettingsToBookmarks: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
