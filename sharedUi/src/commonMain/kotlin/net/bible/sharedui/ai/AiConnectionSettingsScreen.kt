@@ -111,12 +111,12 @@ fun AiConnectionSettingsScreen(
     // showing stale content next recomposition.
     LaunchedEffect(customPromptDialogKey, state) {
         val key = customPromptDialogKey
-        if (key != null && state.items.none { it.key == key }) {
+        if (key != null && state.visibleItems.none { it.key == key }) {
             customPromptDialogKey = null
         }
     }
     LaunchedEffect(retentionDialogOpen, state) {
-        if (retentionDialogOpen && state.items.none { it.key == KEY_RAW_LOG_RETENTION }) {
+        if (retentionDialogOpen && state.visibleItems.none { it.key == KEY_RAW_LOG_RETENTION }) {
             retentionDialogOpen = false
         }
     }
@@ -142,7 +142,7 @@ fun AiConnectionSettingsScreen(
     )
 
     customPromptDialogKey?.let { key ->
-        val title = (state.items.firstOrNull { it.key == key } as? SettingsItem.TextInputRow)?.title ?: ""
+        val title = (state.visibleItems.firstOrNull { it.key == key } as? SettingsItem.TextInputRow)?.title ?: ""
         CustomPromptDialog(
             title = title,
             initialText = customPromptTextFor(key),
@@ -159,7 +159,7 @@ fun AiConnectionSettingsScreen(
     }
 
     if (retentionDialogOpen) {
-        val row = state.items.firstOrNull { it.key == KEY_RAW_LOG_RETENTION } as? SettingsItem.TextInputRow
+        val row = state.visibleItems.firstOrNull { it.key == KEY_RAW_LOG_RETENTION } as? SettingsItem.TextInputRow
         RetentionDialog(
             title = row?.title ?: "",
             currentDays = row?.value?.toIntOrNull() ?: -1,
