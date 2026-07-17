@@ -22,6 +22,8 @@ import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.control.speak.SpeakSettingsServiceImpl
+import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanBibleActionBarButton
@@ -68,6 +70,7 @@ val coreModule = module {
     single { SearchResultsCache() }
     singleOf(::SearchIndexServiceImpl) { bind<SearchIndexService>() }
     singleOf(::AndroidEpubSearchService) { bind<EpubSearchService>() }
+    singleOf(::SpeakSettingsServiceImpl) { bind<SpeakSettingsService>() }
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.
