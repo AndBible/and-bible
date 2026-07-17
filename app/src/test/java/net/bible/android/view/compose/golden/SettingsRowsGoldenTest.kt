@@ -1,0 +1,27 @@
+package net.bible.android.view.compose.golden
+
+import androidx.compose.foundation.layout.Column
+import net.bible.android.TEST_SDK
+import net.bible.sharedui.components.AbSliderRow
+import net.bible.sharedui.components.AbSwitchRow
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [TEST_SDK], application = android.app.Application::class)
+class SettingsRowsGoldenTest {
+    private val rows = @androidx.compose.runtime.Composable {
+        Column {
+            AbSwitchRow(label = "Speak titles", checked = true, onCheckedChange = {})
+            AbSwitchRow(label = "Auto-bookmark", checked = false, onCheckedChange = {}, summary = "Create a bookmark automatically")
+            AbSliderRow(label = "Speed", value = 150, onValueChange = {}, valueRange = 0f..300f, valueLabel = "150 %")
+        }
+    }
+
+    @Test fun rows_light() = captureGolden("SettingsRows", "rows", GoldenMode.LIGHT, content = rows)
+    @Test fun rows_bw() = captureGolden("SettingsRows", "rows", GoldenMode.BW, content = rows)
+}
