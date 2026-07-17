@@ -46,6 +46,8 @@ import net.bible.android.activity.databinding.ManagePromptsListItemBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.AndBibleAddons
@@ -88,7 +90,7 @@ class AiSettingsActivity : ActivityBase() {
         title = getString(R.string.ai_settings)
 
         binding.configureConnectionButton.setOnClickListener {
-            startActivity(Intent(this, AiConnectionSettingsActivity::class.java))
+            ScreenLauncher.open(this, Screen.AiConnectionSettings)
         }
 
         binding.list.setOnChildClickListener { _, _, groupPosition, childPosition, _ ->
@@ -236,7 +238,7 @@ class AiSettingsActivity : ActivityBase() {
                 true
             }
             R.id.ai_connection_settings -> {
-                startActivity(Intent(this, AiConnectionSettingsActivity::class.java))
+                ScreenLauncher.open(this, Screen.AiConnectionSettings)
                 true
             }
             R.id.restore_hidden_prompts -> {

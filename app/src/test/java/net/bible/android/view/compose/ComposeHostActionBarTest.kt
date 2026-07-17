@@ -166,4 +166,12 @@ class ComposeHostActionBarTest {
     @Test fun `WorkspaceSelector host theme has no native ActionBar`() {
         assertNull(build<WorkspaceSelectorHostProbe>().supportActionBar)
     }
+
+    @Test fun `AiConnectionSettingsComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        assertNull(
+            Robolectric.buildActivity(
+                net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity::class.java
+            ).create().get().supportActionBar
+        )
+    }
 }
