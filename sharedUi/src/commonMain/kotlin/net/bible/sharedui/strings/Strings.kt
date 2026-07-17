@@ -189,6 +189,10 @@ interface Strings {
     fun workspaceNumber(n: Int): String       // R.string.workspace_number (new-workspace default name)
     fun copyOfWorkspace(name: String): String // R.string.copy_of_workspace (clone default name)
     fun workspaceListingWithCurrent(name: String): String  // R.string.workspace_listing_with_current
+
+    // Batch 9a — AiConnectionSettingsScreen custom editors
+    val resetToDefault: String                // R.string.reset_to_default
+    val rawLogRetentionDisabledLabel: String   // R.string.raw_log_retention_summary_disabled (also the disable checkbox label)
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

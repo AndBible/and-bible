@@ -180,4 +180,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun workspaceNumber(n: Int) = context.getString(R.string.workspace_number, n)
     override fun copyOfWorkspace(name: String) = context.getString(R.string.copy_of_workspace, name)
     override fun workspaceListingWithCurrent(name: String) = context.getString(R.string.workspace_listing_with_current, name)
+
+    // Batch 9a — AiConnectionSettingsScreen custom editors
+    override val resetToDefault: String get() = context.getString(R.string.reset_to_default)
+    override val rawLogRetentionDisabledLabel: String get() = context.getString(R.string.raw_log_retention_summary_disabled)
 }
