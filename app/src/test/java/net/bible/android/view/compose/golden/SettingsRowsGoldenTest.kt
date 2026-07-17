@@ -22,6 +22,9 @@ class SettingsRowsGoldenTest {
         }
     }
 
-    @Test fun rows_light() = captureGolden("SettingsRows", "rows", GoldenMode.LIGHT, content = rows)
-    @Test fun rows_bw() = captureGolden("SettingsRows", "rows", GoldenMode.BW, content = rows)
+    @Test fun rows_primary() = captureMatrix("SettingsRows", "rows", content = rows)
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
+    fun rows_primary_rtl() = captureRtl("SettingsRows", "rows", content = rows)
 }
