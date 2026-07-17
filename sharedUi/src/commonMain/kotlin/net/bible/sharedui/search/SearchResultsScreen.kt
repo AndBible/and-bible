@@ -177,12 +177,17 @@ fun SearchResultsScreen(
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                // F27: when more than one translation is being searched, a verse that matched in only
+                // ONE of them has no chips (that's the collapsed-multi affordance), so label its single
+                // card with the matched translation — otherwise there's no way to tell which one it is.
+                val labelSingleMatchTranslation = selectedIds.size > 1
                 items(rows, key = { it.referenceName }) { row ->
                     ResultCard(
                         row = row,
                         expanded = expanded[row.referenceName] == true,
                         onToggleExpand = { expanded[row.referenceName] = !(expanded[row.referenceName] == true) },
                         onSelect = onSelect,
+                        labelSingleMatchTranslation = labelSingleMatchTranslation,
                     )
                 }
             }
@@ -209,6 +214,7 @@ private fun ResultCard(
     expanded: Boolean,
     onToggleExpand: () -> Unit,
     onSelect: (referenceName: String, translationId: String?) -> Unit,
+    labelSingleMatchTranslation: Boolean = false,
 ) {
     val multi = row.matches.size > 1
     val cardModifier = Modifier.fillMaxWidth().let {
@@ -250,6 +256,13 @@ private fun ResultCard(
                 }
             } else {
                 // Collapsed (single OR multi): one primary preview.
+                if (!multi && labelSingleMatchTranslation) {
+                    // F27: single-match card gets the matched-translation label (chips are multi-only).
+                    row.matches.firstOrNull()?.let { match ->
+                        Text(match.abbreviation, style = MaterialTheme.typography.labelSmall)
+                        Spacer(Modifier.height(2.dp))
+                    }
+                }
                 Text(
                     styledTextToAnnotatedString(row.primaryPreview),
                     style = MaterialTheme.typography.bodyMedium,

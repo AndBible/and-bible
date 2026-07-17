@@ -42,6 +42,7 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchRequest
+import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
 import net.bible.sharedui.ProvideAppLocals
@@ -60,6 +61,7 @@ class SearchResultsComposeActivity : ActivityBase() {
     override val integrateWithHistoryManager: Boolean = true
 
     private val bibleSearchService: BibleSearchService by inject()
+    private val searchResultsCache: SearchResultsCache by inject()
     private val linkControl: LinkControl by inject()
     private val windowControl: WindowControl by inject()
     @Suppress("unused")
@@ -70,7 +72,7 @@ class SearchResultsComposeActivity : ActivityBase() {
     private var searchText = ""
     private var latestScrollIndex = 0
 
-    private val controller by lazy { SearchResultsController(bibleSearchService, lifecycleScope) }
+    private val controller by lazy { SearchResultsController(bibleSearchService, lifecycleScope, searchResultsCache) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

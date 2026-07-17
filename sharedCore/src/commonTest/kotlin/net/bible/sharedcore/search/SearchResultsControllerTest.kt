@@ -98,6 +98,44 @@ class SearchResultsControllerTest {
         assertEquals(listOf("KJV"), c.selectedTranslations.value)
     }
 
+    // F26: a shared SearchResultsCache lets a re-created controller (history-revert Back) reuse the
+    // last result instead of re-searching.
+    @Test fun run_identical_request_on_new_controller_hits_shared_cache() = runTest(UnconfinedTestDispatcher()) {
+        val cache = SearchResultsCache()
+        val req = SearchRequest("x", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), "")
+        val c1 = SearchResultsController(fake, backgroundScope, cache)
+        c1.run(req)
+        assertEquals(1, fake.searchCount)
+        // New controller instance (activity recreate), same shared cache + identical request:
+        val c2 = SearchResultsController(fake, backgroundScope, cache)
+        c2.run(req)
+        assertEquals(1, fake.searchCount, "identical request must be served from cache, not re-searched")
+        assertEquals(listOf("Gen 1:1"), c2.displayed.value.map { it.referenceName })
+        assertFalse(c2.loading.value)
+    }
+
+    @Test fun run_different_request_misses_shared_cache() = runTest(UnconfinedTestDispatcher()) {
+        val cache = SearchResultsCache()
+        val c1 = SearchResultsController(fake, backgroundScope, cache)
+        c1.run(SearchRequest("x", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), ""))
+        assertEquals(1, fake.searchCount)
+        val c2 = SearchResultsController(fake, backgroundScope, cache)
+        c2.run(SearchRequest("y", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), ""))
+        assertEquals(2, fake.searchCount, "a different query must re-run and overwrite the single cache slot")
+    }
+
+    @Test fun selectTranslations_rerun_result_is_cached() = runTest(UnconfinedTestDispatcher()) {
+        val cache = SearchResultsCache()
+        val c1 = SearchResultsController(fake, backgroundScope, cache)
+        c1.run(SearchRequest("x", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), ""))
+        c1.selectTranslations(listOf("ESV")) { _, _ -> }
+        val countAfterRerun = fake.searchCount
+        // Recreate: identical re-selected request is served from cache.
+        val c2 = SearchResultsController(fake, backgroundScope, cache)
+        c2.run(SearchRequest("x", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("ESV"), ""))
+        assertEquals(countAfterRerun, fake.searchCount)
+    }
+
     @Test fun selectTranslations_unindexed_calls_onNeedIndex_and_does_not_rerun() = runTest(UnconfinedTestDispatcher()) {
         fake.unindexed = listOf("ESV")
         val c = SearchResultsController(fake, backgroundScope)

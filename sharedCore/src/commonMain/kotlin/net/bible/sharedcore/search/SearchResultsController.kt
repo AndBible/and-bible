@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 class SearchResultsController(
     private val service: BibleSearchService,
     private val scope: CoroutineScope,
+    private val cache: SearchResultsCache = SearchResultsCache(),
 ) {
     private val _loading = MutableStateFlow(false); val loading = _loading.asStateFlow()
     private val _results = MutableStateFlow(MultiSearchResults.EMPTY); val results = _results.asStateFlow()
@@ -32,9 +33,22 @@ class SearchResultsController(
         _candidates.value = candidateDocuments(request.isStrongsSearch, service.candidateBibles())
         _scriptureShown.value = service.isCurrentlyShowingScripture()
         _toggleVisible.value = service.containsNonScripture()
+
+        // F26: a history-revert recreate re-runs onCreate with the SAME request; serve the cached
+        // result instantly instead of re-executing the Lucene search.
+        val cached = cache.get(request)
+        if (cached != null) {
+            _results.value = cached
+            _loading.value = false
+            return
+        }
         _loading.value = true
         scope.launch {
-            try { _results.value = service.searchMulti(request) }
+            try {
+                val r = service.searchMulti(request)
+                _results.value = r
+                cache.put(request, r)
+            }
             catch (e: Exception) { _error.value = e.message ?: "error" }
             finally { _loading.value = false }
         }
@@ -59,7 +73,11 @@ class SearchResultsController(
         storedRequest = request
         _loading.value = true
         scope.launch {
-            try { _results.value = service.searchMulti(request) }
+            try {
+                val r = service.searchMulti(request)
+                _results.value = r
+                cache.put(request, r)
+            }
             catch (e: Exception) { _error.value = e.message ?: "error" }
             finally { _loading.value = false }
         }

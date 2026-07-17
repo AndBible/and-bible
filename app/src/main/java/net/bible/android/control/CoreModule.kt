@@ -18,6 +18,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchIndexServiceImpl
 import net.bible.android.view.activity.search.AndroidEpubSearchService
 import net.bible.sharedcore.search.BibleSearchService
+import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.android.control.speak.SpeakControl
@@ -62,6 +63,9 @@ val coreModule = module {
     singleOf(::ReadingPlanRepository)
     singleOf(::SearchControl)
     singleOf(::BibleSearchServiceImpl) { bind<BibleSearchService>() }
+    // F26: shared across SearchResultsComposeActivity recreations (history-revert Back) so returning
+    // to results doesn't re-run the Lucene search.
+    single { SearchResultsCache() }
     singleOf(::SearchIndexServiceImpl) { bind<SearchIndexService>() }
     singleOf(::AndroidEpubSearchService) { bind<EpubSearchService>() }
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
