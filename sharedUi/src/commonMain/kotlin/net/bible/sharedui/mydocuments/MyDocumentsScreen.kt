@@ -28,13 +28,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -44,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.mydocuments.MyDocItem
 import net.bible.sharedui.components.AbConfirmDialog
@@ -52,6 +49,7 @@ import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbReorderableColumn
 import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -150,7 +148,7 @@ fun MyDocumentsScreen(
     }
 
     if (createOpen) {
-        TextInputDialog(
+        AbTextInputDialog(
             title = s.createTitle, initial = s.newDocumentName(documents.size + 1),
             confirmText = s.okay, dismissText = s.cancel,
             onConfirm = { createOpen = false; if (it.isNotBlank()) onCreate(it.trim()) },
@@ -160,7 +158,7 @@ fun MyDocumentsScreen(
     // Import name-entry prompt (parity with classic MyDocumentsActivity.showImportNameDialog): the host
     // has already picked URIs via SAF and set the pre-fill string; confirm hands the name back to the host.
     importNamePrompt?.let { prompt ->
-        TextInputDialog(
+        AbTextInputDialog(
             title = s.createTitle, initial = prompt,
             confirmText = s.okay, dismissText = s.cancel,
             onConfirm = { if (it.isNotBlank()) onConfirmImport(it.trim()) else onDismissImport() },
@@ -168,14 +166,14 @@ fun MyDocumentsScreen(
         )
     }
     renameFor?.let { item ->
-        TextInputDialog(
+        AbTextInputDialog(
             title = s.renameTitle, initial = item.name, confirmText = s.okay, dismissText = s.cancel,
             onConfirm = { renameFor = null; if (it.isNotBlank()) onRename(item.id, it.trim()) },
             onDismiss = { renameFor = null },
         )
     }
     descFor?.let { item ->
-        TextInputDialog(
+        AbTextInputDialog(
             title = s.editDescriptionLabel, initial = item.description, confirmText = s.okay, dismissText = s.cancel,
             onConfirm = { descFor = null; onEditDescription(item.id, it.trim()) },
             onDismiss = { descFor = null },
@@ -208,29 +206,4 @@ private fun RowOverflow(
             DropdownMenuItem(text = { Text(s.deleteLabel) }, onClick = { expanded = false; onDelete() })
         }
     }
-}
-
-/** A titled AlertDialog wrapping a single-line text field, returning the trimmed value on confirm. */
-@Composable
-internal fun TextInputDialog(
-    title: String, initial: String, confirmText: String, dismissText: String,
-    onConfirm: (String) -> Unit, onDismiss: () -> Unit,
-    extraContent: @Composable (() -> Unit)? = null,
-) {
-    var value by remember { mutableStateOf(TextFieldValue(initial)) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = value, onValueChange = { value = it }, singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                extraContent?.invoke()
-            }
-        },
-        confirmButton = { TextButton(onClick = { onConfirm(value.text) }) { Text(confirmText) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(dismissText) } },
-    )
 }

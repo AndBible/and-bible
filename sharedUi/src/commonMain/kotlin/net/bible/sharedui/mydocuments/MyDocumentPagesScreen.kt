@@ -50,6 +50,7 @@ import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbReorderableColumn
 import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -142,7 +143,7 @@ fun MyDocumentPagesScreen(
     }
 
     if (createOpen) {
-        TextInputDialog(
+        AbTextInputDialog(
             title = s.newPageTitle, initial = s.newPageName(pages.size + 1),
             confirmText = s.okay, dismissText = s.cancel,
             onConfirm = { createOpen = false; if (it.isNotBlank()) onCreate(it.trim(), createType) },
@@ -157,7 +158,7 @@ fun MyDocumentPagesScreen(
         )
     }
     renameFor?.let { item ->
-        TextInputDialog(
+        AbTextInputDialog(
             title = s.pageRenameTitle, initial = item.name, confirmText = s.okay, dismissText = s.cancel,
             onConfirm = { renameFor = null; if (it.isNotBlank()) onRename(item.id, it.trim()) },
             onDismiss = { renameFor = null },
