@@ -175,9 +175,10 @@ class DailyReadingComposeActivity : ActivityBase() {
                     readingPlanControl.setReadingPlan(planToLoad)
                     dayToLoad ?: readingPlanControl.currentPlanDay
                 }
-                extras != null -> {
+                extras != null && (extras.containsKey(DailyReading.PLAN) || extras.containsKey(DailyReading.DAY)) -> {
                     extras.getString(DailyReading.PLAN)?.let { readingPlanControl.setReadingPlan(it) }
-                    extras.getInt(DailyReading.DAY, dayLoaded)
+                    if (extras.containsKey(DailyReading.DAY)) extras.getInt(DailyReading.DAY)
+                    else readingPlanControl.currentPlanDay
                 }
                 else -> readingPlanControl.currentPlanDay
             }
