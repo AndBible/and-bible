@@ -123,6 +123,23 @@ class SearchComposeActivity : ActivityBase() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Parity with classic Search.onResume: the results-screen document selector may have changed
+        // the persisted selection while this screen sat in the back stack, and this Activity can
+        // resurface via onRestart/onResume without a fresh onCreate. Reload the available translations
+        // and re-seed the persisted selection (seed, not set, so it does not re-persist) so the
+        // displayed list reflects the latest choice.
+        if (!::controller.isInitialized) return
+        val bibles = SwordDocumentFacade.bibles
+            .filterIsInstance<SwordBook>()
+            .sortedBy { it.abbreviation }
+        controller.setAvailableTranslations(bibles.map { it.initials to it.abbreviation })
+        val saved = loadSelectedTranslations()
+        val fallback = currentDocument?.initials?.let { listOf(it) } ?: emptyList()
+        controller.seedTranslations(saved.ifEmpty { fallback })
+    }
+
     private fun onSubmit() {
         val request = controller.buildRequest()
         if (request.query.isBlank()) return
