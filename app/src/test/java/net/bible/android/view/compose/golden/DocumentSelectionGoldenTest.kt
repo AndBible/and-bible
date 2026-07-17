@@ -136,6 +136,7 @@ class DocumentSelectionGoldenTest {
         unlockVisible: Boolean = false,
         downloadMode: Boolean = false,
         isRefreshing: Boolean = false,
+        filtersExpanded: Boolean = false,
     ) = DocumentSelectionScreen(
         title = if (downloadMode) "Download documents" else "Documents",
         downloadMode = downloadMode,
@@ -169,10 +170,18 @@ class DocumentSelectionGoldenTest {
         onDismissError = {},
         onNavigateUp = {},
         onExitSelection = {},
+        initiallyFiltersExpanded = filtersExpanded,
     )
 
     @Test fun chooseDocument_populated() {
         captureMatrix("ChooseDocument", "populated") { screen() }
+    }
+
+    /** Filters expanded inline (F13): reveals the language picker + type dropdown below the summary row. */
+    @Test fun chooseDocument_filtersExpanded() {
+        captureGolden("ChooseDocument", "filtersExpanded", EDGE_MODE) {
+            screen(filtersExpanded = true)
+        }
     }
 
     @Test
