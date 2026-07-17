@@ -19,6 +19,7 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,6 +48,11 @@ fun AbTopAppBar(
             }
         },
         actions = actions,
+        // F2: the Compose hosts run inside an AppCompatActivity (ActivityBase) whose content
+        // frame already insets for the status bar (like the classic View screens). The M3
+        // default here would add the status-bar inset a SECOND time → the bar sat one bar-
+        // height too low. Zero the M3 inset so the single AppCompat/system inset positions it.
+        windowInsets = WindowInsets(0, 0, 0, 0),
     )
 }
 
@@ -60,6 +66,9 @@ fun AbScaffold(
 ) {
     Scaffold(
         topBar = { AbTopAppBar(title = { Text(title) }, onNavigateUp = onNavigateUp, actions = actions) },
+        // F2: see AbTopAppBar — the AppCompat host frame provides the system insets, so the
+        // Scaffold must not add them again (would double the top/bottom gap).
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         content = content,
     )
 }
@@ -70,5 +79,10 @@ fun AbScaffold(
     topBar: @Composable () -> Unit,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    Scaffold(topBar = topBar, content = content)
+    Scaffold(
+        topBar = topBar,
+        // F2: see the string-title overload — avoid double system insets under the AppCompat host.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        content = content,
+    )
 }
