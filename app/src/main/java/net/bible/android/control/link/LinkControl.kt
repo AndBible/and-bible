@@ -347,14 +347,30 @@ class LinkControl @Inject constructor(
         } else {
             SwordDocumentFacade.defaultBibleWithStrongs
         }
-        // possibly no Strong's bible or it has not been indexed
-        var needToIndex = false
+        // possibly no Strong's bible
         if (strongsBible == null) {
             Dialogs.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
             return
-        } else if (currentBible == strongsBible && !checkStrongs(currentBible)) {
+        }
+
+        // Restore the document(s) chosen last time in the search-results document selector so
+        // find-all remembers the user's preferred Strong's translation(s). Keep only installed,
+        // Strong's-enabled books; fall back to the auto-selected strongsBible when nothing usable
+        // is remembered.
+        val remembered = settings.getString(SearchControl.STRONGS_SEARCH_TRANSLATIONS_PREF, null)
+            ?.split(",").orEmpty()
+            .filter { it.isNotBlank() }
+            .mapNotNull { SwordDocumentFacade.getDocumentByInitials(it) as? SwordBook }
+            .filter { it.hasFeature(FeatureType.STRONGS_NUMBERS) }
+        val selection = remembered.ifEmpty { listOf(strongsBible) }
+        val searchBible = selection.first()
+
+        // The document that will actually be searched must be indexed with Strong's numbers;
+        // otherwise route to SearchIndex to build the index (rather than silently returning
+        // "0 verses").
+        val needToIndex = !checkStrongs(searchBible)
+        if (needToIndex) {
             Log.i(TAG, "Index status is NOT DONE")
-            needToIndex = true
         }
         // The below uses ANY_WORDS because that does not add anything to the search string
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
@@ -363,18 +379,15 @@ class LinkControl @Inject constructor(
         val activity = CurrentActivityHolder.currentActivity!!
         val searchParams = Bundle()
         searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
-        searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)
-
+        searchParams.putString(SearchControl.SEARCH_DOCUMENT, searchBible.initials)
         searchParams.putBoolean(SearchControl.IS_STRONGS_SEARCH, true)
-        var intent: Intent? = null
-        intent = if (needToIndex) {
+        val intent = if (needToIndex) {
             Intent(activity, SearchIndex::class.java)
         } else { //If an indexed Strong's module is in place then do the search - the normal situation
             Intent(activity, SearchResults::class.java)
         }
         intent.putExtras(searchParams)
-        //Add single translation in a list to cover for the multitranslation search page.
-        intent.putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, ArrayList(listOf(strongsBible.initials)))
+        intent.putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, ArrayList(selection.map { it.initials }))
         activity.startActivity(intent)
     }
 

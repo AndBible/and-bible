@@ -247,11 +247,11 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     private fun saveSelectedTranslations() {
         val initials = selectedTranslations.map { it.initials }
-        CommonUtils.settings.setString("search_selected_translations", initials.joinToString(","))
+        CommonUtils.settings.setString(SearchControl.SEARCH_TRANSLATIONS_PREF, initials.joinToString(","))
     }
 
     private fun loadSelectedTranslations() {
-        val saved = CommonUtils.settings.getString("search_selected_translations", null)
+        val saved = CommonUtils.settings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null)
         if (saved.isNullOrBlank()) return
 
         val initials = saved.split(",")
@@ -299,6 +299,15 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     }
     override fun onResume() {
         super.onResume()
+        // Re-sync the selected translations from persisted state. The search-results document
+        // selector may have changed them while this screen sat in the back stack, and this screen
+        // can resurface via onRestart/onResume without a fresh onCreate — so the displayed list
+        // would otherwise be stale.
+        loadSelectedTranslations()
+        if (selectedTranslations.isEmpty()) {
+            selectedTranslations.add(documentToSearch)
+        }
+        updateSelectedTranslationsText()
         binding.searchText.requestFocus()
     }
 
@@ -312,44 +321,45 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     private fun onSearch() {
         Log.i(TAG, "CLICKED")
-        var text = binding.searchText.text.toString()
-        if (!StringUtils.isEmpty(text)) {
-            // Check if any selected translation needs indexing
-            val unindexedTranslations = selectedTranslations.filter { it.indexStatus != IndexStatus.DONE }
-            if (unindexedTranslations.isNotEmpty()) {
-                // Redirect to SearchIndex for the first unindexed translation
-                val intent = Intent(this, SearchIndex::class.java)
-                intent.putExtra(SearchControl.SEARCH_DOCUMENT, unindexedTranslations.first().initials)
-                startActivity(intent)
-                return
-            }
+        val rawText = binding.searchText.text.toString()
+        if (StringUtils.isEmpty(rawText)) return
 
-            // update current intent so search is restored if we return here via history/back
-            // the current intent is saved by HistoryManager
-            intent.putExtra(SEARCH_TEXT_SAVE, text)
-            intent.putExtra(WORDS_SELECTION_SAVE, wordsRadioSelection)
-            intent.putExtra(SECTION_SELECTION_SAVE, sectionRadioSelection)
-            intent.putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName)
+        // update current intent so search is restored if we return here via history/back
+        // the current intent is saved by HistoryManager
+        intent.putExtra(SEARCH_TEXT_SAVE, rawText)
+        intent.putExtra(WORDS_SELECTION_SAVE, wordsRadioSelection)
+        intent.putExtra(SECTION_SELECTION_SAVE, sectionRadioSelection)
+        intent.putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName)
 
-            text = searchControl.decorateSearchString(text, searchType, bibleSection, currentBookName)
-            Log.i(TAG, "Search text:$text")
+        val searchText = searchControl.decorateSearchString(rawText, searchType, bibleSection, currentBookName)
+        Log.i(TAG, "Search text:$searchText")
+        val translationInitials = ArrayList(selectedTranslations.map { it.initials })
 
-            // specify search string and doc in new Intent;
-            // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
-            val intent = Intent(this, SearchResults::class.java)
-            intent.putExtra(SearchControl.SEARCH_TEXT, text)
-            val currentDocInitials = documentToSearch.initials
-            intent.putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials)
-
-            // Pass selected translations for multi-translation search
-            val translationInitials = ArrayList(selectedTranslations.map { it.initials })
+        // If any selected translation needs indexing, build the index first — carrying the search
+        // context so that after indexing the flow proceeds straight to the results (not back to this
+        // screen). SearchIndex forwards its extras to SearchIndexProgressStatus, which opens
+        // SearchResults when SEARCH_TEXT is present.
+        val unindexedTranslations = selectedTranslations.filter { it.indexStatus != IndexStatus.DONE }
+        if (unindexedTranslations.isNotEmpty()) {
+            val intent = Intent(this, SearchIndex::class.java)
+            intent.putExtra(SearchControl.SEARCH_DOCUMENT, unindexedTranslations.first().initials)
+            intent.putExtra(SearchControl.SEARCH_TEXT, searchText)
             intent.putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, translationInitials)
-
-            startActivityForResult(intent, 1)
-
-            // Back button is now handled by HistoryManager - Back will cause a new Intent instead of just finish
-            finish()
+            startActivity(intent)
+            return
         }
+
+        // specify search string and doc in new Intent;
+        // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
+        val intent = Intent(this, SearchResults::class.java)
+        intent.putExtra(SearchControl.SEARCH_TEXT, searchText)
+        intent.putExtra(SearchControl.SEARCH_DOCUMENT, documentToSearch.initials)
+        intent.putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, translationInitials)
+
+        startActivityForResult(intent, 1)
+
+        // Back button is now handled by HistoryManager - Back will cause a new Intent instead of just finish
+        finish()
     }
 
     companion object {

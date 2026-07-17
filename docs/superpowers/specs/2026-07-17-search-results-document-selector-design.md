@@ -55,7 +55,36 @@ Detected via the explicit `IS_STRONGS_SEARCH` intent extra set by `LinkControl`,
 
 ### Persistence
 
-The results-screen selector is a **live override for both flows** — it updates the in-memory `selectedTranslations` and re-runs the search, but does not persist to `search_selected_translations`. It therefore never mutates the search screen's saved default. This avoids the primary-document ordering subtleties in `Search.ensurePrimaryDocumentFirst` (which reorders the saved list to put the search screen's current document first) and keeps the change small and low-risk. The search screen continues to persist its own selection as before.
+The selector **remembers** the chosen documents so the next search restores them:
+
+- **Normal Bible searches** share the manual search screen's existing key
+  (`SearchControl.SEARCH_TRANSLATIONS_PREF` = `"search_selected_translations"`). It is the same
+  selection either way, so results-screen changes round-trip to the search screen and back.
+- **Strong's find-all-occurrences** uses its own key
+  (`SearchControl.STRONGS_SEARCH_TRANSLATIONS_PREF`), since its selection is a Strong's-enabled
+  subset. `LinkControl.showAllOccurrences` restores it as the initial selection (keeping only
+  installed, Strong's-enabled books) and falls back to the auto-selected Strong's bible when
+  nothing usable is remembered.
+
+`SearchResults.persistSelection()` writes the appropriate key whenever the selection changes.
+(This supersedes an earlier session-local design; persistence matches the behaviour described in
+issue #1982 — "from that point on all results show in the preferred module".)
+
+### Unindexed documents and the index-build flow
+
+Both entry points route an unindexed target to `SearchIndex` **carrying the full search context**
+(`SEARCH_TEXT`, `SELECTED_TRANSLATIONS`, and `IS_STRONGS_SEARCH` for the Strong's flow).
+`SearchIndex` forwards its extras to `SearchIndexProgressStatus`, which — with `SEARCH_TEXT`
+present — proceeds straight to `SearchResults` after indexing rather than falling back to the
+`Search` entry screen. Additionally:
+
+- `LinkControl.showAllOccurrences` checks the index status of the document actually being searched
+  (`checkStrongs(searchBible)`), not only when it equals the current bible — otherwise an unindexed
+  fallback Strong's bible silently returned "0 verses" (`getMultiSearchResults` skips unindexed
+  books).
+- `Search.onResume` reloads the persisted selection, so returning to the search screen (which can
+  resurface via `onRestart` without a fresh `onCreate`) reflects a change made in the results
+  selector.
 
 ### Dead code cleanup (separate commit)
 

@@ -42,6 +42,7 @@ import net.bible.android.view.activity.search.searchresultsactionbar.SearchResul
 import net.bible.android.control.search.GroupedSearchResult
 import net.bible.android.control.search.MultiSearchResultsDto
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.common.CommonUtils
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordDocumentFacade
@@ -158,18 +159,38 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         // Empty result = cancelled / dismissed / nothing checked -> no change.
         if (selected.isEmpty()) return
 
-        // An unindexed document must be indexed before it can be searched (mirrors Search.onSearch).
+        selectedTranslations = selected.map { it.initials }
+        updateDocumentSelectorTitle()
+        persistSelection()
+
+        // An unindexed selected document must be indexed before it can be searched. Carry the full
+        // search context to SearchIndex so that after indexing the flow returns to SearchResults
+        // (SEARCH_TEXT present) and re-runs with the chosen documents. Without SEARCH_TEXT,
+        // SearchIndexProgressStatus falls through to the Search entry screen, which shows
+        // "An error has occurred" when the current window's document is itself unindexed.
         val unindexed = selected.filter { it.indexStatus != IndexStatus.DONE }
         if (unindexed.isNotEmpty()) {
             startActivity(Intent(this, SearchIndex::class.java).apply {
                 putExtra(SearchControl.SEARCH_DOCUMENT, unindexed.first().initials)
+                putExtra(SearchControl.SEARCH_TEXT, intent.getStringExtra(SearchControl.SEARCH_TEXT))
+                putExtra(SearchControl.IS_STRONGS_SEARCH, isStrongsSearch)
+                putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, ArrayList(selectedTranslations))
             })
             return
         }
 
-        selectedTranslations = selected.map { it.initials }
-        updateDocumentSelectorTitle()
         prepareResults()
+    }
+
+    /**
+     * Remembers the chosen documents so the next search restores them. Strong's find-all uses its
+     * own key (a Strong's-enabled subset); normal Bible searches share the manual search screen's
+     * key, so the two stay in sync.
+     */
+    private fun persistSelection() {
+        val key = if (isStrongsSearch) SearchControl.STRONGS_SEARCH_TRANSLATIONS_PREF
+        else SearchControl.SEARCH_TRANSLATIONS_PREF
+        CommonUtils.settings.setString(key, selectedTranslations.joinToString(","))
     }
 
     private suspend fun prepareResults() {
