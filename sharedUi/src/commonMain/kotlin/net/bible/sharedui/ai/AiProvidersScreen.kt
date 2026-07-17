@@ -118,7 +118,7 @@ fun AiProvidersScreen(
             items(providers, key = { it.id }) { provider ->
                 TwoLineListItem(
                     title = provider.displayName,
-                    subtitle = if (provider.apiKeySet) strings.providerApiKeyMasked("") else strings.providerApiKeyNotSet,
+                    subtitle = if (provider.apiKeySet) "${strings.providerApiKeyLabel}: ${strings.providerApiKeyMasked("")}" else strings.providerApiKeyNotSet,
                     onClick = { onStartEdit(provider.id) },
                 )
             }

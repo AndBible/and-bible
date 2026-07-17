@@ -199,7 +199,7 @@ interface Strings {
     val addProvider: String                    // R.string.ai_add_provider (top-bar action + add-dialog title)
     val providerEditTitle: String              // R.string.ai_provider_edit (edit-dialog title)
     val providerApiKeyNotSet: String           // R.string.ai_provider_api_key_not_set (row summary)
-    fun providerApiKeyMasked(suffix: String): String  // R.string.ai_provider_api_key_masked (label baked in; row summary)
+    fun providerApiKeyMasked(suffix: String): String  // R.string.ai_provider_api_key_masked (masked value ONLY, no label — caller composes with providerApiKeyLabel; row summary)
     val providerSelectType: String             // R.string.ai_provider_select_type (PICK_TYPE dialog title)
     val providerNameLabel: String              // R.string.ai_provider_name
     val providerNameHint: String               // R.string.ai_provider_name_hint

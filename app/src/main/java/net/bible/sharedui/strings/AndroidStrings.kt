@@ -191,7 +191,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val providerEditTitle: String get() = context.getString(R.string.ai_provider_edit)
     override val providerApiKeyNotSet: String get() = context.getString(R.string.ai_provider_api_key_not_set)
     override fun providerApiKeyMasked(suffix: String): String =
-        context.getString(R.string.ai_provider_api_key_masked, context.getString(R.string.ai_provider_api_key), suffix)
+        context.getString(R.string.ai_provider_api_key_masked, suffix)
     override val providerSelectType: String get() = context.getString(R.string.ai_provider_select_type)
     override val providerNameLabel: String get() = context.getString(R.string.ai_provider_name)
     override val providerNameHint: String get() = context.getString(R.string.ai_provider_name_hint)
