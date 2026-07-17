@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.drop
@@ -314,7 +315,7 @@ class CloudDocumentsComposeActivity : ActivityBase() {
     private fun OverflowMenu(showRemoved: Boolean) {
         var expanded by remember { mutableStateOf(false) }
         IconButton(onClick = { expanded = true }) {
-            Text("⋮") // vertical ellipsis (Material icons aren't on the app-module classpath)
+            Text("⋮", fontSize = 24.sp) // vertical ellipsis (Material icons aren't on the app-module classpath); sized to match the 28dp shared top-bar icons
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             if (CloudSync.signedIn) {

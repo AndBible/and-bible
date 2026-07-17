@@ -94,9 +94,9 @@ fun MyDocumentsScreen(
         title = title,
         onNavigateUp = onNavigateUp,
         actions = {
-            AbOverflowMenu(contentDescription = null) {
-                DropdownMenuItem(text = { Text(s.newItem) }, onClick = { createOpen = true })
-                DropdownMenuItem(text = { Text(s.importDocument) }, onClick = { onImport() })
+            AbOverflowMenu(contentDescription = null) { close ->
+                DropdownMenuItem(text = { Text(s.newItem) }, onClick = { close(); createOpen = true })
+                DropdownMenuItem(text = { Text(s.importDocument) }, onClick = { close(); onImport() })
             }
         },
     ) { padding ->

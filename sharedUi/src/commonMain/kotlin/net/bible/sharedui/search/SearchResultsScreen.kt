@@ -140,10 +140,10 @@ fun SearchResultsScreen(
                             onClick = onToggleScripture,
                         )
                     }
-                    AbOverflowMenu(contentDescription = null) {
+                    AbOverflowMenu(contentDescription = null) { close ->
                         DropdownMenuItem(
                             text = { Text(strings.openResultsInWindow) },
-                            onClick = { onOpenInWindow() },
+                            onClick = { close(); onOpenInWindow() },
                         )
                     }
                 },

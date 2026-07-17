@@ -91,13 +91,13 @@ fun DailyReadingScreen(
                         )
                         AbActionIcon(Icons.Filled.Stop, contentDescription = strings.stop, onClick = onStopSpeak)
                     }
-                    AbOverflowMenu(contentDescription = null) {
+                    AbOverflowMenu(contentDescription = null) { close ->
                         if (!ui.isDateBasedPlan) {
-                            DropdownMenuItem(text = { Text(strings.setCurrentDay) }, onClick = { onSetCurrentDay() })
-                            DropdownMenuItem(text = { Text(strings.setStartDate) }, onClick = { onSetStartDate() })
+                            DropdownMenuItem(text = { Text(strings.setCurrentDay) }, onClick = { close(); onSetCurrentDay() })
+                            DropdownMenuItem(text = { Text(strings.setStartDate) }, onClick = { close(); onSetStartDate() })
                         }
-                        DropdownMenuItem(text = { Text(strings.resetGeneric) }, onClick = { onReset() })
-                        DropdownMenuItem(text = { Text(strings.importReadingPlan) }, onClick = { onImportPlan() })
+                        DropdownMenuItem(text = { Text(strings.resetGeneric) }, onClick = { close(); onReset() })
+                        DropdownMenuItem(text = { Text(strings.importReadingPlan) }, onClick = { close(); onImportPlan() })
                     }
                 },
             )

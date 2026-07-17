@@ -67,10 +67,10 @@ fun EpubSearchScreen(
         title = title,
         onNavigateUp = onNavigateUp,
         actions = {
-            AbOverflowMenu(contentDescription = null) {
+            AbOverflowMenu(contentDescription = null) { close ->
                 DropdownMenuItem(
                     text = { Text(strings.helpFts5) },
-                    onClick = { onHelp() },
+                    onClick = { close(); onHelp() },
                 )
             }
         },

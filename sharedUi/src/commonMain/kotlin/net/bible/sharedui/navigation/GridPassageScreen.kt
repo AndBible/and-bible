@@ -73,18 +73,18 @@ fun GridChoosePassageScreen(
                 onNavigateUp = onNavigateUp,
                 actions = {
                     if (ui.step == GridStep.BOOK) {
-                        AbOverflowMenu(contentDescription = null) {
+                        AbOverflowMenu(contentDescription = null) { close ->
                             if (ui.showDeutToggle) {
                                 DropdownMenuItem(
                                     text = { Text(if (options.showScripture) strings.deuterocanonical else strings.bible) },
-                                    onClick = { onToggle(GridOption.DEUTEROCANONICAL) },
+                                    onClick = { close(); onToggle(GridOption.DEUTEROCANONICAL) },
                                 )
                             }
-                            CheckItem(strings.menuAlphabetical, options.alphabetical) { onToggle(GridOption.ALPHABETICAL) }
-                            CheckItem(strings.menuRowOrder, options.ltr) { onToggle(GridOption.LTR) }
-                            CheckItem(strings.menuGroupByCategory, options.groupByCategory) { onToggle(GridOption.GROUP_BY_CATEGORY) }
-                            CheckItem(strings.menuShowLongName, options.longNames) { onToggle(GridOption.LONG_NAMES) }
-                            CheckItem(strings.menuShowProgressBars, options.showProgress) { onToggle(GridOption.SHOW_PROGRESS) }
+                            CheckItem(strings.menuAlphabetical, options.alphabetical) { close(); onToggle(GridOption.ALPHABETICAL) }
+                            CheckItem(strings.menuRowOrder, options.ltr) { close(); onToggle(GridOption.LTR) }
+                            CheckItem(strings.menuGroupByCategory, options.groupByCategory) { close(); onToggle(GridOption.GROUP_BY_CATEGORY) }
+                            CheckItem(strings.menuShowLongName, options.longNames) { close(); onToggle(GridOption.LONG_NAMES) }
+                            CheckItem(strings.menuShowProgressBars, options.showProgress) { close(); onToggle(GridOption.SHOW_PROGRESS) }
                         }
                     }
                 },

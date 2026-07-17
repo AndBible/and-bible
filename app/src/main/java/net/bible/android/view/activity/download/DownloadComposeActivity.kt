@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -768,7 +769,7 @@ open class DownloadComposeActivity : ActivityBase() {
     private fun OverflowMenu() {
         var expanded by remember { mutableStateOf(false) }
         IconButton(onClick = { expanded = true }) {
-            Text("⋮") // vertical ellipsis (Material icons aren't on the app-module classpath)
+            Text("⋮", fontSize = 24.sp) // vertical ellipsis (Material icons aren't on the app-module classpath); sized to match the 28dp shared top-bar icons
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             if (hasErrors) {

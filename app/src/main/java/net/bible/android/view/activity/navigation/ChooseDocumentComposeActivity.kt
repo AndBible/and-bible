@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -367,7 +368,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
         var expanded by remember { mutableStateOf(false) }
         // Material icons aren't on the app module classpath; a glyph keeps the host dependency-free.
         IconButton(onClick = { expanded = true }) {
-            Text("⋮") // vertical ellipsis (overflow)
+            Text("⋮", fontSize = 24.sp) // vertical ellipsis (overflow); sized to match the 28dp shared top-bar icons
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(

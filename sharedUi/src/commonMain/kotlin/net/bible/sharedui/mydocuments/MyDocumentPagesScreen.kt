@@ -84,12 +84,12 @@ fun MyDocumentPagesScreen(
         title = title,
         onNavigateUp = onNavigateUp,
         actions = {
-            AbOverflowMenu(contentDescription = null) {
+            AbOverflowMenu(contentDescription = null) { close ->
                 DropdownMenuItem(
                     text = { Text(s.newPageTitle) },
-                    onClick = { createType = ContentType.MARKDOWN; createOpen = true },
+                    onClick = { close(); createType = ContentType.MARKDOWN; createOpen = true },
                 )
-                DropdownMenuItem(text = { Text(s.importPage) }, onClick = { onImport() })
+                DropdownMenuItem(text = { Text(s.importPage) }, onClick = { close(); onImport() })
             }
         },
     ) { padding ->

@@ -57,14 +57,15 @@ fun AbActionIcon(
 
 /**
  * A top-bar overflow (3-dot) menu with an enlarged icon. Callers supply their existing
- * `DropdownMenuItem`s as [content]; open/close state is handled internally.
+ * `DropdownMenuItem`s as [content]; open/close state is handled internally. The [content] lambda
+ * receives a `close` callback so items can dismiss the menu on tap (call it from their `onClick`).
  */
 @Composable
 fun AbOverflowMenu(
     contentDescription: String?,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.(close: () -> Unit) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     AbActionIcon(Icons.Filled.MoreVert, contentDescription = contentDescription) { expanded = true }
-    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, content = content)
+    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) { content { expanded = false } }
 }
