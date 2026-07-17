@@ -86,17 +86,21 @@ class BibleSearchServiceImpl(
     override fun isCurrentlyShowingScripture(): Boolean = searchControl.isCurrentlyShowingScripture
 
     override fun candidateBibles(): List<BibleOption> =
-        SwordDocumentFacade.bibles.map {
+        // Parity with classic SearchResults.allBibles(): only SwordBooks, sorted by abbreviation.
+        SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().sortedBy { it.abbreviation }.map {
             BibleOption(it.initials, it.abbreviation, it.hasFeature(FeatureType.STRONGS_NUMBERS))
         }
 
     override fun persistSelection(translationIds: List<String>, strongsSearch: Boolean) {
+        // Mirror classic SearchResults.persistSelection: a comma-joined string under the same key
+        // that Search.kt / LinkControl.kt read back via getString(...)?.split(","). Do NOT use
+        // setStringSet (JSON-encoded) — those readers would then split a JSON array into garbage.
         val key = if (strongsSearch) {
             SearchControl.STRONGS_SEARCH_TRANSLATIONS_PREF
         } else {
             SearchControl.SEARCH_TRANSLATIONS_PREF
         }
-        CommonUtils.settings.setStringSet(key, translationIds.toSet())
+        CommonUtils.settings.setString(key, translationIds.joinToString(","))
     }
 
     override fun unindexedAmong(translationIds: List<String>): List<String> =

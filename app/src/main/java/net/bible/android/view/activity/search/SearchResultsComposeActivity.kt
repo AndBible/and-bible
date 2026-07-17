@@ -29,6 +29,8 @@ import net.bible.android.activity.R
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
@@ -64,6 +66,8 @@ class SearchResultsComposeActivity : ActivityBase() {
     private val searchControl: SearchControl by inject()
 
     private var selectedTranslations: List<String> = emptyList()
+    private var isStrongsSearch = false
+    private var searchText = ""
 
     private val controller by lazy { SearchResultsController(bibleSearchService, lifecycleScope) }
 
@@ -75,7 +79,11 @@ class SearchResultsComposeActivity : ActivityBase() {
             ?: intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?.let { listOf(it) }
             ?: emptyList()
 
-        val searchText = intent.getStringExtra(SearchControl.SEARCH_TEXT) ?: ""
+        // Strong's find-all (LinkControl.showAllOccurrences) sets this so the document selector only
+        // offers Strong's-enabled Bibles and the choice persists under STRONGS_SEARCH_TRANSLATIONS_PREF.
+        isStrongsSearch = intent.getBooleanExtra(SearchControl.IS_STRONGS_SEARCH, false)
+
+        searchText = intent.getStringExtra(SearchControl.SEARCH_TEXT) ?: ""
 
         // Ref-detection parity with classic fetchSearchResults: a plain scripture reference bypasses
         // the search and opens the verse directly, popping this + the launcher off the history stack.
@@ -98,6 +106,7 @@ class SearchResultsComposeActivity : ActivityBase() {
                 bibleSection = SearchBibleSection.ALL,
                 translationIds = selectedTranslations,
                 currentBookName = "",
+                isStrongsSearch = isStrongsSearch,
             )
         )
 
@@ -114,6 +123,8 @@ class SearchResultsComposeActivity : ActivityBase() {
                     val scriptureShown by controller.scriptureShown.collectAsState()
                     val scriptureToggleVisible by controller.scriptureToggleVisible.collectAsState()
                     val error by controller.error.collectAsState()
+                    val selected by controller.selectedTranslations.collectAsState()
+                    val candidates by controller.candidates.collectAsState()
 
                     // Classic showed a dialog then backed out on failure; the shared screen has no error
                     // slot, so mirror that behaviour host-side: toast + finish once.
@@ -129,7 +140,12 @@ class SearchResultsComposeActivity : ActivityBase() {
                         }
                     }
 
-                    val title = getString(R.string.multi_search_results, results.total, selectedTranslations.size)
+                    // Title + selector chip are driven by the controller's live selection state, so a
+                    // re-run after choosing new translations refreshes the results-count title for free.
+                    val title = getString(R.string.multi_search_results, results.total, selected.size)
+                    val selectedAbbreviations = selected
+                        .mapNotNull { id -> candidates.firstOrNull { it.id == id }?.abbreviation }
+                        .joinToString(", ")
                     SearchResultsScreen(
                         title = title,
                         loading = loading,
@@ -140,6 +156,10 @@ class SearchResultsComposeActivity : ActivityBase() {
                         onOpenInWindow = ::openResultsInAWindow,
                         onSelect = ::onSelect,
                         onNavigateUp = { finish() },
+                        selectedAbbreviations = selectedAbbreviations,
+                        candidates = candidates,
+                        selectedIds = selected,
+                        onSelectTranslations = ::onSelectTranslations,
                     )
                 }
             }
@@ -163,6 +183,28 @@ class SearchResultsComposeActivity : ActivityBase() {
         } catch (e: Exception) {
             Log.e(TAG, "Could not resolve key '$referenceName' in ${book.initials}", e)
         }
+    }
+
+    /**
+     * Apply a new translation selection from the results document selector (classic
+     * SearchResults.showDocumentSelector tail). The controller persists the choice and either
+     * re-runs the search live or — when a chosen translation is unindexed — hands back the unindexed
+     * ids so we route to [Screen.SearchIndex], carrying the full search context (SEARCH_TEXT +
+     * SELECTED_TRANSLATIONS + IS_STRONGS_SEARCH + the doc to index) so the flow returns to results
+     * and re-runs after indexing completes.
+     */
+    private fun onSelectTranslations(ids: List<String>) {
+        controller.selectTranslations(ids) { unindexed, chosenIds ->
+            startActivity(ScreenLauncher.intentFor(this, Screen.SearchIndex).apply {
+                putExtra(SearchControl.SEARCH_DOCUMENT, unindexed.first())
+                putExtra(SearchControl.SEARCH_TEXT, searchText)
+                putExtra(SearchControl.IS_STRONGS_SEARCH, isStrongsSearch)
+                putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, ArrayList(chosenIds))
+            })
+        }
+        // Keep the resolveBook fallback in sync with the current selection (title/chip come from the
+        // controller's StateFlow, so they update reactively).
+        selectedTranslations = ids
     }
 
     /** Classic openResultsInAWindow: gather every displayed match into a multi-document link. */
