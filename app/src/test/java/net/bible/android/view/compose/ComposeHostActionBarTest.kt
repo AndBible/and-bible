@@ -154,4 +154,16 @@ class ComposeHostActionBarTest {
             ).create().get().supportActionBar
         )
     }
+
+    /** Stand-in for WorkspaceSelectorComposeActivity's window theme (Theme.AbCompose, NoActionBar). */
+    class WorkspaceSelectorHostProbe : ActivityBase() {
+        override val doNotInitializeApp = true
+        override fun onCreate(savedInstanceState: Bundle?) {
+            setTheme(R.style.Theme_AbCompose); super.onCreate(savedInstanceState); setContent { }
+        }
+    }
+
+    @Test fun `WorkspaceSelector host theme has no native ActionBar`() {
+        assertNull(build<WorkspaceSelectorHostProbe>().supportActionBar)
+    }
 }
