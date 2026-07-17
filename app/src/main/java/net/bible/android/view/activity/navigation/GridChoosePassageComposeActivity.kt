@@ -144,7 +144,7 @@ class GridChoosePassageComposeActivity : ActivityBase() {
         val sections = if (opts.groupByCategory) buttons.groupBy { coarseGroup(it.id) }.values.toList() else null
         val ordered = if (sections == null && CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
         val showDeut = navigationControl.getBibleBooks(false).isNotEmpty()
-        return GridUi(GridStep.BOOK, "$baseTitle ($workspaceName)", columns, colorAllButtons = true,
+        return GridUi(GridStep.BOOK, "$baseTitle ($workspaceName)", columns, colorAllButtons = false,
             showLongNames = opts.longNames, showProgress = opts.showProgress, showDeutToggle = showDeut,
             buttons = ordered, sections = sections)
     }

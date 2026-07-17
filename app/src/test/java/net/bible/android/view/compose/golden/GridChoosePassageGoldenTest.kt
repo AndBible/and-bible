@@ -33,7 +33,7 @@ class GridChoosePassageGoldenTest {
     )
     private val opts = GridOptions(showScripture = true, alphabetical = false, ltr = false, groupByCategory = false, longNames = false, showProgress = true)
     private fun bookUi(long: Boolean = false, sections: List<List<GridButton>>? = null) =
-        GridUi(GridStep.BOOK, "Choose passage (Workspace 1)", 6, colorAllButtons = true, showLongNames = long, showProgress = true, showDeutToggle = true, buttons = books, sections = sections)
+        GridUi(GridStep.BOOK, "Choose passage (Workspace 1)", 6, colorAllButtons = false, showLongNames = long, showProgress = true, showDeutToggle = true, buttons = books, sections = sections)
 
     @Test fun grid_book_flat() {
         captureMatrix("GridChoosePassage", "book_flat") { GridChoosePassageScreen(bookUi(), opts, {}, {}, {}) }
