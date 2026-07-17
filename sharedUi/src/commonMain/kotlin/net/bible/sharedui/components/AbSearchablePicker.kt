@@ -117,7 +117,11 @@ fun <T> AbSearchablePicker(
                 // otherwise unbounded → an unconstrained LazyColumn would crash), while still wrapping
                 // to content for short filtered lists.
                 LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp)) {
-                    items(filtered, key = { optionLabel(it) }) { opt ->
+                    // No label-derived key: LazyColumn requires unique keys, but two options can
+                    // share a display name (e.g. same-named languages), which would throw
+                    // "Key ... was already used" and crash the picker. The filtered list is not
+                    // reordered by stable identity, so the default positional key is correct here.
+                    items(filtered) { opt ->
                         ListItem(
                             headlineContent = { Text(optionLabel(opt)) },
                             modifier = Modifier
