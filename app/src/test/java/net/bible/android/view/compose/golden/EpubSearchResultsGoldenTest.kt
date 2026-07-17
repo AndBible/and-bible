@@ -45,13 +45,13 @@ class EpubSearchResultsGoldenTest {
     }
 
     @Test fun results() {
-        captureMatrix("EpubSearchResults", "results", screen())
+        captureMatrix("EpubSearchResults", "results", content = screen())
     }
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun results_rtl() {
-        captureRtl("EpubSearchResults", "results", screen())
+        captureRtl("EpubSearchResults", "results", content = screen())
     }
 
     @Test fun empty() {

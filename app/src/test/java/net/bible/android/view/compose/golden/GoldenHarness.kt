@@ -78,12 +78,16 @@ fun captureGolden(screen: String, state: String, mode: GoldenMode, heightDp: Int
 /**
  * Render [content] in the light theme with RTL layout, capturing to <screen>_<state>_light_rtl.png.
  * The RTL *language* comes from the calling test method's @Config(qualifiers = "ar"); this only
- * forces the layout direction.
+ * forces the layout direction. [heightDp] > 0 overrides the device height (default 0 keeps the
+ * standard viewport clip, same as [captureGolden]).
  */
-fun captureRtl(screen: String, state: String, content: @Composable () -> Unit) =
-    capture("src/test/roborazzi/${screen}_${state}_light_rtl.png", dark = false, colorMode = DisplayColorMode.NORMAL, rtl = true, content = content)
+fun captureRtl(screen: String, state: String, heightDp: Int = 0, content: @Composable () -> Unit) =
+    capture("src/test/roborazzi/${screen}_${state}_light_rtl.png", dark = false, colorMode = DisplayColorMode.NORMAL, rtl = true, heightDp = heightDp, content = content)
 
-/** Capture [content] across the full four-mode LTR matrix. */
-fun captureMatrix(screen: String, state: String, content: @Composable () -> Unit) {
-    ALL_MODES.forEach { mode -> captureGolden(screen, state, mode, content = content) }
+/**
+ * Capture [content] across the full four-mode LTR matrix. [heightDp] > 0 overrides the device
+ * height for every mode (default 0 keeps the standard viewport clip, same as [captureGolden]).
+ */
+fun captureMatrix(screen: String, state: String, heightDp: Int = 0, content: @Composable () -> Unit) {
+    ALL_MODES.forEach { mode -> captureGolden(screen, state, mode, heightDp = heightDp, content = content) }
 }

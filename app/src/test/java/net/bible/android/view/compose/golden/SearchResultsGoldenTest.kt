@@ -89,13 +89,13 @@ class SearchResultsGoldenTest {
     }
 
     @Test fun results() {
-        captureMatrix("SearchResults", "results", screen())
+        captureMatrix("SearchResults", "results", content = screen())
     }
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun results_rtl() {
-        captureRtl("SearchResults", "results", screen())
+        captureRtl("SearchResults", "results", content = screen())
     }
 
     @Test fun expanded() {

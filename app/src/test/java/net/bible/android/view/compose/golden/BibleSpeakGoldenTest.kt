@@ -23,12 +23,12 @@ class BibleSpeakGoldenTest {
     }
     private val primary = SpeakPlaybackVd(150, speakChapterChanges = true, speakTitles = true, speakFootnotes = false, sleepTimerMinutes = 0, repeatRangeName = null)
 
-    @Test fun primary() = captureMatrix("BibleSpeak", "primary", screen(primary))
+    @Test fun primary() = captureMatrix("BibleSpeak", "primary", heightDp = 900, content = screen(primary))
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
-    fun primary_rtl() = captureRtl("BibleSpeak", "primary", screen(primary))
+    fun primary_rtl() = captureRtl("BibleSpeak", "primary", heightDp = 900, content = screen(primary))
 
     @Test fun sleep_set() = captureGolden("BibleSpeak", "sleep_set", EDGE_MODE, heightDp = 900, content = screen(primary.copy(sleepTimerMinutes = 15)))
-    @Test fun repeat_set() = captureGolden("BibleSpeak", "repeat_set", EDGE_MODE, content = screen(primary.copy(repeatRangeName = "Gen 1:1-5")))
+    @Test fun repeat_set() = captureGolden("BibleSpeak", "repeat_set", EDGE_MODE, heightDp = 900, content = screen(primary.copy(repeatRangeName = "Gen 1:1-5")))
 }
