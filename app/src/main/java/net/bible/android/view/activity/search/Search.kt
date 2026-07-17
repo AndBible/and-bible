@@ -247,11 +247,11 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     private fun saveSelectedTranslations() {
         val initials = selectedTranslations.map { it.initials }
-        CommonUtils.settings.setString("search_selected_translations", initials.joinToString(","))
+        CommonUtils.settings.setString(SearchControl.SEARCH_TRANSLATIONS_PREF, initials.joinToString(","))
     }
 
     private fun loadSelectedTranslations() {
-        val saved = CommonUtils.settings.getString("search_selected_translations", null)
+        val saved = CommonUtils.settings.getString(SearchControl.SEARCH_TRANSLATIONS_PREF, null)
         if (saved.isNullOrBlank()) return
 
         val initials = saved.split(",")
