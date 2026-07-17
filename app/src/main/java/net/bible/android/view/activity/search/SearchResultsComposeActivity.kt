@@ -155,7 +155,7 @@ class SearchResultsComposeActivity : ActivityBase() {
                         onToggleScripture = controller::toggleScripture,
                         onOpenInWindow = ::openResultsInAWindow,
                         onSelect = ::onSelect,
-                        onNavigateUp = { finish() },
+                        onNavigateUp = { onBackPressedDispatcher.onBackPressed() },
                         selectedAbbreviations = selectedAbbreviations,
                         candidates = candidates,
                         selectedIds = selected,

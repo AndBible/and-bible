@@ -91,7 +91,7 @@ class EpubSearchComposeActivity : ActivityBase() {
                         onMode = controller::setMode,
                         onSubmit = controller::submit,
                         onHelp = ::help,
-                        onNavigateUp = { finish() },
+                        onNavigateUp = { onBackPressedDispatcher.onBackPressed() },
                     )
                 }
             }

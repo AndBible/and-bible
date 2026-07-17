@@ -134,7 +134,7 @@ class EpubSearchResultsComposeActivity : ActivityBase() {
                         loading = loading,
                         rows = results,
                         onSelect = controller::select,
-                        onNavigateUp = { finish() },
+                        onNavigateUp = { onBackPressedDispatcher.onBackPressed() },
                     )
                 }
             }

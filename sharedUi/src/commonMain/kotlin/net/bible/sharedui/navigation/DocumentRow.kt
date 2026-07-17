@@ -43,11 +43,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
+import net.bible.sharedcore.theme.accentArgbFor
+import net.bible.sharedui.theme.LocalDisplayColorMode
 
 /** Multiplatform-safe "%.1f MB" (no java String.format / no NumberFormat). */
 private fun formatSizeMb(mb: Double): String {
@@ -189,8 +192,16 @@ private fun InstallAffordance(
             DocInstallStatus.NOT_INSTALLED,
             DocInstallStatus.INSTALL_CANCELLED ->
                 if (downloadMode) {
+                    // Amber accent, grayed on BW/monochrome (kept coloured in normal + COLOR_EINK)
+                    // via accentArgbFor + LocalDisplayColorMode, like the rest of this file.
+                    val downloadTint = Color(accentArgbFor(0xFFFFC107.toInt(), LocalDisplayColorMode.current))
                     IconButton(onClick = onDownload) {
-                        Icon(Icons.Filled.Download, contentDescription = null)
+                        Icon(
+                            Icons.Filled.Download,
+                            contentDescription = null,
+                            tint = downloadTint,
+                            modifier = Modifier.size(28.dp),
+                        )
                     }
                 }
             DocInstallStatus.BEING_INSTALLED -> {} // handled above

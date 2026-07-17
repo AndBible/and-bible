@@ -58,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedcore.search.SwordResultRow
@@ -114,7 +115,7 @@ fun SearchResultsScreen(
     AbScaffold(
         topBar = {
             AbTopAppBar(
-                title = { Text(title) },
+                title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 onNavigateUp = onNavigateUp,
                 actions = {
                     if (candidates.isNotEmpty()) {
