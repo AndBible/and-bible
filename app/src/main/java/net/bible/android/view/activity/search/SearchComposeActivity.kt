@@ -57,6 +57,10 @@ class SearchComposeActivity : ActivityBase() {
 
     private lateinit var controller: SearchFormController
 
+    override val integrateWithHistoryManager: Boolean = true
+
+    private lateinit var currentBookName: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Compose search view")
@@ -67,7 +71,7 @@ class SearchComposeActivity : ActivityBase() {
         if (currentDoc == null) { finish(); return }
 
         // Default current-book name, overridable by the history-restore extra (returning via Back).
-        val currentBookName = intent.getStringExtra(CURRENT_BIBLE_BOOK_SAVE) ?: searchControl.currentBookName
+        currentBookName = intent.getStringExtra(CURRENT_BIBLE_BOOK_SAVE) ?: searchControl.currentBookName
 
         controller = SearchFormController(
             currentBookName = currentBookName,
@@ -143,6 +147,13 @@ class SearchComposeActivity : ActivityBase() {
     private fun onSubmit() {
         val request = controller.buildRequest()
         if (request.query.isBlank()) return
+
+        // Save state onto our own intent so HistoryManager (integrateWithHistoryManager) can restore
+        // the Find screen when the user backs out of the results (parity with classic Search.onSearch).
+        intent.putExtra(SEARCH_TEXT_SAVE, controller.query.value)
+        intent.putExtra(WORDS_SELECTION_SAVE, controller.searchType.value.name)
+        intent.putExtra(SECTION_SELECTION_SAVE, controller.bibleSection.value.name)
+        intent.putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName)
 
         if (!bibleSearchService.validateIndex(request)) {
             // Redirect to the index screen for the first un-indexed translation (classic parity).
