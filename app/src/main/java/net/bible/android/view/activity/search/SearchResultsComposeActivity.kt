@@ -68,6 +68,7 @@ class SearchResultsComposeActivity : ActivityBase() {
     private var selectedTranslations: List<String> = emptyList()
     private var isStrongsSearch = false
     private var searchText = ""
+    private var latestScrollIndex = 0
 
     private val controller by lazy { SearchResultsController(bibleSearchService, lifecycleScope) }
 
@@ -160,6 +161,8 @@ class SearchResultsComposeActivity : ActivityBase() {
                         candidates = candidates,
                         selectedIds = selected,
                         onSelectTranslations = ::onSelectTranslations,
+                        initialScrollIndex = intent.getIntExtra(LIST_POSITION, 0),
+                        onScrollIndexChanged = { latestScrollIndex = it },
                     )
                 }
             }
@@ -176,6 +179,7 @@ class SearchResultsComposeActivity : ActivityBase() {
         val book = resolveBook(translationId) ?: return
         try {
             val key = book.getKey(referenceName)
+            intent.putExtra(LIST_POSITION, latestScrollIndex)
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
             startActivity(Intent(this, MainBibleActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -228,5 +232,6 @@ class SearchResultsComposeActivity : ActivityBase() {
 
     companion object {
         private const val TAG = "SearchResultsCompose"
+        private const val LIST_POSITION = "listPosition"
     }
 }
