@@ -24,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
 import net.bible.android.activity.R
+import net.bible.android.database.SettingsBundle
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.service.common.CommonUtils
@@ -42,18 +43,14 @@ import org.koin.android.ext.android.inject
  *
  * TextDisplaySettings round-trip: classic [TextDisplaySettingsActivity.setResult] does NOT echo back a
  * `workspaceId` extra (only `settingsBundle`/`reset`/`edited`/`dirtyTypes` — the workspace id is buried
- * inside the `settingsBundle` JSON, which classic `WorkspaceSelectorActivity.onActivityResult` parses out
- * via `SettingsBundle.fromJson(...).workspaceId`). So the id is stashed host-side in
- * [pendingSettingsWorkspaceId] before launch and consumed on return, instead of being read off the
- * result `Intent` extras.
+ * inside the `settingsBundle` JSON). Like classic `WorkspaceSelectorActivity.onActivityResult`, this host
+ * parses the id back out of that JSON via `SettingsBundle.fromJson(...).workspaceId` in [onActivityResult]
+ * rather than stashing it in a plain field, since a plain field would not survive the host process being
+ * killed while [TextDisplaySettingsActivity] is foregrounded (process death drops the edit silently).
  */
 class WorkspaceSelectorComposeActivity : ActivityBase() {
     private val service: WorkspaceService by inject()
     private var finished = false
-
-    /** Id of the workspace whose settings are being edited, set right before launching
-     *  [TextDisplaySettingsActivity] and consumed in [onActivityResult] (see class doc). */
-    private var pendingSettingsWorkspaceId: String? = null
 
     private val controller by lazy {
         WorkspaceSelectorController(
@@ -69,7 +66,6 @@ class WorkspaceSelectorComposeActivity : ActivityBase() {
                 setResult(Activity.RESULT_CANCELED, resultIntent()); finished = true; finish()
             },
             onEditSettings = { id ->
-                pendingSettingsWorkspaceId = id
                 // NOTE: calls service.settingsBundleJson(id) directly, NOT controller.settingsBundleJson(id) —
                 // the latter would recursively reference `controller` from inside its own `by lazy` initializer.
                 startActivityForResult(
@@ -141,15 +137,16 @@ class WorkspaceSelectorComposeActivity : ActivityBase() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == WORKSPACE_SETTINGS_CHANGED && data != null) {
             val extras = data.extras!!
-            val id = pendingSettingsWorkspaceId
-            if (id != null) {
-                controller.applyWorkspaceSettings(
-                    id = id,
-                    settingsBundleJson = extras.getString("settingsBundle")!!,
-                    reset = extras.getBoolean("reset"),
-                )
-            }
-            pendingSettingsWorkspaceId = null
+            val settingsBundleJson = extras.getString("settingsBundle")!!
+            // Read the workspace id from the returned JSON itself (like classic
+            // WorkspaceSelectorActivity.onActivityResult), not from host-side state, so the round-trip
+            // survives the host process being killed while TextDisplaySettingsActivity was foregrounded.
+            val id = SettingsBundle.fromJson(settingsBundleJson).workspaceId.toString()
+            controller.applyWorkspaceSettings(
+                id = id,
+                settingsBundleJson = settingsBundleJson,
+                reset = extras.getBoolean("reset"),
+            )
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
