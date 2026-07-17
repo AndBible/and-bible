@@ -16,6 +16,7 @@ object AiConnectionNav {
     const val TOOL_PERMISSIONS = "tool_permissions"
     const val DOCUMENTS = "documents"
     const val RAW_LOG_HISTORY = "raw_log_history"
+    const val RESET_USAGE = "reset_usage"
 }
 
 /**
@@ -47,7 +48,9 @@ data class AiConnectionLabels(
     val maxIterationsSummary: String,
     val maxIterationsUnlimitedSuffix: String,
     val askModelBeforeRunTitle: String,
+    val askModelBeforeRunSummary: String,
     val autoHideAgentLogTitle: String,
+    val autoHideAgentLogSummary: String,
     val advancedCategoryTitle: String,
     val customAgentSystemPromptTitle: String,
     val customTextTransformSystemPromptTitle: String,
@@ -55,7 +58,10 @@ data class AiConnectionLabels(
     val customSystemPromptCustom: String,
     val usageCategoryTitle: String,
     val usageSummaryTitle: String,
+    val resetUsageTitle: String,
+    val resetUsageSummary: String,
     val rawLogHistoryTitle: String,
+    val rawLogHistorySummary: String,
     val rawLogRetentionTitle: String,
     val rawLogRetentionSummaryDisabled: String,
     val rawLogRetentionSummaryDaysFormat: String,   // e.g. "%d days"; %d filled with days
@@ -86,7 +92,9 @@ data class AiConnectionLabels(
             maxIterationsSummary = "Max agent iterations",
             maxIterationsUnlimitedSuffix = "unlimited",
             askModelBeforeRunTitle = "Ask before running",
+            askModelBeforeRunSummary = "Show a model selection dialog before executing a prompt",
             autoHideAgentLogTitle = "Auto-hide agent log",
+            autoHideAgentLogSummary = "Automatically hide the AI panel when a task finishes",
             advancedCategoryTitle = "Advanced",
             customAgentSystemPromptTitle = "Custom agent system prompt",
             customTextTransformSystemPromptTitle = "Custom text transformation system prompt",
@@ -94,7 +102,10 @@ data class AiConnectionLabels(
             customSystemPromptCustom = "Custom",
             usageCategoryTitle = "Usage",
             usageSummaryTitle = "Usage summary",
+            resetUsageTitle = "Reset usage data",
+            resetUsageSummary = "Clear cumulative token and cost tracking",
             rawLogHistoryTitle = "Raw log history",
+            rawLogHistorySummary = "View and manage saved AI conversation logs",
             rawLogRetentionTitle = "Raw log retention",
             rawLogRetentionSummaryDisabled = "Disabled",
             rawLogRetentionSummaryDaysFormat = "%d days",
@@ -106,10 +117,12 @@ data class AiConnectionLabels(
 /**
  * Builds the declarative [SettingsScreenState] for the AI connection settings screen from an
  * [AiSettingsService] snapshot, applying the provider-presence visibility gate replicated from
- * classic `AiConnectionSettingsActivity`/`AiConnectionSettingsFragment`: with no providers
- * configured, only the disclaimer warning + "getting started" row are shown; once at least one
- * provider exists, the getting-started row hides and the provider/model shortcuts + behavior/
- * advanced/usage categories appear.
+ * classic `AiConnectionSettingsActivity`/`AiConnectionSettingsFragment`: exactly 5 items are gated
+ * on provider presence — the "getting started" row (shown when there are NO providers, i.e. the
+ * inverse), the models shortcut, and the behavior/advanced/usage categories (with everything they
+ * contain). The disclaimer warning and the "Providers & models" category + its "Providers"
+ * shortcut are always visible, matching classic, so users can always reach the providers screen
+ * even before any provider is configured.
  */
 class AiConnectionSettingsController(
     private val service: AiSettingsService,
@@ -166,7 +179,7 @@ class AiConnectionSettingsController(
             SettingsItem.InfoRow(
                 key = "ai_disclaimer_warning",
                 title = labels.disclaimerWarningTitle,
-                visible = !s.disclaimerAccepted,
+                visible = true,
             ),
             SettingsItem.NavigationRow(
                 key = AiConnectionNav.EASY_SETUP,
@@ -177,13 +190,13 @@ class AiConnectionSettingsController(
             SettingsItem.Category(
                 key = "ai_providers_models_category",
                 title = labels.providersModelsCategoryTitle,
-                visible = hasProviders,
+                visible = true,
             ),
             SettingsItem.NavigationRow(
                 key = AiConnectionNav.PROVIDERS,
                 title = labels.providersTitle,
                 summary = providersSummary,
-                visible = hasProviders,
+                visible = true,
             ),
             SettingsItem.NavigationRow(
                 key = AiConnectionNav.MODELS,
@@ -196,16 +209,12 @@ class AiConnectionSettingsController(
                 title = labels.behaviorCategoryTitle,
                 visible = hasProviders,
             ),
-            SettingsItem.NavigationRow(
-                key = AiConnectionNav.TOOL_PERMISSIONS,
-                title = labels.toolPermissionsTitle,
-                summary = toolPermissionsSummary,
-                visible = hasProviders,
-            ),
-            SettingsItem.NavigationRow(
-                key = AiConnectionNav.DOCUMENTS,
-                title = labels.documentsTitle,
-                summary = labels.documentsSummary,
+            SettingsItem.ListChoiceRow(
+                key = "ai_language",
+                title = labels.aiLanguageTitle,
+                summary = s.aiLanguageLabel,
+                entries = emptyList(),
+                selectedValue = s.aiLanguage,
                 visible = hasProviders,
             ),
             SettingsItem.ListChoiceRow(
@@ -216,12 +225,16 @@ class AiConnectionSettingsController(
                 selectedValue = s.agentPermissionMode,
                 visible = hasProviders,
             ),
-            SettingsItem.ListChoiceRow(
-                key = "ai_language",
-                title = labels.aiLanguageTitle,
-                summary = s.aiLanguageLabel,
-                entries = emptyList(),
-                selectedValue = s.aiLanguage,
+            SettingsItem.NavigationRow(
+                key = AiConnectionNav.TOOL_PERMISSIONS,
+                title = labels.toolPermissionsTitle,
+                summary = toolPermissionsSummary,
+                visible = hasProviders,
+            ),
+            SettingsItem.NavigationRow(
+                key = AiConnectionNav.DOCUMENTS,
+                title = labels.documentsTitle,
+                summary = labels.documentsSummary,
                 visible = hasProviders,
             ),
             SettingsItem.TextInputRow(
@@ -243,12 +256,14 @@ class AiConnectionSettingsController(
             SettingsItem.SwitchRow(
                 key = "ask_model_before_run",
                 title = labels.askModelBeforeRunTitle,
+                summary = labels.askModelBeforeRunSummary,
                 checked = s.askModelBeforeRun,
                 visible = hasProviders,
             ),
             SettingsItem.SwitchRow(
                 key = "auto_hide_agent_log",
                 title = labels.autoHideAgentLogTitle,
+                summary = labels.autoHideAgentLogSummary,
                 checked = s.autoHideAgentLogOnCompletion,
                 visible = hasProviders,
             ),
@@ -283,8 +298,15 @@ class AiConnectionSettingsController(
                 visible = hasProviders,
             ),
             SettingsItem.NavigationRow(
+                key = AiConnectionNav.RESET_USAGE,
+                title = labels.resetUsageTitle,
+                summary = labels.resetUsageSummary,
+                visible = hasProviders,
+            ),
+            SettingsItem.NavigationRow(
                 key = AiConnectionNav.RAW_LOG_HISTORY,
                 title = labels.rawLogHistoryTitle,
+                summary = labels.rawLogHistorySummary,
                 visible = hasProviders,
             ),
             SettingsItem.TextInputRow(
