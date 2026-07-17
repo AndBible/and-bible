@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -37,7 +38,9 @@ import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -54,11 +57,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedcore.search.TranslationMatchVd
 import net.bible.sharedui.components.AbLoadingIndicator
+import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
 import net.bible.sharedui.strings.LocalStrings
@@ -70,8 +77,16 @@ import net.bible.sharedui.strings.LocalStrings
  * A single-match card is flat and directly clickable. Highlighted query terms come through the
  * host-built [net.bible.sharedcore.search.StyledText] previews rendered via [styledTextToAnnotatedString].
  *
+ * @param selectedAbbreviations comma-joined abbreviations of the currently-searched translations
+ *   (e.g. "KJV" or "KJV, BSB"), shown on the toolbar document-selector chip.
+ * @param candidates all Bibles offered by the multiselect chooser.
+ * @param selectedIds ids ([net.bible.sharedcore.search.BibleOption.id] = Book.initials) of the
+ *   currently-searched translations; the chooser starts with these checked.
+ * @param onSelectTranslations invoked with the checked ids when the user confirms the chooser.
  * @param initiallyExpanded reference names whose card starts expanded (deterministic golden capture;
  *   empty in production, where the user drives expansion).
+ * @param initiallyChooserOpen open the translation chooser on first composition (deterministic golden
+ *   capture; false in production, where the user taps the chip to open it).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,10 +100,16 @@ fun SearchResultsScreen(
     onOpenInWindow: () -> Unit,
     onSelect: (referenceName: String, translationId: String?) -> Unit,
     onNavigateUp: () -> Unit,
+    selectedAbbreviations: String = "",
+    candidates: List<BibleOption> = emptyList(),
+    selectedIds: List<String> = emptyList(),
+    onSelectTranslations: (List<String>) -> Unit = {},
     initiallyExpanded: Set<String> = emptySet(),
+    initiallyChooserOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
     val expanded = remember { mutableStateMapOf<String, Boolean>().apply { initiallyExpanded.forEach { put(it, true) } } }
+    var chooserOpen by remember { mutableStateOf(initiallyChooserOpen) }
 
     AbScaffold(
         topBar = {
@@ -96,6 +117,22 @@ fun SearchResultsScreen(
                 title = { Text(title) },
                 onNavigateUp = onNavigateUp,
                 actions = {
+                    if (candidates.isNotEmpty()) {
+                        AssistChip(
+                            onClick = { chooserOpen = true },
+                            label = { Text(selectedAbbreviations) },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Filled.Translate,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(AssistChipDefaults.IconSize),
+                                )
+                            },
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .semantics { contentDescription = strings.chooseTranslations },
+                        )
+                    }
                     if (scriptureToggleVisible) {
                         IconButton(onClick = onToggleScripture) {
                             Icon(
@@ -142,6 +179,19 @@ fun SearchResultsScreen(
                     )
                 }
             }
+        }
+        if (chooserOpen) {
+            AbMultiSelectDialog(
+                title = strings.chooseTranslations,
+                options = candidates,
+                selectedIds = selectedIds,
+                idOf = { it.id },
+                labelOf = { it.abbreviation },
+                confirmText = strings.okay,
+                dismissText = strings.cancel,
+                onConfirm = { ids -> chooserOpen = false; onSelectTranslations(ids) },
+                onDismiss = { chooserOpen = false },
+            )
         }
     }
 }

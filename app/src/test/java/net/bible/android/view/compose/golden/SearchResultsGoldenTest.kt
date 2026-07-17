@@ -1,6 +1,7 @@
 package net.bible.android.view.compose.golden
 
 import net.bible.android.TEST_SDK
+import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
 import net.bible.sharedcore.search.SwordResultRow
@@ -53,12 +54,20 @@ class SearchResultsGoldenTest {
         ),
     )
 
+    private val candidates = listOf(
+        BibleOption("KJV", "KJV", hasStrongs = true),
+        BibleOption("ESV", "ESV", hasStrongs = false),
+        BibleOption("NIV", "NIV", hasStrongs = false),
+        BibleOption("BSB", "BSB", hasStrongs = true),
+    )
+
     private fun screen(
         loading: Boolean = false,
         rows: List<SwordResultRow> = this.rows,
         scriptureToggleVisible: Boolean = false,
         scriptureShown: Boolean = false,
         initiallyExpanded: Set<String> = emptySet(),
+        initiallyChooserOpen: Boolean = false,
     ) = @androidx.compose.runtime.Composable {
         SearchResultsScreen(
             title = "Search results",
@@ -70,7 +79,12 @@ class SearchResultsGoldenTest {
             onOpenInWindow = {},
             onSelect = { _, _ -> },
             onNavigateUp = {},
+            selectedAbbreviations = "KJV, ESV",
+            candidates = candidates,
+            selectedIds = listOf("KJV", "ESV"),
+            onSelectTranslations = {},
             initiallyExpanded = initiallyExpanded,
+            initiallyChooserOpen = initiallyChooserOpen,
         )
     }
 
@@ -90,6 +104,10 @@ class SearchResultsGoldenTest {
 
     @Test fun scripture_toggle() {
         captureGolden("SearchResults", "scripture_toggle", EDGE_MODE, content = screen(scriptureToggleVisible = true, scriptureShown = true))
+    }
+
+    @Test fun translation_chooser() {
+        captureGolden("SearchResults", "translation_chooser", EDGE_MODE, content = screen(initiallyChooserOpen = true))
     }
 
     @Test fun empty() {

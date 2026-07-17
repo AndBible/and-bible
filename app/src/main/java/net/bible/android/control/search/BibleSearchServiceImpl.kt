@@ -19,8 +19,10 @@ package net.bible.android.control.search
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.MultiSearchResults
 import net.bible.sharedcore.search.SearchRequest
@@ -29,6 +31,7 @@ import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedcore.search.TranslationMatchVd
 import net.bible.sharedcore.search.prepareSearchTerms
 import net.bible.sharedcore.search.splitSearchTerms
+import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
@@ -81,6 +84,25 @@ class BibleSearchServiceImpl(
     override fun containsNonScripture(): Boolean = searchControl.currentDocumentContainsNonScripture()
 
     override fun isCurrentlyShowingScripture(): Boolean = searchControl.isCurrentlyShowingScripture
+
+    override fun candidateBibles(): List<BibleOption> =
+        SwordDocumentFacade.bibles.map {
+            BibleOption(it.initials, it.abbreviation, it.hasFeature(FeatureType.STRONGS_NUMBERS))
+        }
+
+    override fun persistSelection(translationIds: List<String>, strongsSearch: Boolean) {
+        val key = if (strongsSearch) {
+            SearchControl.STRONGS_SEARCH_TRANSLATIONS_PREF
+        } else {
+            SearchControl.SEARCH_TRANSLATIONS_PREF
+        }
+        CommonUtils.settings.setStringSet(key, translationIds.toSet())
+    }
+
+    override fun unindexedAmong(translationIds: List<String>): List<String> =
+        translationIds.filter {
+            SwordDocumentFacade.getDocumentByInitials(it)?.indexStatus != IndexStatus.DONE
+        }
 
     private fun GroupedSearchResult.toRow(terms: List<String>, lemmaTerms: List<String>): SwordResultRow {
         val matches = translationMatches.map { tm ->
