@@ -18,6 +18,7 @@ package net.bible.sharedui.navigation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,16 +27,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Comment
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Checkbox
@@ -47,23 +43,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
-import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
-
-private fun categoryIcon(category: DocCategory): ImageVector = when (category) {
-    DocCategory.BIBLE -> Icons.AutoMirrored.Filled.MenuBook
-    DocCategory.COMMENTARY -> Icons.AutoMirrored.Filled.Comment
-    DocCategory.DICTIONARY -> Icons.Filled.Book
-    DocCategory.GENERAL_BOOK -> Icons.Filled.Book
-    DocCategory.MAPS -> Icons.Filled.Map
-    DocCategory.AND_BIBLE -> Icons.Filled.Extension
-    DocCategory.OTHER -> Icons.Filled.Book
-}
 
 /** Multiplatform-safe "%.1f MB" (no java String.format / no NumberFormat). */
 private fun formatSizeMb(mb: Double): String {
@@ -97,11 +81,27 @@ fun DocumentRow(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Leading: checkbox in selection mode, else the category icon.
-        if (selectionMode) {
-            Checkbox(checked = selected, onCheckedChange = null)
-        } else {
-            Icon(categoryIcon(row.category), contentDescription = null)
+        // Leading: checkbox in selection mode, else the classic per-category icon (via the host
+        // seam). The recommended star rides as a small badge on the leading icon's corner (classic
+        // look), so it no longer costs a trailing slot.
+        Box(contentAlignment = Alignment.Center) {
+            if (selectionMode) {
+                Checkbox(checked = selected, onCheckedChange = null)
+            } else {
+                Icon(
+                    painter = LocalCategoryIcon.current(row.category),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                )
+            }
+            if (row.recommended) {
+                Icon(
+                    Icons.Filled.Star,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(14.dp).align(Alignment.BottomEnd),
+                )
+            }
         }
         Spacer(Modifier.width(16.dp))
 
@@ -109,6 +109,7 @@ fun DocumentRow(
             Text(
                 text = "${row.abbreviation} ${row.name}",
                 style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -121,16 +122,8 @@ fun DocumentRow(
             )
         }
 
-        // Markers: recommended, then locked/enciphered (theme-tinted, not classic red/green).
-        if (row.recommended) {
-            Spacer(Modifier.width(8.dp))
-            Icon(
-                Icons.Filled.Star,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(18.dp),
-            )
-        }
+        // Trailing markers: locked/enciphered (theme-tinted, not classic red/green). The recommended
+        // star moved to the leading icon (see above).
         if (row.locked || row.enciphered) {
             Spacer(Modifier.width(8.dp))
             Icon(
@@ -159,7 +152,13 @@ private fun buildSubtitle(row: DocRow, downloadMode: Boolean): String = buildStr
     }
 }
 
-/** The trailing status affordance, driven by [DocRow.installStatus]. */
+/**
+ * The trailing status affordance, driven by [DocRow.installStatus].
+ *
+ * Every single-mark state renders inside a fixed 48dp slot (the same footprint as the download
+ * [IconButton]'s touch target) so the trailing marks line up down the list regardless of state.
+ * BEING_INSTALLED is the exception: it shows a progress bar plus a cancel button.
+ */
 @Composable
 private fun InstallAffordance(
     row: DocRow,
@@ -167,12 +166,8 @@ private fun InstallAffordance(
     onDownload: () -> Unit,
     onCancel: () -> Unit,
 ) {
-    when (row.installStatus) {
-        DocInstallStatus.INSTALLED ->
-            Icon(Icons.Filled.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-        DocInstallStatus.UPGRADE_AVAILABLE ->
-            Icon(Icons.Filled.ArrowUpward, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-        DocInstallStatus.BEING_INSTALLED -> {
+    if (row.installStatus == DocInstallStatus.BEING_INSTALLED) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             LinearProgressIndicator(
                 progress = { row.percentDone / 100f },
                 modifier = Modifier.width(64.dp),
@@ -181,14 +176,24 @@ private fun InstallAffordance(
                 Icon(Icons.Filled.Close, contentDescription = null)
             }
         }
-        DocInstallStatus.ERROR_DOWNLOADING ->
-            Icon(Icons.Filled.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-        DocInstallStatus.NOT_INSTALLED,
-        DocInstallStatus.INSTALL_CANCELLED ->
-            if (downloadMode) {
-                IconButton(onClick = onDownload) {
-                    Icon(Icons.Filled.Download, contentDescription = null)
+        return
+    }
+    Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+        when (row.installStatus) {
+            DocInstallStatus.INSTALLED ->
+                Icon(Icons.Filled.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            DocInstallStatus.UPGRADE_AVAILABLE ->
+                Icon(Icons.Filled.ArrowUpward, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            DocInstallStatus.ERROR_DOWNLOADING ->
+                Icon(Icons.Filled.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+            DocInstallStatus.NOT_INSTALLED,
+            DocInstallStatus.INSTALL_CANCELLED ->
+                if (downloadMode) {
+                    IconButton(onClick = onDownload) {
+                        Icon(Icons.Filled.Download, contentDescription = null)
+                    }
                 }
-            }
+            DocInstallStatus.BEING_INSTALLED -> {} // handled above
+        }
     }
 }
