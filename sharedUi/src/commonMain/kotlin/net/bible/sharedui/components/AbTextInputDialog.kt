@@ -18,6 +18,7 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -29,12 +30,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 
 /**
  * A titled AlertDialog wrapping a single-line text field, returning the current value on confirm.
  * The initial value is pre-selected (parity with the classic EditText.selectAll() name dialogs), so
  * typing replaces it. [extraContent] lets a caller add a control below the field (e.g. a type picker).
+ * Set [numeric] to surface a number keyboard (used by the settings framework for numeric TextInputRows).
  * Shared component (promoted from MyDocuments); reused by WorkspaceSelector new/rename/clone.
  */
 @Composable
@@ -46,6 +49,7 @@ fun AbTextInputDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
     extraContent: @Composable (() -> Unit)? = null,
+    numeric: Boolean = false,
 ) {
     var value by remember {
         mutableStateOf(TextFieldValue(initial, selection = TextRange(0, initial.length)))
@@ -58,6 +62,11 @@ fun AbTextInputDialog(
                 OutlinedTextField(
                     value = value, onValueChange = { value = it }, singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = if (numeric) {
+                        KeyboardOptions(keyboardType = KeyboardType.Number)
+                    } else {
+                        KeyboardOptions.Default
+                    },
                 )
                 extraContent?.invoke()
             }
