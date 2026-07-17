@@ -138,4 +138,20 @@ class ComposeHostActionBarTest {
             activity.supportActionBar,
         )
     }
+
+    @Test fun `BibleSpeakComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        assertNull(
+            Robolectric.buildActivity(
+                net.bible.android.view.activity.speak.BibleSpeakComposeActivity::class.java
+            ).create().get().supportActionBar
+        )
+    }
+
+    @Test fun `SpeakSettingsComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        assertNull(
+            Robolectric.buildActivity(
+                net.bible.android.view.activity.speak.SpeakSettingsComposeActivity::class.java
+            ).create().get().supportActionBar
+        )
+    }
 }
