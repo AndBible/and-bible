@@ -17,7 +17,10 @@
 
 package net.bible.sharedui.history
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -39,14 +42,21 @@ fun HistoryScreen(
     onDismissError: () -> Unit,
 ) {
     val strings = LocalStrings.current
-    AbScaffold(title = title) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
-            items(entries, key = { it.id }) { entry ->
-                TwoLineListItem(
-                    title = entry.title,
-                    subtitle = entry.timestamp,
-                    onClick = { onSelect(entry.id) },
-                )
+    // Bound the presentation to a dialog-sized card (~half the available height, full width)
+    // instead of filling the whole screen, so it reads as a dialog floating over the reading
+    // view (context retention) rather than a full-screen list. The AbScaffold fills whatever
+    // constraints it is given, so the bound must be applied here at the root, not on the
+    // inner LazyColumn (which then fills the card's content region and scrolls within it).
+    Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.5f)) {
+        AbScaffold(title = title) { padding ->
+            LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
+                items(entries, key = { it.id }) { entry ->
+                    TwoLineListItem(
+                        title = entry.title,
+                        subtitle = entry.timestamp,
+                        onClick = { onSelect(entry.id) },
+                    )
+                }
             }
         }
     }

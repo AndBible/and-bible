@@ -41,6 +41,17 @@
 		<item name="windowNoTitle">true</item>
 	</style>
 
+	<!-- Dialog window theme for HistoryComposeActivity. Keeps the AppCompat dialog presentation
+	     (a bounded card floating over the reading view, for context retention) but removes the
+	     dialog's own AppCompat ActionBar: HistoryScreen draws its own Material3 TopAppBar with the
+	     richer "History for <workspace> <window#>" title, so the inherited ActionBar's
+	     android:label ("History") would render a second, redundant title above it (F9). Mirrors
+	     Theme.AbCompose's NoActionBar approach, but on the Dialog.Alert parent instead of AppTheme. -->
+	<style name="Theme.AbComposeDialog" parent="@style/Theme.AppCompat.DayNight.Dialog.Alert">
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
 	<style name="BaseAppTheme" parent="BaseAppTheme1"/>
 
 	<style name="BaseAppTheme1" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
