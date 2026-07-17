@@ -35,6 +35,8 @@ class AiConnectionSettingsControllerTest {
         override fun acceptDisclaimer() {}
         override fun customAgentSystemPromptText() = ""
         override fun customTextTransformationSystemPromptText() = ""
+        override fun builtInAgentSystemPromptText() = ""
+        override fun builtInTextTransformationSystemPromptText() = ""
         override fun refresh() {}
     }
     private fun controller(fake: Fake, nav: (String) -> Unit = {}) =

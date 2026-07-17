@@ -170,6 +170,14 @@ class AiSettingsServiceImpl : AiSettingsService {
         settings.customTextTransformationSystemPrompt?.takeIf { it.isNotBlank() }
             ?: defaultPromptText(R.raw.llm_text_transformation_system_prompt)
 
+    // Raw built-in defaults, ignoring any custom override — see AiSettingsService KDoc for why
+    // these must stay distinct from the two methods above.
+    override fun builtInAgentSystemPromptText(): String =
+        defaultPromptText(R.raw.llm_agent_system_prompt)
+
+    override fun builtInTextTransformationSystemPromptText(): String =
+        defaultPromptText(R.raw.llm_text_transformation_system_prompt)
+
     override fun refresh() {
         _snapshot.value = build()
     }

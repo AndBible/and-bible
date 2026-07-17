@@ -37,5 +37,11 @@ interface AiSettingsService {
     fun acceptDisclaimer()
     fun customAgentSystemPromptText(): String               // current or default, for the editor
     fun customTextTransformationSystemPromptText(): String
+    // Raw built-in default text (ignores any custom override) — used to detect an unedited save
+    // (must NOT be confused with the two methods above, which return the CURRENT value when a
+    // custom prompt is set; comparing a save against those would discard an unchanged custom
+    // prompt, since the editor is prefilled with that same current value).
+    fun builtInAgentSystemPromptText(): String
+    fun builtInTextTransformationSystemPromptText(): String
     fun refresh()                                           // re-read (host calls on resume)
 }
