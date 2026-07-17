@@ -219,4 +219,14 @@ class AndroidStrings(private val context: Context) : Strings {
     override val llmOpenrouterModelLabel: String get() = context.getString(R.string.llm_openrouter_model)
     override val llmOpenrouterCategoryLabel: String get() = context.getString(R.string.llm_openrouter_category)
     override val llmOpenrouterCategoryAll: String get() = context.getString(R.string.llm_openrouter_category_all)
+
+    // Batch 9b — EasySetupWizard (Task 6)
+    override val easySetupTitle: String get() = context.getString(R.string.easy_setup_title)
+    override val easySetupEnterApiKey: String get() = context.getString(R.string.easy_setup_enter_api_key)
+    override val easySetupTestConnection: String get() = context.getString(R.string.easy_setup_test_connection)
+    override val easySetupTesting: String get() = context.getString(R.string.easy_setup_testing)
+    override val easySetupSuccess: String get() = context.getString(R.string.easy_setup_success)
+    override fun easySetupFailed(message: String): String = context.getString(R.string.easy_setup_failed, message)
+    override val easySetupDoneTitle: String get() = context.getString(R.string.easy_setup_done_title)
+    override val easySetupDoneMessage: String get() = context.getString(R.string.easy_setup_done_message)
 }

@@ -227,6 +227,16 @@ interface Strings {
     val llmOpenrouterModelLabel: String        // R.string.llm_openrouter_model
     val llmOpenrouterCategoryLabel: String     // R.string.llm_openrouter_category
     val llmOpenrouterCategoryAll: String       // R.string.llm_openrouter_category_all
+
+    // Batch 9b — EasySetupWizard (Task 6)
+    val easySetupTitle: String                 // R.string.easy_setup_title (step 1 dialog title)
+    val easySetupEnterApiKey: String           // R.string.easy_setup_enter_api_key (step 2 dialog title prefix)
+    val easySetupTestConnection: String        // R.string.easy_setup_test_connection ("Test connection" action)
+    val easySetupTesting: String               // R.string.easy_setup_testing (test-in-progress status)
+    val easySetupSuccess: String               // R.string.easy_setup_success (test-success status)
+    fun easySetupFailed(message: String): String  // R.string.easy_setup_failed (test-failure status)
+    val easySetupDoneTitle: String             // R.string.easy_setup_done_title (step 3 dialog title)
+    val easySetupDoneMessage: String           // R.string.easy_setup_done_message (step 3 dialog message)
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
