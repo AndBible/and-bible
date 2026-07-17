@@ -30,21 +30,32 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/** A single-line Material3 search field: leading search icon, clear button when non-empty. */
+/**
+ * A single-line Material3 search field: leading search icon, clear button when non-empty.
+ *
+ * [horizontalPadding]/[verticalPadding] default to the full-width screen-margin values; a caller
+ * placing this in a tight row (e.g. the document-selection single-row filter bar) can shrink them.
+ */
 @Composable
 fun AbSearchField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
+    horizontalPadding: Dp = 16.dp,
+    verticalPadding: Dp = 8.dp,
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
-        placeholder = { Text(placeholder) },
+        // maxLines=1 + ellipsis so the placeholder clips instead of wrapping char-by-char when the
+        // field is narrow (as in the compact single-row filter bar).
+        placeholder = { Text(placeholder, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
         trailingIcon = {
             if (value.isNotEmpty()) {
@@ -54,6 +65,6 @@ fun AbSearchField(
             }
         },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = modifier.fillMaxWidth().padding(horizontal = horizontalPadding, vertical = verticalPadding),
     )
 }

@@ -32,9 +32,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/** Material3 exposed-dropdown filter field: read-only text field that opens a menu of [options]. */
+/**
+ * Material3 exposed-dropdown filter field: read-only text field that opens a menu of [options].
+ *
+ * For short option lists only (the menu composes every item eagerly); use `AbSearchablePicker` for
+ * long lists. [horizontalPadding]/[verticalPadding] default to the full-width screen-margin values;
+ * a caller placing this in a tight row can shrink them.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> AbDropdownField(
@@ -44,18 +52,21 @@ fun <T> AbDropdownField(
     optionLabel: (T) -> String,
     onSelect: (T) -> Unit,
     modifier: Modifier = Modifier,
+    horizontalPadding: Dp = 16.dp,
+    verticalPadding: Dp = 4.dp,
 ) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
-        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier = modifier.fillMaxWidth().padding(horizontal = horizontalPadding, vertical = verticalPadding),
     ) {
         OutlinedTextField(
             value = optionLabel(selected),
             onValueChange = {},
             readOnly = true,
-            label = { Text(label) },
+            singleLine = true,
+            label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
         )

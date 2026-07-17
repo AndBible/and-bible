@@ -16,7 +16,9 @@
  */
 package net.bible.sharedui.navigation
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +35,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.navigation.ChooserError
@@ -40,6 +43,7 @@ import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedui.components.AbDropdownField
+import net.bible.sharedui.components.AbSearchablePicker
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbPullToRefresh
@@ -123,23 +127,46 @@ fun DocumentSelectionScreen(
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            AbSearchField(value = query, onValueChange = onQueryChange, placeholder = strings.searchHint)
-            AbDropdownField(
-                label = strings.languageLabel,
-                selected = selectedLanguage,
-                options = languageOptions,
-                optionLabel = { it?.displayName ?: strings.all },
-                onSelect = onLanguageChange,
-            )
-            AbDropdownField(
-                // No dedicated "document type" label string exists yet and the brief forbids new
-                // strings; the selected type's own label already conveys the field's purpose.
-                label = "",
-                selected = selectedTypePair,
-                options = typeFilters,
-                optionLabel = { it.second },
-                onSelect = { onTypeFilterChange(it.first) },
-            )
+            // Single-row filter bar (F4): search takes ~half the width, Language and Type share the
+            // rest as compact controls. Language uses AbSearchablePicker — a type-to-filter,
+            // virtualized bottom-sheet picker (fixes F3 typeability + F6 slow-open). Type keeps
+            // AbDropdownField (short enum). resultCount stays on its own line below.
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                // Compact: drop each control's own screen-margin padding (the Row provides edge
+                // margins + inter-control spacing) so the three fit one narrow row without wrapping.
+                AbSearchField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    placeholder = strings.searchHint,
+                    modifier = Modifier.weight(1f),
+                    horizontalPadding = 0.dp,
+                    verticalPadding = 4.dp,
+                )
+                AbSearchablePicker(
+                    label = strings.languageLabel,
+                    selected = selectedLanguage,
+                    options = languageOptions,
+                    optionLabel = { it?.displayName ?: strings.all },
+                    onSelect = onLanguageChange,
+                    searchPlaceholder = strings.search,
+                    modifier = Modifier.weight(0.6f),
+                )
+                AbDropdownField(
+                    // No dedicated "document type" label string exists yet and the brief forbids new
+                    // strings; the selected type's own label already conveys the field's purpose.
+                    label = "",
+                    selected = selectedTypePair,
+                    options = typeFilters,
+                    optionLabel = { it.second },
+                    onSelect = { onTypeFilterChange(it.first) },
+                    modifier = Modifier.weight(0.6f),
+                    horizontalPadding = 0.dp,
+                )
+            }
             Text(
                 text = resultCount,
                 style = MaterialTheme.typography.bodySmall,
