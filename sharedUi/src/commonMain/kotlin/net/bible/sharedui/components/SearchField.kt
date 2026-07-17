@@ -19,6 +19,7 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -48,6 +49,7 @@ fun AbSearchField(
     modifier: Modifier = Modifier,
     horizontalPadding: Dp = 16.dp,
     verticalPadding: Dp = 8.dp,
+    onImeSearch: (() -> Unit)? = null,
 ) {
     OutlinedTextField(
         value = value,
@@ -65,6 +67,11 @@ fun AbSearchField(
             }
         },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = if (onImeSearch != null) {
+            KeyboardActions(onSearch = { onImeSearch() })
+        } else {
+            KeyboardActions.Default
+        },
         modifier = modifier.fillMaxWidth().padding(horizontal = horizontalPadding, vertical = verticalPadding),
     )
 }

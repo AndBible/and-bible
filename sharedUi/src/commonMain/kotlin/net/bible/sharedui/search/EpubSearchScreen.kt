@@ -82,7 +82,12 @@ fun EpubSearchScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 8.dp),
         ) {
-            AbSearchField(value = query, onValueChange = onQueryChange, placeholder = strings.search)
+            AbSearchField(
+                value = query,
+                onValueChange = onQueryChange,
+                placeholder = strings.search,
+                onImeSearch = onSubmit,
+            )
 
             SingleChoiceSegmentedButtonRow(
                 Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),

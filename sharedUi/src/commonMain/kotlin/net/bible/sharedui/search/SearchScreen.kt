@@ -120,6 +120,7 @@ fun SearchScreen(
                     placeholder = strings.search,
                     modifier = Modifier.weight(1f),
                     horizontalPadding = 0.dp,
+                    onImeSearch = onSubmit,
                 )
                 IconButton(onClick = onSubmit) {
                     Icon(Icons.Filled.Search, contentDescription = strings.search)
