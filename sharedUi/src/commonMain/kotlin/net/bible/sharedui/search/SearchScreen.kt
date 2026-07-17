@@ -27,7 +27,6 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -110,22 +109,12 @@ fun SearchScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 8.dp),
         ) {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                AbSearchField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    placeholder = strings.search,
-                    modifier = Modifier.weight(1f),
-                    horizontalPadding = 0.dp,
-                    onImeSearch = onSubmit,
-                )
-                IconButton(onClick = onSubmit) {
-                    Icon(Icons.Filled.Search, contentDescription = strings.search)
-                }
-            }
+            AbSearchField(
+                value = query,
+                onValueChange = onQueryChange,
+                placeholder = strings.search,
+                onImeSearch = onSubmit,
+            )
 
             AbSettingsSummarySheet(
                 summary = settingsSummary,
