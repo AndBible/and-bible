@@ -55,8 +55,7 @@ Detected via the explicit `IS_STRONGS_SEARCH` intent extra set by `LinkControl`,
 
 ### Persistence
 
-- **Normal search:** reuse the existing `search_selected_translations` setting key so the selection round-trips with the search screen.
-- **Strong's search:** keep the selection **session-local** — do not overwrite the normal-search saved selection with a Strong's-only subset, to avoid surprising the search screen.
+The results-screen selector is a **live override for both flows** — it updates the in-memory `selectedTranslations` and re-runs the search, but does not persist to `search_selected_translations`. It therefore never mutates the search screen's saved default. This avoids the primary-document ordering subtleties in `Search.ensurePrimaryDocumentFirst` (which reorders the saved list to put the search screen's current document first) and keeps the change small and low-risk. The search screen continues to persist its own selection as before.
 
 ### Dead code cleanup (separate commit)
 
