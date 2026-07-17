@@ -17,7 +17,6 @@
 
 package net.bible.sharedui.ai
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -232,19 +231,20 @@ private fun ModelFormDialog(
     // Screen-local filters for the add flow's picker (see AiModelsScreen doc for why these are not
     // round-tripped through the controller).
     var category by remember(state.providerId) { mutableStateOf("") } // "" = All
-    var showUnsupported by remember(state.providerId) {
-        mutableStateOf(state.availableModels.isNotEmpty() && state.availableModels.none { it.supported })
-    }
+    var showUnsupported by remember(state.providerId) { mutableStateOf(false) }
 
     fun categoryOf(modelId: String) = modelId.substringBefore('/', "")
 
     val categories = state.availableModels.map { categoryOf(it.modelId) }.filter { it.isNotBlank() }.distinct().sorted()
     val hasSupported = state.availableModels.any { it.supported }
     val hasUnsupported = state.availableModels.any { !it.supported }
+    // If NO model is supported, the toggle is hidden (only shown for a genuine mix, mirroring
+    // classic) but the list must not filter itself down to empty — treat unsupported as visible.
+    val effectiveShowUnsupported = showUnsupported || !hasSupported
 
     val filteredModels = state.availableModels
         .filter { category.isBlank() || categoryOf(it.modelId) == category }
-        .filter { showUnsupported || it.supported }
+        .filter { effectiveShowUnsupported || it.supported }
 
     fun modelLabel(id: String): String = when {
         id == AiModelsController.CUSTOM_MODEL_ID -> strings.llmCustomModel
