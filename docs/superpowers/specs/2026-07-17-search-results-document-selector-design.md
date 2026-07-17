@@ -47,7 +47,7 @@ Implication: the Arabic reporter benefits only if an Arabic Strong's-tagged modu
    - Add the toolbar selector (via view binding) that shows `selectedTranslations` and opens `Dialogs.multiselect`.
    - Compute the candidate list with a pure, unit-testable function `candidateDocuments(strongsSearch: Boolean, allBibles: List<SwordBook>)`: filter to `STRONGS_NUMBERS` when `strongsSearch`, else return all.
    - On confirm: update state, re-run the search, refresh list + title. If a selected document is unindexed, redirect to `SearchIndex` (same handling as `Search.kt`).
-4. **Layout / strings** — add the toolbar element to the search-results toolbar; add a user-facing string (e.g. `change_search_documents`).
+4. **Layout / strings** — add the toolbar element to the search-results toolbar. **No new translatable strings:** the element shows the selected translation abbreviations (already data), and the chooser dialog reuses the existing `choose_translations` string (also used for the element's accessibility content description).
 
 ### Search-type detection
 
