@@ -33,7 +33,7 @@ class WorkspaceSelectorGoldenTest {
         onClone = { _, _ -> }, onDelete = {}, onEditSettings = {}, onCopySettings = {},
         onCopySettingsToGlobal = {}, onChooseCopyTypes = {}, onChooseCopyTargets = {},
         onCancelCopySettings = {}, onCreate = {}, onSave = {}, onCancel = {},
-        onConfirmPendingSelect = {}, onDismissPendingSelect = {}, onNavigateUp = {},
+        onConfirmPendingSelect = {}, onDismissPendingSelect = {}, onHelp = {}, onNavigateUp = {},
     )
 
     // heightDp=900: this is a list screen; the default viewport clips row 3 + the Save/Cancel bar.

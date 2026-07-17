@@ -97,6 +97,7 @@ fun WorkspaceSelectorScreen(
     onCancel: () -> Unit,
     onConfirmPendingSelect: (save: Boolean) -> Unit,
     onDismissPendingSelect: () -> Unit,
+    onHelp: () -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     val s = LocalStrings.current
@@ -111,7 +112,7 @@ fun WorkspaceSelectorScreen(
         actions = {
             AbOverflowMenu(contentDescription = null) { close ->
                 DropdownMenuItem(text = { Text(s.newItem) }, onClick = { close(); createOpen = true })
-                DropdownMenuItem(text = { Text(s.helpLabel) }, onClick = { close() })
+                DropdownMenuItem(text = { Text(s.helpLabel) }, onClick = { close(); onHelp() })
             }
         },
     ) { padding ->
