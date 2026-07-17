@@ -184,4 +184,22 @@ class AndroidStrings(private val context: Context) : Strings {
     // Batch 9a — AiConnectionSettingsScreen custom editors
     override val resetToDefault: String get() = context.getString(R.string.reset_to_default)
     override val rawLogRetentionDisabledLabel: String get() = context.getString(R.string.raw_log_retention_summary_disabled)
+
+    // Batch 9b — AiProvidersScreen
+    override val aiProvidersTitle: String get() = context.getString(R.string.ai_providers_category)
+    override val addProvider: String get() = context.getString(R.string.ai_add_provider)
+    override val providerEditTitle: String get() = context.getString(R.string.ai_provider_edit)
+    override val providerApiKeyNotSet: String get() = context.getString(R.string.ai_provider_api_key_not_set)
+    override fun providerApiKeyMasked(suffix: String): String =
+        context.getString(R.string.ai_provider_api_key_masked, context.getString(R.string.ai_provider_api_key), suffix)
+    override val providerSelectType: String get() = context.getString(R.string.ai_provider_select_type)
+    override val providerNameLabel: String get() = context.getString(R.string.ai_provider_name)
+    override val providerNameHint: String get() = context.getString(R.string.ai_provider_name_hint)
+    override val providerApiKeyLabel: String get() = context.getString(R.string.ai_provider_api_key)
+    override val providerEndpointLabel: String get() = context.getString(R.string.ai_provider_endpoint)
+    override val providerEndpointHint: String get() = context.getString(R.string.ai_provider_endpoint_hint)
+    override val providerEndpointDescription: String get() = context.getString(R.string.ai_provider_endpoint_description)
+    override val providerApiFormatLabel: String get() = context.getString(R.string.ai_provider_api_format)
+    override fun providerDeleteConfirm(name: String): String = context.getString(R.string.ai_provider_delete_confirm, name)
+    override val apiKeyInstructionsPrefix: String get() = context.getString(R.string.easy_setup_api_key_instructions)
 }

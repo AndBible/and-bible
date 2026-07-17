@@ -32,10 +32,14 @@ fun main(args: Array<String>) {
     require(androidStringsFile.isFile) { "--android-strings is not a file: $androidStringsFile" }
     require(interfaceFile.isFile) { "--interface is not a file: $interfaceFile" }
 
-    // 1. Parse every values* /strings.xml into localeTag -> (key -> value). Skip non-locale
-    //    configuration qualifiers (screen-size / density / UI-mode / API-version) and any values*
-    //    dir without a strings.xml. AndBible has BOTH `values/` and `values-en/` (both map to "en"),
-    //    so MERGE rather than replace: `values-en` overrides `values` for the shared "en" tag.
+    // 1. Parse every *.xml resource file under each values*/ dir into localeTag -> (key -> value).
+    //    Skip non-locale configuration qualifiers (screen-size / density / UI-mode / API-version).
+    //    The base `values/` dir carries MULTIPLE value files (strings.xml + untranslated_strings.xml
+    //    for English-only/non-translatable entries like technical hints and format templates,
+    //    alongside non-string files — colors.xml/dimens.xml/styles.xml/etc. — that simply yield no
+    //    <string>/<plurals>/<string-array> matches), so every xml file in the dir is scanned, not
+    //    just a literal "strings.xml". AndBible has BOTH `values/` and `values-en/` (both map to
+    //    "en"), so MERGE rather than replace: `values-en` overrides `values` for the shared "en" tag.
     val localeToKeyValues = LinkedHashMap<String, Map<String, String>>()
     val localeToPlurals = LinkedHashMap<String, Map<String, Map<String, String>>>()
     val localeToArrays = LinkedHashMap<String, Map<String, List<String>>>()
@@ -44,14 +48,17 @@ fun main(args: Array<String>) {
         .sortedBy { it.name }
     for (dir in dirs) {
         if (isNonLocaleQualifier(dir.name)) continue
-        val xml = File(dir, "strings.xml")
-        if (!xml.isFile) continue
+        val xmlFiles = (dir.listFiles { f -> f.isFile && f.extension == "xml" } ?: emptyArray()).sortedBy { it.name }
+        if (xmlFiles.isEmpty()) continue
         val tag = qualifierToTag(dir.name)
-        val text = xml.readText()
-        // Merge (values-en overrides values for the shared "en" tag; both map to "en") — see [mergeLocale].
-        localeToKeyValues[tag] = mergeLocale(localeToKeyValues[tag], parseStringsXml(text))
-        localeToPlurals[tag] = (localeToPlurals[tag].orEmpty()) + parsePluralsXml(text)
-        localeToArrays[tag] = (localeToArrays[tag].orEmpty()) + parseStringArraysXml(text)
+        for (xml in xmlFiles) {
+            val text = xml.readText()
+            // Merge across BOTH multiple value files within one dir AND values-en overriding values
+            // for the shared "en" tag — see [mergeLocale].
+            localeToKeyValues[tag] = mergeLocale(localeToKeyValues[tag], parseStringsXml(text))
+            localeToPlurals[tag] = (localeToPlurals[tag].orEmpty()) + parsePluralsXml(text)
+            localeToArrays[tag] = (localeToArrays[tag].orEmpty()) + parseStringArraysXml(text)
+        }
     }
 
     // 2. Recover each member's R.string key from AndroidStrings.kt.

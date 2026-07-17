@@ -193,6 +193,23 @@ interface Strings {
     // Batch 9a — AiConnectionSettingsScreen custom editors
     val resetToDefault: String                // R.string.reset_to_default
     val rawLogRetentionDisabledLabel: String   // R.string.raw_log_retention_summary_disabled (also the disable checkbox label)
+
+    // Batch 9b — AiProvidersScreen
+    val aiProvidersTitle: String               // R.string.ai_providers_category (screen title)
+    val addProvider: String                    // R.string.ai_add_provider (top-bar action + add-dialog title)
+    val providerEditTitle: String              // R.string.ai_provider_edit (edit-dialog title)
+    val providerApiKeyNotSet: String           // R.string.ai_provider_api_key_not_set (row summary)
+    fun providerApiKeyMasked(suffix: String): String  // R.string.ai_provider_api_key_masked (label baked in; row summary)
+    val providerSelectType: String             // R.string.ai_provider_select_type (PICK_TYPE dialog title)
+    val providerNameLabel: String              // R.string.ai_provider_name
+    val providerNameHint: String               // R.string.ai_provider_name_hint
+    val providerApiKeyLabel: String            // R.string.ai_provider_api_key
+    val providerEndpointLabel: String          // R.string.ai_provider_endpoint
+    val providerEndpointHint: String           // R.string.ai_provider_endpoint_hint
+    val providerEndpointDescription: String    // R.string.ai_provider_endpoint_description
+    val providerApiFormatLabel: String         // R.string.ai_provider_api_format
+    fun providerDeleteConfirm(name: String): String  // R.string.ai_provider_delete_confirm
+    val apiKeyInstructionsPrefix: String       // R.string.easy_setup_api_key_instructions
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
