@@ -272,8 +272,8 @@ class SearchControl @Inject constructor(
         private const val SEARCH_NEW_TESTAMENT = "+[Mat-Rev]"
         const val SEARCH_TEXT = "SearchText"
         const val SEARCH_DOCUMENT = "SearchDocument"
-        const val TARGET_DOCUMENT = "TargetDocument"
         const val SELECTED_TRANSLATIONS = "SelectedTranslations"
+        const val IS_STRONGS_SEARCH = "IsStrongsSearch"
         private const val STRONG_COLON_STRING = LuceneIndex.FIELD_STRONG + ":"
         private const val STRONG_COLON_STRING_PLACE_HOLDER = LuceneIndex.FIELD_STRONG + "COLON"
         const val MAX_SEARCH_RESULTS = 5000
