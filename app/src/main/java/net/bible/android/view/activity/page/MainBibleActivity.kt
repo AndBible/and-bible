@@ -137,7 +137,6 @@ import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
-import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.AgentLogVisibilityChanged
@@ -969,7 +968,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             speakButton.setOnLongClickListener {
-                val intent = Intent(this@MainBibleActivity, BibleSpeakActivity::class.java)
+                val intent = ScreenLauncher.intentFor(this@MainBibleActivity, Screen.BibleSpeak)
                 startActivityForResult(intent, STD_REQUEST_CODE)
                 true
             }

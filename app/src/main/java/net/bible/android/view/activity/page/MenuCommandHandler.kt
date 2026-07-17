@@ -48,7 +48,6 @@ import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.ai.AiSettingsActivity
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsActivity
-import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.htmlToSpan
@@ -189,7 +188,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                 }
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {
-                        handlerIntent = Intent(mainBibleActivity, BibleSpeakActivity::class.java)
+                        handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.BibleSpeak)
                     }
                 }
                 R.id.dailyReadingPlanButton -> {

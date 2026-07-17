@@ -58,6 +58,8 @@ import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressStatus
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
+import net.bible.android.view.activity.speak.BibleSpeakActivity
+import net.bible.android.view.activity.speak.BibleSpeakComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -249,5 +251,13 @@ class ScreenLauncherTest {
         assertEquals(CloudDocumentsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CloudDocuments))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(CloudDocumentsActivity::class.java, ScreenLauncher.targetFor(Screen.CloudDocuments))
+    }
+
+    @Test
+    fun bibleSpeak_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(BibleSpeakComposeActivity::class.java, ScreenLauncher.targetFor(Screen.BibleSpeak))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(BibleSpeakActivity::class.java, ScreenLauncher.targetFor(Screen.BibleSpeak))
     }
 }
