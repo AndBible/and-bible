@@ -51,6 +51,7 @@ fun AbSearchField(
     verticalPadding: Dp = 8.dp,
     onImeSearch: (() -> Unit)? = null,
     onLeadingIconClick: (() -> Unit)? = null,
+    leadingIconContentDescription: String? = null,
 ) {
     OutlinedTextField(
         value = value,
@@ -62,10 +63,10 @@ fun AbSearchField(
         leadingIcon = {
             if (onLeadingIconClick != null) {
                 IconButton(onClick = onLeadingIconClick) {
-                    Icon(Icons.Filled.Search, contentDescription = null)
+                    Icon(Icons.Filled.Search, contentDescription = leadingIconContentDescription)
                 }
             } else {
-                Icon(Icons.Filled.Search, contentDescription = null)
+                Icon(Icons.Filled.Search, contentDescription = leadingIconContentDescription)
             }
         },
         trailingIcon = {

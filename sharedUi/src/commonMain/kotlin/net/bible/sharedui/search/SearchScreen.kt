@@ -125,6 +125,7 @@ fun SearchScreen(
                     onLeadingIconClick = if (recentTerms.isNotEmpty()) {
                         { recentMenuOpen = true }
                     } else null,
+                    leadingIconContentDescription = if (recentTerms.isNotEmpty()) strings.recentSearches else null,
                 )
                 DropdownMenu(
                     expanded = recentMenuOpen,
