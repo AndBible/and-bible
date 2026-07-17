@@ -29,6 +29,6 @@ class BibleSpeakGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun primary_rtl() = captureRtl("BibleSpeak", "primary", screen(primary))
 
-    @Test fun sleep_set() = captureGolden("BibleSpeak", "sleep_set", EDGE_MODE, content = screen(primary.copy(sleepTimerMinutes = 15)))
+    @Test fun sleep_set() = captureGolden("BibleSpeak", "sleep_set", EDGE_MODE, heightDp = 900, content = screen(primary.copy(sleepTimerMinutes = 15)))
     @Test fun repeat_set() = captureGolden("BibleSpeak", "repeat_set", EDGE_MODE, content = screen(primary.copy(repeatRangeName = "Gen 1:1-5")))
 }
