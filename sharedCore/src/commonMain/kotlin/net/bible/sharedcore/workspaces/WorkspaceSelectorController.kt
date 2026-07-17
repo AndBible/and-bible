@@ -84,7 +84,10 @@ class WorkspaceSelectorController(
 
     fun createNew(name: String) {
         val v = service.createWorkspace(name)
-        working.add(v); created.add(v.id); publish()
+        // NOTE: unlike clone(), classic createNewWorkspace() does NOT track the new workspace in
+        // workspacesCreated — only cloneWorkspace() does. A created-and-persisted workspace must
+        // survive a subsequent discard (Don't save); only session clones are discardable.
+        working.add(v); publish()
         selectWorkspace(v.id)          // terminal, like classic goToWorkspace(newId)
     }
 

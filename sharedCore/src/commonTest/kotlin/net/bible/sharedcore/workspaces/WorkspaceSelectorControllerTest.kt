@@ -76,22 +76,24 @@ class WorkspaceSelectorControllerTest {
     }
 
     @Test fun requestDelete_stages_and_dirties() = runTest(UnconfinedTestDispatcher()) {
-        val c = controller(FakeService(listOf(vd("1"), vd("2"))))
+        val svc = FakeService(listOf(vd("1"), vd("2")))
+        val c = controller(svc)
         c.requestDelete("1")
         assertEquals(listOf("2"), c.workspaces.value.map { it.id })
         assertTrue(c.dirty.value)
         c.save()
-        assertEquals(listOf("1"), svcOf(c).appliedDeleted)
-        assertEquals(listOf("2"), svcOf(c).appliedOrder)
+        assertEquals(listOf("1"), svc.appliedDeleted)
+        assertEquals(listOf("2"), svc.appliedOrder)
     }
 
     @Test fun moveIndex_reorders_marks_span_changed_dirties() = runTest(UnconfinedTestDispatcher()) {
-        val c = controller(FakeService(listOf(vd("1"), vd("2"), vd("3"))))
+        val svc = FakeService(listOf(vd("1"), vd("2"), vd("3")))
+        val c = controller(svc)
         c.moveIndex(0, 2)
         assertEquals(listOf("2", "3", "1"), c.workspaces.value.map { it.id })
         c.save()
-        assertEquals(listOf("2", "3", "1"), svcOf(c).appliedOrder)
-        assertTrue(svcOf(c).appliedChanged!!.containsAll(setOf("1", "2", "3")))
+        assertEquals(listOf("2", "3", "1"), svc.appliedOrder)
+        assertTrue(svc.appliedChanged!!.containsAll(setOf("1", "2", "3")))
     }
 
     @Test fun moveIndex_noop_when_from_equals_to() = runTest(UnconfinedTestDispatcher()) {
@@ -100,12 +102,13 @@ class WorkspaceSelectorControllerTest {
     }
 
     @Test fun rename_updates_row_marks_changed_and_carries_map() = runTest(UnconfinedTestDispatcher()) {
-        val c = controller(FakeService(listOf(vd("1", "old"), vd("2"))))
+        val svc = FakeService(listOf(vd("1", "old"), vd("2")))
+        val c = controller(svc)
         c.rename("1", "new")
         assertEquals("new", c.workspaces.value.first { it.id == "1" }.name)
         c.save()
-        assertEquals(mapOf("1" to "new"), svcOf(c).appliedRenamed)
-        assertTrue(svcOf(c).appliedChanged!!.contains("1"))
+        assertEquals(mapOf("1" to "new"), svc.appliedRenamed)
+        assertTrue(svc.appliedChanged!!.contains("1"))
     }
 
     @Test fun clone_inserts_after_source_tracks_created_dirties() = runTest(UnconfinedTestDispatcher()) {
@@ -145,7 +148,7 @@ class WorkspaceSelectorControllerTest {
         assertNull(c.copySettingsState.value)          // closed
         assertTrue(c.dirty.value)
         c.save()
-        assertTrue(svcOf(c).appliedChanged!!.containsAll(setOf("2", "3")))  // fix-forward: targets persisted
+        assertTrue(svc.appliedChanged!!.containsAll(setOf("2", "3")))  // fix-forward: targets persisted
     }
 
     @Test fun copySettings_empty_type_selection_cancels() = runTest(UnconfinedTestDispatcher()) {
@@ -165,30 +168,63 @@ class WorkspaceSelectorControllerTest {
     }
 
     @Test fun applyWorkspaceSettings_refreshes_row_and_marks_changed() = runTest(UnconfinedTestDispatcher()) {
-        val c = controller(FakeService(listOf(vd("1"), vd("2"))))
+        val svc = FakeService(listOf(vd("1"), vd("2")))
+        val c = controller(svc)
         c.applyWorkspaceSettings("1", "{}", reset = false)
         assertEquals(0x00FF00, c.workspaces.value.first { it.id == "1" }.colorArgb)
         assertTrue(c.dirty.value)
-        c.save(); assertTrue(svcOf(c).appliedChanged!!.contains("1"))
+        c.save(); assertTrue(svc.appliedChanged!!.contains("1"))
     }
 
     @Test fun dirty_select_prompts_then_saves() = runTest(UnconfinedTestDispatcher()) {
-        val c = controller(FakeService(listOf(vd("1"), vd("2"))))
+        val svc = FakeService(listOf(vd("1"), vd("2")))
+        val c = controller(svc)
         c.rename("1", "x")
         c.selectWorkspace("2")
         assertEquals("2", c.pendingSelectId.value)     // prompt shown, no result yet
         assertNull(resultId)
         c.confirmPendingSelect(save = true)
         assertEquals("2", resultId); assertEquals(true, resultChanged)
-        assertNotNull(svcOf(c).appliedOrder)           // applyChanges ran
+        assertNotNull(svc.appliedOrder)                // applyChanges ran
+    }
+
+    @Test fun dirty_select_cancel_stays_and_clears_pending() = runTest(UnconfinedTestDispatcher()) {
+        val svc = FakeService(listOf(vd("1"), vd("2")))
+        val c = controller(svc)
+        c.rename("1", "x")
+        c.selectWorkspace("2")
+        assertEquals("2", c.pendingSelectId.value)
+        c.dismissPendingSelect()
+        assertNull(c.pendingSelectId.value)            // prompt cleared
+        assertNull(resultId); assertFalse(canceled)    // neither apply nor cancel happened
+        assertNull(svc.appliedOrder); assertNull(svc.deletedCreated)
+        assertTrue(c.dirty.value)                      // still dirty - edits are untouched
+        assertEquals("x", c.workspaces.value.first { it.id == "1" }.name)  // rename still staged
     }
 
     @Test fun dirty_select_no_discards_created_and_returns_id() = runTest(UnconfinedTestDispatcher()) {
         val svc = FakeService(listOf(vd("1"), vd("2")))
         val c = controller(svc); c.clone("1", "tmp")     // created + dirty
+        val clonedId = c.workspaces.value.first { it.name == "tmp" }.id
         c.selectWorkspace("2"); c.confirmPendingSelect(save = false)
         assertEquals("2", resultId); assertEquals(false, resultChanged)
-        assertNotNull(svc.deletedCreated)               // cancel path hard-deletes the created clone
+        assertEquals(listOf(clonedId), svc.deletedCreated)  // cancel path hard-deletes exactly the created clone
+    }
+
+    @Test fun createNew_then_discard_does_not_delete_new_workspace() = runTest(UnconfinedTestDispatcher()) {
+        // Finding 1 regression: dirty the session first (e.g. a rename), THEN createNew (which
+        // itself selects the new workspace and, being dirty, prompts). Taking the discard branch
+        // must NOT hard-delete the just-created workspace (classic createNewWorkspace() never
+        // tracks it in workspacesCreated - only cloneWorkspace() does), and must still navigate to it.
+        val svc = FakeService(listOf(vd("1", current = true)))
+        val c = controller(svc)
+        c.rename("1", "renamed")            // dirties the session before creating
+        c.createNew("brand new")            // selectWorkspace(newId) -> dirty -> pendingSelect
+        val newId = c.pendingSelectId.value
+        assertNotNull(newId)
+        c.confirmPendingSelect(save = false)
+        assertEquals(newId, resultId); assertEquals(false, resultChanged)
+        assertEquals(emptyList<String>(), svc.deletedCreated)  // new workspace NOT deleted (never tracked as "created")
     }
 
     @Test fun non_dirty_select_finishes_immediately() = runTest(UnconfinedTestDispatcher()) {
@@ -206,16 +242,14 @@ class WorkspaceSelectorControllerTest {
 
     @Test fun cancel_deletes_created_and_cancels() = runTest(UnconfinedTestDispatcher()) {
         val svc = FakeService(listOf(vd("1"), vd("2")))
-        val c = controller(svc); c.clone("1", "tmp"); c.cancel()
-        assertTrue(canceled); assertNotNull(svc.deletedCreated)
+        val c = controller(svc); c.clone("1", "tmp")
+        val clonedId = c.workspaces.value.first { it.name == "tmp" }.id
+        c.cancel()
+        assertTrue(canceled); assertEquals(listOf(clonedId), svc.deletedCreated)
     }
 
     @Test fun editSettings_forwards_to_host() = runTest(UnconfinedTestDispatcher()) {
         val c = controller(FakeService(listOf(vd("1")))); c.editSettings("1")
         assertEquals("1", editSettingsId)
     }
-
-    // Helper: reach the fake behind the controller for assertions.
-    private fun svcOf(c: WorkspaceSelectorController): FakeService =
-        (WorkspaceSelectorController::class.java.getDeclaredField("service").apply { isAccessible = true }.get(c) as FakeService)
 }
