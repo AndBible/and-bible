@@ -17,13 +17,17 @@ import kotlinx.coroutines.launch
  * host decides whether to hide `!AvailableModelVd.supported` entries from [availableModels]); it
  * does not affect [canSave].
  *
- * Deliberately does NOT support editing an existing model's provider/model-id/pricing in place —
- * per the task scope, existing-model management is limited to [AiModelsController.setDefault] and
- * [AiModelsController.delete] (matching the checkbox/delete actions of classic's edit dialog
- * without needing to prefill raw prices, since [ModelVd] only carries a formatted
- * `pricingSummary`). To replace a model's id/provider/pricing, delete and re-add.
+ * [id] is null for the add flow (the default, going through [Step.PICK_PROVIDER] /
+ * [Step.PICK_MODEL]) and non-null when editing an existing model
+ * ([AiModelsController.startEdit], which prefills the form and jumps straight to
+ * [Step.PICK_MODEL] — the same step add uses for its editable form once a model is chosen —
+ * skipping both pick steps, symmetric to `AiProvidersController.startEdit`). While editing an
+ * existing model, [showPriceFields] is frozen at the value [AiModelsController.startEdit] computed
+ * from [ModelVd.priceInput]/[ModelVd.priceOutput] being non-null (it does NOT get recomputed
+ * against [availableModels], which is irrelevant/empty in the edit flow).
  */
 data class ModelEditState(
+    val id: String?,               // null = new (add flow); non-null = editing this existing model
     val step: Step,
     val providerChoices: List<ProviderVd>,
     val providerId: String,
@@ -48,10 +52,13 @@ data class ModelEditState(
  * `sortedByDescending { it.id == defaultModelId }`), plus a dialog stack for the add-model flow:
  * pick a configured provider, load that provider's available models
  * ([LlmModelService.availableModelsFor], suspend), pick one (or enter a custom model id +
- * pricing), Save persists via [LlmModelService.saveModel] and dismisses the dialog. The very
- * first model saved is always set as default (mirroring classic's
- * `if (settings.defaultModelId == null) settings.defaultModelId = newModel.id`), regardless of
- * the [ModelEditState.setAsDefault] checkbox.
+ * pricing), Save persists via [LlmModelService.saveModel] and dismisses the dialog. A model is
+ * always saved as default when no currently-configured model is marked default
+ * (`models.value.none { it.isDefault }` — mirroring classic's
+ * `if (settings.defaultModelId == null) settings.defaultModelId = newModel.id`, but derived
+ * directly from [ModelVd.isDefault] rather than an empty list, so it also covers "every remaining
+ * model lost its default" cases independent of how that came about), regardless of the
+ * [ModelEditState.setAsDefault] checkbox.
  */
 class AiModelsController(
     private val service: LlmModelService,
@@ -71,6 +78,7 @@ class AiModelsController(
 
     fun startAdd() {
         _dialog.value = ModelEditState(
+            id = null,
             step = ModelEditState.Step.PICK_PROVIDER,
             providerChoices = service.providersForPicker(),
             providerId = "",
@@ -85,6 +93,37 @@ class AiModelsController(
             isCustom = false,
             showPriceFields = false,
             canSave = false,
+        )
+    }
+
+    /**
+     * Opens the edit dialog scoped to an existing model, prefilled from its [ModelVd] — provider
+     * fixed, model id shown read-only, jumping straight to [ModelEditState.Step.PICK_MODEL] (the
+     * same step add's editable form uses) and skipping both pick steps, symmetric to
+     * [AiProvidersController.startEdit]. Editable price fields are shown/prefilled exactly when
+     * [ModelVd.priceInput]/[ModelVd.priceOutput] are non-null (i.e. pricing is unknown/custom) —
+     * see [ModelEditState] doc.
+     */
+    fun startEdit(id: String) {
+        val m = models.value.firstOrNull { it.id == id } ?: return
+        publish(
+            ModelEditState(
+                id = m.id,
+                step = ModelEditState.Step.PICK_MODEL,
+                providerChoices = emptyList(),
+                providerId = m.providerId,
+                availableModels = emptyList(),
+                loadingModels = false,
+                modelId = m.modelId,
+                customModelId = "",
+                priceInput = m.priceInput ?: "",
+                priceOutput = m.priceOutput ?: "",
+                setAsDefault = m.isDefault,
+                showUnsupported = false,
+                isCustom = false,
+                showPriceFields = m.priceInput != null || m.priceOutput != null,
+                canSave = false,
+            )
         )
     }
 
@@ -136,10 +175,10 @@ class AiModelsController(
         val s = _dialog.value ?: return
         if (!s.canSave) return
         val modelId = if (s.isCustom) s.customModelId.trim() else s.modelId
-        val setDefault = s.setAsDefault || models.value.isEmpty()
+        val setDefault = s.setAsDefault || models.value.none { it.isDefault }
         scope.launch {
             service.saveModel(
-                id = null,
+                id = s.id,
                 providerId = s.providerId,
                 modelId = modelId,
                 priceInput = if (s.showPriceFields) s.priceInput else null,
@@ -158,9 +197,16 @@ class AiModelsController(
 
     private fun publish(next: ModelEditState) {
         val isCustom = next.modelId == CUSTOM_MODEL_ID
-        val selected = if (isCustom) null else next.availableModels.firstOrNull { it.modelId == next.modelId }
-        val hasUnknownPricing = !isCustom && next.modelId.isNotBlank() && selected?.knownPricing != true
-        val showPriceFields = isCustom || hasUnknownPricing
+        // Editing an existing model never goes through pickProvider/pickModel (availableModels
+        // stays empty, so an availableModels-based lookup can't tell known from unknown pricing);
+        // showPriceFields was fixed once in startEdit from ModelVd.priceInput/priceOutput, so keep it.
+        val showPriceFields = if (next.id != null) {
+            next.showPriceFields
+        } else {
+            val selected = if (isCustom) null else next.availableModels.firstOrNull { it.modelId == next.modelId }
+            val hasUnknownPricing = !isCustom && next.modelId.isNotBlank() && selected?.knownPricing != true
+            isCustom || hasUnknownPricing
+        }
         val modelChosen = if (isCustom) next.customModelId.isNotBlank() else next.modelId.isNotBlank()
         val canSave = next.step == ModelEditState.Step.PICK_MODEL && next.providerId.isNotBlank() && modelChosen
         _dialog.value = next.copy(isCustom = isCustom, showPriceFields = showPriceFields, canSave = canSave)

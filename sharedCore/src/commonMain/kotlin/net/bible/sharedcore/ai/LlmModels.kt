@@ -35,6 +35,13 @@ data class ModelVd(
     val isDefault: Boolean,
     val supported: Boolean,
     val pricingSummary: String,    // pre-formatted price/cost line
+    // Raw per-million prices, non-null ONLY when this model's pricing is user-editable/unknown
+    // (`LlmProvider.hasKnownPricing(modelId) == false` — mirrors `AvailableModelVd.knownPricing`);
+    // null when pricing is resolved server-side from a known-model table. Added additively so
+    // AiModelsController.startEdit can prefill the edit dialog's editable price fields (the list
+    // row itself only ever shows the formatted pricingSummary, regardless of source).
+    val priceInput: String? = null,
+    val priceOutput: String? = null,
 )
 
 /**

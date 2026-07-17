@@ -205,4 +205,83 @@ class AiModelsControllerTest {
         c.setShowUnsupported(true)
         assertTrue(c.dialog.value!!.showUnsupported)
     }
+
+    @Test fun startEdit_knownPricing_prefillsFormAtPickModelStepWithoutPriceFields() = runTest {
+        val existing = ModelVd(
+            "m1", "gpt-4o", "GPT-4o", "p1", isDefault = true, supported = true,
+            pricingSummary = "$3/$15", priceInput = null, priceOutput = null,
+        )
+        val f = Fake(initialModels = listOf(existing))
+        val c = controller(f)
+        c.startEdit("m1")
+        val s = c.dialog.value
+        assertNotNull(s)
+        assertEquals("m1", s.id)
+        assertEquals(ModelEditState.Step.PICK_MODEL, s.step)
+        assertEquals("p1", s.providerId)
+        assertEquals("gpt-4o", s.modelId)
+        assertFalse(s.isCustom)
+        assertFalse(s.showPriceFields)
+        assertTrue(s.setAsDefault) // existing model is the current default
+        assertTrue(s.canSave)
+    }
+
+    @Test fun startEdit_unknownPricing_prefillsEditablePriceFields() = runTest {
+        val existing = ModelVd(
+            "m2", "weird-model", "Weird Model", "p1", isDefault = false, supported = false,
+            pricingSummary = "", priceInput = "1.5", priceOutput = "2.5",
+        )
+        val f = Fake(initialModels = listOf(existing))
+        val c = controller(f)
+        c.startEdit("m2")
+        val s = c.dialog.value
+        assertNotNull(s)
+        assertTrue(s.showPriceFields)
+        assertEquals("1.5", s.priceInput)
+        assertEquals("2.5", s.priceOutput)
+        assertFalse(s.setAsDefault)
+        assertTrue(s.canSave)
+    }
+
+    @Test fun startEdit_unknownModel_isNoop() = runTest {
+        val f = Fake(initialModels = emptyList())
+        val c = controller(f)
+        c.startEdit("does-not-exist")
+        assertNull(c.dialog.value)
+    }
+
+    @Test fun save_editingExistingModel_passesIdAndUpdatedPrices() = runTest {
+        val existing = ModelVd(
+            "m2", "weird-model", "Weird Model", "p1", isDefault = false, supported = false,
+            pricingSummary = "", priceInput = "1.5", priceOutput = "2.5",
+        )
+        val f = Fake(initialModels = listOf(existing))
+        val c = controller(f)
+        c.startEdit("m2")
+        c.updateField(AiModelsController.Field.PRICE_INPUT, "9.9")
+        c.setAsDefault(true)
+        c.save()
+        assertEquals(SaveCall("m2", "p1", "weird-model", "9.9", "2.5", true), f.lastSave)
+        assertEquals(1, f.saveCount)
+        assertNull(c.dialog.value)
+    }
+
+    @Test fun save_noModelIsDefault_autoSetsDefaultEvenWithoutCheckbox() = runTest {
+        // Models exist, but none is currently marked default (e.g. after the not-yet-written
+        // service delete logic removed the default model) — a newly saved model should still
+        // become the default, same as the very-first-model case.
+        val notDefault = ModelVd("m1", "gpt-4o", "gpt-4o", "p1", isDefault = false, supported = true, pricingSummary = "$3/$15")
+        val f = Fake(
+            initialModels = listOf(notDefault),
+            providerChoices = listOf(providerA),
+            availableModelsByProvider = mapOf("p1" to listOf(knownModel)),
+        )
+        val c = controller(f)
+        c.startAdd()
+        c.pickProvider("p1")
+        c.pickModel(knownModel.modelId)
+        // setAsDefault left untouched (false)
+        c.save()
+        assertEquals(true, f.lastSave?.setDefault)
+    }
 }
