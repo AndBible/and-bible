@@ -352,7 +352,11 @@ class LinkControl @Inject constructor(
         if (strongsBible == null) {
             Dialogs.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
             return
-        } else if (currentBible == strongsBible && !checkStrongs(currentBible)) {
+        } else if (!checkStrongs(strongsBible)) {
+            // Verify the document we are actually about to search (strongsBible) is indexed with
+            // Strong's numbers — not just the current bible. When the current bible has no Strong's,
+            // strongsBible falls back to defaultBibleWithStrongs, which may be unindexed; without this
+            // check the search silently returns "0 verses" instead of offering to build the index.
             Log.i(TAG, "Index status is NOT DONE")
             needToIndex = true
         }
