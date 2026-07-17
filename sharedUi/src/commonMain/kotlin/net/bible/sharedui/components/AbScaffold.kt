@@ -20,6 +20,7 @@ package net.bible.sharedui.components
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
 /** Reusable Material3 top app bar: a title slot, optional up-navigation, and trailing actions. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,7 +45,11 @@ fun AbTopAppBar(
         navigationIcon = {
             if (onNavigateUp != null) {
                 IconButton(onClick = onNavigateUp) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = null,
+                        modifier = Modifier.size(AbActionIconSize),
+                    )
                 }
             }
         },

@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.mydocuments.MyDocItem
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbReorderableColumn
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
@@ -93,13 +94,9 @@ fun MyDocumentsScreen(
         title = title,
         onNavigateUp = onNavigateUp,
         actions = {
-            var expanded by remember { mutableStateOf(false) }
-            IconButton(onClick = { expanded = true }) {
-                Icon(Icons.Filled.MoreVert, contentDescription = null)
-            }
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                DropdownMenuItem(text = { Text(s.newItem) }, onClick = { expanded = false; createOpen = true })
-                DropdownMenuItem(text = { Text(s.importDocument) }, onClick = { expanded = false; onImport() })
+            AbOverflowMenu(contentDescription = null) {
+                DropdownMenuItem(text = { Text(s.newItem) }, onClick = { createOpen = true })
+                DropdownMenuItem(text = { Text(s.importDocument) }, onClick = { onImport() })
             }
         },
     ) { padding ->

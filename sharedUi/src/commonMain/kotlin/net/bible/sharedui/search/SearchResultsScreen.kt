@@ -37,12 +37,10 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -64,8 +62,10 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedcore.search.TranslationMatchVd
+import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbMultiSelectDialog
+import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
 import net.bible.sharedui.strings.LocalStrings
@@ -134,21 +134,16 @@ fun SearchResultsScreen(
                         )
                     }
                     if (scriptureToggleVisible) {
-                        IconButton(onClick = onToggleScripture) {
-                            Icon(
-                                imageVector = if (scriptureShown) Icons.AutoMirrored.Filled.MenuBook else Icons.Filled.Book,
-                                contentDescription = if (scriptureShown) strings.deuterocanonical else strings.bible,
-                            )
-                        }
+                        AbActionIcon(
+                            icon = if (scriptureShown) Icons.AutoMirrored.Filled.MenuBook else Icons.Filled.Book,
+                            contentDescription = if (scriptureShown) strings.deuterocanonical else strings.bible,
+                            onClick = onToggleScripture,
+                        )
                     }
-                    var menuOpen by remember { mutableStateOf(false) }
-                    IconButton(onClick = { menuOpen = true }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = null)
-                    }
-                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    AbOverflowMenu(contentDescription = null) {
                         DropdownMenuItem(
                             text = { Text(strings.openResultsInWindow) },
-                            onClick = { menuOpen = false; onOpenInWindow() },
+                            onClick = { onOpenInWindow() },
                         )
                     }
                 },

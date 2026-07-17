@@ -47,6 +47,7 @@ import net.bible.sharedcore.mydocuments.ContentType
 import net.bible.sharedcore.mydocuments.MyDocPageItem
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDropdownField
+import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbReorderableColumn
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
@@ -83,16 +84,12 @@ fun MyDocumentPagesScreen(
         title = title,
         onNavigateUp = onNavigateUp,
         actions = {
-            var expanded by remember { mutableStateOf(false) }
-            IconButton(onClick = { expanded = true }) {
-                Icon(Icons.Filled.MoreVert, contentDescription = null)
-            }
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            AbOverflowMenu(contentDescription = null) {
                 DropdownMenuItem(
                     text = { Text(s.newPageTitle) },
-                    onClick = { expanded = false; createType = ContentType.MARKDOWN; createOpen = true },
+                    onClick = { createType = ContentType.MARKDOWN; createOpen = true },
                 )
-                DropdownMenuItem(text = { Text(s.importPage) }, onClick = { expanded = false; onImport() })
+                DropdownMenuItem(text = { Text(s.importPage) }, onClick = { onImport() })
             }
         },
     ) { padding ->

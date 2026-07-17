@@ -10,24 +10,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -37,8 +29,10 @@ import net.bible.sharedcore.readingplan.DailyReadingUi
 import net.bible.sharedcore.readingplan.ReadingItem
 import net.bible.sharedcore.readingplan.ReadingPlanError
 import net.bible.sharedcore.readingplan.SpeakState
+import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
 import net.bible.sharedui.strings.LocalStrings
@@ -68,7 +62,6 @@ fun DailyReadingScreen(
     onNavigateUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
-    var menuOpen by remember { mutableStateOf(false) }
 
     AbScaffold(
         topBar = {
@@ -91,27 +84,20 @@ fun DailyReadingScreen(
                 actions = {
                     if (speakState != SpeakState.NONE) {
                         // Pause when speaking, resume (Play) when paused; both delegate to the host.
-                        IconButton(onClick = onPauseSpeak) {
-                            if (speakState == SpeakState.PAUSED) {
-                                Icon(Icons.Filled.PlayArrow, contentDescription = strings.speak)
-                            } else {
-                                Icon(Icons.Filled.Pause, contentDescription = strings.pause)
-                            }
-                        }
-                        IconButton(onClick = onStopSpeak) {
-                            Icon(Icons.Filled.Stop, contentDescription = strings.stop)
-                        }
+                        AbActionIcon(
+                            icon = if (speakState == SpeakState.PAUSED) Icons.Filled.PlayArrow else Icons.Filled.Pause,
+                            contentDescription = if (speakState == SpeakState.PAUSED) strings.speak else strings.pause,
+                            onClick = onPauseSpeak,
+                        )
+                        AbActionIcon(Icons.Filled.Stop, contentDescription = strings.stop, onClick = onStopSpeak)
                     }
-                    IconButton(onClick = { menuOpen = true }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = null)
-                    }
-                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    AbOverflowMenu(contentDescription = null) {
                         if (!ui.isDateBasedPlan) {
-                            DropdownMenuItem(text = { Text(strings.setCurrentDay) }, onClick = { menuOpen = false; onSetCurrentDay() })
-                            DropdownMenuItem(text = { Text(strings.setStartDate) }, onClick = { menuOpen = false; onSetStartDate() })
+                            DropdownMenuItem(text = { Text(strings.setCurrentDay) }, onClick = { onSetCurrentDay() })
+                            DropdownMenuItem(text = { Text(strings.setStartDate) }, onClick = { onSetStartDate() })
                         }
-                        DropdownMenuItem(text = { Text(strings.resetGeneric) }, onClick = { menuOpen = false; onReset() })
-                        DropdownMenuItem(text = { Text(strings.importReadingPlan) }, onClick = { menuOpen = false; onImportPlan() })
+                        DropdownMenuItem(text = { Text(strings.resetGeneric) }, onClick = { onReset() })
+                        DropdownMenuItem(text = { Text(strings.importReadingPlan) }, onClick = { onImportPlan() })
                     }
                 },
             )

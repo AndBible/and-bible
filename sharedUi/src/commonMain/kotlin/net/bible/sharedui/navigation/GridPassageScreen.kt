@@ -31,22 +31,13 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,6 +52,7 @@ import net.bible.sharedcore.navigation.GridOption
 import net.bible.sharedcore.navigation.GridOptions
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.GridUi
+import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
 import net.bible.sharedui.strings.LocalStrings
@@ -81,22 +73,18 @@ fun GridChoosePassageScreen(
                 onNavigateUp = onNavigateUp,
                 actions = {
                     if (ui.step == GridStep.BOOK) {
-                        var open by remember { mutableStateOf(false) }
-                        IconButton(onClick = { open = true }) {
-                            Icon(Icons.Filled.MoreVert, contentDescription = null)
-                        }
-                        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+                        AbOverflowMenu(contentDescription = null) {
                             if (ui.showDeutToggle) {
                                 DropdownMenuItem(
                                     text = { Text(if (options.showScripture) strings.deuterocanonical else strings.bible) },
-                                    onClick = { open = false; onToggle(GridOption.DEUTEROCANONICAL) },
+                                    onClick = { onToggle(GridOption.DEUTEROCANONICAL) },
                                 )
                             }
-                            CheckItem(strings.menuAlphabetical, options.alphabetical) { open = false; onToggle(GridOption.ALPHABETICAL) }
-                            CheckItem(strings.menuRowOrder, options.ltr) { open = false; onToggle(GridOption.LTR) }
-                            CheckItem(strings.menuGroupByCategory, options.groupByCategory) { open = false; onToggle(GridOption.GROUP_BY_CATEGORY) }
-                            CheckItem(strings.menuShowLongName, options.longNames) { open = false; onToggle(GridOption.LONG_NAMES) }
-                            CheckItem(strings.menuShowProgressBars, options.showProgress) { open = false; onToggle(GridOption.SHOW_PROGRESS) }
+                            CheckItem(strings.menuAlphabetical, options.alphabetical) { onToggle(GridOption.ALPHABETICAL) }
+                            CheckItem(strings.menuRowOrder, options.ltr) { onToggle(GridOption.LTR) }
+                            CheckItem(strings.menuGroupByCategory, options.groupByCategory) { onToggle(GridOption.GROUP_BY_CATEGORY) }
+                            CheckItem(strings.menuShowLongName, options.longNames) { onToggle(GridOption.LONG_NAMES) }
+                            CheckItem(strings.menuShowProgressBars, options.showProgress) { onToggle(GridOption.SHOW_PROGRESS) }
                         }
                     }
                 },
