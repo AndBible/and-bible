@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,10 +70,13 @@ fun AbSettingsScreen(
     onNavigate: (String) -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
-    // Screen-local dialog state: which editor row (if any) is currently open. Keyed by item so a
-    // config change that hides/reorders items simply closes a stale dialog on recomposition.
-    var listChoiceDialog by remember { mutableStateOf<SettingsItem.ListChoiceRow?>(null) }
-    var textInputDialog by remember { mutableStateOf<SettingsItem.TextInputRow?>(null) }
+    // Screen-local dialog state: the STABLE KEY of the editor row (if any) currently open, not a
+    // captured item snapshot. The item itself is re-resolved from state.visibleItems on every
+    // recomposition below, so if the async SettingsScreenState changes while the dialog is open
+    // (entries/selectedValue/value updated, or the row removed) the dialog always renders the
+    // fresh item — and closes itself if the key is no longer present.
+    var listChoiceDialogKey by remember { mutableStateOf<String?>(null) }
+    var textInputDialogKey by remember { mutableStateOf<String?>(null) }
 
     AbScaffold(title = state.title, onNavigateUp = onUp, actions = actions) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -85,7 +89,7 @@ fun AbSettingsScreen(
                         summary = item.summary,
                         checked = item.checked,
                         onCheckedChange = { onSwitch(item.key, it) },
-                        modifier = Modifier.rowEnabled(item.enabled),
+                        enabled = item.enabled,
                     )
 
                     is SettingsItem.ListChoiceRow -> {
@@ -94,7 +98,7 @@ fun AbSettingsScreen(
                             title = item.title,
                             summary = selectedLabel ?: item.summary,
                             enabled = item.enabled,
-                            onClick = { listChoiceDialog = item },
+                            onClick = { listChoiceDialogKey = item.key },
                         )
                     }
 
@@ -102,7 +106,7 @@ fun AbSettingsScreen(
                         title = item.title,
                         summary = item.summary ?: item.value,
                         enabled = item.enabled,
-                        onClick = { textInputDialog = item },
+                        onClick = { textInputDialogKey = item.key },
                     )
 
                     is SettingsItem.NavigationRow -> SettingsRow(
@@ -136,17 +140,37 @@ fun AbSettingsScreen(
         }
     }
 
-    listChoiceDialog?.let { row ->
+    // Re-resolve against the CURRENT state.visibleItems on every recomposition (never render from
+    // the click-time snapshot): if the key has disappeared (item removed/hidden), the dialog closes
+    // itself; otherwise it renders from the fresh item, so an async state update that changes
+    // entries/selectedValue/value while the dialog is open is reflected immediately.
+    val listChoiceRow = listChoiceDialogKey?.let { key ->
+        state.visibleItems.firstOrNull { it.key == key } as? SettingsItem.ListChoiceRow
+    }
+    LaunchedEffect(listChoiceDialogKey, listChoiceRow) {
+        if (listChoiceDialogKey != null && listChoiceRow == null) {
+            listChoiceDialogKey = null
+        }
+    }
+    listChoiceRow?.let { row ->
         AbListChoiceDialog(
             title = row.title,
             choices = row.entries,
             selectedValue = row.selectedValue,
             onSelect = { onListChoice(row.key, it) },
-            onDismiss = { listChoiceDialog = null },
+            onDismiss = { listChoiceDialogKey = null },
         )
     }
 
-    textInputDialog?.let { row ->
+    val textInputRow = textInputDialogKey?.let { key ->
+        state.visibleItems.firstOrNull { it.key == key } as? SettingsItem.TextInputRow
+    }
+    LaunchedEffect(textInputDialogKey, textInputRow) {
+        if (textInputDialogKey != null && textInputRow == null) {
+            textInputDialogKey = null
+        }
+    }
+    textInputRow?.let { row ->
         val strings = LocalStrings.current
         AbTextInputDialog(
             title = row.title,
@@ -156,9 +180,9 @@ fun AbSettingsScreen(
             numeric = row.numeric,
             onConfirm = {
                 onTextInput(row.key, it)
-                textInputDialog = null
+                textInputDialogKey = null
             },
-            onDismiss = { textInputDialog = null },
+            onDismiss = { textInputDialogKey = null },
         )
     }
 }

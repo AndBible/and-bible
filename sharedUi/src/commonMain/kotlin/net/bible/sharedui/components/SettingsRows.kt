@@ -31,23 +31,28 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
 /** A settings row: label (+ optional summary) on the left, an M3 [Switch] on the right. The whole
- *  row is clickable and toggles the switch (larger touch target than the thumb alone). */
+ *  row is clickable and toggles the switch (larger touch target than the thumb alone). When
+ *  [enabled] is false the row dims and stops responding to clicks (matches the other interactive
+ *  settings rows in [net.bible.sharedui.settings.AbSettingsScreen]). */
 @Composable
 fun AbSwitchRow(
     label: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
     summary: String? = null,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .toggleable(value = checked, onValueChange = onCheckedChange, role = Role.Switch)
+            .toggleable(value = checked, onValueChange = onCheckedChange, enabled = enabled, role = Role.Switch)
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -58,9 +63,11 @@ fun AbSwitchRow(
             }
         }
         Spacer(Modifier.width(16.dp))
-        Switch(checked = checked, onCheckedChange = null)
+        Switch(checked = checked, onCheckedChange = null, enabled = enabled)
     }
 }
+
+private const val DISABLED_ALPHA = 0.38f
 
 /** A settings row: label + a right-aligned value readout on the top line, an M3 [Slider] below.
  *  [value]/[onValueChange] are Int; the slider rounds. [valueLabel] is the pre-formatted readout
