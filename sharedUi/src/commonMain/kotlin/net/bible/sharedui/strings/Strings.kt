@@ -172,6 +172,23 @@ interface Strings {
     val speakBookmarkingSettingsTitle: String
     val confSpeakAutoBookmark: String
     val confSavePlaybackSettingsToBookmarks: String
+
+    // Batch 6b — WorkspaceSelector
+    val workspaceSelectorTitle: String        // R.string.workspace_selector_title
+    val giveNameWorkspace: String             // R.string.give_name_workspace (dialog title)
+    val newCopiedWorkspace: String            // R.string.new_copied_workspace (clone menu label)
+    val deleteWorkspaceLabel: String          // R.string.delete_workspace
+    val workspaceSettingsLabel: String        // R.string.workspace_settings
+    val copyWorkspaceSettings: String         // R.string.copy_workspace_settings
+    val copySettingsToGlobal: String          // R.string.copy_settings_to_global
+    val copySettingsTitle: String             // R.string.copy_settings_title (stage-1 dialog title)
+    val copySettingsWorkspacesTitle: String   // R.string.copy_settings_workspaces_title (stage-2 dialog title)
+    val selectAll: String                     // R.string.select_all
+    val selectNone: String                    // R.string.select_none
+    val workspaceSaveChanges: String          // R.string.workspace_save_changes (dirty-select prompt)
+    fun workspaceNumber(n: Int): String       // R.string.workspace_number (new-workspace default name)
+    fun copyOfWorkspace(name: String): String // R.string.copy_of_workspace (clone default name)
+    fun workspaceListingWithCurrent(name: String): String  // R.string.workspace_listing_with_current
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

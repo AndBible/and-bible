@@ -163,4 +163,21 @@ class AndroidStrings(private val context: Context) : Strings {
     override val speakBookmarkingSettingsTitle: String get() = context.getString(R.string.speak_bookmarking_settings_title)
     override val confSpeakAutoBookmark: String get() = context.getString(R.string.conf_speak_auto_bookmark)
     override val confSavePlaybackSettingsToBookmarks: String get() = context.getString(R.string.conf_save_playback_settings_to_bookmarks)
+
+    // Batch 6b — WorkspaceSelector
+    override val workspaceSelectorTitle: String get() = context.getString(R.string.workspace_selector_title)
+    override val giveNameWorkspace: String get() = context.getString(R.string.give_name_workspace)
+    override val newCopiedWorkspace: String get() = context.getString(R.string.new_copied_workspace)
+    override val deleteWorkspaceLabel: String get() = context.getString(R.string.delete_workspace)
+    override val workspaceSettingsLabel: String get() = context.getString(R.string.workspace_settings)
+    override val copyWorkspaceSettings: String get() = context.getString(R.string.copy_workspace_settings)
+    override val copySettingsToGlobal: String get() = context.getString(R.string.copy_settings_to_global)
+    override val copySettingsTitle: String get() = context.getString(R.string.copy_settings_title)
+    override val copySettingsWorkspacesTitle: String get() = context.getString(R.string.copy_settings_workspaces_title)
+    override val selectAll: String get() = context.getString(R.string.select_all)
+    override val selectNone: String get() = context.getString(R.string.select_none)
+    override val workspaceSaveChanges: String get() = context.getString(R.string.workspace_save_changes)
+    override fun workspaceNumber(n: Int) = context.getString(R.string.workspace_number, n)
+    override fun copyOfWorkspace(name: String) = context.getString(R.string.copy_of_workspace, name)
+    override fun workspaceListingWithCurrent(name: String) = context.getString(R.string.workspace_listing_with_current, name)
 }
