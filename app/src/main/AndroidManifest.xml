@@ -221,6 +221,13 @@
             android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks"
             />
         <activity
+            android:name="net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/manage_labels"
+            android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks"
+            />
+        <activity
             android:name="net.bible.android.view.activity.ai.AiSettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/ai_settings"
