@@ -42,7 +42,10 @@ class BookmarksControllerTest {
         var persistedShowNotes: Boolean = initialShowNotes
         val loadCalls = mutableListOf<LoadCall>()
 
-        override fun filterLabels(): List<BookmarkFilterLabel> = labels
+        /** Mutable so a test can change the label set between construction and a later refresh(). */
+        var currentLabels: List<BookmarkFilterLabel> = labels
+
+        override fun filterLabels(): List<BookmarkFilterLabel> = currentLabels
         override suspend fun loadRows(filterIndex: Int, sort: BookmarkSortMode, search: String?, showNotes: Boolean): List<BookmarkRow> {
             loadCalls.add(LoadCall(filterIndex, sort, search, showNotes))
             return rowsToReturn(filterIndex, sort, search, showNotes)
@@ -237,6 +240,28 @@ class BookmarksControllerTest {
 
         c.refresh()
 
+        assertEquals(emptySet<String>(), c.selection.value)
+        assertEquals(callsBefore + 1, service.loadCalls.size)
+    }
+
+    @Test fun refresh_refetches_filterLabels_when_changed() = runTest(UnconfinedTestDispatcher()) {
+        val service = FakeService()
+        val c = controller(service, backgroundScope)
+        c.enterSelection("A")
+        val callsBefore = service.loadCalls.size
+        assertEquals(service.currentLabels, c.filterLabels.value)
+
+        val newLabels = listOf(
+            BookmarkFilterLabel(0, "All"),
+            BookmarkFilterLabel(1, "Unlabeled"),
+            BookmarkFilterLabel(2, "Work"),
+            BookmarkFilterLabel(3, "Home"),
+        )
+        service.currentLabels = newLabels
+
+        c.refresh()
+
+        assertEquals(newLabels, c.filterLabels.value)
         assertEquals(emptySet<String>(), c.selection.value)
         assertEquals(callsBefore + 1, service.loadCalls.size)
     }

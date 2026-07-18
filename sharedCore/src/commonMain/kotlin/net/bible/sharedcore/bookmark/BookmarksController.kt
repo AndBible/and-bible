@@ -118,6 +118,7 @@ class BookmarksController(
 
     /** Host calls this after assign/delete/import round-trips. */
     fun refresh() {
+        _filterLabels.value = service.filterLabels()
         reload()
         clearSelection()
     }
