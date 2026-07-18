@@ -125,23 +125,12 @@ fun ManageLabelsScreen(
                     horizontalPadding = 8.dp,
                 )
                 if (mode == ManageLabelsMode.STUDYPAD) {
-                    // StudyPad content-search: a 3-way selector over all SearchModes, plus the
-                    // export/import overflow (only meaningful for StudyPad labels).
+                    // StudyPad content-search: a 3-way selector over all SearchModes.
                     SearchModeSelector(
                         searchMode = searchMode,
                         onSetSearchMode = onSetSearchMode,
                         strings = strings,
                     )
-                    AbOverflowMenu(contentDescription = null) { close ->
-                        DropdownMenuItem(
-                            text = { Text(strings.exportSomething(strings.studyPadsLabel)) },
-                            onClick = { close(); onExportStudyPads() },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(strings.importItems(strings.studyPadsLabel)) },
-                            onClick = { close(); onImportStudyPads() },
-                        )
-                    }
                 } else {
                     // Non-STUDYPAD modes only ever filter by name: a simple two-state toggle.
                     val insideText = searchMode == SearchMode.NAME_CONTAINS
@@ -160,6 +149,19 @@ fun ManageLabelsScreen(
                     ) {
                         Text(if (insideText) strings.matchAnyText else strings.matchStartOfText)
                     }
+                }
+                // Export/import StudyPads overflow: visible in ALL modes (classic
+                // ManageLabels.kt:379-386 onCreateOptionsMenu parity — only resetButton/reOrder
+                // are mode-conditional there, export_studypads/import_studypads are not).
+                AbOverflowMenu(contentDescription = null) { close ->
+                    DropdownMenuItem(
+                        text = { Text(strings.exportSomething(strings.studyPadsLabel)) },
+                        onClick = { close(); onExportStudyPads() },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(strings.importItems(strings.studyPadsLabel)) },
+                        onClick = { close(); onImportStudyPads() },
+                    )
                 }
             }
 
