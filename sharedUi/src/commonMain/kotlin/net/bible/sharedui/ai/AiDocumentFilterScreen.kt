@@ -163,6 +163,6 @@ private fun AiDocRow(doc: AiDocVd, onToggle: () -> Unit) {
     ) {
         Checkbox(checked = doc.allowed, onCheckedChange = { onToggle() })
         Spacer(Modifier.width(8.dp))
-        Text(doc.name)
+        Text("${doc.initials} — ${doc.name}")
     }
 }
