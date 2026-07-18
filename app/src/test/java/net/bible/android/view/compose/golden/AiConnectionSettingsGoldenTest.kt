@@ -16,6 +16,10 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class AiConnectionSettingsGoldenTest {
 
+    /** Sentinel value used for the "Custom…" language row in these tests (F32). Any distinct string
+     *  works — it never leaves this test; the real host uses its own sentinel. */
+    private val CUSTOM_LANGUAGE_VALUE = "\u0000custom"
+
     /** Mirrors `AiConnectionSettingsController.build()` with providers configured (hasProviders=true):
      *  every gated item visible, populated with representative values. */
     private fun configuredState() = SettingsScreenState(
@@ -192,7 +196,23 @@ class AiConnectionSettingsGoldenTest {
         ),
     )
 
-    private fun screen(state: SettingsScreenState, initiallyDisclaimerDialogOpen: Boolean = false) =
+    /** Representative host-supplied language options (F32) — mirrors what
+     *  `AiConnectionSettingsComposeActivity.buildLanguageChoices()` would produce from the
+     *  `prefs_interface_locale_*` string-arrays: an app-default entry, a couple of real languages,
+     *  and the trailing "Custom…" sentinel. */
+    private val languageChoices = listOf(
+        SettingsItem.Choice("", "App language (English)"),
+        SettingsItem.Choice("en", "English"),
+        SettingsItem.Choice("fi", "Finnish"),
+        SettingsItem.Choice(CUSTOM_LANGUAGE_VALUE, "Custom…"),
+    )
+
+    private fun screen(
+        state: SettingsScreenState,
+        initiallyDisclaimerDialogOpen: Boolean = false,
+        initiallyLanguageDialogOpen: Boolean = false,
+        initiallyCustomLanguageDialogOpen: Boolean = false,
+    ) =
         @androidx.compose.runtime.Composable {
             AiConnectionSettingsScreen(
                 state = state,
@@ -202,9 +222,12 @@ class AiConnectionSettingsGoldenTest {
                 onTextInputInt = { _, _ -> },
                 onCustomPromptSave = { _, _ -> },
                 customPromptTextFor = { "" },
-                onEditLanguage = {},
+                languageChoices = languageChoices,
+                customLanguageValue = CUSTOM_LANGUAGE_VALUE,
                 onNavigate = {},
                 initiallyDisclaimerDialogOpen = initiallyDisclaimerDialogOpen,
+                initiallyLanguageDialogOpen = initiallyLanguageDialogOpen,
+                initiallyCustomLanguageDialogOpen = initiallyCustomLanguageDialogOpen,
             )
         }
 
@@ -230,5 +253,22 @@ class AiConnectionSettingsGoldenTest {
             "AiConnectionSettings", "disclaimer",
             heightDp = 1400,
             content = screen(configuredState(), initiallyDisclaimerDialogOpen = true),
+        )
+
+    // F32: clicking the ai_language row opens AbListChoiceDialog (single-choice list, radio rows).
+    // heightDp=1400 (same as "configured") so the dialog renders over the full list.
+    @Test fun configured_language_matrix() =
+        captureMatrix(
+            "AiConnectionSettings", "language",
+            heightDp = 1400,
+            content = screen(configuredState(), initiallyLanguageDialogOpen = true),
+        )
+
+    // F32: picking the "Custom…" row opens AbTextInputDialog for a free-form language name/code.
+    @Test fun configured_customlanguage_matrix() =
+        captureMatrix(
+            "AiConnectionSettings", "customlanguage",
+            heightDp = 1400,
+            content = screen(configuredState(), initiallyCustomLanguageDialogOpen = true),
         )
 }

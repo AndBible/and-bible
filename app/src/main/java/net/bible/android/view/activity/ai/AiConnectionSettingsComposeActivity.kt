@@ -19,10 +19,6 @@ package net.bible.android.view.activity.ai
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.DropdownMenu
@@ -54,6 +50,7 @@ import net.bible.sharedcore.ai.AiConnectionNav
 import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.ai.AiSettingsService
+import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.ai.AiConnectionSettingsScreen
 import net.bible.sharedui.theme.AbTheme
@@ -78,14 +75,20 @@ internal fun resolvedCustomPromptValue(value: String?, builtInDefault: String): 
  * `strings.xml`, wires the shared [AiConnectionSettingsController], and renders
  * [AiConnectionSettingsScreen]. The classic help overflow is preserved as a Compose top-bar action.
  *
- * The Android-resource-backed dialogs stay host-side: the AI-language picker (locale arrays) and the
- * reset-usage confirmation (per-model [LlmCostTracker.reset]). Custom-prompt reset-vs-blank parity is
- * resolved here in [onCustomPromptSave] because only the host knows the raw built-in default text.
+ * The AI-language picker (F32) is now a Compose dialog rendered INSIDE [AiConnectionSettingsScreen]
+ * (`AbListChoiceDialog`/`AbTextInputDialog`) — this host only reads the Android-resource locale
+ * arrays ([buildLanguageChoices]) and hands the resulting `(value, label)` list + the "Custom..."
+ * sentinel to the screen; the chosen value flows back through the existing `onListChoice` controller
+ * callback, same as every other `ListChoiceRow`. The reset-usage confirmation (per-model
+ * [LlmCostTracker.reset]) is the remaining Android-resource-backed dialog kept host-side. Custom-prompt
+ * reset-vs-blank parity is resolved here in [onCustomPromptSave] because only the host knows the raw
+ * built-in default text.
  */
 class AiConnectionSettingsComposeActivity : ActivityBase() {
     private val service: AiSettingsService by inject()
 
     private val labels by lazy { buildLabels() }
+    private val languageChoices by lazy { buildLanguageChoices() }
 
     private val controller by lazy {
         AiConnectionSettingsController(
@@ -114,7 +117,8 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
                         onTextInputInt = controller::onTextInputInt,
                         onCustomPromptSave = { key, value -> onCustomPromptSave(key, value) },
                         customPromptTextFor = { key -> customPromptTextFor(key) },
-                        onEditLanguage = { showLanguageDialog() },
+                        languageChoices = languageChoices,
+                        customLanguageValue = customLanguageTag,
                         onNavigate = controller::onNavigate,
                         actions = { HelpAction() },
                     )
@@ -204,67 +208,36 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
         else -> ""
     }
 
-    // --- AI language picker (locale arrays are Android-resource data → host-side) -------------
+    // --- AI language picker (locale arrays are Android-resource data → read here, rendered in
+    // AiConnectionSettingsScreen via AbListChoiceDialog/AbTextInputDialog, F32) ----------------
 
     /** Sentinel value used to identify the "Custom…" entry in the language picker (mirrors classic). */
     private val customLanguageTag = " custom"
 
-    private fun showLanguageDialog() {
-        val currentTag = CommonUtils.aiSettings.aiLanguage
+    /**
+     * Builds the language option list from the `prefs_interface_locale_*` string-arrays: an "app
+     * default" entry (value `""`, matching [net.bible.sharedcore.ai.AiSettingsService]'s "" = app
+     * default convention), one entry per non-empty locale code, and a trailing [customLanguageTag]
+     * sentinel entry ("Custom…") — mirrors classic `AiConnectionSettingsActivity.setupAiLanguage`'s
+     * option set. The screen renders this via `AbListChoiceDialog`; picking the sentinel opens
+     * `AbTextInputDialog` instead of committing it directly.
+     */
+    private fun buildLanguageChoices(): List<SettingsItem.Choice> {
         val descriptions = resources.getStringArray(R.array.prefs_interface_locale_descriptions)
         val codes = resources.getStringArray(R.array.prefs_interface_locale_values)
-        val languages = mutableListOf<Pair<String?, String>>()
-        languages.add(null to getString(R.string.ai_language_app_default, Locale.getDefault().displayLanguage))
+        val choices = mutableListOf<SettingsItem.Choice>()
+        choices.add(
+            SettingsItem.Choice(
+                value = "",
+                label = getString(R.string.ai_language_app_default, Locale.getDefault().displayLanguage),
+            ),
+        )
         for (i in codes.indices) {
             val code = codes[i]
-            if (code.isNotEmpty()) languages.add(code to descriptions[i])
+            if (code.isNotEmpty()) choices.add(SettingsItem.Choice(value = code, label = descriptions[i]))
         }
-        languages.add(customLanguageTag to getString(R.string.ai_language_custom))
-
-        val items = languages.map { it.second }.toTypedArray()
-        val checkedIndex = languages.indexOfFirst { it.first == currentTag }.let {
-            if (it >= 0) it else if (currentTag != null) languages.size - 1 else 0
-        }
-
-        AlertDialog.Builder(this)
-            .setTitle(R.string.ai_language_title)
-            .setSingleChoiceItems(items, checkedIndex) { dialog, which ->
-                if (languages[which].first == customLanguageTag) {
-                    dialog.dismiss()
-                    showCustomLanguageDialog()
-                } else {
-                    service.setAiLanguage(languages[which].first ?: "")
-                    dialog.dismiss()
-                }
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    private fun showCustomLanguageDialog() {
-        val input = EditText(this).apply {
-            inputType = InputType.TYPE_CLASS_TEXT
-            hint = getString(R.string.ai_language_custom_example)
-            CommonUtils.aiSettings.aiLanguage?.let { setText(it) }
-        }
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            val pad = (16 * resources.displayMetrics.density).toInt()
-            setPadding(pad, pad / 2, pad, 0)
-            addView(TextView(this@AiConnectionSettingsComposeActivity).apply {
-                text = getString(R.string.ai_language_custom_hint)
-                setPadding(0, 0, 0, pad / 2)
-            })
-            addView(input)
-        }
-        AlertDialog.Builder(this)
-            .setTitle(R.string.ai_language_title)
-            .setView(container)
-            .setPositiveButton(R.string.okay) { _, _ ->
-                service.setAiLanguage(input.text.toString().trim())
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+        choices.add(SettingsItem.Choice(value = customLanguageTag, label = getString(R.string.ai_language_custom)))
+        return choices
     }
 
     // --- Reset usage (per-model LlmCostTracker.reset) ----------------------------------------

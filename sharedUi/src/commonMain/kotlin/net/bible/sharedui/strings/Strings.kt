@@ -344,6 +344,9 @@ interface Strings {
     val reportBugLabel: String                    // R.string.ai_bug_report_menu
     val areYouSure: String                        // R.string.are_you_sure
 
+    // Batch 9 fix B3 — AI language picker Compose dialog (F32)
+    val aiLanguageCustomHint: String               // R.string.ai_language_custom_hint
+
     // Batch 9 fix B1 — AI disclaimer info dialog (F28)
     val disclaimerWarningSummary: String           // R.string.ai_disclaimer_warning_summary
     val aiDisclaimerDialogTitle: String            // R.string.ai_disclaimer_dialog_title

@@ -27,6 +27,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -44,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbListChoiceDialog
+import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.settings.AbSettingsScreen
 import net.bible.sharedui.strings.LocalStrings
 
@@ -76,8 +79,12 @@ private val SPECIAL_KEYS = setOf(
  *   that greys the field. Save → `onTextInputInt("raw_log_retention", days)`, `-1` when disabled.
  * - [KEY_AI_LANGUAGE] (a `ListChoiceRow` with an empty `entries` list — the real locale list is
  *   Android-resource data that can't live in :sharedUi): rendered as a plain clickable summary
- *   row; the click is forwarded to [onEditLanguage] so the `:app` host (Task 8) can show the real
- *   locale/custom-language picker.
+ *   row; the click opens [AbListChoiceDialog], populated from the host-supplied [languageChoices]
+ *   (F32 — replaces the classic `AlertDialog` locale picker). Picking the [customLanguageValue]
+ *   sentinel entry opens [AbTextInputDialog] for a free-form language name/code instead. Both
+ *   dialogs report the chosen value back through the existing [onListChoice] callback (the
+ *   controller's `onListChoice("ai_language", value)` already persists it via
+ *   [net.bible.sharedcore.ai.AiSettingsService.setAiLanguage] — no new controller callback needed).
  *
  * **Interception approach.** Rather than removing the four items from the state (which would lose
  * their position in the list) or re-implementing the whole row-rendering switch here, this screen
@@ -85,7 +92,7 @@ private val SPECIAL_KEYS = setOf(
  * `visible`/`enabled` — so [AbSettingsScreen] draws them as ordinary clickable rows (chevron
  * affordance, correct position) but never opens ITS generic list-choice/text-input dialog for them.
  * All navigation clicks funnel through one `onNavigate` lambda, which this screen overrides: the
- * four special keys open a local dialog (or call [onEditLanguage]); every other key (including
+ * four special keys open a local dialog; every other key (including
  * [net.bible.sharedcore.ai.AiConnectionNav.RESET_USAGE] and the other nav rows) is forwarded
  * unchanged to the real [onNavigate]. Every other row type (switches, the `agent_permission_mode`
  * `ListChoiceRow`, the two numeric `TextInputRow`s `commentary_max_response`/`agent_max_iterations`,
@@ -100,13 +107,24 @@ fun AiConnectionSettingsScreen(
     onTextInputInt: (String, Int) -> Unit,
     onCustomPromptSave: (key: String, value: String?) -> Unit,
     customPromptTextFor: (key: String) -> String,
-    onEditLanguage: () -> Unit,
+    /** Host-resolved `(value, label)` options for the AI-language picker (Android locale-array
+     *  data — read in the `:app` host, never touched here). Must include an entry whose `value`
+     *  equals [customLanguageValue] (the "Custom…" row); every other entry is a real language
+     *  option, `""` conventionally meaning "app default" (see [net.bible.sharedcore.ai.AiSettingsService]). */
+    languageChoices: List<SettingsItem.Choice>,
+    /** Sentinel [SettingsItem.Choice.value] identifying the "Custom…" row in [languageChoices]; picking
+     *  it opens [AbTextInputDialog] instead of committing the sentinel itself as the language. */
+    customLanguageValue: String,
     onNavigate: (String) -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
     /** Test-only seam (matches `initiallyXxxOpen` elsewhere, e.g. `SearchScreen`'s
      *  `initiallySettingsOpen`): lets golden tests capture the disclaimer [AbInfoDialog] open
      *  without a click-simulation harness (this module has no Compose UI-test dependency). */
     initiallyDisclaimerDialogOpen: Boolean = false,
+    /** Test-only seam: capture the [AbListChoiceDialog] language picker open. */
+    initiallyLanguageDialogOpen: Boolean = false,
+    /** Test-only seam: capture the [AbTextInputDialog] custom-language editor open. */
+    initiallyCustomLanguageDialogOpen: Boolean = false,
 ) {
     val displayState = remember(state) {
         state.copy(items = state.items.map { item -> if (item.key in SPECIAL_KEYS) item.asNavigationRow() else item })
@@ -115,6 +133,8 @@ fun AiConnectionSettingsScreen(
     var customPromptDialogKey by remember { mutableStateOf<String?>(null) }
     var retentionDialogOpen by remember { mutableStateOf(false) }
     var disclaimerDialogOpen by remember { mutableStateOf(initiallyDisclaimerDialogOpen) }
+    var languageDialogOpen by remember { mutableStateOf(initiallyLanguageDialogOpen) }
+    var customLanguageDialogOpen by remember { mutableStateOf(initiallyCustomLanguageDialogOpen) }
 
     // Defensive parity with AbSettingsScreen's own dialog-state handling: if the async state stops
     // carrying a key while its dialog is open (item removed outright), close the dialog rather than
@@ -128,6 +148,11 @@ fun AiConnectionSettingsScreen(
     LaunchedEffect(retentionDialogOpen, state) {
         if (retentionDialogOpen && state.visibleItems.none { it.key == KEY_RAW_LOG_RETENTION }) {
             retentionDialogOpen = false
+        }
+    }
+    LaunchedEffect(languageDialogOpen, state) {
+        if (languageDialogOpen && state.visibleItems.none { it.key == KEY_AI_LANGUAGE }) {
+            languageDialogOpen = false
         }
     }
 
@@ -145,7 +170,7 @@ fun AiConnectionSettingsScreen(
                 KEY_DISCLAIMER -> disclaimerDialogOpen = true
                 KEY_CUSTOM_AGENT_PROMPT, KEY_CUSTOM_TEXT_TRANSFORM_PROMPT -> customPromptDialogKey = key
                 KEY_RAW_LOG_RETENTION -> retentionDialogOpen = true
-                KEY_AI_LANGUAGE -> onEditLanguage()
+                KEY_AI_LANGUAGE -> languageDialogOpen = true
                 else -> onNavigate(key)
             }
         },
@@ -188,6 +213,46 @@ fun AiConnectionSettingsScreen(
             title = strings.aiDisclaimerDialogTitle,
             body = strings.aiDisclaimerBody,
             onDismiss = { disclaimerDialogOpen = false },
+        )
+    }
+
+    // F32: AI-language picker. `currentAiLanguage` comes from the ORIGINAL (un-rewritten) `state`
+    // — the ai_language item in `displayState` was already rewritten to a NavigationRow above and
+    // no longer carries `selectedValue`. A value not present in the host-supplied `languageChoices`
+    // (a previously-saved custom language) is treated as the "Custom…" row being selected.
+    val aiLanguageRow = state.items.firstOrNull { it.key == KEY_AI_LANGUAGE } as? SettingsItem.ListChoiceRow
+    val currentAiLanguage = aiLanguageRow?.selectedValue ?: ""
+    val isKnownLanguage = languageChoices.any { it.value == currentAiLanguage }
+
+    if (languageDialogOpen) {
+        AbListChoiceDialog(
+            title = aiLanguageRow?.title ?: "",
+            choices = languageChoices,
+            selectedValue = if (isKnownLanguage) currentAiLanguage else customLanguageValue,
+            onSelect = { value ->
+                if (value == customLanguageValue) {
+                    customLanguageDialogOpen = true
+                } else {
+                    onListChoice(KEY_AI_LANGUAGE, value)
+                }
+            },
+            onDismiss = { languageDialogOpen = false },
+        )
+    }
+
+    if (customLanguageDialogOpen) {
+        val strings = LocalStrings.current
+        AbTextInputDialog(
+            title = aiLanguageRow?.title ?: "",
+            initial = if (isKnownLanguage) "" else currentAiLanguage,
+            confirmText = strings.okay,
+            dismissText = strings.cancel,
+            onConfirm = { value ->
+                onListChoice(KEY_AI_LANGUAGE, value.trim())
+                customLanguageDialogOpen = false
+            },
+            onDismiss = { customLanguageDialogOpen = false },
+            extraContent = { Text(strings.aiLanguageCustomHint, style = MaterialTheme.typography.bodySmall) },
         )
     }
 }
