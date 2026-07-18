@@ -104,6 +104,15 @@ class PromptEditControllerTest {
             copyCount++
             return copyIdToReturn
         }
+
+        var lastBuiltinOverridePromptId: String? = null
+        var lastBuiltinOverrideModelId: String? = null
+        var builtinOverrideCount = 0
+        override fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) {
+            lastBuiltinOverridePromptId = promptId
+            lastBuiltinOverrideModelId = modelId
+            builtinOverrideCount++
+        }
     }
 
     // --- load / new ---
@@ -387,5 +396,85 @@ class PromptEditControllerTest {
         assertEquals("ALLOW_ALL", c.state.value.permissionMode)
         c.setPermissionMode(null)
         assertNull(c.state.value.permissionMode)
+    }
+
+    // --- isNew ---
+
+    @Test fun isNew_isComputedNotStale_reflectsIdAfterSave() = runTest {
+        val f = Fake()
+        f.saveIdToReturn = "brand-new-id"
+        val c = PromptEditController(f, promptId = null)
+        assertTrue(c.isNew)
+        c.setName("Fresh")
+        c.save()
+        assertFalse(c.isNew)
+        assertEquals("brand-new-id", c.state.value.id)
+    }
+
+    // --- built-in prompt model-override save path ---
+
+    @Test fun builtin_setModelOverride_allowed_canSaveOnlyOnceChanged_savesViaOverridePath() = runTest {
+        val d = data(isReadOnly = true, isBuiltIn = true, name = "Builtin", modelOverrideId = "orig-model")
+        val f = Fake(mutableMapOf("p1" to d))
+        val c = PromptEditController(f, promptId = "p1")
+
+        // Not yet changed: no Save.
+        assertFalse(c.canSave.value)
+
+        // setModelOverride is allowed even though the prompt is read-only.
+        c.setModelOverride("new-model")
+        assertEquals("new-model", c.state.value.modelOverrideId)
+
+        // Other fields stay locked.
+        c.setName("Should not change")
+        assertEquals("Builtin", c.state.value.name)
+
+        // canSave flips true only because the override actually changed.
+        assertTrue(c.canSave.value)
+
+        val id = c.save()
+        assertEquals("p1", id)
+        assertEquals(1, f.builtinOverrideCount)
+        assertEquals("p1", f.lastBuiltinOverridePromptId)
+        assertEquals("new-model", f.lastBuiltinOverrideModelId)
+        assertEquals(0, f.saveCount) // savePrompt (the editable path) must NOT be used
+
+        // Re-baselined: canSave/dirty go back to false until changed again.
+        assertFalse(c.canSave.value)
+        assertFalse(c.isDirty.value)
+
+        // Setting it back to the same value it was just saved as is a no-op for canSave.
+        c.setModelOverride("new-model")
+        assertFalse(c.canSave.value)
+    }
+
+    @Test fun builtin_setModelOverride_backToOriginal_canSaveFalseAgain() = runTest {
+        val d = data(isReadOnly = true, isBuiltIn = true, modelOverrideId = "orig-model")
+        val f = Fake(mutableMapOf("p1" to d))
+        val c = PromptEditController(f, promptId = "p1")
+
+        c.setModelOverride("changed")
+        assertTrue(c.canSave.value)
+        c.setModelOverride("orig-model")
+        assertFalse(c.canSave.value)
+    }
+
+    // --- genuinely read-only add-on prompt: no save path at all ---
+
+    @Test fun readOnlyAddOn_setModelOverride_isGuarded_noSaveEverAvailable() = runTest {
+        val d = data(isReadOnly = true, isBuiltIn = false, name = "AddOn", modelOverrideId = "orig-model")
+        val f = Fake(mutableMapOf("p1" to d))
+        val c = PromptEditController(f, promptId = "p1")
+
+        assertFalse(c.canSave.value)
+        c.setModelOverride("attempted-change")
+        assertEquals("orig-model", c.state.value.modelOverrideId)
+        assertFalse(c.canSave.value)
+        assertFalse(c.isDirty.value)
+
+        val savedId = c.save()
+        assertNull(savedId)
+        assertEquals(0, f.saveCount)
+        assertEquals(0, f.builtinOverrideCount)
     }
 }

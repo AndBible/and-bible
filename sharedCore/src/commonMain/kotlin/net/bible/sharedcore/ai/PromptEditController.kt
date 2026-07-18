@@ -44,11 +44,19 @@ object PromptAdvancedSwitchKeys {
  * `PROMPT` if it was selected), and [hiddenAdvancedKeys] lists the Advanced-tab prefs classic
  * hides in that mode (`max_iterations` + the three auto-include/no-creation switches).
  *
- * Read-only (built-in or add-on) prompts: every `setX`/`resetToolPermissions` mutator becomes a
- * no-op (checked via [PromptEditData.isReadOnly] on the live state, so it also covers a save()
- * later making the prompt read-only, though that shouldn't happen in practice), [canSave] is
- * false, and [save]/[delete] are no-ops — but [copyToCustomize] always works (that's the whole
- * point of a read-only prompt: "Copy to customize").
+ * Read-only prompts split into two cases, mirroring classic's SEPARATE `isBuiltIn`/`isReadOnly`
+ * tracking:
+ * - Genuinely read-only ADD-ON prompts (`isReadOnly && !isBuiltIn`): every `setX`/
+ *   `resetToolPermissions` mutator is a no-op (checked via [PromptEditData.isReadOnly] on the live
+ *   state, so it also covers a save() later making the prompt read-only, though that shouldn't
+ *   happen in practice), [canSave] is false, and [save]/[delete] are no-ops — but
+ *   [copyToCustomize] always works (that's the whole point: "Copy to customize").
+ * - BUILT-IN prompts (`isReadOnly && isBuiltIn`): the prompt text/permissions/etc. stay locked
+ *   (same mutator no-op), but [setModelOverride] is the one exception — it's still allowed, so a
+ *   built-in prompt's model can be overridden without copying it. [canSave] becomes true once
+ *   `modelOverrideId` differs from the value loaded, and [save] then persists ONLY that override
+ *   via [PromptService.setBuiltinPromptModelOverride] (a distinct `BuiltinPromptOverride` row),
+ *   not [PromptService.savePrompt] — no copy-to-customize involved.
  */
 class PromptEditController(
     private val service: PromptService,
@@ -78,7 +86,7 @@ class PromptEditController(
     val availableTabs: StateFlow<List<PromptEditTab>> = _availableTabs.asStateFlow()
 
     /** `true` if this is a brand-new (unsaved) prompt, i.e. [promptId] was null (or missing). */
-    val isNew: Boolean = state.value.id == null
+    val isNew: Boolean get() = state.value.id == null
 
     /** Context ids the screen should grey out (currently: bibleOnly disables workspace/note). */
     val disabledContexts: Set<String>
@@ -121,7 +129,12 @@ class PromptEditController(
 
     fun resetToolPermissions() = update { it.copy(allowedTools = emptySet(), deniedTools = emptySet()) }
 
-    fun setModelOverride(modelId: String?) = update { it.copy(modelOverrideId = modelId) }
+    /**
+     * Allowed even for a built-in (read-only) prompt — that's the whole point of the built-in
+     * model-override save path (see class doc); genuinely read-only add-on prompts stay blocked.
+     */
+    fun setModelOverride(modelId: String?) =
+        update(allowBuiltinOverride = true) { it.copy(modelOverrideId = modelId) }
     fun setMaxIterations(maxIterations: Int?) = update { it.copy(maxIterations = maxIterations) }
 
     fun setSwitch(key: String, value: Boolean) = update {
@@ -139,15 +152,33 @@ class PromptEditController(
         if (tab in _availableTabs.value) _tab.value = tab
     }
 
-    /** Persists the current snapshot and returns the saved id, or null if [canSave] is false. */
+    /**
+     * Persists the current snapshot and returns the saved id, or null if [canSave] is false.
+     * For a built-in prompt this only persists the model override (via
+     * [PromptService.setBuiltinPromptModelOverride]), never [PromptService.savePrompt].
+     */
     fun save(): String? {
         if (!_canSave.value) return null
-        val id = service.savePrompt(_state.value)
-        val saved = _state.value.copy(id = id)
-        _state.value = saved
-        initialData = saved
+        val current = _state.value
+        return if (current.isBuiltIn && current.isReadOnly) {
+            val id = current.id ?: return null
+            service.setBuiltinPromptModelOverride(id, current.modelOverrideId)
+            rebaseline(current)
+            id
+        } else {
+            val id = service.savePrompt(current)
+            val saved = current.copy(id = id)
+            _state.value = saved
+            rebaseline(saved)
+            id
+        }
+    }
+
+    /** Re-baselines dirty/canSave tracking against [data] as the new "loaded" snapshot. */
+    private fun rebaseline(data: PromptEditData) {
+        initialData = data
         _isDirty.value = false
-        return id
+        _canSave.value = computeCanSave(data)
     }
 
     /** No-op for a new (unsaved) or read-only prompt. */
@@ -163,9 +194,14 @@ class PromptEditController(
         return service.copyPrompt(id)
     }
 
-    private fun update(transform: (PromptEditData) -> PromptEditData) {
+    /**
+     * @param allowBuiltinOverride if true, bypasses the read-only guard for a built-in prompt
+     *   (`isReadOnly && isBuiltIn`) — used only by [setModelOverride]. A genuinely read-only
+     *   add-on prompt (`isReadOnly && !isBuiltIn`) is still blocked either way.
+     */
+    private fun update(allowBuiltinOverride: Boolean = false, transform: (PromptEditData) -> PromptEditData) {
         val current = _state.value
-        if (current.isReadOnly) return
+        if (current.isReadOnly && !(allowBuiltinOverride && current.isBuiltIn)) return
         publish(transform(current))
     }
 
@@ -181,7 +217,14 @@ class PromptEditController(
     private fun gateBibleOnly(data: PromptEditData): PromptEditData =
         if (data.bibleOnly) data.copy(contexts = data.contexts - BIBLE_ONLY_DISABLED_CONTEXTS) else data
 
-    private fun computeCanSave(data: PromptEditData): Boolean = data.name.isNotBlank() && !data.isReadOnly
+    /**
+     * A genuinely read-only add-on prompt (`isReadOnly && !isBuiltIn`) never has a Save action.
+     * A built-in prompt (`isReadOnly && isBuiltIn`) shows Save only once its model override
+     * actually differs from what was loaded — that's the only thing a built-in's Save persists.
+     */
+    private fun computeCanSave(data: PromptEditData): Boolean =
+        data.name.isNotBlank() &&
+            (!data.isReadOnly || (data.isBuiltIn && data.modelOverrideId != initialData.modelOverrideId))
 
     private fun computeAvailableTabs(data: PromptEditData): List<PromptEditTab> =
         if (data.isTextTransformation) {

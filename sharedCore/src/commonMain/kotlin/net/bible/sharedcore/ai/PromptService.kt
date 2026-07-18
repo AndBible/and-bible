@@ -35,4 +35,7 @@ interface PromptService {
     fun savePrompt(data: PromptEditData): String       // returns saved prompt id
     fun deletePromptById(id: String)
     fun copyPrompt(id: String): String                 // returns new copy id
+    // Built-in prompt "Save" path (model override only, no copy-to-customize): upserts a
+    // BuiltinPromptOverride row for promptId; null modelId clears the override.
+    fun setBuiltinPromptModelOverride(promptId: String, modelId: String?)
 }

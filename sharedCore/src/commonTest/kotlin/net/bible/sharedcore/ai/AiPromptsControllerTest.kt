@@ -68,6 +68,7 @@ class AiPromptsControllerTest {
         override fun savePrompt(data: PromptEditData): String = ""
         override fun deletePromptById(id: String) {}
         override fun copyPrompt(id: String): String = ""
+        override fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) {}
     }
 
     private class NavCalls {
