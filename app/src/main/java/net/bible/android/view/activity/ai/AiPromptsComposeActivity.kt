@@ -110,9 +110,6 @@ class AiPromptsComposeActivity : ActivityBase() {
                     val groups by controller.groups.collectAsState()
                     val showHidden by controller.showHidden.collectAsState()
                     val hasHiddenPrompts by controller.hasHiddenPrompts.collectAsState()
-                    // Snapshot, not reactive — mirrors PromptEditComposeActivity's `categories` seam;
-                    // the "Move to category…" picker only reads this when opened.
-                    val categories = remember { controller.categories() }
 
                     AiPromptsScreen(
                         configured = configured,
@@ -137,7 +134,7 @@ class AiPromptsComposeActivity : ActivityBase() {
                         onExportCsv = { lifecycleScope.launch { exportPrompts() } },
                         onCopyPrompt = controller::onCopyPrompt,
                         onMovePromptToCategory = controller::onMovePromptToCategory,
-                        categories = categories,
+                        categoriesProvider = { controller.categories() },
                         helpBody = getString(R.string.help_ai_settings_text),
                         helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                     )

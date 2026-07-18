@@ -172,7 +172,7 @@ fun AiPromptsScreen(
     // category (mirrors classic AiSettingsActivity.showPromptContextMenu/showMoveToCategoryDialog).
     onCopyPrompt: (String) -> Unit = {},
     onMovePromptToCategory: (String, String?) -> Unit = { _, _ -> },
-    categories: List<PromptCategoryVd> = emptyList(),
+    categoriesProvider: () -> List<PromptCategoryVd> = { emptyList() },
     initiallyHelpDialogOpen: Boolean = false,
     initiallyOverflowMenuOpen: Boolean = false,
     // Test-only seam (goldens): forces the "Move to category…" picker open for a given prompt.
@@ -338,9 +338,13 @@ fun AiPromptsScreen(
     }
     moveToCategoryTarget?.let { prompt ->
         // Mirrors classic showMoveToCategoryDialog's picker: "(uncategorized)" first, then every
-        // category, single-choice, pre-selecting the prompt's current category.
+        // category, single-choice, pre-selecting the prompt's current category. Categories are
+        // fetched FRESH each time the dialog opens (keyed on the target prompt), so a category
+        // created earlier in the same session appears without re-entering the screen (classic
+        // re-queries PromptRepository.allCategories() on every open; a one-time snapshot would miss it).
+        val freshCategories = remember(prompt.id) { categoriesProvider() }
         val choices = listOf(SettingsItem.Choice(value = "", label = strings.categoryNoneLabel)) +
-            categories.map { SettingsItem.Choice(value = it.id, label = it.name) }
+            freshCategories.map { SettingsItem.Choice(value = it.id, label = it.name) }
         AbListChoiceDialog(
             title = strings.moveToCategoryLabel,
             choices = choices,
@@ -564,7 +568,6 @@ private fun PromptRow(
     onCopy: () -> Unit,
     onMoveToCategoryRequest: () -> Unit,
     onDeleteRequest: () -> Unit,
-    initiallyOverflowOpen: Boolean = false,
 ) {
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         TwoLineListItem(
@@ -596,7 +599,6 @@ private fun PromptRow(
             onCopy = onCopy,
             onMoveToCategoryRequest = onMoveToCategoryRequest,
             onDeleteRequest = onDeleteRequest,
-            initiallyExpanded = initiallyOverflowOpen,
         )
     }
 }
@@ -612,9 +614,8 @@ private fun PromptRowOverflow(
     onCopy: () -> Unit,
     onMoveToCategoryRequest: () -> Unit,
     onDeleteRequest: () -> Unit,
-    initiallyExpanded: Boolean = false,
 ) {
-    var expanded by remember { mutableStateOf(initiallyExpanded) }
+    var expanded by remember { mutableStateOf(false) }
     Box {
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {

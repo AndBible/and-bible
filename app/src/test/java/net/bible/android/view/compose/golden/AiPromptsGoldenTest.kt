@@ -50,7 +50,7 @@ class AiPromptsGoldenTest {
                 onExportCsv = {},
                 onCopyPrompt = {},
                 onMovePromptToCategory = { _, _ -> },
-                categories = categories,
+                categoriesProvider = { categories },
                 helpBody = "AI Settings is where you manage your prompts and categories.",
                 helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                 initiallyHelpDialogOpen = initiallyHelpDialogOpen,
@@ -106,12 +106,6 @@ class AiPromptsGoldenTest {
         ),
     )
 
-    /** Same shape as [configuredGroups] but with no hidden built-in prompt — for the F38
-     *  no-hidden-prompts overflow case (toggle omitted). */
-    private fun configuredGroupsNoHidden(): List<PromptGroupVd> = configuredGroups().map { group ->
-        group.copy(prompts = group.prompts.map { it.copy(isHidden = false) })
-    }
-
     /** Mirrors classic `manage_prompts.xml` child 0: not yet configured -> centered CTA only. */
     @Test fun notConfigured() =
         captureGolden("AiPrompts", "notconfigured", EDGE_MODE, content = screen(configured = false))
@@ -153,29 +147,19 @@ class AiPromptsGoldenTest {
             ),
         )
 
-    // F38: the overflow's show/hide-hidden toggle is present (aligned with the plain items) only
-    // when a hidden built-in prompt actually exists.
-    @Test fun configured_overflowOpen_withHiddenPrompts_matrix() =
-        captureMatrix(
-            "AiPrompts", "overflow_open_hidden",
-            heightDp = 900,
-            content = screen(
-                configured = true, groups = configuredGroups(), showHidden = true,
-                hasHiddenPrompts = true, initiallyOverflowMenuOpen = true,
-            ),
-        )
-
-    // F38: with no hidden built-in prompts, the toggle is omitted entirely (classic parity) — only
-    // the plain items remain, all still sharing the same aligned leading-icon-slot inset.
-    @Test fun configured_overflowOpen_noHiddenPrompts() =
-        captureGolden(
-            "AiPrompts", "overflow_open_nohidden", EDGE_MODE,
-            heightDp = 900,
-            content = screen(
-                configured = true, groups = configuredGroupsNoHidden(), showHidden = false,
-                hasHiddenPrompts = false, initiallyOverflowMenuOpen = true,
-            ),
-        )
+    // F38: the overflow's show/hide-hidden toggle (present + aligned only when a hidden built-in
+    // prompt exists) was previously golden-covered by force-opening the top-bar AbOverflowMenu
+    // (initiallyOverflowMenuOpen = true). Those two goldens (overflow_open_hidden /
+    // overflow_open_nohidden) are REMOVED: force-opening a Compose DropdownMenu (a Popup rendered
+    // in its own window) intermittently hangs Roborazzi's captureScreenIfMultipleWindows in this
+    // Robolectric/Roborazzi version — the "Main Thread" spins in ShadowPausedLooper.idle() near
+    // 100% CPU and never converges (same signature as the dropped F40 per-row-overflow golden;
+    // confirmed via jstack). The toggle's presence/absence gating is verified by
+    // AiPromptsControllerTest (hasHiddenPrompts), and its 48dp leading-slot alignment by code
+    // review; the AbOverflowMenu itself is proven elsewhere. Re-introduce a popup-open golden only
+    // after a Roborazzi/Robolectric upgrade (or a per-test JVM fork, forkEvery=1) resolves the
+    // multi-window-capture hang. Dialog-open goldens (AbInfoDialog/AbConfirmDialog/AbListChoiceDialog)
+    // are NOT affected and remain covered below.
 
     // F40: NOTE — a golden that force-opens a PER-ROW PromptRowOverflow (the DropdownMenu nested
     // inside a LazyColumn item, as opposed to the top-bar AbOverflowMenu) was attempted here and
