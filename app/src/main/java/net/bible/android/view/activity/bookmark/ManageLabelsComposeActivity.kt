@@ -257,17 +257,18 @@ class ManageLabelsComposeActivity : ActivityBase() {
                 val updatedLabel = newLabelData.label
                 labelsById[updatedLabel.id.toString()] = updatedLabel
 
+                // Classic applies all four unconditionally (ManageLabels.kt:614-634) — isThisBookmarkSelected
+                // is the sole one actually mode-gated there (`if(data.mode == Mode.ASSIGN)`), but its
+                // checkbox is hidden on every non-ASSIGN LabelEdit screen (thisBookmarkCategory.visibility,
+                // LabelEditActivity.kt:284), so the round-tripped value is unchanged from the seed there —
+                // passing it unconditionally is behaviorally identical and lets applyLabelChanged apply all
+                // four the same way classic does.
                 controller.applyLabelChanged(
                     item = updatedLabel.toLabelItem(),
-                    selectedFlag = if (data.mode == ManageLabels.Mode.ASSIGN) newLabelData.isThisBookmarkSelected else null,
-                    // isAutoAssign is a cross-mode workspace setting (its checkbox is shown on every
-                    // LabelEdit screen, not just WORKSPACE mode) — always applied, same as classic.
+                    selectedFlag = newLabelData.isThisBookmarkSelected,
                     autoAssignFlag = newLabelData.isAutoAssign,
-                    primaryFlag = when (data.mode) {
-                        ManageLabels.Mode.WORKSPACE -> newLabelData.isAutoAssignPrimary
-                        ManageLabels.Mode.ASSIGN -> newLabelData.isThisBookmarkPrimary
-                        else -> null
-                    },
+                    bookmarkPrimaryFlag = newLabelData.isThisBookmarkPrimary,
+                    autoAssignPrimaryFlag = newLabelData.isAutoAssignPrimary,
                 )
 
                 // Save workspace override (classic ManageLabels.kt:637-649).
@@ -318,6 +319,16 @@ class ManageLabelsComposeActivity : ActivityBase() {
 
         val changedIds = controller.resultChanged()
         val toSave = changedIds.filterNot { deletedIds.contains(it) }.mapNotNull { labelsById[it] }
+
+        // The list's quick favourite-toggle (controller.toggleFavourite) only flips the controller's
+        // own LabelItem copy — labelsById[id] (built above) is the pre-toggle Label, so re-apply the
+        // controller's current favourite onto it here before persisting (fall back to the existing
+        // value when the controller has no entry for that id). Classic persists this for free since
+        // its adapter mutates the same Label instance later saved from `allLabels`
+        // (ManageLabelItemAdapter.kt:179-183).
+        val currentFavourites = controller.currentLabelItems().associate { it.id to it.favourite }
+        toSave.forEach { label -> currentFavourites[label.id.toString()]?.let { label.favourite = it } }
+
         val newLabels = toSave.filter { it.new }
         val existingLabels = toSave.filter { !it.new }
 

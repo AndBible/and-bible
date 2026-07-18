@@ -147,16 +147,29 @@ class ManageLabelsController(
     fun reset() = onReset()
 
     // ---- host apply hooks (after a LabelEdit round-trip) ----
-    // Mirrors classic ManageLabels.editLabel's result handling (ManageLabels.kt:619-628): each flag,
-    // when set, either claims the primary or (else branch) falls back through ensureNot*Primary so a
-    // primary that pointed at this label (or was already null) doesn't dangle.
-    fun applyLabelChanged(item: LabelItem, selectedFlag: Boolean?, autoAssignFlag: Boolean?, primaryFlag: Boolean?) {
+    // Mirrors classic ManageLabels.editLabel's result handling (ManageLabels.kt:614-634): autoAssign,
+    // autoAssignPrimary and bookmarkPrimary are each applied UNCONDITIONALLY (not mode-gated) — every
+    // caller reads all three via updateFrom regardless of which mode opened the edit screen, so both
+    // primaries must propagate independently of `mode`'s single contextPrimary() mapping. Only
+    // `selectedFlag` mirrors classic's own `if(data.mode == Mode.ASSIGN)` gate — the host decides
+    // whether to pass the round-tripped value at all (LabelEdit hides that checkbox outside ASSIGN,
+    // so its value round-trips unchanged there anyway). Each primary flag, when true, claims that
+    // primary; else falls back through its own ensureNot*Primary so a primary that pointed at this
+    // label (or was already null) doesn't dangle.
+    fun applyLabelChanged(
+        item: LabelItem,
+        selectedFlag: Boolean,
+        autoAssignFlag: Boolean,
+        bookmarkPrimaryFlag: Boolean,
+        autoAssignPrimaryFlag: Boolean,
+    ) {
         val i = labels.indexOfFirst { it.id == item.id }
         if (i >= 0) labels[i] = item else labels.add(item)
         changed.add(item.id)
-        selectedFlag?.let { if (it) selected.add(item.id) else selected.remove(item.id) }
-        autoAssignFlag?.let { if (it) autoAssign.add(item.id) else autoAssign.remove(item.id) }
-        primaryFlag?.let { isPrimary -> if (isPrimary) setContextPrimary(item.id) else ensureNotContextPrimary(item.id) }
+        if (selectedFlag) selected.add(item.id) else selected.remove(item.id)
+        if (autoAssignFlag) autoAssign.add(item.id) else autoAssign.remove(item.id)
+        if (bookmarkPrimaryFlag) bookmarkPrimary = item.id else ensureNotBookmarkPrimary(item.id)
+        if (autoAssignPrimaryFlag) autoAssignPrimary = item.id else ensureNotAutoAssignPrimary(item.id)
         rebuild()
     }
     // Mirrors classic ManageLabels.deleteLabel (ManageLabels.kt:537-550): remove from every set +
@@ -170,6 +183,15 @@ class ManageLabelsController(
         rebuild()
     }
     fun refresh() = rebuild()
+
+    // ---- current in-memory label items (host save-time favourite sourcing) ----
+    // The list's quick favourite-toggle (toggleFavourite) only flips this controller's own LabelItem
+    // copy, marking the id `changed` — it does NOT touch the host's authoritative
+    // `BookmarkEntities.Label` map (labelsById), which is what saveAndExit actually persists. Classic
+    // gets this for free because its adapter mutates the SAME Label instance later saved from
+    // `allLabels` (ManageLabelItemAdapter.kt:179-183). The Compose host must instead read the current
+    // favourite back from here at save time and apply it onto the Label about to be persisted.
+    fun currentLabelItems(): List<LabelItem> = labels.toList()
 
     // ---- result snapshot for the host to build ManageLabelsData ----
     fun resultSelected(): Set<String> = selected

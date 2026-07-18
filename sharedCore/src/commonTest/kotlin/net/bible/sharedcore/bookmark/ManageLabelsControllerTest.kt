@@ -102,7 +102,7 @@ class ManageLabelsControllerTest {
         assertEquals(1, describe(c.rows.value).count { it == "UNL" })
         // host applies a round-trip edit of the special Unlabeled label -> it lands in `labels`
         // AND `changed`, so the separate special-insertion path must not duplicate it.
-        c.applyLabelChanged(label("UNL", "Unlabeled", isUnlabeled = true), null, null, null)
+        c.applyLabelChanged(label("UNL", "Unlabeled", isUnlabeled = true), false, false, false, false)
         assertEquals(1, describe(c.rows.value).count { it == "UNL" })
     }
 
@@ -158,6 +158,22 @@ class ManageLabelsControllerTest {
         assertFalse(row2.label.favourite)
     }
 
+    @Test fun toggleFavourite_currentLabelItems_reflects_the_flip() {
+        // Regression for the favourite-persistence finding: the host reads currentLabelItems() at
+        // save time to source the favourite value onto its own authoritative Label map, since
+        // toggleFavourite only flips this controller's own copy.
+        val c = controller(mode = ManageLabelsMode.STUDYPAD, labels = listOf(A, B))
+        assertFalse(c.currentLabelItems().first { it.id == "A" }.favourite)
+        assertFalse(c.currentLabelItems().first { it.id == "B" }.favourite)
+
+        c.toggleFavourite("A")
+        assertTrue(c.currentLabelItems().first { it.id == "A" }.favourite)
+        assertFalse(c.currentLabelItems().first { it.id == "B" }.favourite) // untouched
+
+        c.toggleFavourite("A")
+        assertFalse(c.currentLabelItems().first { it.id == "A" }.favourite)
+    }
+
     @Test fun applyLabelDeleted_reassigns_primary_and_cleans_changed() {
         val c = controller(
             mode = ManageLabelsMode.ASSIGN,
@@ -180,7 +196,7 @@ class ManageLabelsControllerTest {
         assertTrue(c.resultDeletedWithOrphaned().contains("B"))
     }
 
-    @Test fun applyLabelChanged_primaryFlag_false_reassigns_primary_away() {
+    @Test fun applyLabelChanged_bookmarkPrimaryFlag_false_reassigns_primary_away() {
         val c = controller(
             mode = ManageLabelsMode.ASSIGN,
             labels = listOf(A, B),
@@ -190,9 +206,34 @@ class ManageLabelsControllerTest {
         // "A" comes back from the edit round-trip still selected but with isThisBookmarkPrimary == false:
         // ensureNotBookmarkPrimaryLabel must still fire (primary == this label's id) and reassign away,
         // even though the label itself remains in the selected set.
-        c.applyLabelChanged(A.copy(name = "Apple2"), selectedFlag = true, autoAssignFlag = null, primaryFlag = false)
+        c.applyLabelChanged(A.copy(name = "Apple2"), selectedFlag = true, autoAssignFlag = false, bookmarkPrimaryFlag = false, autoAssignPrimaryFlag = false)
         assertEquals(setOf("B", "A"), c.resultSelected())
         assertEquals("B", c.resultBookmarkPrimary())
+    }
+
+    @Test fun applyLabelChanged_both_primaries_independent_of_mode() {
+        // Classic ManageLabels.editLabel (ManageLabels.kt:614-628) applies isAutoAssignPrimary and
+        // isThisBookmarkPrimary UNCONDITIONALLY -- not mode-gated -- so both must propagate even when
+        // editing from an ASSIGN-mode session, whose own contextPrimary() mapping only ever reads/writes
+        // bookmarkPrimary. A prior bug drove only ONE mode-mapped primary and silently dropped the other.
+        val c = controller(
+            mode = ManageLabelsMode.ASSIGN,
+            labels = listOf(A, B),
+            initialSelected = setOf("B", "A"),
+            initialAutoAssign = setOf("B", "A"),
+            initialBookmarkPrimary = "A",
+            initialAutoAssignPrimary = "A",
+        )
+        // Both primary flags true on "A" (already primary in both) -> both stay "A".
+        c.applyLabelChanged(A.copy(name = "Apple2"), selectedFlag = true, autoAssignFlag = true, bookmarkPrimaryFlag = true, autoAssignPrimaryFlag = true)
+        assertEquals("A", c.resultBookmarkPrimary())
+        assertEquals("A", c.resultAutoAssignPrimary())
+
+        // Both primary flags false on the same item "A" -> ensureNot*Primary fallbacks fire
+        // independently for bookmarkPrimary and autoAssignPrimary, both reassigning to "B".
+        c.applyLabelChanged(A.copy(name = "Apple3"), selectedFlag = true, autoAssignFlag = true, bookmarkPrimaryFlag = false, autoAssignPrimaryFlag = false)
+        assertEquals("B", c.resultBookmarkPrimary())
+        assertEquals("B", c.resultAutoAssignPrimary())
     }
 
     @Test fun toggleChecked_HIDELABELS_no_primary_but_selection_toggles() {
