@@ -378,4 +378,12 @@ class AndroidStrings(private val context: Context) : Strings {
     override val studyPadsLabel: String get() = context.getString(R.string.studypads)
     override fun exportSomething(what: String): String = context.getString(R.string.export_something, what)
     override fun importItems(what: String): String = context.getString(R.string.import_items, what)
+
+    // Batch 7c — BookmarksScreen
+    override val manageLabelsLabel: String get() = context.getString(R.string.manage_labels)
+    override val sortByBibleBookLabel: String get() = context.getString(R.string.sort_by_bible_book)
+    override val sortByDateLabel: String get() = context.getString(R.string.sort_by_date)
+    override val showNotesLabel: String get() = context.getString(R.string.show_notes)
+    override val assignLabelsLabel: String get() = context.getString(R.string.assign_labels)
+    override val bookmarksSearchNotesHint: String get() = context.getString(R.string.filter_by_notes)
 }

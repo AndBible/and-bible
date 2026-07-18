@@ -386,6 +386,14 @@ interface Strings {
     val studyPadsLabel: String                       // R.string.studypads
     fun exportSomething(what: String): String        // R.string.export_something
     fun importItems(what: String): String            // R.string.import_items
+
+    // Batch 7c — BookmarksScreen
+    val manageLabelsLabel: String                    // R.string.manage_labels (top-bar overflow item)
+    val sortByBibleBookLabel: String                 // R.string.sort_by_bible_book (sort icon content description)
+    val sortByDateLabel: String                      // R.string.sort_by_date (sort icon content description)
+    val showNotesLabel: String                       // R.string.show_notes (overflow checkable item)
+    val assignLabelsLabel: String                    // R.string.assign_labels (selection action icon)
+    val bookmarksSearchNotesHint: String              // R.string.filter_by_notes (notes-search field placeholder)
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
