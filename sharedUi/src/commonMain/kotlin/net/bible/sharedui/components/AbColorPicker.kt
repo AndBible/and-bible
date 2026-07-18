@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 /** ARGB `Int` <-> Compose [Color] bridge, plus the fixed preset palette offered by
  *  [AbColorPicker]. Kept in `commonMain`: everything here is plain [Color]/[Int] math, no
@@ -90,8 +91,8 @@ fun AbColorPicker(color: Int, onColorChange: (Int) -> Unit, modifier: Modifier =
         fun emit() = onColorChange(hsvToArgb(hue, sat, value))
 
         LabeledSlider("H", hue, 0f, 360f) { hue = it; emit() }
-        LabeledSlider("S", sat, 0f, 1f) { sat = it; emit() }
-        LabeledSlider("V", value, 0f, 1f) { value = it; emit() }
+        LabeledSlider("S", sat, 0f, 1f, isPercent = true) { sat = it; emit() }
+        LabeledSlider("V", value, 0f, 1f, isPercent = true) { value = it; emit() }
 
         Box(
             Modifier
@@ -127,19 +128,23 @@ private fun FlowRowPalette(selected: Int, onSelect: (Int) -> Unit) {
 }
 
 /** Label + right-aligned readout on the top line, an M3 [Slider] below - same shape as
- *  [AbSliderRow] but taking/emitting [Float] (HSV components aren't whole numbers). */
+ *  [AbSliderRow] but taking/emitting [Float] (HSV components aren't whole numbers).
+ *  [isPercent] formats the readout as a `0..100` percentage (for the `0f..1f` saturation/value
+ *  sliders) instead of a raw integer (used for the `0..360` hue slider, in degrees). */
 @Composable
 private fun LabeledSlider(
     label: String,
     value: Float,
     valueMin: Float,
     valueMax: Float,
+    isPercent: Boolean = false,
     onValueChange: (Float) -> Unit,
 ) {
     Column(Modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-            Text(value.toInt().toString(), style = MaterialTheme.typography.bodyMedium)
+            val readout = if (isPercent) (value * 100).roundToInt().toString() else value.toInt().toString()
+            Text(readout, style = MaterialTheme.typography.bodyMedium)
         }
         Slider(value = value, onValueChange = onValueChange, valueRange = valueMin..valueMax)
     }
