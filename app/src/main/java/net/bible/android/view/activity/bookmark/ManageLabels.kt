@@ -56,6 +56,8 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.page.AppSettingsUpdated
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.CommonUtils.json
@@ -551,7 +553,7 @@ class ManageLabels : ListActivityBase() {
         var label = label_
         val isNew = label.new
         Log.i(TAG, "editLabel isNew: $isNew")
-        val intent = Intent(this, LabelEditActivity::class.java)
+        val intent = ScreenLauncher.intentFor(this, Screen.LabelEdit)
 
         val workspaceId = bookmarkControl.windowControl.windowRepository.id
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
