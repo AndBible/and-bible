@@ -149,8 +149,8 @@ class PromptEditGoldenTest {
         deniedTools = setOf("search_bible"),
     )
 
-    // heightDp=1100: permission-mode dropdown + 2 categories x 2 tools, each with a description line
-    // and a segmented-button row -- clips at the default viewport otherwise.
+    // heightDp=1100: permission-mode dropdown + 2 categories x 2 tools, each a name-row (+ trailing
+    // info icon, E1/F34/F37) and a segmented-button row -- clips at the default viewport otherwise.
     @Test fun permissions_matrix() =
         captureMatrix("PromptEdit", "permissions", heightDp = 1100, content = screen(permissionsState, PromptEditTab.PERMISSIONS))
 

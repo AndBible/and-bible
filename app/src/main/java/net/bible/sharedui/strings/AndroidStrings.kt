@@ -240,6 +240,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val toolOptionDefaultDisabled: String get() = context.getString(R.string.tool_option_default_disabled)
     override val toolOptionDefaultAllowed: String get() = context.getString(R.string.tool_option_default_allowed)
     override val toolOptionDefaultDenied: String get() = context.getString(R.string.tool_option_default_denied)
+    override val toolDescriptionInfoContentDescription: String get() = context.getString(R.string.tool_description_info)
 
     // Batch 9c — AiPromptsScreen (prompt manager)
     override val aiPromptsTitle: String get() = context.getString(R.string.ai_settings)

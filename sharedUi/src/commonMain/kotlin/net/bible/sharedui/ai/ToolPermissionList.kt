@@ -29,23 +29,29 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
+import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -87,6 +93,15 @@ private data class ToolPermissionOption(val permission: ToolPermission, val labe
  * Collapse/expand state is component-local ([remember], keyed by [ToolCategoryVd.id]) — callers
  * don't need to thread it through. All categories start expanded.
  *
+ * **Tool description (F34/F37).** Each row shows only the tool's [ToolVd.displayName] plus (when
+ * [ToolVd.description] is non-blank) a trailing info [IconButton] — the long description text used
+ * to render inline as a `bodySmall` line under the name, which made every row multi-line and pushed
+ * the segmented permission control down inconsistently row-to-row. Tapping the icon opens the
+ * shared [AbInfoDialog] (title = [ToolVd.displayName], body = [ToolVd.description]). Which tool's
+ * dialog is showing is hoisted **here** (component-local [remember], like [collapsed]) rather than
+ * threaded through [GlobalToolPermissionsScreen]/`PromptEditScreen`'s Permissions tab — neither
+ * caller needs to know or drive this state.
+ *
  * E-ink/monochrome: selection is shown by [SegmentedButton]'s default checkmark icon (drawn only
  * when `selected`), never by color alone, so it stays legible when [MaterialTheme.colorScheme] is
  * grayscaled by `AbTheme`'s BW/COLOR_EINK modes.
@@ -98,6 +113,9 @@ private data class ToolPermissionOption(val permission: ToolPermission, val labe
  *   mode (no Default option) for that tool.
  * @param onSet Invoked with the tool id and the newly selected [ToolPermission] when the user picks
  *   an option.
+ * @param initiallyShownToolInfo Test-only hook (mirrors `initiallyHelpDialogOpen` elsewhere in this
+ *   package): seeds the info-dialog state so a golden test can capture it open without simulating a
+ *   click. Not used by either production caller.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,12 +125,14 @@ fun ToolPermissionList(
     globalDefaultLabelFor: (toolId: String) -> String?,
     onSet: (toolId: String, ToolPermission) -> Unit,
     modifier: Modifier = Modifier,
+    initiallyShownToolInfo: ToolVd? = null,
 ) {
     val strings = LocalStrings.current
     // Keyed by category id; absent = expanded (default-open, matches the classic builder's
     // "collapse only when everything in it is off" heuristic being unnecessary here since callers
     // decide initial visibility via the data they pass in).
     val collapsed = remember { mutableStateMapOf<String, Boolean>() }
+    var infoTool by remember { mutableStateOf(initiallyShownToolInfo) }
 
     LazyColumn(modifier = modifier.fillMaxWidth()) {
         categories.forEachIndexed { index, (category, tools) ->
@@ -134,11 +154,20 @@ fun ToolPermissionList(
                         current = permissionFor(tool.id),
                         defaultToken = globalDefaultLabelFor(tool.id),
                         onSet = { onSet(tool.id, it) },
+                        onShowInfo = { infoTool = tool },
                         strings = strings,
                     )
                 }
             }
         }
+    }
+
+    infoTool?.let { tool ->
+        AbInfoDialog(
+            title = tool.displayName,
+            body = tool.description,
+            onDismiss = { infoTool = null },
+        )
     }
 }
 
@@ -170,17 +199,18 @@ private fun ToolPermissionRow(
     current: ToolPermission,
     defaultToken: String?,
     onSet: (ToolPermission) -> Unit,
+    onShowInfo: () -> Unit,
     strings: Strings,
 ) {
     val options = toolOptions(tool, defaultToken, strings)
     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Text(tool.displayName, style = MaterialTheme.typography.bodyLarge)
-        if (tool.description.isNotBlank()) {
-            Text(
-                tool.description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Text(tool.displayName, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+            if (tool.description.isNotBlank()) {
+                IconButton(onClick = onShowInfo) {
+                    Icon(Icons.Outlined.Info, contentDescription = strings.toolDescriptionInfoContentDescription)
+                }
+            }
         }
         Spacer(Modifier.height(6.dp))
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {

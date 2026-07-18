@@ -248,6 +248,7 @@ interface Strings {
     val toolOptionDefaultDisabled: String       // R.string.tool_option_default_disabled (PROMPT mode, read tool, global default = disabled)
     val toolOptionDefaultAllowed: String        // R.string.tool_option_default_allowed (PROMPT mode, write tool, global default = allow)
     val toolOptionDefaultDenied: String         // R.string.tool_option_default_denied (PROMPT mode, write tool, global default = deny)
+    val toolDescriptionInfoContentDescription: String  // R.string.tool_description_info (E1/F34/F37: info icon opening the tool-description AbInfoDialog)
 
     // Batch 9c — AiPromptsScreen (prompt manager)
     val aiPromptsTitle: String                  // R.string.ai_settings (screen title — doubles as "AI Settings")

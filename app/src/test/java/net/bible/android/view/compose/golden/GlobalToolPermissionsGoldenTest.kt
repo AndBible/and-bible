@@ -6,6 +6,7 @@ import net.bible.sharedcore.ai.ToolPermGroupVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedui.ai.GlobalToolPermissionsScreen
+import net.bible.sharedui.ai.ToolPermissionList
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -68,8 +69,9 @@ class GlobalToolPermissionsGoldenTest {
         )
     }
 
-    // heightDp=1100: 2 categories x (2-4 tools each), each tool a title/description/segmented row --
-    // the default viewport clips before the second category's tools.
+    // heightDp=1100: 2 categories x (2-4 tools each), each tool a name-row (+ trailing info icon
+    // when it has a description, E1/F34/F37) plus a segmented row -- the default viewport clips
+    // before the second category's tools.
     @Test fun populated_matrix() =
         captureMatrix("GlobalToolPermissions", "populated", heightDp = 1100, content = screen())
 
@@ -82,4 +84,20 @@ class GlobalToolPermissionsGoldenTest {
     // classic's CommonUtils.showHelpDialog AlertDialog.
     @Test fun help_matrix() =
         captureMatrix("GlobalToolPermissions", "help", heightDp = 1100, content = screen(initiallyHelpDialogOpen = true))
+
+    // E1/F34/F37: the trailing info icon on a tool row opens an AbInfoDialog with that tool's
+    // description, replacing the old always-visible inline bodySmall description line. Renders
+    // ToolPermissionList directly (not through GlobalToolPermissionsScreen, which has no concept of
+    // this per-tool dialog state -- it's hoisted inside ToolPermissionList itself) using the
+    // test-only initiallyShownToolInfo hook to seed the dialog open without simulating a click.
+    @Test fun tool_info_dialog_matrix() =
+        captureMatrix("GlobalToolPermissions", "tool_info", heightDp = 1100) {
+            ToolPermissionList(
+                categories = groups.map { it.category to it.tools },
+                permissionFor = { toolId -> permissions[toolId] ?: ToolPermission.ASK },
+                globalDefaultLabelFor = { null },
+                onSet = { _, _ -> },
+                initiallyShownToolInfo = groups.first().tools.first(),
+            )
+        }
 }
