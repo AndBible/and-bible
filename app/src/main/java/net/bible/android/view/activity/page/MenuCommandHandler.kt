@@ -45,7 +45,6 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.progress.ReadingProgressActivity
-import net.bible.android.view.activity.ai.AiSettingsActivity
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.service.common.CommonUtils
@@ -166,7 +165,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
                 }
                 R.id.managePrompts -> {
-                    handlerIntent = Intent(mainBibleActivity, AiSettingsActivity::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.AiPrompts)
                 }
                 R.id.historyButton -> handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.History)
                 R.id.bookmarksButton -> handlerIntent = Intent(mainBibleActivity, Bookmarks::class.java)

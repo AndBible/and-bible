@@ -190,4 +190,20 @@ class ComposeHostActionBarTest {
             ).create().get().supportActionBar
         )
     }
+
+    @Test fun `AiPromptsComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        assertNull(
+            Robolectric.buildActivity(
+                net.bible.android.view.activity.ai.AiPromptsComposeActivity::class.java
+            ).create().get().supportActionBar
+        )
+    }
+
+    @Test fun `PromptEditComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        assertNull(
+            Robolectric.buildActivity(
+                net.bible.android.view.activity.ai.PromptEditComposeActivity::class.java
+            ).create().get().supportActionBar
+        )
+    }
 }

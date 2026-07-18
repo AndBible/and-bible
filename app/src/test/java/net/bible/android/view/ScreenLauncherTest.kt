@@ -25,6 +25,10 @@ import net.bible.android.view.activity.ai.AiModelsActivity
 import net.bible.android.view.activity.ai.AiModelsComposeActivity
 import net.bible.android.view.activity.ai.AiProvidersActivity
 import net.bible.android.view.activity.ai.AiProvidersComposeActivity
+import net.bible.android.view.activity.ai.AiPromptsComposeActivity
+import net.bible.android.view.activity.ai.AiSettingsActivity
+import net.bible.android.view.activity.ai.PromptEditActivity
+import net.bible.android.view.activity.ai.PromptEditComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
@@ -299,5 +303,21 @@ class ScreenLauncherTest {
         assertEquals(AiModelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiModels))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(AiModelsActivity::class.java, ScreenLauncher.targetFor(Screen.AiModels))
+    }
+
+    @Test
+    fun aiPrompts_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(AiPromptsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiPrompts))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(AiSettingsActivity::class.java, ScreenLauncher.targetFor(Screen.AiPrompts))
+    }
+
+    @Test
+    fun promptEdit_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(PromptEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.PromptEdit))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(PromptEditActivity::class.java, ScreenLauncher.targetFor(Screen.PromptEdit))
     }
 }

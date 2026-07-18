@@ -42,7 +42,8 @@ import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
-import net.bible.android.view.activity.ai.AiSettingsActivity
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -288,7 +289,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         preferenceScreen.findPreference<Preference>("ai_settings_shortcut")?.setOnPreferenceClickListener {
-            startActivity(Intent(context, AiSettingsActivity::class.java))
+            ScreenLauncher.open(requireContext(), Screen.AiPrompts)
             true
         }
 

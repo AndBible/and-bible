@@ -25,6 +25,10 @@ import net.bible.android.view.activity.ai.AiModelsActivity
 import net.bible.android.view.activity.ai.AiModelsComposeActivity
 import net.bible.android.view.activity.ai.AiProvidersActivity
 import net.bible.android.view.activity.ai.AiProvidersComposeActivity
+import net.bible.android.view.activity.ai.AiPromptsComposeActivity
+import net.bible.android.view.activity.ai.AiSettingsActivity
+import net.bible.android.view.activity.ai.PromptEditActivity
+import net.bible.android.view.activity.ai.PromptEditComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.discrete.CalculatorActivity
@@ -73,7 +77,7 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivi
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -167,6 +171,12 @@ object ScreenLauncher {
         Screen.AiModels ->
             if (useComposeFor(screen)) AiModelsComposeActivity::class.java
             else AiModelsActivity::class.java
+        Screen.AiPrompts ->
+            if (useComposeFor(screen)) AiPromptsComposeActivity::class.java
+            else AiSettingsActivity::class.java
+        Screen.PromptEdit ->
+            if (useComposeFor(screen)) PromptEditComposeActivity::class.java
+            else PromptEditActivity::class.java
     }
 
     /**

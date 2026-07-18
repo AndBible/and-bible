@@ -62,9 +62,8 @@ import kotlin.coroutines.resume
  * [AiPromptsScreen].
  *
  * Navigation (`onOpenPrompt`/`onNewPrompt`/`onOpenConnectionSettings`) stays host-side, as the
- * controller intends. For now they route to the CLASSIC [PromptEditActivity] / the routed
- * connection-settings [Screen.AiConnectionSettings] (Task 10 rewires prompt-edit to its own Compose
- * host); this keeps Task 8 free of ScreenLauncher changes.
+ * controller intends. They route via [ScreenLauncher] to [Screen.PromptEdit] / [Screen.AiConnectionSettings],
+ * so both honor the `use_compose_ui` flag independently of this host.
  *
  * CSV import/export and the help dialog also stay host-side — they need Android SAF (`awaitIntent`)
  * and resource-backed dialogs the shared layer can't own. The flows are ported verbatim from classic
@@ -86,10 +85,10 @@ class AiPromptsComposeActivity : ActivityBase() {
             service = service,
             scope = lifecycleScope,
             onOpenPrompt = { promptId ->
-                startActivity(Intent(this, PromptEditActivity::class.java)
+                startActivity(ScreenLauncher.intentFor(this, Screen.PromptEdit)
                     .putExtra(PromptEditActivity.EXTRA_PROMPT_ID, promptId))
             },
-            onNewPrompt = { startActivity(Intent(this, PromptEditActivity::class.java)) },
+            onNewPrompt = { startActivity(ScreenLauncher.intentFor(this, Screen.PromptEdit)) },
             onOpenConnectionSettings = { ScreenLauncher.open(this, Screen.AiConnectionSettings) },
         )
     }

@@ -1044,7 +1044,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openPromptEditor(promptId: String) {
         scope.launch(Dispatchers.Main) {
-            val intent = Intent(mainBibleActivity, PromptEditActivity::class.java)
+            val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.PromptEdit)
             intent.putExtra(PromptEditActivity.EXTRA_PROMPT_ID, promptId)
             mainBibleActivity.startActivity(intent)
         }

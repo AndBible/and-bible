@@ -195,13 +195,13 @@ class AiSettingsActivity : ActivityBase() {
     }
 
     private fun editPrompt(prompt: AgentPrompt) {
-        val intent = Intent(this, PromptEditActivity::class.java)
+        val intent = ScreenLauncher.intentFor(this, Screen.PromptEdit)
         intent.putExtra(PromptEditActivity.EXTRA_PROMPT_ID, prompt.id.toString())
         startActivity(intent)
     }
 
     private fun createNewPrompt() {
-        val intent = Intent(this, PromptEditActivity::class.java)
+        val intent = ScreenLauncher.intentFor(this, Screen.PromptEdit)
         startActivity(intent)
     }
 
