@@ -272,6 +272,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val hidePromptLabel: String get() = context.getString(R.string.ai_hide_prompt)
     override val restoreLabel: String get() = context.getString(R.string.restore)
     override val deletePromptConfirmMessage: String get() = context.getString(R.string.delete_prompt_confirm_message)
+    override val moveToCategoryLabel: String get() = context.getString(R.string.move_to_category)
 
     // Batch 9c — PromptEditScreen (Task 6)
     override val promptTabPrompt: String get() = context.getString(R.string.prompt_tab_prompt)

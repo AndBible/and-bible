@@ -25,6 +25,7 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -109,6 +110,9 @@ class AiPromptsComposeActivity : ActivityBase() {
                     val groups by controller.groups.collectAsState()
                     val showHidden by controller.showHidden.collectAsState()
                     val hasHiddenPrompts by controller.hasHiddenPrompts.collectAsState()
+                    // Snapshot, not reactive — mirrors PromptEditComposeActivity's `categories` seam;
+                    // the "Move to category…" picker only reads this when opened.
+                    val categories = remember { controller.categories() }
 
                     AiPromptsScreen(
                         configured = configured,
@@ -131,6 +135,9 @@ class AiPromptsComposeActivity : ActivityBase() {
                         onOpenConnectionSettings = controller::onOpenConnectionSettings,
                         onImportCsv = { lifecycleScope.launch { importPrompts() } },
                         onExportCsv = { lifecycleScope.launch { exportPrompts() } },
+                        onCopyPrompt = controller::onCopyPrompt,
+                        onMovePromptToCategory = controller::onMovePromptToCategory,
+                        categories = categories,
                         helpBody = getString(R.string.help_ai_settings_text),
                         helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                     )

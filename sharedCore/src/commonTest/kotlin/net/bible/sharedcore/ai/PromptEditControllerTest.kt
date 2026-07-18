@@ -58,6 +58,7 @@ class PromptEditControllerTest {
         override fun deletePrompt(promptId: String) {}
         override fun deleteCategory(categoryId: String, deletePrompts: Boolean) {}
         override fun movePrompt(promptId: String, up: Boolean) {}
+        override fun movePromptToCategory(promptId: String, categoryId: String?) {}
         override fun moveCategory(categoryId: String, up: Boolean) {}
         override fun createCategory(name: String) {}
         override fun renameCategory(categoryId: String, name: String) {}

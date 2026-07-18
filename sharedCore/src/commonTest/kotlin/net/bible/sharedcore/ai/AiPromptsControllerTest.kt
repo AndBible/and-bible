@@ -47,6 +47,10 @@ class AiPromptsControllerTest {
         var lastMoveCategory: Pair<String, Boolean>? = null
         var lastCreateCategoryName: String? = null
         var lastRenameCategory: Pair<String, String>? = null
+        var lastCopyPromptId: String? = null
+        var copyPromptReturn: String = "new-id"
+        var lastMovePromptToCategory: Pair<String, String?>? = null
+        var categoriesReturn: List<PromptCategoryVd> = emptyList()
         var refreshCount = 0
 
         override fun setShowHidden(v: Boolean) { lastShowHidden = v; showHiddenFlow.value = v }
@@ -56,6 +60,7 @@ class AiPromptsControllerTest {
         override fun deletePrompt(promptId: String) { lastDeletePromptId = promptId }
         override fun deleteCategory(categoryId: String, deletePrompts: Boolean) { lastDeleteCategory = categoryId to deletePrompts }
         override fun movePrompt(promptId: String, up: Boolean) { lastMovePrompt = promptId to up }
+        override fun movePromptToCategory(promptId: String, categoryId: String?) { lastMovePromptToCategory = promptId to categoryId }
         override fun moveCategory(categoryId: String, up: Boolean) { lastMoveCategory = categoryId to up }
         override fun createCategory(name: String) { lastCreateCategoryName = name }
         override fun renameCategory(categoryId: String, name: String) { lastRenameCategory = categoryId to name }
@@ -64,13 +69,13 @@ class AiPromptsControllerTest {
         override fun prompt(id: String): PromptEditData? = null
         override fun newPromptData(template: String?, defaultContext: String?): PromptEditData =
             throw NotImplementedError()
-        override fun categories(): List<PromptCategoryVd> = emptyList()
+        override fun categories(): List<PromptCategoryVd> = categoriesReturn
         override fun toolsByCategory(): List<Pair<ToolCategoryVd, List<ToolVd>>> = emptyList()
         override fun globalToolPermission(toolId: String): ToolPermission = ToolPermission.DEFAULT
         override fun modelChoices(): List<net.bible.sharedcore.settings.SettingsItem.Choice> = emptyList()
         override fun savePrompt(data: PromptEditData): String = ""
         override fun deletePromptById(id: String) {}
-        override fun copyPrompt(id: String): String = ""
+        override fun copyPrompt(id: String): String { lastCopyPromptId = id; return copyPromptReturn }
         override fun setBuiltinPromptModelOverride(promptId: String, modelId: String?) {}
     }
 
@@ -205,6 +210,37 @@ class AiPromptsControllerTest {
         val f = Fake(); val c = controller(f)
         c.onRenameCategory("cat1", "Renamed")
         assertEquals("cat1" to "Renamed", f.lastRenameCategory)
+    }
+
+    // F40: Copy — routed to the service for ANY prompt (built-in, add-on, or user; the gating on
+    // which prompts offer the action lives in the screen, not the controller/service).
+    @Test fun onCopyPrompt_routesToServiceAndReturnsNewId() = runTest {
+        val f = Fake(); f.copyPromptReturn = "p1-copy"
+        val c = controller(f)
+        val newId = c.onCopyPrompt("p1")
+        assertEquals("p1", f.lastCopyPromptId)
+        assertEquals("p1-copy", newId)
+    }
+
+    // F40: Move to category — routes (promptId, categoryId) straight through; null = uncategorized.
+    // Read-only gating is enforced service-side (PromptServiceImpl.movePromptToCategory no-ops for a
+    // read-only prompt), so the controller itself is a plain pass-through, mirrored here.
+    @Test fun onMovePromptToCategory_routesToService() = runTest {
+        val f = Fake(); val c = controller(f)
+        c.onMovePromptToCategory("p1", "cat2")
+        assertEquals("p1" to "cat2", f.lastMovePromptToCategory)
+    }
+
+    @Test fun onMovePromptToCategory_null_routesUncategorizedToService() = runTest {
+        val f = Fake(); val c = controller(f)
+        c.onMovePromptToCategory("p1", null)
+        assertEquals("p1" to null, f.lastMovePromptToCategory)
+    }
+
+    @Test fun categories_routesToService() = runTest {
+        val f = Fake(); f.categoriesReturn = listOf(cat1)
+        val c = controller(f)
+        assertEquals(listOf(cat1), c.categories())
     }
 
     @Test fun onOpenPrompt_forwardsIdToNavLambda() = runTest {

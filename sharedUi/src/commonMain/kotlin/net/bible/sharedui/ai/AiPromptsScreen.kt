@@ -62,9 +62,11 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptGroupVd
 import net.bible.sharedcore.ai.PromptVd
+import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTextInputDialog
@@ -105,9 +107,12 @@ import net.bible.sharedui.strings.Strings
  * **Per-row actions** live in a per-row overflow (3-dot `IconButton` + `DropdownMenu`, the same
  * pattern as `MyDocumentsScreen`'s `RowOverflow` — not [AbOverflowMenu], which is sized for the top
  * bar) rather than a long-press menu: it's discoverable without a hidden gesture and composes
- * cleanly with the row's own click (open) and the trailing favorite-star tap target. A prompt/
- * category with literally no available action (e.g. a read-only, non-built-in add-on prompt — no
- * hide, no move, no delete) omits the overflow button entirely rather than show an empty menu.
+ * cleanly with the row's own click (open) and the trailing favorite-star tap target. **F40:** Copy
+ * is available for every prompt (built-in/add-on/user, mirrors classic `showPromptContextMenu`), so
+ * every prompt row's overflow is now always shown (previously a read-only, non-built-in add-on
+ * prompt — no hide/move/delete — omitted the button entirely; Copy means there's always something).
+ * Move-to-category (opens an [net.bible.sharedui.components.AbListChoiceDialog] picker, mirrors
+ * classic `showMoveToCategoryDialog`) and reorder/delete stay gated to non-read-only (user) prompts.
  *
  * **String reuse (no new resource strings, per task brief):** the show/hide-hidden overflow toggle
  * reuses `R.string.ai_restore_hidden_prompts` ("Restore hidden prompts") as a *checkable* menu item
@@ -163,8 +168,19 @@ fun AiPromptsScreen(
     onExportCsv: () -> Unit,
     helpBody: String,
     helpReadMoreUrl: String,
+    // F40: all prompts can be copied; only non-read-only (user) prompts can be moved to another
+    // category (mirrors classic AiSettingsActivity.showPromptContextMenu/showMoveToCategoryDialog).
+    onCopyPrompt: (String) -> Unit = {},
+    onMovePromptToCategory: (String, String?) -> Unit = { _, _ -> },
+    categories: List<PromptCategoryVd> = emptyList(),
     initiallyHelpDialogOpen: Boolean = false,
     initiallyOverflowMenuOpen: Boolean = false,
+    // Test-only seam (goldens): forces the "Move to category…" picker open for a given prompt.
+    // NOTE: there is deliberately NO equivalent seam to force a PER-ROW PromptRowOverflow open — that
+    // was attempted and reproducibly hung the Robolectric/Roborazzi Compose capture (a Popup anchored
+    // to a LazyColumn item never converges in ShadowPausedLooper.idle(); confirmed via jstack on two
+    // separate target rows). See the kdoc note in AiPromptsGoldenTest for the full story.
+    initiallyMoveToCategoryPromptId: String? = null,
 ) {
     val strings = LocalStrings.current
 
@@ -172,6 +188,9 @@ fun AiPromptsScreen(
     var renameCategoryTarget by remember { mutableStateOf<PromptCategoryVd?>(null) }
     var deleteCategoryTarget by remember { mutableStateOf<PromptCategoryVd?>(null) }
     var deletePromptTarget by remember { mutableStateOf<PromptVd?>(null) }
+    var moveToCategoryTarget by remember {
+        mutableStateOf(groups.flatMap { it.prompts }.firstOrNull { it.id == initiallyMoveToCategoryPromptId })
+    }
     var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
 
     AbScaffold(
@@ -248,6 +267,8 @@ fun AiPromptsScreen(
                     onSetCategoryHidden = onSetCategoryHidden,
                     onMovePrompt = onMovePrompt,
                     onMoveCategory = onMoveCategory,
+                    onCopyPrompt = onCopyPrompt,
+                    onMoveToCategoryRequest = { moveToCategoryTarget = it },
                     onDeletePromptRequest = { deletePromptTarget = it },
                     onDeleteCategoryRequest = { deleteCategoryTarget = it },
                     onRenameCategoryRequest = { renameCategoryTarget = it },
@@ -315,6 +336,19 @@ fun AiPromptsScreen(
             onDismiss = { deletePromptTarget = null },
         )
     }
+    moveToCategoryTarget?.let { prompt ->
+        // Mirrors classic showMoveToCategoryDialog's picker: "(uncategorized)" first, then every
+        // category, single-choice, pre-selecting the prompt's current category.
+        val choices = listOf(SettingsItem.Choice(value = "", label = strings.categoryNoneLabel)) +
+            categories.map { SettingsItem.Choice(value = it.id, label = it.name) }
+        AbListChoiceDialog(
+            title = strings.moveToCategoryLabel,
+            choices = choices,
+            selectedValue = prompt.categoryId ?: "",
+            onSelect = { value -> onMovePromptToCategory(prompt.id, value.ifEmpty { null }) },
+            onDismiss = { moveToCategoryTarget = null },
+        )
+    }
     if (showHelp) {
         AbInfoDialog(
             title = strings.helpLabel,
@@ -368,6 +402,8 @@ private fun PromptGroupsList(
     onSetCategoryHidden: (String, Boolean) -> Unit,
     onMovePrompt: (String, Boolean) -> Unit,
     onMoveCategory: (String, Boolean) -> Unit,
+    onCopyPrompt: (String) -> Unit,
+    onMoveToCategoryRequest: (PromptVd) -> Unit,
     onDeletePromptRequest: (PromptVd) -> Unit,
     onDeleteCategoryRequest: (PromptCategoryVd) -> Unit,
     onRenameCategoryRequest: (PromptCategoryVd) -> Unit,
@@ -437,6 +473,8 @@ private fun PromptGroupsList(
                         onToggleFavorite = { onToggleFavorite(prompt.id) },
                         onSetHidden = { hidden -> onSetPromptHidden(prompt.id, hidden) },
                         onMove = { up -> onMovePrompt(prompt.id, up) },
+                        onCopy = { onCopyPrompt(prompt.id) },
+                        onMoveToCategoryRequest = { onMoveToCategoryRequest(prompt) },
                         onDeleteRequest = { onDeletePromptRequest(prompt) },
                     )
                 }
@@ -523,7 +561,10 @@ private fun PromptRow(
     onToggleFavorite: () -> Unit,
     onSetHidden: (Boolean) -> Unit,
     onMove: (Boolean) -> Unit,
+    onCopy: () -> Unit,
+    onMoveToCategoryRequest: () -> Unit,
     onDeleteRequest: () -> Unit,
+    initiallyOverflowOpen: Boolean = false,
 ) {
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         TwoLineListItem(
@@ -543,21 +584,20 @@ private fun PromptRow(
                 },
             )
         }
-        // Only a built-in prompt can be hidden/restored, and only a non-read-only one can be
-        // reordered/deleted — an add-on (read-only, non-built-in) prompt has no available action
-        // here, so the overflow affordance itself is omitted rather than showing an empty menu.
-        val hasAnyAction = prompt.isBuiltIn || !prompt.isReadOnly
-        if (hasAnyAction) {
-            PromptRowOverflow(
-                prompt = prompt,
-                canMoveUp = canMoveUp,
-                canMoveDown = canMoveDown,
-                strings = strings,
-                onSetHidden = onSetHidden,
-                onMove = onMove,
-                onDeleteRequest = onDeleteRequest,
-            )
-        }
+        // F40: Copy is available for EVERY prompt (built-in, add-on, user), so the overflow
+        // affordance is now always shown — there is no longer a "no available action" prompt.
+        PromptRowOverflow(
+            prompt = prompt,
+            canMoveUp = canMoveUp,
+            canMoveDown = canMoveDown,
+            strings = strings,
+            onSetHidden = onSetHidden,
+            onMove = onMove,
+            onCopy = onCopy,
+            onMoveToCategoryRequest = onMoveToCategoryRequest,
+            onDeleteRequest = onDeleteRequest,
+            initiallyExpanded = initiallyOverflowOpen,
+        )
     }
 }
 
@@ -569,9 +609,12 @@ private fun PromptRowOverflow(
     strings: Strings,
     onSetHidden: (Boolean) -> Unit,
     onMove: (Boolean) -> Unit,
+    onCopy: () -> Unit,
+    onMoveToCategoryRequest: () -> Unit,
     onDeleteRequest: () -> Unit,
+    initiallyExpanded: Boolean = false,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(initiallyExpanded) }
     Box {
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -581,6 +624,9 @@ private fun PromptRowOverflow(
                     onClick = { expanded = false; onSetHidden(!prompt.isHidden) },
                 )
             }
+            // F40: Copy mirrors classic showPromptContextMenu — available for ALL prompts
+            // (built-in/add-on/user), unlike the reorder/move-to-category/delete actions below.
+            DropdownMenuItem(text = { Text(strings.copyLabel) }, onClick = { expanded = false; onCopy() })
             if (!prompt.isReadOnly) {
                 if (canMoveUp) {
                     DropdownMenuItem(text = { Text(strings.moveUpLabel) }, onClick = { expanded = false; onMove(true) })
@@ -588,6 +634,10 @@ private fun PromptRowOverflow(
                 if (canMoveDown) {
                     DropdownMenuItem(text = { Text(strings.moveDownLabel) }, onClick = { expanded = false; onMove(false) })
                 }
+                DropdownMenuItem(
+                    text = { Text(strings.moveToCategoryLabel) },
+                    onClick = { expanded = false; onMoveToCategoryRequest() },
+                )
                 DropdownMenuItem(text = { Text(strings.deleteLabel) }, onClick = { expanded = false; onDeleteRequest() })
             }
         }

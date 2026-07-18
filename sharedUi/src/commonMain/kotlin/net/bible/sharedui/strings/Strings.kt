@@ -280,6 +280,7 @@ interface Strings {
     val hidePromptLabel: String                 // R.string.ai_hide_prompt
     val restoreLabel: String                    // R.string.restore (reused as the un-hide-prompt action)
     val deletePromptConfirmMessage: String      // R.string.delete_prompt_confirm_message
+    val moveToCategoryLabel: String              // R.string.move_to_category (overflow item + picker dialog title)
 
     // Batch 9c — PromptEditScreen (Task 6)
     val promptTabPrompt: String                  // R.string.prompt_tab_prompt

@@ -29,6 +29,10 @@ interface PromptService {
     // "keep prompts"); deletePrompts=true: cascade-delete the prompts too (classic "and prompts").
     fun deleteCategory(categoryId: String, deletePrompts: Boolean)
     fun movePrompt(promptId: String, up: Boolean)
+    // Moves a user (non-read-only) prompt to a different category; null = uncategorized bucket.
+    // Mirrors classic AiSettingsActivity.showMoveToCategoryDialog (prompt.categoryId = target;
+    // PromptRepository.updatePrompt(prompt)). No-op for a read-only (built-in/add-on) prompt.
+    fun movePromptToCategory(promptId: String, categoryId: String?)
     fun moveCategory(categoryId: String, up: Boolean)
     fun createCategory(name: String)
     fun renameCategory(categoryId: String, name: String)

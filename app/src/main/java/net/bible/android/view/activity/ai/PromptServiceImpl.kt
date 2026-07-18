@@ -226,6 +226,14 @@ class PromptServiceImpl : PromptService {
         refresh()
     }
 
+    override fun movePromptToCategory(promptId: String, categoryId: String?) {
+        val id = IdType(promptId)
+        if (PromptRepository.isReadOnly(id)) return
+        val prompt = PromptRepository.promptById(id) ?: return
+        PromptRepository.updatePrompt(prompt.copy(categoryId = categoryId?.let { IdType(it) }))
+        refresh()
+    }
+
     override fun moveCategory(categoryId: String, up: Boolean) {
         // Adjacency among all category groups in display order (classic categoryGroups); only a
         // non-built-in category is movable, but the swap partner may be built-in (a no-op DB update).

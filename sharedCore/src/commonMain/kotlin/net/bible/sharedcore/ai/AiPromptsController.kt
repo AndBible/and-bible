@@ -37,6 +37,12 @@ class AiPromptsController(
     fun onMoveCategory(categoryId: String, up: Boolean) = service.moveCategory(categoryId, up)
     fun onCreateCategory(name: String) = service.createCategory(name)
     fun onRenameCategory(categoryId: String, name: String) = service.renameCategory(categoryId, name)
+    fun onCopyPrompt(promptId: String) = service.copyPrompt(promptId)
+    fun onMovePromptToCategory(promptId: String, categoryId: String?) = service.movePromptToCategory(promptId, categoryId)
+
+    // Category list for the "Move to category…" picker (a plain snapshot, not a StateFlow — mirrors
+    // how PromptEditComposeActivity reads [PromptService.categories] via `remember { }`).
+    fun categories(): List<PromptCategoryVd> = service.categories()
 
     fun onOpenPrompt(id: String) = onOpenPrompt.invoke(id)
     fun onNewPrompt() = onNewPrompt.invoke()
