@@ -170,7 +170,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                 R.id.historyButton -> handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.History)
                 R.id.bookmarksButton -> handlerIntent = Intent(mainBibleActivity, Bookmarks::class.java)
                 R.id.studyPadsButton -> {
-                    val intent = Intent(mainBibleActivity, ManageLabels::class.java)
+                    val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ManageLabels)
                     intent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
                         .applyFrom(windowControl.windowRepository.workspaceSettings)
                         .toJSON())

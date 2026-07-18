@@ -41,6 +41,8 @@ import net.bible.android.view.activity.ai.ToolInfoActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
 import net.bible.android.view.activity.bookmark.LabelEditActivity
 import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
+import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
@@ -379,5 +381,13 @@ class ScreenLauncherTest {
         assertEquals(LabelEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.LabelEdit))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(LabelEditActivity::class.java, ScreenLauncher.targetFor(Screen.LabelEdit))
+    }
+
+    @Test
+    fun manageLabels_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(ManageLabelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ManageLabels))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(ManageLabels::class.java, ScreenLauncher.targetFor(Screen.ManageLabels))
     }
 }

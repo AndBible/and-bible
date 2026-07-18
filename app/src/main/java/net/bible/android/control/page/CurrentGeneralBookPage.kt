@@ -77,7 +77,7 @@ class CurrentGeneralBookPage internal constructor(
             val doc = currentDocument
             when {
                 doc == FakeBookFactory.journalDocument -> {
-                    val result = context.awaitIntent(Intent(context, ManageLabels::class.java)
+                    val result = context.awaitIntent(ScreenLauncher.intentFor(context, Screen.ManageLabels)
                         .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
                             .applyFrom(context.workspaceSettings)
                             .toJSON())
