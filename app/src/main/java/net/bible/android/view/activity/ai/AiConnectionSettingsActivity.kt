@@ -39,6 +39,8 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsActivityBinding
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.PreferenceStore
 import net.bible.service.common.CommonUtils
@@ -200,14 +202,14 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
 
     private fun setupProviderShortcut() {
         providersShortcutPref.setOnPreferenceClickListener {
-            startActivity(Intent(requireContext(), AiProvidersActivity::class.java))
+            startActivity(ScreenLauncher.intentFor(requireContext(), Screen.AiProviders))
             true
         }
     }
 
     private fun setupModelShortcut() {
         modelsShortcutPref.setOnPreferenceClickListener {
-            startActivity(Intent(requireContext(), AiModelsActivity::class.java))
+            startActivity(ScreenLauncher.intentFor(requireContext(), Screen.AiModels))
             true
         }
     }

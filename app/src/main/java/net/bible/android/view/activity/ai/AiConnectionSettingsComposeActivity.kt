@@ -42,6 +42,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -129,19 +131,37 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
     }
 
     // --- Navigation --------------------------------------------------------------------------
-    // 9a INTERIM: launch the classic activities directly. These launches get rewired through
-    // ScreenLauncher (Screen enum routes) in Batches 9b-9d; EASY_SETUP → the polished
-    // EasySetupDialogs wizard is ported in 9b (which rewires it away from AiProvidersActivity).
+    // Routed through ScreenLauncher (Screen enum) so PROVIDERS/MODELS honor the use_compose_ui
+    // flag from this Compose host too. EASY_SETUP opens the Compose AiProvidersComposeActivity's
+    // wizard (via EXTRA_START_EASY_SETUP) when the flag routes there; otherwise it falls back to
+    // the classic AiProvidersActivity's plain provider list (classic has no ported easy-setup
+    // wizard of its own — same interim fallback as 9a, just now flag-routed).
     private fun onNavigate(key: String) {
         when (key) {
-            AiConnectionNav.EASY_SETUP -> launch(AiProvidersActivity::class.java) // interim (see 9b)
-            AiConnectionNav.PROVIDERS -> launch(AiProvidersActivity::class.java)
-            AiConnectionNav.MODELS -> launch(AiModelsActivity::class.java)
+            AiConnectionNav.EASY_SETUP -> launchEasySetup()
+            AiConnectionNav.PROVIDERS -> startActivity(ScreenLauncher.intentFor(this, Screen.AiProviders))
+            AiConnectionNav.MODELS -> startActivity(ScreenLauncher.intentFor(this, Screen.AiModels))
             AiConnectionNav.TOOL_PERMISSIONS -> launch(GlobalToolPermissionsActivity::class.java)
             AiConnectionNav.DOCUMENTS -> launch(AiDocumentFilterActivity::class.java)
             AiConnectionNav.RAW_LOG_HISTORY -> launch(RawLogHistoryActivity::class.java)
             AiConnectionNav.RESET_USAGE -> showResetUsageConfirm()
         }
+    }
+
+    /**
+     * Opens the AI-providers screen for [AiConnectionNav.EASY_SETUP]. When [ScreenLauncher] routes
+     * [Screen.AiProviders] to the Compose host, adds [AiProvidersComposeActivity.EXTRA_START_EASY_SETUP]
+     * so it opens straight into the Compose easy-setup wizard; when it routes to the classic
+     * `AiProvidersActivity`, launches it plain (classic has no ported easy-setup wizard — same
+     * interim fallback as 9a, just flag-routed).
+     */
+    private fun launchEasySetup() {
+        val target = ScreenLauncher.targetFor(Screen.AiProviders)
+        val intent = Intent(this, target)
+        if (target == AiProvidersComposeActivity::class.java) {
+            intent.putExtra(AiProvidersComposeActivity.EXTRA_START_EASY_SETUP, true)
+        }
+        startActivity(intent)
     }
 
     private fun launch(cls: Class<*>) = startActivity(Intent(this, cls))

@@ -21,6 +21,10 @@ import android.content.Context
 import android.content.Intent
 import net.bible.android.view.activity.ai.AiConnectionSettingsActivity
 import net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity
+import net.bible.android.view.activity.ai.AiModelsActivity
+import net.bible.android.view.activity.ai.AiModelsComposeActivity
+import net.bible.android.view.activity.ai.AiProvidersActivity
+import net.bible.android.view.activity.ai.AiProvidersComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.discrete.CalculatorActivity
@@ -69,7 +73,7 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivi
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -157,6 +161,12 @@ object ScreenLauncher {
         Screen.AiConnectionSettings ->
             if (useComposeFor(screen)) AiConnectionSettingsComposeActivity::class.java
             else AiConnectionSettingsActivity::class.java
+        Screen.AiProviders ->
+            if (useComposeFor(screen)) AiProvidersComposeActivity::class.java
+            else AiProvidersActivity::class.java
+        Screen.AiModels ->
+            if (useComposeFor(screen)) AiModelsComposeActivity::class.java
+            else AiModelsActivity::class.java
     }
 
     /**

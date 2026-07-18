@@ -21,6 +21,10 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.ai.AiConnectionSettingsActivity
 import net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity
+import net.bible.android.view.activity.ai.AiModelsActivity
+import net.bible.android.view.activity.ai.AiModelsComposeActivity
+import net.bible.android.view.activity.ai.AiProvidersActivity
+import net.bible.android.view.activity.ai.AiProvidersComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
@@ -279,5 +283,21 @@ class ScreenLauncherTest {
         assertEquals(AiConnectionSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiConnectionSettings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(AiConnectionSettingsActivity::class.java, ScreenLauncher.targetFor(Screen.AiConnectionSettings))
+    }
+
+    @Test
+    fun aiProviders_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(AiProvidersComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiProviders))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(AiProvidersActivity::class.java, ScreenLauncher.targetFor(Screen.AiProviders))
+    }
+
+    @Test
+    fun aiModels_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(AiModelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiModels))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(AiModelsActivity::class.java, ScreenLauncher.targetFor(Screen.AiModels))
     }
 }
