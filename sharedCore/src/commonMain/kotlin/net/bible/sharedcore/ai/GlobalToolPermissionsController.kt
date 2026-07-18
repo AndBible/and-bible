@@ -15,13 +15,11 @@ import kotlinx.coroutines.flow.asStateFlow
  * locally-edited working map seeded from [ToolPermissionService.permissionFor] for every tool in
  * the catalog.
  *
- * Classic save-on-apply: [setPermission] only edits the working map — nothing reaches the service
- * until [save]. [resetAll] is the one exception: unlike [AiDocumentFilterController] (whose
- * backing service has no reset action), [ToolPermissionService] exposes a dedicated
- * [ToolPermissionService.resetAll], mirroring classic's immediate "Reset to defaults" action. So
- * [resetAll] here calls it straight away (which persists), then reseeds [permissions] from the
- * (now-reset) service state and re-baselines dirty tracking, since the working map is back in
- * sync with what's persisted.
+ * Classic save-on-apply: [setPermission] and [resetAll] only edit the working map — nothing
+ * reaches the service until [save]. This mirrors classic's `GlobalToolPermissionsActivity`
+ * reset-all (+ `ToolPermissionListBuilder.resetAll`), which only flips the UI to defaults; nothing
+ * persists until the user presses Save. Same staged-editing shape as
+ * [AiDocumentFilterController.resetAll].
  */
 class GlobalToolPermissionsController(
     private val service: ToolPermissionService,
@@ -48,12 +46,19 @@ class GlobalToolPermissionsController(
         publish(_permissions.value + (toolId to permission))
     }
 
-    /** Immediately persists the neutral defaults via the service, then re-baselines. */
+    /**
+     * Resets the working map to neutral defaults (write tools → [ToolPermission.ASK], read tools
+     * → [ToolPermission.ENABLED]) — a purely local edit, like [setPermission]. Nothing is
+     * persisted until [save]; [isDirty] is computed normally against the loaded baseline, so
+     * resetting a customized baseline shows dirty until Save.
+     */
     fun resetAll() {
-        service.resetAll()
-        initial = seedPermissions()
-        _permissions.value = initial
-        _isDirty.value = false
+        publish(allToolIds.associateWith { toolId -> defaultPermissionFor(toolId) })
+    }
+
+    private fun defaultPermissionFor(toolId: String): ToolPermission {
+        val requiresPermission = categories.flatMap { (_, tools) -> tools }.first { it.id == toolId }.requiresPermission
+        return if (requiresPermission) ToolPermission.ASK else ToolPermission.ENABLED
     }
 
     /** Persists the working map (classic "Save" button), then re-baselines dirty tracking. */

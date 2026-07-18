@@ -32,7 +32,4 @@ interface ToolPermissionService {
      * absent from the map) means neither set — the neutral/default state.
      */
     fun save(permissions: Map<String, ToolPermission>)
-
-    /** Reset every tool to its neutral default ([ToolPermission.ASK]/[ToolPermission.ENABLED]). */
-    fun resetAll()
 }

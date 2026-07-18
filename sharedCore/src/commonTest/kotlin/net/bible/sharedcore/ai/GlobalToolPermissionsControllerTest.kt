@@ -24,7 +24,6 @@ class GlobalToolPermissionsControllerTest {
         val overrides: MutableMap<String, ToolPermission> = seed.toMutableMap()
         var lastSave: Map<String, ToolPermission>? = null
         var saveCount = 0
-        var resetCount = 0
 
         override fun toolsByCategory() = catalog
 
@@ -36,11 +35,6 @@ class GlobalToolPermissionsControllerTest {
             saveCount++
             overrides.clear()
             overrides.putAll(permissions)
-        }
-
-        override fun resetAll() {
-            resetCount++
-            overrides.clear()
         }
 
         private fun defaultFor(toolId: String): ToolPermission {
@@ -107,22 +101,35 @@ class GlobalToolPermissionsControllerTest {
         assertFalse(c.isDirty.value)
     }
 
-    @Test fun resetAll_callsServiceResetAndReseedsWorkingMapToDefaults() = runTest {
-        val f = Fake(catalog)
+    @Test fun resetAll_setsWorkingMapToDefaultsLocallyWithoutTouchingService() = runTest {
+        val f = Fake(catalog, seed = mapOf("addBookmark" to ToolPermission.DENY, "getVerse" to ToolPermission.DISABLED))
         val c = controller(f)
-        c.setPermission("addBookmark", ToolPermission.DENY)
-        c.setPermission("getVerse", ToolPermission.DISABLED)
-        assertTrue(c.isDirty.value)
+        assertFalse(c.isDirty.value)
 
         c.resetAll()
 
-        assertEquals(1, f.resetCount)
         assertEquals(
             mapOf("getVerse" to ToolPermission.ENABLED, "addBookmark" to ToolPermission.ASK),
             c.permissions.value,
         )
-        assertFalse(c.isDirty.value)
-        // resetAll is an immediate service action, not staged behind save()
+        // baseline had non-defaults, so resetting to defaults differs from it
+        assertTrue(c.isDirty.value)
+        // resetAll is purely local — not staged behind save()
         assertEquals(0, f.saveCount)
+    }
+
+    @Test fun resetAll_thenSave_persistsTheDefaults() = runTest {
+        val f = Fake(catalog, seed = mapOf("addBookmark" to ToolPermission.DENY, "getVerse" to ToolPermission.DISABLED))
+        val c = controller(f)
+
+        c.resetAll()
+        c.save()
+
+        assertEquals(
+            mapOf("getVerse" to ToolPermission.ENABLED, "addBookmark" to ToolPermission.ASK),
+            f.lastSave,
+        )
+        assertEquals(1, f.saveCount)
+        assertFalse(c.isDirty.value)
     }
 }
