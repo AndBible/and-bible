@@ -90,11 +90,18 @@ class BookmarksServiceImpl(
         // Classic's BookmarkItemAdapter.getView lazily resolves text the first time a row is bound.
         if (bm.text == null) bookmarkControl.addText(bm)
 
+        // Mirrors BookmarkItemAdapter: isSpeak from the raw label list, THEN default an empty list
+        // to [Unlabeled] for the chip colours (labelUnlabelled is never the speak label). Computed
+        // first so the title branch below can reuse `isSpeak` instead of re-querying
+        // `isSpeakBookmark` (which just re-runs `labelsForBookmark`).
+        val labels = bookmarkControl.labelsForBookmark(bm)
+        val isSpeak = labels.contains(bookmarkControl.speakLabel)
+
         val title = when (bm) {
             is BibleBookmarkWithNotes -> {
                 val verseName = bm.verseRange.toV11n(versification).name
                 val speakBook = bm.speakBook
-                if (bookmarkControl.isSpeakBookmark(bm) && speakBook != null) {
+                if (isSpeak && speakBook != null) {
                     CommonUtils.getResourceString(R.string.something_with_parenthesis, verseName, speakBook.abbreviation)
                 } else verseName
             }
@@ -102,10 +109,6 @@ class BookmarksServiceImpl(
             else -> ""
         }
 
-        // Mirrors BookmarkItemAdapter: isSpeak from the raw label list, THEN default an empty list
-        // to [Unlabeled] for the chip colours (labelUnlabelled is never the speak label).
-        val labels = bookmarkControl.labelsForBookmark(bm)
-        val isSpeak = labels.contains(bookmarkControl.speakLabel)
         val chipLabels = labels.ifEmpty { listOf(bookmarkControl.labelUnlabelled) }
         val labelColors = chipLabels.filterNot { it.isSpeakLabel }.map { it.color }
 

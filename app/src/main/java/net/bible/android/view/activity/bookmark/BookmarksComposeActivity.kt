@@ -31,6 +31,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
@@ -39,6 +41,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.bookmark.BookmarksController
 import net.bible.sharedui.ProvideAppLocals
@@ -93,6 +96,10 @@ class BookmarksComposeActivity : ActivityBase() {
         super.onCreate(savedInstanceState)
         CommonUtils.settings.setLong("bookmarks-last-used", System.currentTimeMillis())
 
+        // mirrors classic Bookmarks.onCreate (Bookmarks.kt:113-117): refresh the list when a
+        // device sync completes while Bookmarks is open, instead of leaving it stale.
+        ABEventBus.register(this) { onMain<BookmarksUpdatedViaSyncEvent> { controller.refresh() } }
+
         setContent {
             ProvideAppLocals {
                 AbTheme(
@@ -137,6 +144,11 @@ class BookmarksComposeActivity : ActivityBase() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        ABEventBus.unregister(this)
+        super.onDestroy()
     }
 
     // --- select (mirrors classic Bookmarks.bookmarkSelected, Bookmarks.kt:295-323) ---
