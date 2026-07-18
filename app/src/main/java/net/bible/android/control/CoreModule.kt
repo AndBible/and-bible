@@ -29,12 +29,14 @@ import net.bible.android.view.activity.ai.DocumentFilterServiceImpl
 import net.bible.android.view.activity.ai.LlmModelServiceImpl
 import net.bible.android.view.activity.ai.LlmProviderServiceImpl
 import net.bible.android.view.activity.ai.PromptServiceImpl
+import net.bible.android.view.activity.ai.RawLogServiceImpl
 import net.bible.android.view.activity.ai.ToolPermissionServiceImpl
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.DocumentFilterService
 import net.bible.sharedcore.ai.LlmModelService
 import net.bible.sharedcore.ai.LlmProviderService
 import net.bible.sharedcore.ai.PromptService
+import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.android.view.activity.workspaces.WorkspaceServiceImpl
 import net.bible.sharedcore.workspaces.WorkspaceService
@@ -91,6 +93,7 @@ val coreModule = module {
     singleOf(::LlmModelServiceImpl) { bind<LlmModelService>() }
     singleOf(::PromptServiceImpl) { bind<PromptService>() }
     singleOf(::ToolPermissionServiceImpl) { bind<ToolPermissionService>() }
+    singleOf(::RawLogServiceImpl) { bind<RawLogService>() }
     singleOf(::DocumentFilterServiceImpl) { bind<DocumentFilterService>() }
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws

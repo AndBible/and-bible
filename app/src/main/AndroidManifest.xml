@@ -335,6 +335,20 @@
             android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.ai.RawLlmLogComposeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/raw_llm_log_title"
+            android:theme="@style/Theme.AbCompose"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.ai.RawLogHistoryComposeActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/raw_log_history_title"
+            android:theme="@style/Theme.AbCompose"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.cloud.CloudDocumentsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/document_sync_manage_title"
