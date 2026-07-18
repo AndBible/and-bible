@@ -319,6 +319,11 @@ interface Strings {
     val copyToCustomizeLabel: String              // R.string.copy_to_customize (overflow item)
     val viewToolsMenuLabel: String                // R.string.ai_available_tools (overflow item, host navigates)
     val discardChangesConfirmation: String        // R.string.discard_changes_confirmation
+
+    // Batch 9d — GlobalToolPermissionsScreen + ToolInfoScreen
+    val globalToolPermissionsTitle: String        // R.string.global_tool_permissions_title
+    val aiReadToolsLabel: String                  // R.string.ai_read_tools (ToolInfoScreen section heading)
+    val aiWriteToolsLabel: String                 // R.string.ai_write_tools (ToolInfoScreen section heading)
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

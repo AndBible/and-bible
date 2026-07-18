@@ -311,4 +311,9 @@ class AndroidStrings(private val context: Context) : Strings {
     override val copyToCustomizeLabel: String get() = context.getString(R.string.copy_to_customize)
     override val viewToolsMenuLabel: String get() = context.getString(R.string.ai_available_tools)
     override val discardChangesConfirmation: String get() = context.getString(R.string.discard_changes_confirmation)
+
+    // Batch 9d — GlobalToolPermissionsScreen + ToolInfoScreen
+    override val globalToolPermissionsTitle: String get() = context.getString(R.string.global_tool_permissions_title)
+    override val aiReadToolsLabel: String get() = context.getString(R.string.ai_read_tools)
+    override val aiWriteToolsLabel: String get() = context.getString(R.string.ai_write_tools)
 }
