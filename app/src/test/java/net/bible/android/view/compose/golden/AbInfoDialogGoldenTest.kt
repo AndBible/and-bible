@@ -39,4 +39,15 @@ class AbInfoDialogGoldenTest {
         captureMatrix("AbInfoDialog", "short") {
             AbInfoDialog(title = "About", body = shortBody, onDismiss = {}, confirmLabel = "Close")
         }
+
+    @Test fun withReadMore_matrix() =
+        captureMatrix("AbInfoDialog", "readmore") {
+            AbInfoDialog(
+                title = "Help",
+                body = shortBody,
+                onDismiss = {},
+                readMoreLabel = "Read more",
+                readMoreUrl = "https://example.com/help",
+            )
+        }
 }

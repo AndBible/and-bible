@@ -17,14 +17,21 @@
 
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.strings.LocalStrings
 
@@ -34,6 +41,12 @@ import net.bible.sharedui.strings.LocalStrings
  * may be long — the body is capped at [maxBodyHeight] and scrolls internally instead of growing the
  * dialog past the screen. Any HTML in the source text must be flattened to plain text by the caller
  * before it reaches [body]; this composable renders it verbatim (newlines preserved).
+ *
+ * When both [readMoreLabel] and [readMoreUrl] are non-null, an underlined, theme-tinted "read more"
+ * link is rendered below the (still height-bounded/scrollable) body; tapping it opens [readMoreUrl]
+ * via [LocalUriHandler] (Compose Multiplatform's built-in, iOS-clean URL opener — see
+ * `AiProvidersScreen`/`EasySetupWizard` for prior usage). Underlining (not just a tinted color) keeps
+ * the affordance legible in monochrome/e-ink theme modes.
  */
 @Composable
 fun AbInfoDialog(
@@ -41,17 +54,31 @@ fun AbInfoDialog(
     body: String,
     onDismiss: () -> Unit,
     confirmLabel: String = LocalStrings.current.okay,
+    readMoreLabel: String? = null,
+    readMoreUrl: String? = null,
 ) {
+    val uriHandler = LocalUriHandler.current
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            Text(
-                text = body,
-                modifier = Modifier
-                    .heightIn(max = maxBodyHeight)
-                    .verticalScroll(rememberScrollState()),
-            )
+            Column {
+                Text(
+                    text = body,
+                    modifier = Modifier
+                        .heightIn(max = maxBodyHeight)
+                        .verticalScroll(rememberScrollState()),
+                )
+                if (readMoreLabel != null && readMoreUrl != null) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = readMoreLabel,
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier.clickable { uriHandler.openUri(readMoreUrl) },
+                    )
+                }
+            }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(confirmLabel) } },
     )
