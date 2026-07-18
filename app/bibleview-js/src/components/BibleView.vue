@@ -22,7 +22,7 @@
       :style="topStyle"
       :dir="direction"
   >
-    <div class="background" :style="backgroundStyle"/>
+    <div class="background"/>
     <div v-if="backgroundImageStyle" class="background-image" :style="backgroundImageStyle"/>
     <div :style="`height:${calculatedConfig.topOffset}px`"/>
     <div :style="modalStyle" id="modals"/>
@@ -325,17 +325,6 @@ provide(memorizationKey, memorization);
 
 const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection> | null>(null);
 
-const backgroundStyle = computed(() => {
-    const nightColor = appSettings.monochromeMode ? black : config.colors.nightBackground;
-    const dayColor = appSettings.monochromeMode? white : config.colors.dayBackground;
-    const colorInt = appSettings.nightMode ? nightColor : dayColor;
-    if (colorInt === null) return "";
-    const backgroundColor = Color(colorInt).hsl().string();
-    return `
-            background-color: ${backgroundColor};
-        `;
-});
-
 const backgroundImageStyle = computed(() => {
     const layer = backgroundImageLayer(config.colors, {
         nightMode: appSettings.nightMode,
@@ -506,7 +495,7 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 }
 
 .background {
-  z-index: -3;
+  z-index: -2;
   position: fixed;
   left: 0;
   top: 0;
@@ -517,7 +506,7 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 }
 
 .background-image {
-  z-index: -2;
+  z-index: -3;
   position: fixed;
   left: 0;
   top: 0;
