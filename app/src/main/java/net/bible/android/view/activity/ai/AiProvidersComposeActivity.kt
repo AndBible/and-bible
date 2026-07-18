@@ -98,6 +98,20 @@ class AiProvidersComposeActivity : ActivityBase() {
      */
     private var swallowNextEasySetupDismiss = false
 
+    /**
+     * Swallows the single synchronous `onDismiss` that the PICK_TYPE-step `AbListChoiceDialog`
+     * fires right after `onSelect` when a provider type is picked (its own
+     * `onClick = { onSelect(...); onDismiss() }`). Set in [onPickType]'s wiring below, cleared by
+     * the paired synchronous `onDismiss`, so that spurious dismiss is a no-op (it would otherwise
+     * close the whole add-provider dialog, undoing the PICK_TYPE → FORM transition `onPickType`
+     * just made via [AiProvidersController.pickType]) while a genuine dismiss — a PICK_TYPE-step
+     * cancel/outside-tap (no pick), or a FORM-step cancel — still calls
+     * [AiProvidersController.dismissDialog]. Same class of fix as [swallowNextEasySetupDismiss] and
+     * `AiModelsComposeActivity`'s `swallowNextDismiss` (Task 9); a pure `step == PICK_TYPE` guard
+     * cannot work for the same reason documented there.
+     */
+    private var swallowNextPickTypeDismiss = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (intent?.getBooleanExtra(EXTRA_START_EASY_SETUP, false) == true) {
@@ -124,12 +138,21 @@ class AiProvidersComposeActivity : ActivityBase() {
                         editState = dialog,
                         onUp = { finish() },
                         onAdd = { ensureDisclaimerAccepted { controller.startAdd() } },
-                        onPickType = controller::pickType,
+                        onPickType = { typeId ->
+                            swallowNextPickTypeDismiss = true
+                            controller.pickType(typeId)
+                        },
                         onStartEdit = controller::startEdit,
                         onField = controller::updateField,
                         onSave = controller::save,
                         onDelete = controller::delete,
-                        onDismiss = controller::dismissDialog,
+                        onDismiss = {
+                            if (swallowNextPickTypeDismiss) {
+                                swallowNextPickTypeDismiss = false
+                            } else {
+                                controller.dismissDialog()
+                            }
+                        },
                         actions = { HelpAction() },
                     )
 
