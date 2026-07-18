@@ -283,4 +283,39 @@ class ManageLabelsControllerTest {
         val c = controller(mode = ManageLabelsMode.STUDYPAD, labels = listOf(A, B))
         assertEquals(SearchMode.NAME_START, c.searchMode.value)
     }
+
+    @Test fun name_filter_bypass_is_a_no_op_in_WORKSPACE_mode() {
+        // Classic ManageLabels.kt:847-850 labelMatches uses the RAW data.selectedLabels field, never
+        // the mode-aware getter -- and WORKSPACE-mode ManageLabelsData never populates selectedLabels
+        // (only autoAssignLabels). So a label that's auto-assigned (but not in the raw `selected` set)
+        // must NOT bypass the name filter in WORKSPACE mode, even though WORKSPACE's contextSelected()
+        // resolves to `autoAssign`. This locks in classic parity against the contextSelected()-bypass bug.
+        val c = controller(mode = ManageLabelsMode.WORKSPACE, labels = listOf(A, B), initialAutoAssign = setOf("B"))
+
+        c.setSearch("zzz") // matches neither "Apple" nor "Banana"
+        assertFalse(describe(c.rows.value).contains("B")) // NOT bypassed: autoAssign membership alone doesn't count
+    }
+
+    @Test fun name_filter_already_selected_label_bypasses_a_non_matching_search_ASSIGN() {
+        // Contrast with the WORKSPACE case above: in ASSIGN mode contextSelected() == selected, so a
+        // raw-selected label with a non-matching name IS bypassed (the classic behaviour this whole
+        // bypass exists for).
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = listOf(A, B), initialSelected = setOf("B"))
+
+        c.setSearch("zzz") // matches neither "Apple" nor "Banana"
+        assertTrue(describe(c.rows.value).contains("B")) // "B" survives via the raw selected bypass
+    }
+
+    @Test fun name_filter_CONTENT_falls_back_to_NAME_CONTAINS() {
+        // CONTENT's name-branch is unused once content search (Task 2) is active; as a name-filter
+        // fallback (e.g. before content search results are available) it behaves like NAME_CONTAINS.
+        val antelope = label("ANT", "Antelope")
+        val banana = label("BAN", "Banana")
+        val cantaloupe = label("CAN", "Cantaloupe")
+        val c = controller(mode = ManageLabelsMode.STUDYPAD, labels = listOf(antelope, banana, cantaloupe))
+
+        c.setSearchMode(SearchMode.CONTENT)
+        c.setSearch("an")
+        assertEquals(listOf("ANT", "BAN", "CAN"), describe(c.rows.value))
+    }
 }

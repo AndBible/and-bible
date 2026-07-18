@@ -74,10 +74,13 @@ class ManageLabelsController(
         if (bookmarkPrimary == id || bookmarkPrimary == null) bookmarkPrimary = selected.toList().firstOrNull()
     }
 
-    // Classic already-selected bypass (ManageLabels.kt:847-850 labelMatches): a label already in the
-    // context-selected set is always shown, regardless of whether its name matches the search text.
+    // Classic already-selected bypass (ManageLabels.kt:847-850 labelMatches): uses the RAW
+    // `data.selectedLabels` field, not the mode-aware getter — WORKSPACE-mode ManageLabelsData never
+    // populates selectedLabels (only autoAssignLabels, via applyFrom), so this bypass is a no-op in
+    // WORKSPACE mode. Mirror that with the raw `selected` field here, NOT contextSelected() (which
+    // would wrongly resolve to `autoAssign` in WORKSPACE and bypass auto-assigned labels).
     private fun nameMatches(id: String, name: String): Boolean {
-        if (contextSelected().contains(id)) return true
+        if (selected.contains(id)) return true
         val t = _searchText.value
         if (t.isBlank()) return true
         return when (_searchMode.value) {
