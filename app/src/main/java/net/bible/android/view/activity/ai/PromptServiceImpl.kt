@@ -90,6 +90,9 @@ class PromptServiceImpl : PromptService {
     private val _groups = MutableStateFlow(buildGroups())
     override val groups: StateFlow<List<PromptGroupVd>> = _groups.asStateFlow()
 
+    private val _hasHiddenPrompts = MutableStateFlow(computeHasHiddenPrompts())
+    override val hasHiddenPrompts: StateFlow<Boolean> = _hasHiddenPrompts.asStateFlow()
+
     init {
         ABEventBus.register(this) {
             onMain<AppSettingsUpdated> { refresh() }
@@ -148,6 +151,11 @@ class PromptServiceImpl : PromptService {
     /** A built-in prompt hidden via `hiddenBuiltInPrompts`; user/add-on prompts are never hidden this way. */
     private fun isPromptHidden(p: AgentPrompt, hiddenPromptIds: Set<IdType>): Boolean =
         PromptRepository.isBuiltIn(p.id) && p.id in hiddenPromptIds
+
+    /** Mirrors classic `AiSettingsActivity.onPrepareOptionsMenu`'s `restore_hidden_prompts` visibility
+     *  gate exactly: only the raw hidden-*prompt*-id set counts (hidden *categories* are deliberately
+     *  NOT part of this classic condition). */
+    private fun computeHasHiddenPrompts(): Boolean = settings.hiddenBuiltInPrompts.isNotEmpty()
 
     private fun toCategoryVd(cat: PromptCategory, hidden: Boolean = PromptRepository.isCategoryHidden(cat)) =
         PromptCategoryVd(
@@ -252,6 +260,7 @@ class PromptServiceImpl : PromptService {
     override fun refresh() {
         _configured.value = CommonUtils.settings.llmConfigured
         _groups.value = buildGroups()
+        _hasHiddenPrompts.value = computeHasHiddenPrompts()
     }
 
     // --- PromptEdit support -----------------------------------------------------------------------

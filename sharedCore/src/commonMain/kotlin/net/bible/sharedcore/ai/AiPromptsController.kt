@@ -24,6 +24,7 @@ class AiPromptsController(
     val configured: StateFlow<Boolean> = service.configured
     val groups: StateFlow<List<PromptGroupVd>> = service.groups
     val showHidden: StateFlow<Boolean> = service.showHidden
+    val hasHiddenPrompts: StateFlow<Boolean> = service.hasHiddenPrompts
 
     fun onSetShowHidden(v: Boolean) = service.setShowHidden(v)
 

@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -116,12 +117,34 @@ import net.bible.sharedui.strings.Strings
  * the closest-meaning existing string is repurposed. The un-hide action on an individual hidden
  * built-in prompt reuses the generic `R.string.restore` ("Restore"). A future strings-only pass could
  * add a precise "Show hidden" string; noted as a follow-up, not blocking here.
+ *
+ * **F38 fix — toggle gating + label alignment.** [hasHiddenPrompts] gates the toggle item's very
+ * presence (mirrors classic `AiSettingsActivity.onPrepareOptionsMenu`'s
+ * `restore_hidden_prompts.isVisible = hiddenBuiltInPrompts.isNotEmpty()`; the controller derives it
+ * from [net.bible.sharedcore.ai.AiPromptsController.hasHiddenPrompts], independent of [showHidden]
+ * since [groups] itself only filters hidden items in/out — it can't tell you whether any exist once
+ * they're filtered out). Putting the [Checkbox] in `leadingIcon` alone does NOT align its label with
+ * the other items: Material3's `DropdownMenuItem` only reserves the icon-box + spacing inset when
+ * `leadingIcon` is non-null, so a lone leading-icon item's text starts further right than sibling
+ * plain-text items. To make every item's label start at the SAME x, every item in this overflow
+ * (not just the toggle) reserves an equal-width `leadingIcon` slot ([OVERFLOW_LEADING_SLOT], sized to
+ * [Checkbox]'s own default touch-target width) — an invisible [Spacer] for the plain items, the real
+ * [Checkbox] for the toggle.
  */
+/**
+ * Leading-icon slot width shared by every item in the AiPrompts overflow menu (see the F38 kdoc
+ * note above) — matches Material3 [Checkbox]'s own default minimum touch-target size, so the real
+ * [Checkbox] and the plain items' invisible [Spacer]s measure to the same width and every label
+ * starts at the same x.
+ */
+private val OVERFLOW_LEADING_SLOT = 48.dp
+
 @Composable
 fun AiPromptsScreen(
     configured: Boolean,
     groups: List<PromptGroupVd>,
     showHidden: Boolean,
+    hasHiddenPrompts: Boolean,
     onUp: () -> Unit,
     onOpenPrompt: (String) -> Unit,
     onNewPrompt: () -> Unit,
@@ -141,6 +164,7 @@ fun AiPromptsScreen(
     helpBody: String,
     helpReadMoreUrl: String,
     initiallyHelpDialogOpen: Boolean = false,
+    initiallyOverflowMenuOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
 
@@ -156,25 +180,44 @@ fun AiPromptsScreen(
         actions = {
             if (configured) {
                 AbActionIcon(Icons.Filled.Add, contentDescription = strings.newPrompt, onClick = onNewPrompt)
-                AbOverflowMenu(contentDescription = null) { close ->
+                AbOverflowMenu(contentDescription = null, initiallyExpanded = initiallyOverflowMenuOpen) { close ->
+                    // Every item reserves the SAME leadingIcon slot width (an invisible spacer for
+                    // the plain items, the real Checkbox for the toggle below) so all labels start
+                    // at the same x — see the F38 kdoc note above.
                     DropdownMenuItem(
                         text = { Text(strings.newCategory) },
                         onClick = { close(); showNewCategoryDialog = true },
+                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
                     )
-                    DropdownMenuItem(
-                        text = { Text(strings.restoreHiddenPromptsLabel) },
-                        onClick = { close(); onSetShowHidden(!showHidden) },
-                        leadingIcon = {
-                            Checkbox(checked = showHidden, onCheckedChange = { close(); onSetShowHidden(it) })
-                        },
-                    )
+                    if (hasHiddenPrompts) {
+                        DropdownMenuItem(
+                            text = { Text(strings.restoreHiddenPromptsLabel) },
+                            onClick = { close(); onSetShowHidden(!showHidden) },
+                            leadingIcon = {
+                                Checkbox(checked = showHidden, onCheckedChange = { close(); onSetShowHidden(it) })
+                            },
+                        )
+                    }
                     DropdownMenuItem(
                         text = { Text(strings.connectionSettingsMenuLabel) },
                         onClick = { close(); onOpenConnectionSettings() },
+                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
                     )
-                    DropdownMenuItem(text = { Text(strings.exportPromptsCsv) }, onClick = { close(); onExportCsv() })
-                    DropdownMenuItem(text = { Text(strings.importPromptsCsv) }, onClick = { close(); onImportCsv() })
-                    DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); showHelp = true })
+                    DropdownMenuItem(
+                        text = { Text(strings.exportPromptsCsv) },
+                        onClick = { close(); onExportCsv() },
+                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(strings.importPromptsCsv) },
+                        onClick = { close(); onImportCsv() },
+                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(strings.helpLabel) },
+                        onClick = { close(); showHelp = true },
+                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
+                    )
                 }
             }
         },

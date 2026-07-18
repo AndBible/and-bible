@@ -26,6 +26,7 @@ class AiPromptsControllerTest {
         configuredInitial: Boolean = true,
         groupsInitial: List<PromptGroupVd> = emptyList(),
         showHiddenInitial: Boolean = false,
+        hasHiddenPromptsInitial: Boolean = false,
     ) : PromptService {
         val configuredFlow = MutableStateFlow(configuredInitial)
         override val configured: StateFlow<Boolean> = configuredFlow
@@ -33,6 +34,8 @@ class AiPromptsControllerTest {
         override val groups: StateFlow<List<PromptGroupVd>> = groupsFlow
         val showHiddenFlow = MutableStateFlow(showHiddenInitial)
         override val showHidden: StateFlow<Boolean> = showHiddenFlow
+        val hasHiddenPromptsFlow = MutableStateFlow(hasHiddenPromptsInitial)
+        override val hasHiddenPrompts: StateFlow<Boolean> = hasHiddenPromptsFlow
 
         var lastShowHidden: Boolean? = null
         var lastToggleFavoriteId: String? = null
@@ -112,6 +115,26 @@ class AiPromptsControllerTest {
         assertFalse(c.showHidden.value)
         f.showHiddenFlow.value = true
         assertTrue(c.showHidden.value)
+    }
+
+    @Test fun hasHiddenPrompts_falseWhenNoHiddenPromptExists() = runTest {
+        val f = Fake(hasHiddenPromptsInitial = false)
+        val c = controller(f)
+        assertFalse(c.hasHiddenPrompts.value)
+    }
+
+    @Test fun hasHiddenPrompts_trueWhenAtLeastOneHiddenPromptExists() = runTest {
+        val f = Fake(hasHiddenPromptsInitial = true)
+        val c = controller(f)
+        assertTrue(c.hasHiddenPrompts.value)
+    }
+
+    @Test fun hasHiddenPrompts_reflectsServiceFlow() = runTest {
+        val f = Fake(hasHiddenPromptsInitial = false)
+        val c = controller(f)
+        assertFalse(c.hasHiddenPrompts.value)
+        f.hasHiddenPromptsFlow.value = true
+        assertTrue(c.hasHiddenPrompts.value)
     }
 
     @Test fun onSetShowHidden_routesToService() = runTest {

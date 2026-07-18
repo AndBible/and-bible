@@ -108,11 +108,13 @@ class AiPromptsComposeActivity : ActivityBase() {
                     val configured by controller.configured.collectAsState()
                     val groups by controller.groups.collectAsState()
                     val showHidden by controller.showHidden.collectAsState()
+                    val hasHiddenPrompts by controller.hasHiddenPrompts.collectAsState()
 
                     AiPromptsScreen(
                         configured = configured,
                         groups = groups,
                         showHidden = showHidden,
+                        hasHiddenPrompts = hasHiddenPrompts,
                         onUp = { finish() },
                         onOpenPrompt = controller::onOpenPrompt,
                         onNewPrompt = controller::onNewPrompt,

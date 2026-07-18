@@ -20,13 +20,16 @@ class AiPromptsGoldenTest {
         configured: Boolean,
         groups: List<PromptGroupVd> = emptyList(),
         showHidden: Boolean = false,
+        hasHiddenPrompts: Boolean = false,
         initiallyHelpDialogOpen: Boolean = false,
+        initiallyOverflowMenuOpen: Boolean = false,
     ) =
         @androidx.compose.runtime.Composable {
             AiPromptsScreen(
                 configured = configured,
                 groups = groups,
                 showHidden = showHidden,
+                hasHiddenPrompts = hasHiddenPrompts,
                 onUp = {},
                 onOpenPrompt = {},
                 onNewPrompt = {},
@@ -46,6 +49,7 @@ class AiPromptsGoldenTest {
                 helpBody = "AI Settings is where you manage your prompts and categories.",
                 helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                 initiallyHelpDialogOpen = initiallyHelpDialogOpen,
+                initiallyOverflowMenuOpen = initiallyOverflowMenuOpen,
             )
         }
 
@@ -96,19 +100,34 @@ class AiPromptsGoldenTest {
         ),
     )
 
+    /** Same shape as [configuredGroups] but with no hidden built-in prompt — for the F38
+     *  no-hidden-prompts overflow case (toggle omitted). */
+    private fun configuredGroupsNoHidden(): List<PromptGroupVd> = configuredGroups().map { group ->
+        group.copy(prompts = group.prompts.map { it.copy(isHidden = false) })
+    }
+
     /** Mirrors classic `manage_prompts.xml` child 0: not yet configured -> centered CTA only. */
     @Test fun notConfigured() =
         captureGolden("AiPrompts", "notconfigured", EDGE_MODE, content = screen(configured = false))
 
     // heightDp=900: 3 groups (Favorites/Summarization/uncategorized) x up to 2 rows each, plus
     // headers/dividers; the default viewport would clip the uncategorized bucket at the bottom.
+    // hasHiddenPrompts=true: configuredGroups() has one hidden built-in prompt (p-summarize).
     @Test fun configured_matrix() =
-        captureMatrix("AiPrompts", "configured", heightDp = 900, content = screen(configured = true, groups = configuredGroups(), showHidden = true))
+        captureMatrix(
+            "AiPrompts", "configured",
+            heightDp = 900,
+            content = screen(configured = true, groups = configuredGroups(), showHidden = true, hasHiddenPrompts = true),
+        )
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun configured_rtl() =
-        captureRtl("AiPrompts", "configured", heightDp = 900, content = screen(configured = true, groups = configuredGroups(), showHidden = true))
+        captureRtl(
+            "AiPrompts", "configured",
+            heightDp = 900,
+            content = screen(configured = true, groups = configuredGroups(), showHidden = true, hasHiddenPrompts = true),
+        )
 
     /** configured=true but no prompts at all in any group -> the screen's own empty-summary text,
      *  distinct from the not-configured CTA above. */
@@ -122,6 +141,33 @@ class AiPromptsGoldenTest {
         captureMatrix(
             "AiPrompts", "help",
             heightDp = 900,
-            content = screen(configured = true, groups = configuredGroups(), showHidden = true, initiallyHelpDialogOpen = true),
+            content = screen(
+                configured = true, groups = configuredGroups(), showHidden = true,
+                hasHiddenPrompts = true, initiallyHelpDialogOpen = true,
+            ),
+        )
+
+    // F38: the overflow's show/hide-hidden toggle is present (aligned with the plain items) only
+    // when a hidden built-in prompt actually exists.
+    @Test fun configured_overflowOpen_withHiddenPrompts_matrix() =
+        captureMatrix(
+            "AiPrompts", "overflow_open_hidden",
+            heightDp = 900,
+            content = screen(
+                configured = true, groups = configuredGroups(), showHidden = true,
+                hasHiddenPrompts = true, initiallyOverflowMenuOpen = true,
+            ),
+        )
+
+    // F38: with no hidden built-in prompts, the toggle is omitted entirely (classic parity) — only
+    // the plain items remain, all still sharing the same aligned leading-icon-slot inset.
+    @Test fun configured_overflowOpen_noHiddenPrompts() =
+        captureGolden(
+            "AiPrompts", "overflow_open_nohidden", EDGE_MODE,
+            heightDp = 900,
+            content = screen(
+                configured = true, groups = configuredGroupsNoHidden(), showHidden = false,
+                hasHiddenPrompts = false, initiallyOverflowMenuOpen = true,
+            ),
         )
 }

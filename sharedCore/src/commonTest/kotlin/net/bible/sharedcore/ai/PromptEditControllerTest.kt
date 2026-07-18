@@ -50,6 +50,7 @@ class PromptEditControllerTest {
         override val configured: StateFlow<Boolean> = MutableStateFlow(true)
         override val groups: StateFlow<List<PromptGroupVd>> = MutableStateFlow(emptyList())
         override val showHidden: StateFlow<Boolean> = MutableStateFlow(false)
+        override val hasHiddenPrompts: StateFlow<Boolean> = MutableStateFlow(false)
         override fun setShowHidden(v: Boolean) {}
         override fun toggleFavorite(promptId: String) {}
         override fun setPromptHidden(promptId: String, hidden: Boolean) {}

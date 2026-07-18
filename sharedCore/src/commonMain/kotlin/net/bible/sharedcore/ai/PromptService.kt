@@ -14,6 +14,12 @@ interface PromptService {
     val configured: StateFlow<Boolean>                 // CommonUtils.settings.llmConfigured
     val groups: StateFlow<List<PromptGroupVd>>         // grouped+ordered, respects show/hide-hidden
     val showHidden: StateFlow<Boolean>
+    // Whether at least one hidden built-in prompt exists, independent of [showHidden] (which merely
+    // filters [groups], so [groups] alone can't answer this once hidden prompts are already filtered
+    // out). Mirrors classic `AiSettingsActivity.onPrepareOptionsMenu`'s
+    // `CommonUtils.aiSettings.hiddenBuiltInPrompts.isNotEmpty()` gate for the "restore hidden prompts"
+    // menu item — gates the Compose overflow's show/hide-hidden toggle the same way.
+    val hasHiddenPrompts: StateFlow<Boolean>
     fun setShowHidden(v: Boolean)
     fun toggleFavorite(promptId: String)
     fun setPromptHidden(promptId: String, hidden: Boolean)
