@@ -59,6 +59,7 @@ class ManageLabelsControllerTest {
         when (it) {
             is ManageLabelsRow.Header -> "H_${it.category}"
             is ManageLabelsRow.Item -> it.label.id
+            is ManageLabelsRow.SearchResult -> it.labelId
         }
     }
 
@@ -264,7 +265,22 @@ class ManageLabelsControllerTest {
         c.setSearch("an")
         assertEquals(listOf("ANT"), describe(c.rows.value)) // NAME_START (default): only "Antelope" starts with "an"
 
-        c.setNameSearchInside(true)
+        c.setSearchMode(SearchMode.NAME_CONTAINS)
         assertEquals(listOf("ANT", "BAN", "CAN"), describe(c.rows.value)) // NAME_CONTAINS: all three contain "an"
+    }
+
+    @Test fun name_filter_already_selected_label_bypasses_a_non_matching_search() {
+        // Classic ManageLabels.kt:847-850 labelMatches: an already-selected label is always shown,
+        // even if its name doesn't match the current search text. STUDYPAD hides category headers
+        // (hideCategories), so `describe` reflects only the filtered item set.
+        val c = controller(mode = ManageLabelsMode.STUDYPAD, labels = listOf(A, B), initialSelected = setOf("B"))
+
+        c.setSearch("zzz") // matches neither "Apple" nor "Banana"
+        assertEquals(listOf("B"), describe(c.rows.value)) // "B" survives via the selected bypass; "A" is filtered out
+    }
+
+    @Test fun setSearchMode_defaults_to_NAME_START() {
+        val c = controller(mode = ManageLabelsMode.STUDYPAD, labels = listOf(A, B))
+        assertEquals(SearchMode.NAME_START, c.searchMode.value)
     }
 }

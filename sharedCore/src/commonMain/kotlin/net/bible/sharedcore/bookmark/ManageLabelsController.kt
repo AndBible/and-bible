@@ -40,8 +40,8 @@ class ManageLabelsController(
 
     private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText.asStateFlow()
-    private val _nameSearchInside = MutableStateFlow(false) // NAME_START(false)/NAME_CONTAINS(true); CONTENT in 7b-2
-    val nameSearchInside: StateFlow<Boolean> = _nameSearchInside.asStateFlow()
+    private val _searchMode = MutableStateFlow(SearchMode.NAME_START)
+    val searchMode: StateFlow<SearchMode> = _searchMode.asStateFlow()
 
     private val _rows = MutableStateFlow<List<ManageLabelsRow>>(emptyList())
     val rows: StateFlow<List<ManageLabelsRow>> = _rows.asStateFlow()
@@ -74,11 +74,18 @@ class ManageLabelsController(
         if (bookmarkPrimary == id || bookmarkPrimary == null) bookmarkPrimary = selected.toList().firstOrNull()
     }
 
-    private fun nameMatches(name: String): Boolean {
+    // Classic already-selected bypass (ManageLabels.kt:847-850 labelMatches): a label already in the
+    // context-selected set is always shown, regardless of whether its name matches the search text.
+    private fun nameMatches(id: String, name: String): Boolean {
+        if (contextSelected().contains(id)) return true
         val t = _searchText.value
         if (t.isBlank()) return true
-        return if (_nameSearchInside.value) name.contains(t, ignoreCase = true)
-        else name.startsWith(t, ignoreCase = true)
+        return when (_searchMode.value) {
+            SearchMode.NAME_START -> name.startsWith(t, ignoreCase = true)
+            // CONTENT's name-branch is unused once content search (Task 2) is active; as a
+            // name-filter fallback it behaves like NAME_CONTAINS.
+            SearchMode.NAME_CONTAINS, SearchMode.CONTENT -> name.contains(t, ignoreCase = true)
+        }
     }
 
     private fun rebuild() {
@@ -86,10 +93,10 @@ class ManageLabelsController(
         val overridden = service.overriddenLabelIds()
         val ctx = contextSelected()
         // relink override flag onto labels
-        val shown = labels.filter { nameMatches(it.name) }.map { it.copy(hasOverride = overridden.contains(it.id)) }.toMutableList<Any>()
+        val shown = labels.filter { nameMatches(it.id, it.name) }.map { it.copy(hasOverride = overridden.contains(it.id)) }.toMutableList<Any>()
         if (mode.showUnassigned) {
             val unl = service.unlabeledLabel()
-            if (nameMatches(unl.name) && !changed.contains(unl.id)) shown.add(unl)
+            if (nameMatches(unl.id, unl.name) && !changed.contains(unl.id)) shown.add(unl)
         }
         val headers = mutableListOf<LabelCategory>()
         if (mode.showActiveCategory && ctx.isNotEmpty()) headers.add(LabelCategory.ACTIVE)
@@ -122,7 +129,7 @@ class ManageLabelsController(
 
     // ---- actions ----
     fun setSearch(t: String) { _searchText.value = t; rebuild() }
-    fun setNameSearchInside(inside: Boolean) { _nameSearchInside.value = inside; rebuild() }
+    fun setSearchMode(mode: SearchMode) { _searchMode.value = mode; rebuild() }
     fun reOrder() = rebuild()
     fun toggleChecked(id: String) {
         val ctx = contextSelected()

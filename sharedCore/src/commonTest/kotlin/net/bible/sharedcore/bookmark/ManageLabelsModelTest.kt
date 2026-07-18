@@ -95,4 +95,33 @@ class ManageLabelsModelTest {
         assertFalse(row.highlighted)
         assertEquals("L1", row.label.id)
     }
+
+    @Test fun manageLabelsRow_searchResult_carries_all_fields() {
+        val row = ManageLabelsRow.SearchResult(
+            labelId = "L1",
+            name = "Study",
+            color = -0xff0100,
+            matchCount = 3,
+            snippet = "…quick brown fox…",
+            matchStart = 8,
+            matchEnd = 13,
+            firstMatchEntryId = "E1",
+        )
+        assertEquals("L1", row.labelId)
+        assertEquals("Study", row.name)
+        assertEquals(-0xff0100, row.color)
+        assertEquals(3, row.matchCount)
+        assertEquals("…quick brown fox…", row.snippet)
+        assertEquals(8, row.matchStart)
+        assertEquals(13, row.matchEnd)
+        assertEquals("E1", row.firstMatchEntryId)
+    }
+
+    @Test fun manageLabelsRow_searchResult_firstMatchEntryId_may_be_null() {
+        val row = ManageLabelsRow.SearchResult(
+            labelId = "L1", name = "Study", color = 0, matchCount = 0,
+            snippet = "", matchStart = 0, matchEnd = 0, firstMatchEntryId = null,
+        )
+        assertEquals(null, row.firstMatchEntryId)
+    }
 }

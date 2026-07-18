@@ -142,6 +142,8 @@ fun ManageLabelsScreen(
                             iconSlot = iconSlot,
                             strings = strings,
                         )
+                        // TODO(Compose Batch 7b-2 Task 3): render StudyPad content-search hits.
+                        is ManageLabelsRow.SearchResult -> {}
                     }
                 }
             }
@@ -152,6 +154,7 @@ fun ManageLabelsScreen(
 private fun rowKey(row: ManageLabelsRow): String = when (row) {
     is ManageLabelsRow.Header -> "header_${row.category}"
     is ManageLabelsRow.Item -> "item_${row.label.id}"
+    is ManageLabelsRow.SearchResult -> "search_${row.labelId}"
 }
 
 /** Non-interactive section header ("Selected labels" / "Recent labels" / "Other labels"). */
