@@ -118,7 +118,7 @@ class LabelEditComposeActivity : ActivityBase() {
                         actions = { LabelEditActions(state.isSpecialLabel) },
                     )
 
-                    deletePrompt?.let { prompt -> DeletePromptDialog(prompt) }
+                    deletePrompt?.let { prompt -> DeletePromptDialog(prompt, state.name) }
                 }
             }
         }
@@ -151,9 +151,13 @@ class LabelEditComposeActivity : ActivityBase() {
         }
     }
 
+    /**
+     * [labelName] comes from the LIVE controller state (not `data.label.name`, which is only
+     * synced by [LabelEditMapper.applyToData] at save/delete/share time) — otherwise a name typed
+     * but not yet saved would show stale in the confirmation message.
+     */
     @Composable
-    private fun DeletePromptDialog(prompt: DeletePrompt) {
-        val labelName = data.label.name
+    private fun DeletePromptDialog(prompt: DeletePrompt, labelName: String) {
         when (prompt) {
             is DeletePrompt.Orphaned -> ComposeAlertDialog(
                 onDismissRequest = { controller.dismissDeletePrompt() },
