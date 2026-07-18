@@ -328,6 +328,22 @@ class PromptEditControllerTest {
         assertFalse(c.canSave.value)
     }
 
+    @Test fun canSave_falseWhenTemplateBlank_trueOnceFilled() = runTest {
+        val f = Fake(mutableMapOf("p1" to data(name = "Has name", template = "orig template")))
+        val c = PromptEditController(f, promptId = "p1")
+        assertTrue(c.canSave.value)
+
+        // Classic parity: blank template blocks saving even with a non-blank name.
+        c.setTemplate("")
+        assertFalse(c.canSave.value)
+
+        c.setTemplate("   ")
+        assertFalse(c.canSave.value)
+
+        c.setTemplate("filled in")
+        assertTrue(c.canSave.value)
+    }
+
     // --- tool permissions ---
 
     @Test fun setToolPermission_allowAndDenyAndDefault() = runTest {
@@ -406,6 +422,7 @@ class PromptEditControllerTest {
         val c = PromptEditController(f, promptId = null)
         assertTrue(c.isNew)
         c.setName("Fresh")
+        c.setTemplate("Body")
         c.save()
         assertFalse(c.isNew)
         assertEquals("brand-new-id", c.state.value.id)

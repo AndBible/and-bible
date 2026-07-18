@@ -224,10 +224,14 @@ class PromptEditController(
      * A genuinely read-only add-on prompt (`isReadOnly && !isBuiltIn`) never has a Save action.
      * A built-in prompt (`isReadOnly && isBuiltIn`) shows Save only once its model override
      * actually differs from what was loaded — that's the only thing a built-in's Save persists.
+     * An editable (non-read-only) prompt additionally requires a non-blank template, mirroring
+     * classic `PromptEditActivity`'s `prompt_template_required` guard — Save must not persist a
+     * blank template.
      */
     private fun computeCanSave(data: PromptEditData): Boolean =
         data.name.isNotBlank() &&
-            (!data.isReadOnly || (data.isBuiltIn && data.modelOverrideId != initialData.modelOverrideId))
+            ((!data.isReadOnly && data.template.isNotBlank()) ||
+                (data.isBuiltIn && data.modelOverrideId != initialData.modelOverrideId))
 
     private fun computeAvailableTabs(data: PromptEditData): List<PromptEditTab> =
         if (data.isTextTransformation) {
