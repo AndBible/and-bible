@@ -39,6 +39,8 @@ import net.bible.android.view.activity.ai.RawLogHistoryActivity
 import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
 import net.bible.android.view.activity.ai.ToolInfoActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
+import net.bible.android.view.activity.bookmark.Bookmarks
+import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
 import net.bible.android.view.activity.bookmark.LabelEditActivity
 import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
 import net.bible.android.view.activity.bookmark.ManageLabels
@@ -389,5 +391,13 @@ class ScreenLauncherTest {
         assertEquals(ManageLabelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ManageLabels))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ManageLabels::class.java, ScreenLauncher.targetFor(Screen.ManageLabels))
+    }
+
+    @Test
+    fun bookmarks_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(BookmarksComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(Bookmarks::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
     }
 }
