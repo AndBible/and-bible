@@ -1983,4 +1983,12 @@
     <string name="document_sync_enable_dialog_title">Start syncing documents?</string>
     <string name="document_sync_enable_dialog_nothing">No documents to transfer yet. Newly installed documents will sync automatically.</string>
     <string name="help_document_sync_text">Document sync copies your installed Bibles, commentaries and other documents to the cloud and keeps them in sync across your devices. Use this view to see what is stored in the cloud, download or upload individual documents, remove documents, and control what syncs to this device.</string>
+    <string name="background_image_title">Background image</string>
+    <string name="background_image_none">No background</string>
+    <string name="background_image_import">Import from gallery…</string>
+    <string name="background_image_empty">No imported images yet. Tap \"Import from gallery…\" to add one.</string>
+    <string name="background_image_day">Background image (day)</string>
+    <string name="background_image_night">Background image (night)</string>
+    <string name="background_image_opacity_day">Background image opacity (day)</string>
+    <string name="background_image_opacity_night">Background image opacity (night)</string>
 </resources>

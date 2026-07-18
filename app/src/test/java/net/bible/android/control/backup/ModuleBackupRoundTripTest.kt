@@ -23,6 +23,9 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.CommonUtils
+import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
+import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
+import net.bible.service.sword.backgroundimage.isBackgroundImageModule
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import net.bible.service.sword.ttf.isManuallyInstalledTtf
 import org.crosswire.common.util.NetUtil
@@ -82,6 +85,10 @@ class ModuleBackupRoundTripTest {
         }
         File(SharedConstants.modulesDir, "ttf").deleteRecursively()
         File(SharedConstants.modulesDir, "mods.d/FontPack.conf").delete()
+        for (b in Books.installed().books.filter { it.isBackgroundImageModule }) {
+            Books.installed().removeBook(b)
+        }
+        File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR).deleteRecursively()
     }
 
     /**
@@ -119,6 +126,43 @@ class ModuleBackupRoundTripTest {
         val installed = BackupControl.installModuleArchive(zipFile, "TTF_TestFont")
         assertTrue("TTF font should reinstall from the backup archive", installed)
         assertNotNull(Books.installed().getBook("TTF_TestFont"))
+    }
+
+    /**
+     * A background-image module is, like a manually-installed TTF, a real (non-pseudo) [Book]
+     * with byte-array-constructed metadata (no on-disk `.conf`), so it reaches
+     * [BackupControl.createSingleModuleZip] but has a null `configFile`. Packaging must archive the
+     * underlying image file rather than falling into the generic SWORD branch, and restore must
+     * re-register it. This exercises the exact backup/sync path document-sync uses
+     * ([BackupControl.createSingleModuleZip] → [BackupControl.installModuleArchive]).
+     */
+    @Test
+    fun backgroundImageRoundTrips() = runBlocking {
+        val imgDir = File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR).apply { mkdirs() }
+        File(imgDir, "sunset.jpg").writeBytes(byteArrayOf(0x00, 0x01, 0x02, 0x03))
+
+        addManuallyInstalledBackgroundImageBooks()
+        val book = Books.installed().books.first { it.isBackgroundImageModule }
+        val initials = book.initials
+
+        val zipFile = File(CommonUtils.tmpDir, "bgimg-roundtrip.abmd.zip")
+        if (zipFile.exists()) zipFile.delete()
+        BackupControl.createSingleModuleZip(book, zipFile)
+
+        ZipFile(zipFile).use { zf ->
+            assertNotNull(
+                "packaged zip must contain the image at its modulesDir-relative path",
+                zf.getEntry("$BACKGROUND_IMAGE_DIR/sunset.jpg")
+            )
+        }
+
+        imgDir.deleteRecursively()
+        Books.installed().removeBook(book)
+        assertNull(Books.installed().getBook(initials))
+
+        val installed = BackupControl.installModuleArchive(zipFile, initials)
+        assertTrue("background image should reinstall from the archive", installed)
+        assertNotNull(Books.installed().getBook(initials))
     }
 
     /**

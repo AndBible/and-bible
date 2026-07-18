@@ -225,6 +225,10 @@ class TextDisplaySettingsTest {
                 nightTextColor = null,
                 nightBackground = null,
                 nightNoise = null,
+                dayBackgroundImage = null,
+                nightBackgroundImage = null,
+                dayBackgroundImageOpacity = null,
+                nightBackgroundImageOpacity = null,
             )
         )
         val result = TextDisplaySettings.actual(null, workspace, TextDisplaySettings())
@@ -248,18 +252,24 @@ class TextDisplaySettingsTest {
             colors = Colors(
                 dayTextColor = 1, dayBackground = null, dayNoise = null,
                 nightTextColor = null, nightBackground = null, nightNoise = null,
+                dayBackgroundImage = null, nightBackgroundImage = null,
+                dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
             )
         )
         val workspace = TextDisplaySettings(
             colors = Colors(
                 dayTextColor = 2, dayBackground = 3, dayNoise = null,
                 nightTextColor = null, nightBackground = null, nightNoise = null,
+                dayBackgroundImage = null, nightBackgroundImage = null,
+                dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
             )
         )
         val global = TextDisplaySettings(
             colors = Colors(
                 dayTextColor = 4, dayBackground = 5, dayNoise = 6,
                 nightTextColor = 7, nightBackground = null, nightNoise = null,
+                dayBackgroundImage = null, nightBackgroundImage = null,
+                dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
             )
         )
         val result = TextDisplaySettings.actual(page, workspace, global)
@@ -297,6 +307,8 @@ class TextDisplaySettingsTest {
         val base = Colors(
             dayTextColor = 1, dayBackground = 2, dayNoise = 3,
             nightTextColor = 4, nightBackground = 5, nightNoise = 6,
+            dayBackgroundImage = null, nightBackgroundImage = null,
+            dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
         )
         assertEquals(base, base.merge(null))
     }
@@ -306,10 +318,14 @@ class TextDisplaySettingsTest {
         val base = Colors(
             dayTextColor = 1, dayBackground = 2, dayNoise = 3,
             nightTextColor = 4, nightBackground = 5, nightNoise = 6,
+            dayBackgroundImage = null, nightBackgroundImage = null,
+            dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
         )
         val override = Colors(
             dayTextColor = 100, dayBackground = null, dayNoise = null,
             nightTextColor = null, nightBackground = 500, nightNoise = null,
+            dayBackgroundImage = null, nightBackgroundImage = null,
+            dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
         )
         val merged = base.merge(override)
         assertEquals(100, merged.dayTextColor)
