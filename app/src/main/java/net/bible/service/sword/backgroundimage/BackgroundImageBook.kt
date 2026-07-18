@@ -97,7 +97,7 @@ ModDrv=RawGenBook
 DataPath=./$BACKGROUND_IMAGE_DIR/
 Encoding=UTF-8
 $BACKGROUND_IMAGE_MARKER=$displayName;${file.name}
-AndBibleMinimumVersion=892
+AndBibleMinimumVersion=1112
 """
     Log.i(TAG, "Creating background-image module $moduleInitials, $displayName")
 
