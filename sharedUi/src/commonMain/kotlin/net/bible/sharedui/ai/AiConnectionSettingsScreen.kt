@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
@@ -125,12 +126,17 @@ fun AiConnectionSettingsScreen(
     initiallyLanguageDialogOpen: Boolean = false,
     /** Test-only seam: capture the [AbTextInputDialog] custom-language editor open. */
     initiallyCustomLanguageDialogOpen: Boolean = false,
+    /** Test-only seam: capture the [CustomPromptDialog] (agent system prompt) open, e.g. with a
+     *  long [customPromptTextFor] result, to verify its height stays bounded (F36). */
+    initiallyCustomPromptDialogOpen: Boolean = false,
 ) {
     val displayState = remember(state) {
         state.copy(items = state.items.map { item -> if (item.key in SPECIAL_KEYS) item.asNavigationRow() else item })
     }
 
-    var customPromptDialogKey by remember { mutableStateOf<String?>(null) }
+    var customPromptDialogKey by remember {
+        mutableStateOf(if (initiallyCustomPromptDialogOpen) KEY_CUSTOM_AGENT_PROMPT else null)
+    }
     var retentionDialogOpen by remember { mutableStateOf(false) }
     var disclaimerDialogOpen by remember { mutableStateOf(initiallyDisclaimerDialogOpen) }
     var languageDialogOpen by remember { mutableStateOf(initiallyLanguageDialogOpen) }
@@ -278,6 +284,12 @@ private fun SettingsItem.asNavigationRow(): SettingsItem.NavigationRow = when (t
  * supplies the current custom value, or the built-in default text when unset — see
  * `customPromptTextFor`), a "Reset to default" action, and Save/Cancel. Mirrors the classic
  * `AiConnectionSettingsActivity.showCustomSystemPromptEditor` dialog.
+ *
+ * F36: the text field is height-bounded (`heightIn(max = 320.dp)`) rather than growing without
+ * limit — a long default/custom prompt was stretching the whole dialog to full screen height.
+ * `OutlinedTextField`/`BasicTextField` scrolls its own content internally once its constrained
+ * height is smaller than the text needs, so a long prompt scrolls within the field instead of
+ * growing the dialog further.
  */
 @Composable
 private fun CustomPromptDialog(
@@ -298,7 +310,9 @@ private fun CustomPromptDialog(
                 onValueChange = { text = it },
                 singleLine = false,
                 minLines = 8,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 320.dp),
             )
         },
         confirmButton = { TextButton(onClick = { onSave(text) }) { Text(strings.okay) } },

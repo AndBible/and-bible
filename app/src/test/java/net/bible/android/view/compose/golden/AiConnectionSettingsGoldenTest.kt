@@ -208,11 +208,36 @@ class AiConnectionSettingsGoldenTest {
         SettingsItem.Choice(CUSTOM_LANGUAGE_VALUE, "Custom…"),
     )
 
+    /** F36 regression fixture: a long multi-paragraph default prompt. Before the fix, an
+     *  unbounded `OutlinedTextField` stretched `CustomPromptDialog` to full screen height for a
+     *  prompt like this; the golden proves it now stays bounded (`heightIn(max = 320.dp)`). */
+    private val LONG_AGENT_PROMPT = buildString {
+        append("You are a careful, well-read Bible study assistant. ")
+        append("Answer questions using the documents and tools made available to you, ")
+        append("citing chapter and verse wherever you draw on scripture. ")
+        append("Prefer quoting the exact translation text over paraphrasing.\n\n")
+        append("When a user asks about a passage, first identify the book, chapter and verse ")
+        append("range, then summarize the immediate context (surrounding verses, the ")
+        append("author's argument, and any relevant historical or cultural background) ")
+        append("before answering the specific question asked.\n\n")
+        append("If a tool call fails or a document is unavailable, explain the limitation ")
+        append("plainly rather than guessing at content you cannot verify. Never fabricate ")
+        append("a verse reference or a translation you have not actually retrieved.\n\n")
+        append("Keep responses focused: prefer a shorter, well-cited answer over a long one ")
+        append("padded with restated context. When multiple translations disagree, note the ")
+        append("difference briefly instead of picking one silently.\n\n")
+        append("Finally, remain respectful of the user's own tradition and interpretive ")
+        append("stance; present alternative scholarly views neutrally rather than arguing ")
+        append("for one theological position over another.")
+    }
+
     private fun screen(
         state: SettingsScreenState,
         initiallyDisclaimerDialogOpen: Boolean = false,
         initiallyLanguageDialogOpen: Boolean = false,
         initiallyCustomLanguageDialogOpen: Boolean = false,
+        initiallyCustomPromptDialogOpen: Boolean = false,
+        customPromptTextFor: (String) -> String = { "" },
     ) =
         @androidx.compose.runtime.Composable {
             AiConnectionSettingsScreen(
@@ -222,13 +247,14 @@ class AiConnectionSettingsGoldenTest {
                 onListChoice = { _, _ -> },
                 onTextInputInt = { _, _ -> },
                 onCustomPromptSave = { _, _ -> },
-                customPromptTextFor = { "" },
+                customPromptTextFor = customPromptTextFor,
                 languageChoices = languageChoices,
                 customLanguageValue = CUSTOM_LANGUAGE_VALUE,
                 onNavigate = {},
                 initiallyDisclaimerDialogOpen = initiallyDisclaimerDialogOpen,
                 initiallyLanguageDialogOpen = initiallyLanguageDialogOpen,
                 initiallyCustomLanguageDialogOpen = initiallyCustomLanguageDialogOpen,
+                initiallyCustomPromptDialogOpen = initiallyCustomPromptDialogOpen,
             )
         }
 
@@ -271,5 +297,20 @@ class AiConnectionSettingsGoldenTest {
             "AiConnectionSettings", "customlanguage",
             heightDp = 1400,
             content = screen(configuredState(), initiallyCustomLanguageDialogOpen = true),
+        )
+
+    // F36: CustomPromptDialog (agent system prompt) seeded with a long multi-paragraph prompt must
+    // stay height-bounded (heightIn(max = 320.dp) on the text field), not stretch the dialog to
+    // fill the whole viewport. heightDp=1400 (same as "configured") so the dialog renders over the
+    // full list rather than a clipped viewport.
+    @Test fun configured_custompromptlong_matrix() =
+        captureMatrix(
+            "AiConnectionSettings", "custompromptlong",
+            heightDp = 1400,
+            content = screen(
+                configuredState(),
+                initiallyCustomPromptDialogOpen = true,
+                customPromptTextFor = { LONG_AGENT_PROMPT },
+            ),
         )
 }
