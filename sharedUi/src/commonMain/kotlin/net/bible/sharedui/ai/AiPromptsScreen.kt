@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.AlertDialog
@@ -199,6 +200,13 @@ fun AiPromptsScreen(
         actions = {
             if (configured) {
                 AbActionIcon(Icons.Filled.Add, contentDescription = strings.newPrompt, onClick = onNewPrompt)
+                // F41: Connection settings holds important settings — surfaced as a top-bar action
+                // (Android showAsAction="ifRoom" parity) instead of being buried in the overflow.
+                AbActionIcon(
+                    Icons.Filled.Settings,
+                    contentDescription = strings.connectionSettingsMenuLabel,
+                    onClick = onOpenConnectionSettings,
+                )
                 AbOverflowMenu(contentDescription = null, initiallyExpanded = initiallyOverflowMenuOpen) { close ->
                     // Every item reserves the SAME leadingIcon slot width (an invisible spacer for
                     // the plain items, the real Checkbox for the toggle below) so all labels start
@@ -217,11 +225,6 @@ fun AiPromptsScreen(
                             },
                         )
                     }
-                    DropdownMenuItem(
-                        text = { Text(strings.connectionSettingsMenuLabel) },
-                        onClick = { close(); onOpenConnectionSettings() },
-                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
-                    )
                     DropdownMenuItem(
                         text = { Text(strings.exportPromptsCsv) },
                         onClick = { close(); onExportCsv() },
