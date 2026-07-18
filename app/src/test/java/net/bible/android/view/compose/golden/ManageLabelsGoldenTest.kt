@@ -105,8 +105,6 @@ class ManageLabelsGoldenTest {
             onSetPrimary = {},
             onToggleAutoAssign = {},
             onUp = {},
-            onExportStudyPads = {},
-            onImportStudyPads = {},
             iconSlot = { _, _ -> },
             actions = {},
         )
@@ -165,8 +163,6 @@ class ManageLabelsGoldenTest {
             onSetPrimary = {},
             onToggleAutoAssign = {},
             onUp = {},
-            onExportStudyPads = {},
-            onImportStudyPads = {},
             iconSlot = { _, _ -> },
             actions = {},
         )

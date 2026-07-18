@@ -66,7 +66,6 @@ import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
 import net.bible.sharedui.components.AbColor
-import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.search.styledTextToAnnotatedString
@@ -80,7 +79,8 @@ import net.bible.sharedui.strings.Strings
  * lambdas, which the host wires 1:1 to a `ManageLabelsController` (a later task). [iconSlot] renders
  * the label's leading glyph (custom icon, or the built-in default when `customIcon == null`) —
  * Android drawable resources live host-side, so this screen never touches them; [actions] is the
- * top-bar overflow (reset/reorder/etc, also host-built).
+ * top-bar overflow (new/help/reorder/reset/export-StudyPads/import-StudyPads — the single overflow
+ * menu, all host-built; matches classic's one `manage_labels_options_menu.xml`).
  *
  * Design note on the leading icon: the classic adapter shows two *separate* `ImageView`s per row
  * (a label/auto-assign-circle glyph, and — further along the row — an optional custom-icon glyph).
@@ -107,8 +107,6 @@ fun ManageLabelsScreen(
     onSetPrimary: (labelId: String) -> Unit,
     onToggleAutoAssign: (labelId: String) -> Unit,
     onUp: () -> Unit,
-    onExportStudyPads: () -> Unit,
-    onImportStudyPads: () -> Unit,
     iconSlot: @Composable (customIcon: String?, colorArgb: Int) -> Unit,
     actions: @Composable RowScope.() -> Unit,
 ) {
@@ -149,19 +147,6 @@ fun ManageLabelsScreen(
                     ) {
                         Text(if (insideText) strings.matchAnyText else strings.matchStartOfText)
                     }
-                }
-                // Export/import StudyPads overflow: visible in ALL modes (classic
-                // ManageLabels.kt:379-386 onCreateOptionsMenu parity — only resetButton/reOrder
-                // are mode-conditional there, export_studypads/import_studypads are not).
-                AbOverflowMenu(contentDescription = null) { close ->
-                    DropdownMenuItem(
-                        text = { Text(strings.exportSomething(strings.studyPadsLabel)) },
-                        onClick = { close(); onExportStudyPads() },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(strings.importItems(strings.studyPadsLabel)) },
-                        onClick = { close(); onImportStudyPads() },
-                    )
                 }
             }
 

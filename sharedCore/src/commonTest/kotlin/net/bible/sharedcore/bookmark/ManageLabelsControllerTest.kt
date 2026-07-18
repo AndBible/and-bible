@@ -420,26 +420,6 @@ class ManageLabelsControllerTest {
         assertTrue(c.rows.value.all { it is ManageLabelsRow.Item })
     }
 
-    @Test fun selectStudyPad_single_arg_overload_forwards_null_entryId() {
-        var received: Pair<String, String?>? = null
-        val c = ManageLabelsController(
-            mode = ManageLabelsMode.STUDYPAD,
-            service = FakeService(listOf(A)),
-            scope = CoroutineScope(Dispatchers.Unconfined),
-            initialSelected = emptySet(),
-            initialAutoAssign = emptySet(),
-            initialAutoAssignPrimary = null,
-            initialBookmarkPrimary = null,
-            highlightLabelId = null,
-            onEditLabel = {},
-            onSelectStudyPad = { id, entryId -> received = id to entryId },
-            onSave = {},
-            onReset = {},
-        )
-        c.selectStudyPad("A")
-        assertEquals("A" to null, received)
-    }
-
     @Test fun selectStudyPad_two_arg_overload_forwards_labelId_and_firstMatchEntryId() {
         var received: Pair<String, String?>? = null
         val c = ManageLabelsController(

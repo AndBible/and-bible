@@ -186,7 +186,6 @@ class ManageLabelsController(
     }
     fun editLabel(id: String) = onEditLabel(id)
     fun newLabel() = onEditLabel(null)
-    fun selectStudyPad(id: String) = onSelectStudyPad(id, null)
     fun selectStudyPad(labelId: String, firstMatchEntryId: String?) = onSelectStudyPad(labelId, firstMatchEntryId)
     fun save() = onSave()
     fun reset() = onReset()

@@ -180,16 +180,14 @@ class ManageLabelsComposeActivity : ActivityBase() {
                         onSetPrimary = controller::setPrimary,
                         onToggleAutoAssign = controller::toggleAutoAssign,
                         onUp = { saveAndExit() },
-                        onExportStudyPads = { showExportDialog = true },
-                        onImportStudyPads = ::importStudyPads,
                         iconSlot = { customIcon, colorArgb -> ManageLabelIcon(customIcon, colorArgb) },
-                        actions = { ManageLabelsActions() },
+                        actions = { ManageLabelsActions(onExportStudyPads = { showExportDialog = true }, onImportStudyPads = ::importStudyPads) },
                     )
 
                     // Mirrors classic ManageLabels.kt:394-406 (export_studypads menu handler): a
                     // multiselect over every assignable label, then exportStudyPads for the chosen ones.
                     if (showExportDialog) {
-                        val exportableLabels = bookmarkControl.assignableLabels
+                        val exportableLabels = remember(showExportDialog) { bookmarkControl.assignableLabels }
                         AbMultiSelectDialog(
                             title = getString(R.string.export_something, getString(R.string.studypads)),
                             options = exportableLabels,
@@ -234,7 +232,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
     }
 
     @Composable
-    private fun RowScope.ManageLabelsActions() {
+    private fun RowScope.ManageLabelsActions(onExportStudyPads: () -> Unit, onImportStudyPads: () -> Unit) {
         AbOverflowMenu(contentDescription = null) { close ->
             DropdownMenuItem(text = { Text(getString(R.string.new_item)) }, onClick = { close(); controller.newLabel() })
             DropdownMenuItem(text = { Text(getString(R.string.help)) }, onClick = { close(); help() })
@@ -244,6 +242,16 @@ class ManageLabelsComposeActivity : ActivityBase() {
             if (controller.mode.hasResetButton) {
                 DropdownMenuItem(text = { Text(getString(R.string.reset_generic)) }, onClick = { close(); controller.reset() })
             }
+            // Export/import StudyPads: visible in ALL modes (classic ManageLabels.kt:379-386
+            // onCreateOptionsMenu parity — only resetButton/reOrder are mode-conditional there).
+            DropdownMenuItem(
+                text = { Text(getString(R.string.export_something, getString(R.string.studypads))) },
+                onClick = { close(); onExportStudyPads() },
+            )
+            DropdownMenuItem(
+                text = { Text(getString(R.string.import_items, getString(R.string.studypads))) },
+                onClick = { close(); onImportStudyPads() },
+            )
         }
     }
 
