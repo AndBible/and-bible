@@ -35,6 +35,8 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.onMain
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.AgentLogAdapter
 import net.bible.service.device.ScreenSettings
 import net.bible.android.view.util.UiUtils
@@ -412,7 +414,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      * Open the raw LLM log activity.
      */
     private fun openRawLog() {
-        val intent = android.content.Intent(context, RawLlmLogActivity::class.java).apply {
+        val intent = ScreenLauncher.intentFor(context, Screen.RawLlmLog).apply {
             putExtra(RawLlmLogActivity.EXTRA_WORKSPACE_ID, workspaceId.toString())
         }
         context.startActivity(intent)

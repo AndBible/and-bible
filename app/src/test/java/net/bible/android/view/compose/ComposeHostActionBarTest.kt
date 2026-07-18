@@ -206,4 +206,44 @@ class ComposeHostActionBarTest {
             ).create().get().supportActionBar
         )
     }
+
+    @Test fun `GlobalToolPermissionsComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        assertNull(
+            Robolectric.buildActivity(
+                net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity::class.java
+            ).create().get().supportActionBar
+        )
+    }
+
+    @Test fun `ToolInfoComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        assertNull(
+            Robolectric.buildActivity(
+                net.bible.android.view.activity.ai.ToolInfoComposeActivity::class.java
+            ).create().get().supportActionBar
+        )
+    }
+
+    @Test fun `AiDocumentFilterComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        assertNull(
+            Robolectric.buildActivity(
+                net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity::class.java
+            ).create().get().supportActionBar
+        )
+    }
+
+    @Test fun `RawLogHistoryComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        assertNull(
+            Robolectric.buildActivity(
+                net.bible.android.view.activity.ai.RawLogHistoryComposeActivity::class.java
+            ).create().get().supportActionBar
+        )
+    }
+
+    @Test fun `RawLlmLogComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        assertNull(
+            Robolectric.buildActivity(
+                net.bible.android.view.activity.ai.RawLlmLogComposeActivity::class.java
+            ).create().get().supportActionBar
+        )
+    }
 }

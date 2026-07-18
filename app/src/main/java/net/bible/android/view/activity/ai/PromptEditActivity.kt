@@ -39,6 +39,8 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.PromptEditBinding
 import net.bible.android.database.IdType
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.common.AiSettings
@@ -599,7 +601,7 @@ class PromptEditActivity : ActivityBase() {
                 true
             }
             R.id.view_tools -> {
-                startActivity(Intent(this, ToolInfoActivity::class.java))
+                startActivity(ScreenLauncher.intentFor(this, Screen.ToolInfo))
                 true
             }
             R.id.prompt_help -> {

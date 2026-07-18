@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
 import android.view.ActionMode
 import android.view.Menu
@@ -34,6 +33,8 @@ import androidx.recyclerview.widget.RecyclerView
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ActivityRawLogHistoryBinding
 import net.bible.android.database.IdType
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DatabaseContainer
 import android.view.LayoutInflater
@@ -93,7 +94,7 @@ class RawLogHistoryActivity : ActivityBase() {
     }
 
     private fun openLog(logId: IdType) {
-        val intent = Intent(this, RawLlmLogActivity::class.java).apply {
+        val intent = ScreenLauncher.intentFor(this, Screen.RawLlmLog).apply {
             putExtra(RawLlmLogActivity.EXTRA_LOG_RECORD_ID, logId.toString())
         }
         startActivity(intent)

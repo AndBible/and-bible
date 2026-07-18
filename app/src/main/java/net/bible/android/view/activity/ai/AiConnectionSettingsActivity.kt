@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
@@ -231,7 +230,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
     private fun setupToolPermissions() {
         updateToolPermissionsSummary()
         manageToolPermissionsPref.setOnPreferenceClickListener {
-            startActivity(Intent(requireContext(), GlobalToolPermissionsActivity::class.java))
+            startActivity(ScreenLauncher.intentFor(requireContext(), Screen.GlobalToolPermissions))
             true
         }
     }
@@ -250,7 +249,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
     private fun setupDocumentFilter() {
         updateDocumentFilterSummary()
         manageAiDocumentsPref.setOnPreferenceClickListener {
-            startActivity(Intent(requireContext(), AiDocumentFilterActivity::class.java))
+            startActivity(ScreenLauncher.intentFor(requireContext(), Screen.AiDocumentFilter))
             true
         }
     }
@@ -545,7 +544,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         }
 
         rawLogHistoryPref.setOnPreferenceClickListener {
-            startActivity(Intent(requireContext(), RawLogHistoryActivity::class.java))
+            startActivity(ScreenLauncher.intentFor(requireContext(), Screen.RawLogHistory))
             true
         }
 

@@ -27,6 +27,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import net.bible.android.activity.R
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -66,9 +68,9 @@ import org.koin.android.ext.android.inject
  * itself, being a plain composable, not an Activity) — checks `controller.isDirty` and shows an
  * equivalent host-level discard-confirm dialog before finishing.
  *
- * **View tools / Help** stay host-side, launching the CLASSIC [ToolInfoActivity] (Batch 9c task 10
- * ports its own Compose replacement) and the resource-backed help dialog respectively, both ported
- * verbatim from classic [PromptEditActivity].
+ * **View tools / Help** stay host-side: view-tools routes through [ScreenLauncher] ([Screen.ToolInfo],
+ * old/new per `use_compose_ui` — Batch 9d task 11) and help shows the resource-backed help dialog,
+ * both ported verbatim from classic [PromptEditActivity].
  *
  * **Copy to customize** ([copyToCustomizeAndFinish]) mirrors classic exactly: on a non-null new id,
  * toast [R.string.prompt_copied], relaunch this SAME Compose host on the new id, and finish the
@@ -147,7 +149,7 @@ class PromptEditComposeActivity : ActivityBase() {
                         onSave = { saveAndMaybeFinish() },
                         onDelete = { controller.delete(); finish() },
                         onCopyToCustomize = { copyToCustomizeAndFinish() },
-                        onViewTools = { startActivity(Intent(this@PromptEditComposeActivity, ToolInfoActivity::class.java)) },
+                        onViewTools = { startActivity(ScreenLauncher.intentFor(this@PromptEditComposeActivity, Screen.ToolInfo)) },
                         onHelp = { showHelp() },
                         onBack = { finish() },
                     )

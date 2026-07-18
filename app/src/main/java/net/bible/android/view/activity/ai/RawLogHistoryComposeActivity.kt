@@ -16,13 +16,14 @@
  */
 package net.bible.android.view.activity.ai
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
 import net.bible.android.activity.R
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -42,9 +43,10 @@ import org.koin.android.ext.android.inject
  * [RawLogService.refresh] in [onResume] so the list reflects records deleted from the detail screen /
  * added since the activity was created.
  *
- * **Opening a log.** [RawLogHistoryController.onOpenLog] launches the sibling Compose detail host
- * [RawLlmLogComposeActivity] in DB mode, passing the classic [RawLlmLogActivity.EXTRA_LOG_RECORD_ID]
- * extra name (reused verbatim so the extra key matches classic). ScreenLauncher routing is Task 11.
+ * **Opening a log.** [RawLogHistoryController.onOpenLog] routes through [ScreenLauncher]
+ * ([Screen.RawLlmLog], old/new per `use_compose_ui` — Batch 9d task 11), passing the classic
+ * [RawLlmLogActivity.EXTRA_LOG_RECORD_ID] extra name (reused verbatim so the extra key matches
+ * classic) regardless of which host it resolves to.
  */
 class RawLogHistoryComposeActivity : ActivityBase() {
     private val service: RawLogService by inject()
@@ -55,7 +57,7 @@ class RawLogHistoryComposeActivity : ActivityBase() {
             scope = lifecycleScope,
             onOpenLog = { id ->
                 startActivity(
-                    Intent(this, RawLlmLogComposeActivity::class.java)
+                    ScreenLauncher.intentFor(this, Screen.RawLlmLog)
                         .putExtra(RawLlmLogActivity.EXTRA_LOG_RECORD_ID, id),
                 )
             },

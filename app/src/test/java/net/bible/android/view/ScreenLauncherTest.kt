@@ -21,14 +21,24 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.ai.AiConnectionSettingsActivity
 import net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity
+import net.bible.android.view.activity.ai.AiDocumentFilterActivity
+import net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity
 import net.bible.android.view.activity.ai.AiModelsActivity
 import net.bible.android.view.activity.ai.AiModelsComposeActivity
 import net.bible.android.view.activity.ai.AiProvidersActivity
 import net.bible.android.view.activity.ai.AiProvidersComposeActivity
 import net.bible.android.view.activity.ai.AiPromptsComposeActivity
 import net.bible.android.view.activity.ai.AiSettingsActivity
+import net.bible.android.view.activity.ai.GlobalToolPermissionsActivity
+import net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity
 import net.bible.android.view.activity.ai.PromptEditActivity
 import net.bible.android.view.activity.ai.PromptEditComposeActivity
+import net.bible.android.view.activity.ai.RawLlmLogActivity
+import net.bible.android.view.activity.ai.RawLlmLogComposeActivity
+import net.bible.android.view.activity.ai.RawLogHistoryActivity
+import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
+import net.bible.android.view.activity.ai.ToolInfoActivity
+import net.bible.android.view.activity.ai.ToolInfoComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
@@ -319,5 +329,45 @@ class ScreenLauncherTest {
         assertEquals(PromptEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.PromptEdit))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(PromptEditActivity::class.java, ScreenLauncher.targetFor(Screen.PromptEdit))
+    }
+
+    @Test
+    fun globalToolPermissions_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(GlobalToolPermissionsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GlobalToolPermissions))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(GlobalToolPermissionsActivity::class.java, ScreenLauncher.targetFor(Screen.GlobalToolPermissions))
+    }
+
+    @Test
+    fun toolInfo_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(ToolInfoComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ToolInfo))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(ToolInfoActivity::class.java, ScreenLauncher.targetFor(Screen.ToolInfo))
+    }
+
+    @Test
+    fun aiDocumentFilter_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(AiDocumentFilterComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiDocumentFilter))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(AiDocumentFilterActivity::class.java, ScreenLauncher.targetFor(Screen.AiDocumentFilter))
+    }
+
+    @Test
+    fun rawLogHistory_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(RawLogHistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLogHistory))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(RawLogHistoryActivity::class.java, ScreenLauncher.targetFor(Screen.RawLogHistory))
+    }
+
+    @Test
+    fun rawLlmLog_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(RawLlmLogComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLlmLog))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(RawLlmLogActivity::class.java, ScreenLauncher.targetFor(Screen.RawLlmLog))
     }
 }

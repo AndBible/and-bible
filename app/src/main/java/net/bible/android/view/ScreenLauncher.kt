@@ -26,9 +26,19 @@ import net.bible.android.view.activity.ai.AiModelsComposeActivity
 import net.bible.android.view.activity.ai.AiProvidersActivity
 import net.bible.android.view.activity.ai.AiProvidersComposeActivity
 import net.bible.android.view.activity.ai.AiPromptsComposeActivity
+import net.bible.android.view.activity.ai.AiDocumentFilterActivity
+import net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity
 import net.bible.android.view.activity.ai.AiSettingsActivity
+import net.bible.android.view.activity.ai.GlobalToolPermissionsActivity
+import net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity
 import net.bible.android.view.activity.ai.PromptEditActivity
 import net.bible.android.view.activity.ai.PromptEditComposeActivity
+import net.bible.android.view.activity.ai.RawLlmLogActivity
+import net.bible.android.view.activity.ai.RawLlmLogComposeActivity
+import net.bible.android.view.activity.ai.RawLogHistoryActivity
+import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
+import net.bible.android.view.activity.ai.ToolInfoActivity
+import net.bible.android.view.activity.ai.ToolInfoComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.discrete.CalculatorActivity
@@ -77,7 +87,7 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivi
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -177,6 +187,21 @@ object ScreenLauncher {
         Screen.PromptEdit ->
             if (useComposeFor(screen)) PromptEditComposeActivity::class.java
             else PromptEditActivity::class.java
+        Screen.GlobalToolPermissions ->
+            if (useComposeFor(screen)) GlobalToolPermissionsComposeActivity::class.java
+            else GlobalToolPermissionsActivity::class.java
+        Screen.ToolInfo ->
+            if (useComposeFor(screen)) ToolInfoComposeActivity::class.java
+            else ToolInfoActivity::class.java
+        Screen.AiDocumentFilter ->
+            if (useComposeFor(screen)) AiDocumentFilterComposeActivity::class.java
+            else AiDocumentFilterActivity::class.java
+        Screen.RawLogHistory ->
+            if (useComposeFor(screen)) RawLogHistoryComposeActivity::class.java
+            else RawLogHistoryActivity::class.java
+        Screen.RawLlmLog ->
+            if (useComposeFor(screen)) RawLlmLogComposeActivity::class.java
+            else RawLlmLogActivity::class.java
     }
 
     /**

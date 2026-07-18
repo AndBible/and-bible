@@ -141,9 +141,9 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
             AiConnectionNav.EASY_SETUP -> launchEasySetup()
             AiConnectionNav.PROVIDERS -> startActivity(ScreenLauncher.intentFor(this, Screen.AiProviders))
             AiConnectionNav.MODELS -> startActivity(ScreenLauncher.intentFor(this, Screen.AiModels))
-            AiConnectionNav.TOOL_PERMISSIONS -> launch(GlobalToolPermissionsActivity::class.java)
-            AiConnectionNav.DOCUMENTS -> launch(AiDocumentFilterActivity::class.java)
-            AiConnectionNav.RAW_LOG_HISTORY -> launch(RawLogHistoryActivity::class.java)
+            AiConnectionNav.TOOL_PERMISSIONS -> startActivity(ScreenLauncher.intentFor(this, Screen.GlobalToolPermissions))
+            AiConnectionNav.DOCUMENTS -> startActivity(ScreenLauncher.intentFor(this, Screen.AiDocumentFilter))
+            AiConnectionNav.RAW_LOG_HISTORY -> startActivity(ScreenLauncher.intentFor(this, Screen.RawLogHistory))
             AiConnectionNav.RESET_USAGE -> showResetUsageConfirm()
         }
     }
@@ -163,8 +163,6 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
         }
         startActivity(intent)
     }
-
-    private fun launch(cls: Class<*>) = startActivity(Intent(this, cls))
 
     // --- Custom system prompts ---------------------------------------------------------------
 
