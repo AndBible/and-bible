@@ -75,6 +75,19 @@ class BackgroundImageBookTest {
     }
 
     @Test
+    fun addonsRegistryExposesInstalledImage() {
+        File(dir, "hills.png").writeBytes(byteArrayOf(0x00, 0x01, 0x02, 0x03))
+        addManuallyInstalledBackgroundImageBooks()
+        net.bible.service.common.AndBibleAddons.clearCaches()
+
+        val book = Books.installed().books.first { it.isBackgroundImageModule }
+        val provided = net.bible.service.common.AndBibleAddons.providedBackgroundImages[book.initials]
+        assertNotNull("registry should expose the image by module initials", provided)
+        assertEquals("hills", provided!!.name)
+        assertTrue(net.bible.service.common.AndBibleAddons.backgroundImageModuleNames.contains(book.initials))
+    }
+
+    @Test
     fun initialsAreSanitizedAndDeduped() {
         val existing = mutableSetOf("BGIMG_my_photo")
         val a = backgroundImageModuleInitials("my photo") { it in existing }
