@@ -319,4 +319,20 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Batch 9d — AiDocumentFilterScreen
     override val aiDocumentFilterTitle: String get() = context.getString(R.string.ai_document_filter_activity_title)
+
+    // Batch 9d — RawLogHistoryScreen + RawLlmLogScreen
+    override val rawLogHistoryTitle: String get() = context.getString(R.string.raw_log_history_title)
+    override val rawLogHistoryEmpty: String get() = context.getString(R.string.raw_log_history_empty)
+    override val rawLogDeleteSelectedLabel: String get() = context.getString(R.string.raw_log_delete_selected)
+    override val rawLogDeleteOld: String get() = context.getString(R.string.raw_log_delete_old)
+    override val rawLogOlder1Week: String get() = context.getString(R.string.raw_log_older_1_week)
+    override val rawLogOlder1Month: String get() = context.getString(R.string.raw_log_older_1_month)
+    override val rawLogOlder3Months: String get() = context.getString(R.string.raw_log_older_3_months)
+    override val rawLogDeleteAll: String get() = context.getString(R.string.raw_log_delete_all)
+    override val rawLogErrorIndicator: String get() = context.getString(R.string.raw_log_error_indicator)
+    override val rawLlmLogEmpty: String get() = context.getString(R.string.raw_llm_log_empty)
+    override val copyLabel: String get() = context.getString(R.string.copy)
+    override val shareLabel: String get() = context.getString(R.string.share)
+    override val reportBugLabel: String get() = context.getString(R.string.ai_bug_report_menu)
+    override val areYouSure: String get() = context.getString(R.string.are_you_sure)
 }

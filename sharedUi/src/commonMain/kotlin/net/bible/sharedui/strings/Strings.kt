@@ -327,6 +327,22 @@ interface Strings {
 
     // Batch 9d — AiDocumentFilterScreen
     val aiDocumentFilterTitle: String             // R.string.ai_document_filter_activity_title
+
+    // Batch 9d — RawLogHistoryScreen + RawLlmLogScreen
+    val rawLogHistoryTitle: String                // R.string.raw_log_history_title
+    val rawLogHistoryEmpty: String                // R.string.raw_log_history_empty
+    val rawLogDeleteSelectedLabel: String         // R.string.raw_log_delete_selected (contextual-bar action icon)
+    val rawLogDeleteOld: String                   // R.string.raw_log_delete_old (overflow item + dialog title)
+    val rawLogOlder1Week: String                  // R.string.raw_log_older_1_week
+    val rawLogOlder1Month: String                 // R.string.raw_log_older_1_month
+    val rawLogOlder3Months: String                // R.string.raw_log_older_3_months
+    val rawLogDeleteAll: String                   // R.string.raw_log_delete_all
+    val rawLogErrorIndicator: String              // R.string.raw_log_error_indicator
+    val rawLlmLogEmpty: String                    // R.string.raw_llm_log_empty
+    val copyLabel: String                         // R.string.copy
+    val shareLabel: String                        // R.string.share
+    val reportBugLabel: String                    // R.string.ai_bug_report_menu
+    val areYouSure: String                        // R.string.are_you_sure
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
