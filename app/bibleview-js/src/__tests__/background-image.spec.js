@@ -55,6 +55,11 @@ describe("backgroundImageLayer", () => {
         expect(r.opacity).toBe(1);
     });
 
+    it("preserves an explicit opacity of 0 (does not default to full)", () => {
+        const r = backgroundImageLayer({...colors, dayBackgroundImageOpacity: 0}, ctx);
+        expect(r.opacity).toBe(0);
+    });
+
     it("url-encodes the module initials", () => {
         const r = backgroundImageLayer({...colors, dayBackgroundImage: "BG IMG"}, ctx);
         expect(r.url).toBe("/background/BG%20IMG");
