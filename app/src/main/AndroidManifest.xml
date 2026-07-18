@@ -301,6 +301,11 @@
             android:label="@string/workspace_color_settings_title"
             android:parentActivityName="net.bible.android.view.activity.settings.TextDisplaySettingsActivity" />
         <activity
+            android:name="net.bible.android.view.activity.settings.BackgroundImageChooserActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/background_image_title"
+            android:parentActivityName="net.bible.android.view.activity.settings.TextDisplaySettingsActivity" />
+        <activity
             android:name="net.bible.android.view.activity.settings.SyncSettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/cloud_sync_title"
