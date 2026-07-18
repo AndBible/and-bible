@@ -32,6 +32,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.io.File
 
@@ -42,6 +44,15 @@ class BackgroundImageBookTest {
 
     @Before
     fun setUp() {
+        // Background-image modules declare AndBibleMinimumVersion=1112, so AndBibleAddonFilter only
+        // exposes them on apps whose version is >= 1112. Raise the reported app version well past that
+        // threshold so addonsRegistryExposesInstalledImage validates the addon-registry contract
+        // regardless of the current manifest versionCode.
+        val app = RuntimeEnvironment.getApplication()
+        shadowOf(app.packageManager)
+            .getInternalMutablePackageInfo(app.packageName)
+            .longVersionCode = 100000L
+
         SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
         dir.mkdirs()
     }

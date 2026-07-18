@@ -63,10 +63,18 @@ class CachedKeyPageTest {
         assertThat(page.getKeyPlus(currentKey, -1), equalTo(currentKey as Key))
     }
 
-    /** With a null key list and a null current key, getKeyPlus returns an empty leaf key (no crash). */
+    /**
+     * With a null key list and a null current key, getKeyPlus returns an empty leaf key (no crash).
+     *
+     * Uses currentGeneralBook rather than currentDictionary: the dictionary page auto-selects a
+     * default dictionary document when one is installed, so on an environment with real modules
+     * (e.g. CI) its cachedGlobalKeyList would be non-null and getKeyPlus would return a real entry.
+     * The general-book page has no default document, keeping cachedGlobalKeyList null as this test
+     * requires.
+     */
     @Test
     fun getKeyPlusWithNullKeyListAndNullKeyReturnsEmptyKey() {
-        val page = createPageManager().currentDictionary
+        val page = createPageManager().currentGeneralBook
 
         val result = page.getKeyPlus(null, 1)
         assertThat(result, equalTo(DefaultLeafKeyList("") as Key))
