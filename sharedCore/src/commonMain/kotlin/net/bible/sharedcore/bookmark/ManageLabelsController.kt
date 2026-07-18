@@ -1,9 +1,12 @@
 package net.bible.sharedcore.bookmark
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 /**
  * Owns the mutable in-memory state for the ManageLabels list (mirroring classic `data` +
@@ -16,7 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class ManageLabelsController(
     val mode: ManageLabelsMode,
     private val service: ManageLabelsService,
-    @Suppress("unused") private val scope: CoroutineScope,
+    private val scope: CoroutineScope,
     // seed from ManageLabelsData (host converts IdType->String):
     initialSelected: Set<String>,
     initialAutoAssign: Set<String>,
@@ -25,7 +28,7 @@ class ManageLabelsController(
     private val highlightLabelId: String?,        // STUDYPAD current key label
     // host callbacks (Room/Intent live in the host):
     private val onEditLabel: (labelId: String?) -> Unit,   // null == new label
-    private val onSelectStudyPad: (labelId: String) -> Unit,
+    private val onSelectStudyPad: (labelId: String, firstMatchEntryId: String?) -> Unit,
     private val onSave: () -> Unit,
     private val onReset: () -> Unit,
 ) {
@@ -46,7 +49,38 @@ class ManageLabelsController(
     private val _rows = MutableStateFlow<List<ManageLabelsRow>>(emptyList())
     val rows: StateFlow<List<ManageLabelsRow>> = _rows.asStateFlow()
 
+    // ---- StudyPad content-search debounce (verbatim classic ManageLabels.kt:804-842) ----
+    private var contentSearchJob: Job? = null
+    // Bumped on every dispatch (whether or not a job is actually launched) so a completed job can
+    // tell whether it's still the most recent request before publishing its results -- belt & braces
+    // alongside job cancellation, in case a slow service call doesn't observe cancellation promptly.
+    private var searchGeneration: Long = 0L
+
     init { rebuild() }
+
+    private fun dispatchSearchOrRebuild() {
+        contentSearchJob?.cancel()
+        val text = _searchText.value
+        if (mode == ManageLabelsMode.STUDYPAD && _searchMode.value == SearchMode.CONTENT && text.length >= 3) {
+            val generation = ++searchGeneration
+            contentSearchJob = scope.launch {
+                delay(300)
+                val results = try {
+                    service.searchStudyPadsByContent(text)
+                } catch (e: Exception) {
+                    emptyList()
+                }
+                // Stale-guard: only the most recent dispatch may publish (defense in depth on top of
+                // the cancel() above).
+                if (generation == searchGeneration) {
+                    if (results.isEmpty()) rebuild() else _rows.value = results
+                }
+            }
+        } else {
+            searchGeneration++ // invalidate any still-in-flight content search
+            rebuild()
+        }
+    }
 
     // ---- derived (verbatim classic) ----
     private fun contextSelected(): MutableSet<String> = if (mode == ManageLabelsMode.WORKSPACE) autoAssign else selected
@@ -131,8 +165,8 @@ class ManageLabelsController(
     }
 
     // ---- actions ----
-    fun setSearch(t: String) { _searchText.value = t; rebuild() }
-    fun setSearchMode(mode: SearchMode) { _searchMode.value = mode; rebuild() }
+    fun setSearch(t: String) { _searchText.value = t; dispatchSearchOrRebuild() }
+    fun setSearchMode(mode: SearchMode) { _searchMode.value = mode; dispatchSearchOrRebuild() }
     fun reOrder() = rebuild()
     fun toggleChecked(id: String) {
         val ctx = contextSelected()
@@ -152,7 +186,8 @@ class ManageLabelsController(
     }
     fun editLabel(id: String) = onEditLabel(id)
     fun newLabel() = onEditLabel(null)
-    fun selectStudyPad(id: String) = onSelectStudyPad(id)
+    fun selectStudyPad(id: String) = onSelectStudyPad(id, null)
+    fun selectStudyPad(labelId: String, firstMatchEntryId: String?) = onSelectStudyPad(labelId, firstMatchEntryId)
     fun save() = onSave()
     fun reset() = onReset()
 

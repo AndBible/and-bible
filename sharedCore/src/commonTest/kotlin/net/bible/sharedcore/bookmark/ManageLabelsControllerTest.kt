@@ -2,12 +2,19 @@ package net.bible.sharedcore.bookmark
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ManageLabelsControllerTest {
 
     private fun label(id: String, name: String, favourite: Boolean = false, isUnlabeled: Boolean = false) = LabelItem(
@@ -20,12 +27,14 @@ class ManageLabelsControllerTest {
         private val recent: List<String> = emptyList(),
         private val overridden: Set<String> = emptySet(),
         private val unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null, false),
+        private val contentSearch: suspend (String) -> List<ManageLabelsRow.SearchResult> = { emptyList() },
     ) : ManageLabelsService {
         override fun assignableLabels() = labels
         override fun unlabeledLabel() = unlabeled
         override fun recentLabelIds() = recent
         override fun overriddenLabelIds() = overridden
         override fun randomColorArgb() = 0x11223344
+        override suspend fun searchStudyPadsByContent(text: String): List<ManageLabelsRow.SearchResult> = contentSearch(text)
     }
 
     private fun controller(
@@ -39,17 +48,19 @@ class ManageLabelsControllerTest {
         initialBookmarkPrimary: String? = null,
         highlightLabelId: String? = null,
         unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null, false),
+        scope: CoroutineScope = CoroutineScope(Dispatchers.Unconfined),
+        contentSearch: suspend (String) -> List<ManageLabelsRow.SearchResult> = { emptyList() },
     ): ManageLabelsController = ManageLabelsController(
         mode = mode,
-        service = FakeService(labels, recent, overridden, unlabeled),
-        scope = CoroutineScope(Dispatchers.Unconfined),
+        service = FakeService(labels, recent, overridden, unlabeled, contentSearch),
+        scope = scope,
         initialSelected = initialSelected,
         initialAutoAssign = initialAutoAssign,
         initialAutoAssignPrimary = initialAutoAssignPrimary,
         initialBookmarkPrimary = initialBookmarkPrimary,
         highlightLabelId = highlightLabelId,
         onEditLabel = {},
-        onSelectStudyPad = {},
+        onSelectStudyPad = { _, _ -> },
         onSave = {},
         onReset = {},
     )
@@ -317,5 +328,135 @@ class ManageLabelsControllerTest {
         c.setSearchMode(SearchMode.CONTENT)
         c.setSearch("an")
         assertEquals(listOf("ANT", "BAN", "CAN"), describe(c.rows.value))
+    }
+
+    private fun searchResult(labelId: String, name: String = labelId) = ManageLabelsRow.SearchResult(
+        labelId = labelId, name = name, color = 1, matchCount = 1, snippet = "snippet",
+        matchStart = 0, matchEnd = 1, firstMatchEntryId = "entry-$labelId",
+    )
+
+    @Test fun content_search_debounces_and_yields_fake_results() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val scope = TestScope(dispatcher)
+        val fakeResults = listOf(searchResult("A"), searchResult("B"))
+        val c = controller(
+            mode = ManageLabelsMode.STUDYPAD,
+            labels = listOf(A, B),
+            scope = scope,
+            contentSearch = { fakeResults },
+        )
+        c.setSearchMode(SearchMode.CONTENT)
+        c.setSearch("hello")
+
+        // Not yet debounced: still the categorized (name) list, not search results.
+        assertFalse(c.rows.value.any { it is ManageLabelsRow.SearchResult })
+
+        scope.advanceTimeBy(300)
+        scope.advanceUntilIdle()
+
+        assertEquals(listOf("A", "B"), describe(c.rows.value))
+        assertTrue(c.rows.value.all { it is ManageLabelsRow.SearchResult })
+    }
+
+    @Test fun content_search_short_text_falls_back_to_categorized_list() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val scope = TestScope(dispatcher)
+        var calls = 0
+        val c = controller(
+            mode = ManageLabelsMode.STUDYPAD,
+            labels = listOf(A, B),
+            scope = scope,
+            contentSearch = { calls++; listOf(searchResult("A")) },
+        )
+        c.setSearchMode(SearchMode.CONTENT)
+        c.setSearch("ab") // 2 chars: below the 3-char threshold
+
+        scope.advanceTimeBy(300)
+        scope.advanceUntilIdle()
+
+        assertEquals(0, calls) // content search never invoked
+        // categorized (name-filtered) list, not SearchResults; neither "Apple" nor "Banana"
+        // contains "ab" so the fallback name filter (CONTENT behaves like NAME_CONTAINS) yields none.
+        assertEquals(emptyList<String>(), describe(c.rows.value))
+    }
+
+    @Test fun content_search_debounce_cancels_stale_query_only_latest_lands() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val scope = TestScope(dispatcher)
+        val c = controller(
+            mode = ManageLabelsMode.STUDYPAD,
+            labels = listOf(A, B),
+            scope = scope,
+            contentSearch = { text -> listOf(searchResult(text)) },
+        )
+        c.setSearchMode(SearchMode.CONTENT)
+        c.setSearch("first")
+        scope.advanceTimeBy(100) // still within debounce window: not yet fired
+        c.setSearch("second")
+        scope.advanceTimeBy(300)
+        scope.advanceUntilIdle()
+
+        // Only the latest ("second") query's results should land, not "first"'s.
+        assertEquals(listOf("second"), describe(c.rows.value))
+    }
+
+    @Test fun content_search_switching_away_from_CONTENT_restores_categorized_list() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val scope = TestScope(dispatcher)
+        val c = controller(
+            mode = ManageLabelsMode.STUDYPAD,
+            labels = listOf(A, B),
+            scope = scope,
+            contentSearch = { listOf(searchResult("A"), searchResult("B")) },
+        )
+        c.setSearchMode(SearchMode.CONTENT)
+        c.setSearch("ban") // >= 3 chars; contained in "Banana" only (name-filter fallback semantics)
+        scope.advanceTimeBy(300)
+        scope.advanceUntilIdle()
+        assertTrue(c.rows.value.all { it is ManageLabelsRow.SearchResult })
+
+        c.setSearchMode(SearchMode.NAME_CONTAINS) // switching away restores the categorized list
+        assertEquals(listOf("B"), describe(c.rows.value)) // only "Banana" contains "ban"
+        assertTrue(c.rows.value.all { it is ManageLabelsRow.Item })
+    }
+
+    @Test fun selectStudyPad_single_arg_overload_forwards_null_entryId() {
+        var received: Pair<String, String?>? = null
+        val c = ManageLabelsController(
+            mode = ManageLabelsMode.STUDYPAD,
+            service = FakeService(listOf(A)),
+            scope = CoroutineScope(Dispatchers.Unconfined),
+            initialSelected = emptySet(),
+            initialAutoAssign = emptySet(),
+            initialAutoAssignPrimary = null,
+            initialBookmarkPrimary = null,
+            highlightLabelId = null,
+            onEditLabel = {},
+            onSelectStudyPad = { id, entryId -> received = id to entryId },
+            onSave = {},
+            onReset = {},
+        )
+        c.selectStudyPad("A")
+        assertEquals("A" to null, received)
+    }
+
+    @Test fun selectStudyPad_two_arg_overload_forwards_labelId_and_firstMatchEntryId() {
+        var received: Pair<String, String?>? = null
+        val c = ManageLabelsController(
+            mode = ManageLabelsMode.STUDYPAD,
+            service = FakeService(listOf(A)),
+            scope = CoroutineScope(Dispatchers.Unconfined),
+            initialSelected = emptySet(),
+            initialAutoAssign = emptySet(),
+            initialAutoAssignPrimary = null,
+            initialBookmarkPrimary = null,
+            highlightLabelId = null,
+            onEditLabel = {},
+            onSelectStudyPad = { id, entryId -> received = id to entryId },
+            onSave = {},
+            onReset = {},
+        )
+        c.selectStudyPad("A", "entry-42")
+        assertEquals("A" to "entry-42", received)
     }
 }
