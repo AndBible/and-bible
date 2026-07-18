@@ -61,6 +61,8 @@ import net.bible.service.sword.esword.addESwordBook
 import net.bible.service.sword.mysword.addMySwordBook
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
+import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
+import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPath
@@ -369,6 +371,9 @@ class InstallZip : ActivityBase() {
             "application/octet-stream",
             "text/csv",
             "text/comma-separated-values",
+            "image/png",
+            "image/jpeg",
+            "image/webp",
         ))
         val result = try {
             awaitIntent(intent)
@@ -439,6 +444,12 @@ class InstallZip : ActivityBase() {
         // Check for TTF files first
         if(displayName.lowercase().endsWith(".ttf") || mimeType?.contains("font") == true) {
             return installTtf(uri, displayName)
+        }
+
+        // Check for image files (background images)
+        if (mimeType?.startsWith("image/") == true ||
+            listOf(".png", ".jpg", ".jpeg", ".webp").any { displayName.lowercase().endsWith(it) }) {
+            return installBackgroundImage(uri, displayName)
         }
 
         // Check for CSV prompt files
@@ -644,6 +655,69 @@ class InstallZip : ActivityBase() {
         }
 
         addManuallyInstalledTtfBooks()
+
+        withContext(Dispatchers.Main) {
+            binding.loadingIndicator.visibility = View.GONE
+            ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
+            AndBibleAddons.clearCaches()
+            setResult(RESULT_OK)
+            finish()
+        }
+        true
+    }
+
+    private suspend fun installBackgroundImage(uri: Uri, displayName_: String?): Boolean = withContext(Dispatchers.IO) {
+        val displayName = displayName_ ?: UUID.randomUUID().toString()
+        withContext(Dispatchers.Main) {
+            binding.loadingIndicator.visibility = View.VISIBLE
+        }
+        try {
+            val inputStream = contentResolver.openInputStream(uri) ?: throw FileNotFound()
+            inputStream.use { fIn ->
+                val outDir = File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR)
+                outDir.mkdirs()
+                val outFile = File(outDir, displayName)
+
+                if (outFile.exists()) {
+                    val doInstall = withContext(Dispatchers.Main) {
+                        suspendCoroutine {
+                            AlertDialog.Builder(this@InstallZip)
+                                .setTitle(R.string.overwrite_files_title)
+                                .setMessage(getString(R.string.overwrite_files, "$BACKGROUND_IMAGE_DIR/$displayName"))
+                                .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
+                                .setNeutralButton(R.string.cancel) { _, _ -> it.resume(false) }
+                                .setOnCancelListener { _ -> it.resume(false) }
+                                .show()
+                        }
+                    }
+                    if (!doInstall) {
+                        withContext(Dispatchers.Main) {
+                            ABEventBus.post(ToastEvent(R.string.install_zip_canceled))
+                            binding.loadingIndicator.visibility = View.GONE
+                        }
+                        return@withContext false
+                    }
+                }
+
+                if ((outFile.exists() && !outFile.canWrite()) || (!outFile.exists() && !outDir.canWrite())) {
+                    throw CantWrite()
+                }
+
+                withContext(Dispatchers.IO) {
+                    val out = FileOutputStream(outFile)
+                    fIn.copyTo(out)
+                    out.close()
+                }
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "IOException when reading image file", e)
+            withContext(Dispatchers.Main) {
+                binding.loadingIndicator.visibility = View.GONE
+            }
+            throw FileNotFound()
+        }
+
+        addManuallyInstalledBackgroundImageBooks()
 
         withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.GONE
