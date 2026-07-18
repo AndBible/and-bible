@@ -69,7 +69,7 @@ import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
-import net.bible.sharedui.settings.AbSettingsScreen
+import net.bible.sharedui.settings.AbSettingsContent
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -119,24 +119,21 @@ import net.bible.sharedui.strings.Strings
  *
  * **Advanced tab.** Builds a [SettingsScreenState] straight from [state] (model override
  * [SettingsItem.ListChoiceRow] fed [modelChoices]; `max_iterations` numeric [SettingsItem.TextInputRow];
- * the 5 [PromptAdvancedSwitchKeys] as [SettingsItem.SwitchRow]s) and hands it to [AbSettingsScreen]
- * (Task/Batch 9a's generic renderer) with `onUp = null` (this is a tab body, not a navigable screen —
- * see below) and its callbacks routed straight back to [onSetModelOverride]/[onSetMaxIterations]/
- * [onSetSwitch]. Rows named in [hiddenAdvancedKeys] get `visible = false` (still built, just filtered
- * by [SettingsScreenState.visibleItems]) — mirrors classic's `setTextTransformationMode` hiding
+ * the 5 [PromptAdvancedSwitchKeys] as [SettingsItem.SwitchRow]s) and hands it to [AbSettingsContent]
+ * (Task/Batch 9a's generic renderer, scaffold-less variant — see below) with its callbacks routed
+ * straight back to [onSetModelOverride]/[onSetMaxIterations]/[onSetSwitch]. Rows named in
+ * [hiddenAdvancedKeys] get `visible = false` (still built, just filtered by
+ * [SettingsScreenState.visibleItems]) — mirrors classic's `setTextTransformationMode` hiding
  * `max_iterations`/`no_document_creation`/`auto_include_documents`/`auto_include_commentaries`, but
  * NOT `strict_context_matching`/`specify_before_run` (never hidden, per the controller's constant).
  * The model-override row is enabled whenever `!isReadOnly || isBuiltIn` (the controller's built-in
  * override exception); every other Advanced row is enabled only when `!isReadOnly` (matches classic's
  * `setReadOnly(keepModelEditable = isBuiltIn)`, which locks everything else regardless of `isBuiltIn`).
  *
- * KNOWN TRADE-OFF: [AbSettingsScreen] always renders its own [AbScaffold] (title + top app bar), so
- * embedding it as the Advanced tab body draws a second, near-empty M3 top bar under this screen's own
- * (title + tabs) bar — `title = ""`, `onUp = null`, no actions, so it has no text/icons, just the
- * bar's own height. This is the literal, brief-mandated reuse of [AbSettingsScreen] rather than a
- * bespoke inline renderer; a follow-up (Task 7's golden pass, or a later `AbSettingsScreen` overload
- * that renders without its own Scaffold) can tighten this if the extra bar reads as a visual defect
- * on device.
+ * Uses [AbSettingsContent] (the scaffold-less counterpart of [AbSettingsScreen], extracted in a
+ * Batch 9c fix) rather than [AbSettingsScreen] itself: the tab body already sits under this screen's
+ * own (title + tabs) top bar, so wrapping it in another [AbScaffold] would draw a second, redundant
+ * M3 app bar. [AbSettingsContent] renders the identical settings list/dialog logic with no top bar.
  *
  * **Top bar.** Title: [PromptEditData.id] `== null` (a new, unsaved prompt) → the generic "New
  * prompt" string (matches classic, which never distinguishes a title further for a new prompt);
@@ -587,9 +584,8 @@ private fun AdvancedTabContent(
         ),
     )
 
-    AbSettingsScreen(
+    AbSettingsContent(
         state = settingsState,
-        onUp = null,
         onSwitch = onSetSwitch,
         onListChoice = { key, value -> if (key == "model_override") onSetModelOverride(value.ifEmpty { null }) },
         onTextInput = { key, value -> if (key == "max_iterations") onSetMaxIterations(value.trim().toIntOrNull()) },

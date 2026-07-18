@@ -59,6 +59,10 @@ import net.bible.sharedui.strings.LocalStrings
  * The framework is deliberately lean: it renders only the generic item types. Screen-specific editors
  * (multiline prompt, retention-with-disable, language pickers, …) are intercepted by the consuming
  * screen BEFORE the items reach this renderer, so they never need special handling here.
+ *
+ * A thin wrapper around [AbSettingsContent]: this is just [AbScaffold] (title + top app bar) plus
+ * that content. Use [AbSettingsContent] directly when embedding the settings list inside a host that
+ * already renders its own top bar (e.g. a tab body) — see its kdoc.
  */
 @Composable
 fun AbSettingsScreen(
@@ -70,6 +74,35 @@ fun AbSettingsScreen(
     onNavigate: (String) -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
+    AbScaffold(title = state.title, onNavigateUp = onUp, actions = actions) { padding ->
+        AbSettingsContent(
+            state = state,
+            onSwitch = onSwitch,
+            onListChoice = onListChoice,
+            onTextInput = onTextInput,
+            onNavigate = onNavigate,
+            modifier = Modifier.padding(padding),
+        )
+    }
+}
+
+/**
+ * Scaffold-less counterpart of [AbSettingsScreen]: renders the same [SettingsScreenState] settings
+ * list (and owns the same screen-local list-choice/text-input dialog state) WITHOUT wrapping it in
+ * an [AbScaffold] — i.e. no top app bar. Intended for hosts that already render their own top bar
+ * (e.g. a screen with tabs, where this is one tab's body) and would otherwise get a redundant, near
+ * empty second app bar from [AbSettingsScreen]. [AbSettingsScreen] itself now delegates to this
+ * composable, so the two stay behaviourally identical for the shared rendering logic.
+ */
+@Composable
+fun AbSettingsContent(
+    state: SettingsScreenState,
+    onSwitch: (String, Boolean) -> Unit,
+    onListChoice: (String, String) -> Unit,
+    onTextInput: (String, String) -> Unit,
+    onNavigate: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     // Screen-local dialog state: the STABLE KEY of the editor row (if any) currently open, not a
     // captured item snapshot. The item itself is re-resolved from state.visibleItems on every
     // recomposition below, so if the async SettingsScreenState changes while the dialog is open
@@ -78,62 +111,63 @@ fun AbSettingsScreen(
     var listChoiceDialogKey by remember { mutableStateOf<String?>(null) }
     var textInputDialogKey by remember { mutableStateOf<String?>(null) }
 
-    AbScaffold(title = state.title, onNavigateUp = onUp, actions = actions) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
-            items(state.visibleItems, key = { it.key }) { item ->
-                when (item) {
-                    is SettingsItem.Category -> CategoryHeader(item.title)
+    // fillMaxSize() FIRST, caller's modifier (e.g. AbSettingsScreen's scaffold padding) applied
+    // after — matches the original inline `Modifier.fillMaxSize().padding(padding)` chain exactly,
+    // so AbSettingsScreen's delegation below is behaviour-preserving (order matters for layout).
+    LazyColumn(modifier = Modifier.fillMaxSize().then(modifier)) {
+        items(state.visibleItems, key = { it.key }) { item ->
+            when (item) {
+                is SettingsItem.Category -> CategoryHeader(item.title)
 
-                    is SettingsItem.SwitchRow -> AbSwitchRow(
-                        label = item.title,
-                        summary = item.summary,
-                        checked = item.checked,
-                        onCheckedChange = { onSwitch(item.key, it) },
+                is SettingsItem.SwitchRow -> AbSwitchRow(
+                    label = item.title,
+                    summary = item.summary,
+                    checked = item.checked,
+                    onCheckedChange = { onSwitch(item.key, it) },
+                    enabled = item.enabled,
+                )
+
+                is SettingsItem.ListChoiceRow -> {
+                    val selectedLabel = item.entries.firstOrNull { it.value == item.selectedValue }?.label
+                    SettingsRow(
+                        title = item.title,
+                        summary = selectedLabel ?: item.summary,
                         enabled = item.enabled,
+                        onClick = { listChoiceDialogKey = item.key },
                     )
+                }
 
-                    is SettingsItem.ListChoiceRow -> {
-                        val selectedLabel = item.entries.firstOrNull { it.value == item.selectedValue }?.label
-                        SettingsRow(
-                            title = item.title,
-                            summary = selectedLabel ?: item.summary,
-                            enabled = item.enabled,
-                            onClick = { listChoiceDialogKey = item.key },
+                is SettingsItem.TextInputRow -> SettingsRow(
+                    title = item.title,
+                    summary = item.summary ?: item.value,
+                    enabled = item.enabled,
+                    onClick = { textInputDialogKey = item.key },
+                )
+
+                is SettingsItem.NavigationRow -> SettingsRow(
+                    title = item.title,
+                    summary = item.summary,
+                    enabled = item.enabled,
+                    onClick = { onNavigate(item.key) },
+                    trailing = {
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
                         )
-                    }
+                    },
+                )
 
-                    is SettingsItem.TextInputRow -> SettingsRow(
-                        title = item.title,
-                        summary = item.summary ?: item.value,
-                        enabled = item.enabled,
-                        onClick = { textInputDialogKey = item.key },
-                    )
-
-                    is SettingsItem.NavigationRow -> SettingsRow(
-                        title = item.title,
-                        summary = item.summary,
-                        enabled = item.enabled,
-                        onClick = { onNavigate(item.key) },
-                        trailing = {
-                            Icon(
-                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                contentDescription = null,
-                            )
-                        },
-                    )
-
-                    // InfoRow is non-interactive (no clickable, no ripple): a plain title + summary.
-                    is SettingsItem.InfoRow -> Column(
-                        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-                    ) {
-                        Text(item.title, style = MaterialTheme.typography.bodyLarge)
-                        if (item.summary != null) {
-                            Text(
-                                item.summary!!,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
+                // InfoRow is non-interactive (no clickable, no ripple): a plain title + summary.
+                is SettingsItem.InfoRow -> Column(
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                ) {
+                    Text(item.title, style = MaterialTheme.typography.bodyLarge)
+                    if (item.summary != null) {
+                        Text(
+                            item.summary!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
