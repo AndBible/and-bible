@@ -449,7 +449,7 @@ class InstallZip : ActivityBase() {
         // Check for image files (background images)
         if (mimeType?.startsWith("image/") == true ||
             listOf(".png", ".jpg", ".jpeg", ".webp").any { displayName.lowercase().endsWith(it) }) {
-            return installBackgroundImage(uri, displayName)
+            return installBackgroundImage(uri, displayName, mimeType)
         }
 
         // Check for CSV prompt files
@@ -666,8 +666,25 @@ class InstallZip : ActivityBase() {
         true
     }
 
-    private suspend fun installBackgroundImage(uri: Uri, displayName_: String?): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun installBackgroundImage(uri: Uri, displayName_: String?, mimeType: String?): Boolean = withContext(Dispatchers.IO) {
         val displayName = displayName_ ?: UUID.randomUUID().toString()
+        // The discovery scanner registers modules strictly by file extension, so guarantee the
+        // saved file carries a recognized image extension. When the display name lacks one, derive
+        // it from the MIME type; if the MIME is unrecognized/null, default to .jpg (the stream is an
+        // image per the dispatch condition) so the file stays discoverable.
+        val hasImageExtension = listOf(".jpg", ".jpeg", ".png", ".webp")
+            .any { displayName.lowercase().endsWith(it) }
+        val fileName = if (hasImageExtension) {
+            displayName
+        } else {
+            val extension = when (mimeType) {
+                "image/png" -> ".png"
+                "image/jpeg" -> ".jpg"
+                "image/webp" -> ".webp"
+                else -> ".jpg"
+            }
+            displayName + extension
+        }
         withContext(Dispatchers.Main) {
             binding.loadingIndicator.visibility = View.VISIBLE
         }
@@ -676,14 +693,14 @@ class InstallZip : ActivityBase() {
             inputStream.use { fIn ->
                 val outDir = File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR)
                 outDir.mkdirs()
-                val outFile = File(outDir, displayName)
+                val outFile = File(outDir, fileName)
 
                 if (outFile.exists()) {
                     val doInstall = withContext(Dispatchers.Main) {
                         suspendCoroutine {
                             AlertDialog.Builder(this@InstallZip)
                                 .setTitle(R.string.overwrite_files_title)
-                                .setMessage(getString(R.string.overwrite_files, "$BACKGROUND_IMAGE_DIR/$displayName"))
+                                .setMessage(getString(R.string.overwrite_files, "$BACKGROUND_IMAGE_DIR/$fileName"))
                                 .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
                                 .setNeutralButton(R.string.cancel) { _, _ -> it.resume(false) }
                                 .setOnCancelListener { _ -> it.resume(false) }
