@@ -35,6 +35,7 @@ import net.bible.sharedcore.bookmark.BookmarkSortMode
 import net.bible.sharedcore.bookmark.BookmarksService
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
+import org.crosswire.jsword.versification.Versification
 
 private const val BOOKMARK_SORT_ORDER_PREF = "BookmarkSortOrder"
 private const val BOOKMARK_SHOW_NOTES_PREF = "bookmark_show_notes"
@@ -85,7 +86,7 @@ class BookmarksServiceImpl(
         rows
     }
 
-    private fun toRow(bm: BaseBookmarkWithNotes, versification: org.crosswire.jsword.versification.Versification, showNotes: Boolean): BookmarkRow {
+    private fun toRow(bm: BaseBookmarkWithNotes, versification: Versification, showNotes: Boolean): BookmarkRow {
         // Classic's BookmarkItemAdapter.getView lazily resolves text the first time a row is bound.
         if (bm.text == null) bookmarkControl.addText(bm)
 
