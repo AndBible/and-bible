@@ -76,6 +76,8 @@ import net.bible.sharedui.strings.LocalStrings
  * @param isDirty Whether the working permissions map differs from the loaded baseline (`GlobalToolPermissionsController.isDirty`).
  * @param onUp Requested up-navigation, gated behind the discard-confirm dialog while [isDirty].
  * @param onSetPermission Forwarded 1:1 to `GlobalToolPermissionsController.setPermission`.
+ * @param onSetCategoryRead E2/F35: forwarded 1:1 to `GlobalToolPermissionsController.setCategoryRead`.
+ * @param onSetCategoryWrite E2/F35: forwarded 1:1 to `GlobalToolPermissionsController.setCategoryWrite`.
  * @param onResetAll Forwarded 1:1 to `GlobalToolPermissionsController.resetAll`.
  * @param onSave Forwarded 1:1 to `GlobalToolPermissionsController.save`.
  * @param helpBody Host-supplied (Android-resource-backed) help body text.
@@ -88,6 +90,8 @@ fun GlobalToolPermissionsScreen(
     isDirty: Boolean,
     onUp: () -> Unit,
     onSetPermission: (toolId: String, ToolPermission) -> Unit,
+    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
+    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
     onResetAll: () -> Unit,
     onSave: () -> Unit,
     helpBody: String,
@@ -118,6 +122,8 @@ fun GlobalToolPermissionsScreen(
             permissionFor = permissionFor,
             globalDefaultLabelFor = { null },
             onSet = onSetPermission,
+            onSetCategoryRead = onSetCategoryRead,
+            onSetCategoryWrite = onSetCategoryWrite,
             modifier = Modifier.fillMaxSize().padding(padding),
         )
     }

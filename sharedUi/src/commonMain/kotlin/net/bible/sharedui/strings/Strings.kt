@@ -250,6 +250,10 @@ interface Strings {
     val toolOptionDefaultDenied: String         // R.string.tool_option_default_denied (PROMPT mode, write tool, global default = deny)
     val toolDescriptionInfoContentDescription: String  // R.string.tool_description_info (E1/F34/F37: info icon opening the tool-description AbInfoDialog)
 
+    // Task E2 — ToolPermissionList CategoryHeader bulk read/write toggles (F35/F37)
+    val toolCategoryReadLabel: String           // R.string.tool_category_read (category header bulk read-tool toggle label)
+    val toolCategoryWriteLabel: String          // R.string.tool_category_write (category header bulk write-tool toggle label)
+
     // Batch 9c — AiPromptsScreen (prompt manager)
     val aiPromptsTitle: String                  // R.string.ai_settings (screen title — doubles as "AI Settings")
     val aiSetupTitle: String                    // R.string.ai_setup_title (not-configured CTA title)

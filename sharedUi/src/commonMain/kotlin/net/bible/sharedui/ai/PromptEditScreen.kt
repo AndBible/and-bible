@@ -204,6 +204,8 @@ fun PromptEditScreen(
     onSetTextTransformation: (Boolean) -> Unit,
     onSetPermissionMode: (String?) -> Unit,
     onSetToolPermission: (toolId: String, ToolPermission) -> Unit,
+    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
+    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
     onResetToolPermissions: () -> Unit,
     onSetModelOverride: (String?) -> Unit,
     onSetMaxIterations: (Int?) -> Unit,
@@ -280,6 +282,8 @@ fun PromptEditScreen(
                         editable = editable,
                         onSetPermissionMode = onSetPermissionMode,
                         onSetToolPermission = onSetToolPermission,
+                        onSetCategoryRead = onSetCategoryRead,
+                        onSetCategoryWrite = onSetCategoryWrite,
                         onResetToolPermissions = onResetToolPermissions,
                         strings = strings,
                     )
@@ -482,6 +486,8 @@ private fun PermissionsTabContent(
     editable: Boolean,
     onSetPermissionMode: (String?) -> Unit,
     onSetToolPermission: (toolId: String, ToolPermission) -> Unit,
+    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
+    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
     onResetToolPermissions: () -> Unit,
     strings: Strings,
 ) {
@@ -512,6 +518,8 @@ private fun PermissionsTabContent(
             permissionFor = { toolId -> toolsById[toolId]?.let { toolPermissionFor(state, it) } ?: ToolPermission.DEFAULT },
             globalDefaultLabelFor = { toolId -> globalToolPermission(toolId).name },
             onSet = onSetToolPermission,
+            onSetCategoryRead = onSetCategoryRead,
+            onSetCategoryWrite = onSetCategoryWrite,
             modifier = Modifier.weight(1f),
         )
         if (editable) {

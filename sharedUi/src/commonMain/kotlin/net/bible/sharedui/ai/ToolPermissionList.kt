@@ -39,6 +39,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -47,10 +48,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.ai.CategoryToggleState
 import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
+import net.bible.sharedcore.ai.categoryToggleState
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
@@ -113,6 +117,12 @@ private data class ToolPermissionOption(val permission: ToolPermission, val labe
  *   mode (no Default option) for that tool.
  * @param onSet Invoked with the tool id and the newly selected [ToolPermission] when the user picks
  *   an option.
+ * @param onSetCategoryRead E2/F35/F37: bulk read-tool toggle for a category header, forwarded 1:1 to
+ *   `GlobalToolPermissionsController.setCategoryRead`/`PromptEditController.setCategoryRead`. The
+ *   control is hidden (mirrors classic's `View.GONE`) when the category has no read tools -- see
+ *   [categoryToggleState].
+ * @param onSetCategoryWrite E2/F35/F37: bulk write-tool toggle, same shape as [onSetCategoryRead] for
+ *   write tools (`setCategoryWrite`).
  * @param initiallyShownToolInfo Test-only hook (mirrors `initiallyHelpDialogOpen` elsewhere in this
  *   package): seeds the info-dialog state so a golden test can capture it open without simulating a
  *   click. Not used by either production caller.
@@ -124,6 +134,8 @@ fun ToolPermissionList(
     permissionFor: (toolId: String) -> ToolPermission,
     globalDefaultLabelFor: (toolId: String) -> String?,
     onSet: (toolId: String, ToolPermission) -> Unit,
+    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
+    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     initiallyShownToolInfo: ToolVd? = null,
 ) {
@@ -143,8 +155,13 @@ fun ToolPermissionList(
                 val isCollapsed = collapsed[category.id] == true
                 CategoryHeader(
                     category = category,
+                    tools = tools,
                     expanded = !isCollapsed,
                     onToggle = { collapsed[category.id] = !isCollapsed },
+                    permissionFor = permissionFor,
+                    onSetCategoryRead = onSetCategoryRead,
+                    onSetCategoryWrite = onSetCategoryWrite,
+                    strings = strings,
                 )
             }
             if (collapsed[category.id] != true) {
@@ -171,8 +188,30 @@ fun ToolPermissionList(
     }
 }
 
+/**
+ * Category header row: name, then (E2/F35/F37) the bulk read/write toggles -- each hidden when the
+ * category has no tools of that kind (mirrors classic `ToolPermissionListBuilder`'s `View.GONE` rule,
+ * see [categoryToggleState]) -- then the expand/collapse chevron. [CategoryBulkToggle] renders its
+ * own `Modifier.clickable`, which (like classic's separate `CheckBox` child views) consumes its own
+ * taps before they reach this row's outer `clickable(onToggle)`, so tapping a bulk toggle does not
+ * also expand/collapse the category.
+ */
 @Composable
-private fun CategoryHeader(category: ToolCategoryVd, expanded: Boolean, onToggle: () -> Unit) {
+private fun CategoryHeader(
+    category: ToolCategoryVd,
+    tools: List<ToolVd>,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    permissionFor: (toolId: String) -> ToolPermission,
+    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
+    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
+    strings: Strings,
+) {
+    val readTools = remember(tools) { tools.filterNot { it.requiresPermission } }
+    val writeTools = remember(tools) { tools.filter { it.requiresPermission } }
+    val readState = categoryToggleState(readTools, permissionFor)
+    val writeState = categoryToggleState(writeTools, permissionFor)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -185,10 +224,48 @@ private fun CategoryHeader(category: ToolCategoryVd, expanded: Boolean, onToggle
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.weight(1f),
         )
+        if (readState != null) {
+            CategoryBulkToggle(
+                label = strings.toolCategoryReadLabel,
+                state = readState,
+                onToggle = { enabled -> onSetCategoryRead(category.id, enabled) },
+            )
+        }
+        if (writeState != null) {
+            CategoryBulkToggle(
+                label = strings.toolCategoryWriteLabel,
+                state = writeState,
+                onToggle = { enabled -> onSetCategoryWrite(category.id, enabled) },
+            )
+        }
         Icon(
             imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
             contentDescription = null,
         )
+    }
+}
+
+/**
+ * One bulk read/write toggle: a [TriStateCheckbox] (so [CategoryToggleState.MIXED] renders as a
+ * genuine indeterminate dash, not collapsed to "off" like classic's plain `CheckBox`) plus its label.
+ * Tapping either the checkbox or the label toggles ALL rows of that kind: mirrors classic's checkbox
+ * semantics -- [CategoryToggleState.ALL_ON] flips OFF, anything else ([CategoryToggleState.MIXED] or
+ * [CategoryToggleState.ALL_OFF]) flips ON.
+ */
+@Composable
+private fun CategoryBulkToggle(label: String, state: CategoryToggleState, onToggle: (enabled: Boolean) -> Unit) {
+    val toggleableState = when (state) {
+        CategoryToggleState.ALL_ON -> ToggleableState.On
+        CategoryToggleState.MIXED -> ToggleableState.Indeterminate
+        CategoryToggleState.ALL_OFF -> ToggleableState.Off
+    }
+    val toggle = { onToggle(state != CategoryToggleState.ALL_ON) }
+    Row(
+        modifier = Modifier.clickable(onClick = toggle),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        TriStateCheckbox(state = toggleableState, onClick = toggle)
+        Text(label, style = MaterialTheme.typography.labelSmall)
     }
 }
 

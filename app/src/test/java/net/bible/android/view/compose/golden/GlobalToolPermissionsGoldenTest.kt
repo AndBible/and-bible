@@ -61,6 +61,8 @@ class GlobalToolPermissionsGoldenTest {
             isDirty = isDirty,
             onUp = {},
             onSetPermission = { _, _ -> },
+            onSetCategoryRead = { _, _ -> },
+            onSetCategoryWrite = { _, _ -> },
             onResetAll = {},
             onSave = {},
             helpBody = "Set default read/write permissions for AI tools across all prompts.",
@@ -97,7 +99,35 @@ class GlobalToolPermissionsGoldenTest {
                 permissionFor = { toolId -> permissions[toolId] ?: ToolPermission.ASK },
                 globalDefaultLabelFor = { null },
                 onSet = { _, _ -> },
+                onSetCategoryRead = { _, _ -> },
+                onSetCategoryWrite = { _, _ -> },
                 initiallyShownToolInfo = groups.first().tools.first(),
+            )
+        }
+
+    // E2/F35/F37: dedicated capture of the category header's bulk read/write toggles, exercising all
+    // three CategoryToggleState values distinctly across BIBLE's own read+write pair (BIBLE has both
+    // 2 read + 2 write tools, so both controls render side-by-side on the SAME header):
+    // BIBLE read=ALL_ON (get_passage+search_bible both ENABLED -> checked), BIBLE write=MIXED
+    // (create_bookmark=ASK "on", delete_note=DENY "off" -> indeterminate dash); NOTES read=ALL_OFF
+    // (read_notes=DISABLED -> unchecked), NOTES write=ALL_ON (edit_note=ALLOW -> checked).
+    @Test fun category_bulk_toggles_matrix() =
+        captureMatrix("GlobalToolPermissions", "bulk_toggles", heightDp = 1100) {
+            val bulkPermissions = mapOf(
+                "get_passage" to ToolPermission.ENABLED,
+                "search_bible" to ToolPermission.ENABLED,
+                "create_bookmark" to ToolPermission.ASK,
+                "delete_note" to ToolPermission.DENY,
+                "read_notes" to ToolPermission.DISABLED,
+                "edit_note" to ToolPermission.ALLOW,
+            )
+            ToolPermissionList(
+                categories = groups.map { it.category to it.tools },
+                permissionFor = { toolId -> bulkPermissions[toolId] ?: ToolPermission.ASK },
+                globalDefaultLabelFor = { null },
+                onSet = { _, _ -> },
+                onSetCategoryRead = { _, _ -> },
+                onSetCategoryWrite = { _, _ -> },
             )
         }
 }

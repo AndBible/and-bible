@@ -46,6 +46,46 @@ class GlobalToolPermissionsController(
         publish(_permissions.value + (toolId to permission))
     }
 
+    private fun toolsFor(categoryId: String): List<ToolVd> =
+        categories.firstOrNull { (category, _) -> category.id == categoryId }?.second ?: emptyList()
+
+    private fun readToolsFor(categoryId: String): List<ToolVd> = toolsFor(categoryId).filterNot { it.requiresPermission }
+    private fun writeToolsFor(categoryId: String): List<ToolVd> = toolsFor(categoryId).filter { it.requiresPermission }
+
+    /**
+     * Bulk read-tool toggle for the category header (E2/F35), mirroring classic
+     * `ToolPermissionListBuilder.setAllRows` for `readRows`: ON sets every read tool in the category
+     * to [ToolPermission.ENABLED] (GLOBAL mode's neutral/first option), OFF to
+     * [ToolPermission.DISABLED] (the trailing option). A no-op if the category has no read tools.
+     */
+    fun setCategoryRead(categoryId: String, enabled: Boolean) {
+        val value = if (enabled) ToolPermission.ENABLED else ToolPermission.DISABLED
+        val toolIds = readToolsFor(categoryId).map { it.id }
+        if (toolIds.isEmpty()) return
+        publish(_permissions.value + toolIds.associateWith { value })
+    }
+
+    /**
+     * Bulk write-tool toggle for the category header (E2/F37), mirroring classic `setAllRows` for
+     * `writeRows`: ON sets every write tool in the category to [ToolPermission.ASK] (GLOBAL mode's
+     * neutral "ask every time" first option -- NOT [ToolPermission.ALLOW]), OFF to
+     * [ToolPermission.DENY]. A no-op if the category has no write tools.
+     */
+    fun setCategoryWrite(categoryId: String, enabled: Boolean) {
+        val value = if (enabled) ToolPermission.ASK else ToolPermission.DENY
+        val toolIds = writeToolsFor(categoryId).map { it.id }
+        if (toolIds.isEmpty()) return
+        publish(_permissions.value + toolIds.associateWith { value })
+    }
+
+    /** Aggregate state of the category's read-tool bulk toggle (`null` = no read tools, hide it). */
+    fun categoryReadState(categoryId: String): CategoryToggleState? =
+        categoryToggleState(readToolsFor(categoryId)) { toolId -> _permissions.value[toolId] ?: ToolPermission.ENABLED }
+
+    /** Aggregate state of the category's write-tool bulk toggle (`null` = no write tools, hide it). */
+    fun categoryWriteState(categoryId: String): CategoryToggleState? =
+        categoryToggleState(writeToolsFor(categoryId)) { toolId -> _permissions.value[toolId] ?: ToolPermission.ASK }
+
     /**
      * Resets the working map to neutral defaults (write tools → [ToolPermission.ASK], read tools
      * → [ToolPermission.ENABLED]) — a purely local edit, like [setPermission]. Nothing is

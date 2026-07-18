@@ -143,6 +143,8 @@ class PromptEditComposeActivity : ActivityBase() {
                         onSetTextTransformation = controller::setTextTransformation,
                         onSetPermissionMode = controller::setPermissionMode,
                         onSetToolPermission = controller::setToolPermission,
+                        onSetCategoryRead = controller::setCategoryRead,
+                        onSetCategoryWrite = controller::setCategoryWrite,
                         onResetToolPermissions = controller::resetToolPermissions,
                         onSetModelOverride = controller::setModelOverride,
                         onSetMaxIterations = controller::setMaxIterations,

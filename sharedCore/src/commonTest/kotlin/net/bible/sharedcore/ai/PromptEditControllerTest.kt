@@ -45,6 +45,7 @@ class PromptEditControllerTest {
     private class Fake(
         private val prompts: MutableMap<String, PromptEditData> = mutableMapOf(),
         private val newData: PromptEditData? = null,
+        private val toolCatalog: List<Pair<ToolCategoryVd, List<ToolVd>>> = emptyList(),
     ) : PromptService {
         override val configured: StateFlow<Boolean> = MutableStateFlow(true)
         override val groups: StateFlow<List<PromptGroupVd>> = MutableStateFlow(emptyList())
@@ -76,7 +77,7 @@ class PromptEditControllerTest {
             )
 
         override fun categories(): List<PromptCategoryVd> = emptyList()
-        override fun toolsByCategory(): List<Pair<ToolCategoryVd, List<ToolVd>>> = emptyList()
+        override fun toolsByCategory(): List<Pair<ToolCategoryVd, List<ToolVd>>> = toolCatalog
         override fun globalToolPermission(toolId: String): ToolPermission = ToolPermission.DEFAULT
         override fun modelChoices(): List<SettingsItem.Choice> = emptyList()
 
@@ -382,6 +383,89 @@ class PromptEditControllerTest {
         c.resetToolPermissions()
         assertTrue(c.state.value.allowedTools.isEmpty())
         assertTrue(c.state.value.deniedTools.isEmpty())
+    }
+
+    // --- category bulk read/write toggles (E2/F37) ---
+
+    private val bulkCategory = ToolCategoryVd("BULK", "Bulk")
+    private val readA = ToolVd("readA", "Read A", "d", requiresPermission = false, categoryId = "BULK")
+    private val readB = ToolVd("readB", "Read B", "d", requiresPermission = false, categoryId = "BULK")
+    private val writeA = ToolVd("writeA", "Write A", "d", requiresPermission = true, categoryId = "BULK")
+    private val writeB = ToolVd("writeB", "Write B", "d", requiresPermission = true, categoryId = "BULK")
+    private val bulkCatalog: List<Pair<ToolCategoryVd, List<ToolVd>>> =
+        listOf(bulkCategory to listOf(readA, readB, writeA, writeB))
+
+    @Test fun setCategoryRead_setsAllReadToolsOnly_toDefaultOrDisabled() = runTest {
+        val d = data(allowedTools = setOf("readA", "readB"))
+        val f = Fake(mutableMapOf("p1" to d), toolCatalog = bulkCatalog)
+        val c = PromptEditController(f, promptId = "p1")
+
+        // OFF -> explicit DISABLED override (deniedTools).
+        c.setCategoryRead("BULK", false)
+        assertEquals(setOf("readA", "readB"), c.state.value.deniedTools)
+        assertTrue(c.state.value.allowedTools.isEmpty())
+
+        // ON -> DEFAULT (clears the override back out of both sets), write tools untouched.
+        c.setCategoryRead("BULK", true)
+        assertTrue(c.state.value.allowedTools.isEmpty())
+        assertTrue(c.state.value.deniedTools.isEmpty())
+    }
+
+    @Test fun setCategoryWrite_setsAllWriteToolsOnly_toDefaultOrDeny() = runTest {
+        val d = data(allowedTools = setOf("writeA", "readA"))
+        val f = Fake(mutableMapOf("p1" to d), toolCatalog = bulkCatalog)
+        val c = PromptEditController(f, promptId = "p1")
+
+        c.setCategoryWrite("BULK", false)
+        assertEquals(setOf("writeA", "writeB"), c.state.value.deniedTools)
+        // readA's ALLOW override is untouched by the write toggle.
+        assertEquals(setOf("readA"), c.state.value.allowedTools)
+
+        c.setCategoryWrite("BULK", true)
+        assertEquals(setOf("readA"), c.state.value.allowedTools)
+        assertTrue(c.state.value.deniedTools.isEmpty())
+    }
+
+    @Test fun categoryReadState_and_categoryWriteState_reflectAllOn_mixed_allOff() = runTest {
+        val f = Fake(mutableMapOf("p1" to data()), toolCatalog = bulkCatalog)
+        val c = PromptEditController(f, promptId = "p1")
+
+        // Fresh prompt: no overrides -> every tool is DEFAULT -> ALL_ON for both.
+        assertEquals(CategoryToggleState.ALL_ON, c.categoryReadState("BULK"))
+        assertEquals(CategoryToggleState.ALL_ON, c.categoryWriteState("BULK"))
+
+        c.setToolPermission("readA", ToolPermission.DISABLED)
+        assertEquals(CategoryToggleState.MIXED, c.categoryReadState("BULK"))
+
+        c.setToolPermission("readB", ToolPermission.DISABLED)
+        assertEquals(CategoryToggleState.ALL_OFF, c.categoryReadState("BULK"))
+
+        c.setToolPermission("writeA", ToolPermission.DENY)
+        assertEquals(CategoryToggleState.MIXED, c.categoryWriteState("BULK"))
+    }
+
+    @Test fun categoryState_nullWhenCategoryHasNoToolsOfThatKind() = runTest {
+        val readOnlyCategory = ToolCategoryVd("READ_ONLY", "Read only")
+        val readOnlyTool = ToolVd("readOnlyTool", "Read only tool", "d", requiresPermission = false, categoryId = "READ_ONLY")
+        val f = Fake(mutableMapOf("p1" to data()), toolCatalog = listOf(readOnlyCategory to listOf(readOnlyTool)))
+        val c = PromptEditController(f, promptId = "p1")
+
+        assertNotNull(c.categoryReadState("READ_ONLY"))
+        assertNull(c.categoryWriteState("READ_ONLY"))
+
+        // A bulk write op on a category with no write tools is a safe no-op.
+        c.setCategoryWrite("READ_ONLY", false)
+        assertTrue(c.state.value.deniedTools.isEmpty())
+    }
+
+    @Test fun setCategoryRead_isNoOpWhenReadOnly() = runTest {
+        val d = data(isReadOnly = true, isBuiltIn = false)
+        val f = Fake(mutableMapOf("p1" to d), toolCatalog = bulkCatalog)
+        val c = PromptEditController(f, promptId = "p1")
+
+        c.setCategoryRead("BULK", false)
+        assertTrue(c.state.value.deniedTools.isEmpty())
+        assertFalse(c.isDirty.value)
     }
 
     // --- misc setters ---

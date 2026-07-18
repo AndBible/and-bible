@@ -97,6 +97,8 @@ class PromptEditGoldenTest {
             onSetTextTransformation = {},
             onSetPermissionMode = {},
             onSetToolPermission = { _, _ -> },
+            onSetCategoryRead = { _, _ -> },
+            onSetCategoryWrite = { _, _ -> },
             onResetToolPermissions = {},
             onSetModelOverride = {},
             onSetMaxIterations = {},

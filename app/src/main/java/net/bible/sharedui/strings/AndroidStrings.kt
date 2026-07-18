@@ -242,6 +242,10 @@ class AndroidStrings(private val context: Context) : Strings {
     override val toolOptionDefaultDenied: String get() = context.getString(R.string.tool_option_default_denied)
     override val toolDescriptionInfoContentDescription: String get() = context.getString(R.string.tool_description_info)
 
+    // Task E2 — ToolPermissionList CategoryHeader bulk read/write toggles (F35/F37)
+    override val toolCategoryReadLabel: String get() = context.getString(R.string.tool_category_read)
+    override val toolCategoryWriteLabel: String get() = context.getString(R.string.tool_category_write)
+
     // Batch 9c — AiPromptsScreen (prompt manager)
     override val aiPromptsTitle: String get() = context.getString(R.string.ai_settings)
     override val aiSetupTitle: String get() = context.getString(R.string.ai_setup_title)

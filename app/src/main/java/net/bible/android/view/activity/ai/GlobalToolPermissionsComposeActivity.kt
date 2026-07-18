@@ -86,6 +86,8 @@ class GlobalToolPermissionsComposeActivity : ActivityBase() {
                         isDirty = isDirty,
                         onUp = { finish() },
                         onSetPermission = controller::setPermission,
+                        onSetCategoryRead = controller::setCategoryRead,
+                        onSetCategoryWrite = controller::setCategoryWrite,
                         onResetAll = controller::resetAll,
                         onSave = { controller.save(); finish() },
                         helpBody = getString(R.string.help_global_tool_permissions_text),
