@@ -23,19 +23,24 @@ class AiConnectionSettingsGoldenTest {
         items = listOf(
             SettingsItem.InfoRow(
                 key = "ai_disclaimer_warning", title = "Disclaimer",
-                summary = "Risks and responsibilities of using AI", onClickKey = "ai_disclaimer_warning", visible = true,
+                summary = "Risks and responsibilities of using AI", iconKey = "ai_disclaimer_warning",
+                onClickKey = "ai_disclaimer_warning", visible = true,
             ),
             SettingsItem.NavigationRow(
                 key = "easy_setup", title = "Getting started", summary = "Set up your first AI provider",
-                visible = false,
+                iconKey = "ai_getting_started", visible = false,
             ),
             SettingsItem.Category(key = "ai_providers_models_category", title = "Providers & models", visible = true),
-            SettingsItem.NavigationRow(key = "providers", title = "Providers", summary = "2", visible = true),
-            SettingsItem.NavigationRow(key = "models", title = "Models", summary = "GPT-4o", visible = true),
+            SettingsItem.NavigationRow(
+                key = "providers", title = "Providers", summary = "2", iconKey = "ai_providers_shortcut", visible = true,
+            ),
+            SettingsItem.NavigationRow(
+                key = "models", title = "Models", summary = "GPT-4o", iconKey = "ai_models_shortcut", visible = true,
+            ),
             SettingsItem.Category(key = "ai_behavior_category", title = "Behavior", visible = true),
             SettingsItem.ListChoiceRow(
                 key = "ai_language", title = "AI language", summary = "English",
-                entries = emptyList(), selectedValue = "en", visible = true,
+                entries = emptyList(), selectedValue = "en", iconKey = "ai_language", visible = true,
             ),
             SettingsItem.ListChoiceRow(
                 key = "agent_permission_mode", title = "Tool permission mode", summary = "Ask every time",
@@ -46,22 +51,23 @@ class AiConnectionSettingsGoldenTest {
                         "auto_all" to "Auto-approve all tools",
                     ),
                 ),
-                selectedValue = "always_ask", visible = true,
+                selectedValue = "always_ask", iconKey = "agent_permission_mode", visible = true,
             ),
             SettingsItem.NavigationRow(
                 key = "tool_permissions", title = "Tool permissions", summary = "Manage tool permissions (3)",
-                visible = true,
+                iconKey = "manage_tool_permissions", visible = true,
             ),
             SettingsItem.NavigationRow(
-                key = "documents", title = "Documents", summary = "Manage documents available to AI", visible = true,
+                key = "documents", title = "Documents", summary = "Manage documents available to AI",
+                iconKey = "manage_ai_documents", visible = true,
             ),
             SettingsItem.TextInputRow(
                 key = "commentary_max_response", title = "Commentary max response", summary = "2000 tokens",
-                value = "2000", numeric = true, visible = true,
+                value = "2000", numeric = true, iconKey = "commentary_max_response_chars", visible = true,
             ),
             SettingsItem.TextInputRow(
                 key = "agent_max_iterations", title = "Max iterations", summary = "Max agent iterations (10)",
-                value = "10", numeric = true, visible = true,
+                value = "10", numeric = true, iconKey = "agent_max_iterations", visible = true,
             ),
             SettingsItem.SwitchRow(
                 key = "ask_model_before_run", title = "Ask before running",
@@ -74,27 +80,28 @@ class AiConnectionSettingsGoldenTest {
             SettingsItem.Category(key = "ai_advanced_category", title = "Advanced", visible = true),
             SettingsItem.TextInputRow(
                 key = "custom_agent_prompt", title = "Custom agent system prompt", summary = "Custom",
-                value = "", visible = true,
+                value = "", iconKey = "custom_agent_system_prompt", visible = true,
             ),
             SettingsItem.TextInputRow(
                 key = "custom_text_transform_prompt", title = "Custom text transformation system prompt",
-                summary = "Default", value = "", visible = true,
+                summary = "Default", value = "", iconKey = "custom_text_transform_system_prompt", visible = true,
             ),
             SettingsItem.Category(key = "ai_usage_category", title = "Usage", visible = true),
             SettingsItem.InfoRow(
-                key = "usage_summary", title = "Usage summary", summary = "12,345 tokens · \$0.34", visible = true,
+                key = "usage_summary", title = "Usage summary", summary = "12,345 tokens · \$0.34",
+                iconKey = "llm_usage_summary", visible = true,
             ),
             SettingsItem.NavigationRow(
                 key = "reset_usage", title = "Reset usage data", summary = "Clear cumulative token and cost tracking",
-                visible = true,
+                iconKey = "llm_reset_usage", visible = true,
             ),
             SettingsItem.NavigationRow(
                 key = "raw_log_history", title = "Raw log history",
-                summary = "View and manage saved AI conversation logs", visible = true,
+                summary = "View and manage saved AI conversation logs", iconKey = "raw_log_history", visible = true,
             ),
             SettingsItem.TextInputRow(
                 key = "raw_log_retention", title = "Raw log retention", summary = "30 days", value = "30",
-                numeric = true, visible = true,
+                numeric = true, iconKey = "raw_log_retention", visible = true,
             ),
         ),
     )
@@ -107,33 +114,46 @@ class AiConnectionSettingsGoldenTest {
         items = listOf(
             SettingsItem.InfoRow(
                 key = "ai_disclaimer_warning", title = "Disclaimer",
-                summary = "Risks and responsibilities of using AI", onClickKey = "ai_disclaimer_warning", visible = true,
+                summary = "Risks and responsibilities of using AI", iconKey = "ai_disclaimer_warning",
+                onClickKey = "ai_disclaimer_warning", visible = true,
             ),
             SettingsItem.NavigationRow(
                 key = "easy_setup", title = "Getting started", summary = "Set up your first AI provider",
-                visible = true,
+                iconKey = "ai_getting_started", visible = true,
             ),
             SettingsItem.Category(key = "ai_providers_models_category", title = "Providers & models", visible = true),
-            SettingsItem.NavigationRow(key = "providers", title = "Providers", summary = "No providers configured", visible = true),
-            SettingsItem.NavigationRow(key = "models", title = "Models", summary = "No models configured", visible = false),
+            SettingsItem.NavigationRow(
+                key = "providers", title = "Providers", summary = "No providers configured",
+                iconKey = "ai_providers_shortcut", visible = true,
+            ),
+            SettingsItem.NavigationRow(
+                key = "models", title = "Models", summary = "No models configured",
+                iconKey = "ai_models_shortcut", visible = false,
+            ),
             SettingsItem.Category(key = "ai_behavior_category", title = "Behavior", visible = false),
             SettingsItem.ListChoiceRow(
                 key = "ai_language", title = "AI language", summary = "English",
-                entries = emptyList(), selectedValue = "en", visible = false,
+                entries = emptyList(), selectedValue = "en", iconKey = "ai_language", visible = false,
             ),
             SettingsItem.ListChoiceRow(
                 key = "agent_permission_mode", title = "Tool permission mode", summary = "Ask every time",
-                entries = emptyList(), selectedValue = "always_ask", visible = false,
+                entries = emptyList(), selectedValue = "always_ask", iconKey = "agent_permission_mode", visible = false,
             ),
-            SettingsItem.NavigationRow(key = "tool_permissions", title = "Tool permissions", summary = "Manage tool permissions", visible = false),
-            SettingsItem.NavigationRow(key = "documents", title = "Documents", summary = "Manage documents available to AI", visible = false),
+            SettingsItem.NavigationRow(
+                key = "tool_permissions", title = "Tool permissions", summary = "Manage tool permissions",
+                iconKey = "manage_tool_permissions", visible = false,
+            ),
+            SettingsItem.NavigationRow(
+                key = "documents", title = "Documents", summary = "Manage documents available to AI",
+                iconKey = "manage_ai_documents", visible = false,
+            ),
             SettingsItem.TextInputRow(
                 key = "commentary_max_response", title = "Commentary max response", summary = "No limit",
-                value = "0", numeric = true, visible = false,
+                value = "0", numeric = true, iconKey = "commentary_max_response_chars", visible = false,
             ),
             SettingsItem.TextInputRow(
                 key = "agent_max_iterations", title = "Max iterations", summary = "Max agent iterations (unlimited)",
-                value = "0", numeric = true, visible = false,
+                value = "0", numeric = true, iconKey = "agent_max_iterations", visible = false,
             ),
             SettingsItem.SwitchRow(
                 key = "ask_model_before_run", title = "Ask before running",
@@ -146,19 +166,28 @@ class AiConnectionSettingsGoldenTest {
             SettingsItem.Category(key = "ai_advanced_category", title = "Advanced", visible = false),
             SettingsItem.TextInputRow(
                 key = "custom_agent_prompt", title = "Custom agent system prompt", summary = "Default", value = "",
-                visible = false,
+                iconKey = "custom_agent_system_prompt", visible = false,
             ),
             SettingsItem.TextInputRow(
                 key = "custom_text_transform_prompt", title = "Custom text transformation system prompt",
-                summary = "Default", value = "", visible = false,
+                summary = "Default", value = "", iconKey = "custom_text_transform_system_prompt", visible = false,
             ),
             SettingsItem.Category(key = "ai_usage_category", title = "Usage", visible = false),
-            SettingsItem.InfoRow(key = "usage_summary", title = "Usage summary", summary = "0 tokens · \$0.00", visible = false),
-            SettingsItem.NavigationRow(key = "reset_usage", title = "Reset usage data", summary = "Clear cumulative token and cost tracking", visible = false),
-            SettingsItem.NavigationRow(key = "raw_log_history", title = "Raw log history", summary = "View and manage saved AI conversation logs", visible = false),
+            SettingsItem.InfoRow(
+                key = "usage_summary", title = "Usage summary", summary = "0 tokens · \$0.00",
+                iconKey = "llm_usage_summary", visible = false,
+            ),
+            SettingsItem.NavigationRow(
+                key = "reset_usage", title = "Reset usage data", summary = "Clear cumulative token and cost tracking",
+                iconKey = "llm_reset_usage", visible = false,
+            ),
+            SettingsItem.NavigationRow(
+                key = "raw_log_history", title = "Raw log history", summary = "View and manage saved AI conversation logs",
+                iconKey = "raw_log_history", visible = false,
+            ),
             SettingsItem.TextInputRow(
                 key = "raw_log_retention", title = "Raw log retention", summary = "30 days", value = "30",
-                numeric = true, visible = false,
+                numeric = true, iconKey = "raw_log_retention", visible = false,
             ),
         ),
     )

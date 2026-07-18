@@ -182,6 +182,7 @@ class AiConnectionSettingsController(
                 key = "ai_disclaimer_warning",
                 title = labels.disclaimerWarningTitle,
                 summary = labels.disclaimerWarningSummary,
+                iconKey = "ai_disclaimer_warning",
                 onClickKey = "ai_disclaimer_warning",
                 visible = true,
             ),
@@ -189,6 +190,7 @@ class AiConnectionSettingsController(
                 key = AiConnectionNav.EASY_SETUP,
                 title = labels.gettingStartedTitle,
                 summary = labels.gettingStartedSummary,
+                iconKey = "ai_getting_started",
                 visible = !hasProviders,
             ),
             SettingsItem.Category(
@@ -200,12 +202,14 @@ class AiConnectionSettingsController(
                 key = AiConnectionNav.PROVIDERS,
                 title = labels.providersTitle,
                 summary = providersSummary,
+                iconKey = "ai_providers_shortcut",
                 visible = true,
             ),
             SettingsItem.NavigationRow(
                 key = AiConnectionNav.MODELS,
                 title = labels.modelsTitle,
                 summary = modelsSummary,
+                iconKey = "ai_models_shortcut",
                 visible = hasProviders,
             ),
             SettingsItem.Category(
@@ -219,6 +223,7 @@ class AiConnectionSettingsController(
                 summary = s.aiLanguageLabel,
                 entries = emptyList(),
                 selectedValue = s.aiLanguage,
+                iconKey = "ai_language",
                 visible = hasProviders,
             ),
             SettingsItem.ListChoiceRow(
@@ -227,18 +232,21 @@ class AiConnectionSettingsController(
                 summary = labels.permissionModeLabels[s.agentPermissionMode] ?: s.agentPermissionMode,
                 entries = agentPermissionModeChoices(labels.permissionModeLabels),
                 selectedValue = s.agentPermissionMode,
+                iconKey = "agent_permission_mode",
                 visible = hasProviders,
             ),
             SettingsItem.NavigationRow(
                 key = AiConnectionNav.TOOL_PERMISSIONS,
                 title = labels.toolPermissionsTitle,
                 summary = toolPermissionsSummary,
+                iconKey = "manage_tool_permissions",
                 visible = hasProviders,
             ),
             SettingsItem.NavigationRow(
                 key = AiConnectionNav.DOCUMENTS,
                 title = labels.documentsTitle,
                 summary = labels.documentsSummary,
+                iconKey = "manage_ai_documents",
                 visible = hasProviders,
             ),
             SettingsItem.TextInputRow(
@@ -247,6 +255,7 @@ class AiConnectionSettingsController(
                 summary = commentaryMaxResponseSummary,
                 value = s.commentaryMaxResponseTokens.toString(),
                 numeric = true,
+                iconKey = "commentary_max_response_chars",
                 visible = hasProviders,
             ),
             SettingsItem.TextInputRow(
@@ -255,8 +264,13 @@ class AiConnectionSettingsController(
                 summary = maxIterationsSummary,
                 value = s.maxIterations.toString(),
                 numeric = true,
+                iconKey = "agent_max_iterations",
                 visible = hasProviders,
             ),
+            // NOTE (F29 concern): ask_model_before_run / auto_hide_agent_log deliberately have NO
+            // iconKey — SettingsItem.SwitchRow carries the field, but AbSwitchRow (the shared switch
+            // row component, used beyond settings screens) has no leading-icon slot yet. Classic
+            // drawable is mapped in SettingsIcons.kt for when that follow-up lands.
             SettingsItem.SwitchRow(
                 key = "ask_model_before_run",
                 title = labels.askModelBeforeRunTitle,
@@ -281,6 +295,7 @@ class AiConnectionSettingsController(
                 title = labels.customAgentSystemPromptTitle,
                 summary = customAgentPromptSummary,
                 value = "",
+                iconKey = "custom_agent_system_prompt",
                 visible = hasProviders,
             ),
             SettingsItem.TextInputRow(
@@ -288,6 +303,7 @@ class AiConnectionSettingsController(
                 title = labels.customTextTransformSystemPromptTitle,
                 summary = customTextTransformPromptSummary,
                 value = "",
+                iconKey = "custom_text_transform_system_prompt",
                 visible = hasProviders,
             ),
             SettingsItem.Category(
@@ -299,18 +315,21 @@ class AiConnectionSettingsController(
                 key = "usage_summary",
                 title = labels.usageSummaryTitle,
                 summary = s.usageSummary,
+                iconKey = "llm_usage_summary",
                 visible = hasProviders,
             ),
             SettingsItem.NavigationRow(
                 key = AiConnectionNav.RESET_USAGE,
                 title = labels.resetUsageTitle,
                 summary = labels.resetUsageSummary,
+                iconKey = "llm_reset_usage",
                 visible = hasProviders,
             ),
             SettingsItem.NavigationRow(
                 key = AiConnectionNav.RAW_LOG_HISTORY,
                 title = labels.rawLogHistoryTitle,
                 summary = labels.rawLogHistorySummary,
+                iconKey = "raw_log_history",
                 visible = hasProviders,
             ),
             SettingsItem.TextInputRow(
@@ -319,6 +338,7 @@ class AiConnectionSettingsController(
                 summary = rawLogRetentionSummary,
                 value = s.rawLogRetentionDays.toString(),
                 numeric = true,
+                iconKey = "raw_log_retention",
                 visible = hasProviders,
             ),
         )

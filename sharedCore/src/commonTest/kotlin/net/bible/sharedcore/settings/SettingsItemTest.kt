@@ -21,10 +21,14 @@ class SettingsItemTest {
         val nav = SettingsItem.NavigationRow("nav", "Go")
         val switch = SettingsItem.SwitchRow("sw", "Switch", checked = true)
         val info = SettingsItem.InfoRow("info", "Info")
+        val listChoice = SettingsItem.ListChoiceRow("lc", "Choice", entries = emptyList(), selectedValue = "a")
+        val textInput = SettingsItem.TextInputRow("ti", "Input", value = "x")
         assertEquals(null, nav.iconKey)
         assertEquals(null, switch.iconKey)
         assertEquals(null, info.iconKey)
         assertEquals(null, info.onClickKey)
+        assertEquals(null, listChoice.iconKey)
+        assertEquals(null, textInput.iconKey)
     }
 
     @Test fun newIconAndClickFields_holdWhenSet() {
@@ -36,9 +40,15 @@ class SettingsItemTest {
             iconKey = "ic_info",
             onClickKey = "info_dialog",
         )
+        val listChoice = SettingsItem.ListChoiceRow(
+            "lc", "Choice", entries = emptyList(), selectedValue = "a", iconKey = "ic_lc",
+        )
+        val textInput = SettingsItem.TextInputRow("ti", "Input", value = "x", iconKey = "ic_ti")
         assertEquals("ic_nav", nav.iconKey)
         assertEquals("ic_switch", switch.iconKey)
         assertEquals("ic_info", info.iconKey)
         assertEquals("info_dialog", info.onClickKey)
+        assertEquals("ic_lc", listChoice.iconKey)
+        assertEquals("ic_ti", textInput.iconKey)
     }
 }

@@ -30,6 +30,8 @@ sealed interface SettingsItem {
         val summary: String? = null,
         val entries: List<Choice>,
         val selectedValue: String,
+        /** Optional key into the host's [net.bible.sharedui.settings.LocalSettingsIcon] seam for a leading icon. */
+        val iconKey: String? = null,
         override val visible: Boolean = true,
         val enabled: Boolean = true,
     ) : SettingsItem
@@ -41,6 +43,8 @@ sealed interface SettingsItem {
         val summary: String? = null,
         val value: String,
         val numeric: Boolean = false,
+        /** Optional key into the host's [net.bible.sharedui.settings.LocalSettingsIcon] seam for a leading icon. */
+        val iconKey: String? = null,
         override val visible: Boolean = true,
         val enabled: Boolean = true,
     ) : SettingsItem

@@ -137,6 +137,7 @@ fun AbSettingsContent(
                         summary = selectedLabel ?: item.summary,
                         enabled = item.enabled,
                         onClick = { listChoiceDialogKey = item.key },
+                        iconKey = item.iconKey,
                     )
                 }
 
@@ -145,6 +146,7 @@ fun AbSettingsContent(
                     summary = item.summary ?: item.value,
                     enabled = item.enabled,
                     onClick = { textInputDialogKey = item.key },
+                    iconKey = item.iconKey,
                 )
 
                 is SettingsItem.NavigationRow -> SettingsRow(
@@ -267,9 +269,11 @@ private fun CategoryHeader(title: String) = Text(
  * dim and stop responding to clicks. [TwoLineListItem] isn't reused here because these rows may have
  * a single line (no summary) and an optional trailing slot.
  *
- * [iconKey] defaults to `null` (no icon, matching every existing caller): only [SettingsItem.NavigationRow]
- * currently supplies one, resolved via [LocalSettingsIcon]; [SettingsItem.ListChoiceRow]/[SettingsItem.TextInputRow]
- * have no `iconKey` field yet and always render without a leading icon.
+ * [iconKey] defaults to `null` (no icon): [SettingsItem.NavigationRow], [SettingsItem.ListChoiceRow] and
+ * [SettingsItem.TextInputRow] all carry an optional `iconKey`, resolved here via [LocalSettingsIcon].
+ * [SettingsItem.SwitchRow] also has an `iconKey` field, but [net.bible.sharedui.components.AbSwitchRow]
+ * has no leading-icon slot yet, so a switch row's `iconKey` (if any) is currently ignored — F29 left this
+ * as a follow-up rather than adding an icon slot to that shared component (used beyond settings screens).
  */
 @Composable
 private fun SettingsRow(
