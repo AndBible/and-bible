@@ -16,7 +16,12 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class AiPromptsGoldenTest {
 
-    private fun screen(configured: Boolean, groups: List<PromptGroupVd> = emptyList(), showHidden: Boolean = false) =
+    private fun screen(
+        configured: Boolean,
+        groups: List<PromptGroupVd> = emptyList(),
+        showHidden: Boolean = false,
+        initiallyHelpDialogOpen: Boolean = false,
+    ) =
         @androidx.compose.runtime.Composable {
             AiPromptsScreen(
                 configured = configured,
@@ -38,7 +43,9 @@ class AiPromptsGoldenTest {
                 onOpenConnectionSettings = {},
                 onImportCsv = {},
                 onExportCsv = {},
-                onHelp = {},
+                helpBody = "AI Settings is where you manage your prompts and categories.",
+                helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
+                initiallyHelpDialogOpen = initiallyHelpDialogOpen,
             )
         }
 
@@ -107,4 +114,14 @@ class AiPromptsGoldenTest {
      *  distinct from the not-configured CTA above. */
     @Test fun configured_empty() =
         captureGolden("AiPrompts", "configured_empty", EDGE_MODE, content = screen(configured = true, groups = emptyList()))
+
+    // F30: the overflow "Help" item opens an AbInfoDialog (with a "Read more" docs link), replacing
+    // classic's CommonUtils.showHelpDialog AlertDialog. heightDp=900 (same as "configured") so the
+    // dialog renders over the full list.
+    @Test fun configured_help_matrix() =
+        captureMatrix(
+            "AiPrompts", "help",
+            heightDp = 900,
+            content = screen(configured = true, groups = configuredGroups(), showHidden = true, initiallyHelpDialogOpen = true),
+        )
 }

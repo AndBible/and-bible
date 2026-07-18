@@ -63,6 +63,7 @@ import net.bible.sharedcore.ai.PromptGroupVd
 import net.bible.sharedcore.ai.PromptVd
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTextInputDialog
@@ -137,7 +138,9 @@ fun AiPromptsScreen(
     onOpenConnectionSettings: () -> Unit,
     onImportCsv: () -> Unit,
     onExportCsv: () -> Unit,
-    onHelp: () -> Unit,
+    helpBody: String,
+    helpReadMoreUrl: String,
+    initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
 
@@ -145,6 +148,7 @@ fun AiPromptsScreen(
     var renameCategoryTarget by remember { mutableStateOf<PromptCategoryVd?>(null) }
     var deleteCategoryTarget by remember { mutableStateOf<PromptCategoryVd?>(null) }
     var deletePromptTarget by remember { mutableStateOf<PromptVd?>(null) }
+    var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
 
     AbScaffold(
         title = strings.aiPromptsTitle,
@@ -170,7 +174,7 @@ fun AiPromptsScreen(
                     )
                     DropdownMenuItem(text = { Text(strings.exportPromptsCsv) }, onClick = { close(); onExportCsv() })
                     DropdownMenuItem(text = { Text(strings.importPromptsCsv) }, onClick = { close(); onImportCsv() })
-                    DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); onHelp() })
+                    DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); showHelp = true })
                 }
             }
         },
@@ -266,6 +270,15 @@ fun AiPromptsScreen(
             dismissText = strings.no,
             onConfirm = { deletePromptTarget = null; onDeletePrompt(prompt.id) },
             onDismiss = { deletePromptTarget = null },
+        )
+    }
+    if (showHelp) {
+        AbInfoDialog(
+            title = strings.helpLabel,
+            body = helpBody,
+            onDismiss = { showHelp = false },
+            readMoreLabel = strings.helpReadMoreLink,
+            readMoreUrl = helpReadMoreUrl,
         )
     }
 }

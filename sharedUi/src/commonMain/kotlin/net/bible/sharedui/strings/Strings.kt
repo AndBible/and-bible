@@ -363,6 +363,10 @@ interface Strings {
     val aiDisclaimerPoint8: String                  // R.string.ai_disclaimer_point8
     val aiDisclaimerPoint9: String                  // R.string.ai_disclaimer_point9
 
+    // Batch 9 fix C2 — AiPrompts help dialog "Read more" link (F30); shared across every
+    // `AbInfoDialog`-based help conversion in Batch C, not just AiPrompts.
+    val helpReadMoreLink: String                    // R.string.help_read_more_link
+
     /**
      * Plain-text disclaimer body for [net.bible.sharedui.components.AbInfoDialog], composed from the
      * 12 raw parts above — mirrors classic `AiSettingsFragmentBase.buildDisclaimerHtml()`'s paragraph

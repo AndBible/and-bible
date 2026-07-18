@@ -65,13 +65,16 @@ import kotlin.coroutines.resume
  * controller intends. They route via [ScreenLauncher] to [Screen.PromptEdit] / [Screen.AiConnectionSettings],
  * so both honor the `use_compose_ui` flag independently of this host.
  *
- * CSV import/export and the help dialog also stay host-side — they need Android SAF (`awaitIntent`)
- * and resource-backed dialogs the shared layer can't own. The flows are ported verbatim from classic
- * [AiSettingsActivity] (`exportPrompts`/`importPrompts`: the editable-vs-addon chooser, the
- * `ACTION_CREATE_DOCUMENT`/`ACTION_OPEN_DOCUMENT` intents, and the result Toasts/error dialogs),
- * finishing with [PromptService.refresh]. [onResume] calls [PromptService.refresh] for parity with
- * classic's pull-refresh (a child PromptEdit save posts `AppSettingsUpdated`, but some changes — CSV,
- * add-on installs — need an explicit re-query).
+ * CSV import/export stays host-side — it needs Android SAF (`awaitIntent`), which the shared layer
+ * can't own. The flows are ported verbatim from classic [AiSettingsActivity] (`exportPrompts`/
+ * `importPrompts`: the editable-vs-addon chooser, the `ACTION_CREATE_DOCUMENT`/`ACTION_OPEN_DOCUMENT`
+ * intents, and the result Toasts/error dialogs), finishing with [PromptService.refresh]. [onResume]
+ * calls [PromptService.refresh] for parity with classic's pull-refresh (a child PromptEdit save posts
+ * `AppSettingsUpdated`, but some changes — CSV, add-on installs — need an explicit re-query).
+ *
+ * The help dialog (F30) is owned by [AiPromptsScreen] itself as an `AbInfoDialog` — this host only
+ * supplies the Android-resource-backed help body text and the full "Read more" docs URL (both must
+ * come from here since commonMain can't read `R.string.*` / build a `DOCS_URL_PREFIX`-relative link).
  *
  * Debug-only "reset all AI settings" is intentionally NOT surfaced here: the shared [AiPromptsScreen]
  * overflow exposes new/category/connection/export/import/help only, matching the intended prompt
@@ -126,7 +129,8 @@ class AiPromptsComposeActivity : ActivityBase() {
                         onOpenConnectionSettings = controller::onOpenConnectionSettings,
                         onImportCsv = { lifecycleScope.launch { importPrompts() } },
                         onExportCsv = { lifecycleScope.launch { exportPrompts() } },
-                        onHelp = { showHelp() },
+                        helpBody = getString(R.string.help_ai_settings_text),
+                        helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                     )
                 }
             }
@@ -138,15 +142,6 @@ class AiPromptsComposeActivity : ActivityBase() {
         // Parity with classic's pull-based refresh: a child PromptEdit save posts AppSettingsUpdated,
         // but CSV imports / add-on installs done here (or elsewhere) need an explicit re-query.
         service.refresh()
-    }
-
-    private fun showHelp() {
-        CommonUtils.showHelpDialog(
-            activity = this,
-            titleResId = R.string.help,
-            messageResId = R.string.help_ai_settings_text,
-            helpPath = "ai.html",
-        )
     }
 
     // --- CSV export/import (ported verbatim from classic AiSettingsActivity) -----------------------
