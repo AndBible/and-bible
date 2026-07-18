@@ -28,6 +28,8 @@ import net.bible.android.view.activity.bookmark.LabelEditServiceImpl
 import net.bible.sharedcore.bookmark.LabelEditService
 import net.bible.android.view.activity.bookmark.ManageLabelsServiceImpl
 import net.bible.sharedcore.bookmark.ManageLabelsService
+import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
+import net.bible.sharedcore.bookmark.BookmarksService
 import net.bible.android.view.activity.ai.AiSettingsServiceImpl
 import net.bible.android.view.activity.ai.DocumentFilterServiceImpl
 import net.bible.android.view.activity.ai.LlmModelServiceImpl
@@ -82,6 +84,7 @@ val coreModule = module {
     singleOf(::BookmarkControl)
     singleOf(::LabelEditServiceImpl) { bind<LabelEditService>() }
     singleOf(::ManageLabelsServiceImpl) { bind<ManageLabelsService>() }
+    singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() }
     singleOf(::PageControl)
     singleOf(::ReadingPlanControl)
     singleOf(::ReadingPlanRepository)
