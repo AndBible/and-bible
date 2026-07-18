@@ -201,7 +201,7 @@ private fun LabelItemRow(
             modifier = Modifier
                 .size(40.dp)
                 .then(
-                    if (mode.workspaceEdits) {
+                    if (mode.workspaceEdits && !label.isUnlabeled) {
                         Modifier.clickable { onToggleAutoAssign(label.id) }
                     } else {
                         Modifier
@@ -209,7 +209,7 @@ private fun LabelItemRow(
                 ),
             contentAlignment = Alignment.Center,
         ) {
-            if (mode.workspaceEdits && row.isAutoAssign) {
+            if (mode.workspaceEdits && !label.isUnlabeled && row.isAutoAssign) {
                 Box(
                     modifier = Modifier
                         .size(24.dp)
