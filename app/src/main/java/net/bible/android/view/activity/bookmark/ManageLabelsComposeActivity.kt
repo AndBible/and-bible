@@ -33,6 +33,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.res.colorResource
@@ -55,18 +58,24 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
+import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.labelsAndBookmarksPlaylist
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.exportStudyPads
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
 import net.bible.sharedcore.bookmark.ManageLabelsController
+import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
+import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.bookmark.ManageLabelsScreen
+import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
@@ -126,6 +135,14 @@ class ManageLabelsComposeActivity : ActivityBase() {
         super.onCreate(savedInstanceState)
         data = ManageLabels.ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
 
+        // Restore the persisted STUDYPAD content-search mode (classic ManageLabels.kt:133-138
+        // loadFilteringSettings, `labels_list_search_mode` — STUDYPAD only). Harmless to seed via
+        // setSearchMode before the first collection: with no search text yet it's a no-op rebuild().
+        if (data.mode == ManageLabels.Mode.STUDYPAD) {
+            val modeOrdinal = CommonUtils.settings.getInt("labels_list_search_mode", SearchMode.NAME_START.ordinal)
+            controller.setSearchMode(SearchMode.entries.getOrElse(modeOrdinal) { SearchMode.NAME_START })
+        }
+
         setContent {
             ProvideAppLocals {
                 AbTheme(
@@ -135,19 +152,27 @@ class ManageLabelsComposeActivity : ActivityBase() {
                 ) {
                     val rows by controller.rows.collectAsState()
                     val searchText by controller.searchText.collectAsState()
-                    val nameSearchInside by controller.nameSearchInside.collectAsState()
+                    val searchMode by controller.searchMode.collectAsState()
+                    var showExportDialog by remember { mutableStateOf(false) }
 
                     ManageLabelsScreen(
                         title = getString(data.titleId),
                         rows = rows,
                         mode = controller.mode,
                         searchText = searchText,
-                        nameSearchInside = nameSearchInside,
+                        searchMode = searchMode,
                         onSearch = controller::setSearch,
-                        onToggleSearchInside = { controller.setNameSearchInside(!nameSearchInside) },
+                        onSetSearchMode = controller::setSearchMode,
                         onRowClick = { id ->
-                            if (data.mode == ManageLabels.Mode.STUDYPAD) controller.selectStudyPad(id)
-                            else controller.editLabel(id)
+                            if (data.mode == ManageLabels.Mode.STUDYPAD) {
+                                // A content-search hit carries its own firstMatchEntryId; a plain
+                                // name-filtered Item row has none (navigates to the StudyPad start).
+                                val entryId = (rows.find { it is ManageLabelsRow.SearchResult && it.labelId == id }
+                                    as? ManageLabelsRow.SearchResult)?.firstMatchEntryId
+                                controller.selectStudyPad(id, entryId)
+                            } else {
+                                controller.editLabel(id)
+                            }
                         },
                         onRowLongClick = { id -> controller.editLabel(id) },
                         onToggleChecked = controller::toggleChecked,
@@ -155,11 +180,46 @@ class ManageLabelsComposeActivity : ActivityBase() {
                         onSetPrimary = controller::setPrimary,
                         onToggleAutoAssign = controller::toggleAutoAssign,
                         onUp = { saveAndExit() },
+                        onExportStudyPads = { showExportDialog = true },
+                        onImportStudyPads = ::importStudyPads,
                         iconSlot = { customIcon, colorArgb -> ManageLabelIcon(customIcon, colorArgb) },
                         actions = { ManageLabelsActions() },
                     )
+
+                    // Mirrors classic ManageLabels.kt:394-406 (export_studypads menu handler): a
+                    // multiselect over every assignable label, then exportStudyPads for the chosen ones.
+                    if (showExportDialog) {
+                        AbMultiSelectDialog(
+                            title = getString(R.string.export_something, getString(R.string.studypads)),
+                            options = bookmarkControl.assignableLabels,
+                            selectedIds = emptyList(),
+                            idOf = { it.id.toString() },
+                            labelOf = { it.displayName },
+                            confirmText = getString(R.string.okay),
+                            dismissText = getString(R.string.cancel),
+                            onConfirm = { ids ->
+                                showExportDialog = false
+                                val selected = bookmarkControl.assignableLabels.filter { ids.contains(it.id.toString()) }
+                                if (selected.isNotEmpty()) {
+                                    lifecycleScope.launch(Dispatchers.Main) {
+                                        exportStudyPads(this@ManageLabelsComposeActivity, *selected.toTypedArray())
+                                    }
+                                }
+                            },
+                            onDismiss = { showExportDialog = false },
+                        )
+                    }
                 }
             }
+        }
+    }
+
+    // --- StudyPad import (mirrors classic ManageLabels.kt:407-413 import_studypads menu handler) ---
+
+    private fun importStudyPads() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            awaitIntent(Intent(this@ManageLabelsComposeActivity, InstallZip::class.java))
+            controller.refresh()
         }
     }
 
@@ -287,14 +347,15 @@ class ManageLabelsComposeActivity : ActivityBase() {
         }
     }
 
-    // --- StudyPad selection (mirrors classic ManageLabels.studyPadSelected, ManageLabels.kt:501-512) ---
+    // --- StudyPad selection (mirrors classic ManageLabels.studyPadSelected, ManageLabels.kt:501-512,
+    // and selectStudyPadLabel, ManageLabels.kt:664-671) ---
 
-    private fun onSelectStudyPad(id: String) {
+    private fun onSelectStudyPad(id: String, firstMatchEntryId: String?) {
         val label = labelsById[id] ?: bookmarkControl.labelById(IdType(id)) ?: return
         try {
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(
                 FakeBookFactory.journalDocument,
-                StudyPadKey(label),
+                StudyPadKey(label, entryId = firstMatchEntryId?.let { IdType(it) }),
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show journal", e)
@@ -306,6 +367,12 @@ class ManageLabelsComposeActivity : ActivityBase() {
     // --- save/exit (mirrors classic ManageLabels.saveAndExit, ManageLabels.kt:673-723) ---
 
     private fun saveAndExit() {
+        // Persist the STUDYPAD content-search mode (classic ManageLabels.kt:141-145 saveFilteringSettings,
+        // `labels_list_search_mode` — STUDYPAD only).
+        if (data.mode == ManageLabels.Mode.STUDYPAD) {
+            CommonUtils.settings.setInt("labels_list_search_mode", controller.searchMode.value.ordinal)
+        }
+
         val deletedIds = controller.resultDeleted()
         val orphanedIds = controller.resultDeletedWithOrphaned()
         val withoutOrphaned = deletedIds.filterNot { orphanedIds.contains(it) }.map { IdType(it) }

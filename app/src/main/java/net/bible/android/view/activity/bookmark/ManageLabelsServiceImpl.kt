@@ -17,12 +17,16 @@
 package net.bible.android.view.activity.bookmark
 
 import android.graphics.Color
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.StudyPadSearchResult
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.displayName
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.bookmark.LabelItem
+import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import kotlin.random.Random.Default.nextInt
 
@@ -52,6 +56,32 @@ class ManageLabelsServiceImpl(
     // Matches classic ManageLabels.randomColor() (ManageLabels.kt:526) exactly, including the
     // (0, 255)-exclusive-upper-bound nextInt calls.
     override fun randomColorArgb(): Int = Color.argb(255, nextInt(0, 255), nextInt(0, 255), nextInt(0, 255))
+
+    // Run off the main thread: classic ManageLabels.kt:804-842 dispatches this search on
+    // Dispatchers.IO (Room DAO queries), and the controller launches it on its own scope, which
+    // may be Main-confined (lifecycleScope on the host).
+    override suspend fun searchStudyPadsByContent(text: String): List<ManageLabelsRow.SearchResult> =
+        withContext(Dispatchers.IO) {
+            bookmarkControl.searchStudyPadsByContent(text).map { it.toSearchResultRow() }
+        }
+}
+
+/** [ManageLabelsRow.SearchResult] view of a classic [StudyPadSearchResult] — takes only the FIRST
+ *  match's snippet/span/entry id (mirrors classic `ManageLabelItemAdapter`'s `VIEW_TYPE_SEARCH_RESULT`,
+ *  which likewise surfaces one representative match per Study Pad row); empty/zero/null when there
+ *  are no matches (shouldn't normally occur — every result here came from a matching query row). */
+fun StudyPadSearchResult.toSearchResultRow(): ManageLabelsRow.SearchResult {
+    val first = matches.firstOrNull()
+    return ManageLabelsRow.SearchResult(
+        labelId = label.id.toString(),
+        name = label.displayName,
+        color = label.color,
+        matchCount = matchCount,
+        snippet = first?.textSnippet ?: "",
+        matchStart = first?.matchStart ?: 0,
+        matchEnd = first?.matchEnd ?: 0,
+        firstMatchEntryId = first?.entryId?.toString(),
+    )
 }
 
 /** [LabelItem] view of a Room [BookmarkEntities.Label]. `hasOverride` is always `false` here — the
