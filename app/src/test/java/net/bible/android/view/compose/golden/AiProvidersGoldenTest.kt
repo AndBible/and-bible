@@ -132,13 +132,14 @@ class AiProvidersGoldenTest {
         captureMatrix("AiProviders", "help", content = screen(null, initiallyHelpDialogOpen = true))
 
     // F31: Quick-setup / Add-provider disclaimer gate now opens an AbConfirmDialog (replacing
-    // classic's AlertDialog.Builder accept flow). heightDp=2000: AbConfirmDialog's body Text has no
-    // internal scroll/height cap (unlike AbInfoDialog), so the full multi-paragraph disclaimer needs
-    // a tall viewport to render without clipping (1300 still clipped the last paragraph + buttons).
+    // classic's AlertDialog.Builder accept flow). AbConfirmDialog's message body is height-bounded
+    // + scrollable (like AbInfoDialog), so the full multi-paragraph disclaimer no longer needs an
+    // artificially tall viewport to keep the Accept/Cancel buttons reachable — heightDp=800 is a
+    // realistic phone-portrait height (e.g. Pixel 6 ~412x915dp) and the buttons are visible.
     @Test fun accept_disclaimer_matrix() =
         captureMatrix(
             "AiProviders", "accept_disclaimer",
-            heightDp = 2000,
+            heightDp = 800,
             content = screen(null, showAcceptDisclaimerDialog = true),
         )
 }
