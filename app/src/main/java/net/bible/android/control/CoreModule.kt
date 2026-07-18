@@ -24,6 +24,8 @@ import net.bible.sharedcore.search.SearchIndexService
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsServiceImpl
 import net.bible.sharedcore.speak.SpeakSettingsService
+import net.bible.android.view.activity.bookmark.LabelEditServiceImpl
+import net.bible.sharedcore.bookmark.LabelEditService
 import net.bible.android.view.activity.ai.AiSettingsServiceImpl
 import net.bible.android.view.activity.ai.DocumentFilterServiceImpl
 import net.bible.android.view.activity.ai.LlmModelServiceImpl
@@ -76,6 +78,7 @@ val coreModule = module {
     singleOf(::HistoryTraversalFactory)
     singleOf(::DocumentControl)
     singleOf(::BookmarkControl)
+    singleOf(::LabelEditServiceImpl) { bind<LabelEditService>() }
     singleOf(::PageControl)
     singleOf(::ReadingPlanControl)
     singleOf(::ReadingPlanRepository)
