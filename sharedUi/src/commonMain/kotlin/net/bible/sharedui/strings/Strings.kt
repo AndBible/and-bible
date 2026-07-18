@@ -343,6 +343,30 @@ interface Strings {
     val shareLabel: String                        // R.string.share
     val reportBugLabel: String                    // R.string.ai_bug_report_menu
     val areYouSure: String                        // R.string.are_you_sure
+
+    // Batch 7a — LabelEditScreen
+    val editLabelTitle: String                    // R.string.edit_label (top-bar title)
+    val labelNameHint: String                     // R.string.label_name_prompt (name field hint)
+    val selectCustomIconLabel: String              // R.string.select_custom_icon
+    val favouriteLabelSwitchLabel: String          // R.string.favourite_label
+    val underlineStyleLabel: String                // R.string.bookmark_underline_style_arbitrary
+    val underlineStyleWholeVerseLabel: String      // R.string.bookmark_underline_style_whole_verse
+    val markerStyleLabel: String                   // R.string.marker_style
+    val markerStyleWholeVerseLabel: String          // R.string.marker_style_whole_verse
+    val hideStyleLabel: String                     // R.string.hide_style
+    val hideStyleWholeVerseLabel: String            // R.string.hide_style_whole_verse
+    val thisBookmarkSectionTitle: String            // R.string.this_bookmark
+    val addedToBookmarkLabel: String                // R.string.added_to_bookmark
+    val primaryLabelSwitchLabel: String             // R.string.primary_label
+    val thisWorkspaceSectionTitle: String           // R.string.this_workspace
+    val autoAssignLabelSwitchLabel: String          // R.string.auto_assign_labels1
+    val autoAssignPrimaryLabelSwitchLabel: String   // R.string.auto_assign_labels_primary
+    val overrideStyleFieldLabel: String             // R.string.override_style
+    val noOverrideSuffix: String                    // R.string.no_override_suffix
+    val displayModeHighlight: String                // R.string.display_mode_highlight
+    val displayModeUnderline: String                // R.string.display_mode_underline
+    val displayModeMarker: String                   // R.string.display_mode_marker
+    val displayModeHidden: String                   // R.string.display_mode_hidden
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
