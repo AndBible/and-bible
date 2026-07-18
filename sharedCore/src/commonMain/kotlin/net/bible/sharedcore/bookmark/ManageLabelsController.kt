@@ -61,6 +61,19 @@ class ManageLabelsController(
         else -> {}
     } }
 
+    // ---- classic ensureNotAutoAssignPrimaryLabel / ensureNotBookmarkPrimaryLabel (ManageLabels.kt:514-524) ----
+    // "if this label IS the primary, or there is no primary at all, reassign it to the first
+    // remaining member of the relevant set (or null if that set is now empty)."
+    private fun ensureNotContextPrimary(id: String) {
+        if (contextPrimary() == id || contextPrimary() == null) setContextPrimary(contextSelected().toList().firstOrNull())
+    }
+    private fun ensureNotAutoAssignPrimary(id: String) {
+        if (autoAssignPrimary == id || autoAssignPrimary == null) autoAssignPrimary = autoAssign.toList().firstOrNull()
+    }
+    private fun ensureNotBookmarkPrimary(id: String) {
+        if (bookmarkPrimary == id || bookmarkPrimary == null) bookmarkPrimary = selected.toList().firstOrNull()
+    }
+
     private fun nameMatches(name: String): Boolean {
         val t = _searchText.value
         if (t.isBlank()) return true
@@ -113,12 +126,12 @@ class ManageLabelsController(
     fun reOrder() = rebuild()
     fun toggleChecked(id: String) {
         val ctx = contextSelected()
-        if (ctx.contains(id)) { ctx.remove(id); if (contextPrimary() == id) setContextPrimary(ctx.firstOrNull()) }
+        if (ctx.contains(id)) { ctx.remove(id); ensureNotContextPrimary(id) }
         else { ctx.add(id); if (contextPrimary() == null && mode.primaryShown) setContextPrimary(id) }
         rebuild()
     }
     fun toggleAutoAssign(id: String) { // workspaceEdits row-icon toggle
-        if (autoAssign.contains(id)) { autoAssign.remove(id); if (autoAssignPrimary == id) autoAssignPrimary = autoAssign.firstOrNull() }
+        if (autoAssign.contains(id)) { autoAssign.remove(id); ensureNotAutoAssignPrimary(id) }
         else { autoAssign.add(id); if (autoAssignPrimary == null) autoAssignPrimary = id }
         rebuild()
     }
@@ -134,18 +147,26 @@ class ManageLabelsController(
     fun reset() = onReset()
 
     // ---- host apply hooks (after a LabelEdit round-trip) ----
+    // Mirrors classic ManageLabels.editLabel's result handling (ManageLabels.kt:619-628): each flag,
+    // when set, either claims the primary or (else branch) falls back through ensureNot*Primary so a
+    // primary that pointed at this label (or was already null) doesn't dangle.
     fun applyLabelChanged(item: LabelItem, selectedFlag: Boolean?, autoAssignFlag: Boolean?, primaryFlag: Boolean?) {
         val i = labels.indexOfFirst { it.id == item.id }
         if (i >= 0) labels[i] = item else labels.add(item)
         changed.add(item.id)
         selectedFlag?.let { if (it) selected.add(item.id) else selected.remove(item.id) }
         autoAssignFlag?.let { if (it) autoAssign.add(item.id) else autoAssign.remove(item.id) }
-        primaryFlag?.let { if (it) setContextPrimary(item.id) }
+        primaryFlag?.let { isPrimary -> if (isPrimary) setContextPrimary(item.id) else ensureNotContextPrimary(item.id) }
         rebuild()
     }
+    // Mirrors classic ManageLabels.deleteLabel (ManageLabels.kt:537-550): remove from every set +
+    // `changed`, then ensureNot* both primaries so a deleted primary is reassigned, never left dangling.
     fun applyLabelDeleted(id: String, orphaned: Boolean) {
         deleted.add(id); if (orphaned) deletedWithOrphaned.add(id)
-        labels.removeAll { it.id == id }; selected.remove(id); autoAssign.remove(id)
+        labels.removeAll { it.id == id }
+        selected.remove(id); autoAssign.remove(id); changed.remove(id)
+        ensureNotBookmarkPrimary(id)
+        ensureNotAutoAssignPrimary(id)
         rebuild()
     }
     fun refresh() = rebuild()

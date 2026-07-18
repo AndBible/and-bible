@@ -158,6 +158,62 @@ class ManageLabelsControllerTest {
         assertFalse(row2.label.favourite)
     }
 
+    @Test fun applyLabelDeleted_reassigns_primary_and_cleans_changed() {
+        val c = controller(
+            mode = ManageLabelsMode.ASSIGN,
+            labels = listOf(A, B),
+            initialSelected = setOf("A", "B"),
+            initialBookmarkPrimary = "A",
+        )
+        c.toggleFavourite("A") // marks "A" as changed
+        assertTrue(c.resultChanged().contains("A"))
+
+        c.applyLabelDeleted("A", orphaned = false)
+        assertEquals(setOf("B"), c.resultSelected())
+        assertEquals("B", c.resultBookmarkPrimary()) // reassigned to remaining member
+        assertFalse(c.resultChanged().contains("A")) // dropped from changed
+        assertTrue(c.resultDeleted().contains("A"))
+
+        c.applyLabelDeleted("B", orphaned = true)
+        assertEquals(emptySet<String>(), c.resultSelected())
+        assertNull(c.resultBookmarkPrimary()) // set now empty -> reassigned to null
+        assertTrue(c.resultDeletedWithOrphaned().contains("B"))
+    }
+
+    @Test fun applyLabelChanged_primaryFlag_false_reassigns_primary_away() {
+        val c = controller(
+            mode = ManageLabelsMode.ASSIGN,
+            labels = listOf(A, B),
+            initialSelected = setOf("B", "A"), // "B" precedes "A" -> firstOrNull() picks it on reassignment
+            initialBookmarkPrimary = "A",
+        )
+        // "A" comes back from the edit round-trip still selected but with isThisBookmarkPrimary == false:
+        // ensureNotBookmarkPrimaryLabel must still fire (primary == this label's id) and reassign away,
+        // even though the label itself remains in the selected set.
+        c.applyLabelChanged(A.copy(name = "Apple2"), selectedFlag = true, autoAssignFlag = null, primaryFlag = false)
+        assertEquals(setOf("B", "A"), c.resultSelected())
+        assertEquals("B", c.resultBookmarkPrimary())
+    }
+
+    @Test fun toggleChecked_HIDELABELS_no_primary_but_selection_toggles() {
+        val c = controller(mode = ManageLabelsMode.HIDELABELS, labels = listOf(A, B))
+        assertTrue(ManageLabelsMode.HIDELABELS.showCheckboxes)
+        assertFalse(ManageLabelsMode.HIDELABELS.primaryShown)
+
+        c.toggleChecked("A")
+        assertEquals(setOf("A"), c.resultSelected())
+        assertNull(c.resultBookmarkPrimary())
+        assertNull(c.resultAutoAssignPrimary())
+
+        c.toggleChecked("B")
+        assertEquals(setOf("A", "B"), c.resultSelected())
+        assertNull(c.resultBookmarkPrimary())
+
+        c.toggleChecked("A")
+        assertEquals(setOf("B"), c.resultSelected())
+        assertNull(c.resultBookmarkPrimary())
+    }
+
     @Test fun name_filter_NAME_START_vs_NAME_CONTAINS() {
         val antelope = label("ANT", "Antelope")
         val banana = label("BAN", "Banana")
