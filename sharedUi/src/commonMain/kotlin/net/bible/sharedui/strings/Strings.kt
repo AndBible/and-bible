@@ -247,6 +247,31 @@ interface Strings {
     val toolOptionDefaultDisabled: String       // R.string.tool_option_default_disabled (PROMPT mode, read tool, global default = disabled)
     val toolOptionDefaultAllowed: String        // R.string.tool_option_default_allowed (PROMPT mode, write tool, global default = allow)
     val toolOptionDefaultDenied: String         // R.string.tool_option_default_denied (PROMPT mode, write tool, global default = deny)
+
+    // Batch 9c — AiPromptsScreen (prompt manager)
+    val aiPromptsTitle: String                  // R.string.ai_settings (screen title — doubles as "AI Settings")
+    val aiSetupTitle: String                    // R.string.ai_setup_title (not-configured CTA title)
+    val aiSetupDescription: String              // R.string.ai_setup_description (not-configured CTA body)
+    val aiConfigureButton: String               // R.string.ai_configure_button (not-configured CTA button)
+    val managePromptsSummary: String            // R.string.manage_prompts_summary (empty-state text, zero prompts total)
+    val newPrompt: String                       // R.string.new_prompt (add-prompt top-bar action content description)
+    val newCategory: String                     // R.string.new_category (overflow item + dialog title)
+    val connectionSettingsMenuLabel: String     // R.string.ai_connection_settings (overflow item)
+    val exportPromptsCsv: String                // R.string.export_prompts_csv (overflow item)
+    val importPromptsCsv: String                // R.string.import_prompts_csv (overflow item)
+    val restoreHiddenPromptsLabel: String       // R.string.ai_restore_hidden_prompts (overflow show/hide-hidden checkable toggle; reused label, see screen kdoc)
+    val promptCategoryFavorites: String         // R.string.prompt_category_favorites (virtual group header)
+    val promptCategoryUncategorized: String     // R.string.prompt_category_uncategorized (uncategorized group header)
+    val hiddenSuffix: String                    // R.string.hidden ("hidden" parenthetical marker)
+    val hideCategoryLabel: String               // R.string.hide_category
+    val showCategoryLabel: String               // R.string.show_category
+    val moveUpLabel: String                     // R.string.move_category_up (reused for both prompt + category reorder)
+    val moveDownLabel: String                   // R.string.move_category_down
+    val deleteCategoryLabel: String             // R.string.delete_category
+    fun deleteCategoryConfirm(name: String): String  // R.string.delete_category_confirm_title
+    val hidePromptLabel: String                 // R.string.ai_hide_prompt
+    val restoreLabel: String                    // R.string.restore (reused as the un-hide-prompt action)
+    val deletePromptConfirmMessage: String      // R.string.delete_prompt_confirm_message
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
