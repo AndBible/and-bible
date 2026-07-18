@@ -16,4 +16,29 @@ class SettingsItemTest {
         )
         assertEquals(listOf("cat", "a", "nav"), state.visibleItems.map { it.key })
     }
+
+    @Test fun newIconAndClickFields_defaultToNull() {
+        val nav = SettingsItem.NavigationRow("nav", "Go")
+        val switch = SettingsItem.SwitchRow("sw", "Switch", checked = true)
+        val info = SettingsItem.InfoRow("info", "Info")
+        assertEquals(null, nav.iconKey)
+        assertEquals(null, switch.iconKey)
+        assertEquals(null, info.iconKey)
+        assertEquals(null, info.onClickKey)
+    }
+
+    @Test fun newIconAndClickFields_holdWhenSet() {
+        val nav = SettingsItem.NavigationRow("nav", "Go", iconKey = "ic_nav")
+        val switch = SettingsItem.SwitchRow("sw", "Switch", checked = true, iconKey = "ic_switch")
+        val info = SettingsItem.InfoRow(
+            "info",
+            "Info",
+            iconKey = "ic_info",
+            onClickKey = "info_dialog",
+        )
+        assertEquals("ic_nav", nav.iconKey)
+        assertEquals("ic_switch", switch.iconKey)
+        assertEquals("ic_info", info.iconKey)
+        assertEquals("info_dialog", info.onClickKey)
+    }
 }

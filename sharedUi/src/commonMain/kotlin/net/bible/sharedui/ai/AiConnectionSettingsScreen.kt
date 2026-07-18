@@ -177,8 +177,10 @@ fun AiConnectionSettingsScreen(
  *  for keys in [SPECIAL_KEYS], which the controller emits as [SettingsItem.TextInputRow] (the two
  *  custom prompts, the retention row) or [SettingsItem.ListChoiceRow] (`ai_language`). */
 private fun SettingsItem.asNavigationRow(): SettingsItem.NavigationRow = when (this) {
-    is SettingsItem.TextInputRow -> SettingsItem.NavigationRow(key, title, summary, visible, enabled)
-    is SettingsItem.ListChoiceRow -> SettingsItem.NavigationRow(key, title, summary, visible, enabled)
+    is SettingsItem.TextInputRow ->
+        SettingsItem.NavigationRow(key = key, title = title, summary = summary, visible = visible, enabled = enabled)
+    is SettingsItem.ListChoiceRow ->
+        SettingsItem.NavigationRow(key = key, title = title, summary = summary, visible = visible, enabled = enabled)
     else -> error("AiConnectionSettingsScreen: key '$key' is not a special-editor row type (${this::class})")
 }
 

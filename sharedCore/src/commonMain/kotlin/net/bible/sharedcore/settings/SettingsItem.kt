@@ -17,6 +17,8 @@ sealed interface SettingsItem {
         val title: String,
         val summary: String? = null,
         val checked: Boolean,
+        /** Optional key into the host's [net.bible.sharedui.settings.LocalSettingsIcon] seam for a leading icon. */
+        val iconKey: String? = null,
         override val visible: Boolean = true,
         val enabled: Boolean = true,
     ) : SettingsItem
@@ -48,15 +50,24 @@ sealed interface SettingsItem {
         override val key: String,
         val title: String,
         val summary: String? = null,
+        /** Optional key into the host's [net.bible.sharedui.settings.LocalSettingsIcon] seam for a leading icon. */
+        val iconKey: String? = null,
         override val visible: Boolean = true,
         val enabled: Boolean = true,
     ) : SettingsItem
 
-    /** Non-selectable informational row. */
+    /**
+     * Non-selectable informational row, optionally made interactive via [onClickKey] (e.g. to open
+     * an info/disclaimer dialog) — when null the row stays plain/non-clickable, unchanged behaviour.
+     */
     data class InfoRow(
         override val key: String,
         val title: String,
         val summary: String? = null,
+        /** Optional key into the host's [net.bible.sharedui.settings.LocalSettingsIcon] seam for a leading icon. */
+        val iconKey: String? = null,
+        /** When non-null, the row is clickable and the host's navigate/click callback fires with this key. */
+        val onClickKey: String? = null,
         override val visible: Boolean = true,
     ) : SettingsItem
 

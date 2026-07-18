@@ -20,9 +20,12 @@ package net.bible.sharedui.settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -149,6 +152,7 @@ fun AbSettingsContent(
                     summary = item.summary,
                     enabled = item.enabled,
                     onClick = { onNavigate(item.key) },
+                    iconKey = item.iconKey,
                     trailing = {
                         Icon(
                             Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -157,17 +161,44 @@ fun AbSettingsContent(
                     },
                 )
 
-                // InfoRow is non-interactive (no clickable, no ripple): a plain title + summary.
-                is SettingsItem.InfoRow -> Column(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-                ) {
-                    Text(item.title, style = MaterialTheme.typography.bodyLarge)
-                    if (item.summary != null) {
-                        Text(
-                            item.summary!!,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                // InfoRow is non-interactive by default (no clickable, no ripple) — a plain title +
+                // summary, optionally with a leading icon. When onClickKey is set, the row becomes
+                // clickable and fires the SAME onNavigate callback NavigationRow uses, passing
+                // onClickKey (not item.key) — e.g. to open an info/disclaimer dialog by that key.
+                is SettingsItem.InfoRow -> {
+                    val iconPainter = item.iconKey?.let { LocalSettingsIcon.current(it) }
+                    val onClickKey = item.onClickKey
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(
+                                if (onClickKey != null) {
+                                    Modifier.clickable(onClick = { onNavigate(onClickKey) })
+                                } else {
+                                    Modifier
+                                },
+                            )
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (iconPainter != null) {
+                            Icon(
+                                painter = iconPainter,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                            )
+                            Spacer(Modifier.width(16.dp))
+                        }
+                        Column(Modifier.weight(1f)) {
+                            Text(item.title, style = MaterialTheme.typography.bodyLarge)
+                            if (item.summary != null) {
+                                Text(
+                                    item.summary!!,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -231,10 +262,14 @@ private fun CategoryHeader(title: String) = Text(
 )
 
 /**
- * A generic clickable settings row (title + optional summary + optional trailing content), used for
- * the list-choice, text-input and navigation item types. Disabled rows dim and stop responding to
- * clicks. [TwoLineListItem] isn't reused here because these rows may have a single line (no summary)
- * and an optional trailing slot.
+ * A generic clickable settings row (title + optional summary + optional leading icon + optional
+ * trailing content), used for the list-choice, text-input and navigation item types. Disabled rows
+ * dim and stop responding to clicks. [TwoLineListItem] isn't reused here because these rows may have
+ * a single line (no summary) and an optional trailing slot.
+ *
+ * [iconKey] defaults to `null` (no icon, matching every existing caller): only [SettingsItem.NavigationRow]
+ * currently supplies one, resolved via [LocalSettingsIcon]; [SettingsItem.ListChoiceRow]/[SettingsItem.TextInputRow]
+ * have no `iconKey` field yet and always render without a leading icon.
  */
 @Composable
 private fun SettingsRow(
@@ -242,8 +277,10 @@ private fun SettingsRow(
     summary: String?,
     enabled: Boolean,
     onClick: () -> Unit,
+    iconKey: String? = null,
     trailing: @Composable (() -> Unit)? = null,
 ) {
+    val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -252,6 +289,14 @@ private fun SettingsRow(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (iconPainter != null) {
+            Icon(
+                painter = iconPainter,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+            )
+            Spacer(Modifier.width(16.dp))
+        }
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.bodyLarge)
             if (summary != null) {
