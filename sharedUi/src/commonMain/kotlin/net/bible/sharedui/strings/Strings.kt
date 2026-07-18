@@ -243,6 +243,7 @@ interface Strings {
     val toolOptionDisabled: String              // R.string.tool_option_disabled (read-tool option)
     val toolOptionAllow: String                 // R.string.permission_option_always_allow (write-tool option)
     val toolOptionDeny: String                  // R.string.permission_option_always_deny (write-tool option)
+    val toolOptionAsk: String                   // R.string.permission_status_default (GLOBAL mode write-tool neutral "Ask" option; Batch 9d)
     val toolOptionDefaultEnabled: String        // R.string.tool_option_default_enabled (PROMPT mode, read tool, global default = enabled)
     val toolOptionDefaultDisabled: String       // R.string.tool_option_default_disabled (PROMPT mode, read tool, global default = disabled)
     val toolOptionDefaultAllowed: String        // R.string.tool_option_default_allowed (PROMPT mode, write tool, global default = allow)

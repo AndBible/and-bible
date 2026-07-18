@@ -122,7 +122,10 @@ class PromptEditController(
                 it.copy(allowedTools = it.allowedTools + toolId, deniedTools = it.deniedTools - toolId)
             ToolPermission.DENY, ToolPermission.DISABLED ->
                 it.copy(deniedTools = it.deniedTools + toolId, allowedTools = it.allowedTools - toolId)
-            ToolPermission.DEFAULT ->
+            // ASK is the GLOBAL-mode neutral option (Batch 9d); this controller is PROMPT-mode only
+            // and never offers it as a selectable option (see ToolPermissionList's toolOptions), but
+            // the shared enum needs an exhaustive branch here too — treat it like DEFAULT (no override).
+            ToolPermission.DEFAULT, ToolPermission.ASK ->
                 it.copy(allowedTools = it.allowedTools - toolId, deniedTools = it.deniedTools - toolId)
         }
     }

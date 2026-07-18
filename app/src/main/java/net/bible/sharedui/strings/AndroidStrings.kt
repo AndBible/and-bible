@@ -235,6 +235,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val toolOptionDisabled: String get() = context.getString(R.string.tool_option_disabled)
     override val toolOptionAllow: String get() = context.getString(R.string.permission_option_always_allow)
     override val toolOptionDeny: String get() = context.getString(R.string.permission_option_always_deny)
+    override val toolOptionAsk: String get() = context.getString(R.string.permission_status_default)
     override val toolOptionDefaultEnabled: String get() = context.getString(R.string.tool_option_default_enabled)
     override val toolOptionDefaultDisabled: String get() = context.getString(R.string.tool_option_default_disabled)
     override val toolOptionDefaultAllowed: String get() = context.getString(R.string.tool_option_default_allowed)

@@ -62,23 +62,27 @@ private data class ToolPermissionOption(val permission: ToolPermission, val labe
  * from [globalDefaultLabelFor] rather than passed as an explicit enum, so a caller could even mix
  * modes per tool (not expected in practice, but keeps the contract simple).
  *
- * **Option sets** (mirrors [net.bible.android.view.activity.ai.ToolPermissionListBuilder], but
- * GLOBAL write tools are 2-way here — no "ask every time" state, since GLOBAL settings only ever
- * mean "always allow" / "always deny"):
+ * **Option sets** (mirrors [net.bible.android.view.activity.ai.ToolPermissionListBuilder]):
  * - Read tools (`!requiresPermission`): [ToolPermission.ENABLED] / [ToolPermission.DISABLED], plus
  *   [ToolPermission.DEFAULT] in PROMPT mode.
- * - Write tools (`requiresPermission`): [ToolPermission.ALLOW] / [ToolPermission.DENY], plus
- *   [ToolPermission.DEFAULT] in PROMPT mode.
+ * - Write tools (`requiresPermission`), GLOBAL mode: **3-way** — [ToolPermission.ASK] /
+ *   [ToolPermission.ALLOW] / [ToolPermission.DENY] ([ASK][ToolPermission.ASK] is the neutral
+ *   "ask every time" default; classic GLOBAL write tools are Ask/Always-allow/Always-deny, never
+ *   just a 2-way allow/deny).
+ * - Write tools, PROMPT mode: [ToolPermission.DEFAULT] / [ToolPermission.ALLOW] / [ToolPermission.DENY]
+ *   (no separate ASK option — [DEFAULT][ToolPermission.DEFAULT] itself may resolve to a global "ask").
  *
  * **PROMPT vs. GLOBAL mode** is decided per-tool by [globalDefaultLabelFor]: a non-null result adds
- * the leading `Default (X)` option (PROMPT mode for that tool); `null` omits it (GLOBAL mode — there
- * is no "default" to defer to, this call itself sets the default). [globalDefaultLabelFor] must
- * return the *token* naming the resolved global default, not a pre-formatted label: `"ENABLED"` /
- * `"DISABLED"` ([ToolPermission.ENABLED]/[ToolPermission.DISABLED] `.name`) for a read tool,
- * `"ALLOW"` / `"DENY"` ([ToolPermission.ALLOW]/[ToolPermission.DENY] `.name`) for a write tool. The
- * component maps that token to one of the existing precomposed `tool_option_default_*` strings
- * (`Default (enabled)` / `Default (disabled)` / `Default (allowed)` / `Default (denied)`) — no new
- * resource strings, and callers never format the label themselves.
+ * the leading `Default (X)` option (PROMPT mode for that tool); `null` omits it (GLOBAL mode — write
+ * tools get the 3-way Ask/Allow/Deny set above instead). [globalDefaultLabelFor] must return the
+ * *token* naming the resolved global default, not a pre-formatted label: `"ENABLED"` / `"DISABLED"`
+ * ([ToolPermission.ENABLED]/[ToolPermission.DISABLED] `.name`) for a read tool, `"ALLOW"` / `"DENY"`
+ * / `"ASK"` ([ToolPermission.ALLOW]/[ToolPermission.DENY]/[ToolPermission.ASK] `.name`) for a write
+ * tool. The component maps that token to one of the existing precomposed `tool_option_default_*`
+ * strings (`Default (enabled)` / `Default (disabled)` / `Default (allowed)` / `Default (denied)`) —
+ * or, for the `ASK` token, the existing classic "Ask (default)" string
+ * ([Strings.toolOptionAsk], `R.string.permission_status_default`) — no new resource strings, and
+ * callers never format the label themselves.
  *
  * Collapse/expand state is component-local ([remember], keyed by [ToolCategoryVd.id]) — callers
  * don't need to thread it through. All categories start expanded.
@@ -192,19 +196,29 @@ private fun ToolPermissionRow(
 }
 
 /**
- * Read tools: [ToolPermission.ENABLED]/[ToolPermission.DISABLED]; write tools:
- * [ToolPermission.ALLOW]/[ToolPermission.DENY]; PROMPT mode ([defaultToken] non-null) prepends
- * [ToolPermission.DEFAULT] with a label resolved from the token (see [ToolPermissionList] kdoc).
+ * Read tools: [ToolPermission.ENABLED]/[ToolPermission.DISABLED]; PROMPT mode ([defaultToken]
+ * non-null) prepends [ToolPermission.DEFAULT] with a label resolved from the token (see
+ * [ToolPermissionList] kdoc). Write tools:
+ * - PROMPT mode ([defaultToken] non-null): [ToolPermission.DEFAULT] / [ToolPermission.ALLOW] /
+ *   [ToolPermission.DENY].
+ * - GLOBAL mode ([defaultToken] `== null`): [ToolPermission.ASK] / [ToolPermission.ALLOW] /
+ *   [ToolPermission.DENY] (3-way, no Default option — [ASK][ToolPermission.ASK] itself is the
+ *   neutral default here).
  */
 private fun toolOptions(tool: ToolVd, defaultToken: String?, strings: Strings): List<ToolPermissionOption> =
     buildList {
-        if (defaultToken != null) {
-            add(ToolPermissionOption(ToolPermission.DEFAULT, defaultOptionLabel(tool.requiresPermission, defaultToken, strings)))
-        }
         if (tool.requiresPermission) {
+            if (defaultToken != null) {
+                add(ToolPermissionOption(ToolPermission.DEFAULT, defaultOptionLabel(tool.requiresPermission, defaultToken, strings)))
+            } else {
+                add(ToolPermissionOption(ToolPermission.ASK, strings.toolOptionAsk))
+            }
             add(ToolPermissionOption(ToolPermission.ALLOW, strings.toolOptionAllow))
             add(ToolPermissionOption(ToolPermission.DENY, strings.toolOptionDeny))
         } else {
+            if (defaultToken != null) {
+                add(ToolPermissionOption(ToolPermission.DEFAULT, defaultOptionLabel(tool.requiresPermission, defaultToken, strings)))
+            }
             add(ToolPermissionOption(ToolPermission.ENABLED, strings.toolOptionEnabled))
             add(ToolPermissionOption(ToolPermission.DISABLED, strings.toolOptionDisabled))
         }
@@ -212,7 +226,11 @@ private fun toolOptions(tool: ToolVd, defaultToken: String?, strings: Strings): 
 
 private fun defaultOptionLabel(requiresPermission: Boolean, token: String, strings: Strings): String =
     if (requiresPermission) {
-        if (token == ToolPermission.DENY.name) strings.toolOptionDefaultDenied else strings.toolOptionDefaultAllowed
+        when (token) {
+            ToolPermission.DENY.name -> strings.toolOptionDefaultDenied
+            ToolPermission.ASK.name -> strings.toolOptionAsk
+            else -> strings.toolOptionDefaultAllowed
+        }
     } else {
         if (token == ToolPermission.DISABLED.name) strings.toolOptionDefaultDisabled else strings.toolOptionDefaultEnabled
     }

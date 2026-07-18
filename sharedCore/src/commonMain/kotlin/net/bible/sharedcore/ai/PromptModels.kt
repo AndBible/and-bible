@@ -48,8 +48,12 @@ data class ToolVd(val id: String, val displayName: String, val description: Stri
 /** Mirrors `net.bible.service.llm.ToolCategory`: `id` = `.name`, `displayName` = `ToolRegistry.getCategoryDisplayName`. */
 data class ToolCategoryVd(val id: String, val displayName: String)
 
-/** read tools: ENABLED/DISABLED(+DEFAULT); write tools: ALLOW/DENY(+DEFAULT) */
-enum class ToolPermission { DEFAULT, ALLOW, DENY, ENABLED, DISABLED }
+/**
+ * read tools: ENABLED/DISABLED(+DEFAULT); write tools (PROMPT mode): ALLOW/DENY(+DEFAULT); write
+ * tools (GLOBAL mode): ASK/ALLOW/DENY — [ASK] is the neutral "ask every time" default, distinct
+ * from [DEFAULT] (which only exists in PROMPT mode, meaning "defer to the global setting").
+ */
+enum class ToolPermission { DEFAULT, ALLOW, DENY, ENABLED, DISABLED, ASK }
 
 /** Mirrors `net.bible.service.llm.PromptContext` `.name` order verbatim (String ids). */
 object PromptContextIds {
