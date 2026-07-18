@@ -324,6 +324,9 @@ interface Strings {
     val globalToolPermissionsTitle: String        // R.string.global_tool_permissions_title
     val aiReadToolsLabel: String                  // R.string.ai_read_tools (ToolInfoScreen section heading)
     val aiWriteToolsLabel: String                 // R.string.ai_write_tools (ToolInfoScreen section heading)
+
+    // Batch 9d — AiDocumentFilterScreen
+    val aiDocumentFilterTitle: String             // R.string.ai_document_filter_activity_title
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

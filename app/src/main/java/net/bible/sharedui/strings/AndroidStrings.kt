@@ -316,4 +316,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val globalToolPermissionsTitle: String get() = context.getString(R.string.global_tool_permissions_title)
     override val aiReadToolsLabel: String get() = context.getString(R.string.ai_read_tools)
     override val aiWriteToolsLabel: String get() = context.getString(R.string.ai_write_tools)
+
+    // Batch 9d — AiDocumentFilterScreen
+    override val aiDocumentFilterTitle: String get() = context.getString(R.string.ai_document_filter_activity_title)
 }
