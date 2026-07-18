@@ -569,7 +569,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.IO) {
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
-        val intent = Intent(mainBibleActivity, ManageLabels::class.java)
+        val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ManageLabels)
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.ASSIGN,
             selectedLabels = labels.toMutableSet(),

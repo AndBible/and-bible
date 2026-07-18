@@ -49,6 +49,8 @@ import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
@@ -204,7 +206,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             labels.addAll(bookmarkControl.labelsForBookmark(b).map { it.id })
         }
 
-        val intent = Intent(this@Bookmarks, ManageLabels::class.java)
+        val intent = ScreenLauncher.intentFor(this@Bookmarks, Screen.ManageLabels)
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.ASSIGN,
             selectedLabels = labels
@@ -380,7 +382,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             R.id.manageLabels -> {
                 isHandled = true
                 lifecycleScope.launch(Dispatchers.Main) {
-                    val intent = Intent(this@Bookmarks, ManageLabels::class.java)
+                    val intent = ScreenLauncher.intentFor(this@Bookmarks, Screen.ManageLabels)
                     intent.putExtra("data", ManageLabels.ManageLabelsData(
                         mode = ManageLabels.Mode.WORKSPACE,
                     ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())

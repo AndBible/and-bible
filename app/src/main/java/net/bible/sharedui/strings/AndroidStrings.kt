@@ -369,4 +369,55 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Batch 9 fix C2 — AiPrompts help dialog "Read more" link (F30)
     override val helpReadMoreLink: String get() = context.getString(R.string.help_read_more_link)
+
+    // Batch 7a — LabelEditScreen
+    override val editLabelTitle: String get() = context.getString(R.string.edit_label)
+    override val labelNameHint: String get() = context.getString(R.string.label_name_prompt)
+    override val selectCustomIconLabel: String get() = context.getString(R.string.select_custom_icon)
+    override val favouriteLabelSwitchLabel: String get() = context.getString(R.string.favourite_label)
+    override val underlineStyleLabel: String get() = context.getString(R.string.bookmark_underline_style_arbitrary)
+    override val underlineStyleWholeVerseLabel: String get() = context.getString(R.string.bookmark_underline_style_whole_verse)
+    override val markerStyleLabel: String get() = context.getString(R.string.marker_style)
+    override val markerStyleWholeVerseLabel: String get() = context.getString(R.string.marker_style_whole_verse)
+    override val hideStyleLabel: String get() = context.getString(R.string.hide_style)
+    override val hideStyleWholeVerseLabel: String get() = context.getString(R.string.hide_style_whole_verse)
+    override val thisBookmarkSectionTitle: String get() = context.getString(R.string.this_bookmark)
+    override val addedToBookmarkLabel: String get() = context.getString(R.string.added_to_bookmark)
+    override val primaryLabelSwitchLabel: String get() = context.getString(R.string.primary_label)
+    override val thisWorkspaceSectionTitle: String get() = context.getString(R.string.this_workspace)
+    override val autoAssignLabelSwitchLabel: String get() = context.getString(R.string.auto_assign_labels1)
+    override val autoAssignPrimaryLabelSwitchLabel: String get() = context.getString(R.string.auto_assign_labels_primary)
+    override val overrideStyleFieldLabel: String get() = context.getString(R.string.override_style)
+    override val noOverrideSuffix: String get() = context.getString(R.string.no_override_suffix)
+    override val displayModeHighlight: String get() = context.getString(R.string.display_mode_highlight)
+    override val displayModeUnderline: String get() = context.getString(R.string.display_mode_underline)
+    override val displayModeMarker: String get() = context.getString(R.string.display_mode_marker)
+    override val displayModeHidden: String get() = context.getString(R.string.display_mode_hidden)
+
+    // Batch 7b-1 — ManageLabelsScreen
+    override val labelsSearchHint: String get() = context.getString(R.string.labels_search_hint)
+    override val matchStartOfText: String get() = context.getString(R.string.match_start_of_text)
+    override val matchAnyText: String get() = context.getString(R.string.match_any_text)
+    override val activeLabelsHeader: String get() = context.getString(R.string.active_labels)
+    override val recentLabelsHeader: String get() = context.getString(R.string.recent_labels)
+    override val otherLabelsHeader: String get() = context.getString(R.string.other_labels)
+    override val overrideIndicatorDescription: String get() = context.getString(R.string.workspace_override_indicator)
+
+    // Batch 7b-2 — ManageLabelsScreen StudyPad content-search + export/import
+    override val searchModeNameStart: String get() = context.getString(R.string.search_mode_name_start)
+    override val searchModeNameContains: String get() = context.getString(R.string.search_mode_name_contains)
+    override val searchModeContent: String get() = context.getString(R.string.search_mode_content)
+    override val searchResultsMatch: String get() = context.getString(R.string.search_results_match)
+    override fun searchResultsMatches(count: Int): String = context.getString(R.string.search_results_matches, count)
+    override val studyPadsLabel: String get() = context.getString(R.string.studypads)
+    override fun exportSomething(what: String): String = context.getString(R.string.export_something, what)
+    override fun importItems(what: String): String = context.getString(R.string.import_items, what)
+
+    // Batch 7c — BookmarksScreen
+    override val manageLabelsLabel: String get() = context.getString(R.string.manage_labels)
+    override val sortByBibleBookLabel: String get() = context.getString(R.string.sort_by_bible_book)
+    override val sortByDateLabel: String get() = context.getString(R.string.sort_by_date)
+    override val showNotesLabel: String get() = context.getString(R.string.show_notes)
+    override val assignLabelsLabel: String get() = context.getString(R.string.assign_labels)
+    override val bookmarksSearchNotesHint: String get() = context.getString(R.string.filter_by_notes)
 }

@@ -3,9 +3,12 @@ package net.bible.android.control
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton
+import net.bible.sharedcore.bookmark.BookmarksService
 import org.junit.After
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertSame
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
@@ -40,6 +43,19 @@ class CoreModuleResolveTest {
         // An action-bar button that depends (transitively) on SpeakControl also resolves.
         val speakButton = koin.get<SpeakActionBarButton>()
         assertNotNull(speakButton)
+    }
+
+    @Test
+    fun `BookmarksServiceImpl resolves both as its concrete type and as BookmarksService, same instance`() {
+        // BookmarksComposeActivity injects the CONCRETE BookmarksServiceImpl (for its id -> entity
+        // map, beyond the portable BookmarksService interface used by BookmarksController); this
+        // relies on singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() } keeping BOTH the
+        // primary (concrete) type and the bound interface resolvable to the SAME singleton.
+        val koin = GlobalContext.get()
+        val concrete = koin.get<BookmarksServiceImpl>()
+        val bound = koin.get<BookmarksService>()
+        assertNotNull(concrete)
+        assertSame(concrete, bound)
     }
 
     @After

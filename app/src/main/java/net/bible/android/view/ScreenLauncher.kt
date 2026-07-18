@@ -39,6 +39,12 @@ import net.bible.android.view.activity.ai.RawLogHistoryActivity
 import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
 import net.bible.android.view.activity.ai.ToolInfoActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
+import net.bible.android.view.activity.bookmark.Bookmarks
+import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
+import net.bible.android.view.activity.bookmark.LabelEditActivity
+import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
+import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.discrete.CalculatorActivity
@@ -87,7 +93,7 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivi
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -202,6 +208,15 @@ object ScreenLauncher {
         Screen.RawLlmLog ->
             if (useComposeFor(screen)) RawLlmLogComposeActivity::class.java
             else RawLlmLogActivity::class.java
+        Screen.LabelEdit ->
+            if (useComposeFor(screen)) LabelEditComposeActivity::class.java
+            else LabelEditActivity::class.java
+        Screen.ManageLabels ->
+            if (useComposeFor(screen)) ManageLabelsComposeActivity::class.java
+            else ManageLabels::class.java
+        Screen.Bookmarks ->
+            if (useComposeFor(screen)) BookmarksComposeActivity::class.java
+            else Bookmarks::class.java
     }
 
     /**

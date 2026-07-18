@@ -35,6 +35,8 @@ import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
@@ -544,7 +546,7 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
 
 class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types): Preference(settings, type) {
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val intent = Intent(activity, ManageLabels::class.java)
+        val intent = ScreenLauncher.intentFor(activity, Screen.ManageLabels)
         @Suppress("UNCHECKED_CAST")
         val originalValues = value as? List<IdType> ?: emptyList()
 
@@ -574,7 +576,7 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
 class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSettings): GeneralPreference() {
     override val isBoolean = false
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val intent = Intent(activity, ManageLabels::class.java)
+        val intent = ScreenLauncher.intentFor(activity, Screen.ManageLabels)
 
         intent.putExtra("data",
             ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.WORKSPACE).applyFrom(workspaceSettings).toJSON()

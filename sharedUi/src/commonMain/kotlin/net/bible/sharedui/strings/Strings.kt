@@ -392,6 +392,57 @@ interface Strings {
         "$aiDisclaimerIntro $aiDisclaimerApproach $aiDisclaimerResponsibility\n\n" +
             "• $aiDisclaimerPoint1\n\n• $aiDisclaimerPoint2\n\n• $aiDisclaimerPoint3\n\n• $aiDisclaimerPoint4\n\n" +
             "$aiDisclaimerPoint6\n\n$aiDisclaimerPoint7 $aiDisclaimerPoint8\n\n$aiDisclaimerPoint9\n\n$aiDisclaimerPoint5"
+
+    // Batch 7a — LabelEditScreen
+    val editLabelTitle: String                    // R.string.edit_label (top-bar title)
+    val labelNameHint: String                     // R.string.label_name_prompt (name field hint)
+    val selectCustomIconLabel: String              // R.string.select_custom_icon
+    val favouriteLabelSwitchLabel: String          // R.string.favourite_label
+    val underlineStyleLabel: String                // R.string.bookmark_underline_style_arbitrary
+    val underlineStyleWholeVerseLabel: String      // R.string.bookmark_underline_style_whole_verse
+    val markerStyleLabel: String                   // R.string.marker_style
+    val markerStyleWholeVerseLabel: String          // R.string.marker_style_whole_verse
+    val hideStyleLabel: String                     // R.string.hide_style
+    val hideStyleWholeVerseLabel: String            // R.string.hide_style_whole_verse
+    val thisBookmarkSectionTitle: String            // R.string.this_bookmark
+    val addedToBookmarkLabel: String                // R.string.added_to_bookmark
+    val primaryLabelSwitchLabel: String             // R.string.primary_label
+    val thisWorkspaceSectionTitle: String           // R.string.this_workspace
+    val autoAssignLabelSwitchLabel: String          // R.string.auto_assign_labels1
+    val autoAssignPrimaryLabelSwitchLabel: String   // R.string.auto_assign_labels_primary
+    val overrideStyleFieldLabel: String             // R.string.override_style
+    val noOverrideSuffix: String                    // R.string.no_override_suffix
+    val displayModeHighlight: String                // R.string.display_mode_highlight
+    val displayModeUnderline: String                // R.string.display_mode_underline
+    val displayModeMarker: String                   // R.string.display_mode_marker
+    val displayModeHidden: String                   // R.string.display_mode_hidden
+
+    // Batch 7b-1 — ManageLabelsScreen
+    val labelsSearchHint: String                    // R.string.labels_search_hint
+    val matchStartOfText: String                    // R.string.match_start_of_text
+    val matchAnyText: String                        // R.string.match_any_text
+    val activeLabelsHeader: String                  // R.string.active_labels
+    val recentLabelsHeader: String                  // R.string.recent_labels
+    val otherLabelsHeader: String                   // R.string.other_labels
+    val overrideIndicatorDescription: String        // R.string.workspace_override_indicator
+
+    // Batch 7b-2 — ManageLabelsScreen StudyPad content-search + export/import
+    val searchModeNameStart: String                 // R.string.search_mode_name_start
+    val searchModeNameContains: String               // R.string.search_mode_name_contains
+    val searchModeContent: String                   // R.string.search_mode_content
+    val searchResultsMatch: String                   // R.string.search_results_match
+    fun searchResultsMatches(count: Int): String     // R.string.search_results_matches
+    val studyPadsLabel: String                       // R.string.studypads
+    fun exportSomething(what: String): String        // R.string.export_something
+    fun importItems(what: String): String            // R.string.import_items
+
+    // Batch 7c — BookmarksScreen
+    val manageLabelsLabel: String                    // R.string.manage_labels (top-bar overflow item)
+    val sortByBibleBookLabel: String                 // R.string.sort_by_bible_book (sort icon content description)
+    val sortByDateLabel: String                      // R.string.sort_by_date (sort icon content description)
+    val showNotesLabel: String                       // R.string.show_notes (overflow checkable item)
+    val assignLabelsLabel: String                    // R.string.assign_labels (selection action icon)
+    val bookmarksSearchNotesHint: String              // R.string.filter_by_notes (notes-search field placeholder)
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
