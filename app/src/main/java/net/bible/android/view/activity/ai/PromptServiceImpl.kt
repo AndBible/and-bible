@@ -329,15 +329,17 @@ class PromptServiceImpl : PromptService {
 
     /**
      * Resolves a tool's current GLOBAL default for the PROMPT-mode "Default (…)" label
-     * ([net.bible.sharedui.ai.ToolPermissionList] reads the returned token's `.name`):
+     * ([net.bible.sharedui.ai.ToolPermissionList] reads the returned token's `.name`). Uses the SAME
+     * resolution as [ToolPermissionServiceImpl.permissionFor] (the GLOBAL screen), so the label
+     * agrees with what that screen would show:
      * - explicitly denied → [ToolPermission.DENY] (write) / [ToolPermission.DISABLED] (read);
      * - explicitly allowed → [ToolPermission.ALLOW] (write) / [ToolPermission.ENABLED] (read);
-     * - otherwise the enum default — read tools are ENABLED, write tools ALLOW.
+     * - otherwise the neutral default — a **write** tool is [ToolPermission.ASK] (so PromptEdit shows
+     *   "Ask (default)", the truthful three-way write default, not a misleading "Default (allowed)"),
+     *   a **read** tool is [ToolPermission.ENABLED].
      *
-     * NOTE: the shared label control only distinguishes DENY/DISABLED vs. "everything else", so a
-     * write tool whose global default is really "ask" (neither allowed nor denied) is surfaced as
-     * "Default (allowed)". That's a Task-4 (`ToolPermissionList`) simplification of classic's
-     * three-way write default, not something resolvable from this seam.
+     * The shared label control maps an `ASK` token to the "Ask (default)" string
+     * (`ToolPermissionList.defaultOptionLabel`), so no new resource strings are needed.
      */
     override fun globalToolPermission(toolId: String): ToolPermission {
         val agentTool = runCatching { AgentTool.valueOf(toolId) }.getOrNull()
@@ -347,7 +349,7 @@ class PromptServiceImpl : PromptService {
         return when {
             denied -> if (isWrite) ToolPermission.DENY else ToolPermission.DISABLED
             allowed -> if (isWrite) ToolPermission.ALLOW else ToolPermission.ENABLED
-            else -> if (isWrite) ToolPermission.ALLOW else ToolPermission.ENABLED
+            else -> if (isWrite) ToolPermission.ASK else ToolPermission.ENABLED
         }
     }
 

@@ -25,13 +25,17 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsServiceImpl
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.android.view.activity.ai.AiSettingsServiceImpl
+import net.bible.android.view.activity.ai.DocumentFilterServiceImpl
 import net.bible.android.view.activity.ai.LlmModelServiceImpl
 import net.bible.android.view.activity.ai.LlmProviderServiceImpl
 import net.bible.android.view.activity.ai.PromptServiceImpl
+import net.bible.android.view.activity.ai.ToolPermissionServiceImpl
 import net.bible.sharedcore.ai.AiSettingsService
+import net.bible.sharedcore.ai.DocumentFilterService
 import net.bible.sharedcore.ai.LlmModelService
 import net.bible.sharedcore.ai.LlmProviderService
 import net.bible.sharedcore.ai.PromptService
+import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.android.view.activity.workspaces.WorkspaceServiceImpl
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.android.control.versification.BibleTraverser
@@ -86,6 +90,8 @@ val coreModule = module {
     singleOf(::LlmProviderServiceImpl) { bind<LlmProviderService>() }
     singleOf(::LlmModelServiceImpl) { bind<LlmModelService>() }
     singleOf(::PromptServiceImpl) { bind<PromptService>() }
+    singleOf(::ToolPermissionServiceImpl) { bind<ToolPermissionService>() }
+    singleOf(::DocumentFilterServiceImpl) { bind<DocumentFilterService>() }
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.

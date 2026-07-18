@@ -302,6 +302,27 @@
             android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/global_tool_permissions_title"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/ai_document_filter_activity_title"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.ai.ToolInfoComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/ai_available_tools"
+            android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.ai.RawLlmLogActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/raw_llm_log_title"
