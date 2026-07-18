@@ -28,9 +28,14 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.ToolVd
+import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
@@ -51,29 +56,34 @@ import net.bible.sharedui.strings.LocalStrings
  * faithful port and avoids composing sections-within-sections for no behavioural gain.
  *
  * **Top bar.** Title: [net.bible.sharedui.strings.Strings.viewToolsMenuLabel] (`R.string.ai_available_tools`
- * — the same resource classic's activity sets as its own title). Only a "Help" overflow item
- * ([onHelp]); no save/reset actions exist (nothing here is editable).
+ * — the same resource classic's activity sets as its own title). Only a "Help" overflow item, which
+ * opens an [AbInfoDialog] owned by this screen (F30), fed the host-supplied
+ * [helpBody]/[helpReadMoreUrl]; no save/reset actions exist (nothing here is editable).
  *
  * @param readTools Tools that never require permission (`!requiresPermission`), in display order.
  * @param writeTools Tools gated by the permission system (`requiresPermission`), in display order.
  * @param onUp Up-navigation; called immediately (no dirty state to guard, unlike [GlobalToolPermissionsScreen]).
- * @param onHelp Host callback to show the tool-info help dialog.
+ * @param helpBody Host-supplied (Android-resource-backed) help body text.
+ * @param helpReadMoreUrl Host-supplied full "Read more" docs URL.
  */
 @Composable
 fun ToolInfoScreen(
     readTools: List<ToolVd>,
     writeTools: List<ToolVd>,
     onUp: () -> Unit,
-    onHelp: () -> Unit,
+    helpBody: String,
+    helpReadMoreUrl: String,
+    initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
+    var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
 
     AbScaffold(
         title = strings.viewToolsMenuLabel,
         onNavigateUp = onUp,
         actions = {
             AbOverflowMenu(contentDescription = null) { close ->
-                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); onHelp() })
+                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); showHelp = true })
             }
         },
     ) { padding ->
@@ -84,6 +94,16 @@ fun ToolInfoScreen(
             }
             toolInfoSection(strings.aiWriteToolsLabel, writeTools)
         }
+    }
+
+    if (showHelp) {
+        AbInfoDialog(
+            title = strings.helpLabel,
+            body = helpBody,
+            onDismiss = { showHelp = false },
+            readMoreLabel = strings.helpReadMoreLink,
+            readMoreUrl = helpReadMoreUrl,
+        )
     }
 }
 

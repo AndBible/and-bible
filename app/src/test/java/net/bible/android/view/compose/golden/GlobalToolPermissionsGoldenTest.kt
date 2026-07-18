@@ -53,7 +53,7 @@ class GlobalToolPermissionsGoldenTest {
         "edit_note" to ToolPermission.ASK,
     )
 
-    private fun screen(isDirty: Boolean = true) = @androidx.compose.runtime.Composable {
+    private fun screen(isDirty: Boolean = true, initiallyHelpDialogOpen: Boolean = false) = @androidx.compose.runtime.Composable {
         GlobalToolPermissionsScreen(
             groups = groups,
             permissionFor = { toolId -> permissions[toolId] ?: ToolPermission.ASK },
@@ -62,7 +62,9 @@ class GlobalToolPermissionsGoldenTest {
             onSetPermission = { _, _ -> },
             onResetAll = {},
             onSave = {},
-            onHelp = {},
+            helpBody = "Set default read/write permissions for AI tools across all prompts.",
+            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#setting-permissions",
+            initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }
 
@@ -75,4 +77,9 @@ class GlobalToolPermissionsGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun populated_rtl() =
         captureRtl("GlobalToolPermissions", "populated", heightDp = 1100, content = screen())
+
+    // F30: the overflow "Help" item opens an AbInfoDialog (with a "Read more" docs link), replacing
+    // classic's CommonUtils.showHelpDialog AlertDialog.
+    @Test fun help_matrix() =
+        captureMatrix("GlobalToolPermissions", "help", heightDp = 1100, content = screen(initiallyHelpDialogOpen = true))
 }

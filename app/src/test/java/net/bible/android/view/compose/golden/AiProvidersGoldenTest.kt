@@ -79,7 +79,11 @@ class AiProvidersGoldenTest {
         canSave = true,
     )
 
-    private fun screen(editState: ProviderEditState?, items: List<ProviderVd> = providers) = @androidx.compose.runtime.Composable {
+    private fun screen(
+        editState: ProviderEditState?,
+        items: List<ProviderVd> = providers,
+        initiallyHelpDialogOpen: Boolean = false,
+    ) = @androidx.compose.runtime.Composable {
         AiProvidersScreen(
             providers = items,
             providerTypes = providerTypes,
@@ -92,6 +96,9 @@ class AiProvidersGoldenTest {
             onSave = {},
             onDelete = {},
             onDismiss = {},
+            helpBody = "AI Providers is where you connect the app to an AI service such as OpenAI or Anthropic.",
+            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#choosing-a-provider",
+            initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }
 
@@ -114,4 +121,9 @@ class AiProvidersGoldenTest {
 
     @Test fun empty() =
         captureGolden("AiProviders", "empty", EDGE_MODE, content = screen(null, items = emptyList()))
+
+    // F30: the overflow "Help" item opens an AbInfoDialog (with a "Read more" docs link), replacing
+    // classic's CommonUtils.showHelpDialog AlertDialog.
+    @Test fun help_matrix() =
+        captureMatrix("AiProviders", "help", content = screen(null, initiallyHelpDialogOpen = true))
 }

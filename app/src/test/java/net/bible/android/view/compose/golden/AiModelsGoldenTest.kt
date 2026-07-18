@@ -70,7 +70,7 @@ class AiModelsGoldenTest {
         canSave = true,
     )
 
-    private fun screen(editState: ModelEditState?) = @androidx.compose.runtime.Composable {
+    private fun screen(editState: ModelEditState?, initiallyHelpDialogOpen: Boolean = false) = @androidx.compose.runtime.Composable {
         AiModelsScreen(
             models = models,
             providers = providers,
@@ -87,6 +87,9 @@ class AiModelsGoldenTest {
             onSetAsDefault = {},
             onSetShowUnsupported = {},
             onDismiss = {},
+            helpBody = "AI Models lets you add and configure the specific models available from your providers.",
+            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-models",
+            initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }
 
@@ -103,4 +106,9 @@ class AiModelsGoldenTest {
     // viewport allows without clipping the trailing set-default switch.
     @Test fun add_custom_matrix() =
         captureMatrix("AiModels", "add_custom", heightDp = 1000, content = screen(addCustomEditState))
+
+    // F30: the overflow "Help" item opens an AbInfoDialog (with a "Read more" docs link), replacing
+    // classic's CommonUtils.showHelpDialog AlertDialog.
+    @Test fun help_matrix() =
+        captureMatrix("AiModels", "help", content = screen(null, initiallyHelpDialogOpen = true))
 }

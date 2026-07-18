@@ -48,6 +48,7 @@ import net.bible.sharedcore.ai.AiDocGroupVd
 import net.bible.sharedcore.ai.AiDocVd
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
@@ -76,7 +77,8 @@ import net.bible.sharedui.strings.LocalStrings
  * shown but inert when there is nothing to save) plus an [AbOverflowMenu] with "Reset all"
  * ([onResetAll] — clears the working excluded set, i.e. allows everything again; no confirmation,
  * matches classic's `reset_all` menu item; nothing is persisted until [onSave] regardless) and
- * "Help" ([onHelp], pure host-navigation callback).
+ * "Help" — opens an [AbInfoDialog] owned by this screen (F30), fed the host-supplied
+ * [helpBody]/[helpReadMoreUrl] (Android resources / docs URL the shared layer can't own directly).
  *
  * **Up / back.** [onUp] is not called directly from the up-navigation icon: mirrors classic's
  * `cancelOrConfirmDiscard()` — tapping it shows an [AbConfirmDialog] ("Discard unsaved changes?")
@@ -89,7 +91,8 @@ import net.bible.sharedui.strings.LocalStrings
  * @param onToggle Forwarded 1:1 to `AiDocumentFilterController.toggle`, given a document's `initials`.
  * @param onResetAll Forwarded 1:1 to `AiDocumentFilterController.resetAll`.
  * @param onSave Forwarded 1:1 to `AiDocumentFilterController.save`.
- * @param onHelp Host callback to show the AI document filter help dialog.
+ * @param helpBody Host-supplied (Android-resource-backed) help body text.
+ * @param helpReadMoreUrl Host-supplied full "Read more" docs URL.
  */
 @Composable
 fun AiDocumentFilterScreen(
@@ -99,10 +102,13 @@ fun AiDocumentFilterScreen(
     onToggle: (initials: String) -> Unit,
     onResetAll: () -> Unit,
     onSave: () -> Unit,
-    onHelp: () -> Unit,
+    helpBody: String,
+    helpReadMoreUrl: String,
+    initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
     var showDiscardConfirm by remember { mutableStateOf(false) }
+    var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
     val requestUp: () -> Unit = { if (isDirty) showDiscardConfirm = true else onUp() }
 
     AbScaffold(
@@ -114,7 +120,7 @@ fun AiDocumentFilterScreen(
             }
             AbOverflowMenu(contentDescription = null) { close ->
                 DropdownMenuItem(text = { Text(strings.resetToolPermissionsLabel) }, onClick = { close(); onResetAll() })
-                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); onHelp() })
+                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); showHelp = true })
             }
         },
     ) { padding ->
@@ -139,6 +145,16 @@ fun AiDocumentFilterScreen(
             dismissText = strings.no,
             onConfirm = { showDiscardConfirm = false; onUp() },
             onDismiss = { showDiscardConfirm = false },
+        )
+    }
+
+    if (showHelp) {
+        AbInfoDialog(
+            title = strings.helpLabel,
+            body = helpBody,
+            onDismiss = { showHelp = false },
+            readMoreLabel = strings.helpReadMoreLink,
+            readMoreUrl = helpReadMoreUrl,
         )
     }
 }

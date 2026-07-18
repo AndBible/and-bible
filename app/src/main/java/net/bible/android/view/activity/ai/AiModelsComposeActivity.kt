@@ -18,18 +18,9 @@ package net.bible.android.view.activity.ai
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
@@ -47,8 +38,11 @@ import org.koin.android.ext.android.inject
  * [AiModelsActivity]/[AiModelsFragment]. Wires the shared [AiModelsController] over
  * [LlmModelService] and renders [AiModelsScreen]. No disclaimer gate here (parity with classic —
  * the disclaimer is enforced at the provider level; a model can only be added once a provider
- * exists). The **Help** overflow (parity with classic `ai_models_options_menu`) is a Compose
- * top-bar action.
+ * exists).
+ *
+ * The help dialog (F30) is owned by [AiModelsScreen] itself as an `AbInfoDialog` — this host only
+ * supplies the Android-resource-backed help body text and the full "Read more" docs URL (both must
+ * come from here since commonMain can't read `R.string.*` / build a docs-relative link).
  *
  * `onDismiss` carries a small guard: the add flow's provider picker is an `AbListChoiceDialog`,
  * which fires `onSelect(value)` **and** `onDismiss()` synchronously on a tap (its own
@@ -109,7 +103,8 @@ class AiModelsComposeActivity : ActivityBase() {
                                 controller.dismissDialog()
                             }
                         },
-                        actions = { HelpAction() },
+                        helpBody = getString(R.string.help_ai_models_text),
+                        helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-models",
                     )
                 }
             }
@@ -120,26 +115,5 @@ class AiModelsComposeActivity : ActivityBase() {
         super.onResume()
         // Parity with classic's onResume refresh (models/keys may have changed elsewhere).
         service.refresh()
-    }
-
-    // --- Help overflow (parity with classic ai_models_options_menu) -------------------------------
-
-    @Composable
-    private fun RowScope.HelpAction() {
-        var expanded by remember { mutableStateOf(false) }
-        IconButton(onClick = { expanded = true }) {
-            Text("⋮", fontSize = 24.sp) // vertical ellipsis; Material icons aren't on the app-module classpath
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(text = { Text(getString(R.string.help)) }, onClick = {
-                expanded = false
-                CommonUtils.showHelpDialog(
-                    activity = this@AiModelsComposeActivity,
-                    titleResId = R.string.help,
-                    messageResId = R.string.help_ai_models_text,
-                    helpPath = "ai.html#available-models",
-                )
-            })
-        }
     }
 }

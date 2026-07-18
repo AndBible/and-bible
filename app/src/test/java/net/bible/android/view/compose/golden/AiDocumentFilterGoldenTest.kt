@@ -40,7 +40,11 @@ class AiDocumentFilterGoldenTest {
         ),
     )
 
-    private fun screen(groups: List<AiDocGroupVd> = this.groups, isDirty: Boolean = true) =
+    private fun screen(
+        groups: List<AiDocGroupVd> = this.groups,
+        isDirty: Boolean = true,
+        initiallyHelpDialogOpen: Boolean = false,
+    ) =
         @androidx.compose.runtime.Composable {
             AiDocumentFilterScreen(
                 groups = groups,
@@ -49,7 +53,9 @@ class AiDocumentFilterGoldenTest {
                 onToggle = {},
                 onResetAll = {},
                 onSave = {},
-                onHelp = {},
+                helpBody = "Choose which installed documents the AI can read from when answering questions.",
+                helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-data-and-documents",
+                initiallyHelpDialogOpen = initiallyHelpDialogOpen,
             )
         }
 
@@ -65,4 +71,9 @@ class AiDocumentFilterGoldenTest {
 
     @Test fun no_documents_installed() =
         captureGolden("AiDocumentFilter", "empty", EDGE_MODE, content = screen(groups = emptyList(), isDirty = false))
+
+    // F30: the overflow "Help" item opens an AbInfoDialog (with a "Read more" docs link), replacing
+    // classic's CommonUtils.showHelpDialog AlertDialog.
+    @Test fun help_matrix() =
+        captureMatrix("AiDocumentFilter", "help", heightDp = 900, content = screen(initiallyHelpDialogOpen = true))
 }

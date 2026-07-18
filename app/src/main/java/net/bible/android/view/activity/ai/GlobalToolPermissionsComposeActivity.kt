@@ -88,7 +88,8 @@ class GlobalToolPermissionsComposeActivity : ActivityBase() {
                         onSetPermission = controller::setPermission,
                         onResetAll = controller::resetAll,
                         onSave = { controller.save(); finish() },
-                        onHelp = { showHelp() },
+                        helpBody = getString(R.string.help_global_tool_permissions_text),
+                        helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#setting-permissions",
                     )
 
                     if (showDiscardConfirm) {
@@ -104,14 +105,5 @@ class GlobalToolPermissionsComposeActivity : ActivityBase() {
                 }
             }
         }
-    }
-
-    private fun showHelp() {
-        CommonUtils.showHelpDialog(
-            activity = this,
-            titleResId = R.string.help,
-            messageResId = R.string.help_global_tool_permissions_text,
-            helpPath = "ai.html#setting-permissions",
-        )
     }
 }

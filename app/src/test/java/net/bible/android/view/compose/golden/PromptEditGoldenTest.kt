@@ -59,6 +59,7 @@ class PromptEditGoldenTest {
         isDirty: Boolean = false,
         canSave: Boolean = true,
         isNew: Boolean = false,
+        initiallyHelpDialogOpen: Boolean = false,
     ) = @androidx.compose.runtime.Composable {
         val availableTabs = if (state.isTextTransformation) {
             listOf(PromptEditTab.PROMPT, PromptEditTab.ADVANCED)
@@ -104,8 +105,10 @@ class PromptEditGoldenTest {
             onDelete = {},
             onCopyToCustomize = {},
             onViewTools = {},
-            onHelp = {},
             onBack = {},
+            helpBody = "Custom prompts let you define reusable AI instructions, including which tools they may use.",
+            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#custom-prompts",
+            initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }
 
@@ -186,5 +189,13 @@ class PromptEditGoldenTest {
                 PromptEditTab.PROMPT,
                 canSave = false,
             ),
+        )
+
+    // F30: the overflow "Help" item opens an AbInfoDialog (with a "Read more" docs link), replacing
+    // classic's CommonUtils.showHelpDialog AlertDialog.
+    @Test fun help_matrix() =
+        captureMatrix(
+            "PromptEdit", "help", heightDp = 1200,
+            content = screen(promptState, PromptEditTab.PROMPT, initiallyHelpDialogOpen = true),
         )
 }

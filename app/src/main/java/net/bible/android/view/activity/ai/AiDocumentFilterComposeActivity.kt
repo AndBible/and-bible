@@ -84,7 +84,8 @@ class AiDocumentFilterComposeActivity : ActivityBase() {
                         onToggle = controller::toggle,
                         onResetAll = controller::resetAll,
                         onSave = { controller.save(); finish() },
-                        onHelp = { showHelp() },
+                        helpBody = getString(R.string.help_ai_document_filter_text),
+                        helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-data-and-documents",
                     )
 
                     if (showDiscardConfirm) {
@@ -100,14 +101,5 @@ class AiDocumentFilterComposeActivity : ActivityBase() {
                 }
             }
         }
-    }
-
-    private fun showHelp() {
-        CommonUtils.showHelpDialog(
-            activity = this,
-            titleResId = R.string.help,
-            messageResId = R.string.help_ai_document_filter_text,
-            helpPath = "ai.html#available-data-and-documents",
-        )
     }
 }

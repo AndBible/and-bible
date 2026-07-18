@@ -87,8 +87,9 @@ class RawLogHistoryComposeActivity : ActivityBase() {
                         onDeleteSelected = controller::deleteSelected,
                         onDeleteOlderThan = controller::deleteOlderThan,
                         onDeleteAll = controller::deleteAll,
-                        onHelp = { showHelp() },
                         onNavigateUp = { finish() },
+                        helpBody = getString(R.string.help_ai_connection_text),
+                        helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                     )
                 }
             }
@@ -98,14 +99,5 @@ class RawLogHistoryComposeActivity : ActivityBase() {
     override fun onResume() {
         super.onResume()
         service.refresh()
-    }
-
-    private fun showHelp() {
-        CommonUtils.showHelpDialog(
-            activity = this,
-            titleResId = R.string.help,
-            messageResId = R.string.help_ai_connection_text,
-            helpPath = "ai.html",
-        )
     }
 }

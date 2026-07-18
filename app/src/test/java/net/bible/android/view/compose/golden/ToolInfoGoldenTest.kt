@@ -26,9 +26,20 @@ class ToolInfoGoldenTest {
         ToolVd(id = "delete_note", displayName = "Delete note", description = "Remove a MyNote", requiresPermission = true, categoryId = "NOTES"),
     )
 
-    private fun screen(readTools: List<ToolVd> = this.readTools, writeTools: List<ToolVd> = this.writeTools) =
+    private fun screen(
+        readTools: List<ToolVd> = this.readTools,
+        writeTools: List<ToolVd> = this.writeTools,
+        initiallyHelpDialogOpen: Boolean = false,
+    ) =
         @androidx.compose.runtime.Composable {
-            ToolInfoScreen(readTools = readTools, writeTools = writeTools, onUp = {}, onHelp = {})
+            ToolInfoScreen(
+                readTools = readTools,
+                writeTools = writeTools,
+                onUp = {},
+                helpBody = "This screen lists the tools an AI prompt may use, split into read-only and write-capable tools.",
+                helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#ai-tools",
+                initiallyHelpDialogOpen = initiallyHelpDialogOpen,
+            )
         }
 
     @Test fun populated_matrix() =
@@ -37,4 +48,9 @@ class ToolInfoGoldenTest {
     /** No write tools registered at all -- only the read-tools section + header render, no divider. */
     @Test fun readonly_none_writable() =
         captureGolden("ToolInfo", "readonly", EDGE_MODE, content = screen(writeTools = emptyList()))
+
+    // F30: the overflow "Help" item opens an AbInfoDialog (with a "Read more" docs link), replacing
+    // classic's CommonUtils.showHelpDialog AlertDialog.
+    @Test fun help_matrix() =
+        captureMatrix("ToolInfo", "help", heightDp = 700, content = screen(initiallyHelpDialogOpen = true))
 }

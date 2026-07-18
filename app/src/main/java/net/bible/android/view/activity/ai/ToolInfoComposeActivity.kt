@@ -36,7 +36,9 @@ import net.bible.sharedui.theme.AbTheme
  * [ToolRegistry.getAllTools] directly, splits it by [Tool.requiresPermission] (`false` → read tools,
  * `true` → write tools — exactly as classic's `allTools.filter { !it.requiresPermission }` /
  * `filter { it.requiresPermission }`), maps each to a [ToolVd], and hands the two lists to
- * [ToolInfoScreen]. Only Help (host-side resource dialog) and Up (`finish()`) are interactive.
+ * [ToolInfoScreen]. Only Help and Up (`finish()`) are interactive. The help dialog (F30) is owned by
+ * [ToolInfoScreen] itself as an `AbInfoDialog` — this host only supplies the Android-resource-backed
+ * help body text and the full "Read more" docs URL.
  */
 class ToolInfoComposeActivity : ActivityBase() {
 
@@ -57,20 +59,12 @@ class ToolInfoComposeActivity : ActivityBase() {
                         readTools = readTools,
                         writeTools = writeTools,
                         onUp = { finish() },
-                        onHelp = { showHelp() },
+                        helpBody = getString(R.string.help_tool_info_text),
+                        helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#ai-tools",
                     )
                 }
             }
         }
-    }
-
-    private fun showHelp() {
-        CommonUtils.showHelpDialog(
-            activity = this,
-            titleResId = R.string.help,
-            messageResId = R.string.help_tool_info_text,
-            helpPath = "ai.html#ai-tools",
-        )
     }
 
     private fun Tool.toToolVd() = ToolVd(

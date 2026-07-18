@@ -25,18 +25,9 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -65,7 +56,10 @@ import org.koin.android.ext.android.inject
  * - **Disclaimer gate**: [onAdd] runs [ensureDisclaimerAccepted] before opening the add-provider
  *   dialog (ports classic `AiSettingsFragmentBase.ensureDisclaimerAccepted` — the HTML disclaimer is
  *   built from ~13 string resources), then calls [AiProvidersController.startAdd].
- * - **Help overflow** (parity with classic `ai_providers_options_menu`) as a Compose top-bar action.
+ *
+ * The help dialog (F30) is owned by [AiProvidersScreen] itself as an `AbInfoDialog` — this host only
+ * supplies the Android-resource-backed help body text and the full "Read more" docs URL (both must
+ * come from here since commonMain can't read `R.string.*` / build a docs-relative link).
  *
  * The type-picker list is filtered here (classic parity): builtin types already configured are
  * hidden, CUSTOM is always offered. Recomputed whenever the provider list changes so a just-added
@@ -153,7 +147,8 @@ class AiProvidersComposeActivity : ActivityBase() {
                                 controller.dismissDialog()
                             }
                         },
-                        actions = { HelpAction() },
+                        helpBody = getString(R.string.help_ai_providers_text),
+                        helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#choosing-a-provider",
                     )
 
                     val easySetup by easySetupState.collectAsState()
@@ -298,27 +293,6 @@ class AiProvidersComposeActivity : ActivityBase() {
                         ),
                     )
                 }
-        }
-    }
-
-    // --- Help overflow (parity with classic ai_providers_options_menu) ----------------------------
-
-    @Composable
-    private fun RowScope.HelpAction() {
-        var expanded by remember { mutableStateOf(false) }
-        IconButton(onClick = { expanded = true }) {
-            Text("⋮", fontSize = 24.sp) // vertical ellipsis; Material icons aren't on the app-module classpath
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(text = { Text(getString(R.string.help)) }, onClick = {
-                expanded = false
-                CommonUtils.showHelpDialog(
-                    activity = this@AiProvidersComposeActivity,
-                    titleResId = R.string.help,
-                    messageResId = R.string.help_ai_providers_text,
-                    helpPath = "ai.html#choosing-a-provider",
-                )
-            })
         }
     }
 

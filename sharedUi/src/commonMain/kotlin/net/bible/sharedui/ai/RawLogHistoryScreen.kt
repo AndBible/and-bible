@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.RawLogSummaryVd
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbSelectionScaffold
@@ -68,8 +69,9 @@ import net.bible.sharedui.strings.LocalStrings
  *
  * **Top-bar overflow (non-selection).** "Delete old logs…" opens an [AbListChoiceDialog] with the
  * four classic cutoffs (1 week / 1 month / 3 months / all), routing to [onDeleteOlderThan] with
- * the day count or to [onDeleteAll]; "Help" is a pure host-navigation callback ([onHelp]), like the
- * other AI screens' overflow "Help" items.
+ * the day count or to [onDeleteAll]; "Help" opens an [AbInfoDialog] owned by this screen (F30), fed
+ * the host-supplied [helpBody]/[helpReadMoreUrl] (Android resources / docs URL the shared layer
+ * can't own directly).
  */
 @Composable
 fun RawLogHistoryScreen(
@@ -82,11 +84,14 @@ fun RawLogHistoryScreen(
     onDeleteSelected: () -> Unit,
     onDeleteOlderThan: (Int) -> Unit,
     onDeleteAll: () -> Unit,
-    onHelp: () -> Unit,
     onNavigateUp: () -> Unit,
+    helpBody: String,
+    helpReadMoreUrl: String,
+    initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
     var showDeleteOldDialog by remember { mutableStateOf(false) }
+    var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
 
     AbSelectionScaffold(
         title = strings.rawLogHistoryTitle,
@@ -100,7 +105,7 @@ fun RawLogHistoryScreen(
                     text = { Text(strings.rawLogDeleteOld) },
                     onClick = { close(); showDeleteOldDialog = true },
                 )
-                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); onHelp() })
+                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); showHelp = true })
             }
         },
         selectionActions = {
@@ -141,6 +146,16 @@ fun RawLogHistoryScreen(
             selectedValue = "",
             onSelect = { value -> if (value == "all") onDeleteAll() else onDeleteOlderThan(value.toInt()) },
             onDismiss = { showDeleteOldDialog = false },
+        )
+    }
+
+    if (showHelp) {
+        AbInfoDialog(
+            title = strings.helpLabel,
+            body = helpBody,
+            onDismiss = { showHelp = false },
+            readMoreLabel = strings.helpReadMoreLink,
+            readMoreUrl = helpReadMoreUrl,
         )
     }
 }

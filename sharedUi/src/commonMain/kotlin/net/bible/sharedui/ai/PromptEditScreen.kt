@@ -67,6 +67,7 @@ import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDropdownField
+import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.settings.AbSettingsContent
@@ -145,8 +146,9 @@ import net.bible.sharedui.strings.Strings
  * shifts) plus an [AbOverflowMenu]: Delete (visible only `!isReadOnly && !isNew` — a brand-new or
  * any read-only prompt has nothing to delete), "Copy to customize" (visible whenever `isReadOnly ||
  * !isNew` — the classic condition, `!isNewPrompt` when editable, always-on when read-only), "View
- * tools" and "Help" (always visible — pure host-navigation callbacks, [onViewTools]/[onHelp], this
- * screen never renders their content itself).
+ * tools" (always visible — a pure host-navigation callback, [onViewTools], this screen never
+ * renders its content itself) and "Help" (always visible — opens an [AbInfoDialog] owned by this
+ * screen (F30), fed the host-supplied [helpBody]/[helpReadMoreUrl]).
  *
  * **Back / discard.** [onBack] is NOT called directly from the up-navigation icon: tapping it shows
  * an [AbConfirmDialog] ("Discard unsaved changes?") whenever [isDirty], calling [onBack] only on
@@ -210,13 +212,16 @@ fun PromptEditScreen(
     onDelete: () -> Unit,
     onCopyToCustomize: () -> Unit,
     onViewTools: () -> Unit,
-    onHelp: () -> Unit,
     onBack: () -> Unit,
+    helpBody: String,
+    helpReadMoreUrl: String,
+    initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
     val editable = !isReadOnly
     var showDiscardConfirm by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
 
     val title = when {
         isNew -> strings.newPrompt
@@ -240,7 +245,7 @@ fun PromptEditScreen(
                     DropdownMenuItem(text = { Text(strings.copyToCustomizeLabel) }, onClick = { close(); onCopyToCustomize() })
                 }
                 DropdownMenuItem(text = { Text(strings.viewToolsMenuLabel) }, onClick = { close(); onViewTools() })
-                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); onHelp() })
+                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); showHelp = true })
             }
         },
     ) { padding ->
@@ -311,6 +316,15 @@ fun PromptEditScreen(
             dismissText = strings.no,
             onConfirm = { showDeleteConfirm = false; onDelete() },
             onDismiss = { showDeleteConfirm = false },
+        )
+    }
+    if (showHelp) {
+        AbInfoDialog(
+            title = strings.helpLabel,
+            body = helpBody,
+            onDismiss = { showHelp = false },
+            readMoreLabel = strings.helpReadMoreLink,
+            readMoreUrl = helpReadMoreUrl,
         )
     }
 }

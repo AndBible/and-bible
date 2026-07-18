@@ -20,7 +20,6 @@ package net.bible.sharedui.ai
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +33,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -47,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.ai.AiProvidersController
 import net.bible.sharedcore.ai.ProviderEditState
 import net.bible.sharedcore.ai.ProviderTypeVd
@@ -55,6 +58,7 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDropdownField
+import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.TwoLineListItem
@@ -102,16 +106,25 @@ fun AiProvidersScreen(
     onSave: () -> Unit,
     onDelete: (String) -> Unit,
     onDismiss: () -> Unit,
-    actions: @Composable RowScope.() -> Unit = {},
+    helpBody: String,
+    helpReadMoreUrl: String,
+    initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
+    var showHelpMenu by remember { mutableStateOf(false) }
+    var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
 
     AbScaffold(
         title = strings.aiProvidersTitle,
         onNavigateUp = onUp,
         actions = {
             AbActionIcon(Icons.Filled.Add, contentDescription = strings.addProvider, onClick = onAdd)
-            actions()
+            IconButton(onClick = { showHelpMenu = true }) {
+                Text("⋮", fontSize = 24.sp) // vertical ellipsis; Material icons aren't on the app-module classpath
+            }
+            DropdownMenu(expanded = showHelpMenu, onDismissRequest = { showHelpMenu = false }) {
+                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { showHelpMenu = false; showHelp = true })
+            }
         },
     ) { padding ->
         LazyColumn(modifier = Modifier.padding(padding).fillMaxSize()) {
@@ -142,6 +155,16 @@ fun AiProvidersScreen(
                 onDismiss = onDismiss,
             )
         }
+    }
+
+    if (showHelp) {
+        AbInfoDialog(
+            title = strings.helpLabel,
+            body = helpBody,
+            onDismiss = { showHelp = false },
+            readMoreLabel = strings.helpReadMoreLink,
+            readMoreUrl = helpReadMoreUrl,
+        )
     }
 }
 

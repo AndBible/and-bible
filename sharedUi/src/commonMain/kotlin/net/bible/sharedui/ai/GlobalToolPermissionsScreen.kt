@@ -36,6 +36,7 @@ import net.bible.sharedcore.ai.ToolPermGroupVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
@@ -61,7 +62,9 @@ import net.bible.sharedui.strings.LocalStrings
  * inert when there is nothing to save, so the action row never shifts) plus an [AbOverflowMenu]
  * with "Reset all" ([onResetAll], no confirmation — matches classic's `reset_all` menu item,
  * which flips the working state to neutral defaults immediately; nothing is persisted until
- * [onSave] regardless) and "Help" ([onHelp], pure host-navigation callback).
+ * [onSave] regardless) and "Help" — opens an [AbInfoDialog] owned by this screen (F30), fed the
+ * host-supplied [helpBody]/[helpReadMoreUrl] (Android resources / docs URL the shared layer can't
+ * own directly).
  *
  * **Up / back.** [onUp] is not called directly from the up-navigation icon: mirrors classic's
  * `cancelOrConfirmDiscard()` — tapping it shows an [AbConfirmDialog] ("Discard unsaved changes?")
@@ -75,7 +78,8 @@ import net.bible.sharedui.strings.LocalStrings
  * @param onSetPermission Forwarded 1:1 to `GlobalToolPermissionsController.setPermission`.
  * @param onResetAll Forwarded 1:1 to `GlobalToolPermissionsController.resetAll`.
  * @param onSave Forwarded 1:1 to `GlobalToolPermissionsController.save`.
- * @param onHelp Host callback to show the global-tool-permissions help dialog.
+ * @param helpBody Host-supplied (Android-resource-backed) help body text.
+ * @param helpReadMoreUrl Host-supplied full "Read more" docs URL.
  */
 @Composable
 fun GlobalToolPermissionsScreen(
@@ -86,10 +90,13 @@ fun GlobalToolPermissionsScreen(
     onSetPermission: (toolId: String, ToolPermission) -> Unit,
     onResetAll: () -> Unit,
     onSave: () -> Unit,
-    onHelp: () -> Unit,
+    helpBody: String,
+    helpReadMoreUrl: String,
+    initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
     var showDiscardConfirm by remember { mutableStateOf(false) }
+    var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
     val requestUp: () -> Unit = { if (isDirty) showDiscardConfirm = true else onUp() }
     val categories = remember(groups) { groups.map { it.category to it.tools } }
 
@@ -102,7 +109,7 @@ fun GlobalToolPermissionsScreen(
             }
             AbOverflowMenu(contentDescription = null) { close ->
                 DropdownMenuItem(text = { Text(strings.resetToolPermissionsLabel) }, onClick = { close(); onResetAll() })
-                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); onHelp() })
+                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); showHelp = true })
             }
         },
     ) { padding ->
@@ -123,6 +130,16 @@ fun GlobalToolPermissionsScreen(
             dismissText = strings.no,
             onConfirm = { showDiscardConfirm = false; onUp() },
             onDismiss = { showDiscardConfirm = false },
+        )
+    }
+
+    if (showHelp) {
+        AbInfoDialog(
+            title = strings.helpLabel,
+            body = helpBody,
+            onDismiss = { showHelp = false },
+            readMoreLabel = strings.helpReadMoreLink,
+            readMoreUrl = helpReadMoreUrl,
         )
     }
 }

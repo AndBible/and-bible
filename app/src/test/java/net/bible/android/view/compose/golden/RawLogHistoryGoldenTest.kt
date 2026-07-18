@@ -37,6 +37,7 @@ class RawLogHistoryGoldenTest {
         summaries: List<RawLogSummaryVd> = this.summaries,
         selection: Set<String> = emptySet(),
         selectionMode: Boolean = false,
+        initiallyHelpDialogOpen: Boolean = false,
     ) = @androidx.compose.runtime.Composable {
         RawLogHistoryScreen(
             summaries = summaries,
@@ -48,8 +49,10 @@ class RawLogHistoryGoldenTest {
             onDeleteSelected = {},
             onDeleteOlderThan = {},
             onDeleteAll = {},
-            onHelp = {},
             onNavigateUp = {},
+            helpBody = "Raw connection logs record the full request/response for each AI call, for troubleshooting.",
+            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
+            initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }
 
@@ -72,4 +75,9 @@ class RawLogHistoryGoldenTest {
 
     @Test fun empty() =
         captureGolden("RawLogHistory", "empty", EDGE_MODE, content = screen(summaries = emptyList()))
+
+    // F30: the overflow "Help" item opens an AbInfoDialog (with a "Read more" docs link), replacing
+    // classic's CommonUtils.showHelpDialog AlertDialog.
+    @Test fun help_matrix() =
+        captureMatrix("RawLogHistory", "help", heightDp = 800, content = screen(initiallyHelpDialogOpen = true))
 }

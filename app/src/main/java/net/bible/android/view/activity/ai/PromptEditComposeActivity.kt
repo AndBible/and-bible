@@ -68,9 +68,10 @@ import org.koin.android.ext.android.inject
  * itself, being a plain composable, not an Activity) — checks `controller.isDirty` and shows an
  * equivalent host-level discard-confirm dialog before finishing.
  *
- * **View tools / Help** stay host-side: view-tools routes through [ScreenLauncher] ([Screen.ToolInfo],
- * old/new per `use_compose_ui` — Batch 9d task 11) and help shows the resource-backed help dialog,
- * both ported verbatim from classic [PromptEditActivity].
+ * **View tools** stays host-side: it routes through [ScreenLauncher] ([Screen.ToolInfo], old/new per
+ * `use_compose_ui` — Batch 9d task 11), ported verbatim from classic [PromptEditActivity]. The help
+ * dialog (F30) is owned by [PromptEditScreen] itself as an `AbInfoDialog` — this host only supplies
+ * the Android-resource-backed help body text and the full "Read more" docs URL.
  *
  * **Copy to customize** ([copyToCustomizeAndFinish]) mirrors classic exactly: on a non-null new id,
  * toast [R.string.prompt_copied], relaunch this SAME Compose host on the new id, and finish the
@@ -150,8 +151,9 @@ class PromptEditComposeActivity : ActivityBase() {
                         onDelete = { controller.delete(); finish() },
                         onCopyToCustomize = { copyToCustomizeAndFinish() },
                         onViewTools = { startActivity(ScreenLauncher.intentFor(this@PromptEditComposeActivity, Screen.ToolInfo)) },
-                        onHelp = { showHelp() },
                         onBack = { finish() },
+                        helpBody = getString(R.string.help_prompt_edit_text),
+                        helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#custom-prompts",
                     )
 
                     if (showDiscardConfirm) {
@@ -184,15 +186,6 @@ class PromptEditComposeActivity : ActivityBase() {
         Toast.makeText(this, R.string.prompt_copied, Toast.LENGTH_SHORT).show()
         startActivity(Intent(this, PromptEditComposeActivity::class.java).putExtra(EXTRA_PROMPT_ID, newId))
         finish()
-    }
-
-    private fun showHelp() {
-        CommonUtils.showHelpDialog(
-            activity = this,
-            titleResId = R.string.help,
-            messageResId = R.string.help_prompt_edit_text,
-            helpPath = "ai.html#custom-prompts",
-        )
     }
 
     companion object {
