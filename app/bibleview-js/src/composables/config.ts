@@ -78,6 +78,10 @@ export type Config = {
         nightBackground: number,
         nightNoise: number,
         nightTextColor: number,
+        dayBackgroundImage: string | null,
+        nightBackgroundImage: string | null,
+        dayBackgroundImageOpacity: number,
+        nightBackgroundImageOpacity: number,
     },
 
     hyphenation: boolean,
@@ -189,6 +193,10 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
             nightBackground: black,
             nightNoise: 0,
             nightTextColor: white,
+            dayBackgroundImage: null,
+            nightBackgroundImage: null,
+            dayBackgroundImageOpacity: 100,
+            nightBackgroundImageOpacity: 100,
         },
 
         hyphenation: true,

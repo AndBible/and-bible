@@ -22,7 +22,8 @@
       :style="topStyle"
       :dir="direction"
   >
-    <div class="background" :style="backgroundStyle"/>
+    <div class="background"/>
+    <div v-if="backgroundImageStyle" class="background-image" :style="backgroundImageStyle"/>
     <div :style="`height:${calculatedConfig.topOffset}px`"/>
     <div :style="modalStyle" id="modals"/>
     <template v-if="mounted">
@@ -163,6 +164,7 @@ import ChapterNavigationButtons from "@/components/ChapterNavigationButtons.vue"
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import ReadingProgress from "@/components/ReadingProgress.vue";
 import {ProgressDoc, useReadingProgress} from "@/composables/use-reading-progress";
+import {backgroundImageLayer} from "@/code/background-image";
 
 console.log("BibleView setup");
 useAddonFonts();
@@ -323,15 +325,14 @@ provide(memorizationKey, memorization);
 
 const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection> | null>(null);
 
-const backgroundStyle = computed(() => {
-    const nightColor = appSettings.monochromeMode ? black : config.colors.nightBackground;
-    const dayColor = appSettings.monochromeMode? white : config.colors.dayBackground;
-    const colorInt = appSettings.nightMode ? nightColor : dayColor;
-    if (colorInt === null) return "";
-    const backgroundColor = Color(colorInt).hsl().string();
-    return `
-            background-color: ${backgroundColor};
-        `;
+const backgroundImageStyle = computed(() => {
+    const layer = backgroundImageLayer(config.colors, {
+        nightMode: appSettings.nightMode,
+        monochromeMode: appSettings.monochromeMode,
+        einkMode: appSettings.einkMode,
+    });
+    if (layer === null) return null;
+    return `background-image: url('${layer.url}'); opacity: ${layer.opacity};`;
 });
 
 const contentStyle = computed(() => {
@@ -494,7 +495,7 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 }
 
 .background {
-  z-index: -3;
+  z-index: -2;
   position: fixed;
   left: 0;
   top: 0;
@@ -502,6 +503,19 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
   bottom: 0;
   opacity: var(--noise-opacity);
   background-image: url("~@/assets/noise.svg");
+}
+
+.background-image {
+  z-index: -3;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
 }
 
 $dayAlpha: 0.07;

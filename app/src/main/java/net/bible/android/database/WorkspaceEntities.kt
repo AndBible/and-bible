@@ -147,6 +147,10 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var nightTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightBackground: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?,
+        @ColumnInfo(defaultValue = "NULL") var dayBackgroundImage: String?,
+        @ColumnInfo(defaultValue = "NULL") var nightBackgroundImage: String?,
+        @ColumnInfo(defaultValue = "NULL") var dayBackgroundImageOpacity: Int?,
+        @ColumnInfo(defaultValue = "NULL") var nightBackgroundImageOpacity: Int?,
     ) {
         // This is saved to database in WorkspaceSettings. Here just to get it through to activities in SettingsBundle
         @Ignore var workspaceColor: Int? = null
@@ -172,6 +176,10 @@ class WorkspaceEntities {
                 nightTextColor = override.nightTextColor ?: nightTextColor,
                 nightBackground = override.nightBackground ?: nightBackground,
                 nightNoise = override.nightNoise ?: nightNoise,
+                dayBackgroundImage = override.dayBackgroundImage ?: dayBackgroundImage,
+                nightBackgroundImage = override.nightBackgroundImage ?: nightBackgroundImage,
+                dayBackgroundImageOpacity = override.dayBackgroundImageOpacity ?: dayBackgroundImageOpacity,
+                nightBackgroundImageOpacity = override.nightBackgroundImageOpacity ?: nightBackgroundImageOpacity,
             )
         }
 
@@ -365,6 +373,10 @@ class WorkspaceEntities {
                     nightTextColor = white,
                     nightNoise = 0,
                     dayNoise = 0,
+                    dayBackgroundImage = null,
+                    nightBackgroundImage = null,
+                    dayBackgroundImageOpacity = 100,
+                    nightBackgroundImageOpacity = 100,
                 ),
                 marginSize = MarginSize(
                     marginLeft = 3,

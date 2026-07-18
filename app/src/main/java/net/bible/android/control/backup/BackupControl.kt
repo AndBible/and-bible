@@ -80,6 +80,9 @@ import net.bible.service.common.DbType
 import net.bible.service.db.bookmarksDbStats
 import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.dbFile
+import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
+import net.bible.service.sword.backgroundimage.backgroundImageFile
+import net.bible.service.sword.backgroundimage.isBackgroundImageModule
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.epub.epubDir
@@ -412,6 +415,17 @@ object BackupControl {
                 addModuleFile(outFile, ttfFile)
             } else {
                 Log.w(TAG, "Skipping font module ${b.initials}: file not found ${ttfFile.path}")
+            }
+        } else if (b.isBackgroundImageModule) {
+            // Background-image modules also have byte-array metadata (no configFile), so package
+            // their single image file rather than via the generic SWORD branch below. Skip
+            // gracefully if the file is missing, so one broken module can't abort the whole
+            // backup/sync operation.
+            val imageFile = b.backgroundImageFile
+            if (imageFile.exists()) {
+                addModuleFile(outFile, imageFile)
+            } else {
+                Log.w(TAG, "Skipping background-image module ${b.initials}: file not found ${imageFile.path}")
             }
         } else {
             val configFile = bmd.configFile
@@ -882,6 +896,7 @@ object BackupControl {
         addManuallyInstalledESwordBooks()
         addManuallyInstalledEpubBooks()
         addManuallyInstalledTtfBooks()
+        addManuallyInstalledBackgroundImageBooks()
         addManuallyInstalledCsvPromptBooks()
     }
 

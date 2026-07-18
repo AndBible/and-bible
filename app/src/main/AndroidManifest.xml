@@ -19,8 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
-    android:versionCode="1110"
-    android:versionName="5.1.1110">
+    android:versionCode="1112"
+    android:versionName="5.1.1112">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" android:minSdkVersion="24"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
@@ -513,6 +513,11 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/workspace_color_settings_title"
             android:parentActivityName="net.bible.android.view.activity.settings.TextDisplaySettingsActivity" />
+        <activity
+            android:name="net.bible.android.view.activity.settings.BackgroundImageChooserActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/background_image_title"
+            android:parentActivityName="net.bible.android.view.activity.settings.ColorSettingsActivity" />
         <activity
             android:name="net.bible.android.view.activity.settings.SyncSettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

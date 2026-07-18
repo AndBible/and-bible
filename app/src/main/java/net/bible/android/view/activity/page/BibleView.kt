@@ -1292,6 +1292,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    class BackgroundImageAssetHandler: PathHandler {
+        override fun handle(path: String): WebResourceResponse {
+            val moduleName = path.trim('/')
+            val provided = AndBibleAddons.providedBackgroundImages[moduleName] ?: return notFound
+            val f = provided.file
+            return if (f.isFile && f.exists()) {
+                WebResourceResponse(URLConnection.guessContentTypeFromName(f.name), null, f.inputStream())
+            } else notFound
+        }
+    }
+
     class FeatureAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse {
             val parts = path.split("/", limit = 2);
@@ -1336,6 +1347,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         .addPathHandler("/assets/", MyAssetsPathHandler())
         .addPathHandler("/module/", ModuleAssetHandler())
         .addPathHandler("/fonts/", FontsAssetHandler())
+        .addPathHandler("/background/", BackgroundImageAssetHandler())
         .addPathHandler("/features/", FeatureAssetHandler())
         .addPathHandler("/module-style/", ModuleStylesAssetHandler())
         .addPathHandler("/epub/", EpubResourcesAssetHandler())
