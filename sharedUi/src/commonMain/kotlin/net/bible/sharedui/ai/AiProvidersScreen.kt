@@ -92,6 +92,13 @@ private val API_FORMATS = listOf("OPENAI", "ANTHROPIC")
  * controller's own enum rather than a duplicate — the controller already exposes it as part of its
  * public `updateField(field, value)` API, so there is nothing to gain from a second, shadow enum
  * here; this also keeps the call site a direct pass-through: `onField = controller::updateField`).
+ *
+ * F31: [showAcceptDisclaimerDialog] renders the "Accept AI disclaimer" `AbConfirmDialog` (replacing
+ * classic's `AlertDialog.Builder`-based accept flow, ported from `AiSettingsFragmentBase`). The host
+ * gates opening the add-provider dialog / Quick-setup wizard on `LlmProviderService.disclaimerAccepted()`
+ * and stashes the pending continuation while the dialog is shown; [onAcceptDisclaimer] must reach
+ * [AiProvidersController.acceptDisclaimer] (not the service directly) and then resume that
+ * continuation, [onDismissAcceptDisclaimer] just drops it.
  */
 @Composable
 fun AiProvidersScreen(
@@ -109,6 +116,9 @@ fun AiProvidersScreen(
     helpBody: String,
     helpReadMoreUrl: String,
     initiallyHelpDialogOpen: Boolean = false,
+    showAcceptDisclaimerDialog: Boolean = false,
+    onAcceptDisclaimer: () -> Unit = {},
+    onDismissAcceptDisclaimer: () -> Unit = {},
 ) {
     val strings = LocalStrings.current
     var showHelpMenu by remember { mutableStateOf(false) }
@@ -164,6 +174,17 @@ fun AiProvidersScreen(
             onDismiss = { showHelp = false },
             readMoreLabel = strings.helpReadMoreLink,
             readMoreUrl = helpReadMoreUrl,
+        )
+    }
+
+    if (showAcceptDisclaimerDialog) {
+        AbConfirmDialog(
+            title = strings.aiDisclaimerAcceptTitle,
+            message = strings.aiDisclaimerBody,
+            confirmText = strings.aiDisclaimerAcceptButton,
+            dismissText = strings.cancel,
+            onConfirm = onAcceptDisclaimer,
+            onDismiss = onDismissAcceptDisclaimer,
         )
     }
 }

@@ -16,14 +16,7 @@
  */
 package net.bible.android.view.activity.ai
 
-import android.app.AlertDialog
 import android.os.Bundle
-import android.text.method.LinkMovementMethod
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,7 +27,6 @@ import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.htmlToSpan
 import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.ai.AiProvidersController
 import net.bible.sharedcore.ai.LlmProviderService
@@ -54,8 +46,12 @@ import org.koin.android.ext.android.inject
  *
  * Two things stay host-side (Android-resource / dialog concerns the shared layer can't own):
  * - **Disclaimer gate**: [onAdd] runs [ensureDisclaimerAccepted] before opening the add-provider
- *   dialog (ports classic `AiSettingsFragmentBase.ensureDisclaimerAccepted` — the HTML disclaimer is
- *   built from ~13 string resources), then calls [AiProvidersController.startAdd].
+ *   dialog (ports classic `AiSettingsFragmentBase.ensureDisclaimerAccepted`), then calls
+ *   [AiProvidersController.startAdd]; likewise gates [startEasySetup] for the Quick-setup launch
+ *   extra. F31: the actual "Accept AI disclaimer" dialog is now [AiProvidersScreen]'s
+ *   `AbConfirmDialog` (`showAcceptDisclaimerDialog`), not a classic `AlertDialog.Builder` — this
+ *   host only stashes the pending continuation ([pendingDisclaimerAction]) while it's shown and
+ *   resumes it once [AiProvidersController.acceptDisclaimer] confirms.
  *
  * The help dialog (F30) is owned by [AiProvidersScreen] itself as an `AbInfoDialog` — this host only
  * supplies the Android-resource-backed help body text and the full "Read more" docs URL (both must
@@ -106,6 +102,14 @@ class AiProvidersComposeActivity : ActivityBase() {
      */
     private var swallowNextPickTypeDismiss = false
 
+    /**
+     * F31: the continuation stashed by [ensureDisclaimerAccepted] while the disclaimer hasn't been
+     * accepted yet (`null` = no accept-dialog pending). Set to the gated action ([onAdd] / opening
+     * the Quick-setup wizard) when the gate fails; [AiProvidersScreen]'s `showAcceptDisclaimerDialog`
+     * renders whenever this is non-null. Resumed and cleared by the dialog's confirm callback.
+     */
+    private val pendingDisclaimerAction = MutableStateFlow<(() -> Unit)?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (intent?.getBooleanExtra(EXTRA_START_EASY_SETUP, false) == true) {
@@ -120,6 +124,7 @@ class AiProvidersComposeActivity : ActivityBase() {
                 ) {
                     val providers by controller.providers.collectAsState()
                     val dialog by controller.dialog.collectAsState()
+                    val pendingDisclaimer by pendingDisclaimerAction.collectAsState()
                     // Classic showAddProviderTypeDialog hides already-configured builtin types and
                     // always keeps CUSTOM. Recompute on every provider-list change.
                     val providerTypes = remember(providers) {
@@ -149,6 +154,9 @@ class AiProvidersComposeActivity : ActivityBase() {
                         },
                         helpBody = getString(R.string.help_ai_providers_text),
                         helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#choosing-a-provider",
+                        showAcceptDisclaimerDialog = pendingDisclaimer != null,
+                        onAcceptDisclaimer = { confirmDisclaimerAccepted() },
+                        onDismissAcceptDisclaimer = { pendingDisclaimerAction.value = null },
                     )
 
                     val easySetup by easySetupState.collectAsState()
@@ -188,67 +196,30 @@ class AiProvidersComposeActivity : ActivityBase() {
         service.refresh()
     }
 
-    // --- Disclaimer gate (ported from AiSettingsFragmentBase) -------------------------------------
+    // --- Disclaimer gate (ported from AiSettingsFragmentBase; F31 replaced the classic dialog) -----
 
-    /** Gate that ensures the AI disclaimer is accepted before [onAccepted]. Mirrors classic. */
+    /**
+     * Gate that ensures the AI disclaimer is accepted before [onAccepted]. If already accepted, runs
+     * it immediately; otherwise stashes it in [pendingDisclaimerAction], which makes
+     * [AiProvidersScreen]'s `AbConfirmDialog` appear ([confirmDisclaimerAccepted] resumes it on
+     * accept).
+     */
     private fun ensureDisclaimerAccepted(onAccepted: () -> Unit) {
         if (service.disclaimerAccepted()) {
             onAccepted()
             return
         }
-        val density = resources.displayMetrics.density
-        val padding = (16 * density).toInt()
-
-        val textView = TextView(this).apply {
-            text = htmlToSpan(buildDisclaimerHtml())
-            movementMethod = LinkMovementMethod.getInstance()
-            setTextIsSelectable(true)
-        }
-        val acceptButton = Button(this, null, android.R.attr.borderlessButtonStyle).apply {
-            text = getString(R.string.ai_disclaimer_accept_button)
-            isAllCaps = false
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-            ).apply { topMargin = (16 * density).toInt() }
-        }
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(padding, padding, padding, padding)
-            addView(textView)
-            addView(acceptButton)
-        }
-        val scrollView = ScrollView(this).apply { addView(layout) }
-
-        val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.ai_disclaimer_accept_title)
-            .setView(scrollView)
-            .setNegativeButton(R.string.cancel, null)
-            .create()
-
-        acceptButton.setOnClickListener {
-            service.acceptDisclaimer()
-            dialog.dismiss()
-            onAccepted()
-        }
-        dialog.show()
+        pendingDisclaimerAction.value = onAccepted
     }
 
-    /** Assembles the disclaimer HTML from string resources (verbatim from classic). */
-    private fun buildDisclaimerHtml(): String {
-        val intro = getString(R.string.ai_disclaimer_intro)
-        val approach = getString(R.string.ai_disclaimer_approach)
-        val responsibility = getString(R.string.ai_disclaimer_responsibility)
-        val p1 = getString(R.string.ai_disclaimer_point1)
-        val p2 = getString(R.string.ai_disclaimer_point2)
-        val p3 = getString(R.string.ai_disclaimer_point3)
-        val p4 = getString(R.string.ai_disclaimer_point4)
-        val p5 = getString(R.string.ai_disclaimer_point5)
-        val p6 = getString(R.string.ai_disclaimer_point6)
-        val p7 = getString(R.string.ai_disclaimer_point7)
-        val p8 = getString(R.string.ai_disclaimer_point8)
-        val p9 = getString(R.string.ai_disclaimer_point9)
-        return "$intro $approach $responsibility<br><br>• $p1<br><br>• $p2<br><br>• $p3<br><br>• $p4<br><br>$p6<br><br>$p7 $p8<br><br>$p9<br><br><i>$p5</i>"
+    /** [AiProvidersScreen]'s accept-disclaimer dialog confirm callback: records acceptance via the
+     *  controller (never the service directly from the composable), then resumes the stashed
+     *  continuation. */
+    private fun confirmDisclaimerAccepted() {
+        controller.acceptDisclaimer()
+        val onAccepted = pendingDisclaimerAction.value
+        pendingDisclaimerAction.value = null
+        onAccepted?.invoke()
     }
 
     // --- Easy-setup wizard (host state-holder; ported flow lives in LlmProviderServiceImpl) --------

@@ -83,6 +83,7 @@ class AiProvidersGoldenTest {
         editState: ProviderEditState?,
         items: List<ProviderVd> = providers,
         initiallyHelpDialogOpen: Boolean = false,
+        showAcceptDisclaimerDialog: Boolean = false,
     ) = @androidx.compose.runtime.Composable {
         AiProvidersScreen(
             providers = items,
@@ -99,6 +100,9 @@ class AiProvidersGoldenTest {
             helpBody = "AI Providers is where you connect the app to an AI service such as OpenAI or Anthropic.",
             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#choosing-a-provider",
             initiallyHelpDialogOpen = initiallyHelpDialogOpen,
+            showAcceptDisclaimerDialog = showAcceptDisclaimerDialog,
+            onAcceptDisclaimer = {},
+            onDismissAcceptDisclaimer = {},
         )
     }
 
@@ -126,4 +130,15 @@ class AiProvidersGoldenTest {
     // classic's CommonUtils.showHelpDialog AlertDialog.
     @Test fun help_matrix() =
         captureMatrix("AiProviders", "help", content = screen(null, initiallyHelpDialogOpen = true))
+
+    // F31: Quick-setup / Add-provider disclaimer gate now opens an AbConfirmDialog (replacing
+    // classic's AlertDialog.Builder accept flow). heightDp=2000: AbConfirmDialog's body Text has no
+    // internal scroll/height cap (unlike AbInfoDialog), so the full multi-paragraph disclaimer needs
+    // a tall viewport to render without clipping (1300 still clipped the last paragraph + buttons).
+    @Test fun accept_disclaimer_matrix() =
+        captureMatrix(
+            "AiProviders", "accept_disclaimer",
+            heightDp = 2000,
+            content = screen(null, showAcceptDisclaimerDialog = true),
+        )
 }

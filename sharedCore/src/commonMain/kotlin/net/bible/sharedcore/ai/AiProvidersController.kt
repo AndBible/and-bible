@@ -121,6 +121,11 @@ class AiProvidersController(
 
     fun dismissDialog() { _dialog.value = null }
 
+    /** F31: accepts the AI disclaimer (Quick-setup / Add-provider gate), via the shared
+     *  [LlmProviderService] — routed through the controller so the Compose screen never calls the
+     *  service directly. */
+    fun acceptDisclaimer() = service.acceptDisclaimer()
+
     private fun publish(next: ProviderEditState) {
         _dialog.value = next.copy(canSave = canSave(next))
     }

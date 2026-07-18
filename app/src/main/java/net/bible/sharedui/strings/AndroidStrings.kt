@@ -357,6 +357,10 @@ class AndroidStrings(private val context: Context) : Strings {
     override val aiDisclaimerPoint8: String get() = context.getString(R.string.ai_disclaimer_point8)
     override val aiDisclaimerPoint9: String get() = context.getString(R.string.ai_disclaimer_point9)
 
+    // Batch 9 fix D1 — Quick-setup accept-disclaimer Compose dialog (F31)
+    override val aiDisclaimerAcceptTitle: String get() = context.getString(R.string.ai_disclaimer_accept_title)
+    override val aiDisclaimerAcceptButton: String get() = context.getString(R.string.ai_disclaimer_accept_button)
+
     // Batch 9 fix C2 — AiPrompts help dialog "Read more" link (F30)
     override val helpReadMoreLink: String get() = context.getString(R.string.help_read_more_link)
 }
