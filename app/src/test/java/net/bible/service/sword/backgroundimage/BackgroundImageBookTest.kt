@@ -20,6 +20,7 @@ package net.bible.service.sword.backgroundimage
 import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.service.common.AndBibleAddons
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.junit.After
@@ -78,13 +79,13 @@ class BackgroundImageBookTest {
     fun addonsRegistryExposesInstalledImage() {
         File(dir, "hills.png").writeBytes(byteArrayOf(0x00, 0x01, 0x02, 0x03))
         addManuallyInstalledBackgroundImageBooks()
-        net.bible.service.common.AndBibleAddons.clearCaches()
+        AndBibleAddons.clearCaches()
 
         val book = Books.installed().books.first { it.isBackgroundImageModule }
-        val provided = net.bible.service.common.AndBibleAddons.providedBackgroundImages[book.initials]
+        val provided = AndBibleAddons.providedBackgroundImages[book.initials]
         assertNotNull("registry should expose the image by module initials", provided)
         assertEquals("hills", provided!!.name)
-        assertTrue(net.bible.service.common.AndBibleAddons.backgroundImageModuleNames.contains(book.initials))
+        assertTrue(AndBibleAddons.backgroundImageModuleNames.contains(book.initials))
     }
 
     @Test
