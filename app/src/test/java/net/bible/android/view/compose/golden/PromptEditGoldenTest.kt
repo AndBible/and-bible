@@ -31,10 +31,12 @@ class PromptEditGoldenTest {
         readCat to listOf(
             ToolVd(id = "get_passage", displayName = "Get passage text", description = "Fetch verse text for the current reference", requiresPermission = false, categoryId = readCat.id),
             ToolVd(id = "search_bible", displayName = "Search Bible", description = "Full-text search across the current document", requiresPermission = false, categoryId = readCat.id),
+            ToolVd(id = "read_notes", displayName = "Read notes", description = "Read the user's MyNotes", requiresPermission = false, categoryId = readCat.id),
         ),
         writeCat to listOf(
             ToolVd(id = "create_bookmark", displayName = "Create bookmark", description = "Add a bookmark at the current verse", requiresPermission = true, categoryId = writeCat.id),
             ToolVd(id = "delete_note", displayName = "Delete note", description = "Remove a MyNote", requiresPermission = true, categoryId = writeCat.id),
+            ToolVd(id = "share_note", displayName = "Share note", description = "Share a MyNote outside the app", requiresPermission = true, categoryId = writeCat.id),
         ),
     )
 
@@ -44,11 +46,15 @@ class PromptEditGoldenTest {
         SettingsItem.Choice("claude-3-5-sonnet", "Claude 3.5 Sonnet"),
     )
 
-    /** Read tools ENABLED by default, write tools DENY by default -- mirrors a typical global config. */
+    /** Read tools ENABLED by default, write tools mostly DENY by default (share_note is the neutral
+     *  GLOBAL "ask every time" ASK default) -- mirrors a typical global config, and (Task E3/F39) lets
+     *  the un-overridden write tools show BOTH DEFAULT-label flavors ("Default (denied)" for
+     *  delete_note, "Ask (default)" for share_note) in the PROMPT-mode permission icon control. */
     private val globalToolPermission: (String) -> ToolPermission = { toolId ->
         when (toolId) {
-            "get_passage", "search_bible" -> ToolPermission.ENABLED
+            "get_passage", "search_bible", "read_notes" -> ToolPermission.ENABLED
             "create_bookmark", "delete_note" -> ToolPermission.DENY
+            "share_note" -> ToolPermission.ASK
             else -> ToolPermission.DEFAULT
         }
     }
@@ -142,17 +148,22 @@ class PromptEditGoldenTest {
             content = screen(promptState.copy(isTextTransformation = true), PromptEditTab.PROMPT),
         )
 
-    /** Permissions tab reachable (textTransformation=false). Two tools overridden away from the
-     *  global default (create_bookmark ALLOW-overridden, search_bible DISABLED-overridden) so both
-     *  the "Default (X)" option and an explicit override render. */
+    /** Permissions tab reachable (textTransformation=false). Some tools overridden away from the
+     *  global default (create_bookmark ALLOW-overridden, read_notes ENABLED-overridden, search_bible
+     *  DISABLED-overridden) and some left at DEFAULT (delete_note -> resolves DENY, share_note ->
+     *  resolves ASK, get_passage -> resolves ENABLED) so (Task E3/F39) every [ToolPermission] the
+     *  icon-based permission control can show is exercised on screen: explicit ENABLED/DISABLED
+     *  (read), explicit ALLOW (write), and both DEFAULT label flavors (write "Default (denied)"/
+     *  "Ask (default)"). */
     private val permissionsState = promptState.copy(
         permissionMode = "ALWAYS_ASK",
-        allowedTools = setOf("create_bookmark"),
+        allowedTools = setOf("create_bookmark", "read_notes"),
         deniedTools = setOf("search_bible"),
     )
 
-    // heightDp=1100: permission-mode dropdown + 2 categories x 2 tools, each a name-row (+ trailing
-    // info icon, E1/F34/F37) and a segmented-button row -- clips at the default viewport otherwise.
+    // heightDp=1100: permission-mode dropdown + 2 categories x 3 tools, each a name-row (+ trailing
+    // info icon, E1/F34/F37, and E3/F39's icon-based permission control) -- clips at the default
+    // viewport otherwise.
     @Test fun permissions_matrix() =
         captureMatrix("PromptEdit", "permissions", heightDp = 1100, content = screen(permissionsState, PromptEditTab.PERMISSIONS))
 

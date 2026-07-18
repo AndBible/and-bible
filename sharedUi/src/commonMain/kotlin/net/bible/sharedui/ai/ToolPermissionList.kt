@@ -18,26 +18,28 @@
 package net.bible.sharedui.ai
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
@@ -48,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.CategoryToggleState
@@ -106,13 +109,22 @@ private data class ToolPermissionOption(val permission: ToolPermission, val labe
  * threaded through [GlobalToolPermissionsScreen]/`PromptEditScreen`'s Permissions tab — neither
  * caller needs to know or drive this state.
  *
- * E-ink/monochrome: selection is shown by [SegmentedButton]'s default checkmark icon (drawn only
- * when `selected`), never by color alone, so it stays legible when [MaterialTheme.colorScheme] is
- * grayscaled by `AbTheme`'s BW/COLOR_EINK modes.
+ * **Permission control (F39, Task E3).** The per-tool permission is a compact status icon, not a
+ * text control -- the old [androidx.compose.material3.SingleChoiceSegmentedButtonRow] of text
+ * labels overflowed once the "Default (enabled)" PROMPT-mode option was added. Read tools
+ * ([ToolVd.requiresPermission] `== false`) get a single tappable [IconButton] that cycles through
+ * their (2- or 3-item, see [toolOptions]) option list on each tap -- 2-way ENABLED/DISABLED in
+ * GLOBAL mode, 3-way DEFAULT/ENABLED/DISABLED in PROMPT mode. Write tools get an [IconButton] that
+ * opens a [DropdownMenu] listing every option (icon + full text label, so the "Default (allowed)"/
+ * "Default (denied)" hint from [globalDefaultLabelFor] stays reachable as menu-item text once
+ * expanded) for direct selection -- see [ReadToolPermissionToggle]/[WriteToolPermissionControl].
+ * [permissionIcon] maps each [ToolPermission] to a shape/fill distinguishable icon (never color
+ * alone), so it stays legible when [MaterialTheme.colorScheme] is grayscaled by `AbTheme`'s
+ * BW/COLOR_EINK modes; each icon's `contentDescription` names the state.
  *
  * @param categories Tool categories in display order, each paired with its tools in display order.
- * @param permissionFor Current [ToolPermission] for a given `toolId` (drives which segmented option
- *   is selected).
+ * @param permissionFor Current [ToolPermission] for a given `toolId` (drives which option is shown
+ *   selected in the status icon control).
  * @param globalDefaultLabelFor See above — the resolved-global-default token, or `null` for GLOBAL
  *   mode (no Default option) for that tool.
  * @param onSet Invoked with the tool id and the newly selected [ToolPermission] when the user picks
@@ -280,26 +292,96 @@ private fun ToolPermissionRow(
     strings: Strings,
 ) {
     val options = toolOptions(tool, defaultToken, strings)
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Text(tool.displayName, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-            if (tool.description.isNotBlank()) {
-                IconButton(onClick = onShowInfo) {
-                    Icon(Icons.Outlined.Info, contentDescription = strings.toolDescriptionInfoContentDescription)
-                }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+    ) {
+        Text(tool.displayName, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+        if (tool.description.isNotBlank()) {
+            IconButton(onClick = onShowInfo) {
+                Icon(Icons.Outlined.Info, contentDescription = strings.toolDescriptionInfoContentDescription)
             }
         }
-        Spacer(Modifier.height(6.dp))
-        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-            options.forEachIndexed { index, option ->
-                SegmentedButton(
-                    selected = current == option.permission,
-                    onClick = { onSet(option.permission) },
-                    shape = SegmentedButtonDefaults.itemShape(index, options.size),
-                ) { Text(option.label) }
+        if (tool.requiresPermission) {
+            WriteToolPermissionControl(options = options, current = current, onSet = onSet)
+        } else {
+            ReadToolPermissionToggle(options = options, current = current, onSet = onSet)
+        }
+    }
+}
+
+/**
+ * Read-tool control (F39): a single tappable status [IconButton]. Each tap advances to the NEXT
+ * option in [options] (wrapping), so this is a genuine ENABLED&#8646;DISABLED toggle in GLOBAL mode
+ * (2 options) and a DEFAULT&#8594;ENABLED&#8594;DISABLED&#8594;DEFAULT cycle in PROMPT mode (3
+ * options, [options] order from [toolOptions]) -- same option set/order the old segmented row
+ * offered, only the presentation (icon vs. text) changed. `contentDescription` names the current
+ * state (its already-localized [ToolPermissionOption.label], e.g. "Enabled" or "Default (enabled)").
+ */
+@Composable
+private fun ReadToolPermissionToggle(
+    options: List<ToolPermissionOption>,
+    current: ToolPermission,
+    onSet: (ToolPermission) -> Unit,
+) {
+    val currentIndex = options.indexOfFirst { it.permission == current }.coerceAtLeast(0)
+    val currentOption = options[currentIndex]
+    IconButton(onClick = { onSet(options[(currentIndex + 1) % options.size].permission) }) {
+        Icon(imageVector = permissionIcon(currentOption.permission), contentDescription = currentOption.label)
+    }
+}
+
+/**
+ * Write-tool control (F39): an [IconButton] showing the current state's icon (`contentDescription`
+ * = its label) that opens a [DropdownMenu] listing every option in [options] (icon + full text
+ * label) for direct selection -- same 3-way option set [toolOptions] always builds for write tools
+ * (ASK/ALLOW/DENY in GLOBAL mode, DEFAULT/ALLOW/DENY in PROMPT mode). This is where the
+ * [globalDefaultLabelFor] "Default (allowed)"/"Default (denied)" hint stays reachable as visible
+ * menu-item text once the menu is expanded, since the closed-state icon alone can't encode it.
+ */
+@Composable
+private fun WriteToolPermissionControl(
+    options: List<ToolPermissionOption>,
+    current: ToolPermission,
+    onSet: (ToolPermission) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val currentOption = options.firstOrNull { it.permission == current } ?: options.first()
+    Box {
+        IconButton(onClick = { expanded = true }) {
+            Icon(imageVector = permissionIcon(currentOption.permission), contentDescription = currentOption.label)
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option.label) },
+                    leadingIcon = { Icon(permissionIcon(option.permission), contentDescription = null) },
+                    onClick = {
+                        onSet(option.permission)
+                        expanded = false
+                    },
+                )
             }
         }
     }
+}
+
+/**
+ * Maps a [ToolPermission] to a shape/fill distinguishable icon (F39) -- never color alone, so it
+ * stays legible in BW/e-ink monochrome: [ToolPermission.ENABLED]/[ToolPermission.ALLOW] = filled
+ * check circle (the two "on" states -- read vs. write tools never share an option list, so reusing
+ * one icon for both is unambiguous); [ToolPermission.DISABLED] = a blocked/no-entry circle (distinct
+ * outline from the "off"/"deny" icon below); [ToolPermission.DENY] = a cancel/X circle;
+ * [ToolPermission.ASK] = a question mark (GLOBAL mode's neutral "ask every time" write default);
+ * [ToolPermission.DEFAULT] = a globe ("inherits the global default" -- its specific resolved value
+ * is carried in the option's text label, not the icon, per [globalDefaultLabelFor]).
+ */
+private fun permissionIcon(permission: ToolPermission): ImageVector = when (permission) {
+    ToolPermission.ENABLED, ToolPermission.ALLOW -> Icons.Filled.CheckCircle
+    ToolPermission.DISABLED -> Icons.Filled.Block
+    ToolPermission.DENY -> Icons.Filled.Cancel
+    ToolPermission.ASK -> Icons.AutoMirrored.Filled.HelpOutline
+    ToolPermission.DEFAULT -> Icons.Filled.Public
 }
 
 /**

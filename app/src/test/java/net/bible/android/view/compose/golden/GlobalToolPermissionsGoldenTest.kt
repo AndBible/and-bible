@@ -45,6 +45,8 @@ class GlobalToolPermissionsGoldenTest {
     // get_passage=ENABLED (default), search_bible=DISABLED (non-default), create_bookmark=ALLOW
     // (non-default), delete_note=DENY (non-default), read_notes=ENABLED (default), edit_note=ASK
     // (the neutral GLOBAL default) -- so Ask/Allow/Deny all appear selected somewhere on screen.
+    // (Task E3/F39: this also exercises every icon the permission control's [permissionIcon] draws
+    // except DEFAULT, which only exists in PROMPT mode -- see PromptEditGoldenTest for that one.)
     private val permissions = mapOf(
         "get_passage" to ToolPermission.ENABLED,
         "search_bible" to ToolPermission.DISABLED,
