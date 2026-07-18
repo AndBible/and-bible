@@ -22,6 +22,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.GridLayoutManager
@@ -34,11 +35,7 @@ import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.service.common.AndBibleAddons
 import java.io.File
 
-private sealed class ChooserItem {
-    object None : ChooserItem()
-    object Import : ChooserItem()
-    class Image(val initials: String, val name: String, val file: File) : ChooserItem()
-}
+private class ImageEntry(val initials: String, val name: String, val file: File)
 
 class BackgroundImageChooserActivity : ActivityBase() {
     private lateinit var binding: BackgroundImageChooserBinding
@@ -49,36 +46,34 @@ class BackgroundImageChooserActivity : ActivityBase() {
     ) {
         // After returning from InstallZip, refresh so a freshly imported image appears.
         AndBibleAddons.clearCaches()
-        adapter.submit(buildItems())
+        refresh()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = BackgroundImageChooserBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        super.buildActivityComponent().inject(this)
         title = getString(R.string.background_image_title)
 
-        adapter = Adapter(::onItemClick)
-        binding.recyclerView.apply {
-            layoutManager = GridLayoutManager(this@BackgroundImageChooserActivity, 2)
-            adapter = this@BackgroundImageChooserActivity.adapter
+        adapter = Adapter { finishWith(it.initials) }
+        binding.apply {
+            recyclerView.layoutManager = GridLayoutManager(this@BackgroundImageChooserActivity, 2)
+            recyclerView.adapter = adapter
+            importButton.setOnClickListener {
+                importLauncher.launch(Intent(this@BackgroundImageChooserActivity, InstallZip::class.java))
+            }
+            noneButton.setOnClickListener { finishWith(null) }
         }
-        adapter.submit(buildItems())
+        refresh()
     }
 
-    private fun buildItems(): List<ChooserItem> {
+    private fun refresh() {
         val images = AndBibleAddons.providedBackgroundImages.map { (initials, p) ->
-            ChooserItem.Image(initials, p.name, p.file)
+            ImageEntry(initials, p.name, p.file)
         }.sortedBy { it.name.lowercase() }
-        return listOf(ChooserItem.None, ChooserItem.Import) + images
-    }
-
-    private fun onItemClick(item: ChooserItem) {
-        when (item) {
-            is ChooserItem.None -> finishWith(null)
-            is ChooserItem.Import -> importLauncher.launch(Intent(this, InstallZip::class.java))
-            is ChooserItem.Image -> finishWith(item.initials)
-        }
+        adapter.submit(images)
+        binding.emptyLabel.visibility = if (images.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun finishWith(initials: String?) {
@@ -86,11 +81,11 @@ class BackgroundImageChooserActivity : ActivityBase() {
         finish()
     }
 
-    private inner class Adapter(val onClick: (ChooserItem) -> Unit) :
+    private inner class Adapter(val onClick: (ImageEntry) -> Unit) :
         RecyclerView.Adapter<Adapter.VH>() {
-        private var items: List<ChooserItem> = emptyList()
+        private var items: List<ImageEntry> = emptyList()
 
-        fun submit(newItems: List<ChooserItem>) {
+        fun submit(newItems: List<ImageEntry>) {
             items = newItems
             notifyDataSetChanged()
         }
@@ -110,20 +105,8 @@ class BackgroundImageChooserActivity : ActivityBase() {
         override fun onBindViewHolder(holder: VH, position: Int) {
             val item = items[position]
             holder.itemBinding.apply {
-                when (item) {
-                    is ChooserItem.None -> {
-                        label.text = getString(R.string.background_image_none)
-                        thumbnail.setImageDrawable(null)
-                    }
-                    is ChooserItem.Import -> {
-                        label.text = getString(R.string.background_image_import)
-                        thumbnail.setImageDrawable(null)
-                    }
-                    is ChooserItem.Image -> {
-                        label.text = item.name
-                        thumbnail.setImageBitmap(decodeThumbnail(item.file))
-                    }
-                }
+                label.text = item.name
+                thumbnail.setImageBitmap(decodeThumbnail(item.file))
                 root.setOnClickListener { onClick(item) }
             }
         }
