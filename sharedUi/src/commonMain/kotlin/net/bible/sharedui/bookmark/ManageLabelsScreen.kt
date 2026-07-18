@@ -42,12 +42,18 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -56,9 +62,14 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.LabelCategory
 import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
+import net.bible.sharedcore.bookmark.SearchMode
+import net.bible.sharedcore.search.StyledRun
+import net.bible.sharedcore.search.StyledText
 import net.bible.sharedui.components.AbColor
+import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.search.styledTextToAnnotatedString
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -86,9 +97,9 @@ fun ManageLabelsScreen(
     rows: List<ManageLabelsRow>,
     mode: ManageLabelsMode,
     searchText: String,
-    nameSearchInside: Boolean,
+    searchMode: SearchMode,
     onSearch: (String) -> Unit,
-    onToggleSearchInside: () -> Unit,
+    onSetSearchMode: (SearchMode) -> Unit,
     onRowClick: (labelId: String) -> Unit,
     onRowLongClick: (labelId: String) -> Unit,
     onToggleChecked: (labelId: String) -> Unit,
@@ -96,6 +107,8 @@ fun ManageLabelsScreen(
     onSetPrimary: (labelId: String) -> Unit,
     onToggleAutoAssign: (labelId: String) -> Unit,
     onUp: () -> Unit,
+    onExportStudyPads: () -> Unit,
+    onImportStudyPads: () -> Unit,
     iconSlot: @Composable (customIcon: String?, colorArgb: Int) -> Unit,
     actions: @Composable RowScope.() -> Unit,
 ) {
@@ -111,18 +124,42 @@ fun ManageLabelsScreen(
                     modifier = Modifier.weight(1f),
                     horizontalPadding = 8.dp,
                 )
-                TextButton(
-                    onClick = onToggleSearchInside,
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = if (nameSearchInside) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                if (mode == ManageLabelsMode.STUDYPAD) {
+                    // StudyPad content-search: a 3-way selector over all SearchModes, plus the
+                    // export/import overflow (only meaningful for StudyPad labels).
+                    SearchModeSelector(
+                        searchMode = searchMode,
+                        onSetSearchMode = onSetSearchMode,
+                        strings = strings,
+                    )
+                    AbOverflowMenu(contentDescription = null) { close ->
+                        DropdownMenuItem(
+                            text = { Text(strings.exportSomething(strings.studyPadsLabel)) },
+                            onClick = { close(); onExportStudyPads() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(strings.importItems(strings.studyPadsLabel)) },
+                            onClick = { close(); onImportStudyPads() },
+                        )
+                    }
+                } else {
+                    // Non-STUDYPAD modes only ever filter by name: a simple two-state toggle.
+                    val insideText = searchMode == SearchMode.NAME_CONTAINS
+                    TextButton(
+                        onClick = {
+                            onSetSearchMode(if (insideText) SearchMode.NAME_START else SearchMode.NAME_CONTAINS)
                         },
-                    ),
-                    modifier = Modifier.padding(end = 8.dp),
-                ) {
-                    Text(if (nameSearchInside) strings.matchAnyText else strings.matchStartOfText)
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = if (insideText) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                        ),
+                        modifier = Modifier.padding(end = 8.dp),
+                    ) {
+                        Text(if (insideText) strings.matchAnyText else strings.matchStartOfText)
+                    }
                 }
             }
 
@@ -142,11 +179,52 @@ fun ManageLabelsScreen(
                             iconSlot = iconSlot,
                             strings = strings,
                         )
-                        // TODO(Compose Batch 7b-2 Task 3): render StudyPad content-search hits.
-                        is ManageLabelsRow.SearchResult -> {}
+                        is ManageLabelsRow.SearchResult -> SearchResultRow(
+                            row = row,
+                            onRowClick = onRowClick,
+                            strings = strings,
+                        )
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * StudyPad-only 3-way search-mode picker (name-from-start / name-contains / content), a small
+ * button showing the active mode's label that opens a dropdown over all [SearchMode] values —
+ * the portable analogue of classic `ManageLabels`'s `PopupMenu` (`R.menu.search_mode_menu`).
+ */
+@Composable
+private fun SearchModeSelector(
+    searchMode: SearchMode,
+    onSetSearchMode: (SearchMode) -> Unit,
+    strings: Strings,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val label = when (searchMode) {
+        SearchMode.NAME_START -> strings.searchModeNameStart
+        SearchMode.NAME_CONTAINS -> strings.searchModeNameContains
+        SearchMode.CONTENT -> strings.searchModeContent
+    }
+    Box {
+        TextButton(onClick = { expanded = true }, modifier = Modifier.padding(end = 4.dp)) {
+            Text(label)
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                text = { Text(strings.searchModeNameStart) },
+                onClick = { expanded = false; onSetSearchMode(SearchMode.NAME_START) },
+            )
+            DropdownMenuItem(
+                text = { Text(strings.searchModeNameContains) },
+                onClick = { expanded = false; onSetSearchMode(SearchMode.NAME_CONTAINS) },
+            )
+            DropdownMenuItem(
+                text = { Text(strings.searchModeContent) },
+                onClick = { expanded = false; onSetSearchMode(SearchMode.CONTENT) },
+            )
         }
     }
 }
@@ -277,4 +355,86 @@ private fun LabelItemRow(
             }
         }
     }
+}
+
+/**
+ * A StudyPad content-search hit: the label's colour dot + name, a match-count line
+ * (`search_results_match`/`search_results_matches`, mirroring classic `ManageLabelItemAdapter`'s
+ * `VIEW_TYPE_SEARCH_RESULT`), and the first match's snippet with its [ManageLabelsRow.SearchResult.matchStart]..
+ * [ManageLabelsRow.SearchResult.matchEnd] span highlighted — reusing the same [StyledText] →
+ * [styledTextToAnnotatedString] renderer the Batch 5 search-result screens use, rather than a
+ * bespoke highlighter. Tapping the row hands the label id to [onRowClick]; the host resolves it to
+ * a StudyPad navigation using [ManageLabelsRow.SearchResult.firstMatchEntryId].
+ */
+@Composable
+private fun SearchResultRow(
+    row: ManageLabelsRow.SearchResult,
+    onRowClick: (String) -> Unit,
+    strings: Strings,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onRowClick(row.labelId) }
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .background(AbColor.toComposeColor(row.color), CircleShape),
+        )
+
+        Spacer(Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = row.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = if (row.matchCount == 1) {
+                        strings.searchResultsMatch
+                    } else {
+                        strings.searchResultsMatches(row.matchCount)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text(
+                text = styledTextToAnnotatedString(searchResultSnippetStyledText(row)),
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+/**
+ * Splits [ManageLabelsRow.SearchResult.snippet] into up to three [StyledRun]s around
+ * `[matchStart, matchEnd)`, with the matched slice flagged [StyledRun.highlight] so
+ * [styledTextToAnnotatedString] paints it as the same bold/pill highlight the Batch 5
+ * search-result screens use. Falls back to a single plain run when the snippet is empty or the
+ * bounds are out of range (e.g. a host-side "no matches" placeholder row).
+ */
+private fun searchResultSnippetStyledText(row: ManageLabelsRow.SearchResult): StyledText {
+    val text = row.snippet
+    val start = row.matchStart
+    val end = row.matchEnd
+    if (text.isEmpty() || start < 0 || end <= start || end > text.length) {
+        return StyledText.plain(text)
+    }
+    val runs = buildList {
+        if (start > 0) add(StyledRun(text.substring(0, start)))
+        add(StyledRun(text.substring(start, end), highlight = true))
+        if (end < text.length) add(StyledRun(text.substring(end)))
+    }
+    return StyledText(runs)
 }

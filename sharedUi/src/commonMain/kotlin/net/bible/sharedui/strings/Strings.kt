@@ -376,6 +376,16 @@ interface Strings {
     val recentLabelsHeader: String                  // R.string.recent_labels
     val otherLabelsHeader: String                   // R.string.other_labels
     val overrideIndicatorDescription: String        // R.string.workspace_override_indicator
+
+    // Batch 7b-2 — ManageLabelsScreen StudyPad content-search + export/import
+    val searchModeNameStart: String                 // R.string.search_mode_name_start
+    val searchModeNameContains: String               // R.string.search_mode_name_contains
+    val searchModeContent: String                   // R.string.search_mode_content
+    val searchResultsMatch: String                   // R.string.search_results_match
+    fun searchResultsMatches(count: Int): String     // R.string.search_results_matches
+    val studyPadsLabel: String                       // R.string.studypads
+    fun exportSomething(what: String): String        // R.string.export_something
+    fun importItems(what: String): String            // R.string.import_items
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

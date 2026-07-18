@@ -368,4 +368,14 @@ class AndroidStrings(private val context: Context) : Strings {
     override val recentLabelsHeader: String get() = context.getString(R.string.recent_labels)
     override val otherLabelsHeader: String get() = context.getString(R.string.other_labels)
     override val overrideIndicatorDescription: String get() = context.getString(R.string.workspace_override_indicator)
+
+    // Batch 7b-2 — ManageLabelsScreen StudyPad content-search + export/import
+    override val searchModeNameStart: String get() = context.getString(R.string.search_mode_name_start)
+    override val searchModeNameContains: String get() = context.getString(R.string.search_mode_name_contains)
+    override val searchModeContent: String get() = context.getString(R.string.search_mode_content)
+    override val searchResultsMatch: String get() = context.getString(R.string.search_results_match)
+    override fun searchResultsMatches(count: Int): String = context.getString(R.string.search_results_matches, count)
+    override val studyPadsLabel: String get() = context.getString(R.string.studypads)
+    override fun exportSomething(what: String): String = context.getString(R.string.export_something, what)
+    override fun importItems(what: String): String = context.getString(R.string.import_items, what)
 }
