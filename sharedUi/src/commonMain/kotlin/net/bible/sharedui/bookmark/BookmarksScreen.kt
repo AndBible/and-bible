@@ -80,12 +80,12 @@ import net.bible.sharedui.strings.Strings
  * `bookmark_context_menu.xml`'s `assign_labels`/`delete`); the count is rendered by
  * [AbSelectionScaffold] itself. Exiting selection ([onClearSelection]) clears it.
  *
- * **Top bar (non-selection).** A quick-access sort [AbActionIcon] reflects the current [sortMode]
- * (up/down arrow for ascending/descending; classic only toasted the new order on tap, this port
- * additionally encodes direction in the icon) plus an [AbOverflowMenu] with Manage Labels / Sort
- * (a text-labelled duplicate of the quick-access icon, for discoverability) / Show notes
- * (checkable) / Export CSV / Import CSV — matching `bookmark_actionbar_menu.xml`'s five items
- * (`manageLabels`, `sortByToggle`, `showNotes`, `exportCsv`, `importCsv`).
+ * **Top bar (non-selection).** Two always-visible [AbActionIcon]s — Manage Labels, then a
+ * quick-access sort icon reflecting the current [sortMode] (up/down arrow for ascending/
+ * descending; classic only toasted the new order on tap, this port additionally encodes direction
+ * in the icon) — plus an [AbOverflowMenu] with Show notes (checkable) / Export CSV / Import CSV.
+ * This matches `bookmark_actionbar_menu.xml`: `manageLabels`/`sortByToggle` are
+ * `showAsAction="always"`, `showNotes`/`exportCsv`/`importCsv` are overflow-only.
  *
  * **Filter + search.** The label filter is an always-visible [AbDropdownField] (classic's label
  * spinner). The notes-search field ([AbSearchField]) only shows when [showNotes] (classic hid
@@ -137,21 +137,16 @@ fun BookmarksScreen(
         onExitSelection = onClearSelection,
         actions = {
             AbActionIcon(
+                icon = Icons.AutoMirrored.Filled.Label,
+                contentDescription = strings.manageLabelsLabel,
+                onClick = onManageLabels,
+            )
+            AbActionIcon(
                 icon = sortIcon(sortMode),
                 contentDescription = sortModeLabel(sortMode, strings),
                 onClick = onCycleSort,
             )
             AbOverflowMenu(contentDescription = null) { close ->
-                DropdownMenuItem(
-                    text = { Text(strings.manageLabelsLabel) },
-                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null) },
-                    onClick = { close(); onManageLabels() },
-                )
-                DropdownMenuItem(
-                    text = { Text(sortModeLabel(sortMode, strings)) },
-                    leadingIcon = { Icon(sortIcon(sortMode), contentDescription = null) },
-                    onClick = { close(); onCycleSort() },
-                )
                 DropdownMenuItem(
                     text = { Text(strings.showNotesLabel) },
                     leadingIcon = {
