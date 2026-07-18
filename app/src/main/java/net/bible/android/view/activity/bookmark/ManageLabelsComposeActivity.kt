@@ -189,9 +189,10 @@ class ManageLabelsComposeActivity : ActivityBase() {
                     // Mirrors classic ManageLabels.kt:394-406 (export_studypads menu handler): a
                     // multiselect over every assignable label, then exportStudyPads for the chosen ones.
                     if (showExportDialog) {
+                        val exportableLabels = bookmarkControl.assignableLabels
                         AbMultiSelectDialog(
                             title = getString(R.string.export_something, getString(R.string.studypads)),
-                            options = bookmarkControl.assignableLabels,
+                            options = exportableLabels,
                             selectedIds = emptyList(),
                             idOf = { it.id.toString() },
                             labelOf = { it.displayName },
@@ -199,7 +200,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
                             dismissText = getString(R.string.cancel),
                             onConfirm = { ids ->
                                 showExportDialog = false
-                                val selected = bookmarkControl.assignableLabels.filter { ids.contains(it.id.toString()) }
+                                val selected = exportableLabels.filter { ids.contains(it.id.toString()) }
                                 if (selected.isNotEmpty()) {
                                     lifecycleScope.launch(Dispatchers.Main) {
                                         exportStudyPads(this@ManageLabelsComposeActivity, *selected.toTypedArray())
@@ -207,6 +208,8 @@ class ManageLabelsComposeActivity : ActivityBase() {
                                 }
                             },
                             onDismiss = { showExportDialog = false },
+                            selectAllText = getString(R.string.select_all),
+                            selectNoneText = getString(R.string.select_none),
                         )
                     }
                 }
