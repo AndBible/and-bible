@@ -65,7 +65,6 @@ class BackgroundImageChooserActivity : ActivityBase() {
         super.onCreate(savedInstanceState)
         binding = BackgroundImageChooserBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        super.buildActivityComponent().inject(this)
         title = getString(R.string.background_image_title)
 
         adapter = Adapter { finishWith(it.initials) }
