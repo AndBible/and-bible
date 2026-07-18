@@ -367,6 +367,15 @@ interface Strings {
     val displayModeUnderline: String                // R.string.display_mode_underline
     val displayModeMarker: String                   // R.string.display_mode_marker
     val displayModeHidden: String                   // R.string.display_mode_hidden
+
+    // Batch 7b-1 — ManageLabelsScreen
+    val labelsSearchHint: String                    // R.string.labels_search_hint
+    val matchStartOfText: String                    // R.string.match_start_of_text
+    val matchAnyText: String                        // R.string.match_any_text
+    val activeLabelsHeader: String                  // R.string.active_labels
+    val recentLabelsHeader: String                  // R.string.recent_labels
+    val otherLabelsHeader: String                   // R.string.other_labels
+    val overrideIndicatorDescription: String        // R.string.workspace_override_indicator
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
