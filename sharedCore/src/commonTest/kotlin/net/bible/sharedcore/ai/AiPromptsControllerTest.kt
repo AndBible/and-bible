@@ -39,7 +39,7 @@ class AiPromptsControllerTest {
         var lastSetPromptHidden: Pair<String, Boolean>? = null
         var lastSetCategoryHidden: Pair<String, Boolean>? = null
         var lastDeletePromptId: String? = null
-        var lastDeleteCategoryId: String? = null
+        var lastDeleteCategory: Pair<String, Boolean>? = null
         var lastMovePrompt: Pair<String, Boolean>? = null
         var lastMoveCategory: Pair<String, Boolean>? = null
         var lastCreateCategoryName: String? = null
@@ -51,7 +51,7 @@ class AiPromptsControllerTest {
         override fun setPromptHidden(promptId: String, hidden: Boolean) { lastSetPromptHidden = promptId to hidden }
         override fun setCategoryHidden(categoryId: String, hidden: Boolean) { lastSetCategoryHidden = categoryId to hidden }
         override fun deletePrompt(promptId: String) { lastDeletePromptId = promptId }
-        override fun deleteCategory(categoryId: String) { lastDeleteCategoryId = categoryId }
+        override fun deleteCategory(categoryId: String, deletePrompts: Boolean) { lastDeleteCategory = categoryId to deletePrompts }
         override fun movePrompt(promptId: String, up: Boolean) { lastMovePrompt = promptId to up }
         override fun moveCategory(categoryId: String, up: Boolean) { lastMoveCategory = categoryId to up }
         override fun createCategory(name: String) { lastCreateCategoryName = name }
@@ -146,10 +146,16 @@ class AiPromptsControllerTest {
         assertEquals("p1", f.lastDeletePromptId)
     }
 
-    @Test fun onDeleteCategory_routesToService() = runTest {
+    @Test fun onDeleteCategory_keepPrompts_routesToServiceWithFalse() = runTest {
         val f = Fake(); val c = controller(f)
-        c.onDeleteCategory("cat1")
-        assertEquals("cat1", f.lastDeleteCategoryId)
+        c.onDeleteCategory("cat1", false)
+        assertEquals("cat1" to false, f.lastDeleteCategory)
+    }
+
+    @Test fun onDeleteCategory_cascade_routesToServiceWithTrue() = runTest {
+        val f = Fake(); val c = controller(f)
+        c.onDeleteCategory("cat1", true)
+        assertEquals("cat1" to true, f.lastDeleteCategory)
     }
 
     @Test fun onMovePrompt_routesToService() = runTest {

@@ -31,7 +31,7 @@ class AiPromptsController(
     fun onSetPromptHidden(promptId: String, hidden: Boolean) = service.setPromptHidden(promptId, hidden)
     fun onSetCategoryHidden(categoryId: String, hidden: Boolean) = service.setCategoryHidden(categoryId, hidden)
     fun onDeletePrompt(promptId: String) = service.deletePrompt(promptId)
-    fun onDeleteCategory(categoryId: String) = service.deleteCategory(categoryId)
+    fun onDeleteCategory(categoryId: String, deletePrompts: Boolean) = service.deleteCategory(categoryId, deletePrompts)
     fun onMovePrompt(promptId: String, up: Boolean) = service.movePrompt(promptId, up)
     fun onMoveCategory(categoryId: String, up: Boolean) = service.moveCategory(categoryId, up)
     fun onCreateCategory(name: String) = service.createCategory(name)

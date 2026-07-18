@@ -261,6 +261,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val moveDownLabel: String get() = context.getString(R.string.move_category_down)
     override val deleteCategoryLabel: String get() = context.getString(R.string.delete_category)
     override fun deleteCategoryConfirm(name: String): String = context.getString(R.string.delete_category_confirm_title, name)
+    override val deleteCategoryKeepPromptsLabel: String get() = context.getString(R.string.delete_category_keep_prompts)
+    override val deleteCategoryAndPromptsLabel: String get() = context.getString(R.string.delete_category_and_prompts)
     override val hidePromptLabel: String get() = context.getString(R.string.ai_hide_prompt)
     override val restoreLabel: String get() = context.getString(R.string.restore)
     override val deletePromptConfirmMessage: String get() = context.getString(R.string.delete_prompt_confirm_message)

@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
@@ -45,6 +46,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -126,7 +128,7 @@ fun AiPromptsScreen(
     onSetPromptHidden: (String, Boolean) -> Unit,
     onSetCategoryHidden: (String, Boolean) -> Unit,
     onDeletePrompt: (String) -> Unit,
-    onDeleteCategory: (String) -> Unit,
+    onDeleteCategory: (String, Boolean) -> Unit,
     onMovePrompt: (String, Boolean) -> Unit,
     onMoveCategory: (String, Boolean) -> Unit,
     onCreateCategory: (String) -> Unit,
@@ -235,13 +237,25 @@ fun AiPromptsScreen(
         )
     }
     deleteCategoryTarget?.let { cat ->
-        AbConfirmDialog(
-            title = null,
-            message = strings.deleteCategoryConfirm(cat.name),
-            confirmText = strings.yes,
-            dismissText = strings.no,
-            onConfirm = { deleteCategoryTarget = null; onDeleteCategory(cat.id) },
-            onDismiss = { deleteCategoryTarget = null },
+        // Mirrors classic AiSettingsActivity's delete-category chooser (an AlertDialog#setItems
+        // pick-list, not a plain yes/no): the category can be deleted either keeping its prompts
+        // (moved to the uncategorized bucket) or cascading the delete to its prompts too.
+        AlertDialog(
+            onDismissRequest = { deleteCategoryTarget = null },
+            text = { Text(strings.deleteCategoryConfirm(cat.name)) },
+            confirmButton = {
+                TextButton(onClick = { deleteCategoryTarget = null; onDeleteCategory(cat.id, true) }) {
+                    Text(strings.deleteCategoryAndPromptsLabel)
+                }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(onClick = { deleteCategoryTarget = null; onDeleteCategory(cat.id, false) }) {
+                        Text(strings.deleteCategoryKeepPromptsLabel)
+                    }
+                    TextButton(onClick = { deleteCategoryTarget = null }) { Text(strings.cancel) }
+                }
+            },
         )
     }
     deletePromptTarget?.let { prompt ->
@@ -356,7 +370,7 @@ private fun PromptGroupsList(
             }
             if (collapsed[key] != true) {
                 val movableSiblings = group.prompts.filter { !it.isReadOnly }
-                items(group.prompts, key = { "prompt-${it.id}" }) { prompt ->
+                items(group.prompts, key = { "prompt-$key-${it.id}" }) { prompt ->
                     val idx = movableSiblings.indexOf(prompt)
                     PromptRow(
                         prompt = prompt,

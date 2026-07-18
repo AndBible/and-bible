@@ -19,7 +19,9 @@ interface PromptService {
     fun setPromptHidden(promptId: String, hidden: Boolean)
     fun setCategoryHidden(categoryId: String, hidden: Boolean)
     fun deletePrompt(promptId: String)
-    fun deleteCategory(categoryId: String)
+    // deletePrompts=false: move the category's prompts to the uncategorized bucket (classic
+    // "keep prompts"); deletePrompts=true: cascade-delete the prompts too (classic "and prompts").
+    fun deleteCategory(categoryId: String, deletePrompts: Boolean)
     fun movePrompt(promptId: String, up: Boolean)
     fun moveCategory(categoryId: String, up: Boolean)
     fun createCategory(name: String)

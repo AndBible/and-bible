@@ -269,6 +269,8 @@ interface Strings {
     val moveDownLabel: String                   // R.string.move_category_down
     val deleteCategoryLabel: String             // R.string.delete_category
     fun deleteCategoryConfirm(name: String): String  // R.string.delete_category_confirm_title
+    val deleteCategoryKeepPromptsLabel: String  // R.string.delete_category_keep_prompts
+    val deleteCategoryAndPromptsLabel: String   // R.string.delete_category_and_prompts
     val hidePromptLabel: String                 // R.string.ai_hide_prompt
     val restoreLabel: String                    // R.string.restore (reused as the un-hide-prompt action)
     val deletePromptConfirmMessage: String      // R.string.delete_prompt_confirm_message
