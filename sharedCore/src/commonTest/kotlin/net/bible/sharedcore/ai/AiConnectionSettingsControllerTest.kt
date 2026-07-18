@@ -10,8 +10,12 @@ import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AiConnectionSettingsControllerTest {
-    private fun snap(providers: Int = 1, models: Int = 1) = AiSettingsSnapshot(
-        providerCount = providers, modelCount = models, defaultModelLabel = "M",
+    // Default stub names for tests that only care about the provider COUNT (visibility gating),
+    // not the actual names (F33's providersSummary content is covered by its own tests below).
+    private fun defaultProviderNames(count: Int) = (1..count).map { "Provider$it" }
+
+    private fun snap(providers: Int = 1, models: Int = 1, providerNames: List<String> = defaultProviderNames(providers)) = AiSettingsSnapshot(
+        providerCount = providers, providerNames = providerNames, modelCount = models, defaultModelLabel = "M",
         agentPermissionMode = AgentPermissionModeIds.ordered.first(), aiLanguage = "",
         aiLanguageLabel = "Default", askModelBeforeRun = false,
         commentaryMaxResponseTokens = 1000, maxIterations = 10,
@@ -90,6 +94,17 @@ class AiConnectionSettingsControllerTest {
         val c = controller(Fake(snap(providers = 2))) { got = it }
         c.onNavigate(AiConnectionNav.PROVIDERS)
         assertEquals(AiConnectionNav.PROVIDERS, got)
+    }
+    // F33: the Providers row summary shows the configured provider NAMES (not just a count).
+    @Test fun providersSummary_joinsProviderNames() = runTest {
+        val c = controller(Fake(snap(providers = 2, providerNames = listOf("OpenAI", "Anthropic"))))
+        val row = c.state.value.visibleItems.first { it.key == AiConnectionNav.PROVIDERS } as SettingsItem.NavigationRow
+        assertEquals("OpenAI, Anthropic", row.summary)
+    }
+    @Test fun providersSummary_noProviders_showsNoneLabel() = runTest {
+        val c = controller(Fake(snap(providers = 0, providerNames = emptyList())))
+        val row = c.state.value.visibleItems.first { it.key == AiConnectionNav.PROVIDERS } as SettingsItem.NavigationRow
+        assertEquals(AiConnectionLabels.forTest().providersSummaryNone, row.summary)
     }
     @Test fun snapshotChange_rebuildsState() = runTest {
         val f = Fake(snap(providers = 0)); val c = controller(f)

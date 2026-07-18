@@ -142,10 +142,10 @@ class AiConnectionSettingsController(
     private fun build(s: AiSettingsSnapshot): SettingsScreenState {
         val hasProviders = s.providerCount > 0
 
-        val providersSummary = if (s.providerCount > 0) {
-            "${s.providerCount}"
-        } else {
+        val providersSummary = if (s.providerNames.isEmpty()) {
             labels.providersSummaryNone
+        } else {
+            s.providerNames.joinToString(", ")
         }
         val modelsSummary = if (s.modelCount > 0) {
             s.defaultModelLabel ?: "${s.modelCount}"

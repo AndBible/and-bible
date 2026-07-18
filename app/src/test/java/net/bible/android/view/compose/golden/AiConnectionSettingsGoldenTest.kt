@@ -36,7 +36,8 @@ class AiConnectionSettingsGoldenTest {
             ),
             SettingsItem.Category(key = "ai_providers_models_category", title = "Providers & models", visible = true),
             SettingsItem.NavigationRow(
-                key = "providers", title = "Providers", summary = "2", iconKey = "ai_providers_shortcut", visible = true,
+                key = "providers", title = "Providers", summary = "OpenAI, Anthropic",
+                iconKey = "ai_providers_shortcut", visible = true,
             ),
             SettingsItem.NavigationRow(
                 key = "models", title = "Models", summary = "GPT-4o", iconKey = "ai_models_shortcut", visible = true,

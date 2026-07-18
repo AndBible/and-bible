@@ -66,6 +66,7 @@ class AiSettingsServiceImpl : AiSettingsService {
 
         return AiSettingsSnapshot(
             providerCount = providerDao.getCount(),
+            providerNames = providerDao.all().map { it.displayName },
             modelCount = models.size,
             defaultModelLabel = defaultModel?.modelId,
             agentPermissionMode = settings.agentPermissionMode.name,

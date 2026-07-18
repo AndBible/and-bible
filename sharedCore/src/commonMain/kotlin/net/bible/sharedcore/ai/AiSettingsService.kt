@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 /** Immutable snapshot of the AI settings the connection screen reads. */
 data class AiSettingsSnapshot(
     val providerCount: Int,
+    val providerNames: List<String> = emptyList(),
     val modelCount: Int,
     val defaultModelLabel: String?,        // e.g. "GPT-4o" or null
     val agentPermissionMode: String,       // AgentPermissionMode.name
