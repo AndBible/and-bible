@@ -272,6 +272,50 @@ interface Strings {
     val hidePromptLabel: String                 // R.string.ai_hide_prompt
     val restoreLabel: String                    // R.string.restore (reused as the un-hide-prompt action)
     val deletePromptConfirmMessage: String      // R.string.delete_prompt_confirm_message
+
+    // Batch 9c — PromptEditScreen (Task 6)
+    val promptTabPrompt: String                  // R.string.prompt_tab_prompt
+    val promptTabPermissions: String             // R.string.prompt_tab_permissions
+    val promptTabAdvanced: String                // R.string.prompt_tab_advanced
+    val promptNameLabel: String                  // R.string.prompt_name
+    val promptDescriptionLabel: String           // R.string.prompt_description
+    val promptTemplateLabel: String              // R.string.prompt_template
+    val promptShowInLabel: String                // R.string.prompt_show_in (context checkboxes section label)
+    val promptContextVerseSelection: String      // R.string.prompt_context_verse_selection
+    val promptContextTextSelection: String       // R.string.prompt_context_text_selection
+    val promptContextWindowMenu: String          // R.string.prompt_context_window_menu
+    val promptContextWorkspaceMenu: String       // R.string.prompt_context_workspace_menu
+    val promptContextNoteEditor: String          // R.string.prompt_context_note_editor
+    val promptBibleOnlyLabel: String             // R.string.prompt_bible_only
+    val promptIsTextTransformationLabel: String        // R.string.prompt_is_text_transformation
+    val promptIsTextTransformationDescription: String  // R.string.prompt_is_text_transformation_description
+    val promptCategoryLabel: String              // R.string.prompt_category
+    val categoryNoneLabel: String                // R.string.category_none
+    val promptPermissionModeLabel: String        // R.string.prompt_permission_mode
+    val promptPermissionUseDefault: String       // R.string.prompt_permission_use_default
+    val permissionAlwaysAsk: String              // R.string.permission_always_ask
+    val permissionAskOncePerRun: String          // R.string.permission_ask_once_per_run
+    val permissionAllowAll: String               // R.string.permission_allow_all
+    val permissionDenyAll: String                // R.string.permission_deny_all
+    val resetToolPermissionsLabel: String        // R.string.reset_all_permissions
+    val promptModelOverrideLabel: String         // R.string.prompt_model_override
+    val promptMaxIterationsLabel: String         // R.string.prompt_max_iterations
+    val promptMaxIterationsHint: String          // R.string.prompt_max_iterations_hint
+    val promptStrictContextMatchingLabel: String        // R.string.prompt_strict_context_matching
+    val promptStrictContextMatchingDescription: String  // R.string.prompt_strict_context_matching_description
+    val promptSpecifyBeforeRunLabel: String             // R.string.prompt_edit_before_run
+    val promptSpecifyBeforeRunDescription: String       // R.string.prompt_edit_before_run_description
+    val promptNoDocumentCreationLabel: String           // R.string.prompt_no_document_creation
+    val promptNoDocumentCreationDescription: String     // R.string.prompt_no_document_creation_description
+    val promptAutoIncludeDocumentsLabel: String         // R.string.prompt_auto_include_documents
+    val promptAutoIncludeDocumentsDescription: String   // R.string.prompt_auto_include_documents_description
+    val promptAutoIncludeCommentariesLabel: String      // R.string.prompt_auto_include_commentaries
+    val promptAutoIncludeCommentariesDescription: String // R.string.prompt_auto_include_commentaries_description
+    val promptEditTitleEdit: String               // R.string.edit_prompt (top-bar title, existing non-built-in prompt)
+    val promptEditTitleBuiltIn: String            // R.string.built_in_prompt (top-bar title, built-in prompt)
+    val copyToCustomizeLabel: String              // R.string.copy_to_customize (overflow item)
+    val viewToolsMenuLabel: String                // R.string.ai_available_tools (overflow item, host navigates)
+    val discardChangesConfirmation: String        // R.string.discard_changes_confirmation
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

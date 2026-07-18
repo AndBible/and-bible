@@ -41,7 +41,9 @@ import androidx.compose.ui.unit.dp
  *
  * For short option lists only (the menu composes every item eagerly); use `AbSearchablePicker` for
  * long lists. [horizontalPadding]/[verticalPadding] default to the full-width screen-margin values;
- * a caller placing this in a tight row can shrink them.
+ * a caller placing this in a tight row can shrink them. [enabled] = false disables the anchor field
+ * (dimmed, matching [OutlinedTextField]'s own disabled look) and prevents the menu from opening —
+ * for a read-only host screen (e.g. PromptEdit's Prompt/Advanced tabs).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,25 +54,27 @@ fun <T> AbDropdownField(
     optionLabel: (T) -> String,
     onSelect: (T) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     horizontalPadding: Dp = 16.dp,
     verticalPadding: Dp = 4.dp,
 ) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
+        expanded = expanded && enabled,
+        onExpandedChange = { if (enabled) expanded = it },
         modifier = modifier.fillMaxWidth().padding(horizontal = horizontalPadding, vertical = verticalPadding),
     ) {
         OutlinedTextField(
             value = optionLabel(selected),
             onValueChange = {},
             readOnly = true,
+            enabled = enabled,
             singleLine = true,
             label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && enabled) },
             modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
         )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        ExposedDropdownMenu(expanded = expanded && enabled, onDismissRequest = { expanded = false }) {
             options.forEach { opt ->
                 DropdownMenuItem(text = { Text(optionLabel(opt)) }, onClick = { onSelect(opt); expanded = false })
             }
