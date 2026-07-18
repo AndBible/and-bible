@@ -229,4 +229,14 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun easySetupFailed(message: String): String = context.getString(R.string.easy_setup_failed, message)
     override val easySetupDoneTitle: String get() = context.getString(R.string.easy_setup_done_title)
     override val easySetupDoneMessage: String get() = context.getString(R.string.easy_setup_done_message)
+
+    // Batch 9c — ToolPermissionList
+    override val toolOptionEnabled: String get() = context.getString(R.string.tool_option_enabled)
+    override val toolOptionDisabled: String get() = context.getString(R.string.tool_option_disabled)
+    override val toolOptionAllow: String get() = context.getString(R.string.permission_option_always_allow)
+    override val toolOptionDeny: String get() = context.getString(R.string.permission_option_always_deny)
+    override val toolOptionDefaultEnabled: String get() = context.getString(R.string.tool_option_default_enabled)
+    override val toolOptionDefaultDisabled: String get() = context.getString(R.string.tool_option_default_disabled)
+    override val toolOptionDefaultAllowed: String get() = context.getString(R.string.tool_option_default_allowed)
+    override val toolOptionDefaultDenied: String get() = context.getString(R.string.tool_option_default_denied)
 }

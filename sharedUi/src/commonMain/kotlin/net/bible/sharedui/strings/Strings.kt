@@ -237,6 +237,16 @@ interface Strings {
     fun easySetupFailed(message: String): String  // R.string.easy_setup_failed (test-failure status)
     val easySetupDoneTitle: String             // R.string.easy_setup_done_title (step 3 dialog title)
     val easySetupDoneMessage: String           // R.string.easy_setup_done_message (step 3 dialog message)
+
+    // Batch 9c — ToolPermissionList
+    val toolOptionEnabled: String               // R.string.tool_option_enabled (read-tool option)
+    val toolOptionDisabled: String              // R.string.tool_option_disabled (read-tool option)
+    val toolOptionAllow: String                 // R.string.permission_option_always_allow (write-tool option)
+    val toolOptionDeny: String                  // R.string.permission_option_always_deny (write-tool option)
+    val toolOptionDefaultEnabled: String        // R.string.tool_option_default_enabled (PROMPT mode, read tool, global default = enabled)
+    val toolOptionDefaultDisabled: String       // R.string.tool_option_default_disabled (PROMPT mode, read tool, global default = disabled)
+    val toolOptionDefaultAllowed: String        // R.string.tool_option_default_allowed (PROMPT mode, write tool, global default = allow)
+    val toolOptionDefaultDenied: String         // R.string.tool_option_default_denied (PROMPT mode, write tool, global default = deny)
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
