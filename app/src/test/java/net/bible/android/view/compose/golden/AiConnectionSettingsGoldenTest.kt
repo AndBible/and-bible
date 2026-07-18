@@ -21,7 +21,10 @@ class AiConnectionSettingsGoldenTest {
     private fun configuredState() = SettingsScreenState(
         title = "AI connection settings",
         items = listOf(
-            SettingsItem.InfoRow(key = "ai_disclaimer_warning", title = "Disclaimer", visible = true),
+            SettingsItem.InfoRow(
+                key = "ai_disclaimer_warning", title = "Disclaimer",
+                summary = "Risks and responsibilities of using AI", onClickKey = "ai_disclaimer_warning", visible = true,
+            ),
             SettingsItem.NavigationRow(
                 key = "easy_setup", title = "Getting started", summary = "Set up your first AI provider",
                 visible = false,
@@ -102,7 +105,10 @@ class AiConnectionSettingsGoldenTest {
     private fun noProvidersState() = SettingsScreenState(
         title = "AI connection settings",
         items = listOf(
-            SettingsItem.InfoRow(key = "ai_disclaimer_warning", title = "Disclaimer", visible = true),
+            SettingsItem.InfoRow(
+                key = "ai_disclaimer_warning", title = "Disclaimer",
+                summary = "Risks and responsibilities of using AI", onClickKey = "ai_disclaimer_warning", visible = true,
+            ),
             SettingsItem.NavigationRow(
                 key = "easy_setup", title = "Getting started", summary = "Set up your first AI provider",
                 visible = true,
@@ -157,19 +163,21 @@ class AiConnectionSettingsGoldenTest {
         ),
     )
 
-    private fun screen(state: SettingsScreenState) = @androidx.compose.runtime.Composable {
-        AiConnectionSettingsScreen(
-            state = state,
-            onUp = {},
-            onSwitch = { _, _ -> },
-            onListChoice = { _, _ -> },
-            onTextInputInt = { _, _ -> },
-            onCustomPromptSave = { _, _ -> },
-            customPromptTextFor = { "" },
-            onEditLanguage = {},
-            onNavigate = {},
-        )
-    }
+    private fun screen(state: SettingsScreenState, initiallyDisclaimerDialogOpen: Boolean = false) =
+        @androidx.compose.runtime.Composable {
+            AiConnectionSettingsScreen(
+                state = state,
+                onUp = {},
+                onSwitch = { _, _ -> },
+                onListChoice = { _, _ -> },
+                onTextInputInt = { _, _ -> },
+                onCustomPromptSave = { _, _ -> },
+                customPromptTextFor = { "" },
+                onEditLanguage = {},
+                onNavigate = {},
+                initiallyDisclaimerDialogOpen = initiallyDisclaimerDialogOpen,
+            )
+        }
 
     // heightDp=1400: the configured state is a long list (categories + rows); the default viewport
     // clips well before the raw-log-retention row at the bottom.
@@ -184,4 +192,14 @@ class AiConnectionSettingsGoldenTest {
     // heightDp=600: only the disclaimer + getting-started row + providers category/shortcut render.
     @Test fun noproviders_matrix() =
         captureMatrix("AiConnectionSettings", "noproviders", heightDp = 600, content = screen(noProvidersState()))
+
+    // F28: clicking the disclaimer InfoRow opens AbInfoDialog with the full disclaimer text.
+    // heightDp=1400 (same as "configured") so the dialog renders over the full list, not just the
+    // clipped default viewport.
+    @Test fun configured_disclaimer_matrix() =
+        captureMatrix(
+            "AiConnectionSettings", "disclaimer",
+            heightDp = 1400,
+            content = screen(configuredState(), initiallyDisclaimerDialogOpen = true),
+        )
 }

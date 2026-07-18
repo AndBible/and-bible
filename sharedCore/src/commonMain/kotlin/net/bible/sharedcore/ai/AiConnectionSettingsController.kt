@@ -27,6 +27,7 @@ object AiConnectionNav {
 data class AiConnectionLabels(
     val screenTitle: String,
     val disclaimerWarningTitle: String,
+    val disclaimerWarningSummary: String,
     val gettingStartedTitle: String,
     val gettingStartedSummary: String,
     val providersModelsCategoryTitle: String,
@@ -71,6 +72,7 @@ data class AiConnectionLabels(
         fun forTest() = AiConnectionLabels(
             screenTitle = "AI connection settings",
             disclaimerWarningTitle = "Disclaimer",
+            disclaimerWarningSummary = "Risks and responsibilities of using AI",
             gettingStartedTitle = "Getting started",
             gettingStartedSummary = "Set up your first AI provider",
             providersModelsCategoryTitle = "Providers & models",
@@ -179,6 +181,8 @@ class AiConnectionSettingsController(
             SettingsItem.InfoRow(
                 key = "ai_disclaimer_warning",
                 title = labels.disclaimerWarningTitle,
+                summary = labels.disclaimerWarningSummary,
+                onClickKey = "ai_disclaimer_warning",
                 visible = true,
             ),
             SettingsItem.NavigationRow(

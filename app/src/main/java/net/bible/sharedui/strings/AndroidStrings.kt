@@ -335,4 +335,22 @@ class AndroidStrings(private val context: Context) : Strings {
     override val shareLabel: String get() = context.getString(R.string.share)
     override val reportBugLabel: String get() = context.getString(R.string.ai_bug_report_menu)
     override val areYouSure: String get() = context.getString(R.string.are_you_sure)
+
+    // Batch 9 fix B1 — AI disclaimer info dialog (F28). `aiDisclaimerBody` is a DEFAULT member on
+    // the `Strings` interface itself (composed from the 12 parts below) — see its kdoc — so it is
+    // deliberately NOT overridden here.
+    override val disclaimerWarningSummary: String get() = context.getString(R.string.ai_disclaimer_warning_summary)
+    override val aiDisclaimerDialogTitle: String get() = context.getString(R.string.ai_disclaimer_dialog_title)
+    override val aiDisclaimerIntro: String get() = context.getString(R.string.ai_disclaimer_intro)
+    override val aiDisclaimerApproach: String get() = context.getString(R.string.ai_disclaimer_approach)
+    override val aiDisclaimerResponsibility: String get() = context.getString(R.string.ai_disclaimer_responsibility)
+    override val aiDisclaimerPoint1: String get() = context.getString(R.string.ai_disclaimer_point1)
+    override val aiDisclaimerPoint2: String get() = context.getString(R.string.ai_disclaimer_point2)
+    override val aiDisclaimerPoint3: String get() = context.getString(R.string.ai_disclaimer_point3)
+    override val aiDisclaimerPoint4: String get() = context.getString(R.string.ai_disclaimer_point4)
+    override val aiDisclaimerPoint5: String get() = context.getString(R.string.ai_disclaimer_point5)
+    override val aiDisclaimerPoint6: String get() = context.getString(R.string.ai_disclaimer_point6)
+    override val aiDisclaimerPoint7: String get() = context.getString(R.string.ai_disclaimer_point7)
+    override val aiDisclaimerPoint8: String get() = context.getString(R.string.ai_disclaimer_point8)
+    override val aiDisclaimerPoint9: String get() = context.getString(R.string.ai_disclaimer_point9)
 }

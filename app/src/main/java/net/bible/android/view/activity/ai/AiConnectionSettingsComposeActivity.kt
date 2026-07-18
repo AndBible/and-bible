@@ -311,6 +311,7 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
     private fun buildLabels() = AiConnectionLabels(
         screenTitle = getString(R.string.ai_connection_settings),
         disclaimerWarningTitle = getString(R.string.ai_disclaimer_warning_title),
+        disclaimerWarningSummary = getString(R.string.ai_disclaimer_warning_summary),
         gettingStartedTitle = getString(R.string.easy_setup_title),
         gettingStartedSummary = getString(R.string.easy_setup_pref_summary),
         providersModelsCategoryTitle = getString(R.string.ai_providers_models_category),

@@ -343,6 +343,38 @@ interface Strings {
     val shareLabel: String                        // R.string.share
     val reportBugLabel: String                    // R.string.ai_bug_report_menu
     val areYouSure: String                        // R.string.are_you_sure
+
+    // Batch 9 fix B1 — AI disclaimer info dialog (F28)
+    val disclaimerWarningSummary: String           // R.string.ai_disclaimer_warning_summary
+    val aiDisclaimerDialogTitle: String            // R.string.ai_disclaimer_dialog_title
+    val aiDisclaimerIntro: String                  // R.string.ai_disclaimer_intro
+    val aiDisclaimerApproach: String                // R.string.ai_disclaimer_approach
+    val aiDisclaimerResponsibility: String          // R.string.ai_disclaimer_responsibility
+    val aiDisclaimerPoint1: String                  // R.string.ai_disclaimer_point1
+    val aiDisclaimerPoint2: String                  // R.string.ai_disclaimer_point2
+    val aiDisclaimerPoint3: String                  // R.string.ai_disclaimer_point3
+    val aiDisclaimerPoint4: String                  // R.string.ai_disclaimer_point4
+    val aiDisclaimerPoint5: String                  // R.string.ai_disclaimer_point5
+    val aiDisclaimerPoint6: String                  // R.string.ai_disclaimer_point6
+    val aiDisclaimerPoint7: String                  // R.string.ai_disclaimer_point7
+    val aiDisclaimerPoint8: String                  // R.string.ai_disclaimer_point8
+    val aiDisclaimerPoint9: String                  // R.string.ai_disclaimer_point9
+
+    /**
+     * Plain-text disclaimer body for [net.bible.sharedui.components.AbInfoDialog], composed from the
+     * 12 raw parts above — mirrors classic `AiSettingsFragmentBase.buildDisclaimerHtml()`'s paragraph
+     * order, flattened from HTML/`<br>` to blank-line/bullet-separated plain text (`AbInfoDialog`
+     * renders the body verbatim, no HTML support). A DEFAULT interface implementation (deliberately
+     * NOT an `override` member in `AndroidStrings`/`:strings-gen`'s generated iOS `Strings` impl) so
+     * both platforms get it for free, computed from the 12 per-platform parts: `:strings-gen`'s
+     * `parseStringsInterface`/`parseAndroidStringsMapping` only recognize a BARE `val NAME: String`
+     * (no body) as a member needing a platform-specific override, so this composed `get()` is
+     * correctly skipped by both parsers and never needs (or gets) an `override` anywhere.
+     */
+    val aiDisclaimerBody: String get() =
+        "$aiDisclaimerIntro $aiDisclaimerApproach $aiDisclaimerResponsibility\n\n" +
+            "• $aiDisclaimerPoint1\n\n• $aiDisclaimerPoint2\n\n• $aiDisclaimerPoint3\n\n• $aiDisclaimerPoint4\n\n" +
+            "$aiDisclaimerPoint6\n\n$aiDisclaimerPoint7 $aiDisclaimerPoint8\n\n$aiDisclaimerPoint9\n\n$aiDisclaimerPoint5"
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

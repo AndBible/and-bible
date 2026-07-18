@@ -43,6 +43,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
+import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.settings.AbSettingsScreen
 import net.bible.sharedui.strings.LocalStrings
 
@@ -51,6 +52,10 @@ private const val KEY_CUSTOM_AGENT_PROMPT = "custom_agent_prompt"
 private const val KEY_CUSTOM_TEXT_TRANSFORM_PROMPT = "custom_text_transform_prompt"
 private const val KEY_RAW_LOG_RETENTION = "raw_log_retention"
 private const val KEY_AI_LANGUAGE = "ai_language"
+
+/** [SettingsItem.InfoRow.onClickKey] the controller sets on the disclaimer row (F28); clicking it
+ *  opens [AbInfoDialog] with the full disclaimer text rather than being forwarded to [onNavigate]. */
+private const val KEY_DISCLAIMER = "ai_disclaimer_warning"
 
 private val SPECIAL_KEYS = setOf(
     KEY_CUSTOM_AGENT_PROMPT,
@@ -98,6 +103,10 @@ fun AiConnectionSettingsScreen(
     onEditLanguage: () -> Unit,
     onNavigate: (String) -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
+    /** Test-only seam (matches `initiallyXxxOpen` elsewhere, e.g. `SearchScreen`'s
+     *  `initiallySettingsOpen`): lets golden tests capture the disclaimer [AbInfoDialog] open
+     *  without a click-simulation harness (this module has no Compose UI-test dependency). */
+    initiallyDisclaimerDialogOpen: Boolean = false,
 ) {
     val displayState = remember(state) {
         state.copy(items = state.items.map { item -> if (item.key in SPECIAL_KEYS) item.asNavigationRow() else item })
@@ -105,6 +114,7 @@ fun AiConnectionSettingsScreen(
 
     var customPromptDialogKey by remember { mutableStateOf<String?>(null) }
     var retentionDialogOpen by remember { mutableStateOf(false) }
+    var disclaimerDialogOpen by remember { mutableStateOf(initiallyDisclaimerDialogOpen) }
 
     // Defensive parity with AbSettingsScreen's own dialog-state handling: if the async state stops
     // carrying a key while its dialog is open (item removed outright), close the dialog rather than
@@ -132,6 +142,7 @@ fun AiConnectionSettingsScreen(
         onTextInput = { key, value -> value.toIntOrNull()?.let { onTextInputInt(key, it) } },
         onNavigate = { key ->
             when (key) {
+                KEY_DISCLAIMER -> disclaimerDialogOpen = true
                 KEY_CUSTOM_AGENT_PROMPT, KEY_CUSTOM_TEXT_TRANSFORM_PROMPT -> customPromptDialogKey = key
                 KEY_RAW_LOG_RETENTION -> retentionDialogOpen = true
                 KEY_AI_LANGUAGE -> onEditLanguage()
@@ -168,6 +179,15 @@ fun AiConnectionSettingsScreen(
                 retentionDialogOpen = false
             },
             onDismiss = { retentionDialogOpen = false },
+        )
+    }
+
+    if (disclaimerDialogOpen) {
+        val strings = LocalStrings.current
+        AbInfoDialog(
+            title = strings.aiDisclaimerDialogTitle,
+            body = strings.aiDisclaimerBody,
+            onDismiss = { disclaimerDialogOpen = false },
         )
     }
 }
