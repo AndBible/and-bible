@@ -22,6 +22,7 @@ import net.bible.sharedcore.bookmark.LabelCategory
 import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
+import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.bookmark.ManageLabelsScreen
 import net.bible.sharedui.components.AbColor
 import org.junit.Test
@@ -88,15 +89,15 @@ class ManageLabelsGoldenTest {
         return out
     }
 
-    private fun screen(mode: ManageLabelsMode) = @androidx.compose.runtime.Composable {
+    private fun screen(mode: ManageLabelsMode, searchMode: SearchMode = SearchMode.NAME_START) = @androidx.compose.runtime.Composable {
         ManageLabelsScreen(
             title = "Manage labels",
             rows = rows(mode),
             mode = mode,
             searchText = "",
-            nameSearchInside = false,
+            searchMode = searchMode,
             onSearch = {},
-            onToggleSearchInside = {},
+            onSetSearchMode = {},
             onRowClick = {},
             onRowLongClick = {},
             onToggleChecked = {},
@@ -104,6 +105,68 @@ class ManageLabelsGoldenTest {
             onSetPrimary = {},
             onToggleAutoAssign = {},
             onUp = {},
+            onExportStudyPads = {},
+            onImportStudyPads = {},
+            iconSlot = { _, _ -> },
+            actions = {},
+        )
+    }
+
+    /** A representative content-search-results list (SearchMode.CONTENT, StudyPad-only): 3 labels
+     *  with match counts, each with a snippet whose [matchStart, matchEnd) span is highlighted --
+     *  exercising [net.bible.sharedui.bookmark.searchResultSnippetStyledText]'s highlight-run split
+     *  (a mid-snippet match, a match touching the start, and a multi-match count). */
+    private fun searchResultRows(): List<ManageLabelsRow.SearchResult> = listOf(
+        ManageLabelsRow.SearchResult(
+            labelId = "L1",
+            name = "Study",
+            color = AbColor.palette[0],
+            matchCount = 3,
+            snippet = "In the beginning God created the heavens and the earth.",
+            matchStart = 12,
+            matchEnd = 15,
+            firstMatchEntryId = "entry-1",
+        ),
+        ManageLabelsRow.SearchResult(
+            labelId = "L2",
+            name = "Sermon notes",
+            color = AbColor.palette[1],
+            matchCount = 1,
+            snippet = "Grace and peace to you from God our Father.",
+            matchStart = 0,
+            matchEnd = 5,
+            firstMatchEntryId = "entry-2",
+        ),
+        ManageLabelsRow.SearchResult(
+            labelId = "L3",
+            name = "Devotional",
+            color = AbColor.palette[2],
+            matchCount = 2,
+            snippet = "Trust in the Lord with all your heart and lean not on your own understanding.",
+            matchStart = 9,
+            matchEnd = 13,
+            firstMatchEntryId = "entry-3",
+        ),
+    )
+
+    private fun contentSearchScreen() = @androidx.compose.runtime.Composable {
+        ManageLabelsScreen(
+            title = "Manage labels",
+            rows = searchResultRows(),
+            mode = ManageLabelsMode.STUDYPAD,
+            searchText = "god",
+            searchMode = SearchMode.CONTENT,
+            onSearch = {},
+            onSetSearchMode = {},
+            onRowClick = {},
+            onRowLongClick = {},
+            onToggleChecked = {},
+            onToggleFavourite = {},
+            onSetPrimary = {},
+            onToggleAutoAssign = {},
+            onUp = {},
+            onExportStudyPads = {},
+            onImportStudyPads = {},
             iconSlot = { _, _ -> },
             actions = {},
         )
@@ -128,4 +191,10 @@ class ManageLabelsGoldenTest {
      *  primary or auto-assign controls. */
     @Test fun manageLabels_studypad() =
         captureGolden("ManageLabels", "studypad", EDGE_MODE, heightDp = 800, content = screen(ManageLabelsMode.STUDYPAD))
+
+    /** STUDYPAD content-search results (SearchMode.CONTENT): the 3-way search-mode selector plus
+     *  SearchResult rows (colour dot, name, match-count text, and a highlighted snippet span) --
+     *  captured across all modes since highlight legibility is the point of this state. */
+    @Test fun manageLabels_studypad_content() =
+        captureMatrix("ManageLabels", "studypad_content", heightDp = 800, content = contentSearchScreen())
 }
