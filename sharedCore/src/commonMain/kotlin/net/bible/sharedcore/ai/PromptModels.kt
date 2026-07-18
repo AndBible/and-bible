@@ -67,7 +67,7 @@ object PromptContextIds {
  *
  * Mirrors `net.bible.service.llm.AgentPrompt` fields: `id`, `name`, `description` (nullable in
  * the entity, flattened to `""` here), `promptTemplate` -> `template`, `showIn` (`Set<PromptContext>`
- * -> `Set<String>` of `.name`s) -> `contexts`, `isTextTransformation`, `permissionMode`
+ * -> `Set<String>` of `.name`s) -> `contexts`, `bibleOnly`, `isTextTransformation`, `permissionMode`
  * (`PermissionMode?.name`), `allowedTools`/`deniedTools` (`Set<AgentTool>?` -> `Set<String>` of
  * `.name`s, empty set = no override), `configuredModelId` -> `modelOverrideId`, `maxIterations`,
  * `strictContextMatching`, `specifyBeforeRun`, `noDocumentCreation`, `autoIncludeDocuments`,
@@ -81,4 +81,5 @@ data class PromptEditData(
     val strictContextMatching: Boolean, val specifyBeforeRun: Boolean, val noDocumentCreation: Boolean,
     val autoIncludeDocuments: Boolean, val autoIncludeCommentaries: Boolean,
     val isReadOnly: Boolean, val isBuiltIn: Boolean,
+    val bibleOnly: Boolean = false,
 )
