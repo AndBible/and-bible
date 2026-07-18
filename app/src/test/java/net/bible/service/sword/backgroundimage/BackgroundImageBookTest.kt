@@ -66,6 +66,15 @@ class BackgroundImageBookTest {
     }
 
     @Test
+    fun rescanIsIdempotent() {
+        File(dir, "sunset.jpg").writeBytes(byteArrayOf(0x00, 0x01, 0x02, 0x03))
+        addManuallyInstalledBackgroundImageBooks()
+        addManuallyInstalledBackgroundImageBooks()
+        val count = Books.installed().books.count { it.isBackgroundImageModule }
+        assertEquals("re-scanning the same image must not register duplicates", 1, count)
+    }
+
+    @Test
     fun initialsAreSanitizedAndDeduped() {
         val existing = mutableSetOf("BGIMG_my_photo")
         val a = backgroundImageModuleInitials("my photo") { it in existing }

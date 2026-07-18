@@ -78,6 +78,11 @@ fun backgroundImageModuleInitials(displayName: String, exists: (String) -> Boole
 fun addBackgroundImageBook(file: File) {
     if (!(file.canRead() && file.isFile && file.extension.lowercase() in imageExtensions)) return
 
+    // Skip a file that already backs a registered module, so repeated scans stay idempotent.
+    // (Done before generating initials: otherwise dedup would mint a fresh _N initials and the
+    // existing-book guard below would fail to fire, registering a duplicate module each scan.)
+    if (Books.installed().books.any { it.isBackgroundImageModule && it.backgroundImageFile == file }) return
+
     val displayName = file.nameWithoutExtension
     val moduleInitials = backgroundImageModuleInitials(file.name) {
         Books.installed().getBook(it) != null
