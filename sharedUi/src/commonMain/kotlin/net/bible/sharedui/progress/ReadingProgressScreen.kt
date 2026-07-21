@@ -59,7 +59,7 @@ import net.bible.sharedui.strings.Strings
  * The tabbed reading-progress screen (mirrors classic `ReadingProgressActivity` / `reading_progress.xml`).
  * Fully stateless: every value comes from [model], every mutation is a callback back to the host.
  * The Reading tab ([ReadingTabBody]) is built here; the Memorize tab is rendered by the host-supplied
- * [memorizeTabContent] seam (Plan 8b fills it in).
+ * [memorizeTabContent] seam (the host wires in [net.bible.sharedui.progress.MemorizeTabBody]).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +78,7 @@ fun ReadingProgressScreen(
     onCalendarDayClick: (dayTimestamp: Long) -> Unit,
     onOpenSettings: () -> Unit,
     onShowHelp: () -> Unit,
-    memorizeTabContent: @Composable () -> Unit = { /* stub until 8b */ },
+    memorizeTabContent: @Composable () -> Unit = { /* host supplies MemorizeTabBody */ },
 ) {
     val strings = LocalStrings.current
 

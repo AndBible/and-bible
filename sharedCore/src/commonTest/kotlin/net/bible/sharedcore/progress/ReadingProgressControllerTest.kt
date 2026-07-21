@@ -113,6 +113,19 @@ class ReadingProgressControllerTest {
         assertEquals("Genesis", c.model.value.chapterDetail?.title)
     }
 
+    @Test fun load_with_initial_memorize_tab_also_loads_memorize() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake()
+        val c = ReadingProgressController(
+            fake, backgroundScope, ReadingTab.MEMORIZE, { _, _ -> }, {}, {}, { _, _ -> },
+            true, { _, _ -> }, {},
+        )
+        assertEquals(null, c.model.value.memorize)
+        c.load()
+        assertEquals(ReadingTab.MEMORIZE, c.model.value.tab)
+        assertTrue(c.model.value.memorize != null)
+        assertEquals(5, c.model.value.memorize?.memorizedCount)
+    }
+
     @Test fun selectTab_memorize_populates_model_with_overview() = runTest(UnconfinedTestDispatcher()) {
         val fake = Fake(); val c = controller(fake, backgroundScope, initialOverviewActive = true)
         assertEquals(null, c.model.value.memorize)

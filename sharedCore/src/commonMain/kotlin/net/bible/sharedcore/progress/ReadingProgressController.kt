@@ -37,6 +37,9 @@ import kotlinx.coroutines.launch
  * Memorize tab is shown, and every memorize mutation ([unmarkPassage], [removeTarget],
  * [setMemOverview]) reloads it. [showMorePassages]/[showMoreTargets] just grow the paging window
  * over the already-fetched full lists ([allPassages]/[allTargets]) and republish — no reload.
+ * [load] also triggers [loadMemorize] when the controller is constructed (or deep-linked) directly
+ * into [ReadingTab.MEMORIZE], since in that case the initial tab composition never fires
+ * [selectTab]'s `onClick`.
  */
 class ReadingProgressController(
     private val service: ReadingProgressService,
@@ -108,6 +111,9 @@ class ReadingProgressController(
                 )
             }
             _loading.value = false
+            if (_model.value.tab == ReadingTab.MEMORIZE && _model.value.memorize == null) {
+                loadMemorize()
+            }
         }
     }
 

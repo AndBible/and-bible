@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.progress.PassageRow
+import net.bible.sharedcore.progress.ReadingProgressController
 import net.bible.sharedcore.progress.ReadingProgressScale
 import net.bible.sharedcore.progress.TargetRow
 import net.bible.sharedcore.progress.MemorizeModel
@@ -221,7 +222,7 @@ private fun MemorizeList(
         }
         if (memorize.passagesShown < memorize.passagesTotal) {
             TextButton(onClick = onShowMorePassages) {
-                Text(strings.memorizeShowMore(min(memorize.passagesTotal - memorize.passagesShown, 10)))
+                Text(strings.memorizeShowMore(min(memorize.passagesTotal - memorize.passagesShown, ReadingProgressController.PAGE_SIZE)))
             }
         }
     }
@@ -268,7 +269,7 @@ private fun MemorizeList(
         }
         if (memorize.targetsShown < memorize.targetsTotal) {
             TextButton(onClick = onShowMoreTargets) {
-                Text(strings.memorizeShowMore(min(memorize.targetsTotal - memorize.targetsShown, 10)))
+                Text(strings.memorizeShowMore(min(memorize.targetsTotal - memorize.targetsShown, ReadingProgressController.PAGE_SIZE)))
             }
         }
     }
