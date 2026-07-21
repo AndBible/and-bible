@@ -477,6 +477,13 @@
             android:label="@string/settings"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
+            android:name="net.bible.android.view.activity.settings.SettingsComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/settings"
+            android:launchMode="singleTop"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
             android:name="net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/workspace_selector_title"
