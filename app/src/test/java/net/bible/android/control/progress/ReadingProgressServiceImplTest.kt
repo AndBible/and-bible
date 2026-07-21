@@ -53,4 +53,24 @@ class ReadingProgressServiceImplTest {
         // matching the classic ReadingProgressActivity.navigateToChapter behaviour exactly.
         assertEquals("Gen.1.1", service.osisIdForChapter("GEN", 1))
     }
+
+    // readingCalendarSkeleton() uses the real Calendar.getInstance(), so only deterministic
+    // structural properties are asserted (not concrete dates/labels, which depend on "today").
+    @Test fun readingCalendarSkeleton_has_expected_structure() = runBlocking {
+        val skeleton = service.readingCalendarSkeleton()
+
+        assertEquals(53, skeleton.weeks)
+        assertEquals(listOf("", "M", "", "W", "", "F", ""), skeleton.dayOfWeekLabels)
+
+        assertTrue(skeleton.slots.isNotEmpty())
+        assertTrue(skeleton.slots.all { it.weekIndex in 0..52 })
+        assertTrue(skeleton.slots.all { it.dayIndex in 0..6 })
+
+        assertTrue(skeleton.monthLabels.isNotEmpty())
+        assertTrue(skeleton.monthLabels.all { it.weekIndex in 0..52 })
+
+        val now = System.currentTimeMillis()
+        assertTrue(skeleton.slots.last().dayTimestamp <= now)
+        assertTrue(skeleton.slots.zipWithNext().all { (a, b) -> a.dayTimestamp < b.dayTimestamp })
+    }
 }

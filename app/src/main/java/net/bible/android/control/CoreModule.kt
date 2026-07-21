@@ -13,12 +13,12 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
-import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.search.BibleSearchServiceImpl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchIndexServiceImpl
 import net.bible.android.view.activity.search.AndroidEpubSearchService
+import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.EpubSearchService

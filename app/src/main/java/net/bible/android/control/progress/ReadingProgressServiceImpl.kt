@@ -38,6 +38,7 @@ import org.crosswire.jsword.versification.system.Versifications
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Host (`:app`) implementation of the portable [ReadingProgressService] seam. Wraps the classic
@@ -54,8 +55,12 @@ import java.util.Locale
 class ReadingProgressServiceImpl : ReadingProgressService {
     private val kjva get() = Versifications.instance().getVersification("KJVA")
 
-    /** Last-loaded read-history entries, keyed by [ChapterReadEntry.id]'s string form. */
-    private val historyCache = mutableMapOf<String, ChapterReadEntry>()
+    /**
+     * Last-loaded read-history entries, keyed by [ChapterReadEntry.id]'s string form. A
+     * [ConcurrentHashMap] because this is a Koin singleton field mutated from multiple `suspend`
+     * functions that all run on the shared multi-threaded [Dispatchers.IO] pool.
+     */
+    private val historyCache = ConcurrentHashMap<String, ChapterReadEntry>()
 
     // --- cycles ---
 
@@ -176,7 +181,10 @@ class ReadingProgressServiceImpl : ReadingProgressService {
         historyCache[idStr] = this
         return ReadHistoryEntry(
             id = idStr,
-            bookId = BibleBook.entries[kjvBookOrdinal].name,
+            // Classic parity: ReadHistoryDialog.kt uses BibleBook.entries.getOrNull(...) with a
+            // "?" fallback for an out-of-range ordinal; "" is the equivalent unknown-book
+            // sentinel here (bookShortName/bookLongName below map it back to "?").
+            bookId = BibleBook.entries.getOrNull(kjvBookOrdinal)?.name ?: "",
             chapter = chapter,
             readAt = readAt,
             bookInitials = bookInitials,
@@ -218,13 +226,15 @@ class ReadingProgressServiceImpl : ReadingProgressService {
     override fun formatEntryTime(readAt: Long): String =
         DateFormat.getTimeFormat(application).format(Date(readAt))
 
-    override fun bookShortName(bookId: String): String = kjva.getShortName(BibleBook.valueOf(bookId))
+    override fun bookShortName(bookId: String): String =
+        if (bookId.isEmpty()) "?" else kjva.getShortName(BibleBook.valueOf(bookId))
 
-    override fun bookLongName(bookId: String): String = kjva.getLongName(BibleBook.valueOf(bookId))
+    override fun bookLongName(bookId: String): String =
+        if (bookId.isEmpty()) "?" else kjva.getLongName(BibleBook.valueOf(bookId))
 
     // --- extra: host-only helper for the chapter-tap result Intent ---
 
-    /** OSIS id (e.g. "Gen.1") for a chapter, used by the host for the chapter-tap result `Intent`. */
+    /** OSIS id (e.g. "Gen.1.1") for a chapter, used by the host for the chapter-tap result `Intent`. */
     fun osisIdForChapter(bookId: String, chapter: Int): String =
         Verse(kjva, BibleBook.valueOf(bookId), chapter, 1).osisID
 }
