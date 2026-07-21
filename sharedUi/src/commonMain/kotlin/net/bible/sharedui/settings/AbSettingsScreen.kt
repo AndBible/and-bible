@@ -48,7 +48,9 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.components.AbListChoiceDialog
+import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.strings.LocalStrings
@@ -76,6 +78,8 @@ fun AbSettingsScreen(
     onListChoice: (String, String) -> Unit,
     onTextInput: (String, String) -> Unit,
     onNavigate: (String) -> Unit,
+    onSliderChange: (String, Int) -> Unit = { _, _ -> },
+    onMultiSelectChange: (String, Set<String>) -> Unit = { _, _ -> },
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     AbScaffold(title = state.title, onNavigateUp = onUp, actions = actions) { padding ->
@@ -85,6 +89,8 @@ fun AbSettingsScreen(
             onListChoice = onListChoice,
             onTextInput = onTextInput,
             onNavigate = onNavigate,
+            onSliderChange = onSliderChange,
+            onMultiSelectChange = onMultiSelectChange,
             modifier = Modifier.padding(padding),
         )
     }
@@ -105,6 +111,8 @@ fun AbSettingsContent(
     onListChoice: (String, String) -> Unit,
     onTextInput: (String, String) -> Unit,
     onNavigate: (String) -> Unit,
+    onSliderChange: (String, Int) -> Unit = { _, _ -> },
+    onMultiSelectChange: (String, Set<String>) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     // Screen-local dialog state: the STABLE KEY of the editor row (if any) currently open, not a
@@ -114,6 +122,7 @@ fun AbSettingsContent(
     // fresh item — and closes itself if the key is no longer present.
     var listChoiceDialogKey by remember { mutableStateOf<String?>(null) }
     var textInputDialogKey by remember { mutableStateOf<String?>(null) }
+    var multiSelectDialogKey by remember { mutableStateOf<String?>(null) }
 
     // fillMaxSize() FIRST, caller's modifier (e.g. AbSettingsScreen's scaffold padding) applied
     // after — matches the original inline `Modifier.fillMaxSize().padding(padding)` chain exactly,
@@ -147,6 +156,22 @@ fun AbSettingsContent(
                     summary = item.summary ?: item.value,
                     enabled = item.enabled,
                     onClick = { textInputDialogKey = item.key },
+                    iconKey = item.iconKey,
+                )
+
+                is SettingsItem.SliderRow -> AbSliderRow(
+                    label = item.title,
+                    value = item.value,
+                    onValueChange = { onSliderChange(item.key, it) },
+                    valueRange = item.min.toFloat()..item.max.toFloat(),
+                    valueLabel = item.valueLabel,
+                )
+
+                is SettingsItem.MultiSelectRow -> SettingsRow(
+                    title = item.title,
+                    summary = item.summary,
+                    enabled = item.enabled,
+                    onClick = { multiSelectDialogKey = item.key },
                     iconKey = item.iconKey,
                 )
 
@@ -246,11 +271,37 @@ fun AbSettingsContent(
             confirmText = strings.okay,
             dismissText = strings.cancel,
             numeric = row.numeric,
+            masked = row.masked,
             onConfirm = {
                 onTextInput(row.key, it)
                 textInputDialogKey = null
             },
             onDismiss = { textInputDialogKey = null },
+        )
+    }
+
+    val multiSelectRow = multiSelectDialogKey?.let { key ->
+        state.visibleItems.firstOrNull { it.key == key } as? SettingsItem.MultiSelectRow
+    }
+    LaunchedEffect(multiSelectDialogKey, multiSelectRow) {
+        if (multiSelectDialogKey != null && multiSelectRow == null) {
+            multiSelectDialogKey = null
+        }
+    }
+    multiSelectRow?.let { row ->
+        val strings = LocalStrings.current
+        AbMultiSelectDialog(
+            title = row.title,
+            options = row.options,
+            selectedIds = row.selectedValues.toList(),
+            idOf = { it.value },
+            labelOf = { it.label },
+            confirmText = strings.okay,
+            dismissText = strings.cancel,
+            onConfirm = { onMultiSelectChange(row.key, it.toSet()); multiSelectDialogKey = null },
+            onDismiss = { multiSelectDialogKey = null },
+            selectAllText = strings.selectAll,
+            selectNoneText = strings.selectNone,
         )
     }
 }
