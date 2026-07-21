@@ -19,10 +19,16 @@ package net.bible.android.view.activity.progress
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
@@ -31,11 +37,15 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import net.bible.sharedcore.progress.PassageRow
 import net.bible.sharedcore.progress.ReadHistoryEntry
 import net.bible.sharedcore.progress.ReadingProgressController
 import net.bible.sharedcore.progress.ReadingTab
+import net.bible.sharedcore.progress.TargetRow
 import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.progress.AbReadHistoryDialog
+import net.bible.sharedui.progress.MemorizeTabBody
 import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.progress.ReadingProgressScreen
 import net.bible.sharedui.theme.AbTheme
@@ -58,8 +68,9 @@ private data class HistoryReq(val title: String, val rows: List<ReadHistoryRow>)
  * `GridChoosePassageBook::class.java`, not this activity, so `MainBibleActivity`'s className
  * dispatch matches regardless of which host produced the result.
  *
- * (Plan 8b wires the Memorize tab into this host; for now `ReadingProgressScreen`'s
- * `memorizeTabContent` seam uses its stub default.)
+ * **Memorize tab (Plan 8b).** [navigateToMemorize] mirrors classic
+ * `ReadingProgressActivity.navigateToMemorize` — same result-className parity trick, targeting
+ * the CLASSIC `ReadingProgressActivity::class.java`, not this activity.
  */
 class ReadingProgressComposeActivity : ActivityBase() {
     private val service: ReadingProgressServiceImpl by inject()
@@ -83,6 +94,9 @@ class ReadingProgressComposeActivity : ActivityBase() {
             onShowDayHistory = ::showDayHistory,
             onShowBookHistory = ::showBookHistory,
             onShowChapterHistory = ::showChapterHistory,
+            initialOverviewActive = CommonUtils.settings.getBoolean("reading_progress_mem_overview", true),
+            onNavigateToMemorize = ::navigateToMemorize,
+            persistOverview = { CommonUtils.settings.setBoolean("reading_progress_mem_overview", it) },
         )
     }
 
@@ -98,6 +112,8 @@ class ReadingProgressComposeActivity : ActivityBase() {
                 ) {
                     val model by controller.model.collectAsState()
                     val loading by controller.loading.collectAsState()
+                    var unmarkRow by remember { mutableStateOf<PassageRow?>(null) }
+                    var removeRow by remember { mutableStateOf<TargetRow?>(null) }
 
                     ReadingProgressScreen(
                         model = model,
@@ -114,7 +130,48 @@ class ReadingProgressComposeActivity : ActivityBase() {
                         onCalendarDayClick = controller::calendarDayTap,
                         onOpenSettings = ::openClassicSettings,
                         onShowHelp = ::showHelp,
+                        memorizeTabContent = {
+                            val m = model.memorize
+                            if (m == null) {
+                                Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+                            } else {
+                                MemorizeTabBody(
+                                    memorize = m,
+                                    onSetOverview = controller::setMemOverview,
+                                    onBookClick = controller::openMemChapterDetail,
+                                    onChapterClick = { ch -> m.memChapterDetail?.let { controller.chapterTap(it.bookId, ch) } },
+                                    onCalendarDayClick = {},
+                                    onPassageTap = controller::memorizePassageTap,
+                                    onPassageUnmark = { row -> unmarkRow = row },
+                                    onTargetTap = controller::memorizePassageTap,
+                                    onTargetRemove = { row -> removeRow = row },
+                                    onShowMorePassages = controller::showMorePassages,
+                                    onShowMoreTargets = controller::showMoreTargets,
+                                )
+                            }
+                        },
                     )
+
+                    unmarkRow?.let { row ->
+                        AbConfirmDialog(
+                            title = null,
+                            message = getString(R.string.memorize_confirm_unmark, row.rangeName),
+                            confirmText = getString(android.R.string.ok),
+                            dismissText = getString(android.R.string.cancel),
+                            onConfirm = { controller.unmarkPassage(row.startOrdinal, row.endOrdinal); unmarkRow = null },
+                            onDismiss = { unmarkRow = null },
+                        )
+                    }
+                    removeRow?.let { row ->
+                        AbConfirmDialog(
+                            title = null,
+                            message = getString(R.string.memorize_confirm_remove_target, row.rangeName),
+                            confirmText = getString(android.R.string.ok),
+                            dismissText = getString(android.R.string.cancel),
+                            onConfirm = { controller.removeTarget(row.id); removeRow = null },
+                            onDismiss = { removeRow = null },
+                        )
+                    }
 
                     historyDialog?.let { req ->
                         AbReadHistoryDialog(
@@ -141,6 +198,17 @@ class ReadingProgressComposeActivity : ActivityBase() {
     private fun navigateToChapter(bookId: String, chapter: Int) {
         val resultIntent = Intent(this, GridChoosePassageBook::class.java)
             .putExtra("verse", service.osisIdForChapter(bookId, chapter))
+        setResult(RESULT_OK, resultIntent)
+        finish()
+    }
+
+    // --- result parity (mirrors classic ReadingProgressActivity.navigateToMemorize) ---
+
+    private fun navigateToMemorize(start: Int, end: Int) {
+        val resultIntent = Intent(this, ReadingProgressActivity::class.java)
+            .putExtra("action", "memorize")
+            .putExtra("startOrdinal", start)
+            .putExtra("endOrdinal", end)
         setResult(RESULT_OK, resultIntent)
         finish()
     }
