@@ -420,4 +420,27 @@ class AndroidStrings(private val context: Context) : Strings {
     override val showNotesLabel: String get() = context.getString(R.string.show_notes)
     override val assignLabelsLabel: String get() = context.getString(R.string.assign_labels)
     override val bookmarksSearchNotesHint: String get() = context.getString(R.string.filter_by_notes)
+
+    // Batch 8 — ReadingProgress (Reading tab)
+    override val readingProgressTitle: String get() = context.getString(R.string.reading_progress_title)
+    override val readingProgressChaptersRead: String get() = context.getString(R.string.reading_progress_chapters_read)
+    override val readingProgressActiveDays: String get() = context.getString(R.string.reading_progress_active_days)
+    override fun readingProgressOverall(pct: Float): String =
+        context.getString(R.string.reading_progress_overall, String.format("%.1f", pct))
+    override fun readingProgressCycle(cycle: Int): String =
+        context.getString(R.string.reading_progress_cycle, cycle)
+    override val readingProgressNewCycle: String get() = context.getString(R.string.reading_progress_new_cycle)
+    override val readingProgressNewCycleConfirm: String get() = context.getString(R.string.reading_progress_new_cycle_confirm)
+    override val readingProgressPercentReadScale: String get() = context.getString(R.string.reading_progress_percent_read_scale)
+    override val readingProgressReadCountScale: String get() = context.getString(R.string.reading_progress_read_count_scale)
+    override fun readingProgressPercentLabel(pct: Int): String =
+        context.getString(R.string.reading_progress_percent_label, pct)
+    override fun readingProgressHistoryFor(subject: String): String =
+        context.getString(R.string.reading_progress_history_for, subject)
+    override val readingProgressHistoryNoEntries: String get() = context.getString(R.string.reading_progress_history_no_entries)
+    override val readingProgressHistoryVersionUnknown: String get() = context.getString(R.string.reading_progress_history_version_unknown)
+    override val readingProgressSettings: String get() = context.getString(R.string.reading_progress_settings)
+    override val memorizeTabReading: String get() = context.getString(R.string.memorize_tab_reading)
+    override val memorizeTabMemorization: String get() = context.getString(R.string.memorize_tab_memorization)
+    override val help: String get() = context.getString(R.string.help)
 }

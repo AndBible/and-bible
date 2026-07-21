@@ -443,6 +443,25 @@ interface Strings {
     val showNotesLabel: String                       // R.string.show_notes (overflow checkable item)
     val assignLabelsLabel: String                    // R.string.assign_labels (selection action icon)
     val bookmarksSearchNotesHint: String              // R.string.filter_by_notes (notes-search field placeholder)
+
+    // Batch 8 — ReadingProgress (Reading tab)
+    val readingProgressTitle: String                        // reading_progress_title
+    val readingProgressChaptersRead: String                 // reading_progress_chapters_read
+    val readingProgressActiveDays: String                   // reading_progress_active_days
+    fun readingProgressOverall(pct: Float): String          // reading_progress_overall (%.1f)
+    fun readingProgressCycle(cycle: Int): String            // reading_progress_cycle
+    val readingProgressNewCycle: String                     // reading_progress_new_cycle
+    val readingProgressNewCycleConfirm: String              // reading_progress_new_cycle_confirm
+    val readingProgressPercentReadScale: String             // reading_progress_percent_read_scale
+    val readingProgressReadCountScale: String               // reading_progress_read_count_scale
+    fun readingProgressPercentLabel(pct: Int): String       // reading_progress_percent_label
+    fun readingProgressHistoryFor(subject: String): String  // reading_progress_history_for
+    val readingProgressHistoryNoEntries: String             // reading_progress_history_no_entries
+    val readingProgressHistoryVersionUnknown: String        // reading_progress_history_version_unknown
+    val readingProgressSettings: String                     // reading_progress_settings
+    val memorizeTabReading: String                          // memorize_tab_reading
+    val memorizeTabMemorization: String                     // memorize_tab_memorization
+    val help: String                                        // help
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
