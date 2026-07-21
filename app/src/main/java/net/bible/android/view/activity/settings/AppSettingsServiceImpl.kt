@@ -98,6 +98,16 @@ class AppSettingsServiceImpl(
     private val dictionaryOptionsProvider: DictionaryOptionsProvider = RealDictionaryOptionsProvider,
 ) : AppSettingsService {
 
+    // The four dictionary/morphology option lists each do a live Books.installed() scan; a routine
+    // build() on a setting change would otherwise re-scan JSword four times. Cache them for the
+    // service's lifetime (the classic screen does not live-update when a book is installed while
+    // open either, so a per-screen cache is correct). Production still uses the real Books lookup;
+    // it just isn't repeated on every build()/setStringSet.
+    private val greekDictOptions: List<DictOption> by lazy { dictionaryOptionsProvider.greekDictOptions }
+    private val hebrewDictOptions: List<DictOption> by lazy { dictionaryOptionsProvider.hebrewDictOptions }
+    private val greekMorphOptions: List<DictOption> by lazy { dictionaryOptionsProvider.greekMorphOptions }
+    private val wordLookupDictOptions: List<DictOption> by lazy { dictionaryOptionsProvider.wordLookupDictOptions }
+
     private val _snapshot = MutableStateFlow(build())
     override val snapshot: StateFlow<AppSettingsSnapshot> = _snapshot.asStateFlow()
 
@@ -162,10 +172,6 @@ class AppSettingsServiceImpl(
     // ---- Snapshot construction ----
 
     private fun build(): AppSettingsSnapshot {
-        val greekDictOptions = dictionaryOptionsProvider.greekDictOptions
-        val hebrewDictOptions = dictionaryOptionsProvider.hebrewDictOptions
-        val greekMorphOptions = dictionaryOptionsProvider.greekMorphOptions
-        val wordLookupDictOptions = dictionaryOptionsProvider.wordLookupDictOptions
         val bibleBookmarkModalOptions = bibleBookmarkModalOptions()
         val genBookmarkModalOptions = genBookmarkModalOptions()
         val experimentalFeatureOptions = experimentalFeatureOptions()
@@ -240,9 +246,11 @@ class AppSettingsServiceImpl(
             localeChoices = choicesFrom(R.array.prefs_interface_locale_descriptions, R.array.prefs_interface_locale_values),
             notesContentTypeChoices = choicesFrom(R.array.prefs_notes_content_type_entries, R.array.prefs_notes_content_type_values),
             displayColorModeChoices = choicesFrom(R.array.prefs_display_color_mode_names, R.array.prefs_display_color_mode_values),
-            // Visibility flags (mirror SettingsFragment.onCreatePreferences gating exactly)
-            persecutionVisible = !BuildVariant.Appearance.isDiscrete,
-            calculatorPinVisible = CommonUtils.showCalculator,
+            // Visibility flags (mirror SettingsFragment.onCreatePreferences gating exactly).
+            // Classic only hides discrete_mode + show_calculator when isDiscrete
+            // (SettingsActivity.kt: `if (BuildVariant.Appearance.isDiscrete) isVisible = false`);
+            // the category header, discrete_help and calculator_pin are never gated.
+            discreteTogglesVisible = !BuildVariant.Appearance.isDiscrete,
             betaFeaturesVisible = CommonUtils.isBeta,
             sdcardPermissionVisible = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q,
             openLinksVisible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
@@ -272,7 +280,7 @@ class AppSettingsServiceImpl(
     override fun setStringSet(key: String, value: Set<String>) {
         when (key) {
             "disabled_word_lookup_dictionaries" ->
-                writeInverseSet(key, value, dictionaryOptionsProvider.wordLookupDictOptions.map { it.initials }.toSet())
+                writeInverseSet(key, value, wordLookupDictOptions.map { it.initials }.toSet())
             "disable_bible_bookmark_modal_buttons" ->
                 writeInverseSet(key, value, bibleBookmarkModalOptions().map { it.initials }.toSet())
             "disable_gen_bookmark_modal_buttons" ->

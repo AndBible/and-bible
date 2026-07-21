@@ -51,7 +51,9 @@ sealed interface SettingsItem {
         val enabled: Boolean = true,
     ) : SettingsItem
 
-    /** Integer slider (SeekBar analogue). [valueLabel] is the pre-formatted readout (e.g. "150 %"). */
+    /** Integer slider (SeekBar analogue). [valueLabel] is the pre-formatted readout (e.g. "150 %").
+     *  [valueFormat] is the raw template (e.g. "%d %%") the host can use to reformat a live drag
+     *  value; null means the host shows only the static [valueLabel]. */
     data class SliderRow(
         override val key: String,
         val title: String,
@@ -59,6 +61,7 @@ sealed interface SettingsItem {
         val min: Int,
         val max: Int,
         val valueLabel: String,
+        val valueFormat: String? = null,
         val iconKey: String? = null,
         override val visible: Boolean = true,
         val enabled: Boolean = true,

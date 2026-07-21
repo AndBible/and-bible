@@ -162,9 +162,13 @@ fun AbSettingsContent(
                 is SettingsItem.SliderRow -> AbSliderRow(
                     label = item.title,
                     value = item.value,
+                    // Persists once per drag gesture (AbSliderRow calls this on release only).
                     onValueChange = { onSliderChange(item.key, it) },
                     valueRange = item.min.toFloat()..item.max.toFloat(),
                     valueLabel = item.valueLabel,
+                    valueLabelFor = item.valueFormat?.let { fmt ->
+                        { v -> fmt.replace("%d", v.toString()).replace("%%", "%") }
+                    },
                 )
 
                 is SettingsItem.MultiSelectRow -> SettingsRow(

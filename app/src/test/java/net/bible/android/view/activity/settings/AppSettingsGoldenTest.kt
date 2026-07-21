@@ -103,8 +103,7 @@ class AppSettingsGoldenTest {
         localeChoices = choices("" to "System default", "en" to "English", "fi" to "Finnish"),
         notesContentTypeChoices = choices("plain_text" to "Plain text", "markdown" to "Markdown"),
         displayColorModeChoices = choices("normal" to "Normal", "eink" to "E-ink"),
-        persecutionVisible = false,
-        calculatorPinVisible = false,
+        discreteTogglesVisible = false,
         betaFeaturesVisible = true,
         sdcardPermissionVisible = true,
         openLinksVisible = true,
@@ -123,12 +122,11 @@ class AppSettingsGoldenTest {
         hasAnyDictionary = false,
     )
 
-    /** Edge state F2: persecution-resistant settings visible AND the calculator PIN row shown too. */
+    /** Edge state F2: discrete toggles visible (standard build) with discrete mode + calculator on. */
     private fun persecutionSnapshot() = baseSnapshot().copy(
-        persecutionVisible = true,
+        discreteTogglesVisible = true,
         discreteMode = true,
         showCalculator = true,
-        calculatorPinVisible = true,
         calculatorPin = "1234",
     )
 

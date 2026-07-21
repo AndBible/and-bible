@@ -29,11 +29,16 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 /** A settings row: label (+ optional summary) on the left, an M3 [Switch] on the right. The whole
  *  row is clickable and toggles the switch (larger touch target than the thumb alone). When
@@ -71,7 +76,16 @@ private const val DISABLED_ALPHA = 0.38f
 
 /** A settings row: label + a right-aligned value readout on the top line, an M3 [Slider] below.
  *  [value]/[onValueChange] are Int; the slider rounds. [valueLabel] is the pre-formatted readout
- *  (e.g. "150 %"). */
+ *  for the current [value] (e.g. "150 %").
+ *
+ *  The slider tracks the finger via LOCAL drag state, so [onValueChange] fires only ONCE per drag
+ *  gesture — on release — mirroring classic `SeekBarPreference` (a per-tick callback here would run
+ *  a Room write + a full settings rebuild on every increment). [onValueChangeFinished] fires after
+ *  the release persist, for any extra host-side finish handling.
+ *
+ *  While dragging, the readout updates live from the local value using [valueLabelFor] if provided;
+ *  callers without a formatter keep showing the static [valueLabel] (which refreshes once the
+ *  persisted [value] comes back). */
 @Composable
 fun AbSliderRow(
     label: String,
@@ -80,16 +94,26 @@ fun AbSliderRow(
     modifier: Modifier = Modifier,
     valueRange: ClosedFloatingPointRange<Float>,
     valueLabel: String,
+    onValueChangeFinished: (() -> Unit)? = null,
+    valueLabelFor: ((Int) -> String)? = null,
 ) {
+    // Re-seed the local drag position whenever the persisted [value] changes (e.g. after a release
+    // persist round-trips a fresh snapshot, or an external reset).
+    var dragValue by remember(value) { mutableFloatStateOf(value.toFloat()) }
+    val displayLabel = valueLabelFor?.invoke(dragValue.roundToInt()) ?: valueLabel
     Column(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-            Text(valueLabel, style = MaterialTheme.typography.bodyMedium)
+            Text(displayLabel, style = MaterialTheme.typography.bodyMedium)
         }
         Slider(
-            value = value.toFloat(),
-            onValueChange = { onValueChange(it.toInt()) },
+            value = dragValue,
+            onValueChange = { dragValue = it },
             valueRange = valueRange,
+            onValueChangeFinished = {
+                onValueChange(dragValue.roundToInt())
+                onValueChangeFinished?.invoke()
+            },
         )
     }
 }

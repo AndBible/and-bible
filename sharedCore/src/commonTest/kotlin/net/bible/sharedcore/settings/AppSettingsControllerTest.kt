@@ -23,8 +23,7 @@ private class FakeAppSettingsService(initial: AppSettingsSnapshot) : AppSettings
 class AppSettingsControllerTest {
     private fun snap(
         hasAnyDictionary: Boolean = true,
-        persecutionVisible: Boolean = true,
-        calculatorPinVisible: Boolean = true,
+        discreteTogglesVisible: Boolean = true,
         betaFeaturesVisible: Boolean = false,
         sdcardPermissionVisible: Boolean = false,
         openLinksVisible: Boolean = false,
@@ -49,7 +48,7 @@ class AppSettingsControllerTest {
         toolbarButtonActionChoices = emptyList(), bibleViewSwipeModeChoices = emptyList(),
         nightModeChoices = emptyList(), localeChoices = emptyList(), notesContentTypeChoices = emptyList(),
         displayColorModeChoices = emptyList(),
-        persecutionVisible = persecutionVisible, calculatorPinVisible = calculatorPinVisible,
+        discreteTogglesVisible = discreteTogglesVisible,
         betaFeaturesVisible = betaFeaturesVisible, sdcardPermissionVisible = sdcardPermissionVisible,
         openLinksVisible = openLinksVisible,
     )
@@ -65,17 +64,24 @@ class AppSettingsControllerTest {
         assertFalse(keys.contains("strongs_greek_dictionary"))
     }
 
-    @Test fun persecutionRowsHiddenWhenNotAvailable() {
-        val c = controller(FakeAppSettingsService(snap(persecutionVisible = false)))
+    @Test fun persecutionCategoryHelpAndPinAlwaysVisible_evenWhenDiscreteTogglesHidden() {
+        // Classic parity: a discrete build hides ONLY discrete_mode + show_calculator; the category
+        // header, discrete_help and calculator_pin (the PIN setter) stay reachable.
+        val c = controller(FakeAppSettingsService(snap(discreteTogglesVisible = false)))
         val keys = c.state.value.visibleItems.map { it.key }
+        assertTrue(keys.contains("prefs_persecution_cat"))
+        assertTrue(keys.contains("discrete_help"))
+        assertTrue(keys.contains("calculator_pin"))
         assertFalse(keys.contains("discrete_mode"))
-        assertFalse(keys.contains("calculator_pin"))
+        assertFalse(keys.contains("show_calculator"))
     }
 
-    @Test fun calculatorPinHiddenUnlessShowCalculatorOn() {
-        val c = controller(FakeAppSettingsService(snap(calculatorPinVisible = false)))
-        assertFalse(c.state.value.visibleItems.map { it.key }.contains("calculator_pin"))
-        assertTrue(c.state.value.visibleItems.map { it.key }.contains("discrete_mode"))
+    @Test fun discreteTogglesShownWhenVisible() {
+        val c = controller(FakeAppSettingsService(snap(discreteTogglesVisible = true)))
+        val keys = c.state.value.visibleItems.map { it.key }
+        assertTrue(keys.contains("discrete_mode"))
+        assertTrue(keys.contains("show_calculator"))
+        assertTrue(keys.contains("calculator_pin"))
     }
 
     @Test fun betaAndSdcardAndOpenLinksGating() {

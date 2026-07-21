@@ -65,8 +65,9 @@ data class AppSettingsSnapshot(
     val notesContentTypeChoices: List<Choice2>,
     val displayColorModeChoices: List<Choice2>,
     // visibility flags (host-provided; controller does not compute these)
-    val persecutionVisible: Boolean,                   // discrete/calculator rows shown
-    val calculatorPinVisible: Boolean,                 // show_calculator on
+    // Classic parity: only discrete_mode + show_calculator are gated (hidden in discrete builds);
+    // the persecution category header, discrete_help and calculator_pin are ALWAYS visible.
+    val discreteTogglesVisible: Boolean,               // discrete_mode + show_calculator shown (= !isDiscrete)
     val betaFeaturesVisible: Boolean,                  // crash_app + show_errorbox
     val sdcardPermissionVisible: Boolean,
     val openLinksVisible: Boolean,

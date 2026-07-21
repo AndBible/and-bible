@@ -24,7 +24,7 @@ object AppSettingsNav {
 /**
  * Builds the declarative [SettingsScreenState] for the main app settings screen from an
  * [AppSettingsService] snapshot, in the classic preference-screen order. Visibility gates come
- * straight from the snapshot (`hasAnyDictionary`, `persecutionVisible`, `calculatorPinVisible`,
+ * straight from the snapshot (`hasAnyDictionary`, `discreteTogglesVisible`,
  * `betaFeaturesVisible`, `sdcardPermissionVisible`, `openLinksVisible`) — the controller never
  * computes them. Inverse multi-select prefs are already presented as positive selected sets by the
  * service impl, so the rows here (and the [onMultiSelectChange] write-through) stay semantics-free.
@@ -196,6 +196,7 @@ class AppSettingsController(
                 min = 10,
                 max = 500,
                 valueLabel = labels.fontSizePercentFormat.replace("%d", s.fontSizeMultiplier.toString()).replace("%%", "%"),
+                valueFormat = labels.fontSizePercentFormat,
             ),
             SettingsItem.SwitchRow(
                 key = "hide_status_bar",
@@ -267,30 +268,33 @@ class AppSettingsController(
                 checked = s.disableAnimations,
             ),
             // ---- Persecution ----
+            // Classic parity: the category header, discrete_help and calculator_pin are always
+            // visible; only discrete_mode + show_calculator are hidden in a discrete build
+            // (so calculator_pin, the PIN setter, stays reachable even then).
             SettingsItem.Category(
                 key = "prefs_persecution_cat",
                 title = labels.persecutionCat,
-                visible = s.persecutionVisible,
+                visible = true,
             ),
             SettingsItem.InfoRow(
                 key = "discrete_help",
                 title = labels.discreteHelpTitle,
                 summary = labels.discreteHelpSummary,
                 onClickKey = AppSettingsNav.DISCRETE_HELP,
-                visible = s.persecutionVisible,
+                visible = true,
             ),
             SettingsItem.SwitchRow(
                 key = "discrete_mode",
                 title = labels.discreteModeTitle,
                 summary = labels.discreteModeSummary,
                 checked = s.discreteMode,
-                visible = s.persecutionVisible,
+                visible = s.discreteTogglesVisible,
             ),
             SettingsItem.SwitchRow(
                 key = "show_calculator",
                 title = labels.showCalculatorTitle,
                 checked = s.showCalculator,
-                visible = s.persecutionVisible,
+                visible = s.discreteTogglesVisible,
             ),
             SettingsItem.TextInputRow(
                 key = "calculator_pin",
@@ -298,7 +302,7 @@ class AppSettingsController(
                 summary = labels.calculatorPinSummary,
                 value = s.calculatorPin,
                 numeric = true,
-                visible = s.persecutionVisible && s.calculatorPinVisible,
+                visible = true,
             ),
             // ---- Features ----
             SettingsItem.Category(
