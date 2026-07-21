@@ -74,6 +74,8 @@ import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
+import net.bible.android.view.activity.progress.ReadingProgressActivity
+import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
 import net.bible.android.view.activity.search.EpubSearch
 import net.bible.android.view.activity.search.EpubSearchComposeActivity
 import net.bible.android.view.activity.search.EpubSearchResults
@@ -93,7 +95,7 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivi
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -217,6 +219,9 @@ object ScreenLauncher {
         Screen.Bookmarks ->
             if (useComposeFor(screen)) BookmarksComposeActivity::class.java
             else Bookmarks::class.java
+        Screen.ReadingProgress ->
+            if (useComposeFor(screen)) ReadingProgressComposeActivity::class.java
+            else ReadingProgressActivity::class.java
     }
 
     /**

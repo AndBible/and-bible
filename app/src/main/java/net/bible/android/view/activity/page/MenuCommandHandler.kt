@@ -43,7 +43,6 @@ import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_C
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.service.common.CommonUtils
@@ -194,7 +193,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     isHandled = true
                 }
                 R.id.readingProgressButton -> {
-                    handlerIntent = Intent(mainBibleActivity, ReadingProgressActivity::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ReadingProgress)
                     isHandled = true
                 }
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {

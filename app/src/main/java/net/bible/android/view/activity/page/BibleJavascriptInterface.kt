@@ -557,7 +557,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openReadingProgress(tab: Int) {
         scope.launch(Dispatchers.Main) {
-            val intent = Intent(mainBibleActivity, ReadingProgressActivity::class.java)
+            val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ReadingProgress)
             intent.putExtra(ReadingProgressActivity.EXTRA_TAB, tab)
             mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
         }

@@ -72,6 +72,8 @@ import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
+import net.bible.android.view.activity.progress.ReadingProgressActivity
+import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
 import net.bible.android.view.activity.search.EpubSearch
 import net.bible.android.view.activity.search.EpubSearchComposeActivity
 import net.bible.android.view.activity.search.EpubSearchResults
@@ -399,5 +401,13 @@ class ScreenLauncherTest {
         assertEquals(BookmarksComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(Bookmarks::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
+    }
+
+    @Test
+    fun readingProgress_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(ReadingProgressComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgress))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(ReadingProgressActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgress))
     }
 }
