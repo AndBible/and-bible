@@ -77,6 +77,9 @@ data class TargetRow(
     val relativeTime: String,
 ) { val permille: Int get() = if (total > 0) memorized * 1000 / total else 0 }
 
+/** Raw memorize-summary counts from the service; the controller derives permille/percent. */
+data class MemorizeSummaryData(val memorizedCount: Int, val targetMemorized: Int, val targetTotal: Int)
+
 data class MemorizeModel(
     val overviewActive: Boolean,
     val memorizedCount: Int,
