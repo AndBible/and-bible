@@ -17,22 +17,28 @@
 package net.bible.android.control.progress
 
 import android.text.format.DateFormat
+import android.text.format.DateUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.progress.ProgressControl.ChapterReadEntry
 import net.bible.android.control.versification.Scripture
+import net.bible.android.database.IdType
 import net.bible.sharedcore.progress.BookHeat
 import net.bible.sharedcore.progress.CalendarSkeleton
 import net.bible.sharedcore.progress.ChapterDetail
 import net.bible.sharedcore.progress.ChapterHeat
 import net.bible.sharedcore.progress.DaySlot
+import net.bible.sharedcore.progress.MemorizeSummaryData
 import net.bible.sharedcore.progress.MonthLabel
+import net.bible.sharedcore.progress.PassageRow
 import net.bible.sharedcore.progress.ReadHistoryEntry
 import net.bible.sharedcore.progress.ReadingProgressScale
 import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.sharedcore.progress.ReadingSummary
+import net.bible.sharedcore.progress.TargetRow
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import java.util.Calendar
@@ -231,6 +237,106 @@ class ReadingProgressServiceImpl : ReadingProgressService {
 
     override fun bookLongName(bookId: String): String =
         if (bookId.isEmpty()) "?" else kjva.getLongName(BibleBook.valueOf(bookId))
+
+    // --- memorize ---
+
+    private fun formatRelative(timestampMs: Long): String =
+        DateUtils.getRelativeTimeSpanString(
+            timestampMs,
+            System.currentTimeMillis(),
+            DateUtils.MINUTE_IN_MILLIS,
+            DateUtils.FORMAT_ABBREV_RELATIVE,
+        ).toString()
+
+    override suspend fun memorizeSummary(): MemorizeSummaryData = withContext(Dispatchers.IO) {
+        val memorizedCount = ProgressControl.getTotalMemorizedVerses()
+        val (targetMemorized, targetTotal) = ProgressControl.getMemorizationTargetProgress()
+        MemorizeSummaryData(memorizedCount = memorizedCount, targetMemorized = targetMemorized, targetTotal = targetTotal)
+    }
+
+    override suspend fun bookMemorizationProgress(): List<BookHeat> = withContext(Dispatchers.IO) {
+        val progress = ProgressControl.getBookMemorizationProgress()
+        val targets = ProgressControl.getBooksWithMemorizationTargets()
+        kjva.bookIterator.asSequence()
+            .filter { Scripture.isScripture(it) }
+            .map { book ->
+                val readPercent = progress[book] ?: 0f
+                BookHeat(
+                    bookId = book.name,
+                    shortName = kjva.getShortName(book),
+                    isNT = book.ordinal >= BibleBook.MATT.ordinal,
+                    readPercent = readPercent,
+                    isComplete = readPercent >= 1f,
+                    hasTarget = book in targets,
+                )
+            }.toList()
+    }
+
+    override suspend fun chapterMemorizationProgress(bookId: String): ChapterDetail = withContext(Dispatchers.IO) {
+        val book = BibleBook.valueOf(bookId)
+        val totalChapters = kjva.getLastChapter(book)
+        val targetChapters = ProgressControl.getChaptersWithMemorizationTargets(book)
+        val chapters = (1..totalChapters).map { ch ->
+            val progress = ProgressControl.getMemorizationProgress(kjva, book, ch)
+            ChapterHeat(
+                chapter = ch,
+                count = 0,
+                level = ReadingProgressScale.memorizationLevel(progress),
+                hasTarget = ch in targetChapters,
+            )
+        }
+        ChapterDetail(
+            bookId = bookId,
+            title = kjva.getLongName(book),
+            chapters = chapters,
+            maxCount = 1,
+            countScaleSteps = emptyList(),
+        )
+    }
+
+    override suspend fun dailyMemorizationCounts(): Map<Long, Int> = withContext(Dispatchers.IO) {
+        val cal = Calendar.getInstance()
+        val endMs = cal.timeInMillis
+        cal.add(Calendar.WEEK_OF_YEAR, -52)
+        val startMs = cal.timeInMillis
+        ProgressControl.getMemorizationCalendar(startMs, endMs).associate { it.dayTimestamp to it.count }
+    }
+
+    override suspend fun memorizedPassages(): List<PassageRow> = withContext(Dispatchers.IO) {
+        ProgressControl.getMemorizedVerseRangesWithTimestamps().map { r ->
+            PassageRow(
+                rangeName = r.verseRange.name,
+                startOrdinal = r.verseRange.start.ordinal,
+                endOrdinal = r.verseRange.end.ordinal,
+                relativeTime = formatRelative(r.latestMemorizedAt),
+            )
+        }
+    }
+
+    override suspend fun memorizeTargets(): List<TargetRow> = withContext(Dispatchers.IO) {
+        ProgressControl.getAllMemorizationTargets()
+            .mapNotNull { t ->
+                val memorized = ProgressControl.getMemorizedOrdinalsInRange(t.kjvOrdinalStart, t.kjvOrdinalEnd).size
+                if (memorized >= t.verseCount) return@mapNotNull null
+                TargetRow(
+                    id = t.id.toString(),
+                    rangeName = t.verseRange.name,
+                    memorized = memorized,
+                    total = t.verseCount,
+                    startOrdinal = t.verseRange.start.ordinal,
+                    endOrdinal = t.verseRange.end.ordinal,
+                    relativeTime = formatRelative(t.createdAt),
+                )
+            }
+    }
+
+    override suspend fun unmarkMemorized(startOrdinal: Int, endOrdinal: Int): Unit = withContext(Dispatchers.IO) {
+        ProgressControl.unmarkVerseMemorized(VerseRange(kjva, Verse(kjva, startOrdinal), Verse(kjva, endOrdinal)))
+    }
+
+    override suspend fun removeMemorizationTarget(id: String): Unit = withContext(Dispatchers.IO) {
+        ProgressControl.removeMemorizationTarget(IdType(id))
+    }
 
     // --- extra: host-only helper for the chapter-tap result Intent ---
 

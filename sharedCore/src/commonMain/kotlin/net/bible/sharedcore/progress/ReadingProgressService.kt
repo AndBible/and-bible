@@ -46,4 +46,17 @@ interface ReadingProgressService {
     fun formatEntryTime(readAt: Long): String        // DateFormat time
     fun bookShortName(bookId: String): String
     fun bookLongName(bookId: String): String
+
+    // --- memorize ---
+    suspend fun memorizeSummary(): MemorizeSummaryData
+    /** All scripture books with memorize level+hasTarget; caller splits OT/NT via [BookHeat.isNT]. */
+    suspend fun bookMemorizationProgress(): List<BookHeat>
+    suspend fun chapterMemorizationProgress(bookId: String): ChapterDetail
+    /** Per-local-day memorization counts for the last 52 weeks, keyed by local-midnight ms. */
+    suspend fun dailyMemorizationCounts(): Map<Long, Int>
+    suspend fun memorizedPassages(): List<PassageRow>
+    /** Incomplete targets only (classic filter: memorized < verseCount). */
+    suspend fun memorizeTargets(): List<TargetRow>
+    suspend fun unmarkMemorized(startOrdinal: Int, endOrdinal: Int)
+    suspend fun removeMemorizationTarget(id: String)
 }

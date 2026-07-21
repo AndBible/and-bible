@@ -73,4 +73,27 @@ class ReadingProgressServiceImplTest {
         assertTrue(skeleton.slots.last().dayTimestamp <= now)
         assertTrue(skeleton.slots.zipWithNext().all { (a, b) -> a.dayTimestamp < b.dayTimestamp })
     }
+
+    // --- memorize (Task 8b-2) ---
+
+    @Test fun emptyDb_memorizeSummary_is_zero() = runBlocking {
+        val s = service.memorizeSummary()
+        assertEquals(0, s.memorizedCount)
+        assertEquals(0, s.targetMemorized)
+        assertEquals(0, s.targetTotal)
+    }
+
+    @Test fun bookMemorizationProgress_lists_all_scripture_books_zero_progress() = runBlocking {
+        val books = service.bookMemorizationProgress()
+        assertTrue(books.any { it.bookId == "GEN" && !it.isNT })
+        assertTrue(books.any { it.bookId == "MATT" && it.isNT })
+        assertTrue(books.none { it.readPercent > 0f })
+        assertTrue(books.none { it.hasTarget })
+        assertTrue(books.none { it.isComplete })
+    }
+
+    @Test fun emptyDb_memorizedPassages_and_targets_are_empty() = runBlocking {
+        assertTrue(service.memorizedPassages().isEmpty())
+        assertTrue(service.memorizeTargets().isEmpty())
+    }
 }
