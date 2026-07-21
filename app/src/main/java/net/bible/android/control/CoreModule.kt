@@ -48,6 +48,8 @@ import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.android.view.activity.workspaces.WorkspaceServiceImpl
 import net.bible.sharedcore.workspaces.WorkspaceService
+import net.bible.android.view.activity.settings.ReadingProgressSettingsServiceImpl
+import net.bible.sharedcore.settings.ReadingProgressSettingsService
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanBibleActionBarButton
@@ -107,6 +109,7 @@ val coreModule = module {
     singleOf(::RawLogServiceImpl) { bind<RawLogService>() }
     singleOf(::DocumentFilterServiceImpl) { bind<DocumentFilterService>() }
     singleOf(::ReadingProgressServiceImpl) { bind<ReadingProgressService>() }
+    singleOf(::ReadingProgressSettingsServiceImpl) { bind<ReadingProgressSettingsService>() }
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.
