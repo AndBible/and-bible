@@ -43,7 +43,6 @@ import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_C
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.BuildVariant
@@ -158,7 +157,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     }
                 }
                 R.id.settingsButton -> {
-                    handlerIntent = Intent(mainBibleActivity, SettingsActivity::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.Settings)
                     // force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
                     requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
                 }

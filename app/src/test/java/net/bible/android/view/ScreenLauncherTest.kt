@@ -86,6 +86,8 @@ import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressStatus
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
+import net.bible.android.view.activity.settings.SettingsActivity
+import net.bible.android.view.activity.settings.SettingsComposeActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
@@ -409,5 +411,17 @@ class ScreenLauncherTest {
         assertEquals(ReadingProgressComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgress))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ReadingProgressActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgress))
+    }
+
+    @Test
+    fun settingsRoutesToComposeWhenFlagOn() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(SettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Settings))
+    }
+
+    @Test
+    fun settingsRoutesToClassicWhenFlagOff() {
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(SettingsActivity::class.java, ScreenLauncher.targetFor(Screen.Settings))
     }
 }
