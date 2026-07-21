@@ -40,7 +40,6 @@ import net.bible.android.database.SettingsLevel
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
@@ -79,10 +78,10 @@ private val RECREATE_ON_CHANGE_KEYS = setOf(
  * shared [AppSettingsController] (backed by [AppSettingsServiceImpl]), and renders
  * [AppSettingsScreen]. Every navigation-row / action-row target reuses the SAME classic code path
  * `SettingsFragment.onCreatePreferences` uses for that row (see [onNavigate] kdocs); `sync_settings_shortcut`
- * and `reading_progress_settings_shortcut` still launch their classic Activities directly (their
- * Compose twins, `Screen.SyncSettings`/`Screen.ReadingProgressSettings`, land in later batches
- * 10b/10c) while `ai_settings_shortcut` already routes through [ScreenLauncher] (`Screen.AiPrompts`,
- * Batch 9).
+ * still launches its classic Activity directly (its Compose twin, `Screen.SyncSettings`, lands in
+ * a later Batch 10b) while `ai_settings_shortcut` (`Screen.AiPrompts`, Batch 9) and
+ * `reading_progress_settings_shortcut` (`Screen.ReadingProgressSettings`, Batch 10c) already route
+ * through [ScreenLauncher].
  */
 class SettingsComposeActivity : ActivityBase() {
     private val service by lazy { AppSettingsServiceImpl() }
@@ -149,8 +148,7 @@ class SettingsComposeActivity : ActivityBase() {
             AppSettingsNav.SYNC -> startActivity(Intent(this, SyncSettingsActivity::class.java))
             // Batch 9's AI settings screen is already flag-routed.
             AppSettingsNav.AI -> ScreenLauncher.open(this, Screen.AiPrompts)
-            // Batch 10c will add Screen.ReadingProgressSettings; until then, launch the classic screen.
-            AppSettingsNav.READING_PROGRESS -> startActivity(Intent(this, ReadingProgressSettingsActivity::class.java))
+            AppSettingsNav.READING_PROGRESS -> ScreenLauncher.open(this, Screen.ReadingProgressSettings)
             // Deferred to Batch 12 (BibleView reading-view) permanently for this batch: always the
             // classic TextDisplaySettingsActivity, with the same GLOBAL SettingsBundle extra classic
             // SettingsFragment builds.

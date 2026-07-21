@@ -33,6 +33,8 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.progress.ReadingProgressServiceImpl
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils
@@ -128,7 +130,7 @@ class ReadingProgressComposeActivity : ActivityBase() {
                         onChapterClick = { chapter -> model.chapterDetail?.let { controller.chapterTap(it.bookId, chapter) } },
                         onChapterLongClick = { ch -> model.chapterDetail?.let { controller.chapterLongPress(it.bookId, ch) } },
                         onCalendarDayClick = controller::calendarDayTap,
-                        onOpenSettings = ::openClassicSettings,
+                        onOpenSettings = ::openSettings,
                         onShowHelp = ::showHelp,
                         memorizeTabContent = {
                             val m = model.memorize
@@ -254,8 +256,8 @@ class ReadingProgressComposeActivity : ActivityBase() {
 
     // --- overflow (mirrors classic ReadingProgressActivity.onOptionsItemSelected) ---
 
-    private fun openClassicSettings() {
-        startActivity(Intent(this, ReadingProgressSettingsActivity::class.java))
+    private fun openSettings() {
+        ScreenLauncher.open(this, Screen.ReadingProgressSettings)
     }
 
     private fun showHelp() {

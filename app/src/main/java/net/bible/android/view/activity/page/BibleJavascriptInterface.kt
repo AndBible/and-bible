@@ -59,7 +59,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.progress.ReadHistoryDialog
 import net.bible.android.view.activity.progress.ReadingProgressActivity
-import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -566,7 +565,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openReadingProgressSettings() {
         scope.launch(Dispatchers.Main) {
-            val intent = Intent(mainBibleActivity, ReadingProgressSettingsActivity::class.java)
+            val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ReadingProgressSettings)
             mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
         }
     }

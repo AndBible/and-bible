@@ -44,7 +44,6 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
@@ -309,7 +308,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         preferenceScreen.findPreference<Preference>("reading_progress_settings_shortcut")?.setOnPreferenceClickListener {
-            startActivity(Intent(context, ReadingProgressSettingsActivity::class.java))
+            ScreenLauncher.open(requireContext(), Screen.ReadingProgressSettings)
             true
         }
 

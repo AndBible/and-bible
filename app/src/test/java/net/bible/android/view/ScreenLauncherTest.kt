@@ -74,6 +74,8 @@ import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeAct
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
+import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
+import net.bible.android.view.activity.settings.ReadingProgressSettingsComposeActivity
 import net.bible.android.view.activity.search.EpubSearch
 import net.bible.android.view.activity.search.EpubSearchComposeActivity
 import net.bible.android.view.activity.search.EpubSearchResults
@@ -423,5 +425,13 @@ class ScreenLauncherTest {
     fun settingsRoutesToClassicWhenFlagOff() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(SettingsActivity::class.java, ScreenLauncher.targetFor(Screen.Settings))
+    }
+
+    @Test
+    fun readingProgressSettings_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(ReadingProgressSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgressSettings))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(ReadingProgressSettingsActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgressSettings))
     }
 }

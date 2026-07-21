@@ -46,6 +46,8 @@ import net.bible.android.activity.databinding.ReadingProgressBinding
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.versification.Scripture
 import net.bible.android.database.IdType
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.progress.ReadingProgressColors.COLOR_EMPTY
@@ -216,7 +218,7 @@ class ReadingProgressActivity : ActivityBase() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.settings -> {
-                startActivity(Intent(this, ReadingProgressSettingsActivity::class.java))
+                ScreenLauncher.open(this, Screen.ReadingProgressSettings)
                 true
             }
             R.id.show_help -> {
