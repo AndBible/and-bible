@@ -448,5 +448,22 @@ class AndroidStrings(private val context: Context) : Strings {
     override val readingProgressNextCycle: String get() = context.getString(R.string.reading_progress_next_cycle)
     override val memorizeTabReading: String get() = context.getString(R.string.memorize_tab_reading)
     override val memorizeTabMemorization: String get() = context.getString(R.string.memorize_tab_memorization)
+
+    // Batch 8 — ReadingProgress (Memorize tab)
+    override val memorizeVersesMemorized: String get() = context.getString(R.string.memorize_verses_memorized)
+    override val memorizeVersesTarget: String get() = context.getString(R.string.memorize_verses_target)
+    override fun memorizeShowMore(count: Int): String =
+        context.getString(R.string.memorize_show_more, count)
+    override fun memorizeConfirmUnmark(name: String): String =
+        context.getString(R.string.memorize_confirm_unmark, name)
+    override fun memorizeConfirmRemoveTarget(name: String): String =
+        context.getString(R.string.memorize_confirm_remove_target, name)
+    override val memorizeMemorizedPassages: String get() = context.getString(R.string.memorize_memorized_passages)
+    override val memorizeNoMemorizedPassages: String get() = context.getString(R.string.memorize_no_memorized_passages)
+    override val memorizeTargets: String get() = context.getString(R.string.memorize_targets)
+    override val memorizeNoTargets: String get() = context.getString(R.string.memorize_no_targets)
+    override val memorizeViewOverview: String get() = context.getString(R.string.memorize_view_overview)
+    override val memorizeViewList: String get() = context.getString(R.string.memorize_view_list)
+    override val memorizeCalendar: String get() = context.getString(R.string.memorize_calendar)
     override val help: String get() = context.getString(R.string.help)
 }

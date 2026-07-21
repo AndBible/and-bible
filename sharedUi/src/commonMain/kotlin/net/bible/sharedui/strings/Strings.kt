@@ -467,6 +467,20 @@ interface Strings {
     val readingProgressNextCycle: String                    // reading_progress_next_cycle
     val memorizeTabReading: String                          // memorize_tab_reading
     val memorizeTabMemorization: String                     // memorize_tab_memorization
+
+    // Batch 8 — ReadingProgress (Memorize tab)
+    val memorizeVersesMemorized: String                     // memorize_verses_memorized
+    val memorizeVersesTarget: String                        // memorize_verses_target
+    fun memorizeShowMore(count: Int): String                // memorize_show_more
+    fun memorizeConfirmUnmark(name: String): String         // memorize_confirm_unmark
+    fun memorizeConfirmRemoveTarget(name: String): String   // memorize_confirm_remove_target
+    val memorizeMemorizedPassages: String                   // memorize_memorized_passages
+    val memorizeNoMemorizedPassages: String                 // memorize_no_memorized_passages
+    val memorizeTargets: String                             // memorize_targets
+    val memorizeNoTargets: String                           // memorize_no_targets
+    val memorizeViewOverview: String                        // memorize_view_overview
+    val memorizeViewList: String                            // memorize_view_list
+    val memorizeCalendar: String                            // memorize_calendar
     val help: String                                        // help
 }
 
