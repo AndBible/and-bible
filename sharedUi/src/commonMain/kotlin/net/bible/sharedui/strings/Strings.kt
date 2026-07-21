@@ -459,6 +459,12 @@ interface Strings {
     val readingProgressHistoryNoEntries: String             // reading_progress_history_no_entries
     val readingProgressHistoryVersionUnknown: String        // reading_progress_history_version_unknown
     val readingProgressSettings: String                     // reading_progress_settings
+    val readingProgressBibleHeatmap: String                 // reading_progress_bible_heatmap
+    val readingProgressOldTestament: String                 // reading_progress_old_testament
+    val readingProgressNewTestament: String                 // reading_progress_new_testament
+    val readingProgressCalendar: String                     // reading_progress_calendar
+    val readingProgressPreviousCycle: String                // reading_progress_previous_cycle
+    val readingProgressNextCycle: String                    // reading_progress_next_cycle
     val memorizeTabReading: String                          // memorize_tab_reading
     val memorizeTabMemorization: String                     // memorize_tab_memorization
     val help: String                                        // help
