@@ -17,7 +17,7 @@
 
 package net.bible.sharedcore.progress
 
-import kotlin.math.floor
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 /** Pure scale/level math for reading-progress heatmaps (colours themselves live in :sharedUi). */
@@ -27,7 +27,8 @@ object ReadingProgressScale {
     fun resolveBookPercentScaleMax(maxReadPercent: Float?): Float {
         val actualMax = maxReadPercent ?: 0f
         if (actualMax <= 1.0f) return 1.0f
-        return (floor(actualMax * 4f) + 1) / 4f
+        // Rounds up to the next quarter; an exact quarter (e.g. 1.75) is left unchanged (classic parity).
+        return ceil(actualMax * 4f) / 4f
     }
 
     fun buildBookPercentScaleSteps(maxReadPercent: Float): List<Int> {

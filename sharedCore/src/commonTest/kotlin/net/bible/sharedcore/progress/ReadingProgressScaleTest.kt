@@ -10,8 +10,9 @@ class ReadingProgressScaleTest {
         assertEquals(1.0f, ReadingProgressScale.resolveBookPercentScaleMax(1.0f))
     }
     @Test fun bookPercentScaleMax_rounds_up_to_next_quarter_above_100() {
-        assertEquals(1.5f, ReadingProgressScale.resolveBookPercentScaleMax(1.33f))
-        assertEquals(2.0f, ReadingProgressScale.resolveBookPercentScaleMax(1.75f))
+        assertEquals(1.5f, ReadingProgressScale.resolveBookPercentScaleMax(1.33f))   // rounds up to next quarter
+        assertEquals(1.75f, ReadingProgressScale.resolveBookPercentScaleMax(1.6f))   // rounds up to next quarter
+        assertEquals(1.75f, ReadingProgressScale.resolveBookPercentScaleMax(1.75f))  // exact quarter unchanged (classic parity)
     }
     @Test fun bookPercentScaleSteps_are_25pct_increments_min_100() {
         assertEquals(listOf(25, 50, 75, 100), ReadingProgressScale.buildBookPercentScaleSteps(1.0f))
