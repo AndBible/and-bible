@@ -60,6 +60,44 @@ data class ChapterDetail(
 
 data class ReadHistoryEntry(val id: String, val bookId: String, val chapter: Int, val readAt: Long, val bookInitials: String)
 
+data class PassageRow(
+    val rangeName: String,
+    val startOrdinal: Int,
+    val endOrdinal: Int,
+    val relativeTime: String,     // preformatted host-side
+)
+
+data class TargetRow(
+    val id: String,               // IdType.toString()
+    val rangeName: String,
+    val memorized: Int,
+    val total: Int,
+    val startOrdinal: Int,
+    val endOrdinal: Int,
+    val relativeTime: String,
+) { val permille: Int get() = if (total > 0) memorized * 1000 / total else 0 }
+
+data class MemorizeModel(
+    val overviewActive: Boolean,
+    val memorizedCount: Int,
+    val targetTotal: Int,         // 0 => no targets (hide target bar)
+    val targetMemorized: Int,
+    val targetPermille: Int,
+    val targetPercent: Float,
+    // overview:
+    val otBooks: List<BookHeat>,  // level via memorizationLevel; hasTarget set
+    val ntBooks: List<BookHeat>,
+    val memChapterDetail: ChapterDetail?,  // ChapterHeat.level = memorization level; hasTarget set
+    val calendar: CalendarHeatmap,
+    // list:
+    val passages: List<PassageRow>,        // already sliced to passagesShown
+    val passagesShown: Int,
+    val passagesTotal: Int,
+    val targets: List<TargetRow>,          // already sliced to targetsShown
+    val targetsShown: Int,
+    val targetsTotal: Int,
+)
+
 enum class ReadingTab { READING, MEMORIZE }
 
 data class ReadingProgressModel(
@@ -73,6 +111,7 @@ data class ReadingProgressModel(
     val calendar: CalendarHeatmap,
     val cycle: Int,
     val latestCycle: Int,
+    val memorize: MemorizeModel? = null,
 ) {
     val canPrevCycle get() = cycle > 1
     val canNextCycle get() = cycle < latestCycle
