@@ -69,4 +69,11 @@ class SettingsItemTest {
         assertEquals(150, (state.visibleItems[0] as SettingsItem.SliderRow).value)
         assertEquals(setOf("a"), (state.visibleItems[1] as SettingsItem.MultiSelectRow).selectedValues)
     }
+
+    @Test fun textInputRow_maskedDefaultsFalse_andCanBeSet() {
+        val plain = SettingsItem.TextInputRow("u", "User", value = "bob")
+        val secret = SettingsItem.TextInputRow("p", "Pass", value = "x", masked = true)
+        assertEquals(false, plain.masked)
+        assertEquals(true, secret.masked)
+    }
 }

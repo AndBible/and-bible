@@ -31,13 +31,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 
 /**
  * A titled AlertDialog wrapping a single-line text field, returning the current value on confirm.
  * The initial value is pre-selected (parity with the classic EditText.selectAll() name dialogs), so
  * typing replaces it. [extraContent] lets a caller add a control below the field (e.g. a type picker).
  * Set [numeric] to surface a number keyboard (used by the settings framework for numeric TextInputRows).
+ * Set [masked] to obscure the entered characters (password field) via [PasswordVisualTransformation] and
+ * a password keyboard (used by the settings framework for masked TextInputRows).
  * Shared component (promoted from MyDocuments); reused by WorkspaceSelector new/rename/clone.
  */
 @Composable
@@ -50,6 +54,7 @@ fun AbTextInputDialog(
     onDismiss: () -> Unit,
     extraContent: @Composable (() -> Unit)? = null,
     numeric: Boolean = false,
+    masked: Boolean = false,
 ) {
     var value by remember {
         mutableStateOf(TextFieldValue(initial, selection = TextRange(0, initial.length)))
@@ -62,11 +67,18 @@ fun AbTextInputDialog(
                 OutlinedTextField(
                     value = value, onValueChange = { value = it }, singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = if (numeric) {
-                        KeyboardOptions(keyboardType = KeyboardType.Number)
+                    visualTransformation = if (masked) {
+                        PasswordVisualTransformation()
                     } else {
-                        KeyboardOptions.Default
+                        VisualTransformation.None
                     },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = when {
+                            masked -> KeyboardType.Password
+                            numeric -> KeyboardType.Number
+                            else -> KeyboardType.Text
+                        },
+                    ),
                 )
                 extraContent?.invoke()
             }
