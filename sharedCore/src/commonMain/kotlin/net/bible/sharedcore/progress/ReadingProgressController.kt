@@ -25,15 +25,18 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * Owns the UI state for the Reading tab of the reading-progress screen: cycle navigation, the
- * assembled [ReadingProgressModel] (summary + OT/NT book heat + calendar heatmap), and the
- * optional open chapter-detail popup. Assembly logic (scale/steps/heat-levels) lives in the pure
+ * Owns the UI state for the Reading and Memorize tabs of the reading-progress screen: cycle
+ * navigation, the assembled [ReadingProgressModel] (summary + OT/NT book heat + calendar
+ * heatmap), the optional open chapter-detail popups, and (Memorize) the overview/list toggle plus
+ * paged passages/targets lists. Assembly logic (scale/steps/heat-levels) lives in the pure
  * [ReadingProgressScale] / [CalendarHeatmapLayout] helpers; the actual data reads (Room/JSword/
  * platform date formatting) live behind the [ReadingProgressService] seam, keeping this class
  * portable to iOS.
  *
- * (Plan 8b extends this controller with Memorize-tab state; [selectTab] currently only tracks
- * which tab is selected.)
+ * Memorize state is loaded lazily: [selectTab] triggers [loadMemorize] the first time the
+ * Memorize tab is shown, and every memorize mutation ([unmarkPassage], [removeTarget],
+ * [setMemOverview]) reloads it. [showMorePassages]/[showMoreTargets] just grow the paging window
+ * over the already-fetched full lists ([allPassages]/[allTargets]) and republish — no reload.
  */
 class ReadingProgressController(
     private val service: ReadingProgressService,
@@ -44,8 +47,20 @@ class ReadingProgressController(
     private val onShowDayHistory: (dayTimestamp: Long) -> Unit,
     private val onShowBookHistory: (bookId: String) -> Unit,
     private val onShowChapterHistory: (bookId: String, chapter: Int) -> Unit,
-    // Plan 8b adds: onNavigateToMemorize, onConfirm... callbacks
+    initialOverviewActive: Boolean,
+    private val onNavigateToMemorize: (startOrdinal: Int, endOrdinal: Int) -> Unit,
+    private val persistOverview: (Boolean) -> Unit,
 ) {
+    companion object {
+        const val PAGE_SIZE = 10
+    }
+
+    private var overviewActive = initialOverviewActive
+    private var allPassages: List<PassageRow> = emptyList()
+    private var allTargets: List<TargetRow> = emptyList()
+    private var passagesShown = PAGE_SIZE
+    private var targetsShown = PAGE_SIZE
+
     private val _model = MutableStateFlow(
         ReadingProgressModel(
             tab = initialTab,
@@ -79,7 +94,6 @@ class ReadingProgressController(
             val daily = service.dailyReadCounts(cycle)
             val calendar = CalendarHeatmapLayout.assemble(skeleton, daily)
             val chapterDetail = openChapterBookId?.let { service.chapterReadCounts(it, cycle) }
-            // Plan 8b: also (re)load Memorize-tab state here.
             _model.update {
                 it.copy(
                     summary = summary,
@@ -101,6 +115,9 @@ class ReadingProgressController(
 
     fun selectTab(tab: ReadingTab) {
         _model.update { it.copy(tab = tab) }
+        if (tab == ReadingTab.MEMORIZE && _model.value.memorize == null) {
+            loadMemorize()
+        }
     }
 
     fun prevCycle() {
@@ -133,4 +150,112 @@ class ReadingProgressController(
     fun calendarDayTap(dayTimestamp: Long) = onShowDayHistory(dayTimestamp)
     fun bookLongPress(bookId: String) = onShowBookHistory(bookId)
     fun chapterLongPress(bookId: String, chapter: Int) = onShowChapterHistory(bookId, chapter)
+
+    /**
+     * (Re)loads Memorize-tab state: summary always, plus either the overview (OT/NT book heat +
+     * calendar heatmap) or the passages/targets lists, depending on [overviewActive]. The inactive
+     * side's data is left as-is (not cleared) so switching back doesn't need a reload.
+     */
+    fun loadMemorize() {
+        scope.launch {
+            val summary = service.memorizeSummary()
+            val prev = _model.value.memorize
+            var otBooks = prev?.otBooks ?: emptyList()
+            var ntBooks = prev?.ntBooks ?: emptyList()
+            var calendar = prev?.calendar ?: CalendarHeatmap(emptyList(), emptyList(), 0, emptyList())
+            if (overviewActive) {
+                val books = service.bookMemorizationProgress()
+                otBooks = books.filter { !it.isNT }
+                ntBooks = books.filter { it.isNT }
+                val skeleton = service.readingCalendarSkeleton()
+                val daily = service.dailyMemorizationCounts()
+                calendar = CalendarHeatmapLayout.assemble(skeleton, daily)
+            } else {
+                allPassages = service.memorizedPassages()
+                allTargets = service.memorizeTargets()
+            }
+            val targetTotal = summary.targetTotal
+            val targetMemorized = summary.targetMemorized
+            val targetPermille = if (targetTotal > 0) targetMemorized * 1000 / targetTotal else 0
+            val targetPercent = if (targetTotal > 0) targetMemorized * 100f / targetTotal else 0f
+            _model.update {
+                it.copy(
+                    memorize = MemorizeModel(
+                        overviewActive = overviewActive,
+                        memorizedCount = summary.memorizedCount,
+                        targetTotal = targetTotal,
+                        targetMemorized = targetMemorized,
+                        targetPermille = targetPermille,
+                        targetPercent = targetPercent,
+                        otBooks = otBooks,
+                        ntBooks = ntBooks,
+                        memChapterDetail = prev?.memChapterDetail,
+                        calendar = calendar,
+                        passages = allPassages.take(passagesShown),
+                        passagesShown = passagesShown,
+                        passagesTotal = allPassages.size,
+                        targets = allTargets.take(targetsShown),
+                        targetsShown = targetsShown,
+                        targetsTotal = allTargets.size,
+                    )
+                )
+            }
+        }
+    }
+
+    fun setMemOverview(overview: Boolean) {
+        overviewActive = overview
+        persistOverview(overview)
+        loadMemorize()
+    }
+
+    fun openMemChapterDetail(bookId: String) {
+        scope.launch {
+            val d = service.chapterMemorizationProgress(bookId)
+            _model.update { m ->
+                val mem = m.memorize ?: return@update m
+                m.copy(memorize = mem.copy(memChapterDetail = d))
+            }
+        }
+    }
+
+    fun showMorePassages() {
+        passagesShown += PAGE_SIZE
+        republishMemorizeSlices()
+    }
+
+    fun showMoreTargets() {
+        targetsShown += PAGE_SIZE
+        republishMemorizeSlices()
+    }
+
+    private fun republishMemorizeSlices() {
+        _model.update { m ->
+            val mem = m.memorize ?: return@update m
+            m.copy(
+                memorize = mem.copy(
+                    passages = allPassages.take(passagesShown),
+                    passagesShown = passagesShown,
+                    targets = allTargets.take(targetsShown),
+                    targetsShown = targetsShown,
+                )
+            )
+        }
+    }
+
+    fun memorizePassageTap(startOrdinal: Int, endOrdinal: Int) = onNavigateToMemorize(startOrdinal, endOrdinal)
+
+    fun unmarkPassage(startOrdinal: Int, endOrdinal: Int) {
+        scope.launch {
+            service.unmarkMemorized(startOrdinal, endOrdinal)
+            loadMemorize()
+        }
+    }
+
+    fun removeTarget(id: String) {
+        scope.launch {
+            service.removeMemorizationTarget(id)
+            loadMemorize()
+        }
+    }
 }

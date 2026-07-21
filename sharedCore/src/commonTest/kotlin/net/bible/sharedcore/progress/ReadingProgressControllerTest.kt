@@ -50,10 +50,41 @@ class ReadingProgressControllerTest {
         override fun formatEntryTime(t: Long) = "time"
         override fun bookShortName(id: String) = id
         override fun bookLongName(id: String) = id
+
+        // --- memorize ---
+        var memorizeSummary = MemorizeSummaryData(memorizedCount = 5, targetMemorized = 3, targetTotal = 10)
+        var books = listOf(BookHeat("GEN", "Gen", false, 0.4f, false), BookHeat("MATT", "Mat", true, 0.6f, false))
+        var passages = (1..25).map { PassageRow("Passage $it", it, it + 1, "ago") }
+        var targets = (1..15).map { TargetRow("t$it", "Target $it", it, 10, it, it + 1, "ago") }
+        var unmarkedCalls = mutableListOf<Pair<Int, Int>>()
+        var removedTargetIds = mutableListOf<String>()
+
+        override suspend fun memorizeSummary() = memorizeSummary
+        override suspend fun bookMemorizationProgress() = books
+        override suspend fun chapterMemorizationProgress(bookId: String) =
+            ChapterDetail(bookId, "Genesis", listOf(ChapterHeat(1, 3, 2)), 3, listOf(1, 2, 3))
+        override suspend fun dailyMemorizationCounts() = emptyMap<Long, Int>()
+        override suspend fun memorizedPassages() = passages
+        override suspend fun memorizeTargets() = targets
+        override suspend fun unmarkMemorized(startOrdinal: Int, endOrdinal: Int) {
+            unmarkedCalls.add(startOrdinal to endOrdinal)
+        }
+        override suspend fun removeMemorizationTarget(id: String) {
+            removedTargetIds.add(id)
+        }
     }
 
-    private fun controller(fake: Fake, scope: kotlinx.coroutines.CoroutineScope) =
-        ReadingProgressController(fake, scope, ReadingTab.READING, { _, _ -> }, {}, {}, { _, _ -> })
+    private fun controller(
+        fake: Fake,
+        scope: kotlinx.coroutines.CoroutineScope,
+        initialOverviewActive: Boolean = true,
+        onNavigateToMemorize: (Int, Int) -> Unit = { _, _ -> },
+        persistOverview: (Boolean) -> Unit = {},
+    ) =
+        ReadingProgressController(
+            fake, scope, ReadingTab.READING, { _, _ -> }, {}, {}, { _, _ -> },
+            initialOverviewActive, onNavigateToMemorize, persistOverview,
+        )
 
     @Test fun load_assembles_model() = runTest(UnconfinedTestDispatcher()) {
         val fake = Fake(); val c = controller(fake, backgroundScope); c.load()
@@ -80,5 +111,96 @@ class ReadingProgressControllerTest {
         val fake = Fake(); val c = controller(fake, backgroundScope); c.load()
         c.openChapterDetail("GEN")
         assertEquals("Genesis", c.model.value.chapterDetail?.title)
+    }
+
+    @Test fun selectTab_memorize_populates_model_with_overview() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope, initialOverviewActive = true)
+        assertEquals(null, c.model.value.memorize)
+        c.selectTab(ReadingTab.MEMORIZE)
+        val mem = c.model.value.memorize
+        assertEquals(ReadingTab.MEMORIZE, c.model.value.tab)
+        assertEquals(true, mem?.overviewActive)
+        assertEquals(5, mem?.memorizedCount)
+        assertEquals(3, mem?.targetMemorized); assertEquals(10, mem?.targetTotal)
+        assertEquals(300, mem?.targetPermille)
+        assertEquals(1, mem?.otBooks?.size); assertEquals(1, mem?.ntBooks?.size)
+        assertEquals("GEN", mem?.otBooks?.get(0)?.bookId)
+    }
+
+    @Test fun selectTab_memorize_does_not_reload_if_already_loaded() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope)
+        c.selectTab(ReadingTab.MEMORIZE)
+        fake.memorizeSummary = MemorizeSummaryData(memorizedCount = 999, targetMemorized = 0, targetTotal = 0)
+        c.selectTab(ReadingTab.MEMORIZE)
+        assertEquals(5, c.model.value.memorize?.memorizedCount)
+    }
+
+    @Test fun setMemOverview_false_loads_passages_and_targets_and_persists() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake()
+        var persisted: Boolean? = null
+        val c = controller(fake, backgroundScope, initialOverviewActive = true, persistOverview = { persisted = it })
+        c.setMemOverview(false)
+        val mem = c.model.value.memorize
+        assertEquals(false, persisted)
+        assertEquals(false, mem?.overviewActive)
+        assertEquals(10, mem?.passages?.size)
+        assertEquals(25, mem?.passagesTotal)
+        assertEquals(10, mem?.targets?.size)
+        assertEquals(15, mem?.targetsTotal)
+    }
+
+    @Test fun showMorePassages_grows_shown_and_slice_without_reload() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope, initialOverviewActive = false)
+        c.selectTab(ReadingTab.MEMORIZE)
+        assertEquals(10, c.model.value.memorize?.passages?.size)
+        fake.passages = emptyList() // prove no reload happens
+        c.showMorePassages()
+        val mem = c.model.value.memorize
+        assertEquals(20, mem?.passagesShown)
+        assertEquals(20, mem?.passages?.size)
+    }
+
+    @Test fun showMoreTargets_grows_shown_and_slice_without_reload() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope, initialOverviewActive = false)
+        c.selectTab(ReadingTab.MEMORIZE)
+        assertEquals(10, c.model.value.memorize?.targets?.size)
+        fake.targets = emptyList() // prove no reload happens
+        c.showMoreTargets()
+        val mem = c.model.value.memorize
+        assertEquals(20, mem?.targetsShown)
+        assertEquals(15, mem?.targets?.size) // only 15 total targets available
+    }
+
+    @Test fun memorizePassageTap_invokes_onNavigateToMemorize() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake()
+        var navigated: Pair<Int, Int>? = null
+        val c = controller(fake, backgroundScope, onNavigateToMemorize = { s, e -> navigated = s to e })
+        c.memorizePassageTap(7, 9)
+        assertEquals(7 to 9, navigated)
+    }
+
+    @Test fun unmarkPassage_calls_service_then_reloads() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope, initialOverviewActive = false)
+        c.selectTab(ReadingTab.MEMORIZE)
+        fake.memorizeSummary = MemorizeSummaryData(memorizedCount = 42, targetMemorized = 0, targetTotal = 0)
+        c.unmarkPassage(3, 4)
+        assertEquals(listOf(3 to 4), fake.unmarkedCalls)
+        assertEquals(42, c.model.value.memorize?.memorizedCount)
+    }
+
+    @Test fun removeTarget_calls_service_then_reloads() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope, initialOverviewActive = false)
+        c.selectTab(ReadingTab.MEMORIZE)
+        fake.memorizeSummary = MemorizeSummaryData(memorizedCount = 77, targetMemorized = 0, targetTotal = 0)
+        c.removeTarget("t3")
+        assertEquals(listOf("t3"), fake.removedTargetIds)
+        assertEquals(77, c.model.value.memorize?.memorizedCount)
+    }
+
+    @Test fun openMemChapterDetail_updates_memChapterDetail() = runTest(UnconfinedTestDispatcher()) {
+        val fake = Fake(); val c = controller(fake, backgroundScope)
+        c.selectTab(ReadingTab.MEMORIZE)
+        c.openMemChapterDetail("GEN")
+        assertEquals("Genesis", c.model.value.memorize?.memChapterDetail?.title)
     }
 }
