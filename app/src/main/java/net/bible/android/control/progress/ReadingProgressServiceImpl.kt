@@ -266,7 +266,9 @@ class ReadingProgressServiceImpl : ReadingProgressService {
                     shortName = kjva.getShortName(book),
                     isNT = book.ordinal >= BibleBook.MATT.ordinal,
                     readPercent = readPercent,
-                    isComplete = readPercent >= 1f,
+                    // Classic parity: the memorize overview never draws a completion ✓ tick on books
+                    // (only the Reading tab does); it uses colour intensity + target dots instead.
+                    isComplete = false,
                     hasTarget = book in targets,
                 )
             }.toList()
