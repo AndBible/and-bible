@@ -49,6 +49,36 @@ sealed interface SettingsItem {
         val enabled: Boolean = true,
     ) : SettingsItem
 
+    /** Integer slider (SeekBar analogue). [valueLabel] is the pre-formatted readout (e.g. "150 %"). */
+    data class SliderRow(
+        override val key: String,
+        val title: String,
+        val value: Int,
+        val min: Int,
+        val max: Int,
+        val valueLabel: String,
+        val iconKey: String? = null,
+        override val visible: Boolean = true,
+        val enabled: Boolean = true,
+    ) : SettingsItem
+
+    /**
+     * Multi-selection from [options]; [selectedValues] holds the currently-selected stable ids.
+     * Inverse semantics (classic InverseMultiSelectListPreference, where an empty stored set means
+     * "all selected") are resolved by the controller BEFORE building this row — it always presents
+     * the positive "selected" set, so the framework stays semantics-free.
+     */
+    data class MultiSelectRow(
+        override val key: String,
+        val title: String,
+        val summary: String? = null,
+        val options: List<Choice>,
+        val selectedValues: Set<String>,
+        val iconKey: String? = null,
+        override val visible: Boolean = true,
+        val enabled: Boolean = true,
+    ) : SettingsItem
+
     /** Clickable row that navigates elsewhere (host decides where by [key]). */
     data class NavigationRow(
         override val key: String,

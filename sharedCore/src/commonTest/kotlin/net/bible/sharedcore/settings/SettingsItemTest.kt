@@ -51,4 +51,22 @@ class SettingsItemTest {
         assertEquals("ic_lc", listChoice.iconKey)
         assertEquals("ic_ti", textInput.iconKey)
     }
+
+    @Test fun sliderAndMultiSelect_areVisibleItemsAndCarryValues() {
+        val state = SettingsScreenState(
+            title = "T",
+            items = listOf(
+                SettingsItem.SliderRow("font", "Font", value = 150, min = 10, max = 500, valueLabel = "150 %"),
+                SettingsItem.MultiSelectRow(
+                    "dicts", "Dictionaries",
+                    options = listOf(SettingsItem.Choice("a", "A"), SettingsItem.Choice("b", "B")),
+                    selectedValues = setOf("a"),
+                ),
+                SettingsItem.MultiSelectRow("hidden", "H", options = emptyList(), selectedValues = emptySet(), visible = false),
+            ),
+        )
+        assertEquals(listOf("font", "dicts"), state.visibleItems.map { it.key })
+        assertEquals(150, (state.visibleItems[0] as SettingsItem.SliderRow).value)
+        assertEquals(setOf("a"), (state.visibleItems[1] as SettingsItem.MultiSelectRow).selectedValues)
+    }
 }
