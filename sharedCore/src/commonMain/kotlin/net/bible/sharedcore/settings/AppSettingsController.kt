@@ -195,7 +195,7 @@ class AppSettingsController(
                 value = s.fontSizeMultiplier,
                 min = 10,
                 max = 500,
-                valueLabel = labels.fontSizePercentFormat.replace("%d", s.fontSizeMultiplier.toString()),
+                valueLabel = labels.fontSizePercentFormat.replace("%d", s.fontSizeMultiplier.toString()).replace("%%", "%"),
             ),
             SettingsItem.SwitchRow(
                 key = "hide_status_bar",

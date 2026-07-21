@@ -2,7 +2,6 @@ package net.bible.sharedcore.settings
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -109,5 +108,11 @@ class AppSettingsControllerTest {
     @Test fun developerAndUseComposeAlwaysPresent() {
         val c = controller(FakeAppSettingsService(snap()))
         assertTrue(c.state.value.visibleItems.map { it.key }.contains("use_compose_ui"))
+    }
+
+    @Test fun fontSliderValueLabelUnescapesPercent() {
+        val c = controller(FakeAppSettingsService(snap()))
+        val row = c.state.value.visibleItems.single { it.key == "font_size_multiplier" } as SettingsItem.SliderRow
+        assertEquals("100 %", row.valueLabel)
     }
 }
