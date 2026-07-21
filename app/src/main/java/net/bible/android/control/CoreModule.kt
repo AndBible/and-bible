@@ -12,6 +12,8 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.progress.ReadingProgressServiceImpl
+import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.search.BibleSearchServiceImpl
 import net.bible.android.control.search.SearchControl
@@ -104,6 +106,7 @@ val coreModule = module {
     singleOf(::ToolPermissionServiceImpl) { bind<ToolPermissionService>() }
     singleOf(::RawLogServiceImpl) { bind<RawLogService>() }
     singleOf(::DocumentFilterServiceImpl) { bind<DocumentFilterService>() }
+    singleOf(::ReadingProgressServiceImpl) { bind<ReadingProgressService>() }
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.
