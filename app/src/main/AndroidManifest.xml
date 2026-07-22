@@ -637,6 +637,13 @@
             android:exported="true"
             />
         <activity
+            android:name="net.bible.android.view.activity.installzip.InstallZipComposeActivity"
+            android:label="@string/install_zip_module"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AbCompose"
+            android:exported="true"
+            />
+        <activity
             android:name="net.bible.android.view.activity.discrete.CalculatorActivity"
             android:label="@string/app_name_calculator"
             android:screenOrientation="portrait"
