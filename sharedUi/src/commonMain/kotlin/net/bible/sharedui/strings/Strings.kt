@@ -485,6 +485,15 @@ interface Strings {
     // Batch 10-remainder — preference search (main Settings screen)
     val searchSettings: String                              // R.string.search_settings
     val help: String                                        // help
+
+    // Batch 11 — startup welcome
+    val welcomeDownloadButton: String       // R.string.download
+    val welcomeImportButton: String         // R.string.install_zip
+    val welcomeRestoreButton: String        // R.string.restore_database
+    val welcomeRedownloadButton: String     // R.string.redownload_documents
+    val welcomeEasyStartButton: String      // R.string.easy_start_title
+    val welcomeHomepageLabel: String        // R.string.homepage
+    val welcomeGithubLabel: String          // R.string.github_page
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

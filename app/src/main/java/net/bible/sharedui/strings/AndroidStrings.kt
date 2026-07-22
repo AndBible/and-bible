@@ -467,4 +467,13 @@ class AndroidStrings(private val context: Context) : Strings {
     override val memorizeViewList: String get() = context.getString(R.string.memorize_view_list)
     override val memorizeCalendar: String get() = context.getString(R.string.memorize_calendar)
     override val help: String get() = context.getString(R.string.help)
+
+    // Batch 11 — startup welcome
+    override val welcomeDownloadButton: String get() = context.getString(R.string.download)
+    override val welcomeImportButton: String get() = context.getString(R.string.install_zip)
+    override val welcomeRestoreButton: String get() = context.getString(R.string.restore_database)
+    override val welcomeRedownloadButton: String get() = context.getString(R.string.redownload_documents)
+    override val welcomeEasyStartButton: String get() = context.getString(R.string.easy_start_title)
+    override val welcomeHomepageLabel: String get() = context.getString(R.string.homepage)
+    override val welcomeGithubLabel: String get() = context.getString(R.string.github_page)
 }
