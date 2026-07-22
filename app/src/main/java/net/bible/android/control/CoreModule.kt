@@ -14,6 +14,8 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowCommandsImpl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowStateServiceImpl
+import net.bible.android.control.page.toolbar.ToolbarStateServiceImpl
+import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.search.BibleSearchServiceImpl
@@ -87,6 +89,7 @@ val coreModule = module {
     singleOf(::WindowControl)
     singleOf(::WindowCommandsImpl) { bind<WindowCommands>() }
     singleOf(::WindowStateServiceImpl) { bind<WindowStateService>() }
+    singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() }
     singleOf(::LinkControl)
     singleOf(::HistoryManager)
     singleOf(::HistoryTraversalFactory)
