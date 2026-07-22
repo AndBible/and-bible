@@ -110,10 +110,15 @@ class InstallJobRunner(
                 }
             }
 
-            is InstallPlan.EpubFromZip ->
+            is InstallPlan.EpubFromZip -> {
+                if (plan.needsUpgradeConfirm) {
+                    onPhase(InstallPhase.AwaitingDecision(DecisionRequest.EpubUpgrade))
+                    if (!awaitDecision(DecisionRequest.EpubUpgrade)) return InstallPhase.Cancelled.also(onPhase)
+                }
                 commitWithProgress(onPhase, plan.displayName) {
                     committer.commitEpub(acquireTo, plan.displayName, deleteExisting = true)
                 }
+            }
 
             is InstallPlan.Epub -> {
                 if (plan.needsUpgradeConfirm) {

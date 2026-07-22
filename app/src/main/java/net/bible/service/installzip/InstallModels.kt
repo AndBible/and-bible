@@ -36,8 +36,9 @@ enum class SqliteBookType { MYBIBLE, MYSWORD, ESWORD }
 sealed class InstallPlan {
     /** SWORD module zip. [existingFiles] non-empty ⇒ an Overwrite decision is required. */
     data class SwordZip(val existingFiles: List<String>, val totalEntries: Int) : InstallPlan()
-    /** A zip whose content is actually an EPUB (has META-INF/container.xml). */
-    data class EpubFromZip(val displayName: String) : InstallPlan()
+    /** A zip whose content is actually an EPUB (has META-INF/container.xml). Routed through the
+     *  same upgrade-confirmation gate as [Epub] -- see [needsUpgradeConfirm]. */
+    data class EpubFromZip(val displayName: String, val needsUpgradeConfirm: Boolean) : InstallPlan()
     data class Epub(val displayName: String, val needsUpgradeConfirm: Boolean) : InstallPlan()
     data class Sqlite(val type: SqliteBookType, val displayName: String, val overwriteName: String?) : InstallPlan()
     data class Ttf(val displayName: String, val overwriteName: String?) : InstallPlan()

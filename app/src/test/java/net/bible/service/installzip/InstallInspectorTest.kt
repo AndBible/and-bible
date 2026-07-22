@@ -22,6 +22,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.backup.BackupControl
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,6 +70,18 @@ class InstallInspectorTest {
         val plan = InstallInspector(zipType).inspect(
             File("/x/e.zip"), "e.zip", null, false, { error("") }, { scan(epub = true) }, { false })
         assertTrue(plan is InstallPlan.EpubFromZip)
+        assertFalse((plan as InstallPlan.EpubFromZip).needsUpgradeConfirm)
+    }
+
+    /** Finding I1: a zip-detected epub must be routed through the SAME upgrade-confirmation
+     *  gate as a mime-typed epub -- [InstallInspector] must call [epubUpgradeCheck] for it too,
+     *  not silently skip it (see `InstallJobRunnerTest` for the commit-gating consequence). */
+    @Test fun `zip that is actually epub carries upgrade confirmation flag`() = runBlocking {
+        val plan = InstallInspector(zipType).inspect(
+            File("/x/e.zip"), "e.zip", null, false, { error("") }, { scan(epub = true) },
+            epubUpgradeCheck = { name -> name == "e.zip" })
+        assertTrue(plan is InstallPlan.EpubFromZip)
+        assertTrue((plan as InstallPlan.EpubFromZip).needsUpgradeConfirm)
     }
 
     @Test fun `invalid zip`() = runBlocking {

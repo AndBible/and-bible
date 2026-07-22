@@ -139,6 +139,54 @@ class InstallServiceControllerTest {
         assertTrue(c.jobs.value.isEmpty())
     }
 
+    /**
+     * Finding I2: [InstallServiceController.runSingleJob] used to catch ONLY
+     * [kotlinx.coroutines.CancellationException] around `runOne`, so a non-cancellation
+     * `Throwable` (e.g. a `BookException`/`RuntimeException` from the reused JSword engine during
+     * inspect/commit -- classic `ZipHandler` explicitly caught these) would escape the worker
+     * `launch` uncaught on the handler-less `SupervisorJob` scope (a crash), while `terminal`
+     * stayed at its `Cancelled` default -- misreporting a real error as a user cancellation. This
+     * must now map to a terminal [InstallPhase.Error], fire [onTerminal] with it, and surface as
+     * [InstallOutcome.Error] from `enqueue`, with no exception escaping the controller.
+     */
+    @Test fun `non-cancellation throwable from runOne maps to Error terminal, not Cancelled`() = runTest {
+        var terminalJobId: JobId? = null
+        var terminalPhase: InstallPhase? = null
+        val c = controller(onTerminal = { id, phase -> terminalJobId = id; terminalPhase = phase })
+        c.runOne = { _, _, _, _, _ -> throw RuntimeException("simulated BookException from JSword") }
+
+        val outcome = c.enqueue(listOf(src("a")), deps())
+
+        assertTrue(outcome is InstallOutcome.Error)
+        assertEquals(R.string.error_occurred, (outcome as InstallOutcome.Error).messageKey)
+        assertTrue(terminalJobId != null)
+        assertTrue(terminalPhase is InstallPhase.Error)
+        assertEquals(R.string.error_occurred, (terminalPhase as InstallPhase.Error).messageKey)
+        assertTrue("no job may linger after an unhandled throwable", c.jobs.value.isEmpty())
+    }
+
+    /** Companion assertion: cancellation must still map to Cancelled, not the new Error catch --
+     *  order of the two `catch` clauses in `runSingleJob` matters (CancellationException first). */
+    @Test fun `cancellation still maps to Cancelled, not Error`() = runTest {
+        var terminalPhase: InstallPhase? = null
+        val c = controller(onTerminal = { _, phase -> terminalPhase = phase })
+        c.runOne = { _, _, _, onPhase, awaitDecision ->
+            onPhase(InstallPhase.AwaitingDecision(DecisionRequest.EpubUpgrade))
+            if (awaitDecision(DecisionRequest.EpubUpgrade)) InstallPhase.Done else InstallPhase.Cancelled
+        }
+        val canceller = launch(Dispatchers.Default) {
+            val jobId = c.jobs.first { list -> list.any { it.phase is InstallPhase.AwaitingDecision } }
+                .first { it.phase is InstallPhase.AwaitingDecision }.jobId
+            c.cancel(jobId)
+        }
+
+        val outcome = c.enqueue(listOf(src("a")), deps())
+
+        canceller.join()
+        assertEquals(InstallOutcome.Cancelled, outcome)
+        assertEquals(InstallPhase.Cancelled, terminalPhase)
+    }
+
     @Test fun `aggregate outcome is Error when any job errors even if another succeeds`() = runTest {
         val c = controller()
         c.runOne = { _, source, _, _, _ ->

@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import net.bible.android.activity.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -155,6 +156,15 @@ class InstallServiceController(
                 )
             } catch (e: CancellationException) {
                 InstallPhase.Cancelled
+            } catch (e: Throwable) {
+                // Guards the whole `runOne` call, not just the commit step: `inspector.inspect`
+                // (SWORD zip scanning / epub-upgrade lookup / StudyPad stats) reuses the shared
+                // JSword engine and can throw `BookException`/other RuntimeExceptions the classic
+                // `ZipHandler` explicitly caught -- left unguarded, that would escape this
+                // `launch` uncaught on the handler-less SupervisorJob scope (a crash), while
+                // `terminal` stayed at its `Cancelled` default, misreporting a real error as a
+                // user cancellation.
+                InstallPhase.Error(R.string.error_occurred, null)
             }
         }
         jobCoroutines[jobId] = job

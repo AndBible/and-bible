@@ -76,7 +76,7 @@ class InstallInspector(private val determineFileType: suspend (File) -> BackupCo
         }
 
         return when (determineFileType(localFile)) {
-            BackupControl.AbDbFileType.ZIP -> classifyZip(localFile, displayName, swordZipScan)
+            BackupControl.AbDbFileType.ZIP -> classifyZip(localFile, displayName, swordZipScan, epubUpgradeCheck)
             BackupControl.AbDbFileType.SQLITE3 -> classifySqlite(displayName, lowerName)
             BackupControl.AbDbFileType.UNKNOWN -> InstallPlan.Invalid(displayName)
         }
@@ -86,10 +86,15 @@ class InstallInspector(private val determineFileType: suspend (File) -> BackupCo
         localFile: File,
         displayName: String,
         swordZipScan: suspend (File) -> SwordZipScan,
+        epubUpgradeCheck: suspend (displayName: String) -> Boolean,
     ): InstallPlan {
         val scan = swordZipScan(localFile)
         return when {
-            scan.isEpub -> InstallPlan.EpubFromZip(displayName)
+            // Mirrors classic `ZipHandler.checkZipFile` throwing `EpubFile`, which the caller
+            // (`installFromFile`/`ZipHandler.execute`) routes through the SAME `installEpub` used
+            // for a mime-typed epub -- so this must carry the same upgrade-confirmation gate as
+            // the [Epub] branch above, not commit unconditionally.
+            scan.isEpub -> InstallPlan.EpubFromZip(displayName, epubUpgradeCheck(displayName))
             scan.invalid -> InstallPlan.Invalid(displayName)
             else -> InstallPlan.SwordZip(scan.existingFiles, scan.totalEntries)
         }

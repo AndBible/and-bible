@@ -151,6 +151,42 @@ class InstallJobRunnerTest {
         assertFalse(f.exists())
     }
 
+    /**
+     * Finding I1: a zip whose content is actually an epub (`InstallPlan.EpubFromZip`) must go
+     * through the SAME upgrade-confirmation gate as a mime-typed epub -- declining must cancel
+     * WITHOUT deleting/committing (parity with classic `InstallZip.installEpub`'s
+     * `documentUpgradeConfirmation` gate, reached via the `EpubFile` exception route).
+     */
+    @Test fun `epub-from-zip upgrade declined cancels without commit`() = runBlocking {
+        val c = FakeCommitter(); val f = tmp()
+        val terminal = runner(c).runJob(src("e.zip"), f, { "d".byteInputStream() },
+            { false }, { error("") }, swordZipScan = { InstallInspector.SwordZipScan(emptyList(), 0, isEpub = true, invalid = false) },
+            epubUpgradeCheck = { true }, onPhase = {}, awaitDecision = { false })
+        assertEquals(InstallPhase.Cancelled, terminal)
+        assertTrue("commitEpub must NOT run when the upgrade is declined", c.calls.isEmpty())
+        assertFalse(f.exists())
+    }
+
+    @Test fun `epub-from-zip upgrade accepted commits epub with delete existing`() = runBlocking {
+        val c = FakeCommitter(); val phases = mutableListOf<InstallPhase>(); val f = tmp()
+        val terminal = runner(c).runJob(src("e.zip"), f, { "d".byteInputStream() },
+            { false }, { error("") }, swordZipScan = { InstallInspector.SwordZipScan(emptyList(), 0, isEpub = true, invalid = false) },
+            epubUpgradeCheck = { true }, onPhase = { phases += it }, awaitDecision = { true })
+        assertEquals(InstallPhase.Done, terminal)
+        assertEquals(listOf("epub"), c.calls)
+        assertTrue(phases.any { it is InstallPhase.AwaitingDecision && it.request is DecisionRequest.EpubUpgrade })
+    }
+
+    @Test fun `epub-from-zip with no upgrade needed commits without asking`() = runBlocking {
+        val c = FakeCommitter(); val phases = mutableListOf<InstallPhase>(); val f = tmp()
+        val terminal = runner(c).runJob(src("e.zip"), f, { "d".byteInputStream() },
+            { false }, { error("") }, swordZipScan = { InstallInspector.SwordZipScan(emptyList(), 0, isEpub = true, invalid = false) },
+            epubUpgradeCheck = { false }, onPhase = { phases += it }, awaitDecision = { true })
+        assertEquals(InstallPhase.Done, terminal)
+        assertEquals(listOf("epub"), c.calls)
+        assertFalse(phases.any { it is InstallPhase.AwaitingDecision })
+    }
+
     @Test fun `epub rejected by discovery scanner errors`() = runBlocking {
         val c = FakeCommitter(); c.epubOk = false; val phases = mutableListOf<InstallPhase>()
         val terminal = runner(c).runJob(src("b.epub", "application/epub+zip"), tmp(), { "d".byteInputStream() },
