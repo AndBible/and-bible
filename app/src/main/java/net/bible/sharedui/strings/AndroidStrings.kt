@@ -71,6 +71,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val search: String get() = context.getString(R.string.search)
     override val emptyList: String get() = context.getString(R.string.empty_list)
     override val searchIndex: String get() = context.getString(R.string.search_index)
+    override val searchSettings: String get() = context.getString(R.string.search_settings)
     override val allWords: String get() = context.getString(R.string.search_all_words)
     override val anyWord: String get() = context.getString(R.string.search_any_word)
     override val phrase: String get() = context.getString(R.string.search_phrase)

@@ -481,6 +481,9 @@ interface Strings {
     val memorizeViewOverview: String                        // memorize_view_overview
     val memorizeViewList: String                            // memorize_view_list
     val memorizeCalendar: String                            // memorize_calendar
+
+    // Batch 10-remainder — preference search (main Settings screen)
+    val searchSettings: String                              // R.string.search_settings
     val help: String                                        // help
 }
 

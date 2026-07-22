@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import net.bible.sharedcore.settings.SettingsScreenState
+import net.bible.sharedui.strings.LocalStrings
 
 /**
  * Thin wrapper around [AbSettingsScreen] for the main app Settings screen: passes every callback
@@ -44,6 +45,7 @@ fun AppSettingsScreen(
     onReset: () -> Unit,
     resetContentDescription: String,
 ) {
+    val searchHint = LocalStrings.current.searchSettings
     AbSettingsScreen(
         state = state,
         onUp = onUp,
@@ -53,6 +55,8 @@ fun AppSettingsScreen(
         onNavigate = onNavigate,
         onSliderChange = onSliderChange,
         onMultiSelectChange = onMultiSelectChange,
+        searchable = true,
+        searchHint = searchHint,
         actions = {
             IconButton(onClick = onReset) {
                 Icon(Icons.Filled.RestartAlt, contentDescription = resetContentDescription)
