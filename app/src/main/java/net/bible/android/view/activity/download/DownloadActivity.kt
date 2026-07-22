@@ -41,7 +41,6 @@ import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.settings
@@ -492,7 +491,7 @@ open class DownloadActivity : DocumentSelectionBase(
                     .create().show()
             }
             R.id.installZip -> {
-                val intent = Intent(this, InstallZip::class.java)
+                val intent = ScreenLauncher.intentFor(this, Screen.InstallZip)
                 lifecycleScope.launch {
                     awaitIntent(intent)
                     ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())

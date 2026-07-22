@@ -39,7 +39,8 @@ import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
@@ -413,7 +414,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
         Log.i(TAG, "Importing plan. Result uri is${if (uriResult != null) " not" else ""} null")
         val uri = uriResult ?: return@registerForActivityResult
 
-        val intent = Intent(Intent.ACTION_VIEW, uri, this, InstallZip::class.java)
+        val intent = ScreenLauncher.intentFor(this, Screen.InstallZip).apply { action = Intent.ACTION_VIEW; data = uri }
         installZipLauncher.launch(intent)
     }
 

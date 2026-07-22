@@ -52,6 +52,8 @@ import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
 import net.bible.android.view.activity.download.FirstDownload
+import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
@@ -103,7 +105,7 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivi
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -242,6 +244,9 @@ object ScreenLauncher {
         Screen.Startup ->
             if (useComposeFor(screen)) StartupComposeActivity::class.java
             else StartupActivity::class.java
+        Screen.InstallZip ->
+            if (useComposeFor(screen)) InstallZipComposeActivity::class.java
+            else InstallZip::class.java
     }
 
     /**

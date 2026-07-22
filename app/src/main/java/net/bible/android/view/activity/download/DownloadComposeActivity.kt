@@ -74,7 +74,6 @@ import net.bible.android.view.activity.base.PseudoBook
 import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.CommonUtils
@@ -813,7 +812,7 @@ open class DownloadComposeActivity : ActivityBase() {
     }
 
     private fun onInstallZip() {
-        val intent = Intent(this, InstallZip::class.java)
+        val intent = ScreenLauncher.intentFor(this, Screen.InstallZip)
         lifecycleScope.launch {
             awaitIntent(intent)
             ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())

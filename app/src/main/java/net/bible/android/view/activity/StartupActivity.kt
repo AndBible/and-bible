@@ -57,7 +57,6 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.BuildVariant
@@ -395,7 +394,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
      */
     private fun onLoadFromZip() {
         Log.i(TAG, "Load from Zip clicked")
-        val handlerIntent = Intent(this, InstallZip::class.java).apply { putExtra("doNotInitializeApp", true) }
+        val handlerIntent = ScreenLauncher.intentFor(this, Screen.InstallZip).apply { putExtra("doNotInitializeApp", true) }
         lifecycleScope.launch {
             awaitIntent(handlerIntent)
             afterDownload()

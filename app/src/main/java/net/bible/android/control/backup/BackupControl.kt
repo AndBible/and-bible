@@ -57,6 +57,8 @@ import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.progress.ProgressDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.application
@@ -801,7 +803,7 @@ object BackupControl {
     }
 
     suspend fun restoreModulesViaIntent(activity: ActivityBase) {
-        val intent = Intent(activity, InstallZip::class.java)
+        val intent = ScreenLauncher.intentFor(activity, Screen.InstallZip)
         val result = activity.awaitIntent(intent)
         if(result.data?.data == null) return
 

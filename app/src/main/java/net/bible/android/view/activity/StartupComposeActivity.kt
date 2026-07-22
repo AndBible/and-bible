@@ -42,7 +42,6 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
@@ -182,7 +181,7 @@ class StartupComposeActivity : ActivityBase() {
     }
 
     private fun onImport() {
-        val intent = Intent(this, InstallZip::class.java).apply { putExtra("doNotInitializeApp", true) }
+        val intent = ScreenLauncher.intentFor(this, Screen.InstallZip).apply { putExtra("doNotInitializeApp", true) }
         lifecycleScope.launch {
             awaitIntent(intent)
             afterFlow()

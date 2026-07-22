@@ -33,7 +33,6 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.Screen
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.device.ScreenSettings
@@ -276,7 +275,7 @@ class DailyReadingComposeActivity : ActivityBase() {
 
     private val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri ?: return@registerForActivityResult
-        installZipLauncher.launch(Intent(Intent.ACTION_VIEW, uri, this, InstallZip::class.java))
+        installZipLauncher.launch(ScreenLauncher.intentFor(this, Screen.InstallZip).apply { action = Intent.ACTION_VIEW; data = uri })
     }
 
     private val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

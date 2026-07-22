@@ -58,7 +58,6 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.displayName
@@ -219,7 +218,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
 
     private fun importStudyPads() {
         lifecycleScope.launch(Dispatchers.Main) {
-            awaitIntent(Intent(this@ManageLabelsComposeActivity, InstallZip::class.java))
+            awaitIntent(ScreenLauncher.intentFor(this@ManageLabelsComposeActivity, Screen.InstallZip))
             controller.refresh()
         }
     }

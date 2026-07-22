@@ -51,7 +51,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -407,7 +406,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
     }
 
     private fun onInstallZip() {
-        val intent = Intent(this, InstallZip::class.java)
+        val intent = ScreenLauncher.intentFor(this, Screen.InstallZip)
         lifecycleScope.launch {
             awaitIntent(intent)
             ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())

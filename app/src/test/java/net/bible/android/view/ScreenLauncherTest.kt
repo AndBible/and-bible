@@ -52,6 +52,8 @@ import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeAct
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
 import net.bible.android.view.activity.download.FirstDownload
+import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.History
@@ -453,5 +455,13 @@ class ScreenLauncherTest {
         assertEquals(StartupComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Startup))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(StartupActivity::class.java, ScreenLauncher.targetFor(Screen.Startup))
+    }
+
+    @Test
+    fun installZip_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(InstallZipComposeActivity::class.java, ScreenLauncher.targetFor(Screen.InstallZip))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(InstallZip::class.java, ScreenLauncher.targetFor(Screen.InstallZip))
     }
 }

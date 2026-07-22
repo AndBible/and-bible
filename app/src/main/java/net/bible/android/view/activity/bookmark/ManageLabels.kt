@@ -75,7 +75,6 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.service.common.CommonUtils.getResourceColor
 import net.bible.service.common.displayName
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
@@ -405,7 +404,7 @@ class ManageLabels : ListActivityBase() {
                 }
             }
             R.id.import_studypads -> {
-                val intent = Intent(this, InstallZip::class.java)
+                val intent = ScreenLauncher.intentFor(this, Screen.InstallZip)
                 lifecycleScope.launch {
                     awaitIntent(intent)
                     updateLabelList(rePopulate = true, reOrder = true)
