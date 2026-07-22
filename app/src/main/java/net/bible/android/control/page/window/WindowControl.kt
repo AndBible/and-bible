@@ -29,8 +29,6 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
-import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.IdType
@@ -129,7 +127,7 @@ open class WindowControl constructor() {
         linksWindow.pageManager.setCurrentDocumentAndKey(actualDocument, key)
 
         if (!linksWindowWasVisible) {
-            ABEventBus.post(NumberOfWindowsChangedEvent())
+            windowRepository.notifyWindowsChanged()
         }
     }
 
@@ -152,7 +150,7 @@ open class WindowControl constructor() {
                 it.windowState = WindowState.MINIMISED
             }
         }
-        ABEventBus.post(NumberOfWindowsChangedEvent())
+        windowRepository.notifyWindowsChanged()
         return window
     }
 
@@ -161,7 +159,7 @@ open class WindowControl constructor() {
             windowRepository.minimise(window)
 
             // redisplay the current page
-            ABEventBus.post(NumberOfWindowsChangedEvent())
+            windowRepository.notifyWindowsChanged()
         }
     }
 
@@ -174,7 +172,7 @@ open class WindowControl constructor() {
             if (visibleWindows.count() == 1) visibleWindows[0].weight = 1.0F
 
             // redisplay the current page
-            ABEventBus.post(NumberOfWindowsChangedEvent())
+            windowRepository.notifyWindowsChanged()
             windowSync.reloadAllWindows()
         }
     }
@@ -210,7 +208,7 @@ open class WindowControl constructor() {
             if (activeWindow.isSynchronised)
                 windowRepository.lastSyncWindowId = activeWindow.id
 
-            ABEventBus.post(NumberOfWindowsChangedEvent())
+            windowRepository.notifyWindowsChanged()
             activeWindow = window
         }
     }
@@ -222,14 +220,14 @@ open class WindowControl constructor() {
     /** screen orientation has changed  */
     fun orientationChange() {
         // causes BibleViews to be created and laid out
-        ABEventBus.post(NumberOfWindowsChangedEvent())
+        windowRepository.notifyWindowsChanged()
     }
 
     var isSeparatorMoving = false
         set(value) {
         field = value
         val isMoveFinished = !value
-        ABEventBus.post(WindowSizeChangedEvent(isMoveFinished))
+        windowRepository.notifyWindowSizeChanged(isMoveFinished)
     }
 
     fun windowSizesChanged() {
@@ -255,7 +253,7 @@ open class WindowControl constructor() {
         windowRepository.moveWindowToPosition(window, position)
 
         // redisplay the current page
-        ABEventBus.post(NumberOfWindowsChangedEvent())
+        windowRepository.notifyWindowsChanged()
     }
 
     fun setPinMode(window: Window, value: Boolean) {
@@ -265,19 +263,19 @@ open class WindowControl constructor() {
         } else if(!value && window.isVisible && windowRepository.visibleWindows.filter {!it.isPinMode}.size > 1) {
             minimiseWindow(window, true)
         }
-        ABEventBus.post(NumberOfWindowsChangedEvent())
+        windowRepository.notifyWindowsChanged()
     }
 
     fun maximiseWindow(window: Window) {
         windowRepository.maximizedWindowId = window.id
         windowSync.reloadAllWindows()
-        ABEventBus.post(NumberOfWindowsChangedEvent())
+        windowRepository.notifyWindowsChanged()
     }
 
     fun unMaximise() {
         windowRepository.maximizedWindowId = null
         windowSync.reloadAllWindows()
-        ABEventBus.post(NumberOfWindowsChangedEvent())
+        windowRepository.notifyWindowsChanged()
     }
 
     fun hasMoveItems(window: Window): Boolean {
@@ -291,7 +289,7 @@ open class WindowControl constructor() {
                 windowRepository.minimise(unpinnedWindows[i])
             }
         }
-        ABEventBus.post(NumberOfWindowsChangedEvent())
+        windowRepository.notifyWindowsChanged()
     }
 
     val scope get() = CurrentActivityHolder.currentActivity!!.lifecycleScope
@@ -401,7 +399,7 @@ open class WindowControl constructor() {
         windowSync.synchronizeWindows(
             windowRepository.visibleWindows.firstOrNull { it.id != window.id && it.isSynchronised && it.isSyncable && it.syncGroup == window.syncGroup }
         )
-        ABEventBus.post(WindowChangedEvent(window))
+        windowRepository.notifyWindowChanged(window)
     }
 
     companion object {

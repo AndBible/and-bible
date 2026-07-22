@@ -27,7 +27,6 @@ import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
@@ -70,7 +69,7 @@ class Window (
             return ownTargetLinksWindow
                 ?: if (isLinksWindow) windowRepository.addNewLinksWindow().also {
                     targetLinksWindowId = it.id
-                    ABEventBus.post(NumberOfWindowsChangedEvent())
+                    windowRepository.notifyWindowsChanged()
                 } else windowRepository.primaryTargetLinksWindow
         }
 
@@ -173,7 +172,7 @@ class Window (
     var isSynchronised = entity.isSynchronized
         set(value) {
             field = value
-            ABEventBus.post(WindowChangedEvent(this))
+            windowRepository.notifyWindowChanged(this)
         }
 
     var isPinMode: Boolean = entity.isPinMode
@@ -186,7 +185,7 @@ class Window (
         }
         set(value) {
             field = value
-            ABEventBus.post(WindowChangedEvent(this))
+            windowRepository.notifyWindowChanged(this)
         }
 
     val isMinimised: Boolean

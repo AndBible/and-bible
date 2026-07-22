@@ -23,6 +23,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
+import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.speak.SpeakControl
@@ -46,6 +47,7 @@ import kotlin.math.min
 
 open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     val speakControl: SpeakControl by inject()
+    private val windowStateService: WindowStateServiceImpl by inject()
 
     val windowSync: WindowSync = WindowSync(this)
     var unPinnedWeight: Float? = null
@@ -123,7 +125,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
             if (!initialized || newActiveWindow != this._activeWindow) {
                 _activeWindow = newActiveWindow
                 Log.i(TAG, "Active window: $newActiveWindow")
-                ABEventBus.post(CurrentWindowChangedEvent(newActiveWindow))
+                notifyActiveWindowChanged(newActiveWindow)
             }
             _activeWindow?.bibleView?.requestFocus()
         }
@@ -332,6 +334,28 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     lateinit var savedEntity: WorkspaceEntities.Workspace
 
+    /**
+     * Window-domain change notifiers (Batch 12a). Each refreshes the reactive SSOT
+     * ([WindowStateServiceImpl.layout]) AND posts the legacy `ABEventBus` event, so both
+     * are updated at one site. `WindowControl`/`Window` route their mutations through these.
+     */
+    fun notifyWindowsChanged() {
+        windowStateService.refresh(this)
+        ABEventBus.post(NumberOfWindowsChangedEvent())
+    }
+    fun notifyActiveWindowChanged(window: Window) {
+        windowStateService.refresh(this)
+        ABEventBus.post(CurrentWindowChangedEvent(window))
+    }
+    fun notifyWindowSizeChanged(moveFinished: Boolean) {
+        windowStateService.refresh(this)
+        ABEventBus.post(WindowSizeChangedEvent(moveFinished))
+    }
+    fun notifyWindowChanged(window: Window) {
+        windowStateService.refresh(this)
+        ABEventBus.post(WindowChangedEvent(window))
+    }
+
     fun loadFromDb(workspaceId: IdType?) {
         Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
         val entity = (if(workspaceId != null) dao.workspace(workspaceId) else null)?: dao.firstWorkspace()
@@ -361,7 +385,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
             historyManager.restoreFrom(window, dao.historyItems(it.id))
         }
         setDefaultActiveWindow()
-        ABEventBus.post(NumberOfWindowsChangedEvent())
+        notifyWindowsChanged()
     }
 
     fun clear(destroy: Boolean = false) {

@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.window.WindowStateService
 import net.bible.sharedcore.window.WindowStateValue
 import net.bible.test.DatabaseResetter
 import org.hamcrest.MatcherAssert.assertThat
@@ -31,6 +32,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -73,5 +75,51 @@ class WindowStateServiceTest {
         assertThat(w2Snapshot.isVisible, equalTo(false))
         assertThat(layout.maximizedWindowId, equalTo(null))
         assertThat(layout.restoreButtonsVisible, equalTo(true))
+    }
+
+    private fun liveService(): WindowStateService = GlobalContext.get().get()
+
+    @Test
+    fun addAndMinimiseWindow_updateLayoutWithoutManualRefresh() {
+        val service = liveService()
+        val active = windowControl.activeWindow
+        val w2 = windowControl.addNewWindow(active)
+
+        assertThat(service.layout.value.windows.map { it.id }, contains(*windowRepository.sortedWindows.map { it.id.toString() }.toTypedArray()))
+        assertThat(service.layout.value.windows.any { it.id == w2.id.toString() }, equalTo(true))
+
+        windowControl.minimiseWindow(w2)
+        val w2Snapshot = service.layout.value.windows.single { it.id == w2.id.toString() }
+        assertThat(w2Snapshot.state, equalTo(WindowStateValue.MINIMISED))
+    }
+
+    @Test
+    fun maximiseWindow_setsMaximizedWindowIdInLayout() {
+        val service = liveService()
+        val active = windowControl.activeWindow
+        windowControl.addNewWindow(active)
+        windowControl.maximiseWindow(active)
+        assertThat(service.layout.value.maximizedWindowId, equalTo(active.id.toString()))
+        windowControl.unMaximise()
+        assertThat(service.layout.value.maximizedWindowId, equalTo(null))
+    }
+
+    @Test
+    fun setActiveWindow_updatesActiveWindowIdInLayout() {
+        val service = liveService()
+        val active = windowControl.activeWindow
+        val w2 = windowControl.addNewWindow(active)
+        windowControl.activeWindow = w2
+        assertThat(service.layout.value.activeWindowId, equalTo(w2.id.toString()))
+    }
+
+    @Test
+    fun windowChanged_syncFlagPropagatesToLayout() {
+        val service = liveService()
+        val active = windowControl.activeWindow
+        val w2 = windowControl.addNewWindow(active)
+        w2.isSynchronised = true    // triggers WindowChangedEvent via the isSynchronised setter
+        val w2Snapshot = service.layout.value.windows.single { it.id == w2.id.toString() }
+        assertThat(w2Snapshot.isSynchronised, equalTo(true))
     }
 }
