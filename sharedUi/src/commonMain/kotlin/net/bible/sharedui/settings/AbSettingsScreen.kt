@@ -30,7 +30,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,9 +50,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
+import net.bible.sharedcore.settings.filterSettingsItems
 import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.components.AbTextInputDialog
@@ -81,18 +86,74 @@ fun AbSettingsScreen(
     onSliderChange: (String, Int) -> Unit = { _, _ -> },
     onMultiSelectChange: (String, Set<String>) -> Unit = { _, _ -> },
     actions: @Composable RowScope.() -> Unit = {},
+    searchable: Boolean = false,
+    searchHint: String = "",
+    searchMode: SettingsSearchMode = SettingsSearchMode.AlwaysVisible,
+    initialSearchQuery: String = "",
 ) {
-    AbScaffold(title = state.title, onNavigateUp = onUp, actions = actions) { padding ->
-        AbSettingsContent(
-            state = state,
-            onSwitch = onSwitch,
-            onListChoice = onListChoice,
-            onTextInput = onTextInput,
-            onNavigate = onNavigate,
-            onSliderChange = onSliderChange,
-            onMultiSelectChange = onMultiSelectChange,
-            modifier = Modifier.padding(padding),
-        )
+    if (!searchable) {
+        // Unchanged legacy path: pixel-identical to the pre-search behaviour (every non-searchable
+        // screen — Sync, AI, ReadingProgress — stays exactly as before).
+        AbScaffold(title = state.title, onNavigateUp = onUp, actions = actions) { padding ->
+            AbSettingsContent(
+                state = state,
+                onSwitch = onSwitch,
+                onListChoice = onListChoice,
+                onTextInput = onTextInput,
+                onNavigate = onNavigate,
+                onSliderChange = onSliderChange,
+                onMultiSelectChange = onMultiSelectChange,
+                modifier = Modifier.padding(padding),
+            )
+        }
+        return
+    }
+
+    var query by remember { mutableStateOf(initialSearchQuery) }
+    // In collapsible mode the field starts expanded iff there is already a seeded query.
+    var searchExpanded by remember { mutableStateOf(initialSearchQuery.isNotEmpty()) }
+    val fieldVisible = searchMode == SettingsSearchMode.AlwaysVisible || searchExpanded
+
+    // Filter against the already-visibility-filtered items so hidden rows never surface via search.
+    val filteredState =
+        if (query.isNotBlank()) state.copy(items = filterSettingsItems(state.visibleItems, query))
+        else state
+
+    val topActions: @Composable RowScope.() -> Unit = {
+        actions()
+        if (searchMode == SettingsSearchMode.CollapsibleIcon) {
+            IconButton(onClick = {
+                searchExpanded = !searchExpanded
+                if (!searchExpanded) query = ""   // collapse clears the query (classic parity)
+            }) {
+                Icon(
+                    if (searchExpanded) Icons.Filled.Close else Icons.Filled.Search,
+                    contentDescription = searchHint,
+                )
+            }
+        }
+    }
+
+    AbScaffold(title = state.title, onNavigateUp = onUp, actions = topActions) { padding ->
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            if (fieldVisible) {
+                AbSearchField(
+                    value = query,
+                    onValueChange = { query = it },
+                    placeholder = searchHint,
+                )
+            }
+            AbSettingsContent(
+                state = filteredState,
+                onSwitch = onSwitch,
+                onListChoice = onListChoice,
+                onTextInput = onTextInput,
+                onNavigate = onNavigate,
+                onSliderChange = onSliderChange,
+                onMultiSelectChange = onMultiSelectChange,
+                modifier = Modifier.weight(1f),   // ColumnScope: list fills the space below the field
+            )
+        }
     }
 }
 
