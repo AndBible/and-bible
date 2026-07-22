@@ -476,4 +476,15 @@ class AndroidStrings(private val context: Context) : Strings {
     override val welcomeEasyStartButton: String get() = context.getString(R.string.easy_start_title)
     override val welcomeHomepageLabel: String get() = context.getString(R.string.homepage)
     override val welcomeGithubLabel: String get() = context.getString(R.string.github_page)
+
+    // Task B1 (InstallZip Plan B) — Compose install UI
+    override val installZipTitle: String get() = context.getString(R.string.install_zip)
+    override fun installDoYouWant(subject: String): String = context.getString(R.string.install_do_you_want, subject)
+    override val proceed: String get() = context.getString(R.string.proceed)
+    override val overwriteFilesTitle: String get() = context.getString(R.string.overwrite_files_title)
+    override fun overwriteFiles(files: String): String = context.getString(R.string.overwrite_files, files)
+    override val epubUpgradeTitle: String get() = context.getString(R.string.bookmark_warning)
+    override val epubUpgradeWarning: String get() = context.getString(R.string.bookmark_warning2)
+    override val epubUpgradeRecommendation: String get() = context.getString(R.string.bookmark_warning4)
+    override val epubUpgradeQuestion: String get() = context.getString(R.string.bookmark_warning3)
 }

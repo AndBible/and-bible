@@ -494,6 +494,26 @@ interface Strings {
     val welcomeEasyStartButton: String      // R.string.easy_start_title
     val welcomeHomepageLabel: String        // R.string.homepage
     val welcomeGithubLabel: String          // R.string.github_page
+
+    // Task B1 (InstallZip Plan B) — Compose install UI (progress + decision dialogs)
+    val installZipTitle: String                    // R.string.install_zip (FormatInfo prelude dialog title)
+    fun installDoYouWant(subject: String): String   // R.string.install_do_you_want (ConfirmInstall / StudyPadImport question)
+    val proceed: String                             // R.string.proceed (FormatInfo confirm button)
+    val overwriteFilesTitle: String                 // R.string.overwrite_files_title
+    fun overwriteFiles(files: String): String        // R.string.overwrite_files (%s — pre-joined file list)
+    val epubUpgradeTitle: String                    // R.string.bookmark_warning (EpubUpgrade dialog title)
+    val epubUpgradeWarning: String                  // R.string.bookmark_warning2
+    val epubUpgradeRecommendation: String           // R.string.bookmark_warning4
+    val epubUpgradeQuestion: String                 // R.string.bookmark_warning3
+
+    /**
+     * Composed EPUB re-optimize confirmation body — mirrors classic
+     * `CommonUtils.documentUpgradeConfirmation`'s `"$warningMessage\n\n$warningRecommendation\n\n$warningQuestion"`.
+     * A DEFAULT interface implementation (deliberately NOT an `override` member, same reasoning as
+     * [aiDisclaimerBody]) computed from the 3 per-platform parts above.
+     */
+    val epubUpgradeMessage: String get() =
+        "$epubUpgradeWarning\n\n$epubUpgradeRecommendation\n\n$epubUpgradeQuestion"
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
