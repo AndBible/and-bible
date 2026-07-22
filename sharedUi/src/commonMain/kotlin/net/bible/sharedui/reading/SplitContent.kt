@@ -67,7 +67,7 @@ fun SplitContent(
     pane: @Composable (windowId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val windows = layout.windows
+    val windows = layout.windows.filter { it.isVisible }
     BoxWithConstraints(modifier.fillMaxSize()) {
         val density = LocalDensity.current
         val isHorizontal = (maxWidth > maxHeight) != layout.reverseSplitMode
@@ -84,7 +84,7 @@ fun SplitContent(
                     key(w.id) {
                         Box(
                             Modifier
-                                .weight(if (weights.size == 1) 1f else weights[index])
+                                .weight(weights[index])
                                 .fillMaxSize()
                                 .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
                         ) { pane(w.id) }
@@ -108,7 +108,7 @@ fun SplitContent(
                     key(w.id) {
                         Box(
                             Modifier
-                                .weight(if (weights.size == 1) 1f else weights[index])
+                                .weight(weights[index])
                                 .fillMaxSize()
                                 .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
                         ) { pane(w.id) }

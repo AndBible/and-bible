@@ -84,4 +84,23 @@ class ReadingSplitGoldenTest {
             "ReadingSplit", "twoVertical", EDGE_MODE,
             content = screen(state(win("A", 1f), win("B", 1f), reverse = true)),
         )
+
+    // Regression for the isVisible filter: layout.windows is the FULL snapshot (classic
+    // sortedWindows), which can include minimised/closed windows alongside visible ones — SplitContent
+    // must lay out only the visible subset. Middle window "B" is MINIMISED/isVisible=false, so the
+    // capture must show exactly two side-by-side panes ("A" and "C"), never three, proving the
+    // minimised window is excluded from layout rather than merely hidden/collapsed within it.
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun `ReadingSplit_minimizedHidden`() =
+        captureGolden(
+            "ReadingSplit", "minimizedHidden", EDGE_MODE,
+            content = screen(
+                state(
+                    win("A", 1f),
+                    win("B", 1f).copy(state = WindowStateValue.MINIMISED, isVisible = false),
+                    win("C", 1f),
+                ),
+            ),
+        )
 }
