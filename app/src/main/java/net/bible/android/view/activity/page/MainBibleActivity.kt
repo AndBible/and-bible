@@ -132,6 +132,7 @@ import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
+import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
@@ -515,7 +516,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun fixNightMode() {} // handle this manually here
 
     private fun setupUi() {
-        documentViewManager.buildView()
+        if (CommonUtils.settings.getBoolean("use_compose_ui", false)) {
+            // Compose reading view: mount ComposeView into mainBibleView instead of the classic
+            // SplitBibleArea build. Classic toolbar/drawer chrome stays (Plan A; Plan B ports the
+            // toolbar). DocumentViewManager's own buildView()/removeView() are guarded to no-op
+            // in this mode, so they never rebuild a classic split over the ComposeView.
+            binding.mainBibleView.removeAllViews()
+            ComposeReadingViewHost(this).install(binding.mainBibleView)
+        } else {
+            documentViewManager.buildView()   // existing classic path — unchanged
+        }
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
         ABEventBus.post(ConfigurationChanged(resources.configuration))

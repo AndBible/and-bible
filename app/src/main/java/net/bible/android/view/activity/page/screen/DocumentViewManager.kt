@@ -46,6 +46,16 @@ class DocumentViewManager (val mainBibleActivity: MainBibleActivity) : KoinCompo
     private var lastView: View? = null
     var splitBibleArea: SplitBibleArea? = null
 
+    /**
+     * When on, [ComposeReadingViewHost] owns `parent` (the same `R.id.mainBibleView` container)
+     * via a mounted `ComposeView`, so [buildView]/[removeView] must not touch it — otherwise a
+     * `NumberOfWindowsChangedEvent`/`PassageChangeStartedEvent` (both trigger [buildView] via the
+     * `init` subscription below) would rebuild a classic [SplitBibleArea] on top of / instead of
+     * the ComposeView. The Compose split reacts to `WindowStateService.layout` instead.
+     */
+    private val composeReadingViewActive: Boolean get() =
+        CommonUtils.settings.getBoolean("use_compose_ui", false)
+
 	fun destroy() {
         removeView()
         ABEventBus.unregister(this)
@@ -53,6 +63,7 @@ class DocumentViewManager (val mainBibleActivity: MainBibleActivity) : KoinCompo
     }
 
     fun removeView() {
+        if (composeReadingViewActive) return
         parent.removeAllViews()
         lastView = null
         ABEventBus.post(AfterRemoveWebViewEvent())
@@ -68,6 +79,7 @@ class DocumentViewManager (val mainBibleActivity: MainBibleActivity) : KoinCompo
 
     @Synchronized
     fun buildView(forceUpdate: Boolean = false) {
+        if (composeReadingViewActive) return
         val view = buildWebViews(forceUpdate)
         if(lastView != view) {
             removeView()
