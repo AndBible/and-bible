@@ -118,6 +118,7 @@ class SyncSettingsGoldenTest {
                     dialog = SyncDialog.EnableDocuments(
                         DocSyncSummaryData(listOf("KJV"), emptyList(), 2_400_000, 0),
                         "1 document to upload (2.3 MB)",
+                        title = SyncSettingsLabels.forTest().documentsEnableDialogTitle,
                     ),
                 ),
             ))

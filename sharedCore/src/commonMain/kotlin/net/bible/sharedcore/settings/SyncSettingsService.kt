@@ -132,6 +132,7 @@ data class SyncSettingsLabels(
     // dialog messages
     val resetConfirmMessage: String,
     val invalidUrlMessage: String,
+    val documentsEnableDialogTitle: String,
 ) {
     companion object {
         fun forTest() = SyncSettingsLabels(
@@ -150,6 +151,7 @@ data class SyncSettingsLabels(
             manageTitle = "Synced documents", manageSummary = "Manage synced documents",
             resetConfirmMessage = "Are you sure you want to reset synchronization?",
             invalidUrlMessage = "Invalid URL",
+            documentsEnableDialogTitle = "Enable document sync",
         )
     }
 }
@@ -157,7 +159,7 @@ data class SyncSettingsLabels(
 /** Which modal the sync screen is currently showing (screen-local, driven by the controller). */
 sealed interface SyncDialog {
     data object None : SyncDialog
-    data class EnableDocuments(val summary: DocSyncSummaryData, val message: String) : SyncDialog
+    data class EnableDocuments(val summary: DocSyncSummaryData, val message: String, val title: String) : SyncDialog
     data class ResetConfirm(val message: String) : SyncDialog
     data class UrlError(val message: String) : SyncDialog
 }

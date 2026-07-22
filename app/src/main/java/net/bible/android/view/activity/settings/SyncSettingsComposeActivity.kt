@@ -121,5 +121,6 @@ class SyncSettingsComposeActivity : ActivityBase() {
         manageSummary = getString(R.string.document_sync_manage_summary),
         resetConfirmMessage = getString(R.string.sync_confirmation),
         invalidUrlMessage = getString(R.string.invalid_url_message),
+        documentsEnableDialogTitle = getString(R.string.document_sync_enable_dialog_title),
     )
 }

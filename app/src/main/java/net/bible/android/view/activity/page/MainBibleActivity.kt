@@ -134,7 +134,6 @@ import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKe
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
-import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.UiUtils
@@ -712,7 +711,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
             .setPositiveButton(R.string.open_settings) { _, _ ->
                 preferences.setInt("new-sync-targets-notice-displayed", NEW_SYNC_TARGETS_ANNOUNCE_VERSION)
-                startActivity(Intent(this, SyncSettingsActivity::class.java))
+                ScreenLauncher.open(this, Screen.SyncSettings)
             }
             .show()
     }

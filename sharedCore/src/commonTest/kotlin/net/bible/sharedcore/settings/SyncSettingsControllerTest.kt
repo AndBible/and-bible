@@ -133,6 +133,7 @@ class SyncSettingsControllerTest {
         val d = c.state.value.dialog
         assertTrue(d is SyncDialog.EnableDocuments)
         assertEquals("docs-msg", (d as SyncDialog.EnableDocuments).message)
+        assertEquals(SyncSettingsLabels.forTest().documentsEnableDialogTitle, d.title)
         assertFalse(c.state.value.loading)
     }
 

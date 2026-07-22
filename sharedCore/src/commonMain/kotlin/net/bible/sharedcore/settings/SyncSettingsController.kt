@@ -141,7 +141,7 @@ class SyncSettingsController(
                     val summary = service.scanDocuments()
                     val message = service.formatEnableDocumentsMessage(summary)
                     setLoading(false)
-                    setDialog(SyncDialog.EnableDocuments(summary, message))
+                    setDialog(SyncDialog.EnableDocuments(summary, message, title = labels.documentsEnableDialogTitle))
                 } else {
                     setLoading(false)
                 }

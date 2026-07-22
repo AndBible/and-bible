@@ -43,7 +43,6 @@ import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_C
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.htmlToSpan
@@ -270,7 +269,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     isHandled = true
                 }
                 R.id.googleDriveSync -> {
-                    handlerIntent = Intent(mainBibleActivity, SyncSettingsActivity::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.SyncSettings)
                     isHandled = true
                 }
             }

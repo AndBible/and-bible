@@ -78,9 +78,8 @@ private val RECREATE_ON_CHANGE_KEYS = setOf(
  * shared [AppSettingsController] (backed by [AppSettingsServiceImpl]), and renders
  * [AppSettingsScreen]. Every navigation-row / action-row target reuses the SAME classic code path
  * `SettingsFragment.onCreatePreferences` uses for that row (see [onNavigate] kdocs); `sync_settings_shortcut`
- * still launches its classic Activity directly (its Compose twin, `Screen.SyncSettings`, lands in
- * a later Batch 10b) while `ai_settings_shortcut` (`Screen.AiPrompts`, Batch 9) and
- * `reading_progress_settings_shortcut` (`Screen.ReadingProgressSettings`, Batch 10c) already route
+ * (`Screen.SyncSettings`, Batch 10-remainder), `ai_settings_shortcut` (`Screen.AiPrompts`, Batch 9) and
+ * `reading_progress_settings_shortcut` (`Screen.ReadingProgressSettings`, Batch 10c) all route
  * through [ScreenLauncher].
  */
 class SettingsComposeActivity : ActivityBase() {

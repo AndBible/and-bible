@@ -65,7 +65,7 @@ fun SyncSettingsScreen(
 
     when (val d = uiState.dialog) {
         is SyncDialog.EnableDocuments -> AbConfirmDialog(
-            title = null,
+            title = d.title,
             message = d.message,
             confirmText = strings.okay,
             dismissText = strings.cancel,
