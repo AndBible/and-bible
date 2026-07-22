@@ -18,15 +18,19 @@
 package net.bible.service.installzip
 
 import android.net.Uri
+import kotlinx.coroutines.runBlocking
 import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.view.activity.page.MainBibleActivity
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -137,5 +141,34 @@ class DocumentInstallServiceTest {
             "the real AndroidInstallCommitter/BackupControl stack must have registered the module",
             Books.installed().getBook("TestDict")
         )
+    }
+
+    /**
+     * Regression lock for the reviewed CRITICAL finding on [determineLocalFileType]: it must
+     * detect a real SQLite3 header via [CommonUtils.determineFileType] delegation, not fall
+     * through to [BackupControl.AbDbFileType.UNKNOWN] (which would route every
+     * `.sqlite3/.mybible/.bblx/.bbli` install to `InstallPlan.Invalid`/Error). The genuine
+     * SQLite3 magic is the 16-byte ASCII string "SQLite format 3" followed by a single NUL
+     * byte -- a hand-typed literal ending in a visible trailing SPACE character instead looks
+     * identical in most editors/diff viewers but never matches.
+     */
+    @Test
+    fun `determineLocalFileType detects a real SQLite3 header, not UNKNOWN`() = runBlocking {
+        val sqliteHeader = "SQLite format 3".toByteArray(Charsets.US_ASCII) + byteArrayOf(0)
+        val file = File.createTempFile("regression", ".sqlite3")
+        try {
+            file.writeBytes(sqliteHeader)
+
+            val type = determineLocalFileType(file)
+
+            assertNotEquals(
+                "a real SQLite3 header must not be classified as UNKNOWN",
+                BackupControl.AbDbFileType.UNKNOWN,
+                type
+            )
+            assertEquals(BackupControl.AbDbFileType.SQLITE3, type)
+        } finally {
+            file.delete()
+        }
     }
 }

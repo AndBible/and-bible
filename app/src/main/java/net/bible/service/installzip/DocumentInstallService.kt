@@ -64,7 +64,6 @@ import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.book.sword.SwordGenBook
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -373,21 +372,15 @@ class DocumentInstallService : Service() {
 
 /** File-based counterpart of `CommonUtils.determineFileType(Uri)`, run against the already-
  *  acquired local file so [InstallInspector] never needs to reopen the (possibly single-use)
- *  original uri stream just to sniff the header. */
-private fun determineLocalFileType(file: File): BackupControl.AbDbFileType = try {
-    file.inputStream().use { input ->
-        val header = ByteArray(16)
-        input.read(header)
-        val headerString = String(header)
-        when {
-            headerString == "SQLite format 3 " -> BackupControl.AbDbFileType.SQLITE3
-            headerString.startsWith("PK") -> BackupControl.AbDbFileType.ZIP
-            else -> BackupControl.AbDbFileType.UNKNOWN
-        }
-    }
-} catch (e: IOException) {
-    BackupControl.AbDbFileType.UNKNOWN
-}
+ *  original uri stream just to sniff the header. Delegates to [CommonUtils.determineFileType]
+ *  (wrapping the local [File] as a `file://` [Uri]) rather than re-implementing the magic-byte
+ *  sniffing here, so the two can never silently drift apart. (The exact SQLite3/ZIP magic --
+ *  a NUL-terminated `"SQLite format 3\u0000"` and the precise `"PK\u0003\u0004"` ZIP
+ *  local-file-header signature -- is easy to get subtly wrong, or fragile, if duplicated as a
+ *  hand-typed literal with embedded raw control bytes.) `internal` (not `private`) so
+ *  [DocumentInstallServiceTest] can drive it directly as a regression lock. */
+internal suspend fun determineLocalFileType(file: File): BackupControl.AbDbFileType =
+    CommonUtils.determineFileType(Uri.fromFile(file))
 
 /**
  * Adapts classic `ZipHandler.checkZipFile`'s entry-enumeration + classification to operate on an
