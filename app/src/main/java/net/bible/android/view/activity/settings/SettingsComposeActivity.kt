@@ -143,9 +143,7 @@ class SettingsComposeActivity : ActivityBase() {
 
     private fun onNavigate(key: String) {
         when (key) {
-            // Batch 10b will add Screen.SyncSettings; until then, launch the classic screen (same
-            // as classic SettingsFragment's "sync_settings_shortcut" click listener).
-            AppSettingsNav.SYNC -> startActivity(Intent(this, SyncSettingsActivity::class.java))
+            AppSettingsNav.SYNC -> ScreenLauncher.open(this, Screen.SyncSettings)
             // Batch 9's AI settings screen is already flag-routed.
             AppSettingsNav.AI -> ScreenLauncher.open(this, Screen.AiPrompts)
             AppSettingsNav.READING_PROGRESS -> ScreenLauncher.open(this, Screen.ReadingProgressSettings)

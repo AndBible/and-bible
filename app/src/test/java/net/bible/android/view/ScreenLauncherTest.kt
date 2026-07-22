@@ -90,6 +90,8 @@ import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SettingsComposeActivity
+import net.bible.android.view.activity.settings.SyncSettingsActivity
+import net.bible.android.view.activity.settings.SyncSettingsComposeActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.BibleSpeakComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
@@ -433,5 +435,13 @@ class ScreenLauncherTest {
         assertEquals(ReadingProgressSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgressSettings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ReadingProgressSettingsActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgressSettings))
+    }
+
+    @Test
+    fun syncSettings_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(SyncSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SyncSettings))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(SyncSettingsActivity::class.java, ScreenLauncher.targetFor(Screen.SyncSettings))
     }
 }
