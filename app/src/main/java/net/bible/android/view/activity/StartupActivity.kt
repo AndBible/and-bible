@@ -256,7 +256,18 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             Log.i(TAG, "Invoking download activity because no bibles exist")
             // only show the splash screen if user has no bibles
             if(!checkPoorTranslations(this@StartupActivity)) return@withContext
-            showFirstLayout()
+            if (ScreenLauncher.useComposeFor(Screen.Startup)) {
+                // New path: the first-run welcome is StartupComposeActivity. It owns the
+                // download/import/restore/redownload/easy-start orchestration and returns
+                // RESULT_OK once bibles exist; back/cancel finishes. gotoMainBibleActivity()
+                // (locked-bible unlock, ACTION_VIEW) stays here on the classic side.
+                when (awaitIntent(ScreenLauncher.intentFor(this@StartupActivity, Screen.Startup)).resultCode) {
+                    RESULT_OK -> gotoMainBibleActivity()
+                    else -> finish()
+                }
+            } else {
+                showFirstLayout()
+            }
 
         } else {
             Log.i(TAG, "Going to main bible view")
