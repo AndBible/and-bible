@@ -193,7 +193,11 @@ class InstallJobRunner(
         return awaitDecision(decision)
     }
 
-    /** Committing(0) -> [block] -> Committing(100) on success; maps engine failures to a terminal Error. */
+    /**
+     * Committing(0) -> [block] -> Committing(100) on success; maps engine failures to a terminal
+     * Error. Committing(100) is a success side effect only -- it must NOT fire when [block]
+     * returns false (or throws), so a failed commit never shows a misleading "100% done" phase.
+     */
     private suspend fun commitWithProgress(
         onPhase: (InstallPhase) -> Unit,
         displayName: String,
@@ -202,7 +206,7 @@ class InstallJobRunner(
         onPhase(InstallPhase.Committing(0))
         return commitCatching(displayName) {
             val ok = block()
-            onPhase(InstallPhase.Committing(100))
+            if (ok) onPhase(InstallPhase.Committing(100))
             ok
         }
     }

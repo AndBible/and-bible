@@ -23,10 +23,13 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
+import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
+import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -53,7 +56,28 @@ class InstallJobRunnerTest {
     }
     private fun tmp() = File.createTempFile("acq", ".bin").also { it.writeText("data") }
     private fun runner(c: InstallCommitter) = InstallJobRunner(InstallInspector { BackupControl.AbDbFileType.ZIP }, c)
+    private fun sqliteRunner(c: InstallCommitter) = InstallJobRunner(InstallInspector { BackupControl.AbDbFileType.SQLITE3 }, c)
     private fun src(name: String, mime: String? = null) = InstallSource(Uri.parse("content://x/$name"), null, name, mime)
+
+    /** Mirrors `InstallInspector.overwriteName`: `SharedConstants.modulesDir/<subDir>/<name>`. */
+    private fun overwriteTarget(subDir: String, name: String) = File(File(SharedConstants.modulesDir, subDir), name)
+
+    private val createdOverwriteTargets = mutableListOf<File>()
+
+    /** Pre-creates the file [InstallInspector] checks for, so the plan's `overwriteName` is non-null. */
+    private fun forceOverwrite(subDir: String, name: String): File {
+        val target = overwriteTarget(subDir, name)
+        target.parentFile?.mkdirs()
+        target.writeText("existing")
+        createdOverwriteTargets += target
+        return target
+    }
+
+    @After
+    fun cleanUpOverwriteTargets() {
+        createdOverwriteTargets.forEach { it.delete() }
+        createdOverwriteTargets.clear()
+    }
 
     @Test fun `sword zip no conflict installs`() = runBlocking {
         val c = FakeCommitter(); val phases = mutableListOf<InstallPhase>(); val f = tmp()
@@ -87,6 +111,15 @@ class InstallJobRunnerTest {
         assertEquals(InstallPhase.Done, terminal)
         assertEquals(listOf("sword"), c.calls)
         assertTrue(phases.any { it is InstallPhase.AwaitingDecision && it.request is DecisionRequest.Overwrite })
+        // Phase ORDER, not just presence: Acquiring -> Inspecting -> AwaitingDecision -> Committing -> Done.
+        // `distinct()` collapses the repeated Acquiring(percent) progress ticks while preserving first-seen order.
+        assertEquals(
+            listOf(
+                InstallPhase.Acquiring::class, InstallPhase.Inspecting::class,
+                InstallPhase.AwaitingDecision::class, InstallPhase.Committing::class, InstallPhase.Done::class,
+            ),
+            phases.map { it::class }.distinct(),
+        )
     }
 
     @Test fun `invalid zip errors`() = runBlocking {
@@ -119,11 +152,14 @@ class InstallJobRunnerTest {
     }
 
     @Test fun `epub rejected by discovery scanner errors`() = runBlocking {
-        val c = FakeCommitter(); c.epubOk = false
+        val c = FakeCommitter(); c.epubOk = false; val phases = mutableListOf<InstallPhase>()
         val terminal = runner(c).runJob(src("b.epub", "application/epub+zip"), tmp(), { "d".byteInputStream() },
-            { false }, { error("") }, { error("") }, epubUpgradeCheck = { false }, onPhase = {}, awaitDecision = { true })
+            { false }, { error("") }, { error("") }, epubUpgradeCheck = { false }, onPhase = { phases += it }, awaitDecision = { true })
         assertTrue(terminal is InstallPhase.Error)
         assertEquals(R.string.sqlite_invalid_file, (terminal as InstallPhase.Error).messageKey)
+        // A failed commit must never emit the Committing(100) success side effect (finding 3): a
+        // `commitEpub` returning false is a failure just like a thrown exception.
+        assertFalse(phases.any { it is InstallPhase.Committing && it.percent == 100 })
     }
 
     @Test fun `studypad accepted commits and keeps unzip folder handling to committer`() = runBlocking {
@@ -177,6 +213,86 @@ class InstallJobRunnerTest {
         assertTrue(terminal is InstallPhase.Error)
         assertEquals(R.string.sqlite_invalid_file, (terminal as InstallPhase.Error).messageKey)
         assertEquals(listOf("sqlite"), c.calls)
+    }
+
+    @Test fun `sqlite overwrite accepted commits`() = runBlocking {
+        forceOverwrite("mybible", "b.sqlite3")
+        val c = FakeCommitter(); val f = tmp(); val phases = mutableListOf<InstallPhase>()
+        val terminal = sqliteRunner(c).runJob(src("b.sqlite3"), f, { "d".byteInputStream() },
+            { false }, { error("") }, { error("") }, { false }, { phases += it }, awaitDecision = { true })
+        assertEquals(InstallPhase.Done, terminal)
+        assertEquals(listOf("sqlite"), c.calls)
+        assertTrue(phases.any { it is InstallPhase.AwaitingDecision && it.request is DecisionRequest.Overwrite })
+    }
+
+    @Test fun `sqlite overwrite declined cancels without commit`() = runBlocking {
+        forceOverwrite("mybible", "b.sqlite3")
+        val c = FakeCommitter(); val f = tmp()
+        val terminal = sqliteRunner(c).runJob(src("b.sqlite3"), f, { "d".byteInputStream() },
+            { false }, { error("") }, { error("") }, { false }, {}, awaitDecision = { false })
+        assertEquals(InstallPhase.Cancelled, terminal)
+        assertTrue(c.calls.isEmpty())
+        assertFalse(f.exists())
+    }
+
+    @Test fun `ttf overwrite accepted commits`() = runBlocking {
+        forceOverwrite("ttf", "Font.ttf")
+        val c = FakeCommitter(); val f = tmp(); val phases = mutableListOf<InstallPhase>()
+        val terminal = runner(c).runJob(src("Font.ttf"), f, { "d".byteInputStream() },
+            { false }, { error("") }, { error("") }, { false }, { phases += it }, awaitDecision = { true })
+        assertEquals(InstallPhase.Done, terminal)
+        assertEquals(listOf("ttf"), c.calls)
+        assertTrue(phases.any { it is InstallPhase.AwaitingDecision && it.request is DecisionRequest.Overwrite })
+    }
+
+    @Test fun `ttf overwrite declined cancels without commit`() = runBlocking {
+        forceOverwrite("ttf", "Font.ttf")
+        val c = FakeCommitter(); val f = tmp()
+        val terminal = runner(c).runJob(src("Font.ttf"), f, { "d".byteInputStream() },
+            { false }, { error("") }, { error("") }, { false }, {}, awaitDecision = { false })
+        assertEquals(InstallPhase.Cancelled, terminal)
+        assertTrue(c.calls.isEmpty())
+        assertFalse(f.exists())
+    }
+
+    @Test fun `csv overwrite accepted commits`() = runBlocking {
+        forceOverwrite("prompts", "prompts.csv")
+        val c = FakeCommitter(); val f = tmp(); val phases = mutableListOf<InstallPhase>()
+        val terminal = runner(c).runJob(src("prompts.csv"), f, { "d".byteInputStream() },
+            { false }, { error("") }, { error("") }, { false }, { phases += it }, awaitDecision = { true })
+        assertEquals(InstallPhase.Done, terminal)
+        assertEquals(listOf("csv"), c.calls)
+        assertTrue(phases.any { it is InstallPhase.AwaitingDecision && it.request is DecisionRequest.Overwrite })
+    }
+
+    @Test fun `csv overwrite declined cancels without commit`() = runBlocking {
+        forceOverwrite("prompts", "prompts.csv")
+        val c = FakeCommitter(); val f = tmp()
+        val terminal = runner(c).runJob(src("prompts.csv"), f, { "d".byteInputStream() },
+            { false }, { error("") }, { error("") }, { false }, {}, awaitDecision = { false })
+        assertEquals(InstallPhase.Cancelled, terminal)
+        assertTrue(c.calls.isEmpty())
+        assertFalse(f.exists())
+    }
+
+    @Test fun `background image overwrite accepted commits`() = runBlocking {
+        forceOverwrite(BACKGROUND_IMAGE_DIR, "pic.png")
+        val c = FakeCommitter(); val f = tmp(); val phases = mutableListOf<InstallPhase>()
+        val terminal = runner(c).runJob(src("pic.png"), f, { "d".byteInputStream() },
+            { false }, { error("") }, { error("") }, { false }, { phases += it }, awaitDecision = { true })
+        assertEquals(InstallPhase.Done, terminal)
+        assertEquals(listOf("img"), c.calls)
+        assertTrue(phases.any { it is InstallPhase.AwaitingDecision && it.request is DecisionRequest.Overwrite })
+    }
+
+    @Test fun `background image overwrite declined cancels without commit`() = runBlocking {
+        forceOverwrite(BACKGROUND_IMAGE_DIR, "pic.png")
+        val c = FakeCommitter(); val f = tmp()
+        val terminal = runner(c).runJob(src("pic.png"), f, { "d".byteInputStream() },
+            { false }, { error("") }, { error("") }, { false }, {}, awaitDecision = { false })
+        assertEquals(InstallPhase.Cancelled, terminal)
+        assertTrue(c.calls.isEmpty())
+        assertFalse(f.exists())
     }
 
     @Test fun `temp file is always deleted even on invalid plan`() = runBlocking {
