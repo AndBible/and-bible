@@ -33,7 +33,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -138,6 +137,21 @@ internal fun pickActiveJob(jobs: List<InstallJobState>): InstallJobState? =
     jobs.firstOrNull { it.phase is InstallPhase.AwaitingDecision } ?: jobs.firstOrNull()
 
 /**
+ * Whether the jobs-drained-to-empty watcher in [InstallZipComposeActivity.Content] should finish
+ * the host with `RESULT_OK`. Gated on [enqueuedHere] -- whether THIS host instance actually
+ * enqueued a job itself (see [InstallZipComposeActivity.enqueue]) -- rather than merely on having
+ * observed the shared, app-scoped `DocumentInstallService.controller.jobs` queue become non-empty
+ * at some point: the design allows backing out of a running install (the service keeps running in
+ * the background), so a SECOND host can open while a PRIOR host's install still runs. That
+ * foreign job draining to empty must NOT finish *this* host with `RESULT_OK` if it never enqueued
+ * anything itself -- e.g. it is still sitting at its `ConfirmInstall`/`FormatInfo` prelude, having
+ * enqueued nothing. Extracted as a pure predicate so this precise "RESULT_OK iff >=1 source
+ * enqueued by THIS prelude" contract is directly unit-testable (see Task B3 finding I1).
+ */
+internal fun shouldFinishOnDrain(enqueuedHere: Boolean, jobsEmpty: Boolean): Boolean =
+    enqueuedHere && jobsEmpty
+
+/**
  * Maps a job's [InstallPhase] (+ its [displayName]) to the commonMain-local [InstallUiState] that
  * [InstallZipContent] renders. Every dynamic string ([InstallUiState.Progress.statusText] and
  * [InstallUiState.Error.message]) is resolved HERE via [context] -- `InstallZipScreens.kt`
@@ -228,6 +242,14 @@ class InstallZipComposeActivity : ActivityBase() {
     private var preludeState by mutableStateOf<InstallUiState?>(null)
     private var pendingConfirm: PendingConfirm? = null
 
+    /** Set true the moment THIS host actually calls [enqueue] (starts the service for a source it
+     *  dispatched/picked itself). Gates the jobs-drained-to-empty finish in [Content] -- see
+     *  [shouldFinishOnDrain]'s doc for why this must NOT be inferred from merely observing the
+     *  shared jobs queue become non-empty. Not Compose state: it is only ever read from inside
+     *  the [LaunchedEffect] body in [Content], which re-reads it fresh on every `jobs` change --
+     *  it does not itself need to trigger recomposition. */
+    private var enqueuedHere = false
+
     private data class PendingConfirm(val uri: Uri, val action: String)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -266,15 +288,12 @@ class InstallZipComposeActivity : ActivityBase() {
     @Composable
     private fun Content() {
         val jobs by DocumentInstallService.controller.jobs.collectAsState()
-        var hasSeenActiveJob by remember { mutableStateOf(false) }
 
         LaunchedEffect(jobs) {
-            if (jobs.isNotEmpty()) {
-                hasSeenActiveJob = true
-            } else if (hasSeenActiveJob) {
-                // The queue drained back to empty after at least one job ran -- the durable
-                // `UpdateMainBibleActivityDocuments` refresh event was already posted by the
-                // service itself (`DocumentInstallService.postTerminalEvents`).
+            if (shouldFinishOnDrain(enqueuedHere, jobs.isEmpty())) {
+                // The queue drained back to empty after a job THIS host itself enqueued ran --
+                // the durable `UpdateMainBibleActivityDocuments` refresh event was already posted
+                // by the service itself (`DocumentInstallService.postTerminalEvents`).
                 finishWithResult(RESULT_OK)
             }
         }
@@ -374,6 +393,7 @@ class InstallZipComposeActivity : ActivityBase() {
     }
 
     private fun enqueue(uris: List<Uri>, action: String?) {
+        enqueuedHere = true
         ContextCompat.startForegroundService(this, DocumentInstallService.enqueueIntent(this, uris, action))
     }
 

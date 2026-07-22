@@ -136,6 +136,28 @@ class InstallZipComposeActivityTest {
         assertEquals(first, pickActiveJob(listOf(first, second)))
     }
 
+    // --- shouldFinishOnDrain (Task B3 finding I1: a foreign job's drain must never finish a host
+    // that never enqueued anything itself) ---
+
+    @Test
+    fun shouldFinishOnDrain_foreignJobObservedThenDrained_notEnqueuedHere_doesNotFinish() {
+        // A second host opens while a prior host's install still runs: the shared jobs flow goes
+        // non-empty (a foreign job), then drains back to empty -- but THIS host never enqueued
+        // anything (still at its ConfirmInstall/FormatInfo prelude), so it must not finish.
+        assertEquals(false, shouldFinishOnDrain(enqueuedHere = false, jobsEmpty = false))
+        assertEquals(false, shouldFinishOnDrain(enqueuedHere = false, jobsEmpty = true))
+    }
+
+    @Test
+    fun shouldFinishOnDrain_enqueuedHere_andJobsDrained_finishes() {
+        assertEquals(true, shouldFinishOnDrain(enqueuedHere = true, jobsEmpty = true))
+    }
+
+    @Test
+    fun shouldFinishOnDrain_enqueuedHere_butJobsStillRunning_doesNotFinish() {
+        assertEquals(false, shouldFinishOnDrain(enqueuedHere = true, jobsEmpty = false))
+    }
+
     // --- mapPhaseToUiState ---
 
     @Test
