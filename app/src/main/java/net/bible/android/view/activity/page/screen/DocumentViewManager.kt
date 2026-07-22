@@ -48,10 +48,19 @@ class DocumentViewManager (val mainBibleActivity: MainBibleActivity) : KoinCompo
 
     /**
      * When on, [ComposeReadingViewHost] owns `parent` (the same `R.id.mainBibleView` container)
-     * via a mounted `ComposeView`, so [buildView]/[removeView] must not touch it — otherwise a
+     * via a mounted `ComposeView`, so [buildView]/[removeView] must not rebuild a classic
+     * [SplitBibleArea] on top of / instead of the ComposeView — otherwise a
      * `NumberOfWindowsChangedEvent`/`PassageChangeStartedEvent` (both trigger [buildView] via the
-     * `init` subscription below) would rebuild a classic [SplitBibleArea] on top of / instead of
-     * the ComposeView. The Compose split reacts to `WindowStateService.layout` instead.
+     * `init` subscription below) would do exactly that. Ordinary window-count/minimise changes are
+     * handled by the `WindowStateService` StateFlow + `key(window.id)` recomposition (existing
+     * windows keep their live cached BibleView; new/closed windows get new/removed keys) — no
+     * BibleViews were destroyed, so no remount is wanted there. But [buildView]'s `forceUpdate=true`
+     * callers (`MainBibleActivity.currentWorkspaceId`'s setter, `MainBibleAfterRestore`) call
+     * `removeView()` -> `bibleViewFactory.clear()` (destroys every cached BibleView) ->
+     * `windowRepository.loadFromDb()` -> `buildView(forceUpdate = true)` even when the workspace
+     * (and so its window ids) is unchanged — classic recreates via `SplitBibleArea.update(true)`;
+     * on the compose path we mirror that by bumping [ComposeReadingViewHost.rebuild], which forces
+     * every pane's `AndroidView` factory to re-run and pick up the freshly-recreated BibleViews.
      */
     private val composeReadingViewActive: Boolean get() =
         CommonUtils.settings.getBoolean("use_compose_ui", false)
@@ -63,6 +72,9 @@ class DocumentViewManager (val mainBibleActivity: MainBibleActivity) : KoinCompo
     }
 
     fun removeView() {
+        // Compose path: no-op. The BibleViews are actually torn down by `bibleViewFactory.clear()`
+        // (called by the same callers, around this), not by this method; the ComposeView subtree
+        // itself is recreated afterward via `buildView(forceUpdate = true)` -> `rebuild()` below.
         if (composeReadingViewActive) return
         parent.removeAllViews()
         lastView = null
@@ -79,7 +91,15 @@ class DocumentViewManager (val mainBibleActivity: MainBibleActivity) : KoinCompo
 
     @Synchronized
     fun buildView(forceUpdate: Boolean = false) {
-        if (composeReadingViewActive) return
+        if (composeReadingViewActive) {
+            // Ordinary (forceUpdate=false) window-count changes need no action here — see the
+            // `composeReadingViewActive` kdoc. A forced rebuild (post `bibleViewFactory.clear()`)
+            // does need one: recreate the Compose pane subtree so `AndroidView`'s factory re-runs.
+            if (forceUpdate) {
+                mainBibleActivity.composeReadingViewHost?.rebuild()
+            }
+            return
+        }
         val view = buildWebViews(forceUpdate)
         if(lastView != view) {
             removeView()

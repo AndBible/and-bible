@@ -18,8 +18,11 @@ package net.bible.android.view.activity.page.screen
 
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.viewinterop.AndroidView
 import net.bible.android.control.page.window.WindowStateServiceImpl
@@ -36,6 +39,29 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 /**
+ * Reload-generation counter for [ComposeReadingViewHost]: bumped by `rebuild()` to force a full
+ * dispose+recreate of the pane subtree. Needed because each pane is
+ * `key(window.id) { AndroidView(factory = { ... }) }` — the factory runs once per window id and
+ * is never re-invoked by a plain recomposition. When [MainBibleActivity.currentWorkspaceId]'s
+ * setter (or `MainBibleAfterRestore`) reloads the SAME workspace, it does
+ * `documentViewManager.removeView()` -> `bibleViewFactory.clear()` (destroys every cached
+ * [net.bible.android.view.activity.page.BibleView]) -> `windowRepository.loadFromDb()` ->
+ * `documentViewManager.buildView(forceUpdate = true)`; the window ids are unchanged, so without
+ * this generation bump Compose would keep the existing `key(window.id)` nodes and never re-run
+ * `AndroidView`'s factory, leaving the panes showing destroyed WebViews. Mirrors classic's
+ * `SplitBibleArea.update(forceUpdate = true)` recreate.
+ *
+ * Kept as its own tiny, framework-free (no [KoinComponent]/activity coupling) holder so the
+ * "`rebuild()` bumps the counter" behavior is unit-testable without booting a full
+ * [MainBibleActivity] or Koin context — see `ComposeReadingViewGenerationTest`.
+ */
+class ComposeReadingViewGeneration {
+    private val mutableState = mutableIntStateOf(0)
+    val state: State<Int> get() = mutableState
+    fun rebuild() { mutableState.intValue++ }
+}
+
+/**
  * Mounts the Compose reading view into [MainBibleActivity]'s content, replacing the classic
  * `SplitBibleArea` build (see [DocumentViewManager]'s `use_compose_ui` guard) when
  * `use_compose_ui` is on. Plan A (this task) keeps the classic toolbar/drawer chrome; Plan B
@@ -46,6 +72,11 @@ import org.koin.core.component.inject
 class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComponent {
     private val windowState: WindowStateServiceImpl by inject()
     private val commands: WindowCommands by inject()
+
+    private val generation = ComposeReadingViewGeneration()
+
+    /** See [ComposeReadingViewGeneration]. Called by [DocumentViewManager.buildView] on the compose path when `forceUpdate` is true. */
+    fun rebuild() { generation.rebuild() }
 
     /** Mounts the Compose reading view into [container] (expected: `binding.mainBibleView`, already emptied by the caller). */
     fun install(container: ViewGroup) {
@@ -58,6 +89,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             windowState = windowState,
             commands = commands,
             nightMode = ScreenSettings.nightMode,
+            generationState = generation.state,
             pane = { windowId ->
                 val window = activity.windowRepository.getWindow(IdType(windowId))
                 if (window != null) {
@@ -78,6 +110,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             windowState: WindowStateServiceImpl,
             commands: WindowCommands,
             nightMode: Boolean,
+            // Defaults to a fresh, never-bumped state for the unit test (which mounts with
+            // `pane = {}` and never attaches the ComposeView, so composition never runs).
+            generationState: State<Int> = mutableIntStateOf(0),
             pane: @Composable (windowId: String) -> Unit,
         ) {
             val controller = ReadingViewController(windowState, commands)
@@ -92,12 +127,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             disableAnimations = CommonUtils.settings.disableAnimations,
                         ) {
                             val layout by controller.layout.collectAsState()
-                            ReadingViewScreen(
-                                layout = layout,
-                                onWindowActivated = controller::onWindowActivated,
-                                onSeparatorCommitted = controller::onSeparatorCommitted,
-                                pane = pane,
-                            )
+                            val gen by generationState
+                            // Keying the whole screen on `gen` forces every pane's `AndroidView`
+                            // factory to re-run on `rebuild()` — see the `generation` kdoc above.
+                            key(gen) {
+                                ReadingViewScreen(
+                                    layout = layout,
+                                    onWindowActivated = controller::onWindowActivated,
+                                    onSeparatorCommitted = controller::onSeparatorCommitted,
+                                    pane = pane,
+                                )
+                            }
                         }
                     }
                 }

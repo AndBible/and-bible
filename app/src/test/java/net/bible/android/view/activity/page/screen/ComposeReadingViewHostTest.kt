@@ -9,6 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /** No-op fake — mockk was removed from this repo (Task 5 fix wave 1); no mocking framework is used. */
@@ -33,5 +34,25 @@ class ComposeReadingViewHostTest {
             pane = { },
         )
         assertTrue((0 until container.childCount).any { container.getChildAt(it) is ComposeView })
+    }
+}
+
+/**
+ * Fix wave 1 (stale-BibleView remount): [ComposeReadingViewGeneration] is the framework-free
+ * counter [ComposeReadingViewHost.rebuild] delegates to. This is exercised directly (no
+ * MainBibleActivity/Koin boot needed) because a headless unit test can't observe the real effect
+ * (a destroyed-vs-fresh BibleView) — see `ComposeReadingViewHost`'s `generation`/`rebuild` kdoc for
+ * why the bump is needed: `key(gen) { ... }` around `ReadingViewScreen` forces every pane's
+ * `AndroidView` factory to re-run after a same-workspace reload clears the BibleView cache.
+ */
+class ComposeReadingViewGenerationTest {
+    @Test fun rebuildBumpsGeneration() {
+        val generation = ComposeReadingViewGeneration()
+        assertEquals(0, generation.state.value)
+        generation.rebuild()
+        assertEquals(1, generation.state.value)
+        generation.rebuild()
+        generation.rebuild()
+        assertEquals(3, generation.state.value)
     }
 }

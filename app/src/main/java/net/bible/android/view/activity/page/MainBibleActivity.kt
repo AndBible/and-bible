@@ -220,6 +220,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     lateinit var documentViewManager: DocumentViewManager
     lateinit var bibleViewFactory: BibleViewFactory
+    /** Set in [setupUi] when mounting on the `use_compose_ui` path; null on the classic path.
+     * Lets [DocumentViewManager.buildView] mirror classic's forced recreate (see its kdoc). */
+    var composeReadingViewHost: ComposeReadingViewHost? = null
     private lateinit var mainMenuCommandHandler: MenuCommandHandler
 
     val llmDialogHelper = LlmDialogHelper(this)
@@ -522,7 +525,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             // toolbar). DocumentViewManager's own buildView()/removeView() are guarded to no-op
             // in this mode, so they never rebuild a classic split over the ComposeView.
             binding.mainBibleView.removeAllViews()
-            ComposeReadingViewHost(this).install(binding.mainBibleView)
+            composeReadingViewHost = ComposeReadingViewHost(this).also { it.install(binding.mainBibleView) }
         } else {
             documentViewManager.buildView()   // existing classic path — unchanged
         }
