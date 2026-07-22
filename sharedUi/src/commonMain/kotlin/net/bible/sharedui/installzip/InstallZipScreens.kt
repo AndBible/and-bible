@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -87,6 +88,12 @@ sealed interface InstallUiState {
  * (`InstallZipComposeActivity`) wires these to `DocumentInstallService.resolveDecision(jobId, …)`
  * for the mid-flight decision states, and to its own prelude/finish logic for [InstallUiState.ConfirmInstall]/
  * [InstallUiState.FormatInfo]/[InstallUiState.Error].
+ *
+ * The root is wrapped in a [Surface] (fills the whole host screen) so it always carries
+ * `MaterialTheme.colorScheme.surface` as its background — correct across dark/light/monochrome/e-ink.
+ * This matters most for [InstallUiState.Progress] ([InstallProgressScreen] IS the host's entire
+ * visible content, with nothing else underneath), but also gives every dialog state a themed
+ * backdrop behind the `AlertDialog` popup (which already themes itself).
  */
 @Composable
 fun InstallZipContent(
@@ -95,59 +102,61 @@ fun InstallZipContent(
     onDismiss: () -> Unit,
 ) {
     val strings = LocalStrings.current
-    when (state) {
-        is InstallUiState.Progress -> InstallProgressScreen(state)
+    Surface(modifier = Modifier.fillMaxSize()) {
+        when (state) {
+            is InstallUiState.Progress -> InstallProgressScreen(state)
 
-        is InstallUiState.ConfirmInstall -> AbConfirmDialog(
-            title = strings.areYouSure,
-            message = strings.installDoYouWant(state.displayName ?: "?"),
-            confirmText = strings.okay,
-            dismissText = strings.cancel,
-            onConfirm = onConfirm,
-            onDismiss = onDismiss,
-        )
+            is InstallUiState.ConfirmInstall -> AbConfirmDialog(
+                title = strings.areYouSure,
+                message = strings.installDoYouWant(state.displayName ?: "?"),
+                confirmText = strings.okay,
+                dismissText = strings.cancel,
+                onConfirm = onConfirm,
+                onDismiss = onDismiss,
+            )
 
-        is InstallUiState.FormatInfo -> AbConfirmDialog(
-            title = strings.installZipTitle,
-            message = state.formatsText,
-            confirmText = strings.proceed,
-            dismissText = strings.cancel,
-            onConfirm = onConfirm,
-            onDismiss = onDismiss,
-        )
+            is InstallUiState.FormatInfo -> AbConfirmDialog(
+                title = strings.installZipTitle,
+                message = state.formatsText,
+                confirmText = strings.proceed,
+                dismissText = strings.cancel,
+                onConfirm = onConfirm,
+                onDismiss = onDismiss,
+            )
 
-        is InstallUiState.Overwrite -> AbConfirmDialog(
-            title = strings.overwriteFilesTitle,
-            message = strings.overwriteFiles("\n" + state.files.joinToString("\n")),
-            confirmText = strings.yes,
-            dismissText = strings.cancel,
-            onConfirm = onConfirm,
-            onDismiss = onDismiss,
-        )
+            is InstallUiState.Overwrite -> AbConfirmDialog(
+                title = strings.overwriteFilesTitle,
+                message = strings.overwriteFiles("\n" + state.files.joinToString("\n")),
+                confirmText = strings.yes,
+                dismissText = strings.cancel,
+                onConfirm = onConfirm,
+                onDismiss = onDismiss,
+            )
 
-        is InstallUiState.StudyPadImport -> AbConfirmDialog(
-            title = strings.areYouSure,
-            message = strings.installDoYouWant(state.statsText),
-            confirmText = strings.okay,
-            dismissText = strings.cancel,
-            onConfirm = onConfirm,
-            onDismiss = onDismiss,
-        )
+            is InstallUiState.StudyPadImport -> AbConfirmDialog(
+                title = strings.areYouSure,
+                message = strings.installDoYouWant(state.statsText),
+                confirmText = strings.okay,
+                dismissText = strings.cancel,
+                onConfirm = onConfirm,
+                onDismiss = onDismiss,
+            )
 
-        InstallUiState.EpubUpgrade -> AbConfirmDialog(
-            title = strings.epubUpgradeTitle,
-            message = strings.epubUpgradeMessage,
-            confirmText = strings.yes,
-            dismissText = strings.cancel,
-            onConfirm = onConfirm,
-            onDismiss = onDismiss,
-        )
+            InstallUiState.EpubUpgrade -> AbConfirmDialog(
+                title = strings.epubUpgradeTitle,
+                message = strings.epubUpgradeMessage,
+                confirmText = strings.yes,
+                dismissText = strings.cancel,
+                onConfirm = onConfirm,
+                onDismiss = onDismiss,
+            )
 
-        is InstallUiState.Error -> AbErrorDialog(
-            message = state.message,
-            confirmText = strings.okay,
-            onDismiss = onDismiss,
-        )
+            is InstallUiState.Error -> AbErrorDialog(
+                message = state.message,
+                confirmText = strings.okay,
+                onDismiss = onDismiss,
+            )
+        }
     }
 }
 
