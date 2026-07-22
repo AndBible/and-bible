@@ -246,4 +246,24 @@ class ComposeHostActionBarTest {
             ).create().get().supportActionBar
         )
     }
+
+    /**
+     * InstallZip Plan B (Task B5): [net.bible.android.view.activity.installzip.InstallZipComposeActivity]
+     * declares `android:theme="@style/Theme.AbCompose"` in the manifest, same as every other Compose
+     * host above. Built with Robolectric's default (no-action) launch Intent, its own `dispatchEntry()`
+     * classifies that as [net.bible.android.view.activity.installzip.InstallZipEntryDecision.PickFile]
+     * (the in-app "choose a file" prelude) -- a real, harmless entry path (no SAF/service side effects
+     * happen synchronously in `create()`), so this exercises the real Activity exactly as the other
+     * real-activity cases above (`CloudDocumentsComposeActivity`, `BibleSpeakComposeActivity`, ...) do,
+     * not a stand-in probe.
+     */
+    @Test fun `InstallZipComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        assertNull(
+            "InstallZipComposeActivity must use Theme.AbCompose (NoActionBar); a non-null " +
+                "supportActionBar means the manifest entry lost the theme, producing a double app bar.",
+            Robolectric.buildActivity(
+                net.bible.android.view.activity.installzip.InstallZipComposeActivity::class.java
+            ).create().get().supportActionBar
+        )
+    }
 }
