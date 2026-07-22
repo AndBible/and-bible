@@ -667,6 +667,10 @@
             android:name="net.bible.service.llm.agent.AgentForegroundService"
             android:foregroundServiceType="dataSync" />
 
+        <service
+            android:name="net.bible.service.installzip.DocumentInstallService"
+            android:foregroundServiceType="dataSync" />
+
         <receiver
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver"
             android:exported="true" />
