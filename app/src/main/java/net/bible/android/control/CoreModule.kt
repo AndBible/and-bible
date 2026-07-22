@@ -12,6 +12,7 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.search.BibleSearchServiceImpl
@@ -50,6 +51,7 @@ import net.bible.android.view.activity.workspaces.WorkspaceServiceImpl
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.android.view.activity.settings.ReadingProgressSettingsServiceImpl
 import net.bible.sharedcore.settings.ReadingProgressSettingsService
+import net.bible.sharedcore.window.WindowStateService
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanBibleActionBarButton
@@ -81,6 +83,7 @@ val coreModule = module {
     singleOf(::BibleTraverser)
     singleOf(::NavigationControl)
     singleOf(::WindowControl)
+    singleOf(::WindowStateServiceImpl) { bind<WindowStateService>() }
     singleOf(::LinkControl)
     singleOf(::HistoryManager)
     singleOf(::HistoryTraversalFactory)
