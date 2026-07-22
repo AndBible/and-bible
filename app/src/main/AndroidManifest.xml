@@ -478,6 +478,10 @@
             android:label="@string/reading_progress_settings"
             android:parentActivityName="net.bible.android.view.activity.progress.ReadingProgressActivity" />
         <activity
+            android:name=".view.activity.StartupComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:exported="false" />
+        <activity
             android:name="net.bible.android.view.activity.settings.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/settings"
