@@ -16,6 +16,7 @@ import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.settings.AppSettingsSnapshot
 import net.bible.sharedcore.settings.Choice2
 import net.bible.sharedcore.settings.DictOption
+import net.bible.sharedui.settings.AbSettingsScreen
 import net.bible.sharedui.settings.AppSettingsScreen
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -171,4 +172,27 @@ class AppSettingsGoldenTest {
 
     @Test fun persecution_edge() =
         captureGolden("AppSettings", "persecution", EDGE_MODE, heightDp = 3600, content = screen(persecutionSnapshot()))
+
+    /** A filtered view: the same real controller state, rendered through AbSettingsScreen with search
+     *  ON and a seeded query, so the golden shows only matching rows + their surviving categories. */
+    private fun filteredScreen(snapshot: AppSettingsSnapshot, query: String): @Composable () -> Unit = {
+        AbSettingsScreen(
+            state = stateFor(snapshot),
+            onUp = {},
+            onSwitch = { _, _ -> },
+            onListChoice = { _, _ -> },
+            onTextInput = { _, _ -> },
+            onNavigate = {},
+            onSliderChange = { _, _ -> },
+            onMultiSelectChange = { _, _ -> },
+            searchable = true,
+            searchHint = "Search settings",
+            initialSearchQuery = query,
+        )
+    }
+
+    // "night" matches the Night-mode list-choice row (and any row whose title/summary contains it);
+    // non-matching categories collapse away, so the filtered list is short — no heightDp override needed.
+    @Test fun filtered_edge() =
+        captureGolden("AppSettings", "filtered", EDGE_MODE, content = filteredScreen(baseSnapshot(), "night"))
 }
