@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -46,6 +47,14 @@ import net.bible.sharedcore.window.separatorDrag
 private val SEPARATOR_GRAB_SIZE = 16.dp
 
 /**
+ * Transient (not-yet-committed) drag state for one separator, held at the [SplitContent] level
+ * since it owns the panes' [Modifier.weight]: `index`/`index + 1` are the two adjacent panes being
+ * resized, `weight1`/`weight2` their current LIVE weights for this in-progress drag. Cleared to
+ * `null` once the drag ends and the result is reported via `onSeparatorCommitted`.
+ */
+private data class ActiveDrag(val index: Int, val weight1: Float, val weight2: Float)
+
+/**
  * Lays out the visible windows of [layout] into weighted panes, separated by a draggable
  * [WindowSeparator], choosing orientation from the available space (see the reading-view design
  * spec §2). `isHorizontal = (maxWidth > maxHeight) != layout.reverseSplitMode` — landscape splits
@@ -55,9 +64,15 @@ private val SEPARATOR_GRAB_SIZE = 16.dp
  * restructured by pane count — so a hosted `AndroidView`/`BibleView` pane survives recomposition
  * when weights change or a separator drags. Each pane fills [Modifier.weight] of
  * `effectiveWeights(layout.windows)` (a lone window gets weight `1f`); tapping anywhere on a pane
- * reports [onWindowActivated]. A drag on the separator between two adjacent panes is accumulated
- * locally in pixels and converted to a new weight pair via `separatorDrag` only once the drag ends,
- * then reported via [onSeparatorCommitted] — the caller (SSOT) applies it back into [layout].
+ * reports [onWindowActivated].
+ *
+ * A drag on the separator between two adjacent panes is accumulated locally in pixels and
+ * converted to a live weight pair via `separatorDrag` on every drag step (see [ActiveDrag]), so the
+ * two adjacent panes resize LIVE as the user drags — no jump on release. Only the dragged pair's
+ * panes read the live weights; every other pane keeps its `effectiveWeights` value throughout. The
+ * live pair is committed to the model (and `drag` cleared) only once the drag ends, reported via
+ * [onSeparatorCommitted] — the caller (SSOT) applies it back into [layout]. When no drag is active,
+ * rendering is identical to the pre-live-drag behaviour (plain `effectiveWeights`).
  */
 @Composable
 fun SplitContent(
@@ -78,13 +93,25 @@ fun SplitContent(
         val maxWidthPx = with(density) { maxWidth.toPx() }
         val maxHeightPx = with(density) { maxHeight.toPx() }
 
+        // Transient live-drag override; null when no separator is currently being dragged, in
+        // which case rendering below is byte-identical to the pre-live-drag behaviour.
+        var drag by remember { mutableStateOf<ActiveDrag?>(null) }
+        val paneWeight = { i: Int ->
+            val d = drag
+            when {
+                d != null && i == d.index -> d.weight1
+                d != null && i == d.index + 1 -> d.weight2
+                else -> weights[i]
+            }
+        }
+
         if (isHorizontal) {
             Row(Modifier.fillMaxSize()) {
                 windows.forEachIndexed { index, w ->
                     key(w.id) {
                         Box(
                             Modifier
-                                .weight(weights[index])
+                                .weight(paneWeight(index))
                                 .fillMaxSize()
                                 .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
                         ) { pane(w.id) }
@@ -96,6 +123,7 @@ fun SplitContent(
                             index = index,
                             isVertical = false,
                             averageExtentPx = { maxWidthPx / windows.size },
+                            onDragChange = { drag = it },
                             onSeparatorCommitted = onSeparatorCommitted,
                             modifier = Modifier.fillMaxHeight().width(SEPARATOR_GRAB_SIZE),
                         )
@@ -108,7 +136,7 @@ fun SplitContent(
                     key(w.id) {
                         Box(
                             Modifier
-                                .weight(weights[index])
+                                .weight(paneWeight(index))
                                 .fillMaxSize()
                                 .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
                         ) { pane(w.id) }
@@ -120,6 +148,7 @@ fun SplitContent(
                             index = index,
                             isVertical = true,
                             averageExtentPx = { maxHeightPx / windows.size },
+                            onDragChange = { drag = it },
                             onSeparatorCommitted = onSeparatorCommitted,
                             modifier = Modifier.fillMaxWidth().height(SEPARATOR_GRAB_SIZE),
                         )
@@ -130,6 +159,15 @@ fun SplitContent(
     }
 }
 
+/**
+ * One draggable separator between `windows[index]` and `windows[index + 1]`. Accumulates the raw
+ * drag delta locally (in pixels, reset once the drag ends) and — on every [WindowSeparator.onDragBy]
+ * step — recomputes the live weight pair via `separatorDrag`, reporting it up through [onDragChange]
+ * so [SplitContent] can render both adjacent panes at their in-progress size. `weights[index]`/
+ * `weights[index + 1]` are the start weights for this drag: stable for its whole duration, since the
+ * model (and therefore `weights`, recomputed from [layout]) only changes once [onSeparatorCommitted]
+ * fires. On drag end, commits the last live pair and clears the live override (`onDragChange(null)`).
+ */
 @Composable
 private fun Separator(
     windows: List<WindowSnapshot>,
@@ -137,17 +175,25 @@ private fun Separator(
     index: Int,
     isVertical: Boolean,
     averageExtentPx: () -> Float,
+    onDragChange: (ActiveDrag?) -> Unit,
     onSeparatorCommitted: (id1: String, w1: Float, id2: String, w2: Float) -> Unit,
     modifier: Modifier,
 ) {
     var accumulated by remember(windows[index].id, windows[index + 1].id) { mutableFloatStateOf(0f) }
+    val startWeight1 = weights[index]
+    val startWeight2 = weights[index + 1]
     WindowSeparator(
         isVertical = isVertical,
-        onDragBy = { delta -> accumulated += delta },
+        onDragBy = { delta ->
+            accumulated += delta
+            val live = separatorDrag(accumulated, averageExtentPx(), startWeight1, startWeight2)
+            onDragChange(ActiveDrag(index, live.weight1, live.weight2))
+        },
         onDragEnd = {
-            val delta = separatorDrag(accumulated, averageExtentPx(), weights[index], weights[index + 1])
-            onSeparatorCommitted(windows[index].id, delta.weight1, windows[index + 1].id, delta.weight2)
+            val live = separatorDrag(accumulated, averageExtentPx(), startWeight1, startWeight2)
+            onSeparatorCommitted(windows[index].id, live.weight1, windows[index + 1].id, live.weight2)
             accumulated = 0f
+            onDragChange(null)
         },
         modifier = modifier,
     )
