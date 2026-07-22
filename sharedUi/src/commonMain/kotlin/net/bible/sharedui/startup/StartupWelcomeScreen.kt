@@ -25,7 +25,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -36,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.startup.StartupWelcomeState
+import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -73,7 +73,7 @@ fun StartupWelcomeScreen(
         }
 
         if (state.progressText != null) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            AbLoadingIndicator(modifier = Modifier.fillMaxWidth())
             Text(state.progressText!!, style = MaterialTheme.typography.bodySmall)
         }
 
