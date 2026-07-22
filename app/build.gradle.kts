@@ -503,6 +503,7 @@ dependencies {
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("org.hamcrest:hamcrest-library:2.2")
     testImplementation("org.mockito:mockito-core:3.12.4")
+    testImplementation("io.mockk:mockk:1.13.13")
     testImplementation("junit:junit:4.13.2")
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit4)
