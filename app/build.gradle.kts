@@ -506,6 +506,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit4)
+    testImplementation(libs.kotlinx.coroutines.test)  // runTest, for InstallServiceController's async facade
 
     // Android instrumentation testing
 
