@@ -107,4 +107,81 @@ class SyncSettingsController(
         }
         return SettingsScreenState(title = labels.screenTitle, items = items)
     }
+
+    private var documentEnableInProgress = false
+
+    fun onSwitch(key: String, checked: Boolean) {
+        when {
+            key == "sync_enable_documents" ->
+                if (checked) enableDocumentsFlow() else { service.disableDocuments(); service.refresh() }
+            key.startsWith("sync_enable_") ->
+                if (checked) enableCategoryFlow(key) else { service.setCategoryEnabled(key, false); service.refresh() }
+            else -> { service.setDocumentSyncToggle(key, checked); service.refresh() }  // sync_documents_*
+        }
+    }
+
+    private fun enableCategoryFlow(key: String) {
+        scope.launch {
+            setLoading(true)
+            val ok = service.signIn()
+            if (ok) service.setCategoryEnabled(key, true)
+            service.refresh()
+            setLoading(false)
+        }
+    }
+
+    private fun enableDocumentsFlow() {
+        if (documentEnableInProgress) return
+        documentEnableInProgress = true
+        scope.launch {
+            try {
+                setLoading(true)
+                val ok = service.signIn()
+                if (ok) {
+                    val summary = service.scanDocuments()
+                    val message = service.formatEnableDocumentsMessage(summary)
+                    setLoading(false)
+                    setDialog(SyncDialog.EnableDocuments(summary, message))
+                } else {
+                    setLoading(false)
+                }
+            } finally {
+                documentEnableInProgress = false
+            }
+        }
+    }
+
+    fun confirmEnableDocuments() {
+        val d = _state.value.dialog
+        if (d is SyncDialog.EnableDocuments) {
+            service.setDocumentsEnabled(d.summary)
+            service.refresh()
+        }
+        dismissDialog()
+    }
+
+    fun onListChoice(key: String, value: String) {
+        if (key == "sync_adapter") { service.setAdapter(value); service.refresh() }
+    }
+
+    fun onTextInput(key: String, value: String) {
+        val ok = service.setText(key, value)
+        if (!ok) setDialog(SyncDialog.UrlError(labels.invalidUrlMessage)) else service.refresh()
+    }
+
+    fun onNavigate(key: String) {
+        when (key) {
+            "cloud_sync_reset" -> setDialog(SyncDialog.ResetConfirm(labels.resetConfirmMessage))
+            "document_sync_manage" -> onOpenCloudDocuments()
+        }
+    }
+
+    fun confirmReset() {
+        dismissDialog()
+        scope.launch { setLoading(true); service.resetSync(); service.refresh(); setLoading(false) }
+    }
+
+    fun dismissDialog() { _state.value = _state.value.copy(dialog = SyncDialog.None) }
+    private fun setLoading(v: Boolean) { _state.value = _state.value.copy(loading = v) }
+    private fun setDialog(d: SyncDialog) { _state.value = _state.value.copy(dialog = d) }
 }

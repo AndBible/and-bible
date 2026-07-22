@@ -103,4 +103,94 @@ class SyncSettingsControllerTest {
             .filterIsInstance<SettingsItem.ListChoiceRow>().single { it.key == "sync_adapter" }
         assertFalse(adapter.enabled)
     }
+
+    @Test fun enableCategory_signInSuccess_persistsAndRefreshes() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { signInResult = true }
+        controller(svc).onSwitch("sync_enable_bookmarks", true)
+        assertEquals(listOf("signIn", "cat:sync_enable_bookmarks=true"), svc.calls)
+        assertTrue(svc.refreshes >= 1)
+    }
+
+    @Test fun enableCategory_signInFail_doesNotPersist() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { signInResult = false }
+        controller(svc).onSwitch("sync_enable_bookmarks", true)
+        assertEquals(listOf("signIn"), svc.calls)  // no cat write
+    }
+
+    @Test fun disableCategory_immediate() {
+        val svc = FakeSyncSettingsService(syncSnap())
+        controller(svc).onSwitch("sync_enable_progress", false)
+        assertEquals(listOf("cat:sync_enable_progress=false"), svc.calls)
+    }
+
+    @Test fun enableDocuments_showsDialogWithScannedSummary() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply {
+            signInResult = true; scanResult = DocSyncSummaryData(listOf("KJV"), emptyList(), 100, 0)
+        }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_documents", true)
+        assertEquals(listOf("signIn", "scan"), svc.calls)
+        val d = c.state.value.dialog
+        assertTrue(d is SyncDialog.EnableDocuments)
+        assertEquals("docs-msg", (d as SyncDialog.EnableDocuments).message)
+        assertFalse(c.state.value.loading)
+    }
+
+    @Test fun confirmEnableDocuments_persistsSummaryAndDismisses() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { signInResult = true }
+        val c = controller(svc)
+        c.onSwitch("sync_enable_documents", true)
+        c.confirmEnableDocuments()
+        assertTrue("docsEnable" in svc.calls)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+    }
+
+    @Test fun disableDocuments_immediate() {
+        val svc = FakeSyncSettingsService(syncSnap(documentsEnabled = true))
+        controller(svc).onSwitch("sync_enable_documents", false)
+        assertTrue("docsDisable" in svc.calls)
+    }
+
+    @Test fun documentToggle_passthrough() {
+        val svc = FakeSyncSettingsService(syncSnap())
+        controller(svc).onSwitch("sync_documents_wifi_only", false)
+        assertEquals(listOf("docToggle:sync_documents_wifi_only=false"), svc.calls)
+    }
+
+    @Test fun adapterChange_passthrough() {
+        val svc = FakeSyncSettingsService(syncSnap())
+        controller(svc).onListChoice("sync_adapter", "GOOGLE_DRIVE")
+        assertTrue("adapter=GOOGLE_DRIVE" in svc.calls)
+    }
+
+    @Test fun invalidUrl_showsErrorDialog() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { textResult = false }
+        val c = controller(svc)
+        c.onTextInput("cloud_sync_server_url", "bad")
+        assertTrue(c.state.value.dialog is SyncDialog.UrlError)
+    }
+
+    @Test fun validText_noDialog() {
+        val svc = FakeSyncSettingsService(syncSnap()).apply { textResult = true }
+        val c = controller(svc)
+        c.onTextInput("cloud_sync_username", "me")
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+    }
+
+    @Test fun resetNav_showsConfirm_thenResets() {
+        val svc = FakeSyncSettingsService(syncSnap())
+        val c = controller(svc)
+        c.onNavigate("cloud_sync_reset")
+        assertTrue(c.state.value.dialog is SyncDialog.ResetConfirm)
+        c.confirmReset()
+        assertTrue("reset" in svc.calls)
+        assertEquals(SyncDialog.None, c.state.value.dialog)
+    }
+
+    @Test fun manageNav_opensCloudDocuments() {
+        var opened = false
+        val svc = FakeSyncSettingsService(syncSnap())
+        controller(svc) { opened = true }.onNavigate("document_sync_manage")
+        assertTrue(opened)
+    }
 }
