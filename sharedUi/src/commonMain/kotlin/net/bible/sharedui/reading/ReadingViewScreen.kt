@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.window.WindowLayoutState
 
@@ -42,6 +43,10 @@ fun ReadingViewScreen(
     onSeparatorCommitted: (id1: String, w1: Float, id2: String, w2: Float) -> Unit,
     pane: @Composable (windowId: String) -> Unit,
     searchMoreRecent: Boolean = true,
+    overflowItems: List<OptionsMenuItem> = emptyList(),
+    overflowExpanded: Boolean = false,
+    onOverflowItemClick: (id: String) -> Unit = {},
+    onOverflowDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxSize()) {
@@ -51,6 +56,10 @@ fun ReadingViewScreen(
                 icons = toolbarIcons,
                 callbacks = toolbarCallbacks,
                 searchMoreRecent = searchMoreRecent,
+                overflowItems = overflowItems,
+                overflowExpanded = overflowExpanded,
+                onOverflowItemClick = onOverflowItemClick,
+                onOverflowDismiss = onOverflowDismiss,
             )
         }
         SplitContent(

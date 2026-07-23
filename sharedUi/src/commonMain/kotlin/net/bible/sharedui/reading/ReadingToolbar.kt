@@ -22,6 +22,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -64,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.ToolbarButton
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.fitToolbarButtons
@@ -127,6 +129,12 @@ private val ToolbarButtonWidth = 48.dp
  * The available width for [fitToolbarButtons] is measured from this composable's own laid-out
  * width via [BoxWithConstraints] (mirroring classic `updateActions()`'s
  * `resources.displayMetrics.widthPixels` full-screen-width budget).
+ *
+ * The overflow button anchors a [ReadingOverflowMenu] (Batch 12b-C Task 2): [overflowItems] /
+ * [overflowExpanded] / [onOverflowItemClick] / [onOverflowDismiss] are host-owned state — tapping
+ * the button still only calls [ReadingToolbarCallbacks.onOverflow]; it's the host's job to build
+ * the item list and flip [overflowExpanded] to `true` in response. All four are defaulted
+ * (empty list / collapsed / no-ops) so existing call sites and their goldens are unaffected.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -135,6 +143,10 @@ fun ReadingToolbar(
     icons: ReadingToolbarIcons,
     callbacks: ReadingToolbarCallbacks,
     searchMoreRecent: Boolean = true,
+    overflowItems: List<OptionsMenuItem> = emptyList(),
+    overflowExpanded: Boolean = false,
+    onOverflowItemClick: (id: String) -> Unit = {},
+    onOverflowDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -159,12 +171,20 @@ fun ReadingToolbar(
             )
             ReadingToolbarTitle(state, callbacks, Modifier.weight(1f).fillMaxHeight())
             buttons.forEach { button -> QuickToolbarButton(button, state, icons, callbacks) }
-            ToolbarIconButton(
-                icon = icons.overflow,
-                // TODO: no LocalStrings field for this yet — keep literal until one is added.
-                contentDescription = "Options",
-                onClick = callbacks.onOverflow,
-            )
+            Box {
+                ToolbarIconButton(
+                    icon = icons.overflow,
+                    // TODO: no LocalStrings field for this yet — keep literal until one is added.
+                    contentDescription = "Options",
+                    onClick = callbacks.onOverflow,
+                )
+                ReadingOverflowMenu(
+                    items = overflowItems,
+                    expanded = overflowExpanded,
+                    onItemClick = onOverflowItemClick,
+                    onDismiss = onOverflowDismiss,
+                )
+            }
         }
     }
 }
