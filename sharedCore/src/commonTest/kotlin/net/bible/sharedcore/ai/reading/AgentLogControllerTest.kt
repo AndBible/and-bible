@@ -22,12 +22,13 @@ class AgentLogControllerTest {
         var lastDefault: String? = null
         var visiblePrefStore = visiblePref
         var lastSetVisible: Boolean? = null
+        var setVisibleCallCount = 0
         override fun stop() { stopCount++ }
         override suspend fun configuredModels() = models
         override fun setDefaultModel(modelId: String) { lastDefault = modelId }
         override fun autoHideEnabled() = autoHide
         override fun logVisiblePref() = visiblePrefStore
-        override fun setLogVisiblePref(v: Boolean) { visiblePrefStore = v; lastSetVisible = v }
+        override fun setLogVisiblePref(v: Boolean) { visiblePrefStore = v; lastSetVisible = v; setVisibleCallCount++ }
         override fun currentWorkspaceId() = "ws1"
         override fun refresh() {}
     }
@@ -72,6 +73,54 @@ class AgentLogControllerTest {
         f.snap.value = AgentLogSnapshot(running = true)
         f.snap.value = AgentLogSnapshot(running = false, lastStopReason = AgentStopReasonVd.COMPLETED)
         assertTrue(c.state.value.visible)
+    }
+
+    @Test fun autoHide_onCancelled_whenEnabled_hidesButNoToast() = runTest {
+        val f = Fake(visiblePref = false, autoHide = true); val h = HostCalls(); val c = controller(f, h)
+        f.snap.value = AgentLogSnapshot(running = true)
+        assertTrue(c.state.value.visible)
+        f.snap.value = AgentLogSnapshot(running = false, lastStopReason = AgentStopReasonVd.CANCELLED)
+        assertFalse(c.state.value.visible)
+        assertEquals(0, h.toast)
+    }
+
+    // Reproduces Finding 1: a `StateFlow` replays its current value to every new collector, so a
+    // level-triggered reduce() would spuriously re-fire the auto-hide/toast for a terminal reason
+    // it (or an earlier controller instance) already handled. Drives a real completion (hides +
+    // toasts once), then simulates the user manually reopening the panel afterwards (as the finding
+    // describes) followed by a later snapshot tick that still carries the SAME already-handled
+    // terminal reason (e.g. a trailing cost/entries update) — this must NOT re-fire.
+    @Test fun terminalReplay_doesNotRefireHideOrToast() = runTest {
+        val f = Fake(visiblePref = false, autoHide = true); val h = HostCalls(); val c = controller(f, h)
+        f.snap.value = AgentLogSnapshot(running = true)
+        f.snap.value = AgentLogSnapshot(running = false, lastStopReason = AgentStopReasonVd.COMPLETED)
+        assertFalse(c.state.value.visible)
+        assertEquals(1, h.toast)
+
+        // user manually reopens the log after the auto-hide
+        c.show()
+        assertTrue(c.state.value.visible)
+        val setVisibleCallsAfterReopen = f.setVisibleCallCount
+
+        // a later snapshot still carrying the SAME terminal reason (different other field so the
+        // StateFlow actually re-emits) must not re-hide/re-toast the manually-reopened panel
+        f.snap.value = AgentLogSnapshot(running = false, lastStopReason = AgentStopReasonVd.COMPLETED, headerCost = "$0.03")
+        assertTrue(c.state.value.visible)
+        assertEquals(1, h.toast)
+        assertEquals(setVisibleCallsAfterReopen, f.setVisibleCallCount)
+    }
+
+    // The construction-time variant of the same bug: a *fresh* AgentLogController subscribing to a
+    // snapshot flow whose CURRENT value already carries a non-error terminal reason (e.g. host
+    // recreated on rotation) must not treat that replayed initial value as a new transition, even
+    // though the persisted pref says the panel is visible (the exact scenario Finding 1 describes).
+    @Test fun terminalReplay_atConstruction_doesNotAutoHideOrToast() = runTest {
+        val f = Fake(visiblePref = true, autoHide = true)
+        f.snap.value = AgentLogSnapshot(running = false, lastStopReason = AgentStopReasonVd.COMPLETED)
+        val h = HostCalls()
+        val c = controller(f, h)
+        assertTrue(c.state.value.visible)
+        assertEquals(0, h.toast)
     }
 
     @Test fun snapshot_isReflectedInState() = runTest {

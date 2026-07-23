@@ -23,6 +23,21 @@ class AgentLogController(
     )
     val state: StateFlow<AgentLogUiState> = _state.asStateFlow()
 
+    /**
+     * Latches the terminal [AgentStopReasonVd] already acted on by the auto-hide/toast branch
+     * below, so a replayed [AgentSessionService.snapshot] value (e.g. a fresh subscriber on
+     * controller reconstruction, since [kotlinx.coroutines.flow.StateFlow] replays its current
+     * value to every new collector) cannot re-fire the auto-hide + toast for a completion that
+     * was already handled. Seeded from the snapshot already reflected in the initial [_state]
+     * (constructed just above from [service]'s current value) — that value is what `init`'s
+     * `collect` will replay first, and it must be treated as already-handled, not as a fresh
+     * transition, or a controller rebuilt while a stale terminal snapshot + a manually-reopened
+     * panel (`visible = true`) are both still around would spuriously hide+toast again on init.
+     * Reset on every new run so a genuine subsequent stop is still handled once.
+     */
+    private var lastHandledStopReason: AgentStopReasonVd? =
+        service.snapshot.value.takeIf { !it.running }?.lastStopReason
+
     init {
         scope.launch {
             service.snapshot.collect { snap -> reduce(snap) }
@@ -33,13 +48,23 @@ class AgentLogController(
         val current = _state.value
         val newVisible = when {
             snap.running && !current.visible -> {
+                lastHandledStopReason = null
                 service.setLogVisiblePref(true)
                 true
             }
-            !snap.running && current.visible && shouldAutoHideAgentLog(service.autoHideEnabled(), snap.lastStopReason) -> {
-                service.setLogVisiblePref(false)
-                if (snap.lastStopReason == AgentStopReasonVd.COMPLETED) onCompletedToast()
-                false
+            snap.running -> {
+                lastHandledStopReason = null
+                current.visible
+            }
+            snap.lastStopReason != null && snap.lastStopReason != lastHandledStopReason -> {
+                lastHandledStopReason = snap.lastStopReason
+                if (current.visible && shouldAutoHideAgentLog(service.autoHideEnabled(), snap.lastStopReason)) {
+                    service.setLogVisiblePref(false)
+                    if (snap.lastStopReason == AgentStopReasonVd.COMPLETED) onCompletedToast()
+                    false
+                } else {
+                    current.visible
+                }
             }
             else -> current.visible
         }
