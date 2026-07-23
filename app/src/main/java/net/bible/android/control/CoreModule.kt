@@ -54,6 +54,8 @@ import net.bible.android.view.activity.workspaces.WorkspaceServiceImpl
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.android.view.activity.settings.ReadingProgressSettingsServiceImpl
 import net.bible.sharedcore.settings.ReadingProgressSettingsService
+import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
+import net.bible.sharedcore.settings.TextDisplaySettingsService
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedcore.window.WindowStateService
 import net.bible.android.control.versification.BibleTraverser
@@ -119,6 +121,7 @@ val coreModule = module {
     singleOf(::DocumentFilterServiceImpl) { bind<DocumentFilterService>() }
     singleOf(::ReadingProgressServiceImpl) { bind<ReadingProgressService>() }
     singleOf(::ReadingProgressSettingsServiceImpl) { bind<ReadingProgressSettingsService>() }
+    singleOf(::TextDisplaySettingsServiceImpl) { bind<TextDisplaySettingsService>() }
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.
