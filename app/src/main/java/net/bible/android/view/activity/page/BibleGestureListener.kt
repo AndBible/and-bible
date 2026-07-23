@@ -30,6 +30,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.AutoFullscreenTracking
 import net.bible.sharedcore.reading.FullscreenAction
 import net.bible.sharedcore.reading.autoFullscreenAction
+import net.bible.sharedcore.reading.reanchoredTracking
 import net.bible.sharedcore.reading.shouldReanchor
 import kotlin.math.abs
 
@@ -148,8 +149,15 @@ class BibleGestureListener(
         // since the last anchor - without this, two short same-direction swipes across a
         // finger-lift would stack, and a slow multi-second scroll would accumulate unbounded,
         // both making fullscreen fire more eagerly than classic.
+        //
+        // reanchoredTracking zeroes ONLY the accumulator and PRESERVES lastDirectionUp - mirroring
+        // classic re-anchoring the `scrollEv` POSITION while leaving `lastDirection` (genuine
+        // persistent cross-gesture state, changed only on an observed flip) untouched. A full
+        // `AutoFullscreenTracking()` reset here (fix pass 1) hardcoded `lastDirectionUp = false`,
+        // which diverges from classic in the (prev=up, new=down) case - see reanchoredTracking's
+        // KDoc for the full trace.
         if (shouldReanchor(gestureAnchorInitialized, e1.eventTime, e2.eventTime, gestureAnchorEventTime)) {
-            autoFullscreenTracking = AutoFullscreenTracking()
+            autoFullscreenTracking = reanchoredTracking(autoFullscreenTracking)
             gestureAnchorEventTime = e2.eventTime
             gestureAnchorInitialized = true
         }

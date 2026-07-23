@@ -23,11 +23,15 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * Covers the regression the Task 6 `AutoFullscreenPolicy` port introduced: classic
- * `BibleGestureListener.onScroll`'s two `scrollEv` re-anchor triggers (gesture-boundary,
- * ~1s rate-limit - `BibleGestureListener.kt:121,124` at `b33072833`) were dropped, letting
- * fullscreen fire more eagerly than classic. [shouldReanchor] is the caller-side decision
- * restoring them; these tests pin its four cases directly against classic's two `if`s.
+ * Covers two regressions in the Task 6 `AutoFullscreenPolicy` port, both against classic
+ * `BibleGestureListener.onScroll` (`b33072833`):
+ * - [shouldReanchor] restores classic's two `scrollEv` re-anchor triggers (gesture-boundary,
+ *   ~1s rate-limit - `BibleGestureListener.kt:121,124`), dropped by the original port (fire
+ *   too eagerly).
+ * - [reanchoredTracking] fixes fix-pass-1's own regression at the re-anchor point: a full
+ *   `AutoFullscreenTracking()` reset there hardcoded `lastDirectionUp = false`, clobbering
+ *   classic's persistent `lastDirection` (`:49`), which the two eventTime-driven triggers never
+ *   reset in classic (they only re-anchor the POSITION anchor `scrollEv`).
  */
 class GestureReanchorTest {
 
@@ -68,5 +72,32 @@ class GestureReanchorTest {
         // (e.g. the anchor was just advanced to this same gesture's start by a mid-gesture reset)
         // must not itself force a reanchor.
         assertEquals(false, shouldReanchor(initialized = true, gestureStartTime = 1000L, currentEventTime = 1050L, lastAnchorTime = 1000L))
+    }
+
+    // --- reanchoredTracking: pins fix-pass-2's residual-bug fix (a full AutoFullscreenTracking()
+    // reset at the re-anchor point hardcoded lastDirectionUp = false, clobbering carried-over
+    // direction - see reanchoredTracking's own KDoc for the full classic-parity trace). ---
+
+    @Test fun reanchoredTrackingZeroesAccumulatorOnly() {
+        // Mirrors classic re-anchoring the `scrollEv` POSITION anchor while leaving `lastDirection`
+        // (`:49` at `b33072833`) completely untouched - only accumulated resets, lastDirectionUp
+        // (the up case) survives the re-anchor unchanged.
+        val reanchored = reanchoredTracking(AutoFullscreenTracking(accumulated = 42f, lastDirectionUp = true))
+        assertEquals(AutoFullscreenTracking(accumulated = 0f, lastDirectionUp = true), reanchored)
+    }
+
+    @Test fun reanchoredTrackingPreservesDownDirectionToo() {
+        // Same as above with the opposite (down) direction, to pin that preservation is
+        // unconditional, not accidentally tied to the `true` boolean value.
+        val reanchored = reanchoredTracking(AutoFullscreenTracking(accumulated = -30f, lastDirectionUp = false))
+        assertEquals(AutoFullscreenTracking(accumulated = 0f, lastDirectionUp = false), reanchored)
+    }
+
+    @Test fun reanchoredTrackingIsNotAFullReset() {
+        // Regression pin: a plain `AutoFullscreenTracking()` reset (fix pass 1's bug) would produce
+        // lastDirectionUp = false regardless of the carried-over value - this must NOT equal that
+        // full-reset shape when the carried direction was up.
+        val reanchored = reanchoredTracking(AutoFullscreenTracking(accumulated = 42f, lastDirectionUp = true))
+        assertFalse(reanchored == AutoFullscreenTracking())
     }
 }

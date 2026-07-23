@@ -56,3 +56,29 @@ fun shouldReanchor(
     if (currentEventTime - lastAnchorTime > 1000) return true
     return false
 }
+
+/**
+ * The [AutoFullscreenTracking] to install at a [shouldReanchor]-triggered re-anchor point.
+ *
+ * Zeroes only [AutoFullscreenTracking.accumulated] and PRESERVES [AutoFullscreenTracking.lastDirectionUp]
+ * from [current] - this mirrors classic re-anchoring `scrollEv` (the Y-position anchor,
+ * `MotionEvent.obtain(e2)` at `BibleGestureListener.kt:121,124` at `b33072833`) while leaving
+ * `lastDirection` (`:49`) completely untouched: classic's two eventTime-driven re-anchor triggers
+ * (`shouldReanchor`'s two conditions) reset the POSITION anchor only. `lastDirection` is genuine
+ * persistent cross-gesture state in classic - it changes ONLY on an actually observed direction
+ * flip (`:132`), never on a gesture boundary or the ~1s idle gap.
+ *
+ * A full `AutoFullscreenTracking()` reset here (as the first fix pass did) hardcodes
+ * `lastDirectionUp = false`, silently discarding whatever direction was carried over - which
+ * diverges from classic in the `(prev = up, new = down)` case: classic sees a flip on the first
+ * downward delta of the new gesture/window (discards that delta, `scrollEv = e2` with no `dist`
+ * yet contributing) and requires a full fresh 56dp downward accumulation before exiting
+ * fullscreen; the full-reset port instead sees `directionUp(new) = false == lastDirectionUp(reset) = false`
+ * - agreement, not a flip - so that first downward delta counts immediately, making the port
+ * cross the exit threshold with LESS accumulated downward movement than classic. This is exactly
+ * the app's core interaction pattern (an upward swipe enters fullscreen, the finger lifts, a
+ * downward swipe exits it), so the divergence is reachable and strictly MORE eager than classic in
+ * that direction - a behaviour-preserving-contract violation the full reset introduced.
+ */
+fun reanchoredTracking(current: AutoFullscreenTracking): AutoFullscreenTracking =
+    current.copy(accumulated = 0f)
