@@ -164,6 +164,7 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.sharedcore.reading.OptionsMenuItem
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -1283,6 +1284,28 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             itemOptions.openDialog(this, {onReady()}, {onReady()})
         }
     }
+
+    /**
+     * Builds the Compose reading-view toolbar's overflow menu item list — the Compose counterpart
+     * of [showOptionsMenu]'s build loop, delegated to [OptionsMenuStateBuilder.build]. Exists as a
+     * thin bridge (rather than widening [getItemOptions] itself) so the private method's access
+     * stays unchanged; see [OptionsMenuStateBuilder]'s kdoc. Called by
+     * [net.bible.android.view.activity.page.screen.ComposeReadingViewHost] when the overflow
+     * button is tapped, and again after [handleOptionsMenuItem] flips a toggle (to reflect the new
+     * checked state).
+     */
+    fun buildOptionsMenuItems(): List<OptionsMenuItem> =
+        OptionsMenuStateBuilder.build { resId, order -> getItemOptions(resId, order) }
+
+    /**
+     * Dispatches a click on one of [buildOptionsMenuItems]' rows — the Compose counterpart of
+     * [handlePrefItem], delegated to [OptionsMenuStateBuilder.dispatch]. Returns whether the
+     * overflow menu should stay open (see that function's kdoc): `true` for a boolean toggle
+     * (the host rebuilds the list to show the flipped check), `false` once a dialog/activity/
+     * action has been launched (the host closes the menu).
+     */
+    fun handleOptionsMenuItem(id: String): Boolean =
+        OptionsMenuStateBuilder.dispatch(this, { resId, order -> getItemOptions(resId, order) }, id)
 
     private val documentTitleText: String
         get() = pageControl.currentPageManager.currentPage.currentDocumentName

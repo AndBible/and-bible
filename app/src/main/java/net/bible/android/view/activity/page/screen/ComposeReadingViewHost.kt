@@ -40,6 +40,7 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.window.ReadingViewController
@@ -105,14 +106,27 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
 
     /**
      * Mirrors [MainBibleActivity.fullScreen]. Kept current via [MainBibleActivity.FullScreenEvent]
-     * (see [init]) so entering/leaving fullscreen from ANY classic path — the native options
-     * menu's "Full screen" item (bridged via [MainBibleActivity.showOptionsMenu], see
-     * [ReadingToolbarCallbacks.onOverflow] below) or `onBackPressed` — is reflected here. There is
+     * (see [init]) so entering/leaving fullscreen from ANY path — the Compose overflow menu's
+     * "Full screen" row (Batch 12b-C Task 3, dispatched via [MainBibleActivity.handleOptionsMenuItem]),
+     * the classic native options menu reached via the hardware menu key / `BibleJavascriptInterface`
+     * (still [MainBibleActivity.showOptionsMenu]), or `onBackPressed` — is reflected here. There is
      * no dedicated "toggle fullscreen" entry point in [ReadingToolbarCallbacks]/`ReadingViewScreen`
-     * (Task 3/4 didn't add one); fullscreen is entered exclusively through that bridged native menu
-     * today, so mirroring [MainBibleActivity.fullScreen] is sufficient.
+     * (only the overflow-menu row), so mirroring [MainBibleActivity.fullScreen] is what keeps this
+     * host's `AbTheme`/`ReadingViewScreen` in sync regardless of which path set it.
      */
     private val fullScreen = mutableStateOf(activity.fullScreen)
+
+    /**
+     * The Compose overflow ("3-dot") options menu's item list + expanded flag (Batch 12b-C Task 3)
+     * — host-owned state, since (unlike [nightMode]/[fullScreen]) there is no `ABEventBus` event to
+     * mirror: [ReadingToolbarCallbacks.onOverflow] below rebuilds [overflowItems] from
+     * [MainBibleActivity.buildOptionsMenuItems] and opens the menu; the `onOverflowItemClick`/
+     * `onOverflowDismiss` callbacks passed to [mountComposeView] (see [install]) drive it closed
+     * again — or, for a boolean toggle, rebuild it with the flipped check — via
+     * [MainBibleActivity.handleOptionsMenuItem].
+     */
+    private val overflowItems = mutableStateOf(emptyList<OptionsMenuItem>())
+    private val overflowExpanded = mutableStateOf(false)
 
     init {
         ABEventBus.register(this) {
@@ -165,10 +179,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onTitleLongPress = { activity.composeChooseDocument() },
                 onTitleFlingVertical = { activity.composeWorkspace() },
                 onTitleFlingHorizontal = { forward -> activity.composeCycleWorkspace(forward) },
-                // BRIDGE to the classic native popups (bible/commentary doc pickers, overflow
-                // options menu): anchored to `container` (the ComposeView) since the classic
-                // anchors (bibleButton/commentaryButton/optionsMenu) live inside the now-GONE
-                // toolbarLayout and would position the popup at a stale/zero location.
+                // BRIDGE to the classic native popups (bible/commentary doc pickers): anchored to
+                // `container` (the ComposeView) since the classic anchors (bibleButton/
+                // commentaryButton) live inside the now-GONE toolbarLayout and would position the
+                // popup at a stale/zero location. The overflow options menu is NOT bridged this
+                // way (Batch 12b-C Task 3 replaced that native PopupMenu bridge with the real
+                // Compose `ReadingOverflowMenu` below — see `onOverflow`/`overflowItems`).
                 onBible = { activity.composeBibleClick(container) },
                 onBibleLong = { activity.composeBibleLongClick(container) },
                 onCommentary = { activity.composeCommentaryClick(container) },
@@ -184,9 +200,23 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onSpeak = { activity.composeToggleSpeak() },
                 onSpeakLong = { activity.composeSpeakLong() },
                 onWorkspace = { activity.composeWorkspace() },
-                onOverflow = { activity.showOptionsMenu(container) },
+                onOverflow = {
+                    overflowItems.value = activity.buildOptionsMenuItems()
+                    overflowExpanded.value = true
+                },
             ),
             fullScreenState = fullScreen,
+            overflowItemsState = overflowItems,
+            overflowExpandedState = overflowExpanded,
+            onOverflowItemClick = { id ->
+                val stayOpen = activity.handleOptionsMenuItem(id)
+                if (stayOpen) {
+                    overflowItems.value = activity.buildOptionsMenuItems()
+                } else {
+                    overflowExpanded.value = false
+                }
+            },
+            onOverflowDismiss = { overflowExpanded.value = false },
             pane = { windowId ->
                 val window = activity.windowRepository.getWindow(IdType(windowId))
                 if (window != null) {
@@ -219,6 +249,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // [MainBibleActivity.fullScreen] here via [MainBibleActivity.FullScreenEvent] instead
             // of passing a one-shot snapshot.
             fullScreenState: State<Boolean> = mutableStateOf(false),
+            // The Compose overflow options menu's item list / expanded flag (Batch 12b-C Task 3),
+            // `State`s for the same reason as [nightModeState]/[fullScreenState]: [install] owns
+            // mutable backing state (`overflowItems`/`overflowExpanded`) that its
+            // `ReadingToolbarCallbacks.onOverflow`/`onOverflowItemClick`/`onOverflowDismiss` mutate
+            // in response to activity/menu events, not a one-shot snapshot. Defaulted (empty/
+            // collapsed/no-op) so `ComposeReadingViewHostTest` (which never opens the menu) is
+            // unaffected.
+            overflowItemsState: State<List<OptionsMenuItem>> = mutableStateOf(emptyList()),
+            overflowExpandedState: State<Boolean> = mutableStateOf(false),
+            onOverflowItemClick: (id: String) -> Unit = {},
+            onOverflowDismiss: () -> Unit = {},
             pane: @Composable (windowId: String) -> Unit,
         ) {
             val controller = ReadingViewController(windowState, commands)
@@ -241,6 +282,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             val toolbarState by toolbar.collectAsState()
                             val gen by generationState
                             val fullScreen by fullScreenState
+                            val overflowItems by overflowItemsState
+                            val overflowExpanded by overflowExpandedState
                             // Keying the whole screen on `gen` forces every pane's `AndroidView`
                             // factory to re-run on `rebuild()` — see the `generation` kdoc above.
                             key(gen) {
@@ -253,6 +296,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                     onWindowActivated = controller::onWindowActivated,
                                     onSeparatorCommitted = controller::onSeparatorCommitted,
                                     pane = pane,
+                                    overflowItems = overflowItems,
+                                    overflowExpanded = overflowExpanded,
+                                    onOverflowItemClick = onOverflowItemClick,
+                                    onOverflowDismiss = onOverflowDismiss,
                                 )
                             }
                         }
