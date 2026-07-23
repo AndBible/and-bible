@@ -42,6 +42,8 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.settings.ColorSettingsActivity
+import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
+import net.bible.sharedcore.settings.SettingsScope
 import net.bible.android.view.util.widget.FontFamilyWidget
 import net.bible.android.view.util.widget.MarginSizeWidget
 import net.bible.android.view.util.widget.FontSizeWidget
@@ -534,12 +536,29 @@ class LineSpacingPreference(settings: SettingsBundle): Preference(settings, Text
     }
 }
 
+/**
+ * [SettingsBundle] -> [SettingsScope] (the reverse of `TextDisplaySettingsServiceImpl.bundleFor`),
+ * used only by [ColorPreference.openDialog] to hand the Compose colours destination the scope it
+ * needs (Bridge B, Batch 12d-B T8).
+ */
+private fun SettingsBundle.toScope(): SettingsScope = when (level) {
+    SettingsLevel.WINDOW -> SettingsScope.Window(windowId!!.toString(), workspaceId.toString())
+    SettingsLevel.WORKSPACE -> SettingsScope.Workspace(workspaceId.toString())
+    SettingsLevel.GLOBAL -> SettingsScope.Global
+}
+
 class ColorPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.COLORS) {
     override val visible = true
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val intent = Intent(activity, ColorSettingsActivity::class.java)
-        intent.putExtra("settingsBundle", settings.toJson())
-        activity.startActivityForResult(intent, COLORS_CHANGED)
+        if (ScreenLauncher.useComposeFor(Screen.TextDisplaySettings)) {
+            // Live apply on the Compose side -- no COLORS_CHANGED result round-trip.
+            val intent = TextDisplaySettingsComposeActivity.intentFor(activity, settings.toScope(), startDestination = "colors")
+            activity.startActivity(intent)
+        } else {
+            val intent = Intent(activity, ColorSettingsActivity::class.java)
+            intent.putExtra("settingsBundle", settings.toJson())
+            activity.startActivityForResult(intent, COLORS_CHANGED)
+        }
         return true
     }
 }
