@@ -91,10 +91,15 @@ data class TextDisplaySettingsScreenLabels(
  *   [KEY_OPEN_GLOBAL_SETTINGS]) forward to [onNavigate] — the host decides where they lead (a
  *   colours screen, a label picker, or the enclosing workspace's / the global text-display-settings
  *   screen).
- * - Long-pressing ANY interactive row opens a revert-confirm dialog → [onRevert] (this is the ONLY
- *   revert path for the 4 list-choice rows STRONGS/PAGE_SCROLL_AMOUNT/SCROLL_HELPER_LINE_STYLE/
- *   FONTFAMILY, which [AbSettingsContent] renders natively as list-choice rows — a real, working
- *   revert, not a placeholder).
+ * - Long-pressing any interactive row EXCEPT the two drill-up parent-link rows opens a
+ *   revert-confirm dialog → [onRevert] (this is the ONLY revert path for the 4 list-choice rows
+ *   STRONGS/PAGE_SCROLL_AMOUNT/SCROLL_HELPER_LINE_STYLE/FONTFAMILY, which [AbSettingsContent]
+ *   renders natively as list-choice rows — a real, working revert, not a placeholder). The two
+ *   parent-link rows are excluded: their keys ([KEY_OPEN_WORKSPACE_SETTINGS]/[KEY_OPEN_GLOBAL_SETTINGS])
+ *   aren't [TextSettingType] names, so routing them into [onRevert] would throw when the host's
+ *   `TextDisplaySettingsController.onRevert` calls `TextSettingType.valueOf(key)` — see
+ *   [isRevertableSettingsKey], the guard used below (mirrors this screen's own `handleNavigate`
+ *   special-casing of the same two keys).
  * - The top-bar reset action opens a reset-confirm dialog → [onReset] (resets every row in this
  *   scope back to inherited).
  *
@@ -107,6 +112,18 @@ data class TextDisplaySettingsScreenLabels(
  * (which may have changed underneath — e.g. a concurrent sync — while it was open), never a
  * click-time snapshot, and closes itself if the row disappears.
  */
+/**
+ * True when [key] is safe to route through [TextDisplaySettingsScreen]'s `onRevert` — i.e. NOT one
+ * of the two drill-up parent-link keys ([KEY_OPEN_WORKSPACE_SETTINGS]/[KEY_OPEN_GLOBAL_SETTINGS]).
+ * Those two are navigation rows with keys that aren't [TextSettingType] names, so `onRevert` — the
+ * host's `TextDisplaySettingsController.onRevert` — calling `TextSettingType.valueOf(key)` throws
+ * `IllegalArgumentException` for them (review Finding 1, Batch 12d-A T4 fix — long-pressing a
+ * parent-link row used to crash). A top-level, named function (not inlined into the `onLongPress`
+ * lambda) so this guard is directly unit-testable without any Compose test infrastructure.
+ */
+fun isRevertableSettingsKey(key: String): Boolean =
+    key != KEY_OPEN_WORKSPACE_SETTINGS && key != KEY_OPEN_GLOBAL_SETTINGS
+
 @Composable
 fun TextDisplaySettingsScreen(
     state: TextDisplaySettingsScreenState,
@@ -150,7 +167,7 @@ fun TextDisplaySettingsScreen(
             onListChoice = onListChoice,
             onTextInput = { _, _ -> },
             onNavigate = ::handleNavigate,
-            onLongPress = { key -> revertKey = key },
+            onLongPress = { key -> if (isRevertableSettingsKey(key)) revertKey = key },
             searchable = true,
             searchHint = LocalStrings.current.searchSettings,
             actions = {
@@ -236,9 +253,14 @@ fun TextDisplaySettingsScreen(
  * one [AbSliderRow] ranging over [TextSettingRowValue.Numeric.min]`..`[TextSettingRowValue.Numeric.max]
  * (never hard-coded — carried by the service via [numeric]), an OK button committing the dragged value,
  * a neutral "reset to inherited" button, and Cancel.
+ *
+ * Public (not `private`) so golden tests can render it directly with explicit params, the same
+ * way `AbColorPickerGoldenTest` calls `AbColorPicker(...)` — [TextDisplaySettingsScreen] itself
+ * still only ever opens it internally (via its own screen-local dialog-key state); this does not
+ * change that screen's own public behavior.
  */
 @Composable
-private fun NumericSliderDialog(
+fun NumericSliderDialog(
     title: String,
     numeric: TextSettingRowValue.Numeric,
     okLabel: String,
@@ -277,9 +299,11 @@ private fun NumericSliderDialog(
  * [maxWidthMax][TextSettingRowValue.Margins.maxWidthMax] (never hard-coded — carried by [margins]).
  * Each slider's own row label carries its current value (the classic `SeekBarPreference` style — no
  * separate readout), formatted from the matching `dialogLabels.margin*LabelFormat` "%d" template.
+ *
+ * Public (not `private`) for the same golden-testing reason as [NumericSliderDialog] — see its kdoc.
  */
 @Composable
-private fun MarginDialog(
+fun MarginDialog(
     title: String,
     margins: TextSettingRowValue.Margins,
     leftLabelFormat: String,
