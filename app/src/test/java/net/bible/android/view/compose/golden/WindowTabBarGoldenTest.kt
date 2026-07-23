@@ -49,14 +49,16 @@ class WindowTabBarGoldenTest {
         pin: Boolean = false,
         links: Boolean = false,
         state: WindowStateValue = WindowStateValue.VISIBLE,
+        synced: Boolean = false,
+        syncGroup: Int = 0,
     ) = WindowSnapshot(
         id = id,
         state = state,
         weight = 1.0f,
         isVisible = state == WindowStateValue.VISIBLE,
         isPinMode = pin,
-        isSynchronised = false,
-        syncGroup = 0,
+        isSynchronised = synced,
+        syncGroup = syncGroup,
         isLinksWindow = links,
     )
 
@@ -87,6 +89,18 @@ class WindowTabBarGoldenTest {
     // A window is maximised -> RailLeading.Unmaximise, no tabs, regardless of window count.
     private val maximisedModel = buildWindowTabBar(layout(windows = listOf(win("A"), win("B")), maximized = "A"))
 
+    // Same 3-window layout as multiExpandedModel, but "N1" is synchronised in (raw 0-based) sync
+    // group 0 -> WindowTabBar must map this to WindowButton's 1-based syncGroup=1, so the tab
+    // shows a sync badge ("classic parity" final-review fix: a synchronised window in group 0 is
+    // the common case and must NOT be silently badge-less).
+    private val multiWindowsSynced = listOf(
+        win("P", pin = true),
+        win("N1", synced = true, syncGroup = 0),
+        win("N2", state = WindowStateValue.MINIMISED),
+    )
+    private val multiExpandedSyncedModel =
+        buildWindowTabBar(layout(windows = multiWindowsSynced, active = "N1", restoreVisible = true))
+
     private fun screen(model: WindowTabBarModel): @Composable () -> Unit = {
         WindowTabBar(
             model = model,
@@ -112,6 +126,12 @@ class WindowTabBarGoldenTest {
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar-land")
     fun multiExpanded_rtl() = captureRtl("WindowTabBar", "multiExpanded", content = screen(multiExpandedModel))
+
+    // Final-review fix coverage: a synchronised window (raw syncGroup=0) must render a sync badge
+    // ("1", 1-based) on its tab — same land/matrix technique as multiExpanded above.
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun multiExpandedSynced() = captureMatrix("WindowTabBar", "multiExpandedSynced", content = screen(multiExpandedSyncedModel))
 
     @Test
     fun single() = captureGolden("WindowTabBar", "single", EDGE_MODE, content = screen(singleModel))

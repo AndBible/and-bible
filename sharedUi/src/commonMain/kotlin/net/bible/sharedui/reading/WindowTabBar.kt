@@ -127,7 +127,11 @@ fun WindowTabBar(
                                 isMinimised = window.state == WindowStateValue.MINIMISED,
                                 isPinned = window.isPinMode,
                                 isLinks = window.isLinksWindow,
-                                syncGroup = if (window.isSynchronised) window.syncGroup else 0,
+                                // WindowSnapshot.syncGroup is the raw 0-based Window.syncGroup;
+                                // WindowButton requires the 1-based value it displays (classic
+                                // parity — see WindowButton's kdoc), same as the sibling pane
+                                // caller (ComposeReadingViewHost.kt's PaneWindowButtonOverlay).
+                                syncGroup = if (window.isSynchronised) window.syncGroup + 1 else 0,
                                 mode = WindowButtonMode.Rail,
                                 onClick = { onRestore(window.id) },
                                 onLongPress = { onWindowLongPress(window.id) },

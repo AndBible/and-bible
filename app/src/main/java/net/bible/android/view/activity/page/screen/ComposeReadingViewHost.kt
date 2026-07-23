@@ -524,7 +524,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                                 onRestore = controller::onRestore,
                                                 // Plan B Task 5: a rail long-press now opens the SAME
                                                 // per-window ☰ menu as tapping the floating pane button.
-                                                onWindowLongPress = onOpenPaneMenu,
+                                                // Final-review fix: activate the window first, mirroring
+                                                // classic `SplitBibleArea.showPopupMenu`'s
+                                                // `if (window.isVisible) windowControl.activeWindow = window`
+                                                // and the floating ☰ button's own gestures (both of which
+                                                // activate before opening the menu).
+                                                onWindowLongPress = { id ->
+                                                    controller.onWindowActivated(id)
+                                                    onOpenPaneMenu(id)
+                                                },
                                                 onAddWindow = { controller.onAddWindow(layout.activeWindowId) },
                                                 onUnMaximise = controller::onUnMaximise,
                                                 onToggleCollapse = {
