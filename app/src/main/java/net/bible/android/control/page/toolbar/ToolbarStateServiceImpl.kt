@@ -93,7 +93,10 @@ class ToolbarStateServiceImpl(
             showBible = showBible,
             showCommentary = showCommentary,
             showStrongs = documentControl.isStrongsInBook,
-            strongsMode = 0, // best-effort: host re-reads the live Strongs display-mode pref for the icon
+            // Same value `MainBibleActivity.dummyStrongsPrefOption.value` reads (StrongsPreference
+            // over a WINDOW-level SettingsBundle): the active window's page-manager setting merged
+            // down through workspace/global/default via `TextDisplaySettings.actual` — 0/1/2.
+            strongsMode = windowControl.activeWindowPageManager.actualTextDisplaySettings.strongsMode ?: 0,
             searchable = page.isSearchable,
             speakable = page.isSpeakable,
             speakStopped = speakControl.isStopped,

@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.page.screen
 
 import android.widget.FrameLayout
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.control.page.window.WindowStateServiceImpl
@@ -12,7 +13,7 @@ import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/** No-op fake — mockk was removed from this repo (Task 5 fix wave 1); no mocking framework is used. */
+/** No-op fake — mockk was removed from this repo (Batch 12a T5 fix wave 1); no mocking framework is used. */
 private val noopCommands = object : WindowCommands {
     override fun setActive(windowId: String) {}
     override fun commitWeights(windowId1: String, weight1: Float, windowId2: String, weight2: Float) {}
@@ -30,10 +31,43 @@ class ComposeReadingViewHostTest {
             container = container,
             windowState = WindowStateServiceImpl(),
             commands = noopCommands,
-            nightMode = false,
+            nightModeState = mutableStateOf(false),
             pane = { },
         )
         assertTrue((0 until container.childCount).any { container.getChildAt(it) is ComposeView })
+    }
+
+    /**
+     * `nightModeState`/`fullScreenState` are `State<Boolean>` (Task 5), not one-shot `Boolean`s,
+     * specifically so an external owner (the real `ComposeReadingViewHost`'s
+     * `NightModeChanged`/`FullScreenEvent` subscriptions, or this test) can flip them after mount
+     * and have `ReadingViewScreen` recompose off the NEW value rather than a value frozen at mount
+     * time. Mounting succeeds and the externally-owned states remain independently mutable after
+     * mount — the actual "does the toolbar disappear" visual behavior is already golden-tested at
+     * the `ReadingViewScreen` level (`ReadingViewScreenGoldenTest`'s fullScreen case, Task 4); this
+     * repo's :app JVM unit tests have no `ComposeTestRule`, so a deeper interaction/recomposition
+     * assertion isn't feasible here.
+     */
+    @Test fun installAcceptsMutableNightModeAndFullScreenState() {
+        val container = FrameLayout(ApplicationProvider.getApplicationContext())
+        val nightModeState = mutableStateOf(false)
+        val fullScreenState = mutableStateOf(false)
+        ComposeReadingViewHost.mountComposeView(
+            container = container,
+            windowState = WindowStateServiceImpl(),
+            commands = noopCommands,
+            nightModeState = nightModeState,
+            fullScreenState = fullScreenState,
+            pane = { },
+        )
+        assertTrue((0 until container.childCount).any { container.getChildAt(it) is ComposeView })
+
+        // Flipping the externally-owned states after mount must not throw, and the states
+        // themselves (owned by the caller, not copied) reflect the new values immediately.
+        nightModeState.value = true
+        fullScreenState.value = true
+        assertTrue(nightModeState.value)
+        assertTrue(fullScreenState.value)
     }
 }
 

@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.page.screen
 
+import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -23,13 +24,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.constraintlayout.widget.ConstraintLayout
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -73,10 +78,15 @@ class ComposeReadingViewGeneration {
 /**
  * Mounts the Compose reading view into [MainBibleActivity]'s content, replacing the classic
  * `SplitBibleArea` build (see [DocumentViewManager]'s `use_compose_ui` guard) when
- * `use_compose_ui` is on. Plan A (this task) keeps the classic toolbar/drawer chrome; Plan B
- * ports the toolbar into Compose. Each pane hosts the window's existing [net.bible.android.view.activity.page.BibleView]
- * via [AndroidView] wrapping [MainBibleActivity.bibleViewFactory] — the WebView/JS bridge stays
- * an unmodified black box.
+ * `use_compose_ui` is on. Plan A kept the classic toolbar/drawer chrome; Plan B (this task) hosts
+ * the Compose `ReadingToolbar` instead: [install] hides the classic `toolbarLayout`/
+ * `toolbarDivider` and re-anchors [container] (`binding.mainBibleView`) from below the divider to
+ * the parent top, so the Compose toolbar — which applies its own
+ * `Modifier.windowInsetsPadding(WindowInsets.statusBars)` — owns the top inset instead. The drawer
+ * (`binding.drawerLayout`) stays a classic `View`; only the toolbar row moves into Compose. Each
+ * pane hosts the window's existing [net.bible.android.view.activity.page.BibleView] via
+ * [AndroidView] wrapping [MainBibleActivity.bibleViewFactory] — the WebView/JS bridge stays an
+ * unmodified black box.
  */
 class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComponent {
     private val windowState: WindowStateServiceImpl by inject()
@@ -85,8 +95,43 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
 
     private val generation = ComposeReadingViewGeneration()
 
+    /**
+     * Mirrors [ScreenSettings.nightMode]. Kept current via [ScreenSettings.NightModeChanged] (see
+     * [init]) instead of being captured once at [install] time, which is what made the host's
+     * `AbTheme` non-reactive to a runtime night-mode flip (the Plan-A carry-forward this task
+     * closes — see the whole-Plan-A review Minor).
+     */
+    private val nightMode = mutableStateOf(ScreenSettings.nightMode)
+
+    /**
+     * Mirrors [MainBibleActivity.fullScreen]. Kept current via [MainBibleActivity.FullScreenEvent]
+     * (see [init]) so entering/leaving fullscreen from ANY classic path — the native options
+     * menu's "Full screen" item (bridged via [MainBibleActivity.showOptionsMenu], see
+     * [ReadingToolbarCallbacks.onOverflow] below) or `onBackPressed` — is reflected here. There is
+     * no dedicated "toggle fullscreen" entry point in [ReadingToolbarCallbacks]/`ReadingViewScreen`
+     * (Task 3/4 didn't add one); fullscreen is entered exclusively through that bridged native menu
+     * today, so mirroring [MainBibleActivity.fullScreen] is sufficient.
+     */
+    private val fullScreen = mutableStateOf(activity.fullScreen)
+
+    init {
+        ABEventBus.register(this) {
+            onMain<ScreenSettings.NightModeChanged> { nightMode.value = ScreenSettings.nightMode }
+            onMain<MainBibleActivity.FullScreenEvent> { event -> fullScreen.value = event.isFullScreen }
+        }
+    }
+
     /** See [ComposeReadingViewGeneration]. Called by [DocumentViewManager.buildView] on the compose path when `forceUpdate` is true. */
     fun rebuild() { generation.rebuild() }
+
+    /**
+     * Unregisters this host's [ABEventBus] subscriptions (see [init]). Call from
+     * [MainBibleActivity.onDestroy] — each activity (re-)creation builds a fresh
+     * [ComposeReadingViewHost], so without this the previous instance's registration would leak
+     * (an activity-recreating config change would accumulate one stale registration per rotation).
+     * Safe to call unconditionally even when [install] was never invoked (classic path).
+     */
+    fun dispose() { ABEventBus.unregister(this) }
 
     /** Mounts the Compose reading view into [container] (expected: `binding.mainBibleView`, already emptied by the caller). */
     fun install(container: ViewGroup) {
@@ -94,13 +139,49 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // mutations after this point already route through the 12a notifiers, which keep
         // windowState.layout current, but the very first mount needs an explicit kick).
         windowState.refresh(activity.windowRepository)
+
+        // Layout surgery (compose path only — see class kdoc). Done programmatically here, not in
+        // main_bible_view.xml, so the classic (use_compose_ui=false) path — which never calls
+        // install() — stays byte-identical: toolbarLayout/toolbarDivider keep their XML-authored
+        // visibility/constraints, and `container`'s LayoutParams are never mutated.
+        activity.binding.toolbarLayout.visibility = View.GONE
+        activity.binding.toolbarDivider.visibility = View.GONE
+        (container.layoutParams as? ConstraintLayout.LayoutParams)?.let { params ->
+            params.topToBottom = ConstraintLayout.LayoutParams.UNSET
+            params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+            container.layoutParams = params
+        }
+
         mountComposeView(
             container = container,
             windowState = windowState,
             commands = commands,
-            nightMode = ScreenSettings.nightMode,
+            nightModeState = nightMode,
             generationState = generation.state,
             toolbar = toolbarStateService.toolbar,
+            toolbarCallbacks = ReadingToolbarCallbacks(
+                onHome = { activity.composeToggleDrawer() },
+                onTitleTap = { activity.composeStartKeyChooser() },
+                onTitleLongPress = { activity.composeChooseDocument() },
+                onTitleFlingVertical = { activity.composeWorkspace() },
+                onTitleFlingHorizontal = { forward -> activity.composeCycleWorkspace(forward) },
+                // BRIDGE to the classic native popups (bible/commentary doc pickers, overflow
+                // options menu): anchored to `container` (the ComposeView) since the classic
+                // anchors (bibleButton/commentaryButton/optionsMenu) live inside the now-GONE
+                // toolbarLayout and would position the popup at a stale/zero location.
+                onBible = { activity.composeBibleClick(container) },
+                onBibleLong = { activity.composeBibleLongClick() },
+                onCommentary = { activity.composeCommentaryClick(container) },
+                onCommentaryLong = { activity.composeCommentaryLongClick() },
+                onStrongs = { activity.composeCycleStrongs() },
+                onStrongsLong = { activity.composeStrongsLong() },
+                onSearch = { activity.composeSearch() },
+                onSpeak = { activity.composeToggleSpeak() },
+                onSpeakLong = { activity.composeSpeakLong() },
+                onWorkspace = { activity.composeWorkspace() },
+                onOverflow = { activity.showOptionsMenu(container) },
+            ),
+            fullScreenState = fullScreen,
             pane = { windowId ->
                 val window = activity.windowRepository.getWindow(IdType(windowId))
                 if (window != null) {
@@ -120,17 +201,19 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             container: ViewGroup,
             windowState: WindowStateServiceImpl,
             commands: WindowCommands,
-            nightMode: Boolean,
+            // A `State` (not a plain `Boolean`) so the host's [ScreenSettings.NightModeChanged]
+            // subscription (or a test) can flip it and drive a real recomposition instead of a
+            // value frozen at mount time.
+            nightModeState: State<Boolean>,
             // Defaults to a fresh, never-bumped state for the unit test (which mounts with
             // `pane = {}` and never attaches the ComposeView, so composition never runs).
             generationState: State<Int> = mutableIntStateOf(0),
-            // TODO(Batch 12b-B Task 5): [install] passes the real ToolbarStateServiceImpl-backed
-            // flow; this default (a static EMPTY state) only keeps unit tests that don't care
-            // about the toolbar (e.g. ComposeReadingViewHostTest) compiling without change.
             toolbar: StateFlow<ToolbarState> = MutableStateFlow(ToolbarState.EMPTY).asStateFlow(),
-            // TODO(Batch 12b-B Task 5): source this from a real setting/host signal (e.g. an
-            // immersive-mode toggle) instead of the always-false placeholder.
-            fullScreen: Boolean = false,
+            toolbarCallbacks: ReadingToolbarCallbacks = noopToolbarCallbacks,
+            // A `State` for the same reactivity reason as [nightModeState]: [install] mirrors
+            // [MainBibleActivity.fullScreen] here via [MainBibleActivity.FullScreenEvent] instead
+            // of passing a one-shot snapshot.
+            fullScreenState: State<Boolean> = mutableStateOf(false),
             pane: @Composable (windowId: String) -> Unit,
         ) {
             val controller = ReadingViewController(windowState, commands)
@@ -139,22 +222,28 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                 setContent {
                     ProvideAppLocals {
+                        val nightMode by nightModeState
                         AbTheme(
                             darkTheme = nightMode,
+                            // Not behind a dedicated change event (none exists for these settings
+                            // in this codebase), but read directly in the composable body rather
+                            // than `remember`ed, so they're re-read fresh on every recomposition
+                            // this function already drives (nightMode/toolbar/gen/fullScreen).
                             colorMode = CommonUtils.settings.displayColorMode,
                             disableAnimations = CommonUtils.settings.disableAnimations,
                         ) {
                             val layout by controller.layout.collectAsState()
                             val toolbarState by toolbar.collectAsState()
                             val gen by generationState
+                            val fullScreen by fullScreenState
                             // Keying the whole screen on `gen` forces every pane's `AndroidView`
                             // factory to re-run on `rebuild()` — see the `generation` kdoc above.
                             key(gen) {
                                 ReadingViewScreen(
                                     layout = layout,
                                     toolbar = toolbarState,
-                                    toolbarIcons = defaultToolbarIcons(),
-                                    toolbarCallbacks = noopToolbarCallbacks,
+                                    toolbarIcons = readingToolbarIcons(),
+                                    toolbarCallbacks = toolbarCallbacks,
                                     fullScreen = fullScreen,
                                     onWindowActivated = controller::onWindowActivated,
                                     onSeparatorCommitted = controller::onSeparatorCommitted,
@@ -171,13 +260,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
 }
 
 /**
- * Interim [ReadingToolbarIcons] for [ComposeReadingViewHost.mountComposeView] — the same
- * `main_bible_view.xml` toolbar drawables `ReadingToolbarGoldenTest` uses. Real per-action button
- * behaviour (drawer/search/speak/etc.) is wired by Batch 12b-B Task 5; only the icon set is filled
- * in here so the toolbar renders correctly meanwhile.
+ * [ReadingToolbarIcons] for [ComposeReadingViewHost.mountComposeView] — the same
+ * `main_bible_view.xml` toolbar drawables `ReadingToolbarGoldenTest` uses (a single static icon
+ * per action; the classic Strongs button's OT/NT + link-variant icon swap in
+ * `MainBibleActivity.updateStrongsButton` is not reproduced here — [net.bible.sharedui.reading.ReadingToolbar]
+ * only dims the single Strongs icon via [ToolbarState.strongsMode]).
  */
 @Composable
-private fun defaultToolbarIcons() = ReadingToolbarIcons(
+private fun readingToolbarIcons() = ReadingToolbarIcons(
     home = painterResource(R.drawable.ic_menu),
     search = painterResource(R.drawable.ic_search_24dp),
     speak = painterResource(R.drawable.ic_baseline_headphones_24),
@@ -189,9 +279,11 @@ private fun defaultToolbarIcons() = ReadingToolbarIcons(
 )
 
 /**
- * Interim no-op [ReadingToolbarCallbacks] for [ComposeReadingViewHost.mountComposeView] — every
- * button/gesture is inert until Batch 12b-B Task 5 routes them to the real
- * `MainBibleActivity`/`WindowControl`/`SpeakControl` actions the classic toolbar performs.
+ * No-op [ReadingToolbarCallbacks] used only as the default parameter value for
+ * [ComposeReadingViewHost.mountComposeView] — keeps host-agnostic tests (e.g.
+ * `ComposeReadingViewHostTest`, which never exercises button/gesture interaction) compiling
+ * without having to build a full [ReadingToolbarCallbacks]. [ComposeReadingViewHost.install]
+ * always supplies the real, activity-wired callbacks instead.
  */
 private val noopToolbarCallbacks = ReadingToolbarCallbacks(
     onHome = {}, onTitleTap = {}, onTitleLongPress = {}, onTitleFlingVertical = {},

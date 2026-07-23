@@ -991,6 +991,99 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    // ---- Compose toolbar bridge (Batch 12b-B Task 5) ----
+    // Thin `internal` wrappers so `ComposeReadingViewHost`'s `ReadingToolbarCallbacks` (the
+    // Compose reading toolbar, `use_compose_ui`) can drive the exact same actions as the classic
+    // toolbar's click/long-click/fling listeners above and in `updateActions()` /
+    // `setupToolbarFlingDetection()`, without widening any of those private members' own
+    // visibility — each wrapper just calls into the existing private logic from within this class.
+
+    internal fun composeToggleDrawer() {
+        if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
+            binding.drawerLayout.closeDrawers()
+        } else {
+            binding.drawerLayout.openDrawer(GravityCompat.START)
+        }
+    }
+
+    internal fun composeSearch() {
+        searchControl.getSearchIntent(documentControl.currentDocument, this)?.let { intent ->
+            startActivityForResult(intent, STD_REQUEST_CODE)
+        }
+    }
+
+    internal fun composeToggleSpeak() {
+        if (transportBarVisible) {
+            if (speakControl.isStopped) {
+                transportBarVisible = false
+            }
+        } else {
+            transportBarVisible = true
+        }
+        updateBottomBars()
+    }
+
+    internal fun composeSpeakLong() {
+        startActivityForResult(ScreenLauncher.intentFor(this, Screen.BibleSpeak), STD_REQUEST_CODE)
+    }
+
+    internal fun composeWorkspace() {
+        startActivityForResult(ScreenLauncher.intentFor(this, Screen.WorkspaceSelector), WORKSPACE_CHANGED)
+    }
+
+    internal fun composeCycleWorkspace(forward: Boolean) = cycleWorkspace(forward)
+
+    internal fun composeStartKeyChooser() {
+        pageControl.currentPageManager.currentPage.startKeyChooser(this)
+    }
+
+    internal fun composeChooseDocument() {
+        startActivityForResult(ScreenLauncher.intentFor(this, Screen.ChooseDocument), STD_REQUEST_CODE)
+    }
+
+    internal fun composeCycleStrongs() {
+        val prefOptions = dummyStrongsPrefOption
+        prefOptions.value = (prefOptions.value as Int + 1) % 3
+        prefOptions.handle()
+        updateStrongsButton()
+    }
+
+    internal fun composeStrongsLong() {
+        val prefOptions = dummyStrongsPrefOption
+        fun apply() {
+            prefOptions.handle()
+            updateStrongsButton()
+        }
+        prefOptions.openDialog(this, onChanged = { apply() }, onReset = { apply() })
+    }
+
+    /** @param anchor the Compose toolbar's ComposeView (classic `bibleButton` is inside the now-GONE `toolbarLayout` on this path). */
+    internal fun composeBibleClick(anchor: View) {
+        if (toolbarButtonSetting?.startsWith("swap-") == true) {
+            setCurrentDocument(documentControl.suggestedBible)
+        } else {
+            menuForDocs(anchor, documentControl.biblesForVerse)
+        }
+    }
+
+    internal fun composeBibleLongClick() = startDocumentChooser("BIBLE")
+
+    /** @param anchor the Compose toolbar's ComposeView (classic `commentaryButton` is inside the now-GONE `toolbarLayout` on this path). */
+    internal fun composeCommentaryClick(anchor: View) {
+        if (toolbarButtonSetting?.startsWith("swap-") == true) {
+            setCurrentDocument(documentControl.suggestedCommentary)
+        } else {
+            menuForDocs(
+                anchor,
+                documentControl.commentariesForVerse
+                    + SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK)
+                    + SwordDocumentFacade.getBooks(BookCategory.DICTIONARY)
+            )
+        }
+    }
+
+    internal fun composeCommentaryLongClick() = startDocumentChooser("COMMENTARY")
+
     private val dummyStrongsPrefOption
         get() = StrongsPreference(
             SettingsBundle(
@@ -1088,11 +1181,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
     private fun getItemOptions(item: MenuItem) = getItemOptions(item.itemId, item.order)
 
+    /** @param anchor defaults to the classic `optionsMenu` button; the Compose toolbar bridge (`ComposeReadingViewHost`) passes its ComposeView instead, since `binding.optionsMenu` lives inside the now-GONE `toolbarLayout` on that path. */
     @SuppressLint("RestrictedApi")
-    fun showOptionsMenu() {
-        val popup = PopupMenu(this, binding.optionsMenu)
+    fun showOptionsMenu(anchor: View = binding.optionsMenu) {
+        val popup = PopupMenu(this, anchor)
         val menu = popup.menu
-        val menuHelper = MenuPopupHelper(this, menu as MenuBuilder, binding.optionsMenu)
+        val menuHelper = MenuPopupHelper(this, menu as MenuBuilder, anchor)
         popup.setOnMenuItemClickListener { menuItem ->
             handlePrefItem(menuItem)
             true
@@ -1558,38 +1652,47 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             window.decorView.systemUiVisibility = uiFlags
         }
         
+        // The classic toolbar-view background/tint/divider-visibility/status-bar-color mutations
+        // below are skipped on the `use_compose_ui` path — the Compose `ReadingToolbar` (via
+        // `MaterialTheme.colorScheme`/`AbTheme`) owns its own colors now, and `toolbarLayout` is
+        // GONE anyway (see `ComposeReadingViewHost.install`). `navigationBarColor` and
+        // `speakTransport`'s background are NOT toolbar-specific (the transport bar stays a
+        // classic View either way) so they are computed/applied unconditionally, same as before.
+        val composeUiEnabled = CommonUtils.settings.getBoolean("use_compose_ui", false)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(windowRepository.visibleWindows.isNotEmpty()) {
                 val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings, CommonUtils.globalTextDisplaySettings).colors!!
 
-                binding.run {
-                    toolbarLayout.setBackgroundColor(toolbarColor)
-                    homeButton.setBackgroundColor(toolbarColor)
-                    pageTitle.setBackgroundColor(toolbarColor)
-                    syncIcon.setBackgroundColor(toolbarColor)
-                    documentTitle.setBackgroundColor(toolbarColor)
-                    toolbarButtonLayout.setBackgroundColor(toolbarColor)
-                }
+                if (!composeUiEnabled) {
+                    binding.run {
+                        toolbarLayout.setBackgroundColor(toolbarColor)
+                        homeButton.setBackgroundColor(toolbarColor)
+                        pageTitle.setBackgroundColor(toolbarColor)
+                        syncIcon.setBackgroundColor(toolbarColor)
+                        documentTitle.setBackgroundColor(toolbarColor)
+                        toolbarButtonLayout.setBackgroundColor(toolbarColor)
+                    }
 
-                val isMonochrome = CommonUtils.settings.monochromeMode && !ScreenSettings.nightMode
-                val toolbarIconTint = if (isMonochrome) Color.BLACK else Color.WHITE
-                binding.run {
-                    homeButton.drawable?.setTint(toolbarIconTint)
-                    pageTitle.setTextColor(toolbarIconTint)
-                    documentTitle.setTextColor(toolbarIconTint)
-                    syncIcon.drawable?.setTint(toolbarIconTint)
-                    for (i in 0 until toolbarButtonLayout.childCount) {
-                        val child = toolbarButtonLayout.getChildAt(i)
-                        if (child is ImageButton) {
-                            child.drawable?.setTint(toolbarIconTint)
+                    val isMonochrome = CommonUtils.settings.monochromeMode && !ScreenSettings.nightMode
+                    val toolbarIconTint = if (isMonochrome) Color.BLACK else Color.WHITE
+                    binding.run {
+                        homeButton.drawable?.setTint(toolbarIconTint)
+                        pageTitle.setTextColor(toolbarIconTint)
+                        documentTitle.setTextColor(toolbarIconTint)
+                        syncIcon.drawable?.setTint(toolbarIconTint)
+                        for (i in 0 until toolbarButtonLayout.childCount) {
+                            val child = toolbarButtonLayout.getChildAt(i)
+                            if (child is ImageButton) {
+                                child.drawable?.setTint(toolbarIconTint)
+                            }
                         }
                     }
-                }
-                if (ScreenSettings.nightMode) {
-                    binding.homeButton.drawable.setTint(workspaceSettings.workspaceColor ?: defaultWorkspaceColor)
-                }
+                    if (ScreenSettings.nightMode) {
+                        binding.homeButton.drawable.setTint(workspaceSettings.workspaceColor ?: defaultWorkspaceColor)
+                    }
 
-                binding.toolbarDivider.visibility = if (isMonochrome) View.VISIBLE else View.GONE
+                    binding.toolbarDivider.visibility = if (isMonochrome) View.VISIBLE else View.GONE
+                }
 
                 val color = if (setNavBarColor && !CommonUtils.settings.monochromeMode) {
                     val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
@@ -1605,9 +1708,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 window.run {
                     clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
                     addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                    
+
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                        statusBarColor = toolbarColor
+                        if (!composeUiEnabled) statusBarColor = toolbarColor
                         navigationBarColor = color
                     }
                 }
@@ -1658,6 +1761,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         super.onDestroy()
         beforeDestroy()
         ABEventBus.unregister(this)
+        // No-op on the classic path (composeReadingViewHost is null there); on the compose path
+        // this unregisters the host's own ABEventBus subscriptions (NightModeChanged/
+        // FullScreenEvent) so an activity recreation (e.g. config change) doesn't leak one
+        // registration per rotation — see ComposeReadingViewHost.dispose kdoc.
+        composeReadingViewHost?.dispose()
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
@@ -1767,53 +1875,65 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun updateToolbar() {
+        // The Compose reading toolbar (`ComposeReadingViewHost`/`ReadingToolbar`) owns its own
+        // height/padding/visibility/status-bar inset on the `use_compose_ui` path — see that
+        // class's `install()`. Below, every mutation of the classic `toolbarLayout` is guarded on
+        // `composeUiEnabled`, but the system-bar hide/show calls are NOT guarded: fullscreen must
+        // still hide/show the OS status/navigation bars regardless of which toolbar is active.
+        val composeUiEnabled = CommonUtils.settings.getBoolean("use_compose_ui", false)
         binding.apply {
-            val toolbarHeightRes = if (CommonUtils.settings.monochromeMode && !ScreenSettings.nightMode)
-                R.dimen.toolbar_height_monochrome else R.dimen.toolbar_height
-            val toolbarHeightPx = resources.getDimensionPixelSize(toolbarHeightRes)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                binding.toolbarLayout.layoutParams.height = systemInsets.top + toolbarHeightPx
-                binding.toolbarLayout.setPadding(0, systemInsets.top, 0, 0)
-            } else {
-                binding.toolbarLayout.layoutParams.height = toolbarHeightPx
-                binding.toolbarLayout.minimumHeight = toolbarHeightPx
+            if (!composeUiEnabled) {
+                val toolbarHeightRes = if (CommonUtils.settings.monochromeMode && !ScreenSettings.nightMode)
+                    R.dimen.toolbar_height_monochrome else R.dimen.toolbar_height
+                val toolbarHeightPx = resources.getDimensionPixelSize(toolbarHeightRes)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                    binding.toolbarLayout.layoutParams.height = systemInsets.top + toolbarHeightPx
+                    binding.toolbarLayout.setPadding(0, systemInsets.top, 0, 0)
+                } else {
+                    binding.toolbarLayout.layoutParams.height = toolbarHeightPx
+                    binding.toolbarLayout.minimumHeight = toolbarHeightPx
+                }
+                toolbarLayout.setPadding(leftOffset1, topOffset1, rightOffset1, 0)
             }
-            toolbarLayout.setPadding(leftOffset1, topOffset1, rightOffset1, 0)
             speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
-            
+
             if(isFullScreen) {
                 hideSystemUI()
                 Log.i(TAG, "Fullscreen on")
-                toolbarLayout.visibility = View.GONE
+                if (!composeUiEnabled) {
+                    toolbarLayout.visibility = View.GONE
 
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                    toolbarLayout.translationY = 0f
-                    toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
-                        .setInterpolator(AccelerateInterpolator())
-                        .withEndAction { toolbarLayout.visibility = View.GONE }
-                        .apply {
-                            if (CommonUtils.settings.disableAnimations) {
-                                duration = 0
-                            }
-                        }.start()
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                        toolbarLayout.translationY = 0f
+                        toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
+                            .setInterpolator(AccelerateInterpolator())
+                            .withEndAction { toolbarLayout.visibility = View.GONE }
+                            .apply {
+                                if (CommonUtils.settings.disableAnimations) {
+                                    duration = 0
+                                }
+                            }.start()
+                    }
                 }
             }
             else {
                 showSystemUI()
                 Log.i(TAG, "Fullscreen off")
 
-                toolbarLayout.visibility = View.VISIBLE
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                    toolbarLayout.translationY = -toolbarLayout.height.toFloat()
-                    toolbarLayout.animate().translationY(0f)
-                        .setInterpolator(DecelerateInterpolator())
-                        .apply {
-                            if (CommonUtils.settings.disableAnimations) {
-                                duration = 0
-                            }
-                        }.start()
+                if (!composeUiEnabled) {
+                    toolbarLayout.visibility = View.VISIBLE
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                        toolbarLayout.translationY = -toolbarLayout.height.toFloat()
+                        toolbarLayout.animate().translationY(0f)
+                            .setInterpolator(DecelerateInterpolator())
+                            .apply {
+                                if (CommonUtils.settings.disableAnimations) {
+                                    duration = 0
+                                }
+                            }.start()
+                    }
+                    updateActions()
                 }
-                updateActions()
             }
         }
     }

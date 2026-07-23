@@ -172,6 +172,20 @@ class ToolbarStateServiceImplTest {
     }
 
     @Test
+    fun strongsMode_reflectsActiveWindowTextDisplaySetting() {
+        seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
+
+        windowControl.activeWindowPageManager.textDisplaySettings.strongsMode = 1
+        service.refresh()
+        assertThat(service.toolbar.value.strongsMode, equalTo(1))
+
+        // A later event-driven rebuild (not just refresh()) must re-read the live setting too.
+        windowControl.activeWindowPageManager.textDisplaySettings.strongsMode = 2
+        ABEventBus.post(PassageChangedEvent())
+        assertThat(service.toolbar.value.strongsMode, equalTo(2))
+    }
+
+    @Test
     fun speakEvent_rebuildsSnapshot() {
         seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
         service.refresh()
