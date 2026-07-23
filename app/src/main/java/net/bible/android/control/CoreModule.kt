@@ -36,6 +36,7 @@ import net.bible.android.view.activity.bookmark.ManageLabelsServiceImpl
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.sharedcore.bookmark.BookmarksService
+import net.bible.android.view.activity.ai.AgentSessionServiceImpl
 import net.bible.android.view.activity.ai.AiSettingsServiceImpl
 import net.bible.android.view.activity.ai.DocumentFilterServiceImpl
 import net.bible.android.view.activity.ai.LlmModelServiceImpl
@@ -51,6 +52,7 @@ import net.bible.sharedcore.ai.LlmProviderService
 import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
+import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.ReadingLlmService
 import net.bible.android.view.activity.workspaces.WorkspaceServiceImpl
 import net.bible.sharedcore.workspaces.WorkspaceService
@@ -121,6 +123,7 @@ val coreModule = module {
     singleOf(::ToolPermissionServiceImpl) { bind<ToolPermissionService>() }
     singleOf(::RawLogServiceImpl) { bind<RawLogService>() }
     singleOf(::ReadingLlmServiceImpl) { bind<ReadingLlmService>() }
+    singleOf(::AgentSessionServiceImpl) { bind<AgentSessionService>() }
     singleOf(::DocumentFilterServiceImpl) { bind<DocumentFilterService>() }
     singleOf(::ReadingProgressServiceImpl) { bind<ReadingProgressService>() }
     singleOf(::ReadingProgressSettingsServiceImpl) { bind<ReadingProgressSettingsService>() }
