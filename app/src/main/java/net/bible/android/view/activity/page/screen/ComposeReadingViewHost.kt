@@ -170,9 +170,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 // anchors (bibleButton/commentaryButton/optionsMenu) live inside the now-GONE
                 // toolbarLayout and would position the popup at a stale/zero location.
                 onBible = { activity.composeBibleClick(container) },
-                onBibleLong = { activity.composeBibleLongClick() },
+                onBibleLong = { activity.composeBibleLongClick(container) },
                 onCommentary = { activity.composeCommentaryClick(container) },
-                onCommentaryLong = { activity.composeCommentaryLongClick() },
+                onCommentaryLong = { activity.composeCommentaryLongClick(container) },
                 onStrongs = { activity.composeCycleStrongs() },
                 onStrongsLong = { activity.composeStrongsLong() },
                 onSearch = { activity.composeSearch() },

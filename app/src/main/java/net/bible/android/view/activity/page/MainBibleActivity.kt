@@ -521,8 +521,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun setupUi() {
         if (CommonUtils.settings.getBoolean("use_compose_ui", false)) {
             // Compose reading view: mount ComposeView into mainBibleView instead of the classic
-            // SplitBibleArea build. Classic toolbar/drawer chrome stays (Plan A; Plan B ports the
-            // toolbar). DocumentViewManager's own buildView()/removeView() are guarded to no-op
+            // SplitBibleArea build. Plan B hosts the Compose toolbar (`ReadingToolbar`) on this
+            // path, so the classic `toolbarLayout` row is hidden (GONE) here; the drawer stays
+            // native. DocumentViewManager's own buildView()/removeView() are guarded to no-op
             // in this mode, so they never rebuild a classic split over the ComposeView.
             binding.mainBibleView.removeAllViews()
             composeReadingViewHost = ComposeReadingViewHost(this).also { it.install(binding.mainBibleView) }
@@ -1066,7 +1067,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    internal fun composeBibleLongClick() = startDocumentChooser("BIBLE")
+    /** @param anchor the Compose toolbar's ComposeView (classic `bibleButton` is inside the now-GONE `toolbarLayout` on this path). */
+    internal fun composeBibleLongClick(anchor: View) {
+        if (toolbarButtonSetting == "swap-menu") {
+            menuForDocs(anchor, documentControl.biblesForVerse)
+        } else {
+            startDocumentChooser("BIBLE")
+        }
+    }
 
     /** @param anchor the Compose toolbar's ComposeView (classic `commentaryButton` is inside the now-GONE `toolbarLayout` on this path). */
     internal fun composeCommentaryClick(anchor: View) {
@@ -1082,7 +1090,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    internal fun composeCommentaryLongClick() = startDocumentChooser("COMMENTARY")
+    /** @param anchor the Compose toolbar's ComposeView (classic `commentaryButton` is inside the now-GONE `toolbarLayout` on this path). */
+    internal fun composeCommentaryLongClick(anchor: View) {
+        if (toolbarButtonSetting == "swap-menu") {
+            // Mirrors classic `commentaryLongPress` exactly: unlike `commentaryClick`/
+            // `composeCommentaryClick`, the long-press popup does NOT append
+            // GENERAL_BOOK/DICTIONARY books.
+            menuForDocs(anchor, documentControl.commentariesForVerse)
+        } else {
+            startDocumentChooser("COMMENTARY")
+        }
+    }
 
     private val dummyStrongsPrefOption
         get() = StrongsPreference(
