@@ -282,6 +282,27 @@ interface Strings {
     val deletePromptConfirmMessage: String      // R.string.delete_prompt_confirm_message
     val moveToCategoryLabel: String              // R.string.move_to_category (overflow item + picker dialog title)
 
+    // Batch 12e-A — reading-view AI dialogs (LlmDialogHelper) + Plan B agent-log panel
+    val selectLlmPrompt: String                    // R.string.select_llm_prompt
+    val specifyBeforeRunTitle: String              // R.string.specify_before_run_title
+    val specifyBeforeRunHint: String               // R.string.specify_before_run_hint
+    val selectModelBeforeRunTitle: String          // R.string.select_model_before_run_title
+    val setDefaultModelForPrompt: String           // R.string.set_default_model_for_prompt
+    val aiRegenerateTitle: String                  // R.string.ai_regenerate_title
+    val aiRegenerateInstructionsHint: String       // R.string.ai_regenerate_instructions_hint
+    val aiRegenerateKeepPrevious: String           // R.string.ai_regenerate_keep_previous
+    val aiRegenerateFreshRun: String               // R.string.ai_regenerate_fresh_run
+    val aiDocumentRegenerate: String               // R.string.ai_document_regenerate
+    val aiDocumentRegenerating: String             // R.string.ai_document_regenerating
+    val agentLogIdle: String                       // R.string.agent_log_idle
+    val agentLogModelNotConfigured: String         // R.string.agent_log_model_not_configured
+    val agentLogSelectModel: String                // R.string.agent_log_select_model
+    val agentLogViewRaw: String                    // R.string.agent_log_view_raw
+    val agentLogStop: String                       // R.string.agent_log_stop
+    val agentLogClose: String                      // R.string.agent_log_close
+    val aiTaskCompleted: String                    // R.string.ai_task_completed
+    fun agentLogModelSelector(model: String): String   // R.string.agent_log_model_selector (%1$s)
+
     // Batch 9c — PromptEditScreen (Task 6)
     val promptTabPrompt: String                  // R.string.prompt_tab_prompt
     val promptTabPermissions: String             // R.string.prompt_tab_permissions
