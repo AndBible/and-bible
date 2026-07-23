@@ -76,7 +76,7 @@ class ToolbarStateServiceImpl(
     }
 
     /** Rebuilds the snapshot from the active window's current page, preserving [ToolbarState.syncRunning]. */
-    fun refresh() {
+    override fun refresh() {
         _toolbar.value = buildSnapshot().copy(syncRunning = _toolbar.value.syncRunning)
     }
 

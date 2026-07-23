@@ -173,8 +173,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onBibleLong = { activity.composeBibleLongClick(container) },
                 onCommentary = { activity.composeCommentaryClick(container) },
                 onCommentaryLong = { activity.composeCommentaryLongClick(container) },
-                onStrongs = { activity.composeCycleStrongs() },
-                onStrongsLong = { activity.composeStrongsLong() },
+                // `composeCycleStrongs`/`composeStrongsLong` call `StrongsPreference.handle()`,
+                // which posts none of the 5 ABEventBus events `toolbarStateService` subscribes to
+                // (see ToolbarStateServiceImpl kdoc) — so without this explicit `refresh()` the
+                // toolbar's Strongs icon dim state (the only feedback this button gives) would
+                // stay stale until the next unrelated scroll/passage/window/speak event.
+                onStrongs = { activity.composeCycleStrongs(); toolbarStateService.refresh() },
+                onStrongsLong = { activity.composeStrongsLong(); toolbarStateService.refresh() },
                 onSearch = { activity.composeSearch() },
                 onSpeak = { activity.composeToggleSpeak() },
                 onSpeakLong = { activity.composeSpeakLong() },
