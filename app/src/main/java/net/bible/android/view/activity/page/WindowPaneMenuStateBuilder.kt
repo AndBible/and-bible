@@ -93,13 +93,11 @@ class WindowPaneMenuStateBuilder(
         if (!isMaximised && !window.isLinksWindow) {
             items += WindowPaneMenuItem(id = ID_WINDOW_NEW, label = app.getString(R.string.new_window))
         }
-        // SplitBibleArea.kt:974-977. Compose-specific tightening: classic's literal `visible`
-        // there is `!isMaximised` only (no links-window guard, so a links window's Maximise row
-        // technically shows in the real app) -- this builder additionally hides it for a links
-        // window (per the Task-4 brief's explicit visibility requirement, mirroring `windowNew`'s
-        // own `!isLinksWindow` guard just above), since maximising a links window is not a
-        // deliberately supported classic path.
-        if (!isMaximised && !window.isLinksWindow) {
+        // SplitBibleArea.kt:974-977. `visible = !isMaximised` ONLY -- classic genuinely lets a
+        // links window be maximised from its own per-window ☰ menu, no `!isLinksWindow` guard
+        // here (unlike `windowNew`/`changeToNormal` just above/below). Confirmed classic parity;
+        // do not add a links-window guard (see WindowPaneMenuStateBuilderTest).
+        if (!isMaximised) {
             items += WindowPaneMenuItem(id = ID_WINDOW_MAXIMISE, label = app.getString(R.string.windowMaximise))
         }
         // SplitBibleArea.kt:970-973. Compose-specific choice: kept visible whenever not
@@ -185,6 +183,24 @@ class WindowPaneMenuStateBuilder(
         }
 
         // SplitBibleArea.kt:1002-1010 (WindowControl.copySettingsTo*), flattened -- see class kdoc.
+        //
+        // INTENTIONAL WIDENING (controller-adjudicated, not a bug): classic nests these three rows
+        // two levels deep inside `textOptionsSubMenu` (`window_popup_menu.xml`), and when
+        // `CommonUtils.lastDisplaySettingsSorted` is empty, classic's `showPopupMenu` REMOVES THE
+        // WHOLE `textOptionsSubMenu` (SplitBibleArea.kt:816-820) -- which incidentally hides
+        // copySettingsTo* too, on a fresh install with no display-setting history. This builder
+        // gates copySettingsTo* independently (only on `window.isVisible` + "another visible
+        // window exists" for the Window variant), so it stays visible even with no last display
+        // settings. This is a deliberate divergence: classic's coupling is an XML-nesting artifact
+        // of where the menu items happen to live, not a considered product decision -- copying
+        // settings to another window/workspace/globally is useful regardless of whether the user
+        // has ever touched a per-item display setting. Do not "fix" this to match classic's
+        // coupling.
+        //
+        // Carry-note for the Task-5 host dispatcher: `copySettingsToWindow` must resolve the
+        // ACTUAL target window (classic's copy-settings dialog lets the user pick one of the other
+        // visible windows, SplitBibleArea.kt:1005-1007's `order` param) -- do not default silently
+        // to "first other window".
         if (window.isVisible) {
             if (windowRepository.visibleWindows.any { it.id != window.id }) {
                 items += WindowPaneMenuItem(

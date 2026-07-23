@@ -130,13 +130,15 @@ class WindowPaneMenuStateBuilderTest {
     }
 
     @Test
-    fun linksWindowHidesWindowNewAndMaximiseButShowsChangeToNormal() {
+    fun linksWindowHidesWindowNewShowsChangeToNormalAndMaximise() {
         val linksWindow = windowRepository.addNewLinksWindow()
 
         val built = items(linksWindow)
 
         assertNull(itemByIdOrNull(linksWindow, WindowPaneMenuStateBuilder.ID_WINDOW_NEW), "windowNew is hidden for a links window")
-        assertNull(itemByIdOrNull(linksWindow, WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE), "windowMaximise is hidden for a links window")
+        // SplitBibleArea.kt:974-977 -- classic's windowMaximise visibility is `!isMaximised` ONLY,
+        // no links-window guard, so a links window's Maximise row genuinely shows in classic too.
+        assertTrue(built.any { it.id == WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE }, "windowMaximise is shown for a links window (classic parity)")
         assertTrue(built.any { it.id == WindowPaneMenuStateBuilder.ID_CHANGE_TO_NORMAL }, "changeToNormal is shown for a links window")
     }
 
