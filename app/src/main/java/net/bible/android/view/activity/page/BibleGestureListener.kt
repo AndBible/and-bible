@@ -30,6 +30,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.AutoFullscreenTracking
 import net.bible.sharedcore.reading.FullscreenAction
 import net.bible.sharedcore.reading.autoFullscreenAction
+import net.bible.sharedcore.reading.shouldReanchor
 import kotlin.math.abs
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
@@ -56,6 +57,19 @@ class BibleGestureListener(
      * for the full derivation against classic).
      */
     private var autoFullscreenTracking = AutoFullscreenTracking()
+
+    /**
+     * Event time of the last auto-fullscreen re-anchor point - mirrors classic `scrollEv.eventTime`
+     * (`BibleGestureListener.kt:121,124,132,139,145` at `b33072833`). [gestureAnchorInitialized]
+     * mirrors `!::scrollEv.isInitialized`. Used only to decide, via
+     * [net.bible.sharedcore.reading.shouldReanchor], WHEN to reset [autoFullscreenTracking] to a
+     * fresh accumulator before delegating to [autoFullscreenAction] in [onScroll] - restoring
+     * classic's gesture-boundary + ~1s rate-limit re-anchors that the Task 6 port dropped (both
+     * made fullscreen fire more eagerly than classic: two short same-direction swipes across a
+     * finger-lift would stack, and a slow multi-second scroll would accumulate unbounded).
+     */
+    private var gestureAnchorEventTime: Long = 0L
+    private var gestureAnchorInitialized = false
 
     init {
         minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
@@ -128,17 +142,43 @@ class BibleGestureListener(
     override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         e1 ?: return false
 
+        // Restore classic's gesture-boundary + ~1s rate-limit re-anchors (`:121,124` at
+        // `b33072833`), dropped by the Task 6 AutoFullscreenPolicy port. Reset the accumulator to
+        // fresh BEFORE delegating whenever a new physical gesture starts or too much time elapsed
+        // since the last anchor - without this, two short same-direction swipes across a
+        // finger-lift would stack, and a slow multi-second scroll would accumulate unbounded,
+        // both making fullscreen fire more eagerly than classic.
+        if (shouldReanchor(gestureAnchorInitialized, e1.eventTime, e2.eventTime, gestureAnchorEventTime)) {
+            autoFullscreenTracking = AutoFullscreenTracking()
+            gestureAnchorEventTime = e2.eventTime
+            gestureAnchorInitialized = true
+        }
+
         // Bridge note (Task 6): GestureDetector's distanceY is the NEGATION of the shared policy's
         // "down = positive" deltaY convention - see AutoFullscreenPolicy KDoc.
+        val deltaY = -distanceY
+        val trackingBeforeCall = autoFullscreenTracking
         val result = autoFullscreenAction(
-            deltaY = -distanceY,
+            deltaY = deltaY,
             isEnabled = autoFullScreen,
             isFullScreen = mainBibleActivity.fullScreen,
             lockedByDoubleTap = lastFullScreenByDoubleTap,
             thresholdPx = scaledMinimumFullScreenScrollDistance.toFloat(),
-            tracking = autoFullscreenTracking,
+            tracking = trackingBeforeCall,
         )
         autoFullscreenTracking = result.tracking
+
+        // Classic also re-anchors `scrollEv = e2` whenever it toggles fullscreen (threshold
+        // cross, `:139`/`:145` - unconditional regardless of the double-tap-lock/pref gating) or
+        // flips direction (`:132`). Both are already reproduced inside autoFullscreenAction's own
+        // accumulator math (accumulated resets to 0 in either case) - but the re-anchor TIME must
+        // still be tracked here so the next call's ~1s idle check in shouldReanchor restarts from
+        // the same points classic used.
+        val directionFlipped = (deltaY < 0) != trackingBeforeCall.lastDirectionUp
+        if (result.action != FullscreenAction.None || directionFlipped) {
+            gestureAnchorEventTime = e2.eventTime
+        }
+
         when (result.action) {
             FullscreenAction.Enter -> mainBibleActivity.fullScreen = true
             FullscreenAction.Exit -> mainBibleActivity.fullScreen = false
