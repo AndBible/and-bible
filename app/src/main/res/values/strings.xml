@@ -2007,4 +2007,5 @@
     <string name="background_image_night">Background image (night)</string>
     <string name="background_image_opacity_day">Background image opacity (day)</string>
     <string name="background_image_opacity_night">Background image opacity (night)</string>
+    <string name="background_image_change">Change</string>
 </resources>

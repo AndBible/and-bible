@@ -19,25 +19,36 @@ package net.bible.android.view.activity.settings
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.lifecycleScope
+import kotlin.coroutines.resume
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.android.activity.R
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
+import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import net.bible.sharedcore.settings.ColorSettingsController
 import net.bible.sharedcore.settings.InheritedFrom
 import net.bible.sharedcore.settings.KEY_OPEN_GLOBAL_SETTINGS
 import net.bible.sharedcore.settings.KEY_OPEN_WORKSPACE_SETTINGS
@@ -47,6 +58,10 @@ import net.bible.sharedcore.settings.TextDisplaySettingsLabels
 import net.bible.sharedcore.settings.TextDisplaySettingsScreenState
 import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.settings.BackgroundImageChooserLabels
+import net.bible.sharedui.settings.BackgroundImageChooserScreen
+import net.bible.sharedui.settings.ColorSettingsLabels
+import net.bible.sharedui.settings.ColorSettingsScreen
 import net.bible.sharedui.settings.TextDisplaySettingsScreen
 import net.bible.sharedui.settings.TextDisplaySettingsScreenLabels
 import net.bible.sharedui.theme.AbTheme
@@ -64,27 +79,37 @@ import org.koin.android.ext.android.inject
  * stack is what's rendered, [BackHandler] pops one level (or [finish]es at the root), and each
  * scope gets its own persistent [TextDisplaySettingsController] instance (created once, cached in
  * [controllerCache] — NOT re-created every recomposition, so `collectAsState()` never loses its
- * subscription, and so [openColors]/[openHideLabels]/[onActivityResult] — which run outside
- * Composable context — can still resolve "the controller for scope X").
+ * subscription, and so [onNavigate]/[openHideLabels] — which run outside Composable context —
+ * can still resolve "the controller for scope X").
  *
- * Two more classic paths are bridged from here (interim, Plan A):
- * - COLORS: launches the STILL-classic [ColorSettingsActivity] (via [service]'s
- *   `colorsBundleJson`/`applyColorsResult` helpers), exactly like classic
- *   `TextDisplaySettingsActivity.onActivityResult(COLORS_CHANGED)`. Plan B replaces this with an
- *   internal Compose colours destination.
+ * COLORS opens an internal Compose destination (Batch 12d-B T7): [colorsScope] non-null selects
+ * the [ColorSettingsScreen] for that scope, rendered by its own persistent [ColorSettingsController]
+ * ([colorControllerFor]); [chooserNight] non-null further drills into [BackgroundImageChooserScreen]
+ * for that day/night slot. This retires the earlier interim bridge (Plan A) that launched the
+ * classic `ColorSettingsActivity` via `service.colorsBundleJson`/`applyColorsResult`.
+ *
+ * One classic path is still bridged from here:
  * - BOOKMARKS_HIDELABELS: launches [Screen.ManageLabels] (old or new, via [ScreenLauncher]),
  *   reproducing classic `HideLabelsPreference.openDialog`'s payload + the
  *   `windowRepository.workspaceSettings.updateFrom(data)` recent-labels side-effect.
  */
 class TextDisplaySettingsComposeActivity : ActivityBase() {
     // The CONCRETE service (not the `TextDisplaySettingsService` interface) — needed for the
-    // Plan-A-only COLORS/HIDELABELS bridge helpers, which aren't part of the portable interface.
+    // HIDELABELS bridge helper + the imagePicker seam, neither of which are part of the portable
+    // interface.
     private val service: TextDisplaySettingsServiceImpl by inject()
+
+    /** Test-only escape hatch to reach [service] — e.g. to assert [TextDisplaySettingsServiceImpl.imagePicker]
+     *  got wired in [onCreate] (Batch 12d-B T7). */
+    @VisibleForTesting
+    val serviceForTest: TextDisplaySettingsServiceImpl get() = service
 
     private val windowRepository get() = CommonUtils.windowControl.windowRepository
 
     private val controllerLabels by lazy { buildControllerLabels() }
     private val screenLabels by lazy { buildScreenLabels() }
+    private val colorSettingsLabels by lazy { buildColorSettingsLabels() }
+    private val backgroundImageChooserLabels by lazy { buildBackgroundImageChooserLabels() }
 
     /** One [TextDisplaySettingsController] per visited [SettingsScope], kept alive for the life of
      * the Activity so a pop back to an earlier scope reuses (and [refresh]es) the same instance
@@ -93,10 +118,37 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
 
     private var navStack by mutableStateOf<List<SettingsScope>>(emptyList())
 
+    /** Non-null while the internal `colors` destination is shown, holding the [SettingsScope] it
+     * was opened for. Null pops back to the text-settings list ([TextDisplaySettingsScreen]). */
+    private var colorsScope by mutableStateOf<SettingsScope?>(null)
+
+    /** Non-null while the `chooser` sub-destination ([BackgroundImageChooserScreen]) is shown, for
+     * that day (`false`)/night (`true`) slot. Only meaningful while [colorsScope] is non-null. */
+    private var chooserNight by mutableStateOf<Boolean?>(null)
+
+    // Registered eagerly (constructor-time property, like classic BackgroundImageChooserActivity's
+    // photoPicker) so it's ready well before RESUMED, whichever destination is showing.
+    private var pendingPick: CancellableContinuation<String?>? = null
+    private val photoPicker = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        pendingPick?.resume(uri?.toString())
+        pendingPick = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val initialScope = scopeFromIntent(intent)
         navStack = listOf(initialScope)
+
+        // The imagePicker seam (Batch 12d-B T5/T6/T7): TextDisplaySettingsServiceImpl.importBackgroundImage()
+        // suspends on this to get the user's picked image's content-URI, since a Koin singleton can't
+        // own an ActivityResultLauncher itself.
+        service.imagePicker = {
+            suspendCancellableCoroutine { cont ->
+                pendingPick = cont
+                photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                cont.invokeOnCancellation { pendingPick = null }
+            }
+        }
 
         setContent {
             ProvideAppLocals {
@@ -107,45 +159,88 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
                 ) {
                     BackHandler { pop() }
 
-                    val scope = navStack.last()
-                    val controller = controllerFor(scope)
-                    val state by controller.state.collectAsState()
+                    val activeColorsScope = colorsScope
+                    if (activeColorsScope != null) {
+                        // Fresh controller every time the colours destination is (re-)entered -- see
+                        // the kdoc on colorControllerFor for why this must NOT be a long-lived cache.
+                        val colorController = remember(activeColorsScope) { colorControllerFor(activeColorsScope) }
+                        val colorState by colorController.state.collectAsState()
+                        val night = chooserNight
 
-                    TextDisplaySettingsScreen(
-                        state = state,
-                        dialogLabels = screenLabels,
-                        badgeFor = { key -> badgeLabel(state, key) },
-                        onUp = { pop() },
-                        onSwitch = controller::onSwitch,
-                        onListChoice = controller::onListChoice,
-                        onNumericChange = controller::onNumericChange,
-                        onMarginsChange = controller::onMarginsChange,
-                        onRevert = controller::onRevert,
-                        onReset = controller::onReset,
-                        onNavigate = { key -> onNavigate(scope, key) },
-                    )
+                        if (night != null) {
+                            BackgroundImageChooserScreen(
+                                options = colorState.backgroundOptions,
+                                labels = backgroundImageChooserLabels,
+                                loading = colorState.loading,
+                                deleteConfirm = colorState.deleteConfirm,
+                                thumbnailFor = ::decodeThumbnail,
+                                onUp = { pop() },
+                                onSelect = { initials ->
+                                    colorController.onSelectBackgroundImage(night, initials)
+                                    chooserNight = null
+                                },
+                                onImport = colorController::onImportBackgroundImage,
+                                onRequestDelete = colorController::onRequestDeleteBackgroundImage,
+                                onConfirmDelete = colorController::onConfirmDeleteBackgroundImage,
+                                onDismissDelete = colorController::onDismissDeleteConfirm,
+                            )
+                        } else {
+                            ColorSettingsScreen(
+                                state = colorState,
+                                labels = colorSettingsLabels,
+                                onUp = { pop() },
+                                onReset = colorController::onReset,
+                                onColorChange = colorController::onColorChange,
+                                onNoiseChange = colorController::onNoiseChange,
+                                onWorkspaceColorChange = colorController::onWorkspaceColorChange,
+                                onOpacityChange = colorController::onOpacityChange,
+                                onChangeBackgroundImage = { n -> chooserNight = n },
+                            )
+                        }
+                    } else {
+                        val scope = navStack.last()
+                        val controller = controllerFor(scope)
+                        val state by controller.state.collectAsState()
+
+                        TextDisplaySettingsScreen(
+                            state = state,
+                            dialogLabels = screenLabels,
+                            badgeFor = { key -> badgeLabel(state, key) },
+                            onUp = { pop() },
+                            onSwitch = controller::onSwitch,
+                            onListChoice = controller::onListChoice,
+                            onNumericChange = controller::onNumericChange,
+                            onMarginsChange = controller::onMarginsChange,
+                            onRevert = controller::onRevert,
+                            onReset = controller::onReset,
+                            onNavigate = { key -> onNavigate(scope, key) },
+                        )
+                    }
                 }
             }
         }
 
-        // EXTRA_START_DESTINATION == "colors": jump straight into the Plan-A colours bridge (e.g. a
-        // caller that wants "edit colours for this scope" without showing the text-options list
-        // first) — same target scope, the list is still there underneath once colours close.
+        // EXTRA_START_DESTINATION == "colors": jump straight into the internal colours destination
+        // (e.g. a caller that wants "edit colours for this scope" without showing the text-options
+        // list first) — same target scope, the list is still there underneath once colours close.
         if (intent.getStringExtra(EXTRA_START_DESTINATION) == "colors") {
-            openColors(initialScope)
+            colorsScope = initialScope
         }
     }
 
     // --- Internal drill-up nav stack ------------------------------------------------------------
 
     private fun pop() {
-        if (navStack.size > 1) {
-            navStack = navStack.dropLast(1)
-            // Mirrors classic TextDisplaySettingsActivity.onBackPressed's refreshFromInMemoryState:
-            // edits made at the deeper scope may have changed what the shallower scope inherits.
-            controllerFor(navStack.last()).refresh()
-        } else {
-            finish()
+        when {
+            chooserNight != null -> chooserNight = null
+            colorsScope != null -> colorsScope = null
+            navStack.size > 1 -> {
+                navStack = navStack.dropLast(1)
+                // Mirrors classic TextDisplaySettingsActivity.onBackPressed's refreshFromInMemoryState:
+                // edits made at the deeper scope may have changed what the shallower scope inherits.
+                controllerFor(navStack.last()).refresh()
+            }
+            else -> finish()
         }
     }
 
@@ -159,13 +254,23 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
             )
         }
 
+    /** NOT cached across colours-destination visits (unlike [controllerFor]): its [ColorSettingsUiState]
+     * is loaded once in the constructor, and a whole-scope reset from the text-settings list (
+     * [TextDisplaySettingsController.onReset]) can change colours behind this screen's back while
+     * it isn't shown -- a cached, stale instance would then reopen showing pre-reset values. */
+    private fun colorControllerFor(scope: SettingsScope): ColorSettingsController =
+        ColorSettingsController(service = service, scope = scope, coroutineScope = lifecycleScope)
+
     private fun onNavigate(scope: SettingsScope, key: String) {
         when (key) {
             // The workspace link only appears at WINDOW scope; the host always edits the active
             // workspace, so its id is windowRepository.id (matches the Window scope's workspaceId).
             KEY_OPEN_WORKSPACE_SETTINGS -> navStack = navStack + SettingsScope.Workspace(windowRepository.id.toString())
             KEY_OPEN_GLOBAL_SETTINGS -> navStack = navStack + SettingsScope.Global
-            TextSettingType.COLORS.name -> openColors(scope)
+            TextSettingType.COLORS.name -> {
+                chooserNight = null
+                colorsScope = scope
+            }
             TextSettingType.BOOKMARKS_HIDELABELS.name -> openHideLabels(scope)
         }
     }
@@ -181,27 +286,28 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
                 }
             }
 
-    // --- COLORS bridge (Plan A; classic ColorSettingsActivity) ----------------------------------
+    // --- Background-image thumbnails ------------------------------------------------------------
 
-    private fun openColors(scope: SettingsScope) {
-        val intent = Intent(this, ColorSettingsActivity::class.java)
-        intent.putExtra("settingsBundle", service.colorsBundleJson(scope))
-        startActivityForResult(intent, COLORS_CHANGED)
-    }
+    private val thumbnailCache = mutableMapOf<String, ImageBitmap?>()
 
-    /** Mirrors classic `TextDisplaySettingsActivity.onActivityResult`'s COLORS_CHANGED branch. */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == COLORS_CHANGED && resultCode == Activity.RESULT_OK) {
-            val extras = data?.extras
-            if (extras != null) {
-                // ColorSettingsActivity always returns to the scope it was opened for -- the user
-                // cannot drive this Activity's own nav stack while it's in the foreground.
-                val scope = navStack.last()
-                service.applyColorsResult(scope, colorsJson = extras.getString("colors"), reset = extras.getBoolean("reset"))
-                controllerFor(scope).refresh()
+    /** Ports classic `BackgroundImageChooserActivity.Adapter.decodeThumbnail`: down-samples via
+     * `inJustDecodeBounds` so a large source photo doesn't fully decode just to draw an 8dp grid
+     * tile. Cached per [BackgroundImageOption.thumbnailToken] (== module initials) for the lifetime
+     * of this Activity; null-safe throughout -- a missing/unreadable file yields `null`, and
+     * [BackgroundImageChooserScreen] falls back to a themed placeholder box for that tile. */
+    private fun decodeThumbnail(token: String): ImageBitmap? = thumbnailCache.getOrPut(token) {
+        val file = AndBibleAddons.providedBackgroundImages[token]?.file ?: return@getOrPut null
+        runCatching {
+            BitmapFactory.Options().run {
+                inJustDecodeBounds = true
+                BitmapFactory.decodeFile(file.path, this)
+                var sample = 1
+                while (outWidth / sample > 240 || outHeight / sample > 240) sample *= 2
+                inJustDecodeBounds = false
+                inSampleSize = sample
+                BitmapFactory.decodeFile(file.path, this)
             }
-        }
-        super.onActivityResult(requestCode, resultCode, data)
+        }.getOrNull()?.asImageBitmap()
     }
 
     // --- BOOKMARKS_HIDELABELS bridge (reproduces classic HideLabelsPreference.openDialog) -------
@@ -348,6 +454,35 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
         badgeGlobal = getString(R.string.text_options_inherited_global),
         okLabel = getString(R.string.okay),
         cancelLabel = getString(R.string.cancel),
+    )
+
+    private fun buildColorSettingsLabels() = ColorSettingsLabels(
+        dayMode = getString(R.string.colors_day_mode_title),
+        nightMode = getString(R.string.colors_night_mode_title),
+        textColor = getString(R.string.color_text),
+        backgroundColor = getString(R.string.color_background),
+        noise = getString(R.string.prefs_noise_title),
+        workspaceColor = getString(R.string.color_workspace),
+        backgroundImageDay = getString(R.string.background_image_day),
+        backgroundImageNight = getString(R.string.background_image_night),
+        opacityDay = getString(R.string.background_image_opacity_day),
+        opacityNight = getString(R.string.background_image_opacity_night),
+        change = getString(R.string.background_image_change),
+        // No standalone R.string.reset exists (only "reset settings"-flavoured strings) -- reuse
+        // the same generic reset wording buildScreenLabels() uses for resetToInheritedLabel.
+        reset = getString(R.string.reset_generic),
+    )
+
+    private fun buildBackgroundImageChooserLabels() = BackgroundImageChooserLabels(
+        title = getString(R.string.background_image_title),
+        none = getString(R.string.background_image_none),
+        import = getString(R.string.background_image_import),
+        empty = getString(R.string.background_image_empty),
+        importing = getString(R.string.background_image_importing),
+        deleteTitle = getString(R.string.background_image_delete_title),
+        deleteConfirm = getString(R.string.background_image_delete_confirm),
+        delete = getString(R.string.delete),
+        cancel = getString(R.string.cancel),
     )
 
     companion object {

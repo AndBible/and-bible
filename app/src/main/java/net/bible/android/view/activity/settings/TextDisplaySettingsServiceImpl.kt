@@ -374,16 +374,7 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
         AndBibleAddons.clearCaches()
     }
 
-    // ---- Plan A COLORS bridge (host-only; Plan B replaces with the Compose colors destination) ----
-    fun colorsBundleJson(scope: SettingsScope): String = bundleFor(scope).toJson()
-    fun applyColorsResult(scope: SettingsScope, colorsJson: String?, reset: Boolean) {
-        val bundle = bundleFor(scope)
-        val item = getPrefItem(bundle, TextDisplaySettings.Types.COLORS)
-        if (reset) item.setNonSpecific() else if (colorsJson != null) item.value = WorkspaceEntities.Colors.fromJson(colorsJson)
-        applyAndPersist(scope, bundle, setOf(TextDisplaySettings.Types.COLORS))
-    }
-
-    // ---- Plan A BOOKMARKS_HIDELABELS bridge (host-only; mirrors the COLORS bridge above) ----
+    // ---- Plan A BOOKMARKS_HIDELABELS bridge (host-only) ----
     // The current-scope [TextSettingRowValue.HideLabels] DTO carries only the display summary (Task
     // 4/5 didn't need the raw ids for rendering), so the host needs a separate read of the classic
     // value to seed `ManageLabels.ManageLabelsData.selectedLabels` when opening the label picker
