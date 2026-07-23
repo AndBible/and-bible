@@ -83,7 +83,7 @@ fun BackgroundImageChooserScreen(
                 ) {
                     item { FixedTile(text = labels.none, onClick = { onSelect(null) }) }
                     item { FixedTile(text = labels.import, onClick = onImport) }
-                    items(options) { option ->
+                    items(options, key = { it.initials }) { option ->
                         BackgroundImageTile(
                             option = option,
                             thumbnail = thumbnailFor(option.thumbnailToken),

@@ -2002,7 +2002,7 @@
     <string name="background_image_empty">No imported images yet. Tap \"Import from gallery…\" to add one.</string>
     <string name="background_image_importing">Importing…</string>
     <string name="background_image_delete_title">Delete image?</string>
-    <string name="background_image_delete_confirm">Delete this background image? This cannot be undone.</string>
+    <string name="background_image_delete_confirm">Delete this background image? Workspaces still using it will fall back to no image.</string>
     <string name="background_image_day">Background image (day)</string>
     <string name="background_image_night">Background image (night)</string>
     <string name="background_image_opacity_day">Background image opacity (day)</string>
