@@ -42,20 +42,35 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
+import net.bible.android.control.page.DocumentCategory
+import net.bible.android.control.page.ErrorDocument
+import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import net.bible.service.llm.PromptContext
+import net.bible.service.llm.agent.AgentForegroundService
+import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
+import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
+import net.bible.sharedcore.ai.reading.ReadingLlmService
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ToolbarState
@@ -69,6 +84,7 @@ import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowTabBarModel
 import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.ai.reading.ReadingLlmDialogs
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
@@ -161,6 +177,22 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val windowState: WindowStateServiceImpl by inject()
     private val commands: WindowCommands by inject()
     private val toolbarStateService: ToolbarStateService by inject()
+    private val readingLlmService: ReadingLlmService by inject()
+
+    /** Owns [readingLlmDialogs]' coroutine work (dialog open/execute/dismiss). Cancelled in
+     *  [dispose] — one host per activity (re-)creation, mirroring the [ABEventBus] registration
+     *  lifecycle right below. */
+    private val hostScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    /**
+     * State machine driving the reading-view LLM dialogs (Batch 12e-A Task 6): prompt selector,
+     * specify-before-run, model selection, regenerate-confirm. Not `private` so
+     * `ComposeReadingViewHostTest`-style tests can assert against it directly, mirroring
+     * [controller]'s visibility below. Rendered by [mountComposeView] (see [install]) as a sibling
+     * of `ReadingViewScreen`; its `onExecute`/`onRegenerate` callbacks are wired by
+     * [showPromptSelector]/[showRegenerate].
+     */
+    val readingLlmDialogs = ReadingLlmDialogController(readingLlmService, hostScope)
 
     private val generation = ComposeReadingViewGeneration()
 
@@ -258,13 +290,65 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     fun closePaneMenu() { paneMenuWindowId.value = null }
 
     /**
-     * Unregisters this host's [ABEventBus] subscriptions (see [init]). Call from
-     * [MainBibleActivity.onDestroy] — each activity (re-)creation builds a fresh
-     * [ComposeReadingViewHost], so without this the previous instance's registration would leak
-     * (an activity-recreating config change would accumulate one stale registration per rotation).
-     * Safe to call unconditionally even when [install] was never invoked (classic path).
+     * Opens the Compose reading-view LLM prompt-selector dialog for [selection] (Batch 12e-A Task
+     * 6) — the compose-path counterpart of classic `LlmDialogHelper.showPromptSelector`. The
+     * actual dialog UI is rendered by [readingLlmDialogs]/[ReadingLlmDialogs] inside
+     * [mountComposeView]; this bridge only supplies the `onExecute` callback that starts the agent
+     * once a prompt (and, if needed, a specification/model override) has been chosen — a verbatim
+     * mirror of classic `LlmDialogHelper.executePrompt`. Called by [MainBibleActivity]'s
+     * flag-gated entry points ([MainBibleActivity.showLlmPromptSelector] and the overflow/pane-menu
+     * LLM actions) when `use_compose_ui` is on.
      */
-    fun dispose() { ABEventBus.unregister(this) }
+    fun showPromptSelector(selection: Selection, context: PromptContext, docCategory: DocumentCategory?) {
+        readingLlmDialogs.openPromptSelector(context.name, docCategory?.name) { promptId, userSpecification, modelOverrideId ->
+            AgentForegroundService.startAgent(
+                activity,
+                IdType(promptId),
+                selection,
+                activity.windowControl.windowRepository.id,
+                userSpecification,
+                modelOverrideId?.let { IdType(it) },
+            )
+        }
+    }
+
+    /**
+     * Opens the Compose reading-view regenerate-confirm dialog for [pageId]/[bibleView] (Batch
+     * 12e-A Task 6) — the compose-path counterpart of classic `LlmDialogHelper.showRegenerateDialog`.
+     * The `onRegenerate` callback is a verbatim mirror of classic `LlmDialogHelper.startRegenerate`:
+     * it loads the "Regenerating…" placeholder into [bibleView] before kicking off the foreground
+     * service. Called by [MainBibleActivity.showRegenerate] when `use_compose_ui` is on.
+     */
+    fun showRegenerate(pageId: IdType, bibleView: BibleView) {
+        readingLlmDialogs.openRegenerate(pageId.toString()) { _, instructions, keepPrevious, freshRun, modelOverrideId ->
+            activity.lifecycleScope.launch {
+                bibleView.loadDocument(ErrorDocument(activity.getString(R.string.ai_document_regenerating), ErrorSeverity.NORMAL))
+            }
+            AgentForegroundService.startRegenerate(
+                activity,
+                pageId,
+                activity.windowControl.windowRepository.id,
+                bibleView.window.id,
+                instructions,
+                keepPrevious,
+                freshRun,
+                modelOverrideId?.let { IdType(it) },
+            )
+        }
+    }
+
+    /**
+     * Unregisters this host's [ABEventBus] subscriptions (see [init]) and cancels [hostScope] (so
+     * any in-flight [readingLlmDialogs] coroutine work is torn down with the host). Call from
+     * [MainBibleActivity.onDestroy] — each activity (re-)creation builds a fresh
+     * [ComposeReadingViewHost], so without this the previous instance's registration/scope would
+     * leak (an activity-recreating config change would accumulate one stale registration per
+     * rotation). Safe to call unconditionally even when [install] was never invoked (classic path).
+     */
+    fun dispose() {
+        ABEventBus.unregister(this)
+        hostScope.cancel()
+    }
 
     /** Mounts the Compose reading view into [container] (expected: `binding.mainBibleView`, already emptied by the caller). */
     fun install(container: ViewGroup) {
@@ -362,6 +446,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 }
             },
             onPaneMenuDismiss = ::closePaneMenu,
+            llmDialogState = readingLlmDialogs.state,
+            onLlmPromptChosen = readingLlmDialogs::onPromptChosen,
+            onLlmToggleFavorite = readingLlmDialogs::onToggleFavorite,
+            onLlmCategoryExpandedChanged = readingLlmDialogs::onCategoryExpandedChanged,
+            onLlmSpecifySubmitted = readingLlmDialogs::onSpecifySubmitted,
+            onLlmModelChosen = readingLlmDialogs::onModelChosen,
+            onLlmRegenerateConfirmed = readingLlmDialogs::onRegenerateConfirmed,
+            onLlmDismiss = readingLlmDialogs::dismiss,
         )
     }
 
@@ -431,6 +523,21 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onOpenPaneMenu: (windowId: String) -> Unit = {},
             onPaneMenuItemClick: (windowId: String, id: String) -> Unit = { _, _ -> },
             onPaneMenuDismiss: () -> Unit = {},
+            // Batch 12e-A Task 6 additions: the reading-view LLM dialogs (prompt selector,
+            // specify-before-run, model selection, regenerate-confirm), rendered as a sibling of
+            // `ReadingViewScreen` below. A `StateFlow` (not a plain `State`), mirroring the
+            // `toolbar` param above — [ComposeReadingViewHost.install] passes
+            // `readingLlmDialogs.state` directly and this collects it via `collectAsState()`, same
+            // pattern as `toolbarState`. Defaulted to an always-`None` flow + no-op callbacks so
+            // `ComposeReadingViewHostTest` (which never opens an LLM dialog) is unaffected.
+            llmDialogState: StateFlow<ReadingLlmDialogState> = MutableStateFlow(ReadingLlmDialogState()).asStateFlow(),
+            onLlmPromptChosen: (promptId: String) -> Unit = {},
+            onLlmToggleFavorite: (promptId: String) -> Unit = {},
+            onLlmCategoryExpandedChanged: (categoryId: String?, expanded: Boolean) -> Unit = { _, _ -> },
+            onLlmSpecifySubmitted: (text: String) -> Unit = {},
+            onLlmModelChosen: (modelId: String, setAsDefault: Boolean) -> Unit = { _, _ -> },
+            onLlmRegenerateConfirmed: (instructions: String?, keepPrevious: Boolean, freshRun: Boolean) -> Unit = { _, _, _ -> },
+            onLlmDismiss: () -> Unit = {},
         ) {
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
@@ -545,6 +652,21 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                     },
                                 )
                             }
+                            // Sibling of `ReadingViewScreen` (not nested inside `key(gen)`, which
+                            // only needs to scope the panes' `AndroidView` factories) — an
+                            // `AlertDialog` overlays regardless of where in the tree it's composed,
+                            // and there is at most one non-`None` dialog at a time.
+                            val llmDialog by llmDialogState.collectAsState()
+                            ReadingLlmDialogs(
+                                dialog = llmDialog.dialog,
+                                onPromptChosen = onLlmPromptChosen,
+                                onToggleFavorite = onLlmToggleFavorite,
+                                onCategoryExpandedChanged = onLlmCategoryExpandedChanged,
+                                onSpecifySubmitted = onLlmSpecifySubmitted,
+                                onModelChosen = onLlmModelChosen,
+                                onRegenerateConfirmed = onLlmRegenerateConfirmed,
+                                onDismiss = onLlmDismiss,
+                            )
                         }
                     }
                 }

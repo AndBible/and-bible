@@ -1016,7 +1016,7 @@ class BibleJavascriptInterface(
     fun regenerateMyDocumentPage(pageId: String) {
         val id = IdType(pageId)
         scope.launch(Dispatchers.Main) {
-            mainBibleActivity.llmDialogHelper.showRegenerateDialog(id, bibleView)
+            mainBibleActivity.showRegenerate(id, bibleView)
         }
     }
 

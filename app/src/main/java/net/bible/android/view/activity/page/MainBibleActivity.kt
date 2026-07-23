@@ -1247,7 +1247,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         endOffset = null,
                         bookmarks = emptyList(),
                     )
-                    llmDialogHelper.showPromptSelector(selection, PromptContext.WORKSPACE_MENU)
+                    val host = composeReadingViewHost
+                    if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+                        host.showPromptSelector(selection, PromptContext.WORKSPACE_MENU, null)
+                    } else {
+                        llmDialogHelper.showPromptSelector(selection, PromptContext.WORKSPACE_MENU)
+                    }
                 },
                 visible = CommonUtils.settings.llmConfigured,
                 opensDialog = true,
@@ -1542,7 +1547,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val key = currentPage.key
                 if (book != null && key != null) {
                     val selection = Selection(book.initials, key.osisRef, -1, -1)
-                    llmDialogHelper.showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
+                    // This ☰ pane menu only exists on the Compose path (composeReadingViewHost
+                    // installed), so route straight through the host; the classic call is kept as
+                    // an `?:` fallback for safety rather than assumed unreachable.
+                    composeReadingViewHost?.showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
+                        ?: llmDialogHelper.showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
                 }
                 false
             }
@@ -2781,11 +2790,33 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         CurrentActivityHolder.activate(this)
     }
 
+    // compose: unused entry (no caller) — kept classic-only; not routed through the Compose LLM
+    // dialog host (Batch 12e-A T6) since it bypasses the prompt-selector dialog entirely.
     fun executeLlmPrompt(prompt: AgentPrompt, selection: Selection) =
         llmDialogHelper.maybeAskModel(prompt, selection, userSpecification = null)
 
-    fun showLlmPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION) =
-        llmDialogHelper.showPromptSelector(selection, context, windowRepository.activeWindow.pageManager.currentPage.documentCategory)
+    fun showLlmPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION) {
+        val documentCategory = windowRepository.activeWindow.pageManager.currentPage.documentCategory
+        val host = composeReadingViewHost
+        if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+            host.showPromptSelector(selection, context, documentCategory)
+        } else {
+            llmDialogHelper.showPromptSelector(selection, context, documentCategory)
+        }
+    }
+
+    /** Compose-gated bridge for `BibleJavascriptInterface.regenerateMyDocumentPage` (Batch 12e-A
+     *  T6) — mirrors [showLlmPromptSelector]'s fork: the Compose LLM dialog host's regenerate
+     *  confirmation when `use_compose_ui` is on and [composeReadingViewHost] is installed, else the
+     *  classic [LlmDialogHelper.showRegenerateDialog]. */
+    fun showRegenerate(pageId: IdType, bibleView: BibleView) {
+        val host = composeReadingViewHost
+        if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+            host.showRegenerate(pageId, bibleView)
+        } else {
+            llmDialogHelper.showRegenerateDialog(pageId, bibleView)
+        }
+    }
 
     companion object {
         var initialized = false
