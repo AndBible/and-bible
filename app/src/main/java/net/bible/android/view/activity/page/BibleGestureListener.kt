@@ -27,6 +27,9 @@ import net.bible.android.control.event.on
 import net.bible.android.view.util.TouchOwner
 import net.bible.service.common.BibleViewSwipeMode
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.reading.AutoFullscreenTracking
+import net.bible.sharedcore.reading.FullscreenAction
+import net.bible.sharedcore.reading.autoFullscreenAction
 import kotlin.math.abs
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
@@ -44,9 +47,15 @@ class BibleGestureListener(
     private val autoFullScreen: Boolean get() = CommonUtils.settings.getBoolean("auto_fullscreen_pref", false)
     private var lastFullScreenByDoubleTap = false
 
-    private lateinit var scrollEv: MotionEvent
     private lateinit var flingEv: MotionEvent
-    private var lastDirection = false
+
+    /**
+     * Threshold/direction/gating state for the auto-fullscreen decision in [onScroll], carried
+     * between calls. Replaces the classic `scrollEv`/`lastDirection` fields (their sole purpose
+     * was this decision - see the shared [net.bible.sharedcore.reading.AutoFullscreenPolicy] KDoc
+     * for the full derivation against classic).
+     */
+    private var autoFullscreenTracking = AutoFullscreenTracking()
 
     init {
         minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
@@ -118,33 +127,22 @@ class BibleGestureListener(
 
     override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         e1 ?: return false
-        if (!::scrollEv.isInitialized  || e1.eventTime > scrollEv.eventTime) {
-            // New scroll event
-            scrollEv = MotionEvent.obtain(e1)
-        }
-        if (e2.eventTime - scrollEv.eventTime > 1000) {
-            // Too slow motion
-            scrollEv = MotionEvent.obtain(e2)
-        }
 
-        val direction = distanceY > 0
-        if (lastDirection != direction) {
-            scrollEv = MotionEvent.obtain(e2)
-            lastDirection = direction
-        }
-
-        val dist = e2.y - scrollEv.y
-        if (!mainBibleActivity.fullScreen && dist < -scaledMinimumFullScreenScrollDistance) {
-            if (!lastFullScreenByDoubleTap && autoFullScreen) {
-                mainBibleActivity.fullScreen = true
-            }
-            scrollEv = MotionEvent.obtain(e2)
-        }
-        if (mainBibleActivity.fullScreen && dist > scaledMinimumFullScreenScrollDistance) {
-            if (!lastFullScreenByDoubleTap && autoFullScreen) {
-                mainBibleActivity.fullScreen = false
-            }
-            scrollEv = MotionEvent.obtain(e2)
+        // Bridge note (Task 6): GestureDetector's distanceY is the NEGATION of the shared policy's
+        // "down = positive" deltaY convention - see AutoFullscreenPolicy KDoc.
+        val result = autoFullscreenAction(
+            deltaY = -distanceY,
+            isEnabled = autoFullScreen,
+            isFullScreen = mainBibleActivity.fullScreen,
+            lockedByDoubleTap = lastFullScreenByDoubleTap,
+            thresholdPx = scaledMinimumFullScreenScrollDistance.toFloat(),
+            tracking = autoFullscreenTracking,
+        )
+        autoFullscreenTracking = result.tracking
+        when (result.action) {
+            FullscreenAction.Enter -> mainBibleActivity.fullScreen = true
+            FullscreenAction.Exit -> mainBibleActivity.fullScreen = false
+            FullscreenAction.None -> {}
         }
         return false
     }
