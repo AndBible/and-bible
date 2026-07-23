@@ -31,6 +31,11 @@ import net.bible.sharedcore.window.WindowLayoutState
  * area only; Plan B (this task) folds the toolbar in, dropping it entirely — rather than merely
  * hiding it — when [fullScreen], so [SplitContent] reclaims the full height via
  * `Modifier.weight(1f)`.
+ *
+ * [tabBar] is an optional trailing slot rendered below [SplitContent] (intrinsic height; the
+ * split keeps `Modifier.weight(1f)` so the rail doesn't shrink it further). It's `null` by
+ * default, in which case nothing is rendered there — the restore-rail host (a later task) is
+ * the only caller expected to pass it.
  */
 @Composable
 fun ReadingViewScreen(
@@ -48,6 +53,7 @@ fun ReadingViewScreen(
     onOverflowItemClick: (id: String) -> Unit = {},
     onOverflowDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
+    tabBar: (@Composable () -> Unit)? = null,
 ) {
     Column(modifier.fillMaxSize()) {
         if (!fullScreen) {
@@ -69,5 +75,6 @@ fun ReadingViewScreen(
             pane = pane,
             modifier = Modifier.weight(1f),
         )
+        tabBar?.invoke()
     }
 }

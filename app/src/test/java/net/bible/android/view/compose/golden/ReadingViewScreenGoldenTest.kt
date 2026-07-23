@@ -20,12 +20,15 @@ package net.bible.android.view.compose.golden
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
 import net.bible.sharedcore.reading.ToolbarState
@@ -108,7 +111,7 @@ class ReadingViewScreenGoldenTest {
         ) { Text(id) }
     }
 
-    private fun screen(fullScreen: Boolean): @Composable () -> Unit = {
+    private fun screen(fullScreen: Boolean, tabBar: (@Composable () -> Unit)? = null): @Composable () -> Unit = {
         ReadingViewScreen(
             layout = layout,
             toolbar = toolbarState,
@@ -118,6 +121,7 @@ class ReadingViewScreenGoldenTest {
             onWindowActivated = {},
             onSeparatorCommitted = { _, _, _, _ -> },
             pane = pane,
+            tabBar = tabBar,
         )
     }
 
@@ -128,4 +132,19 @@ class ReadingViewScreenGoldenTest {
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun fullScreen() = captureGolden("ReadingViewScreen", "fullScreen", EDGE_MODE, content = screen(fullScreen = true))
+
+    // Covers the tabBar slot (Plan-A Task 6): rendered below SplitContent only when non-null.
+    // Uses a distinctly-colored placeholder Box (the real WindowTabBar is host-composed by
+    // Plan A Task 7) so the rail's position/extent below the pane is visible in the PNG.
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withRail() = captureGolden(
+        "ReadingViewScreen", "withRail", EDGE_MODE,
+        content = screen(
+            fullScreen = false,
+            tabBar = {
+                Box(Modifier.fillMaxWidth().height(48.dp).background(MaterialTheme.colorScheme.secondaryContainer)) {}
+            },
+        ),
+    )
 }
