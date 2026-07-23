@@ -19,4 +19,24 @@ class WindowCommandsImpl(private val windowControl: WindowControl) : WindowComma
         w2.weight = weight2
         windowControl.windowSizesChanged()
     }
+
+    private fun window(id: String) = windowControl.windowRepository.getWindow(IdType(id))
+
+    override fun addNewWindow(fromWindowId: String) { window(fromWindowId)?.let { windowControl.addNewWindow(it) } }
+    override fun minimise(windowId: String) { window(windowId)?.let { windowControl.minimiseWindow(it) } }
+    override fun close(windowId: String) { window(windowId)?.let { windowControl.closeWindow(it) } }
+    override fun restore(windowId: String) { window(windowId)?.let { windowControl.restoreWindow(it) } }
+    override fun maximise(windowId: String) { window(windowId)?.let { windowControl.maximiseWindow(it) } }
+    override fun unMaximise() { windowControl.unMaximise() }
+    override fun setPin(windowId: String, value: Boolean) { window(windowId)?.let { windowControl.setPinMode(it, value) } }
+    override fun move(windowId: String, position: Int) { window(windowId)?.let { windowControl.moveWindow(it, position) } }
+    override fun setSynchronised(windowId: String, value: Boolean) { window(windowId)?.let { windowControl.setSynchronised(it, value) } }
+    override fun changeSyncGroup(windowId: String, group: Int) { window(windowId)?.let { windowControl.changeSyncGroup(it, group) } }
+    override fun focusNext() { windowControl.focusNextWindow() }
+    override fun focusPrevious() { windowControl.focusPreviousWindow() }
+    override fun setRestoreButtonsVisible(value: Boolean) {
+        val repo = windowControl.windowRepository
+        repo.workspaceSettings.restoreButtonsVisible = value
+        repo.notifyRestoreButtonsChanged()
+    }
 }

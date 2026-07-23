@@ -24,6 +24,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.WindowSizeChangedEvent
+import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.speak.SpeakControl
@@ -354,6 +355,15 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     fun notifyWindowChanged(window: Window) {
         windowStateService.refresh(this)
         ABEventBus.post(WindowChangedEvent(window))
+    }
+    /**
+     * Reuses the same [RestoreButtonsVisibilityChanged] event class classic `SplitBibleArea`
+     * posts (and `BibleView` listens for) so a restore-buttons toggle driven through the new
+     * Compose command seam still refreshes the classic view.
+     */
+    fun notifyRestoreButtonsChanged() {
+        windowStateService.refresh(this)
+        ABEventBus.post(RestoreButtonsVisibilityChanged())
     }
 
     fun loadFromDb(workspaceId: IdType?) {
