@@ -90,6 +90,23 @@ class ReadingToolbarGoldenTest {
         speakStopped = true,
     )
 
+    // Requests only Bible + Strongs + Search (3 quick buttons, comfortably fits) with
+    // strongsMode=0 ("Strong's numbers off") — exercises QuickToolbarButton's
+    // `alpha = if (state.strongsMode == 0) 0.5f else 1f` dimmed-icon branch, which `fullState`
+    // (strongsMode=1, showStrongs=false) and `narrowState` (strongsMode=1) never hit.
+    private val dimmedStrongsState = ToolbarState(
+        pageTitle = "Genesis 1:1-3",
+        documentTitle = "King James Version (KJV)",
+        syncRunning = false,
+        showBible = true,
+        showCommentary = false,
+        showStrongs = true,
+        strongsMode = 0,
+        searchable = true,
+        speakable = false,
+        speakStopped = true,
+    )
+
     private fun screen(state: ToolbarState): @Composable () -> Unit = {
         ReadingToolbar(state = state, icons = icons(), callbacks = noopCallbacks)
     }
@@ -101,8 +118,19 @@ class ReadingToolbarGoldenTest {
     @Test
     fun narrow() = captureGolden("ReadingToolbar", "narrow", EDGE_MODE, content = screen(narrowState))
 
+    // land: at the default (narrow, portrait) width, fullState's title column is squeezed down to
+    // ~64px (320dp screen minus home+3 quick buttons+overflow=240dp, minus padding) — the ellipsized
+    // document title text alone claims that whole width (Row does not reserve space for a
+    // non-weighted trailing sibling), leaving the sync indicator no room and rendering it invisible
+    // regardless of its frozen progress value. land gives the title column ample width so the
+    // indicator actually has room to draw, genuinely exercising (and visually confirming) the fix.
     @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun syncing() = captureGolden("ReadingToolbar", "syncing", EDGE_MODE, content = screen(fullState.copy(syncRunning = true)))
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun dimmed_strongs() = captureGolden("ReadingToolbar", "dimmed_strongs", EDGE_MODE, content = screen(dimmedStrongsState))
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")

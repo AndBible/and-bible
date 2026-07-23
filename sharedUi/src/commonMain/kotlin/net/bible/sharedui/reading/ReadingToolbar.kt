@@ -46,23 +46,29 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.bible.sharedcore.reading.ToolbarButton
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.fitToolbarButtons
 import net.bible.sharedui.components.AbActionIconSize
+import net.bible.sharedui.strings.LocalStrings
 import kotlin.math.abs
 
 /**
@@ -147,6 +153,7 @@ fun ReadingToolbar(
         Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
             ToolbarIconButton(
                 icon = icons.home,
+                // TODO: no LocalStrings field for this yet — keep literal until one is added.
                 contentDescription = "Menu",
                 onClick = callbacks.onHome,
             )
@@ -154,6 +161,7 @@ fun ReadingToolbar(
             buttons.forEach { button -> QuickToolbarButton(button, state, icons, callbacks) }
             ToolbarIconButton(
                 icon = icons.overflow,
+                // TODO: no LocalStrings field for this yet — keep literal until one is added.
                 contentDescription = "Options",
                 onClick = callbacks.onOverflow,
             )
@@ -168,19 +176,23 @@ private fun QuickToolbarButton(
     icons: ReadingToolbarIcons,
     callbacks: ReadingToolbarCallbacks,
 ) {
+    val strings = LocalStrings.current
     when (button) {
-        ToolbarButton.BIBLE -> ToolbarIconButton(icons.bible, "Bible", callbacks.onBible, callbacks.onBibleLong)
+        ToolbarButton.BIBLE -> ToolbarIconButton(icons.bible, strings.bible, callbacks.onBible, callbacks.onBibleLong)
+        // TODO: no LocalStrings field for this yet — keep literal until one is added.
         ToolbarButton.COMMENTARY ->
             ToolbarIconButton(icons.commentary, "Commentary", callbacks.onCommentary, callbacks.onCommentaryLong)
         ToolbarButton.STRONGS -> ToolbarIconButton(
             icon = icons.strongs,
+            // TODO: no LocalStrings field for this yet — keep literal until one is added.
             contentDescription = "Strong's numbers",
             onClick = callbacks.onStrongs,
             onLongClick = callbacks.onStrongsLong,
             alpha = if (state.strongsMode == 0) 0.5f else 1f,
         )
-        ToolbarButton.SEARCH -> ToolbarIconButton(icons.search, "Search", callbacks.onSearch)
-        ToolbarButton.SPEAK -> ToolbarIconButton(icons.speak, "Speak", callbacks.onSpeak, callbacks.onSpeakLong)
+        ToolbarButton.SEARCH -> ToolbarIconButton(icons.search, strings.search, callbacks.onSearch)
+        ToolbarButton.SPEAK -> ToolbarIconButton(icons.speak, strings.speak, callbacks.onSpeak, callbacks.onSpeakLong)
+        // TODO: no LocalStrings field for this yet — keep literal until one is added.
         ToolbarButton.WORKSPACE -> ToolbarIconButton(icons.workspace, "Workspace", callbacks.onWorkspace)
     }
 }
@@ -219,10 +231,15 @@ private fun ToolbarIconButton(
  */
 @Composable
 private fun ReadingToolbarTitle(state: ToolbarState, callbacks: ReadingToolbarCallbacks, modifier: Modifier = Modifier) {
+    // Keyed on Unit (stable) rather than `callbacks` — a recomposition mid-gesture (e.g.
+    // state.syncRunning flipping) must not restart the gesture-detector coroutine and abort an
+    // in-flight tap/long-press/fling. rememberUpdatedState lets the long-lived gesture block
+    // always read the LATEST callbacks without needing pointerInput to be re-keyed on them.
+    val currentCallbacks = rememberUpdatedState(callbacks)
     Column(
         modifier = modifier
             .padding(horizontal = 8.dp)
-            .pointerInput(callbacks) { detectTitleGestures(callbacks) },
+            .pointerInput(Unit) { detectTitleGestures(currentCallbacks) },
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
@@ -252,16 +269,25 @@ private fun ReadingToolbarTitle(state: ToolbarState, callbacks: ReadingToolbarCa
  * inspection (Roborazzi goldens / previews) it renders a frozen determinate frame instead of the
  * animated indeterminate one — same reasoning as [net.bible.sharedui.components.AbLoadingIndicator]:
  * `LocalInspectionMode` does not freeze Compose's `InfiniteTransition`, so an indeterminate spinner
- * would capture a non-deterministic frame and make the "syncing" golden flaky.
+ * would capture a non-deterministic frame and make the "syncing" golden flaky. The frozen fraction
+ * is a non-zero [FrozenSyncIndicatorProgress] — a `progress = 0f` frame draws a zero-sweep (fully
+ * invisible) arc, which would make the "syncing" golden indistinguishable from "not syncing".
  */
 @Composable
 private fun SyncIndicator(modifier: Modifier = Modifier) {
     if (LocalInspectionMode.current) {
-        CircularProgressIndicator(progress = { 0f }, modifier = modifier.size(10.dp), strokeWidth = 1.5.dp)
+        CircularProgressIndicator(
+            progress = { FrozenSyncIndicatorProgress },
+            modifier = modifier.size(10.dp),
+            strokeWidth = 1.5.dp,
+        )
     } else {
         CircularProgressIndicator(modifier = modifier.size(10.dp), strokeWidth = 1.5.dp)
     }
 }
+
+/** Frozen progress fraction [SyncIndicator] draws under [LocalInspectionMode] — see its kdoc. */
+private const val FrozenSyncIndicatorProgress = 0.65f
 
 /** Distance (px) a drag must cover on its dominant axis before it counts as a fling, not a tap-adjacent wobble. */
 private const val MinFlingDistanceDp = 40
@@ -273,54 +299,68 @@ private const val MinFlingDistanceDp = 40
  * each other for the same down event). Distance-only thresholds are used for the fling axis
  * decision (loosely mirroring classic `setupToolbarFlingDetection`'s distance+velocity check —
  * exact velocity parity is not required for this port).
+ *
+ * [currentCallbacks] is a [State] (from [rememberUpdatedState] at the call site) rather than a
+ * plain [ReadingToolbarCallbacks], so the caller can key its `pointerInput` on a stable value
+ * (`Unit`) without this long-lived gesture loop ever invoking a stale lambda.
  */
-private suspend fun androidx.compose.ui.input.pointer.PointerInputScope.detectTitleGestures(callbacks: ReadingToolbarCallbacks) {
+private suspend fun PointerInputScope.detectTitleGestures(currentCallbacks: State<ReadingToolbarCallbacks>) {
     val touchSlop = viewConfiguration.touchSlop
     val longPressTimeoutMillis = viewConfiguration.longPressTimeoutMillis
     val minFlingDistancePx = MinFlingDistanceDp.dp.toPx()
 
-    awaitEachGesture {
-        val down = awaitFirstDown(requireUnconsumed = false)
-        val pointerId = down.id
-        var totalDx = 0f
-        var totalDy = 0f
-        var isDrag = false
-        var longPressFired = false
+    coroutineScope {
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false)
+            val pointerId = down.id
+            var totalDx = 0f
+            var totalDy = 0f
+            var isDrag = false
+            var longPressFired = false
 
-        while (true) {
-            val event = if (!isDrag && !longPressFired) {
-                withTimeoutOrNull(longPressTimeoutMillis) { awaitPointerEvent() }
-            } else {
-                awaitPointerEvent()
-            }
-            if (event == null) {
+            // Single long-press deadline armed ONCE from the initial down (mirrors Compose
+            // Foundation's `detectTapGestures`) instead of a per-pointer-event timeout that
+            // measured "time since the last event" — touch jitter (ACTION_MOVE) restarted that
+            // clock on every move, so it could starve the long-press indefinitely. Cancelled as
+            // soon as the gesture resolves into a drag (a fling in progress is never also a
+            // long-press) or the pointer lifts/cancels.
+            val longPressJob = launch {
+                delay(longPressTimeoutMillis)
                 longPressFired = true
-                callbacks.onTitleLongPress()
-                continue
+                currentCallbacks.value.onTitleLongPress()
             }
-            val change: PointerInputChange = event.changes.firstOrNull { it.id == pointerId } ?: break
-            if (!change.pressed) {
-                change.consume()
-                break
-            }
-            val delta = change.positionChange()
-            totalDx += delta.x
-            totalDy += delta.y
-            if (!isDrag && (abs(totalDx) > touchSlop || abs(totalDy) > touchSlop)) {
-                isDrag = true
-            }
-            change.consume()
-        }
 
-        if (!longPressFired) {
-            if (isDrag) {
-                if (abs(totalDy) > abs(totalDx) && abs(totalDy) > minFlingDistancePx) {
-                    callbacks.onTitleFlingVertical()
-                } else if (abs(totalDx) > minFlingDistancePx) {
-                    callbacks.onTitleFlingHorizontal(totalDx < 0)
+            try {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val change: PointerInputChange = event.changes.firstOrNull { it.id == pointerId } ?: break
+                    if (!change.pressed) {
+                        change.consume()
+                        break
+                    }
+                    val delta = change.positionChange()
+                    totalDx += delta.x
+                    totalDy += delta.y
+                    if (!isDrag && (abs(totalDx) > touchSlop || abs(totalDy) > touchSlop)) {
+                        isDrag = true
+                        longPressJob.cancel()
+                    }
+                    change.consume()
                 }
-            } else {
-                callbacks.onTitleTap()
+            } finally {
+                longPressJob.cancel()
+            }
+
+            if (!longPressFired) {
+                if (isDrag) {
+                    if (abs(totalDy) > abs(totalDx) && abs(totalDy) > minFlingDistancePx) {
+                        currentCallbacks.value.onTitleFlingVertical()
+                    } else if (abs(totalDx) > minFlingDistancePx) {
+                        currentCallbacks.value.onTitleFlingHorizontal(totalDx < 0)
+                    }
+                } else {
+                    currentCallbacks.value.onTitleTap()
+                }
             }
         }
     }
