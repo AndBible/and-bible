@@ -16,6 +16,9 @@
  */
 package net.bible.android.view.activity.settings
 
+import android.net.Uri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
@@ -26,7 +29,14 @@ import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.util.widget.availableFonts
+import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
+import net.bible.service.sword.backgroundimage.BackgroundImageImporter
+import net.bible.service.sword.backgroundimage.backgroundImageFile
+import net.bible.service.sword.backgroundimage.isBackgroundImageModule
+import net.bible.sharedcore.settings.BackgroundImageOption
+import net.bible.sharedcore.settings.ColorField
+import net.bible.sharedcore.settings.ColorsSnapshot
 import net.bible.sharedcore.settings.InheritedFrom
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScope
@@ -36,6 +46,7 @@ import net.bible.sharedcore.settings.TextSettingRowValue
 import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedcore.settings.TextSettingValue
 import net.bible.sharedcore.settings.TextSettingsSnapshot
+import org.crosswire.jsword.book.Books
 
 /**
  * Android impl of [TextDisplaySettingsService] — the ONLY place classic
@@ -117,10 +128,8 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
             TextSettingRowValue.Margins(l, r, mw, 30, 30, 500, app.getString(R.string.prefs_margin_size_mm_title, l, r, mw))
         }
         TextSettingType.COLORS -> TextSettingRowValue.ColorsNav(app.getString(R.string.prefs_text_colors_summary))
-        TextSettingType.BOOKMARKS_HIDELABELS -> {
-            @Suppress("UNCHECKED_CAST") val ids = item.value as? List<IdType> ?: emptyList()
+        TextSettingType.BOOKMARKS_HIDELABELS ->
             TextSettingRowValue.HideLabels(app.getString(R.string.bookmark_settings_hide_labels_summary))  // count-free summary; parity with static XML summary
-        }
         else -> TextSettingRowValue.Bool(item.value as Boolean)
     }
 
@@ -208,6 +217,161 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
                 repo.saveIntoDb(false)
             }
         }
+    }
+
+    // ---- Colours (Batch 12d-B T5) — reproduces MainBibleActivity.onActivityResult COLORS_CHANGED ----
+
+    private fun colorTitleFor(scope: SettingsScope) = when (scope) {
+        is SettingsScope.Window -> app.getString(R.string.window_color_settings_title)
+        is SettingsScope.Workspace, is SettingsScope.Global -> app.getString(R.string.workspace_color_settings_title)
+    }
+
+    private fun bgName(initials: String?): String =
+        initials?.let { AndBibleAddons.providedBackgroundImages[it]?.name ?: it }
+            ?: app.getString(R.string.background_image_none)
+
+    override fun loadColors(scope: SettingsScope): ColorsSnapshot {
+        val bundle = bundleFor(scope)
+        val c = bundle.actualSettings.colors ?: TextDisplaySettings.default.colors!!
+        val wsColor = windowControl.windowRepository.workspaceSettings.workspaceColor ?: defaultWorkspaceColor
+        return ColorsSnapshot(
+            title = colorTitleFor(scope),
+            dayTextColor = c.dayTextColor ?: TextDisplaySettings.black,
+            dayBackground = c.dayBackground ?: TextDisplaySettings.white,
+            dayNoise = c.dayNoise ?: 0,
+            nightTextColor = c.nightTextColor ?: TextDisplaySettings.white,
+            nightBackground = c.nightBackground ?: TextDisplaySettings.black,
+            nightNoise = c.nightNoise ?: 0,
+            workspaceColor = wsColor,
+            workspaceColorVisible = scope !is SettingsScope.Window,
+            dayBackgroundImageInitials = c.dayBackgroundImage,
+            dayBackgroundImageName = bgName(c.dayBackgroundImage),
+            dayBackgroundImageOpacity = c.dayBackgroundImageOpacity ?: 100,
+            nightBackgroundImageInitials = c.nightBackgroundImage,
+            nightBackgroundImageName = bgName(c.nightBackgroundImage),
+            nightBackgroundImageOpacity = c.nightBackgroundImageOpacity ?: 100,
+            inheritedFrom = InheritedFrom(bundle.inheritedFrom(TextDisplaySettings.Types.COLORS)),
+        )
+    }
+
+    /** Current merged colours for [scope], with `workspaceColor` carried like [loadColors]. */
+    private fun currentColors(scope: SettingsScope): WorkspaceEntities.Colors {
+        val bundle = bundleFor(scope)
+        val wsColor = windowControl.windowRepository.workspaceSettings.workspaceColor ?: defaultWorkspaceColor
+        val c = (bundle.actualSettings.colors ?: TextDisplaySettings.default.colors!!).copy()
+        c.workspaceColor = wsColor
+        return c
+    }
+
+    private fun editColors(scope: SettingsScope, mutate: (WorkspaceEntities.Colors) -> Unit) {
+        val c = currentColors(scope)
+        mutate(c)
+        applyColors(scope, c)
+    }
+
+    /** Reproduces `MainBibleActivity.onActivityResult`'s COLORS_CHANGED write-back, per scope. */
+    private fun applyColors(scope: SettingsScope, colors: WorkspaceEntities.Colors) {
+        when (scope) {
+            is SettingsScope.Window -> {
+                val window = repo.getWindow(IdType(scope.windowId))!!
+                window.pageManager.textDisplaySettings.colors = colors
+                window.bibleView?.updateTextDisplaySettings()
+                repo.saveIntoDb(false)
+            }
+            is SettingsScope.Workspace -> {
+                repo.textDisplaySettings.colors = colors
+                repo.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), repo.textDisplaySettings)
+                repo.workspaceSettings.workspaceColor = colors.workspaceColor
+                repo.updateAllWindowsTextDisplaySettings()
+                repo.saveIntoDb(false)
+            }
+            is SettingsScope.Global -> {
+                val g = CommonUtils.globalTextDisplaySettings
+                g.colors = colors
+                CommonUtils.globalTextDisplaySettings = g
+                repo.propagateGlobalTextDisplaySettingsChange(setOf(TextDisplaySettings.Types.COLORS), g)
+                repo.updateAllWindowsTextDisplaySettings()
+            }
+        }
+    }
+
+    override fun setColor(scope: SettingsScope, field: ColorField, argb: Int) = editColors(scope) {
+        when (field) {
+            ColorField.DAY_TEXT -> it.dayTextColor = argb
+            ColorField.DAY_BACKGROUND -> it.dayBackground = argb
+            ColorField.NIGHT_TEXT -> it.nightTextColor = argb
+            ColorField.NIGHT_BACKGROUND -> it.nightBackground = argb
+        }
+    }
+
+    override fun setNoise(scope: SettingsScope, night: Boolean, value: Int) = editColors(scope) {
+        if (night) it.nightNoise = value else it.dayNoise = value
+    }
+
+    override fun setWorkspaceColor(scope: SettingsScope, argb: Int) = editColors(scope) { it.workspaceColor = argb }
+
+    override fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?) = editColors(scope) {
+        if (night) it.nightBackgroundImage = initials else it.dayBackgroundImage = initials
+    }
+
+    override fun setBackgroundOpacity(scope: SettingsScope, night: Boolean, opacity: Int) = editColors(scope) {
+        if (night) it.nightBackgroundImageOpacity = opacity else it.dayBackgroundImageOpacity = opacity
+    }
+
+    // Whole-Colors reset — reproduces the classic ColorSettingsActivity "Reset" (MainBibleActivity
+    // COLORS_CHANGED reset branch): WINDOW -> colours null (inherit); WORKSPACE/GLOBAL -> default.colors.
+    override fun resetColors(scope: SettingsScope) {
+        when (scope) {
+            is SettingsScope.Window -> {
+                val window = repo.getWindow(IdType(scope.windowId))!!
+                window.pageManager.textDisplaySettings.colors = null
+                window.bibleView?.updateTextDisplaySettings()
+                repo.saveIntoDb(false)
+            }
+            is SettingsScope.Workspace -> {
+                repo.textDisplaySettings.colors = TextDisplaySettings.default.colors
+                repo.workspaceSettings.workspaceColor = defaultWorkspaceColor
+                repo.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), repo.textDisplaySettings)
+                repo.updateAllWindowsTextDisplaySettings()
+                repo.saveIntoDb(false)
+            }
+            is SettingsScope.Global -> {
+                val g = CommonUtils.globalTextDisplaySettings
+                g.colors = TextDisplaySettings.default.colors
+                CommonUtils.globalTextDisplaySettings = g
+                repo.propagateGlobalTextDisplaySettingsChange(setOf(TextDisplaySettings.Types.COLORS), g)
+                repo.updateAllWindowsTextDisplaySettings()
+            }
+        }
+    }
+
+    // ---- Background image (Batch 12d-B T6) — register/import/delete ---------------------------
+
+    /** Host-set seam: launches the platform photo picker, returns the picked image's content-URI
+     *  string (or null on cancel). Set by [TextDisplaySettingsComposeActivity] via a registered
+     *  `PickVisualMedia` launcher bridged to a suspend fun; a Koin singleton can't own an
+     *  `ActivityResultLauncher` itself. */
+    var imagePicker: (suspend () -> String?)? = null
+
+    override fun loadBackgroundOptions(): List<BackgroundImageOption> =
+        AndBibleAddons.providedBackgroundImages.map { (initials, p) ->
+            BackgroundImageOption(initials = initials, name = p.name, thumbnailToken = initials)
+        }.sortedBy { it.name.lowercase() }
+
+    override suspend fun importBackgroundImage(): BackgroundImageOption? {
+        val uriStr = imagePicker?.invoke() ?: return null
+        val file = withContext(Dispatchers.IO) { BackgroundImageImporter.copyAndRegister(app, Uri.parse(uriStr)) } ?: return null
+        AndBibleAddons.clearCaches()
+        // find the freshly-registered module whose file == the written file
+        val initials = Books.installed().books.firstOrNull { it.isBackgroundImageModule && it.backgroundImageFile == file }?.initials ?: return null
+        val p = AndBibleAddons.providedBackgroundImages[initials] ?: return null
+        return BackgroundImageOption(initials, p.name, initials)
+    }
+
+    override fun deleteBackgroundImage(initials: String) {
+        val book = Books.installed().getBook(initials) ?: return
+        book.driver.delete(book)          // BackgroundImageSwordDriver: deletes file + removeBook
+        AndBibleAddons.clearCaches()
     }
 
     // ---- Plan A COLORS bridge (host-only; Plan B replaces with the Compose colors destination) ----

@@ -22,6 +22,9 @@ import net.bible.android.view.compose.golden.GoldenMode
 import net.bible.android.view.compose.golden.captureGolden
 import net.bible.android.view.compose.golden.captureMatrix
 import net.bible.android.view.compose.golden.captureRtl
+import net.bible.sharedcore.settings.BackgroundImageOption
+import net.bible.sharedcore.settings.ColorField
+import net.bible.sharedcore.settings.ColorsSnapshot
 import net.bible.sharedcore.settings.InheritedFrom
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScope
@@ -56,12 +59,32 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class TextDisplaySettingsGoldenTest {
 
-    /** Minimal fake: the golden only needs a fixed snapshot, so writes are no-ops. */
+    /** Minimal fake: the golden only needs a fixed snapshot, so writes are no-ops. The colours/
+     *  background members (Batch 12d-B) aren't exercised by this (text-options-screen) golden --
+     *  stubbed just to satisfy the interface. */
     private class FakeService(private val snap: TextSettingsSnapshot) : TextDisplaySettingsService {
         override fun loadText(scope: SettingsScope) = snap
         override fun setValue(scope: SettingsScope, type: TextSettingType, value: TextSettingValue) {}
         override fun revert(scope: SettingsScope, type: TextSettingType) {}
         override fun reset(scope: SettingsScope) {}
+
+        override fun loadColors(scope: SettingsScope) = ColorsSnapshot(
+            title = "Colours", dayTextColor = -16777216, dayBackground = -1, dayNoise = 0,
+            nightTextColor = -1, nightBackground = -16777216, nightNoise = 0,
+            workspaceColor = -12303292, workspaceColorVisible = true,
+            dayBackgroundImageInitials = null, dayBackgroundImageName = "None", dayBackgroundImageOpacity = 100,
+            nightBackgroundImageInitials = null, nightBackgroundImageName = "None", nightBackgroundImageOpacity = 100,
+            inheritedFrom = InheritedFrom.NONE,
+        )
+        override fun loadBackgroundOptions(): List<BackgroundImageOption> = emptyList()
+        override fun setColor(scope: SettingsScope, field: ColorField, argb: Int) {}
+        override fun setNoise(scope: SettingsScope, night: Boolean, value: Int) {}
+        override fun setWorkspaceColor(scope: SettingsScope, argb: Int) {}
+        override fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?) {}
+        override fun setBackgroundOpacity(scope: SettingsScope, night: Boolean, opacity: Int) {}
+        override fun resetColors(scope: SettingsScope) {}
+        override suspend fun importBackgroundImage(): BackgroundImageOption? = null
+        override fun deleteBackgroundImage(initials: String) {}
     }
 
     private fun row(
