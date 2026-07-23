@@ -31,10 +31,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
+import net.bible.sharedcore.ai.reading.AgentLogEntryVd
+import net.bible.sharedcore.ai.reading.AgentLogSnapshot
+import net.bible.sharedcore.ai.reading.AgentLogUiState
+import net.bible.sharedcore.ai.reading.LogEntryKind
+import net.bible.sharedcore.ai.reading.LogEntryStatus
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.window.WindowLayoutState
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateValue
+import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
@@ -111,7 +117,11 @@ class ReadingViewScreenGoldenTest {
         ) { Text(id) }
     }
 
-    private fun screen(fullScreen: Boolean, tabBar: (@Composable () -> Unit)? = null): @Composable () -> Unit = {
+    private fun screen(
+        fullScreen: Boolean,
+        tabBar: (@Composable () -> Unit)? = null,
+        agentLog: (@Composable () -> Unit)? = null,
+    ): @Composable () -> Unit = {
         ReadingViewScreen(
             layout = layout,
             toolbar = toolbarState,
@@ -122,8 +132,41 @@ class ReadingViewScreenGoldenTest {
             onSeparatorCommitted = { _, _, _, _ -> },
             pane = pane,
             tabBar = tabBar,
+            agentLog = agentLog,
         )
     }
+
+    // Covers the agentLog slot (Batch 12e-B Task 5): rendered between SplitContent and tabBar
+    // only when non-null. Uses the real AgentLogPanel (already golden-covered on its own in
+    // AgentLogPanelGoldenTest) with a fixed running+expanded state, animateStatus = false for a
+    // deterministic capture.
+    private val agentLogEntries = listOf(
+        AgentLogEntryVd("1", LogEntryKind.INFO, LogEntryStatus.COMPLETED, "Iteration 1"),
+        AgentLogEntryVd("2", LogEntryKind.ACTION, LogEntryStatus.PENDING, "Reading John 3", details = "book=John"),
+    )
+    private val agentLogRunningExpanded = AgentLogUiState(
+        visible = true, expanded = true,
+        snapshot = AgentLogSnapshot(
+            running = true, entries = agentLogEntries, statusText = "Reading John 3",
+            headerCost = "$0.03", defaultModelText = "gpt-4o",
+        ),
+    )
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withAgentLog() = captureGolden(
+        "ReadingViewScreen", "withAgentLog", EDGE_MODE,
+        content = screen(
+            fullScreen = false,
+            agentLog = {
+                AgentLogPanel(
+                    agentLogRunningExpanded, animateStatus = false, onToggleExpanded = {}, onStop = {},
+                    onClose = {}, onModelSelectorClick = {}, onModelChosen = {}, onModelPickerDismiss = {},
+                    onRawLogClick = {},
+                )
+            },
+        ),
+    )
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")

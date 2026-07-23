@@ -38,6 +38,12 @@ import net.bible.sharedcore.window.WindowLayoutState
  * default, in which case nothing is rendered there — the restore-rail host (a later task) is
  * the only caller expected to pass it.
  *
+ * [agentLog] is an optional slot rendered between [SplitContent] and [tabBar] (intrinsic height,
+ * same as [tabBar]) — i.e. it sits directly above the restore rail. It's `null` by default, in
+ * which case nothing is rendered there; the host is expected to pass the live agent-log panel
+ * (`AgentLogPanel`) here. Ordering contract for later slots stacked in this same gap: a future
+ * (Batch 12f) speak-transport bar stacks directly under [agentLog] (i.e. between it and [tabBar]).
+ *
  * [paneOverlay] is forwarded verbatim to [SplitContent]'s slot of the same name — an optional
  * per-pane overlay (e.g. the floating ☰ window button), composed inside every visible pane. `null`
  * by default, in which case nothing extra is drawn.
@@ -59,6 +65,7 @@ fun ReadingViewScreen(
     onOverflowDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
     tabBar: (@Composable () -> Unit)? = null,
+    agentLog: (@Composable () -> Unit)? = null,
     paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
 ) {
     Column(modifier.fillMaxSize()) {
@@ -82,6 +89,7 @@ fun ReadingViewScreen(
             modifier = Modifier.weight(1f),
             paneOverlay = paneOverlay,
         )
+        agentLog?.invoke()
         tabBar?.invoke()
     }
 }
