@@ -18,18 +18,31 @@ package net.bible.android.view.activity.page.screen
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,15 +51,20 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
+import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.reading.OptionsMenuItem
+import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
+import net.bible.sharedcore.reading.paneButtonDragAction
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedcore.window.WindowLayoutState
+import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowTabBarModel
 import net.bible.sharedcore.window.buildWindowTabBar
@@ -54,10 +72,19 @@ import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
+import net.bible.sharedui.reading.WindowButton
+import net.bible.sharedui.reading.WindowButtonMode
+import net.bible.sharedui.reading.WindowPaneMenu
 import net.bible.sharedui.reading.WindowTabBar
 import net.bible.sharedui.theme.AbTheme
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+
+/** Vertical drag distance on the pane ☰ button that counts as swipe-to-maximise/minimise (Plan B
+ * Task 5, §4/§0.1: iOS uses a 28pt threshold; classic's own fling-velocity gesture has no direct
+ * dp equivalent, so this Compose port matches the iOS distance threshold instead of reproducing
+ * classic's `ViewConfiguration`-based fling detector). */
+private val PaneButtonDragThresholdDp = 28.dp
 
 /**
  * Reload-generation counter for [ComposeReadingViewHost]: bumped by `rebuild()` to force a full
@@ -83,6 +110,41 @@ class ComposeReadingViewGeneration {
 }
 
 /**
+ * Auto-hide state for the pane overlay's floating ☰ button (Batch 12b follow-on Plan B Task 5) —
+ * the Compose port of classic `SplitBibleArea.resetTouchTimer`/`toggleWindowButtonVisibility`
+ * (`screen/SplitBibleArea.kt:511-575`), hoisted to a host-owned field (design spec §9: "hoist it
+ * ... not per-recomposition local state") rather than remembered inside the composable, so the 2s
+ * hide countdown survives recomposition. Kept as its own tiny, framework-free holder — mirroring
+ * [ComposeReadingViewGeneration] — so `ComposeReadingViewHostTest` can assert it without booting a
+ * full [MainBibleActivity]/Koin context.
+ *
+ * [visible] starts `true` (buttons shown on first render, mirroring classic's initial
+ * `buttonsVisible = true`, `SplitBibleArea.kt:149`). [onTouch] — wired to
+ * [BibleView.BibleViewTouched] in [ComposeReadingViewHost.init], and also called by
+ * [ComposeReadingViewHost.openPaneMenu] (mirroring classic `showPopupMenu`'s
+ * `timerTask?.cancel(); toggleWindowButtonVisibility(true)`, `SplitBibleArea.kt:731-732`, so a menu
+ * opened while auto-hidden still renders) — sets [visible] `true` and bumps [touchTick] so a
+ * `LaunchedEffect(touchTick)` in the composable can restart its 2s hide countdown. [onHideTimeout]
+ * (called by that effect after the delay elapses) sets [visible] `false`. Because Compose
+ * cancels/reruns a `LaunchedEffect` whenever its key changes, a touch mid-countdown discards the
+ * stale timer automatically — no manual `TimerTask.cancel()` bookkeeping is needed here, unlike
+ * classic.
+ */
+class WindowButtonsVisibility {
+    private val mutableVisible = mutableStateOf(true)
+    private val mutableTouchTick = mutableIntStateOf(0)
+    val visible: State<Boolean> get() = mutableVisible
+    val touchTick: State<Int> get() = mutableTouchTick
+
+    fun onTouch() {
+        mutableVisible.value = true
+        mutableTouchTick.intValue++
+    }
+
+    fun onHideTimeout() { mutableVisible.value = false }
+}
+
+/**
  * Mounts the Compose reading view into [MainBibleActivity]'s content, replacing the classic
  * `SplitBibleArea` build (see [DocumentViewManager]'s `use_compose_ui` guard) when
  * `use_compose_ui` is on. Plan A kept the classic toolbar/drawer chrome; Plan B (this task) hosts
@@ -101,6 +163,34 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val toolbarStateService: ToolbarStateService by inject()
 
     private val generation = ComposeReadingViewGeneration()
+
+    /**
+     * The window-management command controller (Batch 12b follow-on Plan A) — hoisted to a host
+     * field (rather than built fresh inside [mountComposeView], as Plan A/12b-C left it) so
+     * [MainBibleActivity.handleWindowPaneMenuItem] (Task 5) can dispatch through the SAME instance
+     * the pane overlay's own gestures ([openPaneMenu]'s callers) and the restore rail already
+     * drive — one controller per host, not a fresh one per composition.
+     */
+    val controller = ReadingViewController(windowState, commands)
+
+    /** See [WindowButtonsVisibility]. */
+    private val windowButtonsVisibility = WindowButtonsVisibility()
+
+    /**
+     * Builds the per-window (☰) pane popup menu's item list (Task 4) — constructed from the same
+     * `windowControl`/`speakControl` [activity] already exposes, mirroring how classic
+     * `SplitBibleArea.getItemOptions` closes over its own `mainBibleActivity`'s collaborators.
+     */
+    private val paneMenuStateBuilder = WindowPaneMenuStateBuilder(activity.windowControl, activity.speakControl)
+
+    /**
+     * The windowId whose ☰ menu is currently open, or `null` when closed — host-owned so the
+     * popup survives recomposition, mirroring [overflowExpanded]/[overflowItems] below. Opened by
+     * [openPaneMenu] (the pane overlay's ☰-button tap, or the Plan-A restore rail's long-press);
+     * closed by [closePaneMenu] (`onDismiss`, or after a non-toggle item acts).
+     */
+    private val paneMenuWindowId = mutableStateOf<String?>(null)
+    private val paneMenuItems = mutableStateOf(emptyList<WindowPaneMenuItem>())
 
     /**
      * Mirrors [ScreenSettings.nightMode]. Kept current via [ScreenSettings.NightModeChanged] (see
@@ -138,11 +228,34 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         ABEventBus.register(this) {
             onMain<ScreenSettings.NightModeChanged> { nightMode.value = ScreenSettings.nightMode }
             onMain<MainBibleActivity.FullScreenEvent> { event -> fullScreen.value = event.isFullScreen }
+            // Classic BibleView.BibleViewTouched re-show (SplitBibleArea.kt:203-205) — see
+            // WindowButtonsVisibility's kdoc.
+            onMain<BibleView.BibleViewTouched> { windowButtonsVisibility.onTouch() }
         }
     }
 
     /** See [ComposeReadingViewGeneration]. Called by [DocumentViewManager.buildView] on the compose path when `forceUpdate` is true. */
     fun rebuild() { generation.rebuild() }
+
+    /**
+     * Opens the per-window (☰) pane menu for [windowId] — called by the pane overlay's ☰-button
+     * tap and by the Plan-A restore rail's `onWindowLongPress` (both wired in [install]). Forces
+     * the pane buttons visible first (mirroring classic `showPopupMenu`'s
+     * `timerTask?.cancel(); toggleWindowButtonVisibility(true)`, `SplitBibleArea.kt:731-732`), so a
+     * menu opened from the always-visible rail while the floating ☰ overlay happens to be
+     * auto-hidden still renders anchored correctly — the pane overlay's `WindowPaneMenu` sibling is
+     * composed regardless of the ☰ button's own visibility, see [mountComposeView]'s
+     * `PaneWindowButtonOverlay`.
+     */
+    fun openPaneMenu(windowId: String) {
+        windowButtonsVisibility.onTouch()
+        val window = activity.windowRepository.getWindow(IdType(windowId)) ?: return
+        paneMenuItems.value = paneMenuStateBuilder.build(window)
+        paneMenuWindowId.value = windowId
+    }
+
+    /** Closes whichever per-window ☰ menu is open (`onDismiss`, or after a non-toggle item acts). */
+    fun closePaneMenu() { paneMenuWindowId.value = null }
 
     /**
      * Unregisters this host's [ABEventBus] subscriptions (see [init]). Call from
@@ -231,6 +344,24 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             },
             windowLabel = { snapshot -> activity.windowLabelFor(snapshot.id) },
             windowIcon = { snapshot -> activity.windowIconFor(snapshot.id) },
+            controller = controller,
+            windowButtonsVisibleState = windowButtonsVisibility.visible,
+            touchTickState = windowButtonsVisibility.touchTick,
+            onWindowButtonsHideTimeout = windowButtonsVisibility::onHideTimeout,
+            paneMenuWindowIdState = paneMenuWindowId,
+            paneMenuItemsState = paneMenuItems,
+            onOpenPaneMenu = ::openPaneMenu,
+            onPaneMenuItemClick = { windowId, id ->
+                val stayOpen = activity.handleWindowPaneMenuItem(windowId, id)
+                if (stayOpen) {
+                    activity.windowRepository.getWindow(IdType(windowId))?.let {
+                        paneMenuItems.value = paneMenuStateBuilder.build(it)
+                    }
+                } else {
+                    closePaneMenu()
+                }
+            },
+            onPaneMenuDismiss = ::closePaneMenu,
         )
     }
 
@@ -288,8 +419,19 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // renders the rail itself — is unaffected.
             windowLabel: (WindowSnapshot) -> String = { "" },
             windowIcon: (WindowSnapshot) -> Painter? = { null },
+            // Batch 12b follow-on Plan B Task 5 additions — all `State`s / no-op-defaulted for the
+            // same reason as the `overflow*`/`fullScreenState` params above: [ComposeReadingViewHost]
+            // owns the real backing state, a test (or an omitted call site) gets an inert default.
+            controller: ReadingViewController = ReadingViewController(windowState, commands),
+            windowButtonsVisibleState: State<Boolean> = mutableStateOf(true),
+            touchTickState: State<Int> = mutableIntStateOf(0),
+            onWindowButtonsHideTimeout: () -> Unit = {},
+            paneMenuWindowIdState: State<String?> = mutableStateOf(null),
+            paneMenuItemsState: State<List<WindowPaneMenuItem>> = mutableStateOf(emptyList()),
+            onOpenPaneMenu: (windowId: String) -> Unit = {},
+            onPaneMenuItemClick: (windowId: String, id: String) -> Unit = { _, _ -> },
+            onPaneMenuDismiss: () -> Unit = {},
         ) {
-            val controller = ReadingViewController(windowState, commands)
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
@@ -312,6 +454,30 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             val overflowItems by overflowItemsState
                             val overflowExpanded by overflowExpandedState
                             val tabBarModel = buildTabBarModel(layout)
+                            val touchTick by touchTickState
+                            val paneMenuWindowId by paneMenuWindowIdState
+                            val paneMenuItems by paneMenuItemsState
+                            // Classic `resetTouchTimer`'s 2s hide countdown (`SplitBibleArea.kt:511-524`),
+                            // restarted on every `touchTick` bump (a real touch, or `openPaneMenu`).
+                            // Suppressed entirely while a pane menu is open (mirrors classic
+                            // `showPopupMenu`/`menuHelper.setOnDismissListener` cancelling the timer
+                            // for the popup's lifetime, `SplitBibleArea.kt:731-732, 854-855`) — Compose
+                            // cancels/reruns this effect whenever either key changes, so closing the
+                            // menu starts a fresh 2s countdown with no manual bookkeeping.
+                            LaunchedEffect(touchTick, paneMenuWindowId) {
+                                if (paneMenuWindowId == null) {
+                                    delay(2000)
+                                    onWindowButtonsHideTimeout()
+                                }
+                            }
+                            val windowButtonsVisible by windowButtonsVisibleState
+                            // Classic `BibleFrame.addWindowButton`'s early-outs (`screen/BibleFrame.kt:157-158`):
+                            // never shown while `hide_window_buttons` is set, or while a window is
+                            // maximised (the floating button, specifically — the per-window MENU can
+                            // still open via the rail's unmaximise-button long-press; see
+                            // `PaneWindowButtonOverlay`, which composes `WindowPaneMenu` unconditionally).
+                            val showPaneButtons = windowButtonsVisible && layout.maximizedWindowId == null &&
+                                !CommonUtils.settings.getBoolean("hide_window_buttons", false)
                             // Classic `SplitBibleArea`'s fullscreen auto-hide
                             // (`autoHideWindowButtonBarInFullScreen`, `full_screen_hide_buttons_pref`,
                             // default ON, `SplitBibleArea.kt:166-171`/365-366) — in fullscreen with the
@@ -336,18 +502,29 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                     overflowExpanded = overflowExpanded,
                                     onOverflowItemClick = onOverflowItemClick,
                                     onOverflowDismiss = onOverflowDismiss,
+                                    paneOverlay = { windowId ->
+                                        val window = layout.windows.firstOrNull { it.id == windowId }
+                                        PaneWindowButtonOverlay(
+                                            windowId = windowId,
+                                            window = window,
+                                            isActive = windowId == layout.activeWindowId,
+                                            showButton = showPaneButtons,
+                                            paneMenuWindowId = paneMenuWindowId,
+                                            paneMenuItems = paneMenuItems,
+                                            controller = controller,
+                                            onOpenPaneMenu = onOpenPaneMenu,
+                                            onPaneMenuItemClick = onPaneMenuItemClick,
+                                            onPaneMenuDismiss = onPaneMenuDismiss,
+                                        )
+                                    },
                                     tabBar = if (hideTabBarInFullScreen) null else {
                                         {
                                             WindowTabBar(
                                                 model = tabBarModel,
                                                 onRestore = controller::onRestore,
-                                                onWindowLongPress = {
-                                                    // TODO(Plan B Task 5): open the per-window menu
-                                                    // (pin/sync-group/move/close/…) here. Intentionally
-                                                    // a no-op until that task wires the per-window
-                                                    // counterpart of `ReadingOverflowMenu` — long-
-                                                    // pressing a rail tab currently does nothing.
-                                                },
+                                                // Plan B Task 5: a rail long-press now opens the SAME
+                                                // per-window ☰ menu as tapping the floating pane button.
+                                                onWindowLongPress = onOpenPaneMenu,
                                                 onAddWindow = { controller.onAddWindow(layout.activeWindowId) },
                                                 onUnMaximise = controller::onUnMaximise,
                                                 onToggleCollapse = {
@@ -401,3 +578,84 @@ private val noopToolbarCallbacks = ReadingToolbarCallbacks(
     onCommentaryLong = {}, onStrongs = {}, onStrongsLong = {}, onSearch = {}, onSpeak = {},
     onSpeakLong = {}, onWorkspace = {}, onOverflow = {},
 )
+
+/**
+ * One pane's floating ☰ button + its [WindowPaneMenu] popup — the `paneOverlay` content
+ * [ComposeReadingViewHost.mountComposeView] passes to [ReadingViewScreen] (invoked inside each
+ * visible pane's `Box`, see `SplitContent`'s kdoc). Compose port of classic `BibleFrame`'s
+ * per-pane window button (`screen/BibleFrame.kt:156-194`) + `WindowButtonGestureListener`
+ * (`:43-83`).
+ *
+ * The button itself is gated by [showButton] (auto-hide / `hide_window_buttons` / maximised —
+ * see `showPaneButtons` at the call site), but [WindowPaneMenu] is ALWAYS composed as its sibling:
+ * a menu opened via the always-visible restore rail's long-press must still be able to render
+ * anchored to this pane even when the floating button itself is hidden (see
+ * [ComposeReadingViewHost.openPaneMenu]'s kdoc).
+ *
+ * Gestures (classic `WindowButtonGestureListener` dispatch, `screen/BibleFrame.kt:185-191`): tap →
+ * [onOpenPaneMenu]; long-press → minimise; swipe-up → maximise; swipe-down → minimise. Every
+ * gesture activates the pane first (classic + iOS `performPaneWindowButtonAction`).
+ */
+@Composable
+private fun BoxScope.PaneWindowButtonOverlay(
+    windowId: String,
+    window: WindowSnapshot?,
+    isActive: Boolean,
+    showButton: Boolean,
+    paneMenuWindowId: String?,
+    paneMenuItems: List<WindowPaneMenuItem>,
+    controller: ReadingViewController,
+    onOpenPaneMenu: (windowId: String) -> Unit,
+    onPaneMenuItemClick: (windowId: String, id: String) -> Unit,
+    onPaneMenuDismiss: () -> Unit,
+) {
+    Box(Modifier.align(Alignment.TopEnd)) {
+        if (showButton && window != null) {
+            var accumDy by remember(windowId) { mutableFloatStateOf(0f) }
+            val density = LocalDensity.current
+            val thresholdPx = remember(density) { with(density) { PaneButtonDragThresholdDp.toPx() } }
+            WindowButton(
+                label = "☰",
+                isActive = isActive,
+                isMinimised = false,
+                isPinned = window.isPinMode,
+                isLinks = window.isLinksWindow,
+                syncGroup = if (window.isSynchronised) window.syncGroup + 1 else 0,
+                mode = WindowButtonMode.Pane,
+                onClick = {
+                    controller.onWindowActivated(windowId)
+                    onOpenPaneMenu(windowId)
+                },
+                onLongPress = {
+                    controller.onWindowActivated(windowId)
+                    controller.onMinimise(windowId)
+                },
+                modifier = Modifier.pointerInput(windowId) {
+                    detectVerticalDragGestures(
+                        onDragEnd = {
+                            when (paneButtonDragAction(accumDy, thresholdPx)) {
+                                PaneButtonAction.Maximise -> {
+                                    controller.onWindowActivated(windowId)
+                                    controller.onMaximise(windowId)
+                                }
+                                PaneButtonAction.Minimise -> {
+                                    controller.onWindowActivated(windowId)
+                                    controller.onMinimise(windowId)
+                                }
+                                PaneButtonAction.None -> {}
+                            }
+                            accumDy = 0f
+                        },
+                        onDragCancel = { accumDy = 0f },
+                    ) { change, dragAmount -> change.consume(); accumDy += dragAmount }
+                },
+            )
+        }
+        WindowPaneMenu(
+            items = if (paneMenuWindowId == windowId) paneMenuItems else emptyList(),
+            expanded = paneMenuWindowId == windowId,
+            onItemClick = { id -> onPaneMenuItemClick(windowId, id) },
+            onDismiss = onPaneMenuDismiss,
+        )
+    }
+}

@@ -20,6 +20,7 @@ package net.bible.android.view.activity.page
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -106,6 +107,8 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.PageControl
+import net.bible.android.control.page.StudyPadDocument
+import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.report.ErrorReportControl
@@ -140,6 +143,7 @@ import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKe
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
+import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
@@ -154,6 +158,7 @@ import net.bible.service.common.windowPinningVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
+import net.bible.service.db.exportStudyPads
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.download.DownloadManager
@@ -173,6 +178,7 @@ import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.reading.OptionsMenuItem
+import net.bible.sharedcore.window.ReadingViewController
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -1350,6 +1356,279 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     fun handleOptionsMenuItem(id: String): Boolean =
         OptionsMenuStateBuilder.dispatch(this, { resId, order -> getItemOptions(resId, order) }, id)
+
+    // ---- Compose per-window (☰) pane menu bridge (Batch 12b-followon Plan B Task 5) ----
+    // Dispatches a click on one of `WindowPaneMenuStateBuilder.build(window)`'s rows — the
+    // Compose per-window menu's counterpart of classic `SplitBibleArea.handlePrefItem`/
+    // `getItemOptions(window, itemId, order)` (`screen/SplitBibleArea.kt:709-726, 865-1065`).
+    // `SplitBibleArea.getItemOptions`/`handlePrefItem` are `private` and close over their own
+    // `View`/`MenuItem`, so — exactly like `WindowPaneMenuStateBuilder`'s build half — there is no
+    // clean seam to call them from here; every bridged branch below reproduces the classic action
+    // body verbatim (a `SplitBibleArea.kt:NNN` comment marks each one).
+
+    /**
+     * Dispatches a click on one of [WindowPaneMenuStateBuilder.build]'s rows for the pane whose ☰
+     * menu produced it. Called by [ComposeReadingViewHost]'s `onPaneMenuItemClick`.
+     *
+     * ATOMIC items (native-in-Compose, per [WindowPaneMenuStateBuilder]'s kdoc) act through
+     * [composeReadingViewHost]'s [ReadingViewController] command seam — the SAME seam the pane
+     * overlay's own gestures and the restore rail already drive, so every window mutation from
+     * the Compose reading view refreshes the SSOT through one path. Falls back to [windowControl]
+     * directly only if the host is somehow absent (defensive — this dispatcher is only reachable
+     * from the Compose path, where [composeReadingViewHost] is always installed; this fallback is
+     * what lets this function be unit-tested without booting the full Compose host) or for
+     * `changeToNormal`'s compound add+flag+close (the seam has no such compound command, so it
+     * always goes straight through [windowControl], same as classic).
+     *
+     * Returns whether the menu should stay open (mirrors [OptionsMenuStateBuilder.dispatch]'s
+     * contract): `true` for [WindowPaneMenuStateBuilder.ID_PIN_MODE] and a boolean
+     * `textOptionItem` row (so the host can rebuild the list and show the flipped check), `false`
+     * for every other item.
+     */
+    fun handleWindowPaneMenuItem(windowId: String, id: String): Boolean {
+        val window = windowRepository.getWindow(IdType(windowId)) ?: return false
+        val controller = composeReadingViewHost?.controller
+        return when (val parsed = WindowPaneMenuStateBuilder.parseId(id)) {
+            is WindowPaneMenuStateBuilder.ParsedId.MoveItem -> {
+                // SplitBibleArea.kt:896-898, :987-992
+                controller?.onMove(windowId, parsed.order) ?: windowControl.moveWindow(window, parsed.order)
+                false
+            }
+            is WindowPaneMenuStateBuilder.ParsedId.SyncGroupItem -> {
+                // SplitBibleArea.kt:899-901, :993-996
+                controller?.onChangeSyncGroup(windowId, parsed.order) ?: windowControl.changeSyncGroup(window, parsed.order)
+                false
+            }
+            is WindowPaneMenuStateBuilder.ParsedId.TextOptionItem -> handleWindowTextOptionItem(window, parsed.order)
+            is WindowPaneMenuStateBuilder.ParsedId.StaticItem -> handleWindowPaneStaticItem(window, parsed.id, controller)
+        }
+    }
+
+    /** The `moveWindowSubMenu`/`syncGroupSubMenu`/`textOptionsSubMenu` container ids never reach
+     * here — [net.bible.sharedui.reading.WindowPaneMenuRows] treats a non-empty `submenu` row as
+     * "enter submenu" (`onEnterSubmenu`), not a leaf click (`onItemClick`). */
+    private fun handleWindowPaneStaticItem(window: Window, id: String, controller: ReadingViewController?): Boolean {
+        val windowId = window.id.toString()
+        return when (id) {
+            // SplitBibleArea.kt:880-883
+            WindowPaneMenuStateBuilder.ID_WINDOW_NEW -> {
+                controller?.onAddWindow(windowId) ?: windowControl.addNewWindow(window)
+                false
+            }
+            // SplitBibleArea.kt:974-977
+            WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE -> {
+                controller?.onMaximise(windowId) ?: windowControl.maximiseWindow(window)
+                false
+            }
+            // SplitBibleArea.kt:970-973
+            WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE -> {
+                controller?.onMinimise(windowId) ?: windowControl.minimiseWindow(window)
+                false
+            }
+            // SplitBibleArea.kt:884-890 -- compound (add a new non-links window, close this one);
+            // no single seam command for this, so it always goes directly through windowControl,
+            // same as classic (the "or directly windowControl" case named in the Task-5 brief).
+            WindowPaneMenuStateBuilder.ID_CHANGE_TO_NORMAL -> {
+                windowControl.addNewWindow(window).also { it.isLinksWindow = false }
+                windowControl.closeWindow(window)
+                false
+            }
+            // SplitBibleArea.kt:891-895 -- checkable toggle; stays open so the host can rebuild
+            // and show the flipped check, exactly like `OptionsMenuStateBuilder.dispatch`'s
+            // boolean branch.
+            WindowPaneMenuStateBuilder.ID_PIN_MODE -> {
+                val newValue = !window.isPinMode
+                controller?.onSetPin(windowId, newValue) ?: windowControl.setPinMode(window, newValue)
+                true
+            }
+            // SplitBibleArea.kt:997-999
+            WindowPaneMenuStateBuilder.ID_DISABLE_SYNC -> {
+                controller?.onSetSynchronised(windowId, false) ?: windowControl.setSynchronised(window, false)
+                false
+            }
+            // SplitBibleArea.kt:906-909
+            WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE -> {
+                controller?.onClose(windowId) ?: windowControl.closeWindow(window)
+                false
+            }
+
+            // ---- Bridge rows: reproduce the classic action body verbatim (private in SplitBibleArea) ----
+
+            // SplitBibleArea.kt:865-874 (settingsBundle), :978-986 (window-level allTextOptions --
+            // distinct from this activity's OWN workspace-level `getItemOptions(R.id.allTextOptions)`
+            // used by the overflow menu).
+            WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS -> {
+                val settingsBundle = SettingsBundle(
+                    level = SettingsLevel.WINDOW,
+                    windowId = window.id,
+                    pageManagerSettings = window.pageManager.textDisplaySettings,
+                    workspaceId = windowRepository.id,
+                    workspaceName = windowRepository.name,
+                    workspaceSettings = windowRepository.textDisplaySettings,
+                    globalSettings = CommonUtils.globalTextDisplaySettings,
+                )
+                val intent = Intent(this, TextDisplaySettingsActivity::class.java)
+                intent.putExtra("settingsBundle", settingsBundle.toJson())
+                startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
+                false
+            }
+            // SplitBibleArea.kt:1002-1004
+            WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WORKSPACE -> {
+                windowControl.copySettingsToWorkspace(window)
+                false
+            }
+            // SplitBibleArea.kt:1008-1010
+            WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_GLOBAL -> {
+                windowControl.copySettingsToGlobal(window)
+                false
+            }
+            // SplitBibleArea.kt:1005-1007, :778-803 -- classic resolves the target window via one
+            // submenu row PER other window; this Compose menu flattened that into a single row
+            // (see `WindowPaneMenuStateBuilder`'s kdoc), so the target is resolved via a picker
+            // dialog here instead of defaulting to "first other window" (autonomous decision,
+            // documented in the task report).
+            WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WINDOW -> {
+                showCopySettingsToWindowPicker(window)
+                false
+            }
+            // SplitBibleArea.kt:1011-1019
+            WindowPaneMenuStateBuilder.ID_EXPORT_HTML -> {
+                window.bibleView?.exportHtml()
+                false
+            }
+            // SplitBibleArea.kt:1020-1026
+            WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD -> {
+                (window.bibleView?.firstDocument as? StudyPadDocument)?.label?.let { label ->
+                    lifecycleScope.launch { exportStudyPads(this@MainBibleActivity, label) }
+                }
+                false
+            }
+            // SplitBibleArea.kt:1027-1035
+            WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV -> {
+                (window.bibleView?.firstDocument as? StudyPadDocument)?.label?.let { label ->
+                    lifecycleScope.launch {
+                        val bookmarks = bookmarkControl.getBibleBookmarksWithLabel(label)
+                        bookmarkControl.exportBookmarksToCSV(this@MainBibleActivity, bookmarks)
+                    }
+                }
+                false
+            }
+            // SplitBibleArea.kt:1036-1048
+            WindowPaneMenuStateBuilder.ID_ADD_WHOLE_PAGE_BOOKMARK -> {
+                val currentPage = window.pageManager.currentPage
+                val book = currentPage.currentDocument
+                val key = currentPage.key
+                if (book != null && key != null) {
+                    window.bibleView?.createWholePageBookmark(book.initials, key.osisRef)
+                }
+                false
+            }
+            // SplitBibleArea.kt:1049-1063
+            WindowPaneMenuStateBuilder.ID_LLM_ACTIONS_SUBMENU -> {
+                val currentPage = window.pageManager.currentPage
+                val book = currentPage.currentDocument
+                val key = currentPage.key
+                if (book != null && key != null) {
+                    val selection = Selection(book.initials, key.osisRef, -1, -1)
+                    llmDialogHelper.showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
+                }
+                false
+            }
+            // SplitBibleArea.kt:950-967
+            WindowPaneMenuStateBuilder.ID_COPY_REFERENCE -> {
+                val doc = window.pageManager.currentPage.currentDocument
+                val key = window.pageManager.currentPage.singleKey
+                if (doc != null && key != null) {
+                    val ordinalRange = window.pageManager.currentPage.anchorOrdinal
+                    val ordinal = ordinalRange?.start
+                    clipboardKey = BookAndKey(key, doc, ordinalRange)
+                    val url = CommonUtils.makeAndBibleUrl(keyStr = key.osisRef, docInitials = doc.initials, ordinal = ordinal)
+                    CommonUtils.copyToClipboard(ClipData.newPlainText(key.name, url), R.string.reference_copied_to_clipboard)
+                }
+                false
+            }
+            // SplitBibleArea.kt:929-949
+            WindowPaneMenuStateBuilder.ID_GO_TO_REFERENCE -> {
+                clipboardKey?.let {
+                    if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
+                        window.pageManager.setCurrentDocumentAndKey(null, it.key)
+                    } else if (it.document == null) {
+                        window.pageManager.setCurrentDocumentAndKey(null, it.key)
+                    } else {
+                        window.pageManager.setCurrentDocumentAndKey(it.document, it)
+                    }
+                }
+                false
+            }
+            // SplitBibleArea.kt:910-928
+            WindowPaneMenuStateBuilder.ID_GO_TO_SPEAK -> {
+                speakControl.speakBookAndKey?.let {
+                    if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
+                        window.pageManager.setCurrentDocumentAndKey(null, it.key)
+                    } else {
+                        window.pageManager.setCurrentDocumentAndKey(it.document, it)
+                    }
+                }
+                false
+            }
+            // moveWindowSubMenu/syncGroupSubMenu/textOptionsSubMenu container ids never reach a
+            // leaf onItemClick (see this function's kdoc); llmActionsSubMenu is handled above (it
+            // has no `submenu` children despite the name -- see WindowPaneMenuStateBuilder).
+            else -> false
+        }
+    }
+
+    /**
+     * SplitBibleArea.kt:1000: the dynamic `textOptionItem` row -- classic `handlePrefItem`'s
+     * generic isBoolean/openDialog dispatch, reproduced at WINDOW level. Minus the `MenuItem`-only
+     * bits (`item.isChecked`, `invalidateOptionsMenu()`): there is no `MenuItem` on this path, and
+     * the host rebuilds the whole item list instead (mirrors
+     * [OptionsMenuStateBuilder.dispatch]'s identical carve-out).
+     */
+    private fun handleWindowTextOptionItem(window: Window, order: Int): Boolean {
+        val settingsBundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            windowId = window.id,
+            pageManagerSettings = window.pageManager.textDisplaySettings,
+            workspaceId = windowRepository.id,
+            workspaceName = windowRepository.name,
+            workspaceSettings = windowRepository.textDisplaySettings,
+            globalSettings = CommonUtils.globalTextDisplaySettings,
+        )
+        val itemOptions = getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
+        return if (itemOptions.isBoolean) {
+            itemOptions.value = !(itemOptions.value == true)
+            itemOptions.handle()
+            true
+        } else {
+            val onReady: () -> Unit = { window.bibleView?.updateTextDisplaySettings() }
+            itemOptions.openDialog(this, { onReady() }, onReady)
+            false
+        }
+    }
+
+    /**
+     * SplitBibleArea.kt:1005-1007, :778-803, :1006 (`windowControl.copySettingsToWindow(window, order)`,
+     * `order` = the target's index in [WindowRepository.visibleWindows]). Classic resolves the
+     * target window via one submenu row PER other window; this Compose menu's `copySettingsToWindow`
+     * is a single flattened row (see `WindowPaneMenuStateBuilder`'s kdoc), so this picker dialog is
+     * the Compose-side replacement for that per-row addressing -- it must NOT default silently to
+     * "first other window" (Task-5 brief). Labels mirror classic's own
+     * `R.string.copy_settings_to_window` format (`SplitBibleArea.kt:799`).
+     */
+    private fun showCopySettingsToWindowPicker(window: Window) {
+        val targets = windowRepository.visibleWindows.withIndex().filter { (_, w) -> w.id != window.id }
+        if (targets.isEmpty()) return
+        val labels = targets.map { (order, w) ->
+            val page = w.pageManager.currentPage
+            getString(R.string.copy_settings_to_window, order + 1, page.currentDocument?.abbreviation, page.key?.name)
+        }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle(R.string.copy_settings_to_other_window)
+            .setItems(labels) { _, which -> windowControl.copySettingsToWindow(window, targets[which].index) }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
 
     private val documentTitleText: String
         get() = pageControl.currentPageManager.currentPage.currentDocumentName

@@ -1,23 +1,42 @@
 package net.bible.android.view.activity.page.screen
 
 import android.widget.FrameLayout
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import net.bible.android.TEST_SDK
+import net.bible.android.TestBibleApplication
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
+import net.bible.android.database.IdType
+import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
+import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.window.RailEntry
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedcore.window.WindowLayoutState
+import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateValue
 import net.bible.sharedcore.window.buildWindowTabBar
+import net.bible.test.DatabaseResetter
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /** No-op fake — mockk was removed from this repo (Batch 12a T5 fix wave 1); no mocking framework is used. */
@@ -148,6 +167,52 @@ class ComposeReadingViewHostTest {
     }
 
     /**
+     * Batch 12b follow-on Plan B Task 5: the ☰-button auto-hide + per-window-menu `State`s are
+     * externally owned (by the real host's [WindowButtonsVisibility] + `paneMenuWindowId`/
+     * `paneMenuItems` fields), exactly like `nightModeState`/`fullScreenState` above — mounting
+     * must accept them and leave them independently mutable, without a `ComposeTestRule` deeper
+     * interaction assertion (same boundary as `installAcceptsMutableNightModeAndFullScreenState`).
+     */
+    @Test fun installAcceptsWindowButtonsAndPaneMenuState() {
+        val container = FrameLayout(ApplicationProvider.getApplicationContext())
+        val windowButtonsVisibleState = mutableStateOf(true)
+        val touchTickState = mutableIntStateOf(0)
+        val paneMenuWindowIdState = mutableStateOf<String?>(null)
+        val paneMenuItemsState = mutableStateOf(emptyList<WindowPaneMenuItem>())
+        var hideTimeoutCalls = 0
+        var openedPaneMenuFor: String? = null
+
+        ComposeReadingViewHost.mountComposeView(
+            container = container,
+            windowState = WindowStateServiceImpl(),
+            commands = noopCommands,
+            nightModeState = mutableStateOf(false),
+            pane = { },
+            windowButtonsVisibleState = windowButtonsVisibleState,
+            touchTickState = touchTickState,
+            onWindowButtonsHideTimeout = { hideTimeoutCalls++ },
+            paneMenuWindowIdState = paneMenuWindowIdState,
+            paneMenuItemsState = paneMenuItemsState,
+            onOpenPaneMenu = { id -> openedPaneMenuFor = id },
+        )
+        assertTrue((0 until container.childCount).any { container.getChildAt(it) is ComposeView })
+
+        windowButtonsVisibleState.value = false
+        touchTickState.intValue++
+        paneMenuWindowIdState.value = "w1"
+        assertFalse(windowButtonsVisibleState.value)
+        assertEquals(1, touchTickState.intValue)
+        assertEquals("w1", paneMenuWindowIdState.value)
+        // The callbacks themselves are simple pass-throughs owned by the caller (real wiring is
+        // `ComposeReadingViewHost.install`'s `onOpenPaneMenu = ::openPaneMenu`/
+        // `onWindowButtonsHideTimeout = windowButtonsVisibility::onHideTimeout`); confirm the
+        // defaults compile/mount without them ever having been invoked by `mountComposeView`
+        // itself (composition never runs without an attached window — see `pane = {}` note above).
+        assertEquals(0, hideTimeoutCalls)
+        assertEquals(null, openedPaneMenuFor)
+    }
+
+    /**
      * Batch 12b follow-on, Plan A Task 7: with >= 2 (non-closed) windows,
      * `ComposeReadingViewHost.buildTabBarModel` — the non-`@Composable` helper `mountComposeView`
      * calls to derive the rail model — must delegate verbatim to `buildWindowTabBar` (Task 4), so
@@ -219,5 +284,193 @@ class ComposeReadingViewGenerationTest {
         generation.rebuild()
         generation.rebuild()
         assertEquals(3, generation.state.value)
+    }
+}
+
+/**
+ * Batch 12b follow-on Plan B Task 5: [WindowButtonsVisibility] is the framework-free holder the
+ * real [ComposeReadingViewHost] wires to [net.bible.android.view.activity.page.BibleView.BibleViewTouched]
+ * (via `ABEventBus.register`'s `onMain<BibleView.BibleViewTouched> { windowButtonsVisibility.onTouch() }`
+ * in [ComposeReadingViewHost]'s `init`) — exercised directly here (no MainBibleActivity/Koin boot
+ * needed), mirroring [ComposeReadingViewGenerationTest] one class up. [onTouch] is exactly what
+ * that subscription calls on a real touch, so asserting it flips [WindowButtonsVisibility.visible]
+ * back to `true` (after [WindowButtonsVisibility.onHideTimeout] set it `false`) is the direct,
+ * framework-free equivalent of "a `BibleViewTouched` sets [visible] true" the Task-5 brief asks
+ * for.
+ */
+class WindowButtonsVisibilityTest {
+    @Test fun startsVisibleWithATouchTickOfZero() {
+        val v = WindowButtonsVisibility()
+        assertTrue(v.visible.value)
+        assertEquals(0, v.touchTick.value)
+    }
+
+    @Test fun onHideTimeoutHidesTheButtons() {
+        val v = WindowButtonsVisibility()
+        v.onHideTimeout()
+        assertFalse(v.visible.value)
+    }
+
+    @Test fun onTouchReShowsTheButtonsAndBumpsTheTouchTick() {
+        val v = WindowButtonsVisibility()
+        v.onHideTimeout()
+        assertFalse(v.visible.value, "sanity: hidden before the touch")
+
+        v.onTouch()
+
+        assertTrue(v.visible.value, "a touch (BibleViewTouched) must re-show the buttons")
+        assertEquals(1, v.touchTick.value)
+
+        v.onTouch()
+        assertEquals(2, v.touchTick.value, "every touch bumps the tick so the host's LaunchedEffect(touchTick) restarts its 2s countdown")
+    }
+}
+
+/**
+ * Batch 12b follow-on Plan B Task 5: exercises [MainBibleActivity.handleWindowPaneMenuItem]
+ * against a REAL [WindowControl]/[WindowRepository]/[net.bible.android.control.page.window.Window]
+ * graph (Robolectric + [TestBibleApplication], same style as
+ * [net.bible.android.view.activity.page.OptionsMenuStateBuilderTest] /
+ * [net.bible.android.view.activity.page.WindowPaneMenuStateBuilderTest]) rather than mocking the
+ * collaborators. The activity is built WITHOUT `.create()` (same rationale as those two tests):
+ * `handleWindowPaneMenuItem`'s atomic branches only touch `windowRepository`/`windowControl`
+ * (+ optionally a real [ComposeReadingViewHost], which itself never calls `install()` here, so
+ * `activity.binding` is never touched) — except `startActivityForResult` (the `allTextOptions`
+ * bridge), which needs `ActivityBase.historyTraversal` primed via `setNewHistoryTraversal`
+ * (normally done in `onCreate()`); done explicitly in [setUp] rather than calling `.create()`, to
+ * keep the same minimal-boot footprint as [net.bible.android.view.activity.page.OptionsMenuStateBuilderTest].
+ */
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+class MainBibleActivityHandleWindowPaneMenuItemTest {
+    private lateinit var windowControl: WindowControl
+    private lateinit var windowRepository: WindowRepository
+    private lateinit var activity: MainBibleActivity
+
+    @Before
+    fun setUp() {
+        windowControl = CommonUtils.windowControl
+        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl.windowRepository = windowRepository
+        windowRepository.initialize()
+
+        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
+        activity.windowRepository = windowRepository
+        activity.setNewHistoryTraversal(GlobalContext.get().get())
+    }
+
+    @After
+    fun tearDown() {
+        DatabaseResetter.resetDatabase(windowRepository.scope)
+    }
+
+    /**
+     * Fallback path (no [ComposeReadingViewHost] installed, `activity.composeReadingViewHost ==
+     * null`): `handleWindowPaneMenuItem` must still act, directly through [WindowControl] — the
+     * "or directly windowControl" branch named in the Task-5 brief, and what keeps this dispatcher
+     * unit-testable without booting the full Compose host.
+     */
+    @Test fun windowMinimiseActsDirectlyThroughWindowControlWhenNoHostIsInstalled() {
+        val w1 = windowRepository.activeWindow
+        windowRepository.addNewWindow(w1) // second window, so w1 is minimizable
+        assertTrue(windowControl.isWindowMinimizable(w1), "sanity")
+        assertNull(activity.composeReadingViewHost, "sanity: fallback path")
+
+        val stayOpen = activity.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE)
+
+        assertFalse(stayOpen, "an action closes the menu")
+        assertFalse(w1.isVisible, "windowMinimise must actually minimise the window")
+    }
+
+    /**
+     * The PRIMARY (production) path: with a real [ComposeReadingViewHost] installed,
+     * `handleWindowPaneMenuItem` routes an atomic item through `composeReadingViewHost.controller`
+     * (the Plan-A command seam) — the same seam the pane overlay's own gestures and the restore
+     * rail drive — rather than the fallback. The controller's [ReadingViewController.onMinimise]
+     * is itself backed by the REAL `WindowCommandsImpl`/`WindowControl` (Koin), so the observable
+     * effect is identical to the fallback-path test above; what this test additionally proves is
+     * that the controller-seam branch executes cleanly end-to-end (no NPE/host-wiring regression).
+     */
+    @Test fun windowMinimiseRoutesThroughTheRealControllerSeamWhenHostIsInstalled() {
+        val w1 = windowRepository.activeWindow
+        windowRepository.addNewWindow(w1)
+        assertTrue(windowControl.isWindowMinimizable(w1), "sanity")
+
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+
+        val stayOpen = activity.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE)
+
+        assertFalse(stayOpen)
+        assertFalse(w1.isVisible, "windowMinimise via the controller seam must minimise the window")
+    }
+
+    /** `pinMode` is a checkable toggle (mirrors classic's `isBoolean` `CommandPreference`): stays open. */
+    @Test fun pinModeTogglesAndStaysOpen() {
+        windowRepository.workspaceSettings.autoPin = false
+        val w1 = windowRepository.activeWindow
+        w1.isPinMode = false
+
+        val stayOpen = activity.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_PIN_MODE)
+
+        assertTrue(stayOpen, "a checkable toggle must tell the host to stay open (and rebuild)")
+        assertTrue(w1.isPinMode)
+    }
+
+    /** `windowClose` acts through the seam/`WindowControl` and does not stay open. */
+    @Test fun windowCloseActsAndCloses() {
+        val w1 = windowRepository.activeWindow
+        val w2 = windowRepository.addNewWindow(w1)
+        assertTrue(windowControl.isWindowRemovable(w2))
+
+        val stayOpen = activity.handleWindowPaneMenuItem(w2.id.toString(), WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE)
+
+        assertFalse(stayOpen)
+        assertNull(windowRepository.getWindow(w2.id), "windowClose must actually remove the window")
+    }
+
+    /**
+     * A BRIDGED id (`"allTextOptions"`) invokes the classic native launch — `TextDisplaySettingsActivity`
+     * via `startActivityForResult` (`SplitBibleArea.kt:978-986`'s window-level counterpart) — rather
+     * than acting through the command seam, and reports `false` (closes the menu).
+     */
+    @Test fun allTextOptionsLaunchesTextDisplaySettingsActivity() {
+        val w1 = windowRepository.activeWindow
+
+        val stayOpen = activity.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS)
+
+        assertFalse(stayOpen)
+        val started = shadowOf(activity).nextStartedActivityForResult
+        assertEquals(MainBibleActivity.TEXT_DISPLAY_SETTINGS_CHANGED, started?.requestCode)
+        assertEquals(
+            "net.bible.android.view.activity.settings.TextDisplaySettingsActivity",
+            started?.intent?.component?.className,
+        )
+    }
+
+    /**
+     * `copySettingsToWindow` must resolve the ACTUAL target window rather than defaulting
+     * silently (Task-5 brief) — with no other visible window to copy to (the same guard
+     * `WindowPaneMenuStateBuilder` uses to hide the row in the first place,
+     * `copySettingsToWindowOnlyAppearsWhenAnotherVisibleWindowExists`), the picker must safely
+     * no-op rather than crash on an empty target list.
+     */
+    @Test fun copySettingsToWindowNoOpsSafelyWithNoOtherVisibleWindow() {
+        val w1 = windowRepository.activeWindow
+
+        val stayOpen = activity.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WINDOW)
+
+        assertFalse(stayOpen)
+    }
+
+    @Test fun parseIdRoundTripsForAnAtomicId() {
+        assertEquals(
+            WindowPaneMenuStateBuilder.ParsedId.StaticItem(WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE),
+            WindowPaneMenuStateBuilder.parseId(WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE),
+        )
+    }
+
+    @Test fun handleWindowPaneMenuItemReturnsFalseForAnUnknownWindowId() {
+        // A stale click after the window closed underneath it (`getWindow` returns null) must not throw.
+        assertFalse(activity.handleWindowPaneMenuItem(IdType().toString(), WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE))
     }
 }
