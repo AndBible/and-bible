@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
  * `ReadingProgressSettingsLabels`/`AppSettingsLabels`.
  */
 data class TextDisplaySettingsLabels(
+    /** The `parent_settings_category` header shown above the two drill-up link rows (classic
+     * `text_display_settings.xml` `parent_settings_category_title`). */
+    val categoryParent: String,
     val categoryFontColors: String,
     val categoryTextLayout: String,
     val categoryStrongsMorphology: String,
@@ -31,6 +34,7 @@ data class TextDisplaySettingsLabels(
 ) {
     companion object {
         fun forTest() = TextDisplaySettingsLabels(
+            categoryParent = "Parent settings",
             categoryFontColors = "Font & colours",
             categoryTextLayout = "Text layout",
             categoryStrongsMorphology = "Strong's & morphology",
@@ -96,7 +100,7 @@ class TextDisplaySettingsController(
         val items = listOf(
             SettingsItem.Category(
                 key = "cat_parent",
-                title = "",
+                title = labels.categoryParent,
                 visible = snapshot.showParentCategory,
             ),
             *listOfNotNull(

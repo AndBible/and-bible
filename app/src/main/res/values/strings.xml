@@ -251,6 +251,8 @@
     <string name="workspace_text_options_link_summary">Edit text display settings for this workspace</string>
     <string name="global_text_options_link">Global text options</string>
     <string name="global_text_options_link_summary">Edit default text display settings for all workspaces</string>
+    <string name="text_options_inherited_workspace">Workspace</string>
+    <string name="text_options_inherited_global">Global</string>
     <string name="prefs_font_and_colors_title">Font &amp; Colors</string>
     <string name="prefs_text_layout_title">Text Layout</string>
     <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; Morphology</string>

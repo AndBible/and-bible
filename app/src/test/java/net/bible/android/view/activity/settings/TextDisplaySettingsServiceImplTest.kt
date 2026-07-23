@@ -22,6 +22,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.settings.InheritedFrom
 import net.bible.sharedcore.settings.SettingsScope
@@ -118,5 +119,15 @@ class TextDisplaySettingsServiceImplTest {
     @Test fun setGlobalPersistsAndPropagates() {
         service.setValue(globalScope(), TextSettingType.JUSTIFY, TextSettingValue.BoolValue(false))
         assertEquals(false, CommonUtils.globalTextDisplaySettings.justifyText)   // persisted via DAO setter
+    }
+
+    @Test fun currentHideLabelsIdsReturnsNoneByDefault() {
+        assertEquals(emptyList<IdType>(), service.currentHideLabelsIds(wsScope()))
+    }
+
+    @Test fun currentHideLabelsIdsReflectsSetValue() {
+        val ids = listOf(IdType(), IdType())
+        service.setValue(wsScope(), TextSettingType.BOOKMARKS_HIDELABELS, TextSettingValue.LabelIdsValue(ids.map { it.toString() }))
+        assertEquals(ids, service.currentHideLabelsIds(wsScope()))
     }
 }
