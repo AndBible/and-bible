@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.reading
 
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -36,6 +37,10 @@ import net.bible.sharedcore.window.WindowLayoutState
  * split keeps `Modifier.weight(1f)` so the rail doesn't shrink it further). It's `null` by
  * default, in which case nothing is rendered there — the restore-rail host (a later task) is
  * the only caller expected to pass it.
+ *
+ * [paneOverlay] is forwarded verbatim to [SplitContent]'s slot of the same name — an optional
+ * per-pane overlay (e.g. the floating ☰ window button), composed inside every visible pane. `null`
+ * by default, in which case nothing extra is drawn.
  */
 @Composable
 fun ReadingViewScreen(
@@ -54,6 +59,7 @@ fun ReadingViewScreen(
     onOverflowDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
     tabBar: (@Composable () -> Unit)? = null,
+    paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
 ) {
     Column(modifier.fillMaxSize()) {
         if (!fullScreen) {
@@ -74,6 +80,7 @@ fun ReadingViewScreen(
             onSeparatorCommitted = onSeparatorCommitted,
             pane = pane,
             modifier = Modifier.weight(1f),
+            paneOverlay = paneOverlay,
         )
         tabBar?.invoke()
     }

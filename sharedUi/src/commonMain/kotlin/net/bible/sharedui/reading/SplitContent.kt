@@ -19,6 +19,7 @@ package net.bible.sharedui.reading
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -73,6 +74,12 @@ private data class ActiveDrag(val index: Int, val weight1: Float, val weight2: F
  * live pair is committed to the model (and `drag` cleared) only once the drag ends, reported via
  * [onSeparatorCommitted] — the caller (SSOT) applies it back into [layout]. When no drag is active,
  * rendering is identical to the pre-live-drag behaviour (plain `effectiveWeights`).
+ *
+ * [paneOverlay], when non-null, is composed inside every visible pane's `Box` (after [pane]), with
+ * that `Box`'s [BoxScope] as its receiver so the caller can anchor it via `Modifier.align(...)` —
+ * e.g. the floating ☰ window button, which every pane needs regardless of split orientation. `null`
+ * by default, in which case nothing extra is drawn and rendering is byte-identical to before this
+ * slot existed.
  */
 @Composable
 fun SplitContent(
@@ -81,6 +88,7 @@ fun SplitContent(
     onSeparatorCommitted: (id1: String, w1: Float, id2: String, w2: Float) -> Unit,
     pane: @Composable (windowId: String) -> Unit,
     modifier: Modifier = Modifier,
+    paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
 ) {
     val windows = layout.windows.filter { it.isVisible }
     BoxWithConstraints(modifier.fillMaxSize()) {
@@ -114,7 +122,10 @@ fun SplitContent(
                                 .weight(paneWeight(index))
                                 .fillMaxSize()
                                 .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
-                        ) { pane(w.id) }
+                        ) {
+                            pane(w.id)
+                            paneOverlay?.invoke(this, w.id)
+                        }
                     }
                     if (index < windows.lastIndex) {
                         Separator(
@@ -139,7 +150,10 @@ fun SplitContent(
                                 .weight(paneWeight(index))
                                 .fillMaxSize()
                                 .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
-                        ) { pane(w.id) }
+                        ) {
+                            pane(w.id)
+                            paneOverlay?.invoke(this, w.id)
+                        }
                     }
                     if (index < windows.lastIndex) {
                         Separator(

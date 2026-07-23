@@ -19,12 +19,15 @@ package net.bible.android.view.compose.golden
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.window.WindowLayoutState
 import net.bible.sharedcore.window.WindowSnapshot
@@ -63,8 +66,11 @@ class ReadingSplitGoldenTest {
 
     // Calls SplitContent directly (not ReadingViewScreen) so these split-geometry goldens stay
     // toolbar-free — ReadingViewScreen now also draws a ReadingToolbar row above the split.
-    private fun screen(layout: WindowLayoutState): @Composable () -> Unit = {
-        SplitContent(layout, {}, { _, _, _, _ -> }, pane)
+    private fun screen(
+        layout: WindowLayoutState,
+        paneOverlay: (@Composable BoxScope.(String) -> Unit)? = null,
+    ): @Composable () -> Unit = {
+        SplitContent(layout, {}, { _, _, _, _ -> }, pane, paneOverlay = paneOverlay)
     }
 
     @Test fun singlePane() =
@@ -103,6 +109,24 @@ class ReadingSplitGoldenTest {
                     win("B", 1f).copy(state = WindowStateValue.MINIMISED, isVisible = false),
                     win("C", 1f),
                 ),
+            ),
+        )
+
+    // Covers the paneOverlay slot (Batch 12b-followon-B Task 2): the floating ☰ window button
+    // (Task 5, host-composed) anchors here via Modifier.align — this stub proves an overlay drawn
+    // per-pane sits top-end over BOTH panes without disturbing the split geometry underneath.
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withOverlay() =
+        captureGolden(
+            "ReadingSplit", "withOverlay", EDGE_MODE,
+            content = screen(
+                state(win("A", 2f), win("B", 1f)),
+                paneOverlay = { _ ->
+                    Box(
+                        Modifier.align(Alignment.TopEnd).size(40.dp).background(MaterialTheme.colorScheme.tertiary),
+                    ) { Text("☰") }
+                },
             ),
         )
 }
