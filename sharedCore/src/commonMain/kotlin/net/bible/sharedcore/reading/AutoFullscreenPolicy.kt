@@ -23,11 +23,26 @@ enum class FullscreenAction { None, Enter, Exit }
 /**
  * Accumulated scroll state carried between [autoFullscreenAction] calls (one call per scroll
  * increment). [accumulated] is the running distance in px - same sign convention as [autoFullscreenAction]'s
- * `deltaY` (down = positive) - since the last direction change or threshold crossing;
- * [lastDirectionDown] is the sign of the previous increment (`true` = previous increment was downward),
- * used only to detect a direction flip on the next call.
+ * `deltaY` (down = positive) - since the last direction change or threshold crossing.
+ *
+ * [lastDirectionUp] mirrors classic `BibleGestureListener`'s `lastDirection` field
+ * (`view/activity/page/BibleGestureListener.kt:49`), which stores `distanceY > 0` from the
+ * *previous* `onScroll` call. This API's `deltaY` uses the *opposite* sign convention to Android's
+ * own `distanceY` (`deltaY = -distanceY`, per the Task 6 bridge - down = positive here, whereas
+ * `distanceY > 0` means the touch moved *up*), so classic's flip-bit expressed in `deltaY` terms is
+ * `deltaY < 0` (an upward increment) - hence this field's name and the comparison in
+ * [autoFullscreenAction] below (`directionUp = deltaY < 0`).
+ *
+ * The default `false` mirrors classic's `lastDirection = false` initial value verbatim - including
+ * its asymmetry: on a genuinely fresh [AutoFullscreenTracking], the first call reporting an
+ * *upward* (`deltaY < 0`) increment disagrees with the `false` default and is therefore treated as
+ * a direction flip - it is "spent" (contributes nothing to [accumulated], see below) exactly like
+ * classic's first up-scroll from a cold `BibleGestureListener`. The first call reporting a
+ * *downward or zero* (`deltaY >= 0`) increment agrees with the default and is NOT a flip - it
+ * counts immediately. This baseline asymmetry belongs to classic itself (an arbitrary but load-
+ * bearing default) and must be reproduced verbatim, not "fixed" into a symmetric one.
  */
-data class AutoFullscreenTracking(val accumulated: Float = 0f, val lastDirectionDown: Boolean = false)
+data class AutoFullscreenTracking(val accumulated: Float = 0f, val lastDirectionUp: Boolean = false)
 
 /** [action] to take this call, and the updated [tracking] to thread into the next call. */
 data class AutoFullscreenResult(val action: FullscreenAction, val tracking: AutoFullscreenTracking)
@@ -37,8 +52,9 @@ data class AutoFullscreenResult(val action: FullscreenAction, val tracking: Auto
  *
  * Accumulates [deltaY] (screen convention **down = positive** - the raw per-call touch-position delta,
  * i.e. classic's `e2.y - scrollEv.y` increment, which is the *negation* of Android GestureDetector's own
- * `distanceY`) across calls via [tracking]. Whenever the sign of [deltaY] differs from
- * [AutoFullscreenTracking.lastDirectionDown], the accumulator resets to zero for *this* call (the call
+ * `distanceY`) across calls via [tracking]. Whenever `deltaY < 0` (an upward increment - matching
+ * classic's `distanceY > 0` flip-bit, see [AutoFullscreenTracking.lastDirectionUp]) differs from
+ * [AutoFullscreenTracking.lastDirectionUp], the accumulator resets to zero for *this* call (the call
  * that flipped direction never itself reaches a threshold) - exactly mirroring classic's
  * `scrollEv = MotionEvent.obtain(e2)` reassignment happening *before* `dist` is (re)computed on a
  * direction change.
@@ -65,8 +81,8 @@ fun autoFullscreenAction(
     thresholdPx: Float,
     tracking: AutoFullscreenTracking,
 ): AutoFullscreenResult {
-    val directionDown = deltaY > 0
-    var accumulated = if (directionDown != tracking.lastDirectionDown) 0f else tracking.accumulated + deltaY
+    val directionUp = deltaY < 0
+    var accumulated = if (directionUp != tracking.lastDirectionUp) 0f else tracking.accumulated + deltaY
 
     var action = FullscreenAction.None
     if (!isFullScreen && accumulated < -thresholdPx) {
@@ -76,5 +92,5 @@ fun autoFullscreenAction(
         if (isEnabled && !lockedByDoubleTap) action = FullscreenAction.Exit
         accumulated = 0f
     }
-    return AutoFullscreenResult(action, AutoFullscreenTracking(accumulated, directionDown))
+    return AutoFullscreenResult(action, AutoFullscreenTracking(accumulated, directionUp))
 }
