@@ -250,12 +250,22 @@ private fun ReadingToolbarTitle(state: ToolbarState, callbacks: ReadingToolbarCa
             overflow = TextOverflow.Ellipsis,
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
+            // weight(1f, fill = false) makes this Text yield width to the trailing SyncIndicator:
+            // a Row measures non-weighted children (the indicator) FIRST and subtracts their size
+            // from the available width before dividing the remainder among weighted children, so
+            // the indicator always gets its fixed size reserved — unlike two plain non-weighted
+            // siblings, where each is measured against the FULL available width independently and
+            // the ellipsized Text claims all of it, leaving the indicator no room (invisible even
+            // at a non-zero progress value). `fill = false` keeps the shrink-to-content sizing this
+            // Text had before (it doesn't force-expand into the weighted share when the title is
+            // short).
             Text(
                 text = state.documentTitle,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
             )
             if (state.syncRunning) {
                 SyncIndicator(Modifier.padding(start = 6.dp))

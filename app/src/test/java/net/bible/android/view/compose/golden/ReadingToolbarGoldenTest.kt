@@ -118,14 +118,14 @@ class ReadingToolbarGoldenTest {
     @Test
     fun narrow() = captureGolden("ReadingToolbar", "narrow", EDGE_MODE, content = screen(narrowState))
 
-    // land: at the default (narrow, portrait) width, fullState's title column is squeezed down to
-    // ~64px (320dp screen minus home+3 quick buttons+overflow=240dp, minus padding) — the ellipsized
-    // document title text alone claims that whole width (Row does not reserve space for a
-    // non-weighted trailing sibling), leaving the sync indicator no room and rendering it invisible
-    // regardless of its frozen progress value. land gives the title column ample width so the
-    // indicator actually has room to draw, genuinely exercising (and visually confirming) the fix.
+    // Default (narrow, portrait) viewport — proves the sync indicator is visible even in the
+    // common-case squeezed title column. Fixed in ReadingToolbar.kt: the document-title Text now
+    // carries `Modifier.weight(1f, fill = false)` inside the title Row, so it yields width to the
+    // non-weighted trailing SyncIndicator instead of claiming the whole column (a Row measures
+    // non-weighted children first and reserves their size before dividing the remainder among
+    // weighted ones). Previously this case was re-recorded with `land` qualifiers to paper over the
+    // squeeze rather than fix it — see fix wave 2.
     @Test
-    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun syncing() = captureGolden("ReadingToolbar", "syncing", EDGE_MODE, content = screen(fullState.copy(syncRunning = true)))
 
     @Test
