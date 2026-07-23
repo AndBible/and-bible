@@ -24,15 +24,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import net.bible.sharedcore.reading.ToolbarState
+import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.reading.ReadingToolbarCallbacks
+import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
 import net.bible.sharedui.theme.AbTheme
 import org.koin.core.component.KoinComponent
@@ -72,6 +81,7 @@ class ComposeReadingViewGeneration {
 class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComponent {
     private val windowState: WindowStateServiceImpl by inject()
     private val commands: WindowCommands by inject()
+    private val toolbarStateService: ToolbarStateService by inject()
 
     private val generation = ComposeReadingViewGeneration()
 
@@ -90,6 +100,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             commands = commands,
             nightMode = ScreenSettings.nightMode,
             generationState = generation.state,
+            toolbar = toolbarStateService.toolbar,
             pane = { windowId ->
                 val window = activity.windowRepository.getWindow(IdType(windowId))
                 if (window != null) {
@@ -113,6 +124,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // Defaults to a fresh, never-bumped state for the unit test (which mounts with
             // `pane = {}` and never attaches the ComposeView, so composition never runs).
             generationState: State<Int> = mutableIntStateOf(0),
+            // TODO(Batch 12b-B Task 5): [install] passes the real ToolbarStateServiceImpl-backed
+            // flow; this default (a static EMPTY state) only keeps unit tests that don't care
+            // about the toolbar (e.g. ComposeReadingViewHostTest) compiling without change.
+            toolbar: StateFlow<ToolbarState> = MutableStateFlow(ToolbarState.EMPTY).asStateFlow(),
+            // TODO(Batch 12b-B Task 5): source this from a real setting/host signal (e.g. an
+            // immersive-mode toggle) instead of the always-false placeholder.
+            fullScreen: Boolean = false,
             pane: @Composable (windowId: String) -> Unit,
         ) {
             val controller = ReadingViewController(windowState, commands)
@@ -127,12 +145,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             disableAnimations = CommonUtils.settings.disableAnimations,
                         ) {
                             val layout by controller.layout.collectAsState()
+                            val toolbarState by toolbar.collectAsState()
                             val gen by generationState
                             // Keying the whole screen on `gen` forces every pane's `AndroidView`
                             // factory to re-run on `rebuild()` — see the `generation` kdoc above.
                             key(gen) {
                                 ReadingViewScreen(
                                     layout = layout,
+                                    toolbar = toolbarState,
+                                    toolbarIcons = defaultToolbarIcons(),
+                                    toolbarCallbacks = noopToolbarCallbacks,
+                                    fullScreen = fullScreen,
                                     onWindowActivated = controller::onWindowActivated,
                                     onSeparatorCommitted = controller::onSeparatorCommitted,
                                     pane = pane,
@@ -146,3 +169,33 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         }
     }
 }
+
+/**
+ * Interim [ReadingToolbarIcons] for [ComposeReadingViewHost.mountComposeView] — the same
+ * `main_bible_view.xml` toolbar drawables `ReadingToolbarGoldenTest` uses. Real per-action button
+ * behaviour (drawer/search/speak/etc.) is wired by Batch 12b-B Task 5; only the icon set is filled
+ * in here so the toolbar renders correctly meanwhile.
+ */
+@Composable
+private fun defaultToolbarIcons() = ReadingToolbarIcons(
+    home = painterResource(R.drawable.ic_menu),
+    search = painterResource(R.drawable.ic_search_24dp),
+    speak = painterResource(R.drawable.ic_baseline_headphones_24),
+    strongs = painterResource(R.drawable.ic_strongs_hebrew),
+    bible = painterResource(R.drawable.ic_bible_24dp),
+    commentary = painterResource(R.drawable.ic_commentary),
+    workspace = painterResource(R.drawable.ic_workspace_solid_24dp),
+    overflow = painterResource(R.drawable.ic_more_vert_black_24dp),
+)
+
+/**
+ * Interim no-op [ReadingToolbarCallbacks] for [ComposeReadingViewHost.mountComposeView] — every
+ * button/gesture is inert until Batch 12b-B Task 5 routes them to the real
+ * `MainBibleActivity`/`WindowControl`/`SpeakControl` actions the classic toolbar performs.
+ */
+private val noopToolbarCallbacks = ReadingToolbarCallbacks(
+    onHome = {}, onTitleTap = {}, onTitleLongPress = {}, onTitleFlingVertical = {},
+    onTitleFlingHorizontal = {}, onBible = {}, onBibleLong = {}, onCommentary = {},
+    onCommentaryLong = {}, onStrongs = {}, onStrongsLong = {}, onSearch = {}, onSpeak = {},
+    onSpeakLong = {}, onWorkspace = {}, onOverflow = {},
+)

@@ -29,7 +29,7 @@ import net.bible.android.TEST_SDK
 import net.bible.sharedcore.window.WindowLayoutState
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateValue
-import net.bible.sharedui.reading.ReadingViewScreen
+import net.bible.sharedui.reading.SplitContent
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -61,8 +61,10 @@ class ReadingSplitGoldenTest {
         Box(Modifier.fillMaxSize().background(color), Alignment.Center) { Text(id) }
     }
 
+    // Calls SplitContent directly (not ReadingViewScreen) so these split-geometry goldens stay
+    // toolbar-free — ReadingViewScreen now also draws a ReadingToolbar row above the split.
     private fun screen(layout: WindowLayoutState): @Composable () -> Unit = {
-        ReadingViewScreen(layout, {}, { _, _, _, _ -> }, pane)
+        SplitContent(layout, {}, { _, _, _, _ -> }, pane)
     }
 
     @Test fun singlePane() =

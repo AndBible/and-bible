@@ -21,28 +21,44 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.window.WindowLayoutState
 
 /**
- * Top-level reading-view screen. Plan A (this task) is the reading area only — a `Column`
- * wrapping [SplitContent]; Plan B (Batch 12b next step) inserts the app's toolbar above it in
- * the same `Column`, so the container shape is deliberately kept even though it wraps a single
- * child for now.
+ * Top-level reading-view screen: the [ReadingToolbar] (unless [fullScreen]) stacked above the
+ * split reading area ([SplitContent]) in a single `Column`. Plan A (prior task) was the reading
+ * area only; Plan B (this task) folds the toolbar in, dropping it entirely — rather than merely
+ * hiding it — when [fullScreen], so [SplitContent] reclaims the full height via
+ * `Modifier.weight(1f)`.
  */
 @Composable
 fun ReadingViewScreen(
     layout: WindowLayoutState,
+    toolbar: ToolbarState,
+    toolbarIcons: ReadingToolbarIcons,
+    toolbarCallbacks: ReadingToolbarCallbacks,
+    fullScreen: Boolean,
     onWindowActivated: (String) -> Unit,
     onSeparatorCommitted: (id1: String, w1: Float, id2: String, w2: Float) -> Unit,
     pane: @Composable (windowId: String) -> Unit,
+    searchMoreRecent: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxSize()) {
+        if (!fullScreen) {
+            ReadingToolbar(
+                state = toolbar,
+                icons = toolbarIcons,
+                callbacks = toolbarCallbacks,
+                searchMoreRecent = searchMoreRecent,
+            )
+        }
         SplitContent(
             layout = layout,
             onWindowActivated = onWindowActivated,
             onSeparatorCommitted = onSeparatorCommitted,
             pane = pane,
+            modifier = Modifier.weight(1f),
         )
     }
 }
