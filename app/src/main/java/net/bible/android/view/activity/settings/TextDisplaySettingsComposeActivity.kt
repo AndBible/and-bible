@@ -233,7 +233,13 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
     private fun pop() {
         when {
             chooserNight != null -> chooserNight = null
-            colorsScope != null -> colorsScope = null
+            colorsScope != null -> {
+                val scope = colorsScope!!
+                colorsScope = null
+                // Colours are edited via a separate ColorSettingsController, so the cached text
+                // controller for this scope may now show a stale COLORS inheritance badge — refresh it.
+                controllerFor(scope).refresh()
+            }
             navStack.size > 1 -> {
                 navStack = navStack.dropLast(1)
                 // Mirrors classic TextDisplaySettingsActivity.onBackPressed's refreshFromInMemoryState:

@@ -45,12 +45,6 @@ import net.bible.sharedui.strings.LocalStrings
  * dismisses. Theme-aware (uses the ambient M3 colour scheme). Renders gracefully with no choices —
  * an empty dialog with only the cancel button (the settings framework never sends an empty list in
  * practice, since consuming screens intercept such rows, but this must not crash).
- *
- * [onReset] defaults to `null` (Batch 12d-A Task 3's dialog-reset seam, for value-inheritance
- * screens): when null the dismiss area keeps its original single Cancel button (byte-identical);
- * when non-null a neutral "Reset" text button (reusing [net.bible.sharedui.strings.Strings.resetGeneric],
- * the same generic reset label the reading-plan screens use) is added alongside Cancel, calling
- * [onReset] then [onDismiss].
  */
 @Composable
 fun AbListChoiceDialog(
@@ -59,7 +53,6 @@ fun AbListChoiceDialog(
     selectedValue: String,
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit,
-    onReset: (() -> Unit)? = null,
 ) {
     val strings = LocalStrings.current
     AlertDialog(
@@ -94,14 +87,7 @@ fun AbListChoiceDialog(
         },
         confirmButton = {},
         dismissButton = {
-            if (onReset != null) {
-                Row {
-                    TextButton(onClick = { onReset(); onDismiss() }) { Text(strings.resetGeneric) }
-                    TextButton(onClick = onDismiss) { Text(strings.cancel) }
-                }
-            } else {
-                TextButton(onClick = onDismiss) { Text(strings.cancel) }
-            }
+            TextButton(onClick = onDismiss) { Text(strings.cancel) }
         },
     )
 }
