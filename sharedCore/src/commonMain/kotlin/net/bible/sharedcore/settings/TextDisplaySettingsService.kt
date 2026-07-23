@@ -70,35 +70,29 @@ sealed interface TextSettingValue {
  * Host seam for the text-display-settings screen (font size, margins, Strong's/morphology,
  * footnotes, bookmarks display, etc.), scoped to a window, workspace, or the global default.
  *
- * Plan B extends this interface with colours + background-image methods, consuming the same
- * [SettingsScope]/DTO vocabulary defined here. Those signatures (kept in sync with Plan B Task 1):
- *   fun loadColors(scope: SettingsScope): ColorsSnapshot
- *   fun loadBackgroundOptions(): List<BackgroundImageOption>
- *   fun setColor(scope: SettingsScope, field: ColorField, argb: Int)
- *   fun setNoise(scope: SettingsScope, night: Boolean, value: Int)
- *   fun setWorkspaceColor(scope: SettingsScope, argb: Int)
- *   fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?)
- *   fun setBackgroundOpacity(scope: SettingsScope, night: Boolean, opacity: Int)
- *   fun resetColors(scope: SettingsScope)
- *   suspend fun importBackgroundImage(): BackgroundImageOption?
- *   fun deleteBackgroundImage(initials: String)
+ * Also carries the colours + background-image members (Batch 12d-B), consuming the same
+ * [SettingsScope]/DTO vocabulary defined here — see [ColorsSettings.kt][ColorsSnapshot] for the
+ * associated DTOs ([ColorField], [BackgroundImageOption], [ColorsSnapshot]).
  */
 interface TextDisplaySettingsService {
     fun loadText(scope: SettingsScope): TextSettingsSnapshot
     fun setValue(scope: SettingsScope, type: TextSettingType, value: TextSettingValue)
     fun revert(scope: SettingsScope, type: TextSettingType)
     fun reset(scope: SettingsScope)
-    // Plan B adds (colors + background image), consuming the SAME scope/DTO vocabulary.
-    // These are the EXACT signatures Plan B declares (day/night carried as `night: Boolean`,
-    // colours as non-null ARGB `Int`); keep them in sync with Plan B Task 1:
-    //   fun loadColors(scope: SettingsScope): ColorsSnapshot
-    //   fun loadBackgroundOptions(): List<BackgroundImageOption>
-    //   fun setColor(scope: SettingsScope, field: ColorField, argb: Int)
-    //   fun setNoise(scope: SettingsScope, night: Boolean, value: Int)
-    //   fun setWorkspaceColor(scope: SettingsScope, argb: Int)
-    //   fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?)
-    //   fun setBackgroundOpacity(scope: SettingsScope, night: Boolean, opacity: Int)
-    //   fun resetColors(scope: SettingsScope)
-    //   suspend fun importBackgroundImage(): BackgroundImageOption?
-    //   fun deleteBackgroundImage(initials: String)
+
+    // Colours + background image (day/night carried as `night: Boolean`, colours as non-null ARGB `Int`).
+    fun loadColors(scope: SettingsScope): ColorsSnapshot
+    fun loadBackgroundOptions(): List<BackgroundImageOption>
+    fun setColor(scope: SettingsScope, field: ColorField, argb: Int)
+    fun setNoise(scope: SettingsScope, night: Boolean, value: Int)
+    fun setWorkspaceColor(scope: SettingsScope, argb: Int)
+    fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?)
+    fun setBackgroundOpacity(scope: SettingsScope, night: Boolean, opacity: Int)
+    /** Whole-Colors reset (the classic ColorSettingsActivity "Reset" menu). Scope-dependent, per
+     *  MainBibleActivity COLORS_CHANGED: WINDOW → colours null (inherit); WORKSPACE/GLOBAL →
+     *  TextDisplaySettings.default.colors (+ workspaceColor default at WORKSPACE). */
+    fun resetColors(scope: SettingsScope)
+    /** Launches the host photo picker + copies/registers the SWORD module; null = cancelled/failed. */
+    suspend fun importBackgroundImage(): BackgroundImageOption?
+    fun deleteBackgroundImage(initials: String)
 }

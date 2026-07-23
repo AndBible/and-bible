@@ -4,7 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-private class FakeService(var snap: TextSettingsSnapshot) : TextDisplaySettingsService {
+private class FakeService(var snap: TextSettingsSnapshot) : FakeColoursOnlyService() {
     val setCalls = mutableListOf<Triple<SettingsScope, TextSettingType, TextSettingValue>>()
     val revertCalls = mutableListOf<Pair<SettingsScope, TextSettingType>>()
     val resetCalls = mutableListOf<SettingsScope>()
