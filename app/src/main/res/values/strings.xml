@@ -338,6 +338,11 @@
     <string name="copy_settings">Copy settings to</string>
     <string name="copy_settings_to_workspace">Workspace</string>
     <string name="copy_settings_to_window">Window %1$d (%2$s: %3$s)</string>
+    <!-- The Compose per-window pane menu (WindowPaneMenuStateBuilder) flattens classic's
+         per-target-window "Copy settings to" submenu (copy_settings_to_window, above) into a
+         single row, since it does not yet enumerate individual target windows; see the
+         Batch 12b-followon-B Task 4 report. -->
+    <string name="copy_settings_to_other_window">Copy settings to another window</string>
     <string name="copy_settings_to_global">Global defaults</string>
     <string name="change_to_normal">Change to normal window</string>
     <string name="window_pin_mode">Pin</string>
