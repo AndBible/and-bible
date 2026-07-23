@@ -63,6 +63,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
@@ -126,6 +131,7 @@ import net.bible.android.view.activity.ai.LlmDialogHelper
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
+import net.bible.android.view.activity.download.imageResource
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -160,8 +166,10 @@ import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.PendingAgentResult
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.isStudyPad
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
+import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.reading.OptionsMenuItem
@@ -1100,6 +1108,42 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             menuForDocs(anchor, documentControl.commentariesForVerse)
         } else {
             startDocumentChooser("COMMENTARY")
+        }
+    }
+
+    // ---- Compose window-tab rail bridge (Batch 12b follow-on, Plan A Task 7) ----
+    // `windowLabelFor`/`windowIconFor` resolve a `ComposeReadingViewHost`-supplied opaque window
+    // id to the live `Window` and mirror classic `SplitBibleArea.getWindowButtonTitleText` /
+    // `WindowButtonWidget.updateSettings`'s `docType` image (`WindowButtonWidget.kt:75-151`) — the
+    // label/icon shown per tab in the Compose `WindowTabBar` (Task 5). Deliberately plain
+    // (non-`@Composable`) functions: `WindowTabBar`'s `windowLabel`/`windowIcon` parameters are
+    // plain lambda types (not `@Composable` ones), so nothing in this call chain may invoke a
+    // composable (e.g. `painterResource`) — `windowIconFor` builds its `Painter` via `BitmapPainter`
+    // instead, which needs no composition context.
+
+    /** Cache of resource id -> [Painter], since the doc-type icon set is small and fixed (one per [BookCategory]). */
+    private val composeWindowIconCache = mutableMapOf<Int, Painter>()
+
+    /** Short per-window label for the Compose restore rail — mirrors classic `getWindowButtonTitleText`. */
+    internal fun windowLabelFor(id: String): String {
+        val window = windowRepository.getWindow(IdType(id)) ?: return ""
+        return try {
+            val curdoc = window.pageManager.currentPage.currentDocument ?: return " "
+            if (curdoc.isStudyPad) {
+                (window.pageManager.currentPage.key as? StudyPadKey)?.name ?: " "
+            } else {
+                curdoc.abbreviation
+            }
+        } catch (e: Exception) { " " }
+    }
+
+    /** Doc-type icon for the Compose restore rail — mirrors classic `docType.setImageResource(document.imageResource)`. */
+    internal fun windowIconFor(id: String): Painter? {
+        val window = windowRepository.getWindow(IdType(id)) ?: return null
+        val resId = window.pageManager.currentPage.currentDocument?.imageResource ?: return null
+        return composeWindowIconCache.getOrPut(resId) {
+            val drawable = ContextCompat.getDrawable(this, resId) ?: return null
+            BitmapPainter(drawable.toBitmap().asImageBitmap())
         }
     }
 

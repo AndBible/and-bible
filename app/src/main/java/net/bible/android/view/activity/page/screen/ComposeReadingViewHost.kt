@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
@@ -45,10 +46,15 @@ import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowCommands
+import net.bible.sharedcore.window.WindowLayoutState
+import net.bible.sharedcore.window.WindowSnapshot
+import net.bible.sharedcore.window.WindowTabBarModel
+import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
+import net.bible.sharedui.reading.WindowTabBar
 import net.bible.sharedui.theme.AbTheme
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -223,10 +229,23 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     AndroidView(factory = { activity.bibleViewFactory.getOrCreateBibleView(window) })
                 }
             },
+            windowLabel = { snapshot -> activity.windowLabelFor(snapshot.id) },
+            windowIcon = { snapshot -> activity.windowIconFor(snapshot.id) },
         )
     }
 
     companion object {
+        /**
+         * Pure (non-`@Composable`) rail-model derivation used by [mountComposeView] — delegates
+         * to [buildWindowTabBar]. Kept as its own callable, rather than inlined at the collection
+         * site inside the composable body, so `ComposeReadingViewHostTest` can assert the model
+         * the host derives from a given [WindowLayoutState] without a `ComposeTestRule` (this
+         * repo's `:app` unit tests have none) — mirrors how
+         * [net.bible.android.view.activity.page.MainBibleActivity.buildOptionsMenuItems] factors
+         * the Compose overflow menu's item-building out of its own composable call site.
+         */
+        internal fun buildTabBarModel(layout: WindowLayoutState): WindowTabBarModel = buildWindowTabBar(layout)
+
         /**
          * Testable mount: adds a [ComposeView] rendering [ReadingViewScreen] to [container].
          * Collaborators are passed explicitly so this can be exercised without booting a full
@@ -261,6 +280,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onOverflowItemClick: (id: String) -> Unit = {},
             onOverflowDismiss: () -> Unit = {},
             pane: @Composable (windowId: String) -> Unit,
+            // Host-supplied per-window label/icon for the restore rail (Task 7) — plain,
+            // non-`@Composable` lambdas, matching `WindowTabBar`'s `windowLabel`/`windowIcon`
+            // parameter types (so composable calls like `painterResource` can't sneak into them;
+            // see `MainBibleActivity.windowIconFor`'s kdoc for how it builds a `Painter` without
+            // one). Defaulted (blank label, no icon) so `ComposeReadingViewHostTest` — which never
+            // renders the rail itself — is unaffected.
+            windowLabel: (WindowSnapshot) -> String = { "" },
+            windowIcon: (WindowSnapshot) -> Painter? = { null },
         ) {
             val controller = ReadingViewController(windowState, commands)
             val composeView = ComposeView(container.context).apply {
@@ -284,6 +311,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             val fullScreen by fullScreenState
                             val overflowItems by overflowItemsState
                             val overflowExpanded by overflowExpandedState
+                            val tabBarModel = buildTabBarModel(layout)
+                            // Classic `SplitBibleArea`'s fullscreen auto-hide
+                            // (`autoHideWindowButtonBarInFullScreen`, `full_screen_hide_buttons_pref`,
+                            // default ON, `SplitBibleArea.kt:166-171`/365-366) — in fullscreen with the
+                            // pref on, drop the rail entirely (not merely collapsed, which is what
+                            // `tabBarModel.showButtons` already handles for the non-fullscreen
+                            // collapse toggle).
+                            val hideTabBarInFullScreen = fullScreen &&
+                                CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)
                             // Keying the whole screen on `gen` forces every pane's `AndroidView`
                             // factory to re-run on `rebuild()` — see the `generation` kdoc above.
                             key(gen) {
@@ -300,6 +336,28 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                     overflowExpanded = overflowExpanded,
                                     onOverflowItemClick = onOverflowItemClick,
                                     onOverflowDismiss = onOverflowDismiss,
+                                    tabBar = if (hideTabBarInFullScreen) null else {
+                                        {
+                                            WindowTabBar(
+                                                model = tabBarModel,
+                                                onRestore = controller::onRestore,
+                                                onWindowLongPress = {
+                                                    // TODO(Plan B Task 5): open the per-window menu
+                                                    // (pin/sync-group/move/close/…) here. Intentionally
+                                                    // a no-op until that task wires the per-window
+                                                    // counterpart of `ReadingOverflowMenu` — long-
+                                                    // pressing a rail tab currently does nothing.
+                                                },
+                                                onAddWindow = { controller.onAddWindow(layout.activeWindowId) },
+                                                onUnMaximise = controller::onUnMaximise,
+                                                onToggleCollapse = {
+                                                    controller.onSetRestoreButtonsVisible(!layout.restoreButtonsVisible)
+                                                },
+                                                windowLabel = windowLabel,
+                                                windowIcon = windowIcon,
+                                            )
+                                        }
+                                    },
                                 )
                             }
                         }
