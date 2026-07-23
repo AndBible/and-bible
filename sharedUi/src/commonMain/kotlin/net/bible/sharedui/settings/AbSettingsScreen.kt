@@ -17,7 +17,10 @@
 
 package net.bible.sharedui.settings
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +31,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
@@ -35,6 +39,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -90,6 +95,7 @@ fun AbSettingsScreen(
     searchHint: String = "",
     searchMode: SettingsSearchMode = SettingsSearchMode.AlwaysVisible,
     initialSearchQuery: String = "",
+    onLongPress: ((String) -> Unit)? = null,
 ) {
     if (!searchable) {
         // Unchanged legacy path: pixel-identical to the pre-search behaviour (every non-searchable
@@ -104,6 +110,7 @@ fun AbSettingsScreen(
                 onSliderChange = onSliderChange,
                 onMultiSelectChange = onMultiSelectChange,
                 modifier = Modifier.padding(padding),
+                onLongPress = onLongPress,
             )
         }
         return
@@ -152,6 +159,7 @@ fun AbSettingsScreen(
                 onSliderChange = onSliderChange,
                 onMultiSelectChange = onMultiSelectChange,
                 modifier = Modifier.weight(1f),   // ColumnScope: list fills the space below the field
+                onLongPress = onLongPress,
             )
         }
     }
@@ -175,6 +183,7 @@ fun AbSettingsContent(
     onSliderChange: (String, Int) -> Unit = { _, _ -> },
     onMultiSelectChange: (String, Set<String>) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
+    onLongPress: ((String) -> Unit)? = null,
 ) {
     // Screen-local dialog state: the STABLE KEY of the editor row (if any) currently open, not a
     // captured item snapshot. The item itself is re-resolved from state.visibleItems on every
@@ -190,109 +199,36 @@ fun AbSettingsContent(
     // so AbSettingsScreen's delegation below is behaviour-preserving (order matters for layout).
     LazyColumn(modifier = Modifier.fillMaxSize().then(modifier)) {
         items(state.visibleItems, key = { it.key }) { item ->
-            when (item) {
-                is SettingsItem.Category -> CategoryHeader(item.title)
-
-                is SettingsItem.SwitchRow -> AbSwitchRow(
-                    label = item.title,
-                    summary = item.summary,
-                    checked = item.checked,
-                    onCheckedChange = { onSwitch(item.key, it) },
-                    enabled = item.enabled,
+            val badge = LocalSettingsRowBadge.current(item.key)
+            if (badge == null) {
+                // Byte-identical path: no badge seam provided (every existing settings screen) →
+                // render exactly as before the badge/long-press extension.
+                RenderSettingsItem(
+                    item = item,
+                    onSwitch = onSwitch,
+                    onNavigate = onNavigate,
+                    onSliderChange = onSliderChange,
+                    onLongPress = onLongPress,
+                    openListChoice = { listChoiceDialogKey = it },
+                    openTextInput = { textInputDialogKey = it },
+                    openMultiSelect = { multiSelectDialogKey = it },
                 )
-
-                is SettingsItem.ListChoiceRow -> {
-                    val selectedLabel = item.entries.firstOrNull { it.value == item.selectedValue }?.label
-                    SettingsRow(
-                        title = item.title,
-                        summary = selectedLabel ?: item.summary,
-                        enabled = item.enabled,
-                        onClick = { listChoiceDialogKey = item.key },
-                        iconKey = item.iconKey,
+            } else {
+                Box {
+                    RenderSettingsItem(
+                        item = item,
+                        onSwitch = onSwitch,
+                        onNavigate = onNavigate,
+                        onSliderChange = onSliderChange,
+                        onLongPress = onLongPress,
+                        openListChoice = { listChoiceDialogKey = it },
+                        openTextInput = { textInputDialogKey = it },
+                        openMultiSelect = { multiSelectDialogKey = it },
                     )
-                }
-
-                is SettingsItem.TextInputRow -> SettingsRow(
-                    title = item.title,
-                    summary = item.summary ?: item.value,
-                    enabled = item.enabled,
-                    onClick = { textInputDialogKey = item.key },
-                    iconKey = item.iconKey,
-                )
-
-                is SettingsItem.SliderRow -> AbSliderRow(
-                    label = item.title,
-                    value = item.value,
-                    // Persists once per drag gesture (AbSliderRow calls this on release only).
-                    onValueChange = { onSliderChange(item.key, it) },
-                    valueRange = item.min.toFloat()..item.max.toFloat(),
-                    valueLabel = item.valueLabel,
-                    valueLabelFor = item.valueFormat?.let { fmt ->
-                        { v -> fmt.replace("%d", v.toString()).replace("%%", "%") }
-                    },
-                )
-
-                is SettingsItem.MultiSelectRow -> SettingsRow(
-                    title = item.title,
-                    summary = item.summary,
-                    enabled = item.enabled,
-                    onClick = { multiSelectDialogKey = item.key },
-                    iconKey = item.iconKey,
-                )
-
-                is SettingsItem.NavigationRow -> SettingsRow(
-                    title = item.title,
-                    summary = item.summary,
-                    enabled = item.enabled,
-                    onClick = { onNavigate(item.key) },
-                    iconKey = item.iconKey,
-                    trailing = {
-                        Icon(
-                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = null,
-                        )
-                    },
-                )
-
-                // InfoRow is non-interactive by default (no clickable, no ripple) — a plain title +
-                // summary, optionally with a leading icon. When onClickKey is set, the row becomes
-                // clickable and fires the SAME onNavigate callback NavigationRow uses, passing
-                // onClickKey (not item.key) — e.g. to open an info/disclaimer dialog by that key.
-                is SettingsItem.InfoRow -> {
-                    val iconPainter = item.iconKey?.let { LocalSettingsIcon.current(it) }
-                    val onClickKey = item.onClickKey
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .then(
-                                if (onClickKey != null) {
-                                    Modifier.clickable(onClick = { onNavigate(onClickKey) })
-                                } else {
-                                    Modifier
-                                },
-                            )
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        if (iconPainter != null) {
-                            Icon(
-                                painter = iconPainter,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp),
-                            )
-                            Spacer(Modifier.width(16.dp))
-                        }
-                        Column(Modifier.weight(1f)) {
-                            Text(item.title, style = MaterialTheme.typography.bodyLarge)
-                            if (item.summary != null) {
-                                Text(
-                                    item.summary!!,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
+                    SettingsRowBadgeChip(
+                        text = badge,
+                        modifier = Modifier.align(Alignment.CenterEnd).padding(end = 56.dp),
+                    )
                 }
             }
         }
@@ -371,6 +307,161 @@ fun AbSettingsContent(
     }
 }
 
+/**
+ * Renders one [SettingsItem] row — mechanically extracted from [AbSettingsContent]'s per-item
+ * `when` (Batch 12d-A Task 3) so the badge-overlay wrapper in the `items(...)` block can call it
+ * either bare or inside a [Box] with a trailing [SettingsRowBadgeChip]. The render logic itself is
+ * UNCHANGED from before the extraction: [onLongPress] threads into every row that goes through
+ * [AbSwitchRow]/[SettingsRow] (the row types those two support: switch/list-choice/text-input/
+ * multi-select/navigation); when it's null (every existing settings screen) those two composables'
+ * null-branches render byte-identical to their pre-extension bodies. [SettingsItem.SliderRow] (drag
+ * gesture) and [SettingsItem.InfoRow] (non-interactive by default) are left unwired, matching the
+ * brief — neither is a long-press target.
+ */
+@Composable
+private fun RenderSettingsItem(
+    item: SettingsItem,
+    onSwitch: (String, Boolean) -> Unit,
+    onNavigate: (String) -> Unit,
+    onSliderChange: (String, Int) -> Unit,
+    onLongPress: ((String) -> Unit)?,
+    openListChoice: (String) -> Unit,
+    openTextInput: (String) -> Unit,
+    openMultiSelect: (String) -> Unit,
+) {
+    when (item) {
+        is SettingsItem.Category -> CategoryHeader(item.title)
+
+        is SettingsItem.SwitchRow -> AbSwitchRow(
+            label = item.title,
+            summary = item.summary,
+            checked = item.checked,
+            onCheckedChange = { onSwitch(item.key, it) },
+            enabled = item.enabled,
+            onLongClick = onLongPress?.let { press -> { press(item.key) } },
+        )
+
+        is SettingsItem.ListChoiceRow -> {
+            val selectedLabel = item.entries.firstOrNull { it.value == item.selectedValue }?.label
+            SettingsRow(
+                title = item.title,
+                summary = selectedLabel ?: item.summary,
+                enabled = item.enabled,
+                onClick = { openListChoice(item.key) },
+                iconKey = item.iconKey,
+                onLongClick = onLongPress?.let { press -> { press(item.key) } },
+            )
+        }
+
+        is SettingsItem.TextInputRow -> SettingsRow(
+            title = item.title,
+            summary = item.summary ?: item.value,
+            enabled = item.enabled,
+            onClick = { openTextInput(item.key) },
+            iconKey = item.iconKey,
+            onLongClick = onLongPress?.let { press -> { press(item.key) } },
+        )
+
+        is SettingsItem.SliderRow -> AbSliderRow(
+            label = item.title,
+            value = item.value,
+            // Persists once per drag gesture (AbSliderRow calls this on release only).
+            onValueChange = { onSliderChange(item.key, it) },
+            valueRange = item.min.toFloat()..item.max.toFloat(),
+            valueLabel = item.valueLabel,
+            valueLabelFor = item.valueFormat?.let { fmt ->
+                { v -> fmt.replace("%d", v.toString()).replace("%%", "%") }
+            },
+        )
+
+        is SettingsItem.MultiSelectRow -> SettingsRow(
+            title = item.title,
+            summary = item.summary,
+            enabled = item.enabled,
+            onClick = { openMultiSelect(item.key) },
+            iconKey = item.iconKey,
+            onLongClick = onLongPress?.let { press -> { press(item.key) } },
+        )
+
+        is SettingsItem.NavigationRow -> SettingsRow(
+            title = item.title,
+            summary = item.summary,
+            enabled = item.enabled,
+            onClick = { onNavigate(item.key) },
+            iconKey = item.iconKey,
+            trailing = {
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                )
+            },
+            onLongClick = onLongPress?.let { press -> { press(item.key) } },
+        )
+
+        // InfoRow is non-interactive by default (no clickable, no ripple) — a plain title +
+        // summary, optionally with a leading icon. When onClickKey is set, the row becomes
+        // clickable and fires the SAME onNavigate callback NavigationRow uses, passing
+        // onClickKey (not item.key) — e.g. to open an info/disclaimer dialog by that key.
+        is SettingsItem.InfoRow -> {
+            val iconPainter = item.iconKey?.let { LocalSettingsIcon.current(it) }
+            val onClickKey = item.onClickKey
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (onClickKey != null) {
+                            Modifier.clickable(onClick = { onNavigate(onClickKey) })
+                        } else {
+                            Modifier
+                        },
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (iconPainter != null) {
+                    Icon(
+                        painter = iconPainter,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Spacer(Modifier.width(16.dp))
+                }
+                Column(Modifier.weight(1f)) {
+                    Text(item.title, style = MaterialTheme.typography.bodyLarge)
+                    if (item.summary != null) {
+                        Text(
+                            item.summary!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Small trailing chip showing a row's inheritance badge (e.g. "Workspace"/"Global") — see
+ * [LocalSettingsRowBadge]. Uses [MaterialTheme.colorScheme] only (no hard-coded hues), so it stays
+ * legible and hue-free in the black-and-white / e-ink display modes.
+ */
+@Composable
+private fun SettingsRowBadgeChip(text: String, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(50),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+        )
+    }
+}
+
 /** M3 settings section label: small, coloured with the primary accent. */
 @Composable
 private fun CategoryHeader(title: String) = Text(
@@ -391,7 +482,12 @@ private fun CategoryHeader(title: String) = Text(
  * [SettingsItem.SwitchRow] also has an `iconKey` field, but [net.bible.sharedui.components.AbSwitchRow]
  * has no leading-icon slot yet, so a switch row's `iconKey` (if any) is currently ignored — F29 left this
  * as a follow-up rather than adding an icon slot to that shared component (used beyond settings screens).
+ *
+ * [onLongClick] defaults to `null` (Batch 12d-A Task 3's long-press-revert seam): when null the row
+ * keeps its original plain [clickable] modifier (byte-identical); when non-null it switches to
+ * [combinedClickable] to add the long-press gesture alongside the existing click.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SettingsRow(
     title: String,
@@ -400,12 +496,19 @@ private fun SettingsRow(
     onClick: () -> Unit,
     iconKey: String? = null,
     trailing: @Composable (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = enabled, onClick = onClick)
+            .then(
+                if (onLongClick != null) {
+                    Modifier.combinedClickable(enabled = enabled, onClick = onClick, onLongClick = onLongClick)
+                } else {
+                    Modifier.clickable(enabled = enabled, onClick = onClick)
+                },
+            )
             .rowEnabled(enabled)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

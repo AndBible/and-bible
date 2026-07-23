@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,7 +45,12 @@ import kotlin.math.roundToInt
 /** A settings row: label (+ optional summary) on the left, an M3 [Switch] on the right. The whole
  *  row is clickable and toggles the switch (larger touch target than the thumb alone). When
  *  [enabled] is false the row dims and stops responding to clicks (matches the other interactive
- *  settings rows in [net.bible.sharedui.settings.AbSettingsScreen]). */
+ *  settings rows in [net.bible.sharedui.settings.AbSettingsScreen]).
+ *
+ *  [onLongClick] defaults to `null` (Batch 12d-A Task 3's long-press-revert seam): when null the row
+ *  keeps its original [toggleable] modifier (byte-identical); when non-null it switches to
+ *  [combinedClickable] so a long press is available alongside the normal toggle tap. */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AbSwitchRow(
     label: String,
@@ -52,11 +59,23 @@ fun AbSwitchRow(
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
     summary: String? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .toggleable(value = checked, onValueChange = onCheckedChange, enabled = enabled, role = Role.Switch)
+            .then(
+                if (onLongClick != null) {
+                    Modifier.combinedClickable(
+                        onClick = { if (enabled) onCheckedChange(!checked) },
+                        onLongClick = onLongClick,
+                        enabled = enabled,
+                        role = Role.Switch,
+                    )
+                } else {
+                    Modifier.toggleable(value = checked, onValueChange = onCheckedChange, enabled = enabled, role = Role.Switch)
+                },
+            )
             .alpha(if (enabled) 1f else DISABLED_ALPHA)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
