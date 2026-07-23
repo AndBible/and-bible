@@ -54,12 +54,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.onMain
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.Selection
@@ -68,6 +72,8 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.AgentForegroundService
+import net.bible.sharedcore.ai.reading.AgentLogController
+import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.ai.reading.ReadingLlmService
@@ -84,6 +90,7 @@ import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowTabBarModel
 import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
@@ -178,6 +185,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val commands: WindowCommands by inject()
     private val toolbarStateService: ToolbarStateService by inject()
     private val readingLlmService: ReadingLlmService by inject()
+    private val agentSessionService: AgentSessionService by inject()
 
     /** Owns [readingLlmDialogs]' coroutine work (dialog open/execute/dismiss). Cancelled in
      *  [dispose] — one host per activity (re-)creation, mirroring the [ABEventBus] registration
@@ -193,6 +201,26 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * [showPromptSelector]/[showRegenerate].
      */
     val readingLlmDialogs = ReadingLlmDialogController(readingLlmService, hostScope)
+
+    /**
+     * State holder for the reading-view agent-log panel (Batch 12e-B Task 6) — the compose-path
+     * counterpart of classic `AgentLogWidget`. Not `private`, mirroring [readingLlmDialogs]/
+     * [controller] below, so `AgentLogHostTest`-style tests can assert against it directly.
+     * [onCompletedToast]/[onOpenRawLog] are verbatim mirrors of classic `AgentLogWidget`'s
+     * `ABEventBus.post(ToastEvent(R.string.ai_task_completed))` / `openRawLog()`. Rendered by
+     * [mountComposeView] (see [install]) as `ReadingViewScreen`'s `agentLog` slot (Task 5).
+     */
+    val agentLog = AgentLogController(
+        agentSessionService,
+        hostScope,
+        onCompletedToast = { ABEventBus.post(ToastEvent(R.string.ai_task_completed)) },
+        onOpenRawLog = {
+            val intent = ScreenLauncher.intentFor(activity, Screen.RawLlmLog).apply {
+                putExtra(RawLlmLogActivity.EXTRA_WORKSPACE_ID, agentSessionService.currentWorkspaceId())
+            }
+            activity.startActivity(intent)
+        },
+    )
 
     private val generation = ComposeReadingViewGeneration()
 
@@ -266,8 +294,21 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         }
     }
 
-    /** See [ComposeReadingViewGeneration]. Called by [DocumentViewManager.buildView] on the compose path when `forceUpdate` is true. */
-    fun rebuild() { generation.rebuild() }
+    /**
+     * See [ComposeReadingViewGeneration]. Called by [DocumentViewManager.buildView] on the compose
+     * path when `forceUpdate` is true — which is exactly the hook `MainBibleActivity.currentWorkspaceId`'s
+     * setter (workspace switch, or a same-workspace reload) drives, AFTER `windowRepository` has
+     * already been reloaded to the new/current workspace. Also refreshes [agentSessionService] here
+     * (Batch 12e-B Task 6 workspace-switch refresh): unlike classic `AgentLogWidget`, which always
+     * recomputes `workspaceId` fresh per `ABEventBus` event, [agentSessionService]'s `snapshot` is a
+     * cached `StateFlow` only rebuilt on an agent event for the CURRENT workspace at the time — so
+     * without this, switching workspace with no agent event in between would keep showing the
+     * previous workspace's snapshot until the next agent event for the new one fires.
+     */
+    fun rebuild() {
+        generation.rebuild()
+        agentSessionService.refresh()
+    }
 
     /**
      * Opens the per-window (☰) pane menu for [windowId] — called by the pane overlay's ☰-button
@@ -446,6 +487,23 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 }
             },
             onPaneMenuDismiss = ::closePaneMenu,
+            // Batch 12e-B Task 6: the agent-log panel, pre-built here (closing over the live
+            // `agentLog` controller) since `install` already owns it — mirrors how `pane` above is
+            // threaded straight through `mountComposeView` rather than rebuilt from raw state.
+            agentLogSlot = {
+                val agentLogUiState by agentLog.state.collectAsState()
+                AgentLogPanel(
+                    agentLogUiState,
+                    animateStatus = !CommonUtils.settings.disableAnimations,
+                    onToggleExpanded = agentLog::toggleExpanded,
+                    onStop = agentLog::stop,
+                    onClose = agentLog::hide,
+                    onModelSelectorClick = agentLog::onModelSelectorClick,
+                    onModelChosen = agentLog::onModelChosen,
+                    onModelPickerDismiss = agentLog::onModelPickerDismiss,
+                    onRawLogClick = agentLog::onRawLogClick,
+                )
+            },
             llmDialogState = readingLlmDialogs.state,
             onLlmPromptChosen = readingLlmDialogs::onPromptChosen,
             onLlmToggleFavorite = readingLlmDialogs::onToggleFavorite,
@@ -538,6 +596,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onLlmModelChosen: (modelId: String, setAsDefault: Boolean) -> Unit = { _, _ -> },
             onLlmRegenerateConfirmed: (instructions: String?, keepPrevious: Boolean, freshRun: Boolean) -> Unit = { _, _, _ -> },
             onLlmDismiss: () -> Unit = {},
+            // Batch 12e-B Task 6 addition: the reading-view agent-log panel (`AgentLogPanel`),
+            // rendered as `ReadingViewScreen`'s `agentLog` slot (Task 5). Unlike the LLM-dialog
+            // params above (raw `StateFlow` + individual callbacks, assembled into a concrete
+            // composable INSIDE this function's body), this is a pre-built `@Composable` lambda —
+            // [ComposeReadingViewHost.install] already owns the live `agentLog` controller and
+            // closes over it directly when building this, the same pass-through shape as [pane].
+            // Defaulted to an inert no-op composable so `ComposeReadingViewHostTest`/
+            // `ReadingLlmHostTest` (which never render an agent-log panel) are unaffected.
+            agentLogSlot: (@Composable () -> Unit)? = { },
         ) {
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
@@ -624,6 +691,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                             onPaneMenuDismiss = onPaneMenuDismiss,
                                         )
                                     },
+                                    agentLog = agentLogSlot,
                                     tabBar = if (hideTabBarInFullScreen) null else {
                                         {
                                             WindowTabBar(
