@@ -94,6 +94,8 @@ import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SettingsComposeActivity
 import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsComposeActivity
+import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
+import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
@@ -463,5 +465,13 @@ class ScreenLauncherTest {
         assertEquals(InstallZipComposeActivity::class.java, ScreenLauncher.targetFor(Screen.InstallZip))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(InstallZip::class.java, ScreenLauncher.targetFor(Screen.InstallZip))
+    }
+
+    @Test
+    fun textDisplaySettings_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(TextDisplaySettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.TextDisplaySettings))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(TextDisplaySettingsActivity::class.java, ScreenLauncher.targetFor(Screen.TextDisplaySettings))
     }
 }

@@ -146,6 +146,7 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
+import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.AgentLogVisibilityChanged
@@ -178,6 +179,7 @@ import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.reading.OptionsMenuItem
+import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.window.ReadingViewController
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -1212,9 +1214,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         )
         return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
-                val intent = Intent(this, TextDisplaySettingsActivity::class.java)
-                intent.putExtra("settingsBundle", settingsBundle.toJson())
-                startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
+                if (ScreenLauncher.useComposeFor(Screen.TextDisplaySettings)) {
+                    startActivity(TextDisplaySettingsComposeActivity.intentFor(
+                        this, SettingsScope.Workspace(windowRepository.id.toString())))
+                } else {
+                    val intent = Intent(this, TextDisplaySettingsActivity::class.java)
+                    intent.putExtra("settingsBundle", settingsBundle.toJson())
+                    startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
+                }
             }, opensDialog = true)
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository.workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
@@ -1458,18 +1465,23 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             // distinct from this activity's OWN workspace-level `getItemOptions(R.id.allTextOptions)`
             // used by the overflow menu).
             WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS -> {
-                val settingsBundle = SettingsBundle(
-                    level = SettingsLevel.WINDOW,
-                    windowId = window.id,
-                    pageManagerSettings = window.pageManager.textDisplaySettings,
-                    workspaceId = windowRepository.id,
-                    workspaceName = windowRepository.name,
-                    workspaceSettings = windowRepository.textDisplaySettings,
-                    globalSettings = CommonUtils.globalTextDisplaySettings,
-                )
-                val intent = Intent(this, TextDisplaySettingsActivity::class.java)
-                intent.putExtra("settingsBundle", settingsBundle.toJson())
-                startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
+                if (ScreenLauncher.useComposeFor(Screen.TextDisplaySettings)) {
+                    startActivity(TextDisplaySettingsComposeActivity.intentFor(
+                        this, SettingsScope.Window(window.id.toString(), windowRepository.id.toString())))
+                } else {
+                    val settingsBundle = SettingsBundle(
+                        level = SettingsLevel.WINDOW,
+                        windowId = window.id,
+                        pageManagerSettings = window.pageManager.textDisplaySettings,
+                        workspaceId = windowRepository.id,
+                        workspaceName = windowRepository.name,
+                        workspaceSettings = windowRepository.textDisplaySettings,
+                        globalSettings = CommonUtils.globalTextDisplaySettings,
+                    )
+                    val intent = Intent(this, TextDisplaySettingsActivity::class.java)
+                    intent.putExtra("settingsBundle", settingsBundle.toJson())
+                    startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
+                }
                 false
             }
             // SplitBibleArea.kt:1002-1004
