@@ -42,6 +42,7 @@ import net.bible.android.view.activity.ai.LlmModelServiceImpl
 import net.bible.android.view.activity.ai.LlmProviderServiceImpl
 import net.bible.android.view.activity.ai.PromptServiceImpl
 import net.bible.android.view.activity.ai.RawLogServiceImpl
+import net.bible.android.view.activity.ai.ReadingLlmServiceImpl
 import net.bible.android.view.activity.ai.ToolPermissionServiceImpl
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.DocumentFilterService
@@ -50,6 +51,7 @@ import net.bible.sharedcore.ai.LlmProviderService
 import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
+import net.bible.sharedcore.ai.reading.ReadingLlmService
 import net.bible.android.view.activity.workspaces.WorkspaceServiceImpl
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.android.view.activity.settings.ReadingProgressSettingsServiceImpl
@@ -118,6 +120,7 @@ val coreModule = module {
     singleOf(::PromptServiceImpl) { bind<PromptService>() }
     singleOf(::ToolPermissionServiceImpl) { bind<ToolPermissionService>() }
     singleOf(::RawLogServiceImpl) { bind<RawLogService>() }
+    singleOf(::ReadingLlmServiceImpl) { bind<ReadingLlmService>() }
     singleOf(::DocumentFilterServiceImpl) { bind<DocumentFilterService>() }
     singleOf(::ReadingProgressServiceImpl) { bind<ReadingProgressService>() }
     singleOf(::ReadingProgressSettingsServiceImpl) { bind<ReadingProgressSettingsService>() }
