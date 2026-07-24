@@ -1064,14 +1064,20 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
 
                             ModalNavigationDrawer(
                                 drawerState = md3DrawerState,
-                                // Batch Z-early A7 fix E: no drag-to-open/close. Classic opens on a
+                                // Batch Z-early A7 fix E: no drag-to-OPEN. Classic opens on a
                                 // ~20dp EDGE drag; M3's `gesturesEnabled` drags anywhere over the
                                 // content, which is a NEW gesture rather than parity — and the panes'
                                 // WebViews swallow horizontal drags, so it would only ever work over
                                 // the Compose chrome (toolbar, tab rail, inter-pane gaps), i.e.
-                                // unpredictably. The ☰ button is always visible; a half-working
-                                // gesture is worse than none.
-                                gesturesEnabled = false,
+                                // unpredictably. Gate on the open state rather than hardcoding
+                                // `false`: in M3 1.4.0 `gesturesEnabled` ALSO gates the scrim's
+                                // dismiss handler (its `onClose` lambda short-circuits on this flag),
+                                // so disabling it outright silently kills tap-outside-to-dismiss too
+                                // (classic's `DrawerLayout` always dismisses on a scrim tap). With
+                                // `md3DrawerState.isOpen`, gestures stay off while closed (no
+                                // drag-to-open) but turn on once open, restoring scrim-tap-to-dismiss
+                                // and swipe-to-close parity with classic.
+                                gesturesEnabled = md3DrawerState.isOpen,
                                 // Classic `setupUi`: `if (monochromeMode) drawerLayout.setScrimColor(TRANSPARENT)`
                                 // — no dimming on e-ink.
                                 scrimColor = if (monochromeState.value) Color.Transparent

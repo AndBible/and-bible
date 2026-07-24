@@ -929,14 +929,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed $fullScreen")
-        // Batch Z-early A7 fix A: on the compose path this is the ONLY back mechanism that can
-        // reach the drawer. This override never consults `onBackPressedDispatcher` and the manifest
-        // does not set `enableOnBackInvokedCallback`, so Material3's own `PredictiveBackHandler`
-        // inside `ModalNavigationDrawer` — which routes through that dispatcher — never runs; and
-        // the native `isDrawerVisible` branch below is always false there (that drawer is locked).
-        // Without this, back with the Compose drawer open fell through to WebView-back →
-        // `historyTraversal.goBack()` → the double-back exit toast, drawer still open. Inert on the
-        // classic path (no host → `false`), which keeps the branch order below byte-identical.
+        // Batch Z-early A7 fix A: on the compose path this covers the LEGACY dispatch path. This
+        // override never consults `onBackPressedDispatcher` (it's not called from here), so on
+        // Android 15+ — this app targets SDK 35, where predictive back is on by default — Material3's
+        // own `PredictiveBackHandler(enabled = drawerState.isOpen)` inside `ModalNavigationDrawer`,
+        // which routes through that dispatcher, intercepts FIRST and this method is never reached
+        // while the drawer is open; the two dispatch routes are mutually exclusive, so there is no
+        // double-close. This branch still matters for the legacy (pre-predictive-back) dispatch path,
+        // and the native `isDrawerVisible` branch below is always false on the compose path (that
+        // drawer is locked). Without this, back with the Compose drawer open on a legacy dispatch
+        // fell through to WebView-back → `historyTraversal.goBack()` → the double-back exit toast,
+        // drawer still open. Inert on the classic path (no host → `false`), which keeps the branch
+        // order below byte-identical.
         if (composeCloseDrawerIfOpen()) return
         if(fullScreen) {
             toggleFullScreen()
