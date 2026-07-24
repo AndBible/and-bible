@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -40,10 +41,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -88,6 +89,7 @@ import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.ai.reading.ReadingLlmService
+import net.bible.sharedcore.reading.DrawerCloseLatch
 import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
@@ -303,6 +305,16 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val nightMode = mutableStateOf(ScreenSettings.nightMode)
 
     /**
+     * Mirrors `CommonUtils.settings.monochromeMode` — the compose-drawer counterpart of classic
+     * `setupUi`'s `if (monochromeMode) drawerLayout.setScrimColor(TRANSPARENT)` (this is the only
+     * thing that read it on the drawer path). There is no dedicated change event for it, so it is
+     * refreshed alongside [nightMode] on [ScreenSettings.NightModeChanged] (see [init]) — the
+     * closest thing this codebase has to a "display appearance changed" signal, and the same event
+     * the e-ink/monochrome device path posts.
+     */
+    private val monochrome = mutableStateOf(CommonUtils.settings.monochromeMode)
+
+    /**
      * Mirrors [MainBibleActivity.fullScreen]. Kept current via [MainBibleActivity.FullScreenEvent]
      * (see [init]) so entering/leaving fullscreen from ANY path — the Compose overflow menu's
      * "Full screen" row (Batch 12b-C Task 3, dispatched via [MainBibleActivity.handleOptionsMenuItem]),
@@ -398,9 +410,29 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     /** Toggles the Compose drawer — the target of [MainBibleActivity.composeToggleDrawer]. */
     fun toggleDrawer() { drawerOpen.value = !drawerOpen.value }
 
+    /**
+     * Whether the Compose drawer is open. Reads the same request flag `mountComposeView` keeps in
+     * two-way sync with the real `DrawerState` (Batch Z-early A7 fix D made that sync symmetric, so
+     * this is true for a drawer opened by ANY route, not just [toggleDrawer]).
+     *
+     * Read by [MainBibleActivity]'s key/back handlers, which on the classic path ask
+     * `drawerLayout.isDrawerVisible(GravityCompat.START)` — always `false` on the compose path,
+     * since `setupUi` locks the native `DrawerLayout` there.
+     */
+    val isDrawerOpen: Boolean get() = drawerOpen.value
+
+    /** Opens the Compose drawer (idempotent) — see [isDrawerOpen]. */
+    fun openDrawer() { drawerOpen.value = true }
+
+    /** Closes the Compose drawer (idempotent) — see [isDrawerOpen]. */
+    fun closeDrawer() { drawerOpen.value = false }
+
     init {
         ABEventBus.register(this) {
-            onMain<ScreenSettings.NightModeChanged> { nightMode.value = ScreenSettings.nightMode }
+            onMain<ScreenSettings.NightModeChanged> {
+                nightMode.value = ScreenSettings.nightMode
+                monochrome.value = CommonUtils.settings.monochromeMode
+            }
             onMain<MainBibleActivity.FullScreenEvent> { event -> fullScreen.value = event.isFullScreen }
             // Classic BibleView.BibleViewTouched re-show (SplitBibleArea.kt:203-205) — see
             // WindowButtonsVisibility's kdoc.
@@ -624,22 +656,27 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 bibleQuickDoc.value = QuickDocMenuState()
                 commentaryQuickDoc.value = QuickDocMenuState()
             },
-            // Batch Z-early A6: the navigation drawer. Icons are resolved by drawable NAME (the
-            // `iconKey` the `:sharedCore` model carries, mirroring the menu XML's `android:icon`)
-            // through `getIdentifier` — the same "host resolves, `:sharedUi` stays Android-free"
-            // shape as `windowIcon` above, except this one must be `@Composable` because
-            // `painterResource` is only callable inside composition.
+            // Batch Z-early A6: the navigation drawer. Icons are resolved from the `iconKey` the
+            // `:sharedCore` model carries (mirroring the menu XML's `android:icon`) through the
+            // explicit [drawerIconResIds] table — the same "host resolves, `:sharedUi` stays
+            // Android-free" shape as `windowIcon` above, except this one must be `@Composable`
+            // because `painterResource` is only callable inside composition.
             drawerState = drawerMenu,
             drawerOpenState = drawerOpen,
             drawerIcon = { key ->
-                val context = LocalContext.current
-                val resId = context.resources.getIdentifier(key, "drawable", context.packageName)
-                if (resId == 0) null else painterResource(resId)
+                val resId = drawerIconResIds[key]
+                if (resId == null) null else painterResource(resId)
             },
             // Dispatches through the SAME `MenuCommandHandler.handleMenuRequest(itemId)` the classic
             // `NavigationView` listener calls (see `MainBibleActivity.handleDrawerItemClick`), so
             // every row's command behaviour is classic's by construction.
             onDrawerItemClick = { id -> activity.handleDrawerItemClick(DrawerMenuStateBuilder.resIdFor(id)) },
+            // Batch Z-early A7: classic `DrawerListener` parity — see the three `LaunchedEffect`s
+            // in `mountComposeView` and the entry points' kdoc on [MainBibleActivity].
+            monochromeState = monochrome,
+            onDrawerInMotion = { activity.drawerShowSystemUiTransient() },
+            onDrawerIdleClosed = { activity.drawerApplyIdleSystemUi() },
+            onDrawerClosed = { activity.drawerRestorePaneFocus() },
             pane = { windowId ->
                 val window = activity.windowRepository.getWindow(IdType(windowId))
                 if (window != null) {
@@ -731,6 +768,45 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         internal fun buildTabBarModel(layout: WindowLayoutState): WindowTabBarModel = buildWindowTabBar(layout)
 
         /**
+         * Drawable-name -> `R.drawable.*` for every icon the Compose drawer can ask for: the 22
+         * `iconKey`s of [DrawerMenuStateBuilder]'s static table plus `ic_logo` (the header, which
+         * `ReadingDrawerContent` requests directly).
+         *
+         * Batch Z-early A7 fix F — this replaces a per-row, per-recomposition
+         * `resources.getIdentifier(key, "drawable", packageName)`. Beyond the (minor) cost, name
+         * lookup is invisible to R8: a resource referenced only by string silently resolves to `0`
+         * once resource shrinking runs in a release build, so the icons would vanish from the
+         * release drawer only. Direct `R.drawable` references mark them used and resolve at compile
+         * time. Kept in step with the builder's table by
+         * `ComposeReadingViewHostTest.drawerIconResIdsCoverEveryBuilderIconKey`.
+         */
+        internal val drawerIconResIds: Map<String, Int> = mapOf(
+            "ic_logo" to R.drawable.ic_logo,
+            "ic_library_books_white_24dp" to R.drawable.ic_library_books_white_24dp,
+            "ic_search_24dp" to R.drawable.ic_search_24dp,
+            "ic_baseline_headphones_24" to R.drawable.ic_baseline_headphones_24,
+            "ic_baseline_bookmark_24" to R.drawable.ic_baseline_bookmark_24,
+            "ic_baseline_studypads_24" to R.drawable.ic_baseline_studypads_24,
+            "ic_baseline_description_24" to R.drawable.ic_baseline_description_24,
+            "ic_reading_plan_24dp" to R.drawable.ic_reading_plan_24dp,
+            "ic_bar_chart_24dp" to R.drawable.ic_bar_chart_24dp,
+            "ic_history_clock_24dp" to R.drawable.ic_history_clock_24dp,
+            "ic_file_download_24dp" to R.drawable.ic_file_download_24dp,
+            "ic_settings_backup_restore_db_24dp" to R.drawable.ic_settings_backup_restore_db_24dp,
+            "ic_syncdb_24dp" to R.drawable.ic_syncdb_24dp,
+            "icon_robot" to R.drawable.icon_robot,
+            "ic_settings_white_24dp" to R.drawable.ic_settings_white_24dp,
+            "ic_help_white_24dp" to R.drawable.ic_help_white_24dp,
+            "baseline_attach_money_24" to R.drawable.baseline_attach_money_24,
+            "ic_need_help_24dp" to R.drawable.ic_need_help_24dp,
+            "ic_baseline_emoji_people_24" to R.drawable.ic_baseline_emoji_people_24,
+            "ic_baseline_copyright_24" to R.drawable.ic_baseline_copyright_24,
+            "ic_baseline_people_24" to R.drawable.ic_baseline_people_24,
+            "ic_rate_review_white_24dp" to R.drawable.ic_rate_review_white_24dp,
+            "ic_bug_report_white_24dp" to R.drawable.ic_bug_report_white_24dp,
+        )
+
+        /**
          * Testable mount: adds a [ComposeView] rendering [ReadingViewScreen] to [container].
          * Collaborators are passed explicitly so this can be exercised without booting a full
          * [MainBibleActivity] (see `ComposeReadingViewHostTest`).
@@ -794,6 +870,20 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             drawerOpenState: MutableState<Boolean> = mutableStateOf(false),
             drawerIcon: @Composable (iconKey: String) -> Painter? = { null },
             onDrawerItemClick: (id: String) -> Unit = {},
+            // Batch Z-early A7: classic `DrawerLayout.DrawerListener` parity. `monochromeState` is a
+            // `State` for the same reactivity reason as `nightModeState` (the host mirrors
+            // `CommonUtils.settings.monochromeMode` into it) and only drives the scrim colour, which
+            // classic sets once in `setupUi`. The three callbacks are the derived listener edges:
+            //   in-motion    <- STATE_SETTLING / STATE_DRAGGING  -> showSystemUI(false)
+            //   idle-closed  <- STATE_IDLE at slide offset 0f    -> hide/showSystemUI()
+            //   closed       <- onDrawerClosed                   -> activeWindow.bibleView.requestFocus()
+            // `DrawerState` cannot tell a user drag from an animated settle — accepted, because
+            // classic does the very same thing in both of those branches. Defaulted to no-ops so
+            // `ComposeReadingViewHostTest` and friends are unaffected.
+            monochromeState: State<Boolean> = mutableStateOf(false),
+            onDrawerInMotion: () -> Unit = {},
+            onDrawerIdleClosed: () -> Unit = {},
+            onDrawerClosed: () -> Unit = {},
             pane: @Composable (windowId: String) -> Unit,
             // Host-supplied per-window label/icon for the restore rail (Task 7) — plain,
             // non-`@Composable` lambdas, matching `WindowTabBar`'s `windowLabel`/`windowIcon`
@@ -935,18 +1025,57 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             LaunchedEffect(drawerOpenState.value) {
                                 if (drawerOpenState.value) md3DrawerState.open() else md3DrawerState.close()
                             }
-                            // Drawer -> host request (a swipe/scrim close must clear it, else the next
-                            // `toggleDrawer()` would see a stale `true` and do nothing). `snapshotFlow`
-                            // only emits on a CHANGE, so the `open()` above is never undone by a
-                            // re-emitted `closed = true` while the open animation is still running.
+                            // Drawer -> host request, BOTH ways (Batch Z-early A7 fix D): a
+                            // swipe/scrim/back close must clear the request, else the next
+                            // `toggleDrawer()` would see a stale `true` and do nothing — and an open
+                            // that did NOT come from the request (predictive-back cancel, any future
+                            // gesture) must set it, else the next ☰ tap would re-request `true`, see
+                            // no change, and look dead until pressed twice. `snapshotFlow` only emits
+                            // on a CHANGE, so mirroring the settled value here cannot undo the
+                            // `open()` above while the open animation is still running.
                             LaunchedEffect(md3DrawerState) {
                                 snapshotFlow { md3DrawerState.isClosed }
-                                    .collect { closed -> if (closed) drawerOpenState.value = false }
+                                    .collect { closed -> drawerOpenState.value = !closed }
+                            }
+                            // Classic DrawerListener parity (Batch Z-early A7): in-motion vs
+                            // idle-closed drive the system UI, and the transition TO closed restores
+                            // focus into the active pane's BibleView.
+                            LaunchedEffect(md3DrawerState) {
+                                snapshotFlow { md3DrawerState.currentValue != md3DrawerState.targetValue }
+                                    .collect { inMotion -> if (inMotion) onDrawerInMotion() }
+                            }
+                            LaunchedEffect(md3DrawerState) {
+                                snapshotFlow {
+                                    md3DrawerState.currentValue == md3DrawerState.targetValue &&
+                                        md3DrawerState.currentValue == DrawerValue.Closed
+                                }.collect { idleClosed -> if (idleClosed) onDrawerIdleClosed() }
+                            }
+                            // Edge-detect the close: `DrawerCloseLatch` seeds from the initial
+                            // snapshot and latches, so a (re)subscription replay cannot re-fire
+                            // `requestFocus`. This is the banked one-shot-side-effect lesson from the
+                            // earlier batches (a raw `collect {}` re-fires on every resubscribe).
+                            LaunchedEffect(md3DrawerState) {
+                                val latch = DrawerCloseLatch(
+                                    initiallyOpen = md3DrawerState.currentValue == DrawerValue.Open)
+                                snapshotFlow { md3DrawerState.currentValue }.collect { value ->
+                                    if (latch.observe(value == DrawerValue.Open)) onDrawerClosed()
+                                }
                             }
 
                             ModalNavigationDrawer(
                                 drawerState = md3DrawerState,
-                                gesturesEnabled = !fullScreen,
+                                // Batch Z-early A7 fix E: no drag-to-open/close. Classic opens on a
+                                // ~20dp EDGE drag; M3's `gesturesEnabled` drags anywhere over the
+                                // content, which is a NEW gesture rather than parity — and the panes'
+                                // WebViews swallow horizontal drags, so it would only ever work over
+                                // the Compose chrome (toolbar, tab rail, inter-pane gaps), i.e.
+                                // unpredictably. The ☰ button is always visible; a half-working
+                                // gesture is worse than none.
+                                gesturesEnabled = false,
+                                // Classic `setupUi`: `if (monochromeMode) drawerLayout.setScrimColor(TRANSPARENT)`
+                                // — no dimming on e-ink.
+                                scrimColor = if (monochromeState.value) Color.Transparent
+                                             else DrawerDefaults.scrimColor,
                                 drawerContent = {
                                     ModalDrawerSheet {
                                         ReadingDrawerContent(

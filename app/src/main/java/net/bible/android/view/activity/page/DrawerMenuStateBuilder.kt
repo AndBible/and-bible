@@ -89,6 +89,13 @@ object DrawerMenuStateBuilder {
     /** Every entry's XML id name in declaration order — the drift test's expectation. */
     val entryIdNames: List<String> = groups.flatMap { it.entries }.map { it.idName }
 
+    /**
+     * Every entry's drawable name (the `iconKey` handed to `:sharedCore`), in declaration order.
+     * Exposed for `ComposeReadingViewHostTest`, which asserts the host's explicit
+     * `drawerIconResIds` table resolves every one of them (Batch Z-early A7 fix F).
+     */
+    val entryIconNames: List<String> = groups.flatMap { it.entries }.map { it.iconName }
+
     /** The `R.id.*` a clicked [DrawerItem.id] maps to. Throws on an unknown id (stale click). */
     fun resIdFor(idName: String): Int =
         (entryByName[idName] ?: throw IllegalArgumentException("Unknown drawer item id: $idName")).resId

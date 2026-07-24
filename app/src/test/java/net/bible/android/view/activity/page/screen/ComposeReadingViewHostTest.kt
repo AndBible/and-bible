@@ -13,6 +13,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
+import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.service.common.CommonUtils
@@ -264,6 +265,21 @@ class ComposeReadingViewHostTest {
             ),
             cmds.calls,
         )
+    }
+
+    /**
+     * Batch Z-early A7 fix F drift guard: the drawer's icons are resolved through the host's
+     * explicit `drawerIconResIds` table (direct `R.drawable` references, so resource shrinking
+     * keeps them) instead of a per-recomposition `resources.getIdentifier`. Nothing forces that
+     * table to keep up with [DrawerMenuStateBuilder]'s own icon column, so assert it here — a new
+     * or renamed drawer icon fails this test instead of silently rendering an icon-less row.
+     * `ic_logo` is not in the builder's table: `ReadingDrawerContent`'s header asks for it by name.
+     */
+    @Test fun drawerIconResIdsCoverEveryBuilderIconKey() {
+        for (iconName in DrawerMenuStateBuilder.entryIconNames + "ic_logo") {
+            val resId = ComposeReadingViewHost.drawerIconResIds[iconName]
+            assertTrue(resId != null && resId != 0, "no drawable mapped for drawer iconKey '$iconName'")
+        }
     }
 }
 

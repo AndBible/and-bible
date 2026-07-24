@@ -549,9 +549,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             binding.mainBibleView.removeAllViews()
             composeReadingViewHost = ComposeReadingViewHost(this).also { it.install(binding.mainBibleView) }
             // Batch Z-early A6: the Compose ModalNavigationDrawer replaces the native one on this
-            // path; lock the native DrawerLayout so it can be neither dragged nor opened underneath
-            // the Compose drawer. Not touched on the classic path — see the spec's
-            // flag-OFF-byte-identical constraint.
+            // path; lock the native DrawerLayout so it cannot be dragged open underneath the
+            // Compose drawer. NOTE (A7 fix B): the lock gates GESTURES only — `LOCK_MODE_LOCKED_*`
+            // is consulted by `ViewDragHelper`, while `openDrawer(View, Boolean)` makes no
+            // `getDrawerLockMode` call whatsoever, so every programmatic open must be retargeted at
+            // the Compose drawer by hand (see `composeToggleDrawer` and `composeOpenDrawerIfHosted`).
+            // Not touched on the classic path — see the spec's flag-OFF-byte-identical constraint.
             binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             composeReadingViewHost!!.rebuildDrawer()
         } else {
@@ -926,6 +929,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed $fullScreen")
+        // Batch Z-early A7 fix A: on the compose path this is the ONLY back mechanism that can
+        // reach the drawer. This override never consults `onBackPressedDispatcher` and the manifest
+        // does not set `enableOnBackInvokedCallback`, so Material3's own `PredictiveBackHandler`
+        // inside `ModalNavigationDrawer` — which routes through that dispatcher — never runs; and
+        // the native `isDrawerVisible` branch below is always false there (that drawer is locked).
+        // Without this, back with the Compose drawer open fell through to WebView-back →
+        // `historyTraversal.goBack()` → the double-back exit toast, drawer still open. Inert on the
+        // classic path (no host → `false`), which keeps the branch order below byte-identical.
+        if (composeCloseDrawerIfOpen()) return
         if(fullScreen) {
             toggleFullScreen()
             return
@@ -949,6 +961,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent): Boolean {
+        // Batch Z-early A7 fix C: the same swallow for the Compose drawer — classic consumes a long
+        // BACK while the drawer is open (without closing it) rather than launching History, and the
+        // native check below can no longer see an open drawer on the compose path. Inert on the
+        // classic path (no host → `false`).
+        if (composeDrawerOpen && keyCode == KeyEvent.KEYCODE_BACK) {
+            return true
+        }
         if (binding.drawerLayout.isDrawerVisible(GravityCompat.START) && keyCode == KeyEvent.KEYCODE_BACK) {
             return true
         }
@@ -1044,6 +1063,63 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 binding.drawerLayout.openDrawer(GravityCompat.START)
             }
         }
+    }
+
+    /**
+     * Whether the Compose drawer is open — `false` on the classic path (no host), where the native
+     * `binding.drawerLayout.isDrawerVisible(GravityCompat.START)` remains the answer. Batch Z-early
+     * A7 fix C.
+     */
+    internal val composeDrawerOpen: Boolean get() = composeReadingViewHost?.isDrawerOpen == true
+
+    /**
+     * Closes the Compose drawer if it is open; returns whether it did (i.e. whether the caller's
+     * event has been consumed). Always `false` on the classic path, so a caller can use it as a
+     * leading guard without changing classic behaviour at all. Batch Z-early A7 fix A/C.
+     */
+    internal fun composeCloseDrawerIfOpen(): Boolean {
+        val host = composeReadingViewHost ?: return false
+        if (!host.isDrawerOpen) return false
+        host.closeDrawer()
+        return true
+    }
+
+    /**
+     * Opens the Compose drawer if this activity is on the compose path; returns whether it did.
+     * Always `false` on the classic path, so a caller can use it as a leading guard and fall
+     * through to its existing native `drawerLayout.open()`.
+     *
+     * Batch Z-early A7 fix B: `setupUi`'s `LOCK_MODE_LOCKED_CLOSED` only gates `ViewDragHelper`
+     * gestures — `DrawerLayout.openDrawer(View, Boolean)` makes no `getDrawerLockMode` call at all —
+     * so a programmatic open (the Alt+M hardware-keyboard shortcut in `BibleJavascriptInterface`)
+     * would still raise the NATIVE `NavigationView` underneath the Compose one, i.e. two drawers.
+     * The classic call's companion `drawerLayout.requestFocus()` has no counterpart here and needs
+     * none: the Compose drawer is a modal sheet that takes over input while open.
+     */
+    internal fun composeOpenDrawerIfHosted(): Boolean {
+        val host = composeReadingViewHost ?: return false
+        host.openDrawer()
+        return true
+    }
+
+    // ---- Compose drawer side-effect parity (Batch Z-early A7) ----
+    // The classic `DrawerLayout.DrawerListener` installed in `setupUi` (~585-610) has three side
+    // effects; on the compose path the native listener never fires (that drawer is locked closed),
+    // so `ComposeReadingViewHost` derives the same edges from the Material3 `DrawerState` and calls
+    // these. Each one only *forwards* to the private logic classic already used, so nothing on the
+    // classic path changes — and nothing on the classic path calls them.
+
+    /** Compose-drawer parity for classic `STATE_SETTLING`/`STATE_DRAGGING` → `showSystemUI(false)`. */
+    internal fun drawerShowSystemUiTransient() { showSystemUI(false) }
+
+    /** Compose-drawer parity for classic `STATE_IDLE` at slide offset 0. */
+    internal fun drawerApplyIdleSystemUi() {
+        if (isFullScreen) hideSystemUI() else showSystemUI()
+    }
+
+    /** Compose-drawer parity for classic `onDrawerClosed`. */
+    internal fun drawerRestorePaneFocus() {
+        windowRepository.activeWindow.bibleView?.requestFocus()
     }
 
     internal fun composeSearch() {
@@ -2663,6 +2739,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
                 binding.drawerLayout.closeDrawers()
             }
+            // Batch Z-early A7 fix C: same close for the Compose drawer, which the native check
+            // above can no longer see on the compose path. Inert on the classic path (no host), and
+            // placed after the classic write so its behaviour is untouched either way.
+            composeCloseDrawerIfOpen()
             return true
         }
 
