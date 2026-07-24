@@ -30,8 +30,11 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DialogAgentPermissionBinding
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
+import net.bible.sharedcore.ai.AgentPermissionChoice
+import net.bible.sharedcore.ai.AgentPermissionRequest
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -270,6 +273,45 @@ object Dialogs {
         toolDisplayName: String,
         toolDescription: String,
         actionDescription: String? = null
+    ): AgentPermissionResult {
+        // Compose path: route to the Compose reading view's dialog slot when — and only when — the
+        // foreground activity is a MainBibleActivity with the Compose reading view mounted.
+        // `composeReadingViewHost` is set in `setupUi` only on the `use_compose_ui` path and is null
+        // on the classic path, so it IS the "Compose reading view is live" signal (no extra flag
+        // read). Any other foreground activity (e.g. classic Settings, which AgentExecutor's
+        // `awaitActivity()` may well hand us even with the flag ON) falls through to the classic
+        // dialog below — a permission prompt must never be dropped, because AgentExecutor suspends
+        // on this call and would hang forever.
+        val host = (context as? MainBibleActivity)?.composeReadingViewHost
+        if (host != null) {
+            val choice = host.awaitPermission(
+                AgentPermissionRequest(toolDisplayName, toolDescription, actionDescription)
+            )
+            // ALLOW_ALWAYS maps straight through: the "are you sure" confirmation + the
+            // `permanentlyAllowedTools` write stay in `AgentExecutor.showPermissionDialog` (its
+            // existing `Dialogs.simpleQuestion` call), identical on both paths — which is why the
+            // Compose dialog has no confirmation step of its own.
+            return when (choice) {
+                AgentPermissionChoice.ALLOW -> AgentPermissionResult.ALLOW
+                AgentPermissionChoice.ALLOW_FOR_SESSION -> AgentPermissionResult.ALLOW_FOR_SESSION
+                AgentPermissionChoice.ALLOW_ALL_SESSION -> AgentPermissionResult.ALLOW_ALL_SESSION
+                AgentPermissionChoice.ALLOW_ALWAYS -> AgentPermissionResult.ALLOW_ALWAYS
+                AgentPermissionChoice.DENY -> AgentPermissionResult.DENY
+            }
+        }
+        return classicAgentPermissionDialog(context, toolDisplayName, toolDescription, actionDescription)
+    }
+
+    /**
+     * The classic (`use_compose_ui` off — or any non-Compose foreground activity) native
+     * `AlertDialog` implementation, moved here verbatim from [agentPermissionDialog] so the classic
+     * path stays behaviourally byte-for-byte identical.
+     */
+    private suspend fun classicAgentPermissionDialog(
+        context: Context,
+        toolDisplayName: String,
+        toolDescription: String,
+        actionDescription: String?
     ): AgentPermissionResult = withContext(Dispatchers.Main) {
         suspendCoroutine { continuation ->
             val dialogBinding = DialogAgentPermissionBinding.inflate(LayoutInflater.from(context))

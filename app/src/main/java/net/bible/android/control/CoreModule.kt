@@ -49,6 +49,7 @@ import net.bible.android.view.activity.ai.PromptServiceImpl
 import net.bible.android.view.activity.ai.RawLogServiceImpl
 import net.bible.android.view.activity.ai.ReadingLlmServiceImpl
 import net.bible.android.view.activity.ai.ToolPermissionServiceImpl
+import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.DocumentFilterService
 import net.bible.sharedcore.ai.LlmModelService
@@ -127,6 +128,11 @@ val coreModule = module {
     singleOf(::LlmModelServiceImpl) { bind<LlmModelService>() }
     singleOf(::PromptServiceImpl) { bind<PromptService>() }
     singleOf(::ToolPermissionServiceImpl) { bind<ToolPermissionService>() }
+    // Z-early B4: the runtime agent tool-permission prompt bridge. App-wide single (NOT
+    // activity-scoped): AgentExecutor asks for permission from a foreground service's coroutine, so
+    // the controller must outlive any single Activity — the awaiting request survives an activity
+    // recreation, and whichever ComposeReadingViewHost is currently installed renders it.
+    single { AgentPermissionController() }
     singleOf(::RawLogServiceImpl) { bind<RawLogService>() }
     singleOf(::ReadingLlmServiceImpl) { bind<ReadingLlmService>() }
     singleOf(::AgentSessionServiceImpl) { bind<AgentSessionService>() }

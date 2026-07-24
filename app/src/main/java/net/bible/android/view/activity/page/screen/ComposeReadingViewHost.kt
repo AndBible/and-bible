@@ -84,6 +84,9 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.AgentForegroundService
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.ai.AgentPermissionChoice
+import net.bible.sharedcore.ai.AgentPermissionController
+import net.bible.sharedcore.ai.AgentPermissionRequest
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
@@ -109,6 +112,7 @@ import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowTabBarModel
 import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.ai.AgentPermissionDialog
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
 import net.bible.sharedui.reading.BibleReferenceOverlay
@@ -213,6 +217,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val agentSessionService: AgentSessionService by inject()
     private val speakTransportService: SpeakTransportService by inject()
     private val speakSettingsService: SpeakSettingsService by inject()
+
+    /**
+     * The app-wide runtime agent tool-permission bridge (Z-early B4). A Koin `single` (see
+     * `CoreModule`), NOT host-owned state: `AgentExecutor` asks from a foreground service's
+     * coroutine and must outlive any single activity, so an in-flight request survives an activity
+     * recreation and is picked up by whichever host is installed at the time.
+     */
+    private val permissions: AgentPermissionController by inject()
 
     /** Owns [readingLlmDialogs]' coroutine work (dialog open/execute/dismiss). Cancelled in
      *  [dispose] — one host per activity (re-)creation, mirroring the [ABEventBus] registration
@@ -539,6 +551,20 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     }
 
     /**
+     * Suspends until the user answers [request], showing the Compose [AgentPermissionDialog] as a
+     * sibling overlay of the reading view (Z-early B4) — the compose-path counterpart of classic
+     * `Dialogs.agentPermissionDialog`'s native `AlertDialog`. Called from
+     * `Dialogs.agentPermissionDialog` when the foreground activity is a [MainBibleActivity] with
+     * this host installed; every other case still runs the classic dialog.
+     *
+     * Deliberately delegates straight to [permissions] rather than owning the suspension itself: the
+     * request must survive this host being disposed (an activity recreation mid-prompt), and
+     * [hostScope] — which [dispose] cancels — must not be in the chain resolving the agent's await.
+     */
+    suspend fun awaitPermission(request: AgentPermissionRequest): AgentPermissionChoice =
+        permissions.await(request)
+
+    /**
      * Unregisters this host's [ABEventBus] subscriptions (see [init]) and cancels [hostScope] (so
      * any in-flight [readingLlmDialogs] coroutine work is torn down with the host). Call from
      * [MainBibleActivity.onDestroy] — each activity (re-)creation builds a fresh
@@ -752,6 +778,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onLlmModelChosen = readingLlmDialogs::onModelChosen,
             onLlmRegenerateConfirmed = readingLlmDialogs::onRegenerateConfirmed,
             onLlmDismiss = readingLlmDialogs::dismiss,
+            // Z-early B4: the runtime agent tool-permission prompt. Fed straight from the app-wide
+            // controller (see [permissions]) — `dismiss()` resolves the awaiting agent coroutine
+            // with DENY, matching the classic dialog's `setOnCancelListener`.
+            permissionState = permissions.pending,
+            onPermissionChoice = { permissions.respond(it) },
+            onPermissionDismiss = { permissions.dismiss() },
         )
     }
 
@@ -942,6 +974,16 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             speakDialogState: StateFlow<SpeakTransportDialog> = MutableStateFlow<SpeakTransportDialog>(SpeakTransportDialog.None).asStateFlow(),
             onSpeakBookmarkChosen: (id: String) -> Unit = {},
             onSpeakDialogDismiss: () -> Unit = {},
+            // Z-early B4 additions: the runtime agent tool-permission prompt, rendered as a sibling
+            // of `ReadingViewScreen` below (same shape as the LLM dialogs / speak-bookmark chooser:
+            // a raw `StateFlow` + callbacks, assembled into the concrete dialog inside this
+            // function's body). The flow is `AgentPermissionController.pending`, owned by the
+            // app-wide Koin single, NOT by the host — see [ComposeReadingViewHost.awaitPermission].
+            // Defaulted to an always-null flow + no-op callbacks so existing call sites and every
+            // golden/host test (which never raise a permission request) are unaffected.
+            permissionState: StateFlow<AgentPermissionRequest?> = MutableStateFlow<AgentPermissionRequest?>(null).asStateFlow(),
+            onPermissionChoice: (AgentPermissionChoice) -> Unit = {},
+            onPermissionDismiss: () -> Unit = {},
         ) {
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
@@ -1186,6 +1228,21 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                     rows = d.rows,
                                     onChoose = onSpeakBookmarkChosen,
                                     onDismiss = onSpeakDialogDismiss,
+                                )
+                            }
+                            // Z-early B4: the runtime agent tool-permission prompt — a third sibling
+                            // overlay alongside `ReadingLlmDialogs`/`ChooseSpeakBookmarkDialog`
+                            // above, for the same reason: an `AlertDialog` overlays regardless of
+                            // where in the tree it is composed, and composing it OUTSIDE `key(gen)`
+                            // (and outside every pane's `AndroidView`) means showing/dismissing it
+                            // can never re-key the pane subtree and destroy/recreate the panes'
+                            // BibleView WebViews.
+                            val pendingPermission by permissionState.collectAsState()
+                            pendingPermission?.let { req ->
+                                AgentPermissionDialog(
+                                    request = req,
+                                    onChoice = { onPermissionChoice(it) },
+                                    onDismiss = { onPermissionDismiss() },
                                 )
                             }
                         }
