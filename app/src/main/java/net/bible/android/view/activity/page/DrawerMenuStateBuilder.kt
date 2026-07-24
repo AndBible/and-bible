@@ -96,6 +96,16 @@ object DrawerMenuStateBuilder {
      */
     val entryIconNames: List<String> = groups.flatMap { it.entries }.map { it.iconName }
 
+    /**
+     * Read-only per-submenu view of the static table: each group's heading `titleRes` (`null` for
+     * the untitled top tier) paired with that group's entries as (idName, titleRes). Exposed only
+     * for the XML drift test ([net.bible.android.view.activity.page.DrawerMenuStateBuilderTest]),
+     * which needs both titles AND group boundaries preserved — a flattened id list (see
+     * [entryIdNames]) can't catch a stale title or an item moved between submenus.
+     */
+    val groupsForDriftTest: List<Pair<Int?, List<Pair<String, Int>>>> =
+        groups.map { g -> g.titleRes to g.entries.map { it.idName to it.titleRes } }
+
     /** The `R.id.*` a clicked [DrawerItem.id] maps to. Throws on an unknown id (stale click). */
     fun resIdFor(idName: String): Int =
         (entryByName[idName] ?: throw IllegalArgumentException("Unknown drawer item id: $idName")).resId

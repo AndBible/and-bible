@@ -290,14 +290,11 @@ object Dialogs {
             // ALLOW_ALWAYS maps straight through: the "are you sure" confirmation + the
             // `permanentlyAllowedTools` write stay in `AgentExecutor.showPermissionDialog` (its
             // existing `Dialogs.simpleQuestion` call), identical on both paths — which is why the
-            // Compose dialog has no confirmation step of its own.
-            return when (choice) {
-                AgentPermissionChoice.ALLOW -> AgentPermissionResult.ALLOW
-                AgentPermissionChoice.ALLOW_FOR_SESSION -> AgentPermissionResult.ALLOW_FOR_SESSION
-                AgentPermissionChoice.ALLOW_ALL_SESSION -> AgentPermissionResult.ALLOW_ALL_SESSION
-                AgentPermissionChoice.ALLOW_ALWAYS -> AgentPermissionResult.ALLOW_ALWAYS
-                AgentPermissionChoice.DENY -> AgentPermissionResult.DENY
-            }
+            // Compose dialog has no confirmation step of its own. The mapping itself is
+            // [AgentPermissionChoice.toResult], extracted so it can be asserted pair-by-pair by
+            // AgentPermissionHostTest (the sorted-name-set guard tests alone would let a swapped
+            // right-hand side compile and pass while granting the wrong permission).
+            return choice.toResult()
         }
         return classicAgentPermissionDialog(context, toolDisplayName, toolDescription, actionDescription)
     }
@@ -355,4 +352,18 @@ object Dialogs {
             dialog.show()
         }
     }
+}
+
+/**
+ * The one true [AgentPermissionChoice] → [Dialogs.AgentPermissionResult] mapping, extracted out of
+ * [Dialogs.agentPermissionDialog]'s Compose branch so it is a plain function `AgentPermissionHostTest`
+ * can call directly and assert pair-by-pair. Kept `internal` (not private) purely so the test can
+ * see it — no other caller is intended.
+ */
+internal fun AgentPermissionChoice.toResult(): Dialogs.AgentPermissionResult = when (this) {
+    AgentPermissionChoice.ALLOW -> Dialogs.AgentPermissionResult.ALLOW
+    AgentPermissionChoice.ALLOW_FOR_SESSION -> Dialogs.AgentPermissionResult.ALLOW_FOR_SESSION
+    AgentPermissionChoice.ALLOW_ALL_SESSION -> Dialogs.AgentPermissionResult.ALLOW_ALL_SESSION
+    AgentPermissionChoice.ALLOW_ALWAYS -> Dialogs.AgentPermissionResult.ALLOW_ALWAYS
+    AgentPermissionChoice.DENY -> Dialogs.AgentPermissionResult.DENY
 }

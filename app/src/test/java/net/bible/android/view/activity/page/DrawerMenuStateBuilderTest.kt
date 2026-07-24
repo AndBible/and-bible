@@ -36,9 +36,14 @@ import org.robolectric.annotation.Config
 class DrawerMenuStateBuilderTest {
 
     /**
-     * The drift guard: the builder's static table must match `main_bible_drawer_menu.xml` in ids
-     * AND declaration order, including submenu nesting. If somebody edits the XML without touching
-     * the table (or vice versa), this fails instead of the drawer silently losing a row.
+     * The drift guard: the builder's static table must match `main_bible_drawer_menu.xml` in ids,
+     * titles, declaration order AND submenu grouping. Compared group-by-group (rather than a single
+     * flattened id list) so this catches two things a flat id-list comparison would miss:
+     *  - a stale `titleRes` (XML title changed, table title didn't — id order is unaffected), and
+     *  - an item moved to a *different* submenu (id order can stay byte-identical while the group
+     *    membership silently changes, which would ship the row under the wrong section heading).
+     * Icons are intentionally NOT compared here: a `Drawable` instance has no stable identity to
+     * assert against (see `entryIconNames` / `ComposeReadingViewHostTest` for icon-key coverage).
      */
     @Test
     fun staticTable_matchesInflatedMenuXml() {
@@ -46,20 +51,44 @@ class DrawerMenuStateBuilderTest {
         val menu = MenuBuilder(context)
         MenuInflater(context).inflate(R.menu.main_bible_drawer_menu, menu)
 
-        val xmlIdNames = mutableListOf<String>()
+        // Group the inflated XML exactly like DrawerMenuStateBuilder's StaticGroup shape:
+        // consecutive top-level items with no submenu form one untitled group (the top tier, no
+        // heading in the XML); each top-level item WITH a submenu is its own titled group.
+        val xmlGroups = mutableListOf<Pair<String?, List<Pair<String, String>>>>()
+        var untitledBucket = mutableListOf<Pair<String, String>>()
+        fun flushUntitledBucket() {
+            if (untitledBucket.isNotEmpty()) {
+                xmlGroups += null to untitledBucket.toList()
+                untitledBucket = mutableListOf()
+            }
+        }
         for (i in 0 until menu.size()) {
             val item = menu.getItem(i)
             val sub = item.subMenu
             if (sub != null) {
-                for (j in 0 until sub.size()) {
-                    xmlIdNames += context.resources.getResourceEntryName(sub.getItem(j).itemId)
+                flushUntitledBucket()
+                val subItems = (0 until sub.size()).map { j ->
+                    val subItem = sub.getItem(j)
+                    context.resources.getResourceEntryName(subItem.itemId) to subItem.title.toString()
                 }
+                xmlGroups += item.title.toString() to subItems
             } else {
-                xmlIdNames += context.resources.getResourceEntryName(item.itemId)
+                untitledBucket += context.resources.getResourceEntryName(item.itemId) to item.title.toString()
+            }
+        }
+        flushUntitledBucket()
+
+        val builderGroups = DrawerMenuStateBuilder.groupsForDriftTest.map { (headingRes, entries) ->
+            headingRes?.let { context.getString(it) } to entries.map { (idName, titleRes) ->
+                idName to context.getString(titleRes)
             }
         }
 
-        assertEquals(xmlIdNames, DrawerMenuStateBuilder.entryIdNames)
+        assertEquals("group count", xmlGroups.size, builderGroups.size)
+        for (i in xmlGroups.indices) {
+            assertEquals("group $i heading", xmlGroups[i].first, builderGroups[i].first)
+            assertEquals("group $i items (id+title, in order)", xmlGroups[i].second, builderGroups[i].second)
+        }
     }
 
     @Test

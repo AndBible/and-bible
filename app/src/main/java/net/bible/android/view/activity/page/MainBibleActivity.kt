@@ -929,18 +929,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed $fullScreen")
-        // Batch Z-early A7 fix A: on the compose path this covers the LEGACY dispatch path. This
-        // override never consults `onBackPressedDispatcher` (it's not called from here), so on
-        // Android 15+ — this app targets SDK 35, where predictive back is on by default — Material3's
-        // own `PredictiveBackHandler(enabled = drawerState.isOpen)` inside `ModalNavigationDrawer`,
-        // which routes through that dispatcher, intercepts FIRST and this method is never reached
-        // while the drawer is open; the two dispatch routes are mutually exclusive, so there is no
-        // double-close. This branch still matters for the legacy (pre-predictive-back) dispatch path,
-        // and the native `isDrawerVisible` branch below is always false on the compose path (that
-        // drawer is locked). Without this, back with the Compose drawer open on a legacy dispatch
-        // fell through to WebView-back → `historyTraversal.goBack()` → the double-back exit toast,
-        // drawer still open. Inert on the classic path (no host → `false`), which keeps the branch
-        // order below byte-identical.
+        // Batch Z-early A7 fix A: this override never calls `onBackPressedDispatcher.onBackPressed()`,
+        // so it is the ONLY live back route today: `android:enableOnBackInvokedCallback` is not
+        // declared in AndroidManifest.xml, and that flag only defaults to true starting at
+        // targetSdk 36 — this app targets 35 (app/build.gradle.kts), so predictive back /
+        // `OnBackInvokedCallback` dispatch is OFF and Material3's `PredictiveBackHandler(enabled =
+        // drawerState.isOpen)` inside `ModalNavigationDrawer` is never invoked; this method fires for
+        // every back press, Compose drawer open or not. Hence this explicit `composeCloseDrawerIfOpen()`
+        // check: the native `isDrawerVisible` branch below is always false on the compose path (that
+        // drawer is locked), so without this line, back with the Compose drawer open would fall
+        // through to WebView-back → `historyTraversal.goBack()` → the double-back exit toast, drawer
+        // still open. Inert on the classic path (no host → `false`), which keeps the branch order
+        // below byte-identical. If `enableOnBackInvokedCallback` is ever declared, or targetSdk
+        // moves to 36+, the two dispatch routes become mutually exclusive (the dispatcher intercepts
+        // first while the drawer is open, and this method is not reached) — so the guard stays
+        // correct either way, it just becomes redundant on that future path rather than dead now.
         if (composeCloseDrawerIfOpen()) return
         if(fullScreen) {
             toggleFullScreen()

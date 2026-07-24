@@ -21,6 +21,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import net.bible.android.TEST_SDK
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.base.toResult
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ai.AgentPermissionRequest
@@ -32,10 +33,14 @@ import org.robolectric.annotation.Config
 
 /**
  * Guards the Task-4 mapping and the fallback rule:
- *  - every [AgentPermissionChoice] maps to the matching [Dialogs.AgentPermissionResult];
+ *  - every [AgentPermissionChoice] maps to the matching [Dialogs.AgentPermissionResult] (asserted
+ *    both by arity/name-set below AND pair-by-pair in [toResult_mapsEveryChoiceToItsMatchingPair],
+ *    which is the only one of the three that would catch a swapped right-hand side — e.g.
+ *    `ALLOW_FOR_SESSION -> ALLOW_ALL_SESSION` — since that still compiles and keeps the same name
+ *    set, just answers with the wrong permission);
  *  - the two enums stay the same size and carry the same names, so adding/renaming a choice on one
- *    side cannot silently mis-map an answer (the `when` in `Dialogs.agentPermissionDialog` maps by
- *    hand, so a rename there would still compile while answering something else).
+ *    side cannot silently mis-map an answer (the `when` in [toResult] maps by hand, so a rename
+ *    there would still compile while answering something else).
  * The Activity-resolution branch itself is an on-device item (it needs a live MainBibleActivity).
  */
 @RunWith(RobolectricTestRunner::class)
@@ -56,6 +61,21 @@ class AgentPermissionHostTest {
             Dialogs.AgentPermissionResult.entries.map { it.name }.sorted(),
             AgentPermissionChoice.entries.map { it.name }.sorted(),
         )
+    }
+
+    /**
+     * The mapping [toResult] performs, asserted one pair at a time — this is what actually catches
+     * a hand-edit that swaps one arm's target (e.g. mapping `ALLOW_FOR_SESSION` to
+     * `ALLOW_ALL_SESSION`), which the arity/name-set guards above cannot: that edit compiles fine
+     * and leaves both enums' size and name set untouched.
+     */
+    @Test
+    fun toResult_mapsEveryChoiceToItsMatchingPair() {
+        assertEquals(Dialogs.AgentPermissionResult.ALLOW, AgentPermissionChoice.ALLOW.toResult())
+        assertEquals(Dialogs.AgentPermissionResult.ALLOW_FOR_SESSION, AgentPermissionChoice.ALLOW_FOR_SESSION.toResult())
+        assertEquals(Dialogs.AgentPermissionResult.ALLOW_ALL_SESSION, AgentPermissionChoice.ALLOW_ALL_SESSION.toResult())
+        assertEquals(Dialogs.AgentPermissionResult.ALLOW_ALWAYS, AgentPermissionChoice.ALLOW_ALWAYS.toResult())
+        assertEquals(Dialogs.AgentPermissionResult.DENY, AgentPermissionChoice.DENY.toResult())
     }
 
     @Test
