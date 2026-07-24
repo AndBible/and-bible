@@ -529,4 +529,21 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun duplicateCustomRepository(name: String): String = context.getString(R.string.duplicate_custom_repository, name)
     override val repositorySpecification: String get() = context.getString(R.string.repository_specification)
     override val packagesDir: String get() = context.getString(R.string.packages_dir)
+
+    // Batch 13 T5 — BackupRestoreScreen
+    override val backupAndRestoreTitle: String get() = context.getString(R.string.backup_and_restore)
+    override val backupDatabaseLabel: String get() = context.getString(R.string.backup_database)
+    override val backupDatabaseInfo: String get() = context.getString(R.string.backup_database_info)
+    override val backupDocumentsLabel: String get() = context.getString(R.string.backup_documents)
+    override val backupDocumentsInfo: String get() = context.getString(R.string.backup_document_info)
+    override val backupApplicationLabel: String get() = context.getString(R.string.backup_application)
+    override val backupApplicationInfo: String get() = context.getString(R.string.backup_application_info)
+    override val backupToButton: String get() = context.getString(R.string.backup_to)
+    override val restoreOrImportTitle: String get() = context.getString(R.string.backup_restore2)
+    override val restoreOrImportFromButton: String get() = context.getString(R.string.backup_restore_from2)
+    override val autoBackupsTitle: String get() = context.getString(R.string.auto_backups_title)
+    override val resetDatabasesTitle: String get() = context.getString(R.string.reset_databases_title)
+    override val resetDatabasesDescription: String get() = context.getString(R.string.reset_databases_description)
+    override fun resetSomething(name: String): String = context.getString(R.string.reset_something, name)
+    override val lastCrashInfoTitle: String get() = context.getString(R.string.last_crash_info_title)
 }

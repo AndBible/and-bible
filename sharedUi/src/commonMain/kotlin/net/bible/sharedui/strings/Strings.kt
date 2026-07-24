@@ -555,6 +555,23 @@ interface Strings {
     fun duplicateCustomRepository(name: String): String // R.string.duplicate_custom_repository (%s — host-layer duplicate-name toast, Task 3)
     val repositorySpecification: String                // R.string.repository_specification (manifest-URL field label)
     val packagesDir: String                             // R.string.packages_dir (package-directory field label)
+
+    // Batch 13 T5 — BackupRestoreScreen
+    val backupAndRestoreTitle: String        // R.string.backup_and_restore (top-bar title + Backup section heading)
+    val backupDatabaseLabel: String          // R.string.backup_database (Backup + Restore toggle row label)
+    val backupDatabaseInfo: String           // R.string.backup_database_info (Backup + Restore toggle row summary)
+    val backupDocumentsLabel: String         // R.string.backup_documents (Backup + Restore toggle row label)
+    val backupDocumentsInfo: String          // R.string.backup_document_info (Backup + Restore toggle row summary)
+    val backupApplicationLabel: String       // R.string.backup_application (Backup-only toggle row label)
+    val backupApplicationInfo: String        // R.string.backup_application_info (Backup-only toggle row summary)
+    val backupToButton: String               // R.string.backup_to (Backup action button)
+    val restoreOrImportTitle: String         // R.string.backup_restore2 (Restore section heading)
+    val restoreOrImportFromButton: String    // R.string.backup_restore_from2 (Restore action button)
+    val autoBackupsTitle: String             // R.string.auto_backups_title (backup-file list section heading)
+    val resetDatabasesTitle: String          // R.string.reset_databases_title
+    val resetDatabasesDescription: String    // R.string.reset_databases_description
+    fun resetSomething(name: String): String // R.string.reset_something (%1$s -- per-db reset button label)
+    val lastCrashInfoTitle: String           // R.string.last_crash_info_title
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
