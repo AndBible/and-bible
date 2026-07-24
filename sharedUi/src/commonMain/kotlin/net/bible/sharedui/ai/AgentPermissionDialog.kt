@@ -20,11 +20,16 @@ package net.bible.sharedui.ai
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ai.AgentPermissionRequest
@@ -58,7 +63,9 @@ fun AgentPermissionDialog(
         title = { Text(strings.agentPermissionTitle) },
         text = {
             Column(
-                Modifier.fillMaxWidth(),
+                Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
@@ -89,20 +96,40 @@ fun AgentPermissionChoiceRows(
 ) {
     val strings = LocalStrings.current
     Column(Modifier.fillMaxWidth()) {
-        TextButton(onClick = { onChoice(AgentPermissionChoice.ALLOW) }) {
-            Text(strings.permissionAllowOnce)
+        TextButton(
+            onClick = { onChoice(AgentPermissionChoice.ALLOW) },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(strings.permissionAllowOnce, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start)
         }
-        TextButton(onClick = { onChoice(AgentPermissionChoice.ALLOW_FOR_SESSION) }) {
-            Text(strings.permissionAllowForSession)
+        TextButton(
+            onClick = { onChoice(AgentPermissionChoice.ALLOW_FOR_SESSION) },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(strings.permissionAllowForSession, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start)
         }
-        TextButton(onClick = { onChoice(AgentPermissionChoice.ALLOW_ALL_SESSION) }) {
-            Text(strings.permissionAllowAllSession)
+        TextButton(
+            onClick = { onChoice(AgentPermissionChoice.ALLOW_ALL_SESSION) },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(strings.permissionAllowAllSession, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start)
         }
-        TextButton(onClick = { onChoice(AgentPermissionChoice.ALLOW_ALWAYS) }) {
-            Text(strings.permissionAllowAlways(toolDisplayName))
+        TextButton(
+            onClick = { onChoice(AgentPermissionChoice.ALLOW_ALWAYS) },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                strings.permissionAllowAlways(toolDisplayName),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start,
+            )
         }
-        TextButton(onClick = { onChoice(AgentPermissionChoice.DENY) }) {
-            Text(strings.permissionDeny)
+        TextButton(
+            onClick = { onChoice(AgentPermissionChoice.DENY) },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+        ) {
+            Text(strings.permissionDeny, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start)
         }
     }
 }
