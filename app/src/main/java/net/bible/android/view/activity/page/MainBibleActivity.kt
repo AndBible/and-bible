@@ -179,6 +179,10 @@ import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.reading.OptionsMenuItem
+import net.bible.sharedcore.reading.QuickDocAction
+import net.bible.sharedcore.reading.QuickDocMenuItem
+import net.bible.sharedcore.reading.QuickDocPicker
+import net.bible.sharedcore.reading.QuickDocRow
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.window.ReadingViewController
 import org.crosswire.jsword.book.Book
@@ -1119,6 +1123,24 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
+    /** Compose-path quick-doc dispatch: returns the popup items to show (or empty if it switched
+     *  directly / had nothing). Mirrors classic `menuForDocs` (:1905-1924) via `QuickDocPicker`. */
+    internal fun composeQuickDocItems(books: List<Book>): List<QuickDocMenuItem> {
+        val byId = books.associateBy { it.initials }
+        val rows = books.map { QuickDocRow(it.initials, getString(R.string.something_with_parenthesis, it.abbreviation, it.language.code), it.language.code, it.abbreviation) }
+        return when (val a = QuickDocPicker.action(rows, currentDocument?.initials ?: "")) {
+            is QuickDocAction.None -> emptyList()
+            is QuickDocAction.SwitchDirectly -> { setCurrentDocument(byId[a.id]); emptyList() }
+            is QuickDocAction.ShowPopup -> { composeQuickDocBooksById = byId; a.items }
+        }
+    }
+
+    /** id -> Book for the currently-open compose quick-doc menu (resolves `onSelect`). */
+    private var composeQuickDocBooksById: Map<String, Book> = emptyMap()
+
+    /** Compose quick-doc menu selection -> set the doc (mirrors classic `menuForDocs`' click listener). */
+    internal fun composeQuickDocSelect(id: String) { setCurrentDocument(composeQuickDocBooksById[id]) }
+
     // ---- Compose window-tab rail bridge (Batch 12b follow-on, Plan A Task 7) ----
     // `windowLabelFor`/`windowIconFor` resolve a `ComposeReadingViewHost`-supplied opaque window
     // id to the live `Window` and mirror classic `SplitBibleArea.getWindowButtonTitleText` /
@@ -1718,7 +1740,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private val currentDocument get() = windowControl.activeWindow.pageManager.currentPage.currentDocument
-    private val toolbarButtonSetting get() = preferences.getString("toolbar_button_actions", "default")
+    /** Not `private`: read by [net.bible.android.view.activity.page.screen.ComposeReadingViewHost] to
+     *  decide whether the compose-path Bible/Commentary button drives the swap-doc shortcut or the
+     *  Compose quick-doc menu (Batch 12g Task 8). */
+    internal val toolbarButtonSetting get() = preferences.getString("toolbar_button_actions", "default")
 
     override fun updateActions() {
         updateTitle()

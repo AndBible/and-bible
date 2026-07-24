@@ -74,6 +74,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.AgentForegroundService
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
@@ -101,6 +102,7 @@ import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
 import net.bible.sharedui.reading.BibleReferenceOverlay
 import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
+import net.bible.sharedui.reading.QuickDocMenuState
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
@@ -110,6 +112,7 @@ import net.bible.sharedui.reading.WindowButtonMode
 import net.bible.sharedui.reading.WindowPaneMenu
 import net.bible.sharedui.reading.WindowTabBar
 import net.bible.sharedui.theme.AbTheme
+import org.crosswire.jsword.book.BookCategory
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -325,6 +328,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val overflowItems = mutableStateOf(emptyList<OptionsMenuItem>())
     private val overflowExpanded = mutableStateOf(false)
 
+    /**
+     * Host-owned state for the Bible/Commentary quick-document picker menus (Batch 12g Task 8) —
+     * the compose-path replacement for the native `menuForDocs` `PopupMenu` on the non-swap
+     * short-press branch of [ReadingToolbarCallbacks.onBible]/`onCommentary` (see [install]).
+     * Mirrors [overflowItems]/[overflowExpanded] above: built fresh from
+     * [MainBibleActivity.composeQuickDocItems] on each tap, cleared by `onQuickDocSelect`/
+     * `onQuickDocDismiss`. Only one of the two is ever expanded at a time (the toolbar only lets
+     * one menu be open), so a single [MainBibleActivity.composeQuickDocSelect] can resolve either.
+     */
+    private val bibleQuickDoc = mutableStateOf(QuickDocMenuState())
+    private val commentaryQuickDoc = mutableStateOf(QuickDocMenuState())
+
     init {
         ABEventBus.register(this) {
             onMain<ScreenSettings.NightModeChanged> { nightMode.value = ScreenSettings.nightMode }
@@ -478,15 +493,37 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onTitleLongPress = { activity.composeChooseDocument() },
                 onTitleFlingVertical = { activity.composeWorkspace() },
                 onTitleFlingHorizontal = { forward -> activity.composeCycleWorkspace(forward) },
-                // BRIDGE to the classic native popups (bible/commentary doc pickers): anchored to
-                // `container` (the ComposeView) since the classic anchors (bibleButton/
-                // commentaryButton) live inside the now-GONE toolbarLayout and would position the
-                // popup at a stale/zero location. The overflow options menu is NOT bridged this
-                // way (Batch 12b-C Task 3 replaced that native PopupMenu bridge with the real
-                // Compose `ReadingOverflowMenu` below — see `onOverflow`/`overflowItems`).
-                onBible = { activity.composeBibleClick(container) },
+                // Batch 12g Task 8: the non-swap short-press branch now drives the real Compose
+                // quick-doc menu (`bibleQuickDoc`/`commentaryQuickDoc` below) instead of bridging to
+                // the classic native `menuForDocs` `PopupMenu`. The swap-doc shortcut (short-press
+                // with `toolbarButtonSetting` = "swap-*") and both long-press branches are UNCHANGED
+                // bridges to `container` (the ComposeView) since the classic anchors (bibleButton/
+                // commentaryButton) live inside the now-GONE toolbarLayout and would position a
+                // native popup at a stale/zero location — long-press still opens the native
+                // `menuForDocs`/`ChooseDocument` (device A/B backlog item, not this task's scope).
+                // The overflow options menu is NOT bridged this way (Batch 12b-C Task 3 replaced
+                // that native PopupMenu bridge with the real Compose `ReadingOverflowMenu` below —
+                // see `onOverflow`/`overflowItems`).
+                onBible = {
+                    if (activity.toolbarButtonSetting?.startsWith("swap-") == true) {
+                        activity.composeBibleClick(container)
+                    } else {
+                        val items = activity.composeQuickDocItems(activity.documentControl.biblesForVerse)
+                        bibleQuickDoc.value = QuickDocMenuState(expanded = items.isNotEmpty(), items = items)
+                    }
+                },
                 onBibleLong = { activity.composeBibleLongClick(container) },
-                onCommentary = { activity.composeCommentaryClick(container) },
+                onCommentary = {
+                    if (activity.toolbarButtonSetting?.startsWith("swap-") == true) {
+                        activity.composeCommentaryClick(container)
+                    } else {
+                        val books = activity.documentControl.commentariesForVerse +
+                            SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK) +
+                            SwordDocumentFacade.getBooks(BookCategory.DICTIONARY)
+                        val items = activity.composeQuickDocItems(books)
+                        commentaryQuickDoc.value = QuickDocMenuState(expanded = items.isNotEmpty(), items = items)
+                    }
+                },
                 onCommentaryLong = { activity.composeCommentaryLongClick(container) },
                 // `composeCycleStrongs`/`composeStrongsLong` call `StrongsPreference.handle()`,
                 // which posts none of the 5 ABEventBus events `toolbarStateService` subscribes to
@@ -518,6 +555,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 }
             },
             onOverflowDismiss = { overflowExpanded.value = false },
+            bibleQuickDocState = bibleQuickDoc,
+            commentaryQuickDocState = commentaryQuickDoc,
+            onQuickDocSelect = { id ->
+                activity.composeQuickDocSelect(id)
+                bibleQuickDoc.value = QuickDocMenuState()
+                commentaryQuickDoc.value = QuickDocMenuState()
+            },
+            onQuickDocDismiss = {
+                bibleQuickDoc.value = QuickDocMenuState()
+                commentaryQuickDoc.value = QuickDocMenuState()
+            },
             pane = { windowId ->
                 val window = activity.windowRepository.getWindow(IdType(windowId))
                 if (window != null) {
@@ -649,6 +697,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             overflowExpandedState: State<Boolean> = mutableStateOf(false),
             onOverflowItemClick: (id: String) -> Unit = {},
             onOverflowDismiss: () -> Unit = {},
+            // Batch 12g Task 8 additions: the Bible/Commentary quick-document picker menus,
+            // `State`s for the same reason as `overflowItemsState`/`overflowExpandedState` above —
+            // [ComposeReadingViewHost] owns mutable backing state (`bibleQuickDoc`/
+            // `commentaryQuickDoc`) that its `ReadingToolbarCallbacks.onBible`/`onCommentary`
+            // (non-swap branch) mutate, and `onQuickDocSelect`/`onQuickDocDismiss` clear. Defaulted
+            // (collapsed/empty/no-op) so `ComposeReadingViewHostTest` (which never opens either
+            // menu) is unaffected.
+            bibleQuickDocState: State<QuickDocMenuState> = mutableStateOf(QuickDocMenuState()),
+            commentaryQuickDocState: State<QuickDocMenuState> = mutableStateOf(QuickDocMenuState()),
+            onQuickDocSelect: (id: String) -> Unit = {},
+            onQuickDocDismiss: () -> Unit = {},
             pane: @Composable (windowId: String) -> Unit,
             // Host-supplied per-window label/icon for the restore rail (Task 7) — plain,
             // non-`@Composable` lambdas, matching `WindowTabBar`'s `windowLabel`/`windowIcon`
@@ -729,6 +788,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             val fullScreen by fullScreenState
                             val overflowItems by overflowItemsState
                             val overflowExpanded by overflowExpandedState
+                            val bibleQuickDoc by bibleQuickDocState
+                            val commentaryQuickDoc by commentaryQuickDocState
                             val tabBarModel = buildTabBarModel(layout)
                             val touchTick by touchTickState
                             val paneMenuWindowId by paneMenuWindowIdState
@@ -790,6 +851,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                     overflowExpanded = overflowExpanded,
                                     onOverflowItemClick = onOverflowItemClick,
                                     onOverflowDismiss = onOverflowDismiss,
+                                    bibleQuickDoc = bibleQuickDoc,
+                                    commentaryQuickDoc = commentaryQuickDoc,
+                                    onQuickDocSelect = onQuickDocSelect,
+                                    onQuickDocDismiss = onQuickDocDismiss,
                                     paneOverlay = { windowId ->
                                         val window = layout.windows.firstOrNull { it.id == windowId }
                                         PaneWindowButtonOverlay(
