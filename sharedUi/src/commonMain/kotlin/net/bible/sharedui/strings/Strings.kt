@@ -543,6 +543,18 @@ interface Strings {
      */
     val epubUpgradeMessage: String get() =
         "$epubUpgradeWarning\n\n$epubUpgradeRecommendation\n\n$epubUpgradeQuestion"
+
+    // Batch 13 T2 — CustomRepositories list + CustomRepositoryEditor screens
+    val customRepositories: String                  // R.string.custom_repositories (both screens' title + help dialog title)
+    val customRepositoriesGuidance: String           // R.string.custom_repositories_empty_list_message (list empty-state)
+    val customRepositoriesHelp0: String              // R.string.custom_repositories_help0 (both help dialogs)
+    val customRepositoriesHelp1: String               // R.string.custom_repositories_help1 (editor help dialog only)
+    fun customRepositoriesHelp2(link: String): String // R.string.custom_repositories_help2 (%s — the wiki-page link label)
+    val wikiPage: String                              // R.string.wiki_page (help dialog "read more" link label)
+    fun deleteCustomRepository(name: String): String   // R.string.delete_custom_repository (%s — delete confirmation)
+    fun duplicateCustomRepository(name: String): String // R.string.duplicate_custom_repository (%s — host-layer duplicate-name toast, Task 3)
+    val repositorySpecification: String                // R.string.repository_specification (manifest-URL field label)
+    val packagesDir: String                             // R.string.packages_dir (package-directory field label)
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

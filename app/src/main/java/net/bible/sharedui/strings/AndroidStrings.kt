@@ -517,4 +517,16 @@ class AndroidStrings(private val context: Context) : Strings {
     override val epubUpgradeWarning: String get() = context.getString(R.string.bookmark_warning2)
     override val epubUpgradeRecommendation: String get() = context.getString(R.string.bookmark_warning4)
     override val epubUpgradeQuestion: String get() = context.getString(R.string.bookmark_warning3)
+
+    // Batch 13 T2 — CustomRepositories list + CustomRepositoryEditor screens
+    override val customRepositories: String get() = context.getString(R.string.custom_repositories)
+    override val customRepositoriesGuidance: String get() = context.getString(R.string.custom_repositories_empty_list_message)
+    override val customRepositoriesHelp0: String get() = context.getString(R.string.custom_repositories_help0)
+    override val customRepositoriesHelp1: String get() = context.getString(R.string.custom_repositories_help1)
+    override fun customRepositoriesHelp2(link: String): String = context.getString(R.string.custom_repositories_help2, link)
+    override val wikiPage: String get() = context.getString(R.string.wiki_page)
+    override fun deleteCustomRepository(name: String): String = context.getString(R.string.delete_custom_repository, name)
+    override fun duplicateCustomRepository(name: String): String = context.getString(R.string.duplicate_custom_repository, name)
+    override val repositorySpecification: String get() = context.getString(R.string.repository_specification)
+    override val packagesDir: String get() = context.getString(R.string.packages_dir)
 }
