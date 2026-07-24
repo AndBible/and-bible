@@ -72,7 +72,19 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
     /**
      * on Click handlers
      */
-    fun handleMenuRequest(menuItem: MenuItem): Boolean {
+    /**
+     * Kept for the classic call sites (options menu, classic `NavigationView` listener). Reads only
+     * `itemId`, so it is a pure delegate to [handleMenuRequest] — do not add `MenuItem`-dependent
+     * logic here without also giving the Compose path an equivalent.
+     */
+    fun handleMenuRequest(menuItem: MenuItem): Boolean = handleMenuRequest(menuItem.itemId)
+
+    /**
+     * The id-based entry point. The Compose reading-view drawer dispatches here via
+     * `DrawerMenuStateBuilder.resIdFor(id)`; the classic `MenuItem` overload above delegates to it.
+     * Body is the former `handleMenuRequest(MenuItem)` verbatim, with `menuItem.itemId` → [itemId].
+     */
+    fun handleMenuRequest(itemId: Int): Boolean {
         var isHandled = false
 
         // Activities
@@ -81,7 +93,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
             var requestCode = STD_REQUEST_CODE
             // Handle item selection
             val currentPage = windowControl.activeWindowPageManager.currentPage
-            when (menuItem.itemId) {
+            when (itemId) {
                 R.id.chooseDocumentButton -> {
                     val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ChooseDocument)
                     mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
