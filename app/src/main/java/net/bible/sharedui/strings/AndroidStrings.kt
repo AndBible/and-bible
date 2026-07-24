@@ -32,6 +32,15 @@ class AndroidStrings(private val context: Context) : Strings {
     override val stop: String get() = context.getString(R.string.stop)
     override val pause: String get() = context.getString(R.string.pause)
     override val done: String get() = context.getString(R.string.done)
+
+    // Batch 12f — reading-view Speak transport bar
+    override val bookmarks: String get() = context.getString(R.string.bookmarks)
+    override val rewind: String get() = context.getString(R.string.rewind)
+    override val forward: String get() = context.getString(R.string.forward)
+    override val speakNext: String get() = context.getString(R.string.speak_next)
+    override val speakPrevious: String get() = context.getString(R.string.speak_previous)
+    override val speakBookmarksMenuTitle: String get() = context.getString(R.string.speak_bookmarks_menu_title)
+
     override val generalBookTitle: String get() = context.getString(R.string.general_book)
     override val mapTitle: String get() = context.getString(R.string.doc_type_map)
     override val dictionaryTitle: String get() = context.getString(R.string.dictionary)

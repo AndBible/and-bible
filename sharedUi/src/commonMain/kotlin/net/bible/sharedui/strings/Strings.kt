@@ -40,6 +40,14 @@ interface Strings {
     val pause: String
     val done: String
 
+    // Batch 12f — reading-view Speak transport bar
+    val bookmarks: String
+    val rewind: String
+    val forward: String
+    val speakNext: String
+    val speakPrevious: String
+    val speakBookmarksMenuTitle: String
+
     // Batch 3a — navigation choosers
     val generalBookTitle: String
     val mapTitle: String
