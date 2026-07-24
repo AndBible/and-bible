@@ -50,6 +50,11 @@ import net.bible.sharedcore.window.WindowLayoutState
  * [paneOverlay] is forwarded verbatim to [SplitContent]'s slot of the same name — an optional
  * per-pane overlay (e.g. the floating ☰ window button), composed inside every visible pane. `null`
  * by default, in which case nothing extra is drawn.
+ *
+ * [bottomOverlay] is forwarded verbatim to [SplitContent]'s slot of the same name — an optional
+ * bottom-centre overlay shared across the whole split (e.g. the fullscreen bible-reference
+ * overlay), composed as a sibling of the panes rather than inside any one of them. `null` by
+ * default, in which case nothing extra is drawn.
  */
 @Composable
 fun ReadingViewScreen(
@@ -71,6 +76,7 @@ fun ReadingViewScreen(
     agentLog: (@Composable () -> Unit)? = null,
     speakBar: (@Composable () -> Unit)? = null,
     paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
+    bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
 ) {
     Column(modifier.fillMaxSize()) {
         if (!fullScreen) {
@@ -92,6 +98,7 @@ fun ReadingViewScreen(
             pane = pane,
             modifier = Modifier.weight(1f),
             paneOverlay = paneOverlay,
+            bottomOverlay = bottomOverlay,
         )
         agentLog?.invoke()
         speakBar?.invoke()

@@ -56,6 +56,8 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.onMain
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent
+import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
@@ -81,6 +83,7 @@ import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
+import net.bible.sharedcore.reading.bibleReferenceOverlayVisible
 import net.bible.sharedcore.reading.paneButtonDragAction
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.sharedcore.speak.SpeakTransportController
@@ -96,6 +99,7 @@ import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
+import net.bible.sharedui.reading.BibleReferenceOverlay
 import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
@@ -298,6 +302,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val fullScreen = mutableStateOf(activity.fullScreen)
 
     /**
+     * Current-reference overlay text (classic `MainBibleActivity.bibleOverlayText`), mirrored from
+     * the same events classic `SplitBibleArea` listens to (Batch 12g Task 3); empty on `KeyIsNull`
+     * (no current key — mirrors classic's silent catch in `updateTitle`).
+     */
+    private val overlayText = mutableStateOf(readOverlayText())
+
+    /** Whether the active window shows a Bible (classic `activeWindow.pageManager.isBibleShown`). */
+    private val activeIsBibleShown = mutableStateOf(activity.windowControl.activeWindow.pageManager.isBibleShown)
+
+    private fun readOverlayText(): String = try { activity.bibleOverlayText } catch (e: MainBibleActivity.KeyIsNull) { "" }
+
+    /**
      * The Compose overflow ("3-dot") options menu's item list + expanded flag (Batch 12b-C Task 3)
      * — host-owned state, since (unlike [nightMode]/[fullScreen]) there is no `ABEventBus` event to
      * mirror: [ReadingToolbarCallbacks.onOverflow] below rebuilds [overflowItems] from
@@ -316,6 +332,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // Classic BibleView.BibleViewTouched re-show (SplitBibleArea.kt:203-205) — see
             // WindowButtonsVisibility's kdoc.
             onMain<BibleView.BibleViewTouched> { windowButtonsVisibility.onTouch() }
+            // Batch 12g Task 3: mirrors classic `SplitBibleArea`'s own registration for the same two
+            // events (`SplitBibleArea.kt:172,190`), which drive its `updateBibleReferenceOverlay`.
+            // Unlike a dedicated `:sharedCore` service seam, this reuses the host's existing
+            // fullscreen/night-mode event-mirror idiom: the overlay is just one string + two
+            // booleans, kept as host-owned Compose `State` and gated by the pure `bibleReferenceOverlayVisible`
+            // (`:sharedCore`) fn at render time — no separate service/controller class, per the plan.
+            onMain<CurrentVerseChangedEvent> { overlayText.value = readOverlayText() }
+            onMain<CurrentWindowChangedEvent> {
+                overlayText.value = readOverlayText()
+                activeIsBibleShown.value = activity.windowControl.activeWindow.pageManager.isBibleShown
+            }
         }
     }
 
@@ -475,6 +502,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 },
             ),
             fullScreenState = fullScreen,
+            overlayTextState = overlayText,
+            activeIsBibleShownState = activeIsBibleShown,
             overflowItemsState = overflowItems,
             overflowExpandedState = overflowExpanded,
             onOverflowItemClick = { id ->
@@ -598,6 +627,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // [MainBibleActivity.fullScreen] here via [MainBibleActivity.FullScreenEvent] instead
             // of passing a one-shot snapshot.
             fullScreenState: State<Boolean> = mutableStateOf(false),
+            // Batch 12g Task 3 additions: the fullscreen bible-reference overlay's text + the
+            // active window's bible-shown flag, `State`s for the same reactivity reason as
+            // `fullScreenState` above — [ComposeReadingViewHost.install] mirrors both from
+            // `CurrentVerseChangedEvent`/`CurrentWindowChangedEvent` (see its `init` block) rather
+            // than passing a one-shot snapshot. Defaulted (empty text / bible not shown) so
+            // `ComposeReadingViewHostTest` (which never renders the overlay) is unaffected.
+            overlayTextState: State<String> = mutableStateOf(""),
+            activeIsBibleShownState: State<Boolean> = mutableStateOf(false),
             // The Compose overflow options menu's item list / expanded flag (Batch 12b-C Task 3),
             // `State`s for the same reason as [nightModeState]/[fullScreenState]: [install] owns
             // mutable backing state (`overflowItems`/`overflowExpanded`) that its
@@ -707,6 +744,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                 }
                             }
                             val windowButtonsVisible by windowButtonsVisibleState
+                            val overlayText by overlayTextState
+                            val activeIsBibleShown by activeIsBibleShownState
+                            // Batch 12g Task 3: pure gate (`:sharedCore`) mirroring classic
+                            // `SplitBibleArea.updateBibleReferenceOverlay` — visible only fullscreen,
+                            // with the active window showing a Bible, while the (auto-hiding) window
+                            // buttons are shown, and the user hasn't disabled the overlay.
+                            val overlayVisible = bibleReferenceOverlayVisible(
+                                fullScreen = fullScreen,
+                                activeIsBibleShown = activeIsBibleShown,
+                                buttonsShown = windowButtonsVisible,
+                                hideSetting = CommonUtils.settings.getBoolean("hide_bible_reference_overlay", false),
+                            )
                             // Classic `BibleFrame.addWindowButton`'s early-outs (`screen/BibleFrame.kt:157-158`):
                             // never shown while `hide_window_buttons` is set, or while a window is
                             // maximised (the floating button, specifically — the per-window MENU can
@@ -755,6 +804,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                     },
                                     agentLog = agentLogSlot,
                                     speakBar = speakBarSlot,
+                                    bottomOverlay = { BibleReferenceOverlay(visible = overlayVisible, text = overlayText) },
                                     tabBar = if (hideTabBarInFullScreen) null else {
                                         {
                                             WindowTabBar(

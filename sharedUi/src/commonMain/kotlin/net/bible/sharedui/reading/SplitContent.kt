@@ -80,6 +80,12 @@ private data class ActiveDrag(val index: Int, val weight1: Float, val weight2: F
  * e.g. the floating ☰ window button, which every pane needs regardless of split orientation. `null`
  * by default, in which case nothing extra is drawn and rendering is byte-identical to before this
  * slot existed.
+ *
+ * [bottomOverlay], when non-null, is composed as a SIBLING of the panes container (the
+ * `Row`/`Column` above), inside the outer `BoxWithConstraints` — i.e. it floats over every pane
+ * rather than living inside any one of them, so it survives orientation/pane-count changes
+ * unaffected. Used for a single bottom-centre overlay shared across the whole split, e.g. the
+ * fullscreen bible-reference overlay. `null` by default, in which case nothing extra is drawn.
  */
 @Composable
 fun SplitContent(
@@ -89,6 +95,7 @@ fun SplitContent(
     pane: @Composable (windowId: String) -> Unit,
     modifier: Modifier = Modifier,
     paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
+    bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
 ) {
     val windows = layout.windows.filter { it.isVisible }
     BoxWithConstraints(modifier.fillMaxSize()) {
@@ -170,6 +177,7 @@ fun SplitContent(
                 }
             }
         }
+        bottomOverlay?.invoke(this)
     }
 }
 
