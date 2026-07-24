@@ -548,6 +548,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             // in this mode, so they never rebuild a classic split over the ComposeView.
             binding.mainBibleView.removeAllViews()
             composeReadingViewHost = ComposeReadingViewHost(this).also { it.install(binding.mainBibleView) }
+            // Batch Z-early A6: the Compose ModalNavigationDrawer replaces the native one on this
+            // path; lock the native DrawerLayout so it can be neither dragged nor opened underneath
+            // the Compose drawer. Not touched on the classic path — see the spec's
+            // flag-OFF-byte-identical constraint.
+            binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            composeReadingViewHost!!.rebuildDrawer()
         } else {
             documentViewManager.buildView()   // existing classic path — unchanged
         }
@@ -1020,11 +1026,23 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // `setupToolbarFlingDetection()`, without widening any of those private members' own
     // visibility — each wrapper just calls into the existing private logic from within this class.
 
+    /**
+     * Batch Z-early A6: on the Compose path the ☰ button toggles the Compose
+     * `ModalNavigationDrawer` (owned by [composeReadingViewHost]), not the native `DrawerLayout` —
+     * which `setupUi` locks closed on that path.
+     */
     internal fun composeToggleDrawer() {
-        if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
-            binding.drawerLayout.closeDrawers()
+        val host = composeReadingViewHost
+        if (host != null) {
+            host.toggleDrawer()
         } else {
-            binding.drawerLayout.openDrawer(GravityCompat.START)
+            // Defensive: the Compose toolbar only exists on the compose path, where the host is
+            // always installed. Keep the native behaviour as a fallback rather than no-op.
+            if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
+                binding.drawerLayout.closeDrawers()
+            } else {
+                binding.drawerLayout.openDrawer(GravityCompat.START)
+            }
         }
     }
 
@@ -1390,6 +1408,33 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     fun handleOptionsMenuItem(id: String): Boolean =
         OptionsMenuStateBuilder.dispatch(this, { resId, order -> getItemOptions(resId, order) }, id)
+
+    // ---- Compose navigation drawer bridge (Batch Z-early A6) ----
+
+    /**
+     * Mirrors the classic `rateButton.isVisible = false` guard (this file, ~452-458) — negated,
+     * because that guard states when the item is HIDDEN. Duplicating the condition rather than
+     * hoisting it: the classic guard is a build-variant check inside `onCreate`'s body, and the
+     * drawer needs it as a value. Read by
+     * [net.bible.android.view.activity.page.screen.ComposeReadingViewHost.rebuildDrawer].
+     */
+    internal val drawerRateVisible: Boolean get() = !(
+        BuildVariant.Appearance.isDiscrete ||
+            BuildVariant.DistributionChannel.isHuawei ||
+            BuildVariant.DistributionChannel.isFdroid ||
+            BuildVariant.DistributionChannel.isAmazon
+        )
+
+    /**
+     * Dispatches a click on one of the Compose drawer's rows — through the SAME
+     * [MenuCommandHandler.handleMenuRequest] the classic `NavigationView`'s
+     * `setNavigationItemSelectedListener` (`setupUi`, ~564) calls, so every row's command behaviour
+     * is classic's by construction. Closing the drawer is the Compose side's own business (the
+     * host clears its open-request before calling this), mirroring that listener's `closeDrawers()`.
+     */
+    internal fun handleDrawerItemClick(itemId: Int) {
+        mainMenuCommandHandler.handleMenuRequest(itemId)
+    }
 
     // ---- Compose per-window (☰) pane menu bridge (Batch 12b-followon Plan B Task 5) ----
     // Dispatches a click on one of `WindowPaneMenuStateBuilder.build(window)`'s rows — the
@@ -1874,6 +1919,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             navigationView.menu.findItem(R.id.searchButton).isEnabled = showSearch
             navigationView.menu.findItem(R.id.speakButton).isEnabled = showSpeak
+            // Batch Z-early A6: push the same two values into the Compose drawer. They are locals
+            // of this function, so they must be pushed from here — the host caches them for
+            // rebuilds triggered from elsewhere. No-op on the classic path (host is null there).
+            composeReadingViewHost?.rebuildDrawer(showSearch = showSearch, showSpeak = showSpeak)
         }
     }
 

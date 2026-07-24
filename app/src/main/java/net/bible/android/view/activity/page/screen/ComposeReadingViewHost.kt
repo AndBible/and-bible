@@ -21,8 +21,13 @@ import android.view.ViewGroup
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -32,11 +37,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -67,6 +74,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
@@ -80,6 +88,7 @@ import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.ai.reading.ReadingLlmService
+import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ToolbarState
@@ -103,6 +112,7 @@ import net.bible.sharedui.ai.reading.ReadingLlmDialogs
 import net.bible.sharedui.reading.BibleReferenceOverlay
 import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
 import net.bible.sharedui.reading.QuickDocMenuState
+import net.bible.sharedui.reading.ReadingDrawerContent
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
@@ -340,6 +350,54 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val bibleQuickDoc = mutableStateOf(QuickDocMenuState())
     private val commentaryQuickDoc = mutableStateOf(QuickDocMenuState())
 
+    /**
+     * The Compose navigation drawer's item list (Batch Z-early A6) — the compose-path replacement
+     * for classic's `NavigationView` over `R.menu.main_bible_drawer_menu`. Host-owned `State` for
+     * the same reactivity reason as [overflowItems] above: rebuilt by [rebuildDrawer] whenever its
+     * dynamic inputs change, and read by `mountComposeView`'s `ModalDrawerSheet`.
+     */
+    private val drawerMenu = mutableStateOf(DrawerMenuState.EMPTY)
+
+    /**
+     * The open/closed *request*. `mountComposeView` mirrors it into `ModalNavigationDrawer`'s real
+     * `DrawerState` (and back again, so a swipe/scrim close clears it) — see its `drawerOpenState`
+     * parameter. Flipped by [toggleDrawer], cleared when a row is clicked.
+     */
+    private val drawerOpen = mutableStateOf(false)
+
+    /**
+     * Last values pushed by [MainBibleActivity.updateActions]' `showSearch`/`showSpeak` locals (see
+     * [rebuildDrawer]) — cached so a rebuild triggered from anywhere else (e.g. [install]'s
+     * entry-time one, which runs before the first `updateActions()`) keeps the current enablement
+     * instead of resetting it. Both default `true`, mirroring the menu XML's own initial state.
+     */
+    private var lastShowSearch = true
+    private var lastShowSpeak = true
+
+    /**
+     * Rebuilds the drawer item list from the current dynamic flags — classic parity for
+     * `searchButton`/`speakButton` `isEnabled` ([MainBibleActivity.updateActions], ~1875-1876),
+     * `googleDriveSync` `isVisible` (`setupUi`, ~560) and `rateButton` `isVisible` (`onCreate`,
+     * ~452). Search/speak are PUSHED from `updateActions()` because they are locals there, so they
+     * default to the last pushed values (see [lastShowSearch]/[lastShowSpeak]).
+     */
+    fun rebuildDrawer(
+        showSearch: Boolean = lastShowSearch,
+        showSpeak: Boolean = lastShowSpeak,
+    ) {
+        lastShowSearch = showSearch
+        lastShowSpeak = showSpeak
+        drawerMenu.value = DrawerMenuStateBuilder.build(
+            showSearch = showSearch,
+            showSpeak = showSpeak,
+            isCloudSyncAvailable = CommonUtils.isCloudSyncAvailable,
+            isRateVisible = activity.drawerRateVisible,
+        )
+    }
+
+    /** Toggles the Compose drawer — the target of [MainBibleActivity.composeToggleDrawer]. */
+    fun toggleDrawer() { drawerOpen.value = !drawerOpen.value }
+
     init {
         ABEventBus.register(this) {
             onMain<ScreenSettings.NightModeChanged> { nightMode.value = ScreenSettings.nightMode }
@@ -566,6 +624,22 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 bibleQuickDoc.value = QuickDocMenuState()
                 commentaryQuickDoc.value = QuickDocMenuState()
             },
+            // Batch Z-early A6: the navigation drawer. Icons are resolved by drawable NAME (the
+            // `iconKey` the `:sharedCore` model carries, mirroring the menu XML's `android:icon`)
+            // through `getIdentifier` — the same "host resolves, `:sharedUi` stays Android-free"
+            // shape as `windowIcon` above, except this one must be `@Composable` because
+            // `painterResource` is only callable inside composition.
+            drawerState = drawerMenu,
+            drawerOpenState = drawerOpen,
+            drawerIcon = { key ->
+                val context = LocalContext.current
+                val resId = context.resources.getIdentifier(key, "drawable", context.packageName)
+                if (resId == 0) null else painterResource(resId)
+            },
+            // Dispatches through the SAME `MenuCommandHandler.handleMenuRequest(itemId)` the classic
+            // `NavigationView` listener calls (see `MainBibleActivity.handleDrawerItemClick`), so
+            // every row's command behaviour is classic's by construction.
+            onDrawerItemClick = { id -> activity.handleDrawerItemClick(DrawerMenuStateBuilder.resIdFor(id)) },
             pane = { windowId ->
                 val window = activity.windowRepository.getWindow(IdType(windowId))
                 if (window != null) {
@@ -708,6 +782,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             commentaryQuickDocState: State<QuickDocMenuState> = mutableStateOf(QuickDocMenuState()),
             onQuickDocSelect: (id: String) -> Unit = {},
             onQuickDocDismiss: () -> Unit = {},
+            // Batch Z-early A6: the navigation drawer. The host owns the item list and the
+            // open/closed request as `State`s (same reactivity reason as `overflowExpandedState`);
+            // `ModalNavigationDrawer`'s own `DrawerState` is created inside `setContent` and kept in
+            // sync with `drawerOpenState` both ways (a user swipe-close must clear the request, else
+            // the next `toggleDrawer()` would see a stale `true` and do nothing). `drawerIcon` is
+            // `@Composable` because the host resolves it with `painterResource` (see `install`).
+            // Defaulted (empty menu / closed / no icons / no-op click) so `ComposeReadingViewHostTest`
+            // and friends — which never open the drawer — are unaffected.
+            drawerState: State<DrawerMenuState> = mutableStateOf(DrawerMenuState.EMPTY),
+            drawerOpenState: MutableState<Boolean> = mutableStateOf(false),
+            drawerIcon: @Composable (iconKey: String) -> Painter? = { null },
+            onDrawerItemClick: (id: String) -> Unit = {},
             pane: @Composable (windowId: String) -> Unit,
             // Host-supplied per-window label/icon for the restore rail (Task 7) — plain,
             // non-`@Composable` lambdas, matching `WindowTabBar`'s `windowLabel`/`windowIcon`
@@ -835,71 +921,111 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             // collapse toggle).
                             val hideTabBarInFullScreen = fullScreen &&
                                 CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)
-                            // Keying the whole screen on `gen` forces every pane's `AndroidView`
-                            // factory to re-run on `rebuild()` — see the `generation` kdoc above.
-                            key(gen) {
-                                ReadingViewScreen(
-                                    layout = layout,
-                                    toolbar = toolbarState,
-                                    toolbarIcons = readingToolbarIcons(),
-                                    toolbarCallbacks = toolbarCallbacks,
-                                    fullScreen = fullScreen,
-                                    onWindowActivated = controller::onWindowActivated,
-                                    onSeparatorCommitted = controller::onSeparatorCommitted,
-                                    pane = pane,
-                                    overflowItems = overflowItems,
-                                    overflowExpanded = overflowExpanded,
-                                    onOverflowItemClick = onOverflowItemClick,
-                                    onOverflowDismiss = onOverflowDismiss,
-                                    bibleQuickDoc = bibleQuickDoc,
-                                    commentaryQuickDoc = commentaryQuickDoc,
-                                    onQuickDocSelect = onQuickDocSelect,
-                                    onQuickDocDismiss = onQuickDocDismiss,
-                                    paneOverlay = { windowId ->
-                                        val window = layout.windows.firstOrNull { it.id == windowId }
-                                        PaneWindowButtonOverlay(
-                                            windowId = windowId,
-                                            window = window,
-                                            isActive = windowId == layout.activeWindowId,
-                                            showButton = showPaneButtons,
-                                            paneMenuWindowId = paneMenuWindowId,
-                                            paneMenuItems = paneMenuItems,
-                                            controller = controller,
-                                            onOpenPaneMenu = onOpenPaneMenu,
-                                            onPaneMenuItemClick = onPaneMenuItemClick,
-                                            onPaneMenuDismiss = onPaneMenuDismiss,
+                            // Batch Z-early A6: the Compose navigation drawer. The wrap sits OUTSIDE
+                            // `key(gen)`/`ReadingViewScreen` — never inside either — so (a) a
+                            // `rebuild()` generation bump disposes only the pane subtree and not the
+                            // drawer's own `DrawerState`, and (b) opening/closing the drawer cannot
+                            // re-key or re-parent any pane's `AndroidView`, which would destroy and
+                            // recreate every `BibleView` WebView. Same "add as an outer/sibling slot,
+                            // never inside the pane subtree" rule the 12e agent-log and 12f speak-bar
+                            // slots follow.
+                            val md3DrawerState = rememberDrawerState(DrawerValue.Closed)
+
+                            // Host request -> drawer.
+                            LaunchedEffect(drawerOpenState.value) {
+                                if (drawerOpenState.value) md3DrawerState.open() else md3DrawerState.close()
+                            }
+                            // Drawer -> host request (a swipe/scrim close must clear it, else the next
+                            // `toggleDrawer()` would see a stale `true` and do nothing). `snapshotFlow`
+                            // only emits on a CHANGE, so the `open()` above is never undone by a
+                            // re-emitted `closed = true` while the open animation is still running.
+                            LaunchedEffect(md3DrawerState) {
+                                snapshotFlow { md3DrawerState.isClosed }
+                                    .collect { closed -> if (closed) drawerOpenState.value = false }
+                            }
+
+                            ModalNavigationDrawer(
+                                drawerState = md3DrawerState,
+                                gesturesEnabled = !fullScreen,
+                                drawerContent = {
+                                    ModalDrawerSheet {
+                                        ReadingDrawerContent(
+                                            state = drawerState.value,
+                                            icon = drawerIcon,
+                                            onItemClick = { id ->
+                                                drawerOpenState.value = false
+                                                onDrawerItemClick(id)
+                                            },
                                         )
-                                    },
-                                    agentLog = agentLogSlot,
-                                    speakBar = speakBarSlot,
-                                    bottomOverlay = { BibleReferenceOverlay(visible = overlayVisible, text = overlayText) },
-                                    tabBar = if (hideTabBarInFullScreen) null else {
-                                        {
-                                            WindowTabBar(
-                                                model = tabBarModel,
-                                                onRestore = controller::onRestore,
-                                                // Plan B Task 5: a rail long-press now opens the SAME
-                                                // per-window ☰ menu as tapping the floating pane button.
-                                                // Final-review fix: activate the window first, mirroring
-                                                // classic `SplitBibleArea.showPopupMenu`'s
-                                                // `if (window.isVisible) windowControl.activeWindow = window`
-                                                // and the floating ☰ button's own gestures (both of which
-                                                // activate before opening the menu).
-                                                onWindowLongPress = { id ->
-                                                    controller.onWindowActivated(id)
-                                                    onOpenPaneMenu(id)
-                                                },
-                                                onAddWindow = { controller.onAddWindow(layout.activeWindowId) },
-                                                onUnMaximise = controller::onUnMaximise,
-                                                onToggleCollapse = {
-                                                    controller.onSetRestoreButtonsVisible(!layout.restoreButtonsVisible)
-                                                },
-                                                windowLabel = windowLabel,
-                                                windowIcon = windowIcon,
+                                    }
+                                },
+                            ) {
+                                // Keying the whole screen on `gen` forces every pane's `AndroidView`
+                                // factory to re-run on `rebuild()` — see the `generation` kdoc above.
+                                key(gen) {
+                                    ReadingViewScreen(
+                                        layout = layout,
+                                        toolbar = toolbarState,
+                                        toolbarIcons = readingToolbarIcons(),
+                                        toolbarCallbacks = toolbarCallbacks,
+                                        fullScreen = fullScreen,
+                                        onWindowActivated = controller::onWindowActivated,
+                                        onSeparatorCommitted = controller::onSeparatorCommitted,
+                                        pane = pane,
+                                        overflowItems = overflowItems,
+                                        overflowExpanded = overflowExpanded,
+                                        onOverflowItemClick = onOverflowItemClick,
+                                        onOverflowDismiss = onOverflowDismiss,
+                                        bibleQuickDoc = bibleQuickDoc,
+                                        commentaryQuickDoc = commentaryQuickDoc,
+                                        onQuickDocSelect = onQuickDocSelect,
+                                        onQuickDocDismiss = onQuickDocDismiss,
+                                        paneOverlay = { windowId ->
+                                            val window = layout.windows.firstOrNull { it.id == windowId }
+                                            PaneWindowButtonOverlay(
+                                                windowId = windowId,
+                                                window = window,
+                                                isActive = windowId == layout.activeWindowId,
+                                                showButton = showPaneButtons,
+                                                paneMenuWindowId = paneMenuWindowId,
+                                                paneMenuItems = paneMenuItems,
+                                                controller = controller,
+                                                onOpenPaneMenu = onOpenPaneMenu,
+                                                onPaneMenuItemClick = onPaneMenuItemClick,
+                                                onPaneMenuDismiss = onPaneMenuDismiss,
                                             )
-                                        }
-                                    },
-                                )
+                                        },
+                                        agentLog = agentLogSlot,
+                                        speakBar = speakBarSlot,
+                                        bottomOverlay = { BibleReferenceOverlay(visible = overlayVisible, text = overlayText) },
+                                        tabBar = if (hideTabBarInFullScreen) null else {
+                                            {
+                                                WindowTabBar(
+                                                    model = tabBarModel,
+                                                    onRestore = controller::onRestore,
+                                                    // Plan B Task 5: a rail long-press now opens the SAME
+                                                    // per-window ☰ menu as tapping the floating pane button.
+                                                    // Final-review fix: activate the window first, mirroring
+                                                    // classic `SplitBibleArea.showPopupMenu`'s
+                                                    // `if (window.isVisible) windowControl.activeWindow = window`
+                                                    // and the floating ☰ button's own gestures (both of which
+                                                    // activate before opening the menu).
+                                                    onWindowLongPress = { id ->
+                                                        controller.onWindowActivated(id)
+                                                        onOpenPaneMenu(id)
+                                                    },
+                                                    onAddWindow = { controller.onAddWindow(layout.activeWindowId) },
+                                                    onUnMaximise = controller::onUnMaximise,
+                                                    onToggleCollapse = {
+                                                        controller.onSetRestoreButtonsVisible(!layout.restoreButtonsVisible)
+                                                    },
+                                                    windowLabel = windowLabel,
+                                                    windowIcon = windowIcon,
+                                                )
+                                            }
+                                        },
+                                    )
+                                }
                             }
                             // Sibling of `ReadingViewScreen` (not nested inside `key(gen)`, which
                             // only needs to scope the panes' `AndroidView` factories) — an
