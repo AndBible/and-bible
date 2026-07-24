@@ -49,6 +49,10 @@ import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
+import net.bible.android.view.activity.download.CustomRepositories
+import net.bible.android.view.activity.download.CustomRepositoriesComposeActivity
+import net.bible.android.view.activity.download.CustomRepositoryEditor
+import net.bible.android.view.activity.download.CustomRepositoryEditorComposeActivity
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
 import net.bible.android.view.activity.download.FirstDownload
@@ -473,5 +477,21 @@ class ScreenLauncherTest {
         assertEquals(TextDisplaySettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.TextDisplaySettings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(TextDisplaySettingsActivity::class.java, ScreenLauncher.targetFor(Screen.TextDisplaySettings))
+    }
+
+    @Test
+    fun customRepositories_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(CustomRepositoriesComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CustomRepositories))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(CustomRepositories::class.java, ScreenLauncher.targetFor(Screen.CustomRepositories))
+    }
+
+    @Test
+    fun customRepositoryEditor_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(CustomRepositoryEditorComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CustomRepositoryEditor))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(CustomRepositoryEditor::class.java, ScreenLauncher.targetFor(Screen.CustomRepositoryEditor))
     }
 }

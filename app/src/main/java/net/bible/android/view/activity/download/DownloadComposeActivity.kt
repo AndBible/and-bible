@@ -17,7 +17,6 @@
 package net.bible.android.view.activity.download
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
@@ -820,7 +819,7 @@ open class DownloadComposeActivity : ActivityBase() {
     }
 
     private fun onCustomRepositories() {
-        val intent = Intent(this, CustomRepositories::class.java)
+        val intent = ScreenLauncher.intentFor(this, Screen.CustomRepositories)
         lifecycleScope.launch {
             awaitIntent(intent)
             loadDocuments(true)

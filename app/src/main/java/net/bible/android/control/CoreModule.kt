@@ -6,6 +6,8 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.download.DownloadQueue
+import net.bible.service.download.CustomRepositoryServiceImpl
+import net.bible.sharedcore.download.CustomRepositoryService
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.navigation.NavigationControl
@@ -90,6 +92,7 @@ val coreModule = module {
     singleOf(::AndroidResourceProvider) { bind<ResourceProvider>() }
     // DownloadControl (was ApplicationModule.provideDownloadControl)
     single { DownloadControl(DownloadQueue()) }
+    singleOf(::CustomRepositoryServiceImpl) { bind<CustomRepositoryService>() }
 
     // @ApplicationScope singletons
     singleOf(::BibleTraverser)
