@@ -313,6 +313,11 @@ android {
             isIncludeAndroidResources = true
             all {
                 test ->
+                  // The forked unit-test JVM has no explicit heap by default (independent of the
+                  // Gradle daemon's -Xmx4g and of container RAM). Running the whole Roborazzi golden
+                  // suite (hundreds of bitmaps loaded/compared) together with the full :app unit suite
+                  // in one fork can OOM near the edge. Give the fork a real heap; the container has 32 GiB.
+                  test.maxHeapSize = "4g"
                   test.testLogging {
                     events("passed", "skipped", "failed")
                     setExceptionFormat("full")
