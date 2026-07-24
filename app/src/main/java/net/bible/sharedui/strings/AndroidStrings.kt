@@ -546,4 +546,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val resetDatabasesDescription: String get() = context.getString(R.string.reset_databases_description)
     override fun resetSomething(name: String): String = context.getString(R.string.reset_something, name)
     override val lastCrashInfoTitle: String get() = context.getString(R.string.last_crash_info_title)
+
+    // Batch 13 T7 — ProgressStatusComposeActivity
+    override val taskKillWarning: String get() = context.getString(R.string.task_kill_warning)
 }

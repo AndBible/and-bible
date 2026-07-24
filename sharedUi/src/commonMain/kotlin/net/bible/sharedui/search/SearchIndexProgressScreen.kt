@@ -43,13 +43,18 @@ fun SearchIndexProgressScreen(
     error: SearchIndexError?,
     onHide: () -> Unit,
     onDismissError: () -> Unit,
+    // Batch 13 T7: ProgressStatusComposeActivity (the generic download-progress screen) reuses this
+    // composable with classic ProgressStatus's own copy (task-kill warning / "OK") instead of the
+    // search-index wording. Defaults preserve the original SearchIndexProgress* call sites verbatim.
+    message: String = LocalStrings.current.indexingWaitMsg,
+    buttonLabel: String = LocalStrings.current.doInBackground,
 ) {
     val strings = LocalStrings.current
     AbScaffold(title = title) { padding ->
         Column(
             modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()),
         ) {
-            Text(text = strings.indexingWaitMsg)
+            Text(text = message)
             if (noTasks) {
                 Text(text = strings.noTasksRunning)
             }
@@ -57,7 +62,7 @@ fun SearchIndexProgressScreen(
                 ProgressRow(label = job.label, percent = job.percent, indeterminate = job.indeterminate)
             }
             Button(onClick = onHide, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
-                Text(text = strings.doInBackground)
+                Text(text = buttonLabel)
             }
         }
     }

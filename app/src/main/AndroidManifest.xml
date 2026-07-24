@@ -656,6 +656,12 @@
             android:label="@string/progress_status"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
+            android:name="net.bible.android.view.activity.download.ProgressStatusComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/progress_status"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+        <activity
             android:name="net.bible.android.view.activity.installzip.InstallZip"
             android:label="@string/install_zip_module"
             android:screenOrientation="portrait"

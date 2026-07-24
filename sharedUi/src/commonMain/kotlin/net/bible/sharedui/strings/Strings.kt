@@ -572,6 +572,9 @@ interface Strings {
     val resetDatabasesDescription: String    // R.string.reset_databases_description
     fun resetSomething(name: String): String // R.string.reset_something (%1$s -- per-db reset button label)
     val lastCrashInfoTitle: String           // R.string.last_crash_info_title
+
+    // Batch 13 T7 — ProgressStatusComposeActivity (generic download-progress screen)
+    val taskKillWarning: String              // R.string.task_kill_warning (top message; classic ProgressStatus's copy, distinct from indexingWaitMsg)
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

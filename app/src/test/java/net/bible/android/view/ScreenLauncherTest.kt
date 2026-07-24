@@ -58,6 +58,8 @@ import net.bible.android.view.activity.download.CustomRepositoryEditorComposeAct
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
 import net.bible.android.view.activity.download.FirstDownload
+import net.bible.android.view.activity.download.ProgressStatus
+import net.bible.android.view.activity.download.ProgressStatusComposeActivity
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
@@ -503,5 +505,13 @@ class ScreenLauncherTest {
         assertEquals(BackupComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Backup))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(BackupActivity::class.java, ScreenLauncher.targetFor(Screen.Backup))
+    }
+
+    @Test
+    fun progressStatus_routes_by_flag() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(ProgressStatusComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ProgressStatus))
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertEquals(ProgressStatus::class.java, ScreenLauncher.targetFor(Screen.ProgressStatus))
     }
 }
