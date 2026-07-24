@@ -82,6 +82,10 @@ import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.reading.paneButtonDragAction
+import net.bible.sharedcore.speak.SpeakSettingsService
+import net.bible.sharedcore.speak.SpeakTransportController
+import net.bible.sharedcore.speak.SpeakTransportDialog
+import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedcore.window.WindowLayoutState
@@ -92,9 +96,11 @@ import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
+import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
+import net.bible.sharedui.reading.SpeakTransportBar
 import net.bible.sharedui.reading.WindowButton
 import net.bible.sharedui.reading.WindowButtonMode
 import net.bible.sharedui.reading.WindowPaneMenu
@@ -186,6 +192,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val toolbarStateService: ToolbarStateService by inject()
     private val readingLlmService: ReadingLlmService by inject()
     private val agentSessionService: AgentSessionService by inject()
+    private val speakTransportService: SpeakTransportService by inject()
+    private val speakSettingsService: SpeakSettingsService by inject()
 
     /** Owns [readingLlmDialogs]' coroutine work (dialog open/execute/dismiss). Cancelled in
      *  [dispose] — one host per activity (re-)creation, mirroring the [ABEventBus] registration
@@ -220,6 +228,23 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             }
             activity.startActivity(intent)
         },
+    )
+
+    /**
+     * State holder for the reading-view Speak transport bar (Batch 12f Task 6) — the compose-path
+     * counterpart of classic `SpeakTransportWidget`. Not `private`, mirroring [readingLlmDialogs]/
+     * [agentLog] above, for the same test-visibility reason. Visibility flows entirely from
+     * [speakTransportService] (bridged from [MainBibleActivity.transportBarVisible] via
+     * `SpeakTransportVisibilityChanged`), NOT from a host-owned flag — see [onConfig] below, which
+     * is the only host-supplied seam (launches [Screen.BibleSpeak], mirroring the classic bar's
+     * settings-cog button). Rendered by [mountComposeView] (see [install]) as `ReadingViewScreen`'s
+     * `speakBar` slot (Task 5).
+     */
+    val speakTransport = SpeakTransportController(
+        speakTransportService,
+        speakSettingsService,
+        hostScope,
+        onConfig = { activity.startActivity(ScreenLauncher.intentFor(activity, Screen.BibleSpeak)) },
     )
 
     private val generation = ComposeReadingViewGeneration()
@@ -504,6 +529,30 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     onRawLogClick = agentLog::onRawLogClick,
                 )
             },
+            // Batch 12f Task 6: the Speak transport bar, pre-built here (closing over the live
+            // `speakTransport` controller) exactly the same pass-through shape as `agentLogSlot`
+            // above — `install` already owns it, so it's threaded straight through
+            // `mountComposeView` rather than rebuilt from raw state.
+            speakBarSlot = {
+                val speakState by speakTransport.state.collectAsState()
+                if (speakState.visible) {
+                    SpeakTransportBar(
+                        speakState,
+                        onPlayPause = { speakTransport.togglePlayPause() },
+                        onStop = { speakTransport.stop() },
+                        onRewind = { speakTransport.rewind() },
+                        onForward = { speakTransport.forward() },
+                        onPrev = { speakTransport.prevVerse() },
+                        onNext = { speakTransport.nextVerse() },
+                        onBookmark = { speakTransport.onBookmarkButton() },
+                        onConfig = { speakTransport.onConfig() },
+                        onSpeed = { speakTransport.setSpeed(it) },
+                    )
+                }
+            },
+            speakDialogState = speakTransport.dialog,
+            onSpeakBookmarkChosen = speakTransport::onSpeakBookmarkChosen,
+            onSpeakDialogDismiss = speakTransport::dismissDialog,
             llmDialogState = readingLlmDialogs.state,
             onLlmPromptChosen = readingLlmDialogs::onPromptChosen,
             onLlmToggleFavorite = readingLlmDialogs::onToggleFavorite,
@@ -605,6 +654,19 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // Defaulted to an inert no-op composable so `ComposeReadingViewHostTest`/
             // `ReadingLlmHostTest` (which never render an agent-log panel) are unaffected.
             agentLogSlot: (@Composable () -> Unit)? = { },
+            // Batch 12f Task 6 additions: the reading-view Speak transport bar. `speakBarSlot` is a
+            // pre-built `@Composable` lambda (same pass-through shape as `agentLogSlot` right
+            // above — [ComposeReadingViewHost.install] already owns the live `speakTransport`
+            // controller and closes over it directly). The bookmark-chooser dialog instead mirrors
+            // the LLM-dialog shape (raw `StateFlow` + individual callbacks, assembled into a
+            // concrete composable inside this function's body) since — like `ReadingLlmDialogs` —
+            // it's rendered as a sibling overlay of `ReadingViewScreen`, not inside a slot. Defaulted
+            // to inert no-ops so `ComposeReadingViewHostTest` (which never renders the bar/dialog)
+            // is unaffected.
+            speakBarSlot: (@Composable () -> Unit)? = { },
+            speakDialogState: StateFlow<SpeakTransportDialog> = MutableStateFlow<SpeakTransportDialog>(SpeakTransportDialog.None).asStateFlow(),
+            onSpeakBookmarkChosen: (id: String) -> Unit = {},
+            onSpeakDialogDismiss: () -> Unit = {},
         ) {
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
@@ -692,6 +754,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                         )
                                     },
                                     agentLog = agentLogSlot,
+                                    speakBar = speakBarSlot,
                                     tabBar = if (hideTabBarInFullScreen) null else {
                                         {
                                             WindowTabBar(
@@ -735,6 +798,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                 onRegenerateConfirmed = onLlmRegenerateConfirmed,
                                 onDismiss = onLlmDismiss,
                             )
+                            // Sibling overlay next to `ReadingLlmDialogs` above (same reasoning:
+                            // not nested inside `key(gen)`, at most one non-`None` dialog at a
+                            // time) — the Batch 12f speak-from-bookmark chooser.
+                            val speakDialog by speakDialogState.collectAsState()
+                            (speakDialog as? SpeakTransportDialog.ChooseSpeakBookmark)?.let { d ->
+                                ChooseSpeakBookmarkDialog(
+                                    rows = d.rows,
+                                    onChoose = onSpeakBookmarkChosen,
+                                    onDismiss = onSpeakDialogDismiss,
+                                )
+                            }
                         }
                     }
                 }
