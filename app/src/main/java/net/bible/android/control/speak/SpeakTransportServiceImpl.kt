@@ -65,6 +65,14 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
     /** Cached id → bookmark for [speakFromBookmark]; refreshed by [speakBookmarks]. */
     private var bookmarkCache: Map<String, BookmarkEntities.BaseBookmarkWithNotes> = emptyMap()
 
+    /**
+     * Cached bookmark-button visibility. Classic [SpeakTransportWidget] only recomputes this on
+     * attach + [SpeakSettingsChangedEvent] (`resetView`, :216-227) — never on the plain
+     * [SpeakEvent]/[SpeakProgressEvent] handlers that fire on every verse transition. Mirror that:
+     * recompute only here (init) and in the [SpeakSettingsChangedEvent] handler below, not in [build].
+     */
+    private var bookmarkVisible: Boolean = rawSpeakBookmarks().isNotEmpty()
+
     private val _state = MutableStateFlow(build(visible = !speakControl.isStopped))
     override val state: StateFlow<SpeakTransportStateVd> = _state.asStateFlow()
 
@@ -72,7 +80,10 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
         ABEventBus.register(this) {
             onMain<SpeakEvent> { refresh() }
             onMain<SpeakProgressEvent> { refresh() }
-            onMain<SpeakSettingsChangedEvent> { refresh() }
+            onMain<SpeakSettingsChangedEvent> {
+                bookmarkVisible = rawSpeakBookmarks().isNotEmpty()
+                refresh()
+            }
             onMain<SpeakTransportWidget.HideTransportEvent> { _state.value = _state.value.copy(visible = false) }
             onMain<SpeakTransportVisibilityChanged> { ev ->
                 _state.value = build(visible = ev.value)
@@ -88,7 +99,7 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
         paused = speakControl.isPaused,
         stopped = speakControl.isStopped,
         statusText = speakControl.getStatusText(FLAG_SHOW_ALL),
-        bookmarkButtonVisible = rawSpeakBookmarks().isNotEmpty(),
+        bookmarkButtonVisible = bookmarkVisible,
     )
 
     // Classic SpeakTransportWidget.speakBookmarks (:179-184)
