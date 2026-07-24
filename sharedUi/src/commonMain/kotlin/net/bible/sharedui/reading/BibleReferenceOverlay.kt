@@ -18,8 +18,10 @@
 package net.bible.sharedui.reading
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import net.bible.sharedui.theme.LocalDisableAnimations
 
 /** Classic `bible_ref_overlay_offset` = 80dip (`res/values/dimens.xml`). */
 private val OverlayBottomOffset = 80.dp
@@ -45,15 +48,18 @@ private val OverlayBottomOffset = 80.dp
  * [visible]. Styling borrows iOS's `ultraThinMaterial` capsule (translucent surface + hairline
  * outline); theme-role colours so BW/e-ink degrade. [text] is `abbr:reference` (Android-faithful).
  *
- * The fade honours `AbTheme`'s disable-animations flag automatically: under `LocalInspectionMode`
- * (Roborazzi/preview) `AnimatedVisibility` renders the final (visible) frame, so goldens are stable.
+ * The fade reads [LocalDisableAnimations] (provided by `AbTheme` from `CommonUtils.settings
+ * .disableAnimations`) and uses a 0ms fade when animations are disabled, instead of the normal
+ * 220ms. Under `LocalInspectionMode` (Roborazzi/preview) `AnimatedVisibility` renders the final
+ * (visible) frame regardless of duration, so goldens are stable either way.
  */
 @Composable
 fun BoxScope.BibleReferenceOverlay(visible: Boolean, text: String, modifier: Modifier = Modifier) {
+    val disableAnim = LocalDisableAnimations.current
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(),
-        exit = fadeOut(),
+        enter = fadeIn(animationSpec = tween(durationMillis = if (disableAnim) 0 else 220)),
+        exit = fadeOut(animationSpec = tween(durationMillis = if (disableAnim) 0 else 220)),
         modifier = modifier.align(Alignment.BottomCenter).padding(bottom = OverlayBottomOffset),
     ) {
         Surface(
@@ -61,6 +67,7 @@ fun BoxScope.BibleReferenceOverlay(visible: Boolean, text: String, modifier: Mod
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.87f),
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             tonalElevation = 3.dp,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         ) {
             Text(
                 text = text,
