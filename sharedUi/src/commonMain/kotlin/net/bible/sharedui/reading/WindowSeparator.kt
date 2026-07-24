@@ -47,8 +47,15 @@ import androidx.compose.ui.unit.dp
  * The draggable gesture is attached to the FULL [modifier] bounds — a fat invisible touch
  * target (the caller sizes those bounds generously, e.g. `thickness` plus ~20dp of margin on
  * each side, per the design spec) — while only a thin [thickness] bar, centered within those
- * bounds, is actually painted (in the theme's outline color). This makes the divider easy to
- * grab with a finger without widening the visible seam between panes.
+ * bounds, is actually painted. This makes the divider easy to grab with a finger without
+ * widening the visible seam between panes.
+ *
+ * Three visual states, matching classic `Separator.kt`'s `separator`/`separator_active`/
+ * `separator_drag` drawables, remapped to M3 theme roles so BW/COLOR_EINK degrade automatically
+ * (`AbTheme`'s `displayColorMode`) instead of needing dedicated drawables per mode: idle (neither
+ * [isActive] nor [isDragging]) paints `outlineVariant`, [isActive] (this separator is adjacent to
+ * the active window — see `:sharedCore`'s `separatorIsActive`) paints `primary`, and [isDragging]
+ * (this separator is currently being dragged) paints `tertiary` and takes priority over [isActive].
  */
 @Composable
 fun WindowSeparator(
@@ -57,10 +64,17 @@ fun WindowSeparator(
     onDragEnd: () -> Unit,
     modifier: Modifier = Modifier,
     thickness: Dp = 4.dp,
+    isActive: Boolean = false,
+    isDragging: Boolean = false,
 ) {
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
     val barModifier = if (isVertical) Modifier.fillMaxWidth().height(thickness)
                        else Modifier.fillMaxHeight().width(thickness)
+    val barColor = when {
+        isDragging -> MaterialTheme.colorScheme.tertiary
+        isActive -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.outlineVariant
+    }
     Box(
         modifier = modifier
             .draggable(
@@ -70,6 +84,6 @@ fun WindowSeparator(
             ),
         contentAlignment = Alignment.Center,
     ) {
-        Box(barModifier.background(MaterialTheme.colorScheme.outlineVariant))
+        Box(barModifier.background(barColor))
     }
 }

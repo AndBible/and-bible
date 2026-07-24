@@ -43,6 +43,7 @@ import net.bible.sharedcore.window.WindowLayoutState
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.effectiveWeights
 import net.bible.sharedcore.window.separatorDrag
+import net.bible.sharedcore.window.separatorIsActive
 
 /** Comfortable fixed cross-axis touch target for the drag handle; the visible bar stays thin (see [WindowSeparator]). */
 private val SEPARATOR_GRAB_SIZE = 16.dp
@@ -140,6 +141,8 @@ fun SplitContent(
                             weights = weights,
                             index = index,
                             isVertical = false,
+                            isActive = separatorIsActive(layout.activeWindowId, windows[index].id, windows[index + 1].id),
+                            isDragging = drag?.index == index,
                             averageExtentPx = { maxWidthPx / windows.size },
                             onDragChange = { drag = it },
                             onSeparatorCommitted = onSeparatorCommitted,
@@ -168,6 +171,8 @@ fun SplitContent(
                             weights = weights,
                             index = index,
                             isVertical = true,
+                            isActive = separatorIsActive(layout.activeWindowId, windows[index].id, windows[index + 1].id),
+                            isDragging = drag?.index == index,
                             averageExtentPx = { maxHeightPx / windows.size },
                             onDragChange = { drag = it },
                             onSeparatorCommitted = onSeparatorCommitted,
@@ -189,6 +194,9 @@ fun SplitContent(
  * `weights[index + 1]` are the start weights for this drag: stable for its whole duration, since the
  * model (and therefore `weights`, recomputed from [layout]) only changes once [onSeparatorCommitted]
  * fires. On drag end, commits the last live pair and clears the live override (`onDragChange(null)`).
+ *
+ * [isActive]/[isDragging] are computed by the caller (`separatorIsActive` / `drag?.index == index`)
+ * and simply forwarded to [WindowSeparator] for its three-state colour (see its kdoc).
  */
 @Composable
 private fun Separator(
@@ -196,6 +204,8 @@ private fun Separator(
     weights: List<Float>,
     index: Int,
     isVertical: Boolean,
+    isActive: Boolean,
+    isDragging: Boolean,
     averageExtentPx: () -> Float,
     onDragChange: (ActiveDrag?) -> Unit,
     onSeparatorCommitted: (id1: String, w1: Float, id2: String, w2: Float) -> Unit,
@@ -206,6 +216,8 @@ private fun Separator(
     val startWeight2 = weights[index + 1]
     WindowSeparator(
         isVertical = isVertical,
+        isActive = isActive,
+        isDragging = isDragging,
         onDragBy = { delta ->
             accumulated += delta
             val live = separatorDrag(accumulated, averageExtentPx(), startWeight1, startWeight2)

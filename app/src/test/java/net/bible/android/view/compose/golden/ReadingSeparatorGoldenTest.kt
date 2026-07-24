@@ -33,4 +33,23 @@ class ReadingSeparatorGoldenTest {
             }
         }
     }
+
+    // isActive=true: this separator is adjacent to the active window (primary theme role).
+    @Test fun activeBar() {
+        captureMatrix("ReadingSeparator", "activeBar") {
+            Box(Modifier.width(60.dp).height(200.dp)) {
+                WindowSeparator(isVertical = false, onDragBy = {}, onDragEnd = {}, isActive = true, modifier = Modifier.fillMaxSize())
+            }
+        }
+    }
+
+    // isDragging=true: this separator is currently being dragged (tertiary theme role, takes
+    // priority over isActive — see WindowSeparator's kdoc).
+    @Test fun dragBar() {
+        captureMatrix("ReadingSeparator", "dragBar") {
+            Box(Modifier.width(60.dp).height(200.dp)) {
+                WindowSeparator(isVertical = false, onDragBy = {}, onDragEnd = {}, isDragging = true, modifier = Modifier.fillMaxSize())
+            }
+        }
+    }
 }
