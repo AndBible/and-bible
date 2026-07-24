@@ -575,6 +575,16 @@ interface Strings {
 
     // Batch 13 T7 — ProgressStatusComposeActivity (generic download-progress screen)
     val taskKillWarning: String              // R.string.task_kill_warning (top message; classic ProgressStatus's copy, distinct from indexingWaitMsg)
+
+    // --- Agent permissions (Batch Z-early) ---
+    val agentPermissionTitle: String                        // R.string.agent_permission_title (dialog title)
+    fun agentPermissionMessageWithAction(action: String): String  // R.string.agent_permission_message_with_action (%1$s)
+    fun agentPermissionMessage(toolName: String, toolDescription: String): String  // R.string.agent_permission_message (%1$s, %2$s)
+    val permissionAllowOnce: String                         // R.string.permission_allow_once
+    val permissionAllowForSession: String                   // R.string.permission_allow_for_session
+    val permissionAllowAllSession: String                   // R.string.permission_allow_all_session
+    fun permissionAllowAlways(toolName: String): String     // R.string.permission_allow_always (%1$s)
+    val permissionDeny: String                              // R.string.permission_deny
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

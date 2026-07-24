@@ -549,4 +549,17 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Batch 13 T7 — ProgressStatusComposeActivity
     override val taskKillWarning: String get() = context.getString(R.string.task_kill_warning)
+
+    // --- Agent permissions (Batch Z-early) ---
+    override val agentPermissionTitle: String get() = context.getString(R.string.agent_permission_title)
+    override fun agentPermissionMessageWithAction(action: String): String =
+        context.getString(R.string.agent_permission_message_with_action, action)
+    override fun agentPermissionMessage(toolName: String, toolDescription: String): String =
+        context.getString(R.string.agent_permission_message, toolName, toolDescription)
+    override val permissionAllowOnce: String get() = context.getString(R.string.permission_allow_once)
+    override val permissionAllowForSession: String get() = context.getString(R.string.permission_allow_for_session)
+    override val permissionAllowAllSession: String get() = context.getString(R.string.permission_allow_all_session)
+    override fun permissionAllowAlways(toolName: String): String =
+        context.getString(R.string.permission_allow_always, toolName)
+    override val permissionDeny: String get() = context.getString(R.string.permission_deny)
 }
