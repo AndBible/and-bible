@@ -37,6 +37,7 @@ import net.bible.sharedcore.ai.reading.AgentLogUiState
 import net.bible.sharedcore.ai.reading.LogEntryKind
 import net.bible.sharedcore.ai.reading.LogEntryStatus
 import net.bible.sharedcore.reading.ToolbarState
+import net.bible.sharedcore.speak.SpeakTransportVd
 import net.bible.sharedcore.window.WindowLayoutState
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateValue
@@ -44,6 +45,7 @@ import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
+import net.bible.sharedui.reading.SpeakTransportBar
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -121,6 +123,7 @@ class ReadingViewScreenGoldenTest {
         fullScreen: Boolean,
         tabBar: (@Composable () -> Unit)? = null,
         agentLog: (@Composable () -> Unit)? = null,
+        speakBar: (@Composable () -> Unit)? = null,
     ): @Composable () -> Unit = {
         ReadingViewScreen(
             layout = layout,
@@ -133,6 +136,7 @@ class ReadingViewScreenGoldenTest {
             pane = pane,
             tabBar = tabBar,
             agentLog = agentLog,
+            speakBar = speakBar,
         )
     }
 
@@ -187,6 +191,30 @@ class ReadingViewScreenGoldenTest {
             fullScreen = false,
             tabBar = {
                 Box(Modifier.fillMaxWidth().height(48.dp).background(MaterialTheme.colorScheme.secondaryContainer)) {}
+            },
+        ),
+    )
+
+    // Covers the speakBar slot (Batch 12f Task 5): rendered between agentLog and tabBar only when
+    // non-null. Uses the real SpeakTransportBar (its own full mode/RTL matrix is Task 6's golden
+    // test) with a representative playing state, just to prove the slot stacks correctly here.
+    private val speakTransportPlaying = SpeakTransportVd(
+        visible = true, playing = true, stopped = false, statusText = "Reading John 3",
+        speedPercent = 150, bookmarkButtonVisible = true,
+    )
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withSpeakBar() = captureMatrix(
+        "ReadingViewScreen", "withSpeakBar", heightDp = 640,
+        content = screen(
+            fullScreen = false,
+            speakBar = {
+                SpeakTransportBar(
+                    speakTransportPlaying,
+                    onPlayPause = {}, onStop = {}, onRewind = {}, onForward = {},
+                    onPrev = {}, onNext = {}, onBookmark = {}, onConfig = {}, onSpeed = {},
+                )
             },
         ),
     )
