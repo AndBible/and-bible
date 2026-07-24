@@ -39,6 +39,8 @@ import net.bible.android.view.activity.ai.RawLogHistoryActivity
 import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
 import net.bible.android.view.activity.ai.ToolInfoActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
+import net.bible.android.control.backup.BackupActivity
+import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
 import net.bible.android.view.activity.bookmark.LabelEditActivity
@@ -111,7 +113,7 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivi
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup }
 
 /**
  * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
@@ -262,6 +264,9 @@ object ScreenLauncher {
         Screen.CustomRepositoryEditor ->
             if (useComposeFor(screen)) CustomRepositoryEditorComposeActivity::class.java
             else CustomRepositoryEditor::class.java
+        Screen.Backup ->
+            if (useComposeFor(screen)) BackupComposeActivity::class.java
+            else BackupActivity::class.java
     }
 
     /**

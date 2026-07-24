@@ -934,8 +934,12 @@ object BackupControl {
         }
 
     suspend fun backupPopup(activity: ActivityBase) {
-        val intent = Intent(activity, BackupActivity::class.java)
-        activity.awaitIntent(intent)
+        if (CommonUtils.settings.getBoolean("use_compose_ui", false)) {
+            activity.awaitIntent(ScreenLauncher.intentFor(activity, Screen.Backup))
+        } else {
+            val intent = Intent(activity, BackupActivity::class.java)
+            activity.awaitIntent(intent)
+        }
     }
 
     // Tracks SharedConstants.modulesDir live rather than capturing it once at object load, so
