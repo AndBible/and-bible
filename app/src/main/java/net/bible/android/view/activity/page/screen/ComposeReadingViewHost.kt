@@ -338,7 +338,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // fullscreen/night-mode event-mirror idiom: the overlay is just one string + two
             // booleans, kept as host-owned Compose `State` and gated by the pure `bibleReferenceOverlayVisible`
             // (`:sharedCore`) fn at render time — no separate service/controller class, per the plan.
-            onMain<CurrentVerseChangedEvent> { overlayText.value = readOverlayText() }
+            onMain<CurrentVerseChangedEvent> {
+                overlayText.value = readOverlayText()
+                activeIsBibleShown.value = activity.windowControl.activeWindow.pageManager.isBibleShown
+            }
             onMain<CurrentWindowChangedEvent> {
                 overlayText.value = readOverlayText()
                 activeIsBibleShown.value = activity.windowControl.activeWindow.pageManager.isBibleShown
