@@ -66,22 +66,37 @@ fun SpeakTransportBar(
         )
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (state.bookmarkButtonVisible) {
-                AbActionIcon(Icons.Filled.Bookmark, strings.bookmarks, onBookmark)
+                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    AbActionIcon(Icons.Filled.Bookmark, strings.bookmarks, onBookmark)
+                }
             }
-            AbActionIcon(Icons.Filled.FastRewind, strings.rewind, onRewind)
-            AbActionIcon(Icons.Filled.SkipPrevious, strings.speakPrevious, onPrev)
-            AbActionIcon(Icons.Filled.Stop, strings.stop, onStop)
-            AbActionIcon(
-                if (state.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                strings.speak, onPlayPause,
-            )
-            AbActionIcon(Icons.Filled.SkipNext, strings.speakNext, onNext)
-            AbActionIcon(Icons.Filled.FastForward, strings.forward, onForward)
-            AbActionIcon(Icons.Filled.Settings, strings.speak, onConfig)
+            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                AbActionIcon(Icons.Filled.FastRewind, strings.rewind, onRewind)
+            }
+            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                AbActionIcon(Icons.Filled.SkipPrevious, strings.speakPrevious, onPrev)
+            }
+            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                AbActionIcon(Icons.Filled.Stop, strings.stop, onStop)
+            }
+            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                AbActionIcon(
+                    if (state.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                    strings.speak, onPlayPause,
+                )
+            }
+            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                AbActionIcon(Icons.Filled.SkipNext, strings.speakNext, onNext)
+            }
+            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                AbActionIcon(Icons.Filled.FastForward, strings.forward, onForward)
+            }
+            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                AbActionIcon(Icons.Filled.Settings, strings.speak, onConfig)
+            }
         }
     }
 }
