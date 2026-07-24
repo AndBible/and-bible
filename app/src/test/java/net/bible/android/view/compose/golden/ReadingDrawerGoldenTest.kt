@@ -92,23 +92,23 @@ class ReadingDrawerGoldenTest {
     }
 
     @Test fun items_matrix() =
-        captureMatrix("ReadingDrawer", "items", heightDp = 1200, content = content(state()))
+        captureMatrix("ReadingDrawer", "items", heightDp = 1800, content = content(state()))
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun items_rtl() =
-        captureRtl("ReadingDrawer", "items", heightDp = 1200, content = content(state()))
+        captureRtl("ReadingDrawer", "items", heightDp = 1800, content = content(state()))
 
     @Test fun syncUnavailable() =
-        captureGolden("ReadingDrawer", "syncUnavailable", EDGE_MODE, heightDp = 1200,
+        captureGolden("ReadingDrawer", "syncUnavailable", EDGE_MODE, heightDp = 1800,
             content = content(state(includeSync = false)))
 
     @Test fun searchAndSpeakDisabled() =
-        captureGolden("ReadingDrawer", "searchAndSpeakDisabled", EDGE_MODE, heightDp = 1200,
+        captureGolden("ReadingDrawer", "searchAndSpeakDisabled", EDGE_MODE, heightDp = 1800,
             content = content(state(searchEnabled = false, speakEnabled = false)))
 
     @Test fun longTitles() =
-        captureGolden("ReadingDrawer", "longTitles", EDGE_MODE, heightDp = 1200, content = content(
+        captureGolden("ReadingDrawer", "longTitles", EDGE_MODE, heightDp = 3000, content = content(
             state().copy(groups = state().groups.map { g ->
                 g.copy(items = g.items.map {
                     it.copy(label = it.label + " — a very long translated label that must wrap onto several lines")
