@@ -29,7 +29,9 @@ import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsServiceImpl
+import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.sharedcore.speak.SpeakSettingsService
+import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.android.view.activity.bookmark.LabelEditServiceImpl
 import net.bible.sharedcore.bookmark.LabelEditService
 import net.bible.android.view.activity.bookmark.ManageLabelsServiceImpl
@@ -115,6 +117,7 @@ val coreModule = module {
     singleOf(::SearchIndexServiceImpl) { bind<SearchIndexService>() }
     singleOf(::AndroidEpubSearchService) { bind<EpubSearchService>() }
     singleOf(::SpeakSettingsServiceImpl) { bind<SpeakSettingsService>() }
+    singleOf(::SpeakTransportServiceImpl) { bind<SpeakTransportService>() }
     singleOf(::WorkspaceServiceImpl) { bind<WorkspaceService>() }
     singleOf(::AiSettingsServiceImpl) { bind<AiSettingsService>() }
     singleOf(::LlmProviderServiceImpl) { bind<LlmProviderService>() }
