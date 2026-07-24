@@ -66,7 +66,8 @@ import net.bible.sharedui.strings.LocalStrings
  * `PromptEditScreen`/`MyDocumentsScreen`): [onUp]/[onDelete] fire only after the user confirms, so
  * the host needs no extra wiring for them. The help icon opens this composable's own [AbInfoDialog]
  * (mirrors classic's `help()` custom `AlertDialog`, body built from `custom_repositories_help0/1/2`
- * + a clickable wiki-page link) -- see [CustomRepositoriesScreen]'s kdoc for the same [onHelp] note.
+ * + a clickable wiki-page link) -- fully self-contained, no `onHelp` param; see
+ * [CustomRepositoriesScreen]'s kdoc for the same convention note.
  */
 @Composable
 fun CustomRepositoryEditorScreen(
@@ -76,13 +77,11 @@ fun CustomRepositoryEditorScreen(
     onPackageDirChange: (String) -> Unit,
     onSave: () -> Unit,
     onDelete: () -> Unit,
-    onHelp: () -> Unit,
     onUp: () -> Unit,
     modifier: Modifier = Modifier,
-    initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
-    var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
+    var showHelp by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showDiscardConfirm by remember { mutableStateOf(false) }
     // Mirrors classic `cancelOrConfirmDiscard()`: only prompt when there are unsaved changes.
@@ -108,7 +107,6 @@ fun CustomRepositoryEditorScreen(
             }
             AbActionIcon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = strings.help) {
                 showHelp = true
-                onHelp()
             }
         },
     ) { padding ->

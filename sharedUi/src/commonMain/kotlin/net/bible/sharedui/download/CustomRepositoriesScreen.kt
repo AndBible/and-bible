@@ -56,24 +56,20 @@ internal const val customRepositoriesWikiUrl = "https://github.com/AndBible/and-
  *
  * The help icon opens this composable's own [AbInfoDialog] (mirrors classic's `help()` custom
  * `AlertDialog`, body built from `custom_repositories_help0`/`help2` + a clickable wiki-page link)
- * -- self-contained, no host wiring needed for the dialog to work. [onHelp] is still invoked so the
- * host can observe the event (parity with other `onHelp`-taking screens in this codebase, e.g.
- * `WorkspaceSelectorScreen`).
+ * -- fully self-contained, no host wiring needed or possible for the dialog (mirrors the AI screens'
+ * convention, e.g. `PromptEditScreen`/`ToolInfoScreen`: a screen either owns its help dialog with no
+ * `onHelp` param, or takes `onHelp` with no internal dialog -- never both).
  */
 @Composable
 fun CustomRepositoriesScreen(
     state: CustomRepoListState,
     onRowClick: (Long) -> Unit,
     onCreate: () -> Unit,
-    onHelp: () -> Unit,
     onUp: () -> Unit,
     modifier: Modifier = Modifier,
-    // Test-only hook (same `initiallyXxxOpen` pattern as e.g. `PromptEditScreen`/`AbOverflowMenu`) so
-    // a golden test can capture the help dialog open without simulating a click on the help icon.
-    initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
-    var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
+    var showHelp by remember { mutableStateOf(false) }
 
     AbScaffold(
         title = strings.customRepositories,
@@ -82,7 +78,6 @@ fun CustomRepositoriesScreen(
             AbActionIcon(Icons.Filled.Add, contentDescription = strings.newItem, onClick = onCreate)
             AbActionIcon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = strings.help) {
                 showHelp = true
-                onHelp()
             }
         },
     ) { padding ->

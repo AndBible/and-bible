@@ -31,7 +31,6 @@ class CustomRepositoriesGoldenTest {
         state = CustomRepoListState(rows),
         onRowClick = {},
         onCreate = {},
-        onHelp = {},
         onUp = {},
     )
 
@@ -63,7 +62,6 @@ class CustomRepositoriesGoldenTest {
         onPackageDirChange = {},
         onSave = {},
         onDelete = {},
-        onHelp = {},
         onUp = {},
     )
 
