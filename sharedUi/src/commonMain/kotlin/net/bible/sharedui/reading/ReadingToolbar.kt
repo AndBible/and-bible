@@ -66,6 +66,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.reading.OptionsMenuItem
+import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.ToolbarButton
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.fitToolbarButtons
@@ -114,6 +115,9 @@ data class ReadingToolbarCallbacks(
     val onOverflow: () -> Unit,
 )
 
+/** Host-owned quick-document picker state for one toolbar doc button (Bible or Commentary). */
+data class QuickDocMenuState(val expanded: Boolean = false, val items: List<QuickDocMenuItem> = emptyList())
+
 /** Height of the toolbar row — matches the classic `@dimen/toolbar_height` (56dp). */
 private val ToolbarHeight = 56.dp
 
@@ -135,6 +139,12 @@ private val ToolbarButtonWidth = 48.dp
  * the button still only calls [ReadingToolbarCallbacks.onOverflow]; it's the host's job to build
  * the item list and flip [overflowExpanded] to `true` in response. All four are defaulted
  * (empty list / collapsed / no-ops) so existing call sites and their goldens are unaffected.
+ *
+ * The Bible and Commentary quick buttons each anchor their own [QuickDocMenu] (Batch 12g) the same
+ * way — [bibleQuickDoc]/[commentaryQuickDoc] are host-owned [QuickDocMenuState]s, and
+ * [onQuickDocSelect]/[onQuickDocDismiss] are shared by both menus (only one can be open at a
+ * time). All four default to collapsed/empty/no-op so existing call sites and their goldens are
+ * unaffected.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -147,6 +157,10 @@ fun ReadingToolbar(
     overflowExpanded: Boolean = false,
     onOverflowItemClick: (id: String) -> Unit = {},
     onOverflowDismiss: () -> Unit = {},
+    bibleQuickDoc: QuickDocMenuState = QuickDocMenuState(),
+    commentaryQuickDoc: QuickDocMenuState = QuickDocMenuState(),
+    onQuickDocSelect: (id: String) -> Unit = {},
+    onQuickDocDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -170,7 +184,18 @@ fun ReadingToolbar(
                 onClick = callbacks.onHome,
             )
             ReadingToolbarTitle(state, callbacks, Modifier.weight(1f).fillMaxHeight())
-            buttons.forEach { button -> QuickToolbarButton(button, state, icons, callbacks) }
+            buttons.forEach { button ->
+                QuickToolbarButton(
+                    button = button,
+                    state = state,
+                    icons = icons,
+                    callbacks = callbacks,
+                    bibleQuickDoc = bibleQuickDoc,
+                    commentaryQuickDoc = commentaryQuickDoc,
+                    onQuickDocSelect = onQuickDocSelect,
+                    onQuickDocDismiss = onQuickDocDismiss,
+                )
+            }
             Box {
                 ToolbarIconButton(
                     icon = icons.overflow,
@@ -195,13 +220,22 @@ private fun QuickToolbarButton(
     state: ToolbarState,
     icons: ReadingToolbarIcons,
     callbacks: ReadingToolbarCallbacks,
+    bibleQuickDoc: QuickDocMenuState = QuickDocMenuState(),
+    commentaryQuickDoc: QuickDocMenuState = QuickDocMenuState(),
+    onQuickDocSelect: (id: String) -> Unit = {},
+    onQuickDocDismiss: () -> Unit = {},
 ) {
     val strings = LocalStrings.current
     when (button) {
-        ToolbarButton.BIBLE -> ToolbarIconButton(icons.bible, strings.bible, callbacks.onBible, callbacks.onBibleLong)
+        ToolbarButton.BIBLE -> Box {
+            ToolbarIconButton(icons.bible, strings.bible, callbacks.onBible, callbacks.onBibleLong)
+            QuickDocMenu(bibleQuickDoc.expanded, bibleQuickDoc.items, onQuickDocSelect, onQuickDocDismiss)
+        }
         // TODO: no LocalStrings field for this yet — keep literal until one is added.
-        ToolbarButton.COMMENTARY ->
+        ToolbarButton.COMMENTARY -> Box {
             ToolbarIconButton(icons.commentary, "Commentary", callbacks.onCommentary, callbacks.onCommentaryLong)
+            QuickDocMenu(commentaryQuickDoc.expanded, commentaryQuickDoc.items, onQuickDocSelect, onQuickDocDismiss)
+        }
         ToolbarButton.STRONGS -> ToolbarIconButton(
             icon = icons.strongs,
             // TODO: no LocalStrings field for this yet — keep literal until one is added.

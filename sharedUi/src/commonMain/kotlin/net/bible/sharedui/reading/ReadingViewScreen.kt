@@ -55,6 +55,11 @@ import net.bible.sharedcore.window.WindowLayoutState
  * bottom-centre overlay shared across the whole split (e.g. the fullscreen bible-reference
  * overlay), composed as a sibling of the panes rather than inside any one of them. `null` by
  * default, in which case nothing extra is drawn.
+ *
+ * [bibleQuickDoc]/[commentaryQuickDoc]/[onQuickDocSelect]/[onQuickDocDismiss] are forwarded
+ * verbatim to [ReadingToolbar] — host-owned state for the Bible/Commentary quick-document picker
+ * menus (Batch 12g). All four default to collapsed/empty/no-op so existing call sites and their
+ * goldens are unaffected.
  */
 @Composable
 fun ReadingViewScreen(
@@ -71,6 +76,10 @@ fun ReadingViewScreen(
     overflowExpanded: Boolean = false,
     onOverflowItemClick: (id: String) -> Unit = {},
     onOverflowDismiss: () -> Unit = {},
+    bibleQuickDoc: QuickDocMenuState = QuickDocMenuState(),
+    commentaryQuickDoc: QuickDocMenuState = QuickDocMenuState(),
+    onQuickDocSelect: (id: String) -> Unit = {},
+    onQuickDocDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
     tabBar: (@Composable () -> Unit)? = null,
     agentLog: (@Composable () -> Unit)? = null,
@@ -89,6 +98,10 @@ fun ReadingViewScreen(
                 overflowExpanded = overflowExpanded,
                 onOverflowItemClick = onOverflowItemClick,
                 onOverflowDismiss = onOverflowDismiss,
+                bibleQuickDoc = bibleQuickDoc,
+                commentaryQuickDoc = commentaryQuickDoc,
+                onQuickDocSelect = onQuickDocSelect,
+                onQuickDocDismiss = onQuickDocDismiss,
             )
         }
         SplitContent(
