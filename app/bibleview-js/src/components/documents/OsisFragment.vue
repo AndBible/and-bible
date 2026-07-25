@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import {computed, inject, onMounted, provide, ref, toRefs, watch} from "vue";
-import {highlightVerseRange, osisToTemplateString} from "@/utils";
+import {annotateTitles, highlightVerseRange, osisToTemplateString} from "@/utils";
 import OsisSegment from "@/components/documents/OsisSegment.vue";
 import {useCommon} from "@/composables";
 import {customCssKey, osisFragmentKey, hideTitlesKey} from "@/types/constants";
@@ -72,7 +72,7 @@ onMounted(() => {
 
 const template = computed(() => {
     const xml = props.fragment.xml;
-    return (!props.doNotConvert && !props.isNativeHtml) ? osisToTemplateString(xml) : xml;
+    return (!props.doNotConvert && !props.isNativeHtml) ? osisToTemplateString(annotateTitles(xml)) : xml;
 });
 
 watch(props, () => refreshHighlight());

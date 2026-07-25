@@ -1,0 +1,144 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "7741dbdb8825efd40b75876c124501c4",
+    "entities": [
+      {
+        "tableName": "CustomHeading",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `bookInitials` TEXT NOT NULL, `v11n` TEXT NOT NULL, `ordinal` INTEGER NOT NULL, `level` INTEGER NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookInitials",
+            "columnName": "bookInitials",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "v11n",
+            "columnName": "v11n",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordinal",
+            "columnName": "ordinal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "level",
+            "columnName": "level",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_CustomHeading_bookInitials_ordinal",
+            "unique": false,
+            "columnNames": [
+              "bookInitials",
+              "ordinal"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_CustomHeading_bookInitials_ordinal` ON `${TABLE_NAME}` (`bookInitials`, `ordinal`)"
+          }
+        ]
+      },
+      {
+        "tableName": "HeadingOverride",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `bookInitials` TEXT NOT NULL, `v11n` TEXT NOT NULL, `ordinal` INTEGER NOT NULL, `titleIndex` INTEGER NOT NULL, `newText` TEXT, `newLevel` INTEGER, `deleted` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookInitials",
+            "columnName": "bookInitials",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "v11n",
+            "columnName": "v11n",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordinal",
+            "columnName": "ordinal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleIndex",
+            "columnName": "titleIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newText",
+            "columnName": "newText",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "newLevel",
+            "columnName": "newLevel",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "deleted",
+            "columnName": "deleted",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_HeadingOverride_bookInitials_ordinal_titleIndex",
+            "unique": true,
+            "columnNames": [
+              "bookInitials",
+              "ordinal",
+              "titleIndex"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_HeadingOverride_bookInitials_ordinal_titleIndex` ON `${TABLE_NAME}` (`bookInitials`, `ordinal`, `titleIndex`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7741dbdb8825efd40b75876c124501c4')"
+    ]
+  }
+}

@@ -37,6 +37,8 @@ import net.bible.android.database.TemporaryDatabase
 import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.AI_SETTINGS_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
+import net.bible.android.database.CustomHeadingsDatabase
+import net.bible.android.database.CUSTOM_HEADINGS_DATABASE_VERSION
 import net.bible.android.database.progress.ProgressDatabase
 import net.bible.android.database.progress.PROGRESS_DATABASE_VERSION
 import net.bible.android.database.mydocument.MyDocumentDatabase
@@ -75,7 +77,8 @@ val ALL_DB_FILENAMES = arrayOf(
     SettingsDatabase.dbFileName,
     AiSettingsDatabase.dbFileName,
     MyDocumentDatabase.dbFileName,
-    ProgressDatabase.dbFileName
+    ProgressDatabase.dbFileName,
+    CustomHeadingsDatabase.dbFileName,
 )
 
 class DataBaseNotReady: Exception()
@@ -268,6 +271,16 @@ class DatabaseContainer {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
+    val headingsDb: CustomHeadingsDatabase =
+        Room.databaseBuilder(
+            application, CustomHeadingsDatabase::class.java, CustomHeadingsDatabase.dbFileName
+        )
+            .allowMainThreadQueries()
+            .addMigrations()
+            .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+
     private fun backupDatabaseIfNeeded() {
         if(application.isRunningTests) return
         val oldDb = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
@@ -317,7 +330,7 @@ class DatabaseContainer {
         }
     }
 
-    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, aiSettingsDb, progressDb)
+    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, aiSettingsDb, progressDb, headingsDb)
     private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb)
 
     val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
@@ -376,6 +389,7 @@ class DatabaseContainer {
             AiSettingsDatabase.dbFileName -> AI_SETTINGS_DATABASE_VERSION
             MyDocumentDatabase.dbFileName -> MY_DOCUMENT_DATABASE_VERSION
             ProgressDatabase.dbFileName -> PROGRESS_DATABASE_VERSION
+            CustomHeadingsDatabase.dbFileName -> CUSTOM_HEADINGS_DATABASE_VERSION
             else -> throw IllegalStateException("Unknown database file: $filename")
         }
 

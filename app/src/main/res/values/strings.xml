@@ -455,6 +455,7 @@
     <string name="add_bookmark_whole_verse1">Verses</string>
     <string name="add_whole_page_bookmark">Add bookmark for whole page</string>
     <string name="add_paragraph_break">Paragraph break</string>
+    <string name="add_heading">Add heading</string>
     <string name="ai_label">AI</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>

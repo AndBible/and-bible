@@ -66,6 +66,28 @@ export type OrdinalAndOffsetRange = {
 export type OrdinalOffset = [start: number, end: Nullable<number>]
 export type CombinedRange = [start: OrdinalOffset, end: OrdinalOffset]
 
+// ClientPageObjects.kt: ClientCustomHeading
+export type CustomHeading = {
+    readonly id: IdType
+    readonly bookInitials: string
+    readonly v11n: string
+    readonly ordinal: number
+    level: number
+    text: string
+}
+
+// ClientPageObjects.kt: ClientHeadingOverride
+export type HeadingOverride = {
+    readonly id: IdType
+    readonly bookInitials: string
+    readonly v11n: string
+    readonly ordinal: number
+    readonly titleIndex: number
+    newText: Nullable<string>
+    newLevel: Nullable<number>
+    deleted: boolean
+}
+
 export type BaseBookmarkToLabel = {
     readonly type: "BibleBookmarkToLabel" | "GenericBookmarkToLabel"
     readonly bookmarkId: IdType

@@ -55,6 +55,8 @@ import {
     faTextWidth,
     faTimes,
     faTrash,
+    faUndo,
+    faHeading,
     faUser,
     faLink,
     faChurch,
@@ -75,7 +77,8 @@ import {
     faExclamationCircle,
     faClock,
     faCross,
-    faRobot
+    faRobot,
+    faList,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -196,6 +199,9 @@ export function useFontAwesome() {
         faHandPointer,
         faSave,
         faCheck,
+        faUndo,
+        faHeading,
+        faList,
         faRegularClock,
     );
 }

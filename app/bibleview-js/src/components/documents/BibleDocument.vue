@@ -51,14 +51,17 @@
 <script setup lang="ts">
 import {inject, provide, ref} from "vue";
 import {useBookmarks} from "@/composables/bookmarks";
+import {useCustomHeadings} from "@/composables/custom-headings";
+import {useOutline} from "@/composables/outline";
 import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {useCommon} from "@/composables";
 import Chapter from "@/components/OSIS/Chapter.vue";
-import {bibleDocumentInfoKey, footnoteCountKey, globalBookmarksKey, memorizationKey} from "@/types/constants";
+import {bibleDocumentInfoKey, customHeadingsKey, footnoteCountKey, globalBookmarksKey, memorizationKey, outlineKey} from "@/types/constants";
 import {BibleDocumentType} from "@/types/documents";
 import {useReadingTracker} from "@/composables/reading-tracker";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
+import {emit} from "@/eventbus";
 
 const props = defineProps<{ document: BibleDocumentType }>();
 
@@ -72,15 +75,35 @@ const containerRef = ref<HTMLElement | null>(null);
 const globalBookmarks = inject(globalBookmarksKey)!;
 globalBookmarks.updateBookmarks([...bookmarks, ...aiDocMarkers]);
 
+const globalCustomHeadings = inject(customHeadingsKey)!;
+globalCustomHeadings.updateFromDocument(props.document);
+
 const memorization = inject(memorizationKey)!;
 if (props.document.memorizedOrdinals) {
     memorization.mergeData(props.document.memorizedOrdinals, props.document.targetOrdinals ?? []);
 }
 memorization.setupIndicatorRendering(containerRef, id);
 
-const {config, appSettings, ...common} = useCommon();
+const {config, appSettings, adjustedColor, strings} = useCommon();
 
-useBookmarks(id, ordinalRange, globalBookmarks, bookInitials,  null, true, ref(true), common, config, appSettings);
+useBookmarks(id, ordinalRange, globalBookmarks, bookInitials,  null, true, ref(true), {adjustedColor}, config, appSettings);
+
+useCustomHeadings(id, bookInitials, ordinalRange, globalCustomHeadings, config, openOutline, strings.outline);
+
+const {entries: outlineEntries, visible: outlineVisible, refresh: refreshOutline} = useOutline(
+    id, bookInitials, ordinalRange, globalCustomHeadings.customHeadings,
+);
+
+function openOutline() {
+    refreshOutline();
+    emit("open_outline", {
+        entries: outlineEntries.value,
+        bookInitials,
+        documentId: id,
+    });
+}
+
+provide(outlineKey, {open: openOutline, visible: outlineVisible});
 
 let footNoteCount = ordinalRange[0] || 0;
 

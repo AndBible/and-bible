@@ -19,6 +19,7 @@ package net.bible.android.control.page
 import android.content.Intent
 import android.util.Log
 import net.bible.android.common.toV11n
+import net.bible.android.control.heading.HeadingControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
@@ -79,10 +80,16 @@ class CurrentBiblePage(
             val kjvRange = verseRange.toV11n(KJVA)
             val aiDocMarkers = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
                 .aiDocMarkersForRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+            val rangeInV11n = verseRange.toV11n((doc.book as SwordBook).versification)
+            val bookInitials = doc.book.initials
             BibleDocument(
                 osisFragment = doc.osisFragment, swordBook = doc.book as SwordBook,
                 bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey,
                 aiDocMarkers = aiDocMarkers,
+                customHeadings = HeadingControl.headingsForRange(
+                    bookInitials, rangeInV11n.start.ordinal, rangeInV11n.end.ordinal),
+                headingOverrides = HeadingControl.overridesForRange(
+                    bookInitials, rangeInV11n.start.ordinal, rangeInV11n.end.ordinal),
             )
         } else doc
     }

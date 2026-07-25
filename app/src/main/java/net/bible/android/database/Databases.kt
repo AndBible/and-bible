@@ -22,6 +22,9 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.headings.CustomHeading
+import net.bible.android.database.headings.HeadingOverride
+import net.bible.android.database.headings.HeadingsDao
 import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
 import net.bible.android.database.migrations.Migration
 import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
@@ -134,6 +137,28 @@ abstract class TemporaryDatabase: RoomDatabase() {
 }
 
 const val REPO_DATABASE_VERSION = 1
+
+const val CUSTOM_HEADINGS_DATABASE_VERSION = 1
+
+/**
+ * User-defined headings (h1-h6) added to Bible translations, plus overrides
+ * (edit/hide) of headings that come from the modules themselves. Device-local
+ * only: not synced, but backed up (listed in ALL_DB_FILENAMES).
+ */
+@Database(
+    entities = [
+        CustomHeading::class,
+        HeadingOverride::class,
+    ],
+    version = CUSTOM_HEADINGS_DATABASE_VERSION
+)
+@TypeConverters(Converters::class)
+abstract class CustomHeadingsDatabase: RoomDatabase() {
+    abstract fun headingsDao(): HeadingsDao
+    companion object {
+        const val dbFileName = "custom_headings.sqlite3"
+    }
+}
 
 @Database(
     entities = [

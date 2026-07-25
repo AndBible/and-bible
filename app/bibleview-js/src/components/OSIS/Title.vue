@@ -16,18 +16,22 @@
   -->
 
 <template>
-  <div class="title-wrapper" v-if="show">
-    <h3 ref="titleEl" class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}">
-      <slot/>
-    </h3>
-    <button v-if="config.showTitleScrollButton" class="title-scroll-btn" @click.stop="scrollToTitle">↑</button>
+  <div class="title-wrapper" :class="{'has-outline-btn': outlineCtx?.visible.value}" v-if="show">
+    <button v-if="outlineCtx?.visible.value" class="title-outline-btn" @click.stop="outlineCtx.open" :aria-label="strings.outline" :title="strings.outline">≡</button>
+    <component :is="headingTag" ref="titleEl" class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}" :data-ordinal="ordinal" :data-title-index="titleIndex" tabindex="0" @click="titleClicked" @keydown.enter="titleClicked" @keydown.space.prevent="titleClicked">
+      <template v-if="overrideText !== null">{{ overrideText }}</template>
+      <slot v-else/>
+    </component>
   </div>
 </template>
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed, inject, ref} from "vue";
-import {bibleDocumentInfoKey, hideTitlesKey} from "@/types/constants";
+import {bibleDocumentInfoKey, customHeadingsKey, hideTitlesKey, outlineKey} from "@/types/constants";
+import {addEventFunction, EventPriorities} from "@/utils";
+import {emit} from "@/eventbus";
+import {headingOverrideKey, HeadingMenuPayload} from "@/composables/custom-headings";
 
 const props = withDefaults(
     defineProps<{
@@ -35,41 +39,63 @@ const props = withDefaults(
         subType?: string
         canonical: string
         short: string
+        ordinal?: string
+        titleIndex?: string
     }>(), {
         canonical: "false",
     }
 );
 
-const isBibleDoc = inject(bibleDocumentInfoKey) != undefined
+const bibleDocumentInfo = inject(bibleDocumentInfoKey, null);
+const customHeadings = inject(customHeadingsKey, null);
+const isBibleDoc = bibleDocumentInfo != undefined
 
 checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
 checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
 checkUnsupportedProps(props, "canonical", ["true", "false"]);
-const {config, appSettings, calculatedConfig} = useCommon();
+const {config, strings} = useCommon();
 const hideTitles = inject(hideTitlesKey, false);
+const outlineCtx = inject(outlineKey, null);
 
 const isCanonical = computed(() => props.canonical === "true");
 
+const headingOverride = computed(() => {
+    if (!bibleDocumentInfo || !customHeadings || props.ordinal == null || props.titleIndex == null) return undefined;
+    return customHeadings.headingOverrides.get(
+        headingOverrideKey(bibleDocumentInfo.bookInitials, parseInt(props.ordinal), parseInt(props.titleIndex)));
+});
+
+const level = computed(() => headingOverride.value?.newLevel ?? 3);
+const headingTag = computed(() => `h${level.value}`);
+const overrideText = computed(() => headingOverride.value?.newText ?? null);
+
 const show = computed(() =>
     !hideTitles && config.showSectionTitles
-    && ((config.showNonCanonical && !isCanonical.value) || isCanonical)
+    && ((config.showNonCanonical && !isCanonical.value) || isCanonical.value)
     && !(props.type === "sub" && props.subType === "x-Chapter")
     && props.type !== "chapter"
-    && props.type !== "x-gen",
+    && props.type !== "x-gen"
+    && headingOverride.value?.deleted !== true,
 );
 
 const isSubTitle = computed(() => props.type === "sub");
 
 const titleEl = ref<HTMLElement | null>(null);
 
-function scrollToTitle() {
-    if (titleEl.value && calculatedConfig) {
-        const rect = titleEl.value.getBoundingClientRect();
-        window.scrollTo({
-            top: window.scrollY + rect.top - calculatedConfig.value.topOffset,
-            behavior: appSettings.disableAnimations ? 'instant' : 'smooth'
-        });
-    }
+function titleClicked(event: Event) {
+    if (!bibleDocumentInfo || props.ordinal == null || props.titleIndex == null) return;
+    const {bookInitials, v11n} = bibleDocumentInfo;
+    const payload: HeadingMenuPayload = {
+        kind: "module",
+        bookInitials,
+        v11n: v11n!,
+        ordinal: parseInt(props.ordinal),
+        titleIndex: parseInt(props.titleIndex),
+        text: titleEl.value?.textContent?.trim() ?? "",
+        level: level.value,
+    };
+    addEventFunction(event, () => emit("open_heading_menu", payload),
+        {priority: EventPriorities.HEADING, title: payload.text});
 }
 </script>
 
@@ -78,7 +104,12 @@ function scrollToTitle() {
   margin-inline-start: -1em;
 }
 
-h3.isSubTitle {
+h1.isSubTitle,
+h2.isSubTitle,
+h3.isSubTitle,
+h4.isSubTitle,
+h5.isSubTitle,
+h6.isSubTitle {
   font-size: 110%;
   margin-inline-start: 1em;
 }
@@ -87,21 +118,31 @@ h3.isSubTitle {
   position: relative;
 }
 
-.title-scroll-btn {
+.title-wrapper.has-outline-btn {
+  padding-inline-start: 28px;
+}
+
+.title-outline-btn {
   position: absolute;
-  right: 0;
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  opacity: 0.3;
-  font-size: 120%;
+  opacity: 0.4;
+  font-size: 100%;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 6px 8px;
   line-height: 1;
   color: inherit;
-  .monochrome & {
+  z-index: 1;
+
+  &:hover {
     opacity: 1;
+  }
+
+  .monochrome & {
+    opacity: 0.7;
   }
 }
 </style>

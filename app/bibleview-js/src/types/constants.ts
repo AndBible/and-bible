@@ -32,6 +32,7 @@ import {useKeyboard} from "@/composables/keyboard";
 import {useStudyPad} from "@/composables/journal";
 import {useMemorization} from "@/composables/memorization";
 import {useReadingProgressSettings} from "@/composables/reading-progress-settings";
+import {useGlobalCustomHeadings} from "@/composables/custom-headings";
 
 export const osisFragmentKey: InjectionKey<OsisFragment> = Symbol("osisFragment");
 export const androidKey: InjectionKey<ReturnType<typeof useAndroid>> = Symbol("android");
@@ -59,3 +60,5 @@ export const journalKey: InjectionKey<ReturnType<typeof useStudyPad>> = Symbol("
 export const hideTitlesKey: InjectionKey<boolean> = Symbol("hideTitles");
 export const memorizationKey: InjectionKey<ReturnType<typeof useMemorization>> = Symbol("memorization");
 export const readingProgressSettingsKey: InjectionKey<ReturnType<typeof useReadingProgressSettings>> = Symbol("readingProgressSettings");
+export const customHeadingsKey: InjectionKey<ReturnType<typeof useGlobalCustomHeadings>> = Symbol("customHeadings");
+export const outlineKey: InjectionKey<{open: () => void, visible: Ref<boolean>}> = Symbol("outline");

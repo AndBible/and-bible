@@ -27,6 +27,8 @@
     <div :style="modalStyle" id="modals"/>
     <template v-if="mounted">
       <BookmarkModal/>
+      <CustomHeadingModal/>
+      <OutlinePanel/>
       <AmbiguousSelection ref="ambiguousSelection"/>
     </template>
     <ErrorBox v-if="appSettings.errorBox"/>
@@ -125,6 +127,8 @@ import {clearLog, useAndroid} from "@/composables/android";
 import {Deferred, setupWindowEventListener, waitNextAnimationFrame} from "@/utils";
 import ErrorBox from "@/components/ErrorBox.vue";
 import BookmarkModal from "@/components/modals/BookmarkModal.vue";
+import CustomHeadingModal from "@/components/modals/CustomHeadingModal.vue";
+import OutlinePanel from "@/components/modals/OutlinePanel.vue";
 import DevelopmentMode from "@/components/DevelopmentMode.vue";
 import Color from "color";
 import {useStrings} from "@/composables/strings";
@@ -135,6 +139,7 @@ import {
     configKey,
     customCssKey,
     customFeaturesKey,
+    customHeadingsKey,
     footnoteCountKey,
     globalBookmarksKey,
     keyboardKey,
@@ -144,6 +149,7 @@ import {
     stringsKey,
     ordinalHighlightKey
 } from "@/types/constants";
+import {useGlobalCustomHeadings} from "@/composables/custom-headings";
 import {useKeyboard} from "@/composables/keyboard";
 import {useMemorization} from "@/composables/memorization";
 import {useVerseNotifier} from "@/composables/verse-notifier";
@@ -195,6 +201,7 @@ const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, 
 const {doScrolling, scrollToId, scrollYAtStart, scrollY} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
+const globalCustomHeadings = useGlobalCustomHeadings();
 const android = useAndroid(globalBookmarks, config);
 const modal = useModal(android);
 provide(modalKey, modal);
@@ -306,6 +313,7 @@ watch(documents, () => {
 })
 
 provide(globalBookmarksKey, globalBookmarks);
+provide(customHeadingsKey, globalCustomHeadings);
 provide(configKey, config);
 provide(appSettingsKey, appSettings);
 provide(calculatedConfigKey, calculatedConfig);

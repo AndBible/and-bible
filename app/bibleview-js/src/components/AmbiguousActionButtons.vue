@@ -56,6 +56,7 @@ import {SelectionInfo} from "@/types/common";
 import {ModalButtonId} from "@/composables/config";
 import {faEllipsisV} from "@fortawesome/free-solid-svg-icons";
 import ActionButton from "@/components/ActionButton.vue";
+import {emit as busEmit} from "@/eventbus";
 
 const props = withDefaults(defineProps<{
     selectionInfo: SelectionInfo
@@ -91,7 +92,7 @@ const visibleButtonCount = ref(4);
 const modalButtons = computed<ModalButtonId[]>(() => {
     let allButtons: ModalButtonId[]
     if(verseInfo.value) {
-         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE", "REMOVE_MEMORIZATION_TARGET", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE", "REMOVE_MEMORIZATION_TARGET", "ADD_PARAGRAPH_BREAK", "ADD_HEADING", "LLM_ACTION"];
     } else {
          allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
     }
@@ -220,6 +221,9 @@ function handleButtonClick(buttonId: ModalButtonId) {
         case 'ADD_PARAGRAPH_BREAK':
             addParagraphBreak();
             break;
+        case 'ADD_HEADING':
+            addHeading();
+            break;
         case 'LLM_ACTION':
             llmAction();
             break;
@@ -289,6 +293,18 @@ function addParagraphBreak() {
         android.addParagraphBreakBookmark(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
     } else if(ordinalInfo.value) {
         android.addGenericParagraphBreakBookmark(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value);
+    }
+    emit("close");
+}
+
+function addHeading() {
+    if(verseInfo.value) {
+        busEmit("open_heading_menu", {
+            kind: "add",
+            bookInitials: verseInfo.value.bookInitials,
+            v11n: verseInfo.value.v11n!,
+            ordinal: startOrdinal.value!,
+        });
     }
     emit("close");
 }
