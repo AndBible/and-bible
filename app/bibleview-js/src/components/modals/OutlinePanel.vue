@@ -20,7 +20,7 @@
     <div v-if="entries.length > 0" class="outline-list">
       <div
           v-for="(entry, idx) in entries"
-          :key="idx"
+          :key="`${entry.isCustom ? 'c' : 'm'}-${entry.ordinal}-${entry.titleIndex ?? ''}-${entry.headingId ?? ''}`"
           class="outline-item"
           :class="`level-${Math.min(entry.level, 6)}`"
           :style="{ paddingInlineStart: `${(entry.level - 1) * 16}px` }"
