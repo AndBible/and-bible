@@ -101,7 +101,7 @@ class WindowTabBarGoldenTest {
     private val multiExpandedSyncedModel =
         buildWindowTabBar(layout(windows = multiWindowsSynced, active = "N1", restoreVisible = true))
 
-    private fun screen(model: WindowTabBarModel): @Composable () -> Unit = {
+    private fun screen(model: WindowTabBarModel, windowTopLabel: (WindowSnapshot) -> String? = { null }): @Composable () -> Unit = {
         WindowTabBar(
             model = model,
             onRestore = {},
@@ -111,15 +111,23 @@ class WindowTabBarGoldenTest {
             onToggleCollapse = {},
             windowLabel = { it.id },
             windowIcon = { null },
+            windowTopLabel = windowTopLabel,
         )
     }
+
+    // Task 4 (F2b): "N1" (the active tab) supplies a top label, "P"/"N2" do not — so this single
+    // capture shows BOTH WindowButton's Rail two-row look (topLabel != null) and its plain one-row
+    // look (topLabel == null) side by side, the only golden context exercising WindowTabBar's own
+    // `windowTopLabel` wiring (Task 3's WindowButton goldens cover the button in isolation, not a
+    // real rail).
+    private val multiExpandedTopLabel: (WindowSnapshot) -> String? = { window -> if (window.id == "N1") "Gen 1" else null }
 
     // Widest state (leading + 3 tabs + a separator) — captured in `land` (same technique as
     // WindowButtonGoldenTest/ReadingToolbarGoldenTest/ReadingViewScreenGoldenTest) so every entry
     // is fully visible, uncropped, in one row.
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
-    fun multiExpanded() = captureMatrix("WindowTabBar", "multiExpanded", content = screen(multiExpandedModel))
+    fun multiExpanded() = captureMatrix("WindowTabBar", "multiExpanded", content = screen(multiExpandedModel, multiExpandedTopLabel))
 
     // RTL layout direction (Arabic locale, land for the same width headroom) — the rail's
     // Arrangement.End + LazyRow ordering should mirror: entries read right-to-left.

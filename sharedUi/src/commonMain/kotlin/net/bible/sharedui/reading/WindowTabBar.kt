@@ -78,6 +78,10 @@ private val GroupSeparatorHeight = 24.dp
  * @param windowLabel host-supplied per-window label (classic doc initials/ordinal) — kept out of
  *   this iOS-clean module, same seam as [WindowButton]'s `label`.
  * @param windowIcon host-supplied per-window doc-type [Painter]; `null` (default) shows none.
+ * @param windowTopLabel host-supplied per-window tiny top-row label (classic `topButtonText`,
+ *   `pageManager.titleText`) — same host-supplied, non-`@Composable` seam as [windowLabel]/
+ *   [windowIcon]; forwarded verbatim to each [WindowButton]'s `topLabel` (Task 3). `null` (the
+ *   default, and per-window whenever the host has no title for that window) renders no top row.
  */
 @Composable
 fun WindowTabBar(
@@ -89,6 +93,7 @@ fun WindowTabBar(
     onToggleCollapse: () -> Unit,
     windowLabel: (WindowSnapshot) -> String,
     windowIcon: (WindowSnapshot) -> Painter? = { null },
+    windowTopLabel: (WindowSnapshot) -> String? = { null },
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -136,6 +141,7 @@ fun WindowTabBar(
                                 onClick = { onRestore(window.id) },
                                 onLongPress = { onWindowLongPress(window.id) },
                                 leadingIcon = windowIcon(window),
+                                topLabel = windowTopLabel(window),
                             )
                         }
                         RailEntry.GroupSeparator -> GroupSeparatorDivider()

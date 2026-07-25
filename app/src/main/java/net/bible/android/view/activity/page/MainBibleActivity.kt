@@ -1271,6 +1271,22 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         } catch (e: Exception) { " " }
     }
 
+    /**
+     * The rail button's tiny top row: classic `topButtonText`, i.e. `pageManager.titleText`
+     * (`WindowButtonWidget.kt:148`). Returns `null` — meaning "render no top row" — for an unknown
+     * window or when the page has no title, matching classic's `?: ""` + `View.GONE` handling
+     * (`WindowButtonWidget.kt:148-149`).
+     *
+     * Deliberately NOT part of `WindowSnapshot`: this is a rendering label, not window state, and
+     * the snapshot is the iOS-facing model.
+     */
+    internal fun windowTopLabelFor(id: String): String? {
+        val window = windowRepository.getWindow(IdType(id)) ?: return null
+        return try {
+            window.pageManager.titleText.takeIf { it.isNotBlank() }
+        } catch (e: Exception) { null }
+    }
+
     /** Doc-type icon for the Compose restore rail — mirrors classic `docType.setImageResource(document.imageResource)`. */
     internal fun windowIconFor(id: String): Painter? {
         val window = windowRepository.getWindow(IdType(id)) ?: return null

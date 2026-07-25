@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
@@ -494,6 +496,45 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     @Test fun handleWindowPaneMenuItemReturnsFalseForAnUnknownWindowId() {
         // A stale click after the window closed underneath it (`getWindow` returns null) must not throw.
         assertFalse(activity.handleWindowPaneMenuItem(IdType().toString(), WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE))
+    }
+
+    /**
+     * Task 4 (F2b): with a real [ComposeReadingViewHost] installed, `CurrentBibleVerseChanged`
+     * (classic's own trigger for the rail's tiny top label, `WindowButtonWidget.kt:232-234`) must
+     * reach the host's `refreshHostedState()` push — the SAME mechanism `updateActions()`'s callers
+     * use for the sibling `windowLabelFor` (document-abbreviation) refresh — rather than the rail
+     * staying stale until some unrelated event happens to recompose it.
+     *
+     * Asserted via a counting override of `refreshHostedState()` (see [RecordingRefreshHost] below),
+     * NOT by inspecting the real (Koin-singleton) `ToolbarStateService`'s derived snapshot: that
+     * snapshot is rebuilt from `WindowRepository`'s own asynchronous DB load, which races with a
+     * same-JVM test's synchronous assertions — confirmed empirically while developing this test, a
+     * silently-seeded document+verse pair showed up split across two different `refresh()` calls
+     * (new document, stale verse). Overriding the call itself sidesteps that race entirely.
+     */
+    @Test fun currentBibleVerseChangedTriggersARefresh() {
+        val host = RecordingRefreshHost(activity)
+        activity.composeReadingViewHost = host
+        assertEquals(0, host.refreshCalls, "sanity: constructing the host must not itself refresh")
+
+        ABEventBus.post(CurrentBibleVerseChanged())
+
+        assertEquals(1, host.refreshCalls, "CurrentBibleVerseChanged must reach refreshHostedState()")
+    }
+}
+
+/**
+ * Counting override used by [MainBibleActivityHandleWindowPaneMenuItemTest.currentBibleVerseChangedTriggersARefresh]
+ * — see that test's kdoc for why this is more reliable than asserting on the real
+ * [ToolbarStateService]'s derived snapshot. [ComposeReadingViewHost]/`refreshHostedState` are `open`
+ * for exactly this seam.
+ */
+private class RecordingRefreshHost(activity: MainBibleActivity) : ComposeReadingViewHost(activity) {
+    var refreshCalls = 0
+        private set
+    override fun refreshHostedState(rebuildComposition: Boolean) {
+        refreshCalls++
+        super.refreshHostedState(rebuildComposition)
     }
 }
 

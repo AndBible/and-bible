@@ -71,6 +71,7 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
@@ -278,7 +279,13 @@ class WindowButtonsVisibility {
  * [AndroidView] wrapping [MainBibleActivity.bibleViewFactory] — the WebView/JS bridge stays an
  * unmodified black box.
  */
-class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComponent {
+// `open` (both the class and `refreshHostedState` below) purely so `ComposeReadingViewHostTest`'s
+// `currentBibleVerseChangedTriggersARefresh` can subclass with a counting override — the real
+// (Koin-singleton) `ToolbarStateService`'s derived snapshot is driven by `WindowRepository`'s own
+// async DB load, which races with a same-JVM test's synchronous assertions (confirmed empirically:
+// a silently-seeded document/verse pair showed up split across two different `refresh()` calls), so
+// asserting on ITS content is not a reliable test signal here. Overriding the call itself is.
+open class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComponent {
     private val windowState: WindowStateServiceImpl by inject()
     private val commands: WindowCommands by inject()
     private val toolbarStateService: ToolbarStateService by inject()
@@ -535,6 +542,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 overlayText.value = readOverlayText()
                 activeIsBibleShown.value = activity.windowControl.activeWindow.pageManager.isBibleShown
             }
+            // Task 4 (F2b): classic's per-window rail top label (`WindowButtonWidget.kt:148`,
+            // `pageManager.titleText`) is refreshed on this SAME event
+            // (`WindowButtonWidget.kt:232-234`). `windowTopLabel`/`windowLabel`/`windowIcon` are
+            // plain, non-`@Composable` lambdas re-read fresh on the next recomposition rather than
+            // Compose `State` (see `MainBibleActivity.windowTopLabelFor`'s kdoc for why), so there is
+            // no dedicated state field to push into here — this reuses the SAME `refreshHostedState()`
+            // push `updateActions()`'s callers already use for the analogous `windowLabelFor`
+            // (document-abbreviation) refresh, rather than adding a second refresh path.
+            onMain<CurrentBibleVerseChanged> { refreshHostedState() }
         }
     }
 
@@ -560,7 +576,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * `MainBibleActivity.updateActions()`, `preferenceSettingsChanged()` and the two Strongs
      * mutators, so it is inert on the classic path (the host is null there).
      */
-    fun refreshHostedState(rebuildComposition: Boolean = false) =
+    open fun refreshHostedState(rebuildComposition: Boolean = false) =
         hostedStateRefresher.refresh(rebuildComposition)
 
     /**
@@ -801,6 +817,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             },
             windowLabel = { snapshot -> activity.windowLabelFor(snapshot.id) },
             windowIcon = { snapshot -> activity.windowIconFor(snapshot.id) },
+            // Task 4 (F2b): the rail's tiny top row (classic `topButtonText`) — see
+            // `MainBibleActivity.windowTopLabelFor`'s kdoc.
+            windowTopLabel = { snapshot -> activity.windowTopLabelFor(snapshot.id) },
             controller = controller,
             windowButtonsVisibleState = windowButtonsVisibility.visible,
             touchTickState = windowButtonsVisibility.touchTick,
@@ -1017,6 +1036,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // renders the rail itself — is unaffected.
             windowLabel: (WindowSnapshot) -> String = { "" },
             windowIcon: (WindowSnapshot) -> Painter? = { null },
+            // Task 4 (F2b): the rail's tiny top row (classic `topButtonText`,
+            // `pageManager.titleText`) — same non-`@Composable`, host-supplied shape as
+            // `windowLabel`/`windowIcon` above, `null` meaning "render no top row" (see
+            // `MainBibleActivity.windowTopLabelFor`'s kdoc). Defaulted to `{ null }` for the same
+            // reason as `windowLabel`/`windowIcon`.
+            windowTopLabel: (WindowSnapshot) -> String? = { null },
             // Batch 12b follow-on Plan B Task 5 additions — all `State`s / no-op-defaulted for the
             // same reason as the `overflow*`/`fullScreenState` params above: [ComposeReadingViewHost]
             // owns the real backing state, a test (or an omitted call site) gets an inert default.
@@ -1299,6 +1324,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                                     },
                                                     windowLabel = windowLabel,
                                                     windowIcon = windowIcon,
+                                                    windowTopLabel = windowTopLabel,
                                                 )
                                             }
                                         },

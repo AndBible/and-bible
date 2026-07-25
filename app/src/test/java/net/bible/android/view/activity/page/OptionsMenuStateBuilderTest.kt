@@ -157,4 +157,17 @@ class OptionsMenuStateBuilderTest {
         val after = itemById(id)
         assertEquals(!before.checked, after.checked)
     }
+
+    @Test
+    fun windowTopLabelForReturnsNullForAnUnknownWindow() {
+        assertNull(activity.windowTopLabelFor("not-a-window-id"))
+    }
+
+    @Test
+    fun windowTopLabelForReturnsThePageTitleOfAKnownWindow() {
+        val id = activity.windowRepository.activeWindow.id.toString()
+        val titleText = activity.windowRepository.activeWindow.pageManager.titleText
+        assertTrue(titleText.isNotBlank(), "sanity: a fresh workspace's default verse gives a non-blank titleText")
+        assertEquals(titleText, activity.windowTopLabelFor(id))
+    }
 }
