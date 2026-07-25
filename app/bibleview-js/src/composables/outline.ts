@@ -71,7 +71,10 @@ export function useOutline(
 
     const entries = computed<OutlineEntry[]>(() => {
         const combined = [...moduleEntries, ...customEntries.value];
-        combined.sort((a, b) => a.ordinal - b.ordinal);
+        combined.sort((a, b) => a.ordinal - b.ordinal
+            || (a.isCustom === b.isCustom ? 0 : a.isCustom ? 1 : -1)
+            || (a.titleIndex ?? 0) - (b.titleIndex ?? 0)
+            || (a.headingId ?? "").localeCompare(b.headingId ?? ""));
         return combined;
     });
 
