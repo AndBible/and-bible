@@ -24,10 +24,6 @@
        :data-osis-ref="osisRef"
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
-    <div v-if="outlineVisible" class="outline-toggle" @click="openOutline">
-      <FontAwesomeIcon :icon="faList"/>
-      <span class="outline-label">{{ common.strings.outline }}</span>
-    </div>
     <OsisFragment :fragment="document.osisFragment"/>
     <div v-if="config.showMarkAsReadButton" class="mark-as-read-container">
       <div class="mark-as-read-wrapper">
@@ -60,11 +56,11 @@ import {useOutline} from "@/composables/outline";
 import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {useCommon} from "@/composables";
 import Chapter from "@/components/OSIS/Chapter.vue";
-import {bibleDocumentInfoKey, customHeadingsKey, footnoteCountKey, globalBookmarksKey, memorizationKey} from "@/types/constants";
+import {bibleDocumentInfoKey, customHeadingsKey, footnoteCountKey, globalBookmarksKey, memorizationKey, outlineKey} from "@/types/constants";
 import {BibleDocumentType} from "@/types/documents";
 import {useReadingTracker} from "@/composables/reading-tracker";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faCheck, faList} from "@fortawesome/free-solid-svg-icons";
+import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {emit} from "@/eventbus";
 
 const props = defineProps<{ document: BibleDocumentType }>();
@@ -88,11 +84,11 @@ if (props.document.memorizedOrdinals) {
 }
 memorization.setupIndicatorRendering(containerRef, id);
 
-const {config, appSettings, ...common} = useCommon();
+const {config, appSettings, adjustedColor} = useCommon();
 
-useBookmarks(id, ordinalRange, globalBookmarks, bookInitials,  null, true, ref(true), common, config, appSettings);
+useBookmarks(id, ordinalRange, globalBookmarks, bookInitials,  null, true, ref(true), {adjustedColor}, config, appSettings);
 
-useCustomHeadings(id, bookInitials, ordinalRange, globalCustomHeadings, config);
+useCustomHeadings(id, bookInitials, ordinalRange, globalCustomHeadings, config, openOutline);
 
 const {entries: outlineEntries, visible: outlineVisible} = useOutline(
     id, bookInitials, ordinalRange, globalCustomHeadings.customHeadings,
@@ -105,6 +101,8 @@ function openOutline() {
         documentId: id,
     });
 }
+
+provide(outlineKey, {open: openOutline, visible: outlineVisible});
 
 let footNoteCount = ordinalRange[0] || 0;
 
@@ -161,33 +159,6 @@ function onCheckClick(event: Event) {
 <style scoped>
 .bible-document {
     position: relative;
-}
-
-.outline-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    padding: 4px 8px;
-    margin: 4px 0;
-    border-radius: 4px;
-    font-size: 90%;
-    opacity: 0.6;
-    user-select: none;
-    -webkit-user-select: none;
-
-    &:hover {
-        opacity: 1;
-        background-color: rgba(128, 128, 128, 0.1);
-    }
-
-    .night & {
-        opacity: 0.7;
-
-        &:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-    }
 }
 
 .mark-as-read-container {

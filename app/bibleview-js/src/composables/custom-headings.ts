@@ -80,6 +80,7 @@ export function useCustomHeadings(
     ordinalRange: OrdinalRange,
     {customHeadings}: { customHeadings: Map<IdType, CustomHeading> },
     config: Config,
+    openOutline?: () => void,
 ) {
     const isMounted = ref(0);
     const undoList: (() => void)[] = [];
@@ -115,6 +116,18 @@ export function useCustomHeadings(
             wrapper.dataset.ordinal = String(h.ordinal);
             wrapper.dataset.level = String(h.level);
             wrapper.dataset.isCustom = "true";
+
+            if (openOutline) {
+                const outlineBtn = document.createElement("button");
+                outlineBtn.classList.add("title-outline-btn");
+                outlineBtn.textContent = "≡";
+                outlineBtn.addEventListener("click", (e: Event) => {
+                    e.stopPropagation();
+                    openOutline();
+                });
+                wrapper.appendChild(outlineBtn);
+            }
+
             const headingElem = document.createElement(`h${h.level}`);
             headingElem.classList.add("titleStyle", "custom-heading");
             headingElem.textContent = h.text;

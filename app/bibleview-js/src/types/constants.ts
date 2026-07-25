@@ -61,3 +61,4 @@ export const hideTitlesKey: InjectionKey<boolean> = Symbol("hideTitles");
 export const memorizationKey: InjectionKey<ReturnType<typeof useMemorization>> = Symbol("memorization");
 export const readingProgressSettingsKey: InjectionKey<ReturnType<typeof useReadingProgressSettings>> = Symbol("readingProgressSettings");
 export const customHeadingsKey: InjectionKey<ReturnType<typeof useGlobalCustomHeadings>> = Symbol("customHeadings");
+export const outlineKey: InjectionKey<{open: () => void, visible: Ref<boolean>}> = Symbol("outline");

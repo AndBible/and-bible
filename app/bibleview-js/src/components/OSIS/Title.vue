@@ -17,18 +17,18 @@
 
 <template>
   <div class="title-wrapper" v-if="show">
+    <button v-if="outlineCtx?.visible" class="title-outline-btn" @click.stop="outlineCtx.open">≡</button>
     <component :is="headingTag" ref="titleEl" class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}" :data-ordinal="ordinal" :data-title-index="titleIndex" tabindex="0" @click="titleClicked" @keydown.enter="titleClicked" @keydown.space.prevent="titleClicked">
       <template v-if="overrideText !== null">{{ overrideText }}</template>
       <slot v-else/>
     </component>
-    <button v-if="config.showTitleScrollButton" class="title-scroll-btn" @click.stop="scrollToTitle">↑</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed, inject, ref} from "vue";
-import {bibleDocumentInfoKey, customHeadingsKey, hideTitlesKey} from "@/types/constants";
+import {bibleDocumentInfoKey, customHeadingsKey, hideTitlesKey, outlineKey} from "@/types/constants";
 import {addEventFunction, EventPriorities} from "@/utils";
 import {emit} from "@/eventbus";
 import {headingOverrideKey, HeadingMenuPayload} from "@/composables/custom-headings";
@@ -53,8 +53,9 @@ const isBibleDoc = bibleDocumentInfo != undefined
 checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
 checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
 checkUnsupportedProps(props, "canonical", ["true", "false"]);
-const {config, appSettings, calculatedConfig} = useCommon();
+const {config, appSettings, strings} = useCommon();
 const hideTitles = inject(hideTitlesKey, false);
+const outlineCtx = inject(outlineKey, null);
 
 const isCanonical = computed(() => props.canonical === "true");
 
@@ -96,16 +97,6 @@ function titleClicked(event: Event) {
     addEventFunction(event, () => emit("open_heading_menu", payload),
         {priority: EventPriorities.HEADING, title: payload.text});
 }
-
-function scrollToTitle() {
-    if (titleEl.value && calculatedConfig) {
-        const rect = titleEl.value.getBoundingClientRect();
-        window.scrollTo({
-            top: window.scrollY + rect.top - calculatedConfig.value.topOffset,
-            behavior: appSettings.disableAnimations ? 'instant' : 'smooth'
-        });
-    }
-}
 </script>
 
 <style lang="scss">
@@ -125,23 +116,30 @@ h6.isSubTitle {
 
 .title-wrapper {
   position: relative;
+  padding-inline-start: 28px;
 }
 
-.title-scroll-btn {
+.title-outline-btn {
   position: absolute;
-  right: 0;
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  opacity: 0.3;
-  font-size: 120%;
+  opacity: 0.4;
+  font-size: 100%;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 6px 8px;
   line-height: 1;
   color: inherit;
-  .monochrome & {
+  z-index: 1;
+
+  &:hover {
     opacity: 1;
+  }
+
+  .monochrome & {
+    opacity: 0.7;
   }
 }
 </style>
