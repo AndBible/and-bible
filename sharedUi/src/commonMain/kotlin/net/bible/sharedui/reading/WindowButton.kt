@@ -21,6 +21,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -52,12 +53,15 @@ import androidx.compose.ui.unit.sp
  * The two call sites of classic Android's single `WindowButtonWidget(isRestoreButton = true/false)`:
  * [Rail] is the restore rail's per-window button (Plan A Task 5, `isRestoreButton = true`); [Pane]
  * is the floating per-pane "☰" button hosted on each split pane (Plan B Task 5,
- * `isRestoreButton = false`). Here [mode] only changes the label's text style (Rail: compact, like
- * classic's 13sp `buttonText`; Pane: larger, like classic's own `windowButton` text) — every other
- * look (tint / minimised / badges) is driven purely by the boolean/int state parameters below, not
- * gated by [mode], so a host can show e.g. a pin badge on a Pane button too if it ever needs to
- * (classic gated pin/sync visibility by `isRestoreButton` imperatively in `updateSettings()`; this
- * port leaves that decision to the caller, which already knows which state applies where).
+ * `isRestoreButton = false`). [mode] switches the label layout: Rail restores classic's two-row
+ * `topButtonText`/`buttonText` stack (bottom-start, `window_button.xml` + `WindowButtonWidget.kt:126,145`,
+ * see [topLabel]); Pane keeps a single centred glyph, larger, like classic's own `windowButton`
+ * text (`isRestoreButton = false` hides both `topButtonText`/`buttonText` and centres `windowButton`
+ * itself, `WindowButtonWidget.kt:133-137,149-150`) — every other look (tint / minimised / badges) is
+ * driven purely by the boolean/int state parameters below, not gated by [mode], so a host can show
+ * e.g. a pin badge on a Pane button too if it ever needs to (classic gated pin/sync visibility by
+ * `isRestoreButton` imperatively in `updateSettings()`; this port leaves that decision to the
+ * caller, which already knows which state applies where).
  */
 enum class WindowButtonMode { Rail, Pane }
 
@@ -69,6 +73,13 @@ private val BorderWidth = 1.dp
 private val MinimisedBorderWidth = 1.5.dp
 private const val MinimisedAlpha = 0.62f
 private val DashPattern = floatArrayOf(4f, 3f)
+
+/** Classic rail `buttonText` size, set at runtime in `WindowButtonWidget.kt:126`. */
+private val RailLabelSize = 13.sp
+/** Classic rail `topButtonText` size (`window_button.xml`, `android:textSize="8.6sp"`). */
+private val RailTopLabelSize = 9.sp
+/** Classic `buttonText`/`topButtonText` start padding (`window_button.xml`, `paddingStart="1dip"` + the badge column). */
+private val RailTextStartPadding = 2.dp
 
 /**
  * Stateless Compose port of classic `WindowButtonWidget`
@@ -87,7 +98,8 @@ private val DashPattern = floatArrayOf(4f, 3f)
  *   currently shown", distinct from a merely-inactive button. There's no 1:1 classic analogue (the
  *   classic widget has no such "minimised" concept); this look was chosen for the new Compose split
  *   to read as "temporarily set aside" rather than plain "not selected".
- * - [isPinned] → a small dot badge (classic `pinMode` `ic_pin`, bottom-start corner).
+ * - [isPinned] → a small dot badge (classic `pinMode` `ic_pin`, start edge under the sync badge —
+ *   `window_button.xml:97-107` `Top_toBottomOf="@id/synchronize"`).
  * - [isLinks] → a link glyph (classic `docType` force-swapped to `ic_link_black_24dp`); takes the
  *   SAME top-end corner as [leadingIcon] and always wins over it, exactly like classic always
  *   overwriting `docType`'s image when `window.isLinksWindow`.
@@ -104,6 +116,10 @@ private val DashPattern = floatArrayOf(4f, 3f)
  *   id, so this file stays iOS-clean.
  * @param leadingIcon doc-type icon (host-supplied [Painter], never `R.drawable`/`ImageVector`
  *   resource ids); `null` → none shown. Ignored (visually) when [isLinks] is true.
+ * @param topLabel Rail only: classic's tiny `topButtonText` row — `window.pageManager.titleText`
+ *   (e.g. "Gen 1"), host-supplied like [label] so this file stays iOS-clean. `null` (the default,
+ *   and what the Pane call site passes) renders no top row, matching classic hiding
+ *   `topButtonText` for non-rail buttons (`WindowButtonWidget.kt:149`).
  */
 @Composable
 fun WindowButton(
@@ -118,6 +134,7 @@ fun WindowButton(
     onLongPress: () -> Unit,
     modifier: Modifier = Modifier,
     leadingIcon: Painter? = null,
+    topLabel: String? = null,
 ) {
     val colors = MaterialTheme.colorScheme
     val containerColor = if (isActive) colors.primaryContainer else colors.surfaceVariant
@@ -152,14 +169,43 @@ fun WindowButton(
                 detectTapGestures(onTap = { onClick() }, onLongPress = { onLongPress() })
             },
     ) {
-        Text(
-            text = label,
-            style = if (mode == WindowButtonMode.Pane) MaterialTheme.typography.titleMedium else MaterialTheme.typography.labelLarge,
-            color = contentColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.align(Alignment.Center).padding(horizontal = 2.dp),
-        )
+        when (mode) {
+            WindowButtonMode.Pane -> Text(
+                text = label,
+                style = MaterialTheme.typography.titleMedium,
+                color = contentColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.align(Alignment.Center).padding(horizontal = 2.dp),
+            )
+            // Classic's rail button is two-row: the tiny page title under the top badge row, and
+            // the document abbreviation bottom-start (window_button.xml + WindowButtonWidget.kt:126,145).
+            WindowButtonMode.Rail -> Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = RailTextStartPadding, end = 1.dp, bottom = 1.dp),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                if (topLabel != null) {
+                    Text(
+                        text = topLabel,
+                        fontSize = RailTopLabelSize,
+                        lineHeight = RailTopLabelSize,
+                        color = contentColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                Text(
+                    text = label,
+                    fontSize = RailLabelSize,
+                    lineHeight = RailLabelSize,
+                    color = contentColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
 
         // Top-end corner: the link glyph always wins over a doc-type leadingIcon (mirrors classic
         // docType being force-swapped to ic_link when isLinksWindow).
@@ -187,10 +233,12 @@ fun WindowButton(
                 modifier = Modifier.align(Alignment.TopStart).padding(2.dp),
             )
         }
-        // Bottom-start corner: pin dot (classic `pinMode` ic_pin).
+        // Start edge, directly under the sync badge (classic `pinMode`,
+        // window_button.xml:97-107 `Top_toBottomOf="@id/synchronize"`) — NOT bottom-start, which
+        // would collide with the rail's bottom label row.
         if (isPinned) {
             Box(
-                modifier = Modifier.align(Alignment.BottomStart).padding(3.dp).size(PinDotSize)
+                modifier = Modifier.align(Alignment.TopStart).padding(start = 3.dp, top = 15.dp).size(PinDotSize)
                     .clip(CircleShape)
                     .background(contentColor),
             )

@@ -39,9 +39,10 @@ import org.robolectric.annotation.GraphicsMode
  * rail (Plan A Task 5) and the floating per-pane ☰ button (Plan B Task 5), mirroring classic
  * `WindowButtonWidget` (`app/src/main/java/net/bible/android/view/util/widget/WindowButtonWidget.kt`).
  *
- * A single [Row] renders 7 representative states side by side so one capture shows every visual
+ * A single [Row] renders 9 representative states side by side so one capture shows every visual
  * distinction at once: active vs. inactive tint, the minimised look (dimmed + dashed outline), the
- * pin dot, the links glyph, a sync-group badge, and the Pane-mode "☰" button.
+ * pin dot, the links glyph, a sync-group badge, the Pane-mode "☰" button, and classic's two-row
+ * rail geometry (page title over the abbreviation, with and without a top label).
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -140,10 +141,38 @@ class WindowButtonGoldenTest {
                 onClick = {},
                 onLongPress = {},
             )
+            // rail-twoRow: classic's two-row rail geometry — page title above the abbreviation,
+            // doc-type icon top-end, sync badge + pin dot on the start edge.
+            WindowButton(
+                label = "KJV",
+                isActive = false,
+                isMinimised = false,
+                isPinned = true,
+                isLinks = false,
+                syncGroup = 1,
+                mode = WindowButtonMode.Rail,
+                onClick = {},
+                onLongPress = {},
+                leadingIcon = painterResource(R.drawable.ic_bible_24dp),
+                topLabel = "Gen 1",
+            )
+            // rail-noTopLabel: no current document title -> single bottom-start label row.
+            WindowButton(
+                label = "ESV",
+                isActive = false,
+                isMinimised = false,
+                isPinned = false,
+                isLinks = false,
+                syncGroup = 0,
+                mode = WindowButtonMode.Rail,
+                onClick = {},
+                onLongPress = {},
+                topLabel = null,
+            )
         }
     }
 
-    // 7 buttons at 40dp + 8dp spacing/padding need more width than the default portrait viewport
+    // 9 buttons at 40dp + 8dp spacing/padding need more width than the default portrait viewport
     // (320dp) comfortably provides, so this is captured in `land` (same technique as
     // ReadingToolbarGoldenTest/ReadingViewScreenGoldenTest) to keep every button fully visible,
     // uncropped, in one row.
