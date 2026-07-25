@@ -549,3 +549,21 @@ class HostedStateRefresherTest {
         assertEquals(1, generation.state.value)
     }
 }
+
+/**
+ * The Compose speak transport bar's visibility condition, extracted as a pure predicate because
+ * this repo's `:app` unit tests have no `ComposeTestRule` — inline in the slot lambda it would be
+ * device-verifiable only. Classic hides the bar with the compound
+ * `if (isFullScreen || !transportBarVisible)` in `MainBibleActivity.updateBottomBars()`, while
+ * `SpeakTransportVisibilityChanged` carries only the raw `transportBarVisible` field (its getter's
+ * fullscreen mask is not applied before posting) — so the fullscreen half has to be re-applied
+ * here. See the pre-A/B state-freshness spec §1 P3.
+ */
+class SpeakBarVisibilityTest {
+    @Test fun visibleOnlyWhenSpeakingAndNotFullscreen() {
+        assertTrue(speakBarVisible(fullScreen = false, transportVisible = true))
+        assertFalse(speakBarVisible(fullScreen = true, transportVisible = true))
+        assertFalse(speakBarVisible(fullScreen = false, transportVisible = false))
+        assertFalse(speakBarVisible(fullScreen = true, transportVisible = false))
+    }
+}

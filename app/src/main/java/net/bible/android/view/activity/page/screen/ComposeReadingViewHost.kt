@@ -193,6 +193,22 @@ class HostedStateRefresher(
 }
 
 /**
+ * Whether the reading view's Speak transport bar should be shown — the Compose counterpart of
+ * classic `MainBibleActivity.updateBottomBars()`'s `if (isFullScreen || !transportBarVisible)`
+ * animate-out branch.
+ *
+ * [transportVisible] arrives from `SpeakTransportVisibilityChanged`, which the
+ * `transportBarVisible` **setter** posts with the raw backing field — its getter's
+ * `if (isFullScreen) false` mask is NOT applied before posting, and `toggleFullScreen()` posts
+ * only `FullScreenEvent`. So without re-applying the fullscreen half here, the bar stayed on
+ * screen in fullscreen on the Compose path while classic animated it away (pre-A/B spec §1 P3).
+ *
+ * A pure function so it is unit-testable — see `SpeakBarVisibilityTest`.
+ */
+internal fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Boolean =
+    !fullScreen && transportVisible
+
+/**
  * Auto-hide state for the pane overlay's floating ☰ button (Batch 12b follow-on Plan B Task 5) —
  * the Compose port of classic `SplitBibleArea.resetTouchTimer`/`toggleWindowButtonVisibility`
  * (`screen/SplitBibleArea.kt:511-575`), hoisted to a host-owned field (design spec §9: "hoist it
@@ -795,7 +811,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // `mountComposeView` rather than rebuilt from raw state.
             speakBarSlot = {
                 val speakState by speakTransport.state.collectAsState()
-                if (speakState.visible) {
+                // `fullScreen` is the host's own MutableState (fed by FullScreenEvent), read here
+                // so the bar recomposes away when fullscreen is entered — see [speakBarVisible].
+                if (speakBarVisible(fullScreen = fullScreen.value, transportVisible = speakState.visible)) {
                     SpeakTransportBar(
                         speakState,
                         onPlayPause = { speakTransport.togglePlayPause() },
