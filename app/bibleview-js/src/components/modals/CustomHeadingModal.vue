@@ -98,6 +98,9 @@ setupEventBusListener("open_heading_menu", (p: HeadingMenuPayload) => {
         mode.value = "menu";
     }
     showModal.value = true;
+    if (mode.value === "edit") {
+        nextTick(() => inputRef.value?.focus());
+    }
 });
 
 function startEdit() {
