@@ -25,6 +25,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalDrawerSheet
@@ -1298,6 +1301,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                         tabBar = if (hideTabBarInFullScreen) null else {
                                             {
                                                 WindowTabBar(
+                                                    // Classic lifts restoreButtonsContainer clear of the
+                                                    // system/transport chrome with translationY(-bottomOffset2)
+                                                    // (SplitBibleArea.kt:619). mainBibleView is bottom-padded
+                                                    // only while the IME is open (MainBibleActivity.kt:642-648),
+                                                    // so the floating rail must consume the navigation-bar inset
+                                                    // itself. The agentLog/speakBar slots sit BELOW the split
+                                                    // and are unaffected by this padding.
+                                                    modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars),
                                                     model = tabBarModel,
                                                     onRestore = controller::onRestore,
                                                     // Plan B Task 5: a rail long-press now opens the SAME

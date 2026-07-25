@@ -98,6 +98,15 @@ private data class ActiveDrag(val index: Int, val weight1: Float, val weight2: F
  * rather than living inside any one of them, so it survives orientation/pane-count changes
  * unaffected. Used for a single bottom-centre overlay shared across the whole split, e.g. the
  * fullscreen bible-reference overlay. `null` by default, in which case nothing extra is drawn.
+ *
+ * [railOverlay], when non-null, is composed as a SIBLING of the panes container (like
+ * [bottomOverlay]) but is the caller's to align — the window-tab rail aligns it `BottomEnd`,
+ * mirroring classic `restoreButtonsContainer`'s `bottom`+`end`-only constraints
+ * (`res/layout/split_bible_area.xml:31-38`), so the rail FLOATS over the panes instead of taking a
+ * layout band from them. It is a separate slot from [bottomOverlay] on purpose: that one carries
+ * the bottom-CENTRE fullscreen bible-reference overlay, and one shared slot would make two
+ * independent overlays compete for a single alignment and z-order. Composed last, so the rail
+ * draws above the reference overlay where they meet.
  */
 @Composable
 fun SplitContent(
@@ -108,6 +117,7 @@ fun SplitContent(
     modifier: Modifier = Modifier,
     paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
     bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
+    railOverlay: (@Composable BoxScope.() -> Unit)? = null,
 ) {
     val windows = layout.windows.filter { it.isVisible }
     BoxWithConstraints(modifier.fillMaxSize()) {
@@ -218,6 +228,7 @@ fun SplitContent(
             }
         }
         bottomOverlay?.invoke(this)
+        railOverlay?.invoke(this)
     }
 }
 
@@ -315,7 +326,8 @@ private fun Separator(
  * showed as a visible gap above/below the bar).
  *
  * A plain tap is not consumed by `draggable`, so the pane's own tap-to-activate handler still sees
- * it — verified on device (Task 9's checklist item), since this repo has no Compose UI-test harness.
+ * it — this repo has no Compose UI-test harness, so the tap-vs-drag disambiguation is deferred to
+ * the device A/B checklist (Task 9's item), not yet verified on hardware.
  */
 @Composable
 private fun BoxScope.DragStrip(

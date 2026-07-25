@@ -17,10 +17,12 @@
 
 package net.bible.sharedui.reading
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.ToolbarState
@@ -33,19 +35,27 @@ import net.bible.sharedcore.window.WindowLayoutState
  * hiding it — when [fullScreen], so [SplitContent] reclaims the full height via
  * `Modifier.weight(1f)`.
  *
- * [tabBar] is an optional trailing slot rendered below [SplitContent] (intrinsic height; the
- * split keeps `Modifier.weight(1f)` so the rail doesn't shrink it further). It's `null` by
- * default, in which case nothing is rendered there — the restore-rail host (a later task) is
- * the only caller expected to pass it.
+ * [tabBar] is an optional slot floated over the split's bottom-end corner rather than rendered
+ * in-flow in this `Column`: it is forwarded into [SplitContent]'s `railOverlay` (a sibling of the
+ * panes container, inside `SplitContent`'s own `BoxWithConstraints`, aligned `BottomEnd`), so it
+ * overlaps the panes instead of taking a layout band from them — matching classic
+ * `restoreButtonsContainer`'s constraint-only-to-`bottom`+`end` container
+ * (`res/layout/split_bible_area.xml:31-38`), never a full-width row. It's `null` by default, in
+ * which case nothing is rendered there — the restore-rail host (a later task) is the only caller
+ * expected to pass it.
  *
- * [agentLog] is an optional slot rendered between [SplitContent] and [tabBar] (intrinsic height,
- * same as [tabBar]) — i.e. it sits directly above the restore rail. It's `null` by default, in
- * which case nothing is rendered there; the host is expected to pass the live agent-log panel
- * (`AgentLogPanel`) here.
+ * [agentLog] is an optional slot rendered directly below [SplitContent], in-flow (intrinsic
+ * height; the split keeps `Modifier.weight(1f)` so it doesn't shrink further). It's `null` by
+ * default, in which case nothing is rendered there; the host is expected to pass the live
+ * agent-log panel (`AgentLogPanel`) here.
  *
- * [speakBar] is an optional slot (intrinsic height) rendered directly under [agentLog] and above
- * [tabBar] — the Batch-12f speak-transport bar. It's `null` by default, in which case nothing is
- * rendered there; the host is expected to pass the live `SpeakTransportBar` here.
+ * [speakBar] is an optional slot (intrinsic height) rendered directly under [agentLog], in-flow
+ * and below the split — the Batch-12f speak-transport bar. It's `null` by default, in which case
+ * nothing is rendered there; the host is expected to pass the live `SpeakTransportBar` here.
+ * [tabBar]'s floating rail is composed OVER the split rather than joining this in-flow stack, and
+ * it sits higher on screen than [agentLog]/[speakBar] — the same stacking classic uses, where
+ * `restoreButtonsContainer` is lifted clear of the transport bar via
+ * `translationY(-bottomOffset2)` (`SplitBibleArea.kt:619`) rather than being pushed down by it.
  *
  * [paneOverlay] is forwarded verbatim to [SplitContent]'s slot of the same name — an optional
  * per-pane overlay (e.g. the floating ☰ window button), composed inside every visible pane. `null`
@@ -112,9 +122,9 @@ fun ReadingViewScreen(
             modifier = Modifier.weight(1f),
             paneOverlay = paneOverlay,
             bottomOverlay = bottomOverlay,
+            railOverlay = tabBar?.let { bar -> { Box(Modifier.align(Alignment.BottomEnd)) { bar() } } },
         )
         agentLog?.invoke()
         speakBar?.invoke()
-        tabBar?.invoke()
     }
 }

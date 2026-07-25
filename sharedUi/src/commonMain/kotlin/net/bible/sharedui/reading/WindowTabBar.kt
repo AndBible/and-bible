@@ -22,13 +22,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -54,21 +55,48 @@ private val RailEntrySpacing = 6.dp
 private val GroupSeparatorWidth = 1.dp
 private val GroupSeparatorHeight = 24.dp
 
+/** Classic `window_bar_background` (`res/drawable/window_bar_background.xml`): only the top-start
+ *  corner is rounded, 6dp. `topStart`, not `topLeft`, is the deliberate RTL-correct reading of the
+ *  same intent — it mirrors to the visual top-right in an RTL layout, where classic's hard-coded
+ *  `topLeftRadius` would not. */
+private val RailCornerRadius = 6.dp
+/** Classic `window_bar_background`'s `padding left=5dp top=2dp` (right/bottom are 0). */
+private val RailPaddingStart = 5.dp
+private val RailPaddingTop = 2.dp
+
 /**
  * The window-tab rail: a bottom-end-aligned bar mirroring classic `SplitBibleArea`'s restore
  * button strip (`app/src/main/java/net/bible/android/view/activity/page/screen/SplitBibleArea.kt`
  * `rebuildRestoreButtons()`) — a dumb renderer of [WindowTabBarModel] (the pure derivation from
  * `WindowLayoutState`, Task 4), reusing [WindowButton] (Task 3) for every tab.
  *
- * Layout: a [Row] (`fillMaxWidth`, [Arrangement.End]) always shows the leading control for
- * [WindowTabBarModel.leading] first, then — while [WindowTabBarModel.showButtons] — a [LazyRow]
- * rendering [WindowTabBarModel.entries] (window tabs interleaved with group separators). Because
- * the [LazyRow] carries `Modifier.weight(1f)`, it claims the rest of the width whenever it is
- * shown (matching classic's scrollable button strip); when hidden (single/maximised, or
- * collapsed), the lone leading control is pushed to the row's end by [Arrangement.End] — a small
- * control sitting at the bottom-end corner, exactly like classic's translated-off-screen restore
- * bar leaves only its arrow visible. Showing/hiding the [LazyRow] is wrapped in [AnimatedVisibility]
- * (per [RailLeading.CollapseToggle]) so the strip slides rather than jump-cuts.
+ * Layout: a [Row] (`wrapContentWidth`, [Arrangement.End], background-bearing — see below) always
+ * shows the leading control for [WindowTabBarModel.leading] first, then — while
+ * [WindowTabBarModel.showButtons] — a [LazyRow] rendering [WindowTabBarModel.entries] (window
+ * tabs interleaved with group separators), itself packed to the end via
+ * `Arrangement.spacedBy(RailEntrySpacing, alignment = Alignment.End)`. The outer [Row] is
+ * `wrapContentWidth` rather than `fillMaxWidth`, and the [LazyRow] sits in an
+ * `AnimatedVisibility(Modifier.weight(1f, fill = false))` (so it measures to its actual tab-strip
+ * width, never stretching to fill) — together these let the WHOLE bar shrink to just what it
+ * needs and sit at its container's end edge, restoring classic `restoreButtonsContainer`'s
+ * `wrap_content`-width, `bottom`+`end`-only-constrained container
+ * (`res/layout/split_bible_area.xml:31-38`) and its inner row's `layout_gravity="end"` (`:39-44`) —
+ * the bar FLOATS over the panes ([SplitContent]'s `railOverlay`) instead of taking a layout band
+ * from them. When hidden (single/maximised, or collapsed), the lone leading control is pushed to
+ * the row's end by [Arrangement.End] — a small control sitting at the bottom-end corner, exactly
+ * like classic's translated-off-screen restore bar leaves only its arrow visible. Showing/hiding
+ * the [LazyRow] is wrapped in [AnimatedVisibility] (per [RailLeading.CollapseToggle]) so the strip
+ * slides rather than jump-cuts.
+ *
+ * The background (`Modifier.background(MaterialTheme.colorScheme.surfaceVariant,
+ * RoundedCornerShape(topStart = [RailCornerRadius]))`, padded by [RailPaddingStart]/
+ * [RailPaddingTop]) restores classic `window_bar_background`
+ * (`res/drawable/window_bar_background.xml`): a rectangle with only ONE corner rounded and
+ * asymmetric padding. `topStart` — not `topLeft` — is used deliberately: it mirrors to the visual
+ * top-right corner in RTL, where classic's hard-coded `topLeftRadius` does not. Since M3 theming
+ * (not a hard-coded hue) drives the colour, [net.bible.sharedui.theme.AbTheme]'s monochrome/e-ink
+ * `displayColorMode` grayscales it automatically, same as every other M3-coloured surface in this
+ * port.
  *
  * Each [WindowButton] is keyed by its window id (and each separator by its position) — required
  * so [WindowButton]'s `pointerInput(Unit)`-based tap/long-press keeps a stable identity across
@@ -97,7 +125,13 @@ fun WindowTabBar(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(4.dp),
+        modifier = modifier
+            .wrapContentWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(topStart = RailCornerRadius),
+            )
+            .padding(start = RailPaddingStart, top = RailPaddingTop, end = 0.dp, bottom = 0.dp),
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -110,8 +144,7 @@ fun WindowTabBar(
 
         AnimatedVisibility(visible = model.showButtons, modifier = Modifier.weight(1f, fill = false)) {
             LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(RailEntrySpacing, alignment = Alignment.Start),
+                horizontalArrangement = Arrangement.spacedBy(RailEntrySpacing, alignment = Alignment.End),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 itemsIndexed(
