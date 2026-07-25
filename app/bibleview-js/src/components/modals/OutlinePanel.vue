@@ -29,7 +29,7 @@
           tabindex="0"
           role="button"
       >
-        <FontAwesomeIcon v-if="entry.isCustom" icon="star" class="custom-icon"/>
+        <FontAwesomeIcon v-if="entry.isCustom" :icon="faStar" class="custom-icon"/>
         <span class="entry-text">{{ entry.text }}</span>
       </div>
     </div>
@@ -41,6 +41,7 @@
 import {ref} from "vue";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faStar} from "@fortawesome/free-solid-svg-icons";
 import {useCommon} from "@/composables";
 import {setupEventBusListener} from "@/eventbus";
 import {OutlineEntry} from "@/composables/outline";

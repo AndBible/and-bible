@@ -125,6 +125,9 @@ export function useCustomHeadings(
                     e.stopPropagation();
                     openOutline();
                 });
+                outlineBtn.addEventListener("keydown", (e: KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") e.stopPropagation();
+                });
                 wrapper.appendChild(outlineBtn);
             }
 

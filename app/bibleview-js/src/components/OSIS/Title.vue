@@ -17,7 +17,7 @@
 
 <template>
   <div class="title-wrapper" v-if="show">
-    <button v-if="outlineCtx?.visible" class="title-outline-btn" @click.stop="outlineCtx.open">≡</button>
+    <button v-if="outlineCtx?.visible" class="title-outline-btn" @click.stop="outlineCtx.open" :aria-label="strings.outline" :title="strings.outline">≡</button>
     <component :is="headingTag" ref="titleEl" class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}" :data-ordinal="ordinal" :data-title-index="titleIndex" tabindex="0" @click="titleClicked" @keydown.enter="titleClicked" @keydown.space.prevent="titleClicked">
       <template v-if="overrideText !== null">{{ overrideText }}</template>
       <slot v-else/>
@@ -53,7 +53,7 @@ const isBibleDoc = bibleDocumentInfo != undefined
 checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
 checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
 checkUnsupportedProps(props, "canonical", ["true", "false"]);
-const {config, appSettings, strings} = useCommon();
+const {config, strings} = useCommon();
 const hideTitles = inject(hideTitlesKey, false);
 const outlineCtx = inject(outlineKey, null);
 

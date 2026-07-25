@@ -15,7 +15,7 @@
  */
 
 import {computed, onMounted, onUnmounted, shallowReactive, watch} from "vue";
-import {emit, setupEventBusListener} from "@/eventbus";
+import {setupEventBusListener} from "@/eventbus";
 import {CustomHeading, OrdinalRange} from "@/types/client-objects";
 
 export type OutlineEntry = {
@@ -79,8 +79,4 @@ export function useOutline(
     const visible = computed(() => entries.value.length > 0);
 
     return {entries, visible, refresh: collectModuleHeadings};
-}
-
-export function openOutline() {
-    emit("open_outline");
 }
