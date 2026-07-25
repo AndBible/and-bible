@@ -2272,33 +2272,45 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateBottomBars() {
         Log.i(TAG, "updateBottomBars")
-        if(isFullScreen || !transportBarVisible) {
-            binding.speakTransport.animate()
-                .translationY(binding.speakTransport.height.toFloat())
-                .setInterpolator(AccelerateInterpolator())
-                .withEndAction { binding.speakTransport.visibility = View.GONE }
-                .apply {
-                    if(CommonUtils.settings.disableAnimations) {
-                        duration = 0
+        // The Compose Speak transport bar (`ComposeReadingViewHost`/`SpeakTransportBar`, gated by
+        // `speakBarVisible`) and agent-log panel (`AgentLogPanel`) own this chrome on the
+        // `use_compose_ui` path — `ComposeReadingViewHost.install()` hides the classic
+        // `speakTransport`/`agentLogWidget` views at mount time. Every mutation of those classic
+        // views below is guarded on `composeUiEnabled`, matching how `updateToolbar()` already
+        // guards its classic `toolbarLayout` mutations, so they don't re-show themselves over the
+        // Compose replacements. `bottomOffset1`/`transportBarHeight`/`transportBarVisible` keep
+        // being tracked unconditionally — other code (e.g. `bottomOffset2`/`bottomOffset3`) reads
+        // them regardless of which UI is active; only the classic views' own visibility changes.
+        val composeUiEnabled = CommonUtils.settings.getBoolean("use_compose_ui", false)
+        if (!composeUiEnabled) {
+            if(isFullScreen || !transportBarVisible) {
+                binding.speakTransport.animate()
+                    .translationY(binding.speakTransport.height.toFloat())
+                    .setInterpolator(AccelerateInterpolator())
+                    .withEndAction { binding.speakTransport.visibility = View.GONE }
+                    .apply {
+                        if(CommonUtils.settings.disableAnimations) {
+                            duration = 0
+                        }
                     }
-                }
-                .start()
-        } else {
-            binding.speakTransport.visibility = View.VISIBLE
-            binding.speakTransport.animate()
-                .translationY(-bottomOffset1.toFloat())
-                .setInterpolator(DecelerateInterpolator())
-                .apply {
-                    if(CommonUtils.settings.disableAnimations) {
-                        duration = 0
+                    .start()
+            } else {
+                binding.speakTransport.visibility = View.VISIBLE
+                binding.speakTransport.animate()
+                    .translationY(-bottomOffset1.toFloat())
+                    .setInterpolator(DecelerateInterpolator())
+                    .apply {
+                        if(CommonUtils.settings.disableAnimations) {
+                            duration = 0
+                        }
                     }
-                }
-                .start()
-        }
+                    .start()
+            }
 
-        // Position agent log widget above system nav bar and transport bar
-        val agentLogOffset = bottomOffset1 + (if (transportBarVisible) transportBarHeight else 0)
-        binding.agentLogWidget.translationY = -agentLogOffset.toFloat()
+            // Position agent log widget above system nav bar and transport bar
+            val agentLogOffset = bottomOffset1 + (if (transportBarVisible) transportBarHeight else 0)
+            binding.agentLogWidget.translationY = -agentLogOffset.toFloat()
+        }
 
         ABEventBus.post(UpdateRestoreWindowButtons())
     }

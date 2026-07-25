@@ -209,6 +209,21 @@ internal fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Bo
     !fullScreen && transportVisible
 
 /**
+ * Whether the classic native bottom chrome — [net.bible.android.view.util.widget.AgentLogWidget]
+ * and `MainBibleActivity`'s classic `speakTransport` bar — is allowed to make itself visible.
+ * `false` on the Compose path, where `ReadingViewScreen`'s `agentLog`/`speakBar` slots (see
+ * [agentLog]/[speakTransport] below, wired as `agentLogSlot`/`speakBarSlot` in [install]) are the
+ * ones that own this chrome; left showing, the classic views would draw ON TOP of their Compose
+ * replacements, since both are declared AFTER the Compose container in `main_bible_view.xml` and
+ * anchored to the parent bottom (pre-A/B state-freshness spec §1 P3, Task 5).
+ *
+ * A pure function, mirroring [speakBarVisible] above, so this decision is unit-testable even at
+ * its `AgentLogWidget` call site — a real `View` with no Robolectric test in this repo — see
+ * `ClassicBottomChromeAllowedTest`.
+ */
+internal fun classicBottomChromeAllowed(composeHosted: Boolean): Boolean = !composeHosted
+
+/**
  * Auto-hide state for the pane overlay's floating ☰ button (Batch 12b follow-on Plan B Task 5) —
  * the Compose port of classic `SplitBibleArea.resetTouchTimer`/`toggleWindowButtonVisibility`
  * (`screen/SplitBibleArea.kt:511-575`), hoisted to a host-owned field (design spec §9: "hoist it
@@ -649,6 +664,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // visibility/constraints, and `container`'s LayoutParams are never mutated.
         activity.binding.toolbarLayout.visibility = View.GONE
         activity.binding.toolbarDivider.visibility = View.GONE
+        // The classic Speak-transport bar and agent-log widget are declared AFTER the Compose
+        // container in main_bible_view.xml and anchored to the parent bottom — unless hidden,
+        // they draw ON TOP of their Compose replacements (`ReadingViewScreen`'s `speakBar`/
+        // `agentLog` slots below, `speakBarSlot`/`agentLogSlot`). Hiding them here alone is not
+        // enough — both re-show themselves later (`MainBibleActivity.updateBottomBars()`,
+        // `AgentLogWidget`'s own bus handlers) — see `classicBottomChromeAllowed`, which those
+        // call sites guard on.
+        activity.binding.speakTransport.visibility = View.GONE
+        activity.binding.agentLogWidget.visibility = View.GONE
         (container.layoutParams as? ConstraintLayout.LayoutParams)?.let { params ->
             params.topToBottom = ConstraintLayout.LayoutParams.UNSET
             params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID

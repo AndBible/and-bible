@@ -38,6 +38,7 @@ import net.bible.android.database.IdType
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.AgentLogAdapter
+import net.bible.android.view.activity.page.screen.classicBottomChromeAllowed
 import net.bible.service.device.ScreenSettings
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
@@ -86,6 +87,15 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     private var isUserVisible: Boolean
         get() = CommonUtils.settings.getBoolean(PREF_AGENT_LOG_VISIBLE, false)
         set(value) = CommonUtils.settings.setBoolean(PREF_AGENT_LOG_VISIBLE, value)
+
+    /**
+     * On the `use_compose_ui` path, `ReadingViewScreen`'s `agentLog` slot (`AgentLogPanel`, driven
+     * by `ComposeReadingViewHost.agentLog`) owns this chrome — see `classicBottomChromeAllowed`.
+     * This classic widget has no host/activity reference (it's inflated straight from
+     * `main_bible_view.xml`), so the flag is read directly, same as `MainBibleActivity` does.
+     */
+    private val composeUiEnabled: Boolean
+        get() = CommonUtils.settings.getBoolean("use_compose_ui", false)
 
     /** Always reads the current workspace ID so it stays correct after workspace switches. */
     private val workspaceId: IdType get() = windowControl.windowRepository.id
@@ -184,8 +194,9 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             if (visibility != View.VISIBLE) {
                 show()
             }
-        } else if (isUserVisible) {
-            // Restore visibility from previous session
+        } else if (isUserVisible && classicBottomChromeAllowed(composeUiEnabled)) {
+            // Restore visibility from previous session (classic path only — see
+            // classicBottomChromeAllowed).
             visibility = View.VISIBLE
             updateBackgroundColor()
             notifyVisibilityChanged()
@@ -248,9 +259,13 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     }
 
     /**
-     * Show the widget.
+     * Show the widget. A no-op on the `use_compose_ui` path (see `classicBottomChromeAllowed`):
+     * `ReadingViewScreen`'s `agentLog` slot owns showing/hiding there (independently, via the same
+     * shared `PREF_AGENT_LOG_VISIBLE`/`AgentSessionService.setLogVisiblePref`), so this classic
+     * widget must never flip itself visible and draw over it.
      */
     fun show() {
+        if (!classicBottomChromeAllowed(composeUiEnabled)) return
         visibility = View.VISIBLE
         isUserVisible = true
         updateBackgroundColor()

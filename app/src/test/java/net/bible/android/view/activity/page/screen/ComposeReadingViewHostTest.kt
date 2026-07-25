@@ -567,3 +567,16 @@ class SpeakBarVisibilityTest {
         assertFalse(speakBarVisible(fullScreen = true, transportVisible = false))
     }
 }
+
+/**
+ * [classicBottomChromeAllowed] is the pure decision behind hiding `AgentLogWidget`/classic
+ * `speakTransport` on the Compose path (pre-A/B state-freshness spec §1 P3, Task 5) — extracted so
+ * it's unit-testable at its `AgentLogWidget` call site too, a real `View` this repo's `:app` unit
+ * tests never Robolectric-boot.
+ */
+class ClassicBottomChromeAllowedTest {
+    @Test fun allowedOnlyWhenComposeIsNotHosting() {
+        assertTrue(classicBottomChromeAllowed(composeHosted = false))
+        assertFalse(classicBottomChromeAllowed(composeHosted = true))
+    }
+}
