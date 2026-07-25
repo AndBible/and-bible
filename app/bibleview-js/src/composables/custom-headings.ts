@@ -112,8 +112,6 @@ export function useCustomHeadings(
             if (!verseElem || !verseElem.parentNode) continue;
             const wrapper = document.createElement("div");
             wrapper.classList.add("title-wrapper", "custom-heading-wrapper", "skip-offset");
-            wrapper.tabIndex = 0;
-            wrapper.setAttribute("role", "button");
             wrapper.dataset.ordinal = String(h.ordinal);
             wrapper.dataset.level = String(h.level);
             wrapper.dataset.isCustom = "true";
@@ -136,20 +134,23 @@ export function useCustomHeadings(
             const headingElem = document.createElement(`h${h.level}`);
             headingElem.classList.add("titleStyle", "custom-heading");
             headingElem.textContent = h.text;
-            wrapper.appendChild(headingElem);
-            function openMenu(event: Event) {
+            headingElem.tabIndex = 0;
+            headingElem.addEventListener("click", (event: MouseEvent) => {
                 addEventFunction(event, () => {
                     const payload: HeadingMenuPayload = {kind: "custom", headingId: h.id};
                     emit("open_heading_menu", payload);
                 }, {priority: EventPriorities.HEADING, title: h.text});
-            }
-            wrapper.addEventListener("click", openMenu);
-            wrapper.addEventListener("keydown", (event: KeyboardEvent) => {
+            });
+            headingElem.addEventListener("keydown", (event: KeyboardEvent) => {
                 if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    openMenu(event);
+                    addEventFunction(event, () => {
+                        const payload: HeadingMenuPayload = {kind: "custom", headingId: h.id};
+                        emit("open_heading_menu", payload);
+                    }, {priority: EventPriorities.HEADING, title: h.text});
                 }
             });
+            wrapper.appendChild(headingElem);
             verseElem.parentNode.insertBefore(wrapper, verseElem);
             undoList.push(() => wrapper.remove());
         }

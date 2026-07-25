@@ -90,11 +90,12 @@ useBookmarks(id, ordinalRange, globalBookmarks, bookInitials,  null, true, ref(t
 
 useCustomHeadings(id, bookInitials, ordinalRange, globalCustomHeadings, config, openOutline, strings.outline);
 
-const {entries: outlineEntries, visible: outlineVisible} = useOutline(
+const {entries: outlineEntries, visible: outlineVisible, refresh: refreshOutline} = useOutline(
     id, bookInitials, ordinalRange, globalCustomHeadings.customHeadings,
 );
 
 function openOutline() {
+    refreshOutline();
     emit("open_outline", {
         entries: outlineEntries.value,
         bookInitials,
