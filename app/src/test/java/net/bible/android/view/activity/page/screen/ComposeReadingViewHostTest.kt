@@ -7,6 +7,9 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowControl
@@ -17,6 +20,8 @@ import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.reading.ToolbarState
+import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.window.RailEntry
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowCommands
@@ -488,5 +493,59 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     @Test fun handleWindowPaneMenuItemReturnsFalseForAnUnknownWindowId() {
         // A stale click after the window closed underneath it (`getWindow` returns null) must not throw.
         assertFalse(activity.handleWindowPaneMenuItem(IdType().toString(), WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE))
+    }
+}
+
+/** Recording fake — no mocking framework in this repo (see the file header note). */
+private class RecordingToolbarStateService : ToolbarStateService {
+    var refreshCount = 0
+    private val _toolbar = MutableStateFlow(ToolbarState.EMPTY)
+    override val toolbar: StateFlow<ToolbarState> = _toolbar.asStateFlow()
+    override fun refresh() { refreshCount++ }
+}
+
+/**
+ * [HostedStateRefresher] is the framework-free fan-out behind
+ * `ComposeReadingViewHost.refreshHostedState()` — extracted precisely so the "classic refresh
+ * point pushed into the Compose state" contract is unit-testable without booting a
+ * [MainBibleActivity] or a Koin context (this repo's `:app` unit tests have no `ComposeTestRule`).
+ * See the pre-A/B state-freshness spec §1 P3.
+ */
+// No @RunWith/@Config — matching `ComposeReadingViewGenerationTest` in this same file: the holder
+// is framework-free (Compose snapshot state is pure Kotlin), so Robolectric is not needed.
+class HostedStateRefresherTest {
+    @Test fun refreshRefreshesTheToolbarWithoutBumpingTheGeneration() {
+        val toolbar = RecordingToolbarStateService()
+        val generation = ComposeReadingViewGeneration()
+
+        HostedStateRefresher(toolbar, generation).refresh()
+
+        assertEquals(1, toolbar.refreshCount)
+        // A plain refresh must NOT recreate the pane subtree: that would re-run every
+        // AndroidView factory and remount the WebViews on an ordinary toolbar update.
+        assertEquals(0, generation.state.value)
+    }
+
+    @Test fun refreshWithRebuildCompositionAlsoBumpsTheGeneration() {
+        val toolbar = RecordingToolbarStateService()
+        val generation = ComposeReadingViewGeneration()
+
+        HostedStateRefresher(toolbar, generation).refresh(rebuildComposition = true)
+
+        assertEquals(1, toolbar.refreshCount)
+        assertEquals(1, generation.state.value)
+    }
+
+    @Test fun repeatedRefreshesAccumulate() {
+        val toolbar = RecordingToolbarStateService()
+        val generation = ComposeReadingViewGeneration()
+        val refresher = HostedStateRefresher(toolbar, generation)
+
+        refresher.refresh()
+        refresher.refresh(rebuildComposition = true)
+        refresher.refresh()
+
+        assertEquals(3, toolbar.refreshCount)
+        assertEquals(1, generation.state.value)
     }
 }

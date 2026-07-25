@@ -162,6 +162,37 @@ class ComposeReadingViewGeneration {
 }
 
 /**
+ * Fans a "classic said this may have changed" signal out to the Compose reading view's state
+ * (pre-A/B state-freshness spec §1 P3).
+ *
+ * Every Compose state bridge subscribes to a *guessed set* of [net.bible.android.control.event.ABEventBus]
+ * events and rebuilds its snapshot from the domain, so a mutation that posts none of them leaves
+ * the UI stale — `ToolbarStateServiceImpl` subscribes to 5 events while classic calls
+ * `MainBibleActivity.updateActions()` from 12 places, only 3 of which coincide with one. Rather
+ * than guess more events, the classic imperative refresh points push here, mirroring what Batch
+ * Z-early A6 already does one line earlier in `updateActions` for the drawer
+ * (`composeReadingViewHost?.rebuildDrawer(...)`). The domain-notifier inversion that removes the
+ * guessing altogether is Batch Z-late work (spec §5), after the classic files are deleted.
+ *
+ * [rebuildComposition] additionally bumps [ComposeReadingViewGeneration], which recreates the pane
+ * subtree — needed only where the host re-reads values *inside* its composition (the three
+ * settings read in `mountComposeView`), i.e. the return-from-Settings path. It is off by default
+ * because recreating the subtree re-runs every pane's `AndroidView` factory.
+ *
+ * Kept as its own framework-free holder (like [ComposeReadingViewGeneration] above) so the fan-out
+ * is unit-testable without a [MainBibleActivity] or Koin context — see `HostedStateRefresherTest`.
+ */
+class HostedStateRefresher(
+    private val toolbar: ToolbarStateService,
+    private val generation: ComposeReadingViewGeneration,
+) {
+    fun refresh(rebuildComposition: Boolean = false) {
+        toolbar.refresh()
+        if (rebuildComposition) generation.rebuild()
+    }
+}
+
+/**
  * Auto-hide state for the pane overlay's floating ☰ button (Batch 12b follow-on Plan B Task 5) —
  * the Compose port of classic `SplitBibleArea.resetTouchTimer`/`toggleWindowButtonVisibility`
  * (`screen/SplitBibleArea.kt:511-575`), hoisted to a host-owned field (design spec §9: "hoist it
@@ -279,6 +310,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     )
 
     private val generation = ComposeReadingViewGeneration()
+
+    /** See [HostedStateRefresher]. */
+    private val hostedStateRefresher = HostedStateRefresher(toolbarStateService, generation)
 
     /**
      * The window-management command controller (Batch 12b follow-on Plan A) — hoisted to a host
@@ -483,6 +517,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     }
 
     /**
+     * Pushes the Compose reading view's state forward from a *classic* refresh point — see
+     * [HostedStateRefresher]. Called as `composeReadingViewHost?.refreshHostedState(...)` from
+     * `MainBibleActivity.updateActions()`, `preferenceSettingsChanged()` and the two Strongs
+     * mutators, so it is inert on the classic path (the host is null there).
+     */
+    fun refreshHostedState(rebuildComposition: Boolean = false) =
+        hostedStateRefresher.refresh(rebuildComposition)
+
+    /**
      * Opens the per-window (☰) pane menu for [windowId] — called by the pane overlay's ☰-button
      * tap and by the Plan-A restore rail's `onWindowLongPress` (both wired in [install]). Forces
      * the pane buttons visible first (mirroring classic `showPopupMenu`'s
@@ -641,13 +684,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     }
                 },
                 onCommentaryLong = { activity.composeCommentaryLongClick(container) },
-                // `composeCycleStrongs`/`composeStrongsLong` call `StrongsPreference.handle()`,
-                // which posts none of the 5 ABEventBus events `toolbarStateService` subscribes to
-                // (see ToolbarStateServiceImpl kdoc) — so without this explicit `refresh()` the
-                // toolbar's Strongs icon dim state (the only feedback this button gives) would
-                // stay stale until the next unrelated scroll/passage/window/speak event.
-                onStrongs = { activity.composeCycleStrongs(); toolbarStateService.refresh() },
-                onStrongsLong = { activity.composeStrongsLong(); toolbarStateService.refresh() },
+                // The Strongs refresh now lives inside `composeCycleStrongs`/`composeStrongsLong`,
+                // next to their `updateStrongsButton()` call — `StrongsPreference.handle()` posts
+                // none of the 5 ABEventBus events `toolbarStateService` subscribes to, and keeping
+                // the refresh at the mutation site also covers the long-press dialog's `onReset`
+                // path, which this call site never saw.
+                onStrongs = { activity.composeCycleStrongs() },
+                onStrongsLong = { activity.composeStrongsLong() },
                 onSearch = { activity.composeSearch() },
                 onSpeak = { activity.composeToggleSpeak() },
                 onSpeakLong = { activity.composeSpeakLong() },

@@ -1169,6 +1169,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         prefOptions.value = (prefOptions.value as Int + 1) % 3
         prefOptions.handle()
         updateStrongsButton()
+        composeReadingViewHost?.refreshHostedState()
     }
 
     internal fun composeStrongsLong() {
@@ -1176,6 +1177,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         fun apply() {
             prefOptions.handle()
             updateStrongsButton()
+            composeReadingViewHost?.refreshHostedState()
         }
         prefOptions.openDialog(this, onChanged = { apply() }, onReset = { apply() })
     }
@@ -2006,6 +2008,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             // of this function, so they must be pushed from here — the host caches them for
             // rebuilds triggered from elsewhere. No-op on the classic path (host is null there).
             composeReadingViewHost?.rebuildDrawer(showSearch = showSearch, showSpeak = showSpeak)
+            // Pre-A/B P3: same reasoning one level up — this function is classic's own "toolbar
+            // state may have changed" signal (12 call sites), but only 3 of them coincide with an
+            // event `ToolbarStateServiceImpl` subscribes to, so the Compose toolbar would stay
+            // stale after e.g. a finished download, a document chooser result or a return from
+            // background. Also a no-op on the classic path.
+            composeReadingViewHost?.refreshHostedState()
         }
     }
 
@@ -2826,6 +2834,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         documentViewManager.buildView()
         ABEventBus.post(SynchronizeWindowsEvent(true))
         CommonUtils.changeAppIconAndName()
+        // Pre-A/B P3: on the Compose path both DocumentViewManager calls above are no-ops
+        // (`removeView` returns early, and `buildView(forceUpdate = false)` returns early too),
+        // so returning from Settings updated NOTHING — neither the toolbar snapshot (e.g. the
+        // `toolbar_button_actions` swap mode) nor the settings the host reads inside its
+        // composition (`hide_bible_reference_overlay`, `hide_window_buttons`,
+        // `full_screen_hide_buttons_pref`). `rebuildComposition = true` re-runs those reads.
+        composeReadingViewHost?.refreshHostedState(rebuildComposition = true)
     }
 
     private fun requestSdcardPermission() {
