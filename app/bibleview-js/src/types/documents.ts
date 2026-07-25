@@ -19,6 +19,8 @@ import {
     AiDocMarker,
     BookCategory,
     BibleBookmark,
+    CustomHeading,
+    HeadingOverride,
     Label,
     OrdinalRange,
     OsisFragment,
@@ -94,6 +96,8 @@ export interface BibleDocumentType extends BaseOsisDocument {
     memorizedOrdinals?: number[]
     targetOrdinals?: number[]
     chapterReadCount?: number
+    customHeadings?: CustomHeading[]
+    headingOverrides?: HeadingOverride[]
 }
 
 export interface MyNotesDocument extends BaseDocument {
