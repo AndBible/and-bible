@@ -80,7 +80,8 @@ object HeadingControl {
         if (sanitizedText == null && sanitizedLevel == null && !deleted) {
             dao.headingOverrideFor(bookInitials, ordinal, titleIndex)?.let { dao.deleteHeadingOverride(it.id) }
         } else {
-            val override = dao.headingOverrideFor(bookInitials, ordinal, titleIndex)
+            val existing = dao.headingOverrideFor(bookInitials, ordinal, titleIndex)
+            val override = existing
                 ?: HeadingOverride(
                     bookInitials = bookInitials,
                     v11n = v11n,
@@ -90,7 +91,7 @@ object HeadingControl {
             override.newText = sanitizedText
             override.newLevel = sanitizedLevel
             override.deleted = deleted
-            if (dao.headingOverrideById(override.id) == null) {
+            if (existing == null) {
                 dao.insert(override)
             } else {
                 dao.update(override)

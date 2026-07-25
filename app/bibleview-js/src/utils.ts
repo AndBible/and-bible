@@ -503,6 +503,7 @@ export function osisToTemplateString(osis: string) {
  * a stable identity that custom heading overrides can refer to.
  */
 export function annotateTitles(osis: string): string {
+    if (!osis.includes("<title")) return osis;
     const verseOrdinals: { index: number, ordinal: number }[] = [];
     const verseRe = /<verse\b[^>]*?\bverseOrdinal="(\d+)"/g;
     let m: RegExpExecArray | null;
