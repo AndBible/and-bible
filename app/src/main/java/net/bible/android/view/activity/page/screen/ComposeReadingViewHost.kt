@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
@@ -130,6 +131,7 @@ import net.bible.sharedui.reading.BibleReferenceOverlay
 import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
 import net.bible.sharedui.reading.QuickDocMenuState
 import net.bible.sharedui.reading.ReadingDrawerContent
+import net.bible.sharedui.reading.ReadingDrawerWidth
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
@@ -1301,7 +1303,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                 scrimColor = if (monochromeState.value) Color.Transparent
                                              else DrawerDefaults.scrimColor,
                                 drawerContent = {
-                                    ModalDrawerSheet {
+                                    // A/B batch 1 F6: classic's `NavigationView` is `wrap_content`
+                                    // (~300dp in practice), while M3's `ModalDrawerSheet` defaults to
+                                    // a fixed 360dp — see `ReadingDrawerWidth`'s kdoc for why a fixed
+                                    // classic-scale width is used instead of reproducing wrap_content.
+                                    ModalDrawerSheet(modifier = Modifier.width(ReadingDrawerWidth)) {
                                         ReadingDrawerContent(
                                             state = drawerState.value,
                                             icon = drawerIcon,
