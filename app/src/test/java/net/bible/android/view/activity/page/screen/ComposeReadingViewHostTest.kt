@@ -292,6 +292,52 @@ class ComposeReadingViewHostTest {
             assertTrue(resId != null && resId != 0, "no drawable mapped for drawer iconKey '$iconName'")
         }
     }
+
+    /**
+     * A/B batch 1 F5b fix round 1: state-independent drift guard for [ComposeReadingViewHost.menuIconResIds].
+     *
+     * `WindowPaneMenuStateBuilderTest.everyPaneMenuIconKeyIsResolvableByTheHost` and
+     * `OptionsMenuStateBuilderTest.everyOverflowIconKeyIsResolvableByTheHost` only check the
+     * `iconKey`s a SINGLE default-fixture item list actually emits at the moment it's built — and
+     * most `window_popup_menu` rows are gated behind state a fresh single-window workspace never
+     * produces (`changeToNormal`/`moveWindowSubMenu` need a links or a same-pin-mode sibling window,
+     * `pinMode` needs auto-pin off, `addWholePageBookmark`/`exportHtml`/`exportStudypad`/
+     * `exportStudypadCsv` need a non-Bible/StudyPad document, `goToReference` needs a clipboard key,
+     * `goToSpeak` needs TTS running, `windowClose` needs a second window, `llmActionsSubMenu` needs
+     * an `LlmProviderConfig` row). Those two tests alone would miss a rename or removal of an entry
+     * one of those gated rows depends on. This test is state-independent by construction instead —
+     * mirrors [drawerIconResIdsCoverEveryBuilderIconKey]'s static, exhaustive list rather than a
+     * live, gated item list — and its `assertEquals` on the full key SET checks both directions at
+     * once: a key removed/renamed here (the silent on-device icon-loss regression this whole task
+     * exists to prevent) and a dead key left in the map that no builder ever emits.
+     */
+    @Test fun menuIconResIdsIsExactlyTheseTwentyTwoKeys() {
+        val expected = setOf(
+            "ic_window_add_outline_black_24dp",
+            "ic_window_maximise_24dp",
+            "ic_baseline_minimise_24",
+            "ic_link_black_24dp",
+            "ic_window_move_to_24dp",
+            "ic_pin",
+            "ic_window_sync_24dp",
+            "ic_baseline_bookmark_24",
+            "file_export",
+            "ic_text_options_24dp",
+            "ic_content_copy_black_24dp",
+            "baseline_content_paste_24",
+            "ic_baseline_headphones_24",
+            "ic_close_white_24dp",
+            "ic_full_screen_24",
+            "ic_night_mode_24",
+            "ic_baseline_workspace_24",
+            "ic_tilt_to_scroll_24dp",
+            "ic_reverse_split_mode_24dp",
+            "ic_window_pinning_24",
+            "ic_label_settings_24",
+            "icon_robot",
+        )
+        assertEquals(expected, ComposeReadingViewHost.menuIconResIds.keys)
+    }
 }
 
 /**

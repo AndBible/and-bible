@@ -297,6 +297,14 @@ class WindowPaneMenuStateBuilderTest {
      * The failure this guards against is a builder emitting a key the host's `menuIconResIds` map
      * lacks — the icon then silently disappears (same drift risk as
      * `ComposeReadingViewHostTest.drawerIconResIdsCoverEveryBuilderIconKey`).
+     *
+     * NOTE this only covers the rows visible on THIS test's default single-window fixture — most
+     * gated rows (`changeToNormal`, `moveWindowSubMenu`, `addWholePageBookmark`, `exportHtml`/
+     * `exportStudypad`/`exportStudypadCsv`, `goToReference`, `goToSpeak`, `windowClose`,
+     * `llmActionsSubMenu`, and `pinMode` unless autoPin is off) are absent here, so a renamed/
+     * removed map entry only THEY depend on would NOT fail this test. The exhaustive,
+     * state-independent guarantee is `ComposeReadingViewHostTest.menuIconResIdsIsExactlyTheseTwentyTwoKeys`
+     * — don't over-trust this test alone.
      */
     @Test
     fun everyPaneMenuIconKeyIsResolvableByTheHost() {

@@ -198,6 +198,14 @@ class OptionsMenuStateBuilderTest {
      * The failure this guards against is a builder emitting a key the host's `menuIconResIds` map
      * lacks — the icon then silently disappears (same drift risk as
      * `ComposeReadingViewHostTest.drawerIconResIdsCoverEveryBuilderIconKey`).
+     *
+     * NOTE this only covers the rows visible on THIS test's default fixture — no `LlmProviderConfig`
+     * is seeded here (unlike `staticOverflowRowsCarryClassicsIcons`, which seeds its own), so
+     * `llmActionsSubMenu`/`"icon_robot"` is absent and NOT exercised by this test either. A
+     * renamed/removed `menuIconResIds` entry only a gated row (like this one) depends on would not
+     * fail this test. The exhaustive, state-independent guarantee is
+     * `ComposeReadingViewHostTest.menuIconResIdsIsExactlyTheseTwentyTwoKeys` — don't over-trust this
+     * test alone.
      */
     @Test
     fun everyOverflowIconKeyIsResolvableByTheHost() {
