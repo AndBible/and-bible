@@ -18,6 +18,10 @@ package net.bible.android.view.activity.page.screen
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -41,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
@@ -100,6 +105,8 @@ import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.reading.bibleReferenceOverlayVisible
 import net.bible.sharedcore.reading.paneButtonDragAction
+import net.bible.sharedcore.reading.paneButtonFadeMillis
+import net.bible.sharedcore.reading.paneButtonHiddenAlpha
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.sharedcore.speak.SpeakTransportController
 import net.bible.sharedcore.speak.SpeakTransportDialog
@@ -1123,13 +1130,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                 buttonsShown = windowButtonsVisible,
                                 hideSetting = CommonUtils.settings.getBoolean("hide_bible_reference_overlay", false),
                             )
-                            // Classic `BibleFrame.addWindowButton`'s early-outs (`screen/BibleFrame.kt:157-158`):
-                            // never shown while `hide_window_buttons` is set, or while a window is
-                            // maximised (the floating button, specifically — the per-window MENU can
-                            // still open via the rail's unmaximise-button long-press; see
-                            // `PaneWindowButtonOverlay`, which composes `WindowPaneMenu` unconditionally).
-                            val showPaneButtons = windowButtonsVisible && layout.maximizedWindowId == null &&
+                            // Hard gates (classic `BibleFrame.addWindowButton`'s early-outs, screen/BibleFrame.kt:157-158):
+                            // these genuinely remove the button. `windowButtonsVisible` is the 2s IDLE TIMER, which classic
+                            // expresses as an ALPHA fade, not a removal (SplitBibleArea.kt:528-575) — so it is passed
+                            // separately as `autoHidden` and must NOT be folded back in here.
+                            //
+                            // (never shown while `hide_window_buttons` is set, or while a window is maximised — the
+                            // floating button, specifically; the per-window MENU can still open via the rail's
+                            // unmaximise-button long-press; see `PaneWindowButtonOverlay`, which composes
+                            // `WindowPaneMenu` unconditionally).
+                            val showPaneButtons = layout.maximizedWindowId == null &&
                                 !CommonUtils.settings.getBoolean("hide_window_buttons", false)
+                            val paneButtonsAutoHidden = !windowButtonsVisible
                             // Classic `SplitBibleArea`'s fullscreen auto-hide
                             // (`autoHideWindowButtonBarInFullScreen`, `full_screen_hide_buttons_pref`,
                             // default ON, `SplitBibleArea.kt:166-171`/365-366) — in fullscreen with the
@@ -1249,6 +1261,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                                 window = window,
                                                 isActive = windowId == layout.activeWindowId,
                                                 showButton = showPaneButtons,
+                                                autoHidden = paneButtonsAutoHidden,
+                                                nightMode = nightModeState.value,
+                                                disableAnimations = CommonUtils.settings.disableAnimations,
+                                                monochrome = monochromeState.value,
                                                 paneMenuWindowId = paneMenuWindowId,
                                                 paneMenuItems = paneMenuItems,
                                                 controller = controller,
@@ -1379,11 +1395,17 @@ private val noopToolbarCallbacks = ReadingToolbarCallbacks(
  * per-pane window button (`screen/BibleFrame.kt:156-194`) + `WindowButtonGestureListener`
  * (`:43-83`).
  *
- * The button itself is gated by [showButton] (auto-hide / `hide_window_buttons` / maximised —
- * see `showPaneButtons` at the call site), but [WindowPaneMenu] is ALWAYS composed as its sibling:
- * a menu opened via the always-visible restore rail's long-press must still be able to render
- * anchored to this pane even when the floating button itself is hidden (see
+ * The button itself is gated by [showButton] (`hide_window_buttons` / maximised — see
+ * `showPaneButtons` at the call site) — those are classic's two HARD removals
+ * (`screen/BibleFrame.kt:157-158`) — but [WindowPaneMenu] is ALWAYS composed as its sibling: a menu
+ * opened via the always-visible restore rail's long-press must still be able to render anchored to
+ * this pane even when the floating button itself is hidden (see
  * [ComposeReadingViewHost.openPaneMenu]'s kdoc).
+ *
+ * The 2s idle timer ([autoHidden]) is NOT a third hard gate: classic fades the button to
+ * [net.bible.sharedcore.reading.paneButtonHiddenAlpha] rather than removing it
+ * (`SplitBibleArea.toggleWindowButtonVisibility`, `SplitBibleArea.kt:528-575`), so it stays
+ * present and tappable while faded — [Modifier.alpha] only, never a size/visibility change.
  *
  * Gestures (classic `WindowButtonGestureListener` dispatch, `screen/BibleFrame.kt:185-191`): tap →
  * [onOpenPaneMenu]; long-press → minimise; swipe-up → maximise; swipe-down → minimise. Every
@@ -1395,6 +1417,10 @@ private fun BoxScope.PaneWindowButtonOverlay(
     window: WindowSnapshot?,
     isActive: Boolean,
     showButton: Boolean,
+    autoHidden: Boolean,
+    nightMode: Boolean,
+    disableAnimations: Boolean,
+    monochrome: Boolean,
     paneMenuWindowId: String?,
     paneMenuItems: List<WindowPaneMenuItem>,
     controller: ReadingViewController,
@@ -1407,6 +1433,22 @@ private fun BoxScope.PaneWindowButtonOverlay(
             var accumDy by remember(windowId) { mutableFloatStateOf(0f) }
             val density = LocalDensity.current
             val thresholdPx = remember(density) { with(density) { PaneButtonDragThresholdDp.toPx() } }
+            // Classic's idle-timer fade (`SplitBibleArea.kt:528-575`), NOT a removal from
+            // composition — see this function's kdoc. `targetAlpha` picks the button's resting
+            // state; `animateFloatAsState` supplies the tween classic drives via `ViewPropertyAnimator`.
+            val targetAlpha = if (autoHidden) {
+                paneButtonHiddenAlpha(nightMode, disableAnimations, monochrome)
+            } else 1f
+            val alpha by animateFloatAsState(
+                targetValue = targetAlpha,
+                animationSpec = tween(
+                    durationMillis = paneButtonFadeMillis(disableAnimations),
+                    // Classic uses DecelerateInterpolator on show and AccelerateInterpolator on
+                    // hide (SplitBibleArea.kt:552,557); these are their M3 equivalents.
+                    easing = if (autoHidden) FastOutLinearInEasing else LinearOutSlowInEasing,
+                ),
+                label = "paneButtonAlpha",
+            )
             WindowButton(
                 label = "☰",
                 isActive = isActive,
@@ -1423,25 +1465,27 @@ private fun BoxScope.PaneWindowButtonOverlay(
                     controller.onWindowActivated(windowId)
                     controller.onMinimise(windowId)
                 },
-                modifier = Modifier.pointerInput(windowId) {
-                    detectVerticalDragGestures(
-                        onDragEnd = {
-                            when (paneButtonDragAction(accumDy, thresholdPx)) {
-                                PaneButtonAction.Maximise -> {
-                                    controller.onWindowActivated(windowId)
-                                    controller.onMaximise(windowId)
+                modifier = Modifier
+                    .alpha(alpha)
+                    .pointerInput(windowId) {
+                        detectVerticalDragGestures(
+                            onDragEnd = {
+                                when (paneButtonDragAction(accumDy, thresholdPx)) {
+                                    PaneButtonAction.Maximise -> {
+                                        controller.onWindowActivated(windowId)
+                                        controller.onMaximise(windowId)
+                                    }
+                                    PaneButtonAction.Minimise -> {
+                                        controller.onWindowActivated(windowId)
+                                        controller.onMinimise(windowId)
+                                    }
+                                    PaneButtonAction.None -> {}
                                 }
-                                PaneButtonAction.Minimise -> {
-                                    controller.onWindowActivated(windowId)
-                                    controller.onMinimise(windowId)
-                                }
-                                PaneButtonAction.None -> {}
-                            }
-                            accumDy = 0f
-                        },
-                        onDragCancel = { accumDy = 0f },
-                    ) { change, dragAmount -> change.consume(); accumDy += dragAmount }
-                },
+                                accumDy = 0f
+                            },
+                            onDragCancel = { accumDy = 0f },
+                        ) { change, dragAmount -> change.consume(); accumDy += dragAmount }
+                    },
             )
         }
         WindowPaneMenu(
