@@ -272,6 +272,18 @@ class InstallZip : ActivityBase() {
     private lateinit var binding: ActivityInstallZipBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Pre-A/B P2: this classic Activity owns the only external ACTION_VIEW/SEND/SEND_MULTIPLE
+        // <intent-filter>s (app/src/standard/AndroidManifest.xml), so with `use_compose_ui` ON an
+        // install started from a file manager or the Share sheet would otherwise never reach
+        // InstallZipComposeActivity — the in-app callers were already rewired through
+        // ScreenLauncher, but external ones cannot be. Hand the whole Intent over (action, data,
+        // type, clipData, extras and the FLAG_GRANT_READ_URI_PERMISSION uri grant) and get out of
+        // the way. Inert with the flag OFF, so everything below is unchanged.
+        if (CommonUtils.settings.getBoolean("use_compose_ui", false)) {
+            startActivity(composeForwardIntent(intent, this))
+            finish()
+            return
+        }
         Log.i(TAG, "Install from Zip starting")
         binding = ActivityInstallZipBinding.inflate(layoutInflater)
         setContentView(binding.root)

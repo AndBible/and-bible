@@ -128,6 +128,25 @@ internal suspend fun classifyEntry(
 }
 
 /**
+ * The Intent classic [InstallZip] forwards here when `use_compose_ui` is ON (spec
+ * `2026-07-25-compose-pre-ab-state-freshness-design.md` §1 P2).
+ *
+ * The real external `<intent-filter>`s for `ACTION_VIEW`/`ACTION_SEND`/`ACTION_SEND_MULTIPLE`
+ * live only on classic [InstallZip] (`app/src/standard/AndroidManifest.xml`), and an
+ * `<intent-filter>` cannot be toggled at runtime — so a file-manager or Share-sheet install would
+ * otherwise never reach this host, whatever the flag says. Forwarding a **copy** of the whole
+ * Intent keeps every part of the contract the receiving host reads: `action`, `data` + `type`,
+ * `clipData`, all extras, and the **flags** — critically `FLAG_GRANT_READ_URI_PERMISSION`, without
+ * which the `content://` uri would fail to open with a `SecurityException`.
+ *
+ * Kept as a file-level helper (like [classifyEntry] above) so it is unit-testable without driving
+ * either Activity's lifecycle — see `InstallZipComposeActivityTest`.
+ */
+internal fun composeForwardIntent(original: Intent?, context: Context): Intent =
+    if (original == null) Intent(context, InstallZipComposeActivity::class.java)
+    else Intent(original).setClass(context, InstallZipComposeActivity::class.java)
+
+/**
  * Picks the job the host should currently render out of [jobs]: a job paused on
  * [InstallPhase.AwaitingDecision] takes priority over any other (mirrors
  * `DocumentInstallService.onJobsChanged`'s own notification-picking logic -- a pending ask-back

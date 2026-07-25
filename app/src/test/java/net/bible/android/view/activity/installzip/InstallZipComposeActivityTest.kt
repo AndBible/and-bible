@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.installzip
 
+import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
@@ -30,6 +31,7 @@ import net.bible.service.installzip.InstallPhase
 import net.bible.sharedui.installzip.InstallUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -270,4 +272,62 @@ class InstallZipComposeActivityTest {
         (this as? InstallUiState.Progress)?.let {
             InstallUiStateProgress(it.displayName, it.statusText, it.percent, it.indeterminate)
         }
+
+    // --- composeForwardIntent (external-entry forwarding, spec §1 P2) ---
+
+    @Test
+    fun composeForwardIntent_preservesActionDataTypeFlagsClipDataAndExtras() {
+        val original = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/zip")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            putExtra("doNotInitializeApp", true)
+            clipData = ClipData.newRawUri("zip", uri)
+        }
+
+        val forwarded = composeForwardIntent(original, context)
+
+        assertEquals(
+            InstallZipComposeActivity::class.java.name,
+            forwarded.component?.className
+        )
+        assertEquals(Intent.ACTION_VIEW, forwarded.action)
+        assertEquals(uri, forwarded.data)
+        assertEquals("application/zip", forwarded.type)
+        // The uri grant only survives if the flag travels with the forwarded Intent.
+        assertTrue((forwarded.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION) != 0)
+        assertTrue(forwarded.getBooleanExtra("doNotInitializeApp", false))
+        assertEquals(uri, forwarded.clipData?.getItemAt(0)?.uri)
+    }
+
+    @Test
+    fun composeForwardIntent_preservesSendMultipleStreamList() {
+        val original = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+            type = "application/zip"
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, arrayListOf(uri, uri2))
+        }
+
+        val forwarded = composeForwardIntent(original, context)
+
+        assertEquals(Intent.ACTION_SEND_MULTIPLE, forwarded.action)
+        assertEquals(
+            listOf(uri, uri2),
+            forwarded.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)?.toList()
+        )
+        assertEquals(
+            InstallZipComposeActivity::class.java.name,
+            forwarded.component?.className
+        )
+    }
+
+    @Test
+    fun composeForwardIntent_nullOriginalStillTargetsComposeHost() {
+        val forwarded = composeForwardIntent(null, context)
+
+        assertEquals(
+            InstallZipComposeActivity::class.java.name,
+            forwarded.component?.className
+        )
+        assertNull(forwarded.action)
+        assertNull(forwarded.data)
+    }
 }
