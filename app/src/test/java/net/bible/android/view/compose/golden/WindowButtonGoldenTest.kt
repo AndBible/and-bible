@@ -191,11 +191,13 @@ class WindowButtonGoldenTest {
         }
     }
 
-    // 10 buttons at 40dp + 8dp spacing/padding need more width than the default portrait viewport
-    // (320dp) comfortably provides, so this is captured in `land` (same technique as
-    // ReadingToolbarGoldenTest/ReadingViewScreenGoldenTest) to keep every button fully visible,
-    // uncropped, in one row.
+    // 10 buttons at 40dp + 8dp spacing/padding (≈488dp) outgrew even the `land` qualifier (~470dp
+    // on the default device) — the last case (`rail-noTopLabel`, "ESV") was clipped mid-button and
+    // rendered "E…" instead of "ESV". `w720dp-land` forces a wider device width (Robolectric maps
+    // `w<N>dp` onto the screen width) while keeping the landscape height, giving the row enough
+    // room for all 10 buttons with margin, fully uncropped (same technique as
+    // ReadingToolbarGoldenTest/ReadingViewScreenGoldenTest, widened further for this wider row).
     @Test
-    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w720dp-land")
     fun states_matrix() = captureMatrix("WindowButton", "states", content = { states() })
 }
