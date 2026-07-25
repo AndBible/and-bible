@@ -50,6 +50,7 @@ import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
+import net.bible.android.control.heading.HeadingControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
 import net.bible.android.database.bookmarks.KJVA
@@ -488,6 +489,34 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun addGenericParagraphBreakBookmark(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
         bibleView.addParagraphBreakBookmark(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
+    }
+
+    @JavascriptInterface
+    fun addCustomHeading(bookInitials: String, v11n: String, ordinal: Int, level: Int, text: String) {
+        HeadingControl.addCustomHeading(bookInitials, v11n, ordinal, level, text)
+    }
+
+    @JavascriptInterface
+    fun updateCustomHeading(id: String, level: Int, text: String) {
+        HeadingControl.updateCustomHeading(IdType(id), level, text)
+    }
+
+    @JavascriptInterface
+    fun deleteCustomHeading(id: String) {
+        HeadingControl.deleteCustomHeading(IdType(id))
+    }
+
+    @JavascriptInterface
+    fun setHeadingOverride(bookInitials: String, v11n: String, ordinal: Int, titleIndex: Int, newText: String?, newLevel: Int, deleted: Boolean) {
+        HeadingControl.setHeadingOverride(
+            bookInitials, v11n, ordinal, titleIndex,
+            newText, if (newLevel in 1..6) newLevel else null, deleted,
+        )
+    }
+
+    @JavascriptInterface
+    fun removeHeadingOverride(id: String) {
+        HeadingControl.removeHeadingOverride(IdType(id))
     }
 
     @JavascriptInterface

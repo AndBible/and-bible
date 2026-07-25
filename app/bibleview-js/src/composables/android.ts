@@ -75,6 +75,11 @@ export type BibleJavascriptInterface = {
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addParagraphBreakBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addGenericParagraphBreakBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
+    addCustomHeading: (bookInitials: string, v11n: string, ordinal: number, level: number, text: string) => void,
+    updateCustomHeading: (id: IdType, level: number, text: string) => void,
+    deleteCustomHeading: (id: IdType) => void,
+    setHeadingOverride: (bookInitials: string, v11n: string, ordinal: number, titleIndex: number, newText: Nullable<string>, newLevel: number, deleted: boolean) => void,
+    removeHeadingOverride: (id: IdType) => void,
     createWholePageBookmark: (bookInitials: string, bookKey: string) => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     memorize: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
@@ -421,6 +426,26 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.addGenericParagraphBreakBookmark(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
+    function addCustomHeading(bookInitials: string, v11n: string, ordinal: number, level: number, text: string) {
+        window.android.addCustomHeading(bookInitials, v11n, ordinal, level, text);
+    }
+
+    function updateCustomHeading(id: IdType, level: number, text: string) {
+        window.android.updateCustomHeading(id, level, text);
+    }
+
+    function deleteCustomHeading(id: IdType) {
+        window.android.deleteCustomHeading(id);
+    }
+
+    function setHeadingOverride(bookInitials: string, v11n: string, ordinal: number, titleIndex: number, newText: Nullable<string>, newLevel: number, deleted: boolean) {
+        window.android.setHeadingOverride(bookInitials, v11n, ordinal, titleIndex, newText, newLevel, deleted);
+    }
+
+    function removeHeadingOverride(id: IdType) {
+        window.android.removeHeadingOverride(id);
+    }
+
     function createWholePageBookmark(bookInitials: string, bookKey: string) {
         window.android.createWholePageBookmark(bookInitials, bookKey);
     }
@@ -707,6 +732,11 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         addGenericBookmark,
         addParagraphBreakBookmark,
         addGenericParagraphBreakBookmark,
+        addCustomHeading,
+        updateCustomHeading,
+        deleteCustomHeading,
+        setHeadingOverride,
+        removeHeadingOverride,
         createWholePageBookmark,
         compare,
         memorize,

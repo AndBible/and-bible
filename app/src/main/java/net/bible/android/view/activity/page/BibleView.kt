@@ -73,6 +73,8 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
+import net.bible.android.control.heading.CustomHeadingsUpdatedEvent
+import net.bible.android.control.heading.HeadingControl
 import net.bible.android.control.progress.ActiveCycleChangedEvent
 import net.bible.android.control.progress.ChapterReadStatusChangedEvent
 import net.bible.android.control.progress.MemorizationDataChangedEvent
@@ -97,6 +99,8 @@ import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.MemorizeDocument
 import net.bible.android.control.page.ClientAiDocMarker
 import net.bible.android.control.page.ClientBibleBookmark
+import net.bible.android.control.page.ClientCustomHeading
+import net.bible.android.control.page.ClientHeadingOverride
 import net.bible.android.control.page.ClientBookmarkLabel
 import net.bible.android.control.page.ClientGenericBookmark
 import net.bible.android.control.page.CurrentPageManager
@@ -1772,6 +1776,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
         executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
+    }
+
+    fun onEvent(event: CustomHeadingsUpdatedEvent) {
+        val headingsStr = json.encodeToString(serializer(),
+            HeadingControl.allHeadingsFor(event.bookInitials).map { ClientCustomHeading(it) })
+        val overridesStr = json.encodeToString(serializer(),
+            HeadingControl.allOverridesFor(event.bookInitials).map { ClientHeadingOverride(it) })
+        executeJavascriptOnUiThread("""bibleView.emit("custom_headings_updated", {
+            bookInitials: ${wrapString(event.bookInitials)},
+            headings: $headingsStr,
+            overrides: $overridesStr,
+        });""")
     }
 
     fun onEvent(event: MemorizationDataChangedEvent) {
