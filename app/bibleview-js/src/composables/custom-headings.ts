@@ -81,6 +81,7 @@ export function useCustomHeadings(
     {customHeadings}: { customHeadings: Map<IdType, CustomHeading> },
     config: Config,
     openOutline?: () => void,
+    outlineLabel?: string,
 ) {
     const isMounted = ref(0);
     const undoList: (() => void)[] = [];
@@ -121,6 +122,7 @@ export function useCustomHeadings(
                 const outlineBtn = document.createElement("button");
                 outlineBtn.classList.add("title-outline-btn");
                 outlineBtn.textContent = "≡";
+                outlineBtn.setAttribute("aria-label", outlineLabel ?? "");
                 outlineBtn.addEventListener("click", (e: Event) => {
                     e.stopPropagation();
                     openOutline();

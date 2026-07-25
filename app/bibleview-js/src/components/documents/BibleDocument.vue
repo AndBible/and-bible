@@ -84,11 +84,11 @@ if (props.document.memorizedOrdinals) {
 }
 memorization.setupIndicatorRendering(containerRef, id);
 
-const {config, appSettings, adjustedColor} = useCommon();
+const {config, appSettings, adjustedColor, strings} = useCommon();
 
 useBookmarks(id, ordinalRange, globalBookmarks, bookInitials,  null, true, ref(true), {adjustedColor}, config, appSettings);
 
-useCustomHeadings(id, bookInitials, ordinalRange, globalCustomHeadings, config, openOutline);
+useCustomHeadings(id, bookInitials, ordinalRange, globalCustomHeadings, config, openOutline, strings.outline);
 
 const {entries: outlineEntries, visible: outlineVisible} = useOutline(
     id, bookInitials, ordinalRange, globalCustomHeadings.customHeadings,
