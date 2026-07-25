@@ -514,11 +514,15 @@ export function annotateTitles(osis: string): string {
     const counters = new Map<number, number>();
     let result = "";
     let lastIndex = 0;
+    let verseCursor = 0;
     const titleRe = /<title(\s[^>]*)?>/g;
     while ((m = titleRe.exec(osis)) !== null) {
         const matchIndex = m.index;
-        const nextVerse = verseOrdinals.find(v => v.index > matchIndex);
-        if (!nextVerse) continue;
+        while (verseCursor < verseOrdinals.length && verseOrdinals[verseCursor].index <= matchIndex) {
+            verseCursor++;
+        }
+        const nextVerse = verseOrdinals[verseCursor];
+        if (!nextVerse) break;
         const count = (counters.get(nextVerse.ordinal) || 0) + 1;
         counters.set(nextVerse.ordinal, count);
         result += osis.slice(lastIndex, matchIndex);

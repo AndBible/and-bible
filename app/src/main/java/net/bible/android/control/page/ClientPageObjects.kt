@@ -202,7 +202,6 @@ class BibleDocument(
 }
 
 @Serializable
-@Serializable
 data class ClientCustomHeading(
     val id: String,
     val bookInitials: String,

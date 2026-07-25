@@ -70,7 +70,7 @@ const overrideText = computed(() => headingOverride.value?.newText ?? null);
 
 const show = computed(() =>
     !hideTitles && config.showSectionTitles
-    && ((config.showNonCanonical && !isCanonical.value) || isCanonical)
+    && ((config.showNonCanonical && !isCanonical.value) || isCanonical.value)
     && !(props.type === "sub" && props.subType === "x-Chapter")
     && props.type !== "chapter"
     && props.type !== "x-gen"

@@ -83,7 +83,7 @@ class CurrentBiblePage(
             val rangeInV11n = verseRange.toV11n((doc.book as SwordBook).versification)
             val bookInitials = doc.book.initials
             BibleDocument(
-                osisFragment = doc.osisFragment, swordBook = doc.book,
+                osisFragment = doc.osisFragment, swordBook = doc.book as SwordBook,
                 bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey,
                 aiDocMarkers = aiDocMarkers,
                 customHeadings = HeadingControl.headingsForRange(
