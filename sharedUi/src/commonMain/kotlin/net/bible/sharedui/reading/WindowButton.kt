@@ -56,13 +56,13 @@ import androidx.compose.ui.unit.sp
  * [Rail] is the restore rail's per-window button (Plan A Task 5, `isRestoreButton = true`); [Pane]
  * is the floating per-pane "☰" button hosted on each split pane (Plan B Task 5,
  * `isRestoreButton = false`). [mode] switches the label layout: Rail restores classic's two-row
- * `topButtonText`/`buttonText` stack (bottom-start, `window_button.xml` + `WindowButtonWidget.kt:126,145`,
+ * `topButtonText`/`buttonText` stack (bottom-start, `window_button.xml` + `WindowButtonWidget.kt:127,148`,
  * see [topLabel]); Pane keeps a single centred glyph, larger, like classic's own `windowButton`
  * text (`isRestoreButton = false` hides both `topButtonText`/`buttonText` and centres `windowButton`
  * itself, `WindowButtonWidget.kt:133-137,149-150`) — every other look (tint / minimised / sync /
  * links badges) is driven purely by the boolean/int state parameters below, not gated by [mode].
  * **Exception (fix-round-1):** [isPinned]'s dot IS gated by [mode] — Pane only, never Rail — because
- * classic's `pinMode.visibility` itself requires `!isRestoreButton` (`WindowButtonWidget.kt:85-96`):
+ * classic's `pinMode.visibility` itself requires `!isRestoreButton` (`WindowButtonWidget.kt:86-95`):
  * the pin dot never coexists with the rail's `topButtonText`/`buttonText` in classic, which is
  * exactly why classic's tight rail-label geometry never has to avoid a pin dot. See [isPinned].
  */
@@ -71,28 +71,33 @@ enum class WindowButtonMode { Rail, Pane }
 private val WindowButtonSize = 40.dp
 private val WindowButtonCorner = 8.dp
 private val BadgeIconSize = 14.dp
+/** Shared inset for the top-end/top-start badges' `Modifier.padding(...)` — also the basis of [RailBadgeRowHeight]. */
+private val BadgeInset = 2.dp
 private val PinDotSize = 6.dp
 private val BorderWidth = 1.dp
 private val MinimisedBorderWidth = 1.5.dp
 private const val MinimisedAlpha = 0.62f
 private val DashPattern = floatArrayOf(4f, 3f)
 
-/** Classic rail `buttonText` size, set at runtime in `WindowButtonWidget.kt:126`. */
+/** Classic rail `buttonText` size, set at runtime in `WindowButtonWidget.kt:127`. */
 private val RailLabelSize = 13.sp
 /** Classic rail `topButtonText` size (`window_button.xml`, `android:textSize="8.6sp"`). */
 private val RailTopLabelSize = 9.sp
 /** Classic `buttonText`/`topButtonText` start padding (`window_button.xml`, `paddingStart="1dip"` + the badge column). */
 private val RailTextStartPadding = 2.dp
 /**
- * Classic `docType`'s bottom edge — `layout_marginTop="2dip"` + 14dp height (`window_button.xml:123-133`)
- * — the exact y-offset `topButtonText` sits directly below (`Top_toBottomOf="@id/docType"`,
- * `window_button.xml:52`). Reserved as a *fixed* height at the top of the rail label area (not a
- * bottom-anchored column sized purely from content) so the label pair can never paint over the
- * sync/doc-type badges even if actual rendered line heights exceed their nominal sp values —
- * fix-round-1: an unreserved bottom-anchored column let the pin dot (now Pane-only, see [isPinned])
- * and the sync badge visibly overlap the top label in the `rail-twoRow` golden case.
+ * The tallest top-badge extent this file actually draws — the top-end `docType`/link [Icon]'s
+ * `Modifier.align(Alignment.TopEnd).padding(BadgeInset).size(BadgeIconSize)` below — **derived**
+ * from [BadgeIconSize]/[BadgeInset] rather than restated as a literal, so a later touch-target bump
+ * to either can't silently drift out of sync with this reservation and reintroduce fix-round-1's
+ * overlap (a hand-picked `16.dp` here would have "happened" to match today's constants without
+ * anything keeping them equal). This total (currently 16dp) mirrors classic's `docType` bottom edge
+ * — `layout_marginTop="2dip"` + 14dp height (`window_button.xml:123-133`), i.e. also 2dp+14dp there
+ * — the y-offset classic's `topButtonText` sits directly below (`Top_toBottomOf="@id/docType"`,
+ * `window_button.xml:52`). See the `WindowButtonMode.Rail` branch below for why this is reserved as
+ * a *fixed* height rather than left as padding on a bottom-anchored column.
  */
-private val RailBadgeRowHeight = 16.dp
+private val RailBadgeRowHeight = BadgeIconSize + BadgeInset
 
 /**
  * Stateless Compose port of classic `WindowButtonWidget`
@@ -114,8 +119,8 @@ private val RailBadgeRowHeight = 16.dp
  * - [isPinned] → **Pane mode only** (`WindowButtonMode.Pane`): a small dot badge (classic `pinMode`
  *   `ic_pin`, start edge under the sync badge — `window_button.xml:97-107`
  *   `Top_toBottomOf="@id/synchronize"`), matching classic's `pinMode.visibility` requiring
- *   `!isRestoreButton` (`WindowButtonWidget.kt:85-96`). Rail mode never draws it — classic instead
- *   conveys a pinned rail window via a different background drawable (`WindowButtonWidget.kt:110-125`,
+ *   `!isRestoreButton` (`WindowButtonWidget.kt:86-95`). Rail mode never draws it — classic instead
+ *   conveys a pinned rail window via a different background drawable (`WindowButtonWidget.kt:106-116`,
  *   not yet replicated by this composable) — so a caller passing `isPinned = true` with
  *   `mode = Rail` renders no visible dot (fix-round-1: an earlier version drew it regardless of
  *   [mode] and it collided with the rail's two-row label).
@@ -198,7 +203,7 @@ fun WindowButton(
                 modifier = Modifier.align(Alignment.Center).padding(horizontal = 2.dp),
             )
             // Classic's rail button is two-row: the tiny page title under the top badge row, and
-            // the document abbreviation bottom-start (window_button.xml + WindowButtonWidget.kt:126,145).
+            // the document abbreviation bottom-start (window_button.xml + WindowButtonWidget.kt:127,148).
             // `.height(RailBadgeRowHeight-reserved)` fixes this Column's OWN box to the space below
             // the badge row — unlike a bare bottom-anchored Column (whose top edge floats upward as
             // content grows), this guarantees the label pair's top edge can never rise above the
@@ -242,13 +247,13 @@ fun WindowButton(
                 // TODO: no LocalStrings field for this yet — keep literal/null until one is added.
                 contentDescription = null,
                 tint = contentColor,
-                modifier = Modifier.align(Alignment.TopEnd).padding(2.dp).size(BadgeIconSize),
+                modifier = Modifier.align(Alignment.TopEnd).padding(BadgeInset).size(BadgeIconSize),
             )
             leadingIcon != null -> Icon(
                 painter = leadingIcon,
                 contentDescription = null,
                 tint = contentColor,
-                modifier = Modifier.align(Alignment.TopEnd).padding(2.dp).size(BadgeIconSize),
+                modifier = Modifier.align(Alignment.TopEnd).padding(BadgeInset).size(BadgeIconSize),
             )
         }
 
@@ -257,13 +262,13 @@ fun WindowButton(
             SyncGroupBadge(
                 group = syncGroup,
                 color = contentColor,
-                modifier = Modifier.align(Alignment.TopStart).padding(2.dp),
+                modifier = Modifier.align(Alignment.TopStart).padding(BadgeInset),
             )
         }
         // Pane only, fix-round-1: classic's `pinMode.visibility` requires `!isRestoreButton`
-        // (`WindowButtonWidget.kt:85-96`) — the pin dot is a Pane-only badge in classic; the rail
+        // (`WindowButtonWidget.kt:86-95`) — the pin dot is a Pane-only badge in classic; the rail
         // instead conveys pinned-ness through a different BACKGROUND drawable (`bar_window_button*`
-        // vs `bar_window_unpinned_button*`, `WindowButtonWidget.kt:110-125`, not replicated by this
+        // vs `bar_window_unpinned_button*`, `WindowButtonWidget.kt:106-116`, not replicated by this
         // composable yet — tracked separately, not part of this task). Suppressing the rail dot
         // loses nothing classic ever showed there, and removes its collision with the rail label
         // pair for free. Position (Pane): start edge, directly under the sync badge (classic
