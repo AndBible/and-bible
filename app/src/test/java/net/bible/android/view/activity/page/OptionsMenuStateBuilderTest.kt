@@ -23,6 +23,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -191,7 +192,14 @@ class OptionsMenuStateBuilderTest {
 
     @Test
     fun dynamicTextOptionRowsHaveNoIcon() {
-        assertTrue(items().filter { it.id.startsWith("textOptionItem:") }.all { it.iconKey == null })
+        // Nothing seeds `lastDisplaySettings` by default, so without this the filtered list below
+        // would be empty and `all {}` would pass vacuously (whole-batch review Minor #6) -- seed one
+        // display-setting change via the real route (`OptionsMenuStateBuilder.build`'s dynamic loop
+        // iterates `CommonUtils.lastDisplaySettingsSorted`) so a genuine row exists to assert against.
+        CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.STRONGS)
+        val dynamicRows = items().filter { it.id.startsWith("textOptionItem:") }
+        assertTrue(dynamicRows.isNotEmpty(), "sanity: a seeded display setting must produce a textOptionItem row")
+        assertTrue(dynamicRows.all { it.iconKey == null })
     }
 
     /**

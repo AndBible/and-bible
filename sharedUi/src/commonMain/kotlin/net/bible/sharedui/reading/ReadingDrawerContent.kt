@@ -49,7 +49,7 @@ import net.bible.sharedcore.reading.DrawerMenuState
  * fixed classic-scale width is used instead of reproducing `wrap_content`, so the drawer does not
  * change size with the longest translated label (which would also jump between LTR and RTL).
  *
- * These four constants are the density knobs: if a later A/B pass still reads as too roomy, tune
+ * These six constants are the density knobs: if a later A/B pass still reads as too roomy, tune
  * them here rather than sprinkling paddings through the tree.
  */
 val ReadingDrawerWidth: Dp = 300.dp

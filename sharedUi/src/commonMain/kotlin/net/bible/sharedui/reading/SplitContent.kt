@@ -103,10 +103,13 @@ private data class ActiveDrag(val index: Int, val weight1: Float, val weight2: F
  * [bottomOverlay]) but is the caller's to align — the window-tab rail aligns it `BottomEnd`,
  * mirroring classic `restoreButtonsContainer`'s `bottom`+`end`-only constraints
  * (`res/layout/split_bible_area.xml:31-38`), so the rail FLOATS over the panes instead of taking a
- * layout band from them. It is a separate slot from [bottomOverlay] on purpose: that one carries
- * the bottom-CENTRE fullscreen bible-reference overlay, and one shared slot would make two
- * independent overlays compete for a single alignment and z-order. Composed last, so the rail
- * draws above the reference overlay where they meet.
+ * layout band from them. It is a separate slot from [bottomOverlay], not because the two would
+ * conflict — both are ordinary caller-aligned `@Composable BoxScope.() -> Unit` slots, and each
+ * overlay aligns itself independently, so there is no shared alignment or z-order to compete over —
+ * but so [SplitContent] itself guarantees their relative stacking order rather than leaving it to
+ * caller discipline: composed last, [railOverlay] always draws above [bottomOverlay]'s bottom-CENTRE
+ * fullscreen bible-reference overlay where the two meet. Two distinctly-named slots also read more
+ * clearly at the call site than one lambda expected to compose two unrelated pieces of chrome.
  */
 @Composable
 fun SplitContent(

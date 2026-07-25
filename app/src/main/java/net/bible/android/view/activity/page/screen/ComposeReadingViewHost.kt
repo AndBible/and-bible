@@ -549,6 +549,21 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // no dedicated state field to push into here — this reuses the SAME `refreshHostedState()`
             // push `updateActions()`'s callers already use for the analogous `windowLabelFor`
             // (document-abbreviation) refresh, rather than adding a second refresh path.
+            //
+            // KNOWN COST (whole-batch review Minor #3, not coalesced this batch): on the dominant
+            // scroll path, `CurrentBiblePage.setCurrentVerseOrdinal` posts THIS event via
+            // `CurrentBibleVerse.setVerseSelected` and then posts `CurrentVerseChangedEvent` right
+            // after (`VersePage.onVerseChange` -> `PassageChangeMediator.onCurrentVerseChanged`) —
+            // an event `ToolbarStateServiceImpl` already subscribes to. Both handlers call the same
+            // `ToolbarStateServiceImpl.refresh()` (this one via `refreshHostedState()` ->
+            // `HostedStateRefresher.refresh()` -> `toolbar.refresh()`), so `buildSnapshot()` —
+            // including `DocumentControl.biblesForVerse`/`commentariesForVerse`'s installed-book
+            // sort — runs TWICE per verse change on the main thread; the `MutableStateFlow` only
+            // conflates away the second, redundant EMISSION, not the recomputation cost. Still
+            // needed: `CurrentBiblePage.doSetKey` posts this event ALONE (no `onVerseChange` call,
+            // so no `CurrentVerseChangedEvent`), and would go stale without this subscription. See
+            // `compose-port-status.md`'s F2b section and the on-device checklist's F2b performance
+            // item (scrolling verse-by-verse in a multi-window split is where it would show).
             onMain<CurrentBibleVerseChanged> { refreshHostedState() }
         }
     }

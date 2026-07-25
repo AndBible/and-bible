@@ -85,7 +85,9 @@ fun ReadingOverflowMenu(
  * mirrors that: computed from THIS call's own resolved icons (a `null` [OptionsMenuItem.iconKey] or
  * an unresolved key both count as "no icon" for that row, but if ANY row in [items] resolves one,
  * every row - including the icon-less ones - gets a same-size leading slot; a purely icon-less list
- * reserves nothing, keeping today's compact look).
+ * reserves nothing, keeping today's compact look). The resolve + reservation computation itself is
+ * [resolveMenuIconRows], shared with [WindowPaneMenuRows] (previously duplicated byte-for-byte
+ * between the two files).
  */
 @Composable
 fun ReadingOverflowMenuRows(
@@ -93,8 +95,7 @@ fun ReadingOverflowMenuRows(
     onItemClick: (id: String) -> Unit,
     icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
-    val rows = items.map { item -> item to item.iconKey?.let { key -> icon(key) } }
-    val reserveIconSlot = rows.any { (_, resolved) -> resolved != null }
+    val (rows, reserveIconSlot) = resolveMenuIconRows(items, OptionsMenuItem::iconKey, icon)
     rows.forEach { (item, resolvedIcon) ->
         DropdownMenuItem(
             text = { Text(if (item.opensDialog) "${item.label} …" else item.label) },

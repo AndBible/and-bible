@@ -109,7 +109,9 @@ fun WindowPaneMenu(
  * icon" for this row, but if ANY row in [items] resolves one, every row - including the icon-less
  * ones - gets a same-size leading slot; a purely icon-less level reserves nothing, keeping today's
  * compact look). Each level is rendered by its own [WindowPaneMenuRows] call (root vs. a pushed
- * [WindowPaneMenuItem.submenu]), so the decision is naturally per-level already.
+ * [WindowPaneMenuItem.submenu]), so the decision is naturally per-level already. The resolve +
+ * reservation computation itself is [resolveMenuIconRows], shared with [ReadingOverflowMenuRows]
+ * (previously duplicated byte-for-byte between the two files).
  */
 @Composable
 fun WindowPaneMenuRows(
@@ -123,8 +125,7 @@ fun WindowPaneMenuRows(
     if (showBack) {
         DropdownMenuItem(text = { Text("‹ Back") }, onClick = onBack)
     }
-    val rows = items.map { item -> item to item.iconKey?.let { key -> icon(key) } }
-    val reserveIconSlot = rows.any { (_, resolved) -> resolved != null }
+    val (rows, reserveIconSlot) = resolveMenuIconRows(items, WindowPaneMenuItem::iconKey, icon)
     rows.forEach { (item, resolvedIcon) ->
         val hasSubmenu = item.submenu.isNotEmpty()
         DropdownMenuItem(

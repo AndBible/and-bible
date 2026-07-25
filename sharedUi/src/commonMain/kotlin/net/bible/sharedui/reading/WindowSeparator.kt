@@ -44,11 +44,14 @@ import androidx.compose.ui.unit.dp
  * (`:sharedCore`'s split-geometry helpers, applied by the caller), keeping this composable a
  * dumb, iOS-clean, stateless divider.
  *
- * The draggable gesture is attached to the FULL [modifier] bounds — a fat invisible touch
- * target (the caller sizes those bounds generously, e.g. `thickness` plus ~20dp of margin on
- * each side, per the design spec) — while only a thin [thickness] bar, centered within those
- * bounds, is actually painted. This makes the divider easy to grab with a finger without
- * widening the visible seam between panes.
+ * The draggable gesture is attached to the FULL [modifier] bounds, and a thin [thickness] bar,
+ * centered within those bounds, is painted. The production caller (`SplitContent`'s `Separator`)
+ * sizes [modifier] to exactly [thickness] (4dp) — this composable no longer carries a fat
+ * invisible touch target of its own. That fat grab area now lives one layer up, as a separate
+ * transparent `DragStrip` composed inside each of the two adjacent panes (`SplitContent.kt`),
+ * driving this same [onDragBy]/[onDragEnd] pair through its own instance of the drag pipeline —
+ * see the design spec §5 ("F4 — Separator: 4dp in flow, drag area invisible again") for why the
+ * grab area moved out of this composable's own bounds.
  *
  * Three visual states, matching classic `Separator.kt`'s `separator`/`separator_active`/
  * `separator_drag` drawables, remapped to M3 theme roles so BW/COLOR_EINK degrade automatically
