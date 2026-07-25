@@ -417,9 +417,10 @@ export function addEventFunction(event: EventWithEventFunctions, callback: Nulla
 
 export function getHighestPriorityEventFunctions(event: EventWithEventFunctions): Callback[] {
     if (!event.eventFunctions) return [];
-    const priorities = Object.keys(event.eventFunctions);
-    priorities.sort();
-    return event.eventFunctions[priorities[priorities.length - 1]];
+    const keys = Object.keys(event.eventFunctions);
+    if (keys.length === 0) return [];
+    const maxPriority = Math.max(...keys.map(Number));
+    return event.eventFunctions[String(maxPriority)];
 }
 
 export function getAllEventFunctions(event: EventWithEventFunctions): Callback[] {
