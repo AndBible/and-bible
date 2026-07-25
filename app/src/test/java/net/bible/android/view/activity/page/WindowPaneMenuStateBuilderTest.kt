@@ -24,6 +24,7 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.test.DatabaseResetter
@@ -265,5 +266,43 @@ class WindowPaneMenuStateBuilderTest {
         } catch (_: IllegalArgumentException) {
             // expected
         }
+    }
+
+    // --- F5b: every row's iconKey mirrors classic's window_popup_menu.xml android:icon ----------
+
+    @Test
+    fun paneMenuRowsCarryClassicsIcons() {
+        windowRepository.workspaceSettings.autoPin = false // pinMode is hidden entirely while auto-pin is on (see pinModeIsAbsentWhileAutoPinIsOn)
+        val window = windowRepository.activeWindow
+        windowRepository.addNewWindow(window) // second window, so windowClose (isWindowRemovable) is present
+
+        assertEquals("ic_window_add_outline_black_24dp", itemById(window, "windowNew").iconKey)
+        assertEquals("ic_pin", itemById(window, "pinMode").iconKey)
+        assertEquals("ic_close_white_24dp", itemById(window, "windowClose").iconKey)
+        assertEquals("ic_content_copy_black_24dp", itemById(window, "copySettingsToWorkspace").iconKey)
+        assertEquals("ic_text_options_24dp", findInSubmenus(items(window), "allTextOptions")?.iconKey)
+    }
+
+    @Test
+    fun paneMenuRowsClassicLeavesIconlessHaveNoIconKey() {
+        val window = windowRepository.activeWindow
+        window.isSynchronised = true // disableSync only appears while synchronised (see syncGroupSubMenuHasSixGroupsPlusDisableSyncWhenSynchronised)
+
+        val disableSync = findInSubmenus(items(window), "disableSync")
+        assertTrue(disableSync != null, "sanity: disableSync must actually be present to test its iconKey")
+        assertNull(disableSync.iconKey)
+    }
+
+    /**
+     * The failure this guards against is a builder emitting a key the host's `menuIconResIds` map
+     * lacks — the icon then silently disappears (same drift risk as
+     * `ComposeReadingViewHostTest.drawerIconResIdsCoverEveryBuilderIconKey`).
+     */
+    @Test
+    fun everyPaneMenuIconKeyIsResolvableByTheHost() {
+        fun keys(items: List<WindowPaneMenuItem>): Set<String> =
+            items.flatMap { listOfNotNull(it.iconKey) + keys(it.submenu) }.toSet()
+        val missing = keys(items(windowRepository.activeWindow)) - ComposeReadingViewHost.menuIconResIds.keys
+        assertTrue(missing.isEmpty(), "menuIconResIds is missing: $missing")
     }
 }

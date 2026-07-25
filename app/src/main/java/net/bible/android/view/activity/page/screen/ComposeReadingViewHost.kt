@@ -835,6 +835,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 }
             },
             onPaneMenuDismiss = ::closePaneMenu,
+            // A/B batch 1 F5b: resolves the pane popup menu's and the toolbar overflow menu's
+            // `iconKey`s to a `Painter` via the explicit [menuIconResIds] table — the same
+            // "host resolves, `:sharedCore`/`:sharedUi` stay Android-free" shape as `drawerIcon`
+            // just above.
+            menuIcon = { key ->
+                val resId = menuIconResIds[key]
+                if (resId == null) null else painterResource(resId)
+            },
             // Batch 12e-B Task 6: the agent-log panel, pre-built here (closing over the live
             // `agentLog` controller) since `install` already owns it — mirrors how `pane` above is
             // threaded straight through `mountComposeView` rather than rebuilt from raw state.
@@ -947,6 +955,48 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         )
 
         /**
+         * Drawable-name -> `R.drawable.*` for every icon the per-window (☰) pane popup menu
+         * ([WindowPaneMenuStateBuilder]) or the toolbar's overflow ("3-dot") menu
+         * ([OptionsMenuStateBuilder]) can ask for — 22 entries total (14 shared with, or unique to,
+         * the pane menu's `window_popup_menu.xml` table, plus 8 more from the overflow menu's
+         * `main_bible_options_menu.xml` table; `ic_baseline_headphones_24`/
+         * `ic_baseline_bookmark_24`/`icon_robot` also appear in [drawerIconResIds] above — kept as
+         * separate entries here rather than merged, mirroring how each menu owns its own
+         * self-contained table).
+         *
+         * A/B batch 1 F5b — same rationale as [drawerIconResIds]: a name-only
+         * `resources.getIdentifier` lookup is invisible to R8 (silently resolves to `0` once
+         * release resource shrinking runs), so direct `R.drawable` references are used instead.
+         * Kept in step with both builders' tables by
+         * `WindowPaneMenuStateBuilderTest.everyPaneMenuIconKeyIsResolvableByTheHost` and
+         * `OptionsMenuStateBuilderTest.everyOverflowIconKeyIsResolvableByTheHost`.
+         */
+        internal val menuIconResIds: Map<String, Int> = mapOf(
+            "ic_window_add_outline_black_24dp" to R.drawable.ic_window_add_outline_black_24dp,
+            "ic_window_maximise_24dp" to R.drawable.ic_window_maximise_24dp,
+            "ic_baseline_minimise_24" to R.drawable.ic_baseline_minimise_24,
+            "ic_link_black_24dp" to R.drawable.ic_link_black_24dp,
+            "ic_window_move_to_24dp" to R.drawable.ic_window_move_to_24dp,
+            "ic_pin" to R.drawable.ic_pin,
+            "ic_window_sync_24dp" to R.drawable.ic_window_sync_24dp,
+            "ic_baseline_bookmark_24" to R.drawable.ic_baseline_bookmark_24,
+            "file_export" to R.drawable.file_export,
+            "ic_text_options_24dp" to R.drawable.ic_text_options_24dp,
+            "ic_content_copy_black_24dp" to R.drawable.ic_content_copy_black_24dp,
+            "baseline_content_paste_24" to R.drawable.baseline_content_paste_24,
+            "ic_baseline_headphones_24" to R.drawable.ic_baseline_headphones_24,
+            "ic_close_white_24dp" to R.drawable.ic_close_white_24dp,
+            "ic_full_screen_24" to R.drawable.ic_full_screen_24,
+            "ic_night_mode_24" to R.drawable.ic_night_mode_24,
+            "ic_baseline_workspace_24" to R.drawable.ic_baseline_workspace_24,
+            "ic_tilt_to_scroll_24dp" to R.drawable.ic_tilt_to_scroll_24dp,
+            "ic_reverse_split_mode_24dp" to R.drawable.ic_reverse_split_mode_24dp,
+            "ic_window_pinning_24" to R.drawable.ic_window_pinning_24,
+            "ic_label_settings_24" to R.drawable.ic_label_settings_24,
+            "icon_robot" to R.drawable.icon_robot,
+        )
+
+        /**
          * Testable mount: adds a [ComposeView] rendering [ReadingViewScreen] to [container].
          * Collaborators are passed explicitly so this can be exercised without booting a full
          * [MainBibleActivity] (see `ComposeReadingViewHostTest`).
@@ -1051,6 +1101,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onOpenPaneMenu: (windowId: String) -> Unit = {},
             onPaneMenuItemClick: (windowId: String, id: String) -> Unit = { _, _ -> },
             onPaneMenuDismiss: () -> Unit = {},
+            // A/B batch 1 F5b: resolves a [WindowPaneMenuItem.iconKey]/[OptionsMenuItem.iconKey] to
+            // a `Painter` for BOTH the pane popup menu and the toolbar's overflow menu — the same
+            // "host resolves, `:sharedCore`/`:sharedUi` stay Android-free" shape as `drawerIcon`
+            // above, `@Composable` because `painterResource` is only callable inside composition.
+            // Defaulted to always-`null` so `ComposeReadingViewHostTest` and friends (which never
+            // resolve a menu icon) are unaffected.
+            menuIcon: @Composable (iconKey: String) -> Painter? = { null },
             // Batch 12e-A Task 6 additions: the reading-view LLM dialogs (prompt selector,
             // specify-before-run, model selection, regenerate-confirm), rendered as a sibling of
             // `ReadingViewScreen` below. A `StateFlow` (not a plain `State`), mirroring the
@@ -1272,6 +1329,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                         overflowExpanded = overflowExpanded,
                                         onOverflowItemClick = onOverflowItemClick,
                                         onOverflowDismiss = onOverflowDismiss,
+                                        overflowIcon = menuIcon,
                                         bibleQuickDoc = bibleQuickDoc,
                                         commentaryQuickDoc = commentaryQuickDoc,
                                         onQuickDocSelect = onQuickDocSelect,
@@ -1293,6 +1351,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                                 onOpenPaneMenu = onOpenPaneMenu,
                                                 onPaneMenuItemClick = onPaneMenuItemClick,
                                                 onPaneMenuDismiss = onPaneMenuDismiss,
+                                                icon = menuIcon,
                                             )
                                         },
                                         agentLog = agentLogSlot,
@@ -1458,6 +1517,9 @@ private fun BoxScope.PaneWindowButtonOverlay(
     onOpenPaneMenu: (windowId: String) -> Unit,
     onPaneMenuItemClick: (windowId: String, id: String) -> Unit,
     onPaneMenuDismiss: () -> Unit,
+    // A/B batch 1 F5b: resolves each row's `WindowPaneMenuItem.iconKey` to a `Painter` — same
+    // host-lambda seam as `drawerIcon` (see [mountComposeView]'s `menuIcon` param).
+    icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     Box(Modifier.align(Alignment.TopEnd)) {
         if (showButton && window != null) {
@@ -1524,6 +1586,7 @@ private fun BoxScope.PaneWindowButtonOverlay(
             expanded = paneMenuWindowId == windowId,
             onItemClick = { id -> onPaneMenuItemClick(windowId, id) },
             onDismiss = onPaneMenuDismiss,
+            icon = icon,
         )
     }
 }

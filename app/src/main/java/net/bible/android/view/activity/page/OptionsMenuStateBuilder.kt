@@ -45,18 +45,21 @@ object OptionsMenuStateBuilder {
      * The dynamic `textOptionItem` rows (one per [CommonUtils.lastDisplaySettingsSorted] index —
      * see [build]) are appended after all of these.
      */
-    private data class StaticEntry(val resId: Int, val idName: String, val titleRes: Int)
+    private data class StaticEntry(val resId: Int, val idName: String, val titleRes: Int, val iconKey: String?)
 
+    // iconKey values below are classic's own `android:icon` for the same item id in
+    // `res/menu/main_bible_options_menu.xml` (classic force-shows them, MainBibleActivity.kt:1417).
+    // Every static entry here happens to carry an icon in that XML today (see class kdoc).
     private val staticEntries: List<StaticEntry> = listOf(
-        StaticEntry(R.id.fullscreen, "fullscreen", R.string.toggle_fullscreen),
-        StaticEntry(R.id.nightMode, "nightMode", R.string.options_menu_night_mode),
-        StaticEntry(R.id.switchToWorkspace, "switchToWorkspace", R.string.switch_to_workspace),
-        StaticEntry(R.id.tiltToScroll, "tiltToScroll", R.string.prefs_tilt_to_scroll_title),
-        StaticEntry(R.id.splitMode, "splitMode", R.string.reversed_split_mode),
-        StaticEntry(R.id.autoPinMode, "autoPinMode", R.string.window_pinning_menutitle),
-        StaticEntry(R.id.autoAssignLabels, "autoAssignLabels", R.string.auto_assign_labels_title),
-        StaticEntry(R.id.llmActionsSubMenu, "llmActionsSubMenu", R.string.llm_actions),
-        StaticEntry(R.id.allTextOptions, "allTextOptions", R.string.all_text_options_window_menutitle),
+        StaticEntry(R.id.fullscreen, "fullscreen", R.string.toggle_fullscreen, "ic_full_screen_24"),
+        StaticEntry(R.id.nightMode, "nightMode", R.string.options_menu_night_mode, "ic_night_mode_24"),
+        StaticEntry(R.id.switchToWorkspace, "switchToWorkspace", R.string.switch_to_workspace, "ic_baseline_workspace_24"),
+        StaticEntry(R.id.tiltToScroll, "tiltToScroll", R.string.prefs_tilt_to_scroll_title, "ic_tilt_to_scroll_24dp"),
+        StaticEntry(R.id.splitMode, "splitMode", R.string.reversed_split_mode, "ic_reverse_split_mode_24dp"),
+        StaticEntry(R.id.autoPinMode, "autoPinMode", R.string.window_pinning_menutitle, "ic_window_pinning_24"),
+        StaticEntry(R.id.autoAssignLabels, "autoAssignLabels", R.string.auto_assign_labels_title, "ic_label_settings_24"),
+        StaticEntry(R.id.llmActionsSubMenu, "llmActionsSubMenu", R.string.llm_actions, "icon_robot"),
+        StaticEntry(R.id.allTextOptions, "allTextOptions", R.string.all_text_options_window_menutitle, "ic_text_options_24dp"),
     )
     private val staticEntryByResId: Map<Int, StaticEntry> = staticEntries.associateBy { it.resId }
     private val staticEntryByName: Map<String, StaticEntry> = staticEntries.associateBy { it.idName }
@@ -112,6 +115,7 @@ object OptionsMenuStateBuilder {
                 checked = m.value == true,
                 enabled = m.enabled,
                 opensDialog = m.opensDialog,
+                iconKey = entry.iconKey,
             )
         }
         for ((order, _) in CommonUtils.lastDisplaySettingsSorted.withIndex()) {
@@ -124,6 +128,7 @@ object OptionsMenuStateBuilder {
                 checked = m.value == true,
                 enabled = m.enabled,
                 opensDialog = m.opensDialog,
+                iconKey = null,
             )
         }
         return items

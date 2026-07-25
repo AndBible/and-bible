@@ -89,16 +89,28 @@ class WindowPaneMenuStateBuilder(
         val isMaximised = windowRepository.isMaximized
         val items = mutableListOf<WindowPaneMenuItem>()
 
+        // iconKey values below are classic's own `android:icon` for the same item id in
+        // `res/menu/window_popup_menu.xml` (classic force-shows them, SplitBibleArea.kt:859).
+        // Items that XML leaves iconless stay iconKey = null.
+
         // SplitBibleArea.kt:880-883
         if (!isMaximised && !window.isLinksWindow) {
-            items += WindowPaneMenuItem(id = ID_WINDOW_NEW, label = app.getString(R.string.new_window))
+            items += WindowPaneMenuItem(
+                id = ID_WINDOW_NEW,
+                label = app.getString(R.string.new_window),
+                iconKey = "ic_window_add_outline_black_24dp",
+            )
         }
         // SplitBibleArea.kt:974-977. `visible = !isMaximised` ONLY -- classic genuinely lets a
         // links window be maximised from its own per-window ☰ menu, no `!isLinksWindow` guard
         // here (unlike `windowNew`/`changeToNormal` just above/below). Confirmed classic parity;
         // do not add a links-window guard (see WindowPaneMenuStateBuilderTest).
         if (!isMaximised) {
-            items += WindowPaneMenuItem(id = ID_WINDOW_MAXIMISE, label = app.getString(R.string.windowMaximise))
+            items += WindowPaneMenuItem(
+                id = ID_WINDOW_MAXIMISE,
+                label = app.getString(R.string.windowMaximise),
+                iconKey = "ic_window_maximise_24dp",
+            )
         }
         // SplitBibleArea.kt:970-973. Compose-specific choice: kept visible whenever not
         // maximised but DISABLED (rather than hidden) when not minimizable, so `enabled` directly
@@ -108,12 +120,17 @@ class WindowPaneMenuStateBuilder(
                 id = ID_WINDOW_MINIMISE,
                 label = app.getString(R.string.windowMinimise),
                 enabled = windowControl.isWindowMinimizable(window),
+                iconKey = "ic_baseline_minimise_24",
             )
         }
         // SplitBibleArea.kt:884-890 (compound action: add a new non-links window, close this one
         // — handled by the Task-5 dispatcher via the atomic addNewWindow+closeWindow seam calls)
         if (window.isLinksWindow) {
-            items += WindowPaneMenuItem(id = ID_CHANGE_TO_NORMAL, label = app.getString(R.string.change_to_normal))
+            items += WindowPaneMenuItem(
+                id = ID_CHANGE_TO_NORMAL,
+                label = app.getString(R.string.change_to_normal),
+                iconKey = "ic_link_black_24dp",
+            )
         }
         // SplitBibleArea.kt:896-898 (visibility), :748-749, :782-792 (submenu build)
         if (!window.isLinksWindow && !isMaximised && windowControl.hasMoveItems(window)) {
@@ -121,6 +138,7 @@ class WindowPaneMenuStateBuilder(
                 id = ID_MOVE_WINDOW_SUBMENU,
                 label = app.getString(R.string.move_window),
                 submenu = buildMoveItems(window),
+                iconKey = "ic_window_move_to_24dp",
             )
         }
         // SplitBibleArea.kt:891-895
@@ -130,6 +148,7 @@ class WindowPaneMenuStateBuilder(
                 label = app.getString(R.string.window_pin_mode),
                 checkable = true,
                 checked = window.isPinMode,
+                iconKey = "ic_pin",
             )
         }
         // SplitBibleArea.kt:899-901 (visibility), :751-752, :754-758, :997-999 (submenu build)
@@ -138,6 +157,7 @@ class WindowPaneMenuStateBuilder(
                 id = ID_SYNC_GROUP_SUBMENU,
                 label = app.getString(R.string.windowSynchronise),
                 submenu = buildSyncGroupItems(window),
+                iconKey = "ic_window_sync_24dp",
             )
         }
         // SplitBibleArea.kt:1036-1048
@@ -145,7 +165,11 @@ class WindowPaneMenuStateBuilder(
             !window.pageManager.isBibleShown &&
             window.pageManager.currentPage.currentDocument?.isSpecial != true
         ) {
-            items += WindowPaneMenuItem(id = ID_ADD_WHOLE_PAGE_BOOKMARK, label = app.getString(R.string.add_whole_page_bookmark))
+            items += WindowPaneMenuItem(
+                id = ID_ADD_WHOLE_PAGE_BOOKMARK,
+                label = app.getString(R.string.add_whole_page_bookmark),
+                iconKey = "ic_baseline_bookmark_24",
+            )
         }
 
         val firstDoc = window.bibleView?.firstDocument
@@ -157,6 +181,7 @@ class WindowPaneMenuStateBuilder(
                 id = ID_EXPORT_HTML,
                 label = app.getString(R.string.export_fileformat, "HTML"),
                 opensDialog = true,
+                iconKey = "file_export",
             )
         }
         // SplitBibleArea.kt:1020-1035
@@ -165,11 +190,13 @@ class WindowPaneMenuStateBuilder(
                 id = ID_EXPORT_STUDYPAD,
                 label = app.getString(R.string.export_something, app.getString(R.string.studypad)),
                 opensDialog = true,
+                iconKey = "file_export",
             )
             items += WindowPaneMenuItem(
                 id = ID_EXPORT_STUDYPAD_CSV,
                 label = app.getString(R.string.export_bookmarks_csv, "CSV"),
                 opensDialog = true,
+                iconKey = "file_export",
             )
         }
 
@@ -179,6 +206,7 @@ class WindowPaneMenuStateBuilder(
                 id = ID_TEXT_OPTIONS_SUBMENU,
                 label = app.getString(R.string.text_options_window_menutitle),
                 submenu = buildTextOptionItems(window),
+                iconKey = "ic_text_options_24dp",
             )
         }
 
@@ -202,33 +230,50 @@ class WindowPaneMenuStateBuilder(
         // visible windows, SplitBibleArea.kt:1005-1007's `order` param) -- do not default silently
         // to "first other window".
         if (window.isVisible) {
+            // DIVERGENCE: classic nests these three under a `copySettingsTo` PARENT that alone
+            // carries `ic_content_copy_black_24dp` (the children are iconless) -- since this
+            // builder promotes them to top-level rows (see "INTENTIONAL WIDENING" above), each
+            // takes the parent's icon so the promoted rows still read as "copy settings".
             if (windowRepository.visibleWindows.any { it.id != window.id }) {
                 items += WindowPaneMenuItem(
                     id = ID_COPY_SETTINGS_TO_WINDOW,
                     label = app.getString(R.string.copy_settings_to_other_window),
                     opensDialog = true,
+                    iconKey = "ic_content_copy_black_24dp",
                 )
             }
             items += WindowPaneMenuItem(
                 id = ID_COPY_SETTINGS_TO_WORKSPACE,
                 label = "${app.getString(R.string.copy_settings)} ${app.getString(R.string.copy_settings_to_workspace)}",
                 opensDialog = true,
+                iconKey = "ic_content_copy_black_24dp",
             )
             items += WindowPaneMenuItem(
                 id = ID_COPY_SETTINGS_TO_GLOBAL,
                 label = "${app.getString(R.string.copy_settings)} ${app.getString(R.string.copy_settings_to_global)}",
                 opensDialog = true,
+                iconKey = "ic_content_copy_black_24dp",
             )
         }
 
         // SplitBibleArea.kt:1049-1063
         if (CommonUtils.settings.llmConfigured && window.isVisible) {
-            items += WindowPaneMenuItem(id = ID_LLM_ACTIONS_SUBMENU, label = app.getString(R.string.llm_actions), opensDialog = true)
+            items += WindowPaneMenuItem(
+                id = ID_LLM_ACTIONS_SUBMENU,
+                label = app.getString(R.string.llm_actions),
+                opensDialog = true,
+                iconKey = "icon_robot",
+            )
         }
 
         // SplitBibleArea.kt:950-969
         if (window.pageManager.currentPage.currentDocument?.isSpecial != true) {
-            items += WindowPaneMenuItem(id = ID_COPY_REFERENCE, label = app.getString(R.string.copyReference), opensDialog = true)
+            items += WindowPaneMenuItem(
+                id = ID_COPY_REFERENCE,
+                label = app.getString(R.string.copyReference),
+                opensDialog = true,
+                iconKey = "ic_content_copy_black_24dp",
+            )
         }
 
         // SplitBibleArea.kt:929-949. Genuine reuse (not reproduction): reads the real shared
@@ -244,7 +289,7 @@ class WindowPaneMenuStateBuilder(
                         clipboard.shortName
                     },
                 )
-                items += WindowPaneMenuItem(id = ID_GO_TO_REFERENCE, label = label, opensDialog = true)
+                items += WindowPaneMenuItem(id = ID_GO_TO_REFERENCE, label = label, opensDialog = true, iconKey = "baseline_content_paste_24")
             }
         }
 
@@ -261,12 +306,12 @@ class WindowPaneMenuStateBuilder(
                     }
                 },
             )
-            items += WindowPaneMenuItem(id = ID_GO_TO_SPEAK, label = label, opensDialog = true)
+            items += WindowPaneMenuItem(id = ID_GO_TO_SPEAK, label = label, opensDialog = true, iconKey = "ic_baseline_headphones_24")
         }
 
         // SplitBibleArea.kt:906-909
         if (windowControl.isWindowRemovable(window) && !isMaximised) {
-            items += WindowPaneMenuItem(id = ID_WINDOW_CLOSE, label = app.getString(R.string.close))
+            items += WindowPaneMenuItem(id = ID_WINDOW_CLOSE, label = app.getString(R.string.close), iconKey = "ic_close_white_24dp")
         }
 
         return items
@@ -315,6 +360,7 @@ class WindowPaneMenuStateBuilder(
                     id = ID_ALL_TEXT_OPTIONS,
                     label = app.getString(R.string.all_text_options_window_menutitle),
                     opensDialog = true,
+                    iconKey = "ic_text_options_24dp",
                 ),
             )
         }

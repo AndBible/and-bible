@@ -23,7 +23,10 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.LlmProviderConfig
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Before
@@ -169,5 +172,36 @@ class OptionsMenuStateBuilderTest {
         val titleText = activity.windowRepository.activeWindow.pageManager.titleText
         assertTrue(titleText.isNotBlank(), "sanity: a fresh workspace's default verse gives a non-blank titleText")
         assertEquals(titleText, activity.windowTopLabelFor(id))
+    }
+
+    // --- F5b: every static row's iconKey mirrors classic's main_bible_options_menu.xml android:icon ---
+
+    @Test
+    fun staticOverflowRowsCarryClassicsIcons() {
+        // llmActionsSubMenu is hidden unless an LlmProviderConfig exists (see
+        // llmActionsSubMenuIsAbsentWhenLlmIsNotConfigured) -- seed one so the row is present.
+        DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+            .insert(LlmProviderConfig(providerType = "GEMINI", displayName = "Test Gemini"))
+
+        assertEquals("ic_full_screen_24", itemById("fullscreen").iconKey)
+        assertEquals("ic_night_mode_24", itemById("nightMode").iconKey)
+        assertEquals("icon_robot", itemById("llmActionsSubMenu").iconKey)
+        assertEquals("ic_text_options_24dp", itemById("allTextOptions").iconKey)
+    }
+
+    @Test
+    fun dynamicTextOptionRowsHaveNoIcon() {
+        assertTrue(items().filter { it.id.startsWith("textOptionItem:") }.all { it.iconKey == null })
+    }
+
+    /**
+     * The failure this guards against is a builder emitting a key the host's `menuIconResIds` map
+     * lacks — the icon then silently disappears (same drift risk as
+     * `ComposeReadingViewHostTest.drawerIconResIdsCoverEveryBuilderIconKey`).
+     */
+    @Test
+    fun everyOverflowIconKeyIsResolvableByTheHost() {
+        val missing = items().mapNotNull { it.iconKey }.toSet() - ComposeReadingViewHost.menuIconResIds.keys
+        assertTrue(missing.isEmpty(), "menuIconResIds is missing: $missing")
     }
 }
