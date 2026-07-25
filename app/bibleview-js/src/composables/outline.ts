@@ -14,8 +14,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {computed, onMounted, onUnmounted, shallowReactive, watch} from "vue";
-import {setupEventBusListener} from "@/eventbus";
+import {computed, onMounted, onUnmounted, shallowReactive} from "vue";
 import {CustomHeading, OrdinalRange} from "@/types/client-objects";
 
 export type OutlineEntry = {

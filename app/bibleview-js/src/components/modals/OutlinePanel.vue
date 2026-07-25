@@ -50,14 +50,18 @@ const {strings} = useCommon();
 
 const showModal = ref(false);
 const entries = ref<OutlineEntry[]>([]);
+const docId = ref("");
 
 setupEventBusListener("open_outline", (s: { entries: OutlineEntry[], bookInitials: string, documentId: string }) => {
     entries.value = s.entries;
+    docId.value = s.documentId;
     showModal.value = true;
 });
 
 function navigateTo(entry: OutlineEntry) {
-    const el = document.getElementById(`v-${entry.ordinal}`);
+    const el = docId.value
+        ? document.querySelector(`#doc-${docId.value} #v-${entry.ordinal}`)
+        : document.getElementById(`v-${entry.ordinal}`);
     if (el) {
         el.scrollIntoView({behavior: "smooth", block: "center"});
     }
@@ -100,6 +104,10 @@ function close() {
   font-size: 80%;
   flex-shrink: 0;
   align-self: center;
+
+  .monochrome & {
+    color: inherit;
+  }
 }
 
 .entry-text {
