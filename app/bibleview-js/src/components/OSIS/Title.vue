@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div class="title-wrapper" v-if="show">
+  <div class="title-wrapper" :class="{'has-outline-btn': outlineCtx?.visible}" v-if="show">
     <button v-if="outlineCtx?.visible" class="title-outline-btn" @click.stop="outlineCtx.open" :aria-label="strings.outline" :title="strings.outline">≡</button>
     <component :is="headingTag" ref="titleEl" class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}" :data-ordinal="ordinal" :data-title-index="titleIndex" tabindex="0" @click="titleClicked" @keydown.enter="titleClicked" @keydown.space.prevent="titleClicked">
       <template v-if="overrideText !== null">{{ overrideText }}</template>
@@ -116,6 +116,9 @@ h6.isSubTitle {
 
 .title-wrapper {
   position: relative;
+}
+
+.title-wrapper.has-outline-btn {
   padding-inline-start: 28px;
 }
 

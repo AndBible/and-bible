@@ -117,6 +117,7 @@ export function useCustomHeadings(
             wrapper.dataset.isCustom = "true";
 
             if (openOutline) {
+                wrapper.classList.add("has-outline-btn");
                 const outlineBtn = document.createElement("button");
                 outlineBtn.classList.add("title-outline-btn");
                 outlineBtn.textContent = "≡";

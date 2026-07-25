@@ -26,6 +26,7 @@
           :style="{ paddingInlineStart: `${(entry.level - 1) * 16}px` }"
           @click="navigateTo(entry)"
           @keydown.enter="navigateTo(entry)"
+          @keydown.space.prevent="navigateTo(entry)"
           tabindex="0"
           role="button"
       >
@@ -46,7 +47,7 @@ import {useCommon} from "@/composables";
 import {setupEventBusListener} from "@/eventbus";
 import {OutlineEntry} from "@/composables/outline";
 
-const {strings} = useCommon();
+const {strings, appSettings} = useCommon();
 
 const showModal = ref(false);
 const entries = ref<OutlineEntry[]>([]);
@@ -63,7 +64,10 @@ function navigateTo(entry: OutlineEntry) {
         ? document.querySelector(`#doc-${docId.value} #v-${entry.ordinal}`)
         : document.getElementById(`v-${entry.ordinal}`);
     if (el) {
-        el.scrollIntoView({behavior: "smooth", block: "center"});
+        el.scrollIntoView({
+            behavior: appSettings.disableAnimations ? "instant" : "smooth",
+            block: "center",
+        });
     }
     close();
 }
