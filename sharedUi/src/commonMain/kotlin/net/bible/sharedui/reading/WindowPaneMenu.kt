@@ -88,12 +88,28 @@ fun WindowPaneMenu(
  * non-popup surrogate.
  *
  * [showBack] renders a leading "‹ Back" row (calling [onBack] on click) when a submenu is open —
- * it gets no [icon] (classic has no such row at all, so there is nothing to mirror). Each item
- * renders its label (suffixed " …" when [WindowPaneMenuItem.opensDialog]) with a trailing check
- * mark (when checkable+checked) or "›" (when it has a non-empty [submenu]); clicking a submenu row
- * calls [onEnterSubmenu] instead of [onItemClick]. [icon] resolves [WindowPaneMenuItem.iconKey] to
- * a leading `Painter` (see [WindowPaneMenu]'s kdoc); a `null` key or a `null` resolution both mean
- * no leading icon slot for that row.
+ * it gets no [icon] and never participates in [reserveIconSlot] below (classic has no such row at
+ * all, so there is nothing to mirror). Each item renders its label (suffixed " …" when
+ * [WindowPaneMenuItem.opensDialog]) with a trailing check mark (when checkable+checked) or "›"
+ * (when it has a non-empty [submenu]); clicking a submenu row calls [onEnterSubmenu] instead of
+ * [onItemClick].
+ *
+ * [icon] resolves [WindowPaneMenuItem.iconKey] to a leading `Painter` (see [WindowPaneMenu]'s
+ * kdoc). Classic's `MenuPopupHelper.setForceShowIcon(true)` (`SplitBibleArea.kt:859`,
+ * `MainBibleActivity.kt:1417` — the pane-menu and overflow-menu call sites respectively) makes
+ * Android's menu row view reserve the icon frame for EVERY row once ANY row in that popup has an
+ * icon, so an icon-less row still keeps a blank icon-sized gap and every row's label lands on the
+ * same left edge (see `ListMenuItemView.setIcon`: a `null` icon gets `mEmptyIcon`/`INVISIBLE`, not
+ * `GONE`). This matters here: [net.bible.android.view.activity.page.OptionsMenuStateBuilder.build]
+ * appends the dynamic, icon-less `textOptionItem` rows into the SAME flat top-level list as the
+ * nine iconed static entries, so the reading-view overflow menu genuinely mixes icon and icon-less
+ * rows at one level whenever the user has any display-setting history - this is not just a golden
+ * test convenience. [reserveIconSlot] mirrors that per-level: computed from THIS level's own
+ * resolved icons (a `null` [WindowPaneMenuItem.iconKey] or an unresolved key both count as "no
+ * icon" for this row, but if ANY row in [items] resolves one, every row - including the icon-less
+ * ones - gets a same-size leading slot; a purely icon-less level reserves nothing, keeping today's
+ * compact look). Each level is rendered by its own [WindowPaneMenuRows] call (root vs. a pushed
+ * [WindowPaneMenuItem.submenu]), so the decision is naturally per-level already.
  */
 @Composable
 fun WindowPaneMenuRows(
@@ -107,14 +123,16 @@ fun WindowPaneMenuRows(
     if (showBack) {
         DropdownMenuItem(text = { Text("‹ Back") }, onClick = onBack)
     }
-    items.forEach { item ->
+    val rows = items.map { item -> item to item.iconKey?.let { key -> icon(key) } }
+    val reserveIconSlot = rows.any { (_, resolved) -> resolved != null }
+    rows.forEach { (item, resolvedIcon) ->
         val hasSubmenu = item.submenu.isNotEmpty()
         DropdownMenuItem(
             text = { Text(if (item.opensDialog) "${item.label} …" else item.label) },
             enabled = item.enabled,
-            leadingIcon = item.iconKey?.let { key ->
-                { icon(key)?.let { Icon(painter = it, contentDescription = null) } }
-            },
+            leadingIcon = if (reserveIconSlot) {
+                { resolvedIcon?.let { Icon(painter = it, contentDescription = null) } }
+            } else null,
             trailingIcon = {
                 if (item.checkable && item.checked) {
                     Icon(Icons.Default.Check, contentDescription = null)

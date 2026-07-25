@@ -73,7 +73,19 @@ fun ReadingOverflowMenu(
  * rather than duplicating the item-building logic.
  *
  * [icon] resolves [OptionsMenuItem.iconKey] to a leading `Painter` (see [ReadingOverflowMenu]'s
- * kdoc); a `null` key or a `null` resolution both mean no leading icon slot for that row.
+ * kdoc). Classic's `MenuPopupHelper.setForceShowIcon(true)` (`MainBibleActivity.kt:1417`, the
+ * overflow menu's own call site — `SplitBibleArea.kt:859` is the pane menu's) makes Android's menu
+ * row view reserve the icon frame for EVERY row once ANY row in that popup has an icon, so an
+ * icon-less row still keeps a blank icon-sized gap and every row's label lands on the same left
+ * edge (`ListMenuItemView.setIcon`: a `null` icon gets `mEmptyIcon`/`INVISIBLE`, not `GONE`). This
+ * genuinely happens here: [net.bible.android.view.activity.page.OptionsMenuStateBuilder.build]
+ * appends the dynamic, icon-less `textOptionItem` rows into the SAME flat list as the nine iconed
+ * static entries, so this menu mixes icon and icon-less rows at its one and only level whenever the
+ * user has any display-setting history — not just a golden test convenience. [reserveIconSlot]
+ * mirrors that: computed from THIS call's own resolved icons (a `null` [OptionsMenuItem.iconKey] or
+ * an unresolved key both count as "no icon" for that row, but if ANY row in [items] resolves one,
+ * every row - including the icon-less ones - gets a same-size leading slot; a purely icon-less list
+ * reserves nothing, keeping today's compact look).
  */
 @Composable
 fun ReadingOverflowMenuRows(
@@ -81,13 +93,15 @@ fun ReadingOverflowMenuRows(
     onItemClick: (id: String) -> Unit,
     icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
-    items.forEach { item ->
+    val rows = items.map { item -> item to item.iconKey?.let { key -> icon(key) } }
+    val reserveIconSlot = rows.any { (_, resolved) -> resolved != null }
+    rows.forEach { (item, resolvedIcon) ->
         DropdownMenuItem(
             text = { Text(if (item.opensDialog) "${item.label} …" else item.label) },
             enabled = item.enabled,
-            leadingIcon = item.iconKey?.let { key ->
-                { icon(key)?.let { Icon(painter = it, contentDescription = null) } }
-            },
+            leadingIcon = if (reserveIconSlot) {
+                { resolvedIcon?.let { Icon(painter = it, contentDescription = null) } }
+            } else null,
             trailingIcon = { if (item.checkable && item.checked) Icon(Icons.Default.Check, contentDescription = null) },
             onClick = { onItemClick(item.id) },
         )

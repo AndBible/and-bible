@@ -26,13 +26,25 @@ import org.robolectric.annotation.GraphicsMode
  * [WindowPaneMenuRows]) rather than by driving the popup's internal navigation state: the root
  * level (`showBack = false`) and one submenu level (`showBack = true`, showing the "‹ Back" row).
  *
- * `rootItems` mixes iconed and iconless rows (A/B batch 1 F5a) the way classic's own
- * `window_popup_menu.xml` does across levels: every real top-level row there carries an icon, so
- * `moveFirst` (disabled, no icon) is a synthetic stand-in to keep the iconless code path covered,
- * not a claim that a real top-level row lacks one. `syncSubmenu` mirrors the real
- * `syncGroupItem`/`disableSync` rows, which classic never gives an icon at all - `syncGroupNone`
- * stays iconless for that reason, with `syncGroup1`/`syncGroup2` given an icon purely for this
- * golden's coverage of "icon rendering inside a submenu level" too.
+ * `rootItems` mixes iconed and iconless rows (A/B batch 1 F5a): `moveFirst` (disabled, no icon)
+ * keeps the iconless code path covered. `syncSubmenu` mirrors the real `syncGroupItem`/
+ * `disableSync` rows, which classic never gives an icon at all - `syncGroupNone` stays iconless
+ * for that reason, with `syncGroup1`/`syncGroup2` given an icon purely for this golden's coverage
+ * of "icon rendering inside a submenu level" too. Both lists therefore already exercise the
+ * per-level [net.bible.sharedui.reading.WindowPaneMenuRows] icon-slot reservation fix (F5a fix
+ * round 1): since at least one row per level resolves an icon, EVERY row at that level - including
+ * the iconless one - reserves the same leading slot, so labels stay aligned on one left edge
+ * (classic's `MenuPopupHelper.setForceShowIcon(true)` + `ListMenuItemView`'s `INVISIBLE`, not
+ * `GONE`, icon view for icon-less rows achieves the same alignment - see `WindowPaneMenuRows`'s
+ * kdoc for verified call-site line numbers). This is not merely a synthetic golden-test
+ * convenience: [net.bible.android.view.activity.page.OptionsMenuStateBuilder.build] appends
+ * icon-less dynamic `textOptionItem` rows into the SAME flat list as the nine iconed static
+ * entries, so the real reading-view overflow menu mixes icon/iconless rows at its one level
+ * whenever the user has any display-setting history (see `ReadingOverflowMenuGoldenTest`'s doc).
+ *
+ * [iconAlignment] is a dedicated, maximally-legible case for that fix: an evenly alternating
+ * icon/no-icon/icon/no-icon list makes the reserved column trivially easy to eyeball in the PNG,
+ * which `rootItems`/`syncSubmenu` (only one iconless row each) demonstrate less clearly.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -86,6 +98,25 @@ class WindowPaneMenuGoldenTest {
             Column {
                 WindowPaneMenuRows(
                     items = syncSubmenu, showBack = true,
+                    onBack = {}, onEnterSubmenu = {}, onItemClick = {},
+                    icon = { key -> icon(key) },
+                )
+            }
+        }
+
+    /** Alternating icon/no-icon/icon/no-icon: the clearest possible proof the reserved column aligns. */
+    private val alternatingIconItems = listOf(
+        WindowPaneMenuItem(id = "hasIconA", label = "Has icon A", iconKey = "pin"),
+        WindowPaneMenuItem(id = "noIconB", label = "No icon B"),
+        WindowPaneMenuItem(id = "hasIconC", label = "Has icon C", iconKey = "sync"),
+        WindowPaneMenuItem(id = "noIconD", label = "No icon D"),
+    )
+
+    @Test fun iconAlignment() =
+        captureGolden("WindowPaneMenu", "iconAlignment", EDGE_MODE) {
+            Column {
+                WindowPaneMenuRows(
+                    items = alternatingIconItems, showBack = false,
                     onBack = {}, onEnterSubmenu = {}, onItemClick = {},
                     icon = { key -> icon(key) },
                 )

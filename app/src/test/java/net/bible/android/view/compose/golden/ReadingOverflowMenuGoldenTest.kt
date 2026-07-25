@@ -33,10 +33,20 @@ import org.robolectric.annotation.GraphicsMode
  * that hang; until then, the popup wrapper itself is proven by [net.bible.sharedui.components.AbOverflowMenu]'s
  * long production use (SearchScreen, WorkspaceSelectorScreen, MyDocumentsScreen, ...).
  *
- * `items` mixes iconed and iconless rows (A/B batch 1 F5a): classic's real `main_bible_options_menu.xml`
- * gives every one of its 9 items an icon, so `compareTranslations` (disabled, no icon) is a
- * synthetic stand-in kept purely to cover the iconless code path, not a claim that a real row lacks
- * an icon.
+ * `items` mixes iconed and iconless rows (A/B batch 1 F5a) — and this one is NOT just a synthetic
+ * golden-test convenience: while classic's static `main_bible_options_menu.xml` gives all 9 of its
+ * items an icon, [net.bible.android.view.activity.page.OptionsMenuStateBuilder.build] appends the
+ * dynamic, icon-less `textOptionItem:<order>` rows into the SAME flat list the nine statics live
+ * in, so the real overflow menu mixes icon and icon-less rows at its one level whenever the user
+ * has any display-setting history (`CommonUtils.lastDisplaySettingsSorted` non-empty).
+ * `compareTranslations` (disabled, no icon) stands in for that dynamic row here — the id/label are
+ * synthetic, but the "icon-less row alongside iconed ones" shape it tests is real. This means
+ * [net.bible.sharedui.reading.ReadingOverflowMenuRows]' per-level icon-slot reservation fix (F5a
+ * fix round 1) is exercised here for real, not hypothetically: since some rows resolve an icon,
+ * EVERY row - including `compareTranslations` - now reserves the same leading slot, keeping labels
+ * aligned on one left edge, matching classic's `MenuPopupHelper.setForceShowIcon(true)` +
+ * `ListMenuItemView`'s `INVISIBLE` (not `GONE`) icon view for icon-less rows (see
+ * `ReadingOverflowMenuRows`'s kdoc for verified `setForceShowIcon` call-site line numbers).
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
