@@ -38,20 +38,24 @@ object HeadingControl {
     fun allOverridesFor(bookInitials: String) = dao.allHeadingOverridesFor(bookInitials)
 
     fun addCustomHeading(bookInitials: String, v11n: String, ordinal: Int, level: Int, text: String) {
+        val sanitized = text.trim()
+        if (sanitized.isEmpty()) return
         dao.insert(CustomHeading(
             bookInitials = bookInitials,
             v11n = v11n,
             ordinal = ordinal,
             level = level.coerceIn(1, 6),
-            text = text,
+            text = sanitized,
         ))
         ABEventBus.post(CustomHeadingsUpdatedEvent(bookInitials))
     }
 
     fun updateCustomHeading(id: IdType, level: Int, text: String) {
+        val sanitized = text.trim()
+        if (sanitized.isEmpty()) return
         val heading = dao.customHeadingById(id) ?: return
         heading.level = level.coerceIn(1, 6)
-        heading.text = text
+        heading.text = sanitized
         dao.update(heading)
         ABEventBus.post(CustomHeadingsUpdatedEvent(heading.bookInitials))
     }
