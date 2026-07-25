@@ -39,10 +39,12 @@ import org.robolectric.annotation.GraphicsMode
  * rail (Plan A Task 5) and the floating per-pane ☰ button (Plan B Task 5), mirroring classic
  * `WindowButtonWidget` (`app/src/main/java/net/bible/android/view/util/widget/WindowButtonWidget.kt`).
  *
- * A single [Row] renders 9 representative states side by side so one capture shows every visual
+ * A single [Row] renders 10 representative states side by side so one capture shows every visual
  * distinction at once: active vs. inactive tint, the minimised look (dimmed + dashed outline), the
- * pin dot, the links glyph, a sync-group badge, the Pane-mode "☰" button, and classic's two-row
- * rail geometry (page title over the abbreviation, with and without a top label).
+ * links glyph, a sync-group badge, the Pane-mode "☰" button (plain and pinned — fix-round-1: the pin
+ * dot is Pane-only, positioned under the sync badge, matching classic's `pinMode.visibility`
+ * requiring `!isRestoreButton`), and classic's two-row rail geometry (page title over the
+ * abbreviation, with and without a top label — neither draws a pin dot even when pinned).
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -93,7 +95,9 @@ class WindowButtonGoldenTest {
                 onClick = {},
                 onLongPress = {},
             )
-            // rail-pinned: pin dot badge.
+            // rail-pinned: fix-round-1 — isPinned=true renders NO dot on a Rail button (classic's
+            // pinMode is Pane-only, WindowButtonWidget.kt:85-96); this case exists to prove that
+            // absence, so it must look identical to an unpinned rail button.
             WindowButton(
                 label = "P",
                 isActive = false,
@@ -141,13 +145,28 @@ class WindowButtonGoldenTest {
                 onClick = {},
                 onLongPress = {},
             )
+            // pane-pinned: fix-round-1 — the pin dot's NEW (classic-accurate) position, start edge
+            // directly under the sync badge, and syncGroup=1 is set alongside it so the capture also
+            // proves the two badges don't collide (window_button.xml:97-107 Top_toBottomOf=synchronize).
+            WindowButton(
+                label = "☰",
+                isActive = false,
+                isMinimised = false,
+                isPinned = true,
+                isLinks = false,
+                syncGroup = 1,
+                mode = WindowButtonMode.Pane,
+                onClick = {},
+                onLongPress = {},
+            )
             // rail-twoRow: classic's two-row rail geometry — page title above the abbreviation,
-            // doc-type icon top-end, sync badge + pin dot on the start edge.
+            // doc-type icon top-end, sync badge on the start edge. isPinned=false (fix-round-1: a
+            // pinned RAIL case asserts nothing, since Rail never draws the dot — see rail-pinned above).
             WindowButton(
                 label = "KJV",
                 isActive = false,
                 isMinimised = false,
-                isPinned = true,
+                isPinned = false,
                 isLinks = false,
                 syncGroup = 1,
                 mode = WindowButtonMode.Rail,
@@ -172,7 +191,7 @@ class WindowButtonGoldenTest {
         }
     }
 
-    // 9 buttons at 40dp + 8dp spacing/padding need more width than the default portrait viewport
+    // 10 buttons at 40dp + 8dp spacing/padding need more width than the default portrait viewport
     // (320dp) comfortably provides, so this is captured in `land` (same technique as
     // ReadingToolbarGoldenTest/ReadingViewScreenGoldenTest) to keep every button fully visible,
     // uncropped, in one row.
