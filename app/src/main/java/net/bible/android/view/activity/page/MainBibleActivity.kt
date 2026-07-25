@@ -1246,14 +1246,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     internal fun composeQuickDocSelect(id: String) { setCurrentDocument(composeQuickDocBooksById[id]) }
 
     // ---- Compose window-tab rail bridge (Batch 12b follow-on, Plan A Task 7) ----
-    // `windowLabelFor`/`windowIconFor` resolve a `ComposeReadingViewHost`-supplied opaque window
-    // id to the live `Window` and mirror classic `SplitBibleArea.getWindowButtonTitleText` /
+    // `windowLabelFor`/`windowTopLabelFor`/`windowIconFor` resolve a `ComposeReadingViewHost`-supplied
+    // opaque window id to the live `Window` and mirror classic `SplitBibleArea.getWindowButtonTitleText` /
     // `WindowButtonWidget.updateSettings`'s `docType` image (`WindowButtonWidget.kt:75-151`) — the
-    // label/icon shown per tab in the Compose `WindowTabBar` (Task 5). Deliberately plain
-    // (non-`@Composable`) functions: `WindowTabBar`'s `windowLabel`/`windowIcon` parameters are
-    // plain lambda types (not `@Composable` ones), so nothing in this call chain may invoke a
-    // composable (e.g. `painterResource`) — `windowIconFor` builds its `Painter` via `BitmapPainter`
-    // instead, which needs no composition context.
+    // label/top-label/icon shown per tab in the Compose `WindowTabBar` (Task 5). Deliberately plain
+    // (non-`@Composable`) functions: `WindowTabBar`'s `windowLabel`/`windowTopLabel`/`windowIcon`
+    // parameters are plain lambda types (not `@Composable` ones), so nothing in this call chain may
+    // invoke a composable (e.g. `painterResource`) — `windowIconFor` builds its `Painter` via
+    // `BitmapPainter` instead, which needs no composition context.
 
     /** Cache of resource id -> [Painter], since the doc-type icon set is small and fixed (one per [BookCategory]). */
     private val composeWindowIconCache = mutableMapOf<Int, Painter>()

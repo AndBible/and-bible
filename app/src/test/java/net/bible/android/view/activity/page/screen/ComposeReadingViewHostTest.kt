@@ -39,6 +39,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.unloadKoinModules
+import org.koin.dsl.module
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -499,42 +502,44 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     }
 
     /**
-     * Task 4 (F2b): with a real [ComposeReadingViewHost] installed, `CurrentBibleVerseChanged`
-     * (classic's own trigger for the rail's tiny top label, `WindowButtonWidget.kt:232-234`) must
-     * reach the host's `refreshHostedState()` push — the SAME mechanism `updateActions()`'s callers
-     * use for the sibling `windowLabelFor` (document-abbreviation) refresh — rather than the rail
-     * staying stale until some unrelated event happens to recompose it.
+     * Task 4 (F2b), fix round 1: with a real [ComposeReadingViewHost] installed,
+     * `CurrentBibleVerseChanged` (classic's own trigger for the rail's tiny top label,
+     * `WindowButtonWidget.kt:232-234`) must reach the host's `refreshHostedState()` push — the SAME
+     * mechanism `updateActions()`'s callers use for the sibling `windowLabelFor`
+     * (document-abbreviation) refresh — rather than the rail staying stale until some unrelated
+     * event happens to recompose it.
      *
-     * Asserted via a counting override of `refreshHostedState()` (see [RecordingRefreshHost] below),
-     * NOT by inspecting the real (Koin-singleton) `ToolbarStateService`'s derived snapshot: that
-     * snapshot is rebuilt from `WindowRepository`'s own asynchronous DB load, which races with a
-     * same-JVM test's synchronous assertions — confirmed empirically while developing this test, a
-     * silently-seeded document+verse pair showed up split across two different `refresh()` calls
-     * (new document, stale verse). Overriding the call itself sidesteps that race entirely.
+     * Asserted end-to-end (event posted -> `refreshHostedState()` -> `hostedStateRefresher.refresh()`
+     * -> the fake's recorded refresh) by swapping the Koin-bound `ToolbarStateService` for the
+     * existing [RecordingToolbarStateService] fake, scoped to this one test via
+     * `loadKoinModules`/`unloadKoinModules` — the same "framework-free fake, driven through the real
+     * mechanism" idiom [HostedStateRefresherTest] already uses one level down, just reached through
+     * Koin instead of direct construction (this test needs the REAL [ComposeReadingViewHost]'s `init`
+     * ABEventBus wiring, which `HostedStateRefresherTest` deliberately bypasses). This replaced an
+     * earlier version that widened `ComposeReadingViewHost`/`refreshHostedState` to `open` for a
+     * counting subclass — reverted once this composition-based route was confirmed to work, so the
+     * production class's inheritance contract is unchanged.
+     *
+     * (An even earlier attempt asserted on the REAL Koin-singleton `ToolbarStateService`'s derived
+     * snapshot directly, with no fake — that was empirically unreliable: `WindowRepository`'s own
+     * async DB load raced with the test's synchronous assertions, so a silently-seeded document+verse
+     * pair showed up split across two different `refresh()` calls. Substituting the fake sidesteps
+     * that: the fake only counts calls, it never reads `WindowRepository`/`pageManager` state.)
      */
     @Test fun currentBibleVerseChangedTriggersARefresh() {
-        val host = RecordingRefreshHost(activity)
-        activity.composeReadingViewHost = host
-        assertEquals(0, host.refreshCalls, "sanity: constructing the host must not itself refresh")
+        val fakeToolbar = RecordingToolbarStateService()
+        val overrideModule = module { single<ToolbarStateService> { fakeToolbar } }
+        loadKoinModules(overrideModule)
+        try {
+            activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+            assertEquals(0, fakeToolbar.refreshCount, "sanity: constructing the host must not itself refresh")
 
-        ABEventBus.post(CurrentBibleVerseChanged())
+            ABEventBus.post(CurrentBibleVerseChanged())
 
-        assertEquals(1, host.refreshCalls, "CurrentBibleVerseChanged must reach refreshHostedState()")
-    }
-}
-
-/**
- * Counting override used by [MainBibleActivityHandleWindowPaneMenuItemTest.currentBibleVerseChangedTriggersARefresh]
- * — see that test's kdoc for why this is more reliable than asserting on the real
- * [ToolbarStateService]'s derived snapshot. [ComposeReadingViewHost]/`refreshHostedState` are `open`
- * for exactly this seam.
- */
-private class RecordingRefreshHost(activity: MainBibleActivity) : ComposeReadingViewHost(activity) {
-    var refreshCalls = 0
-        private set
-    override fun refreshHostedState(rebuildComposition: Boolean) {
-        refreshCalls++
-        super.refreshHostedState(rebuildComposition)
+            assertEquals(1, fakeToolbar.refreshCount, "CurrentBibleVerseChanged must reach refreshHostedState() -> hostedStateRefresher.refresh() -> toolbarStateService.refresh()")
+        } finally {
+            unloadKoinModules(overrideModule)
+        }
     }
 }
 

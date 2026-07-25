@@ -279,13 +279,7 @@ class WindowButtonsVisibility {
  * [AndroidView] wrapping [MainBibleActivity.bibleViewFactory] — the WebView/JS bridge stays an
  * unmodified black box.
  */
-// `open` (both the class and `refreshHostedState` below) purely so `ComposeReadingViewHostTest`'s
-// `currentBibleVerseChangedTriggersARefresh` can subclass with a counting override — the real
-// (Koin-singleton) `ToolbarStateService`'s derived snapshot is driven by `WindowRepository`'s own
-// async DB load, which races with a same-JVM test's synchronous assertions (confirmed empirically:
-// a silently-seeded document/verse pair showed up split across two different `refresh()` calls), so
-// asserting on ITS content is not a reliable test signal here. Overriding the call itself is.
-open class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComponent {
+class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComponent {
     private val windowState: WindowStateServiceImpl by inject()
     private val commands: WindowCommands by inject()
     private val toolbarStateService: ToolbarStateService by inject()
@@ -576,7 +570,7 @@ open class ComposeReadingViewHost(private val activity: MainBibleActivity) : Koi
      * `MainBibleActivity.updateActions()`, `preferenceSettingsChanged()` and the two Strongs
      * mutators, so it is inert on the classic path (the host is null there).
      */
-    open fun refreshHostedState(rebuildComposition: Boolean = false) =
+    fun refreshHostedState(rebuildComposition: Boolean = false) =
         hostedStateRefresher.refresh(rebuildComposition)
 
     /**
