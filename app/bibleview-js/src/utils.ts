@@ -385,6 +385,8 @@ export const EventPriorities = {
     EXTERNAL_LINK: 10,
     REFERENCE: 10,
     STRONGS_LINK: 10,
+
+    HEADING: 20,
 }
 
 type CallbackFunc = () => void
@@ -493,6 +495,38 @@ export function osisToTemplateString(osis: string) {
         .replace(/(<\/?)(\w)(\w*)([^>]*>)/g,
             (m, tagStart, tagFirst, tagRest, tagEnd) =>
                 `${tagStart}Osis${tagFirst.toUpperCase()}${tagRest}${tagEnd}`);
+}
+
+/**
+ * Annotates OSIS <title> tags with the ordinal of the verse that follows them
+ * and their index among the titles preceding that verse. This gives each title
+ * a stable identity that custom heading overrides can refer to.
+ */
+export function annotateTitles(osis: string): string {
+    const verseOrdinals: { index: number, ordinal: number }[] = [];
+    const verseRe = /<verse\b[^>]*?\bverseOrdinal="(\d+)"/g;
+    let m: RegExpExecArray | null;
+    while ((m = verseRe.exec(osis)) !== null) {
+        verseOrdinals.push({index: m.index, ordinal: parseInt(m[1])});
+    }
+    if (verseOrdinals.length === 0) return osis;
+
+    const counters = new Map<number, number>();
+    let result = "";
+    let lastIndex = 0;
+    const titleRe = /<title(\s[^>]*)?>/g;
+    while ((m = titleRe.exec(osis)) !== null) {
+        const matchIndex = m.index;
+        const nextVerse = verseOrdinals.find(v => v.index > matchIndex);
+        if (!nextVerse) continue;
+        const count = (counters.get(nextVerse.ordinal) || 0) + 1;
+        counters.set(nextVerse.ordinal, count);
+        result += osis.slice(lastIndex, matchIndex);
+        result += `<title ordinal="${nextVerse.ordinal}" titleIndex="${count}"${m[1] || ""}>`;
+        lastIndex = matchIndex + m[0].length;
+    }
+    result += osis.slice(lastIndex);
+    return result;
 }
 
 type TextNodeAndOffset = { node: Text, offset: number }
