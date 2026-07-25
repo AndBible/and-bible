@@ -232,6 +232,7 @@
 		<item>@string/create_bookmark</item>
 		<item>@string/create_bookmark_with_a_note</item>
         <item>@string/add_paragraph_break</item>
+        <item>@string/add_heading</item>
 		<item>@string/my_notes_abbreviation</item>
 		<item>@string/share_verse_widget_title</item>
 		<item>@string/compare</item>
@@ -242,6 +243,7 @@
 		<item>BOOKMARK</item>
 		<item>BOOKMARK_NOTES</item>
         <item>ADD_PARAGRAPH_BREAK</item>
+        <item>ADD_HEADING</item>
 		<item>MY_NOTES</item>
 		<item>SHARE</item>
 		<item>COMPARE</item>
