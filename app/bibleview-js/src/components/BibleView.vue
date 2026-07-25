@@ -28,6 +28,7 @@
     <template v-if="mounted">
       <BookmarkModal/>
       <CustomHeadingModal/>
+      <OutlinePanel/>
       <AmbiguousSelection ref="ambiguousSelection"/>
     </template>
     <ErrorBox v-if="appSettings.errorBox"/>
@@ -127,6 +128,7 @@ import {Deferred, setupWindowEventListener, waitNextAnimationFrame} from "@/util
 import ErrorBox from "@/components/ErrorBox.vue";
 import BookmarkModal from "@/components/modals/BookmarkModal.vue";
 import CustomHeadingModal from "@/components/modals/CustomHeadingModal.vue";
+import OutlinePanel from "@/components/modals/OutlinePanel.vue";
 import DevelopmentMode from "@/components/DevelopmentMode.vue";
 import Color from "color";
 import {useStrings} from "@/composables/strings";

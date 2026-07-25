@@ -56,6 +56,7 @@ type EventTypeNames =
     | "set_scroll_anchor"
     | "custom_headings_updated"
     | "open_heading_menu"
+    | "open_outline"
 
 export const eventBus: Emitter<Record<EventTypeNames, any[]>> = mitt()
 

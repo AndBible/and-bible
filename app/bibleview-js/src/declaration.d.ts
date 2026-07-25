@@ -178,6 +178,8 @@ type TranslatedStrings = {
     headingTextPlaceholder: string
     headingLevel: string
     save: string
+    outline: string
+    outlineNoHeadings: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings

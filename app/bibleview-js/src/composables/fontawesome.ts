@@ -77,7 +77,8 @@ import {
     faExclamationCircle,
     faClock,
     faCross,
-    faRobot
+    faRobot,
+    faList,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -199,7 +200,8 @@ export function useFontAwesome() {
         faSave,
         faCheck,
         faUndo,
-        faHeading,
-        faRegularClock,
+    faHeading,
+    faList,
+    faRegularClock,
     );
 }

@@ -112,6 +112,9 @@ export function useCustomHeadings(
             wrapper.classList.add("title-wrapper", "custom-heading-wrapper", "skip-offset");
             wrapper.tabIndex = 0;
             wrapper.setAttribute("role", "button");
+            wrapper.dataset.ordinal = String(h.ordinal);
+            wrapper.dataset.level = String(h.level);
+            wrapper.dataset.isCustom = "true";
             const headingElem = document.createElement(`h${h.level}`);
             headingElem.classList.add("titleStyle", "custom-heading");
             headingElem.textContent = h.text;

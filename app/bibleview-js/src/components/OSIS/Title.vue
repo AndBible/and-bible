@@ -17,7 +17,7 @@
 
 <template>
   <div class="title-wrapper" v-if="show">
-    <component :is="headingTag" ref="titleEl" class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}" tabindex="0" @click="titleClicked" @keydown.enter="titleClicked" @keydown.space.prevent="titleClicked">
+    <component :is="headingTag" ref="titleEl" class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}" :data-ordinal="ordinal" :data-title-index="titleIndex" tabindex="0" @click="titleClicked" @keydown.enter="titleClicked" @keydown.space.prevent="titleClicked">
       <template v-if="overrideText !== null">{{ overrideText }}</template>
       <slot v-else/>
     </component>
