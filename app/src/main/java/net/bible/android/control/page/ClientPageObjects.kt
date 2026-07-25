@@ -28,6 +28,8 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.AI_DOC_LABEL_ID
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.headings.CustomHeading
+import net.bible.android.database.headings.HeadingOverride
 import net.bible.android.database.json
 import net.bible.android.database.mydocument.AiDocMarkerInfo
 import net.bible.android.misc.OsisFragment
@@ -162,6 +164,8 @@ class BibleDocument(
     val swordBook: SwordBook,
     val originalKey: Key?,
     override val aiDocMarkers: List<AiDocMarkerInfo> = emptyList(),
+    val customHeadings: List<CustomHeading> = emptyList(),
+    val headingOverrides: List<HeadingOverride> = emptyList(),
 ): OsisDocument(osisFragment, swordBook, verseRange) {
     override val asHashMap: Map<String, String> get () {
         val bookmarks = bookmarks.map { ClientBibleBookmark(it, swordBook.versification).asJson }
@@ -191,8 +195,39 @@ class BibleDocument(
             put("targetOrdinals", json.encodeToString(serializer(), targetOrdinals))
             put("chapterReadCount", json.encodeToString(serializer(),
                 ProgressControl.getChapterReadCount(swordBook.versification, verseRange.start.book, verseRange.start.chapter)))
+            put("customHeadings", json.encodeToString(serializer(), customHeadings.map { ClientCustomHeading(it) }))
+            put("headingOverrides", json.encodeToString(serializer(), headingOverrides.map { ClientHeadingOverride(it) }))
         }
     }
+}
+
+@Serializable
+@Serializable
+data class ClientCustomHeading(
+    val id: String,
+    val bookInitials: String,
+    val v11n: String,
+    val ordinal: Int,
+    val level: Int,
+    val text: String,
+) {
+    constructor(h: CustomHeading): this(h.id.toString(), h.bookInitials, h.v11n, h.ordinal, h.level, h.text)
+}
+
+@Serializable
+data class ClientHeadingOverride(
+    val id: String,
+    val bookInitials: String,
+    val v11n: String,
+    val ordinal: Int,
+    val titleIndex: Int,
+    val newText: String?,
+    val newLevel: Int?,
+    val deleted: Boolean,
+) {
+    constructor(o: HeadingOverride): this(
+        o.id.toString(), o.bookInitials, o.v11n, o.ordinal, o.titleIndex, o.newText, o.newLevel, o.deleted
+    )
 }
 
 class MultiFragmentDocument(
