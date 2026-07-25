@@ -276,6 +276,7 @@ class DatabaseContainer {
             application, CustomHeadingsDatabase::class.java, CustomHeadingsDatabase.dbFileName
         )
             .allowMainThreadQueries()
+            .addMigrations()
             .openHelperFactory(dbFactory)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()

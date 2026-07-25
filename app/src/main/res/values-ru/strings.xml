@@ -1076,7 +1076,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="restore_backup_sections">Какие разделы резервной копии вы хотите восстановить?</string>
   <string name="db_repositories">Репозитории и связанные с ними настройки</string>
   <string name="db_bookmarks">Закладки, заметки, ярлыки и блокноты</string>
-  <string name="db_custom_headings">Пользовательские заголовки</string>
   <string name="synchronizing">Синхронизация…</string>
   <string name="overrideBackup">
         Существующая база данных, с которой это устройство не синхронизировано, находится в облаке.
