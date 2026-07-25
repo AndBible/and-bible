@@ -20,15 +20,12 @@ package net.bible.android.view.compose.golden
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
 import net.bible.sharedcore.ai.reading.AgentLogEntryVd
@@ -41,11 +38,13 @@ import net.bible.sharedcore.speak.SpeakTransportVd
 import net.bible.sharedcore.window.WindowLayoutState
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateValue
+import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
 import net.bible.sharedui.reading.SpeakTransportBar
+import net.bible.sharedui.reading.WindowTabBar
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -180,9 +179,35 @@ class ReadingViewScreenGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun fullScreen() = captureGolden("ReadingViewScreen", "fullScreen", EDGE_MODE, content = screen(fullScreen = true))
 
-    // Covers the tabBar slot (Plan-A Task 6): rendered below SplitContent only when non-null.
-    // Uses a distinctly-colored placeholder Box (the real WindowTabBar is host-composed by
-    // Plan A Task 7) so the rail's position/extent below the pane is visible in the PNG.
+    // A small representative multi-window model for the rail — mirrors WindowTabBarGoldenTest's
+    // own fixture shape (a pinned "P" + active non-pinned "N1"), NOT the single-window `layout`
+    // above (which is the pane's own layout and unrelated to what the rail displays).
+    private val railWindows = listOf(
+        WindowSnapshot(
+            id = "P", state = WindowStateValue.VISIBLE, weight = 1f, isVisible = true,
+            isPinMode = true, isSynchronised = false, syncGroup = 0, isLinksWindow = false,
+        ),
+        WindowSnapshot(
+            id = "N1", state = WindowStateValue.VISIBLE, weight = 1f, isVisible = true,
+            isPinMode = false, isSynchronised = false, syncGroup = 0, isLinksWindow = false,
+        ),
+    )
+    private val railModel = buildWindowTabBar(
+        WindowLayoutState(
+            windows = railWindows, activeWindowId = "N1", maximizedWindowId = null,
+            reverseSplitMode = false, restoreButtonsVisible = true,
+        ),
+    )
+
+    // Covers the tabBar slot (Plan-A Task 6; restyled A/B batch 1 Task 5/F1): floated over the
+    // split's bottom-end corner via SplitContent's `railOverlay` rather than rendered in-flow
+    // below it. Uses the REAL `WindowTabBar` (same technique as `withSpeakBar` below, which uses
+    // the real `SpeakTransportBar` "just to prove the slot stacks correctly here") rather than a
+    // placeholder — a hand-rolled placeholder would have to duplicate the bar's compact/
+    // end-packed/background styling to be representative, which would keep passing after a
+    // regression in the real bar. This golden proves the rail floats in the bottom-END corner
+    // OVER the pane, with the pane's own content extending underneath it, instead of taking a
+    // full-width band below the pane (the pre-fix behaviour).
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun withRail() = captureGolden(
@@ -190,7 +215,15 @@ class ReadingViewScreenGoldenTest {
         content = screen(
             fullScreen = false,
             tabBar = {
-                Box(Modifier.fillMaxWidth().height(48.dp).background(MaterialTheme.colorScheme.secondaryContainer)) {}
+                WindowTabBar(
+                    model = railModel,
+                    onRestore = {},
+                    onWindowLongPress = {},
+                    onAddWindow = {},
+                    onUnMaximise = {},
+                    onToggleCollapse = {},
+                    windowLabel = { it.id },
+                )
             },
         ),
     )
