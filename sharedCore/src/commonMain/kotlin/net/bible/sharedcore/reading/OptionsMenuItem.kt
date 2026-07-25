@@ -18,4 +18,14 @@ data class OptionsMenuItem(
     val checked: Boolean,
     val enabled: Boolean,
     val opensDialog: Boolean,
+    /**
+     * Stable icon key for the leading glyph, resolved to a `Painter` by the host — the same seam
+     * `DrawerItem.iconKey`/`ReadingDrawerContent`'s `icon` lambda already uses (the host maps each
+     * key to an `R.drawable` id via a table like `ComposeReadingViewHost.drawerIconResIds`; the
+     * per-id table for this menu is a later task). A string, not a resource id, so this module
+     * stays iOS-clean. `null` = no icon, matching classic's iconless `main_bible_options_menu.xml`
+     * items (there are none today - every item there carries an icon - but the field stays
+     * optional for parity with [net.bible.sharedcore.window.WindowPaneMenuItem]).
+     */
+    val iconKey: String? = null,
 )

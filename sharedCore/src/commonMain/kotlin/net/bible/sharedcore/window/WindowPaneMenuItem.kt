@@ -41,4 +41,13 @@ data class WindowPaneMenuItem(
     val enabled: Boolean = true,
     val opensDialog: Boolean = false,
     val submenu: List<WindowPaneMenuItem> = emptyList(),
+    /**
+     * Stable icon key for the leading glyph, resolved to a `Painter` by the host — the same seam
+     * `DrawerItem.iconKey`/`ReadingDrawerContent`'s `icon` lambda already uses (the host maps each
+     * key to an `R.drawable` id via a table like `ComposeReadingViewHost.drawerIconResIds`; the
+     * per-id table for this menu is a later task). A string, not a resource id, so this module
+     * stays iOS-clean. `null` = no icon, matching classic's iconless `window_popup_menu.xml` items
+     * (e.g. the dynamic "Move to"/"Synchronise"/"Copy settings to" submenu rows).
+     */
+    val iconKey: String? = null,
 )

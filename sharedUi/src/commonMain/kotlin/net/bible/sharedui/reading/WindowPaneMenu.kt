@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.window.WindowPaneMenuItem
 
 /**
@@ -44,6 +45,10 @@ import net.bible.sharedcore.window.WindowPaneMenuItem
  * [path] instead of firing [onItemClick] (mirrors iOS's `BibleWindowPaneMenuPopup` submenu
  * stack), and a "‹ Back" row pops back to the parent level. The path resets whenever the menu
  * closes ([expanded] goes false) so the next open always starts at the root.
+ *
+ * [icon] resolves each row's [WindowPaneMenuItem.iconKey] to a `Painter` — the same host-lambda
+ * seam [ReadingDrawerContent]'s `icon` parameter uses, keeping this file free of Android types.
+ * Defaulted to always-`null` so existing call sites and their goldens are unaffected.
  */
 @Composable
 fun WindowPaneMenu(
@@ -52,6 +57,7 @@ fun WindowPaneMenu(
     onItemClick: (id: String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     var path by remember { mutableStateOf(listOf<WindowPaneMenuItem>()) }
     LaunchedEffect(expanded) {
@@ -65,6 +71,7 @@ fun WindowPaneMenu(
             onBack = { path = path.dropLast(1) },
             onEnterSubmenu = { path = path + it },
             onItemClick = onItemClick,
+            icon = icon,
         )
     }
 }
@@ -80,10 +87,13 @@ fun WindowPaneMenu(
  * single implementation is shared by both the real popup (one level at a time) and the golden's
  * non-popup surrogate.
  *
- * [showBack] renders a leading "‹ Back" row (calling [onBack] on click) when a submenu is open.
- * Each item renders its label (suffixed " …" when [WindowPaneMenuItem.opensDialog]) with a
- * trailing check mark (when checkable+checked) or "›" (when it has a non-empty [submenu]);
- * clicking a submenu row calls [onEnterSubmenu] instead of [onItemClick].
+ * [showBack] renders a leading "‹ Back" row (calling [onBack] on click) when a submenu is open —
+ * it gets no [icon] (classic has no such row at all, so there is nothing to mirror). Each item
+ * renders its label (suffixed " …" when [WindowPaneMenuItem.opensDialog]) with a trailing check
+ * mark (when checkable+checked) or "›" (when it has a non-empty [submenu]); clicking a submenu row
+ * calls [onEnterSubmenu] instead of [onItemClick]. [icon] resolves [WindowPaneMenuItem.iconKey] to
+ * a leading `Painter` (see [WindowPaneMenu]'s kdoc); a `null` key or a `null` resolution both mean
+ * no leading icon slot for that row.
  */
 @Composable
 fun WindowPaneMenuRows(
@@ -92,6 +102,7 @@ fun WindowPaneMenuRows(
     onBack: () -> Unit,
     onEnterSubmenu: (WindowPaneMenuItem) -> Unit,
     onItemClick: (id: String) -> Unit,
+    icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     if (showBack) {
         DropdownMenuItem(text = { Text("‹ Back") }, onClick = onBack)
@@ -101,6 +112,9 @@ fun WindowPaneMenuRows(
         DropdownMenuItem(
             text = { Text(if (item.opensDialog) "${item.label} …" else item.label) },
             enabled = item.enabled,
+            leadingIcon = item.iconKey?.let { key ->
+                { icon(key)?.let { Icon(painter = it, contentDescription = null) } }
+            },
             trailingIcon = {
                 if (item.checkable && item.checked) {
                     Icon(Icons.Default.Check, contentDescription = null)

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.window.WindowLayoutState
@@ -70,6 +71,10 @@ import net.bible.sharedcore.window.WindowLayoutState
  * verbatim to [ReadingToolbar] — host-owned state for the Bible/Commentary quick-document picker
  * menus (Batch 12g). All four default to collapsed/empty/no-op so existing call sites and their
  * goldens are unaffected.
+ *
+ * [overflowIcon] is forwarded verbatim to [ReadingToolbar]'s `overflowIcon` parameter — the host
+ * lambda resolving each overflow-menu row's [OptionsMenuItem.iconKey] to a `Painter`. Defaulted to
+ * always-`null` so existing call sites and their goldens are unaffected.
  */
 @Composable
 fun ReadingViewScreen(
@@ -96,6 +101,7 @@ fun ReadingViewScreen(
     speakBar: (@Composable () -> Unit)? = null,
     paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
     bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
+    overflowIcon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     Column(modifier.fillMaxSize()) {
         if (!fullScreen) {
@@ -112,6 +118,7 @@ fun ReadingViewScreen(
                 commentaryQuickDoc = commentaryQuickDoc,
                 onQuickDocSelect = onQuickDocSelect,
                 onQuickDocDismiss = onQuickDocDismiss,
+                overflowIcon = overflowIcon,
             )
         }
         SplitContent(

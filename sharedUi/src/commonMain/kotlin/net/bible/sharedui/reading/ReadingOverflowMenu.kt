@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.reading.OptionsMenuItem
 
 /**
@@ -38,6 +39,10 @@ import net.bible.sharedcore.reading.OptionsMenuItem
  * A checkable+checked item shows a trailing check mark (e.g. night-mode / show-bookmarks toggles);
  * an [OptionsMenuItem.opensDialog] item is suffixed with " …" (matching the classic strings.xml
  * ellipsis convention for items that open a further dialog/sub-screen, e.g. "Choose translations…").
+ *
+ * [icon] resolves each row's [OptionsMenuItem.iconKey] to a `Painter` — the same host-lambda seam
+ * [ReadingDrawerContent]'s `icon` parameter uses, keeping this file free of Android types.
+ * Defaulted to always-`null` so existing call sites and their goldens are unaffected.
  */
 @Composable
 fun ReadingOverflowMenu(
@@ -46,9 +51,10 @@ fun ReadingOverflowMenu(
     onItemClick: (id: String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, modifier = modifier) {
-        ReadingOverflowMenuRows(items, onItemClick)
+        ReadingOverflowMenuRows(items, onItemClick, icon)
     }
 }
 
@@ -65,13 +71,23 @@ fun ReadingOverflowMenu(
  * `configured_overflowOpen_*` goldens) — so this single implementation is shared by both the real
  * popup and the golden's non-popup surrogate, keeping the rendered rows byte-for-byte the same
  * rather than duplicating the item-building logic.
+ *
+ * [icon] resolves [OptionsMenuItem.iconKey] to a leading `Painter` (see [ReadingOverflowMenu]'s
+ * kdoc); a `null` key or a `null` resolution both mean no leading icon slot for that row.
  */
 @Composable
-fun ReadingOverflowMenuRows(items: List<OptionsMenuItem>, onItemClick: (id: String) -> Unit) {
+fun ReadingOverflowMenuRows(
+    items: List<OptionsMenuItem>,
+    onItemClick: (id: String) -> Unit,
+    icon: @Composable (iconKey: String) -> Painter? = { null },
+) {
     items.forEach { item ->
         DropdownMenuItem(
             text = { Text(if (item.opensDialog) "${item.label} …" else item.label) },
             enabled = item.enabled,
+            leadingIcon = item.iconKey?.let { key ->
+                { icon(key)?.let { Icon(painter = it, contentDescription = null) } }
+            },
             trailingIcon = { if (item.checkable && item.checked) Icon(Icons.Default.Check, contentDescription = null) },
             onClick = { onItemClick(item.id) },
         )

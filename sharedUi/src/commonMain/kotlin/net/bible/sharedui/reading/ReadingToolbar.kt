@@ -145,6 +145,10 @@ private val ToolbarButtonWidth = 48.dp
  * [onQuickDocSelect]/[onQuickDocDismiss] are shared by both menus (only one can be open at a
  * time). All four default to collapsed/empty/no-op so existing call sites and their goldens are
  * unaffected.
+ *
+ * [overflowIcon] is forwarded verbatim to [ReadingOverflowMenu]'s `icon` parameter — the host
+ * lambda resolving each row's [OptionsMenuItem.iconKey] to a `Painter`. Defaulted to always-`null`
+ * so existing call sites and their goldens are unaffected.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -162,6 +166,7 @@ fun ReadingToolbar(
     onQuickDocSelect: (id: String) -> Unit = {},
     onQuickDocDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
+    overflowIcon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     val density = LocalDensity.current
     BoxWithConstraints(
@@ -208,6 +213,7 @@ fun ReadingToolbar(
                     expanded = overflowExpanded,
                     onItemClick = onOverflowItemClick,
                     onDismiss = onOverflowDismiss,
+                    icon = overflowIcon,
                 )
             }
         }
