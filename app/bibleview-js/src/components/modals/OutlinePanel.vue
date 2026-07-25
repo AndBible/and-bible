@@ -30,7 +30,6 @@
           tabindex="0"
           role="button"
       >
-        <FontAwesomeIcon v-if="entry.isCustom" :icon="faStar" class="custom-icon"/>
         <span class="entry-text">{{ entry.text }}</span>
       </div>
     </div>
@@ -41,8 +40,6 @@
 <script lang="ts" setup>
 import {ref} from "vue";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faStar} from "@fortawesome/free-solid-svg-icons";
 import {useCommon} from "@/composables";
 import {setupEventBusListener} from "@/eventbus";
 import {OutlineEntry} from "@/composables/outline";
@@ -100,17 +97,6 @@ function close() {
 
   &:hover, &:focus-visible {
     background-color: rgba(128, 128, 128, 0.15);
-  }
-}
-
-.custom-icon {
-  color: #f5a623;
-  font-size: 80%;
-  flex-shrink: 0;
-  align-self: center;
-
-  .monochrome & {
-    color: inherit;
   }
 }
 
