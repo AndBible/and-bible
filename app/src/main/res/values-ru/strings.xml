@@ -383,6 +383,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="add_bookmark_whole_verse1">Стихи</string>
   <string name="add_whole_page_bookmark">Добавить закладку для всей страницы</string>
   <string name="add_paragraph_break">Разрыв абзаца</string>
+  <string name="add_heading">Добавить заголовок</string>
   <string name="ai_label">AI</string>
   <string name="bookmark_settings_hide_labels_title">Скрыть указанные метки</string>
   <string name="bookmark_settings_hide_labels_summary">Скрыть закладки, отмеченные указанными ярлыками</string>
@@ -1075,6 +1076,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="restore_backup_sections">Какие разделы резервной копии вы хотите восстановить?</string>
   <string name="db_repositories">Репозитории и связанные с ними настройки</string>
   <string name="db_bookmarks">Закладки, заметки, ярлыки и блокноты</string>
+  <string name="db_custom_headings">Пользовательские заголовки</string>
   <string name="synchronizing">Синхронизация…</string>
   <string name="overrideBackup">
         Существующая база данных, с которой это устройство не синхронизировано, находится в облаке.
