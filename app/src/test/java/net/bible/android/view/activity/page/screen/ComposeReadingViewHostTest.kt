@@ -19,6 +19,7 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
+import net.bible.android.view.util.widget.composeHostMounted
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
@@ -573,10 +574,103 @@ class SpeakBarVisibilityTest {
  * `speakTransport` on the Compose path (pre-A/B state-freshness spec §1 P3, Task 5) — extracted so
  * it's unit-testable at its `AgentLogWidget` call site too, a real `View` this repo's `:app` unit
  * tests never Robolectric-boot.
+ *
+ * Robolectric-backed (finding I1, pre-A/B state-freshness FINAL review fix wave): the blocker was
+ * that both real call sites originally fed this predicate the live `use_compose_ui` flag rather
+ * than whether a Compose host is actually MOUNTED. Those disagree for a whole activity lifetime
+ * after `preferenceSettingsChanged()` returns from Settings without recreating `MainBibleActivity`
+ * (only a locale change / `SettingsComposeActivity`'s `RECREATE_ON_CHANGE_KEYS` recreate anything).
+ * The tests below build a REAL [MainBibleActivity] (the same minimal `.get()`-not-`.create()`
+ * footprint [MainBibleActivityHandleWindowPaneMenuItemTest] above uses) and deliberately set
+ * `use_compose_ui` OUT OF SYNC with `composeReadingViewHost` to prove each fixed call site tracks
+ * the mounted host, not the flag, in both directions.
+ *
+ * Covered: the exact boolean expression each call site now feeds [classicBottomChromeAllowed] --
+ * `MainBibleActivity.updateBottomBars()`'s `composeReadingViewHost != null`, and `AgentLogWidget`'s
+ * `composeHostMounted(context)` (including its non-`MainBibleActivity`-context fallback) -- against
+ * the real field/context each site reads.
+ *
+ * NOT covered here: `updateBottomBars()`/`AgentLogWidget.show()`/`hide()` themselves are not driven
+ * end-to-end (that needs a full `.create()` boot with an inflated `binding` and a real
+ * `AgentLogWidget` View, which no test in this file does -- see the class kdoc above about
+ * `AgentLogWidget` never being Robolectric-booted as a View). Device A/B remains the interim DoD
+ * for the full round-trip, same as the rest of the reading view.
  */
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ClassicBottomChromeAllowedTest {
+    private lateinit var windowRepository: WindowRepository
+    private lateinit var activity: MainBibleActivity
+
+    @Before
+    fun setUp() {
+        val windowControl = CommonUtils.windowControl
+        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl.windowRepository = windowRepository
+        windowRepository.initialize()
+
+        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
+        activity.windowRepository = windowRepository
+    }
+
+    @After
+    fun tearDown() {
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        DatabaseResetter.resetDatabase(windowRepository.scope)
+    }
+
     @Test fun allowedOnlyWhenComposeIsNotHosting() {
         assertTrue(classicBottomChromeAllowed(composeHosted = false))
         assertFalse(classicBottomChromeAllowed(composeHosted = true))
+    }
+
+    /** `MainBibleActivity.updateBottomBars()`'s call site: `composeReadingViewHost != null`. */
+    @Test fun mainBibleActivitySiteTracksTheMountedHostNotTheLiveFlag() {
+        assertNull(activity.composeReadingViewHost, "sanity: no host mounted yet")
+
+        // Flag ON, host still null (the exact "returned from Settings, flag just flipped ON,
+        // activity not recreated" moment) -- classic chrome must still be ALLOWED, or the app
+        // would show neither bar (finding I1).
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertTrue(
+            classicBottomChromeAllowed(composeHosted = activity.composeReadingViewHost != null),
+            "flag ON with no host mounted must still allow classic chrome",
+        )
+
+        // Host mounted, flag OFF (the symmetric mismatch) -- classic chrome must be DISALLOWED,
+        // since the mounted Compose host now owns this chrome regardless of what the flag reads.
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        assertFalse(
+            classicBottomChromeAllowed(composeHosted = activity.composeReadingViewHost != null),
+            "a mounted host must suppress classic chrome even when the flag reads OFF",
+        )
+    }
+
+    /** `AgentLogWidget`'s call site: `composeHostMounted(context)`. */
+    @Test fun agentLogWidgetSiteTracksTheMountedHostNotTheLiveFlag() {
+        assertFalse(composeHostMounted(activity), "sanity: no host mounted yet")
+
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertTrue(
+            classicBottomChromeAllowed(composeHosted = composeHostMounted(activity)),
+            "flag ON with no host mounted must still allow the classic widget",
+        )
+
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        assertFalse(
+            classicBottomChromeAllowed(composeHosted = composeHostMounted(activity)),
+            "a mounted host must suppress the classic widget",
+        )
+    }
+
+    /**
+     * `AgentLogWidget` is only ever inflated inside `MainBibleActivity`, but [composeHostMounted]
+     * must fail safe -- "no compose host" -- for any other [android.content.Context], preserving
+     * classic behaviour rather than crashing or defaulting the wrong way.
+     */
+    @Test fun composeHostMountedDefaultsToFalseForANonMainBibleActivityContext() {
+        val otherContext = ApplicationProvider.getApplicationContext<TestBibleApplication>()
+        assertFalse(composeHostMounted(otherContext))
     }
 }

@@ -128,6 +128,16 @@ internal suspend fun classifyEntry(
 }
 
 /**
+ * The URI-grant flags a forwarded Intent needs to keep the sender's `content://` grant readable
+ * (see [composeForwardIntent]) -- and ONLY these; deliberately excludes any `FLAG_ACTIVITY_*`.
+ */
+private const val URI_GRANT_FLAGS =
+    Intent.FLAG_GRANT_READ_URI_PERMISSION or
+        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
+        Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+
+/**
  * The Intent classic [InstallZip] forwards here when `use_compose_ui` is ON (spec
  * `2026-07-25-compose-pre-ab-state-freshness-design.md` §1 P2).
  *
@@ -136,15 +146,24 @@ internal suspend fun classifyEntry(
  * `<intent-filter>` cannot be toggled at runtime — so a file-manager or Share-sheet install would
  * otherwise never reach this host, whatever the flag says. Forwarding a **copy** of the whole
  * Intent keeps every part of the contract the receiving host reads: `action`, `data` + `type`,
- * `clipData`, all extras, and the **flags** — critically `FLAG_GRANT_READ_URI_PERMISSION`, without
- * which the `content://` uri would fail to open with a `SecurityException`.
+ * `clipData`, and all extras.
+ *
+ * The **flags** are NOT copied wholesale, though — only [URI_GRANT_FLAGS] survive, most
+ * importantly `FLAG_GRANT_READ_URI_PERMISSION`, without which the `content://` uri would fail to
+ * open with a `SecurityException`. A sender's `FLAG_ACTIVITY_*` flags (e.g. a file manager
+ * launching with `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK`) must NOT travel: they'd
+ * make the forwarded launch resolve by task affinity instead of stacking in the current task,
+ * so Back from this host could land on the home screen or yank the whole app task forward
+ * (finding M1, pre-A/B state-freshness final review).
  *
  * Kept as a file-level helper (like [classifyEntry] above) so it is unit-testable without driving
  * either Activity's lifecycle — see `InstallZipComposeActivityTest`.
  */
 internal fun composeForwardIntent(original: Intent?, context: Context): Intent =
     if (original == null) Intent(context, InstallZipComposeActivity::class.java)
-    else Intent(original).setClass(context, InstallZipComposeActivity::class.java)
+    else Intent(original)
+        .setClass(context, InstallZipComposeActivity::class.java)
+        .also { it.flags = it.flags and URI_GRANT_FLAGS }
 
 /**
  * Picks the job the host should currently render out of [jobs]: a job paused on

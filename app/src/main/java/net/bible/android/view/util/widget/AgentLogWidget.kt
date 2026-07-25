@@ -38,6 +38,7 @@ import net.bible.android.database.IdType
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.AgentLogAdapter
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.screen.classicBottomChromeAllowed
 import net.bible.service.device.ScreenSettings
 import net.bible.android.view.util.UiUtils
@@ -66,6 +67,30 @@ import org.koin.core.component.inject
 class AgentLogVisibilityChanged(val visible: Boolean, val height: Int)
 
 /**
+ * Resolves whether a Compose reading-view host is currently MOUNTED, from [context] alone.
+ * Extracted as its own top-level function (mirrors `classicBottomChromeAllowed`) because
+ * [AgentLogWidget] has no host/activity field of its own -- it's inflated straight from
+ * `main_bible_view.xml`, not constructed with a [MainBibleActivity] reference -- so it must ask
+ * its own [Context] each time it needs to know.
+ *
+ * Deliberately reads the actually-mounted [MainBibleActivity.composeReadingViewHost], NOT the live
+ * `use_compose_ui` flag: returning from Settings runs `preferenceSettingsChanged()` without
+ * recreating `MainBibleActivity`, so the flag can flip while the mounted host (classic or Compose)
+ * stays whatever it was at `setupUi()` time for the rest of that activity's life. Reading the flag
+ * directly would then disagree with what is actually on screen (finding I1, pre-A/B
+ * state-freshness final review) -- e.g. the flag flipping ON with no host mounted yet would
+ * suppress [AgentLogWidget] with nothing on the Compose side to replace it.
+ *
+ * A [context] that isn't a [MainBibleActivity] (a test harness, or any future caller outside the
+ * reading view) resolves to `false` -- "no compose host" -- which preserves classic behaviour
+ * exactly. Kept as a plain function (not a member) so it's unit-testable against a REAL
+ * [MainBibleActivity] instance without booting [AgentLogWidget] itself as a View -- see
+ * `ClassicBottomChromeAllowedTest`.
+ */
+internal fun composeHostMounted(context: Context): Boolean =
+    (context as? MainBibleActivity)?.composeReadingViewHost != null
+
+/**
  * Widget for displaying the agent execution log.
  *
  * Shows a collapsible list of log entries from the current agent session.
@@ -91,11 +116,11 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     /**
      * On the `use_compose_ui` path, `ReadingViewScreen`'s `agentLog` slot (`AgentLogPanel`, driven
      * by `ComposeReadingViewHost.agentLog`) owns this chrome — see `classicBottomChromeAllowed`.
-     * This classic widget has no host/activity reference (it's inflated straight from
-     * `main_bible_view.xml`), so the flag is read directly, same as `MainBibleActivity` does.
+     * Delegates the actual resolution to the top-level [composeHostMounted] (see its kdoc for why
+     * this reads the mounted host, not the live flag) so that decision is independently testable.
      */
-    private val composeUiEnabled: Boolean
-        get() = CommonUtils.settings.getBoolean("use_compose_ui", false)
+    private val composeHosted: Boolean
+        get() = composeHostMounted(context)
 
     /** Always reads the current workspace ID so it stays correct after workspace switches. */
     private val workspaceId: IdType get() = windowControl.windowRepository.id
@@ -194,7 +219,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             if (visibility != View.VISIBLE) {
                 show()
             }
-        } else if (isUserVisible && classicBottomChromeAllowed(composeUiEnabled)) {
+        } else if (isUserVisible && classicBottomChromeAllowed(composeHosted)) {
             // Restore visibility from previous session (classic path only — see
             // classicBottomChromeAllowed).
             visibility = View.VISIBLE
@@ -259,13 +284,14 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     }
 
     /**
-     * Show the widget. A no-op on the `use_compose_ui` path (see `classicBottomChromeAllowed`):
-     * `ReadingViewScreen`'s `agentLog` slot owns showing/hiding there (independently, via the same
-     * shared `PREF_AGENT_LOG_VISIBLE`/`AgentSessionService.setLogVisiblePref`), so this classic
-     * widget must never flip itself visible and draw over it.
+     * Show the widget. A no-op while a Compose reading-view host is mounted (see
+     * [composeHosted]/`classicBottomChromeAllowed`): `ReadingViewScreen`'s `agentLog` slot owns
+     * showing/hiding there (independently, via the same shared
+     * `PREF_AGENT_LOG_VISIBLE`/`AgentSessionService.setLogVisiblePref`), so this classic widget must
+     * never flip itself visible and draw over it.
      */
     fun show() {
-        if (!classicBottomChromeAllowed(composeUiEnabled)) return
+        if (!classicBottomChromeAllowed(composeHosted)) return
         visibility = View.VISIBLE
         isUserVisible = true
         updateBackgroundColor()
@@ -273,9 +299,18 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     }
 
     /**
-     * Hide the widget.
+     * Hide the widget. Guarded the same way as [show] (finding M5, pre-A/B state-freshness
+     * final review): with [show] and the `onAttachedToWindow` restore branch both gated on
+     * [composeHosted], this classic widget can never actually be `VISIBLE` while a Compose host is
+     * mounted, so today [hide] is only ever reached from an already-`VISIBLE` state (the close
+     * button, or the auto-hide branch's own `visibility == View.VISIBLE` check) -- i.e. the classic
+     * path. The guard is added anyway as a hard invariant, not just a currently-true consequence:
+     * `isUserVisible` writes the SAME shared `PREF_AGENT_LOG_VISIBLE` preference the Compose
+     * `AgentLogController` also owns, so a future call site that reaches [hide] while Compose is
+     * hosting would otherwise silently clobber the Compose panel's own persisted visibility.
      */
     fun hide() {
+        if (!classicBottomChromeAllowed(composeHosted)) return
         visibility = View.GONE
         isUserVisible = false
         notifyVisibilityChanged()

@@ -143,6 +143,7 @@ import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKe
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
+import net.bible.android.view.activity.page.screen.classicBottomChromeAllowed
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.activity.settings.DirtyTypesSerializer
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
@@ -2276,13 +2277,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // `speakBarVisible`) and agent-log panel (`AgentLogPanel`) own this chrome on the
         // `use_compose_ui` path — `ComposeReadingViewHost.install()` hides the classic
         // `speakTransport`/`agentLogWidget` views at mount time. Every mutation of those classic
-        // views below is guarded on `composeUiEnabled`, matching how `updateToolbar()` already
-        // guards its classic `toolbarLayout` mutations, so they don't re-show themselves over the
-        // Compose replacements. `bottomOffset1`/`transportBarHeight`/`transportBarVisible` keep
-        // being tracked unconditionally — other code (e.g. `bottomOffset2`/`bottomOffset3`) reads
-        // them regardless of which UI is active; only the classic views' own visibility changes.
-        val composeUiEnabled = CommonUtils.settings.getBoolean("use_compose_ui", false)
-        if (!composeUiEnabled) {
+        // views below is guarded on whether a Compose host is actually MOUNTED
+        // (`composeReadingViewHost != null`), NOT on the live `use_compose_ui` flag: returning from
+        // Settings runs `preferenceSettingsChanged()` without recreating this activity, so the flag
+        // and the mounted host can disagree for a whole activity lifetime after the user toggles it
+        // (see `classicBottomChromeAllowed`'s finding-I1 fix). `bottomOffset1`/`transportBarHeight`/
+        // `transportBarVisible` keep being tracked unconditionally here regardless of the guard —
+        // `bottomOffset2`/`bottomOffsetForWebView` also read them unconditionally elsewhere to size
+        // the WebView's bottom padding (that is a separate, pre-existing 12b/12f double-reservation
+        // concern on the Compose path, tracked as a device-verification item, NOT fixed here); only
+        // the classic views' own visibility/translation writes below are conditional.
+        if (classicBottomChromeAllowed(composeHosted = composeReadingViewHost != null)) {
             if(isFullScreen || !transportBarVisible) {
                 binding.speakTransport.animate()
                     .translationY(binding.speakTransport.height.toFloat())

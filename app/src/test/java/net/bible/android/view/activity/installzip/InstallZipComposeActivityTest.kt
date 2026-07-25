@@ -30,6 +30,7 @@ import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.InstallPhase
 import net.bible.sharedui.installzip.InstallUiState
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -276,7 +277,7 @@ class InstallZipComposeActivityTest {
     // --- composeForwardIntent (external-entry forwarding, spec §1 P2) ---
 
     @Test
-    fun composeForwardIntent_preservesActionDataTypeFlagsClipDataAndExtras() {
+    fun composeForwardIntent_preservesActionDataTypeClipDataAndExtras() {
         val original = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/zip")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -297,6 +298,33 @@ class InstallZipComposeActivityTest {
         assertTrue((forwarded.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION) != 0)
         assertTrue(forwarded.getBooleanExtra("doNotInitializeApp", false))
         assertEquals(uri, forwarded.clipData?.getItemAt(0)?.uri)
+    }
+
+    @Test
+    fun composeForwardIntent_grantFlagsSurviveButActivityFlagsDoNot() {
+        // A file manager / Share-sheet sender commonly launches with FLAG_ACTIVITY_NEW_TASK (+
+        // FLAG_ACTIVITY_MULTIPLE_TASK), alongside the uri grant flags this host actually needs
+        // (finding M1, pre-A/B state-freshness final review). Only the grant flags should travel.
+        val original = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/zip")
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                    Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
+                    Intent.FLAG_GRANT_PREFIX_URI_PERMISSION or
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+            )
+        }
+
+        val forwarded = composeForwardIntent(original, context)
+
+        assertTrue((forwarded.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION) != 0)
+        assertTrue((forwarded.flags and Intent.FLAG_GRANT_WRITE_URI_PERMISSION) != 0)
+        assertTrue((forwarded.flags and Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION) != 0)
+        assertTrue((forwarded.flags and Intent.FLAG_GRANT_PREFIX_URI_PERMISSION) != 0)
+        assertFalse((forwarded.flags and Intent.FLAG_ACTIVITY_NEW_TASK) != 0)
+        assertFalse((forwarded.flags and Intent.FLAG_ACTIVITY_MULTIPLE_TASK) != 0)
     }
 
     @Test
