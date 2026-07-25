@@ -200,8 +200,8 @@ export function useFontAwesome() {
         faSave,
         faCheck,
         faUndo,
-    faHeading,
-    faList,
-    faRegularClock,
+        faHeading,
+        faList,
+        faRegularClock,
     );
 }

@@ -19,7 +19,7 @@
     <template #title>{{ strings.outline }}</template>
     <div v-if="entries.length > 0" class="outline-list">
       <div
-          v-for="(entry, idx) in entries"
+          v-for="entry in entries"
           :key="`${entry.isCustom ? 'c' : 'm'}-${entry.ordinal}-${entry.titleIndex ?? ''}-${entry.headingId ?? ''}`"
           class="outline-item"
           :class="`level-${Math.min(entry.level, 6)}`"

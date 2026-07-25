@@ -21,15 +21,15 @@
     </template>
     <div v-if="mode === 'menu'" class="buttons">
       <button class="button light" @click="startEdit">
-        <FontAwesomeIcon icon="edit"/>
+        <FontAwesomeIcon :icon="faEdit"/>
         {{ strings.editHeading }}
       </button>
       <button v-if="existingOverride" class="button light" @click="restoreOriginal">
-        <FontAwesomeIcon icon="undo"/>
+        <FontAwesomeIcon :icon="faUndo"/>
         {{ strings.restoreHeading }}
       </button>
       <button class="button light" @click="deleteHeading">
-        <FontAwesomeIcon icon="trash"/>
+        <FontAwesomeIcon :icon="faTrash"/>
         {{ strings.deleteHeading }}
       </button>
     </div>
@@ -62,6 +62,7 @@
 <script lang="ts" setup>
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faEdit, faUndo, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {computed, inject, nextTick, ref} from "vue";
 import {setupEventBusListener} from "@/eventbus";
 import {useCommon} from "@/composables";
