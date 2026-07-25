@@ -55,6 +55,8 @@ import {
     faTextWidth,
     faTimes,
     faTrash,
+    faUndo,
+    faHeading,
     faUser,
     faLink,
     faChurch,
@@ -196,6 +198,8 @@ export function useFontAwesome() {
         faHandPointer,
         faSave,
         faCheck,
+        faUndo,
+        faHeading,
         faRegularClock,
     );
 }

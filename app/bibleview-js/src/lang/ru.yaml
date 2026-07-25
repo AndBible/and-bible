@@ -120,3 +120,12 @@ aiDocumentRegenerate: Создать заново
 aiDocumentDelete: Удалить
 aiGeneratedBy: "Создано с помощью %s"
 aiGeneratedByWithModel: "Создано с помощью %s (%s)"
+addHeading: Заголовок
+addHeadingLong: Добавить заголовок
+editHeading: Изменить заголовок
+deleteHeading: Удалить заголовок
+restoreHeading: Восстановить оригинал
+headingMenuTitle: Заголовок
+headingTextPlaceholder: Текст заголовка
+headingLevel: Уровень заголовка
+save: Сохранить

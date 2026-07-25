@@ -169,6 +169,15 @@ type TranslatedStrings = {
     aiDocumentDelete: string
     aiGeneratedBy: string
     aiGeneratedByWithModel: string
+    addHeading: string
+    addHeadingLong: string
+    editHeading: string
+    deleteHeading: string
+    restoreHeading: string
+    headingMenuTitle: string
+    headingTextPlaceholder: string
+    headingLevel: string
+    save: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings
