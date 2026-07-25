@@ -17,7 +17,7 @@
 
 <template>
   <div class="title-wrapper" v-if="show">
-    <component :is="headingTag" ref="titleEl" class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}" @click="titleClicked">
+    <component :is="headingTag" ref="titleEl" class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}" tabindex="0" @click="titleClicked" @keydown.enter="titleClicked" @keydown.space.prevent="titleClicked">
       <template v-if="overrideText !== null">{{ overrideText }}</template>
       <slot v-else/>
     </component>
@@ -81,7 +81,7 @@ const isSubTitle = computed(() => props.type === "sub");
 
 const titleEl = ref<HTMLElement | null>(null);
 
-function titleClicked(event: MouseEvent) {
+function titleClicked(event: Event) {
     if (!bibleDocumentInfo || props.ordinal == null || props.titleIndex == null) return;
     const {bookInitials, v11n} = bibleDocumentInfo;
     const payload: HeadingMenuPayload = {

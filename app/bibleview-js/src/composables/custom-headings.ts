@@ -110,15 +110,24 @@ export function useCustomHeadings(
             if (!verseElem || !verseElem.parentNode) continue;
             const wrapper = document.createElement("div");
             wrapper.classList.add("title-wrapper", "custom-heading-wrapper", "skip-offset");
+            wrapper.tabIndex = 0;
+            wrapper.setAttribute("role", "button");
             const headingElem = document.createElement(`h${h.level}`);
             headingElem.classList.add("titleStyle", "custom-heading");
             headingElem.textContent = h.text;
             wrapper.appendChild(headingElem);
-            wrapper.addEventListener("click", (event: MouseEvent) => {
+            function openMenu(event: Event) {
                 addEventFunction(event, () => {
                     const payload: HeadingMenuPayload = {kind: "custom", headingId: h.id};
                     emit("open_heading_menu", payload);
                 }, {priority: EventPriorities.HEADING, title: h.text});
+            }
+            wrapper.addEventListener("click", openMenu);
+            wrapper.addEventListener("keydown", (event: KeyboardEvent) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    openMenu(event);
+                }
             });
             verseElem.parentNode.insertBefore(wrapper, verseElem);
             undoList.push(() => wrapper.remove());
