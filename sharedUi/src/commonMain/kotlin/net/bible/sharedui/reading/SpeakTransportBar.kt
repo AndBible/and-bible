@@ -33,20 +33,22 @@ import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakTransportVd
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbListChoiceDialog
-import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.strings.LocalStrings
 
 /**
  * Stateless Speak transport bar — Compose equivalent of the classic `speak_transport_widget.xml`
- * (status line + speed slider stacked above the transport button row). Hosted by the reading view;
- * button callbacks and the speed setter are all host-owned seams driven by `SpeakTransportController`.
+ * (status line stacked above the transport button row; no speed slider — A/B batch 2 F4, maintainer
+ * decision). Hosted by the reading view **and both speak screens**; button callbacks are all
+ * host-owned seams driven by `SpeakTransportController`. `showConfig` mirrors classic's
+ * `custom:showConfig` attribute (`true` in `main_bible_view.xml:201`, default `false` in the two
+ * speak layouts) — the settings-cog button is only shown where the layout asks for it.
  */
 @Composable
 fun SpeakTransportBar(
     state: SpeakTransportVd,
     onPlayPause: () -> Unit, onStop: () -> Unit, onRewind: () -> Unit, onForward: () -> Unit,
     onPrev: () -> Unit, onNext: () -> Unit, onBookmark: () -> Unit, onConfig: () -> Unit,
-    onSpeed: (Int) -> Unit,
+    showConfig: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
@@ -59,11 +61,6 @@ fun SpeakTransportBar(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
             )
         }
-        AbSliderRow(
-            label = strings.speak, value = state.speedPercent, onValueChange = onSpeed,
-            valueRange = 10f..300f, valueLabel = "${state.speedPercent}%",
-            valueLabelFor = { "$it%" },
-        )
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -94,8 +91,10 @@ fun SpeakTransportBar(
             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 AbActionIcon(Icons.Filled.FastForward, strings.forward, onForward)
             }
-            Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                AbActionIcon(Icons.Filled.Settings, strings.speak, onConfig)
+            if (showConfig) {
+                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    AbActionIcon(Icons.Filled.Settings, strings.speak, onConfig)
+                }
             }
         }
     }

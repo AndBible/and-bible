@@ -246,7 +246,7 @@ class ReadingViewScreenGoldenTest {
                 SpeakTransportBar(
                     speakTransportPlaying,
                     onPlayPause = {}, onStop = {}, onRewind = {}, onForward = {},
-                    onPrev = {}, onNext = {}, onBookmark = {}, onConfig = {}, onSpeed = {},
+                    onPrev = {}, onNext = {}, onBookmark = {}, onConfig = {},
                 )
             },
         ),

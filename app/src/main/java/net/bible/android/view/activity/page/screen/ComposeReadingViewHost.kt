@@ -896,7 +896,6 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                         onNext = { speakTransport.nextVerse() },
                         onBookmark = { speakTransport.onBookmarkButton() },
                         onConfig = { speakTransport.onConfig() },
-                        onSpeed = { speakTransport.setSpeed(it) },
                     )
                 }
             },

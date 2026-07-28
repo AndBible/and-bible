@@ -16,9 +16,9 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class SpeakTransportBarGoldenTest {
-    private fun bar(s: SpeakTransportVd) = @Composable {
+    private fun bar(s: SpeakTransportVd, showConfig: Boolean = true) = @Composable {
         SpeakTransportBar(s, onPlayPause = {}, onStop = {}, onRewind = {}, onForward = {},
-            onPrev = {}, onNext = {}, onBookmark = {}, onConfig = {}, onSpeed = {})
+            onPrev = {}, onNext = {}, onBookmark = {}, onConfig = {}, showConfig = showConfig)
     }
     private val playing = SpeakTransportVd(visible = true, playing = true, stopped = false,
         statusText = "Reading John 3:16", speedPercent = 150, bookmarkButtonVisible = true)
@@ -31,6 +31,9 @@ class SpeakTransportBarGoldenTest {
     fun playing_rtl() = captureRtl("SpeakTransportBar", "playing") { bar(playing)() }
     @Test fun paused_light() = captureGolden("SpeakTransportBar", "paused", EDGE_MODE) { bar(paused)() }
     @Test fun stopped_noBookmark_light() = captureGolden("SpeakTransportBar", "stopped", EDGE_MODE) { bar(stopped)() }
+    @Test fun noConfig_light() = captureGolden("SpeakTransportBar", "noConfig", EDGE_MODE) {
+        bar(stopped, showConfig = false)()
+    }
     @Test fun bookmarkDialog_light() = captureGolden("SpeakTransportBar", "bookmarkDialog", EDGE_MODE) {
         ChooseSpeakBookmarkDialog(
             rows = listOf(SpeakBookmarkRowVd("b1", "Gen 1:1 (KJV)"), SpeakBookmarkRowVd("b2", "John 3:16 (KJV)")),
