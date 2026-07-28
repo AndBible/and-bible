@@ -26,6 +26,7 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.lifecycleScope
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -42,7 +43,12 @@ import net.bible.service.common.speakHelpVideo
 import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.speak.BibleSpeakSettingsController
 import net.bible.sharedcore.speak.SpeakSettingsService
+import net.bible.sharedcore.speak.SpeakTransportController
+import net.bible.sharedcore.speak.SpeakTransportDialog
+import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
+import net.bible.sharedui.reading.SpeakTransportBar
 import net.bible.sharedui.speak.BibleSpeakScreen
 import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.passage.Verse
@@ -54,10 +60,12 @@ import org.koin.android.ext.android.inject
  * Compose host for the main Speak screen (classic BibleSpeakActivity). Owns the Android-typed bits
  * the shared screen delegates: the sleep-timer number picker, the two-step repeat-passage verse
  * picker (via GridChoosePassageBook, identical to classic), the system-TTS intent, and the help
- * dialog. The in-Activity transport widget is intentionally not ported (see plan Global Constraints).
+ * dialog. Also hosts the Speak transport bar (classic's in-Activity transport widget,
+ * `speak_bible.xml:175`) via the shared [SpeakTransportController].
  */
 class BibleSpeakComposeActivity : ActivityBase() {
     private val service: SpeakSettingsService by inject()
+    private val transportService: SpeakTransportService by inject()
     private val navigationControl: NavigationControl by inject()
 
     private val controller by lazy {
@@ -66,6 +74,17 @@ class BibleSpeakComposeActivity : ActivityBase() {
             onSleepTimerToggle = ::onSleepTimerToggle,
             onChooseRepeatRange = ::startRepeatRangeFlow,
         )
+    }
+
+    /**
+     * The same transport controller the reading view uses (ComposeReadingViewHost:349) — classic
+     * hosts the identical widget at the bottom of this screen (speak_bible.xml:175), which is how
+     * speaking is STARTED from here. onConfig is a no-op because the settings cog is hidden on this
+     * screen (classic's showConfig default, SpeakTransportWidget.kt:114-118) — this screen IS the
+     * config target.
+     */
+    private val transport by lazy {
+        SpeakTransportController(transportService, service, lifecycleScope, onConfig = {})
     }
 
     private var startVerse: Verse? = null
@@ -81,6 +100,8 @@ class BibleSpeakComposeActivity : ActivityBase() {
                     disableAnimations = CommonUtils.settings.disableAnimations,
                 ) {
                     val playback by controller.playback.collectAsState()
+                    val transportState by transport.state.collectAsState()
+                    val transportDialog by transport.dialog.collectAsState()
                     BibleSpeakScreen(
                         playback = playback,
                         onSpeedChange = controller::setSpeed,
@@ -92,8 +113,29 @@ class BibleSpeakComposeActivity : ActivityBase() {
                         onOpenAdvanced = { startActivity(Intent(this, SpeakSettingsComposeActivity::class.java)) },
                         onSystemTtsSettings = { startActivity(Intent("com.android.settings.TTS_SETTINGS")) },
                         onHelp = ::showHelp,
+                        transportBar = {
+                            SpeakTransportBar(
+                                transportState,
+                                onPlayPause = { transport.togglePlayPause() },
+                                onStop = { transport.stop() },
+                                onRewind = { transport.rewind() },
+                                onForward = { transport.forward() },
+                                onPrev = { transport.prevVerse() },
+                                onNext = { transport.nextVerse() },
+                                onBookmark = { transport.onBookmarkButton() },
+                                onConfig = {},
+                                showConfig = false,
+                            )
+                        },
                         onNavigateUp = { onBackPressedDispatcher.onBackPressed() },
                     )
+                    (transportDialog as? SpeakTransportDialog.ChooseSpeakBookmark)?.let { d ->
+                        ChooseSpeakBookmarkDialog(
+                            rows = d.rows,
+                            onChoose = { transport.onSpeakBookmarkChosen(it) },
+                            onDismiss = { transport.dismissDialog() },
+                        )
+                    }
                 }
             }
         }

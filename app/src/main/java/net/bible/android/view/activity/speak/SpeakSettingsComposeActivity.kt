@@ -23,6 +23,7 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.lifecycleScope
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
@@ -31,7 +32,12 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.speak.AdvancedSpeakSettingsController
 import net.bible.sharedcore.speak.SpeakSettingsService
+import net.bible.sharedcore.speak.SpeakTransportController
+import net.bible.sharedcore.speak.SpeakTransportDialog
+import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
+import net.bible.sharedui.reading.SpeakTransportBar
 import net.bible.sharedui.speak.AdvancedSpeakSettingsScreen
 import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
@@ -39,7 +45,19 @@ import org.koin.android.ext.android.inject
 /** Compose host for the advanced Speak settings (classic SpeakSettingsActivity). */
 class SpeakSettingsComposeActivity : ActivityBase() {
     private val service: SpeakSettingsService by inject()
+    private val transportService: SpeakTransportService by inject()
     private val controller by lazy { AdvancedSpeakSettingsController(service) }
+
+    /**
+     * The same transport controller the reading view uses (ComposeReadingViewHost:349) — classic
+     * hosts the identical widget at the bottom of this screen (speak_settings.xml:132), which is how
+     * speaking is STARTED from here. onConfig is a no-op because the settings cog is hidden on this
+     * screen (classic's showConfig default, SpeakTransportWidget.kt:114-118) — this screen IS the
+     * config target.
+     */
+    private val transport by lazy {
+        SpeakTransportController(transportService, service, lifecycleScope, onConfig = {})
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +69,8 @@ class SpeakSettingsComposeActivity : ActivityBase() {
                     disableAnimations = CommonUtils.settings.disableAnimations,
                 ) {
                     val advanced by controller.advanced.collectAsState()
+                    val transportState by transport.state.collectAsState()
+                    val transportDialog by transport.dialog.collectAsState()
                     AdvancedSpeakSettingsScreen(
                         advanced = advanced,
                         onSynchronize = controller::setSynchronize,
@@ -58,8 +78,29 @@ class SpeakSettingsComposeActivity : ActivityBase() {
                         onAutoBookmark = controller::setAutoBookmark,
                         onRestoreSettingsFromBookmarks = controller::setRestoreSettingsFromBookmarks,
                         onHelp = ::showHelp,
+                        transportBar = {
+                            SpeakTransportBar(
+                                transportState,
+                                onPlayPause = { transport.togglePlayPause() },
+                                onStop = { transport.stop() },
+                                onRewind = { transport.rewind() },
+                                onForward = { transport.forward() },
+                                onPrev = { transport.prevVerse() },
+                                onNext = { transport.nextVerse() },
+                                onBookmark = { transport.onBookmarkButton() },
+                                onConfig = {},
+                                showConfig = false,
+                            )
+                        },
                         onNavigateUp = { onBackPressedDispatcher.onBackPressed() },
                     )
+                    (transportDialog as? SpeakTransportDialog.ChooseSpeakBookmark)?.let { d ->
+                        ChooseSpeakBookmarkDialog(
+                            rows = d.rows,
+                            onChoose = { transport.onSpeakBookmarkChosen(it) },
+                            onDismiss = { transport.dismissDialog() },
+                        )
+                    }
                 }
             }
         }
