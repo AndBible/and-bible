@@ -60,7 +60,11 @@ fun AbColorScaleLegend(
     ) {
         Text(
             text = label,
-            fontSize = 10.sp,
+            // Classic renders this label as a bare 10sp TextView (ReadingProgressActivity.kt:876-882),
+            // i.e. ~1.2x natural leading. Overriding fontSize alone inherited bodyLarge's 24sp
+            // lineHeight, which made the two-line "Percent\nRead" label read as two tall rows
+            // (A/B batch 2 F3).
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, lineHeight = 12.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(end = 6.dp),
         )
@@ -79,7 +83,8 @@ fun AbColorScaleLegend(
                 steps.forEach { step ->
                     Text(
                         text = stepLabel(step),
-                        fontSize = 9.sp,
+                        // Classic: bare 9sp TextView (ReadingProgressActivity.kt:855-861).
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp, lineHeight = 11.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.weight(1f),

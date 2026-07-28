@@ -177,6 +177,11 @@ private fun ReadingTabBody(
         Spacer(Modifier.height(4.dp))
         Text(
             text = strings.readingProgressOverall(model.summary.overallPercent),
+            // Classic: overallProgressLabel is 12sp and gravity=center under the bar
+            // (res/layout/reading_progress.xml:86-93). Without an explicit style this inherited
+            // bodyLarge (16sp) and TextAlign.Start.
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(16.dp))
