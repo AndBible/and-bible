@@ -40,9 +40,10 @@ val ALL_MODES: List<GoldenMode> = GoldenMode.entries.toList()
 val EDGE_MODE: GoldenMode = GoldenMode.LIGHT
 
 /**
- * Shared capture core: render [content] wrapped exactly as the Compose hosts wrap it
- * (LayoutDirection > ProvideAppLocals > AbTheme > Scaffold, which paints the background
- * and provides the content colour) and capture it to [path].
+ * Shared capture core: render [content] wrapped as the Compose hosts wrap it
+ * (LayoutDirection > ProvideAppLocals > AbTheme), then, inside a `Box` that mimics what a real
+ * `Scaffold` would paint (theme background + matching content colour — see the inline comment
+ * below for why a `Box` and not an actual `Scaffold`/`Surface`), capture it to [path].
  */
 @OptIn(ExperimentalRoborazziApi::class)
 private fun capture(

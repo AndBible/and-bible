@@ -53,14 +53,19 @@ fun SpeakTransportBar(
 ) {
     val strings = LocalStrings.current
     Column(modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant)) {
-        if (state.statusText.isNotBlank()) {
-            Text(
-                state.statusText,
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 1, overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
-            )
-        }
+        // Rendered unconditionally (even when statusText is blank), NOT gated by isNotBlank(): classic's
+        // statusText is android:lines="1" (speak_transport_widget.xml:27-40, with a placeholder
+        // android:text="test") so it ALWAYS occupies exactly one line and the widget's height never
+        // changes with playback state. Now that this bar is a Scaffold bottomBar on the speak screens,
+        // gating this Text would make the reserved content padding -- and the whole scroll extent --
+        // jump by a line's height whenever speech starts/stops (A/B batch 2 F4 fix wave). An empty
+        // string still reserves its line height, so the bar stays a constant height either way.
+        Text(
+            state.statusText,
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1, overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+        )
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
