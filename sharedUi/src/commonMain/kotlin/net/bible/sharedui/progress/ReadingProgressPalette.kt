@@ -83,7 +83,7 @@ data class HeatColors(val background: Color, val content: Color)
 
 /** Neutral "no activity" heat-map cell colour: the theme's `surfaceVariant`. */
 @Composable
-fun colorEmpty(): Color = MaterialTheme.colorScheme.surfaceVariant
+private fun colorEmpty(): Color = MaterialTheme.colorScheme.surfaceVariant
 
 /** [HeatColors] for a no-data cell: theme neutral background, theme content colour. */
 @Composable
