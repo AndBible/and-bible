@@ -1,7 +1,14 @@
 package net.bible.android.view.compose.golden
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
@@ -34,7 +41,8 @@ val EDGE_MODE: GoldenMode = GoldenMode.LIGHT
 
 /**
  * Shared capture core: render [content] wrapped exactly as the Compose hosts wrap it
- * (LayoutDirection > ProvideAppLocals > AbTheme) and capture it to [path].
+ * (LayoutDirection > ProvideAppLocals > AbTheme > Scaffold, which paints the background
+ * and provides the content colour) and capture it to [path].
  */
 @OptIn(ExperimentalRoborazziApi::class)
 private fun capture(
@@ -61,7 +69,28 @@ private fun capture(
         val dir = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
         CompositionLocalProvider(LocalLayoutDirection provides dir) {
             ProvideAppLocals {
-                AbTheme(darkTheme = dark, colorMode = colorMode, disableAnimations = true, content = content)
+                AbTheme(darkTheme = dark, colorMode = colorMode, disableAnimations = true) {
+                    // The hosts always render inside AbScaffold -> Scaffold, which paints
+                    // containerColor = colorScheme.background AND provides a matching
+                    // LocalContentColor. MaterialTheme alone does neither, so without this a
+                    // content-level capture (a bar, a menu, a drawer body, a tab body) rendered on
+                    // the Robolectric window's WHITE background with M3's Color.Black content
+                    // default -- making every dark/BW/eink variant of such a golden unrepresentative
+                    // (see ReadingDrawer_items_dark.png before this fix: white-on-white).
+                    // A Box+background is used rather than Surface(fillMaxSize) on purpose: Surface
+                    // wraps its content in Box(propagateMinConstraints = true), which would force
+                    // small components to fill the whole viewport and change their layout.
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background),
+                    ) {
+                        CompositionLocalProvider(
+                            LocalContentColor provides contentColorFor(MaterialTheme.colorScheme.background),
+                            content = content,
+                        )
+                    }
+                }
             }
         }
     }
