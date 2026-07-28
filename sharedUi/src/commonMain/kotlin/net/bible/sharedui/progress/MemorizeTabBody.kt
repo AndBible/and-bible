@@ -150,13 +150,13 @@ private fun MemorizeOverview(
 
     BookHeatGrid(
         books = memorize.otBooks,
-        color = { memorizationColor(ReadingProgressScale.memorizationLevel(it.readPercent)) },
+        colors = { memorizationColors(ReadingProgressScale.memorizationLevel(it.readPercent)) },
         onClick = onBookClick,
     )
     Spacer(Modifier.height(12.dp))
     BookHeatGrid(
         books = memorize.ntBooks,
-        color = { memorizationColor(ReadingProgressScale.memorizationLevel(it.readPercent)) },
+        colors = { memorizationColors(ReadingProgressScale.memorizationLevel(it.readPercent)) },
         onClick = onBookClick,
     )
     Spacer(Modifier.height(16.dp))
@@ -167,7 +167,7 @@ private fun MemorizeOverview(
         Spacer(Modifier.height(8.dp))
         ChapterHeatGrid(
             chapters = detail.chapters,
-            color = { memorizationColor(it.level) },
+            colors = { memorizationColors(it.level) },
             onClick = onChapterClick,
         )
         Spacer(Modifier.height(16.dp))

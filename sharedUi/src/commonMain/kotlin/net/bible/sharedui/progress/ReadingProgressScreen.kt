@@ -195,7 +195,7 @@ private fun ReadingTabBody(
         AbColorScaleLegend(
             label = strings.readingProgressPercentReadScale,
             steps = model.bookPercentScaleSteps,
-            stepColor = { bookProgressColor(it / 100f, model.bookPercentScaleMax) },
+            stepColor = { bookProgressColors(it / 100f, model.bookPercentScaleMax).background },
             stepLabel = { strings.readingProgressPercentLabel(it) },
         )
         Spacer(Modifier.height(8.dp))
@@ -205,7 +205,7 @@ private fun ReadingTabBody(
         Spacer(Modifier.height(4.dp))
         BookHeatGrid(
             books = model.otBooks,
-            color = { bookProgressColor(it.readPercent, model.bookPercentScaleMax) },
+            colors = { bookProgressColors(it.readPercent, model.bookPercentScaleMax) },
             onClick = onBookClick,
             onLongClick = onBookLongClick,
         )
@@ -214,7 +214,7 @@ private fun ReadingTabBody(
         Spacer(Modifier.height(4.dp))
         BookHeatGrid(
             books = model.ntBooks,
-            color = { bookProgressColor(it.readPercent, model.bookPercentScaleMax) },
+            colors = { bookProgressColors(it.readPercent, model.bookPercentScaleMax) },
             onClick = onBookClick,
             onLongClick = onBookLongClick,
         )
@@ -228,13 +228,13 @@ private fun ReadingTabBody(
             AbColorScaleLegend(
                 label = strings.readingProgressReadCountScale,
                 steps = detail.countScaleSteps,
-                stepColor = { countHeatColor(it, detail.maxCount) },
+                stepColor = { countHeatColors(it, detail.maxCount).background },
                 stepLabel = { "$it" },
             )
             Spacer(Modifier.height(8.dp))
             ChapterHeatGrid(
                 chapters = detail.chapters,
-                color = { countHeatColor(it.count, detail.maxCount) },
+                colors = { countHeatColors(it.count, detail.maxCount) },
                 onClick = onChapterClick,
                 onLongClick = onChapterLongClick,
             )

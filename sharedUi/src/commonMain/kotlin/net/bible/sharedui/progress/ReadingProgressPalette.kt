@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.progress
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
@@ -28,20 +29,25 @@ import net.bible.sharedui.theme.LocalDisplayColorMode
 
 /**
  * Compose [Color] palette for reading-progress heatmaps (chapter/book heat maps, memorization
- * heatmap, calendar heatmap, target-percentage dot). Colour constants and blend math mirror
- * the classic `ReadingProgressColors`/`CalendarHeatmapView` (`app/src/main/java/net/bible/android/
- * view/activity/progress/`) exactly, so the Compose and classic UIs render identical colours.
+ * heatmap, calendar heatmap, target-percentage dot).
  *
- * Every helper is `@Composable` and reads [LocalDisplayColorMode] so the result degrades for
- * e-ink automatically: colours stay as designed in `NORMAL`/`COLOR_EINK`, and are converted to
- * grayscale in `BW` (`accentArgbFor`). Blends are computed with Compose's [lerp] on the two
- * un-degraded anchor colours, and the *result* of the blend is then degraded — never the
- * anchors individually — so a mid-blend hue is preserved faithfully before graying.
+ * **Palette B** (maintainer decision 2026-07-28, `docs/superpowers/specs/
+ * 2026-07-28-compose-palette-b-theme-neutrals-design.md`): the *heat ramps* are classic's exactly —
+ * same constants, same blend math as `ReadingProgressColors`/`CalendarHeatmapView`
+ * (`app/src/main/java/net/bible/android/view/activity/progress/`) — but every **no-data** cell and
+ * every cell's **text** colour come from the Material 3 theme instead of classic's fixed greys.
+ * Classic painted `#E8E8E8`/`#EBEDF0` empties, which read as near-white patches on a dark theme.
+ * This is a deliberate divergence from classic, which is left untouched as the flag-OFF fallback.
+ *
+ * Heat-ramp helpers read [LocalDisplayColorMode] so they degrade for e-ink: colours stay as designed
+ * in `NORMAL`/`COLOR_EINK`, and are converted to grayscale in `BW` (`accentArgbFor`). Blends are
+ * computed with Compose's [lerp] on the two un-degraded anchor colours, and the *result* of the blend
+ * is then degraded — never the anchors individually — so a mid-blend hue is preserved faithfully
+ * before graying. The theme-derived neutrals need no such wrapping: `AbTheme` greyscales the entire
+ * `ColorScheme` in `BW` **and** `COLOR_EINK`.
  */
 
-private const val COLOR_EMPTY = 0xFFE8E8E8.toInt()
-
-// Memorization heatmap (green scale).
+// Memorization heatmap (green scale), levels 1..4; level 0 is the theme neutral.
 private const val COLOR_MEM_LOW = 0xFFC6E48B.toInt()
 private const val COLOR_MEM_MEDIUM = 0xFF7BC96F.toInt()
 private const val COLOR_MEM_HIGH = 0xFF239A3B.toInt()
@@ -59,32 +65,45 @@ private const val COLOR_COUNT_BOOK_BLUE_LOW = 0xFFE3F2FD.toInt()
 private const val COLOR_COUNT_BOOK_BLUE_HIGH = 0xFF1565C0.toInt()
 private const val COLOR_COUNT_BOOK_RED = 0xFFB71C1C.toInt()
 
-// Calendar heatmap (GitHub-style greens), levels 0..4.
+// Calendar heatmap (GitHub-style greens), levels 1..4; level 0 is the theme neutral.
 private val CALENDAR_LEVEL_COLORS = intArrayOf(
-    0xFFEBEDF0.toInt(),
     0xFF9BE9A8.toInt(),
     0xFF40C463.toInt(),
     0xFF30A14E.toInt(),
     0xFF216E39.toInt(),
 )
 
-/** Neutral "no activity" heat-map cell colour, e-ink aware. */
+/**
+ * The background colour of a heat-map cell together with the content (text) colour that belongs
+ * with it. The two are chosen as a pair because an empty cell's content colour comes from the theme
+ * (`onSurfaceVariant`) while a coloured cell's comes from [textColorForBackground] — it is not
+ * derivable from the background alone.
+ */
+data class HeatColors(val background: Color, val content: Color)
+
+/** Neutral "no activity" heat-map cell colour: the theme's `surfaceVariant`. */
 @Composable
-fun colorEmpty(): Color {
-    val mode = LocalDisplayColorMode.current
-    return Color(accentArgbFor(COLOR_EMPTY, mode))
-}
+fun colorEmpty(): Color = MaterialTheme.colorScheme.surfaceVariant
+
+/** [HeatColors] for a no-data cell: theme neutral background, theme content colour. */
+@Composable
+private fun emptyHeatColors(): HeatColors =
+    HeatColors(colorEmpty(), MaterialTheme.colorScheme.onSurfaceVariant)
+
+/** [HeatColors] for a coloured (non-empty) cell: classic's luminance rule picks the text colour. */
+private fun heatColors(background: Color): HeatColors =
+    HeatColors(background, textColorForBackground(background))
 
 /**
- * Heat colour for a chapter button. Mirrors `ReadingProgressColors.countToHeatColor`: 3 fixed
- * anchors — pale yellow at 1, orange at [ReadingProgressScale.HEAT_MID_COUNT], deep red at
- * `max(maxCount, 10)`. The colours at 1 and `HEAT_MID_COUNT` are always identical regardless of
- * the chosen max.
+ * Heat colours for a chapter button. The ramp mirrors `ReadingProgressColors.countToHeatColor`:
+ * 3 fixed anchors — pale yellow at 1, orange at [ReadingProgressScale.HEAT_MID_COUNT], deep red at
+ * `max(maxCount, 10)`. The colours at 1 and `HEAT_MID_COUNT` are always identical regardless of the
+ * chosen max. `count == 0` yields the theme neutral (palette B).
  */
 @Composable
-fun countHeatColor(count: Int, maxCount: Int): Color {
+fun countHeatColors(count: Int, maxCount: Int): HeatColors {
+    if (count == 0) return emptyHeatColors()
     val mode = LocalDisplayColorMode.current
-    if (count == 0) return Color(accentArgbFor(COLOR_EMPTY, mode))
     val effectiveMax = maxCount.coerceAtLeast(10)
     val midCount = ReadingProgressScale.HEAT_MID_COUNT
     val blended = if (count <= midCount) {
@@ -94,52 +113,54 @@ fun countHeatColor(count: Int, maxCount: Int): Color {
         val ratio = (count - midCount).toFloat() / (effectiveMax - midCount).coerceAtLeast(1)
         lerp(Color(COLOR_HEAT_MID), Color(COLOR_HEAT_MAX), ratio.coerceIn(0f, 1f))
     }
-    return Color(accentArgbFor(blended.toArgb(), mode))
+    return heatColors(Color(accentArgbFor(blended.toArgb(), mode)))
 }
 
 /**
- * Colour for a book button. Mirrors `ReadingProgressColors.countBookProgressToColor`.
- * [readPercent] = totalReads / totalChapters (1.0 = 100%). Light blue -> dark blue at 100% ->
- * red at [effectiveMaxPercent] * 100%.
+ * Heat colours for a book button. The ramp mirrors `ReadingProgressColors.countBookProgressToColor`.
+ * [readPercent] = totalReads / totalChapters (1.0 = 100%). Light blue -> dark blue at 100% -> red at
+ * [effectiveMaxPercent] * 100%. A book with nothing read yields the theme neutral (palette B).
  */
 @Composable
-fun bookProgressColor(readPercent: Float, effectiveMaxPercent: Float): Color {
+fun bookProgressColors(readPercent: Float, effectiveMaxPercent: Float): HeatColors {
+    if (readPercent <= 0f) return emptyHeatColors()
     val mode = LocalDisplayColorMode.current
-    if (readPercent <= 0f) return Color(accentArgbFor(COLOR_EMPTY, mode))
     val blended = if (readPercent <= 1.0f) {
         lerp(Color(COLOR_COUNT_BOOK_BLUE_LOW), Color(COLOR_COUNT_BOOK_BLUE_HIGH), readPercent)
     } else {
         val ratio = ((readPercent - 1.0f) / (effectiveMaxPercent - 1.0f)).coerceIn(0f, 1f)
         lerp(Color(COLOR_COUNT_BOOK_BLUE_HIGH), Color(COLOR_COUNT_BOOK_RED), ratio)
     }
-    return Color(accentArgbFor(blended.toArgb(), mode))
+    return heatColors(Color(accentArgbFor(blended.toArgb(), mode)))
 }
 
 /**
- * Memorization heatmap colour for a 0..4 level (see [ReadingProgressScale.memorizationLevel]):
- * empty / low / medium / high / full green.
+ * Memorization heatmap colours for a 0..4 level (see [ReadingProgressScale.memorizationLevel]):
+ * level 0 is the theme neutral (palette B), levels 1..4 are classic's low/medium/high/full greens.
  */
 @Composable
-fun memorizationColor(level: Int): Color {
+fun memorizationColors(level: Int): HeatColors {
+    if (level <= 0) return emptyHeatColors()
     val mode = LocalDisplayColorMode.current
     val base = when (level) {
-        0 -> COLOR_EMPTY
         1 -> COLOR_MEM_LOW
         2 -> COLOR_MEM_MEDIUM
         3 -> COLOR_MEM_HIGH
         else -> COLOR_MEM_FULL
     }
-    return Color(accentArgbFor(base, mode))
+    return heatColors(Color(accentArgbFor(base, mode)))
 }
 
 /**
- * Calendar heatmap colour for a 0..4 level (see [ReadingProgressScale.heatLevel]): the GitHub-style
- * green scale.
+ * Calendar heatmap colour for a 0..4 level (see [ReadingProgressScale.heatLevel]): level 0 is the
+ * theme neutral (palette B), levels 1..4 are classic's GitHub-style green scale. Calendar cells carry
+ * no text, so this returns a bare [Color] rather than [HeatColors].
  */
 @Composable
 fun calendarLevelColor(level: Int): Color {
+    if (level <= 0) return colorEmpty()
     val mode = LocalDisplayColorMode.current
-    val base = CALENDAR_LEVEL_COLORS[level.coerceIn(0, CALENDAR_LEVEL_COLORS.size - 1)]
+    val base = CALENDAR_LEVEL_COLORS[(level - 1).coerceAtMost(CALENDAR_LEVEL_COLORS.lastIndex)]
     return Color(accentArgbFor(base, mode))
 }
 
@@ -151,9 +172,11 @@ fun targetDot(): Color {
 }
 
 /**
- * White for dark backgrounds, dark grey for light ones, using WCAG relative luminance so text
- * stays readable over any heat-map colour. Mirrors `ReadingProgressColors.textColorForBackground`.
- * Not `@Composable` — it is a pure function of an already-resolved (e-ink-aware) background.
+ * White for dark backgrounds, dark grey for light ones, using WCAG relative luminance so text stays
+ * readable over any heat-ramp colour. Mirrors `ReadingProgressColors.textColorForBackground`. Applies
+ * to *coloured* cells only — a no-data cell takes `onSurfaceVariant` from the theme instead (see
+ * [HeatColors]). Not `@Composable` — it is a pure function of an already-resolved (e-ink-aware)
+ * background.
  */
 fun textColorForBackground(bg: Color): Color =
     if (bg.luminance() < 0.45f) Color.White else Color.DarkGray

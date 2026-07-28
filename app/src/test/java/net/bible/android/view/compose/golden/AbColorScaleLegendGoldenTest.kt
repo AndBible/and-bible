@@ -3,7 +3,7 @@ package net.bible.android.view.compose.golden
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.progress.ReadingProgressScale
 import net.bible.sharedui.progress.AbColorScaleLegend
-import net.bible.sharedui.progress.countHeatColor
+import net.bible.sharedui.progress.countHeatColors
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -21,7 +21,7 @@ class AbColorScaleLegendGoldenTest {
         AbColorScaleLegend(
             label = "Read count:",
             steps = steps,
-            stepColor = { countHeatColor(it, 12) },
+            stepColor = { countHeatColors(it, 12).background },
             stepLabel = { "$it" },
         )
     }

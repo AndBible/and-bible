@@ -46,8 +46,9 @@ private const val DAYS_IN_WEEK = 7
 
 /**
  * A GitHub-style calendar heatmap: one column per week, one row per day-of-week, cells coloured
- * by [net.bible.sharedui.progress.calendarLevelColor]. General-purpose — knows nothing about
- * reading progress beyond the [CalendarHeatmap] shape it is handed. Mirrors the classic
+ * by [net.bible.sharedui.progress.calendarLevelColor], whose level 0 is the theme's neutral.
+ * General-purpose — knows nothing about reading progress beyond the [CalendarHeatmap] shape it
+ * is handed. Mirrors the classic
  * `CalendarHeatmapView` (`app/src/main/java/net/bible/android/view/activity/progress/
  * CalendarHeatmapView.kt`) for cell sizing/spacing/label geometry.
  *

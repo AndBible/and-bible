@@ -162,7 +162,7 @@ class ReadingProgressGoldenTest {
         captureRtl("ReadingProgress", "reading", heightDp = 1400, content = screen(model()))
 
     @Test fun reading_empty() =
-        captureGolden("ReadingProgress", "empty", EDGE_MODE, heightDp = 1000, content = screen(model(empty = true)))
+        captureMatrix("ReadingProgress", "empty", heightDp = 1000, content = screen(model(empty = true)))
 
     @Test fun reading_multiCycle() =
         captureGolden("ReadingProgress", "multiCycle", EDGE_MODE, heightDp = 1400, content = screen(model(cycle = 2, latest = 3)))

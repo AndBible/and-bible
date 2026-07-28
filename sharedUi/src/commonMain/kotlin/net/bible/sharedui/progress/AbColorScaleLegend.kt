@@ -42,10 +42,10 @@ import androidx.compose.ui.unit.sp
  * view/activity/progress/ReadingProgressActivity.kt`), used for both the chapter read-count scale
  * and the book read-percent scale.
  *
- * Colours are supplied by the caller via [stepColor] (typically backed by the `ReadingProgressPalette.kt`
- * helpers, e.g. [countHeatColor]/[bookProgressColor]), so this component itself knows nothing about the
- * palette or e-ink degradation — that flows through automatically because the caller's colour lambda
- * is `@Composable` and reads the ambient display-colour-mode.
+ * Colours are supplied by the caller via [stepColor] (typically the background of a
+ * `ReadingProgressPalette.kt` pair, e.g. `countHeatColors(...).background`), so this component itself
+ * knows nothing about the palette or e-ink degradation — that flows through automatically because the
+ * caller's colour lambda is `@Composable` and reads the ambient display-colour-mode.
  */
 @Composable
 fun AbColorScaleLegend(

@@ -93,25 +93,25 @@ private fun <T> UniformCellGrid(
 
 /**
  * OT/NT book heat grid. Mirrors classic `ReadingProgressActivity.createBookButton` +
- * `refreshBibleHeatmap`: one cell per book, coloured by [color], labelled with [BookHeat.shortName]
- * (a small superscript "✓" appended when [BookHeat.isComplete]), an optional small target dot
- * when [BookHeat.hasTarget]. Layout is a [UniformCellGrid] of [BOOK_GRID_COLUMNS] equal-width cells
- * per row, mirroring the classic weighted `GridLayout`.
+ * `refreshBibleHeatmap`: one cell per book, coloured by [colors] (background + matching text
+ * colour), labelled with [BookHeat.shortName] (a small superscript "✓" appended when
+ * [BookHeat.isComplete]), an optional small target dot when [BookHeat.hasTarget]. Layout is a
+ * [UniformCellGrid] of [BOOK_GRID_COLUMNS] equal-width cells per row, mirroring the classic
+ * weighted `GridLayout`.
  */
 @Composable
 fun BookHeatGrid(
     books: List<BookHeat>,
-    color: @Composable (BookHeat) -> Color,
+    colors: @Composable (BookHeat) -> HeatColors,
     onClick: (bookId: String) -> Unit,
     onLongClick: ((bookId: String) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     UniformCellGrid(items = books, columns = BOOK_GRID_COLUMNS, modifier = modifier) { book, cellModifier ->
-        val bgColor = color(book)
-        val textColor = textColorForBackground(bgColor)
+        val cellColors = colors(book)
         HeatCell(
             modifier = cellModifier,
-            bgColor = bgColor,
+            bgColor = cellColors.background,
             hasTarget = book.hasTarget,
             onClick = { onClick(book.bookId) },
             onLongClick = onLongClick?.let { cb -> { cb(book.bookId) } },
@@ -134,7 +134,7 @@ fun BookHeatGrid(
                 } else {
                     buildAnnotatedString { append(book.shortName) }
                 },
-                color = textColor,
+                color = cellColors.content,
                 fontSize = 11.sp,
                 textAlign = TextAlign.Center,
             )
@@ -145,31 +145,30 @@ fun BookHeatGrid(
 /**
  * Chapter heat grid for a single book's chapter detail. Mirrors classic
  * `ReadingProgressActivity.createChapterButton` + `renderChapterDetail`: one cell per chapter,
- * coloured by [color], labelled with the chapter number, an optional small target dot when
- * [ChapterHeat.hasTarget]. Layout is a [UniformCellGrid] of [CHAPTER_GRID_COLUMNS] equal-width
- * cells per row, mirroring the classic weighted `GridLayout`.
+ * coloured by [colors] (background + matching text colour), labelled with the chapter number, an
+ * optional small target dot when [ChapterHeat.hasTarget]. Layout is a [UniformCellGrid] of
+ * [CHAPTER_GRID_COLUMNS] equal-width cells per row, mirroring the classic weighted `GridLayout`.
  */
 @Composable
 fun ChapterHeatGrid(
     chapters: List<ChapterHeat>,
-    color: @Composable (ChapterHeat) -> Color,
+    colors: @Composable (ChapterHeat) -> HeatColors,
     onClick: (chapter: Int) -> Unit,
     onLongClick: ((chapter: Int) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     UniformCellGrid(items = chapters, columns = CHAPTER_GRID_COLUMNS, modifier = modifier) { chapter, cellModifier ->
-        val bgColor = color(chapter)
-        val textColor = textColorForBackground(bgColor)
+        val cellColors = colors(chapter)
         HeatCell(
             modifier = cellModifier,
-            bgColor = bgColor,
+            bgColor = cellColors.background,
             hasTarget = chapter.hasTarget,
             onClick = { onClick(chapter.chapter) },
             onLongClick = onLongClick?.let { cb -> { cb(chapter.chapter) } },
         ) {
             Text(
                 text = "${chapter.chapter}",
-                color = textColor,
+                color = cellColors.content,
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center,
             )
