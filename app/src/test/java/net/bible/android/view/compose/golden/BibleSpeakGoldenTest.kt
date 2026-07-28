@@ -2,6 +2,8 @@ package net.bible.android.view.compose.golden
 
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.speak.SpeakPlaybackVd
+import net.bible.sharedcore.speak.SpeakTransportVd
+import net.bible.sharedui.reading.SpeakTransportBar
 import net.bible.sharedui.speak.BibleSpeakScreen
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -13,12 +15,26 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class BibleSpeakGoldenTest {
+    private val transportState = SpeakTransportVd(
+        visible = true, playing = true, stopped = false,
+        statusText = "Reading John 3:16", speedPercent = 150, bookmarkButtonVisible = true,
+    )
+
+    private val transportBar: @androidx.compose.runtime.Composable () -> Unit = {
+        SpeakTransportBar(
+            transportState,
+            onPlayPause = {}, onStop = {}, onRewind = {}, onForward = {},
+            onPrev = {}, onNext = {}, onBookmark = {}, onConfig = {},
+            showConfig = false,   // classic: showConfig defaults false on the speak layouts
+        )
+    }
+
     private fun screen(pb: SpeakPlaybackVd) = @androidx.compose.runtime.Composable {
         BibleSpeakScreen(
             playback = pb,
             onSpeedChange = {}, onSpeakChapterChanges = {}, onSpeakTitles = {}, onSpeakFootnotes = {},
             onSleepTimerToggle = {}, onToggleRepeatRange = {}, onOpenAdvanced = {},
-            onSystemTtsSettings = {}, onHelp = {}, onNavigateUp = {},
+            onSystemTtsSettings = {}, onHelp = {}, transportBar = transportBar, onNavigateUp = {},
         )
     }
     private val primary = SpeakPlaybackVd(150, speakChapterChanges = true, speakTitles = true, speakFootnotes = false, sleepTimerMinutes = 0, repeatRangeName = null)

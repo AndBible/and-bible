@@ -35,7 +35,9 @@ import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.strings.LocalStrings
 
 /** Advanced (rarely-changed) Speak settings — classic SpeakSettingsActivity. Kept a separate screen
- *  from the main Speak screen so the common playback controls aren't cluttered by these. */
+ *  from the main Speak screen so the common playback controls aren't cluttered by these. The
+ *  transport bar is hosted in the `bottomBar` slot, mirroring classic's `speak_settings.xml:132`
+ *  `alignParentBottom` transport widget; the caller supplies it (A/B batch 2 F4). */
 @Composable
 fun AdvancedSpeakSettingsScreen(
     advanced: AdvancedSpeakVd,
@@ -44,6 +46,7 @@ fun AdvancedSpeakSettingsScreen(
     onAutoBookmark: (Boolean) -> Unit,
     onRestoreSettingsFromBookmarks: (Boolean) -> Unit,
     onHelp: () -> Unit,
+    transportBar: (@Composable () -> Unit)? = null,
     onNavigateUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
@@ -55,6 +58,7 @@ fun AdvancedSpeakSettingsScreen(
                 DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); onHelp() })
             }
         },
+        bottomBar = { transportBar?.invoke() },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())) {
             Text(

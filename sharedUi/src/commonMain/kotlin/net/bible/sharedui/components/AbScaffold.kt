@@ -68,10 +68,15 @@ fun AbScaffold(
     title: String,
     onNavigateUp: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
         topBar = { AbTopAppBar(title = { Text(title) }, onNavigateUp = onNavigateUp, actions = actions) },
+        // A bottom bar here is Scaffold-managed on purpose: it reserves space in the content
+        // PaddingValues, which is what makes the screen's scrolling content stop ABOVE the bar --
+        // classic's layout_above="@+id/transportWidget" (speak_bible.xml:28, speak_settings.xml:30).
+        bottomBar = bottomBar,
         // F2: see AbTopAppBar — the AppCompat host frame provides the system insets, so the
         // Scaffold must not add them again (would double the top/bottom gap).
         contentWindowInsets = WindowInsets(0, 0, 0, 0),

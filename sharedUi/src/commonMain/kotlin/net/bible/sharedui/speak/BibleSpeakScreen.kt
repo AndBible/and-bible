@@ -47,8 +47,9 @@ import net.bible.sharedui.strings.LocalStrings
  * Main Speak settings screen (classic BibleSpeakActivity). Playback earcons + speed + sleep-timer +
  * repeat-passage; an "Advanced settings" footer row navigates to the advanced screen (that entry was
  * an overflow item in classic — surfaced here for discoverability while keeping the two screens
- * separate). System-TTS + help stay in the overflow. The in-Activity transport widget is intentionally
- * not ported (see plan Global Constraints).
+ * separate). System-TTS + help stay in the overflow. The transport bar is hosted in the `bottomBar`
+ * slot, mirroring classic's `speak_bible.xml:175` `alignParentBottom` transport widget; the caller
+ * supplies it (A/B batch 2 F4).
  */
 @Composable
 fun BibleSpeakScreen(
@@ -62,6 +63,7 @@ fun BibleSpeakScreen(
     onOpenAdvanced: () -> Unit,
     onSystemTtsSettings: () -> Unit,
     onHelp: () -> Unit,
+    transportBar: (@Composable () -> Unit)? = null,
     onNavigateUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
@@ -74,6 +76,7 @@ fun BibleSpeakScreen(
                 DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); onHelp() })
             }
         },
+        bottomBar = { transportBar?.invoke() },
     ) { padding ->
         Column(
             Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()),
