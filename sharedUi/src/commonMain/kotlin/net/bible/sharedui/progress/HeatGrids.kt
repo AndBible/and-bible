@@ -21,8 +21,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -43,21 +45,59 @@ import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.progress.BookHeat
 import net.bible.sharedcore.progress.ChapterHeat
 
-/** Cells per row for the book/chapter heat grids — an approximation of the classic weighted GridLayout. */
-private const val GRID_COLUMNS = 7
+/**
+ * Cells per row for the book heat grids — classic's `GridLayout android:columnCount="6"`
+ * (`res/layout/reading_progress.xml:126`/`:141` reading tab, `:428`/`:443` memorize tab).
+ */
+const val BOOK_GRID_COLUMNS = 6
+
+/**
+ * Cells per row for the chapter-detail heat grids — classic's `columnCount="10"`
+ * (`res/layout/reading_progress.xml:173` reading tab, `:467` memorize tab).
+ */
+const val CHAPTER_GRID_COLUMNS = 10
 
 private val CellCorner = 4.dp
 private val CellSpacing = 4.dp
 private val TargetDotSize = 6.dp
 
 /**
+ * A grid of equal-width cells, [columns] per row, with the final short row's missing slots kept
+ * empty instead of letting its cells grow.
+ *
+ * This is what classic's `GridLayout` + `columnSpec(UNDEFINED, 1, 1f)` does: excess width is shared
+ * per COLUMN across the whole grid, so cell width is identical in every row. A `FlowRow` with
+ * weighted children (the port's previous approach) resolves weights per ROW, which widened a short
+ * last row -- reported in the maintainer's A/B batch 2. `LazyVerticalGrid` is not an option here:
+ * both callers render inside the screen's `verticalScroll` Column.
+ */
+@Composable
+private fun <T> UniformCellGrid(
+    items: List<T>,
+    columns: Int,
+    modifier: Modifier = Modifier,
+    cell: @Composable (item: T, cellModifier: Modifier) -> Unit,
+) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(CellSpacing)) {
+        items.chunked(columns).forEach { rowItems ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(CellSpacing),
+            ) {
+                rowItems.forEach { item -> cell(item, Modifier.weight(1f)) }
+                repeat(columns - rowItems.size) { Spacer(Modifier.weight(1f)) }
+            }
+        }
+    }
+}
+
+/**
  * OT/NT book heat grid. Mirrors classic `ReadingProgressActivity.createBookButton` +
  * `refreshBibleHeatmap`: one cell per book, coloured by [color], labelled with [BookHeat.shortName]
  * (a small superscript "✓" appended when [BookHeat.isComplete]), an optional small target dot
- * when [BookHeat.hasTarget]. Layout is a [FlowRow] of roughly-equal-width cells (~[GRID_COLUMNS]
- * per row) approximating the classic weighted `GridLayout`.
+ * when [BookHeat.hasTarget]. Layout is a [UniformCellGrid] of [BOOK_GRID_COLUMNS] equal-width cells
+ * per row, mirroring the classic weighted `GridLayout`.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun BookHeatGrid(
     books: List<BookHeat>,
@@ -66,45 +106,38 @@ fun BookHeatGrid(
     onLongClick: ((bookId: String) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    FlowRow(
-        modifier = modifier,
-        maxItemsInEachRow = GRID_COLUMNS,
-        horizontalArrangement = Arrangement.spacedBy(CellSpacing),
-        verticalArrangement = Arrangement.spacedBy(CellSpacing),
-    ) {
-        for (book in books) {
-            val bgColor = color(book)
-            val textColor = textColorForBackground(bgColor)
-            HeatCell(
-                modifier = Modifier.weight(1f, fill = true),
-                bgColor = bgColor,
-                hasTarget = book.hasTarget,
-                onClick = { onClick(book.bookId) },
-                onLongClick = onLongClick?.let { cb -> { cb(book.bookId) } },
-            ) {
-                Text(
-                    text = if (book.isComplete) {
-                        buildAnnotatedString {
-                            append(book.shortName)
-                            append(" ")
-                            withStyle(
-                                SpanStyle(
-                                    fontSize = 7.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    baselineShift = BaselineShift.Superscript,
-                                ),
-                            ) {
-                                append("✓")
-                            }
+    UniformCellGrid(items = books, columns = BOOK_GRID_COLUMNS, modifier = modifier) { book, cellModifier ->
+        val bgColor = color(book)
+        val textColor = textColorForBackground(bgColor)
+        HeatCell(
+            modifier = cellModifier,
+            bgColor = bgColor,
+            hasTarget = book.hasTarget,
+            onClick = { onClick(book.bookId) },
+            onLongClick = onLongClick?.let { cb -> { cb(book.bookId) } },
+        ) {
+            Text(
+                text = if (book.isComplete) {
+                    buildAnnotatedString {
+                        append(book.shortName)
+                        append(" ")
+                        withStyle(
+                            SpanStyle(
+                                fontSize = 7.sp,
+                                fontWeight = FontWeight.Bold,
+                                baselineShift = BaselineShift.Superscript,
+                            ),
+                        ) {
+                            append("✓")
                         }
-                    } else {
-                        buildAnnotatedString { append(book.shortName) }
-                    },
-                    color = textColor,
-                    fontSize = 11.sp,
-                    textAlign = TextAlign.Center,
-                )
-            }
+                    }
+                } else {
+                    buildAnnotatedString { append(book.shortName) }
+                },
+                color = textColor,
+                fontSize = 11.sp,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
@@ -113,9 +146,9 @@ fun BookHeatGrid(
  * Chapter heat grid for a single book's chapter detail. Mirrors classic
  * `ReadingProgressActivity.createChapterButton` + `renderChapterDetail`: one cell per chapter,
  * coloured by [color], labelled with the chapter number, an optional small target dot when
- * [ChapterHeat.hasTarget].
+ * [ChapterHeat.hasTarget]. Layout is a [UniformCellGrid] of [CHAPTER_GRID_COLUMNS] equal-width
+ * cells per row, mirroring the classic weighted `GridLayout`.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChapterHeatGrid(
     chapters: List<ChapterHeat>,
@@ -124,29 +157,22 @@ fun ChapterHeatGrid(
     onLongClick: ((chapter: Int) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    FlowRow(
-        modifier = modifier,
-        maxItemsInEachRow = GRID_COLUMNS,
-        horizontalArrangement = Arrangement.spacedBy(CellSpacing),
-        verticalArrangement = Arrangement.spacedBy(CellSpacing),
-    ) {
-        for (chapter in chapters) {
-            val bgColor = color(chapter)
-            val textColor = textColorForBackground(bgColor)
-            HeatCell(
-                modifier = Modifier.weight(1f, fill = true),
-                bgColor = bgColor,
-                hasTarget = chapter.hasTarget,
-                onClick = { onClick(chapter.chapter) },
-                onLongClick = onLongClick?.let { cb -> { cb(chapter.chapter) } },
-            ) {
-                Text(
-                    text = "${chapter.chapter}",
-                    color = textColor,
-                    fontSize = 12.sp,
-                    textAlign = TextAlign.Center,
-                )
-            }
+    UniformCellGrid(items = chapters, columns = CHAPTER_GRID_COLUMNS, modifier = modifier) { chapter, cellModifier ->
+        val bgColor = color(chapter)
+        val textColor = textColorForBackground(bgColor)
+        HeatCell(
+            modifier = cellModifier,
+            bgColor = bgColor,
+            hasTarget = chapter.hasTarget,
+            onClick = { onClick(chapter.chapter) },
+            onLongClick = onLongClick?.let { cb -> { cb(chapter.chapter) } },
+        ) {
+            Text(
+                text = "${chapter.chapter}",
+                color = textColor,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
