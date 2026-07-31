@@ -461,16 +461,32 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         assertEquals(PaneMenuAnchor.Rail, host.paneMenuAnchorForTest)
     }
 
+    /**
+     * Opens from the Rail FIRST, then from the Pane button, so this asserts a real transition
+     * rather than merely matching [paneMenuAnchor]'s initial-default value ([PaneMenuAnchor.Pane])
+     * — a deleted `paneMenuAnchor.value = anchor` assignment would leave the anchor stuck on
+     * `Rail` from the first call and fail this test, whereas a single Pane-only open would pass
+     * vacuously against the untouched default.
+     */
     @Test fun openingFromThePaneButtonRecordsThePaneAnchor() {
         val windowId = windowRepository.activeWindow.id.toString()
         val host = host()
+        host.openPaneMenu(windowId, PaneMenuAnchor.Rail)
 
         host.openPaneMenu(windowId, PaneMenuAnchor.Pane)
 
         assertEquals(PaneMenuAnchor.Pane, host.paneMenuAnchorForTest)
     }
 
-    @Test fun closingClearsBoth() {
+    /**
+     * [ComposeReadingViewHost.closePaneMenu] only clears [ComposeReadingViewHost.paneMenuWindowId]
+     * — it does NOT reset [ComposeReadingViewHost.paneMenuAnchor], which is left stale at whatever
+     * surface last opened a menu. That is harmless: [menuWindowIdFor] (what both surfaces actually
+     * gate on) resolves to `null` once `paneMenuWindowId` is `null`, regardless of the stale anchor
+     * — so this test pins down BOTH facts (the window id clears, the anchor does not) rather than
+     * asserting a "clears both" guarantee that doesn't hold.
+     */
+    @Test fun closingClearsTheWindowIdButLeavesTheAnchorStale() {
         val windowId = windowRepository.activeWindow.id.toString()
         val host = host()
 
@@ -478,6 +494,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         host.closePaneMenu()
 
         assertEquals(null, host.paneMenuWindowIdForTest)
+        assertEquals(PaneMenuAnchor.Rail, host.paneMenuAnchorForTest, "closePaneMenu does not reset the anchor; harmless per menuWindowIdFor")
     }
 
     /**
@@ -701,6 +718,33 @@ class SpeakBarVisibilityTest {
         assertFalse(speakBarVisible(fullScreen = true, transportVisible = true))
         assertFalse(speakBarVisible(fullScreen = false, transportVisible = false))
         assertFalse(speakBarVisible(fullScreen = true, transportVisible = false))
+    }
+}
+
+/**
+ * A/B batch 3 F5b fix-round: [menuWindowIdFor] is the pure gate `mountComposeView`'s pane-overlay
+ * and rail sites each call inline (`paneMenuWindowId = menuWindowIdFor(PaneMenuAnchor.Pane, ...)` /
+ * `menuWindowId = menuWindowIdFor(PaneMenuAnchor.Rail, ...)`) — extracted so the actual "only one
+ * surface ever sees a non-null window id" behaviour is unit-tested directly, rather than only
+ * through [ComposeReadingViewHost.openPaneMenu]'s bookkeeping (which the original three anchor
+ * tests covered, but which cannot detect a deleted or inverted gate at the two composition call
+ * sites — the review finding this class fixes). Covers all four (surface × openAnchor)
+ * combinations plus the null-`openWindowId` case.
+ */
+class MenuWindowIdForTest {
+    @Test fun paneSurfaceSeesTheWindowIdOnlyWhenTheOpenAnchorIsPane() {
+        assertEquals("w1", menuWindowIdFor(PaneMenuAnchor.Pane, PaneMenuAnchor.Pane, "w1"))
+        assertEquals(null, menuWindowIdFor(PaneMenuAnchor.Pane, PaneMenuAnchor.Rail, "w1"))
+    }
+
+    @Test fun railSurfaceSeesTheWindowIdOnlyWhenTheOpenAnchorIsRail() {
+        assertEquals("w1", menuWindowIdFor(PaneMenuAnchor.Rail, PaneMenuAnchor.Rail, "w1"))
+        assertEquals(null, menuWindowIdFor(PaneMenuAnchor.Rail, PaneMenuAnchor.Pane, "w1"))
+    }
+
+    @Test fun aNullOpenWindowIdIsNullForEitherSurfaceRegardlessOfAnchor() {
+        assertEquals(null, menuWindowIdFor(PaneMenuAnchor.Pane, PaneMenuAnchor.Pane, null))
+        assertEquals(null, menuWindowIdFor(PaneMenuAnchor.Rail, PaneMenuAnchor.Rail, null))
     }
 }
 

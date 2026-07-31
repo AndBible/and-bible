@@ -238,6 +238,19 @@ internal fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Bo
 internal fun classicBottomChromeAllowed(composeHosted: Boolean): Boolean = !composeHosted
 
 /**
+ * The `menuWindowId`/`paneMenuWindowId` a surface should receive: the open window's id only when
+ * the open menu is anchored ([openAnchor]) to THAT [surface], else `null` — the pane overlay and the
+ * rail (A/B batch 3, F5b) each call this with their own [surface] so exactly one of the two
+ * `WindowPaneMenu` instances ever reports itself expanded, keeping "both menus open at once"
+ * structurally unrepresentable rather than merely avoided. A pure function, mirroring
+ * [speakBarVisible]/[classicBottomChromeAllowed] above, so the gate itself — not just the
+ * `openPaneMenu` bookkeeping that feeds it — is unit-testable without a `ComposeTestRule` (this
+ * repo's `:app` unit tests have none); see `MenuWindowIdForTest`.
+ */
+internal fun menuWindowIdFor(surface: PaneMenuAnchor, openAnchor: PaneMenuAnchor, openWindowId: String?): String? =
+    if (openAnchor == surface) openWindowId else null
+
+/**
  * Auto-hide state for the pane overlay's floating ☰ button (Batch 12b follow-on Plan B Task 5) —
  * the Compose port of classic `SplitBibleArea.resetTouchTimer`/`toggleWindowButtonVisibility`
  * (`screen/SplitBibleArea.kt:511-575`), hoisted to a host-owned field (design spec §9: "hoist it
@@ -1398,8 +1411,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                                 disableAnimations = CommonUtils.settings.disableAnimations,
                                                 monochrome = monochromeState.value,
                                                 // A/B batch 3 F5b: this surface only reports a menu open
-                                                // when it (not the rail) is the anchor — see [PaneMenuAnchor].
-                                                paneMenuWindowId = if (paneMenuAnchor == PaneMenuAnchor.Pane) paneMenuWindowId else null,
+                                                // when it (not the rail) is the anchor — see [menuWindowIdFor].
+                                                paneMenuWindowId = menuWindowIdFor(PaneMenuAnchor.Pane, paneMenuAnchor, paneMenuWindowId),
                                                 paneMenuItems = paneMenuItems,
                                                 controller = controller,
                                                 onOpenPaneMenu = onOpenPaneMenu,
@@ -1437,8 +1450,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                                     },
                                                     // A/B batch 3 F5b: the rail renders its OWN anchored
                                                     // `WindowPaneMenu` (Task 11) — only when the rail (not
-                                                    // the pane overlay) is the anchor. See [PaneMenuAnchor].
-                                                    menuWindowId = if (paneMenuAnchor == PaneMenuAnchor.Rail) paneMenuWindowId else null,
+                                                    // the pane overlay) is the anchor. See [menuWindowIdFor].
+                                                    menuWindowId = menuWindowIdFor(PaneMenuAnchor.Rail, paneMenuAnchor, paneMenuWindowId),
                                                     menuItems = paneMenuItems,
                                                     onMenuItemClick = onPaneMenuItemClick,
                                                     onMenuDismiss = onPaneMenuDismiss,
