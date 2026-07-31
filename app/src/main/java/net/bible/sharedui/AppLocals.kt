@@ -39,9 +39,11 @@ fun ProvideAppLocals(content: @Composable () -> Unit) {
         LocalStrings provides AndroidStrings(context),
         LocalCategoryIcon provides { category -> painterResource(categoryDrawableRes(category)) },
         LocalSettingsIcon provides { key -> settingsDrawableRes(key)?.let { painterResource(it) } },
-        // A/B batch 3 F1. Resolves the Activity lazily on each call and no-ops when there is none —
-        // the Roborazzi golden harness wraps captures in this same provider with a non-Activity
-        // context, and must stay pixel-inert.
+        // A/B batch 3 F1. Resolves the Activity lazily on each call and no-ops only when there is
+        // none (e.g. an isolated `@Preview`, or a plain-`Context` caller). The Roborazzi golden
+        // harness is NOT that case — `captureRoboImage` runs inside a real `ComponentActivity`, so
+        // this real implementation fires there too; the harness's pixel-inertness instead comes from
+        // `GoldenHarness`'s own explicit `LocalSystemBarSync` no-op override (see its kdoc).
         LocalSystemBarSync provides { container: Color, fillWindowBackground: Boolean ->
             context.findActivity()?.let { applySystemBarColor(it, container, fillWindowBackground) }
         },

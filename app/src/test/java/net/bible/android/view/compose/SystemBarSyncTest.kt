@@ -147,9 +147,11 @@ class SystemBarSyncTest {
         val a = floatingActivity()
         val controller = WindowInsetsControllerCompat(a.window, a.window.decorView)
         val before = controller.isAppearanceLightStatusBars
-        // A dark container would normally flip this to `false` (see
-        // aDarkContainerAsksForALightStatusBarBackgroundFalse); on a floating window it must not.
-        applySystemBarColor(a, Color(0xFF1B5E20), fillWindowBackground = false)
+        // A/B batch 3 review fix (re-review): a LIGHT container is required to discriminate — it
+        // maps to `true` (see aLightContainerAsksForALightStatusBarBackgroundTrue), which differs
+        // from Robolectric's default `false`. A dark container maps to `false` too, so it would leave
+        // the assertion passing whether or not the floating guard actually ran, proving nothing.
+        applySystemBarColor(a, Color(0xFFFFFBFE), fillWindowBackground = false)
         assertEquals(before, controller.isAppearanceLightStatusBars)
     }
 
