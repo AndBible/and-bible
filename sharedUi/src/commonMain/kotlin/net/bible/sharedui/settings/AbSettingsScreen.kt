@@ -339,6 +339,7 @@ private fun RenderSettingsItem(
             onCheckedChange = { onSwitch(item.key, it) },
             enabled = item.enabled,
             onLongClick = onLongPress?.let { press -> { press(item.key) } },
+            iconKey = item.iconKey,
         )
 
         is SettingsItem.ListChoiceRow -> {
@@ -479,9 +480,11 @@ private fun CategoryHeader(title: String) = Text(
  *
  * [iconKey] defaults to `null` (no icon): [SettingsItem.NavigationRow], [SettingsItem.ListChoiceRow] and
  * [SettingsItem.TextInputRow] all carry an optional `iconKey`, resolved here via [LocalSettingsIcon].
- * [SettingsItem.SwitchRow] also has an `iconKey` field, but [net.bible.sharedui.components.AbSwitchRow]
- * has no leading-icon slot yet, so a switch row's `iconKey` (if any) is currently ignored — F29 left this
- * as a follow-up rather than adding an icon slot to that shared component (used beyond settings screens).
+ * [SettingsItem.SwitchRow] also has an `iconKey` field; it is now passed straight through to
+ * [net.bible.sharedui.components.AbSwitchRow]'s own (A/B batch 3 F4b) `iconKey` parameter, which
+ * resolves it via the same [LocalSettingsIcon] seam and only ever emits the icon `Composable` when
+ * non-null — so every OTHER caller of that shared component (`AppSettings`, the AI/backup/speak/
+ * bookmark screens, …), none of which passes `iconKey`, keeps its original icon-less layout.
  *
  * [onLongClick] defaults to `null` (Batch 12d-A Task 3's long-press-revert seam): when null the row
  * keeps its original plain [clickable] modifier (byte-identical); when non-null it switches to

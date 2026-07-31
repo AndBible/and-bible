@@ -24,8 +24,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -41,6 +43,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
+import net.bible.sharedui.settings.LocalSettingsIcon
 
 /** A settings row: label (+ optional summary) on the left, an M3 [Switch] on the right. The whole
  *  row is clickable and toggles the switch (larger touch target than the thumb alone). When
@@ -49,7 +52,20 @@ import kotlin.math.roundToInt
  *
  *  [onLongClick] defaults to `null` (Batch 12d-A Task 3's long-press-revert seam): when null the row
  *  keeps its original [toggleable] modifier (byte-identical); when non-null it switches to
- *  [combinedClickable] so a long press is available alongside the normal toggle tap. */
+ *  [combinedClickable] so a long press is available alongside the normal toggle tap.
+ *
+ *  [iconKey] defaults to `null` (A/B batch 3 F4b): resolved via
+ *  [net.bible.sharedui.settings.LocalSettingsIcon], exactly like
+ *  [net.bible.sharedui.settings.SettingsRow]'s leading icon (same 24dp [Icon] + 16dp [Spacer],
+ *  same position before the label column). The `if (iconPainter != null)` guard means the icon
+ *  [Composable] call is only ever EMITTED for a row that actually has one -- there is no
+ *  fixed-width icon slot always present, so a null `iconKey` (every non-Text-options caller of this
+ *  shared component: `AppSettings`, the AI/backup/speak/bookmark screens, …) keeps its original
+ *  layout byte-for-byte; nothing shifts there. This mirrors [net.bible.sharedui.settings.SettingsRow]
+ *  and [net.bible.sharedui.settings.AbSettingsScreen]'s `InfoRow` branch, which use the same
+ *  conditional-emission pattern rather than a Material3 `leadingContent` slot -- the repo has
+ *  already been bitten once by M3 reserving a leading-icon column on a slot LAMBDA's existence
+ *  rather than its content, so this deliberately avoids that shape. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AbSwitchRow(
@@ -60,7 +76,9 @@ fun AbSwitchRow(
     modifier: Modifier = Modifier,
     summary: String? = null,
     onLongClick: (() -> Unit)? = null,
+    iconKey: String? = null,
 ) {
+    val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -80,6 +98,10 @@ fun AbSwitchRow(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (iconPainter != null) {
+            Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.size(24.dp))
+            Spacer(Modifier.width(16.dp))
+        }
         Column(Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.bodyLarge)
             if (summary != null) {
