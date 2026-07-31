@@ -22,6 +22,7 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.cloudsync.documents.isSyncableDocument
 import net.bible.service.cloudsync.documents.shouldAutoUpload
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
@@ -50,7 +51,13 @@ object BookInstallWatcher {
                 addBookToDb(book)
                 // Suppress the echo: a module installed *by* a sync download must not immediately
                 // be auto-pushed back to the cloud it just came from.
-                if (!DocumentSync.isInstallingFromSync(book.initials)
+                //
+                // isSyncableDocument is essential here, not merely defensive: this listener fires for
+                // *every* book registered into JSword, including the MyDocument pseudo-books that
+                // MyDocumentBookManager registers at startup. Those have no configFile, so packaging
+                // them threw an NPE and raised a user-facing error notification (OSTicket 3392).
+                if (book.isSyncableDocument
+                    && !DocumentSync.isInstallingFromSync(book.initials)
                     && shouldAutoUpload(
                         DocumentSyncSettings.enabled,
                         DocumentSyncSettings.autoUpload,

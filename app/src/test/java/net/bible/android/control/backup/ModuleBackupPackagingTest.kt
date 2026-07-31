@@ -27,6 +27,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -128,5 +129,37 @@ class ModuleBackupPackagingTest {
         )) {
             assertTrue("EPUB tree must include $expected; entries=$entries", entries.contains(expected))
         }
+    }
+
+    /**
+     * OSTicket 3392: MyDocument books are registered with byte-array metadata and so have no
+     * `configFile`. Reaching the generic SWORD branch with one threw `NullPointerException` from
+     * `configFile.parentFile`, which aborted the whole document-sync push and raised a user-facing
+     * "An error has occurred". Such a book must be skipped instead — one unpackageable module can
+     * never take down the backup or the sync operation carrying it.
+     *
+     * [net.bible.service.cloudsync.documents.isSyncableDocument] keeps these out of sync in the
+     * first place; this is the second line of defence at the packaging layer, and equally guards
+     * any future byte-array-metadata book type that lands here without its own branch.
+     */
+    @Test
+    fun bookWithoutConfigFileIsSkippedRatherThanCrashing() = runBlocking {
+        val book = fakeBook("MyDoc_Dokumentti", """
+            [MyDoc_Dokumentti]
+            Description=Dokumentti
+            ModDrv=RawGenBook
+            DataPath=./mydocs/
+            Encoding=UTF-8
+            AndBibleMyDocument=1
+        """.trimIndent())
+
+        val entries = entriesOf(book, "no-configfile-pkg.abmd.zip")
+
+        assertTrue("manifest must still be packaged", entries.contains(ANDBIBLE_BACKUP_MANIFEST_FILENAME))
+        assertEquals(
+            "nothing but the manifest should be packaged for an unpackageable book; entries=$entries",
+            setOf(ANDBIBLE_BACKUP_MANIFEST_FILENAME),
+            entries,
+        )
     }
 }

@@ -428,7 +428,15 @@ object BackupControl {
                 Log.w(TAG, "Skipping background-image module ${b.initials}: file not found ${imageFile.path}")
             }
         } else {
+            // Books constructed from byte-array metadata have no configFile — there is no .conf on
+            // disk to locate the module root from. Every such type AndBible creates has its own
+            // branch above, but an unhandled one (e.g. the MyDocument pseudo-books of OSTicket 3392)
+            // must be skipped rather than abort the whole backup/sync operation with an NPE.
             val configFile = bmd.configFile
+            if (configFile == null) {
+                Log.w(TAG, "Skipping ${b.initials}: no SWORD config file (not a file-backed module)")
+                return
+            }
             val rootDir = configFile.parentFile!!.parentFile!!
             addFile(outFile, rootDir, configFile)
             val dataPath = bmd.getProperty("DataPath")
