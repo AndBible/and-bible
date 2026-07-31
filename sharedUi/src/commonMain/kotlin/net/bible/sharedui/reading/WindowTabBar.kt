@@ -65,7 +65,7 @@ private val RailPaddingTop = 2.dp
  * `rebuildRestoreButtons()`) — a dumb renderer of [WindowTabBarModel] (the pure derivation from
  * `WindowLayoutState`, Task 4), reusing [WindowButton] (Task 3) for every tab.
  *
- * Layout: a [Row] (`wrapContentWidth`, [Arrangement.End], background-bearing — see below) always
+ * Layout: a [Row] (`wrapContentWidth`, [Arrangement.End], transparent — see below) always
  * shows the leading control for [WindowTabBarModel.leading] first, then — while
  * [WindowTabBarModel.showButtons] — a [LazyRow] rendering [WindowTabBarModel.entries] (window
  * tabs interleaved with group separators), itself packed to the end via
