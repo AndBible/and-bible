@@ -193,6 +193,7 @@ class ComposeReadingViewHostTest {
         val paneMenuItemsState = mutableStateOf(emptyList<WindowPaneMenuItem>())
         var hideTimeoutCalls = 0
         var openedPaneMenuFor: String? = null
+        var openedPaneMenuAnchor: PaneMenuAnchor? = null
 
         ComposeReadingViewHost.mountComposeView(
             container = container,
@@ -205,7 +206,7 @@ class ComposeReadingViewHostTest {
             onWindowButtonsHideTimeout = { hideTimeoutCalls++ },
             paneMenuWindowIdState = paneMenuWindowIdState,
             paneMenuItemsState = paneMenuItemsState,
-            onOpenPaneMenu = { id -> openedPaneMenuFor = id },
+            onOpenPaneMenu = { id, anchor -> openedPaneMenuFor = id; openedPaneMenuAnchor = anchor },
         )
         assertTrue((0 until container.childCount).any { container.getChildAt(it) is ComposeView })
 
@@ -222,6 +223,7 @@ class ComposeReadingViewHostTest {
         // itself (composition never runs without an attached window — see `pane = {}` note above).
         assertEquals(0, hideTimeoutCalls)
         assertEquals(null, openedPaneMenuFor)
+        assertEquals(null, openedPaneMenuAnchor)
     }
 
     /**
@@ -435,6 +437,47 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     @After
     fun tearDown() {
         DatabaseResetter.resetDatabase(windowRepository.scope)
+    }
+
+    /** Builds a real [ComposeReadingViewHost] against the test [activity] (never `.install()`ed — see the class kdoc). */
+    private fun host() = ComposeReadingViewHost(activity)
+
+    /**
+     * A/B batch 3 F5b: [ComposeReadingViewHost.openPaneMenu] now takes a [PaneMenuAnchor] so the
+     * host can tell which surface (the rail vs. the pane's own floating ☰ button) opened the menu
+     * — the root cause of the reported bug was that only ONE `paneMenuWindowId` existed and BOTH
+     * surfaces rendered a `WindowPaneMenu` gated on it alone, so a rail long-press expanded the
+     * PANE's menu instead of the rail's own (Task 11's) menu. These three tests exercise the
+     * anchor bookkeeping directly on the host (no `ComposeTestRule` in this repo's `:app` unit
+     * tests — see the class kdoc's rationale for testing `handleWindowPaneMenuItem` this way).
+     */
+    @Test fun openingFromTheRailRecordsTheRailAnchor() {
+        val windowId = windowRepository.activeWindow.id.toString()
+        val host = host()
+
+        host.openPaneMenu(windowId, PaneMenuAnchor.Rail)
+
+        assertEquals(windowId, host.paneMenuWindowIdForTest)
+        assertEquals(PaneMenuAnchor.Rail, host.paneMenuAnchorForTest)
+    }
+
+    @Test fun openingFromThePaneButtonRecordsThePaneAnchor() {
+        val windowId = windowRepository.activeWindow.id.toString()
+        val host = host()
+
+        host.openPaneMenu(windowId, PaneMenuAnchor.Pane)
+
+        assertEquals(PaneMenuAnchor.Pane, host.paneMenuAnchorForTest)
+    }
+
+    @Test fun closingClearsBoth() {
+        val windowId = windowRepository.activeWindow.id.toString()
+        val host = host()
+
+        host.openPaneMenu(windowId, PaneMenuAnchor.Rail)
+        host.closePaneMenu()
+
+        assertEquals(null, host.paneMenuWindowIdForTest)
     }
 
     /**

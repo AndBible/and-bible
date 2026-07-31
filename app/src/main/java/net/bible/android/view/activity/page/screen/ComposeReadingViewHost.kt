@@ -273,6 +273,14 @@ class WindowButtonsVisibility {
 }
 
 /**
+ * Which surface a per-window (☰) pane menu is anchored to (A/B batch 3, F5). Classic anchors its
+ * popup to the view that was pressed; the port originally composed the menu only inside the pane
+ * overlay, so a rail long-press rendered it at the pane's floating button instead of at the rail
+ * tab under the finger.
+ */
+enum class PaneMenuAnchor { Pane, Rail }
+
+/**
  * Mounts the Compose reading view into [MainBibleActivity]'s content, replacing the classic
  * `SplitBibleArea` build (see [DocumentViewManager]'s `use_compose_ui` guard) when
  * `use_compose_ui` is on. Plan A kept the classic toolbar/drawer chrome; Plan B (this task) hosts
@@ -386,6 +394,19 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      */
     private val paneMenuWindowId = mutableStateOf<String?>(null)
     private val paneMenuItems = mutableStateOf(emptyList<WindowPaneMenuItem>())
+
+    /**
+     * Which surface ([PaneMenuAnchor]) the currently-open [paneMenuWindowId] menu is anchored to —
+     * set by [openPaneMenu]'s caller (the pane overlay's ☰-button tap passes [PaneMenuAnchor.Pane],
+     * the rail's `onWindowLongPress` passes [PaneMenuAnchor.Rail]). [mountComposeView] gates each
+     * surface's own `paneMenuWindowId` on this so exactly one of the two `WindowPaneMenu` instances
+     * ever reports itself expanded — see the pane overlay's `paneOverlay` lambda and the rail's
+     * `tabBar` lambda in [mountComposeView].
+     */
+    private val paneMenuAnchor = mutableStateOf(PaneMenuAnchor.Pane)
+
+    internal val paneMenuWindowIdForTest: String? get() = paneMenuWindowId.value
+    internal val paneMenuAnchorForTest: PaneMenuAnchor get() = paneMenuAnchor.value
 
     /**
      * Mirrors [ScreenSettings.nightMode]. Kept current via [ScreenSettings.NightModeChanged] (see
@@ -595,19 +616,21 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         hostedStateRefresher.refresh(rebuildComposition)
 
     /**
-     * Opens the per-window (☰) pane menu for [windowId] — called by the pane overlay's ☰-button
-     * tap and by the Plan-A restore rail's `onWindowLongPress` (both wired in [install]). Forces
-     * the pane buttons visible first (mirroring classic `showPopupMenu`'s
-     * `timerTask?.cancel(); toggleWindowButtonVisibility(true)`, `SplitBibleArea.kt:731-732`), so a
-     * menu opened from the always-visible rail while the floating ☰ overlay happens to be
-     * auto-hidden still renders anchored correctly — the pane overlay's `WindowPaneMenu` sibling is
-     * composed regardless of the ☰ button's own visibility, see [mountComposeView]'s
-     * `PaneWindowButtonOverlay`.
+     * Opens the per-window (☰) pane menu for [windowId], anchored to [anchor] — called by the pane
+     * overlay's ☰-button tap (passing [PaneMenuAnchor.Pane]) and by the rail's `onWindowLongPress`
+     * (passing [PaneMenuAnchor.Rail]), both wired in [install]. Forces the pane buttons visible
+     * first (mirroring classic `showPopupMenu`'s `timerTask?.cancel();
+     * toggleWindowButtonVisibility(true)`, `SplitBibleArea.kt:731-732`), so a menu opened from the
+     * always-visible rail while the floating ☰ overlay happens to be auto-hidden is still usable.
+     * [mountComposeView] gates each surface's `WindowPaneMenu` on [paneMenuAnchor] so only the
+     * surface matching [anchor] ever renders the menu expanded — a rail long-press no longer opens
+     * it at the pane's floating ☰ button (the A/B batch 3 F5 bug this anchor fixes).
      */
-    fun openPaneMenu(windowId: String) {
+    fun openPaneMenu(windowId: String, anchor: PaneMenuAnchor) {
         windowButtonsVisibility.onTouch()
         val window = activity.windowRepository.getWindow(IdType(windowId)) ?: return
         paneMenuItems.value = paneMenuStateBuilder.build(window)
+        paneMenuAnchor.value = anchor
         paneMenuWindowId.value = windowId
     }
 
@@ -841,6 +864,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onWindowButtonsHideTimeout = windowButtonsVisibility::onHideTimeout,
             paneMenuWindowIdState = paneMenuWindowId,
             paneMenuItemsState = paneMenuItems,
+            paneMenuAnchorState = paneMenuAnchor,
             onOpenPaneMenu = ::openPaneMenu,
             onPaneMenuItemClick = { windowId, id ->
                 val stayOpen = activity.handleWindowPaneMenuItem(windowId, id)
@@ -1117,7 +1141,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onWindowButtonsHideTimeout: () -> Unit = {},
             paneMenuWindowIdState: State<String?> = mutableStateOf(null),
             paneMenuItemsState: State<List<WindowPaneMenuItem>> = mutableStateOf(emptyList()),
-            onOpenPaneMenu: (windowId: String) -> Unit = {},
+            // A/B batch 3 F5b: which surface (pane overlay vs. rail) the currently-open pane menu
+            // is anchored to — see [PaneMenuAnchor]. Defaulted to a fixed `Pane` state for the same
+            // reason as `paneMenuWindowIdState`/`paneMenuItemsState` above.
+            paneMenuAnchorState: State<PaneMenuAnchor> = mutableStateOf(PaneMenuAnchor.Pane),
+            onOpenPaneMenu: (windowId: String, anchor: PaneMenuAnchor) -> Unit = { _, _ -> },
             onPaneMenuItemClick: (windowId: String, id: String) -> Unit = { _, _ -> },
             onPaneMenuDismiss: () -> Unit = {},
             // A/B batch 1 F5b: resolves a [WindowPaneMenuItem.iconKey]/[OptionsMenuItem.iconKey] to
@@ -1202,6 +1230,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             val touchTick by touchTickState
                             val paneMenuWindowId by paneMenuWindowIdState
                             val paneMenuItems by paneMenuItemsState
+                            val paneMenuAnchor by paneMenuAnchorState
                             // Classic `resetTouchTimer`'s 2s hide countdown (`SplitBibleArea.kt:511-524`),
                             // restarted on every `touchTick` bump (a real touch, or `openPaneMenu`).
                             // Suppressed entirely while a pane menu is open (mirrors classic
@@ -1368,7 +1397,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                                 nightMode = nightModeState.value,
                                                 disableAnimations = CommonUtils.settings.disableAnimations,
                                                 monochrome = monochromeState.value,
-                                                paneMenuWindowId = paneMenuWindowId,
+                                                // A/B batch 3 F5b: this surface only reports a menu open
+                                                // when it (not the rail) is the anchor — see [PaneMenuAnchor].
+                                                paneMenuWindowId = if (paneMenuAnchor == PaneMenuAnchor.Pane) paneMenuWindowId else null,
                                                 paneMenuItems = paneMenuItems,
                                                 controller = controller,
                                                 onOpenPaneMenu = onOpenPaneMenu,
@@ -1402,8 +1433,16 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                                     // activate before opening the menu).
                                                     onWindowLongPress = { id ->
                                                         controller.onWindowActivated(id)
-                                                        onOpenPaneMenu(id)
+                                                        onOpenPaneMenu(id, PaneMenuAnchor.Rail)
                                                     },
+                                                    // A/B batch 3 F5b: the rail renders its OWN anchored
+                                                    // `WindowPaneMenu` (Task 11) — only when the rail (not
+                                                    // the pane overlay) is the anchor. See [PaneMenuAnchor].
+                                                    menuWindowId = if (paneMenuAnchor == PaneMenuAnchor.Rail) paneMenuWindowId else null,
+                                                    menuItems = paneMenuItems,
+                                                    onMenuItemClick = onPaneMenuItemClick,
+                                                    onMenuDismiss = onPaneMenuDismiss,
+                                                    menuIcon = menuIcon,
                                                     onAddWindow = { controller.onAddWindow(layout.activeWindowId) },
                                                     onUnMaximise = controller::onUnMaximise,
                                                     onToggleCollapse = {
@@ -1537,7 +1576,7 @@ private fun BoxScope.PaneWindowButtonOverlay(
     paneMenuWindowId: String?,
     paneMenuItems: List<WindowPaneMenuItem>,
     controller: ReadingViewController,
-    onOpenPaneMenu: (windowId: String) -> Unit,
+    onOpenPaneMenu: (windowId: String, anchor: PaneMenuAnchor) -> Unit,
     onPaneMenuItemClick: (windowId: String, id: String) -> Unit,
     onPaneMenuDismiss: () -> Unit,
     // A/B batch 1 F5b: resolves each row's `WindowPaneMenuItem.iconKey` to a `Painter` — same
@@ -1575,7 +1614,7 @@ private fun BoxScope.PaneWindowButtonOverlay(
                 mode = WindowButtonMode.Pane,
                 onClick = {
                     controller.onWindowActivated(windowId)
-                    onOpenPaneMenu(windowId)
+                    onOpenPaneMenu(windowId, PaneMenuAnchor.Pane)
                 },
                 onLongPress = {
                     controller.onWindowActivated(windowId)
