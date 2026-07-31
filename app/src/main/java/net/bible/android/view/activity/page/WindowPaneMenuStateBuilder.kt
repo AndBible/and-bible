@@ -385,6 +385,8 @@ class WindowPaneMenuStateBuilder(
                     checked = itm.value == true,
                     enabled = itm.enabled,
                     opensDialog = itm.opensDialog,
+                    // A/B batch 3 F4: as above — `itm` is already the classic ItemPreference.
+                    iconKey = itm.icon?.let { app.resources.getResourceEntryName(it) },
                 )
             } else null
         }

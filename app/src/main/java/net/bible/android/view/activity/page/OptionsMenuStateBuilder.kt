@@ -128,7 +128,9 @@ object OptionsMenuStateBuilder {
                 checked = m.value == true,
                 enabled = m.enabled,
                 opensDialog = m.opensDialog,
-                iconKey = null,
+                // A/B batch 3 F4: classic draws these rows with the setting's own icon
+                // (`ItemPreference.icon`); the port shipped them iconless.
+                iconKey = m.icon?.let { application.resources.getResourceEntryName(it) },
             )
         }
         return items

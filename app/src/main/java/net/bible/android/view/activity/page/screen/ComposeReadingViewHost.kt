@@ -140,6 +140,7 @@ import net.bible.sharedui.reading.WindowButton
 import net.bible.sharedui.reading.WindowButtonMode
 import net.bible.sharedui.reading.WindowPaneMenu
 import net.bible.sharedui.reading.WindowTabBar
+import net.bible.sharedui.textOptionDrawableRes
 import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.BookCategory
 import org.koin.core.component.KoinComponent
@@ -857,8 +858,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // "host resolves, `:sharedCore`/`:sharedUi` stay Android-free" shape as `drawerIcon`
             // just above.
             menuIcon = { key ->
-                val resId = menuIconResIds[key]
-                if (resId == null) null else painterResource(resId)
+                // A/B batch 3 F4: the "last used actions" rows carry a text-option drawable name,
+                // which lives in its own table (shared with the Text-options screen).
+                val resId = menuIconResIds[key] ?: textOptionDrawableRes(key)
+                if (resId != null) painterResource(resId) else null
             },
             // Batch 12e-B Task 6: the agent-log panel, pre-built here (closing over the live
             // `agentLog` controller) since `install` already owns it — mirrors how `pane` above is

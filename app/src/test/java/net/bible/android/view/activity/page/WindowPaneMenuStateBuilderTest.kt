@@ -24,9 +24,11 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.window.WindowPaneMenuItem
+import net.bible.sharedui.textOptionDrawableRes
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Before
@@ -310,7 +312,29 @@ class WindowPaneMenuStateBuilderTest {
     fun everyPaneMenuIconKeyIsResolvableByTheHost() {
         fun keys(items: List<WindowPaneMenuItem>): Set<String> =
             items.flatMap { listOfNotNull(it.iconKey) + keys(it.submenu) }.toSet()
-        val missing = keys(items(windowRepository.activeWindow)) - ComposeReadingViewHost.menuIconResIds.keys
-        assertTrue(missing.isEmpty(), "menuIconResIds is missing: $missing")
+        val missing = keys(items(windowRepository.activeWindow)).filter {
+            it !in ComposeReadingViewHost.menuIconResIds && textOptionDrawableRes(it) == null
+        }
+        assertTrue(missing.isEmpty(), "no table resolves: $missing")
+    }
+
+    /**
+     * A/B batch 3 F4: the "last used actions" rows must carry classic's per-setting icon, not
+     * `null`. Deviates from the plan's literal test body in two ways verified against this
+     * fixture: (1) a fresh test DB's `lastDisplaySettingsSorted` is empty (see
+     * `textOptionsSubMenuCollapsesToASingleAllTextOptionsRowByDefault`), so a display-setting
+     * change is seeded via the real route, same as
+     * `OptionsMenuStateBuilderTest.lastUsedActionRowsCarryAnIcon`; (2) the dynamic rows nest under
+     * the `textOptionsSubMenu` submenu, not the top-level `items(window)` list, so this looks
+     * there instead of filtering the top level (which would vacuously find none).
+     */
+    @Test
+    fun lastUsedActionRowsCarryAnIcon() {
+        CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.STRONGS)
+        val window = windowRepository.activeWindow
+        val textOptionsMenu = itemById(window, WindowPaneMenuStateBuilder.ID_TEXT_OPTIONS_SUBMENU)
+        val dynamic = textOptionsMenu.submenu.filter { it.id.startsWith("textOptionItem:") }
+        assertTrue(dynamic.isNotEmpty(), "fixture has no last-used rows to check")
+        assertTrue(dynamic.all { it.iconKey != null }, "iconless: ${dynamic.filter { it.iconKey == null }}")
     }
 }

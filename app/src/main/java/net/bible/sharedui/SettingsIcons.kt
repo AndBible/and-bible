@@ -30,10 +30,9 @@ import net.bible.android.activity.R
  * by [net.bible.sharedui.settings.AbSettingsScreen], which tints every pixel to the current content
  * colour — so a colour-coded classic icon (e.g. the red warning triangle) still renders correctly
  * grayscale in monochrome/e-ink mode; only the shape carries meaning here, not the drawable's baked-in
- * colour. `ask_model_before_run`/`auto_hide_agent_log_on_completion` are mapped for completeness (classic
- * parity) even though [net.bible.sharedcore.settings.SettingsItem.SwitchRow] doesn't render a leading
- * icon yet ([net.bible.sharedui.components.AbSwitchRow] has no icon slot) — see F29 follow-up note in
- * `AbSettingsScreen.kt`.
+ * colour. `ask_model_before_run`/`auto_hide_agent_log_on_completion` are mapped for completeness
+ * (classic parity); [net.bible.sharedui.components.AbSwitchRow] does have a leading-icon slot, these
+ * two rows simply don't set an `iconKey`, so they render with no icon.
  */
 @DrawableRes
 fun settingsDrawableRes(key: String): Int? = when (key) {

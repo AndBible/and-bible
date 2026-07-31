@@ -28,6 +28,7 @@ import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmProviderConfig
+import net.bible.sharedui.textOptionDrawableRes
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Before
@@ -190,16 +191,21 @@ class OptionsMenuStateBuilderTest {
         assertEquals("ic_text_options_24dp", itemById("allTextOptions").iconKey)
     }
 
+    /**
+     * A/B batch 3 F4: the "last used actions" rows must carry classic's per-setting icon, not
+     * `null` (this test previously asserted the opposite, back when the port shipped them
+     * iconless -- see the fixed `OptionsMenuStateBuilder.build`'s dynamic loop). Nothing seeds
+     * `lastDisplaySettings` by default, so without this the filtered list below would be empty and
+     * `all {}` would pass vacuously (whole-batch review Minor #6) -- seed one display-setting
+     * change via the real route (`OptionsMenuStateBuilder.build`'s dynamic loop iterates
+     * `CommonUtils.lastDisplaySettingsSorted`) so a genuine row exists to assert against.
+     */
     @Test
-    fun dynamicTextOptionRowsHaveNoIcon() {
-        // Nothing seeds `lastDisplaySettings` by default, so without this the filtered list below
-        // would be empty and `all {}` would pass vacuously (whole-batch review Minor #6) -- seed one
-        // display-setting change via the real route (`OptionsMenuStateBuilder.build`'s dynamic loop
-        // iterates `CommonUtils.lastDisplaySettingsSorted`) so a genuine row exists to assert against.
+    fun lastUsedActionRowsCarryAnIcon() {
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.STRONGS)
-        val dynamicRows = items().filter { it.id.startsWith("textOptionItem:") }
-        assertTrue(dynamicRows.isNotEmpty(), "sanity: a seeded display setting must produce a textOptionItem row")
-        assertTrue(dynamicRows.all { it.iconKey == null })
+        val dynamic = items().filter { it.id.startsWith("textOptionItem:") }
+        assertTrue(dynamic.isNotEmpty(), "fixture has no last-used rows to check")
+        assertTrue(dynamic.all { it.iconKey != null }, "iconless: ${dynamic.filter { it.iconKey == null }}")
     }
 
     /**
@@ -217,7 +223,9 @@ class OptionsMenuStateBuilderTest {
      */
     @Test
     fun everyOverflowIconKeyIsResolvableByTheHost() {
-        val missing = items().mapNotNull { it.iconKey }.toSet() - ComposeReadingViewHost.menuIconResIds.keys
-        assertTrue(missing.isEmpty(), "menuIconResIds is missing: $missing")
+        val missing = items().mapNotNull { it.iconKey }.filter {
+            it !in ComposeReadingViewHost.menuIconResIds && textOptionDrawableRes(it) == null
+        }
+        assertTrue(missing.isEmpty(), "no table resolves: $missing")
     }
 }
