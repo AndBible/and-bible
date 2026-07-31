@@ -29,8 +29,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import net.bible.sharedui.theme.SyncSystemBars
 
 /** Reusable Material3 top app bar: a title slot, optional up-navigation, and trailing actions. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +42,14 @@ fun AbTopAppBar(
     onNavigateUp: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
+    // A/B batch 3 F1: every non-reading Compose screen draws this bar in the M3 small-top-app-bar
+    // container colour but does NOT paint behind the system bars (the Activity content frame is
+    // already inset — see the windowInsets = WindowInsets(0,0,0,0) note below). fillWindowBackground
+    // = true asks the host to fill the strip the bars sit over with the same colour, and to set the
+    // icon appearance from its luminance.
+    val container = TopAppBarDefaults.topAppBarColors().containerColor
+    SyncSystemBars(container = container, fillWindowBackground = true)
+
     TopAppBar(
         title = title,
         navigationIcon = {
