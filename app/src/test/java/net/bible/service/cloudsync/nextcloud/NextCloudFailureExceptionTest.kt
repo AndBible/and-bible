@@ -64,6 +64,25 @@ class NextCloudFailureExceptionTest {
         assertTrue(isTransientNetworkError(notFound))
     }
 
+    /**
+     * The caller derives `isNotFound` from either the raw HTTP status or the library's ResultCode,
+     * so a 404 must map to FileNotFoundException even when only one of the two says "not found" —
+     * how the library classifies a WebDAV 404 into a ResultCode is not something we can rely on.
+     */
+    @Test
+    fun notFoundHoldsWhicheverSignalReportsIt() {
+        // Reached via httpCode == 404 alone (ResultCode said something else).
+        assertTrue(
+            nextCloudFailureException(isNotFound = true, httpCode = 404, description = "UNKNOWN_ERROR")
+                is FileNotFoundException
+        )
+        // Reached via ResultCode alone (no usable HTTP status, e.g. 0).
+        assertTrue(
+            nextCloudFailureException(isNotFound = true, httpCode = 0, description = "FILE_NOT_FOUND")
+                is FileNotFoundException
+        )
+    }
+
     @Test
     fun messageCarriesStatusForDiagnosis() {
         val e = nextCloudFailureException(isNotFound = false, httpCode = 502, description = "BAD_GATEWAY")
