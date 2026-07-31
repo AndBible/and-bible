@@ -103,7 +103,10 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
         val rows = TextSettingType.entries.associateWith { t ->
             val classic = t.toClassic()
             val item = getPrefItem(bundle, classic)
-            TextSettingRow(t, valueFor(t, item), InheritedFrom(bundle.inheritedFrom(classic)), item.enabled, item.visible)
+            TextSettingRow(
+                t, valueFor(t, item), InheritedFrom(bundle.inheritedFrom(classic)), item.enabled, item.visible,
+                iconKey = iconKeyFor(item),
+            )
         }
         return TextSettingsSnapshot(
             scope, titleFor(scope), repo.name, rows,
@@ -112,6 +115,17 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
             showGlobalLink = scope !is SettingsScope.Global,
         )
     }
+
+    /**
+     * Classic's per-setting icon (`ItemPreference.icon`, `OptionsMenuItems.kt:259-289`) as a
+     * drawable entry name, which `LocalSettingsIcon` resolves back to a `Painter`. Reuses the
+     * [item] already read via `getPrefItem(bundle, classic)` for this row rather than reading a
+     * second one. The classic inheritance overlay (`CommonUtils.iconWithInheritance`) is
+     * deliberately NOT reproduced — the Compose screen already shows inheritance as a separate
+     * text badge (A/B batch 3, F4).
+     */
+    private fun iconKeyFor(item: OptionsMenuItemInterface): String? =
+        item.icon?.let { app.resources.getResourceEntryName(it) }
 
     private fun valueFor(t: TextSettingType, item: OptionsMenuItemInterface): TextSettingRowValue = when (t) {
         TextSettingType.STRONGS -> choice((item.value as Int).toString(), strongsEntries())

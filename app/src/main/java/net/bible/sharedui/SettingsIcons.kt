@@ -55,5 +55,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "llm_reset_usage" -> R.drawable.ic_baseline_refresh_gray_24
     "raw_log_history" -> R.drawable.ic_baseline_description_gray_24
     "raw_log_retention" -> R.drawable.ic_delete_24dp
-    else -> null
+    // A/B batch 3 F4: the Text-options screen's rows carry a classic drawable NAME as their
+    // iconKey (not a settings key like the entries above), so fall through to that table.
+    else -> textOptionDrawableRes(key)
 }

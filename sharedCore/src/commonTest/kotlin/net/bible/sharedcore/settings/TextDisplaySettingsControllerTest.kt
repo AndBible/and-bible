@@ -156,4 +156,36 @@ class TextDisplaySettingsControllerTest {
         val switch = items.filterIsInstance<SettingsItem.SwitchRow>().first { it.key == "JUSTIFY" }
         assertEquals(null, switch.iconKey)
     }
+
+    /**
+     * Task 8's two iconKey tests above both use JUSTIFY (a SwitchRow), so a future deletion of
+     * `iconKey = row.iconKey` from the ListChoiceRow branch (STRONGS/PAGE_SCROLL_AMOUNT/
+     * SCROLL_HELPER_LINE_STYLE/FONTFAMILY) would pass silently. Covers that branch via FONTFAMILY.
+     */
+    @Test fun iconKeyReachesAListChoiceRow() {
+        val over = mapOf(
+            TextSettingType.FONTFAMILY to row(
+                TextSettingType.FONTFAMILY,
+                TextSettingRowValue.Choice("sans-serif", listOf(SettingsItem.Choice("sans-serif", "Sans serif"))),
+                iconKey = "ic_font_family_24dp",
+            ),
+        )
+        val items = controller(FakeService(snapshot(overrides = over))).state.value.items
+        val choice = items.filterIsInstance<SettingsItem.ListChoiceRow>().first { it.key == "FONTFAMILY" }
+        assertEquals("ic_font_family_24dp", choice.iconKey)
+    }
+
+    /**
+     * Covers a NavigationRow branch other than FONTSIZE/TOPMARGIN/LINE_SPACING, of which there are
+     * three (MARGINSIZE, COLORS, BOOKMARKS_HIDELABELS) -- each builds its own `SettingsItem.NavigationRow(...)`
+     * call, so a future edit could drop `iconKey` from just one of them. Covers COLORS here.
+     */
+    @Test fun iconKeyReachesANavigationRow() {
+        val over = mapOf(
+            TextSettingType.COLORS to row(TextSettingType.COLORS, TextSettingRowValue.ColorsNav("Colours"), iconKey = "ic_color_settings_24dp"),
+        )
+        val items = controller(FakeService(snapshot(overrides = over))).state.value.items
+        val nav = items.filterIsInstance<SettingsItem.NavigationRow>().first { it.key == "COLORS" }
+        assertEquals("ic_color_settings_24dp", nav.iconKey)
+    }
 }
