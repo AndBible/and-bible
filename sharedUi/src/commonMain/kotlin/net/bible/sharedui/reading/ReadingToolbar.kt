@@ -75,6 +75,7 @@ import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.ToolbarButton
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.fitToolbarButtons
+import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.reading.readingToolbarContainerArgb
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.strings.LocalStrings
@@ -188,9 +189,29 @@ fun ReadingToolbar(
             colorMode = LocalDisplayColorMode.current,
         )
     )
-    // Same 0.45 threshold as ReadingProgressPalette.textColorForBackground. Decided here, not in
-    // :sharedCore, so Compose's own luminance() is the single source of the rule.
-    val onContainer = if (container.luminance() < 0.45f) Color.White else Color.Black
+    // Not-set case must stay pixel-identical to before this feature: today's two M3 tokens
+    // (onSurface/onSurfaceVariant), not a luminance-derived black/white — those tokens are tuned for
+    // the theme's own surface, which is exactly what "not set" means. Only when the user actually
+    // picked a workspace colour do we abandon them for a luminance call over that arbitrary colour
+    // (M3's tokens are not tuned for it), same 0.45 threshold as
+    // ReadingProgressPalette.textColorForBackground. Branch on isWorkspaceColorSet (not e.g.
+    // "container == surface") so this never drifts from readingToolbarContainerArgb's own sentinel.
+    val workspaceColorSet = isWorkspaceColorSet(state.workspaceColorArgb)
+    val onContainer = if (workspaceColorSet) {
+        if (container.luminance() < 0.45f) Color.White else Color.Black
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+    // The document title keeps its own, more-secondary M3 token in the not-set case
+    // (onSurfaceVariant is not simply onSurface at reduced alpha), but once a workspace colour is in
+    // play there is no equivalent "variant" token for an arbitrary user colour, so it is derived the
+    // same way the rest of this feature derives secondary text: the primary content colour at 0.75
+    // alpha.
+    val documentTitleColor = if (workspaceColorSet) {
+        onContainer.copy(alpha = 0.75f)
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
     // A/B batch 3 F1: tell the host what colour sits under the status bar so it can set
     // statusBarColor (API < 35) and the icon appearance (all API levels). fillWindowBackground is
     // false because the background modifier below already paints the strip on API 35+.
@@ -218,7 +239,7 @@ fun ReadingToolbar(
                     contentDescription = "Menu",
                     onClick = callbacks.onHome,
                 )
-                ReadingToolbarTitle(state, callbacks, Modifier.weight(1f).fillMaxHeight())
+                ReadingToolbarTitle(state, callbacks, documentTitleColor, Modifier.weight(1f).fillMaxHeight())
                 buttons.forEach { button ->
                     QuickToolbarButton(
                         button = button,
@@ -321,7 +342,12 @@ private fun ToolbarIconButton(
  * horizontal (cycle workspace) callback depending on its dominant axis — see [detectTitleGestures].
  */
 @Composable
-private fun ReadingToolbarTitle(state: ToolbarState, callbacks: ReadingToolbarCallbacks, modifier: Modifier = Modifier) {
+private fun ReadingToolbarTitle(
+    state: ToolbarState,
+    callbacks: ReadingToolbarCallbacks,
+    documentTitleColor: Color,
+    modifier: Modifier = Modifier,
+) {
     // Keyed on Unit (stable) rather than `callbacks` — a recomposition mid-gesture (e.g.
     // state.syncRunning flipping) must not restart the gesture-detector coroutine and abort an
     // in-flight tap/long-press/fling. rememberUpdatedState lets the long-lived gesture block
@@ -353,7 +379,7 @@ private fun ReadingToolbarTitle(state: ToolbarState, callbacks: ReadingToolbarCa
             Text(
                 text = state.documentTitle,
                 style = MaterialTheme.typography.labelSmall,
-                color = LocalContentColor.current.copy(alpha = 0.75f),
+                color = documentTitleColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false),
