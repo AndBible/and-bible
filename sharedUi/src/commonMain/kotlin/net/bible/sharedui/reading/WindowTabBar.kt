@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.window.RailEntry
 import net.bible.sharedcore.window.RailLeading
+import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateValue
 import net.bible.sharedcore.window.WindowTabBarModel
@@ -103,6 +104,9 @@ private val RailPaddingTop = 2.dp
  *   `pageManager.titleText`) — same host-supplied, non-`@Composable` seam as [windowLabel]/
  *   [windowIcon]; forwarded verbatim to each [WindowButton]'s `topLabel` (Task 3). `null` (the
  *   default, and per-window whenever the host has no title for that window) renders no top row.
+ * @param menuWindowId the window whose pane menu is currently open **at the rail**, or `null`. The
+ *   host keeps exactly one anchor live (rail or pane) by setting this only for the rail anchor, so
+ *   "only one menu is open" is structural rather than a runtime invariant.
  */
 @Composable
 fun WindowTabBar(
@@ -115,6 +119,11 @@ fun WindowTabBar(
     windowLabel: (WindowSnapshot) -> String,
     windowIcon: (WindowSnapshot) -> Painter? = { null },
     windowTopLabel: (WindowSnapshot) -> String? = { null },
+    menuWindowId: String? = null,
+    menuItems: List<WindowPaneMenuItem> = emptyList(),
+    onMenuItemClick: (windowId: String, id: String) -> Unit = { _, _ -> },
+    onMenuDismiss: () -> Unit = {},
+    menuIcon: @Composable (iconKey: String) -> Painter? = { null },
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -148,23 +157,37 @@ fun WindowTabBar(
                     when (entry) {
                         is RailEntry.WindowTab -> {
                             val window = entry.window
-                            WindowButton(
-                                label = windowLabel(window),
-                                isActive = entry.isActive,
-                                isMinimised = window.state == WindowStateValue.MINIMISED,
-                                isPinned = window.isPinMode,
-                                isLinks = window.isLinksWindow,
-                                // WindowSnapshot.syncGroup is the raw 0-based Window.syncGroup;
-                                // WindowButton requires the 1-based value it displays (classic
-                                // parity — see WindowButton's kdoc), same as the sibling pane
-                                // caller (ComposeReadingViewHost.kt's PaneWindowButtonOverlay).
-                                syncGroup = if (window.isSynchronised) window.syncGroup + 1 else 0,
-                                mode = WindowButtonMode.Rail,
-                                onClick = { onRestore(window.id) },
-                                onLongPress = { onWindowLongPress(window.id) },
-                                leadingIcon = windowIcon(window),
-                                topLabel = windowTopLabel(window),
-                            )
+                            Box {
+                                WindowButton(
+                                    label = windowLabel(window),
+                                    isActive = entry.isActive,
+                                    isMinimised = window.state == WindowStateValue.MINIMISED,
+                                    isPinned = window.isPinMode,
+                                    isLinks = window.isLinksWindow,
+                                    // WindowSnapshot.syncGroup is the raw 0-based Window.syncGroup;
+                                    // WindowButton requires the 1-based value it displays (classic
+                                    // parity — see WindowButton's kdoc), same as the sibling pane
+                                    // caller (ComposeReadingViewHost.kt's PaneWindowButtonOverlay).
+                                    syncGroup = if (window.isSynchronised) window.syncGroup + 1 else 0,
+                                    mode = WindowButtonMode.Rail,
+                                    onClick = { onRestore(window.id) },
+                                    onLongPress = { onWindowLongPress(window.id) },
+                                    leadingIcon = windowIcon(window),
+                                    topLabel = windowTopLabel(window),
+                                )
+                                // A/B batch 3 F5: a rail long-press must open the menu HERE, at the
+                                // tab that was pressed, not at that window's floating pane ☰ button
+                                // (which may be in a different pane, or hidden entirely). The host
+                                // decides which anchor is live by setting menuWindowId only for the
+                                // Rail anchor — see ComposeReadingViewHost's PaneMenuAnchor.
+                                WindowPaneMenu(
+                                    items = if (menuWindowId == window.id) menuItems else emptyList(),
+                                    expanded = menuWindowId == window.id,
+                                    onItemClick = { id -> onMenuItemClick(window.id, id) },
+                                    onDismiss = onMenuDismiss,
+                                    icon = menuIcon,
+                                )
+                            }
                         }
                         RailEntry.GroupSeparator -> GroupSeparatorDivider()
                     }
