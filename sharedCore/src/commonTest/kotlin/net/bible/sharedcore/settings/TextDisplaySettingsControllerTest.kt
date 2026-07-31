@@ -17,8 +17,8 @@ private class FakeService(var snap: TextSettingsSnapshot) : FakeColoursOnlyServi
 class TextDisplaySettingsControllerTest {
     private fun bool(v: Boolean) = TextSettingRowValue.Bool(v)
     private fun row(t: TextSettingType, v: TextSettingRowValue, inh: InheritedFrom = InheritedFrom.NONE,
-                    enabled: Boolean = true, visible: Boolean = true) =
-        TextSettingRow(t, v, inh, enabled, visible)
+                    enabled: Boolean = true, visible: Boolean = true, iconKey: String? = null) =
+        TextSettingRow(t, v, inh, enabled, visible, iconKey)
 
     /** A full 35-type snapshot with representative row-values for the non-bool types. */
     private fun snapshot(
@@ -140,5 +140,20 @@ class TextDisplaySettingsControllerTest {
         controller(FakeService(snapshot(SettingsScope.Window("w", "ws"))), SettingsScope.Window("w", "ws")) { nav += it }
             .onNavigate(KEY_OPEN_GLOBAL_SETTINGS)
         assertEquals(listOf(KEY_OPEN_GLOBAL_SETTINGS), nav)
+    }
+
+    @Test fun iconKeyReachesTheBuiltSettingsItem() {
+        val over = mapOf(
+            TextSettingType.JUSTIFY to row(TextSettingType.JUSTIFY, bool(true), iconKey = "ic_justify_text_24dp"),
+        )
+        val items = controller(FakeService(snapshot(overrides = over))).state.value.items
+        val switch = items.filterIsInstance<SettingsItem.SwitchRow>().first { it.key == "JUSTIFY" }
+        assertEquals("ic_justify_text_24dp", switch.iconKey)
+    }
+
+    @Test fun aRowWithoutAnIconKeyStaysIconless() {
+        val items = controller(FakeService(snapshot())).state.value.items
+        val switch = items.filterIsInstance<SettingsItem.SwitchRow>().first { it.key == "JUSTIFY" }
+        assertEquals(null, switch.iconKey)
     }
 }

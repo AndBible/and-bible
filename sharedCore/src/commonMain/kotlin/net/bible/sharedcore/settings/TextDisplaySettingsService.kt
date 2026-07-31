@@ -44,6 +44,13 @@ data class TextSettingRow(
     val inheritedFrom: InheritedFrom,
     val enabled: Boolean,
     val visible: Boolean,
+    /**
+     * Classic drawable entry name for this setting's icon (e.g. `"ic_footnotes_24dp"`), resolved to
+     * a `Painter` by the host through `LocalSettingsIcon`. `null` renders no icon. Sourced from
+     * classic's `ItemPreference.icon` (`OptionsMenuItems.kt:259-289`) — the single source of truth
+     * for all three text-option surfaces (A/B batch 3, F4).
+     */
+    val iconKey: String? = null,
 )
 
 /** The full text-display-settings screen state for a given [scope]. */

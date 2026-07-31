@@ -196,6 +196,7 @@ class TextDisplaySettingsController(
                     checked = value.checked,
                     enabled = row.enabled,
                     visible = row.visible,
+                    iconKey = row.iconKey,
                 )
             }
 
@@ -210,6 +211,7 @@ class TextDisplaySettingsController(
                     selectedValue = value.selectedValue,
                     enabled = row.enabled,
                     visible = row.visible,
+                    iconKey = row.iconKey,
                 )
             }
 
@@ -221,6 +223,7 @@ class TextDisplaySettingsController(
                     summary = value.displayText,
                     enabled = row.enabled,
                     visible = row.visible,
+                    iconKey = row.iconKey,
                 )
             }
 
@@ -232,6 +235,7 @@ class TextDisplaySettingsController(
                     summary = value.displayText,
                     enabled = row.enabled,
                     visible = row.visible,
+                    iconKey = row.iconKey,
                 )
             }
 
@@ -243,6 +247,7 @@ class TextDisplaySettingsController(
                     summary = value.summary,
                     enabled = row.enabled,
                     visible = row.visible,
+                    iconKey = row.iconKey,
                 )
             }
 
@@ -254,6 +259,7 @@ class TextDisplaySettingsController(
                     summary = value.summary,
                     enabled = row.enabled,
                     visible = row.visible,
+                    iconKey = row.iconKey,
                 )
             }
         }
