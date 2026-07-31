@@ -25,6 +25,7 @@ import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.defaultWorkspaceColor
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB
 import net.bible.sharedcore.settings.ColorField
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.test.DatabaseResetter
@@ -105,5 +106,16 @@ class TextDisplaySettingsServiceImplColorsTest {
         impl.setColor(scope, ColorField.NIGHT_BACKGROUND, -1)
         impl.resetColors(scope)
         assertNull(w.pageManager.textDisplaySettings.colors)
+    }
+
+    /**
+     * A/B batch 3 review fix (Minor 5): `:sharedCore`'s `DEFAULT_WORKSPACE_COLOR_ARGB`
+     * (`ReadingToolbarColors.kt`) duplicates this module's [defaultWorkspaceColor] because
+     * `:sharedCore` cannot see the Android database module — necessary, but nothing else fails if
+     * the two drift apart, other than the Compose toolbar mistaking every "reset" workspace for one
+     * the user deliberately tinted. This is the drift guard.
+     */
+    @Test fun sentinelDuplicateAgreesWithTheRealDefaultWorkspaceColor() {
+        assertEquals(defaultWorkspaceColor, DEFAULT_WORKSPACE_COLOR_ARGB)
     }
 }
