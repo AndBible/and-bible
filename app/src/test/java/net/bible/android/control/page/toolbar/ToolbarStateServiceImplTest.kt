@@ -200,4 +200,20 @@ class ToolbarStateServiceImplTest {
         assertThat(after.documentTitle, equalTo(kjv.name))
         assertThat(after.documentTitle, not(equalTo(before.documentTitle)))
     }
+
+    @Test
+    fun snapshotCarriesTheWorkspaceColour() {
+        seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
+        windowRepository.workspaceSettings.workspaceColor = 0xFF1B5E20.toInt()
+        service.refresh()
+        assertThat(service.toolbar.value.workspaceColorArgb, equalTo(0xFF1B5E20.toInt()))
+    }
+
+    @Test
+    fun snapshotCarriesNullWhenTheWorkspaceHasNoColour() {
+        seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
+        windowRepository.workspaceSettings.workspaceColor = null
+        service.refresh()
+        assertThat(service.toolbar.value.workspaceColorArgb, equalTo(null))
+    }
 }

@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 package net.bible.sharedcore.reading
 
 import net.bible.service.common.DisplayColorMode
@@ -70,6 +87,19 @@ class ReadingToolbarColorsTest {
         // And it must stay much closer to the surface than to the raw colour.
         val red = (result shr 16) and 0xFF
         assertTrue(red < 0x80, "night tint must not be glaring, red=$red")
+    }
+
+    @Test
+    fun setInNightAndBwIsGreyscaledThenBlended() {
+        val result = readingToolbarContainerArgb(orange, darkSurface, nightMode = true, colorMode = DisplayColorMode.BW)
+        // The orange is greyscaled first by accentArgbFor, then blended with the dark surface.
+        // The greyscaled accent (grey) blended with the dark surface (near-grey) should be very close to grey —
+        // all channels should differ by at most 2-3 due to the non-perfectly-grey surface.
+        val r = (result shr 16) and 0xFF
+        val g = (result shr 8) and 0xFF
+        val b = result and 0xFF
+        val maxDiff = maxOf(kotlin.math.abs(r - g), kotlin.math.abs(g - b), kotlin.math.abs(r - b))
+        assertTrue(maxDiff <= 3, "set + night + BW must be nearly grey (channels differ by at most 3), got #${result.toUInt().toString(16)} (r=$r, g=$g, b=$b, maxDiff=$maxDiff)")
     }
 
     @Test

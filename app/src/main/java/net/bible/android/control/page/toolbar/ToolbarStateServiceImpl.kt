@@ -100,6 +100,11 @@ class ToolbarStateServiceImpl(
             searchable = page.isSearchable,
             speakable = page.isSpeakable,
             speakStopped = speakControl.isStopped,
+            // A/B batch 3 F3. Read fresh on every snapshot: buildSnapshot() re-runs on
+            // CurrentWindowChangedEvent (workspace switch) and on every
+            // HostedStateRefresher.refresh() (e.g. returning from colour settings), so the toolbar
+            // picks a new colour up with no extra subscription.
+            workspaceColorArgb = windowControl.windowRepository.workspaceSettings.workspaceColor,
         )
     }
 
