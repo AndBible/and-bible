@@ -21,7 +21,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.view.ViewGroup
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
@@ -70,6 +69,9 @@ fun applySystemBarColor(activity: Activity, container: Color, fillWindowBackgrou
         }
     }
 
-    WindowInsetsControllerCompat(activity.window, activity.window.decorView)
-        .isAppearanceLightStatusBars = container.luminance() >= 0.45f
+    val controller = WindowInsetsControllerCompat(activity.window, activity.window.decorView)
+    val wantsLightIcons = container.luminance() >= 0.45f
+    if (controller.isAppearanceLightStatusBars != wantsLightIcons) {
+        controller.isAppearanceLightStatusBars = wantsLightIcons
+    }
 }
