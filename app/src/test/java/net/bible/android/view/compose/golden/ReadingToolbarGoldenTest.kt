@@ -107,6 +107,12 @@ class ReadingToolbarGoldenTest {
         speakStopped = true,
     )
 
+    // A/B batch 3 F3: a workspace colour the user actually chose (NOT defaultWorkspaceColor), so
+    // the toolbar renders its opt-in tint — full strength in light, blended into the surface in
+    // dark, greyscaled in BW, coloured in eink. The other cases leave workspaceColorArgb null and
+    // must therefore render exactly as before.
+    private val workspaceColorState = fullState.copy(workspaceColorArgb = 0xFF1B5E20.toInt())
+
     private fun screen(state: ToolbarState): @Composable () -> Unit = {
         ReadingToolbar(state = state, icons = icons(), callbacks = noopCallbacks)
     }
@@ -135,4 +141,8 @@ class ReadingToolbarGoldenTest {
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun narrow_rtl() = captureRtl("ReadingToolbar", "narrow", content = screen(narrowState))
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun workspace_color() = captureMatrix("ReadingToolbar", "workspace_color", content = screen(workspaceColorState))
 }

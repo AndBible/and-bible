@@ -44,16 +44,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
@@ -70,8 +75,12 @@ import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.ToolbarButton
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.fitToolbarButtons
+import net.bible.sharedcore.reading.readingToolbarContainerArgb
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.theme.LocalIsDarkTheme
+import net.bible.sharedui.theme.SyncSystemBars
 import kotlin.math.abs
 
 /**
@@ -169,52 +178,74 @@ fun ReadingToolbar(
     overflowIcon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     val density = LocalDensity.current
+    // A/B batch 3 F3: the container is the workspace colour when the user set one (see
+    // readingToolbarContainerArgb's sentinel), otherwise today's plain surface.
+    val container = Color(
+        readingToolbarContainerArgb(
+            workspaceArgb = state.workspaceColorArgb,
+            surfaceArgb = MaterialTheme.colorScheme.surface.toArgb(),
+            nightMode = LocalIsDarkTheme.current,
+            colorMode = LocalDisplayColorMode.current,
+        )
+    )
+    // Same 0.45 threshold as ReadingProgressPalette.textColorForBackground. Decided here, not in
+    // :sharedCore, so Compose's own luminance() is the single source of the rule.
+    val onContainer = if (container.luminance() < 0.45f) Color.White else Color.Black
+    // A/B batch 3 F1: tell the host what colour sits under the status bar so it can set
+    // statusBarColor (API < 35) and the icon appearance (all API levels). fillWindowBackground is
+    // false because the background modifier below already paints the strip on API 35+.
+    SyncSystemBars(container = container, fillWindowBackground = false)
     BoxWithConstraints(
         modifier
             .fillMaxWidth()
+            // A/B batch 3 F1: .background BEFORE .windowInsetsPadding — a background covers the
+            // padding applied after it, so the container colour extends under the status bar
+            // instead of stopping below it (the reported "light strip, white clock" bug).
+            .background(container)
             .windowInsetsPadding(WindowInsets.statusBars)
             .windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal))
-            .height(ToolbarHeight)
-            .background(MaterialTheme.colorScheme.surface),
+            .height(ToolbarHeight),
     ) {
         val widthPx = with(density) { maxWidth.roundToPx() }
         val buttons = remember(state, widthPx, density.density, searchMoreRecent) {
             fitToolbarButtons(state, widthPx, density.density, searchMoreRecent)
         }
-        Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-            ToolbarIconButton(
-                icon = icons.home,
-                // TODO: no LocalStrings field for this yet — keep literal until one is added.
-                contentDescription = "Menu",
-                onClick = callbacks.onHome,
-            )
-            ReadingToolbarTitle(state, callbacks, Modifier.weight(1f).fillMaxHeight())
-            buttons.forEach { button ->
-                QuickToolbarButton(
-                    button = button,
-                    state = state,
-                    icons = icons,
-                    callbacks = callbacks,
-                    bibleQuickDoc = bibleQuickDoc,
-                    commentaryQuickDoc = commentaryQuickDoc,
-                    onQuickDocSelect = onQuickDocSelect,
-                    onQuickDocDismiss = onQuickDocDismiss,
-                )
-            }
-            Box {
+        CompositionLocalProvider(LocalContentColor provides onContainer) {
+            Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
                 ToolbarIconButton(
-                    icon = icons.overflow,
+                    icon = icons.home,
                     // TODO: no LocalStrings field for this yet — keep literal until one is added.
-                    contentDescription = "Options",
-                    onClick = callbacks.onOverflow,
+                    contentDescription = "Menu",
+                    onClick = callbacks.onHome,
                 )
-                ReadingOverflowMenu(
-                    items = overflowItems,
-                    expanded = overflowExpanded,
-                    onItemClick = onOverflowItemClick,
-                    onDismiss = onOverflowDismiss,
-                    icon = overflowIcon,
-                )
+                ReadingToolbarTitle(state, callbacks, Modifier.weight(1f).fillMaxHeight())
+                buttons.forEach { button ->
+                    QuickToolbarButton(
+                        button = button,
+                        state = state,
+                        icons = icons,
+                        callbacks = callbacks,
+                        bibleQuickDoc = bibleQuickDoc,
+                        commentaryQuickDoc = commentaryQuickDoc,
+                        onQuickDocSelect = onQuickDocSelect,
+                        onQuickDocDismiss = onQuickDocDismiss,
+                    )
+                }
+                Box {
+                    ToolbarIconButton(
+                        icon = icons.overflow,
+                        // TODO: no LocalStrings field for this yet — keep literal until one is added.
+                        contentDescription = "Options",
+                        onClick = callbacks.onOverflow,
+                    )
+                    ReadingOverflowMenu(
+                        items = overflowItems,
+                        expanded = overflowExpanded,
+                        onItemClick = onOverflowItemClick,
+                        onDismiss = onOverflowDismiss,
+                        icon = overflowIcon,
+                    )
+                }
             }
         }
     }
@@ -305,7 +336,7 @@ private fun ReadingToolbarTitle(state: ToolbarState, callbacks: ReadingToolbarCa
         Text(
             text = state.pageTitle,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = LocalContentColor.current,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -322,7 +353,7 @@ private fun ReadingToolbarTitle(state: ToolbarState, callbacks: ReadingToolbarCa
             Text(
                 text = state.documentTitle,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = LocalContentColor.current.copy(alpha = 0.75f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false),
