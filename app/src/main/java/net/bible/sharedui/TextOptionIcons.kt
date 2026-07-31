@@ -55,7 +55,6 @@ private val textOptionIconResIds: Map<String, Int> = mapOf(
     "ic_format_italic_24dp" to R.drawable.ic_format_italic_24dp,
     "ic_baseline_check_circle_24" to R.drawable.ic_baseline_check_circle_24,
     "ic_baseline_star_24" to R.drawable.ic_baseline_star_24,
-    "ic_text_options_24dp" to R.drawable.ic_text_options_24dp,
 )
 
 /** See [textOptionIconResIds]. `null` for an unknown name. */
