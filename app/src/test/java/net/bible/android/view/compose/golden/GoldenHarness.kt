@@ -19,6 +19,7 @@ import com.github.takahirom.roborazzi.size
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.theme.AbTheme
+import net.bible.sharedui.theme.LocalSystemBarSync
 
 /** The four LTR golden renders (theme modes). The RTL check is a separate Arabic-locale capture. */
 enum class GoldenMode(
@@ -70,26 +71,37 @@ private fun capture(
         val dir = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
         CompositionLocalProvider(LocalLayoutDirection provides dir) {
             ProvideAppLocals {
-                AbTheme(darkTheme = dark, colorMode = colorMode, disableAnimations = true) {
-                    // The hosts always render inside AbScaffold -> Scaffold, which paints
-                    // containerColor = colorScheme.background AND provides a matching
-                    // LocalContentColor. MaterialTheme alone does neither, so without this a
-                    // content-level capture (a bar, a menu, a drawer body, a tab body) rendered on
-                    // the Robolectric window's WHITE background with M3's Color.Black content
-                    // default -- making every dark/BW/eink variant of such a golden unrepresentative
-                    // (see ReadingDrawer_items_dark.png before this fix: white-on-white).
-                    // A Box+background is used rather than Surface(fillMaxSize) on purpose: Surface
-                    // wraps its content in Box(propagateMinConstraints = true), which would force
-                    // small components to fill the whole viewport and change their layout.
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.background),
-                    ) {
-                        CompositionLocalProvider(
-                            LocalContentColor provides contentColorFor(MaterialTheme.colorScheme.background),
-                            content = content,
-                        )
+                // A/B batch 3 review fix (Important 2): `captureRoboImage` launches a REAL
+                // `ComponentActivity` (`launchRoborazziActivity` -> `ActivityScenario`), so
+                // `ProvideAppLocals`'s `LocalSystemBarSync` above resolves a real Activity and would
+                // otherwise run `applySystemBarColor` for real on every capture (mutating
+                // `window.statusBarColor` / the content-root background / icon appearance). Goldens
+                // have so far stayed pixel-identical only because AbScaffold's own Scaffold container
+                // happens to paint over the content-root write — a coincidence, not a guarantee.
+                // Override the seam back to an explicit no-op here so captures are inert by
+                // construction instead of by that coincidence.
+                CompositionLocalProvider(LocalSystemBarSync provides { _, _ -> }) {
+                    AbTheme(darkTheme = dark, colorMode = colorMode, disableAnimations = true) {
+                        // The hosts always render inside AbScaffold -> Scaffold, which paints
+                        // containerColor = colorScheme.background AND provides a matching
+                        // LocalContentColor. MaterialTheme alone does neither, so without this a
+                        // content-level capture (a bar, a menu, a drawer body, a tab body) rendered on
+                        // the Robolectric window's WHITE background with M3's Color.Black content
+                        // default -- making every dark/BW/eink variant of such a golden unrepresentative
+                        // (see ReadingDrawer_items_dark.png before this fix: white-on-white).
+                        // A Box+background is used rather than Surface(fillMaxSize) on purpose: Surface
+                        // wraps its content in Box(propagateMinConstraints = true), which would force
+                        // small components to fill the whole viewport and change their layout.
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.background),
+                        ) {
+                            CompositionLocalProvider(
+                                LocalContentColor provides contentColorFor(MaterialTheme.colorScheme.background),
+                                content = content,
+                            )
+                        }
                     }
                 }
             }

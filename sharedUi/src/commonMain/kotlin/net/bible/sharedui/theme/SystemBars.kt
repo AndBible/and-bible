@@ -27,8 +27,13 @@ import androidx.compose.ui.graphics.Color
  * (A/B batch 3, F1) — the same "host resolves, `:sharedUi` stays platform-free" shape as
  * [net.bible.sharedui.settings.LocalSettingsIcon] and `LocalCategoryIcon`.
  *
- * The default is a **no-op**, so iOS and the Roborazzi golden harness (whose context is not an
- * `ActivityBase`) are unaffected. `:app`'s `ProvideAppLocals` provides the real implementation.
+ * The default is a **no-op**, which is what iOS gets (`:sharedUi` has no Android bridge). `:app`'s
+ * `ProvideAppLocals` provides the real Android implementation everywhere else — including inside
+ * the Roborazzi golden harness, which runs `captureRoboImage` against a real `ComponentActivity`,
+ * so the real implementation would otherwise fire on every capture. `GoldenHarness` overrides this
+ * local back to an explicit no-op after `ProvideAppLocals` for exactly that reason, so captures are
+ * pixel-inert by construction rather than by the coincidence that `AbScaffold`'s own container
+ * currently happens to paint over the real implementation's content-root write.
  *
  * @param container the colour the caller paints directly under the status bar.
  * @param fillWindowBackground `true` when the caller does NOT itself paint behind the system bars

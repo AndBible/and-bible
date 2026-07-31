@@ -26,8 +26,11 @@ import net.bible.sharedui.theme.LocalSystemBarSync
  * icon), so this stays a no-op until a screen actually sets an `iconKey`.
  *
  * [LocalSystemBarSync] resolves the current [LocalContext]'s Activity (via [findActivity]) and calls
- * [applySystemBarColor] on it; when there is no Activity — the Roborazzi golden harness — it no-ops,
- * so captures stay pixel-inert.
+ * [applySystemBarColor] on it; it no-ops only when there is no Activity at all (e.g. an isolated
+ * `@Preview`). The Roborazzi golden harness is NOT that case — `captureRoboImage` runs inside a real
+ * `ComponentActivity`, so this provider's real implementation fires there too. `GoldenHarness`
+ * overrides [LocalSystemBarSync] back to a no-op of its own, after this provider, so golden captures
+ * stay pixel-inert by construction rather than by coincidence.
  */
 @Composable
 fun ProvideAppLocals(content: @Composable () -> Unit) {
