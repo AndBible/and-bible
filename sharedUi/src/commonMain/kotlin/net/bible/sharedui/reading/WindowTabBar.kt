@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -55,11 +54,6 @@ private val RailEntrySpacing = 6.dp
 private val GroupSeparatorWidth = 1.dp
 private val GroupSeparatorHeight = 24.dp
 
-/** Classic `window_bar_background` (`res/drawable/window_bar_background.xml`): only the top-start
- *  corner is rounded, 6dp. `topStart`, not `topLeft`, is the deliberate RTL-correct reading of the
- *  same intent — it mirrors to the visual top-right in an RTL layout, where classic's hard-coded
- *  `topLeftRadius` would not. */
-private val RailCornerRadius = 6.dp
 /** Classic `window_bar_background`'s `padding left=5dp top=2dp` (right/bottom are 0). */
 private val RailPaddingStart = 5.dp
 private val RailPaddingTop = 2.dp
@@ -88,15 +82,14 @@ private val RailPaddingTop = 2.dp
  * the [LazyRow] is wrapped in [AnimatedVisibility] (per [RailLeading.CollapseToggle]) so the strip
  * slides rather than jump-cuts.
  *
- * The background (`Modifier.background(MaterialTheme.colorScheme.surfaceVariant,
- * RoundedCornerShape(topStart = [RailCornerRadius]))`, padded by [RailPaddingStart]/
- * [RailPaddingTop]) restores classic `window_bar_background`
- * (`res/drawable/window_bar_background.xml`): a rectangle with only ONE corner rounded and
- * asymmetric padding. `topStart` — not `topLeft` — is used deliberately: it mirrors to the visual
- * top-right corner in RTL, where classic's hard-coded `topLeftRadius` does not. Since M3 theming
- * (not a hard-coded hue) drives the colour, [net.bible.sharedui.theme.AbTheme]'s monochrome/e-ink
- * `displayColorMode` grayscales it automatically, same as every other M3-coloured surface in this
- * port.
+ * The bar itself is **transparent** and contributes only geometry: classic's
+ * `window_bar_background` (`res/drawable/window_bar_background.xml`) fills with
+ * `@color/window_button_area_background`, which is `#00424242` — alpha `00`, i.e. fully transparent
+ * (`res/values/colors.xml:44`). Only its asymmetric [RailPaddingStart]/[RailPaddingTop] have any
+ * visible effect, and they are kept. The port originally read that drawable's shape correctly and
+ * its colour incorrectly, painting an opaque `surfaceVariant` slab behind the tabs (A/B batch 3,
+ * F2). Each [WindowButton] carries its own background, which is what makes the tabs legible over
+ * the page text.
  *
  * Each [WindowButton] is keyed by its window id (and each separator by its position) — required
  * so [WindowButton]'s `pointerInput(Unit)`-based tap/long-press keeps a stable identity across
@@ -127,10 +120,6 @@ fun WindowTabBar(
     Row(
         modifier = modifier
             .wrapContentWidth()
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(topStart = RailCornerRadius),
-            )
             .padding(start = RailPaddingStart, top = RailPaddingTop, end = 0.dp, bottom = 0.dp),
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically,
