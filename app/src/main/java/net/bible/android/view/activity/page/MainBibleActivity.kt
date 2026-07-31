@@ -2178,6 +2178,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
     private fun showSystemUI(setNavBarColor: Boolean=true) {
+        // The classic toolbar-view background/tint/divider-visibility/status-bar-color mutations
+        // below are skipped on the `use_compose_ui` path — the Compose `ReadingToolbar` (via
+        // `MaterialTheme.colorScheme`/`AbTheme`) owns its own colors now, and `toolbarLayout` is
+        // GONE anyway (see `ComposeReadingViewHost.install`). `navigationBarColor` and
+        // `speakTransport`'s background are NOT toolbar-specific (the transport bar stays a
+        // classic View either way) so they are computed/applied unconditionally, same as before.
+        val composeUiEnabled = CommonUtils.settings.getBoolean("use_compose_ui", false)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.decorView.windowInsetsController?.apply {
                 if (CommonUtils.settings.hideStatusBar) {
@@ -2194,9 +2201,22 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     if (CommonUtils.settings.monochromeMode) {
                         appearance = appearance or WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                     }
+                    // A/B batch 3 review fix (Important 1): on the Compose path the status-bar
+                    // *icon appearance* is owned by `LocalSystemBarSync`/`applySystemBarColor`
+                    // (called from `ReadingToolbar`/`AbTopAppBar` via a `SideEffect`), derived from
+                    // the actual container colour rather than classic's fixed
+                    // "dark unless monochrome" rule. Classic's day+non-monochrome case explicitly
+                    // CLEARS `APPEARANCE_LIGHT_STATUS_BARS` here (correct for classic's dark
+                    // `#444444` toolbar) — exactly wrong for the Compose not-set path, whose
+                    // container is the light M3 surface. So the STATUS_BARS bit is left out of the
+                    // mask entirely when Compose owns the bar, same seam-is-single-writer rule as
+                    // the sibling `statusBarColor` skip a few lines below. The NAVIGATION-bar
+                    // appearance bit is unconditional either way — the seam never touches it.
+                    val statusBarAppearanceMask =
+                        if (composeUiEnabled) 0 else WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                     setSystemBarsAppearance(
                         appearance,
-                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS or WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS or statusBarAppearanceMask
                     )
                 }
             }
@@ -2211,21 +2231,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!ScreenSettings.nightMode) {
                     uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                    if (CommonUtils.settings.monochromeMode) {
+                    // Same gate as the API-R+ branch above (Important 1): the Compose seam is the
+                    // single writer of the status-bar icon appearance, so classic's
+                    // SYSTEM_UI_FLAG_LIGHT_STATUS_BAR bit is only added when Compose isn't in play.
+                    if (CommonUtils.settings.monochromeMode && !composeUiEnabled) {
                         uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
                     }
                 }
             }
             window.decorView.systemUiVisibility = uiFlags
         }
-        
-        // The classic toolbar-view background/tint/divider-visibility/status-bar-color mutations
-        // below are skipped on the `use_compose_ui` path — the Compose `ReadingToolbar` (via
-        // `MaterialTheme.colorScheme`/`AbTheme`) owns its own colors now, and `toolbarLayout` is
-        // GONE anyway (see `ComposeReadingViewHost.install`). `navigationBarColor` and
-        // `speakTransport`'s background are NOT toolbar-specific (the transport bar stays a
-        // classic View either way) so they are computed/applied unconditionally, same as before.
-        val composeUiEnabled = CommonUtils.settings.getBoolean("use_compose_ui", false)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(windowRepository.visibleWindows.isNotEmpty()) {
                 val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings, CommonUtils.globalTextDisplaySettings).colors!!
@@ -2617,6 +2633,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         windowRepository.updateAllWindowsTextDisplaySettings()
                     }
                     resetSystemUi()
+                    // A/B batch 3 review fix (Minor 2): a newly picked/reset workspace colour is
+                    // exactly what F3 shows on the Compose reading toolbar, but nothing here pushed
+                    // a `HostedStateRefresher.refresh()` — so the new colour sat unused in
+                    // `workspaceSettings` until an unrelated passage/verse/window event happened to
+                    // rebuild `ToolbarStateServiceImpl`'s snapshot. Inert on the classic path (the
+                    // host is null there).
+                    composeReadingViewHost?.refreshHostedState()
                 }
                 TEXT_DISPLAY_SETTINGS_CHANGED -> {
                     val edited = extras.getBoolean("edited")
