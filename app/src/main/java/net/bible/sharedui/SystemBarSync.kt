@@ -52,14 +52,27 @@ fun Context.findActivity(): Activity? {
  * - The status-bar icon appearance follows [container]'s luminance, same 0.45 threshold as
  *   `ReadingProgressPalette.textColorForBackground`. Classic only ever set light-icon mode for
  *   monochrome+day, which would leave white icons unreadable on a light workspace colour.
+ * - **Floating windows are skipped for both the colour and the appearance write** (A/B batch 3
+ *   review fix, Minor 7). A dialog-themed Activity (`HistoryComposeActivity`,
+ *   `Theme.AppCompat...Dialog.Alert`) does not own the real status bar: `statusBarColor` is already
+ *   ignored on one by the platform, but `isAppearanceLightStatusBars` is a
+ *   `WindowInsetsController` property that DOES still apply while the floating window has focus —
+ *   and nothing restores the underlying (reading-view) Activity's own appearance when the dialog is
+ *   dismissed, so opening History over a dark reading view could leave the wrong icon contrast
+ *   behind. [fillWindowBackground]'s content-root paint is unaffected: it only paints the floating
+ *   window's own content, not a system surface shared with another Activity.
  *
  * Idempotent: re-applying the same colour writes the same values. Safe to call from a `SideEffect`
  * on every recomposition.
  */
 fun applySystemBarColor(activity: Activity, container: Color, fillWindowBackground: Boolean) {
     val argb = container.toArgb()
-    @Suppress("DEPRECATION")
-    if (activity.window.statusBarColor != argb) activity.window.statusBarColor = argb
+    val floating = activity.window.isFloating
+
+    if (!floating) {
+        @Suppress("DEPRECATION")
+        if (activity.window.statusBarColor != argb) activity.window.statusBarColor = argb
+    }
 
     if (fillWindowBackground) {
         val root = activity.findViewById<ViewGroup>(android.R.id.content)
@@ -69,9 +82,15 @@ fun applySystemBarColor(activity: Activity, container: Color, fillWindowBackgrou
         }
     }
 
-    val controller = WindowInsetsControllerCompat(activity.window, activity.window.decorView)
-    val wantsLightIcons = container.luminance() >= 0.45f
-    if (controller.isAppearanceLightStatusBars != wantsLightIcons) {
-        controller.isAppearanceLightStatusBars = wantsLightIcons
+    if (!floating) {
+        val controller = WindowInsetsControllerCompat(activity.window, activity.window.decorView)
+        // A/B batch 3 review fix (Minor 1): named for what the flag MEANS, not the bug it fixes — a
+        // light container asks for a light STATUS BAR BACKGROUND, i.e. DARK icons drawn on top of it.
+        // ("wantsLightIcons" was an inverted misnomer: it read as "light container -> light icons",
+        // which is exactly the F1 bug this function fixes.)
+        val statusBarBackgroundIsLight = container.luminance() >= 0.45f
+        if (controller.isAppearanceLightStatusBars != statusBarBackgroundIsLight) {
+            controller.isAppearanceLightStatusBars = statusBarBackgroundIsLight
+        }
     }
 }
