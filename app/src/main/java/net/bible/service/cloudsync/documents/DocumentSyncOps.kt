@@ -16,7 +16,27 @@
  */
 package net.bible.service.cloudsync.documents
 
+import net.bible.service.download.isPseudoBook
+import net.bible.service.sword.mydocument.isMyDocument
+import org.crosswire.jsword.book.Book
 import java.io.IOException
+
+/**
+ * Whether a book can participate in document sync at all.
+ *
+ * Document sync transfers modules as SWORD archives, so it only applies to books backed by real
+ * files on disk. Two kinds of registered book are not:
+ *
+ *  - **Pseudo books** — placeholder entries (e.g. "no document installed") with no content.
+ *  - **MyDocuments** — user/AI documents stored in [net.bible.android.database.mydocument.MyDocumentDatabase]
+ *    and registered into JSword with byte-array metadata. They are already synced as part of the
+ *    database sync, and having no `configFile` they cannot be packaged as a module archive at all
+ *    (OSTicket 3392: an auto-push of `AIDocuments` / `MyDoc_*` raised an NPE from
+ *    `BackupControl.addBookToZip`, surfacing to the user as "An error has occurred").
+ *
+ * Every entry point that can enqueue a push must consult this — not just the periodic scan.
+ */
+val Book.isSyncableDocument: Boolean get() = !isPseudoBook && !isMyDocument
 
 /** A single document-sync operation the [DocumentSyncService] queue can process. */
 sealed class DocumentSyncOp {

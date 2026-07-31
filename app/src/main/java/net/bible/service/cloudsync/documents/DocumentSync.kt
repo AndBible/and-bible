@@ -27,9 +27,7 @@ import net.bible.android.database.toMeta
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.SwordDocumentFacade
-import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -66,7 +64,7 @@ object DocumentSync {
     }
 
     private fun installedSyncableBooks(): List<Book> =
-        Books.installed().books.filter { !it.isPseudoBook && !it.isMyDocument }
+        Books.installed().books.filter { it.isSyncableDocument }
 
     data class DocumentStatusItem(
         val initials: String,
@@ -199,6 +197,11 @@ object DocumentSync {
     }
 
     suspend fun pushDocument(book: Book) {
+        // Last line of defence: a queued Push op carries only initials, so a book that cannot be
+        // packaged as a module archive must be rejected here too — however the op was enqueued.
+        if (!book.isSyncableDocument) {
+            Log.w(TAG, "Not a syncable document; skipping upload of ${book.initials}"); return
+        }
         val store = store() ?: return
         val localVersion = DocumentArchiver.documentVersion(book)
         // Check the cloud BEFORE packaging — packaging zips the whole module (potentially tens of
