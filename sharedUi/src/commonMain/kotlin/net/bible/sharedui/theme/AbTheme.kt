@@ -90,6 +90,10 @@ private val HelperLineBase = Color(0xFF4CAF50)
  *  grayscale its own non-scheme colors in BW/COLOR_EINK. Defaults to NORMAL outside an [AbTheme]. */
 val LocalDisplayColorMode = staticCompositionLocalOf { DisplayColorMode.NORMAL }
 
+/** Whether [AbTheme] resolved to the dark scheme. Exposed so content can branch on night mode
+ *  without re-deriving it from a colour. Defaults to `false` outside an [AbTheme]. */
+val LocalIsDarkTheme = staticCompositionLocalOf { false }
+
 /**
  * AndBible's Material3 theme for the Compose UI path.
  *
@@ -123,6 +127,7 @@ fun AbTheme(
         LocalAbColors provides accents,
         LocalDisableAnimations provides disableAnimations,
         LocalDisplayColorMode provides colorMode,
+        LocalIsDarkTheme provides darkTheme,
     ) {
         MaterialTheme(colorScheme = scheme, content = content)
     }

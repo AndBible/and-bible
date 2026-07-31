@@ -101,6 +101,8 @@ class ReadingToolbarColorsTest {
         val maxDiff = maxOf(kotlin.math.abs(r - g), kotlin.math.abs(g - b), kotlin.math.abs(r - b))
         assertTrue(maxDiff <= 3, "set + night + BW must be nearly grey (channels differ by at most 3), got #${result.toUInt().toString(16)} (r=$r, g=$g, b=$b, maxDiff=$maxDiff)")
     }
+    // Note: COLOR_EINK is not tested in night mode because accentArgbFor only special-cases BW,
+    // so COLOR_EINK takes the identical code path as NORMAL.
 
     @Test
     fun lerpEndpointsAreExact() {
