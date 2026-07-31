@@ -54,6 +54,8 @@ import kotlin.coroutines.suspendCoroutine
 const val FOLDER_MIMETYPE = "DIR"
 const val NEXTCLOUD_SECRET_FILE_NAME_KEY = "nextCloudSecretFile"
 
+private const val HTTP_NOT_FOUND = 404
+
 class NextCloudAdapter(
     private val serverUrl: String?,
     private val username: String?,
@@ -118,27 +120,47 @@ class NextCloudAdapter(
         _client = null
     }
 
+    /**
+     * Runs the operation, throwing only on a transport-level failure (the library populated
+     * `result.exception`). A result that merely carries an unsuccessful *status* is returned as-is.
+     *
+     * Several callers rely on that leniency: [getBaseFolderId] and [createNewFolder] issue a
+     * `CreateFolderRemoteOperation` for a folder that usually already exists, and [delete] may
+     * target something already gone. Those "failures" are the normal steady state and have always
+     * been ignored here — turning them into exceptions would break folder setup outright.
+     *
+     * Callers that go on to read `result.data` must use [executeForData] instead.
+     */
     suspend fun <T >RemoteOperation<T>.execute(): RemoteOperationResult<T> = suspendCoroutine {
         execute(this@NextCloudAdapter.client, OnRemoteOperationListener { operation, result ->
-            if (!result.isSuccess) {
-                // A failed result must never reach the caller: reading `result.data` on one throws
-                // RuntimeException("Accessing result data after operation failed!"), which the sync
-                // layer cannot recognise as a network problem and therefore surfaces to the user as
-                // "An error has occurred" (OSTicket 3376 — repeated NextCloud HTTP 503).
-                //
-                // `result.exception` is only populated for transport-level failures; a server-side
-                // HTTP error carries none, so translate it ourselves.
-                it.resumeWithException(result.exception ?: result.asIOException())
+            if (!result.isSuccess && result.exception != null) {
+                it.resumeWithException(result.exception)
                 return@OnRemoteOperationListener
             }
             it.resume(result as RemoteOperationResult<T>)
         }, Handler(Looper.getMainLooper()))
     }
 
+    /**
+     * Runs the operation and guarantees the returned result is safe to read data from.
+     *
+     * Reading `result.data` on an unsuccessful result throws
+     * `RuntimeException("Accessing result data after operation failed!")`, which the sync layer
+     * cannot recognise as a network problem and therefore surfaces to the user as "An error has
+     * occurred" (OSTicket 3376 — repeated NextCloud HTTP 503). Failing with a well-typed
+     * [IOException] instead lets the op be retried quietly on the next sync.
+     */
+    private suspend fun <T> RemoteOperation<T>.executeForData(): RemoteOperationResult<T> {
+        val result = execute()
+        if (!result.isSuccess) throw result.asIOException()
+        return result
+    }
+
     override suspend fun get(id: String): CloudFile {
-        // A failure throws out of execute(): FileNotFoundException when the resource is genuinely
-        // absent, IOException when the server could not be reached or answered with an error.
-        val result = ReadFileRemoteOperation(id).execute()
+        // FileNotFoundException when the resource is genuinely absent (isSyncFolderKnown acts on
+        // that), IOException when the server answered with an error — previously *every* failure
+        // became FileNotFoundException, so a 503 silently looked like deleted data.
+        val result = ReadFileRemoteOperation(id).executeForData()
         val remoteFile = result.singleData as RemoteFile
         return remoteFile.toSyncFile()
     }
@@ -169,7 +191,7 @@ class NextCloudAdapter(
                 ReadFolderRemoteOperation(parentFolder)
             }
 
-            val result = operation.execute()
+            val result = operation.executeForData()
             val filtered = (result.data as List<RemoteFile>)
                 .filterNot { it.remotePath?.trimEnd('/') == parentFolder }
             return@asyncMap filtered
@@ -191,7 +213,9 @@ class NextCloudAdapter(
     override suspend fun download(id: String, outputStream: OutputStream, onProgress: DownloadProgressListener?) {
         val tmpFile = File(CommonUtils.tmpDir, id)
         val operation = DownloadFileRemoteOperation(id, CommonUtils.tmpDir.absolutePath)
-        operation.execute()
+        // A failed download previously fell through to readBytes() below, surfacing as a bare
+        // FileNotFoundException on the temp file rather than the actual server error.
+        operation.executeForData()
         val bytes = tmpFile.readBytes()
         outputStream.write(bytes)
         // This adapter downloads in one shot (no chunked progress), so just report the final size.
@@ -282,8 +306,15 @@ internal fun nextCloudFailureException(isNotFound: Boolean, httpCode: Int, descr
     if (isNotFound) FileNotFoundException("NextCloud: not found ($description, HTTP $httpCode)")
     else IOException("NextCloud operation failed: $description (HTTP $httpCode)")
 
+/**
+ * Either signal is enough to call it "not found": the raw HTTP status is the more dependable of
+ * the two (a plain int straight off the response), while [RemoteOperationResult.ResultCode] depends
+ * on how the library chose to classify the operation. Requiring only ResultCode risked reporting a
+ * genuine 404 as a generic failure, which would break `isSyncFolderKnown`'s "forget the stale
+ * marker" path.
+ */
 private fun RemoteOperationResult<*>.asIOException(): IOException = nextCloudFailureException(
-    isNotFound = code == RemoteOperationResult.ResultCode.FILE_NOT_FOUND,
+    isNotFound = httpCode == HTTP_NOT_FOUND || code == RemoteOperationResult.ResultCode.FILE_NOT_FOUND,
     httpCode = httpCode,
     description = code?.name ?: "UNKNOWN",
 )
