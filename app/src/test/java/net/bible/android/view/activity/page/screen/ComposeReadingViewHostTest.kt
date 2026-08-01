@@ -452,6 +452,35 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
      * anchor bookkeeping directly on the host (no `ComposeTestRule` in this repo's `:app` unit
      * tests — see the class kdoc's rationale for testing `handleWindowPaneMenuItem` this way).
      */
+    /**
+     * A/B batch 4a F5. [ComposeReadingViewHost.paneBackgroundArgbFor] must look the window up by the
+     * id it is given, so each pane in a split can get its own reader background — a colour resolved
+     * once for the whole split would be wrong for the second pane whenever the two windows carry
+     * different day/night backgrounds.
+     *
+     * HONEST LIMITS OF THIS TEST, stated because this batch already shipped one test that could not
+     * fail: no `BibleView` exists in this fixture (creating one needs a real WebView), so every live
+     * window's `bibleView?.backgroundColor` is `null` here and the assertions below cannot
+     * distinguish "resolved per id" from "resolved once" by value. What they DO catch is the lookup
+     * itself misbehaving: an implementation that force-unwrapped the window (`!!`) would crash on the
+     * unknown id, and one that ignored its argument and fell back to the active window would return
+     * that window's colour rather than `null`. The per-window guarantee proper is structural, not
+     * test-enforced: `SplitContent`'s parameter is a `(windowId: String) -> Color?` lambda, so a
+     * per-split constant is not representable at that boundary.
+     */
+    @Test fun paneBackgroundIsLookedUpByTheWindowIdItIsGiven() {
+        val w1 = windowRepository.activeWindow
+        val w2 = windowRepository.addNewWindow(w1)
+        val host = host()
+
+        assertEquals(w1.bibleView?.backgroundColor, host.paneBackgroundArgbFor(w1.id.toString()))
+        assertEquals(w2.bibleView?.backgroundColor, host.paneBackgroundArgbFor(w2.id.toString()))
+        assertNull(
+            host.paneBackgroundArgbFor(IdType().toString()),
+            "an id that matches no window must resolve to no background, not to the active window's",
+        )
+    }
+
     @Test fun openingFromTheRailRecordsTheRailAnchor() {
         val windowId = windowRepository.activeWindow.id.toString()
         val host = host()

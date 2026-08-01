@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.ToolbarState
@@ -102,6 +103,8 @@ fun ReadingViewScreen(
     paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
     bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
     overflowIcon: @Composable (iconKey: String) -> Painter? = { null },
+    /** Per-pane background colour, passed straight to [SplitContent] — see its kdoc (A/B batch 4a F5). */
+    paneBackground: (windowId: String) -> Color? = { null },
 ) {
     Column(modifier.fillMaxSize()) {
         if (!fullScreen) {
@@ -130,6 +133,7 @@ fun ReadingViewScreen(
             paneOverlay = paneOverlay,
             bottomOverlay = bottomOverlay,
             railOverlay = tabBar?.let { bar -> { Box(Modifier.align(Alignment.BottomEnd)) { bar() } } },
+            paneBackground = paneBackground,
         )
         agentLog?.invoke()
         speakBar?.invoke()

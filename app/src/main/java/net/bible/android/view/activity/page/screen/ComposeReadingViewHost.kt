@@ -651,6 +651,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     fun closePaneMenu() { paneMenuWindowId.value = null }
 
     /**
+     * The reader background colour for ONE pane — classic `BibleFrame.kt:138`'s
+     * `bibleView.backgroundColor`, which already resolves day/night and monochrome.
+     *
+     * Resolved per window id, not once per split: two panes can carry different day/night reader
+     * backgrounds, so a single colour captured for the whole split would be wrong for one of them.
+     * `null` when the window or its `BibleView` does not exist yet, in which case the pane keeps the
+     * transparent background it had before (A/B batch 4a F5).
+     */
+    internal fun paneBackgroundArgbFor(windowId: String): Int? =
+        activity.windowRepository.getWindow(IdType(windowId))?.bibleView?.backgroundColor
+
+    /**
      * Opens the Compose reading-view LLM prompt-selector dialog for [selection] (Batch 12e-A Task
      * 6) — the compose-path counterpart of classic `LlmDialogHelper.showPromptSelector`. The
      * actual dialog UI is rendered by [readingLlmDialogs]/[ReadingLlmDialogs] inside
@@ -866,6 +878,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     AndroidView(factory = { activity.bibleViewFactory.getOrCreateBibleView(window) })
                 }
             },
+            paneBackground = { windowId -> paneBackgroundArgbFor(windowId)?.let { Color(it) } },
             windowLabel = { snapshot -> activity.windowLabelFor(snapshot.id) },
             windowIcon = { snapshot -> activity.windowIconFor(snapshot.id) },
             // Task 4 (F2b): the rail's tiny top row (classic `topButtonText`) — see
@@ -1131,6 +1144,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onDrawerIdleClosed: () -> Unit = {},
             onDrawerClosed: () -> Unit = {},
             pane: @Composable (windowId: String) -> Unit,
+            // A/B batch 4a F5: per-pane reader background, forwarded to `SplitContent`. Defaulted to
+            // "no background" so `ComposeReadingViewHostTest` (which mounts with `pane = {}` and
+            // never composes) and every golden fixture render exactly as before.
+            paneBackground: (windowId: String) -> Color? = { null },
             // Host-supplied per-window label/icon for the restore rail (Task 7) — plain,
             // non-`@Composable` lambdas, matching `WindowTabBar`'s `windowLabel`/`windowIcon`
             // parameter types (so composable calls like `painterResource` can't sneak into them;
@@ -1390,6 +1407,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                         onWindowActivated = controller::onWindowActivated,
                                         onSeparatorCommitted = controller::onSeparatorCommitted,
                                         pane = pane,
+                                        paneBackground = paneBackground,
                                         overflowItems = overflowItems,
                                         overflowExpanded = overflowExpanded,
                                         onOverflowItemClick = onOverflowItemClick,

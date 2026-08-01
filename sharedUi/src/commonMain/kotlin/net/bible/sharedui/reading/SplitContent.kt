@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.reading
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -110,6 +112,21 @@ private data class ActiveDrag(val index: Int, val weight1: Float, val weight2: F
  * caller discipline: composed last, [railOverlay] always draws above [bottomOverlay]'s bottom-CENTRE
  * fullscreen bible-reference overlay where the two meet. Two distinctly-named slots also read more
  * clearly at the call site than one lambda expected to compose two unrelated pieces of chrome.
+ *
+ * [paneBackground] gives one pane its background colour, `null` for none — the default, which leaves
+ * the pane a bare `Box` exactly as before this parameter existed, so no existing caller or golden
+ * changes.
+ *
+ * A/B batch 4a F5: classic's `BibleFrame` paints each pane in the reader background colour
+ * (`BibleFrame.kt:138`, `setBackgroundColor(bibleView.backgroundColor)`); the Compose pane painted
+ * nothing, so any frame in which the hosted WebView had not drawn yet showed the window's default
+ * white. Creating a window makes that flash cover the WHOLE screen rather than one pane, because
+ * `WindowControl.restoreWindow` minimises the other unpinned windows first, leaving the brand-new
+ * empty pane as the only visible one. This also closes the reader-background parity gap recorded in
+ * the port's deferred list (the defect `and-bible-ios` PR #368 fixed on iOS).
+ *
+ * A lambda rather than a single colour because two panes can carry different day/night reader
+ * backgrounds.
  */
 @Composable
 fun SplitContent(
@@ -121,6 +138,7 @@ fun SplitContent(
     paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
     bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
     railOverlay: (@Composable BoxScope.() -> Unit)? = null,
+    paneBackground: (windowId: String) -> Color? = { null },
 ) {
     val windows = layout.windows.filter { it.isVisible }
     BoxWithConstraints(modifier.fillMaxSize()) {
@@ -153,6 +171,8 @@ fun SplitContent(
                             Modifier
                                 .weight(paneWeight(index))
                                 .fillMaxSize()
+                                // Before the tap handler so the fill covers the whole pane.
+                                .then(paneBackground(w.id)?.let { Modifier.background(it) } ?: Modifier)
                                 .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
                         ) {
                             pane(w.id)
@@ -195,6 +215,8 @@ fun SplitContent(
                             Modifier
                                 .weight(paneWeight(index))
                                 .fillMaxSize()
+                                // Before the tap handler so the fill covers the whole pane.
+                                .then(paneBackground(w.id)?.let { Modifier.background(it) } ?: Modifier)
                                 .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
                         ) {
                             pane(w.id)
