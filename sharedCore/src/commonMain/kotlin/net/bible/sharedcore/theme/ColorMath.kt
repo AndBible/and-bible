@@ -118,6 +118,32 @@ fun relativeLuminance(argb: Int): Double {
 /** Classic's check-mark rule: a swatch at or above 0.65 luminance gets a black check mark. */
 fun isLightColor(argb: Int): Boolean = relativeLuminance(argb) >= 0.65
 
+/** The WCAG contrast ratio between two colours, `(Lmax + 0.05) / (Lmin + 0.05)`. Symmetric; 21:1
+ *  for black against white, 1:1 for a colour against itself. Alpha is ignored — both inputs are
+ *  expected opaque, which is what [blendArgb] guarantees for the one caller that composes them. */
+fun contrastRatio(aArgb: Int, bArgb: Int): Double {
+    val la = relativeLuminance(aArgb)
+    val lb = relativeLuminance(bArgb)
+    return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+}
+
+/** Per-channel linear blend of [baseArgb] a [fraction] of the way towards [tintArgb], clamped to
+ *  `0..1`, result always opaque.
+ *
+ *  Blending in gamma-encoded sRGB rather than linear light is deliberate: this exists to nudge an
+ *  M3 surface role towards a category hue by a *perceptually* small step, and the surrounding code
+ *  (`shadeArgb`, the classic palette) is all gamma-space too. A linear-light blend at the same
+ *  fraction would read as a visibly larger jump. */
+fun blendArgb(baseArgb: Int, tintArgb: Int, fraction: Float): Int {
+    val f = fraction.coerceIn(0f, 1f)
+    fun ch(shift: Int): Int {
+        val b = (baseArgb shr shift) and 0xFF
+        val t = (tintArgb shr shift) and 0xFF
+        return (b + (t - b) * f).toInt().coerceIn(0, 255)
+    }
+    return (0xFF shl 24) or (ch(16) shl 16) or (ch(8) shl 8) or ch(0)
+}
+
 /** Six uppercase hex digits, alpha dropped — what the custom page's field shows.
  *  Hand-rolled rather than `String.format`, which is JVM-only. */
 fun hexOf(argb: Int): String = (argb and 0xFFFFFF).toString(16).uppercase().padStart(6, '0')

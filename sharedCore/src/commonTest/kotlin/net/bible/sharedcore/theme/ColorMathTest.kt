@@ -1,6 +1,7 @@
 package net.bible.sharedcore.theme
 
 import net.bible.service.common.DisplayColorMode
+import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -163,5 +164,100 @@ class ColorMathTest {
         // A composable is measured before it is drawn; a gesture arriving at size 0 must not divide by it.
         assertEquals(0f to 0f, satValFromOffset(10f, 10f, 0f, 0f))
         assertEquals(0f, hueFromOffset(10f, 0f))
+    }
+
+    // ---- "Choose passage" grid category tint ----
+
+    @Test fun blend_returns_the_endpoints_and_the_midpoint() {
+        val base = 0xFF204060.toInt()
+        val tint = 0xFFA0C0E0.toInt()
+        assertEquals(base, blendArgb(base, tint, 0f), "fraction 0 is the base")
+        assertEquals(tint, blendArgb(base, tint, 1f), "fraction 1 is the tint")
+        // Each channel is 0x80 apart, so the midpoint adds 0x40 to each.
+        assertEquals(0xFF6080A0.toInt(), blendArgb(base, tint, 0.5f))
+    }
+
+    @Test fun blend_clamps_the_fraction_and_forces_opaque_alpha() {
+        val base = 0xFF204060.toInt()
+        val tint = 0xFFA0C0E0.toInt()
+        assertEquals(base, blendArgb(base, tint, -1f), "clamped below")
+        assertEquals(tint, blendArgb(base, tint, 5f), "clamped above")
+        // The chip is drawn as a Surface colour, never composited over anything, so a translucent
+        // input must not leak a translucent fill.
+        assertEquals(0xFF, (blendArgb(0x00204060, 0x40A0C0E0, 0.5f) ushr 24) and 0xFF)
+    }
+
+    @Test fun contrast_ratio_matches_the_wcag_endpoints() {
+        val white = 0xFFFFFFFF.toInt()
+        val black = BLACK_ARGB
+        assertEquals(21.0, contrastRatio(white, black), 0.01)
+        assertEquals(21.0, contrastRatio(black, white), 0.01, "symmetric")
+        assertEquals(1.0, contrastRatio(white, white), 0.001, "a colour against itself")
+        assertEquals(1.0, contrastRatio(black, black), 0.001)
+    }
+
+    /**
+     * The scheme-independent half of the tinted chip's guarantee (spec §5 assertion 1). A/B batch 4b
+     * made the M3 scheme seed-derived, so `surfaceVariant`/`onSurfaceVariant` are NOT constants and
+     * no fixed fixture can prove the chip stays readable — that half is measured against real
+     * schemes, stock and seeded, in `GridCategoryTintContrastTest`.
+     *
+     * What holds for *any* base is the per-channel bound: every channel moves at most
+     * [CATEGORY_TINT_FRACTION] of the way to the category colour, and the result therefore always
+     * lies between the two. That is what "a quarter-step from `surfaceVariant`" actually means.
+     *
+     * Two things are deliberately NOT asserted, because both are false — and both were bugs in this
+     * test's first draft rather than in [blendArgb]:
+     *
+     * - **A luminance budget of the same fraction.** The blend is per-channel in gamma-encoded sRGB
+     *   while relative luminance decodes it through a convex transfer function, so at the bright end
+     *   a quarter-step in channel space is more than a quarter-step in luminance (`#FFFFFF` tinted
+     *   25% toward Acts blue `#0099FF` gives `#BFE5FF`: luminance 1.0 -> 0.75, a 0.25 shift where a
+     *   linear budget over the 0.71 gap would allow only 0.18).
+     * - **That the blend's luminance lies between the base's and the tint's.** Channels move in
+     *   opposite directions, so luminance is not monotone along the blend: `#E7E0EC` tinted toward
+     *   the Wisdom green `#99FF99` gives `#D3E7D7`, whose luminance (0.759) is *below* the base's
+     *   (0.762) even though the tint's (0.806) is above it — red falls 231->153 and blue 236->153
+     *   while only green rises. A tint can therefore darken a light surface slightly; harmless here,
+     *   but it means luminance ordering is not a property this blend has.
+     */
+    @Test fun the_category_tint_never_leaves_a_quarter_step_of_the_base_surface() {
+        // A sweep of plausible surfaceVariant values: near-black through near-white.
+        val bases = listOf(
+            0xFF000000.toInt(), 0xFF1D1B20.toInt(), 0xFF49454F.toInt(), 0xFF79747E.toInt(),
+            0xFFCAC4D0.toInt(), 0xFFE7E0EC.toInt(), 0xFFFFFFFF.toInt(),
+        )
+        // 0..9 are the real categories; -1 and 99 both fall through to the OTHER base.
+        val groups = (0..9).toList() + listOf(-1, 99)
+        for (base in bases) {
+            for (group in groups) {
+                val tint = categoryBaseArgb(group)
+                val blend = blendArgb(base, tint, CATEGORY_TINT_FRACTION)
+                val where = "base #${hexOf(base)}, group $group -> #${hexOf(blend)}"
+                for (shift in listOf(16, 8, 0)) {
+                    val b = (base shr shift) and 0xFF
+                    val t = (tint shr shift) and 0xFF
+                    val v = (blend shr shift) and 0xFF
+                    assertTrue(
+                        v >= minOf(b, t) && v <= maxOf(b, t),
+                        "$where: channel $shift ($v) left the base..tint interval ($b..$t)",
+                    )
+                    // +1 for the truncation in blendArgb's Float -> Int conversion.
+                    assertTrue(
+                        abs(v - b) <= CATEGORY_TINT_FRACTION * abs(t - b) + 1,
+                        "$where: channel $shift moved ${abs(v - b)} of ${abs(t - b)}, over budget",
+                    )
+                }
+            }
+        }
+    }
+
+    @Test fun every_category_has_its_own_base_and_unknown_groups_fall_back() {
+        val real = (0..9).map { categoryBaseArgb(it) }
+        assertEquals(real.size, real.distinct().size, "the ten categories must be distinguishable")
+        val other = categoryBaseArgb(-1)
+        assertEquals(other, categoryBaseArgb(99), "any out-of-range group is OTHER")
+        assertEquals(other, categoryBaseArgb(10))
+        real.forEach { assertEquals(0xFF, (it ushr 24) and 0xFF, "category bases are opaque") }
     }
 }
