@@ -196,59 +196,116 @@ class ColorMathTest {
         assertEquals(1.0, contrastRatio(black, black), 0.001)
     }
 
+    @Test fun blend_keeps_every_channel_inside_the_base_to_tint_interval() {
+        val base = 0xFF49454F.toInt()
+        val tint = 0xFFFFFECD.toInt()
+        for (f in listOf(0f, 0.1f, 0.25f, 0.5f, 0.75f, 1f)) {
+            val blend = blendArgb(base, tint, f)
+            for (shift in listOf(16, 8, 0)) {
+                val b = (base shr shift) and 0xFF
+                val t = (tint shr shift) and 0xFF
+                val v = (blend shr shift) and 0xFF
+                assertTrue(v >= minOf(b, t) && v <= maxOf(b, t), "f=$f channel $shift: $v not in $b..$t")
+                // +1 for the truncation in blendArgb's Float -> Int conversion.
+                assertTrue(abs(v - b) <= f * abs(t - b) + 1, "f=$f channel $shift moved too far")
+            }
+        }
+    }
+
     /**
-     * The scheme-independent half of the tinted chip's guarantee (spec §5 assertion 1). A/B batch 4b
-     * made the M3 scheme seed-derived, so `surfaceVariant`/`onSurfaceVariant` are NOT constants and
-     * no fixed fixture can prove the chip stays readable — that half is measured against real
-     * schemes, stock and seeded, in `GridCategoryTintContrastTest`.
+     * What is deliberately NOT asserted about [blendArgb], because both are false — and both were
+     * written as assertions in this test's first draft, failed, and were the reason the chip's whole
+     * mechanism changed:
      *
-     * What holds for *any* base is the per-channel bound: every channel moves at most
-     * [CATEGORY_TINT_FRACTION] of the way to the category colour, and the result therefore always
-     * lies between the two. That is what "a quarter-step from `surfaceVariant`" actually means.
+     * - **A luminance shift bounded by the blend fraction.** The blend is per-channel in gamma-encoded
+     *   sRGB while relative luminance decodes it through a convex transfer function, so at the bright
+     *   end a quarter-step in channel space is more than a quarter-step in luminance.
+     * - **That the blend's luminance lies between the endpoints'.** Channels move in opposite
+     *   directions, so luminance is not monotone along the blend.
      *
-     * Two things are deliberately NOT asserted, because both are false — and both were bugs in this
-     * test's first draft rather than in [blendArgb]:
-     *
-     * - **A luminance budget of the same fraction.** The blend is per-channel in gamma-encoded sRGB
-     *   while relative luminance decodes it through a convex transfer function, so at the bright end
-     *   a quarter-step in channel space is more than a quarter-step in luminance (`#FFFFFF` tinted
-     *   25% toward Acts blue `#0099FF` gives `#BFE5FF`: luminance 1.0 -> 0.75, a 0.25 shift where a
-     *   linear budget over the 0.71 gap would allow only 0.18).
-     * - **That the blend's luminance lies between the base's and the tint's.** Channels move in
-     *   opposite directions, so luminance is not monotone along the blend: `#E7E0EC` tinted toward
-     *   the Wisdom green `#99FF99` gives `#D3E7D7`, whose luminance (0.759) is *below* the base's
-     *   (0.762) even though the tint's (0.806) is above it — red falls 231->153 and blue 236->153
-     *   while only green rises. A tint can therefore darken a light surface slightly; harmless here,
-     *   but it means luminance ordering is not a property this blend has.
+     * Both are pinned here as characterisation tests: they are surprising enough that someone will
+     * eventually "fix" one of them, and these say out loud that the behaviour is understood.
      */
-    @Test fun the_category_tint_never_leaves_a_quarter_step_of_the_base_surface() {
-        // A sweep of plausible surfaceVariant values: near-black through near-white.
-        val bases = listOf(
-            0xFF000000.toInt(), 0xFF1D1B20.toInt(), 0xFF49454F.toInt(), 0xFF79747E.toInt(),
-            0xFFCAC4D0.toInt(), 0xFFE7E0EC.toInt(), 0xFFFFFFFF.toInt(),
+    @Test fun blend_luminance_is_neither_fraction_bounded_nor_monotone() {
+        // #FFFFFF a quarter of the way to Acts blue #0099FF: luminance 1.0 -> ~0.75, a 0.25 drop where
+        // a linear budget over the 0.71 endpoint gap would allow only ~0.18.
+        val bright = blendArgb(0xFFFFFFFF.toInt(), 0xFF0099FF.toInt(), 0.25f)
+        assertEquals(0xFFBFE5FF.toInt(), bright)
+        val drop = relativeLuminance(0xFFFFFFFF.toInt()) - relativeLuminance(bright)
+        assertTrue(drop > 0.25 * abs(relativeLuminance(0xFF0099FF.toInt()) - 1.0), "shift exceeds a linear budget")
+
+        // #E7E0EC a quarter of the way to the Wisdom green #99FF99: red 231->153 and blue 236->153 fall
+        // while only green rises, so the result is DARKER than the base even though the tint is
+        // lighter. The fraction is spelled out rather than taken from CATEGORY_TINT_FRACTION: this is a
+        // fact about blendArgb at 0.25, and the chip's dial is free to move.
+        val base = 0xFFE7E0EC.toInt()
+        val tint = 0xFF99FF99.toInt()
+        val blend = blendArgb(base, tint, 0.25f)
+        assertTrue(relativeLuminance(tint) > relativeLuminance(base), "the tint is the lighter of the two")
+        assertTrue(
+            relativeLuminance(blend) < relativeLuminance(base),
+            "yet the blend is darker than the base: #${hexOf(blend)}",
         )
+    }
+
+    @Test fun luminance_matching_hits_the_target_and_keeps_the_extremes_reachable() {
+        val magenta = 0xFFFE33FF.toInt()
+        for (target in listOf(0.0, 0.02, 0.12, 0.35, 0.76, 0.98, 1.0)) {
+            val matched = luminanceMatchedArgb(magenta, target)
+            assertEquals(target, relativeLuminance(matched), 0.02, "target $target -> #${hexOf(matched)}")
+        }
+        // The bracket really does span black to white, so no target is out of reach.
+        assertEquals(0xFF000000.toInt(), luminanceMatchedArgb(magenta, 0.0))
+        assertEquals(0xFFFFFFFF.toInt(), luminanceMatchedArgb(magenta, 1.0))
+    }
+
+    /**
+     * The property the whole design rests on, and — unlike the fraction-bounded claim it replaced —
+     * genuinely scheme-independent: the chip lands at essentially the surface's own luminance, so the
+     * scheme's `surfaceVariant`/`onSurfaceVariant` contrast survives whatever seed A/B batch 4b's
+     * MaterialKolor derivation produces. The absolute contrast figures against real stock and seeded
+     * schemes are measured separately in `GridCategoryTintContrastTest`.
+     */
+    @Test fun the_category_chip_lands_at_the_surface_luminance() {
+        // The real M3 surfaceVariants plus a dense grey sweep. The sweep matters: the worst drift is
+        // NOT at the extremes but in the middle (mid-grey #949494 against the Revelation magenta), so a
+        // list of only the stock values would miss it. `surfaceVariant` is a low-chroma neutral in every
+        // seeded scheme, which is why greys are the right sweep.
+        val bases = listOf(0xFF1D1B20.toInt(), 0xFF49454F.toInt(), 0xFFCAC4D0.toInt(), 0xFFE7E0EC.toInt()) +
+            (0..255 step 8).map { 0xFF000000.toInt() or (it shl 16) or (it shl 8) or it }
         // 0..9 are the real categories; -1 and 99 both fall through to the OTHER base.
         val groups = (0..9).toList() + listOf(-1, 99)
+        // 0.05 is a measured ceiling, not a design target: the worst drift over this sweep is 0.044.
+        // Gamma-space blending of two colours of equal luminance but very different chroma does not
+        // preserve luminance exactly, and at mid-grey that error peaks. Harmless — the contrast
+        // consequence is measured directly in GridCategoryTintContrastTest (worst 5.45:1 against 5.44:1
+        // untinted) — but it is why this asserts "lands at" and not "equals".
         for (base in bases) {
             for (group in groups) {
-                val tint = categoryBaseArgb(group)
-                val blend = blendArgb(base, tint, CATEGORY_TINT_FRACTION)
-                val where = "base #${hexOf(base)}, group $group -> #${hexOf(blend)}"
-                for (shift in listOf(16, 8, 0)) {
-                    val b = (base shr shift) and 0xFF
-                    val t = (tint shr shift) and 0xFF
-                    val v = (blend shr shift) and 0xFF
-                    assertTrue(
-                        v >= minOf(b, t) && v <= maxOf(b, t),
-                        "$where: channel $shift ($v) left the base..tint interval ($b..$t)",
-                    )
-                    // +1 for the truncation in blendArgb's Float -> Int conversion.
-                    assertTrue(
-                        abs(v - b) <= CATEGORY_TINT_FRACTION * abs(t - b) + 1,
-                        "$where: channel $shift moved ${abs(v - b)} of ${abs(t - b)}, over budget",
-                    )
-                }
+                val chip = categoryChipArgb(base, categoryBaseArgb(group))
+                val drift = abs(relativeLuminance(chip) - relativeLuminance(base))
+                assertTrue(
+                    drift <= 0.05,
+                    "base #${hexOf(base)}, group $group -> #${hexOf(chip)} drifted $drift in luminance",
+                )
             }
+        }
+    }
+
+    @Test fun the_category_chip_actually_carries_the_hue_it_is_given() {
+        // The counterpart of the luminance test: matching lightness must not flatten the chip back to
+        // the surface. On the stock light and dark surfaceVariants every category must be a distinct
+        // colour, or the signal this exists to restore is not there.
+        for (base in listOf(0xFFE7E0EC.toInt(), 0xFF49454F.toInt())) {
+            val chips = (0..9).map { categoryChipArgb(base, categoryBaseArgb(it)) }
+            chips.forEachIndexed { i, chip ->
+                assertTrue(chip != base, "group $i left the chip at the plain surface #${hexOf(base)}")
+            }
+            // Major prophets (#FF99FF) and Revelation (#FE33FF) are two magentas classic separates only
+            // by saturation, which the luminance match collapses on a light surface — a known and
+            // accepted cost (see categoryChipArgb), so the count is 9 distinct rather than 10 there.
+            val distinct = chips.distinct().size
+            assertTrue(distinct >= 9, "only $distinct distinct chips on #${hexOf(base)}: $chips")
         }
     }
 

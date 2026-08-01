@@ -38,7 +38,6 @@ data class GridUi(
     val step: GridStep,
     val title: String,
     val columns: Int,
-    val colorAllButtons: Boolean,
     val showLongNames: Boolean,
     val showProgress: Boolean,
     val showDeutToggle: Boolean,

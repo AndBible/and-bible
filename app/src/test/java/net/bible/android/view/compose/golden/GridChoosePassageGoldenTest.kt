@@ -33,7 +33,7 @@ class GridChoosePassageGoldenTest {
     )
     private val opts = GridOptions(showScripture = true, alphabetical = false, ltr = false, groupByCategory = false, longNames = false, showProgress = true)
     private fun bookUi(long: Boolean = false, sections: List<List<GridButton>>? = null) =
-        GridUi(GridStep.BOOK, "Choose passage (Workspace 1)", 6, colorAllButtons = false, showLongNames = long, showProgress = true, showDeutToggle = true, buttons = books, sections = sections)
+        GridUi(GridStep.BOOK, "Choose passage (Workspace 1)", 6, showLongNames = long, showProgress = true, showDeutToggle = true, buttons = books, sections = sections)
 
     @Test fun grid_book_flat() {
         captureMatrix("GridChoosePassage", "book_flat") { GridChoosePassageScreen(bookUi(), opts, {}, {}, {}) }
@@ -62,7 +62,7 @@ class GridChoosePassageGoldenTest {
         val chapters = (1..24).map { GridButton(it, it.toString(), colorGroup = 2, isCurrent = it == 3, readProgress = if (it < 3) 1f else 0f) }
         captureGolden("GridChoosePassage", "chapter", EDGE_MODE) {
             GridChoosePassageScreen(
-                GridUi(GridStep.CHAPTER, "Psalms", 5, colorAllButtons = false, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = chapters),
+                GridUi(GridStep.CHAPTER, "Psalms", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = chapters),
                 opts, {}, {}, {},
             )
         }
@@ -72,7 +72,7 @@ class GridChoosePassageGoldenTest {
         val verses = (1..31).map { GridButton(it, it.toString(), colorGroup = 2, isCurrent = it == 6, memProgress = if (it == 6) 1f else 0f) }
         captureGolden("GridChoosePassage", "verse", EDGE_MODE) {
             GridChoosePassageScreen(
-                GridUi(GridStep.VERSE, "Psalms 3", 5, colorAllButtons = false, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = verses),
+                GridUi(GridStep.VERSE, "Psalms 3", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = verses),
                 opts, {}, {}, {},
             )
         }

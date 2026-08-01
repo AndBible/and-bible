@@ -136,7 +136,7 @@ class GridChoosePassageComposeActivity : ActivityBase() {
         val sections = if (opts.groupByCategory) buttons.groupBy { coarseGroup(it.id) }.values.toList() else null
         val ordered = if (sections == null && CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
         val showDeut = navigationControl.getBibleBooks(false).isNotEmpty()
-        return GridUi(GridStep.BOOK, "$baseTitle ($workspaceName)", columns, colorAllButtons = false,
+        return GridUi(GridStep.BOOK, "$baseTitle ($workspaceName)", columns,
             showLongNames = opts.longNames, showProgress = opts.showProgress, showDeutToggle = showDeut,
             buttons = ordered, sections = sections)
     }
@@ -156,7 +156,7 @@ class GridChoosePassageComposeActivity : ActivityBase() {
         }
         val columns = layoutColumns(buttons.size, CommonUtils.isPortrait, isBookGrid = false)
         val ordered = if (CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
-        return GridUi(GridStep.CHAPTER, v11n.getLongName(book), columns, colorAllButtons = false,
+        return GridUi(GridStep.CHAPTER, v11n.getLongName(book), columns,
             showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered)
     }
 
@@ -176,7 +176,7 @@ class GridChoosePassageComposeActivity : ActivityBase() {
         }
         val columns = layoutColumns(buttons.size, CommonUtils.isPortrait, isBookGrid = false)
         val ordered = if (CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
-        return GridUi(GridStep.VERSE, "${v11n.getLongName(book)} $selectedChapter", columns, colorAllButtons = false,
+        return GridUi(GridStep.VERSE, "${v11n.getLongName(book)} $selectedChapter", columns,
             showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered)
     }
 

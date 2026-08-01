@@ -42,7 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -134,17 +133,17 @@ fun GridChoosePassageScreen(
 
 @Composable
 private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) -> Unit) {
-    // M3 neutral + accent: inactive cells are a neutral tonal surface, the current cell a filled
-    // primary container — both theme-aware (no hardcoded dark). The legacy full-category-palette
-    // mode (colorAllButtons) keeps its BW/COLOR_EINK-aware category colours (CategoryPalette.kt).
+    // M3 neutral + accent, theme-aware throughout (no hardcoded dark): an inactive cell is the
+    // neutral tonal surface tinted a quarter-step towards its book's category colour — classic's
+    // category signal, see categoryChipColor — and the current cell is a filled primary container.
+    // The current cell deliberately keeps M3's accent rather than classic's category fill: now that
+    // every OTHER cell carries the category hue, reusing it for "current" would weaken the very
+    // signal the tint adds.
     val container = when {
-        ui.colorAllButtons -> categoryColor(b.colorGroup)
         b.isCurrent -> MaterialTheme.colorScheme.primaryContainer
-        else -> MaterialTheme.colorScheme.surfaceVariant
+        else -> categoryChipColor(b.colorGroup, MaterialTheme.colorScheme.surfaceVariant)
     }
     val textColor = when {
-        // Category colours are always light pastels/greys, so pick contrast by fill luminance.
-        ui.colorAllButtons -> if (container.luminance() > 0.5f) Color.Black else Color.White
         b.isCurrent -> MaterialTheme.colorScheme.onPrimaryContainer
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }

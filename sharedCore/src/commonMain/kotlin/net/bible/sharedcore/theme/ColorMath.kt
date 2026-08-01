@@ -127,6 +127,27 @@ fun contrastRatio(aArgb: Int, bArgb: Int): Double {
     return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
 }
 
+/** The shade of [baseArgb] (see [shadeArgb]) whose relative luminance is closest to
+ *  [targetLuminance] — i.e. the same hue re-lit to sit at a given lightness.
+ *
+ *  Found by bisection, which is exact enough to be exact: [shadeArgb]'s luminance is monotone in its
+ *  percentage (`-1` is black, `+1` is white, so the target is always bracketed), and 24 halvings
+ *  resolve the percentage far below the point where two neighbouring values can still differ in an
+ *  8-bit channel. */
+fun luminanceMatchedArgb(baseArgb: Int, targetLuminance: Double): Int {
+    var lo = -1.0
+    var hi = 1.0
+    repeat(24) {
+        val mid = (lo + hi) / 2
+        if (relativeLuminance(shadeArgb(baseArgb, mid)) < targetLuminance) lo = mid else hi = mid
+    }
+    // Both ends of the final bracket round to the same 8-bit colour in all but pathological cases;
+    // pick whichever is actually nearer the target rather than assuming.
+    val a = shadeArgb(baseArgb, lo)
+    val b = shadeArgb(baseArgb, hi)
+    return if (abs(relativeLuminance(a) - targetLuminance) <= abs(relativeLuminance(b) - targetLuminance)) a else b
+}
+
 /** Per-channel linear blend of [baseArgb] a [fraction] of the way towards [tintArgb], clamped to
  *  `0..1`, result always opaque.
  *

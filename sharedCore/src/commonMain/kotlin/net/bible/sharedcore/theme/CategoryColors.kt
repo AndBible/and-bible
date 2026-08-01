@@ -51,11 +51,33 @@ fun categoryBaseArgb(colorGroup: Int): Int =
 
 /**
  * How far the "Choose passage" grid's inactive chip is blended from `surfaceVariant` towards its
- * category colour.
- *
- * A quarter step is the measured maximum that keeps every category's chip at ≥ 4.5:1 against
- * `onSurfaceVariant` in both stock M3 schemes (asserted in `GridCategoryTintContrastTest`) while
- * still reading as a distinguishable hue family. It is an output of that measurement, not a
- * preference: if the scheme or the palette changes and the assertion fails, lower this value.
+ * luminance-matched category colour. Purely a strength dial for the look — unlike a blend towards
+ * the *raw* palette, it does not trade against text contrast, because [categoryChipArgb] matches
+ * luminance first.
  */
-const val CATEGORY_TINT_FRACTION: Float = 0.25f
+const val CATEGORY_TINT_FRACTION: Float = 0.5f
+
+/**
+ * The "Choose passage" grid's inactive chip: [surfaceArgb] blended [CATEGORY_TINT_FRACTION] of the
+ * way towards [categoryArgb] **after** that category colour has been shaded to [surfaceArgb]'s own
+ * luminance.
+ *
+ * The luminance match is what makes this safe, and it was arrived at by measurement rather than
+ * taste. Blending straight towards the raw palette does not work: M3 leaves only 5.44:1 between
+ * `surfaceVariant` and `onSurfaceVariant` at its worst across seeded schemes, and the categories
+ * include near-white creams (`#FFFECD`) that lighten a dark chip fast — the largest fixed fraction
+ * still clearing WCAG AA (4.5:1) everywhere measured **0.06**, far too faint to signal anything.
+ * Shading the category colour to the surface's luminance first removes that trade entirely: the chip
+ * changes hue without materially changing lightness, so the scheme's own text pairing survives (worst
+ * measured 5.45:1 at this fraction, against 5.44:1 untinted) and the fraction is free to be chosen
+ * for looks.
+ *
+ * Known cost of the match, recorded rather than worked around: it collapses saturation differences at
+ * extreme target luminances, so in a light theme Major prophets (`#FF99FF`) and Revelation
+ * (`#FE33FF`) — two magentas that classic distinguishes only by saturation — both land on `#FFD6FF`
+ * and become indistinguishable. They stay distinct in a dark theme.
+ */
+fun categoryChipArgb(surfaceArgb: Int, categoryArgb: Int): Int {
+    val matched = luminanceMatchedArgb(categoryArgb, relativeLuminance(surfaceArgb))
+    return blendArgb(surfaceArgb, matched, CATEGORY_TINT_FRACTION)
+}

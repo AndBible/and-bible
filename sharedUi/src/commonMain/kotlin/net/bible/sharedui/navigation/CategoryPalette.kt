@@ -17,30 +17,43 @@
 package net.bible.sharedui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import net.bible.sharedcore.theme.accentArgbFor
+import net.bible.sharedcore.theme.categoryBaseArgb
+import net.bible.sharedcore.theme.categoryChipArgb
 import net.bible.sharedui.theme.LocalDisplayColorMode
 
-// The classic getBookColorAndGroup palette (ARGB), one per category 0..9.
-private val CATEGORY_BASE = intArrayOf(
-    0xFFCCCCFE.toInt(), // 0 Pentateuch
-    0xFFFECC9B.toInt(), // 1 History
-    0xFF99FF99.toInt(), // 2 Wisdom
-    0xFFFF99FF.toInt(), // 3 Major prophets
-    0xFFFFFECD.toInt(), // 4 Minor prophets
-    0xFFFF9703.toInt(), // 5 Gospel
-    0xFF0099FF.toInt(), // 6 Acts
-    0xFFFFFF31.toInt(), // 7 Pauline
-    0xFF67CC66.toInt(), // 8 General epistles
-    0xFFFE33FF.toInt(), // 9 Revelation
-)
-private const val OTHER_BASE = 0xFF0099FF.toInt() // classic OTHER_COLOR = Acts blue
-
-/** Category color for a [GridButton.colorGroup]; grays out in BW, stays colored in COLOR_EINK. */
+/** Category color for a [GridButton.colorGroup]; grays out in BW, stays colored in COLOR_EINK.
+ *  The palette itself lives in `:sharedCore` ([categoryBaseArgb]) so the tint maths can be swept
+ *  over the real table in a unit test rather than over a copy that could drift from it. */
 @Composable
-fun categoryColor(colorGroup: Int): Color {
-    val base = if (colorGroup in CATEGORY_BASE.indices) CATEGORY_BASE[colorGroup] else OTHER_BASE
-    return Color(accentArgbFor(base, LocalDisplayColorMode.current))
+fun categoryColor(colorGroup: Int): Color =
+    Color(accentArgbFor(categoryBaseArgb(colorGroup), LocalDisplayColorMode.current))
+
+/**
+ * The "Choose passage" grid's inactive chip fill: [base] — the caller passes
+ * `MaterialTheme.colorScheme.surfaceVariant` — tinted towards the book's category colour by
+ * [categoryChipArgb], which shades that colour to [base]'s own luminance first.
+ *
+ * This restores classic's category signal, which the port had lost. Classic paints category-coloured
+ * *text* on a dark chip; that cannot be reproduced literally, because its palette is light pastels
+ * (`#CCCCFE`, `#FFFF31`) which are near-invisible as text on a light `surfaceVariant`. Tinting the
+ * chip instead keeps the label on M3's `surfaceVariant`/`onSurfaceVariant` pair — see
+ * [categoryChipArgb] for why the luminance match, not the fraction, is what makes that safe.
+ *
+ * BW needs no branch here: [categoryColor] already routes the palette through `accentArgbFor`, so the
+ * tint is grey in BW and the chip stays within a hair of the plain surface.
+ *
+ * `remember`ed because the bisection in `luminanceMatchedArgb` runs 24 luminance evaluations and a
+ * grid recomposes per scroll: the keys are everything the result depends on, so a cell computes this
+ * once.
+ */
+@Composable
+fun categoryChipColor(colorGroup: Int, base: Color): Color {
+    val category = categoryColor(colorGroup)
+    return remember(category, base) { Color(categoryChipArgb(base.toArgb(), category.toArgb())) }
 }
 
 // Progress-bar hues (classic green/gold), also e-ink-aware.

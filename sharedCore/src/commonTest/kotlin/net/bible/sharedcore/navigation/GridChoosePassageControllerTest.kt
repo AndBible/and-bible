@@ -6,7 +6,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class GridChoosePassageControllerTest {
-    private fun ui(s: GridStep) = GridUi(s, "t", 6, s == GridStep.BOOK, false, false, true, emptyList())
+    private fun ui(s: GridStep) = GridUi(s, "t", 6, false, false, true, emptyList())
     private val opts = GridOptions(showScripture = true, alphabetical = false, ltr = false, groupByCategory = false, longNames = false, showProgress = true)
 
     private var bookPick: BookPick = BookPick.GoChapter
