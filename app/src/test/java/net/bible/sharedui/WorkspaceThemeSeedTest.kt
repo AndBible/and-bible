@@ -38,4 +38,23 @@ class WorkspaceThemeSeedTest {
     fun `a workspace with no colour has no seed even when the switch is on`() {
         assertNull(workspaceThemeSeedArgb(setOf(WORKSPACE_COLOR_THEME_FEATURE), null))
     }
+
+    @Test
+    fun `master switch off means literal toolbar colour, even with the literal opt-out on`() {
+        assertEquals(false, deriveToolbarFromTheme(emptySet()))
+        assertEquals(false, deriveToolbarFromTheme(setOf(TOOLBAR_LITERAL_COLOR_FEATURE)))
+    }
+
+    @Test
+    fun `master switch on with the literal opt-out off derives the toolbar colour`() {
+        assertEquals(true, deriveToolbarFromTheme(setOf(WORKSPACE_COLOR_THEME_FEATURE)))
+    }
+
+    @Test
+    fun `master switch on with the literal opt-out on keeps the literal toolbar colour`() {
+        assertEquals(
+            false,
+            deriveToolbarFromTheme(setOf(WORKSPACE_COLOR_THEME_FEATURE, TOOLBAR_LITERAL_COLOR_FEATURE)),
+        )
+    }
 }

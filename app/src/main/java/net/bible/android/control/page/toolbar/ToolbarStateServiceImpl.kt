@@ -34,8 +34,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
-import net.bible.sharedui.TOOLBAR_LITERAL_COLOR_FEATURE
-import net.bible.sharedui.WORKSPACE_COLOR_THEME_FEATURE
+import net.bible.sharedui.deriveToolbarFromTheme
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 
@@ -111,16 +110,12 @@ class ToolbarStateServiceImpl(
             // HostedStateRefresher.refresh() (e.g. returning from colour settings), so the toolbar
             // picks a new colour up with no extra subscription.
             workspaceColorArgb = windowControl.windowRepository.workspaceSettings.workspaceColor,
-            // A/B batch 4b feedback (2026-08-01): derived is now the DEFAULT once the theme
-            // master switch is on; the literal colour is the opt-out
-            // (TOOLBAR_LITERAL_COLOR_FEATURE). So: master off -> false (literal, today's
-            // appearance); master on + literal opt-in off -> true (derived); master on + literal
-            // opt-in on -> false (literal). Computed once here rather than as two conditions on
-            // the :sharedUi side (see ToolbarState.deriveToolbarFromTheme's kdoc). Re-read fresh
-            // on every snapshot for the same reason as workspaceColorArgb above.
-            deriveToolbarFromTheme = CommonUtils.settings.enabledExperimentalFeatures.let {
-                WORKSPACE_COLOR_THEME_FEATURE in it && TOOLBAR_LITERAL_COLOR_FEATURE !in it
-            },
+            // A/B batch 4b feedback (2026-08-01): the rule itself is
+            // net.bible.sharedui.deriveToolbarFromTheme, a pure function unit-tested in
+            // WorkspaceThemeSeedTest (this class needs Koin + a Context + four collaborators, which
+            // is why the rule lives outside it). Re-read fresh on every snapshot for the same reason
+            // as workspaceColorArgb above.
+            deriveToolbarFromTheme = deriveToolbarFromTheme(CommonUtils.settings.enabledExperimentalFeatures),
         )
     }
 

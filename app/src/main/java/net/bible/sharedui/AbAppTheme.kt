@@ -62,6 +62,18 @@ fun currentWorkspaceThemeSeedArgb(): Int? = workspaceThemeSeedArgb(
 )
 
 /**
+ * The reading toolbar's colour rule, as a pure function so it can be unit-tested without Koin, a
+ * Context or [net.bible.android.control.page.toolbar.ToolbarStateServiceImpl]'s four collaborators
+ * (A/B batch 4b feedback, 2026-08-01). Derived is the DEFAULT once [WORKSPACE_COLOR_THEME_FEATURE]
+ * (the master switch) is on; [TOOLBAR_LITERAL_COLOR_FEATURE] is the opt-OUT back to the literal
+ * workspace colour, not an opt-in to deriving it. So: master off -> `false` (literal, today's
+ * appearance, regardless of the literal-colour flag); master on + literal opt-out off -> `true`
+ * (derived); master on + literal opt-out on -> `false` (literal).
+ */
+fun deriveToolbarFromTheme(enabledFeatures: Set<String>): Boolean =
+    WORKSPACE_COLOR_THEME_FEATURE in enabledFeatures && TOOLBAR_LITERAL_COLOR_FEATURE !in enabledFeatures
+
+/**
  * The one place `:app` reads the app-global theme inputs.
  *
  * Every Compose host used to repeat the same four reads (night mode, colour mode, animations) plus
