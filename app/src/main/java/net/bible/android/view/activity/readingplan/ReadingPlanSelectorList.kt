@@ -150,9 +150,11 @@ class ReadingPlanSelectorList : ListActivityBase(R.menu.reading_plan_selector) {
         installZipLauncher.launch(intent)
     }
 
-    private val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        // TODO load imported plan if result is OK
-        //  still need to set up "InstallZip" to return reading plan fileName (code)
+    private val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // Refresh list so newly imported plans are immediately selectable
+            recreate()
+        }
     }
 
     companion object {
