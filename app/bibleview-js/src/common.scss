@@ -169,6 +169,12 @@ $icon-grey: var(--icon-grey);
 
   &.toggled {
     background-color: #474747;
+    // Latent: nothing currently applies `.toggled` to a `.button` (dead CSS), but batch 4b
+    // changed what this rule would inherit for `color` from `.button` (now the themed
+    // on-primary-container token, fallback white, instead of the old literal `white` alone),
+    // which could land a dark tone on this dark grey if that token is ever actually themed.
+    // Pin it explicitly so a future revival of this class can't surprise anyone.
+    color: white;
     .monochrome & {
       background-color: black;
       color: white;
