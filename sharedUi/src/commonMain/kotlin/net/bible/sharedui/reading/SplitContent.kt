@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -171,6 +172,14 @@ fun SplitContent(
                             Modifier
                                 .weight(paneWeight(index))
                                 .fillMaxSize()
+                                // A pane must never paint outside itself. Compose does NOT clip
+                                // children to their bounds by default, and the hosted WebView is an
+                                // Android View that can be laid out larger than the pane for a frame
+                                // while the split settles — which drew the reader background over the
+                                // panes above it AND over the toolbar/system bar when a window was
+                                // created (A/B batch 4a F5, the symptom the pane background alone did
+                                // not fix).
+                                .clipToBounds()
                                 // Before the tap handler so the fill covers the whole pane.
                                 .then(paneBackground(w.id)?.let { Modifier.background(it) } ?: Modifier)
                                 .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
@@ -215,6 +224,14 @@ fun SplitContent(
                             Modifier
                                 .weight(paneWeight(index))
                                 .fillMaxSize()
+                                // A pane must never paint outside itself. Compose does NOT clip
+                                // children to their bounds by default, and the hosted WebView is an
+                                // Android View that can be laid out larger than the pane for a frame
+                                // while the split settles — which drew the reader background over the
+                                // panes above it AND over the toolbar/system bar when a window was
+                                // created (A/B batch 4a F5, the symptom the pane background alone did
+                                // not fix).
+                                .clipToBounds()
                                 // Before the tap handler so the fill covers the whole pane.
                                 .then(paneBackground(w.id)?.let { Modifier.background(it) } ?: Modifier)
                                 .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },

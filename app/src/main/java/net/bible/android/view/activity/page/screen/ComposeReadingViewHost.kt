@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -889,7 +890,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     // this, even with C1 fixed (the pane Box now paints the right colour underneath), a
                     // freshly created WebView still draws its platform-default white over that pane
                     // background until its first document finishes loading -- same flash, one layer up.
-                    AndroidView(factory = {
+                    AndroidView(modifier = Modifier.fillMaxSize(), factory = {
                         activity.bibleViewFactory.getOrCreateBibleView(window).apply { updateBackgroundColor() }
                     })
                 }
