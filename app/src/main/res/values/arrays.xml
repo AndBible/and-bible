@@ -284,8 +284,8 @@
 	<string-array name="experimental_features_names">
 		<item>@string/experimental_feature_bookmark_edit_actions</item>
 		<item>@string/experimental_feature_add_paragraph_break</item>
-		<item>@string/prefs_experimental_workspace_color_theme</item>
-		<item>@string/prefs_experimental_workspace_theme_toolbar</item>
+		<item>@string/experimental_feature_workspace_color_theme</item>
+		<item>@string/experimental_feature_workspace_theme_toolbar</item>
 	</string-array>
 	<string-array name="experimental_features_values">
 		<item>bookmark_edit_actions</item>

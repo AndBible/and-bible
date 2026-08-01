@@ -48,6 +48,10 @@ fun workspaceThemeSeedArgb(enabledFeatures: Set<String>, workspaceColorArgb: Int
 /** [workspaceThemeSeedArgb] applied to the live singletons: the settings and the active workspace. */
 fun currentWorkspaceThemeSeedArgb(): Int? = workspaceThemeSeedArgb(
     enabledFeatures = CommonUtils.settings.enabledExperimentalFeatures,
+    // This is the repo's idiom for a non-DI singleton lookup outside a Koin-injected constructor —
+    // e.g. `net.bible.service.llm.tools.write.ManageWindowTool.windowControl` does the same
+    // `GlobalContext.get().get<WindowControl>()` — not `org.koin.java.KoinJavaComponent.get`, which
+    // this repo does not otherwise use.
     workspaceColorArgb = GlobalContext.get().get<WindowControl>()
         .windowRepository.workspaceSettings.workspaceColor,
 )
