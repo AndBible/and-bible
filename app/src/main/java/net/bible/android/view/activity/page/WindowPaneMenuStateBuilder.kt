@@ -34,6 +34,7 @@ import net.bible.service.common.shortName
 import net.bible.service.download.isSpecial
 import net.bible.sharedcore.window.WindowPaneMenuItem
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.versification.BookName
 
 /**
  * Builds the Compose per-window (☰) pane popup menu's item list — the Compose-side counterpart
@@ -60,13 +61,15 @@ import org.crosswire.jsword.book.BookCategory
  * "native-in-Compose now" rows (`windowNew`, `windowMaximise`, `windowMinimise`, `changeToNormal`,
  * `pinMode`, `moveItem`, `syncGroupItem`/`disableSync`, `windowClose`) are `opensDialog = false`.
  *
- * **`copySettingsToWindow`/`Workspace`/`Global` are flattened.** Classic nests them two levels
- * deep (`textOptionsSubMenu` > `copySettingsTo` > one `copySettingsToWindow` row PER other visible
- * window, `SplitBibleArea.kt:778-803`). This Compose menu exposes them as three flat top-level
- * rows instead (per the id scheme in the Task-4 brief, which lists them as static — not dynamic
- * per-window — ids); `copySettingsToWindow` is visible only when there is at least one other
- * visible window to copy to, and the actual target-window resolution is the host dispatcher's
- * job (Task 5), not this builder's.
+ * **`copySettingsToWindow`/`Workspace`/`Global` follow classic's nesting.** They sit under
+ * `textOptionsSubMenu` > `copySettingsTo` — one dynamic `copySettingsToWindow` row PER other
+ * visible window, plus the `Workspace`/`Global` rows (`SplitBibleArea.kt:778-803`,
+ * `:1002-1010`). Batch 12b follow-on had flattened these into three top-level rows with a picker
+ * dialog resolving the target window; the maintainer overruled that in A/B feedback batch 4a (F4),
+ * so the classic shape is back — do not re-flatten it, that has already been tried and rejected on
+ * device. The one surviving divergence: the `textOptionsSubMenu` (and so `copySettingsTo` with it)
+ * stays present even with an empty display-setting history, where classic removes the whole
+ * submenu (see `buildCopySettingsItems`'s kdoc for why that's kept).
  *
  * **`textOptionsSubMenu` always ends with `allTextOptions`** — classic's
  * `window_popup_menu.xml` declares it as a static child at orderInCategory=1000, present
@@ -211,52 +214,6 @@ class WindowPaneMenuStateBuilder(
             )
         }
 
-        // SplitBibleArea.kt:1002-1010 (WindowControl.copySettingsTo*), flattened -- see class kdoc.
-        //
-        // INTENTIONAL WIDENING (controller-adjudicated, not a bug): classic nests these three rows
-        // two levels deep inside `textOptionsSubMenu` (`window_popup_menu.xml`), and when
-        // `CommonUtils.lastDisplaySettingsSorted` is empty, classic's `showPopupMenu` REMOVES THE
-        // WHOLE `textOptionsSubMenu` (SplitBibleArea.kt:816-820) -- which incidentally hides
-        // copySettingsTo* too, on a fresh install with no display-setting history. This builder
-        // gates copySettingsTo* independently (only on `window.isVisible` + "another visible
-        // window exists" for the Window variant), so it stays visible even with no last display
-        // settings. This is a deliberate divergence: classic's coupling is an XML-nesting artifact
-        // of where the menu items happen to live, not a considered product decision -- copying
-        // settings to another window/workspace/globally is useful regardless of whether the user
-        // has ever touched a per-item display setting. Do not "fix" this to match classic's
-        // coupling.
-        //
-        // Carry-note for the Task-5 host dispatcher: `copySettingsToWindow` must resolve the
-        // ACTUAL target window (classic's copy-settings dialog lets the user pick one of the other
-        // visible windows, SplitBibleArea.kt:1005-1007's `order` param) -- do not default silently
-        // to "first other window".
-        if (window.isVisible) {
-            // DIVERGENCE: classic nests these three under a `copySettingsTo` PARENT that alone
-            // carries `ic_content_copy_black_24dp` (the children are iconless) -- since this
-            // builder promotes them to top-level rows (see "INTENTIONAL WIDENING" above), each
-            // takes the parent's icon so the promoted rows still read as "copy settings".
-            if (windowRepository.visibleWindows.any { it.id != window.id }) {
-                items += WindowPaneMenuItem(
-                    id = ID_COPY_SETTINGS_TO_WINDOW,
-                    label = app.getString(R.string.copy_settings_to_other_window),
-                    opensDialog = true,
-                    iconKey = "ic_content_copy_black_24dp",
-                )
-            }
-            items += WindowPaneMenuItem(
-                id = ID_COPY_SETTINGS_TO_WORKSPACE,
-                label = "${app.getString(R.string.copy_settings)} ${app.getString(R.string.copy_settings_to_workspace)}",
-                opensDialog = true,
-                iconKey = "ic_content_copy_black_24dp",
-            )
-            items += WindowPaneMenuItem(
-                id = ID_COPY_SETTINGS_TO_GLOBAL,
-                label = "${app.getString(R.string.copy_settings)} ${app.getString(R.string.copy_settings_to_global)}",
-                opensDialog = true,
-                iconKey = "ic_content_copy_black_24dp",
-            )
-        }
-
         // SplitBibleArea.kt:1049-1063
         if (CommonUtils.settings.llmConfigured && window.isVisible) {
             items += WindowPaneMenuItem(
@@ -363,6 +320,12 @@ class WindowPaneMenuStateBuilder(
                     opensDialog = true,
                     iconKey = "ic_text_options_24dp",
                 ),
+                WindowPaneMenuItem(
+                    id = ID_COPY_SETTINGS_TO_SUBMENU,
+                    label = app.getString(R.string.copy_settings),
+                    submenu = buildCopySettingsItems(window),
+                    iconKey = "ic_content_copy_black_24dp",
+                ),
             )
         }
         // SplitBibleArea.kt:866-874
@@ -400,7 +363,58 @@ class WindowPaneMenuStateBuilder(
             label = app.getString(R.string.all_text_options_window_menutitle),
             opensDialog = true,
             iconKey = "ic_text_options_24dp",
+        ) + WindowPaneMenuItem(
+            id = ID_COPY_SETTINGS_TO_SUBMENU,
+            label = app.getString(R.string.copy_settings),
+            submenu = buildCopySettingsItems(window),
+            iconKey = "ic_content_copy_black_24dp",
         )
+    }
+
+    /**
+     * SplitBibleArea.kt:778-803 (per-window rows), :1002-1010 (the three actions).
+     *
+     * Classic nests these under `textOptionsSubMenu` > `copySettingsTo`. Batch 12b follow-on had
+     * flattened them into three top-level rows with a picker dialog resolving the target window;
+     * the maintainer overruled that in A/B feedback batch 4a (F4), so the classic shape is back.
+     * Keep it: the flattening has already been tried and rejected on device.
+     *
+     * RETAINED DIVERGENCE: classic removes the entire `textOptionsSubMenu` when there is no
+     * display-setting history (SplitBibleArea.kt:816-820), which incidentally hides copy-settings
+     * too. The submenu stays here, so copy-settings is reachable on a fresh install. That was the
+     * useful half of the reverted widening and is deliberately kept.
+     */
+    private fun buildCopySettingsItems(window: Window): List<WindowPaneMenuItem> {
+        val items = mutableListOf<WindowPaneMenuItem>()
+        // SplitBibleArea.kt:793-802: `order` counts over visibleWindows INCLUDING this window, and
+        // is what WindowControl.copySettingsToWindow(window, order) expects -- so index with
+        // forEachIndexed over the whole list and skip self, never over a pre-filtered list.
+        synchronized(BookName::class.java) {
+            val oldValue = BookName.isFullBookName()
+            BookName.setFullBookName(false)
+            windowRepository.visibleWindows.forEachIndexed { order, other ->
+                if (other.id == window.id) return@forEachIndexed
+                val page = other.pageManager.currentPage
+                items += WindowPaneMenuItem(
+                    id = idForCopySettingsToWindow(order),
+                    label = app.getString(
+                        R.string.copy_settings_to_window, order + 1, page.currentDocument?.abbreviation, page.key?.name,
+                    ),
+                )
+            }
+            BookName.setFullBookName(oldValue)
+        }
+        items += WindowPaneMenuItem(
+            id = ID_COPY_SETTINGS_TO_WORKSPACE,
+            label = app.getString(R.string.copy_settings_to_workspace),
+            opensDialog = true,
+        )
+        items += WindowPaneMenuItem(
+            id = ID_COPY_SETTINGS_TO_GLOBAL,
+            label = app.getString(R.string.copy_settings_to_global),
+            opensDialog = true,
+        )
+        return items
     }
 
     companion object {
@@ -419,9 +433,9 @@ class WindowPaneMenuStateBuilder(
         const val ID_EXPORT_HTML = "exportHtml"
         const val ID_EXPORT_STUDYPAD = "exportStudypad"
         const val ID_EXPORT_STUDYPAD_CSV = "exportStudypadCsv"
-        const val ID_COPY_SETTINGS_TO_WINDOW = "copySettingsToWindow"
         const val ID_COPY_SETTINGS_TO_WORKSPACE = "copySettingsToWorkspace"
         const val ID_COPY_SETTINGS_TO_GLOBAL = "copySettingsToGlobal"
+        const val ID_COPY_SETTINGS_TO_SUBMENU = "copySettingsTo"
         const val ID_LLM_ACTIONS_SUBMENU = "llmActionsSubMenu"
         const val ID_MOVE_WINDOW_SUBMENU = "moveWindowSubMenu"
         const val ID_SYNC_GROUP_SUBMENU = "syncGroupSubMenu"
@@ -430,28 +444,33 @@ class WindowPaneMenuStateBuilder(
         private const val MOVE_ITEM_PREFIX = "moveItem:"
         private const val SYNC_GROUP_ITEM_PREFIX = "syncGroupItem:"
         private const val TEXT_OPTION_ITEM_PREFIX = "textOptionItem:"
+        private const val COPY_SETTINGS_TO_WINDOW_PREFIX = "copySettingsToWindow:"
 
         private val staticIds: Set<String> = setOf(
             ID_WINDOW_NEW, ID_WINDOW_MAXIMISE, ID_WINDOW_MINIMISE, ID_CHANGE_TO_NORMAL, ID_PIN_MODE,
             ID_DISABLE_SYNC, ID_ALL_TEXT_OPTIONS, ID_WINDOW_CLOSE, ID_COPY_REFERENCE, ID_GO_TO_REFERENCE,
             ID_GO_TO_SPEAK, ID_ADD_WHOLE_PAGE_BOOKMARK, ID_EXPORT_HTML, ID_EXPORT_STUDYPAD, ID_EXPORT_STUDYPAD_CSV,
-            ID_COPY_SETTINGS_TO_WINDOW, ID_COPY_SETTINGS_TO_WORKSPACE, ID_COPY_SETTINGS_TO_GLOBAL,
+            ID_COPY_SETTINGS_TO_WORKSPACE, ID_COPY_SETTINGS_TO_GLOBAL, ID_COPY_SETTINGS_TO_SUBMENU,
             ID_LLM_ACTIONS_SUBMENU, ID_MOVE_WINDOW_SUBMENU, ID_SYNC_GROUP_SUBMENU, ID_TEXT_OPTIONS_SUBMENU,
         )
 
         fun idForMoveItem(order: Int): String = "$MOVE_ITEM_PREFIX$order"
         fun idForSyncGroupItem(order: Int): String = "$SYNC_GROUP_ITEM_PREFIX$order"
         fun idForTextOptionItem(order: Int): String = "$TEXT_OPTION_ITEM_PREFIX$order"
+        fun idForCopySettingsToWindow(order: Int): String = "$COPY_SETTINGS_TO_WINDOW_PREFIX$order"
 
         /**
-         * Reverses [idForMoveItem]/[idForSyncGroupItem]/[idForTextOptionItem] and the static id
-         * constants above into a [ParsedId] the host dispatcher (Task 5) can `when`-switch on.
-         * Throws on an unknown id (e.g. a stale click after the item list changed underneath it).
+         * Reverses [idForMoveItem]/[idForSyncGroupItem]/[idForTextOptionItem]/
+         * [idForCopySettingsToWindow] and the static id constants above into a [ParsedId] the host
+         * dispatcher (Task 5) can `when`-switch on. Throws on an unknown id (e.g. a stale click
+         * after the item list changed underneath it).
          */
         fun parseId(id: String): ParsedId = when {
             id.startsWith(MOVE_ITEM_PREFIX) -> ParsedId.MoveItem(id.removePrefix(MOVE_ITEM_PREFIX).toInt())
             id.startsWith(SYNC_GROUP_ITEM_PREFIX) -> ParsedId.SyncGroupItem(id.removePrefix(SYNC_GROUP_ITEM_PREFIX).toInt())
             id.startsWith(TEXT_OPTION_ITEM_PREFIX) -> ParsedId.TextOptionItem(id.removePrefix(TEXT_OPTION_ITEM_PREFIX).toInt())
+            id.startsWith(COPY_SETTINGS_TO_WINDOW_PREFIX) ->
+                ParsedId.CopySettingsToWindow(id.removePrefix(COPY_SETTINGS_TO_WINDOW_PREFIX).toInt())
             id in staticIds -> ParsedId.StaticItem(id)
             else -> throw IllegalArgumentException("Unknown window-pane-menu item id: $id")
         }
@@ -468,5 +487,6 @@ class WindowPaneMenuStateBuilder(
         data class MoveItem(val order: Int) : ParsedId
         data class SyncGroupItem(val order: Int) : ParsedId
         data class TextOptionItem(val order: Int) : ParsedId
+        data class CopySettingsToWindow(val order: Int) : ParsedId
     }
 }

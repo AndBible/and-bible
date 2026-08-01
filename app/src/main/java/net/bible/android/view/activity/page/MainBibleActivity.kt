@@ -1582,6 +1582,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 false
             }
             is WindowPaneMenuStateBuilder.ParsedId.TextOptionItem -> handleWindowTextOptionItem(window, parsed.order)
+            // SplitBibleArea.kt:1005-1007. A/B batch 4a F4: the target window comes from the menu
+            // row's own order now (classic's shape), not from a picker dialog.
+            is WindowPaneMenuStateBuilder.ParsedId.CopySettingsToWindow -> {
+                windowControl.copySettingsToWindow(window, parsed.order)
+                false
+            }
             is WindowPaneMenuStateBuilder.ParsedId.StaticItem -> handleWindowPaneStaticItem(window, parsed.id, controller)
         }
     }
@@ -1667,15 +1673,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             // SplitBibleArea.kt:1008-1010
             WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_GLOBAL -> {
                 windowControl.copySettingsToGlobal(window)
-                false
-            }
-            // SplitBibleArea.kt:1005-1007, :778-803 -- classic resolves the target window via one
-            // submenu row PER other window; this Compose menu flattened that into a single row
-            // (see `WindowPaneMenuStateBuilder`'s kdoc), so the target is resolved via a picker
-            // dialog here instead of defaulting to "first other window" (autonomous decision,
-            // documented in the task report).
-            WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WINDOW -> {
-                showCopySettingsToWindowPicker(window)
                 false
             }
             // SplitBibleArea.kt:1011-1019
@@ -1796,29 +1793,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             itemOptions.openDialog(this, { onReady() }, onReady)
             false
         }
-    }
-
-    /**
-     * SplitBibleArea.kt:1005-1007, :778-803, :1006 (`windowControl.copySettingsToWindow(window, order)`,
-     * `order` = the target's index in [WindowRepository.visibleWindows]). Classic resolves the
-     * target window via one submenu row PER other window; this Compose menu's `copySettingsToWindow`
-     * is a single flattened row (see `WindowPaneMenuStateBuilder`'s kdoc), so this picker dialog is
-     * the Compose-side replacement for that per-row addressing -- it must NOT default silently to
-     * "first other window" (Task-5 brief). Labels mirror classic's own
-     * `R.string.copy_settings_to_window` format (`SplitBibleArea.kt:799`).
-     */
-    private fun showCopySettingsToWindowPicker(window: Window) {
-        val targets = windowRepository.visibleWindows.withIndex().filter { (_, w) -> w.id != window.id }
-        if (targets.isEmpty()) return
-        val labels = targets.map { (order, w) ->
-            val page = w.pageManager.currentPage
-            getString(R.string.copy_settings_to_window, order + 1, page.currentDocument?.abbreviation, page.key?.name)
-        }.toTypedArray()
-        AlertDialog.Builder(this)
-            .setTitle(R.string.copy_settings_to_other_window)
-            .setItems(labels) { _, which -> windowControl.copySettingsToWindow(window, targets[which].index) }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
     }
 
     private val documentTitleText: String

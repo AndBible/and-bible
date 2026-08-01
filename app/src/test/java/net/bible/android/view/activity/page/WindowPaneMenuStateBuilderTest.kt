@@ -200,14 +200,19 @@ class WindowPaneMenuStateBuilderTest {
     @Test
     fun textOptionsSubMenuCollapsesToASingleAllTextOptionsRowByDefault() {
         // fresh test DB -> CommonUtils.lastDisplaySettingsSorted is empty (SplitBibleArea.kt:808-820 collapse)
+        // A/B batch 4a F4: copySettingsTo is now nested here too (see class kdoc's "RETAINED
+        // DIVERGENCE" note), so the empty-history submenu carries allTextOptions + copySettingsTo,
+        // not just allTextOptions alone.
         val window = windowRepository.activeWindow
 
         val textOptionsMenu = itemById(window, WindowPaneMenuStateBuilder.ID_TEXT_OPTIONS_SUBMENU)
 
-        assertEquals(1, textOptionsMenu.submenu.size)
-        val onlyChild = textOptionsMenu.submenu.first()
-        assertEquals(WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS, onlyChild.id)
-        assertTrue(onlyChild.opensDialog, "allTextOptions bridges into TextDisplaySettingsActivity")
+        assertEquals(
+            listOf(WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS, WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_SUBMENU),
+            textOptionsMenu.submenu.map { it.id },
+        )
+        val allTextOptions = textOptionsMenu.submenu.first()
+        assertTrue(allTextOptions.opensDialog, "allTextOptions bridges into TextDisplaySettingsActivity")
     }
 
     @Test
@@ -215,8 +220,10 @@ class WindowPaneMenuStateBuilderTest {
         val window = windowRepository.activeWindow
         windowRepository.addNewWindow(window) // second window, so windowClose (isWindowRemovable) is visible
 
-        val copyToWorkspace = itemById(window, WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WORKSPACE)
-        val copyToGlobal = itemById(window, WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_GLOBAL)
+        // A/B batch 4a F4: these are nested under textOptionsSubMenu > copySettingsTo now (classic's
+        // shape), not top-level rows -- look them up via findInSubmenus.
+        val copyToWorkspace = findInSubmenus(items(window), WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WORKSPACE)!!
+        val copyToGlobal = findInSubmenus(items(window), WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_GLOBAL)!!
         val allTextOptions = findInSubmenus(items(window), WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS)!!
         assertTrue(copyToWorkspace.opensDialog)
         assertTrue(copyToGlobal.opensDialog)
@@ -228,16 +235,89 @@ class WindowPaneMenuStateBuilderTest {
         assertFalse(windowClose.opensDialog, "windowClose acts immediately via the native-in-Compose seam")
     }
 
-    @Test
-    fun copySettingsToWindowOnlyAppearsWhenAnotherVisibleWindowExists() {
-        val solo = windowRepository.activeWindow
-        assertNull(
-            itemByIdOrNull(solo, WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WINDOW),
-            "no other window to copy settings to yet",
-        )
+    // A/B batch 4a F4: copySettingsToWindowOnlyAppearsWhenAnotherVisibleWindowExists (the old flat-row
+    // test) is superseded by copySettingsToHasNoWindowRowsWhenThereIsOnlyOneVisibleWindow and
+    // copySettingsToIsNestedUnderTextOptionsWithOneRowPerOtherVisibleWindow below, which assert the
+    // same "no window rows when solo / one row per other window" behaviour against the new nested
+    // submenu shape.
 
-        windowRepository.addNewWindow(solo)
-        assertTrue(items(solo).any { it.id == WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WINDOW })
+    @Test
+    fun copySettingsToIsNestedUnderTextOptionsWithOneRowPerOtherVisibleWindow() {
+        // Classic nests these under textOptionsSubMenu > copySettingsTo, with one dynamic row per OTHER
+        // visible window (SplitBibleArea.kt:778-803). Batch 12b follow-on flattened them into three
+        // top-level rows plus a picker dialog; the maintainer overruled that in A/B batch 4a (F4).
+        val w1 = windowRepository.activeWindow
+        windowRepository.addNewWindow(w1)
+        windowRepository.addNewWindow(w1)
+        val visible = windowRepository.visibleWindows
+        assertEquals(3, visible.size, "fixture must have three visible windows")
+        val subjectIdx = visible.indexOfFirst { it.id == w1.id }
+
+        val textOptions = itemById(w1, WindowPaneMenuStateBuilder.ID_TEXT_OPTIONS_SUBMENU)
+        val copyTo = textOptions.submenu.first { it.id == WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_SUBMENU }
+
+        // The order carried in each id is the index into visibleWindows INCLUDING the subject window —
+        // that is what WindowControl.copySettingsToWindow(window, order) expects.
+        val expectedOrders = visible.indices.filter { it != subjectIdx }
+        assertEquals(
+            expectedOrders.map { WindowPaneMenuStateBuilder.idForCopySettingsToWindow(it) } +
+                listOf(
+                    WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WORKSPACE,
+                    WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_GLOBAL,
+                ),
+            copyTo.submenu.map { it.id },
+        )
+        assertTrue(
+            items(w1).none { it.id.startsWith("copySettingsTo") },
+            "copy-settings rows must no longer be at the top level: ${items(w1).map { it.id }}",
+        )
+    }
+
+    @Test
+    fun copySettingsToHasNoWindowRowsWhenThereIsOnlyOneVisibleWindow() {
+        val solo = windowRepository.activeWindow
+        assertEquals(1, windowRepository.visibleWindows.size, "fixture must have a single visible window")
+
+        val textOptions = itemById(solo, WindowPaneMenuStateBuilder.ID_TEXT_OPTIONS_SUBMENU)
+        val copyTo = textOptions.submenu.first { it.id == WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_SUBMENU }
+
+        assertEquals(
+            listOf(
+                WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WORKSPACE,
+                WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_GLOBAL,
+            ),
+            copyTo.submenu.map { it.id },
+        )
+    }
+
+    @Test
+    fun copySettingsToSurvivesAnEmptyDisplaySettingHistory() {
+        // Retained divergence: classic removes the WHOLE textOptionsSubMenu when there is no history
+        // (SplitBibleArea.kt:816-820), which incidentally hides copy-settings on a fresh install. The
+        // port keeps the submenu, holding allTextOptions + copySettingsTo. A fresh test DB already has
+        // an empty lastDisplaySettingsSorted, so nothing is seeded here on purpose.
+        val w1 = windowRepository.activeWindow
+        windowRepository.addNewWindow(w1)
+
+        val textOptions = itemById(w1, WindowPaneMenuStateBuilder.ID_TEXT_OPTIONS_SUBMENU)
+
+        assertEquals(
+            listOf(
+                WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS,
+                WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_SUBMENU,
+            ),
+            textOptions.submenu.map { it.id },
+        )
+    }
+
+    @Test
+    fun parseIdReadsTheCopySettingsTargetOrder() {
+        // Order 1, not 0: a test that only covers 0 cannot tell "the parsed order" from "the first
+        // other window", which is exactly the mistake the picker dialog was introduced to avoid.
+        assertEquals(
+            WindowPaneMenuStateBuilder.ParsedId.CopySettingsToWindow(1),
+            WindowPaneMenuStateBuilder.parseId("copySettingsToWindow:1"),
+        )
     }
 
     @Test
@@ -281,7 +361,10 @@ class WindowPaneMenuStateBuilderTest {
         assertEquals("ic_window_add_outline_black_24dp", itemById(window, "windowNew").iconKey)
         assertEquals("ic_pin", itemById(window, "pinMode").iconKey)
         assertEquals("ic_close_white_24dp", itemById(window, "windowClose").iconKey)
-        assertEquals("ic_content_copy_black_24dp", itemById(window, "copySettingsToWorkspace").iconKey)
+        // A/B batch 4a F4: the icon lives on the copySettingsTo PARENT now (children are iconless,
+        // classic's own shape -- see WindowPaneMenuStateBuilder.buildCopySettingsItems's kdoc).
+        assertEquals("ic_content_copy_black_24dp", findInSubmenus(items(window), "copySettingsTo")?.iconKey)
+        assertNull(findInSubmenus(items(window), "copySettingsToWorkspace")?.iconKey, "copySettingsTo children are iconless")
         assertEquals("ic_text_options_24dp", findInSubmenus(items(window), "allTextOptions")?.iconKey)
     }
 

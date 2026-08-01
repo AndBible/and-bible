@@ -18,6 +18,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.database.IdType
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
@@ -581,18 +582,37 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     }
 
     /**
-     * `copySettingsToWindow` must resolve the ACTUAL target window rather than defaulting
-     * silently (Task-5 brief) — with no other visible window to copy to (the same guard
-     * `WindowPaneMenuStateBuilder` uses to hide the row in the first place,
-     * `copySettingsToWindowOnlyAppearsWhenAnotherVisibleWindowExists`), the picker must safely
-     * no-op rather than crash on an empty target list.
+     * A/B batch 4a F4: the picker dialog is gone — the target window's index is now carried
+     * directly in the row's own id (`WindowPaneMenuStateBuilder.idForCopySettingsToWindow(order)`,
+     * classic's shape), so `handleWindowPaneMenuItem` dispatches straight to
+     * `windowControl.copySettingsToWindow(window, parsed.order)` with no intermediate resolution
+     * step. That real method reads `CurrentActivityHolder.currentActivity!!.lifecycleScope`
+     * (`WindowControl.kt:295`), which no other test in this class needs — activate/deactivate the
+     * fixture activity around the call, mirroring what `ActivityBase.onResume`/`onPause` do for a
+     * real activity, so the dispatch exercises the actual production call rather than short-
+     * circuiting before it. This only exercises the synchronous part of that call
+     * (`visibleWindows[order]` lookup, which throws immediately on a bad order): `copySettingsToWindow`
+     * itself then hands off to a `scope.launch(Dispatchers.Main)` coroutine that opens a native
+     * chooser dialog, which this Robolectric fixture never idles/drives — the correctness of the
+     * ORDER itself (index into `visibleWindows` including the subject) is covered exhaustively by
+     * `WindowPaneMenuStateBuilderTest.copySettingsToIsNestedUnderTextOptionsWithOneRowPerOtherVisibleWindow`.
      */
-    @Test fun copySettingsToWindowNoOpsSafelyWithNoOtherVisibleWindow() {
+    @Test fun copySettingsToWindowDispatchesTheParsedOrderWithoutCrashing() {
         val w1 = windowRepository.activeWindow
+        windowRepository.addNewWindow(w1)
+        windowRepository.addNewWindow(w1)
 
-        val stayOpen = activity.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WINDOW)
+        CurrentActivityHolder.activate(activity)
+        try {
+            val stayOpen = activity.handleWindowPaneMenuItem(
+                w1.id.toString(),
+                WindowPaneMenuStateBuilder.idForCopySettingsToWindow(1),
+            )
 
-        assertFalse(stayOpen)
+            assertFalse(stayOpen, "an action closes the menu")
+        } finally {
+            CurrentActivityHolder.deactivate(activity)
+        }
     }
 
     @Test fun parseIdRoundTripsForAnAtomicId() {
