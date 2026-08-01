@@ -42,6 +42,7 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(libs.reorderable)    // CMP drag-reorder engine (wrapped by AbReorderableColumn)
+            implementation(libs.materialkolor)  // seed -> M3 ColorScheme derivation (A/B batch 4b)
         }
         iosMain { kotlin.srcDir(iosStringsOutDir) }
     }
