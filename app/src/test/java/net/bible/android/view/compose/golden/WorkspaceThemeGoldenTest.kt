@@ -166,4 +166,33 @@ class WorkspaceThemeGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun toolbar_derived() =
         captureGolden("WorkspaceTheme", "toolbar_derived", EDGE_MODE, content = toolbarScreen(derive = true))
+
+    // --- Derived toolbar with NO workspace colour at all (follow-up: derived became the default, --
+    // --- 2026-08-01 commit 6aedac195) -------------------------------------------------------------
+
+    // No seedArgb (AbTheme falls back to the stock M3 scheme) AND no workspaceColorArgb -- the case
+    // the maintainer wants rendered pixels for: does the bar come out a light purple (the baseline
+    // M3 palette's primaryContainer) rather than a flat grey/black? Same base toolbarState as
+    // toolbar_derived/toolbar_literal (only workspaceColorArgb and deriveToolbarFromTheme differ), so
+    // this is a clean "seed present vs. absent" comparison against toolbar_derived, not a
+    // simultaneous change of pageTitle/documentTitle/etc.
+    private fun toolbarNoColorScreen(dark: Boolean): @Composable () -> Unit = {
+        AbTheme(seedArgb = null, darkTheme = dark, disableAnimations = true) {
+            ReadingToolbar(
+                state = toolbarState.copy(workspaceColorArgb = null, deriveToolbarFromTheme = true),
+                icons = icons(),
+                callbacks = noopCallbacks,
+            )
+        }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun toolbar_derived_nocolor_light() =
+        captureGolden("WorkspaceTheme", "toolbar_derived_nocolor", EDGE_MODE, content = toolbarNoColorScreen(dark = false))
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun toolbar_derived_nocolor_dark() =
+        captureGolden("WorkspaceTheme", "toolbar_derived_nocolor", GoldenMode.DARK, content = toolbarNoColorScreen(dark = true))
 }
