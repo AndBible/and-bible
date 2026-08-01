@@ -30,34 +30,18 @@ import java.io.File
  * a hand-enumerated list of call sites that named three of twelve, and the next new host is exactly
  * what a fixed list would miss.
  *
- * [EXEMPT] is the one deliberate exception, kept to a single explained entry rather than a growth
- * path: a host is exempted only when it passes something other than the standard three
- * (`ScreenSettings.nightMode`/`CommonUtils.settings.displayColorMode`/
- * `CommonUtils.settings.disableAnimations`) args to `AbTheme`, because `AbAppTheme` takes no
- * parameters to override those with.
+ * No exemptions: `ComposeReadingViewHost.kt` was briefly exempted (Task 3) because its `darkTheme`
+ * comes from a live `nightModeState`, not the static `ScreenSettings.nightMode` read — but the fix
+ * was to give [AbAppTheme] an optional `darkTheme` override (Task 3 fix round 1) rather than carve
+ * out an exception here, so every host — including that one — goes through `AbAppTheme` and this
+ * guard stays a strict, single, un-exempted rule.
  */
 class AbThemeHostGuardTest {
-    companion object {
-        /**
-         * `ComposeReadingViewHost.kt` drives `darkTheme` from `nightModeState`, a `State<Boolean>`
-         * this host keeps live via `ScreenSettings.NightModeChanged` — the reading pane is
-         * long-lived inside `MainBibleActivity` (never `recreate()`d on that event, unlike a plain
-         * Activity host), so it needs to react to the auto/light-sensor night-mode flip without a
-         * recreate. `AbAppTheme`'s static `ScreenSettings.nightMode` read would only catch up on an
-         * unrelated recomposition, leaving the reading pane stale exactly where live night-mode
-         * feedback matters most (A/B batch 4b Task 3).
-         */
-        private val EXEMPT = setOf(
-            "net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
-        )
-    }
-
     @Test
     fun `AbTheme is called only from AbAppTheme`() {
         val root = File("src/main/java")
         val offenders = root.walkTopDown()
             .filter { it.isFile && it.extension == "kt" && it.name != "AbAppTheme.kt" }
-            .filter { file -> file.relativeTo(root).path.replace(File.separatorChar, '/') !in EXEMPT }
             .filter { file ->
                 file.readLines()
                     .map { it.substringBefore("//") }

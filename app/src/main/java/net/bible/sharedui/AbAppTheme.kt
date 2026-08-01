@@ -70,9 +70,21 @@ fun currentWorkspaceThemeSeedArgb(): Int? = workspaceThemeSeedArgb(
  * without recreating the Activity. Not unit-tested: the `DisposableEffect` subscription itself is
  * composition machinery with no state seam to assert on; it is verified on the device during the
  * A/B round (change the workspace colour, watch the UI re-theme without leaving the screen).
+ *
+ * @param darkTheme night-mode override. `null` (the default, and every host but one) reads
+ * [ScreenSettings.nightMode] fresh here, which is safe because every other host is an `Activity`
+ * that gets `recreate()`d whenever night mode changes (see `ActivityBase`). The one exception is
+ * `ComposeReadingViewHost` (Task 3 fix round 1, batch 4b): it is long-lived inside
+ * `MainBibleActivity` and is never `recreate()`d — including on the ambient-light-sensor
+ * auto-night-mode flip, which fires `ScreenSettings.NightModeChanged` with no recreate at all — so
+ * it tracks night mode itself in a live `State<Boolean>` and must pass that value through verbatim
+ * instead of letting this function re-read the static getter (which would only catch up on some
+ * unrelated recomposition). This keeps the "read the app-global inputs in one place" rule intact
+ * for colour mode / animations / the workspace-colour seed while still letting the one host with a
+ * genuinely different night-mode source use them.
  */
 @Composable
-fun AbAppTheme(content: @Composable () -> Unit) {
+fun AbAppTheme(darkTheme: Boolean? = null, content: @Composable () -> Unit) {
     var seedArgb by remember { mutableStateOf(currentWorkspaceThemeSeedArgb()) }
     DisposableEffect(Unit) {
         val subscriber = Any()
@@ -84,7 +96,7 @@ fun AbAppTheme(content: @Composable () -> Unit) {
     ProvideAppLocals {
         AbTheme(
             seedArgb = seedArgb,
-            darkTheme = ScreenSettings.nightMode,
+            darkTheme = darkTheme ?: ScreenSettings.nightMode,
             colorMode = CommonUtils.settings.displayColorMode,
             disableAnimations = CommonUtils.settings.disableAnimations,
             content = content,

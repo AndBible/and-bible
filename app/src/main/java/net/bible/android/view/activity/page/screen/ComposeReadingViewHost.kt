@@ -125,7 +125,7 @@ import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowTabBarModel
 import net.bible.sharedcore.window.buildWindowTabBar
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.AgentPermissionDialog
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
@@ -143,7 +143,6 @@ import net.bible.sharedui.reading.WindowButtonMode
 import net.bible.sharedui.reading.WindowPaneMenu
 import net.bible.sharedui.reading.WindowTabBar
 import net.bible.sharedui.textOptionDrawableRes
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.BookCategory
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -1254,27 +1253,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                 setContent {
-                    ProvideAppLocals {
-                        // NOT collapsed into AbAppTheme (A/B batch 4b Task 3): darkTheme here MUST
-                        // come from nightModeState, a State<Boolean> this host keeps live via
-                        // ScreenSettings.NightModeChanged (see the host's `init`) — the one path that
-                        // reacts to the auto/light-sensor night-mode flip without an Activity
-                        // recreate(). This host is long-lived inside MainBibleActivity (never
-                        // recreated on that event, unlike a plain Activity host), so AbAppTheme's
-                        // static `ScreenSettings.nightMode` read would only pick up the change on an
-                        // unrelated recomposition — the reading pane would go stale exactly where
-                        // live night-mode feedback matters most. Exempted in AbThemeHostGuardTest
-                        // with the same reasoning.
-                        val nightMode by nightModeState
-                        AbTheme(
-                            darkTheme = nightMode,
-                            // Not behind a dedicated change event (none exists for these settings
-                            // in this codebase), but read directly in the composable body rather
-                            // than `remember`ed, so they're re-read fresh on every recomposition
-                            // this function already drives (nightMode/toolbar/gen/fullScreen).
-                            colorMode = CommonUtils.settings.displayColorMode,
-                            disableAnimations = CommonUtils.settings.disableAnimations,
-                        ) {
+                    // AbAppTheme's darkTheme override (A/B batch 4b Task 3 fix round 1): this host
+                    // is long-lived inside MainBibleActivity and is never recreate()d on
+                    // ScreenSettings.NightModeChanged (including the ambient-light-sensor
+                    // auto-night-mode flip, which fires with no recreate at all), so it tracks night
+                    // mode itself in nightModeState and passes it through verbatim instead of
+                    // letting AbAppTheme re-read the static ScreenSettings.nightMode getter (which
+                    // would only catch up on some unrelated recomposition). See AbAppTheme's KDoc.
+                    AbAppTheme(darkTheme = nightModeState.value) {
                             val layout by controller.layout.collectAsState()
                             val toolbarState by toolbar.collectAsState()
                             val gen by generationState
@@ -1556,7 +1542,6 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                     onDismiss = { onPermissionDismiss() },
                                 )
                             }
-                        }
                     }
                 }
             }
