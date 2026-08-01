@@ -3,6 +3,7 @@ package net.bible.sharedcore.theme
 import net.bible.service.common.DisplayColorMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ColorMathTest {
@@ -84,5 +85,83 @@ class ColorMathTest {
         assertTrue(isLightColor(0xFFFFFFFF.toInt()))
         assertTrue(!isLightColor(0xFF3F51B5.toInt()), "Material indigo is dark")
         assertTrue(!isLightColor(0xFF000000.toInt()))
+    }
+
+    @Test fun hex_round_trips_as_six_uppercase_digits_without_alpha() {
+        assertEquals("2196F3", hexOf(0xFF2196F3.toInt()))
+        assertEquals("000000", hexOf(0xFF000000.toInt()))
+        assertEquals("0A0B0C", hexOf(0xFF0A0B0C.toInt()), "zero-padded to six")
+        assertEquals(0xFF2196F3.toInt(), parseHexColor(hexOf(0xFF2196F3.toInt())))
+    }
+
+    @Test fun hex_parses_three_and_six_digits_with_optional_hash_and_forces_alpha() {
+        assertEquals(0xFF2196F3.toInt(), parseHexColor("2196f3"), "lower case accepted")
+        assertEquals(0xFF2196F3.toInt(), parseHexColor("#2196F3"))
+        assertEquals(0xFFAABBCC.toInt(), parseHexColor("abc"), "3 digits expand by doubling")
+        assertEquals(0xFF123456.toInt(), parseHexColor("  123456 "), "surrounding space tolerated")
+    }
+
+    @Test fun hex_rejects_everything_classic_guessed_at() {
+        // Classic invents a colour for 1/2/4/5/7-digit input (e.g. 4 digits -> g = r, r = 0).
+        // Those rules were dropped deliberately: an unparseable field simply does not move the colour.
+        listOf("", "1", "12", "1234", "12345", "1234567", "12345678", "12345g", "#", "xyz")
+            .forEach { assertNull(parseHexColor(it), "must reject \"$it\"") }
+    }
+
+    @Test fun hsv_round_trips_within_one_step_for_the_primaries_and_greys() {
+        listOf(
+            0xFFFF0000.toInt(), 0xFF00FF00.toInt(), 0xFF0000FF.toInt(),
+            0xFFFFFF00.toInt(), 0xFF00FFFF.toInt(), 0xFFFF00FF.toInt(),
+            0xFF000000.toInt(), 0xFFFFFFFF.toInt(), 0xFF808080.toInt(), 0xFF2196F3.toInt(),
+        ).forEach { argb ->
+            val (h, s, v) = argbToHsv(argb)
+            val back = hsvToArgb(h, s, v)
+            listOf(16, 8, 0).forEach { shift ->
+                val a = (argb shr shift) and 0xFF
+                val b = (back shr shift) and 0xFF
+                assertTrue(kotlin.math.abs(a - b) <= 1, "channel $shift of $argb round-tripped to $back")
+            }
+            assertEquals(0xFF, (back ushr 24) and 0xFF, "always opaque")
+        }
+    }
+
+    @Test fun hsv_wraps_hue_and_treats_grey_as_zero_saturation() {
+        assertEquals(hsvToArgb(0f, 1f, 1f), hsvToArgb(360f, 1f, 1f))
+        assertEquals(hsvToArgb(0f, 1f, 1f), hsvToArgb(-360f, 1f, 1f))
+        assertEquals(0f, argbToHsv(0xFF808080.toInt()).second, "grey has no saturation")
+    }
+
+    @Test fun sat_val_maps_the_square_corners_and_clamps_outside_it() {
+        assertEquals(0f to 1f, satValFromOffset(0f, 0f, 200f, 200f), "top-left: no saturation, full value")
+        assertEquals(1f to 1f, satValFromOffset(200f, 0f, 200f, 200f), "top-right")
+        assertEquals(0f to 0f, satValFromOffset(0f, 200f, 200f, 200f), "bottom-left")
+        assertEquals(1f to 0f, satValFromOffset(200f, 200f, 200f, 200f), "bottom-right")
+        assertEquals(0.5f to 0.5f, satValFromOffset(100f, 100f, 200f, 200f))
+        assertEquals(0f to 1f, satValFromOffset(-50f, -50f, 200f, 200f), "clamped, not wrapped")
+        assertEquals(1f to 0f, satValFromOffset(500f, 500f, 200f, 200f))
+    }
+
+    @Test fun hue_runs_360_at_the_top_to_0_at_the_bottom_and_clamps() {
+        // Tolerances where the fraction is not exact in binary floating point (100/300).
+        assertEquals(360f, hueFromOffset(0f, 300f), 0.01f)
+        assertEquals(0f, hueFromOffset(300f, 300f), 0.01f)
+        assertEquals(180f, hueFromOffset(150f, 300f), 0.01f)
+        assertEquals(360f, hueFromOffset(-20f, 300f), 0.01f, "clamped at the top")
+        assertEquals(0f, hueFromOffset(9999f, 300f), 0.01f, "clamped at the bottom")
+    }
+
+    @Test fun the_offset_mappings_are_inverses() {
+        // 0.75/0.25 and 240/300 are chosen because they are exact in binary; hueFromOffset is
+        // asserted with a tolerance because 100/300 is not.
+        assertEquals(150f to 150f, satValToOffset(0.75f, 0.25f, 200f, 200f))
+        assertEquals(0.75f to 0.25f, satValFromOffset(150f, 150f, 200f, 200f))
+        assertEquals(100f, hueToOffset(240f, 300f), 0.01f)
+        assertEquals(240f, hueFromOffset(100f, 300f), 0.01f)
+    }
+
+    @Test fun the_offset_mappings_survive_a_zero_sized_panel() {
+        // A composable is measured before it is drawn; a gesture arriving at size 0 must not divide by it.
+        assertEquals(0f to 0f, satValFromOffset(10f, 10f, 0f, 0f))
+        assertEquals(0f, hueFromOffset(10f, 0f))
     }
 }

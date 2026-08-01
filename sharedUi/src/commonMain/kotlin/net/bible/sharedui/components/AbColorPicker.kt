@@ -43,8 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import kotlin.math.max
-import kotlin.math.min
+import net.bible.sharedcore.theme.argbToHsv
+import net.bible.sharedcore.theme.hsvToArgb
 import kotlin.math.roundToInt
 
 /** ARGB `Int` <-> Compose [Color] bridge, plus the fixed preset palette offered by
@@ -84,10 +84,10 @@ fun AbColorPicker(color: Int, onColorChange: (Int) -> Unit, modifier: Modifier =
         // Re-derive HSV only when the incoming color actually changes (e.g. a preset tap, or the
         // initial value) - not on every recomposition - so dragging a slider doesn't fight the
         // rounding of its own hsvToArgb -> rgbToHsv round trip.
-        val hsv = remember(color) { rgbToHsv(color) }
-        var hue by remember(color) { mutableStateOf(hsv[0]) }
-        var sat by remember(color) { mutableStateOf(hsv[1]) }
-        var value by remember(color) { mutableStateOf(hsv[2]) }
+        val hsv = remember(color) { argbToHsv(color) }
+        var hue by remember(color) { mutableStateOf(hsv.first) }
+        var sat by remember(color) { mutableStateOf(hsv.second) }
+        var value by remember(color) { mutableStateOf(hsv.third) }
         fun emit() = onColorChange(hsvToArgb(hue, sat, value))
 
         LabeledSlider("H", hue, 0f, 360f) { hue = it; emit() }
@@ -149,52 +149,3 @@ private fun LabeledSlider(
         Slider(value = value, onValueChange = onValueChange, valueRange = valueMin..valueMax)
     }
 }
-
-/** Decomposes an ARGB [Int] into `[hue in 0..360, saturation in 0..1, value in 0..1]`, hand-rolled
- *  (no `android.graphics.Color`) so this stays iOS-clean. Standard RGB->HSV conversion. */
-private fun rgbToHsv(argb: Int): FloatArray {
-    val r = ((argb shr 16) and 0xFF) / 255f
-    val g = ((argb shr 8) and 0xFF) / 255f
-    val b = (argb and 0xFF) / 255f
-
-    val maxC = max(r, max(g, b))
-    val minC = min(r, min(g, b))
-    val delta = maxC - minC
-
-    val hue = when {
-        delta == 0f -> 0f
-        maxC == r -> 60f * (((g - b) / delta) % 6f)
-        maxC == g -> 60f * (((b - r) / delta) + 2f)
-        else -> 60f * (((r - g) / delta) + 4f)
-    }.let { if (it < 0f) it + 360f else it }
-
-    val sat = if (maxC == 0f) 0f else delta / maxC
-    val value = maxC
-    return floatArrayOf(hue, sat, value)
-}
-
-/** Inverse of [rgbToHsv]: builds an ARGB [Int] from hue/saturation/value, alpha fixed at `0xFF`.
- *  Hand-rolled HSV->RGB conversion (no `android.graphics.Color`), so this stays iOS-clean. */
-private fun hsvToArgb(h: Float, s: Float, v: Float): Int {
-    val hue = ((h % 360f) + 360f) % 360f
-    val c = v * s
-    val x = c * (1f - kotlin.math.abs((hue / 60f) % 2f - 1f))
-    val m = v - c
-
-    val (r1, g1, b1) = when {
-        hue < 60f -> Triple(c, x, 0f)
-        hue < 120f -> Triple(x, c, 0f)
-        hue < 180f -> Triple(0f, c, x)
-        hue < 240f -> Triple(0f, x, c)
-        hue < 300f -> Triple(x, 0f, c)
-        else -> Triple(c, 0f, x)
-    }
-
-    val r = (((r1 + m) * 255f).roundToIntClamped())
-    val g = (((g1 + m) * 255f).roundToIntClamped())
-    val b = (((b1 + m) * 255f).roundToIntClamped())
-
-    return (0xFF shl 24) or (r shl 16) or (g shl 8) or b
-}
-
-private fun Float.roundToIntClamped(): Int = kotlin.math.round(this).toInt().coerceIn(0, 255)

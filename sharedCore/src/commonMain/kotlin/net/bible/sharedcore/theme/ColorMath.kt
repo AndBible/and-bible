@@ -18,7 +18,10 @@
 package net.bible.sharedcore.theme
 
 import net.bible.service.common.DisplayColorMode
+import kotlin.math.abs
 import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
 
 /** Luminance-weighted grayscale of an ARGB int, alpha preserved. */
@@ -114,3 +117,78 @@ fun relativeLuminance(argb: Int): Double {
 
 /** Classic's check-mark rule: a swatch at or above 0.65 luminance gets a black check mark. */
 fun isLightColor(argb: Int): Boolean = relativeLuminance(argb) >= 0.65
+
+/** Six uppercase hex digits, alpha dropped — what the custom page's field shows.
+ *  Hand-rolled rather than `String.format`, which is JVM-only. */
+fun hexOf(argb: Int): String = (argb and 0xFFFFFF).toString(16).uppercase().padStart(6, '0')
+
+/** Parses the custom page's hex field: an optional `#`, then exactly 3 or 6 hex digits; alpha is
+ *  forced opaque. Returns `null` for anything else, and the caller leaves the colour alone —
+ *  classic instead invented a colour for 1/2/4/5/7-digit input, which this port drops (spec §2). */
+fun parseHexColor(text: String): Int? {
+    val s = text.trim().removePrefix("#")
+    if (s.length != 3 && s.length != 6) return null
+    if (!s.all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }) return null
+    val six = if (s.length == 3) s.map { "$it$it" }.joinToString("") else s
+    return six.toLong(16).toInt() or (0xFF shl 24)
+}
+
+/** ARGB -> `(hue 0..360, saturation 0..1, value 0..1)`. Moved here from `:sharedUi`'s
+ *  `AbColorPicker` (batch 7a), where it was written hand-rolled to stay off `android.graphics`. */
+fun argbToHsv(argb: Int): Triple<Float, Float, Float> {
+    val r = ((argb shr 16) and 0xFF) / 255f
+    val g = ((argb shr 8) and 0xFF) / 255f
+    val b = (argb and 0xFF) / 255f
+    val maxC = max(r, max(g, b))
+    val minC = min(r, min(g, b))
+    val delta = maxC - minC
+    val hue = when {
+        delta == 0f -> 0f
+        maxC == r -> 60f * (((g - b) / delta) % 6f)
+        maxC == g -> 60f * (((b - r) / delta) + 2f)
+        else -> 60f * (((r - g) / delta) + 4f)
+    }.let { if (it < 0f) it + 360f else it }
+    val sat = if (maxC == 0f) 0f else delta / maxC
+    return Triple(hue, sat, maxC)
+}
+
+/** Inverse of [argbToHsv]; alpha is always `0xFF`. */
+fun hsvToArgb(hue: Float, sat: Float, value: Float): Int {
+    val h = ((hue % 360f) + 360f) % 360f
+    val c = value * sat
+    val x = c * (1f - abs((h / 60f) % 2f - 1f))
+    val m = value - c
+    val (r1, g1, b1) = when {
+        h < 60f -> Triple(c, x, 0f)
+        h < 120f -> Triple(x, c, 0f)
+        h < 180f -> Triple(0f, c, x)
+        h < 240f -> Triple(0f, x, c)
+        h < 300f -> Triple(x, 0f, c)
+        else -> Triple(c, 0f, x)
+    }
+    fun ch(v: Float) = floor((v + m) * 255f + 0.5f).toInt().coerceIn(0, 255)
+    return (0xFF shl 24) or (ch(r1) shl 16) or (ch(g1) shl 8) or ch(b1)
+}
+
+// The four mappings below are the custom page's geometry, kept out of the composable so they can be
+// tested: a `pointerInput` lambda is invisible to both unit tests and goldens. They clamp to the
+// panel edge exactly as classic's `pointToSatVal`/`pointToHue` do, so a drag that leaves the panel
+// pins the value instead of wrapping.
+
+/** Saturation left->right, value bottom->top, both clamped to `0..1`. */
+fun satValFromOffset(x: Float, y: Float, width: Float, height: Float): Pair<Float, Float> {
+    val sat = if (width <= 0f) 0f else (x / width).coerceIn(0f, 1f)
+    val value = if (height <= 0f) 0f else 1f - (y / height).coerceIn(0f, 1f)
+    return sat to value
+}
+
+/** Hue 360 at the top of the strip, 0 at the bottom (classic's orientation). */
+fun hueFromOffset(y: Float, height: Float): Float =
+    if (height <= 0f) 0f else (360f - (y / height) * 360f).coerceIn(0f, 360f)
+
+/** Where the square's tracker goes for a given saturation/value. */
+fun satValToOffset(sat: Float, value: Float, width: Float, height: Float): Pair<Float, Float> =
+    (sat * width) to ((1f - value) * height)
+
+/** Where the strip's tracker goes for a given hue. */
+fun hueToOffset(hue: Float, height: Float): Float = height - (hue * height / 360f)
