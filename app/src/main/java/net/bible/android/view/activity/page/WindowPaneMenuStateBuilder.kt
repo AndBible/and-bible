@@ -68,14 +68,15 @@ import org.crosswire.jsword.book.BookCategory
  * visible window to copy to, and the actual target-window resolution is the host dispatcher's
  * job (Task 5), not this builder's.
  *
- * **`textOptionsSubMenu`'s collapse-to-`allTextOptions`** mirrors classic `showPopupMenu`
- * (`SplitBibleArea.kt:808-820`): when there is no last-used display setting, classic removes the
- * whole submenu and adds a flat top-level `allTextOptions` item instead. This builder expresses
- * the same swap as `textOptionsSubMenu`'s own [WindowPaneMenuItem.submenu] content — the row
- * itself always exists (gated only on `window.isVisible`, `SplitBibleArea.kt:902-905`), holding
- * either the dynamic `textOptionItem` children or a single nested `allTextOptions` child. `id`
- * addressing does not care about nesting depth, so `allTextOptions` is still reachable at the
- * same id either way.
+ * **`textOptionsSubMenu` always ends with `allTextOptions`** — classic's
+ * `window_popup_menu.xml` declares it as a static child at orderInCategory=1000, present
+ * alongside whatever dynamic last-used rows exist. This builder mirrors that: the submenu
+ * [WindowPaneMenuItem.submenu] content is `dynamic + [allTextOptions row]`, so `allTextOptions`
+ * is always last. The empty case (no last-used display settings) produces no dynamic rows but
+ * still includes the `allTextOptions` row — matching classic's promotion of that row to a top-level
+ * item only in that edge case (classic's `showPopupMenu` `SplitBibleArea.kt:808-820` removes the
+ * whole submenu when empty, but this builder just omits the dynamic children). `id` addressing does
+ * not care about nesting depth, so `allTextOptions` is always reachable at the same id.
  */
 class WindowPaneMenuStateBuilder(
     private val windowControl: WindowControl,
@@ -375,7 +376,7 @@ class WindowPaneMenuStateBuilder(
             globalSettings = CommonUtils.globalTextDisplaySettings,
         )
         // SplitBibleArea.kt:809-815 (only rows passing enabled&&visible are added)
-        return lastSettings.mapIndexedNotNull { order, type ->
+        val dynamic = lastSettings.mapIndexedNotNull { order, type ->
             val itm = getPrefItem(settingsBundle, type)
             if (itm.enabled && itm.visible) {
                 WindowPaneMenuItem(
@@ -390,6 +391,16 @@ class WindowPaneMenuStateBuilder(
                 )
             } else null
         }
+        // A/B batch 4a F3: classic's window_popup_menu.xml declares allTextOptions as a static child
+        // of this submenu at orderInCategory=1000 — i.e. ALWAYS present, sorted last, next to
+        // whatever dynamic rows exist. The port previously produced it only in the empty branch
+        // above, so a user with any display-setting history lost the row entirely.
+        return dynamic + WindowPaneMenuItem(
+            id = ID_ALL_TEXT_OPTIONS,
+            label = app.getString(R.string.all_text_options_window_menutitle),
+            opensDialog = true,
+            iconKey = "ic_text_options_24dp",
+        )
     }
 
     companion object {

@@ -337,4 +337,25 @@ class WindowPaneMenuStateBuilderTest {
         assertTrue(dynamic.isNotEmpty(), "fixture has no last-used rows to check")
         assertTrue(dynamic.all { it.iconKey != null }, "iconless: ${dynamic.filter { it.iconKey == null }}")
     }
+
+    @Test
+    fun textOptionsSubMenuAlwaysEndsWithAllTextOptionsEvenWithLastUsedRows() {
+        // Classic declares allTextOptions as a STATIC child of textOptionsSubMenu at
+        // orderInCategory=1000 (res/menu/window_popup_menu.xml), i.e. present whichever dynamic rows
+        // exist. The port produced it only in the no-history branch (A/B batch 4a, F3).
+        CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.STRONGS)
+        val window = windowRepository.activeWindow
+
+        val submenu = itemById(window, WindowPaneMenuStateBuilder.ID_TEXT_OPTIONS_SUBMENU).submenu
+
+        assertTrue(
+            submenu.any { it.id.startsWith("textOptionItem:") },
+            "fixture has no last-used rows, so this would pass vacuously: ${submenu.map { it.id }}",
+        )
+        // Deliberately "after every dynamic row" rather than "last": Task 4 appends copySettingsTo
+        // after it (classic's orderInCategory 1000 then 1001), and this assertion must survive that.
+        val allIdx = submenu.indexOfFirst { it.id == WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS }
+        val lastDynamicIdx = submenu.indexOfLast { it.id.startsWith("textOptionItem:") }
+        assertTrue(allIdx > lastDynamicIdx, "allTextOptions must follow the dynamic rows: ${submenu.map { it.id }}")
+    }
 }
