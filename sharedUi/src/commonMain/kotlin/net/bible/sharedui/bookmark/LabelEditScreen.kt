@@ -60,9 +60,9 @@ import net.bible.sharedui.strings.Strings
  * resources live host-side, so this screen never touches them); [actions] is the top-bar
  * save/delete/share overflow, also host-built (needs Android resources/dialogs).
  *
- * The colour swatch opens the shared [AbColorPicker] in an [AlertDialog] — picking a preset or
- * dragging a slider calls [onColor] immediately (matches [AbColorPicker]'s own no-separate-
- * confirm behaviour); the dialog's own button just closes it.
+ * The colour swatch opens [AbColorPickerDialog], which owns its own working colour and hands it
+ * back via [onColor] only when the dialog is confirmed; dismissing it leaves the label's colour
+ * unchanged.
  */
 @Composable
 fun LabelEditScreen(

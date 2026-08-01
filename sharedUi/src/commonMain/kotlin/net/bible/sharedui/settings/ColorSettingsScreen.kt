@@ -63,11 +63,12 @@ import net.bible.sharedui.strings.LocalStrings
  * Every value comes from [state]; every mutation is forwarded to the host via the action lambdas,
  * which the host wires 1:1 to `ColorSettingsController`.
  *
- * The text/background/workspace swatches open the shared [AbColorPicker] in an [AlertDialog]
- * (mirrors [net.bible.sharedui.bookmark.LabelEditScreen]'s colour dialog) — picking a preset or
- * dragging a slider calls the matching `on*Change` immediately; the dialog's own button just
- * closes it. The background-image rows are always shown, even in BW/e-ink modes — this is the
- * *editor*, not the rendered WebView, which is what actually suppresses the image in monochrome.
+ * The text/background/workspace swatches open [AbColorPickerDialog] (mirrors
+ * [net.bible.sharedui.bookmark.LabelEditScreen]'s colour dialog), which owns its own working
+ * colour and hands it back via the matching `on*Change` only when confirmed; dismissing it leaves
+ * the colour unchanged. The background-image rows are always shown, even in BW/e-ink modes — this
+ * is the *editor*, not the rendered WebView, which is what actually suppresses the image in
+ * monochrome.
  */
 @Composable
 fun ColorSettingsScreen(
