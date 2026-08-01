@@ -145,6 +145,8 @@ import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
+import net.bible.sharedui.currentWorkspaceThemeSeedArgb
+import net.bible.sharedui.theme.themeColorsJson
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.SwordDocumentFacade
@@ -1748,6 +1750,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
+        val themeColors = themeColorsJson(
+            seedArgb = currentWorkspaceThemeSeedArgb(),
+            dark = nightMode,
+            colorMode = CommonUtils.settings.displayColorMode,
+        )
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()},
@@ -1772,6 +1779,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,
+                        themeColors: $themeColors,
                         disableClickToEdit:  $disableClickToEdit,
                         llmConfigured: ${CommonUtils.settings.llmConfigured},
                         notesContentType: "${CommonUtils.settings.notesContentType}",
