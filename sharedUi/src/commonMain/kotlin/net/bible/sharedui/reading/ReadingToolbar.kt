@@ -179,16 +179,24 @@ fun ReadingToolbar(
     overflowIcon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     val density = LocalDensity.current
+    // A/B batch 4b §6: the derived variant takes the scheme's own container role (and with it the
+    // matching onPrimaryContainer, so contrast is guaranteed by M3 rather than by our luminance
+    // call). The literal path below is batch 3 F3's and stays the default.
+    //
     // A/B batch 3 F3: the container is the workspace colour when the user set one (see
     // readingToolbarContainerArgb's sentinel), otherwise today's plain surface.
-    val container = Color(
-        readingToolbarContainerArgb(
-            workspaceArgb = state.workspaceColorArgb,
-            surfaceArgb = MaterialTheme.colorScheme.surface.toArgb(),
-            nightMode = LocalIsDarkTheme.current,
-            colorMode = LocalDisplayColorMode.current,
+    val container = if (state.deriveToolbarFromTheme) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        Color(
+            readingToolbarContainerArgb(
+                workspaceArgb = state.workspaceColorArgb,
+                surfaceArgb = MaterialTheme.colorScheme.surface.toArgb(),
+                nightMode = LocalIsDarkTheme.current,
+                colorMode = LocalDisplayColorMode.current,
+            )
         )
-    )
+    }
     // Not-set case must stay pixel-identical to before this feature: today's two M3 tokens
     // (onSurface/onSurfaceVariant), not a luminance-derived black/white — those tokens are tuned for
     // the theme's own surface, which is exactly what "not set" means. Only when the user actually
@@ -197,7 +205,9 @@ fun ReadingToolbar(
     // ReadingProgressPalette.textColorForBackground. Branch on isWorkspaceColorSet (not e.g.
     // "container == surface") so this never drifts from readingToolbarContainerArgb's own sentinel.
     val workspaceColorSet = isWorkspaceColorSet(state.workspaceColorArgb)
-    val onContainer = if (workspaceColorSet) {
+    val onContainer = if (state.deriveToolbarFromTheme) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else if (workspaceColorSet) {
         if (container.luminance() < 0.45f) Color.White else Color.Black
     } else {
         MaterialTheme.colorScheme.onSurface
@@ -206,8 +216,8 @@ fun ReadingToolbar(
     // (onSurfaceVariant is not simply onSurface at reduced alpha), but once a workspace colour is in
     // play there is no equivalent "variant" token for an arbitrary user colour, so it is derived the
     // same way the rest of this feature derives secondary text: the primary content colour at 0.75
-    // alpha.
-    val documentTitleColor = if (workspaceColorSet) {
+    // alpha. The derived-theme variant reuses onContainer the same way, rather than recomputing.
+    val documentTitleColor = if (state.deriveToolbarFromTheme || workspaceColorSet) {
         onContainer.copy(alpha = 0.75f)
     } else {
         MaterialTheme.colorScheme.onSurfaceVariant

@@ -34,6 +34,8 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
+import net.bible.sharedui.WORKSPACE_COLOR_THEME_FEATURE
+import net.bible.sharedui.WORKSPACE_THEME_TOOLBAR_FEATURE
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 
@@ -109,6 +111,13 @@ class ToolbarStateServiceImpl(
             // HostedStateRefresher.refresh() (e.g. returning from colour settings), so the toolbar
             // picks a new colour up with no extra subscription.
             workspaceColorArgb = windowControl.windowRepository.workspaceSettings.workspaceColor,
+            // A/B batch 4b §6: the toolbar variant is active only when BOTH experimental switches
+            // are on, computed once here rather than as two conditions on the :sharedUi side (see
+            // ToolbarState.deriveToolbarFromTheme's kdoc). Re-read fresh on every snapshot for the
+            // same reason as workspaceColorArgb above.
+            deriveToolbarFromTheme = CommonUtils.settings.enabledExperimentalFeatures.let {
+                WORKSPACE_COLOR_THEME_FEATURE in it && WORKSPACE_THEME_TOOLBAR_FEATURE in it
+            },
         )
     }
 
