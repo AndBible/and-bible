@@ -1,0 +1,89 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+package net.bible.sharedui
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
+import net.bible.android.control.event.window.WorkspaceColorChanged
+import net.bible.android.control.page.window.WindowControl
+import net.bible.service.common.CommonUtils
+import net.bible.service.device.ScreenSettings
+import net.bible.sharedui.theme.AbTheme
+import org.koin.core.context.GlobalContext
+
+/** The experimental switch that turns the workspace-colour theme on at all (A/B batch 4b, §8). */
+const val WORKSPACE_COLOR_THEME_FEATURE = "workspace_color_theme"
+
+/** The experimental switch that makes the reading toolbar take its colour from the theme (§6). */
+const val WORKSPACE_THEME_TOOLBAR_FEATURE = "workspace_theme_toolbar"
+
+/**
+ * The seed-resolution rule, as a pure function so it can be unit-tested without Koin or a Context:
+ * with the master switch off there is no seed at all, which is what makes "off == today's
+ * appearance" a single condition rather than a check repeated at each consumer.
+ */
+fun workspaceThemeSeedArgb(enabledFeatures: Set<String>, workspaceColorArgb: Int?): Int? =
+    if (WORKSPACE_COLOR_THEME_FEATURE !in enabledFeatures) null else workspaceColorArgb
+
+/** [workspaceThemeSeedArgb] applied to the live singletons: the settings and the active workspace. */
+fun currentWorkspaceThemeSeedArgb(): Int? = workspaceThemeSeedArgb(
+    enabledFeatures = CommonUtils.settings.enabledExperimentalFeatures,
+    workspaceColorArgb = GlobalContext.get().get<WindowControl>()
+        .windowRepository.workspaceSettings.workspaceColor,
+)
+
+/**
+ * The one place `:app` reads the app-global theme inputs.
+ *
+ * Every Compose host used to repeat the same four reads (night mode, colour mode, animations) plus
+ * `ProvideAppLocals`; none of them is a per-host decision, and A/B batch 4b added a fourth input
+ * (the workspace-colour seed) that would have had to be pasted into 47 more places. `AbTheme`
+ * itself stays pure and explicit — it is the iOS- and golden-facing API and must not learn about
+ * Android settings. `AbThemeHostGuardTest` keeps hosts from going around this.
+ *
+ * The seed is held in state and refreshed on [WorkspaceColorChanged] (the event batch 4a added and
+ * every writer of the workspace colour posts), so changing the colour re-themes the visible UI
+ * without recreating the Activity. Not unit-tested: the `DisposableEffect` subscription itself is
+ * composition machinery with no state seam to assert on; it is verified on the device during the
+ * A/B round (change the workspace colour, watch the UI re-theme without leaving the screen).
+ */
+@Composable
+fun AbAppTheme(content: @Composable () -> Unit) {
+    var seedArgb by remember { mutableStateOf(currentWorkspaceThemeSeedArgb()) }
+    DisposableEffect(Unit) {
+        val subscriber = Any()
+        ABEventBus.register(subscriber) {
+            onMain<WorkspaceColorChanged> { seedArgb = currentWorkspaceThemeSeedArgb() }
+        }
+        onDispose { ABEventBus.unregister(subscriber) }
+    }
+    ProvideAppLocals {
+        AbTheme(
+            seedArgb = seedArgb,
+            darkTheme = ScreenSettings.nightMode,
+            colorMode = CommonUtils.settings.displayColorMode,
+            disableAnimations = CommonUtils.settings.disableAnimations,
+            content = content,
+        )
+    }
+}
