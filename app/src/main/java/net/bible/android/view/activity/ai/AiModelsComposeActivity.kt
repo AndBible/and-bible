@@ -24,13 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.ai.AiModelsController
 import net.bible.sharedcore.ai.LlmModelService
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.AiModelsScreen
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 /**
@@ -66,12 +63,7 @@ class AiModelsComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val models by controller.models.collectAsState()
                     val dialog by controller.dialog.collectAsState()
                     // Configured providers supply the read-only "Provider" name in the edit flow
@@ -106,7 +98,6 @@ class AiModelsComposeActivity : ActivityBase() {
                         helpBody = getString(R.string.help_ai_models_text),
                         helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-models",
                     )
-                }
             }
         }
     }

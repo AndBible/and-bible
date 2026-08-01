@@ -39,16 +39,14 @@ import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.mydocuments.ContentType
 import net.bible.sharedcore.mydocuments.MyDocPageItem
 import net.bible.sharedcore.mydocuments.MyDocumentPagesController
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.mydocuments.MyDocumentPagesScreen
-import net.bible.sharedui.theme.AbTheme
 import java.io.File
 
 /**
@@ -98,12 +96,7 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
         val title = getString(R.string.my_document_pages_title, documentName)
         lifecycleScope.launch { reload() }
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = net.bible.service.device.ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val pages by controller.pages.collectAsState()
                     val dirty by controller.dirty.collectAsState()
                     MyDocumentPagesScreen(
@@ -121,7 +114,6 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
                         onCancel = { finishCanceled() },
                         onNavigateUp = { onBackPressedDispatcher.onBackPressed() },
                     )
-                }
             }
         }
     }

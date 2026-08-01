@@ -79,7 +79,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.device.ScreenSettings
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.GenericFileDownloader
@@ -91,11 +90,10 @@ import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
@@ -245,12 +243,7 @@ open class DownloadComposeActivity : ActivityBase() {
         }
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val strings = LocalStrings.current
                     val loading by controller.loading.collectAsState()
                     val displayed by controller.displayed.collectAsState()
@@ -338,7 +331,6 @@ open class DownloadComposeActivity : ActivityBase() {
                         }
                     }
                     }
-                }
             }
         }
     }

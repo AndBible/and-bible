@@ -11,14 +11,11 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.readingplan.PlanEntry
 import net.bible.sharedcore.readingplan.ReadingPlanSelectorController
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.readingplan.ReadingPlanSelectorScreen
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 /** Compose host for the reading-plan chooser — the new-path twin of the classic [ReadingPlanSelectorList]. */
@@ -49,12 +46,7 @@ class ReadingPlanSelectorComposeActivity : ActivityBase() {
         val title = getString(R.string.rdg_plan_selector_title)
         ABEventBus.register(this) { onMain<ReadingPlansUpdatedViaSyncEvent> { controller.load() } }
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val plans by controller.plans.collectAsState()
                     val duplicate by controller.duplicateWarning.collectAsState()
                     val error by controller.error.collectAsState()
@@ -69,7 +61,6 @@ class ReadingPlanSelectorComposeActivity : ActivityBase() {
                         onDismissDuplicate = controller::dismissDuplicateWarning,
                         onNavigateUp = { finish() },
                     )
-                }
             }
         }
     }

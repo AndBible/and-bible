@@ -25,13 +25,10 @@ import net.bible.android.activity.R
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.ai.RawLogHistoryController
 import net.bible.sharedcore.ai.RawLogService
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.RawLogHistoryScreen
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 /**
@@ -67,12 +64,7 @@ class RawLogHistoryComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val summaries by controller.summaries.collectAsState()
                     val selection by controller.selection.collectAsState()
                     val selectionMode by controller.selectionMode.collectAsState()
@@ -91,7 +83,6 @@ class RawLogHistoryComposeActivity : ActivityBase() {
                         helpBody = getString(R.string.help_ai_connection_text),
                         helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                     )
-                }
             }
         }
     }

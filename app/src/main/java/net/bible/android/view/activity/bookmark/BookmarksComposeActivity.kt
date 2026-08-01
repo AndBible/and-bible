@@ -42,11 +42,9 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.bookmark.BookmarksController
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.bookmark.BookmarksScreen
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 private const val TAG = "BookmarksCompose"
@@ -101,12 +99,7 @@ class BookmarksComposeActivity : ActivityBase() {
         ABEventBus.register(this) { onMain<BookmarksUpdatedViaSyncEvent> { controller.refresh() } }
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val rows by controller.rows.collectAsState()
                     val filterLabels by controller.filterLabels.collectAsState()
                     val selectedFilterIndex by controller.selectedFilterIndex.collectAsState()
@@ -141,7 +134,6 @@ class BookmarksComposeActivity : ActivityBase() {
                         onImportCsv = controller::importCsv,
                         onUp = { finish() },
                     )
-                }
             }
         }
     }

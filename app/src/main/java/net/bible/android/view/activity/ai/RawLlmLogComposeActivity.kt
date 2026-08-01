@@ -39,15 +39,12 @@ import net.bible.android.activity.R
 import net.bible.android.control.report.AiBugReport
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.device.ScreenSettings
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.sharedcore.ai.RawLlmLogController
 import net.bible.sharedcore.ai.RawLogService
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.RawLlmLogScreen
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -90,12 +87,7 @@ class RawLlmLogComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val recordText by controller.recordText.collectAsState()
                     val entries by controller.entries.collectAsState()
                     val expandedIndices by controller.expandedIndices.collectAsState()
@@ -143,7 +135,6 @@ class RawLlmLogComposeActivity : ActivityBase() {
                         onReportBug = { reportBug() },
                         onNavigateUp = { finish() },
                     )
-                }
             }
         }
     }

@@ -44,15 +44,13 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.mydocuments.MyDocItem
 import net.bible.sharedcore.mydocuments.MyDocumentsController
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.mydocuments.MyDocumentsScreen
-import net.bible.sharedui.theme.AbTheme
 
 /**
  * Compose host for MyDocuments — the new-path twin of classic [MyDocumentsActivity]. Loads Room
@@ -95,12 +93,7 @@ class MyDocumentsComposeActivity : ActivityBase() {
         val title = getString(R.string.my_documents_title)
         lifecycleScope.launch { reload() }
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = net.bible.service.device.ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val documents by controller.documents.collectAsState()
                     val dirty by controller.dirty.collectAsState()
                     MyDocumentsScreen(
@@ -122,7 +115,6 @@ class MyDocumentsComposeActivity : ActivityBase() {
                         onConfirmImport = ::confirmImport,
                         onDismissImport = ::dismissImport,
                     )
-                }
             }
         }
     }

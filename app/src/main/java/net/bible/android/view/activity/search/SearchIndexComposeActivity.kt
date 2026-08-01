@@ -24,13 +24,10 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.search.SearchIndexService
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.search.SearchIndexScreen
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.Book
 import org.koin.android.ext.android.inject
 
@@ -63,12 +60,7 @@ class SearchIndexComposeActivity : ActivityBase() {
         val isRebuild = service.hasIndex(docId)
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     SearchIndexScreen(
                         title = title,
                         documentName = documentName,
@@ -87,7 +79,6 @@ class SearchIndexComposeActivity : ActivityBase() {
                         onCancel = { finish() },
                         onNavigateUp = { finish() },
                     )
-                }
             }
         }
     }

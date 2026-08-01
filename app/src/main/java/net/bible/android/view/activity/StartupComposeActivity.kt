@@ -46,15 +46,13 @@ import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.startup.StartupWelcomeController
 import net.bible.sharedcore.startup.StartupWelcomeInfo
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.startup.StartupWelcomeScreen
 import net.bible.sharedui.strings.LocalStrings
-import net.bible.sharedui.theme.AbTheme
 import java.util.Locale
 
 /**
@@ -98,12 +96,7 @@ class StartupComposeActivity : ActivityBase() {
             onMain<InstallZipEvent> { e -> controller.setProgress(e.message) }
         }
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val state by controller.state.collectAsState()
                     StartupWelcomeScreen(
                         state = state,
@@ -136,7 +129,6 @@ class StartupComposeActivity : ActivityBase() {
                             selectNoneText = strings.selectNone,
                         )
                     }
-                }
             }
         }
     }

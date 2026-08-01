@@ -43,16 +43,13 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.service.installzip.DecisionRequest
 import net.bible.service.installzip.DocumentInstallService
 import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.InstallPhase
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.installzip.InstallUiState
 import net.bible.sharedui.installzip.InstallZipContent
-import net.bible.sharedui.theme.AbTheme
 
 /**
  * Pure entry-dispatch decision, computed from the launching [Intent] alone (mirrors classic
@@ -295,14 +292,8 @@ class InstallZipComposeActivity : ActivityBase() {
         maybeRequestNotificationPermission()
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     Content()
-                }
             }
         }
 

@@ -43,7 +43,6 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.device.ScreenSettings
 import net.bible.service.llm.LlmCostTracker
 import net.bible.sharedcore.ai.AiConnectionLabels
 import net.bible.sharedcore.ai.AiConnectionNav
@@ -51,9 +50,8 @@ import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.settings.SettingsItem
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.AiConnectionSettingsScreen
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 /**
@@ -102,12 +100,7 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val state by controller.state.collectAsState()
                     AiConnectionSettingsScreen(
                         state = state,
@@ -122,7 +115,6 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
                         onNavigate = controller::onNavigate,
                         actions = { HelpAction() },
                     )
-                }
             }
         }
     }

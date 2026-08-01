@@ -37,20 +37,17 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.speakHelpVideo
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.speak.BibleSpeakSettingsController
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.sharedcore.speak.SpeakTransportController
 import net.bible.sharedcore.speak.SpeakTransportDialog
 import net.bible.sharedcore.speak.SpeakTransportService
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
 import net.bible.sharedui.reading.SpeakTransportBar
 import net.bible.sharedui.speak.BibleSpeakScreen
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
@@ -93,12 +90,7 @@ class BibleSpeakComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val playback by controller.playback.collectAsState()
                     val transportState by transport.state.collectAsState()
                     val transportDialog by transport.dialog.collectAsState()
@@ -136,7 +128,6 @@ class BibleSpeakComposeActivity : ActivityBase() {
                             onDismiss = { transport.dismissDialog() },
                         )
                     }
-                }
             }
         }
     }

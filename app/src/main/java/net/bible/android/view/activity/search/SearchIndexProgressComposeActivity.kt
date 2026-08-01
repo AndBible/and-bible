@@ -33,14 +33,12 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.pause
-import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
 import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.search.SearchIndexProgressController
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.search.SearchIndexProgressScreen
-import net.bible.sharedui.theme.AbTheme
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
@@ -63,12 +61,7 @@ class SearchIndexProgressComposeActivity : ActivityBase() {
         val docInitials = intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)
         documentBeingIndexed = SwordDocumentFacade.getDocumentByInitials(docInitials)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val jobs by controller.jobs.collectAsState()
                     val noTasks by controller.noTasks.collectAsState()
                     val error by controller.error.collectAsState()
@@ -80,7 +73,6 @@ class SearchIndexProgressComposeActivity : ActivityBase() {
                         onHide = controller::hide,
                         onDismissError = controller::dismissError,
                     )
-                }
             }
         }
     }

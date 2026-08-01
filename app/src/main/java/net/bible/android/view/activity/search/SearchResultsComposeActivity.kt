@@ -33,8 +33,6 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
@@ -45,9 +43,8 @@ import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.search.SearchResultsScreen
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.sword.SwordBook
 import org.koin.android.ext.android.inject
 
@@ -114,12 +111,7 @@ class SearchResultsComposeActivity : ActivityBase() {
         )
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val loading by controller.loading.collectAsState()
                     val results by controller.results.collectAsState()
                     val rows by controller.displayed.collectAsState()
@@ -166,7 +158,6 @@ class SearchResultsComposeActivity : ActivityBase() {
                         initialScrollIndex = intent.getIntExtra(LIST_POSITION, 0),
                         onScrollIndexChanged = { latestScrollIndex = it },
                     )
-                }
             }
         }
     }

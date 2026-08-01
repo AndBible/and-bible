@@ -32,12 +32,10 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.search.EpubSearchFormController
 import net.bible.sharedcore.search.EpubSearchMode
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.search.EpubSearchScreen
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.index.search.SearchType
 import org.koin.android.ext.android.inject
@@ -75,12 +73,7 @@ class EpubSearchComposeActivity : ActivityBase() {
         controller.seedMode(loadMode())
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val query by controller.query.collectAsState()
                     val mode by controller.mode.collectAsState()
                     EpubSearchScreen(
@@ -93,7 +86,6 @@ class EpubSearchComposeActivity : ActivityBase() {
                         onHelp = ::help,
                         onNavigateUp = { onBackPressedDispatcher.onBackPressed() },
                     )
-                }
             }
         }
     }

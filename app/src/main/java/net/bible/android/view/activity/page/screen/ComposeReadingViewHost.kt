@@ -1255,6 +1255,16 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
                 setContent {
                     ProvideAppLocals {
+                        // NOT collapsed into AbAppTheme (A/B batch 4b Task 3): darkTheme here MUST
+                        // come from nightModeState, a State<Boolean> this host keeps live via
+                        // ScreenSettings.NightModeChanged (see the host's `init`) — the one path that
+                        // reacts to the auto/light-sensor night-mode flip without an Activity
+                        // recreate(). This host is long-lived inside MainBibleActivity (never
+                        // recreated on that event, unlike a plain Activity host), so AbAppTheme's
+                        // static `ScreenSettings.nightMode` read would only pick up the change on an
+                        // unrelated recomposition — the reading pane would go stale exactly where
+                        // live night-mode feedback matters most. Exempted in AbThemeHostGuardTest
+                        // with the same reasoning.
                         val nightMode by nightModeState
                         AbTheme(
                             darkTheme = nightMode,

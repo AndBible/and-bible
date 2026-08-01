@@ -23,12 +23,9 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.backup.BackupServiceImpl
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.backup.BackupController
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.backup.BackupRestoreScreen
-import net.bible.sharedui.theme.AbTheme
 
 /**
  * Compose host for the Backup & Restore screen -- the new-path twin of classic
@@ -57,12 +54,7 @@ class BackupComposeActivity : ActivityBase() {
         super.onCreate(savedInstanceState)
         controller.load()
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val state by controller.state.collectAsState()
                     BackupRestoreScreen(
                         state = state,
@@ -74,7 +66,6 @@ class BackupComposeActivity : ActivityBase() {
                         onResetDb = controller::resetDb,
                         onUp = { finish() },
                     )
-                }
             }
         }
     }

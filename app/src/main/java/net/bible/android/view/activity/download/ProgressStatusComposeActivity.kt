@@ -30,13 +30,11 @@ import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.search.SearchIndexProgressController
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.search.SearchIndexProgressScreen
 import net.bible.sharedui.strings.LocalStrings
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
@@ -62,12 +60,7 @@ class ProgressStatusComposeActivity : ActivityBase() {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying $TAG view")
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val strings = LocalStrings.current
                     val jobs by controller.jobs.collectAsState()
                     val noTasks by controller.noTasks.collectAsState()
@@ -82,7 +75,6 @@ class ProgressStatusComposeActivity : ActivityBase() {
                         message = strings.taskKillWarning,
                         buttonLabel = strings.okay,
                     )
-                }
             }
         }
     }

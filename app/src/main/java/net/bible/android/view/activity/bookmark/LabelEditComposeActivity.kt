@@ -49,15 +49,13 @@ import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.exportStudyPads
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.bookmark.DeletePrompt
 import net.bible.sharedcore.bookmark.LabelEditController
 import net.bible.sharedcore.bookmark.LabelEditResult
 import net.bible.sharedcore.bookmark.LabelEditService
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.bookmark.LabelEditScreen
 import net.bible.sharedui.components.AbActionIconSize
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 /**
@@ -87,12 +85,7 @@ class LabelEditComposeActivity : ActivityBase() {
         data = LabelEditActivity.LabelData.fromJSON(intent.getStringExtra("data")!!)
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val state by controller.state.collectAsState()
                     val deletePrompt by controller.deletePrompt.collectAsState()
 
@@ -119,7 +112,6 @@ class LabelEditComposeActivity : ActivityBase() {
                     )
 
                     deletePrompt?.let { prompt -> DeletePromptDialog(prompt, state.name) }
-                }
             }
         }
     }

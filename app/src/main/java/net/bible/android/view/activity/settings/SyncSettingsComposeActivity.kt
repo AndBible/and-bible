@@ -25,13 +25,10 @@ import net.bible.android.activity.R
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.settings.SyncSettingsController
 import net.bible.sharedcore.settings.SyncSettingsLabels
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.settings.SyncSettingsScreen
-import net.bible.sharedui.theme.AbTheme
 
 /**
  * Compose host for the cloud-sync settings screen — the new-path twin of classic
@@ -59,12 +56,7 @@ class SyncSettingsComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val uiState by controller.state.collectAsState()
                     SyncSettingsScreen(
                         uiState = uiState,
@@ -77,7 +69,6 @@ class SyncSettingsComposeActivity : ActivityBase() {
                         onConfirmEnableDocuments = controller::confirmEnableDocuments,
                         onDismissDialog = controller::dismissDialog,
                     )
-                }
             }
         }
     }

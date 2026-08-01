@@ -65,10 +65,9 @@ import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.strings.LocalStrings
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBookMetaData
@@ -134,12 +133,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
         }
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = net.bible.service.device.ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val strings = LocalStrings.current
                     val loading by controller.loading.collectAsState()
                     val displayed by controller.displayed.collectAsState()
@@ -197,7 +191,6 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                         onNavigateUp = { finish() },
                         onExitSelection = controller::clearSelection,
                     )
-                }
             }
         }
     }

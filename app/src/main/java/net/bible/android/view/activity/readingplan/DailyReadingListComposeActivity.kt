@@ -28,15 +28,12 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
-import net.bible.service.device.ScreenSettings
 import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.sharedcore.readingplan.DayEntry
 import net.bible.sharedcore.readingplan.DailyReadingListController
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.readingplan.DailyReadingListScreen
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 /** Compose host for the day chooser — the new-path twin of the classic [DailyReadingList]. */
@@ -63,12 +60,7 @@ class DailyReadingListComposeActivity : ActivityBase() {
         val title = getString(R.string.rdg_plan_title)
         ABEventBus.register(this) { onMain<ReadingPlansUpdatedViaSyncEvent> { controller.load() } }
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val days by controller.days.collectAsState()
                     val error by controller.error.collectAsState()
                     DailyReadingListScreen(
@@ -79,7 +71,6 @@ class DailyReadingListComposeActivity : ActivityBase() {
                         onDismissError = controller::dismissError,
                         onNavigateUp = { finish() },
                     )
-                }
             }
         }
     }

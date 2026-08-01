@@ -28,15 +28,13 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.search.BibleSearchService
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchFormController
 import net.bible.sharedcore.search.SearchType
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.search.SearchScreen
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
@@ -99,12 +97,7 @@ class SearchComposeActivity : ActivityBase() {
         val title = getString(R.string.search_in, currentDoc.abbreviation)
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val query by controller.query.collectAsState()
                     val searchType by controller.searchType.collectAsState()
                     val bibleSection by controller.bibleSection.collectAsState()
@@ -127,7 +120,6 @@ class SearchComposeActivity : ActivityBase() {
                         recentTerms = recentTerms,
                         onRecentTermSelected = controller::setQuery,
                     )
-                }
             }
         }
     }

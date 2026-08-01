@@ -28,11 +28,9 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.workspaces.WorkspaceSelectorController
 import net.bible.sharedcore.workspaces.WorkspaceService
-import net.bible.sharedui.ProvideAppLocals
-import net.bible.sharedui.theme.AbTheme
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.workspaces.WorkspaceSelectorScreen
 import org.koin.android.ext.android.inject
 
@@ -84,12 +82,7 @@ class WorkspaceSelectorComposeActivity : ActivityBase() {
         service.saveCurrentIntoDb()
         controller.load()
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val workspaces by controller.workspaces.collectAsState()
                     val dirty by controller.dirty.collectAsState()
                     val query by controller.query.collectAsState()
@@ -121,7 +114,6 @@ class WorkspaceSelectorComposeActivity : ActivityBase() {
                         onHelp = { CommonUtils.showHelp(this, listOf(R.string.help_workspaces_title)) },
                         onNavigateUp = { controller.cancel() },
                     )
-                }
             }
         }
     }

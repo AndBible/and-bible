@@ -26,17 +26,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.ai.AiProvidersController
 import net.bible.sharedcore.ai.LlmProviderService
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.AiProvidersScreen
 import net.bible.sharedui.ai.EasySetupState
 import net.bible.sharedui.ai.EasySetupStep
 import net.bible.sharedui.ai.EasySetupTestResult
 import net.bible.sharedui.ai.EasySetupWizard
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 /**
@@ -116,12 +113,7 @@ class AiProvidersComposeActivity : ActivityBase() {
             ensureDisclaimerAccepted { startEasySetup() }
         }
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val providers by controller.providers.collectAsState()
                     val dialog by controller.dialog.collectAsState()
                     val pendingDisclaimer by pendingDisclaimerAction.collectAsState()
@@ -185,7 +177,6 @@ class AiProvidersComposeActivity : ActivityBase() {
                             },
                         )
                     }
-                }
             }
         }
     }

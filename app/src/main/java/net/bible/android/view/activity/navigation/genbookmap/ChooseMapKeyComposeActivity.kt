@@ -26,13 +26,10 @@ import net.bible.android.activity.R
 import net.bible.android.control.page.CurrentMapPage
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.navigation.ChooseMapKeyController
 import net.bible.sharedcore.navigation.KeyRow
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.navigation.ChooseMapKeyScreen
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.passage.Key
 import org.koin.android.ext.android.inject
 
@@ -74,12 +71,7 @@ class ChooseMapKeyComposeActivity : ActivityBase() {
         }
         val title = getString(R.string.doc_type_map)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val rows by controller.rows.collectAsState()
                     val currentKeyId by controller.currentKeyId.collectAsState()
                     val error by controller.error.collectAsState()
@@ -92,7 +84,6 @@ class ChooseMapKeyComposeActivity : ActivityBase() {
                         onDismissError = controller::dismissError,
                         onNavigateUp = { finish() },
                     )
-                }
             }
         }
     }

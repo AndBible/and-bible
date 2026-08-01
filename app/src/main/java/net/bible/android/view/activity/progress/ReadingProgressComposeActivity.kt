@@ -38,19 +38,17 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.progress.PassageRow
 import net.bible.sharedcore.progress.ReadHistoryEntry
 import net.bible.sharedcore.progress.ReadingProgressController
 import net.bible.sharedcore.progress.ReadingTab
 import net.bible.sharedcore.progress.TargetRow
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.progress.AbReadHistoryDialog
 import net.bible.sharedui.progress.MemorizeTabBody
 import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.progress.ReadingProgressScreen
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 private const val PREF_LAST_TAB = "reading_progress_last_tab"
@@ -106,12 +104,7 @@ class ReadingProgressComposeActivity : ActivityBase() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val model by controller.model.collectAsState()
                     val loading by controller.loading.collectAsState()
                     var unmarkRow by remember { mutableStateOf<PassageRow?>(null) }
@@ -188,7 +181,6 @@ class ReadingProgressComposeActivity : ActivityBase() {
                             onDismiss = { historyDialog = null },
                         )
                     }
-                }
             }
         }
 

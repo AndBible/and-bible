@@ -65,18 +65,16 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.common.labelsAndBookmarksPlaylist
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.exportStudyPads
-import net.bible.service.device.ScreenSettings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
 import net.bible.sharedcore.bookmark.ManageLabelsController
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.bookmark.SearchMode
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.bookmark.ManageLabelsScreen
 import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbOverflowMenu
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 private const val TAG = "ManageLabelsCompose"
@@ -143,12 +141,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
         }
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val rows by controller.rows.collectAsState()
                     val searchText by controller.searchText.collectAsState()
                     val searchMode by controller.searchMode.collectAsState()
@@ -209,7 +202,6 @@ class ManageLabelsComposeActivity : ActivityBase() {
                             selectNoneText = getString(R.string.select_none),
                         )
                     }
-                }
             }
         }
     }

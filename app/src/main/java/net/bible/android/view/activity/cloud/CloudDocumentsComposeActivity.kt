@@ -45,15 +45,13 @@ import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.cloudsync.documents.SyncPlan
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.cloud.CloudDocAction
 import net.bible.sharedcore.cloud.CloudDocFilter
 import net.bible.sharedcore.cloud.CloudDocItem
 import net.bible.sharedcore.cloud.CloudDocumentsController
 import net.bible.sharedcore.navigation.DocCategory
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.cloud.CloudDocumentsScreen
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.BookCategory
 
 /**
@@ -105,12 +103,7 @@ class CloudDocumentsComposeActivity : ActivityBase() {
             }
         }
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val displayed by controller.displayed.collectAsState()
                     val statusFilter by controller.statusFilter.collectAsState()
                     val categoryFilter by controller.categoryFilter.collectAsState()
@@ -150,7 +143,6 @@ class CloudDocumentsComposeActivity : ActivityBase() {
                         onNavigateUp = { if (selectionMode) controller.clearSelection() else finish() },
                         onExitSelection = controller::clearSelection,
                     )
-                }
             }
         }
     }

@@ -35,16 +35,14 @@ import net.bible.android.view.Screen
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
-import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.sharedcore.readingplan.DailyReadingController
 import net.bible.sharedcore.readingplan.DailyReadingUi
 import net.bible.sharedcore.readingplan.ReadingItem
 import net.bible.sharedcore.readingplan.SpeakState
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.readingplan.DailyReadingScreen
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.versification.BookName
 import org.koin.android.ext.android.inject
 import java.util.Calendar
@@ -122,12 +120,7 @@ class DailyReadingComposeActivity : ActivityBase() {
         }
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val ui by controller.ui.collectAsState()
                     val speakState by controller.speakState.collectAsState()
                     val error by controller.error.collectAsState()
@@ -155,7 +148,6 @@ class DailyReadingComposeActivity : ActivityBase() {
                         onDismissError = controller::dismissError,
                         onNavigateUp = { finish() },
                     )
-                }
             }
         }
     }

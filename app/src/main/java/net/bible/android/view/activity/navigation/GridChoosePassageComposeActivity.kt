@@ -31,7 +31,6 @@ import net.bible.android.control.progress.ProgressControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.navigation.BookPick
 import net.bible.sharedcore.navigation.ChapterPick
 import net.bible.sharedcore.navigation.GridButton
@@ -39,9 +38,8 @@ import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.GridOptions
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.GridUi
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.navigation.GridChoosePassageScreen
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -91,12 +89,7 @@ class GridChoosePassageComposeActivity : ActivityBase() {
         onBackPressedDispatcher.addCallback(this) { if (!controller.back()) finish() }
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val ui by controller.ui.collectAsState()
                     val options by controller.options.collectAsState()
                     GridChoosePassageScreen(
@@ -106,7 +99,6 @@ class GridChoosePassageComposeActivity : ActivityBase() {
                         onToggle = controller::toggle,
                         onNavigateUp = { if (!controller.back()) finish() },
                     )
-                }
             }
         }
     }

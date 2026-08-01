@@ -31,15 +31,12 @@ import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import net.bible.sharedcore.navigation.ChooseDictionaryWordController
 import net.bible.sharedcore.navigation.DictRow
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.navigation.ChooseDictionaryWordScreen
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
 import org.jdom2.Element
@@ -87,12 +84,7 @@ class ChooseDictionaryWordComposeActivity : ActivityBase() {
         }
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val loading by controller.loading.collectAsState()
                     val query by controller.query.collectAsState()
                     val rows by controller.rows.collectAsState()
@@ -110,7 +102,6 @@ class ChooseDictionaryWordComposeActivity : ActivityBase() {
                         onDismissError = controller::dismissError,
                         onNavigateUp = { finish() },
                     )
-                }
             }
         }
     }

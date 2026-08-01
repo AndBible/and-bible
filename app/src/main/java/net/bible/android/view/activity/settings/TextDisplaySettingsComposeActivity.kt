@@ -47,7 +47,6 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.settings.ColorSettingsController
 import net.bible.sharedcore.settings.InheritedFrom
 import net.bible.sharedcore.settings.KEY_OPEN_GLOBAL_SETTINGS
@@ -57,14 +56,13 @@ import net.bible.sharedcore.settings.TextDisplaySettingsController
 import net.bible.sharedcore.settings.TextDisplaySettingsLabels
 import net.bible.sharedcore.settings.TextDisplaySettingsScreenState
 import net.bible.sharedcore.settings.TextSettingType
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.settings.BackgroundImageChooserLabels
 import net.bible.sharedui.settings.BackgroundImageChooserScreen
 import net.bible.sharedui.settings.ColorSettingsLabels
 import net.bible.sharedui.settings.ColorSettingsScreen
 import net.bible.sharedui.settings.TextDisplaySettingsScreen
 import net.bible.sharedui.settings.TextDisplaySettingsScreenLabels
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 /**
@@ -151,12 +149,7 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
         }
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     BackHandler { pop() }
 
                     val activeColorsScope = colorsScope
@@ -216,7 +209,6 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
                             onNavigate = { key -> onNavigate(scope, key) },
                         )
                     }
-                }
             }
         }
 

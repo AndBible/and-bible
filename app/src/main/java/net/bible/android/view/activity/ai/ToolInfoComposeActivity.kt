@@ -21,14 +21,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.remember
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.sharedcore.ai.ToolVd
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.ToolInfoScreen
-import net.bible.sharedui.theme.AbTheme
 
 /**
  * Compose host for the read-only "available AI tools" reference screen — the new-path twin of classic
@@ -45,12 +42,7 @@ class ToolInfoComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val allTools = remember { ToolRegistry.getAllTools() }
                     val readTools = remember(allTools) { allTools.filter { !it.requiresPermission }.map { it.toToolVd() } }
                     val writeTools = remember(allTools) { allTools.filter { it.requiresPermission }.map { it.toToolVd() } }
@@ -62,7 +54,6 @@ class ToolInfoComposeActivity : ActivityBase() {
                         helpBody = getString(R.string.help_tool_info_text),
                         helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#ai-tools",
                     )
-                }
             }
         }
     }

@@ -32,15 +32,12 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.epub.isEpub
 import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedcore.search.EpubSearchResultsController
 import net.bible.sharedcore.search.EpubSearchService
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.search.EpubSearchResultsScreen
-import net.bible.sharedui.theme.AbTheme
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.index.search.SearchType
 import org.koin.android.ext.android.inject
@@ -99,12 +96,7 @@ class EpubSearchResultsComposeActivity : ActivityBase() {
         val docAbbrev = doc.abbreviation
 
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val loading by controller.loading.collectAsState()
                     val results by controller.results.collectAsState()
                     val error by controller.error.collectAsState()
@@ -136,7 +128,6 @@ class EpubSearchResultsComposeActivity : ActivityBase() {
                         onSelect = controller::select,
                         onNavigateUp = { onBackPressedDispatcher.onBackPressed() },
                     )
-                }
             }
         }
     }

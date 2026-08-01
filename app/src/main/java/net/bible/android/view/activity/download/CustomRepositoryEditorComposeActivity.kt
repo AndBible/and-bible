@@ -29,16 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.download.CustomRepositoryEditorController
 import net.bible.sharedcore.download.CustomRepositoryService
 import net.bible.sharedcore.download.RepositoryResult
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.download.CustomRepositoryEditorScreen
 import net.bible.sharedui.strings.LocalStrings
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 
 /**
@@ -73,12 +70,7 @@ class CustomRepositoryEditorComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val strings = LocalStrings.current
                     val state by controller.state.collectAsState()
                     var showDiscardConfirm by remember { mutableStateOf(false) }
@@ -108,7 +100,6 @@ class CustomRepositoryEditorComposeActivity : ActivityBase() {
                             onDismiss = { showDiscardConfirm = false },
                         )
                     }
-                }
             }
         }
     }

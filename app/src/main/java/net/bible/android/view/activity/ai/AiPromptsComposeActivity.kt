@@ -38,17 +38,14 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.AndBibleAddons
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.device.ScreenSettings
 import net.bible.service.llm.PromptCsvUtils
 import net.bible.service.llm.PromptRepository
 import net.bible.service.sword.csvprompt.addCsvPromptBook
 import net.bible.sharedcore.ai.AiPromptsController
 import net.bible.sharedcore.ai.PromptService
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.AiPromptsScreen
-import net.bible.sharedui.theme.AbTheme
 import org.koin.android.ext.android.inject
 import java.io.File
 import java.io.FileOutputStream
@@ -100,12 +97,7 @@ class AiPromptsComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val configured by controller.configured.collectAsState()
                     val groups by controller.groups.collectAsState()
                     val showHidden by controller.showHidden.collectAsState()
@@ -138,7 +130,6 @@ class AiPromptsComposeActivity : ActivityBase() {
                         helpBody = getString(R.string.help_ai_settings_text),
                         helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                     )
-                }
             }
         }
     }

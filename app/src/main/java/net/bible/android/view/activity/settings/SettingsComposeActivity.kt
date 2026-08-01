@@ -43,13 +43,11 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.settings.AppSettingsController
 import net.bible.sharedcore.settings.AppSettingsLabels
 import net.bible.sharedcore.settings.AppSettingsNav
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.settings.AppSettingsScreen
-import net.bible.sharedui.theme.AbTheme
 
 /**
  * Keys whose classic effect depends on values read only at Activity-creation time (locale via
@@ -99,12 +97,7 @@ class SettingsComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val state by controller.state.collectAsState()
                     AppSettingsScreen(
                         state = state,
@@ -118,7 +111,6 @@ class SettingsComposeActivity : ActivityBase() {
                         onReset = { confirmResetSettings() },
                         resetContentDescription = getString(R.string.reset_settings),
                     )
-                }
             }
         }
     }

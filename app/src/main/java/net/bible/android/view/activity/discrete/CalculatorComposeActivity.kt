@@ -24,12 +24,10 @@ import androidx.compose.runtime.getValue
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.removeLeadingZeroes
-import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.calculator.CalculatorController
 import net.bible.sharedcore.calculator.EvalResult
-import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.calculator.CalculatorScreen
-import net.bible.sharedui.theme.AbTheme
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.math.BigDecimal
 
@@ -87,16 +85,10 @@ class CalculatorComposeActivity : ActivityBase() {
         Log.i(TAG, "Calculator (Compose): onCreate")
         super.onCreate(savedInstanceState)
         setContent {
-            ProvideAppLocals {
-                AbTheme(
-                    darkTheme = ScreenSettings.nightMode,
-                    colorMode = CommonUtils.settings.displayColorMode,
-                    disableAnimations = CommonUtils.settings.disableAnimations,
-                ) {
+            AbAppTheme {
                     val display by controller.display.collectAsState()
                     val error by controller.error.collectAsState()
                     CalculatorScreen(display, error, controller::onKey)
-                }
             }
         }
     }
