@@ -41,7 +41,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.theme.colorShades
 import net.bible.sharedcore.theme.isLightColor
@@ -52,9 +54,10 @@ import net.bible.sharedcore.theme.presetColors
  *  selection last landed on.
  *
  *  [initialColor] is the colour the dialog opened with and [color] the working colour; both go into
- *  the preset list exactly as classic's `loadPresets` does. Selection is by VALUE, not by index:
- *  a swatch or shade is checked when it equals [color], which reproduces classic's `selectNone()`
- *  (picking a shade clears the grid check) without a second piece of state to keep in step.
+ *  the preset list exactly as classic's `loadPresets` does. The GRID is checked by VALUE: a swatch
+ *  is checked when it equals [color], which reproduces classic's `selectNone()` (picking a shade
+ *  clears the grid check) without a second piece of state to keep in step. The SHADE ROW is
+ *  checked by INDEX instead — see the comment on `shadeIndex` below for why.
  *
  *  Public, not internal, because the golden tests live in `:app` — a different module. */
 @Composable
@@ -71,6 +74,15 @@ fun ColorPickerPresetsPage(
     var shadeBase by remember { mutableStateOf(color) }
     val shades = remember(shadeBase) { colorShades(shadeBase) }
 
+    // Shade selection is tracked by INDEX, not by value: `shadeArgb` clamps at the channel
+    // extremes, so for a base colour already near black/white several shade percentages collapse
+    // to the same ARGB (e.g. black's seven negative-percent shades all become 0xFF000000). A
+    // value-based `checked` would then mark all of them at once. Classic avoids this by tracking
+    // the tapped VIEW (`cpv == v` in `ColorPickerDialog.createColorShades`); an index is the
+    // closest Compose analogue. Do not "simplify" this back to `shade == color` — the grid above
+    // stays value-based deliberately (see the class doc), only the shade row needs this.
+    var shadeIndex by remember { mutableStateOf<Int?>(null) }
+
     Column(modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -81,7 +93,7 @@ fun ColorPickerPresetsPage(
                     color = preset,
                     checked = preset == color,
                     size = 50.dp,
-                    onClick = { shadeBase = preset; onColorChange(preset) },
+                    onClick = { shadeBase = preset; shadeIndex = null; onColorChange(preset) },
                 )
             }
         }
@@ -93,12 +105,12 @@ fun ColorPickerPresetsPage(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            shades.forEach { shade ->
+            shades.forEachIndexed { index, shade ->
                 ColorSwatchCircle(
                     color = shade,
-                    checked = shade == color,
+                    checked = index == shadeIndex,
                     size = 40.dp,
-                    onClick = { onColorChange(shade) },
+                    onClick = { shadeIndex = index; onColorChange(shade) },
                 )
             }
         }
@@ -109,11 +121,12 @@ fun ColorPickerPresetsPage(
  *  0.65-luminance rule (`ColorPaletteAdapter`), computed from the swatch and not from the theme, so
  *  it stays legible in every display mode. */
 @Composable
-private fun ColorSwatchCircle(color: Int, checked: Boolean, size: androidx.compose.ui.unit.Dp, onClick: () -> Unit) {
+private fun ColorSwatchCircle(color: Int, checked: Boolean, size: Dp, onClick: () -> Unit) {
     Box(
         Modifier
             .size(size)
             .background(AbColor.toComposeColor(color), CircleShape)
+            .clip(CircleShape)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
