@@ -133,8 +133,9 @@ fun parseHexColor(text: String): Int? {
     return six.toLong(16).toInt() or (0xFF shl 24)
 }
 
-/** ARGB -> `(hue 0..360, saturation 0..1, value 0..1)`. Moved here from `:sharedUi`'s
- *  `AbColorPicker` (batch 7a), where it was written hand-rolled to stay off `android.graphics`. */
+/** ARGB -> `(hue 0..360, saturation 0..1, value 0..1)`. Originally written hand-rolled, to stay off
+ *  `android.graphics`, for a `:sharedUi` colour-picker composable added in batch 7a (since deleted
+ *  by batch 4c's classic-parity port); moved here to `:sharedCore` so the maths stays testable. */
 fun argbToHsv(argb: Int): Triple<Float, Float, Float> {
     val r = ((argb shr 16) and 0xFF) / 255f
     val g = ((argb shr 8) and 0xFF) / 255f

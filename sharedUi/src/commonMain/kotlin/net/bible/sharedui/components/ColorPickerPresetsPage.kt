@@ -18,6 +18,7 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -119,7 +120,10 @@ fun ColorPickerPresetsPage(
 
 /** One swatch. The check mark is black on a light swatch and white on a dark one — classic's
  *  0.65-luminance rule (`ColorPaletteAdapter`), computed from the swatch and not from the theme, so
- *  it stays legible in every display mode. */
+ *  it stays legible in every display mode. Bordered with classic's fixed 1dp grey (`ColorPanelView
+ *  .onDraw`, CIRCLE branch, lines 142-155; `PICKER_BORDER_COLOR` in `ColorPickerCustomPage.kt`) so
+ *  a white or black swatch — including a run of identical clamped shades, see `colorShades` — still
+ *  reads as a separate disc instead of blurring into the dialog background or its neighbours. */
 @Composable
 private fun ColorSwatchCircle(color: Int, checked: Boolean, size: Dp, onClick: () -> Unit) {
     Box(
@@ -127,6 +131,7 @@ private fun ColorSwatchCircle(color: Int, checked: Boolean, size: Dp, onClick: (
             .size(size)
             .background(AbColor.toComposeColor(color), CircleShape)
             .clip(CircleShape)
+            .border(PICKER_BORDER_WIDTH, PICKER_BORDER_COLOR, CircleShape)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {

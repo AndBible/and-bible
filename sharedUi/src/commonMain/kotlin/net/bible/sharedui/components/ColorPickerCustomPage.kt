@@ -18,6 +18,7 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
@@ -35,6 +36,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -66,6 +71,16 @@ import net.bible.sharedcore.theme.hueToOffset
 import net.bible.sharedcore.theme.parseHexColor
 import net.bible.sharedcore.theme.satValFromOffset
 import net.bible.sharedcore.theme.satValToOffset
+
+/** Classic's fixed 1dp border grey, drawn around every colour surface (swatches, preview panels,
+ *  the SV square, the hue strip) — `ColorPanelView.DEFAULT_BORDER_COLOR` (line 49) and
+ *  `ColorPickerView`'s `BORDER_WIDTH_PX`-bordered rects (lines 277-279, 345-349). Deliberately NOT
+ *  theme-derived: classic picks a fixed grey precisely so the border reads against any swatch
+ *  colour, in any display mode (including monochrome/e-ink), and this port draws real colours
+ *  there too. Shared by `ColorPickerPresetsPage.kt`'s swatch circles (hence `internal`, not
+ *  `private` — a top-level `private` is file-scoped in Kotlin, not package-scoped). */
+internal val PICKER_BORDER_COLOR = Color(0xFF6E6E6E)
+internal val PICKER_BORDER_WIDTH = 1.dp
 
 /** Classic's custom page: a saturation/value square with the hue strip down its right-hand side
  *  (`ColorPickerView`'s geometry — 30dp strip, 10dp apart), then the original colour, an arrow, the
@@ -120,7 +135,16 @@ fun ColorPickerCustomPage(
 
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             ColorPreviewPanel(initialColor)
-            Text("→", style = MaterialTheme.typography.titleMedium)
+            // Icons.AutoMirrored so the arrow flips in RTL (old/new panels swap sides with the Row
+            // mirroring; a literal "→" glyph would keep pointing right, back at the old colour).
+            // This is chrome, not a swatch, so — unlike the fixed picker border — it DOES follow
+            // the theme's content colour. 20dp keeps it close to the titleMedium glyph it replaces.
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = LocalContentColor.current,
+                modifier = Modifier.size(20.dp),
+            )
             ColorPreviewPanel(color)
             Spacer(Modifier.weight(1f))
             Text("#", style = MaterialTheme.typography.bodyLarge)
@@ -129,13 +153,16 @@ fun ColorPickerCustomPage(
     }
 }
 
-/** 66x34dp preview panel, classic's `cpv_dialog_preview_*` dimensions. */
+/** 66x34dp preview panel, classic's `cpv_dialog_preview_*` dimensions, with classic's 1dp border
+ *  (`ColorPanelView.onDraw`, SQUARE branch, lines 134-141) so a white/black panel doesn't vanish
+ *  into the dialog background. */
 @Composable
 private fun ColorPreviewPanel(color: Int) {
     Box(
         Modifier
             .size(width = 66.dp, height = 34.dp)
-            .background(AbColor.toComposeColor(color)),
+            .background(AbColor.toComposeColor(color))
+            .border(PICKER_BORDER_WIDTH, PICKER_BORDER_COLOR),
     )
 }
 
@@ -165,6 +192,9 @@ private fun SatValSquare(
                     center = Offset(tx, ty),
                     style = Stroke(width = 2.dp.toPx()),
                 )
+                // Classic's 1dp border (`ColorPickerView`, lines 277-279), drawn LAST so the
+                // gradients above don't paint over it.
+                drawRect(color = PICKER_BORDER_COLOR, style = Stroke(width = PICKER_BORDER_WIDTH.toPx()))
             }
             // A single hand-rolled recognizer, not a stacked detectTapGestures +
             // detectDragGestures pair — two gesture detectors racing on the same node is a shape
@@ -208,6 +238,9 @@ private fun HueStrip(hue: Float, onHue: (Float) -> Unit, modifier: Modifier = Mo
                     topLeft = Offset(0f, y - 2.dp.toPx()),
                     size = Size(size.width, 4.dp.toPx()),
                 )
+                // Classic's 1dp border (`ColorPickerView`, lines 345-349), drawn LAST so the hue
+                // gradient above doesn't paint over it.
+                drawRect(color = PICKER_BORDER_COLOR, style = Stroke(width = PICKER_BORDER_WIDTH.toPx()))
             }
             // Single recognizer — see the comment on SatValSquare's pointerInput.
             .pointerInput(Unit) {
