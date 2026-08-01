@@ -20,8 +20,6 @@ package net.bible.sharedui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -107,15 +105,20 @@ val LocalIsDarkTheme = staticCompositionLocalOf { false }
  * @param colorMode NORMAL keeps full color; BW/COLOR_EINK grayscale the whole base scheme
  *   (accents in [LocalAbColors] stay colored in COLOR_EINK via [accentArgbFor]).
  * @param disableAnimations exposed to content via [LocalDisableAnimations].
+ * @param seedArgb the workspace colour used as the Material 3 seed (A/B batch 4b). `null` — the
+ *   default — is the untinted path and returns today's stock scheme, which is why previews, tests
+ *   and the Roborazzi harness need no change. `:app` hosts do not pass this by hand; `AbAppTheme`
+ *   supplies it.
  */
 @Composable
 fun AbTheme(
+    seedArgb: Int? = null,
     darkTheme: Boolean = isSystemInDarkTheme(),
     colorMode: DisplayColorMode = DisplayColorMode.NORMAL,
     disableAnimations: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    val baseScheme = if (darkTheme) darkColorScheme() else lightColorScheme()
+    val baseScheme = abColorScheme(seedArgb, darkTheme, colorMode)
     // In BW/COLOR_EINK the entire base scheme is grayscale; accents follow accentArgbFor (colored in COLOR_EINK).
     val scheme = if (colorMode == DisplayColorMode.NORMAL) baseScheme else baseScheme.grayscale(colorMode)
     val accents = AbColors(
