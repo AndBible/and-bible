@@ -188,16 +188,16 @@ function handleTabClick(tabId: string) {
   }
 
   &.active {
-    color: #007bff;
-    border-bottom-color: #007bff;
+    color: var(--ab-on-secondary-container, #007bff);
+    border-bottom-color: var(--ab-secondary-container, #007bff);
 
     .monochrome & {
       color: black;
       border-bottom-color: black;
     }
     .night & {
-      color: #1e90ff;
-      border-bottom-color: #1e90ff;
+      color: var(--ab-on-secondary-container, #1e90ff);
+      border-bottom-color: var(--ab-secondary-container, #1e90ff);
     }
     .monochrome.night & {
       color: white;
