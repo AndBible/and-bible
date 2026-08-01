@@ -306,14 +306,17 @@ $button-grey: var(--modal-grey);
 }
 
 :root {
-  --modal-grey:  rgb(172,172,172);
+  // A/B batch 4b: the workspace theme sets --ab-* on the document root. Every declaration keeps
+  // its previous literal as the var() fallback, so no payload == today's appearance, by
+  // construction rather than by a code path.
+  --modal-grey: var(--ab-primary-container, rgb(172,172,172));
   .monochrome {
     --modal-grey: black;
   }
 }
 
 $modal-header-background-color: var(--modal-grey);
-$night-modal-header-background-color: rgba(69,69,69,1);
+$night-modal-header-background-color: var(--ab-primary-container, rgba(69,69,69,1));
 
 $modal-content-background-color: #fefefe;
 $modal-content-background-color-night: rgb(33, 33, 33);

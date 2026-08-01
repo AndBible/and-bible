@@ -255,7 +255,7 @@ $border-radius2: $border-radius - 1.5pt;
   justify-content: space-around;
   padding-top: 2px;
   padding-bottom: 2px;
-  background-color: #acacac;
+  background-color: var(--ab-secondary-container, #acacac);
   color: white;
 
   .monochrome & {
@@ -264,7 +264,7 @@ $border-radius2: $border-radius - 1.5pt;
     border-top: 1px solid black;
   }
   .night & {
-    background-color: #454545;
+    background-color: var(--ab-secondary-container, #454545);
     color: #bdbdbd;
   }
   .monochrome.night & {

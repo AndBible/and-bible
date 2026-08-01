@@ -168,8 +168,8 @@ function handleTabClick(tabId: string) {
   }
 
   &:hover:not(:disabled) {
-    color: #007bff;
-    background: #f8f9fa;
+    color: var(--ab-on-secondary-container, #007bff);
+    background: var(--ab-secondary-container, #f8f9fa);
 
     .monochrome & {
       color: black;
@@ -177,8 +177,8 @@ function handleTabClick(tabId: string) {
       font-weight: 700;
     }
     .night & {
-      color: #1e90ff;
-      background: #333;
+      color: var(--ab-on-secondary-container, #1e90ff);
+      background: var(--ab-secondary-container, #333);
     }
     .monochrome.night & {
       color: white;

@@ -113,6 +113,37 @@ export type ModalButtonId = BibleModalButtonId | GenericModalButtonId
 
 export type Feature = "add_paragraph_break" | "bookmark_edit_actions"
 
+export type ThemeColors = {
+    primary: string,
+    onPrimary: string,
+    primaryContainer: string,
+    onPrimaryContainer: string,
+    secondaryContainer: string,
+    onSecondaryContainer: string,
+};
+
+const THEME_COLOR_PROPERTIES: [keyof ThemeColors, string][] = [
+    ["primary", "--ab-primary"],
+    ["onPrimary", "--ab-on-primary"],
+    ["primaryContainer", "--ab-primary-container"],
+    ["onPrimaryContainer", "--ab-on-primary-container"],
+    ["secondaryContainer", "--ab-secondary-container"],
+    ["onSecondaryContainer", "--ab-on-secondary-container"],
+];
+
+/**
+ * Applies the workspace theme (A/B batch 4b) as CSS custom properties on the document root.
+ * Removing them — which is what a null payload does — restores today's appearance, because every
+ * consumer declares `var(--ab-…, <the previous literal>)`.
+ */
+export function applyThemeColors(colors: ThemeColors | null): void {
+    const style = document.documentElement.style;
+    for (const [key, property] of THEME_COLOR_PROPERTIES) {
+        if (colors) style.setProperty(property, colors[key]);
+        else style.removeProperty(property);
+    }
+}
+
 export type AppSettings = {
     isBottomWindow: boolean,
     topOffset: number,
@@ -144,6 +175,7 @@ export type AppSettings = {
     enabledExperimentalFeatures: Feature[],
     llmConfigured: boolean,
     notesContentType: TextContentType,
+    themeColors: ThemeColors | null,
 }
 
 export type CalculatedConfig = Ref<{
@@ -254,6 +286,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         enabledExperimentalFeatures: [],
         llmConfigured: false,
         notesContentType: "HTML",
+        themeColors: null,
     });
 
     function calcMmInPx() {
@@ -391,6 +424,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
                     console.error("Unknown setting", j, appSettings[j]);
                 }
             }
+            if ("themeColors" in newAppSettings) applyThemeColors(newAppSettings.themeColors ?? null);
 
             errorBox = appSettings.errorBox;
             if (isBible && needBookmarkRefresh) {
