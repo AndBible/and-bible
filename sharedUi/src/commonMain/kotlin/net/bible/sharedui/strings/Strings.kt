@@ -585,6 +585,11 @@ interface Strings {
     val permissionAllowAllSession: String                   // R.string.permission_allow_all_session
     fun permissionAllowAlways(toolName: String): String     // R.string.permission_allow_always (%1$s)
     val permissionDeny: String                              // R.string.permission_deny
+
+    // Batch 4c — colour picker
+    val colorPickerTitle: String
+    val colorPickerPresets: String
+    val colorPickerCustom: String
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

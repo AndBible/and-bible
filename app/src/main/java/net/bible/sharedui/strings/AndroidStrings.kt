@@ -562,4 +562,9 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun permissionAllowAlways(toolName: String): String =
         context.getString(R.string.permission_allow_always, toolName)
     override val permissionDeny: String get() = context.getString(R.string.permission_deny)
+
+    // Batch 4c — colour picker
+    override val colorPickerTitle: String get() = context.getString(R.string.color_picker_title)
+    override val colorPickerPresets: String get() = context.getString(R.string.color_picker_presets)
+    override val colorPickerCustom: String get() = context.getString(R.string.color_picker_custom)
 }

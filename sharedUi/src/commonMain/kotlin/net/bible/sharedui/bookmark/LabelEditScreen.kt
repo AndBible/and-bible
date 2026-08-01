@@ -31,11 +31,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.LabelEditState
 import net.bible.sharedcore.bookmark.OverrideMode
 import net.bible.sharedui.components.AbColor
-import net.bible.sharedui.components.AbColorPicker
+import net.bible.sharedui.components.AbColorPickerDialog
 import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSwitchRow
@@ -160,10 +158,10 @@ fun LabelEditScreen(
     }
 
     if (colorPickerOpen) {
-        AlertDialog(
-            onDismissRequest = { colorPickerOpen = false },
-            text = { AbColorPicker(color = state.color, onColorChange = onColor) },
-            confirmButton = { TextButton(onClick = { colorPickerOpen = false }) { Text(strings.okay) } },
+        AbColorPickerDialog(
+            initialColor = state.color,
+            onConfirm = { onColor(it); colorPickerOpen = false },
+            onDismiss = { colorPickerOpen = false },
         )
     }
 }

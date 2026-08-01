@@ -2005,4 +2005,7 @@
     <string name="background_image_opacity_day">Background image opacity (day)</string>
     <string name="background_image_opacity_night">Background image opacity (night)</string>
     <string name="background_image_change">Change</string>
+    <string name="color_picker_title">Select a Color</string>
+    <string name="color_picker_presets">Presets</string>
+    <string name="color_picker_custom">Custom</string>
 </resources>

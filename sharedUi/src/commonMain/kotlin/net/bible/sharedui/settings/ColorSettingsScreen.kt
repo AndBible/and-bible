@@ -33,7 +33,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +50,7 @@ import net.bible.sharedcore.settings.ColorField
 import net.bible.sharedcore.settings.ColorSettingsUiState
 import net.bible.sharedcore.settings.ColorsSnapshot
 import net.bible.sharedui.components.AbColor
-import net.bible.sharedui.components.AbColorPicker
+import net.bible.sharedui.components.AbColorPickerDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.strings.LocalStrings
@@ -149,18 +148,22 @@ fun ColorSettingsScreen(
 
     val field = colorFieldDialog
     if (field != null) {
-        AlertDialog(
-            onDismissRequest = { colorFieldDialog = null },
-            text = { AbColorPicker(color = colors.colorFor(field), onColorChange = { onColorChange(field, it) }) },
-            confirmButton = { TextButton(onClick = { colorFieldDialog = null }) { Text(strings.okay) } },
+        AbColorPickerDialog(
+            initialColor = colors.colorFor(field),
+            onConfirm = { onColorChange(field, it); colorFieldDialog = null },
+            onDismiss = { colorFieldDialog = null },
         )
     }
 
+    // Batch 4c: the colour is committed once, on OK, instead of on every slider frame. That is
+    // classic's contract and it means `onWorkspaceColorChange` (which writes the setting and posts
+    // WorkspaceColorChanged, re-deriving the whole seeded theme) fires once per edit, not per frame.
+    // The cost is that there is no live preview of the workspace colour while picking.
     if (workspaceDialogOpen) {
-        AlertDialog(
-            onDismissRequest = { workspaceDialogOpen = false },
-            text = { AbColorPicker(color = colors.workspaceColor, onColorChange = onWorkspaceColorChange) },
-            confirmButton = { TextButton(onClick = { workspaceDialogOpen = false }) { Text(strings.okay) } },
+        AbColorPickerDialog(
+            initialColor = colors.workspaceColor,
+            onConfirm = { onWorkspaceColorChange(it); workspaceDialogOpen = false },
+            onDismiss = { workspaceDialogOpen = false },
         )
     }
 }
