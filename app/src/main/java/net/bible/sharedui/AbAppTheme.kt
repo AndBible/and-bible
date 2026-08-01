@@ -34,8 +34,13 @@ import org.koin.core.context.GlobalContext
 /** The experimental switch that turns the workspace-colour theme on at all (A/B batch 4b, §8). */
 const val WORKSPACE_COLOR_THEME_FEATURE = "workspace_color_theme"
 
-/** The experimental switch that makes the reading toolbar take its colour from the theme (§6). */
-const val WORKSPACE_THEME_TOOLBAR_FEATURE = "workspace_theme_toolbar"
+/**
+ * The experimental switch that keeps the reading toolbar's LITERAL workspace colour instead of
+ * the theme-derived one (§6). Derived is the default once [WORKSPACE_COLOR_THEME_FEATURE] is on
+ * (maintainer decision, batch 4b feedback 2026-08-01); this is the opt-out back to the literal
+ * colour, not an opt-in to deriving it.
+ */
+const val TOOLBAR_LITERAL_COLOR_FEATURE = "toolbar_literal_color"
 
 /**
  * The seed-resolution rule, as a pure function so it can be unit-tested without Koin or a Context:

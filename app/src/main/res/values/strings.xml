@@ -961,7 +961,7 @@
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
     <string name="experimental_feature_workspace_color_theme">Theme the whole app with the workspace colour</string>
-    <string name="experimental_feature_workspace_theme_toolbar">Derive the reading toolbar colour from the theme</string>
+    <string name="experimental_feature_toolbar_literal_color">Use the literal workspace colour for the reading toolbar (instead of the theme colour)</string>
 <string name="raw_llm_log_title">Raw LLM Log</string>
     <string name="raw_llm_log_empty">No raw log data available</string>
     <string name="raw_llm_log_copied">Log copied to clipboard</string>

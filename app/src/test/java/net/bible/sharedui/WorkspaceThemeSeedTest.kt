@@ -26,7 +26,7 @@ class WorkspaceThemeSeedTest {
     @Test
     fun `master switch off means no seed, whatever the workspace colour is`() {
         assertNull(workspaceThemeSeedArgb(emptySet(), ORANGE))
-        assertNull(workspaceThemeSeedArgb(setOf(WORKSPACE_THEME_TOOLBAR_FEATURE), ORANGE))
+        assertNull(workspaceThemeSeedArgb(setOf(TOOLBAR_LITERAL_COLOR_FEATURE), ORANGE))
     }
 
     @Test
