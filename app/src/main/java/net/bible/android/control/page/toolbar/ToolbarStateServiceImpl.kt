@@ -25,6 +25,7 @@ import net.bible.android.control.event.onMain
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.event.window.WorkspaceColorChanged
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -70,6 +71,9 @@ class ToolbarStateServiceImpl(
             onMain<CurrentWindowChangedEvent> { refresh() }
             onMain<PassageChangedEvent> { refresh() }
             onMain<CurrentVerseChangedEvent> { refresh() }
+            // A/B batch 4a F1: the workspace colour feeds ToolbarState.workspaceColorArgb, and none
+            // of the other four events fires when it is written. See WorkspaceColorChanged's kdoc.
+            onMain<WorkspaceColorChanged> { refresh() }
             onMain<SpeakEvent> { refresh() }
             onMain<CloudSyncEvent> { e -> _toolbar.value = _toolbar.value.copy(syncRunning = e.running) }
         }

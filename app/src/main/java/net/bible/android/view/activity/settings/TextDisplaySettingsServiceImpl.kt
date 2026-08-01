@@ -21,6 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.window.WorkspaceColorChanged
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
@@ -198,6 +200,7 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
             is SettingsScope.Workspace -> {
                 repo.textDisplaySettings = TextDisplaySettings()
                 repo.workspaceSettings.workspaceColor = defaultWorkspaceColor
+                ABEventBus.post(WorkspaceColorChanged())
                 repo.updateWindowTextDisplaySettingsValues(all, repo.textDisplaySettings)
                 repo.updateAllWindowsTextDisplaySettings()
                 repo.saveIntoDb(false)
@@ -221,6 +224,7 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
             }
             is SettingsScope.Workspace -> {
                 repo.workspaceSettings.workspaceColor = repo.textDisplaySettings.colors?.workspaceColor ?: defaultWorkspaceColor
+                ABEventBus.post(WorkspaceColorChanged())
                 repo.updateWindowTextDisplaySettingsValues(dirty, repo.textDisplaySettings)
                 repo.updateAllWindowsTextDisplaySettings()
                 repo.saveIntoDb(false)

@@ -25,6 +25,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.event.window.WorkspaceColorChanged
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
@@ -215,5 +216,39 @@ class ToolbarStateServiceImplTest {
         windowRepository.workspaceSettings.workspaceColor = null
         service.refresh()
         assertThat(service.toolbar.value.workspaceColorArgb, equalTo(null))
+    }
+
+    @Test
+    fun workspaceColorChangedEvent_rebuildsSnapshotWithTheNewColour() {
+        seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
+        service.refresh()
+        val before = service.toolbar.value.workspaceColorArgb
+
+        val green = 0xFF1B5E20.toInt()
+        windowRepository.workspaceSettings.workspaceColor = green
+        // No passage/verse/window/speak/sync event happens here — this is exactly the situation the
+        // maintainer hit: the colour is written by a settings screen and nothing else moves.
+        ABEventBus.post(WorkspaceColorChanged())
+
+        assertThat(before, not(equalTo(green)))
+        assertThat(service.toolbar.value.workspaceColorArgb, equalTo(green))
+    }
+
+    @Test
+    fun everyWorkspaceColorWriterPostsTheEvent() {
+        // A/B batch 4a F1: the bug was a writer that changed the colour and told nobody. Anyone adding
+        // a fifth writer must post WorkspaceColorChanged next to it; this catches the omission.
+        val sources = listOf(
+            "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettingsServiceImpl.kt",
+            "src/main/java/net/bible/android/view/activity/workspaces/WorkspaceServiceImpl.kt",
+            "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
+        )
+        for (path in sources) {
+            val text = java.io.File(path).readText()
+            val writes = Regex("""workspaceColor\s*=\s*""").findAll(text).count()
+            val posts = Regex("""ABEventBus\.post\(WorkspaceColorChanged\(\)\)""").findAll(text).count()
+            assertThat("$path: every workspaceColor write needs a WorkspaceColorChanged post", posts > 0, equalTo(true))
+            assertThat("$path: $writes writes but only $posts posts", posts >= 1, equalTo(true))
+        }
     }
 }

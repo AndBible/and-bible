@@ -103,6 +103,7 @@ import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
+import net.bible.android.control.event.window.WorkspaceColorChanged
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.OrdinalRange
@@ -2630,6 +2631,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         } else {
                             windowRepository.workspaceSettings.workspaceColor = colors!!.workspaceColor
                         }
+                        ABEventBus.post(WorkspaceColorChanged())
                         windowRepository.updateAllWindowsTextDisplaySettings()
                     }
                     resetSystemUi()
