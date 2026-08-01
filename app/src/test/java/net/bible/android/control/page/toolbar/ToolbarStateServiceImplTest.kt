@@ -241,22 +241,21 @@ class ToolbarStateServiceImplTest {
         // TextDisplaySettingsServiceImpl.kt (writes=8, posts=2 at the time) it still passed. This
         // version pairs every actual `workspaceSettings.workspaceColor =` WRITE (not a read like
         // `foo = ws.workspaceSettings?.workspaceColor` or a bare local like `it.workspaceColor =`)
-        // with an `ABEventBus.post(WorkspaceColorChanged())` within the next few lines, across all
-        // five files the reviewer traced live writers into — the twelve real write sites span both
-        // the classic (WorkspaceSelectorActivity, TextDisplaySettings.commitDirtyToInMemoryState,
-        // MainBibleActivity's COLORS_CHANGED + workspaceSettingsChanged) and Compose (Text
-        // DisplaySettingsServiceImpl's reset/applyAndPersist/applyColors/resetColors, reached from
-        // the live Compose colour picker + reset; WorkspaceServiceImpl.applyWorkspaceSettings)
-        // settings paths. Two of the twelve wrap the assigned value onto the following line
-        // (`foo.workspaceSettings?.workspaceColor =\n    <value>`), which is why the write regex
-        // does not require anything after the `=` on the same line.
-        val sources = listOf(
-            "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettingsServiceImpl.kt",
-            "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettings.kt",
-            "src/main/java/net/bible/android/view/activity/workspaces/WorkspaceServiceImpl.kt",
-            "src/main/java/net/bible/android/view/activity/workspaces/WorkspaceSelectorActivity.kt",
-            "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
-        )
+        // with an `ABEventBus.post(WorkspaceColorChanged())` within the next few lines.
+        //
+        // A/B batch 4a whole-batch review I3: the ORIGINAL version of THIS scanned a literal
+        // five-file list the reviewer traced live writers into by hand — so a thirteenth writer
+        // added in a NEW file (exactly what the next work cycle on this area is likely to do) would
+        // pass silently, defeating the guard's own kdoc claim (see WorkspaceColorChanged.kt) that it
+        // catches this. Now walks the whole `src/main/java` tree instead: still cheap (a few
+        // thousand files, plain line-regex, no parsing) and self-updating as files are added/moved/
+        // renamed. Sorted so a failure message is stable/reproducible across runs (walkTopDown's
+        // order is filesystem-dependent, not guaranteed).
+        val root = java.io.File("src/main/java")
+        val sourceFiles = root.walkTopDown()
+            .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }
+            .sortedBy { it.path }
+            .toList()
         // Matches `<receiver>.workspaceSettings.workspaceColor =` / `<receiver>.workspaceSettings?.workspaceColor =`
         // (an actual write to the persisted field), never a read (`= foo.workspaceSettings?.workspaceColor`,
         // where nothing follows on the "=" side) nor a bare local (`it.workspaceColor =` / `c.workspaceColor =`,
@@ -270,13 +269,47 @@ class ToolbarStateServiceImplTest {
         // report's "guard has teeth" section), and this is a simple, sufficient heuristic since
         // nothing in these particular lines puts "//" inside a string literal.
         fun codeOnly(line: String) = line.substringBefore("//")
+        // A/B batch 4a whole-batch review I3: walking the WHOLE tree (rather than the hand-picked
+        // five files) surfaced a genuine false positive the old scope never could: this guard's own
+        // kdoc, in WorkspaceColorChanged.kt, DOCUMENTS the exact write pattern it's guarding
+        // (`` * pairs every `workspaceSettings.workspaceColor =` write... `` inside a `/** ... */`
+        // block), which the write regex matches just as happily as real code. `codeOnly` only strips
+        // `//` line comments, so a `/** ... */` block survives it untouched. stripBlockComments
+        // removes `/* ... */` spans (single- and multi-line, e.g. this exact Kdoc) BEFORE codeOnly
+        // runs per line, so documentation prose is never mistaken for a write/post site.
+        fun stripBlockComments(rawLines: List<String>): List<String> {
+            val out = ArrayList<String>(rawLines.size)
+            var inBlock = false
+            for (raw in rawLines) {
+                val sb = StringBuilder()
+                var i = 0
+                while (i < raw.length) {
+                    if (inBlock) {
+                        val end = raw.indexOf("*/", i)
+                        if (end == -1) { i = raw.length } else { i = end + 2; inBlock = false }
+                    } else {
+                        val start = raw.indexOf("/*", i)
+                        if (start == -1) {
+                            sb.append(raw, i, raw.length)
+                            i = raw.length
+                        } else {
+                            sb.append(raw, i, start)
+                            val end = raw.indexOf("*/", start + 2)
+                            if (end == -1) { inBlock = true; i = raw.length } else { i = end + 2 }
+                        }
+                    }
+                }
+                out += sb.toString()
+            }
+            return out
+        }
         val unpaired = mutableListOf<String>()
-        for (path in sources) {
-            val lines = java.io.File(path).readLines().map(::codeOnly)
+        for (file in sourceFiles) {
+            val lines = stripBlockComments(file.readLines()).map(::codeOnly)
             lines.forEachIndexed { idx, line ->
                 if (writeRegex.containsMatchIn(line)) {
                     val window = lines.subList(idx, minOf(lines.size, idx + windowSize))
-                    if (window.none { it.contains(postMarker) }) unpaired += "$path:${idx + 1}"
+                    if (window.none { it.contains(postMarker) }) unpaired += "${file.path}:${idx + 1}"
                 }
             }
         }

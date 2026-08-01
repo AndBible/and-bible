@@ -60,7 +60,12 @@ import org.crosswire.jsword.versification.BookName
  * is what the host dispatcher (Task 5) keys its own bridge-vs-atomic split on. Only the
  * "native-in-Compose now" rows (`windowNew`, `windowMaximise`, `windowMinimise`, `changeToNormal`,
  * `pinMode`, `moveItem`, `syncGroupItem`/`disableSync`, `windowClose`) are `opensDialog = false`.
+ * The one deliberate further exception is `copySettingsToWindow`/`Workspace`/`Global` (see
+ * `buildCopySettingsItems`, A/B batch 4a whole-batch review M1): all three DO bridge into a native
+ * dialog (`WindowControl.chooseSettingsToCopy`'s `AlertDialog`), but are `opensDialog = false` like
+ * classic itself, which never sets that flag for any of the three (`SplitBibleArea.kt:1002-1010`).
  *
+
  * **`copySettingsToWindow`/`Workspace`/`Global` follow classic's nesting.** They sit under
  * `textOptionsSubMenu` > `copySettingsTo` — one dynamic `copySettingsToWindow` row PER other
  * visible window, plus the `Workspace`/`Global` rows (`SplitBibleArea.kt:778-803`,
@@ -404,15 +409,23 @@ class WindowPaneMenuStateBuilder(
             }
             BookName.setFullBookName(oldValue)
         }
+        // A/B batch 4a whole-batch review M1: opensDialog left at its false default here, matching
+        // the dynamic copySettingsToWindow rows above -- all three call windowControl.copySettingsTo*,
+        // which share the SAME chooseSettingsToCopy(window) AlertDialog (WindowControl.kt:297-364),
+        // so there was no reason for these two alone to render the " …" suffix while the per-window
+        // rows didn't. Verified against classic itself, not just internally: SplitBibleArea.kt's
+        // getItemOptions constructs all three as a bare `CommandPreference({...})` (:1002,:1005,:1008)
+        // with no `opensDialog = true` -- CommandPreference's own default (OptionsMenuItems.kt:312) --
+        // so classic genuinely marks none of the three, unlike e.g. R.id.allTextOptions
+        // (SplitBibleArea.kt:985), which explicitly sets `opensDialog = true` and IS mirrored that way
+        // by this builder's ID_ALL_TEXT_OPTIONS row.
         items += WindowPaneMenuItem(
             id = ID_COPY_SETTINGS_TO_WORKSPACE,
             label = app.getString(R.string.copy_settings_to_workspace),
-            opensDialog = true,
         )
         items += WindowPaneMenuItem(
             id = ID_COPY_SETTINGS_TO_GLOBAL,
             label = app.getString(R.string.copy_settings_to_global),
-            opensDialog = true,
         )
         return items
     }

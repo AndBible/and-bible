@@ -22,6 +22,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
+import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.view.util.widget.composeHostMounted
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.ToolbarState
@@ -48,6 +49,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -458,23 +460,28 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
      * once for the whole split would be wrong for the second pane whenever the two windows carry
      * different day/night backgrounds.
      *
-     * HONEST LIMITS OF THIS TEST, stated because this batch already shipped one test that could not
-     * fail: no `BibleView` exists in this fixture (creating one needs a real WebView), so every live
-     * window's `bibleView?.backgroundColor` is `null` here and the assertions below cannot
-     * distinguish "resolved per id" from "resolved once" by value. What they DO catch is the lookup
-     * itself misbehaving: an implementation that force-unwrapped the window (`!!`) would crash on the
-     * unknown id, and one that ignored its argument and fell back to the active window would return
-     * that window's colour rather than `null`. The per-window guarantee proper is structural, not
-     * test-enforced: `SplitContent`'s parameter is a `(windowId: String) -> Color?` lambda, so a
-     * per-split constant is not representable at that boundary.
+     * UPDATED A/B batch 4a whole-batch review C1: this test's ORIGINAL version compared against
+     * `w1.bibleView?.backgroundColor`, which is `null` in this fixture (no `BibleView` exists — that
+     * needs a real WebView) — so the pre-fix implementation (which read `Window.bibleView?.backgroundColor`)
+     * happened to satisfy this exact assertion (`null == null`) while returning `null` for EVERY window,
+     * including a brand-new real one whose pane is showing (the bug F5 exists to fix; see
+     * `paneBackgroundArgbFor`'s kdoc). Now compared against the top-level [bibleViewBackgroundColorFor]
+     * (which needs only a [net.bible.android.control.page.window.Window], no live `BibleView`), and the
+     * non-null assertion below locks in the actual fix: resolution no longer depends on a `BibleView`
+     * existing at all.
      */
     @Test fun paneBackgroundIsLookedUpByTheWindowIdItIsGiven() {
         val w1 = windowRepository.activeWindow
         val w2 = windowRepository.addNewWindow(w1)
         val host = host()
 
-        assertEquals(w1.bibleView?.backgroundColor, host.paneBackgroundArgbFor(w1.id.toString()))
-        assertEquals(w2.bibleView?.backgroundColor, host.paneBackgroundArgbFor(w2.id.toString()))
+        assertEquals(bibleViewBackgroundColorFor(w1), host.paneBackgroundArgbFor(w1.id.toString()))
+        assertEquals(bibleViewBackgroundColorFor(w2), host.paneBackgroundArgbFor(w2.id.toString()))
+        assertTrue(
+            host.paneBackgroundArgbFor(w1.id.toString()) != null,
+            "must resolve to a real colour even with no live BibleView (C1) -- this is the exact case a" +
+                " brand-new window's pane is in before its AndroidView factory has run",
+        )
         assertNull(
             host.paneBackgroundArgbFor(IdType().toString()),
             "an id that matches no window must resolve to no background, not to the active window's",
@@ -639,6 +646,21 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
             )
 
             assertFalse(stayOpen, "an action closes the menu")
+
+            // A/B batch 4a whole-batch review I4: the assertion above alone cannot tell "the parsed
+            // order (1) was forwarded to WindowControl" from "a hardcoded 0 was forwarded instead" --
+            // with 3 visible windows both 0 and 1 are in range, so either would pass it silently.
+            // WindowControl.copySettingsToWindow (WindowControl.kt:366-367) indexes
+            // `visibleWindows[order]` SYNCHRONOUSLY (before the coroutine launch), so dispatching an
+            // order (5) that is out of range for this 3-window fixture must throw
+            // IndexOutOfBoundsException -- it would NOT throw if the dispatcher silently substituted
+            // some in-range order instead of the one actually parsed from the menu item id.
+            assertFailsWith<IndexOutOfBoundsException> {
+                activity.handleWindowPaneMenuItem(
+                    w1.id.toString(),
+                    WindowPaneMenuStateBuilder.idForCopySettingsToWindow(5),
+                )
+            }
         } finally {
             CurrentActivityHolder.deactivate(activity)
         }

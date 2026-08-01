@@ -186,6 +186,27 @@ private val notFound = WebResourceResponse(null, null, null)
 const val white = -1
 const val black = -16777216
 
+/**
+ * Resolves the reader background colour for [window] — day/night, per-window/workspace/global
+ * colour-scheme, and monochrome aware. Extracted from [BibleView.backgroundColor] (which now
+ * delegates here) so [net.bible.android.view.activity.page.screen.ComposeReadingViewHost.paneBackgroundArgbFor]
+ * can resolve the SAME colour for a [Window] that has no live [BibleView] yet — a brand-new window
+ * created via [net.bible.android.control.page.window.WindowControl.restoreWindow] doesn't get one
+ * until its pane's `AndroidView` factory runs, which happens strictly AFTER the pane `Box`'s
+ * background modifier is evaluated (A/B batch 4a whole-batch review C1: `paneBackgroundArgbFor`
+ * previously read `Window.bibleView?.backgroundColor`, which is exactly `null` in that window —
+ * the one case F5 exists to paint).
+ *
+ * Only depends on [window] (never on `this@BibleView`), so it needs no [BibleView] instance at all.
+ */
+fun bibleViewBackgroundColorFor(window: Window): Int {
+    val colors = window.pageManager.actualTextDisplaySettings.colors
+    val monochromeMode = CommonUtils.settings.monochromeMode
+    val nightBackground = if (monochromeMode) black else colors?.nightBackground
+    val dayBackground = if (monochromeMode) white else colors?.dayBackground
+    return (if (ScreenSettings.nightMode) nightBackground else dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
+}
+
 @Serializable
 class Selection(
     val bookInitials: String?,
@@ -1585,13 +1606,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    val backgroundColor: Int get() {
-        val colors = window.pageManager.actualTextDisplaySettings.colors
-        val monochromeMode = CommonUtils.settings.monochromeMode
-        val nightBackground = if(monochromeMode) black else colors?.nightBackground
-        val dayBackground = if(monochromeMode) white else colors?.dayBackground
-        return (if(ScreenSettings.nightMode) nightBackground else dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
-    }
+    // A/B batch 4a whole-batch review C1: delegates to the top-level bibleViewBackgroundColorFor
+    // (declared above, next to the `white`/`black` consts it uses) so ComposeReadingViewHost can
+    // resolve the SAME colour for a window with no BibleView yet. Behaviour-preserving: identical
+    // body, just extracted.
+    val backgroundColor: Int get() = bibleViewBackgroundColorFor(window)
 
     var lastUpdated = 0L
     var bookmarkLabels: List<BookmarkEntities.Label> = emptyList()

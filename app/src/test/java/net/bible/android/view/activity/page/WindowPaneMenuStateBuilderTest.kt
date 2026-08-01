@@ -225,8 +225,13 @@ class WindowPaneMenuStateBuilderTest {
         val copyToWorkspace = findInSubmenus(items(window), WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WORKSPACE)!!
         val copyToGlobal = findInSubmenus(items(window), WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_GLOBAL)!!
         val allTextOptions = findInSubmenus(items(window), WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS)!!
-        assertTrue(copyToWorkspace.opensDialog)
-        assertTrue(copyToGlobal.opensDialog)
+        // A/B batch 4a whole-batch review M1: copyToWorkspace/copyToGlobal open the SAME
+        // chooseSettingsToCopy dialog as the dynamic copySettingsToWindow rows (WindowPaneMenuItem's
+        // opensDialog defaults to false, and those rows don't override it) -- and classic itself never
+        // marks any of the three (SplitBibleArea.kt:1002-1010). So all three must be false, unlike
+        // allTextOptions (a genuinely distinct bridge classic DOES mark, SplitBibleArea.kt:985).
+        assertFalse(copyToWorkspace.opensDialog)
+        assertFalse(copyToGlobal.opensDialog)
         assertTrue(allTextOptions.opensDialog)
 
         val windowNew = itemById(window, WindowPaneMenuStateBuilder.ID_WINDOW_NEW)

@@ -298,11 +298,22 @@ fun AbSettingsContent(
  * (non-interactive by default) are left unwired, matching the brief — neither is a long-press
  * target.
  *
- * [badge] (A/B batch 4a F2) is **not** defaulted, unlike [onLongPress] — every call site must state
- * its badge explicitly (`null` for "no badge"), so a future item type added to the `when` cannot
- * silently drop it by omission. It threads into [AbSwitchRow]/[SettingsRow]'s own `badge` parameter,
- * which renders it INSIDE the row's text column, not as a `Box` overlay drawn on top of the row.
- * [SettingsItem.Category] ignores it — a category header has no inherited value.
+ * [badge] (A/B batch 4a F2) is **not** defaulted, unlike [onLongPress] — every call site of
+ * [RenderSettingsItem] itself must state a badge explicitly (`null` for "no badge"), so a future
+ * caller cannot silently forget to decide one. It threads into [AbSwitchRow]/[SettingsRow]'s own
+ * `badge` parameter, which renders it INSIDE the row's text column, not as a `Box` overlay drawn on
+ * top of the row — that covers [SettingsItem.SwitchRow]/[ListChoiceRow]/[TextInputRow]/
+ * [MultiSelectRow]/[NavigationRow], the five item types with a real persisted, overridable value.
+ *
+ * (Corrected A/B batch 4a whole-batch review M2 — this kdoc previously claimed the parameter
+ * being non-defaulted meant "a future item type added to the `when` cannot silently drop it by
+ * omission", which the two branches below already contradicted.) [SettingsItem.Category] and
+ * [SettingsItem.InfoRow] ignore [badge]: neither is a real overridable *setting* (a header and a
+ * non-interactive display row, respectively), so there is no inherited value to badge.
+ * [SettingsItem.SliderRow] also ignores it — not for the same reason (a slider genuinely IS an
+ * overridable setting), but because [AbSliderRow] has no `badge` parameter of its own to thread it
+ * into; no current slider-backed setting needs one. Adding one is straightforward if that changes,
+ * but is out of scope here.
  */
 @Composable
 private fun RenderSettingsItem(

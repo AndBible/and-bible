@@ -89,6 +89,7 @@ import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
+import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.llm.PromptContext
@@ -656,11 +657,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      *
      * Resolved per window id, not once per split: two panes can carry different day/night reader
      * backgrounds, so a single colour captured for the whole split would be wrong for one of them.
-     * `null` when the window or its `BibleView` does not exist yet, in which case the pane keeps the
+     * `null` only when [windowId] matches no window at all; in which case the pane keeps the
      * transparent background it had before (A/B batch 4a F5).
+     *
+     * A/B batch 4a whole-batch review C1: this used to read `Window.bibleView?.backgroundColor`,
+     * which is `null` on exactly the window F5 exists to fix — a brand-new window's `bibleView` is
+     * only assigned once the pane's `AndroidView` factory runs (see `pane` below), which happens
+     * strictly AFTER `SplitContent` evaluates this function for that same pane's background
+     * modifier. `bibleViewBackgroundColorFor` needs only the `Window` (not a live `BibleView`), so
+     * it resolves the colour immediately, before the WebView exists.
      */
     internal fun paneBackgroundArgbFor(windowId: String): Int? =
-        activity.windowRepository.getWindow(IdType(windowId))?.bibleView?.backgroundColor
+        activity.windowRepository.getWindow(IdType(windowId))?.let { bibleViewBackgroundColorFor(it) }
 
     /**
      * Opens the Compose reading-view LLM prompt-selector dialog for [selection] (Batch 12e-A Task
@@ -875,7 +883,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             pane = { windowId ->
                 val window = activity.windowRepository.getWindow(IdType(windowId))
                 if (window != null) {
-                    AndroidView(factory = { activity.bibleViewFactory.getOrCreateBibleView(window) })
+                    // A/B batch 4a whole-batch review I1: classic `BibleFrame.build()` also calls
+                    // `bibleView.updateBackgroundColor()` (BibleFrame.kt:137), which sets the WebView's
+                    // OWN background (`BibleView.updateBackgroundColor` -> `setBackgroundColor`). Without
+                    // this, even with C1 fixed (the pane Box now paints the right colour underneath), a
+                    // freshly created WebView still draws its platform-default white over that pane
+                    // background until its first document finishes loading -- same flash, one layer up.
+                    AndroidView(factory = {
+                        activity.bibleViewFactory.getOrCreateBibleView(window).apply { updateBackgroundColor() }
+                    })
                 }
             },
             paneBackground = { windowId -> paneBackgroundArgbFor(windowId)?.let { Color(it) } },

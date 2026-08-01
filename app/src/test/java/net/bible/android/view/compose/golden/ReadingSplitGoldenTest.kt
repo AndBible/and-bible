@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.window.WindowLayoutState
@@ -128,5 +129,30 @@ class ReadingSplitGoldenTest {
                     ) { Text("☰") }
                 },
             ),
+        )
+
+    // A/B batch 4a whole-batch review I2: golden evidence for F5 (the pane paints the reader
+    // background colour, closing the new-window white flash) -- no golden covered `paneBackground`
+    // before this, which is how C1 (paneBackgroundArgbFor returning null for exactly the brand-new
+    // window F5 was written to fix) slipped past task review. `pane` here is an EMPTY Box (no fill
+    // of its own), so a painted colour in the capture can only come from SplitContent's own
+    // `Modifier.background(paneBackground(w.id))` -- proving the background is actually applied to
+    // the pane, not merely computed and discarded. Two windows with two distinct, clearly
+    // identifiable colours (magenta/cyan) also prove `paneBackground` is looked up per-window-id,
+    // not a single colour smeared across the whole split.
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withPaneBackground() =
+        captureGolden(
+            "ReadingSplit", "withPaneBackground", EDGE_MODE,
+            content = {
+                SplitContent(
+                    state(win("A", 1f), win("B", 1f)),
+                    {},
+                    { _, _, _, _ -> },
+                    pane = {},
+                    paneBackground = { id -> if (id == "A") Color(0xFFFF00FF) else Color(0xFF00FFFF) },
+                )
+            },
         )
 }
