@@ -18,8 +18,9 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -77,7 +79,16 @@ fun ColorPickerCustomPage(
     onColorChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val hsv = argbToHsv(color)
+    // ARGB cannot represent the hue of an achromatic colour, so HSV — not the Int — is the source
+    // of truth while the user drags: dragging value or saturation to 0 and back must return the
+    // hue the user picked, not red. Classic keeps hue/sat/val in fields for exactly this reason
+    // (ColorPickerView), and its sat/val touch branch never writes hue. The LaunchedEffect
+    // resyncs on an EXTERNAL change only: after our own drag, hsvToArgb(state) == color already,
+    // so it no-ops.
+    var hsv by remember { mutableStateOf(argbToHsv(color)) }
+    LaunchedEffect(color) {
+        if (hsvToArgb(hsv.first, hsv.second, hsv.third) != color) hsv = argbToHsv(color)
+    }
     val hue = hsv.first
     val sat = hsv.second
     val value = hsv.third
@@ -97,12 +108,12 @@ fun ColorPickerCustomPage(
                 hue = hue,
                 sat = sat,
                 value = value,
-                onSatVal = { s, v -> onColorChange(hsvToArgb(hue, s, v)) },
+                onSatVal = { s, v -> hsv = Triple(hue, s, v); onColorChange(hsvToArgb(hue, s, v)) },
                 modifier = Modifier.weight(1f).aspectRatio(1f),
             )
             HueStrip(
                 hue = hue,
-                onHue = { h -> onColorChange(hsvToArgb(h, sat, value)) },
+                onHue = { h -> hsv = Triple(h, sat, value); onColorChange(hsvToArgb(h, sat, value)) },
                 modifier = Modifier.width(30.dp).fillMaxHeight(),
             )
         }
@@ -155,20 +166,25 @@ private fun SatValSquare(
                     style = Stroke(width = 2.dp.toPx()),
                 )
             }
+            // A single hand-rolled recognizer, not a stacked detectTapGestures +
+            // detectDragGestures pair — two gesture detectors racing on the same node is a shape
+            // this repo has already ruled out once (see detectTitleGestures in
+            // sharedUi/reading/ReadingToolbar.kt). The press itself moves the tracker immediately
+            // (classic's behaviour), then a drag keeps updating it.
             .pointerInput(Unit) {
-                detectTapGestures { off ->
-                    val (s, v) = satValFromOffset(off.x, off.y, size.width.toFloat(), size.height.toFloat())
-                    currentOnSatVal(s, v)
-                }
-            }
-            .pointerInput(Unit) {
-                detectDragGestures { change, _ ->
-                    change.consume()
-                    val (s, v) = satValFromOffset(
-                        change.position.x, change.position.y,
-                        size.width.toFloat(), size.height.toFloat(),
-                    )
-                    currentOnSatVal(s, v)
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+                    down.consume()
+                    val (s0, v0) = satValFromOffset(down.position.x, down.position.y, size.width.toFloat(), size.height.toFloat())
+                    currentOnSatVal(s0, v0)
+                    drag(down.id) { change ->
+                        change.consume()
+                        val (s, v) = satValFromOffset(
+                            change.position.x, change.position.y,
+                            size.width.toFloat(), size.height.toFloat(),
+                        )
+                        currentOnSatVal(s, v)
+                    }
                 }
             },
     )
@@ -190,16 +206,19 @@ private fun HueStrip(hue: Float, onHue: (Float) -> Unit, modifier: Modifier = Mo
                 drawRect(
                     color = Color.White,
                     topLeft = Offset(0f, y - 2.dp.toPx()),
-                    size = androidx.compose.ui.geometry.Size(size.width, 4.dp.toPx()),
+                    size = Size(size.width, 4.dp.toPx()),
                 )
             }
+            // Single recognizer — see the comment on SatValSquare's pointerInput.
             .pointerInput(Unit) {
-                detectTapGestures { off -> currentOnHue(hueFromOffset(off.y, size.height.toFloat())) }
-            }
-            .pointerInput(Unit) {
-                detectDragGestures { change, _ ->
-                    change.consume()
-                    currentOnHue(hueFromOffset(change.position.y, size.height.toFloat()))
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+                    down.consume()
+                    currentOnHue(hueFromOffset(down.position.y, size.height.toFloat()))
+                    drag(down.id) { change ->
+                        change.consume()
+                        currentOnHue(hueFromOffset(change.position.y, size.height.toFloat()))
+                    }
                 }
             },
     )
