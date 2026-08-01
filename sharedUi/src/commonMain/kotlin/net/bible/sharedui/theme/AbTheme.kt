@@ -18,7 +18,6 @@
 package net.bible.sharedui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -27,57 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.theme.accentArgbFor
-import net.bible.sharedcore.theme.toGrayscaleArgb
-
-private fun grayed(c: Color, mode: DisplayColorMode): Color =
-    if (mode == DisplayColorMode.NORMAL) c else Color(toGrayscaleArgb(c.toArgb()))
-
-/**
- * Grayscale EVERY role of a Material3 [ColorScheme] (not just the 6 accent roles): error,
- * surface/background, and all `onXxx`/container roles included. This enforces AndBible's
- * monochrome doctrine (CLAUDE.md: in BW "virtually everything should be grayscale") — e.g.
- * `MaterialTheme.colorScheme.error` must not render red on an e-ink screen. In COLOR_EINK the
- * base scheme is likewise grayed here; the intentionally-colored bits are the [LocalAbColors]
- * accents, which stay colored via [accentArgbFor]. No-op in NORMAL (each role maps to itself).
- */
-private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
-    primary = grayed(primary, mode),
-    onPrimary = grayed(onPrimary, mode),
-    primaryContainer = grayed(primaryContainer, mode),
-    onPrimaryContainer = grayed(onPrimaryContainer, mode),
-    inversePrimary = grayed(inversePrimary, mode),
-    secondary = grayed(secondary, mode),
-    onSecondary = grayed(onSecondary, mode),
-    secondaryContainer = grayed(secondaryContainer, mode),
-    onSecondaryContainer = grayed(onSecondaryContainer, mode),
-    tertiary = grayed(tertiary, mode),
-    onTertiary = grayed(onTertiary, mode),
-    tertiaryContainer = grayed(tertiaryContainer, mode),
-    onTertiaryContainer = grayed(onTertiaryContainer, mode),
-    background = grayed(background, mode),
-    onBackground = grayed(onBackground, mode),
-    surface = grayed(surface, mode),
-    onSurface = grayed(onSurface, mode),
-    surfaceVariant = grayed(surfaceVariant, mode),
-    onSurfaceVariant = grayed(onSurfaceVariant, mode),
-    surfaceTint = grayed(surfaceTint, mode),
-    inverseSurface = grayed(inverseSurface, mode),
-    inverseOnSurface = grayed(inverseOnSurface, mode),
-    error = grayed(error, mode),
-    onError = grayed(onError, mode),
-    errorContainer = grayed(errorContainer, mode),
-    onErrorContainer = grayed(onErrorContainer, mode),
-    outline = grayed(outline, mode),
-    outlineVariant = grayed(outlineVariant, mode),
-    scrim = grayed(scrim, mode),
-    surfaceBright = grayed(surfaceBright, mode),
-    surfaceDim = grayed(surfaceDim, mode),
-    surfaceContainer = grayed(surfaceContainer, mode),
-    surfaceContainerHigh = grayed(surfaceContainerHigh, mode),
-    surfaceContainerHighest = grayed(surfaceContainerHighest, mode),
-    surfaceContainerLow = grayed(surfaceContainerLow, mode),
-    surfaceContainerLowest = grayed(surfaceContainerLowest, mode),
-)
 
 // Base accents (colored). Adjust hues later; e-ink polish is not chased in Phase 0.
 private val BookmarkBase = Color(0xFFFFC107)
@@ -118,9 +66,10 @@ fun AbTheme(
     disableAnimations: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    val baseScheme = abColorScheme(seedArgb, darkTheme, colorMode)
-    // In BW/COLOR_EINK the entire base scheme is grayscale; accents follow accentArgbFor (colored in COLOR_EINK).
-    val scheme = if (colorMode == DisplayColorMode.NORMAL) baseScheme else baseScheme.grayscale(colorMode)
+    // abColorScheme returns the FINAL scheme: seeding and the BW/COLOR_EINK greyscale pass both
+    // happen inside it, so this host cannot fall out of step with the BibleView payload builder,
+    // which calls the same function. Accents follow accentArgbFor (still coloured in COLOR_EINK).
+    val scheme = abColorScheme(seedArgb, darkTheme, colorMode)
     val accents = AbColors(
         bookmark = Color(accentArgbFor(BookmarkBase.toArgb(), colorMode)),
         activeWindow = Color(accentArgbFor(ActiveWindowBase.toArgb(), colorMode)),

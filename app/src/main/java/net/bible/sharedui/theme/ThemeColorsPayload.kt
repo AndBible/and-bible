@@ -28,9 +28,13 @@ private fun Color.toCssHex(): String = "#%06X".format(0xFFFFFF and toArgb())
  * roles its generic chrome needs, as CSS hex strings.
  *
  * Derived from the SAME [abColorScheme] the Compose UI uses, so the two palettes cannot drift; the
- * Vue side does no colour maths at all. Returns the literal `"null"` whenever the result must look
- * exactly like today — no seed, the not-set sentinel, or BW — and the Vue side's `var(…, fallback)`
- * declarations then reproduce the current appearance by construction.
+ * Vue side does no colour maths at all. That includes the display-mode greyscale pass, which lives
+ * *inside* [abColorScheme] rather than at its call sites — so `COLOR_EINK` reaches the Vue chrome
+ * greyscaled, exactly as it reaches Compose, without this function testing a second condition.
+ *
+ * Returns the literal `"null"` whenever the result must look exactly like today — no seed, the
+ * not-set sentinel, or BW — and the Vue side's `var(…, fallback)` declarations then reproduce the
+ * current appearance by construction.
  */
 fun themeColorsJson(seedArgb: Int?, dark: Boolean, colorMode: DisplayColorMode): String {
     if (!isWorkspaceColorSet(seedArgb) || colorMode == DisplayColorMode.BW) return "null"

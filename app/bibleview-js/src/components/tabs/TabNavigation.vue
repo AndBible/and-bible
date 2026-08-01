@@ -187,17 +187,22 @@ function handleTabClick(tabId: string) {
     }
   }
 
+  // Unlike :hover above — where the container IS a background and the on- role is its text — the
+  // selected tab draws no background at all: the label and the 2px underline are both foreground
+  // marks on the plain strip, so both take the accent role. A container role here would be a
+  // tone-90 underline on a white strip (invisible) and a near-black label barely different from
+  // the inactive #666.
   &.active {
-    color: var(--ab-on-secondary-container, #007bff);
-    border-bottom-color: var(--ab-secondary-container, #007bff);
+    color: var(--ab-primary, #007bff);
+    border-bottom-color: var(--ab-primary, #007bff);
 
     .monochrome & {
       color: black;
       border-bottom-color: black;
     }
     .night & {
-      color: var(--ab-on-secondary-container, #1e90ff);
-      border-bottom-color: var(--ab-secondary-container, #1e90ff);
+      color: var(--ab-primary, #1e90ff);
+      border-bottom-color: var(--ab-primary, #1e90ff);
     }
     .monochrome.night & {
       color: white;

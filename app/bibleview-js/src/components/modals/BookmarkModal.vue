@@ -244,7 +244,7 @@ async function toggleInfo(event: MouseEvent | TouchEvent) {
 .link-icon {
   padding: 2px;
   padding-inline-end: 4px;
-  color: $button-grey;
+  color: $icon-grey;
 }
 
 .info-text {

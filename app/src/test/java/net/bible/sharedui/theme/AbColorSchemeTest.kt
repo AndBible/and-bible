@@ -61,6 +61,69 @@ class AbColorSchemeTest {
             schemeOf(ORANGE, false, DisplayColorMode.COLOR_EINK),
         )
     }
+
+    /**
+     * Spec §5: COLOR_EINK is seeded *and then greyscaled*. The greyscale pass used to live at
+     * `AbTheme`'s call site, which meant the second consumer — the BibleView payload — emitted
+     * seeded-but-coloured roles. It now lives inside `abColorScheme`, so a seeded COLOR_EINK scheme
+     * is grey no matter who asks for it. `assertNotEquals` above keeps the *seeding* honest; this
+     * keeps the *greyscaling* honest.
+     */
+    @Test
+    fun `COLOR_EINK returns a fully greyscaled scheme, seed or no seed`() {
+        assertAllGrey("seeded COLOR_EINK", abColorScheme(ORANGE, false, DisplayColorMode.COLOR_EINK))
+        assertAllGrey("seeded COLOR_EINK (dark)", abColorScheme(ORANGE, true, DisplayColorMode.COLOR_EINK))
+        assertAllGrey("unseeded COLOR_EINK", abColorScheme(null, false, DisplayColorMode.COLOR_EINK))
+    }
+
+    @Test
+    fun `BW returns a fully greyscaled scheme`() {
+        assertAllGrey("BW", abColorScheme(ORANGE, false, DisplayColorMode.BW))
+        assertAllGrey("BW (dark)", abColorScheme(ORANGE, true, DisplayColorMode.BW))
+    }
+
+    /** The counterpart of the two above: NORMAL must NOT be greyscaled, or the pass is a no-op bug. */
+    @Test
+    fun `NORMAL keeps its hues`() {
+        val roles = rolesOf(abColorScheme(ORANGE, false, DisplayColorMode.NORMAL))
+        assertTrue(
+            "a seeded NORMAL scheme must contain coloured roles",
+            roles.any { (_, argb) -> !isGrey(argb) },
+        )
+    }
+}
+
+/**
+ * The roles the Vue payload ships plus a spread of the rest (error/surface/outline), named so a
+ * failure says which one leaked colour. Not the full 36 — the point is to catch "the pass did not
+ * run", which shows up on any of these.
+ */
+private fun rolesOf(s: androidx.compose.material3.ColorScheme): List<Pair<String, Int>> = listOf(
+    "primary" to s.primary.toArgb(),
+    "onPrimary" to s.onPrimary.toArgb(),
+    "primaryContainer" to s.primaryContainer.toArgb(),
+    "onPrimaryContainer" to s.onPrimaryContainer.toArgb(),
+    "secondaryContainer" to s.secondaryContainer.toArgb(),
+    "onSecondaryContainer" to s.onSecondaryContainer.toArgb(),
+    "tertiary" to s.tertiary.toArgb(),
+    "error" to s.error.toArgb(),
+    "surface" to s.surface.toArgb(),
+    "background" to s.background.toArgb(),
+    "outline" to s.outline.toArgb(),
+    "surfaceTint" to s.surfaceTint.toArgb(),
+)
+
+private fun isGrey(argb: Int): Boolean {
+    val r = (argb shr 16) and 0xFF
+    val g = (argb shr 8) and 0xFF
+    val b = argb and 0xFF
+    return r == g && g == b
+}
+
+private fun assertAllGrey(what: String, scheme: androidx.compose.material3.ColorScheme) {
+    rolesOf(scheme).forEach { (name, argb) ->
+        assertTrue("$what: $name should be grey but was #%06X".format(0xFFFFFF and argb), isGrey(argb))
+    }
 }
 
 /** Circular distance in degrees between the hues of two ARGB colours. */

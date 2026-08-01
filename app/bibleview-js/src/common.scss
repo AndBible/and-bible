@@ -123,7 +123,12 @@
 
 $button-border-radius: 8px;
 $button-padding: 6px;
+// The three faces of the old single `--modal-grey` (see the `:root` block further down for why
+// they had to be split): a container BACKGROUND, the TEXT drawn on that container, and the same
+// grey where it is used as a FOREGROUND mark (icon, spinner ring).
 $button-grey: var(--modal-grey);
+$button-grey-text: var(--modal-grey-text);
+$icon-grey: var(--icon-grey);
 
 :root {
   --primary-color: #bdbdbd;
@@ -143,7 +148,7 @@ $button-grey: var(--modal-grey);
   font-size: 90%;
   background-color: $button-grey;
   border: none;
-  color: white;
+  color: $button-grey-text;
   padding: $button-padding;
   border-radius: $button-border-radius;
   margin: 2pt 2pt;
@@ -309,14 +314,33 @@ $button-grey: var(--modal-grey);
   // A/B batch 4b: the workspace theme sets --ab-* on the document root. Every declaration keeps
   // its previous literal as the var() fallback, so no payload == today's appearance, by
   // construction rather than by a code path.
+  //
+  // `--modal-grey` used to be ONE token consumed both as a background (modal header, .button) and
+  // as a foreground (verse-action icons, the spinner ring, MultiDocument's hide/restore buttons).
+  // That is fine while the value is a mid grey, but not once it becomes an M3 role: a *Container*
+  // role is a background tone (tone-90 in a light scheme), so using it as an icon colour on a white
+  // page paints near-white on white, and leaving the text that sits ON it hardcoded `white` paints
+  // white on near-white. So the token is split by ROLE OF USE, and each face takes the M3 role that
+  // matches how the value is actually consumed.
   --modal-grey: var(--ab-primary-container, rgb(172,172,172));
+  // Text/icons drawn ON --modal-grey. Only the container's matching `on-` role is guaranteed to
+  // contrast with it.
+  --modal-grey-text: var(--ab-on-primary-container, white);
+  // The same grey used as a FOREGROUND mark. An accent role, never a container role.
+  --icon-grey: var(--ab-primary, rgb(172,172,172));
   .monochrome {
+    // Unchanged monochrome doctrine: the split tokens mirror what the single token resolved to
+    // before (black background, white text on it, black foreground marks), so BW/e-ink is untouched.
     --modal-grey: black;
+    --modal-grey-text: white;
+    --icon-grey: black;
   }
 }
 
 $modal-header-background-color: var(--modal-grey);
+$modal-header-foreground-color: var(--modal-grey-text);
 $night-modal-header-background-color: var(--ab-primary-container, rgba(69,69,69,1));
+$night-modal-header-foreground-color: var(--ab-on-primary-container, #e2e2e2);
 
 $modal-content-background-color: #fefefe;
 $modal-content-background-color-night: rgb(33, 33, 33);
@@ -502,7 +526,7 @@ table {
   .fa-layers, .svg-inline--fa {
     //    padding-inline-end: 14px;  // Causes non-alignment of the icons in the verse action dialog.
     .horizontal & {
-      color: $button-grey;
+      color: $icon-grey;
       .monochrome.night & {
         color: white;
       }

@@ -50,7 +50,7 @@ $ring-thickness: calc(#{$ring-size} / 12);
   }
 }
 
-$ring-color: $button-grey;
+$ring-color: $icon-grey;
 
 .lds-ring {
   display: inline-block;
