@@ -49,6 +49,8 @@ import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.android.activity.databinding.WorkspaceSelectorBinding
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.window.WorkspaceColorChanged
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
@@ -562,11 +564,15 @@ class WorkspaceSelectorActivity: ActivityBase() {
             workspaceItem.textDisplaySettings =
                 if(reset) WorkspaceEntities.TextDisplaySettings()
                 else settings.workspaceSettings
+            // A/B batch 4a F1 fix round 1: this touches workspaceItem's own settings, not
+            // necessarily the active window's, but ToolbarStateServiceImpl.refresh() re-reads the
+            // live windowRepository so an edit of a non-active workspace is a harmless no-op.
             if(reset) {
                 workspaceItem.workspaceSettings?.workspaceColor = defaultWorkspaceColor
             } else {
                 workspaceItem.workspaceSettings?.workspaceColor = settings.workspaceSettings.colors?.workspaceColor?: defaultWorkspaceColor
             }
+            ABEventBus.post(WorkspaceColorChanged())
             workspaceAdapter.notifyItemChanged(dataSet.indexOf(workspaceItem))
             setDirty()
             changedWorkspaces.add(workspaceItem.id)

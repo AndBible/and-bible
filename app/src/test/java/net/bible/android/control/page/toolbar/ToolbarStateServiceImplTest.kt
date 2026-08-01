@@ -236,19 +236,54 @@ class ToolbarStateServiceImplTest {
 
     @Test
     fun everyWorkspaceColorWriterPostsTheEvent() {
-        // A/B batch 4a F1: the bug was a writer that changed the colour and told nobody. Anyone adding
-        // a fifth writer must post WorkspaceColorChanged next to it; this catches the omission.
+        // A/B batch 4a F1 fix round 1: the ORIGINAL version of this guard asserted `posts > 0` and
+        // then `posts >= 1` — the same condition twice — so it could never fail; against
+        // TextDisplaySettingsServiceImpl.kt (writes=8, posts=2 at the time) it still passed. This
+        // version pairs every actual `workspaceSettings.workspaceColor =` WRITE (not a read like
+        // `foo = ws.workspaceSettings?.workspaceColor` or a bare local like `it.workspaceColor =`)
+        // with an `ABEventBus.post(WorkspaceColorChanged())` within the next few lines, across all
+        // five files the reviewer traced live writers into — the twelve real write sites span both
+        // the classic (WorkspaceSelectorActivity, TextDisplaySettings.commitDirtyToInMemoryState,
+        // MainBibleActivity's COLORS_CHANGED + workspaceSettingsChanged) and Compose (Text
+        // DisplaySettingsServiceImpl's reset/applyAndPersist/applyColors/resetColors, reached from
+        // the live Compose colour picker + reset; WorkspaceServiceImpl.applyWorkspaceSettings)
+        // settings paths. Two of the twelve wrap the assigned value onto the following line
+        // (`foo.workspaceSettings?.workspaceColor =\n    <value>`), which is why the write regex
+        // does not require anything after the `=` on the same line.
         val sources = listOf(
             "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettingsServiceImpl.kt",
+            "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettings.kt",
             "src/main/java/net/bible/android/view/activity/workspaces/WorkspaceServiceImpl.kt",
+            "src/main/java/net/bible/android/view/activity/workspaces/WorkspaceSelectorActivity.kt",
             "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
         )
+        // Matches `<receiver>.workspaceSettings.workspaceColor =` / `<receiver>.workspaceSettings?.workspaceColor =`
+        // (an actual write to the persisted field), never a read (`= foo.workspaceSettings?.workspaceColor`,
+        // where nothing follows on the "=" side) nor a bare local (`it.workspaceColor =` / `c.workspaceColor =`,
+        // which lack the `workspaceSettings` receiver segment entirely). The trailing `(?!=)` keeps a stray
+        // `==` comparison from counting as a write.
+        val writeRegex = Regex("""workspaceSettings\??\.workspaceColor\s*=(?!=)""")
+        val postMarker = "ABEventBus.post(WorkspaceColorChanged())"
+        val windowSize = 5 // the write's own line + the next 4, per the reviewer's "within the next 4 lines"
+        // Strip a trailing `//` line comment before matching either the write or the post: a
+        // *commented-out* post must NOT satisfy the guard (verified live below — see the fix
+        // report's "guard has teeth" section), and this is a simple, sufficient heuristic since
+        // nothing in these particular lines puts "//" inside a string literal.
+        fun codeOnly(line: String) = line.substringBefore("//")
+        val unpaired = mutableListOf<String>()
         for (path in sources) {
-            val text = java.io.File(path).readText()
-            val writes = Regex("""workspaceColor\s*=\s*""").findAll(text).count()
-            val posts = Regex("""ABEventBus\.post\(WorkspaceColorChanged\(\)\)""").findAll(text).count()
-            assertThat("$path: every workspaceColor write needs a WorkspaceColorChanged post", posts > 0, equalTo(true))
-            assertThat("$path: $writes writes but only $posts posts", posts >= 1, equalTo(true))
+            val lines = java.io.File(path).readLines().map(::codeOnly)
+            lines.forEachIndexed { idx, line ->
+                if (writeRegex.containsMatchIn(line)) {
+                    val window = lines.subList(idx, minOf(lines.size, idx + windowSize))
+                    if (window.none { it.contains(postMarker) }) unpaired += "$path:${idx + 1}"
+                }
+            }
         }
+        assertThat(
+            "workspaceColor write(s) with no WorkspaceColorChanged post within the next 4 lines: $unpaired",
+            unpaired,
+            equalTo(emptyList<String>()),
+        )
     }
 }

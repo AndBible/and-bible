@@ -34,6 +34,8 @@ import androidx.preference.PreferenceFragmentCompat
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.window.WorkspaceColorChanged
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.InheritedFrom
 import net.bible.android.database.SettingsBundle
@@ -453,9 +455,13 @@ class TextDisplaySettingsActivity: ActivityBase() {
                 repo.updateAllWindowsTextDisplaySettings()
             }
             SettingsLevel.WORKSPACE -> {
+                // A/B batch 4a F1 fix round 1: commitDirtyToInMemoryState mirrors
+                // MainBibleActivity.workspaceSettingsChanged's per-level branches (see its kdoc) —
+                // same colour writer, same post.
                 repo.textDisplaySettings = settingsBundle.workspaceSettings
                 repo.workspaceSettings.workspaceColor =
                     settingsBundle.workspaceSettings.colors?.workspaceColor ?: defaultWorkspaceColor
+                ABEventBus.post(WorkspaceColorChanged())
                 repo.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
                 repo.updateAllWindowsTextDisplaySettings()
             }

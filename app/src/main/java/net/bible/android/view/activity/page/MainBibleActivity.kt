@@ -2839,12 +2839,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
             }
             SettingsLevel.WORKSPACE -> {
+                // A/B batch 4a F1 fix round 1: workspaceSettingsChanged is the classic
+                // TextDisplaySettingsActivity write-back path, a sibling of COLORS_CHANGED above.
                 if(reset) {
                     windowRepository.textDisplaySettings = TextDisplaySettings()
                     windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
+                    ABEventBus.post(WorkspaceColorChanged())
                 } else {
                     windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
                     windowRepository.workspaceSettings.workspaceColor = settingsBundle.workspaceSettings.colors?.workspaceColor?: defaultWorkspaceColor
+                    ABEventBus.post(WorkspaceColorChanged())
                 }
                 if(dirtyTypes != null) {
                     windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)

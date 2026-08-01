@@ -300,6 +300,10 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
                 repo.textDisplaySettings.colors = colors
                 repo.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), repo.textDisplaySettings)
                 repo.workspaceSettings.workspaceColor = colors.workspaceColor
+                // A/B batch 4a F1 fix round 1: this is the live Compose colour picker's per-edit
+                // commit (ColorSettingsController.onWorkspaceColorChange -> setWorkspaceColor ->
+                // editColors -> here) — the site most likely to have caused the original bug report.
+                ABEventBus.post(WorkspaceColorChanged())
                 repo.updateAllWindowsTextDisplaySettings()
                 repo.saveIntoDb(false)
             }
@@ -349,6 +353,9 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
             is SettingsScope.Workspace -> {
                 repo.textDisplaySettings.colors = TextDisplaySettings.default.colors
                 repo.workspaceSettings.workspaceColor = defaultWorkspaceColor
+                // A/B batch 4a F1 fix round 1: the live Compose colour picker's "Reset" action
+                // (ColorSettingsController.onReset -> resetColors -> here).
+                ABEventBus.post(WorkspaceColorChanged())
                 repo.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), repo.textDisplaySettings)
                 repo.updateAllWindowsTextDisplaySettings()
                 repo.saveIntoDb(false)
