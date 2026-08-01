@@ -23,13 +23,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,7 +68,14 @@ import net.bible.sharedui.settings.LocalSettingsIcon
  *  and [net.bible.sharedui.settings.AbSettingsScreen]'s `InfoRow` branch, which use the same
  *  conditional-emission pattern rather than a Material3 `leadingContent` slot -- the repo has
  *  already been bitten once by M3 reserving a leading-icon column on a slot LAMBDA's existence
- *  rather than its content, so this deliberately avoids that shape. */
+ *  rather than its content, so this deliberately avoids that shape.
+ *
+ *  [badge] defaults to `null` (A/B batch 4a F2): an optional inheritance badge (e.g. "Workspace"/
+ *  "Global", see [net.bible.sharedui.settings.LocalSettingsRowBadge]), rendered via
+ *  [SettingsRowBadgeChip] INSIDE the row's text [Column] — never as a `Box` overlay on top of the
+ *  row (that previously covered the summary and the switch). Same `if (badge != null)` conditional-
+ *  emission shape as [iconKey] above: no badge means nothing is emitted, so every existing caller
+ *  (which never passes `badge`) renders byte-identical to before. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AbSwitchRow(
@@ -77,6 +87,7 @@ fun AbSwitchRow(
     summary: String? = null,
     onLongClick: (() -> Unit)? = null,
     iconKey: String? = null,
+    badge: String? = null,
 ) {
     val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
     Row(
@@ -104,6 +115,12 @@ fun AbSwitchRow(
         }
         Column(Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.bodyLarge)
+            // A/B batch 4a F2: in the text column, NOT an overlay — the badge participates in
+            // measurement, so it can never cover the summary or the switch.
+            if (badge != null) {
+                Spacer(Modifier.height(2.dp))
+                SettingsRowBadgeChip(badge)
+            }
             if (summary != null) {
                 Text(summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -114,6 +131,31 @@ fun AbSwitchRow(
 }
 
 private const val DISABLED_ALPHA = 0.38f
+
+/**
+ * Small trailing chip showing a row's inheritance badge (e.g. "Workspace"/"Global") — see
+ * [net.bible.sharedui.settings.LocalSettingsRowBadge]. Uses [MaterialTheme.colorScheme] only (no
+ * hard-coded hues), so it stays legible and hue-free in the black-and-white / e-ink display modes.
+ *
+ * `internal` (A/B batch 4a F2, moved from `AbSettingsScreen.kt` where it was `private`): both
+ * [AbSwitchRow] above and `SettingsRow` in `AbSettingsScreen.kt` render it inside their own text
+ * `Column`, so it needs to be visible to both files without being a public API.
+ */
+@Composable
+internal fun SettingsRowBadgeChip(text: String, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(50),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+        )
+    }
+}
 
 /** A settings row: label + a right-aligned value readout on the top line, an M3 [Slider] below.
  *  [value]/[onValueChange] are Int; the slider rounds. [valueLabel] is the pre-formatted readout

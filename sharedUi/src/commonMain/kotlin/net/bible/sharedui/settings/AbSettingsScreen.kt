@@ -20,18 +20,17 @@ package net.bible.sharedui.settings
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
@@ -39,7 +38,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,6 +61,7 @@ import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.components.AbTextInputDialog
+import net.bible.sharedui.components.SettingsRowBadgeChip
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -199,38 +198,20 @@ fun AbSettingsContent(
     // so AbSettingsScreen's delegation below is behaviour-preserving (order matters for layout).
     LazyColumn(modifier = Modifier.fillMaxSize().then(modifier)) {
         items(state.visibleItems, key = { it.key }) { item ->
-            val badge = LocalSettingsRowBadge.current(item.key)
-            if (badge == null) {
-                // Byte-identical path: no badge seam provided (every existing settings screen) →
-                // render exactly as before the badge/long-press extension.
-                RenderSettingsItem(
-                    item = item,
-                    onSwitch = onSwitch,
-                    onNavigate = onNavigate,
-                    onSliderChange = onSliderChange,
-                    onLongPress = onLongPress,
-                    openListChoice = { listChoiceDialogKey = it },
-                    openTextInput = { textInputDialogKey = it },
-                    openMultiSelect = { multiSelectDialogKey = it },
-                )
-            } else {
-                Box {
-                    RenderSettingsItem(
-                        item = item,
-                        onSwitch = onSwitch,
-                        onNavigate = onNavigate,
-                        onSliderChange = onSliderChange,
-                        onLongPress = onLongPress,
-                        openListChoice = { listChoiceDialogKey = it },
-                        openTextInput = { textInputDialogKey = it },
-                        openMultiSelect = { multiSelectDialogKey = it },
-                    )
-                    SettingsRowBadgeChip(
-                        text = badge,
-                        modifier = Modifier.align(Alignment.CenterEnd).padding(end = 56.dp),
-                    )
-                }
-            }
+            // A/B batch 4a F2: the badge is a row parameter now, not a Box overlay drawn on top of
+            // the row (which covered the summary and the switch). `null` keeps every screen that
+            // does not provide LocalSettingsRowBadge on exactly the path it had before.
+            RenderSettingsItem(
+                item = item,
+                badge = LocalSettingsRowBadge.current(item.key),
+                onSwitch = onSwitch,
+                onNavigate = onNavigate,
+                onSliderChange = onSliderChange,
+                onLongPress = onLongPress,
+                openListChoice = { listChoiceDialogKey = it },
+                openTextInput = { textInputDialogKey = it },
+                openMultiSelect = { multiSelectDialogKey = it },
+            )
         }
     }
 
@@ -309,18 +290,24 @@ fun AbSettingsContent(
 
 /**
  * Renders one [SettingsItem] row — mechanically extracted from [AbSettingsContent]'s per-item
- * `when` (Batch 12d-A Task 3) so the badge-overlay wrapper in the `items(...)` block can call it
- * either bare or inside a [Box] with a trailing [SettingsRowBadgeChip]. The render logic itself is
- * UNCHANGED from before the extraction: [onLongPress] threads into every row that goes through
- * [AbSwitchRow]/[SettingsRow] (the row types those two support: switch/list-choice/text-input/
- * multi-select/navigation); when it's null (every existing settings screen) those two composables'
- * null-branches render byte-identical to their pre-extension bodies. [SettingsItem.SliderRow] (drag
- * gesture) and [SettingsItem.InfoRow] (non-interactive by default) are left unwired, matching the
- * brief — neither is a long-press target.
+ * `when` (Batch 12d-A Task 3). The render logic itself is UNCHANGED from before the extraction:
+ * [onLongPress] threads into every row that goes through [AbSwitchRow]/[SettingsRow] (the row types
+ * those two support: switch/list-choice/text-input/multi-select/navigation); when it's null (every
+ * existing settings screen) those two composables' null-branches render byte-identical to their
+ * pre-extension bodies. [SettingsItem.SliderRow] (drag gesture) and [SettingsItem.InfoRow]
+ * (non-interactive by default) are left unwired, matching the brief — neither is a long-press
+ * target.
+ *
+ * [badge] (A/B batch 4a F2) is **not** defaulted, unlike [onLongPress] — every call site must state
+ * its badge explicitly (`null` for "no badge"), so a future item type added to the `when` cannot
+ * silently drop it by omission. It threads into [AbSwitchRow]/[SettingsRow]'s own `badge` parameter,
+ * which renders it INSIDE the row's text column, not as a `Box` overlay drawn on top of the row.
+ * [SettingsItem.Category] ignores it — a category header has no inherited value.
  */
 @Composable
 private fun RenderSettingsItem(
     item: SettingsItem,
+    badge: String?,
     onSwitch: (String, Boolean) -> Unit,
     onNavigate: (String) -> Unit,
     onSliderChange: (String, Int) -> Unit,
@@ -340,6 +327,7 @@ private fun RenderSettingsItem(
             enabled = item.enabled,
             onLongClick = onLongPress?.let { press -> { press(item.key) } },
             iconKey = item.iconKey,
+            badge = badge,
         )
 
         is SettingsItem.ListChoiceRow -> {
@@ -351,6 +339,7 @@ private fun RenderSettingsItem(
                 onClick = { openListChoice(item.key) },
                 iconKey = item.iconKey,
                 onLongClick = onLongPress?.let { press -> { press(item.key) } },
+                badge = badge,
             )
         }
 
@@ -361,6 +350,7 @@ private fun RenderSettingsItem(
             onClick = { openTextInput(item.key) },
             iconKey = item.iconKey,
             onLongClick = onLongPress?.let { press -> { press(item.key) } },
+            badge = badge,
         )
 
         is SettingsItem.SliderRow -> AbSliderRow(
@@ -382,6 +372,7 @@ private fun RenderSettingsItem(
             onClick = { openMultiSelect(item.key) },
             iconKey = item.iconKey,
             onLongClick = onLongPress?.let { press -> { press(item.key) } },
+            badge = badge,
         )
 
         is SettingsItem.NavigationRow -> SettingsRow(
@@ -397,6 +388,7 @@ private fun RenderSettingsItem(
                 )
             },
             onLongClick = onLongPress?.let { press -> { press(item.key) } },
+            badge = badge,
         )
 
         // InfoRow is non-interactive by default (no clickable, no ripple) — a plain title +
@@ -442,27 +434,6 @@ private fun RenderSettingsItem(
     }
 }
 
-/**
- * Small trailing chip showing a row's inheritance badge (e.g. "Workspace"/"Global") — see
- * [LocalSettingsRowBadge]. Uses [MaterialTheme.colorScheme] only (no hard-coded hues), so it stays
- * legible and hue-free in the black-and-white / e-ink display modes.
- */
-@Composable
-private fun SettingsRowBadgeChip(text: String, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(50),
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-        )
-    }
-}
-
 /** M3 settings section label: small, coloured with the primary accent. */
 @Composable
 private fun CategoryHeader(title: String) = Text(
@@ -489,6 +460,12 @@ private fun CategoryHeader(title: String) = Text(
  * [onLongClick] defaults to `null` (Batch 12d-A Task 3's long-press-revert seam): when null the row
  * keeps its original plain [clickable] modifier (byte-identical); when non-null it switches to
  * [combinedClickable] to add the long-press gesture alongside the existing click.
+ *
+ * [badge] defaults to `null` (A/B batch 4a F2): an optional inheritance badge (e.g. "Workspace"/
+ * "Global", see [LocalSettingsRowBadge]), rendered via
+ * [net.bible.sharedui.components.SettingsRowBadgeChip] INSIDE the title/summary [Column] — never as
+ * a `Box` overlay on top of the row (that previously covered the summary and any trailing content).
+ * Same `if (badge != null)` conditional-emission shape as [iconKey] above.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -500,6 +477,7 @@ private fun SettingsRow(
     iconKey: String? = null,
     trailing: @Composable (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
+    badge: String? = null,
 ) {
     val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
     Row(
@@ -526,6 +504,12 @@ private fun SettingsRow(
         }
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.bodyLarge)
+            // A/B batch 4a F2: in the text column, NOT an overlay — the badge participates in
+            // measurement, so it can never cover the summary or any trailing content.
+            if (badge != null) {
+                Spacer(Modifier.height(2.dp))
+                SettingsRowBadgeChip(badge)
+            }
             if (summary != null) {
                 Text(
                     summary,
