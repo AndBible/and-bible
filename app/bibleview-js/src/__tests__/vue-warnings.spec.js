@@ -63,14 +63,17 @@ describe("installVueWarningFilter", () => {
         expect(previous).toHaveBeenCalledWith("Failed to resolve component: Foo", null, " at <BibleView>");
     });
 
-    it("re-emits in Vue's default format when there is no previous handler, so logcat is unchanged", () => {
+    it("re-emits with the trace as a separate console argument, like Vue's own default", () => {
+        // Concatenating instead would print "...component: Foo at <BibleView>" glued together in
+        // logcat (observed on-device as `not found.at <Div>`), i.e. NOT the format the log had
+        // before the filter existed.
         const app = fakeApp(undefined);
         installVueWarningFilter(app);
         const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
         try {
             app.config.warnHandler("Failed to resolve component: Foo", null, " at <BibleView>");
-            expect(warn).toHaveBeenCalledWith("[Vue warn]: Failed to resolve component: Foo at <BibleView>");
+            expect(warn).toHaveBeenCalledWith("[Vue warn]: Failed to resolve component: Foo", " at <BibleView>");
         } finally {
             warn.mockRestore();
         }

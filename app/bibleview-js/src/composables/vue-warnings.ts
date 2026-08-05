@@ -53,6 +53,9 @@ export function installVueWarningFilter(app: App): void {
     app.config.warnHandler = (msg: string, instance: ComponentPublicInstance | null, trace: string) => {
         if (shouldSuppressVueWarning(msg)) return;
         if (previous) previous(msg, instance, trace);
-        else console.warn(`[Vue warn]: ${msg}${trace}`);
+        // Vue's own default passes the component trace to `console.warn` as a SEPARATE argument
+        // rather than concatenating it -- keep that, or the trace ends up glued to the message
+        // ("not found.at <Div>") in logcat.
+        else console.warn(`[Vue warn]: ${msg}`, trace);
     };
 }
