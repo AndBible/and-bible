@@ -890,7 +890,34 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     // freshly created WebView still draws its platform-default white over that pane
                     // background until its first document finishes loading -- same flash, one layer up.
                     AndroidView(modifier = Modifier.fillMaxSize(), factory = {
-                        activity.bibleViewFactory.getOrCreateBibleView(window).apply { updateBackgroundColor() }
+                        activity.bibleViewFactory.getOrCreateBibleView(window).apply {
+                            // MATCH_PARENT is REQUIRED here, and not for Android layout reasons --
+                            // `Modifier.fillMaxSize()` above already gives the WebView an EXACTLY
+                            // height MeasureSpec. It is Chromium that reads the layout params:
+                            // `AwLayoutSizer` turns on `force_zero_layout_height` for a WebView whose
+                            // layout-params HEIGHT is WRAP_CONTENT (the guard that stops a
+                            // wrap-content WebView from growing without bound), and that makes CSS
+                            // `vh` units inside the page resolve to **0** -- while `innerHeight` and
+                            // `documentElement.clientHeight` keep reporting the true size, so nothing
+                            // looks wrong from JS. Compose's `AndroidViewHolder` hands every hosted
+                            // view WRAP_CONTENT params by default (it drives sizing through measure
+                            // specs instead), whereas classic's `BibleFrame` adds the BibleView with
+                            // MATCH_PARENT -- which is exactly why `vh` worked in classic and broke
+                            // under the Compose host. Two page-wide symptoms came from it:
+                            //   - `ModalDialog`'s `--max-height: calc(100vh - ...)` went negative and
+                            //     clamped to 0, so EVERY modal's scrolling body (`AmbiguousSelection`,
+                            //     `BookmarkModal`, footnotes/xrefs via `Note.vue`, `BookmarkLabelActions`,
+                            //     `EditableText`) clipped its content away and rendered header-only.
+                            //   - `#bottom { padding-bottom: 200vh }` collapsed to 0, removing the
+                            //     end-of-document scroll headroom.
+                            // Verified on-device by measuring `100vh` in the page: 0 with
+                            // WRAP_CONTENT, 827.8 with MATCH_PARENT.
+                            layoutParams = ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                            )
+                            updateBackgroundColor()
+                        }
                     })
                 }
             },
