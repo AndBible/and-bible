@@ -1,7 +1,7 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Studera Bibeln"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: "Kraftfull uppsättning bibelstudieverktyg: kommentarer, bokmärken, anteckningar, AI"
+short_description: "Kraftfulla bibelstudieverktyg: kommentarer, bokmärken, anteckningar, AI"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Kraftfullt bibelstudieverktyg
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
@@ -23,7 +23,7 @@ feature_04: >
   Tryck på en länk för att följa parallellhänvisningar, fotnoter och kommentarer ({{commentary_examples}}) eller samlingar av parallellhänvisningar ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: "Gill, Matthew Henry m.fl. "
+commentary_examples: "Gill, Matthew Henry m.fl."
 # Examples of cross-reference collections.
 cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
 feature_05: Avancerat text-till-tal med uppläsningsbokmärken som gör lyssningsupplevelsen behagligare
@@ -35,7 +35,7 @@ feature_09: >
   Spårning av läsning och memorering: sätt upp läsmål, följ dina framsteg och memorera verser med de interaktiva lägena som "Ordpussel", "Rada ord", "Sudda ord" och "Skriv"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
-  Omfattande bibliotek av dokument: Bibelöversättningar, teologiska kommentarer, lexikon, kartor och kristna böcker. Totalt över {{total_documents}} dokument på fler än än {{total_languages}} språk, lagligt distribuerade av Crosswire och andra SWORD-kataloger.
+  Omfattande bibliotek av dokument: Bibelöversättningar, teologiska kommentarer, lexikon, kartor och kristna böcker. Totalt över {{total_documents}} dokument på fler än {{total_languages}} språk, lagligt distribuerade av Crosswire och andra SWORD-kataloger.
 feature_10_1: >
   Det inbyggda stödet för MyBible-, MySword- och EPUB-filer gör att du också kan utöka ditt bibliotek.
 feature_11: >
@@ -56,7 +56,7 @@ contr_2: "testa funktioner som inte lanserats ännu,"
 contr_3: "hålla gränssnittets översättningar uppdaterade, och"
 contr_4: "hjälpa till att utöka modulbiblioteket genom att erhålla tillstånd från upphovsrättsinnehavare, eller genom att konvertera dokument till SWORD-formatet."
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: "Om du är en professionell mjukvaruingenjör eller testare; överväg gärna att bidra till projektet. Mer information om hur man bidrar finns här: {{how_to_contribute_url}}."
+paragraph_4_1: "Om du är en professionell mjukvaruingenjör eller testare, överväg gärna att bidra till projektet. Mer information om hur man bidrar finns här: {{how_to_contribute_url}}."
 subtitle_4: Länkar
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 link_1: >
