@@ -497,7 +497,7 @@ class MyDocumentPagesActivity : ActivityBase() {
                 .setMessage(R.string.my_document_save_changes)
                 .setPositiveButton(R.string.yes) { _, _ ->
                     applyChanges()
-                    returnWithPage(page)
+                    returnWithPage(page, refreshBook = false)
                 }
                 .setNegativeButton(R.string.no) { _, _ ->
                     returnWithPage(page)
@@ -510,7 +510,17 @@ class MyDocumentPagesActivity : ActivityBase() {
         }
     }
 
-    private fun returnWithPage(page: MyDocumentPage) {
+    /**
+     * @param refreshBook rebuild the SWORD book's key map before returning.
+     * Pages created via addPageToList() are written to the DB immediately, so
+     * the book can be stale even when the user declined to save other edits —
+     * and MainBibleActivity resolves the returned pageKey against that map.
+     * Pass false when [applyChanges] has just refreshed it.
+     */
+    private fun returnWithPage(page: MyDocumentPage, refreshBook: Boolean = true) {
+        if (refreshBook) {
+            MyDocumentBookManager.refreshDocument(documentInitials)
+        }
         resultIntent.putExtra("documentInitials", documentInitials)
         resultIntent.putExtra("pageKey", page.pageKey)
         finishOk()
