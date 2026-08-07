@@ -78,3 +78,51 @@ export function calcPageScrollDistance(
     }
     return amount;
 }
+
+/**
+ * Largest meaningful scroll position: the one that brings the end of the text to
+ * the bottom edge of the readable area.
+ *
+ * This is deliberately not `scrollHeight - innerHeight`. The `#bottom` element
+ * carries a tall padding so the reader can scroll past the last line, and that
+ * padding must not be counted as pages.
+ *
+ * @param contentEnd document position where the text ends (`#bottom`'s offsetTop)
+ * @param viewportHeight window.innerHeight
+ * @param bottomOffset height of the bottom bar covering the viewport, if any
+ */
+export function calcMaxScrollY(
+    contentEnd: number,
+    viewportHeight: number,
+    bottomOffset: number,
+): number {
+    return Math.max(0, contentEnd - (viewportHeight - bottomOffset));
+}
+
+/**
+ * Relative page numbers for the page-number overlay: the current position and
+ * the end of the currently loaded content, both measured from the top of that
+ * content.
+ *
+ * Page 0 is always the top of what is loaded, so opening a document halfway
+ * down a page reads as 0.5 rather than 0, and the total is the page count of
+ * the loaded content. When infinite scroll prepends chapters, both numbers grow
+ * accordingly — they always describe the position within the loaded content.
+ *
+ * @param scrollY current vertical scroll position in px
+ * @param maxScrollY largest scrollable position (scrollHeight - viewport height)
+ * @param scrollAmount distance a single page scroll moves (calcPageScrollDistance)
+ * @returns fractional `current` page and a non-negative, rounded-up `total`
+ */
+export function calcRelativePageNumbers(
+    scrollY: number,
+    maxScrollY: number,
+    scrollAmount: number,
+): {current: number, total: number} {
+    // Before the layout is measured scrollAmount can be 0 or NaN — avoid NaN/Infinity output.
+    if (!(scrollAmount > 0)) return {current: 0, total: 0};
+    return {
+        current: scrollY / scrollAmount,
+        total: Math.max(0, Math.ceil(maxScrollY / scrollAmount)),
+    };
+}

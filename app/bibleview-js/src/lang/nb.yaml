@@ -1,9 +1,9 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Bokmerker
-bookmarksAndNotes: "Bokmerker & Mine notater"
+bookmarksAndNotes: Bokmerker & Mine notater
 openMyNotes: Åpne i Mine notater
-openStudyPad: "Åpne i studiebrett (%s)"
-noteText: "Fotnoter (%s)"
+openStudyPad: Åpne i studiebrett (%s)
+noteText: Fotnoter (%s)
 noteTextWithoutType: Fotnoter
 crossReferenceText: Kryssreferanser
 findAllOccurrences: Finn alle forekomstene
@@ -23,15 +23,15 @@ myDocumentEmptyPlaceholder: Trykk for å begynne å redigere denne siden
 inputPlaceholder: Skriv her
 inputReference: Skriv bibelreferanse
 invalidReference: Vers ble ikke funnet
-bookmarkAccurate: "Bokmerke ble opprettet i %s"
+bookmarkAccurate: Bokmerke ble opprettet i %s
 bookmarkInaccurate: "Bokmerkebokinformasjon ikke lagret, innhold vises i %s."
 defaultBook: standard bibeloversettelse
 ok: OK
 yes: "Ja"
-ambiguousSelection: Hvilken handling vil du utføre?
+ambiguousSelection: "Hvilken handling vil du utføre?"
 cancel: Avbryt
-removeBookmarkConfirmationTitle: Slette bokmerke?
-removeBookmarkConfirmation: Er du sikker på at du vil slette dette bokmerket?
+removeBookmarkConfirmationTitle: "Slette bokmerke?"
+removeBookmarkConfirmation: "Er du sikker på at du vil slette dette bokmerket?"
 createdAt: "Opprettet: %s"
 lastUpdatedOn: "Sist endret: %s"
 strongsAndMorph: Definisjoner og morfologi
@@ -39,10 +39,12 @@ externalLink: Åpne ekstern lenke
 referenceLink: Åpne referanselenke
 openFootnote: Åpne fotnote
 noMyNotesTitle: Du har ingen notater for dette kapittelet
-noMyNotesDescription: Kom i gang ved å opprette bokmerker i en Bibel. Bokmerket vil vises her, og du kan legge inn personlige notater til dem.
-emptyStudyPad: Tomt studiebrett. Begynn å legge til i dette studiebrettet ved å opprette tekstoppføringer her eller ved å opprette bokmerker med en bokmerkegruppe som tilsvarer dette studiebrettet.
-doYouWantToDeleteEntry: Slette denne studiebrettoppføringen?
-removeStudyPadConfirmationTitle: Fjerne studiebrettoppføring?
+noMyNotesDescription: >-
+  Kom i gang ved å opprette bokmerker i en Bibel. Bokmerket vil vises her, og du kan legge inn personlige notater til dem.
+emptyStudyPad: >-
+  Tomt studiebrett. Begynn å legge til i dette studiebrettet ved å opprette tekstoppføringer her eller ved å opprette bokmerker med en bokmerkegruppe som tilsvarer dette studiebrettet.
+doYouWantToDeleteEntry: "Slette denne studiebrettoppføringen?"
+removeStudyPadConfirmationTitle: "Fjerne studiebrettoppføring?"
 dragHelp: Dra for å sortere
 openAll: Åpne alle referanser
 editBookmarkPlaceholder: Trykk for å redigere mine notater for dette bokmerket
@@ -52,7 +54,7 @@ assignLabelsMenuEntry1: Velg eller rediger grupper…
 favouriteLabels: Favorittgrupper
 recentLabels: Nylige grupper
 bookmarkLabels: Bokmerkegrupper
-refParserHelp: "Installer %s-modulen for å bruke referanser på andre språk enn engelsk."
+refParserHelp: Installer %s-modulen for å bruke referanser på andre språk enn engelsk.
 openDownloads: Gå til tilleggsnedlastinger
 verseShare: Del
 verseSpeak: Høytlesing

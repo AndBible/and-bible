@@ -2,8 +2,8 @@
 bookmarks: 書籤
 bookmarksAndNotes: 書籤與我的筆記
 openMyNotes: 在我的筆記中開啟
-openStudyPad: "在學習筆記中開啟（%s）"
-noteText: "腳註（%s）"
+openStudyPad: 在學習筆記中開啟（%s）
+noteText: 腳註（%s）
 noteTextWithoutType: 腳註
 crossReferenceText: 交叉參考
 findAllOccurrences: 尋找所有出現處
@@ -23,8 +23,8 @@ myDocumentEmptyPlaceholder: 點擊開始編輯此頁面
 inputPlaceholder: 在此輸入
 inputReference: 輸入聖經參考
 invalidReference: 未找到經文
-bookmarkAccurate: "書籤已在 %s 中建立"
-bookmarkInaccurate: "書籤書卷訊息未儲存，內容顯示於 %s。"
+bookmarkAccurate: 書籤已在 %s 中建立
+bookmarkInaccurate: 書籤書卷訊息未儲存，內容顯示於 %s。
 defaultBook: 預設聖經文件
 ok: 確定
 yes: "是"
@@ -39,8 +39,10 @@ externalLink: 開啟外部連結
 referenceLink: 開啟參考連結
 openFootnote: 開啟腳註
 noMyNotesTitle: 本章沒有我的筆記。
-noMyNotesDescription: 在聖經文件中建立書籤即可開始。書籤將顯示於此處，您可以為其新增個人筆記。
-emptyStudyPad: 學習筆記為空。在此建立文字條目或建立帶有對應標籤的書籤，即可開始新增內容。
+noMyNotesDescription: >-
+  在聖經文件中建立書籤即可開始。書籤將顯示於此處，您可以為其新增個人筆記。
+emptyStudyPad: >-
+  學習筆記為空。在此建立文字條目或建立帶有對應標籤的書籤，即可開始新增內容。
 doYouWantToDeleteEntry: 刪除此學習筆記條目？
 removeStudyPadConfirmationTitle: 刪除學習筆記條目？
 dragHelp: 拖曳以重新排序
@@ -52,7 +54,7 @@ assignLabelsMenuEntry1: 選擇或編輯標籤…
 favouriteLabels: 常用標籤
 recentLabels: 最近標籤
 bookmarkLabels: 書籤標籤
-refParserHelp: "請安裝 %s 模組以使用英文以外語言的參考。"
+refParserHelp: 請安裝 %s 模組以使用英文以外語言的參考。
 openDownloads: 前往附加元件下載
 verseShare: 分享
 verseSpeak: 朗讀

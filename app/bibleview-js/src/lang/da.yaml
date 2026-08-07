@@ -1,9 +1,9 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Bogmærker
-bookmarksAndNotes: "Bogmærker & Mine noter"
+bookmarksAndNotes: Bogmærker & Mine noter
 openMyNotes: Åbn i Mine noter
-openStudyPad: "Åbn i Studieblok (%s)"
-noteText: "Fodnoter (%s)"
+openStudyPad: Åbn i Studieblok (%s)
+noteText: Fodnoter (%s)
 noteTextWithoutType: Fodnoter
 crossReferenceText: Krydshenvisninger
 findAllOccurrences: Find alle forekomster
@@ -23,26 +23,28 @@ myDocumentEmptyPlaceholder: Tryk for at begynde at redigere denne side
 inputPlaceholder: Skriv her
 inputReference: Angiv bibelsk reference
 invalidReference: Vers ikke fundet
-bookmarkAccurate: "Bogmærket blev oprettet i %s"
+bookmarkAccurate: Bogmærket blev oprettet i %s
 bookmarkInaccurate: "Bogmærkets bogoplysninger er ikke gemt, indhold vises i %s."
 defaultBook: standardbibeldokument
 ok: OK
 yes: "Ja"
-ambiguousSelection: Hvilken handling ønsker du at udføre?
+ambiguousSelection: "Hvilken handling ønsker du at udføre?"
 cancel: Annullér
-removeBookmarkConfirmationTitle: Fjern bogmærke?
-removeBookmarkConfirmation: Er du sikker på, at du vil fjerne dette bogmærke?
+removeBookmarkConfirmationTitle: "Fjern bogmærke?"
+removeBookmarkConfirmation: "Er du sikker på, at du vil fjerne dette bogmærke?"
 createdAt: "Oprettet: %s"
 lastUpdatedOn: "Sidst opdateret: %s"
-strongsAndMorph: "Definition & Morfologi"
+strongsAndMorph: Definition & Morfologi
 externalLink: Åbn eksternt link
 referenceLink: Åbn referencelink
 openFootnote: Åbn fodnote
 noMyNotesTitle: Ingen Mine noter for dette kapitel.
-noMyNotesDescription: Kom i gang ved at oprette bogmærker i et bibeldokument. Bogmærkerne vil derefter vises her, og du kan tilføje dine personlige noter til dem.
-emptyStudyPad: Tom studieblok. Begynd at tilføje til denne studieblok ved at oprette tekstindlæg her eller ved at oprette bogmærker med en bogmærkeetiket, der svarer til denne studieblok.
-doYouWantToDeleteEntry: Slet dette studieblokindlæg?
-removeStudyPadConfirmationTitle: Fjern studieblokindlæg?
+noMyNotesDescription: >-
+  Kom i gang ved at oprette bogmærker i et bibeldokument. Bogmærkerne vil derefter vises her, og du kan tilføje dine personlige noter til dem.
+emptyStudyPad: >-
+  Tom studieblok. Begynd at tilføje til denne studieblok ved at oprette tekstindlæg her eller ved at oprette bogmærker med en bogmærkeetiket, der svarer til denne studieblok.
+doYouWantToDeleteEntry: "Slet dette studieblokindlæg?"
+removeStudyPadConfirmationTitle: "Fjern studieblokindlæg?"
 dragHelp: Træk for at ændre rækkefølge
 openAll: Åbn alle referencer
 editBookmarkPlaceholder: Tryk for at redigere Mine noter for dette bogmærke
@@ -52,7 +54,7 @@ assignLabelsMenuEntry1: Vælg eller redigér etiketter…
 favouriteLabels: Foretrukne etiketter
 recentLabels: Seneste etiketter
 bookmarkLabels: Bogmærkeetiketter
-refParserHelp: "Installér venligst %s-modulet for at bruge referencer på andre sprog end engelsk."
+refParserHelp: Installér venligst %s-modulet for at bruge referencer på andre sprog end engelsk.
 openDownloads: Gå til tilføjelseshentning
 verseShare: Del
 verseSpeak: Oplæs
@@ -91,10 +93,10 @@ editActionModeNone: Ingen
 editActionModeAppend: Tilføj tekst efter
 editActionModePrepend: Tilføj tekst før
 editActionContentLabel: Indhold
-editActionContentPlaceholder: Angiv tekst, der skal tilføjes til dokumentet...
+editActionContentPlaceholder: "Angiv tekst, der skal tilføjes til dokumentet..."
 experimentalFeatureTitle: Eksperimentel
 experimentalFeatureHelpTitle: Om eksperimentelle funktioner
-experimentalFeatureHelpContent: Eksperimentelle funktioner er nye muligheder, der stadig er under udvikling og test. De virker måske ikke perfekt og kan ændre sig betydeligt eller blive fjernet i fremtidige versioner af appen.
+experimentalFeatureHelpContent: "Eksperimentelle funktioner er nye muligheder, der stadig er under udvikling og test. De virker måske ikke perfekt og kan ændre sig betydeligt eller blive fjernet i fremtidige versioner af appen."
 insertParagraphBreak: Indsæt afsnitsskift
 insertSubtitle: Indsæt undertitel
 xmlParseError: XML-fortolkningsfejl

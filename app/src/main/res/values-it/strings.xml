@@ -157,7 +157,7 @@
   <string name="options_menu_night_mode">Modalità notturna</string>
   <string name="prefs_navigate_to_verse_title">Naviga al versetto</string>
   <string name="prefs_navigate_to_verse_summary">Scegli il versetto (e il capitolo) quando selezioni un passaggio</string>
-  <string name="prefs_open_links_in_special_window_title">Finestra collegamenti</string>
+  <string name="prefs_open_links_in_special_window_title">Finestra dei collegamenti</string>
   <string name="prefs_open_links_in_special_window_summary">Apre i collegamenti in finestre speciali, per mostrare più rapidamente i riferimenti incrociati e gli Strong</string>
   <string name="prefs_text_size_sample_text">Testo d\'esempio</string>
   <string name="prefs_screen_keep_on_title">Tieni lo schermo acceso</string>
@@ -189,12 +189,12 @@
   <string name="text_display_settings_activity_title">Impostazioni di visualizzazione del testo</string>
   <string name="workspace_text_display_settings_title">Opzioni di testo - %s</string>
   <string name="window_text_display_settings_title">Opzioni di testo - Finestra %d</string>
-  <string name="global_text_display_settings_title">Opzioni testo globali</string>
+  <string name="global_text_display_settings_title">Opzioni di testo globali</string>
   <string name="global_text_display_settings_summary">Impostazioni di visualizzazione testo predefinite per tutti gli spazi di lavoro</string>
   <string name="parent_settings_category_title">Impostazioni superiori</string>
   <string name="workspace_text_options_link">Opzioni testo spazio di lavoro — %s</string>
   <string name="workspace_text_options_link_summary">Modifica le impostazioni di visualizzazione testo per questo spazio di lavoro</string>
-  <string name="global_text_options_link">Opzioni testo globali</string>
+  <string name="global_text_options_link">Opzioni di testo globali</string>
   <string name="global_text_options_link_summary">Modifica le impostazioni di visualizzazione testo predefinite per tutti gli spazi di lavoro</string>
   <string name="prefs_font_and_colors_title">Carattere &amp; Colori</string>
   <string name="prefs_text_layout_title">Layout testo</string>
@@ -480,7 +480,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="assing_labels_help4">Tocca %s per aggiungere l\'etichetta all\'elenco dei tuoi preferiti per accesso rapido.</string>
   <!--param is refresh icon-->
   <string name="assing_labels_help5">Tocca %s per riordinare l\'elenco in base alle tue scelte.</string>
-  <string name="global_text_options_help_title">Opzioni testo globali</string>
+  <string name="global_text_options_help_title">Opzioni di testo globali</string>
   <string name="global_text_options_help1">Queste sono le impostazioni predefinite globali per tutti gli spazi di lavoro. Ogni spazio di lavoro può sovrascriverle con le proprie impostazioni.</string>
   <string name="workspace_text_options_help_title">Opzioni testo dello spazio di lavoro</string>
   <string name="workspace_text_options_help1">Queste impostazioni sono quelle predefinite per tutte le finestre dello spazio di lavoro.</string>
@@ -496,13 +496,13 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="speak_help_auto_bookmark">
 Un segnalibro Audio verrà aggiunto automaticamente quando Parla viene messo in pausa o interrotto. I segnalibri generati automaticamente sono etichettati con l\'etichetta speciale Audio. Se inizi da un segnalibro di Audio, il segnalibro verrà spostato nel versetto stesso interrompere o mettere in pausa alla prossima volta. Verranno spostate solo le etichette Audio, tutte le altre etichette saranno lasciate solo.</string>
   <string name="speak_help_playback_settings">
-Impostazioni di riproduzione speciali (in \"Impostazioni di riproduzione\" nella schermata Parla) vengono salvati in Parla dai segnalibri quando questa impostazione è selezionata. Quando si riavvia la conversazione da un segnalibro parlato, le impostazioni di riproduzione salvate vengono caricati dal segnalibro.</string>
+Impostazioni di riproduzione speciali (in \"Impostazioni di riproduzione\" nella schermata Parla) vengono salvati in \"Parla dai segnalibri\" quando questa impostazione è selezionata. Quando si riavvia la conversazione da un segnalibro parlato, le impostazioni di riproduzione salvate vengono caricate dal segnalibro.</string>
   <string name="speak_help_playback_settings_example">
 Ad esempio se stai ascoltando Genesi e Romani e
-desidera ascoltare la Genesi parlata rapidamente senza notifiche di modifica dei capitoli,
-ma per i romani più lentamente con suoni udibili delle cuffie sui cambi di capitolo, quindi
-puoi avere impostazioni di riproduzione diverse per questi libri,
-quando queste impostazioni vengono salvate nei segnalibri corrispondenti.</string>
+desideri ascoltare Genesi rapidamente e senza notifiche di cambio di capitolo,
+ma vuoi ascoltare Romani più lentamente con suoni al cambio del capitolo,
+puoi avere impostazioni di riproduzione diverse per questi due libri,
+quando le impostazioni vengono salvate nei segnalibri corrispondenti.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -714,8 +714,8 @@ quello di scorrere verso il basso dalla barra degli strumenti. Puoi anche usare 
   <string name="help_hidden_features_title">Scorciatoie nascoste</string>
   <string name="help_hidden_features_text">
  Scorri verso il basso dalla barra degli strumenti per mostrare il selettore dell\'area di lavoro.
- Premere a lungo il pulsante della finestra per minimizzare rapidamente.
- Premere a lungo il pulsante della barra degli strumenti per parlare per passare rapidamente alle impostazioni vocali.
+ Premi a lungo il pulsante della finestra per minimizzare rapidamente.
+ Premi a lungo il pulsante della barra degli strumenti di Parla per passare rapidamente alle impostazioni vocali.
  Premi a lungo il titolo della posizione del versetto nella barra degli strumenti per passare al selettore documenti.
  Premi a lungo il pulsante Indietro per accedere all\'elenco Cronologia.
 </string>
@@ -999,7 +999,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
     </string>
   <string name="calculator_par2">
         In questa puoi eseguire normali calcoli, e quando vuoi accedere all\'app, ti basta
-        inserire il tuo codice PIN (predefinito è 1234) e poi premere il pulsante \"=\".
+        inserire il tuo codice PIN (quello predefinito è 1234) e poi premere il tasto \"=\".
     </string>
   <string name="calculator_par3">
         Puoi impostare un tuo PIN personale dall\'impostazione \"PIN calcolatrice\".
@@ -1725,9 +1725,34 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="cloud_doc_summary_download">Scarica %1$d</string>
   <string name="cloud_doc_summary_download_size">Scarica %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">I download automatici inizieranno tramite Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d documento</item>
+    <item quantity="many">%1$d documenti</item>
+    <item quantity="other">%1$d documenti</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d documento (%2$s)</item>
+    <item quantity="many">%1$d documenti (%2$s)</item>
+    <item quantity="other">%1$d documenti (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Niente da trasferire</string>
   <string name="cloud_doc_selected_count">%1$d selezionati</string>
   <string name="cloud_doc_bulk_skipped">%1$d non applicabili ignorati</string>
+  <plurals name="cloud_doc_bulk_remove_all_confirm">
+    <item quantity="one">Vuoi rimuovere %1$d documento dal cloud e da tutti i tuoi dispositivi, compreso questo?</item>
+    <item quantity="many">Vuoi rimuovere %1$d documenti dal cloud e da tutti i tuoi dispositivi, compreso questo?</item>
+    <item quantity="other">Vuoi rimuovere %1$d documenti dal cloud e da tutti i tuoi dispositivi, compreso questo?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_confirm">
+    <item quantity="one">Vuoi rimuovere %1$d documento dal cloud? Le copie su questo dispositivo verranno conservate.</item>
+    <item quantity="many">Vuoi rimuovere %1$d documenti dal cloud? Le copie su questo dispositivo verranno conservate.</item>
+    <item quantity="other">Vuoi rimuovere %1$d documenti dal cloud? Le copie su questo dispositivo verranno conservate.</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_confirm">
+    <item quantity="one">Vuoi rimuovere permanentemente %1$d documento dalla cronologia del cloud?</item>
+    <item quantity="many">Vuoi rimuovere permanentemente %1$d documenti dalla cronologia del cloud?</item>
+    <item quantity="other">Vuoi rimuovere permanentemente %1$d documenti dalla cronologia del cloud?</item>
+  </plurals>
   <string name="document_sync_notification_title">Sincronizzazione documenti</string>
   <string name="document_sync_downloading">Download di %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Caricamento di %1$s (%2$d/%3$d)</string>

@@ -2,8 +2,8 @@
 bookmarks: Legosignoj
 bookmarksAndNotes: Legosignoj kaj miaj notoj
 openMyNotes: Malfermi en miaj notoj
-openStudyPad: "Malfermi en notbloko (%s)"
-noteText: "Piednoto (%s)"
+openStudyPad: Malfermi en notbloko (%s)
+noteText: Piednoto (%s)
 noteTextWithoutType: Piednotoj
 crossReferenceText: Internaj referencoj
 findAllOccurrences: Montri ĉiujn aperojn
@@ -23,15 +23,15 @@ myDocumentEmptyPlaceholder: Frapetu por komenci redakti tiun ĉi paĝon
 inputPlaceholder: Skribu tie ĉi
 inputReference: Enigi biblian referencon
 invalidReference: Ne trovis verson
-bookmarkAccurate: "Legosigno kreita en %s"
+bookmarkAccurate: Legosigno kreita en %s
 bookmarkInaccurate: "Informo pri libro ne konservita en legosigno, montras enhavon en %s."
 defaultBook: implicita dokumento de Biblio
 ok: Bone
 yes: "Jes"
-ambiguousSelection: Kion vi volas fari?
+ambiguousSelection: "Kion vi volas fari?"
 cancel: Nuligi
-removeBookmarkConfirmationTitle: Ĉu forigi legosignon?
-removeBookmarkConfirmation: Ĉu vi certe volas forigi tiun ĉi legosignon?
+removeBookmarkConfirmationTitle: "Ĉu forigi legosignon?"
+removeBookmarkConfirmation: "Ĉu vi certe volas forigi tiun ĉi legosignon?"
 createdAt: "Kreita: %s"
 lastUpdatedOn: "Ĝisdatigita: %s"
 strongsAndMorph: Difino k morfologio
@@ -39,12 +39,12 @@ externalLink: Malfermi eksteran ligilon
 referenceLink: Malfermi referencan ligilon
 openFootnote: Malfermi piednoton
 noMyNotesTitle: Neniu noto por tiu ĉi ĉapitro.
-noMyNotesDescription: Unue kreu legosignojn en la biblia dokumento. La kreotaj legosignoj aperos tie ĉi kaj vi povos aldoni al ili personajn notojn.
-
-emptyStudyPad: Malplena notbloko. Por komenci plenigi tiun ĉi notblokon, kreu notojn tie ĉi aŭ kreu legosignojn kun legosignaj etikedoj ligitaj al tiu ĉi notbloko.
-
-doYouWantToDeleteEntry: Ĉu forigi tiun ĉi enskribon en notbloko?
-removeStudyPadConfirmationTitle: Ĉu forigi enskribon en notbloko?
+noMyNotesDescription: >
+  Unue kreu legosignojn en la biblia dokumento. La kreotaj legosignoj aperos tie ĉi kaj vi povos aldoni al ili personajn notojn.
+emptyStudyPad: >
+  Malplena notbloko. Por komenci plenigi tiun ĉi notblokon, kreu notojn tie ĉi aŭ kreu legosignojn kun legosignaj etikedoj ligitaj al tiu ĉi notbloko.
+doYouWantToDeleteEntry: "Ĉu forigi tiun ĉi enskribon en notbloko?"
+removeStudyPadConfirmationTitle: "Ĉu forigi enskribon en notbloko?"
 dragHelp: Ŝovu por reordigi
 openAll: Malfermi ĉiujn referencojn
 editBookmarkPlaceholder: Frapetu por redakti noton pri tiu ĉi legosigno
@@ -54,7 +54,7 @@ assignLabelsMenuEntry1: Elekti aŭ redakti etikedojn…
 favouriteLabels: Ŝatataj etikedoj
 recentLabels: Antaŭaj etikedoj
 bookmarkLabels: Legosignaj etikedoj
-refParserHelp: "Instalu la modulon %s por uzi referencojn en aliaj lingvoj ol la angla."
+refParserHelp: Instalu la modulon %s por uzi referencojn en aliaj lingvoj ol la angla.
 openDownloads: Malfermi elŝutojn
 verseShare: Kunhavigi
 verseSpeak: Paroli
@@ -96,7 +96,7 @@ editActionContentLabel: Enhavo
 editActionContentPlaceholder: Enigu tekston aldonotan al la dokumento…
 experimentalFeatureTitle: Eksperimenta
 experimentalFeatureHelpTitle: Pri eksperimentaj ebloj
-experimentalFeatureHelpContent: Eksperimentaj ebloj estas novaj trajtoj, kiuj plue estas prilaborataj kaj testataj. Ili povas ne funkcii perfekte kaj povas esti signife ŝanĝitaj aŭ forigitaj en venontaj versioj de la aplikaĵo.
+experimentalFeatureHelpContent: "Eksperimentaj ebloj estas novaj trajtoj, kiuj plue estas prilaborataj kaj testataj. Ili povas ne funkcii perfekte kaj povas esti signife ŝanĝitaj aŭ forigitaj en venontaj versioj de la aplikaĵo."
 insertParagraphBreak: Aldoni linirompon
 insertSubtitle: Aldoni subtitolon
 xmlParseError: Eraro dum pritrakti XML

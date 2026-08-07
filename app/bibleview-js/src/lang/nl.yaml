@@ -1,9 +1,9 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Bladwijzers
-bookmarksAndNotes: "Bladwijzers & Mijn notities"
+bookmarksAndNotes: Bladwijzers & Mijn notities
 openMyNotes: Open in Mijn notities
-openStudyPad: "In de studiemap (%s) openen"
-noteText: "Voetnoten (%s)"
+openStudyPad: In de studiemap (%s) openen
+noteText: Voetnoten (%s)
 noteTextWithoutType: Voetnoten
 crossReferenceText: Verwijzingen
 findAllOccurrences: Zoek alle vindplaatsen
@@ -23,26 +23,28 @@ myDocumentEmptyPlaceholder: Tik om deze pagina te bewerken
 inputPlaceholder: Schrijf hier
 inputReference: Voer bijbelverwijzing in
 invalidReference: Vers niet gevonden
-bookmarkAccurate: "Bladwijzer was gecreëerd in %s"
+bookmarkAccurate: Bladwijzer was gecreëerd in %s
 bookmarkInaccurate: "Bladwijzer boek informatie niet opgeslagen, inhoud is te zien in %s"
 defaultBook: Standaard bijbel document
 ok: Oké
 yes: "Ja"
-ambiguousSelection: Welke actie wil je uitvoeren?
+ambiguousSelection: "Welke actie wil je uitvoeren?"
 cancel: Annuleren
-removeBookmarkConfirmationTitle: Bladwijzer verwijderen?
-removeBookmarkConfirmation: Weet u zeker dat u deze bladwijzer wilt verwijderen?
+removeBookmarkConfirmationTitle: "Bladwijzer verwijderen?"
+removeBookmarkConfirmation: "Weet u zeker dat u deze bladwijzer wilt verwijderen?"
 createdAt: "Gecreëerd: %s"
 lastUpdatedOn: "Laatst bijgewerkt: %s"
-strongsAndMorph: "Definitie & Morfologie"
+strongsAndMorph: Definitie & Morfologie
 externalLink: Open externe link
 referenceLink: Open referentie link
 openFootnote: Voetnoot openen
 noMyNotesTitle: Geen persoonlijke notities voor dit hoofdstuk.
-noMyNotesDescription: Start met het creëren van bladwijzers in een bijbel document. Deze bladwijzers zullen hier verschijnen en je kan ook persoonlijke notities toevoegen.
-emptyStudyPad: Lege studiemap. Maak tekst items in deze studiemap en voeg bladwijzers toe door ze aan te maken en het label van deze studiemap te geven.
-doYouWantToDeleteEntry: Wis dit item uit de studiemap?
-removeStudyPadConfirmationTitle: Verwijder dit item uit de studiemap?
+noMyNotesDescription: >-
+  Start met het creëren van bladwijzers in een bijbel document. Deze bladwijzers zullen hier verschijnen en je kan ook persoonlijke notities toevoegen.
+emptyStudyPad: >-
+  Lege studiemap. Maak tekst items in deze studiemap en voeg bladwijzers toe door ze aan te maken en het label van deze studiemap te geven.
+doYouWantToDeleteEntry: "Wis dit item uit de studiemap?"
+removeStudyPadConfirmationTitle: "Verwijder dit item uit de studiemap?"
 dragHelp: Wijzig volgorde door te slepen
 openAll: Open alle referenties
 editBookmarkPlaceholder: Tik om Mijn Notities te wijzigen voor deze bladwijzer.
@@ -52,7 +54,7 @@ assignLabelsMenuEntry1: Selecteer of wijzig labels...
 favouriteLabels: Favoriete labels
 recentLabels: Recente labels
 bookmarkLabels: Bladwijzerlabels
-refParserHelp: "Installeer %s module om referenties te gebruiken in andere talen dan Engels."
+refParserHelp: Installeer %s module om referenties te gebruiken in andere talen dan Engels.
 openDownloads: Ga naar uitbreiding downloads
 verseShare: Delen
 verseSpeak: Voorlezen

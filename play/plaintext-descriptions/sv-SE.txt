@@ -1,8 +1,8 @@
 Kraftfullt bibelstudieverktyg
 
-"AndBible: Studera Bibeln" är en kraftfull, lättanvänd och offline bibelstudieapp för Android — en mångsidig verktygslåda med högkvalitativa funktioner som passar många studiestilar, från lättsam läsning till djupgående forskning. Mer än bara en läsare — det är ett verktyg för seriöst personligt studium.
+"AndBible: Studera Bibeln" är en kraftfull och lättanvänd bibelstudieapp, som även fungerar offline, för Android – en mångsidig verktygslåda med högkvalitativa funktioner som passar många studiestilar, från alldaglig läsning till djupgående forskning. Mer än bara en läsningsapp – den är ett verktyg för ingående personliga studier.
 
-Utvecklad av bibelläsare, för bibelläsare — ett ideellt projekt med öppen källkod som drivs av en gemenskap, helt gratis och utan reklam.
+Utvecklad av bibelläsare, för bibelläsare – ett ideellt projekt med öppen källkod som drivs av en gemenskap, helt gratis och utan reklam.
 
 Några populära bibelöversättningar (av många som finns) är Svenska folkbibeln 2015/1998, Svenska kärnbibeln och 1917 års kyrkobibel. På engelska finns t.ex. KJV, NASB, NET och även populära kommentarer såsom dem av Matthew Henry och John Gill.
 
@@ -11,17 +11,17 @@ Kraftfulla bibelstudiefunktioner
 Appen har många insiktsfulla och unika funktioner som gör komplicerade och djupa bibelstudier behagliga. De mest betydande funktionerna är följande:
 
  * Delade textvyer som låter dig jämföra översättningar och använda bibelkommentarer.
- * Arbetsytor låter dig skapa olika anpassade vyer med separata inställningar för bibelstudier.
+ * Arbetsytor låter dig skapa olika anpassade vyer med separata inställningar för bibelstudier
  * Integration med Strongs nummer möjliggör analys av grekiska och hebreiska ord.
  * Tryck på en länk för att följa parallellhänvisningar, fotnoter och kommentarer (Gill, Matthew Henry m.fl.) eller samlingar av parallellhänvisningar (Treasure of Scripture Knowledge, TSKe).
- * Valfri AI-studieassistent (endast efter aktivering — kräver din egen API-nyckel till en extern tjänst): utforska dina installerade kommentarer och lexikon med AI-hjälp på ditt valda språk, samt andra kreativa studiemetoder. Ett inbyggt behörighetssystem ger dig full kontroll över vad assistenten får göra.
+ * Valfri AI-studieassistent (endast efter aktivering – kräver din egen API-nyckel till en extern tjänst): utforska dina installerade kommentarer och lexikon med AI-hjälp på ditt valda språk, plus andra kreativa studiemetoder. Ett inbyggt behörighetssystem ger dig full kontroll över vad assistenten får göra.
  * Flexibel fritextsökning över en eller flera bibelöversättningar samtidigt
  * Avancerade funktioner för bokmärken och färgmarkeringar med personliga anteckningar
  * Studieblock för att lägga till anteckningar och bibelhänvisningar medan du lyssnar till predikningar.
- * Spårning av läsning och memorering: sätt upp läsmål, följ ditt förlopp och memorera verser med interaktiva lägen som Bokstavspussel, Ordföljd, Suddade ord och Skriv själv
- * Avancerat text-till-tal med uppläsningsbokmärken som gör lyssningsupplevelsen bekvämare
- * Synkronisering mellan enheter: håll dina arbetsytor, bokmärken, anteckningar och läsningsförlopp synkroniserade på alla dina enheter
- * Omfattande bibliotek av dokument: Bibelöversättningar, teologiska kommentarer, lexikon, kartor och kristna böcker. Totalt över 1500 dokument på fler än än 700 språk, lagligt distribuerade av Crosswire och andra SWORD-kataloger.
+ * Spårning av läsning och memorering: sätt upp läsmål, följ dina framsteg och memorera verser med de interaktiva lägena som "Ordpussel", "Rada ord", "Sudda ord" och "Skriv"
+ * Avancerat text-till-tal med uppläsningsbokmärken som gör lyssningsupplevelsen behagligare
+ * Enhetssynkronisering: håll dina arbetsytor, bokmärken, anteckningar och läsningsförlopp synkroniserade mellan alla dina enheter
+ * Omfattande bibliotek av dokument: Bibelöversättningar, teologiska kommentarer, lexikon, kartor och kristna böcker. Totalt över 1500 dokument på fler än 700 språk, lagligt distribuerade av Crosswire och andra SWORD-kataloger.
  * Det inbyggda stödet för MyBible-, MySword- och EPUB-filer gör att du också kan utöka ditt bibliotek.
 
 Låt oss bygga den bästa bibelappen tillsammans!
@@ -37,7 +37,7 @@ Om du är en professionell mjukvaruingenjör eller testare, överväg gärna att
 
 Understöd genom att köpa apputvecklingstid!
 
-Om du inte har tid eller kunskap för att bidra till projektet kan du också understöda det genom att köpa arbetstid av en professionell utvecklare.
+Om du inte har tid eller kunskap för att bidra till projektet kan du också understödja det genom att köpa arbetstid av en professionell utvecklare.
 
 Se alternativ: https://shop.andbible.org/
 

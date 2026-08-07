@@ -2,8 +2,8 @@
 bookmarks: Signets
 bookmarksAndNotes: Mes signets et mes notes
 openMyNotes: Ouvrir dans Mes notes
-openStudyPad: "Ouvrir le bloc-note (%s)"
-noteText: "Notes de bas de page (%s)"
+openStudyPad: Ouvrir le bloc-note (%s)
+noteText: Notes de bas de page (%s)
 noteTextWithoutType: Note de bas de page
 crossReferenceText: Références croisées
 findAllOccurrences: Trouver toutes les occurrences
@@ -16,44 +16,46 @@ footnoteTypeExplanation: Explication
 footnoteTypeVariant: Variante
 footnoteTypeAlternative: Alternative
 footnoteTypeTranslation: Traduction
-clearLog: "Supprimer le journal d'erreur"
+clearLog: Supprimer le journal d'erreur
 editTextPlaceholder: Tapez pour éditer le texte
 myDocumentEdit: Modifier la page
 myDocumentEmptyPlaceholder: Appuyez pour commencer à modifier cette page
 inputPlaceholder: Écrire ici
 inputReference: Entrer les références bibliques
 invalidReference: Verset non trouvé
-bookmarkAccurate: "Le signet a été créé dans %s"
+bookmarkAccurate: Le signet a été créé dans %s
 bookmarkInaccurate: "Les informations sur le livre de signets ne sont pas enregistrées, le contenu est affiché dans %s."
 defaultBook: Bible par defaut
 ok: OK
 yes: "Oui"
-ambiguousSelection: Quelle action voulez-vous accomplir ?
+ambiguousSelection: "Quelle action voulez-vous accomplir ?"
 cancel: Annuler
-removeBookmarkConfirmationTitle: Supprimer le signet ?
-removeBookmarkConfirmation: Êtes-vous certain de vouloir supprimer ce signet ?
+removeBookmarkConfirmationTitle: "Supprimer le signet ?"
+removeBookmarkConfirmation: "Êtes-vous certain de vouloir supprimer ce signet ?"
 createdAt: "Créé : %s"
 lastUpdatedOn: "Dernière mise à jour : %s"
-strongsAndMorph: "Définition & morphologie"
+strongsAndMorph: Définition & morphologie
 externalLink: Ouvrir un lien externe
 referenceLink: Ouvrir un lien de référence
 openFootnote: Ouvrir une note de bas de page
 noMyNotesTitle: Pas Mes notes pour ce chapitre.
-noMyNotesDescription: Commencez par créer des signets dans un document biblique. Les signets apparaîtront ensuite ici et vous pourrez y ajouter vos notes personnelles.
-emptyStudyPad: Bloc-notes vide. Commencez à compléter ce bloc-notes en créant des entrées de texte ici ou en créant des signets avec une étiquette de signet correspondant à ce bloc-notes.
-doYouWantToDeleteEntry: Supprimer cette entrée du bloc-note ?
+noMyNotesDescription: >-
+  Commencez par créer des signets dans un document biblique. Les signets apparaîtront ensuite ici et vous pourrez y ajouter vos notes personnelles.
+emptyStudyPad: >-
+  Bloc-notes vide. Commencez à compléter ce bloc-notes en créant des entrées de texte ici ou en créant des signets avec une étiquette de signet correspondant à ce bloc-notes.
+doYouWantToDeleteEntry: "Supprimer cette entrée du bloc-note ?"
 removeStudyPadConfirmationTitle: "Supprimer l'entrée du bloc-note ?"
 dragHelp: Faites glisser pour réorganiser
 openAll: Ouvrir toutes les références
 editBookmarkPlaceholder: Tapez pour éditer Mes notes pour ce signet
-onlyLabel: "Seulement l'étiquette"
+onlyLabel: Seulement l'étiquette
 wholeBookmark: Tout le signet
 assignLabelsMenuEntry1: Sélectionner ou éditer les étiquettes…
 favouriteLabels: Étiquettes favorites
 recentLabels: Étiquettes récentes
 bookmarkLabels: Étiquettes de signet
-refParserHelp: "Veuillez installer le module %s pour utiliser les références dans des langues autres que l'anglais."
-openDownloads: "Allez dans \"Téléchargements d'extensions"
+refParserHelp: Veuillez installer le module %s pour utiliser les références dans des langues autres que l'anglais.
+openDownloads: Allez dans "Téléchargements d'extensions
 verseShare: Partager
 verseSpeak: Lecture audio
 verseCompare: Comparer
@@ -67,7 +69,7 @@ verseMemorizeLong: Mémoriser des versets bibliques
 addMemorizationTarget: Objectif +
 addMemorizationTargetLong: Définir comme objectif de mémorisation
 removeMemorizationTarget: Objectif -
-removeMemorizationTargetLong: "Supprimer l'objectif de mémorisation"
+removeMemorizationTargetLong: Supprimer l'objectif de mémorisation
 markAsMemorized: Marquer comme mémorisé
 markedAsMemorized: Mémorisé
 removeFromTargets: Objectif -
@@ -77,7 +79,7 @@ readingProgressPercent: "%s%%"
 readingProgressPage: "%s%% · %s/%s"
 readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: Écouter en boucle
-viewHelp: "Voir l'aide"
+viewHelp: Voir l'aide
 verseNoteLong: Écrire une note
 verseParagraphBreakLong: Retour à la ligne
 addBookmark: Signets
@@ -94,10 +96,10 @@ editActionContentLabel: Table des matières
 editActionContentPlaceholder: Entrer du texte pour être ajouter au document…
 experimentalFeatureTitle: Expérimental
 experimentalFeatureHelpTitle: Au sujet des fonctionnalités expérimentales
-experimentalFeatureHelpContent: Les fonctionnalités expérimentales sont de nouveaux ajouts qui sont encore développés et en test. Ils peuvent ne pas fonctionner parfaitement, et peuvent changer significativement, ou être supprimés dans de futures versions.
+experimentalFeatureHelpContent: "Les fonctionnalités expérimentales sont de nouveaux ajouts qui sont encore développés et en test. Ils peuvent ne pas fonctionner parfaitement, et peuvent changer significativement, ou être supprimés dans de futures versions."
 insertParagraphBreak: Insérer un retour à la ligne
 insertSubtitle: Insérer un sous-titre
-xmlParseError: "Erreur d'analyse XML"
+xmlParseError: Erreur d'analyse XML
 invalidTag: Étiquette invalide
 invalidClosingTag: Étiquette de fin invalide
 unmatchedClosingTag: Étiquette de fin non correspondante

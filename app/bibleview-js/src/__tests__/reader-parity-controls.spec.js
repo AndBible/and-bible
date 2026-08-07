@@ -21,12 +21,11 @@ import { useInfiniteScroll } from "@/composables/infinite-scroll";
 
 // Minimal stubs for the dependencies the composable needs. The chapter-navigation
 // capability computeds only read documents[0] and config.infiniteScroll, so the
-// android/scroll collaborators can be inert.
+// android collaborator can be inert.
 const android = {
     requestPreviousChapter: () => Promise.resolve(null),
     requestNextChapter: () => Promise.resolve(null),
 };
-const scroll = { scrollYAtStart: { value: 0 } };
 
 function osisDoc({ bookCategory, isAiDocument }) {
     return { type: "osis", bookCategory, isAiDocument };
@@ -35,7 +34,7 @@ function osisDoc({ bookCategory, isAiDocument }) {
 function setup(documents, infiniteScroll = true) {
     const config = reactive({ infiniteScroll });
     const docs = reactive(documents);
-    return useInfiniteScroll(android, scroll, docs, config);
+    return useInfiniteScroll(android, docs, config);
 }
 
 describe("reader chapter-navigation capability (shared Vue reader path)", () => {

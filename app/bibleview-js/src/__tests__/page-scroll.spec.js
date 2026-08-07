@@ -16,7 +16,13 @@
  */
 
 import {describe, it, expect} from "vitest";
-import {calcHelperLinePositions, calcPageScrollDistance, helperLinePercents} from "@/composables/page-scroll";
+import {
+    calcHelperLinePositions,
+    calcMaxScrollY,
+    calcPageScrollDistance,
+    calcRelativePageNumbers,
+    helperLinePercents,
+} from "@/composables/page-scroll";
 
 // A bible viewport with a 50px reading top margin and one without it, but with
 // the same overall content area between toolbar and bottom bar:
@@ -81,5 +87,69 @@ describe("calcPageScrollDistance", () => {
         const withoutMargin = calcPageScrollDistance(NO_MARGIN.pageHeight, NO_MARGIN.topMargin, 100, 20);
         const withMargin = calcPageScrollDistance(WITH_MARGIN.pageHeight, WITH_MARGIN.topMargin, 100, 20);
         expect(withMargin).toBe(withoutMargin);
+    });
+});
+
+describe("calcRelativePageNumbers", () => {
+    it("counts pages from the top of the loaded content and rounds the total up", () => {
+        // 800px pages, 12100px of scrollable content
+        // → current = 2400/800 = 3, total = ceil(12100/800) = ceil(15.125) = 16
+        expect(calcRelativePageNumbers(2400, 12100, 800)).toEqual({current: 3, total: 16});
+    });
+
+    it("keeps the current page fractional", () => {
+        expect(calcRelativePageNumbers(2000, 12100, 800).current).toBeCloseTo(2.5);
+    });
+
+    it("reports a non-zero current page when the document opens mid-content", () => {
+        // Opening at a verse halfway down the first page must not read as page 0
+        expect(calcRelativePageNumbers(400, 12100, 800).current).toBeCloseTo(0.5);
+    });
+
+    it("reports an exact total without rounding up a whole page", () => {
+        // 12800/800 = 16 exactly — must stay 16, not 17
+        expect(calcRelativePageNumbers(0, 12800, 800).total).toBe(16);
+    });
+
+    it("reports the current page as the last page at the end of the content", () => {
+        const {current, total} = calcRelativePageNumbers(12100, 12100, 800);
+        expect(current).toBeCloseTo(15.125);
+        expect(total).toBe(16);
+    });
+
+    it("reports zero total when the content fits on one screen", () => {
+        // maxScrollY <= 0 means nothing to scroll — the total must not go negative
+        expect(calcRelativePageNumbers(0, 0, 800)).toEqual({current: 0, total: 0});
+        expect(calcRelativePageNumbers(0, -50, 800)).toEqual({current: 0, total: 0});
+    });
+
+    it("returns zeroes instead of NaN/Infinity when the page size is not measured yet", () => {
+        expect(calcRelativePageNumbers(2400, 12100, 0)).toEqual({current: 0, total: 0});
+        expect(calcRelativePageNumbers(2400, 12100, -10)).toEqual({current: 0, total: 0});
+        expect(calcRelativePageNumbers(2400, 12100, NaN)).toEqual({current: 0, total: 0});
+    });
+});
+
+describe("calcMaxScrollY", () => {
+    // contentEnd is the document position where the text ends (#bottom's offsetTop),
+    // so the tall padding below it never counts as pages.
+    it("is the scroll position that brings the end of the text to the bottom edge", () => {
+        expect(calcMaxScrollY(20000, 1000, 0)).toBe(19000);
+    });
+
+    it("stops above a bottom bar so the last line is not hidden behind it", () => {
+        // With a 100px bottom bar the readable area ends 100px higher, so the
+        // end of the text is reached 100px later.
+        expect(calcMaxScrollY(20000, 1000, 100)).toBe(19100);
+    });
+
+    it("is zero when the whole text fits on one screen", () => {
+        expect(calcMaxScrollY(500, 1000, 0)).toBe(0);
+        expect(calcMaxScrollY(1000, 1000, 0)).toBe(0);
+    });
+
+    it("is zero rather than negative when the bottom bar covers more than the text", () => {
+        expect(calcMaxScrollY(200, 1000, 900)).toBe(100);
+        expect(calcMaxScrollY(50, 1000, 900)).toBe(0);
     });
 });

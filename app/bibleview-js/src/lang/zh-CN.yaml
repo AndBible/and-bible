@@ -2,8 +2,8 @@
 bookmarks: 书签
 bookmarksAndNotes: 书签与我的笔记
 openMyNotes: 在我的笔记中打开
-openStudyPad: "在学习笔记中打开（%s）"
-noteText: "脚注（%s）"
+openStudyPad: 在学习笔记中打开（%s）
+noteText: 脚注（%s）
 noteTextWithoutType: 脚注
 crossReferenceText: 交叉参考
 findAllOccurrences: 查找所有出现处
@@ -23,8 +23,8 @@ myDocumentEmptyPlaceholder: 点击开始编辑此页面
 inputPlaceholder: 在此输入
 inputReference: 输入圣经参考
 invalidReference: 未找到经文
-bookmarkAccurate: "书签已在 %s 中创建"
-bookmarkInaccurate: "书签书卷信息未保存，内容显示于 %s。"
+bookmarkAccurate: 书签已在 %s 中创建
+bookmarkInaccurate: 书签书卷信息未保存，内容显示于 %s。
 defaultBook: 默认圣经文档
 ok: 确定
 yes: "是"
@@ -39,8 +39,10 @@ externalLink: 打开外部链接
 referenceLink: 打开参考链接
 openFootnote: 打开脚注
 noMyNotesTitle: 本章没有我的笔记。
-noMyNotesDescription: 在圣经文档中创建书签即可开始。书签将显示于此处，您可以为其添加个人笔记。
-emptyStudyPad: 学习笔记为空。在此创建文字条目或创建带有对应标签的书签，即可开始添加内容。
+noMyNotesDescription: >-
+  在圣经文档中创建书签即可开始。书签将显示于此处，您可以为其添加个人笔记。
+emptyStudyPad: >-
+  学习笔记为空。在此创建文字条目或创建带有对应标签的书签，即可开始添加内容。
 doYouWantToDeleteEntry: 删除此学习笔记条目？
 removeStudyPadConfirmationTitle: 删除学习笔记条目？
 dragHelp: 拖动以重新排序
@@ -52,7 +54,7 @@ assignLabelsMenuEntry1: 选择或编辑标签…
 favouriteLabels: 常用标签
 recentLabels: 最近标签
 bookmarkLabels: 书签标签
-refParserHelp: "请安装 %s 模块以使用英文以外语言的参考。"
+refParserHelp: 请安装 %s 模块以使用英文以外语言的参考。
 openDownloads: 前往附加组件下载
 verseShare: 分享
 verseSpeak: 朗读

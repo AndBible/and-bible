@@ -66,10 +66,9 @@
     <div class="pagenumber"
          :style="{bottom: pageNumberBottom}"
          v-if="config.showPageNumber"
-         @click="resetPageNumber()"
     >
       <div class="pagenumber-text">
-        {{ pageNumber }}
+        {{ pageNumber }}/{{ pageCount }}
       </div>
     </div>
     <ReadingProgress v-if="config.showReadingProgress" :text="progressText" :bottom="readingProgressBottom"/>
@@ -110,7 +109,7 @@
       @navigate-prev="android.goToPreviousChapter"
       @navigate-next="android.goToNextChapter"
     />
-    <div id="bottom"/>
+    <div id="bottom" ref="bottomElement"/>
   </div>
 </template>
 <script lang="ts" setup>
@@ -152,7 +151,7 @@ import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
 import {black, useConfig, white} from "@/composables/config";
-import {calcHelperLinePositions, calcPageScrollDistance} from "@/composables/page-scroll";
+import {calcHelperLinePositions, calcMaxScrollY, calcPageScrollDistance, calcRelativePageNumbers} from "@/composables/page-scroll";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {useModal} from "@/composables/modal";
 import {useCustomCss} from "@/composables/custom-css";
@@ -189,6 +188,7 @@ const lineHeight = computed(() => {
 const strings = useStrings();
 window.bibleViewDebug.documents = documents;
 const topElement = shallowRef<HTMLElement | null>(null);
+const bottomElement = shallowRef<HTMLElement | null>(null);
 const documentPromise: Ref<Promise<void> | null> = ref(null);
 const verseHighlight = useOrdinalHighlight();
 provide(ordinalHighlightKey, verseHighlight);
@@ -198,7 +198,7 @@ const customCss = useCustomCss();
 provide(customCssKey, customCss);
 
 const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
-const {doScrolling, scrollToId, scrollYAtStart, scrollY} = scroll;
+const {doScrolling, scrollToId, scrollY} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
 const android = useAndroid(globalBookmarks, config);
@@ -219,11 +219,36 @@ const {closeModals, modalOpen} = modal;
 
 const mounted = ref(false);
 
+// End of the text and viewport height, measured for the page-number overlay.
+// #bottom sits right after the text and carries a tall padding so the reader can
+// scroll past the last line, so its offsetTop — not scrollHeight — is where the
+// content actually ends. Kept fresh by a ResizeObserver so the numbers also
+// follow infinite-scroll loading, font/margin changes and rotation.
+const contentEnd = ref(0);
+const viewportHeight = ref(0);
+let contentResizeObserver: ResizeObserver | null = null;
+
+function updateContentMetrics() {
+    contentEnd.value = bottomElement.value?.offsetTop ?? document.documentElement.scrollHeight;
+    viewportHeight.value = window.innerHeight;
+}
+
+const maxScrollY = computed(() =>
+    calcMaxScrollY(contentEnd.value, viewportHeight.value, appSettings.bottomOffset)
+);
+
 onMounted(() => {
     mounted.value = true;
+    updateContentMetrics();
+    contentResizeObserver = new ResizeObserver(updateContentMetrics);
+    contentResizeObserver.observe(document.documentElement);
     console.log("BibleView mounted");
 })
-onUnmounted(() => mounted.value = false)
+onUnmounted(() => {
+    mounted.value = false;
+    contentResizeObserver?.disconnect();
+    contentResizeObserver = null;
+})
 
 const {currentVerse, currentKey} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll, lineHeight);
 const {progressText} = useReadingProgress(config, documents as ProgressDoc[], currentVerse, currentKey, calculatedConfig, topElement, strings);
@@ -240,7 +265,7 @@ const {
     documentSupportsChapterNavigation,
     infiniteScrollIsEnabled,
     reachedEnd
-} = useInfiniteScroll(android, scroll, documents, config);
+} = useInfiniteScroll(android, documents, config);
 
 const showChapterNavButtons = computed(() => {
     return documentSupportsChapterNavigation.value && !infiniteScrollIsEnabled.value;
@@ -462,14 +487,11 @@ const readingProgressBottom = computed(() => {
     return config.showPageNumber ? `calc(${base} + 0.7cm)` : base;
 });
 
-const pageNumber = computed(() => {
-    const num = (scrollY.value - scrollYAtStart.value) / scrollAmount.value;
-    return num.toFixed(1);
-});
-
-function resetPageNumber() {
-    scrollYAtStart.value = scrollY.value
-}
+const pageNumbers = computed(() =>
+    calcRelativePageNumbers(scrollY.value, maxScrollY.value, scrollAmount.value)
+);
+const pageNumber = computed(() => pageNumbers.value.current.toFixed(1));
+const pageCount = computed(() => pageNumbers.value.total);
 
 setupEventBusListener("scroll_down", () => scrollUpDown());
 setupEventBusListener("scroll_up", () => scrollUpDown(true));
@@ -748,7 +770,10 @@ a {
   right: 2mm;
   margin-bottom: 2mm;
   bottom: 0;
-  width: 1cm;
+  // The label holds "current/total", so it grows leftwards with the page count
+  // instead of the text spilling out of a fixed-width pill.
+  min-width: 1cm;
+  padding: 0 1mm;
   height: 0.5cm;
   font-size: 70%;
   font-weight: bold;
@@ -761,12 +786,11 @@ a {
     border-color: var(--text-color);
   }
   border-radius: 0.5cm;
+  display: flex;
+  align-items: center;
   justify-content: center;
   .pagenumber-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    white-space: nowrap;
   }
 }
 

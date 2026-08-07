@@ -2,8 +2,8 @@
 bookmarks: Marcadores
 bookmarksAndNotes: Marcadores e Minhas Notas
 openMyNotes: Abrir nas Minhas Notas
-openStudyPad: "Abrir na Área de Estudo (%s)"
-noteText: "Notas de rodapé (%s)"
+openStudyPad: Abrir na Área de Estudo (%s)
+noteText: Notas de rodapé (%s)
 noteTextWithoutType: Notas de rodapé
 crossReferenceText: Referências cruzadas
 findAllOccurrences: Encontrar todas as ocorrências
@@ -23,15 +23,15 @@ myDocumentEmptyPlaceholder: Toque para começar a editar esta página
 inputPlaceholder: Escreva aqui
 inputReference: Introduza a referência Bíblica
 invalidReference: Não foi encontrado o versículo
-bookmarkAccurate: "O marcador foi criado em %s"
+bookmarkAccurate: O marcador foi criado em %s
 bookmarkInaccurate: "A informação sobre o marcador não foi guardada, o conteúdo é mostrado em %s"
 defaultBook: Documento Bíblico padrão
 ok: OK
 yes: "Sim"
-ambiguousSelection: Qual a ação que deseja realizar?
+ambiguousSelection: "Qual a ação que deseja realizar?"
 cancel: Cancelar
-removeBookmarkConfirmationTitle: Remover marcador?
-removeBookmarkConfirmation: Tem a certeza que quer remover este marcador?
+removeBookmarkConfirmationTitle: "Remover marcador?"
+removeBookmarkConfirmation: "Tem a certeza que quer remover este marcador?"
 createdAt: "Criado %s"
 lastUpdatedOn: "Última atualização %s"
 strongsAndMorph: Definição e morfologia
@@ -39,10 +39,12 @@ externalLink: Abrir link externo
 referenceLink: Abrir link de referência
 openFootnote: Abrir nota de rodapé
 noMyNotesTitle: Não existem Minhas Notas para este capítulo
-noMyNotesDescription: Comece por criar marcadores num documento da Bíblia. Os marcadores irão aparecer aqui e pode adicionar-lhes as suas notas pessoais.
-emptyStudyPad: A área de estudo está vazia. Comece a adicionar a esta área de estudo, criando entradas de texto aqui ou criando marcadores com uma etiqueta de marcador que corresponda a esta área de estudo.
-doYouWantToDeleteEntry: Apagar esta entrada na área de estudo?
-removeStudyPadConfirmationTitle: Remover esta entrada na área de estudo?
+noMyNotesDescription: >-
+  Comece por criar marcadores num documento da Bíblia. Os marcadores irão aparecer aqui e pode adicionar-lhes as suas notas pessoais.
+emptyStudyPad: >-
+  A área de estudo está vazia. Comece a adicionar a esta área de estudo, criando entradas de texto aqui ou criando marcadores com uma etiqueta de marcador que corresponda a esta área de estudo.
+doYouWantToDeleteEntry: "Apagar esta entrada na área de estudo?"
+removeStudyPadConfirmationTitle: "Remover esta entrada na área de estudo?"
 dragHelp: Arraste para reorganizar
 openAll: Abrir todas as referências
 editBookmarkPlaceholder: Toque para editar As Minhas Notas para este marcador
@@ -52,7 +54,7 @@ assignLabelsMenuEntry1: Selecionar ou editar etiquetas...
 favouriteLabels: Etiquetas favoritas
 recentLabels: Etiquetas recentes
 bookmarkLabels: Etiquetas de marcador
-refParserHelp: "Por favor instale o módulo %s para usar referências noutros idiomas além do Inglês."
+refParserHelp: Por favor instale o módulo %s para usar referências noutros idiomas além do Inglês.
 openDownloads: Ir para downloads de Complementos
 verseShare: Partilhar
 verseSpeak: Fale

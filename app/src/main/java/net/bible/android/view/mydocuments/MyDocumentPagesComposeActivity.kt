@@ -189,7 +189,11 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
     private fun openPage(id: Long) {
         val page = entityByLong[id] ?: return
         // Classic offers a save-changes prompt here; the auto-save-on-leave contract auto-saves instead.
+        // Mirror of classic [MyDocumentPagesActivity.returnWithPage]'s refreshBook: MainBibleActivity
+        // resolves the returned pageKey against the SWORD book's key map, which is a snapshot, so it
+        // has to be rebuilt before returning. applyChanges() (via save()) already does it.
         if (controller.dirty.value) controller.save()
+        else MyDocumentBookManager.refreshDocument(documentInitials)
         resultIntent.putExtra("documentInitials", documentInitials)
         resultIntent.putExtra("pageKey", page.pageKey)
         finishOk()

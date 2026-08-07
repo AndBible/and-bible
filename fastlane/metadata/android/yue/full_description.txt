@@ -13,7 +13,7 @@ Developed by Bible readers, for Bible readers — a non-profit, open-source comm
  * 分割視窗可以幫助比較譯本同參考註解
  * 工作區可以自定研經嘅環境
  * Strong's 參考方便查找希臘文及希伯來文分析
- * Tap any link to follow hyperlinked cross-references, footnotes, and commentaries (Gill、Matthew Henry之類) or cross-reference collections (Treasure of Scripture Knowledge, TSKe).
+ * 撳任何連結就可以跳去交叉參考、註腳同註解（Gill、Matthew Henry之類），或者交叉參考集（Treasure of Scripture Knowledge, TSKe）。
  * Optional AI study agent (opt-in only — requires your own API key for an external service): explore your installed commentaries and dictionaries with AI assistance in your chosen language, plus other creative study workflows. A built-in permission system keeps you in full control of what the agent can do.
  * Flexible full-text search across one or many Bible translations simultaneously
  * 包括個人筆記的書籤及醒目提示

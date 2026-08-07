@@ -13,7 +13,7 @@ Developed by Bible readers, for Bible readers — a non-profit, open-source comm
  * Аудармаларды салыстыруға және түсіндірмелер арқылы кеңес алуға мүмкіндік беретін мәтіндік көріністерге бөлу
  * Қолданбаның жұмыс кеңістігі Киелі кітапты зерттеуде бірнеше реттеулерді орнатуға және олармен қолдануға мүмкіндіктер береді
  * Strong интеграциясы грек және еврей сөздерін талдауға мүмкіндік береді
- * Tap any link to follow hyperlinked cross-references, footnotes, and commentaries (Гилл, Мэттью Генри және т.б.) or cross-reference collections (Жазбалар туралы білімнің қазынасы, TSKe).
+ * Айқас сілтемелерге, ескертпелерге және түсіндірмелерге (Гилл, Мэттью Генри және т.б.) немесе айқас сілтемелер жинақтарына (Жазбалар туралы білімнің қазынасы, TSKe) өту үшін кез келген сілтемені түртіңіз.
  * Optional AI study agent (opt-in only — requires your own API key for an external service): explore your installed commentaries and dictionaries with AI assistance in your chosen language, plus other creative study workflows. A built-in permission system keeps you in full control of what the agent can do.
  * Flexible full-text search across one or many Bible translations simultaneously
  * Жетілдірілген белгілеулер мен ерекшелеулерді жеке зерттеу жазбаларында қолдану

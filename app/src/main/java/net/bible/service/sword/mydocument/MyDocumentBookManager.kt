@@ -95,57 +95,62 @@ object MyDocumentBookManager {
         get() = registeredBooks.keys.toSet()
 
     init {
-        /*
-         * Handle sync event: re-register all documents and refresh only the
-         * BibleView windows that display documents affected by the sync.
-         *
-         * Must run on the main thread (onMain) because SwordGenBook
-         * and the JSword Activator are not thread-safe. Running clear() +
-         * registerAllDocuments() on a background thread causes a race condition
-         * where the main thread sees a newly registered book whose internal
-         * key map hasn't been activated yet, leading to NPE in getKey().
-         */
         ABEventBus.register(this) {
-            onMain<MyDocumentsUpdatedViaSyncEvent> { e ->
-                val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-                val affectedInitials = mutableSetOf<String>()
-                var refreshAll = false
+            onMain<MyDocumentsUpdatedViaSyncEvent> { e -> handleSyncEvent(e) }
+        }
+    }
 
-                val documentIds = mutableListOf<IdType>()
-                val pageIds = mutableListOf<IdType>()
+    /**
+     * Handle sync event: bring registrations in line with the database and
+     * refresh only the BibleView windows that display documents affected by
+     * the sync.
+     *
+     * Must run on the main thread (it is subscribed with [onMain]) because
+     * SwordGenBook and the JSword Activator are not thread-safe. Running the
+     * registration refresh on a background thread causes a race condition where
+     * the main thread sees a newly registered book whose internal key map hasn't
+     * been activated yet, leading to NPE in getKey().
+     *
+     * Internal rather than a lambda body so tests can drive it directly instead
+     * of going through the (main-dispatcher) event bus.
+     */
+    internal fun handleSyncEvent(e: MyDocumentsUpdatedViaSyncEvent) {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val affectedInitials = mutableSetOf<String>()
+        var refreshAll = false
 
-                for (entry in e.updated) {
-                    when (entry.tableName) {
-                        "MyDocument" -> documentIds.add(entry.entityId1)
-                        "MyDocumentPage" -> {
-                            pageIds.add(entry.entityId1)
-                            // Deleted pages are already gone from DB — can't resolve parent document
-                            if (entry.type == LogEntryTypes.DELETE) refreshAll = true
-                        }
-                        "MyDocumentPageContent", "AiPageCacheEntry" -> {
-                            pageIds.add(entry.entityId1)
-                        }
-                    }
+        val documentIds = mutableListOf<IdType>()
+        val pageIds = mutableListOf<IdType>()
+
+        for (entry in e.updated) {
+            when (entry.tableName) {
+                "MyDocument" -> documentIds.add(entry.entityId1)
+                "MyDocumentPage" -> {
+                    pageIds.add(entry.entityId1)
+                    // Deleted pages are already gone from DB — can't resolve parent document
+                    if (entry.type == LogEntryTypes.DELETE) refreshAll = true
                 }
-
-                if (documentIds.isNotEmpty()) {
-                    affectedInitials.addAll(dao.initialsByIds(documentIds))
+                "MyDocumentPageContent", "AiPageCacheEntry" -> {
+                    pageIds.add(entry.entityId1)
                 }
-                if (pageIds.isNotEmpty()) {
-                    affectedInitials.addAll(dao.initialsByPageIds(pageIds))
-                }
-
-                clear()
-                registerAllDocuments()
-
-                val initialsToRefresh = if (refreshAll) registeredInitials else affectedInitials
-                for (initials in initialsToRefresh) {
-                    SwordContentFacade.evictBook(initials)
-                    ABEventBus.post(MyDocumentUpdatedEvent(initials))
-                }
-                Log.i(TAG, "Sync update: refreshed ${initialsToRefresh.size} MyDocuments (refreshAll=$refreshAll)")
             }
         }
+
+        if (documentIds.isNotEmpty()) {
+            affectedInitials.addAll(dao.initialsByIds(documentIds))
+        }
+        if (pageIds.isNotEmpty()) {
+            affectedInitials.addAll(dao.initialsByPageIds(pageIds))
+        }
+
+        refreshRegistrations()
+
+        val initialsToRefresh = if (refreshAll) registeredInitials else affectedInitials
+        for (initials in initialsToRefresh) {
+            SwordContentFacade.evictBook(initials)
+            ABEventBus.post(MyDocumentUpdatedEvent(initials))
+        }
+        Log.i(TAG, "Sync update: refreshed ${initialsToRefresh.size} MyDocuments (refreshAll=$refreshAll)")
     }
 
     /**
@@ -161,6 +166,59 @@ object MyDocumentBookManager {
             registerDocument(document)
         }
         Log.i(TAG, "Registered ${documents.size} MyDocuments")
+    }
+
+    /**
+     * Bring the registered books in line with the database after an external
+     * change (currently: cloud sync).
+     *
+     * Books that are still present are re-activated in place rather than
+     * replaced. Windows, the history stack and CurrentPage all hold direct
+     * references to the SwordGenBook instance they were opened with, so
+     * swapping in a fresh instance leaves those references pointing at a book
+     * that has been removed from Books.installed() and deactivated. Keeping
+     * the instance and refreshing its key map keeps every existing reference
+     * valid. This mirrors what [refreshDocument] does for local edits.
+     *
+     * A document whose name changed cannot be refreshed in place because the
+     * name is baked into the SWORD conf, so those are re-created.
+     */
+    private fun refreshRegistrations() {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val documents = dao.allDocuments()
+        val currentInitials = documents.map { it.initials }.toSet()
+
+        for (initials in registeredBooks.keys.toList()) {
+            if (initials !in currentInitials) {
+                unregisterDocument(initials)
+            }
+        }
+
+        for (document in documents) {
+            val book = registeredBooks[document.initials]
+            when {
+                book == null -> registerDocument(document)
+                book.bookMetaData.name != document.name -> {
+                    unregisterDocument(document.initials)
+                    registerDocument(document)
+                }
+                else -> reactivate(book)
+            }
+        }
+        Log.i(TAG, "Refreshed registrations: ${documents.size} MyDocuments")
+    }
+
+    /**
+     * Rebuild a book's internal key map from the current database contents.
+     *
+     * The map is built once in SwordGenBook.activate() and cached until the
+     * book is deactivated, so it must be explicitly rebuilt whenever pages are
+     * added, removed or renamed. Otherwise getKey() throws NoSuchKeyException
+     * for pages that do exist.
+     */
+    private fun reactivate(book: SwordGenBook) {
+        Activator.deactivate(book)
+        Activator.activate(book)
     }
 
     /**
@@ -220,12 +278,7 @@ object MyDocumentBookManager {
     fun refreshDocument(initials: String) {
         val book = registeredBooks[initials]
         if (book != null) {
-            // Force re-activation of existing book so its internal key map
-            // (built from readIndex()) reflects the current database state.
-            // This avoids creating a new SwordGenBook instance, which causes
-            // stale Activator entries and null key maps.
-            Activator.deactivate(book)
-            Activator.activate(book)
+            reactivate(book)
         } else {
             // Book not registered yet — register it
             val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()

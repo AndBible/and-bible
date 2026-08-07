@@ -2,8 +2,8 @@
 bookmarks: Järjehoidjad
 bookmarksAndNotes: Järjehoidjad ja minu märkmed
 openMyNotes: Ava minu märkmetes
-openStudyPad: "Ava õppetükis (%s)"
-noteText: "Allmärkused (%s)"
+openStudyPad: Ava õppetükis (%s)
+noteText: Allmärkused (%s)
 noteTextWithoutType: Allmärkused
 crossReferenceText: Ristviited
 findAllOccurrences: Leia kõik esinemised
@@ -19,7 +19,7 @@ footnoteTypeTranslation: Tõlge
 clearLog: Puhasta vealogi
 editTextPlaceholder: Puuduta teksti lisamiseks
 myDocumentEdit: Muuda lehte
-myDocumentEmptyPlaceholder: Puuduta, et alustada selle lehe muutmist
+myDocumentEmptyPlaceholder: "Puuduta, et alustada selle lehe muutmist"
 inputPlaceholder: Kirjuta siia
 inputReference: Sisesta Piibli kirjakoht
 invalidReference: Salmi ei leitud
@@ -28,10 +28,10 @@ bookmarkInaccurate: "Järjehoidja raamatut  ei ole, sisu näidatakse %s."
 defaultBook: vaikimisi Piibli dokument
 ok: OK
 yes: "Jah"
-ambiguousSelection: Millist tegevust soovid teha?
+ambiguousSelection: "Millist tegevust soovid teha?"
 cancel: Loobu
-removeBookmarkConfirmationTitle: Kustuta järjehoidja?
-removeBookmarkConfirmation: Kas oled kindel, et soovid seda järjehoidjat kustutada?
+removeBookmarkConfirmationTitle: "Kustuta järjehoidja?"
+removeBookmarkConfirmation: "Kas oled kindel, et soovid seda järjehoidjat kustutada?"
 createdAt: "Loodud: %s"
 lastUpdatedOn: "Viimati uuendatud: %s"
 strongsAndMorph: Definisioon ja morfoloogia
@@ -39,9 +39,11 @@ externalLink: Ava väline link
 referenceLink: Ava viide
 openFootnote: Ava allmärkus
 noMyNotesTitle: Selle peatüki kohta märkmeid pole
-noMyNotesDescription: Alusta sellest, et lisad järjehoidjad Piibli teksti kohta. Järjehoidjad ilmuvad siis siia ja sa saad neile lisada oma märkmed.
-emptyStudyPad: Tühi õppetükk. Lisa siia õppetükki kommentaare ja järjehoidjaid, mille silt langeb õppetükiga kokku.
-doYouWantToDeleteEntry: Kas kustutada õppetüki sissekanne?
+noMyNotesDescription: >-
+  Alusta sellest, et lisad järjehoidjad Piibli teksti kohta. Järjehoidjad ilmuvad siis siia ja sa saad neile lisada oma märkmed.
+emptyStudyPad: >-
+  Tühi õppetükk. Lisa siia õppetükki kommentaare ja järjehoidjaid, mille silt langeb õppetükiga kokku.
+doYouWantToDeleteEntry: "Kas kustutada õppetüki sissekanne?"
 removeStudyPadConfirmationTitle: Õppetüki sissekande kustutamine
 dragHelp: Lohista järjekorra muutmiseks
 openAll: Ava kõik viited
@@ -94,7 +96,7 @@ editActionContentLabel: Sisu
 editActionContentPlaceholder: Sisesta dokumendile lisatav tekst...
 experimentalFeatureTitle: Eksperimentaalne
 experimentalFeatureHelpTitle: Eksperimentaalsete funktsioonide kohta
-experimentalFeatureHelpContent: Eksperimentaalsed funktsioonid on uued võimalused, mida veel arendatakse ja testatakse. Need ei pruugi täiuslikult töötada ning võivad tulevaste rakenduse versioonidega oluliselt muutuda või eemaldatakse.
+experimentalFeatureHelpContent: "Eksperimentaalsed funktsioonid on uued võimalused, mida veel arendatakse ja testatakse. Need ei pruugi täiuslikult töötada ning võivad tulevaste rakenduse versioonidega oluliselt muutuda või eemaldatakse."
 insertParagraphBreak: Lisa lõigu vahe
 insertSubtitle: Lisa alapealkiri
 xmlParseError: XML parsimise viga
@@ -108,7 +110,7 @@ wordScramble: Sassi aetud sõnad
 wordType: Tüüp
 wordOrder: Järjekord
 typeEverything: Sisesta täielikud sõnad
-tapToStartTyping: Puuduta siin, et alustada kirjutamist
+tapToStartTyping: "Puuduta siin, et alustada kirjutamist"
 wordVisibility: Sõnade nähtavus
 wordVisibilityLight: Kerge
 wordVisibilityDim: Hämar

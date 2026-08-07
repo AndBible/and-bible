@@ -1,9 +1,9 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Lesezeichen
-bookmarksAndNotes: "Lesezeichen & eigene Notizen"
+bookmarksAndNotes: Lesezeichen & eigene Notizen
 openMyNotes: in meinen eigenen Notizen öffnen
-openStudyPad: "Öffne in der Studienmappe (%s)"
-noteText: "Fußnoten (%s)"
+openStudyPad: Öffne in der Studienmappe (%s)
+noteText: Fußnoten (%s)
 noteTextWithoutType: Fußnoten
 crossReferenceText: Querverweise
 findAllOccurrences: Finde alle Vorkommen
@@ -19,19 +19,19 @@ footnoteTypeTranslation: Übersetzung
 clearLog: Lösche Fehlerprotokoll
 editTextPlaceholder: Antippen um Text zu bearbeiten
 myDocumentEdit: Seite bearbeiten
-myDocumentEmptyPlaceholder: Tippen Sie hier, um diese Seite zu bearbeiten
+myDocumentEmptyPlaceholder: "Tippen Sie hier, um diese Seite zu bearbeiten"
 inputPlaceholder: Hier schreiben
 inputReference: Querverweis einfügen
 invalidReference: Vers wurde nicht gefunden
-bookmarkAccurate: "Lesezeichen wurde in %s erstellt"
+bookmarkAccurate: Lesezeichen wurde in %s erstellt
 bookmarkInaccurate: "Lesezeicheninformation wurde nicht gespeichert, der Inhalt wird in %s angezeigt."
 defaultBook: Standard-Bibeldokument
 ok: OK
 yes: "Ja"
 ambiguousSelection: Welche Aktion möchtest du durchführen
 cancel: Abbrechen
-removeBookmarkConfirmationTitle: Lesezeichen entfernen?
-removeBookmarkConfirmation: Bist du sicher, dass du dieses Lesezeichen entfernen möchtest?
+removeBookmarkConfirmationTitle: "Lesezeichen entfernen?"
+removeBookmarkConfirmation: "Bist du sicher, dass du dieses Lesezeichen entfernen möchtest?"
 createdAt: "Erstellt: %s"
 lastUpdatedOn: "Zuletzt aktualisiert: %s"
 strongsAndMorph: Begriffserklärungen und Morphologie
@@ -39,10 +39,12 @@ externalLink: Externe Verknüpfung öffnen
 referenceLink: Querverweis öffnen
 openFootnote: Fußnote öffnen
 noMyNotesTitle: Keine eigenen Notizen für dieses Kapitel.
-noMyNotesDescription: Erstellen Sie zunächst Lesezeichen in einem Bibeldokument. Die Lesezeichen erscheinen dann hier und Sie können Ihre persönlichen Notizen hinzufügen.
-emptyStudyPad: Leerer Studienblock. Beginnen Sie, indem Sie hier Texteinträge erstellen oder Lesezeichen mit einer Kategorie erstellen, die diesem Studienblock entspricht.
-doYouWantToDeleteEntry: Diesen Studienmappeneintrag löschen?
-removeStudyPadConfirmationTitle: Studienmappeneintrag entfernen?
+noMyNotesDescription: >-
+  Erstellen Sie zunächst Lesezeichen in einem Bibeldokument. Die Lesezeichen erscheinen dann hier und Sie können Ihre persönlichen Notizen hinzufügen.
+emptyStudyPad: >-
+  Leerer Studienblock. Beginnen Sie, indem Sie hier Texteinträge erstellen oder Lesezeichen mit einer Kategorie erstellen, die diesem Studienblock entspricht.
+doYouWantToDeleteEntry: "Diesen Studienmappeneintrag löschen?"
+removeStudyPadConfirmationTitle: "Studienmappeneintrag entfernen?"
 dragHelp: Zum Umordnen Ziehen
 openAll: Öffne alle Querverweise
 editBookmarkPlaceholder: Tippen um die eigene Notiz für dieses Lesezeichen zu bearbeiten
@@ -52,7 +54,7 @@ assignLabelsMenuEntry1: Kategorie auswählen oder bearbeiten...
 favouriteLabels: Lieblingskategorien
 recentLabels: Kürzliche Kategorien
 bookmarkLabels: Lesezeichenkategorien
-refParserHelp: "Bitte installiere Modul %s um Querverweise in anderen Sprachen als Englisch zu verwenden."
+refParserHelp: Bitte installiere Modul %s um Querverweise in anderen Sprachen als Englisch zu verwenden.
 openDownloads: Zu Add-on Download gehen
 verseShare: Teilen
 verseSpeak: Vorlesen
@@ -91,10 +93,10 @@ editActionModeNone: Keine
 editActionModeAppend: Text anhängen
 editActionModePrepend: Text voranstellen
 editActionContentLabel: Inhalt
-editActionContentPlaceholder: Text eingeben, der dem Dokument hinzugefügt werden soll...
+editActionContentPlaceholder: "Text eingeben, der dem Dokument hinzugefügt werden soll..."
 experimentalFeatureTitle: Experimentell
 experimentalFeatureHelpTitle: Über experimentelle Funktionen
-experimentalFeatureHelpContent: Experimentelle Funktionen sind neue Möglichkeiten, die sich noch in der Entwicklung und im Test befinden. Sie funktionieren möglicherweise nicht einwandfrei und können sich in zukünftigen App-Versionen erheblich ändern oder entfernt werden.
+experimentalFeatureHelpContent: "Experimentelle Funktionen sind neue Möglichkeiten, die sich noch in der Entwicklung und im Test befinden. Sie funktionieren möglicherweise nicht einwandfrei und können sich in zukünftigen App-Versionen erheblich ändern oder entfernt werden."
 insertParagraphBreak: Absatzumbruch einfügen
 insertSubtitle: Untertitel einfügen
 xmlParseError: XML-Analysefehler
@@ -108,7 +110,7 @@ wordScramble: Durchmischen
 wordType: Typ
 wordOrder: Reihenfolge
 typeEverything: Vollständige Wörter eingeben
-tapToStartTyping: Hier tippen, um zu beginnen
+tapToStartTyping: "Hier tippen, um zu beginnen"
 wordVisibility: Wortsichtbarkeit
 wordVisibilityLight: Hell
 wordVisibilityDim: Gedimmt
