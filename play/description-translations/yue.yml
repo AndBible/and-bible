@@ -17,7 +17,8 @@ feature_01: 分割視窗可以幫助比較譯本同參考註解
 feature_02: 工作區可以自定研經嘅環境
 feature_03: Strong's 參考方便查找希臘文及希伯來文分析
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
-feature_04: ""
+feature_04: >
+  撳任何連結就可以跳去交叉參考、註腳同註解（{{commentary_examples}}），或者交叉參考集（{{cross_reference_examples}}）。
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
 commentary_examples: Gill、Matthew Henry之類
