@@ -74,6 +74,10 @@ function scrollToTitle() {
 </script>
 
 <style lang="scss">
+.titleStyle {
+  color: var(--heading-color, inherit);
+}
+
 .listStyle .titleStyle {
   margin-inline-start: -1em;
 }

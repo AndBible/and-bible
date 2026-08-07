@@ -82,6 +82,13 @@ export type Config = {
         nightBackgroundImage: string | null,
         dayBackgroundImageOpacity: number,
         nightBackgroundImageOpacity: number,
+        dayLinkColor?: number | null,
+        nightLinkColor?: number | null,
+        dayVerseNumberColor?: number | null,
+        nightVerseNumberColor?: number | null,
+        dayHeadingColor?: number | null,
+        nightHeadingColor?: number | null,
+        themeName?: string | null,
     },
 
     hyphenation: boolean,
