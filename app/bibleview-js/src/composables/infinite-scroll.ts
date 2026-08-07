@@ -27,7 +27,6 @@ import {UseAndroid} from "@/composables/android";
 import {AnyDocument, isOsisDocument} from "@/types/documents";
 import {Nullable} from "@/types/common";
 import {BookCategory} from "@/types/client-objects";
-import {UseScroll} from "@/composables/scroll";
 import {Config} from "@/composables/config";
 
 const maxConsecutiveEmptyLoads = 3; // Safety limit
@@ -51,7 +50,6 @@ export function supportsChapterNavigation(documents: AnyDocument[]): boolean {
 
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
-    {scrollYAtStart}: UseScroll,
     bibleViewDocuments: AnyDocument[],
     config: Config,
 ) {
@@ -236,7 +234,6 @@ export function useInfiniteScroll(
 
             // do no try to get scrollPosition here because it has not settled
             const adjustedTop = origPosition - priorHeight + bodyHeight();
-            scrollYAtStart.value += adjustedTop;
             setScrollPosition(adjustedTop);
         }
     }
