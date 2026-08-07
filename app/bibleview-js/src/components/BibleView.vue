@@ -69,7 +69,7 @@
          @click="resetPageNumber()"
     >
       <div class="pagenumber-text">
-        {{ pageNumber }}
+        {{ pageNumber }}/{{ pageCount }}
       </div>
     </div>
     <ReadingProgress v-if="config.showReadingProgress" :text="progressText" :bottom="readingProgressBottom"/>
@@ -152,7 +152,7 @@ import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
 import {black, useConfig, white} from "@/composables/config";
-import {calcHelperLinePositions, calcPageScrollDistance} from "@/composables/page-scroll";
+import {calcHelperLinePositions, calcPageScrollDistance, calcRelativePageNumbers} from "@/composables/page-scroll";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {useModal} from "@/composables/modal";
 import {useCustomCss} from "@/composables/custom-css";
@@ -219,11 +219,28 @@ const {closeModals, modalOpen} = modal;
 
 const mounted = ref(false);
 
+// Largest scrollable position, i.e. the scroll position at the very end of the
+// currently loaded content. Kept fresh by a ResizeObserver so it also follows
+// infinite-scroll loading, font/margin changes and rotation — not just scrolling.
+const maxScrollY = ref(0);
+let contentResizeObserver: ResizeObserver | null = null;
+
+function updateMaxScrollY() {
+    maxScrollY.value = document.documentElement.scrollHeight - window.innerHeight;
+}
+
 onMounted(() => {
     mounted.value = true;
+    updateMaxScrollY();
+    contentResizeObserver = new ResizeObserver(updateMaxScrollY);
+    contentResizeObserver.observe(document.documentElement);
     console.log("BibleView mounted");
 })
-onUnmounted(() => mounted.value = false)
+onUnmounted(() => {
+    mounted.value = false;
+    contentResizeObserver?.disconnect();
+    contentResizeObserver = null;
+})
 
 const {currentVerse, currentKey} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll, lineHeight);
 const {progressText} = useReadingProgress(config, documents as ProgressDoc[], currentVerse, currentKey, calculatedConfig, topElement, strings);
@@ -462,10 +479,11 @@ const readingProgressBottom = computed(() => {
     return config.showPageNumber ? `calc(${base} + 0.7cm)` : base;
 });
 
-const pageNumber = computed(() => {
-    const num = (scrollY.value - scrollYAtStart.value) / scrollAmount.value;
-    return num.toFixed(1);
-});
+const pageNumbers = computed(() =>
+    calcRelativePageNumbers(scrollY.value, scrollYAtStart.value, maxScrollY.value, scrollAmount.value)
+);
+const pageNumber = computed(() => pageNumbers.value.current.toFixed(1));
+const pageCount = computed(() => pageNumbers.value.total);
 
 function resetPageNumber() {
     scrollYAtStart.value = scrollY.value
