@@ -2,12 +2,12 @@
 bookmarks: Boekmerke
 bookmarksAndNotes: "Boekmerke & my notas "
 openMyNotes: Maak oop in My Notas
-openStudyPad: "Open in Studie blok (%s)"
-noteText: "Voet Notas (%s)"
+openStudyPad: Open in Studie blok (%s)
+noteText: Voet Notas (%s)
 noteTextWithoutType: Voet Notas
 crossReferenceText: Kruis verwysings
 findAllOccurrences: Vind alle gebeurtenisse
-reportError: "Rapporteer 'n fout"
+reportError: Rapporteer 'n fout
 errorTitle: "'n Fout het ontstaan"
 warningTitle: Waarskuwing
 normalTitle: Neem asseblief kennis
@@ -23,26 +23,28 @@ myDocumentEmptyPlaceholder: Tik hier om hierdie bladsy te begin wysig
 inputPlaceholder: Skryf hier
 inputReference: oer Bybel verwysing in
 invalidReference: Vers nie gevind
-bookmarkAccurate: "Boekmerk is in %s geskep"
+bookmarkAccurate: Boekmerk is in %s geskep
 bookmarkInaccurate: "Boekmerk boek inligting wat nie gestoor is nie, inhoud word in %s vertoon."
 defaultBook: Standaard Bybel dokument
 ok: Goed
 yes: "Ja"
-ambiguousSelection: Watter aksie wil jy neem?
+ambiguousSelection: "Watter aksie wil jy neem?"
 cancel: Kanselleer
-removeBookmarkConfirmationTitle: Verwyder boekmerk?
-removeBookmarkConfirmation: Is jy seker jy wil hierdie boekmerk verwyder?
+removeBookmarkConfirmationTitle: "Verwyder boekmerk?"
+removeBookmarkConfirmation: "Is jy seker jy wil hierdie boekmerk verwyder?"
 createdAt: "Geskep: %s"
 lastUpdatedOn: "Laas opgedateer: %s"
-strongsAndMorph: "Definisie & Morfologie"
+strongsAndMorph: Definisie & Morfologie
 externalLink: Maak eksterne skakel oop
 referenceLink: Maak verwysings skakel oop
 openFootnote: maak voetnoot oop
 noMyNotesTitle: Nee My Notas vir hierdie hoofstuk.
-noMyNotesDescription: "Begin deur boekmerke in 'n Bybel dokument te skep. Die boekmerke sal dan hier verskyn en jy kan jou persoonlike notas by hulle voeg. "
-emptyStudyPad: "Leë studieblok. Begin by hierdie studieblok voeg deur teks inskrywings hier te skep of deur boekmerke te skep met 'n boekmerk etiket wat ooreenstem met hierdie studieblok. "
-doYouWantToDeleteEntry: Skrap hierdie studie blok inskrywing?
-removeStudyPadConfirmationTitle: Verwyder studieblok inskrywing?
+noMyNotesDescription: >-
+  Begin deur boekmerke in 'n Bybel dokument te skep. Die boekmerke sal dan hier verskyn en jy kan jou persoonlike notas by hulle voeg. 
+emptyStudyPad: >-
+  Leë studieblok. Begin by hierdie studieblok voeg deur teks inskrywings hier te skep of deur boekmerke te skep met 'n boekmerk etiket wat ooreenstem met hierdie studieblok. 
+doYouWantToDeleteEntry: "Skrap hierdie studie blok inskrywing?"
+removeStudyPadConfirmationTitle: "Verwyder studieblok inskrywing?"
 dragHelp: Sleep om te herbestel
 openAll: Maak alle verwysings oop
 editBookmarkPlaceholder: Tik om My Notas vir hierdie boekmerk te redigeer
@@ -52,7 +54,7 @@ assignLabelsMenuEntry1: Kies of redigeer etikette...
 favouriteLabels: Gunsteling etikette
 recentLabels: Onlangse etikette
 bookmarkLabels: Boekmerk etikette
-refParserHelp: "Installeer asseblief %s module om verwysings in tale anders as Engels te gebruik."
+refParserHelp: Installeer asseblief %s module om verwysings in tale anders as Engels te gebruik.
 openDownloads: Gaan na Byvoegsel aflaaie
 verseShare: Deel
 verseSpeak: Praat
@@ -78,7 +80,7 @@ readingProgressPage: "%s%% · %s/%s"
 readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: Luister in lus
 viewHelp: Bekyk hulp
-verseNoteLong: "Skryf 'n nota"
+verseNoteLong: Skryf 'n nota
 verseParagraphBreakLong: Paragraafbreuk
 addBookmark: Boekmerke
 selectCustomIconTitle: Kies pasgemaakte merkikoontjie

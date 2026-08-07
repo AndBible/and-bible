@@ -1778,9 +1778,34 @@ informe los problemas a los mantenedores de texto
   <string name="cloud_doc_summary_download">Descargar %1$d</string>
   <string name="cloud_doc_summary_download_size">Descargar %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Las descargas automáticas empezarán cuando haya Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d documento</item>
+    <item quantity="many">%1$d documentos</item>
+    <item quantity="other">%1$d documentos</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d documento (%2$s)</item>
+    <item quantity="many">%1$d documentos (%2$s)</item>
+    <item quantity="other">%1$d documentos (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Nada que transferir</string>
   <string name="cloud_doc_selected_count">%1$d seleccionado(s)</string>
   <string name="cloud_doc_bulk_skipped">%1$d omitido(s) por no aplicable</string>
+  <plurals name="cloud_doc_bulk_remove_all_confirm">
+    <item quantity="one">¿Eliminar %1$d documento de la nube y de todos tus dispositivos, incluido este?</item>
+    <item quantity="many">¿Eliminar %1$d documentos de la nube y de todos tus dispositivos, incluido este?</item>
+    <item quantity="other">¿Eliminar %1$d documentos de la nube y de todos tus dispositivos, incluido este?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_confirm">
+    <item quantity="one">¿Eliminar %1$d documento de la nube? Se conservarán las copias de este dispositivo.</item>
+    <item quantity="many">¿Eliminar %1$d documentos de la nube? Se conservarán las copias de este dispositivo.</item>
+    <item quantity="other">¿Eliminar %1$d documentos de la nube? Se conservarán las copias de este dispositivo.</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_confirm">
+    <item quantity="one">¿Eliminar definitivamente %1$d documento del historial de la nube?</item>
+    <item quantity="many">¿Eliminar definitivamente %1$d documentos del historial de la nube?</item>
+    <item quantity="other">¿Eliminar definitivamente %1$d documentos del historial de la nube?</item>
+  </plurals>
   <string name="document_sync_notification_title">Sincronizando documentos</string>
   <string name="document_sync_downloading">Descargando %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Subiendo %1$s (%2$d/%3$d)</string>

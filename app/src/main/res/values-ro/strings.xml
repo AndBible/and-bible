@@ -1786,9 +1786,34 @@
   <string name="cloud_doc_summary_download">Descarcă %1$d</string>
   <string name="cloud_doc_summary_download_size">Descarcă %1$d (%2$s)</string>
   <string name="cloud_doc_wifi_waiting">Descărcările automate vor începe pe Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d document</item>
+    <item quantity="few">%1$d documente</item>
+    <item quantity="other">%1$d de documente</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d document (%2$s)</item>
+    <item quantity="few">%1$d documente (%2$s)</item>
+    <item quantity="other">%1$d de documente (%2$s)</item>
+  </plurals>
   <string name="cloud_doc_sync_now_count_none">Nimic de transferat</string>
   <string name="cloud_doc_selected_count">%1$d selectate</string>
   <string name="cloud_doc_bulk_skipped">%1$d omise, nu se aplică</string>
+  <plurals name="cloud_doc_bulk_remove_all_confirm">
+    <item quantity="one">Se elimină %1$d document din cloud și din toate aparatele personale, inclusiv acesta?</item>
+    <item quantity="few">Se elimină %1$d documente din cloud și din toate aparatele personale, inclusiv acesta?</item>
+    <item quantity="other">Se elimină %1$d de documente din cloud și din toate aparatele personale, inclusiv acesta?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_confirm">
+    <item quantity="one">Se elimină %1$d document din cloud? Copiile din acest aparat vor fi păstrate.</item>
+    <item quantity="few">Se elimină %1$d documente din cloud? Copiile din acest aparat vor fi păstrate.</item>
+    <item quantity="other">Se elimină %1$d de documente din cloud? Copiile din acest aparat vor fi păstrate.</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_confirm">
+    <item quantity="one">Se elimină definitiv %1$d document din cronologia cloud?</item>
+    <item quantity="few">Se elimină definitiv %1$d documente din cronologia cloud?</item>
+    <item quantity="other">Se elimină definitiv %1$d de documente din cronologia cloud?</item>
+  </plurals>
   <string name="document_sync_notification_title">Se sincronizează documentele</string>
   <string name="document_sync_downloading">Se descarcă %1$s (%2$d/%3$d)</string>
   <string name="document_sync_uploading">Se încarcă %1$s (%2$d/%3$d)</string>

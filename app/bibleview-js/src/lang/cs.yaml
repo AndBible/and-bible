@@ -2,8 +2,8 @@
 bookmarks: Záložky
 bookmarksAndNotes: Záložky a poznámky
 openMyNotes: Otevřít v Poznámkách
-openStudyPad: "Otevřít ve studijní složce (%s)"
-noteText: "Poznámky pod čarou (%s)"
+openStudyPad: Otevřít ve studijní složce (%s)
+noteText: Poznámky pod čarou (%s)
 noteTextWithoutType: Poznámky pod čarou
 crossReferenceText: Křížový odkaz
 findAllOccurrences: Najít všechny výskyty
@@ -23,15 +23,15 @@ myDocumentEmptyPlaceholder: Klepněte pro zahájení úprav této stránky
 inputPlaceholder: Psát zde
 inputReference: Vložit biblický odkaz
 invalidReference: Verš nebyl nalezen
-bookmarkAccurate: "Záložka vytvořena v %s"
+bookmarkAccurate: Záložka vytvořena v %s
 bookmarkInaccurate: "Záložky knihy neuloženy, obsah je zobrazen v %s."
 defaultBook: výchozí dokument Bible
 ok: OK
 yes: "Ano"
-ambiguousSelection: Co chcete provést?
+ambiguousSelection: "Co chcete provést?"
 cancel: Zrušit
-removeBookmarkConfirmationTitle: Odstranit záložku?
-removeBookmarkConfirmation: Jste si jisti, že chcete tuto záložku odstranit?
+removeBookmarkConfirmationTitle: "Odstranit záložku?"
+removeBookmarkConfirmation: "Jste si jisti, že chcete tuto záložku odstranit?"
 createdAt: "Vytvořeno: %s"
 lastUpdatedOn: "Aktualizováno: %s"
 strongsAndMorph: Definice a morfologie
@@ -39,10 +39,12 @@ externalLink: Otevřít externí odkaz
 referenceLink: Otevřít referenční odkaz
 openFootnote: Otevřít poznámku pod čarou
 noMyNotesTitle: K této kapitole nemáte poznámky.
-noMyNotesDescription: Nejprve si v biblickém dokumentu vytvořte záložku. Ty budou následně dostupné zde a můžete si k nim přidávat své poznámky.
-emptyStudyPad: Prázdná studijní složka. Sem můžete přidávat textové poznámky nebo tvořit záložky se štítkem odkazujícím k této studijní složce.
-doYouWantToDeleteEntry: Smazat tento obsah ze složky?
-removeStudyPadConfirmationTitle: Odstranit studijní složku?
+noMyNotesDescription: >-
+  Nejprve si v biblickém dokumentu vytvořte záložku. Ty budou následně dostupné zde a můžete si k nim přidávat své poznámky.
+emptyStudyPad: >-
+  Prázdná studijní složka. Sem můžete přidávat textové poznámky nebo tvořit záložky se štítkem odkazujícím k této studijní složce.
+doYouWantToDeleteEntry: "Smazat tento obsah ze složky?"
+removeStudyPadConfirmationTitle: "Odstranit studijní složku?"
 dragHelp: Přetažením setřídit
 openAll: Otevřít všechny odkazy
 editBookmarkPlaceholder: Klepnutím upravíte poznámky této záložky
@@ -91,10 +93,10 @@ editActionModeNone: Žádný
 editActionModeAppend: Přidat text na konec
 editActionModePrepend: Přidat text na začátek
 editActionContentLabel: Obsah
-editActionContentPlaceholder: Zadejte text, který chcete přidat do dokumentu...
+editActionContentPlaceholder: "Zadejte text, který chcete přidat do dokumentu..."
 experimentalFeatureTitle: Experimentální
 experimentalFeatureHelpTitle: O experimentálních funkcích
-experimentalFeatureHelpContent: Experimentální funkce jsou nové možnosti, které jsou stále ve vývoji a testování. Nemusí fungovat dokonale a v budoucích verzích aplikace se mohou výrazně změnit nebo být odebrány.
+experimentalFeatureHelpContent: "Experimentální funkce jsou nové možnosti, které jsou stále ve vývoji a testování. Nemusí fungovat dokonale a v budoucích verzích aplikace se mohou výrazně změnit nebo být odebrány."
 insertParagraphBreak: Vložit konec odstavce
 insertSubtitle: Vložit podnadpis
 xmlParseError: Chyba při analýze XML

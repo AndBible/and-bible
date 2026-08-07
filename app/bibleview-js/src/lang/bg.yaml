@@ -2,36 +2,36 @@
 bookmarks: Отметки
 bookmarksAndNotes: Отметки и мои бележки
 openMyNotes: Отвори в мои бележки
-openStudyPad: "Отвори в бележник (%s)"
-noteText: "Бележки под линия (%s)"
+openStudyPad: Отвори в бележник (%s)
+noteText: Бележки под линия (%s)
 noteTextWithoutType: Бележки под линия
 crossReferenceText: Препратки
 findAllOccurrences: Намери всички срещания
 reportError: Докладвай грешка
 errorTitle: Възникна грешка
 warningTitle: Предупреждение
-normalTitle: Моля, обърнете внимание
+normalTitle: "Моля, обърнете внимание"
 footnoteTypeStudy: Изучаване
 footnoteTypeExplanation: Обяснение
 footnoteTypeVariant: Вариант
 footnoteTypeAlternative: Алтернатива
 footnoteTypeTranslation: Превод
 clearLog: Изчисти журнала с грешки
-editTextPlaceholder: Докоснете, за да редактирате текст
+editTextPlaceholder: "Докоснете, за да редактирате текст"
 myDocumentEdit: Редактирай страница
-myDocumentEmptyPlaceholder: Докоснете, за да започнете редактиране на тази страница
+myDocumentEmptyPlaceholder: "Докоснете, за да започнете редактиране на тази страница"
 inputPlaceholder: Пишете тук
 inputReference: Въведете библейска препратка
 invalidReference: Стихът не е намерен
-bookmarkAccurate: "Отметката е създадена в %s"
+bookmarkAccurate: Отметката е създадена в %s
 bookmarkInaccurate: "Информацията за книгата на отметката не е запазена, съдържанието се показва в %s."
 defaultBook: стандартен библейски документ
 ok: OK
 yes: "Да"
-ambiguousSelection: Какво действие желаете да предприемете?
+ambiguousSelection: "Какво действие желаете да предприемете?"
 cancel: Отмяна
-removeBookmarkConfirmationTitle: Премахване на отметка?
-removeBookmarkConfirmation: Сигурни ли сте, че искате да премахнете тази отметка?
+removeBookmarkConfirmationTitle: "Премахване на отметка?"
+removeBookmarkConfirmation: "Сигурни ли сте, че искате да премахнете тази отметка?"
 createdAt: "Създадено: %s"
 lastUpdatedOn: "Последно обновено: %s"
 strongsAndMorph: Определение и морфология
@@ -39,13 +39,15 @@ externalLink: Отвори външна връзка
 referenceLink: Отвори препратка
 openFootnote: Отвори бележка под линия
 noMyNotesTitle: Няма мои бележки за тази глава.
-noMyNotesDescription: Започнете, като създадете отметки в библейски документ. Отметките ще се появят тук и можете да добавите лични бележки към тях.
-emptyStudyPad: Празен бележник. Започнете да добавяте в този бележник, като създавате текстови записи тук или като създавате отметки с етикет, съответстващ на този бележник.
-doYouWantToDeleteEntry: Да се изтрие ли този запис от бележника?
-removeStudyPadConfirmationTitle: Премахване на запис от бележника?
-dragHelp: Плъзнете, за да пренаредите
+noMyNotesDescription: >-
+  Започнете, като създадете отметки в библейски документ. Отметките ще се появят тук и можете да добавите лични бележки към тях.
+emptyStudyPad: >-
+  Празен бележник. Започнете да добавяте в този бележник, като създавате текстови записи тук или като създавате отметки с етикет, съответстващ на този бележник.
+doYouWantToDeleteEntry: "Да се изтрие ли този запис от бележника?"
+removeStudyPadConfirmationTitle: "Премахване на запис от бележника?"
+dragHelp: "Плъзнете, за да пренаредите"
 openAll: Отвори всички препратки
-editBookmarkPlaceholder: Докоснете, за да редактирате мои бележки за тази отметка
+editBookmarkPlaceholder: "Докоснете, за да редактирате мои бележки за тази отметка"
 onlyLabel: Само етикет
 wholeBookmark: Цяла отметка
 assignLabelsMenuEntry1: Избор или редактиране на етикети…
@@ -91,10 +93,10 @@ editActionModeNone: Няма
 editActionModeAppend: Добави текст в края
 editActionModePrepend: Добави текст в началото
 editActionContentLabel: Съдържание
-editActionContentPlaceholder: Въведете текст, който да бъде добавен към документа...
+editActionContentPlaceholder: "Въведете текст, който да бъде добавен към документа..."
 experimentalFeatureTitle: Експериментална
 experimentalFeatureHelpTitle: Относно експерименталните функции
-experimentalFeatureHelpContent: Експерименталните функции са нови възможности, които все още се разработват и тестват. Те може да не работят перфектно и могат значително да се променят или да бъдат премахнати в бъдещи версии на приложението.
+experimentalFeatureHelpContent: "Експерименталните функции са нови възможности, които все още се разработват и тестват. Те може да не работят перфектно и могат значително да се променят или да бъдат премахнати в бъдещи версии на приложението."
 insertParagraphBreak: Вмъкни прекъсване на абзац
 insertSubtitle: Вмъкни подзаглавие
 xmlParseError: Грешка при разбор на XML
@@ -108,7 +110,7 @@ wordScramble: Разбъркване
 wordType: Въвеждане
 wordOrder: Ред
 typeEverything: Въведи пълни думи
-tapToStartTyping: Докоснете тук, за да започнете въвеждане
+tapToStartTyping: "Докоснете тук, за да започнете въвеждане"
 wordVisibility: Видимост на думи
 wordVisibilityLight: Светло
 wordVisibilityDim: Затъмнено

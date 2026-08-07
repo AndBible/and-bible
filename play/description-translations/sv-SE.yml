@@ -1,14 +1,14 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Studera Bibeln"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: "Kraftfullt bibelstudieverktyg: kommentarer, bokmärken, anteckningar, AI"
+short_description: "Kraftfull uppsättning bibelstudieverktyg: kommentarer, bokmärken, anteckningar, AI"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Kraftfullt bibelstudieverktyg
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 paragraph_1_1: >
-  "{{ title }}" är en kraftfull, lättanvänd och offline bibelstudieapp för Android — en mångsidig verktygslåda med högkvalitativa funktioner som passar många studiestilar, från lättsam läsning till djupgående forskning. Mer än bara en läsare — det är ett verktyg för seriöst personligt studium.
+  "{{ title }}" är en kraftfull och lättanvänd bibelstudieapp, som även fungerar offline, för Android – en mångsidig verktygslåda med högkvalitativa funktioner som passar många studiestilar, från alldaglig läsning till djupgående forskning. Mer än bara en läsningsapp – den är ett verktyg för ingående personliga studier.
 paragraph_1_2: >
-  Utvecklad av bibelläsare, för bibelläsare — ett ideellt projekt med öppen källkod som drivs av en gemenskap, helt gratis och utan reklam.
+  Utvecklad av bibelläsare, för bibelläsare – ett ideellt projekt med öppen källkod som drivs av en gemenskap, helt gratis och utan reklam.
 # You can also advertise here the best documents that are available in the app in your language.
 paragraph_1_3: >
   Några populära bibelöversättningar (av många som finns) är Svenska folkbibeln 2015/1998, Svenska kärnbibeln och 1917 års kyrkobibel. På engelska finns t.ex. KJV, NASB, NET och även populära kommentarer såsom dem av Matthew Henry och John Gill.
@@ -16,34 +16,34 @@ subtitle_2: Kraftfulla bibelstudiefunktioner
 paragraph_2_1: >
   Appen har många insiktsfulla och unika funktioner som gör komplicerade och djupa bibelstudier behagliga. De mest betydande funktionerna är följande:
 feature_01: "Delade textvyer som låter dig jämföra översättningar och använda bibelkommentarer.\n"
-feature_02: "Arbetsytor låter dig skapa olika anpassade vyer med separata inställningar för bibelstudier.\n"
+feature_02: Arbetsytor låter dig skapa olika anpassade vyer med separata inställningar för bibelstudier
 feature_03: Integration med Strongs nummer möjliggör analys av grekiska och hebreiska ord.
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Tryck på en länk för att följa parallellhänvisningar, fotnoter och kommentarer ({{commentary_examples}}) eller samlingar av parallellhänvisningar ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: "Gill, Matthew Henry m.fl."
+commentary_examples: "Gill, Matthew Henry m.fl. "
 # Examples of cross-reference collections.
 cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
-feature_05: "Avancerat text-till-tal med uppläsningsbokmärken som gör lyssningsupplevelsen bekvämare\n"
+feature_05: Avancerat text-till-tal med uppläsningsbokmärken som gör lyssningsupplevelsen behagligare
 feature_06: Flexibel fritextsökning över en eller flera bibelöversättningar samtidigt
-feature_07: "Avancerade funktioner för bokmärken och färgmarkeringar med personliga anteckningar\n"
+feature_07: Avancerade funktioner för bokmärken och färgmarkeringar med personliga anteckningar
 feature_08: >
-  Synkronisering mellan enheter: håll dina arbetsytor, bokmärken, anteckningar och läsningsförlopp synkroniserade på alla dina enheter
+  Enhetssynkronisering: håll dina arbetsytor, bokmärken, anteckningar och läsningsförlopp synkroniserade mellan alla dina enheter
 feature_09: >
-  Spårning av läsning och memorering: sätt upp läsmål, följ ditt förlopp och memorera verser med interaktiva lägen som Bokstavspussel, Ordföljd, Suddade ord och Skriv själv
+  Spårning av läsning och memorering: sätt upp läsmål, följ dina framsteg och memorera verser med de interaktiva lägena som "Ordpussel", "Rada ord", "Sudda ord" och "Skriv"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Omfattande bibliotek av dokument: Bibelöversättningar, teologiska kommentarer, lexikon, kartor och kristna böcker. Totalt över {{total_documents}} dokument på fler än än {{total_languages}} språk, lagligt distribuerade av Crosswire och andra SWORD-kataloger.
 feature_10_1: >
   Det inbyggda stödet för MyBible-, MySword- och EPUB-filer gör att du också kan utöka ditt bibliotek.
 feature_11: >
-  Valfri AI-studieassistent (endast efter aktivering — kräver din egen API-nyckel till en extern tjänst): utforska dina installerade kommentarer och lexikon med AI-hjälp på ditt valda språk, samt andra kreativa studiemetoder. Ett inbyggt behörighetssystem ger dig full kontroll över vad assistenten får göra.
+  Valfri AI-studieassistent (endast efter aktivering – kräver din egen API-nyckel till en extern tjänst): utforska dina installerade kommentarer och lexikon med AI-hjälp på ditt valda språk, plus andra kreativa studiemetoder. Ett inbyggt behörighetssystem ger dig full kontroll över vad assistenten får göra.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: "Bibel 2000, NuBibeln och Nya Levande Bibeln samt på engelska ESV, NIV och NKJV"
-feature_12: >-
+feature_12: >
   Offline: den enda gången du behöver internet är när du laddar ned dokument.
 # UNUSED
 feature_13: >
@@ -54,24 +54,24 @@ paragraph_3_1: >
 contr_1: "utveckla nya funktioner,"
 contr_2: "testa funktioner som inte lanserats ännu,"
 contr_3: "hålla gränssnittets översättningar uppdaterade, och"
-contr_4: "hjälpa till att utöka modulbiblioteket genom att erhålla tillstånd från upphovsrättsinnehavare, eller genom att konvertera dokument till SWORD-formatet.\n"
+contr_4: "hjälpa till att utöka modulbiblioteket genom att erhålla tillstånd från upphovsrättsinnehavare, eller genom att konvertera dokument till SWORD-formatet."
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: "Om du är en professionell mjukvaruingenjör eller testare, överväg gärna att bidra till projektet. Mer information om hur man bidrar finns här: {{how_to_contribute_url}}.\n"
+paragraph_4_1: "Om du är en professionell mjukvaruingenjör eller testare; överväg gärna att bidra till projektet. Mer information om hur man bidrar finns här: {{how_to_contribute_url}}."
 subtitle_4: Länkar
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: >-
+link_1: >
   Webbplats: {{homepage_url}}
-link_2: >-
+link_2: >
   Gilla AndBible på Facebook: {{facebook_url}}
-link_3: >-
+link_3: >
   Vår Youtubekanal: {{youtube_url}}
-link_4: >-
+link_4: >
   Frågor och svar: {{faq_url}}
-link_5: >-
+link_5: >
   Projektsida på Github: {{github_url}}
 buy_title: >-
   Understöd genom att köpa apputvecklingstid!
 buy_1: >
-  Om du inte har tid eller kunskap för att bidra till projektet kan du också understöda det genom att köpa arbetstid av en professionell utvecklare.
-buy_2: >-
+  Om du inte har tid eller kunskap för att bidra till projektet kan du också understödja det genom att köpa arbetstid av en professionell utvecklare.
+buy_2: >
   Se alternativ

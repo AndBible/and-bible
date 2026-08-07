@@ -1,16 +1,16 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Marcadores
-bookmarksAndNotes: "Marcadores & Minhas Notas"
+bookmarksAndNotes: Marcadores & Minhas Notas
 openMyNotes: Abrir em Minhas Notas
-openStudyPad: "Abrir no Bloco de Estudo (%s)"
-noteText: "Notas de Rodapé (%s)"
+openStudyPad: Abrir no Bloco de Estudo (%s)
+noteText: Notas de Rodapé (%s)
 noteTextWithoutType: Notas de Rodapé
 crossReferenceText: Referências cruzadas
 findAllOccurrences: Encontrar todas as ocorrências
 reportError: Reportar um erro
 errorTitle: Ocorreu um erro
 warningTitle: Aviso
-normalTitle: Por favor, observe
+normalTitle: "Por favor, observe"
 footnoteTypeStudy: Estudo
 footnoteTypeExplanation: Explicação
 footnoteTypeVariant: Variante
@@ -23,26 +23,28 @@ myDocumentEmptyPlaceholder: Toque para começar a editar esta página
 inputPlaceholder: Escreva aqui
 inputReference: Digite a referência bíblica
 invalidReference: Versículo não encontrado
-bookmarkAccurate: "Marcador criado em %s"
+bookmarkAccurate: Marcador criado em %s
 bookmarkInaccurate: "Informações do livro do marcador não armazenadas, o conteúdo é exibido em %s."
 defaultBook: documento bíblico padrão
 ok: OK
 yes: "Sim"
-ambiguousSelection: Qual ação você deseja realizar?
+ambiguousSelection: "Qual ação você deseja realizar?"
 cancel: Cancelar
-removeBookmarkConfirmationTitle: Remover marcador?
-removeBookmarkConfirmation: Tem certeza de que deseja remover este marcador?
+removeBookmarkConfirmationTitle: "Remover marcador?"
+removeBookmarkConfirmation: "Tem certeza de que deseja remover este marcador?"
 createdAt: "Criado em: %s"
 lastUpdatedOn: "Última atualização: %s"
-strongsAndMorph: "Definição & Morfologia"
+strongsAndMorph: Definição & Morfologia
 externalLink: Abrir link externo
 referenceLink: Abrir link de referência
 openFootnote: Abrir nota de rodapé
 noMyNotesTitle: Sem Minhas Notas para este capítulo.
-noMyNotesDescription: Comece criando marcadores em um documento bíblico. Os marcadores aparecerão aqui e você poderá adicionar suas notas pessoais a eles.
-emptyStudyPad: Bloco de estudo vazio. Comece adicionando entradas de texto aqui ou criando marcadores com uma etiqueta que corresponda a este bloco de estudo.
-doYouWantToDeleteEntry: Excluir esta entrada do bloco de estudo?
-removeStudyPadConfirmationTitle: Remover entrada do bloco de estudo?
+noMyNotesDescription: >-
+  Comece criando marcadores em um documento bíblico. Os marcadores aparecerão aqui e você poderá adicionar suas notas pessoais a eles.
+emptyStudyPad: >-
+  Bloco de estudo vazio. Comece adicionando entradas de texto aqui ou criando marcadores com uma etiqueta que corresponda a este bloco de estudo.
+doYouWantToDeleteEntry: "Excluir esta entrada do bloco de estudo?"
+removeStudyPadConfirmationTitle: "Remover entrada do bloco de estudo?"
 dragHelp: Arraste para reordenar
 openAll: Abrir todas as referências
 editBookmarkPlaceholder: Toque para editar Minhas Notas deste marcador
@@ -52,7 +54,7 @@ assignLabelsMenuEntry1: Selecionar ou editar etiquetas…
 favouriteLabels: Etiquetas favoritas
 recentLabels: Etiquetas recentes
 bookmarkLabels: Etiquetas de marcadores
-refParserHelp: "Instale o módulo %s para usar referências em outros idiomas além do inglês."
+refParserHelp: Instale o módulo %s para usar referências em outros idiomas além do inglês.
 openDownloads: Ir para downloads de complementos
 verseShare: Compartilhar
 verseSpeak: Escutar

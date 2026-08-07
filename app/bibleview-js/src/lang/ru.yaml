@@ -2,36 +2,36 @@
 bookmarks: Закладки
 bookmarksAndNotes: Закладки и мои заметки
 openMyNotes: Открыть в Моих заметках
-openStudyPad: "Открыть в Блокноте (%s)"
-noteText: "Сноски (%s)"
+openStudyPad: Открыть в Блокноте (%s)
+noteText: Сноски (%s)
 noteTextWithoutType: Примечаний
 crossReferenceText: Перекрестные ссылки
 findAllOccurrences: Найти все случаи
 reportError: Сообщить об ошибке
 errorTitle: Возникла ошибка
 warningTitle: Предупреждение
-normalTitle: Пожалуйста, обрати внимание
+normalTitle: "Пожалуйста, обрати внимание"
 footnoteTypeStudy: Изучение
 footnoteTypeExplanation: Объяснение
 footnoteTypeVariant: Вариант
 footnoteTypeAlternative: Альтернативный
 footnoteTypeTranslation: Перевод
 clearLog: Очистить журнал ошибок
-editTextPlaceholder: Нажмите, чтобы отредактировать текст
+editTextPlaceholder: "Нажмите, чтобы отредактировать текст"
 myDocumentEdit: Редактировать страницу
-myDocumentEmptyPlaceholder: Нажмите, чтобы начать редактирование
+myDocumentEmptyPlaceholder: "Нажмите, чтобы начать редактирование"
 inputPlaceholder: Пишите здесь
 inputReference: Введите ссылку
 invalidReference: Стих не найден
-bookmarkAccurate: "Закладка создана в %s"
+bookmarkAccurate: Закладка создана в %s
 bookmarkInaccurate: "Информация о закладке не сохраняется, содержимое отображается в %s."
 defaultBook: Библейский ресурс по умолчанию
 ok: OK
 yes: "Да"
-ambiguousSelection: Какое действие вы хотите предпринять?
+ambiguousSelection: "Какое действие вы хотите предпринять?"
 cancel: Отменить
-removeBookmarkConfirmationTitle: Удалить закладку?
-removeBookmarkConfirmation: Вы уверены, что хотите удалить эту закладку?
+removeBookmarkConfirmationTitle: "Удалить закладку?"
+removeBookmarkConfirmation: "Вы уверены, что хотите удалить эту закладку?"
 createdAt: "Созданный: %s"
 lastUpdatedOn: "Последнее обновление: %s"
 strongsAndMorph: Определение и морфология
@@ -39,11 +39,13 @@ externalLink: Открыть внешнюю ссылку
 referenceLink: Открыть справочную ссылку
 openFootnote: Открыть сноску
 noMyNotesTitle: Нет заметок для этой главы.
-noMyNotesDescription: Начните с создания закладок в библейском ресурсе. Закладки появятся здесь, и вы сможете добавлять к ним свои личные заметки.
-emptyStudyPad: Пустой блокнот. Начните добавлять в этот блокнот, создавая текстовые записи или создавая закладки с меткой закладки, которая соответствует этому блокноту.
-doYouWantToDeleteEntry: Удалить эту запись в блокноте?
-removeStudyPadConfirmationTitle: Удалить запись в блокноте?
-dragHelp: Перетащите, чтобы изменить порядок
+noMyNotesDescription: >-
+  Начните с создания закладок в библейском ресурсе. Закладки появятся здесь, и вы сможете добавлять к ним свои личные заметки.
+emptyStudyPad: >-
+  Пустой блокнот. Начните добавлять в этот блокнот, создавая текстовые записи или создавая закладки с меткой закладки, которая соответствует этому блокноту.
+doYouWantToDeleteEntry: "Удалить эту запись в блокноте?"
+removeStudyPadConfirmationTitle: "Удалить запись в блокноте?"
+dragHelp: "Перетащите, чтобы изменить порядок"
 openAll: Открыть все ссылки
 editBookmarkPlaceholder: "Нажмите, чтобы изменить \"Мои заметки\" для этой закладки"
 onlyLabel: Только ярлык
@@ -94,7 +96,7 @@ editActionContentLabel: Содержимое
 editActionContentPlaceholder: Введите текст для добавления в документ...
 experimentalFeatureTitle: Экспериментальная функция
 experimentalFeatureHelpTitle: Об экспериментальных функциях
-experimentalFeatureHelpContent: Экспериментальные функции — это новые возможности, которые ещё находятся в разработке и тестировании. Они могут работать не идеально и могут существенно измениться или быть удалены в будущих версиях приложения.
+experimentalFeatureHelpContent: "Экспериментальные функции — это новые возможности, которые ещё находятся в разработке и тестировании. Они могут работать не идеально и могут существенно измениться или быть удалены в будущих версиях приложения."
 insertParagraphBreak: Вставить разрыв абзаца
 insertSubtitle: Вставить подзаголовок
 xmlParseError: Ошибка разбора XML
@@ -108,7 +110,7 @@ wordScramble: Перемешать
 wordType: Ввод
 wordOrder: Порядок
 typeEverything: Вводить слова полностью
-tapToStartTyping: Нажмите здесь, чтобы начать ввод
+tapToStartTyping: "Нажмите здесь, чтобы начать ввод"
 wordVisibility: Видимость слов
 wordVisibilityLight: Слабая
 wordVisibilityDim: Приглушённая
