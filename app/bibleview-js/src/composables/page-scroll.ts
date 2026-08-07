@@ -78,3 +78,33 @@ export function calcPageScrollDistance(
     }
     return amount;
 }
+
+/**
+ * Relative page numbers for the page-number overlay: how far the current scroll
+ * position is from the origin, and how many pages there are between the origin
+ * and the end of the currently loaded content.
+ *
+ * Both numbers share the same origin, so resetting the origin (tapping the
+ * overlay) turns the total into "pages remaining from here". With the origin at
+ * the start of the content — the normal case — the total is the page count of
+ * the loaded document.
+ *
+ * @param scrollY current vertical scroll position in px
+ * @param scrollYAtStart scroll position the page numbering is measured from
+ * @param maxScrollY largest scrollable position (scrollHeight - viewport height)
+ * @param scrollAmount distance a single page scroll moves (calcPageScrollDistance)
+ * @returns fractional `current` page (may be negative above the origin) and a
+ *          non-negative, rounded-up `total`
+ */
+export function calcRelativePageNumbers(
+    scrollY: number,
+    scrollYAtStart: number,
+    maxScrollY: number,
+    scrollAmount: number,
+): {current: number, total: number} {
+    // Before the layout is measured scrollAmount can be 0 or NaN — avoid NaN/Infinity output.
+    if (!(scrollAmount > 0)) return {current: 0, total: 0};
+    const current = (scrollY - scrollYAtStart) / scrollAmount;
+    const total = Math.max(0, Math.ceil((maxScrollY - scrollYAtStart) / scrollAmount));
+    return {current, total};
+}
