@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
@@ -49,6 +50,15 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_image_opacity_night" -> colors.nightBackgroundImageOpacity = value
             "workspace_color" -> colors.workspaceColor = value
         }
+        // Editing any individual reading-palette color manually means it's no longer one of
+        // the built-in presets. workspace_color is a workspace-level setting (not part of the
+        // reading palette itself), so it does not clear the selected theme.
+        if (key != "workspace_color") {
+            colors.themeName = null
+            // Flip the theme selector to "Custom" right away, rather than leaving it showing
+            // the stale preset name until the screen is reopened.
+            activity.refreshColorPreferences()
+        }
         activity.setDirty()
     }
 
@@ -66,6 +76,19 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             else -> defValue
         }
     }
+
+    override fun putString(key: String?, value: String?) {
+        if (key == "color_theme") {
+            val preset = ColorThemePreset.byId(value)
+            if (preset != null) preset.applyTo(colors) else colors.themeName = null
+            activity.setDirty()
+            activity.refreshColorPreferences()
+        }
+    }
+
+    override fun getString(key: String?, defValue: String?): String? {
+        return if (key == "color_theme") colors.themeName ?: "" else defValue
+    }
 }
 
 class ColorSettingsActivity: ActivityBase() {
@@ -77,6 +100,13 @@ class ColorSettingsActivity: ActivityBase() {
     internal var workspaceSettings: WorkspaceEntities.WorkspaceSettings? = null
     private var dirty = false
     private var reset = false
+    internal var fragment: ColorSettingsFragment? = null
+
+    /** Called by [ColorSettingsDataStore] after a theme preset has stamped new colors,
+     * so the on-screen ListPreference and color pickers reflect the new values. */
+    fun refreshColorPreferences() {
+        fragment?.refreshSummariesAndTheme()
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.text_options_opts, menu)
@@ -129,9 +159,11 @@ class ColorSettingsActivity: ActivityBase() {
         dirty = false
         reset = false
 
+        val frag = ColorSettingsFragment(isWindow = settingsBundle.windowId != null)
+        fragment = frag
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.settings_container, ColorSettingsFragment(isWindow = settingsBundle.windowId != null))
+            .replace(R.id.settings_container, frag)
             .commit()
 
         if(settingsBundle.windowId != null) {
@@ -208,5 +240,40 @@ class ColorSettingsFragment(val isWindow: Boolean = false): PreferenceFragmentCo
         val activity = activity as ColorSettingsActivity
         findPreference<Preference>("background_image_day")?.summary = nameFor(activity.colors.dayBackgroundImage)
         findPreference<Preference>("background_image_night")?.summary = nameFor(activity.colors.nightBackgroundImage)
+    }
+
+    /** Keys of the color pickers whose value can be changed "from underneath them" by
+     * applying a [ColorThemePreset], i.e. without the user interacting with that specific
+     * picker. */
+    private val colorPickerKeys = listOf(
+        "text_color_day", "text_color_night",
+        "background_color_day", "background_color_night",
+    )
+
+    /**
+     * Re-syncs the UI after [ColorSettingsDataStore] has applied (or cleared) a color theme
+     * preset directly onto the underlying [WorkspaceEntities.Colors] object.
+     *
+     * `ColorPreferenceCompat` caches the color it displays in a private field that is only
+     * populated from the `PreferenceDataStore` when the preference is (re)attached to its
+     * `PreferenceGroup` (`Preference.onAttachedToHierarchy` -> `dispatchSetInitialValue` ->
+     * `onSetInitialValue` -> `getPersistedInt`). Calling `notifyChanged()` alone would just
+     * redraw the *stale* cached value, since it doesn't cause that re-read. There is no public
+     * API on `ColorPreferenceCompat` to pull a fresh value from the data store without also
+     * persisting/callback side effects, so the correct, side-effect-free way to force a re-read
+     * is to detach and reattach each affected preference from its `PreferenceGroup`.
+     */
+    fun refreshSummariesAndTheme() {
+        val activity = activity as? ColorSettingsActivity ?: return
+        // Re-sync the ListPreference selection with the (possibly changed) themeName.
+        findPreference<ListPreference>("color_theme")?.value = activity.colors.themeName ?: ""
+        // Force each color picker to re-read its value from the datastore (see kdoc above).
+        for (key in colorPickerKeys) {
+            val preference = findPreference<Preference>(key) ?: continue
+            val parent = preference.parent ?: continue
+            parent.removePreference(preference)
+            parent.addPreference(preference)
+        }
+        updateImageSummaries()
     }
 }
