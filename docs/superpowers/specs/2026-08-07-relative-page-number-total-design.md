@@ -61,7 +61,15 @@ Formatting stays in the component: `current.toFixed(1)`, `total` as an integer.
 
 ### Reactive total
 
-`maxScrollY = document.documentElement.scrollHeight - window.innerHeight`.
+**Revised 2026-08-07:** `scrollHeight - innerHeight` counts the tall
+`padding-bottom: 200vh` on `#bottom` (which exists so the reader can scroll past
+the last line), which inflated the total by roughly three pages. The end of the
+text is `#bottom`'s `offsetTop` instead — the same measure `infinite-scroll.ts`
+already uses for its own end-of-content threshold:
+
+`maxScrollY = calcMaxScrollY(contentEnd, viewportHeight, bottomOffset)`, i.e.
+`max(0, contentEnd - (viewportHeight - bottomOffset))` — the scroll position that
+brings the end of the text to the bottom of the readable area.
 
 It is tracked with a `ResizeObserver` on `document.documentElement`, held in the
 `BibleView.vue` setup and disconnected on unmount. This keeps `y` correct when:

@@ -18,6 +18,7 @@
 import {describe, it, expect} from "vitest";
 import {
     calcHelperLinePositions,
+    calcMaxScrollY,
     calcPageScrollDistance,
     calcRelativePageNumbers,
     helperLinePercents,
@@ -126,5 +127,29 @@ describe("calcRelativePageNumbers", () => {
         expect(calcRelativePageNumbers(2400, 12100, 0)).toEqual({current: 0, total: 0});
         expect(calcRelativePageNumbers(2400, 12100, -10)).toEqual({current: 0, total: 0});
         expect(calcRelativePageNumbers(2400, 12100, NaN)).toEqual({current: 0, total: 0});
+    });
+});
+
+describe("calcMaxScrollY", () => {
+    // contentEnd is the document position where the text ends (#bottom's offsetTop),
+    // so the tall padding below it never counts as pages.
+    it("is the scroll position that brings the end of the text to the bottom edge", () => {
+        expect(calcMaxScrollY(20000, 1000, 0)).toBe(19000);
+    });
+
+    it("stops above a bottom bar so the last line is not hidden behind it", () => {
+        // With a 100px bottom bar the readable area ends 100px higher, so the
+        // end of the text is reached 100px later.
+        expect(calcMaxScrollY(20000, 1000, 100)).toBe(19100);
+    });
+
+    it("is zero when the whole text fits on one screen", () => {
+        expect(calcMaxScrollY(500, 1000, 0)).toBe(0);
+        expect(calcMaxScrollY(1000, 1000, 0)).toBe(0);
+    });
+
+    it("is zero rather than negative when the bottom bar covers more than the text", () => {
+        expect(calcMaxScrollY(200, 1000, 900)).toBe(100);
+        expect(calcMaxScrollY(50, 1000, 900)).toBe(0);
     });
 });
