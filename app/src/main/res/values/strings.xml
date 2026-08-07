@@ -323,6 +323,13 @@
     <string name="prefs_noise_title">Background noise</string>
     <string name="prefs_noise_summary">Adding some noise to background might make it more comfortable to eyes. </string>
 
+    <string name="color_theme">Color theme</string>
+    <string name="color_theme_custom">Custom</string>
+    <string name="color_theme_gruvbox">Gruvbox</string>
+    <string name="color_theme_nord">Nord</string>
+    <string name="color_theme_solarized">Solarized</string>
+    <string name="color_theme_dracula">Dracula</string>
+    <string name="color_theme_sepia">Sepia</string>
 
     <!-- Window -->
     <string name="new_window">New window</string>
