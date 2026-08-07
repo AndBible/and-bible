@@ -53,6 +53,13 @@ install-debug:
 	adb install -r app/build/outputs/apk/standardGithub/debug/app-standard-github-debug.apk
 	@echo "✓ Installed"
 
+install-prod:
+	@echo "Assembling standard github release APK (signing via keystore.properties.gpg)..."
+	./gradlew assembleStandardGithubRelease
+	@echo "Installing APK to connected device..."
+	adb install -r app/build/outputs/apk/standardGithub/release/app-standard-github-release.apk
+	@echo "✓ Installed"
+
 fdroid-release:
 	@VERSION_NAME=$$(grep -o 'android:versionName="[^"]*"' app/src/main/AndroidManifest.xml | grep -o '"[^"]*"' | tr -d '"'); \
 	TAG="v$$VERSION_NAME-fdroid"; \
@@ -81,4 +88,4 @@ accrescent-debug:
 	@cp app/build/outputs/apkset/standardAccrescentDebug/app-standardAccrescentDebug.apks app/standardAccrescent/debug/
 	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"
 
-.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug fdroid-release bundle accrescent accrescent-debug
+.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug
