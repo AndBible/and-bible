@@ -38,6 +38,12 @@ import net.bible.service.common.AndBibleAddons
 class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDataStore() {
     val colors get() = activity.colors
 
+    /** Keys of the color pickers whose values a [ColorThemePreset] stamps. Editing any of
+     * these by hand clears the selected theme (→ "Custom"). */
+    private val presetPaletteKeys = setOf(
+        "text_color_day", "text_color_night", "background_color_day", "background_color_night",
+    )
+
     override fun putInt(key: String?, value: Int) {
         when(key) {
             "text_color_day" -> colors.dayTextColor = value
@@ -50,10 +56,11 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
             "background_image_opacity_night" -> colors.nightBackgroundImageOpacity = value
             "workspace_color" -> colors.workspaceColor = value
         }
-        // Editing any individual reading-palette color manually means it's no longer one of
-        // the built-in presets. workspace_color is a workspace-level setting (not part of the
-        // reading palette itself), so it does not clear the selected theme.
-        if (key != "workspace_color") {
+        // Editing one of the palette colors a preset stamps means the colors no longer match a
+        // built-in preset, so switch the selector to "Custom". Only these keys are part of the
+        // preset palette; noise, background-image opacity and workspace_color are not, so editing
+        // them leaves the selected theme intact.
+        if (key in presetPaletteKeys && colors.themeName != null) {
             colors.themeName = null
             // Flip the theme selector to "Custom" right away, rather than leaving it showing
             // the stale preset name until the screen is reopened.
