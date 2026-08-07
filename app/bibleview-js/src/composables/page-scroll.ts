@@ -80,6 +80,26 @@ export function calcPageScrollDistance(
 }
 
 /**
+ * Largest meaningful scroll position: the one that brings the end of the text to
+ * the bottom edge of the readable area.
+ *
+ * This is deliberately not `scrollHeight - innerHeight`. The `#bottom` element
+ * carries a tall padding so the reader can scroll past the last line, and that
+ * padding must not be counted as pages.
+ *
+ * @param contentEnd document position where the text ends (`#bottom`'s offsetTop)
+ * @param viewportHeight window.innerHeight
+ * @param bottomOffset height of the bottom bar covering the viewport, if any
+ */
+export function calcMaxScrollY(
+    contentEnd: number,
+    viewportHeight: number,
+    bottomOffset: number,
+): number {
+    return Math.max(0, contentEnd - (viewportHeight - bottomOffset));
+}
+
+/**
  * Relative page numbers for the page-number overlay: the current position and
  * the end of the currently loaded content, both measured from the top of that
  * content.

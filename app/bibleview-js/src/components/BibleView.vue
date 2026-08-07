@@ -109,7 +109,7 @@
       @navigate-prev="android.goToPreviousChapter"
       @navigate-next="android.goToNextChapter"
     />
-    <div id="bottom"/>
+    <div id="bottom" ref="bottomElement"/>
   </div>
 </template>
 <script lang="ts" setup>
@@ -151,7 +151,7 @@ import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
 import {black, useConfig, white} from "@/composables/config";
-import {calcHelperLinePositions, calcPageScrollDistance, calcRelativePageNumbers} from "@/composables/page-scroll";
+import {calcHelperLinePositions, calcMaxScrollY, calcPageScrollDistance, calcRelativePageNumbers} from "@/composables/page-scroll";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {useModal} from "@/composables/modal";
 import {useCustomCss} from "@/composables/custom-css";
@@ -188,6 +188,7 @@ const lineHeight = computed(() => {
 const strings = useStrings();
 window.bibleViewDebug.documents = documents;
 const topElement = shallowRef<HTMLElement | null>(null);
+const bottomElement = shallowRef<HTMLElement | null>(null);
 const documentPromise: Ref<Promise<void> | null> = ref(null);
 const verseHighlight = useOrdinalHighlight();
 provide(ordinalHighlightKey, verseHighlight);
@@ -218,20 +219,28 @@ const {closeModals, modalOpen} = modal;
 
 const mounted = ref(false);
 
-// Largest scrollable position, i.e. the scroll position at the very end of the
-// currently loaded content. Kept fresh by a ResizeObserver so it also follows
-// infinite-scroll loading, font/margin changes and rotation — not just scrolling.
-const maxScrollY = ref(0);
+// End of the text and viewport height, measured for the page-number overlay.
+// #bottom sits right after the text and carries a tall padding so the reader can
+// scroll past the last line, so its offsetTop — not scrollHeight — is where the
+// content actually ends. Kept fresh by a ResizeObserver so the numbers also
+// follow infinite-scroll loading, font/margin changes and rotation.
+const contentEnd = ref(0);
+const viewportHeight = ref(0);
 let contentResizeObserver: ResizeObserver | null = null;
 
-function updateMaxScrollY() {
-    maxScrollY.value = document.documentElement.scrollHeight - window.innerHeight;
+function updateContentMetrics() {
+    contentEnd.value = bottomElement.value?.offsetTop ?? document.documentElement.scrollHeight;
+    viewportHeight.value = window.innerHeight;
 }
+
+const maxScrollY = computed(() =>
+    calcMaxScrollY(contentEnd.value, viewportHeight.value, appSettings.bottomOffset)
+);
 
 onMounted(() => {
     mounted.value = true;
-    updateMaxScrollY();
-    contentResizeObserver = new ResizeObserver(updateMaxScrollY);
+    updateContentMetrics();
+    contentResizeObserver = new ResizeObserver(updateContentMetrics);
     contentResizeObserver.observe(document.documentElement);
     console.log("BibleView mounted");
 })
