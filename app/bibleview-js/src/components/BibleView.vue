@@ -66,7 +66,6 @@
     <div class="pagenumber"
          :style="{bottom: pageNumberBottom}"
          v-if="config.showPageNumber"
-         @click="resetPageNumber()"
     >
       <div class="pagenumber-text">
         {{ pageNumber }}/{{ pageCount }}
@@ -198,7 +197,7 @@ const customCss = useCustomCss();
 provide(customCssKey, customCss);
 
 const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
-const {doScrolling, scrollToId, scrollYAtStart, scrollY} = scroll;
+const {doScrolling, scrollToId, scrollY} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
 const android = useAndroid(globalBookmarks, config);
@@ -257,7 +256,7 @@ const {
     documentSupportsChapterNavigation,
     infiniteScrollIsEnabled,
     reachedEnd
-} = useInfiniteScroll(android, scroll, documents, config);
+} = useInfiniteScroll(android, documents, config);
 
 const showChapterNavButtons = computed(() => {
     return documentSupportsChapterNavigation.value && !infiniteScrollIsEnabled.value;
@@ -480,14 +479,10 @@ const readingProgressBottom = computed(() => {
 });
 
 const pageNumbers = computed(() =>
-    calcRelativePageNumbers(scrollY.value, scrollYAtStart.value, maxScrollY.value, scrollAmount.value)
+    calcRelativePageNumbers(scrollY.value, maxScrollY.value, scrollAmount.value)
 );
 const pageNumber = computed(() => pageNumbers.value.current.toFixed(1));
 const pageCount = computed(() => pageNumbers.value.total);
-
-function resetPageNumber() {
-    scrollYAtStart.value = scrollY.value
-}
 
 setupEventBusListener("scroll_down", () => scrollUpDown());
 setupEventBusListener("scroll_up", () => scrollUpDown(true));
@@ -755,7 +750,10 @@ a {
   right: 2mm;
   margin-bottom: 2mm;
   bottom: 0;
-  width: 1cm;
+  // The label holds "current/total", so it grows leftwards with the page count
+  // instead of the text spilling out of a fixed-width pill.
+  min-width: 1cm;
+  padding: 0 1mm;
   height: 0.5cm;
   font-size: 70%;
   font-weight: bold;
@@ -768,12 +766,11 @@ a {
     border-color: var(--text-color);
   }
   border-radius: 0.5cm;
+  display: flex;
+  align-items: center;
   justify-content: center;
   .pagenumber-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    white-space: nowrap;
   }
 }
 

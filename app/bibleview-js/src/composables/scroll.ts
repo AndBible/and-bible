@@ -194,8 +194,6 @@ export function useScroll(
     const scrollY = ref<number>(0);
     setupWindowEventListener('scroll', () => scrollY.value = window.scrollY);
 
-    const scrollYAtStart = ref<number>(0);
-
     async function setupContent(
         {
             jumpToOrdinal = null,
@@ -237,7 +235,6 @@ export function useScroll(
             console.log("scrolling to beginning of document (now)");
             scrollToId(null, {now: true, force: true});
         }
-        scrollYAtStart.value = window.scrollY;
 
         console.log("Content is set ready!");
     }
@@ -282,6 +279,6 @@ export function useScroll(
         clearScrollAnchor();
     });
 
-    return {scrollToId, isScrolling, doScrolling, scrollYAtStart, scrollY}
+    return {scrollToId, isScrolling, doScrolling, scrollY}
 }
 

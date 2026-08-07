@@ -79,10 +79,27 @@ covered by the observer firing on the root element.
 
 ### Origin semantics
 
-`y` uses the same `scrollYAtStart` origin as `x`. Tapping the overlay to reset
-the origin therefore turns `y` into "pages remaining from here". With the origin
-at the start of the content — the default — `y` is the document's page count,
-which is the requested behaviour.
+**Revised 2026-08-07** (supersedes the `scrollYAtStart` design below, which was
+implemented first):
+
+Both numbers are measured from the top of the loaded content, i.e. scroll
+position 0. Consequences:
+
+- Opening a document mid-page reads as e.g. `0.5/16`, not `0.0/16`. Previously
+  the origin was captured at load time (`scroll.ts`, `setupContent`), so `x` was
+  always `0.0` at open regardless of where the view landed.
+- Tapping the overlay to move the origin is **removed**. `x/y` now always means
+  the same thing, so there is no second mode to switch to.
+- When infinite scroll prepends chapters, the origin follows the new top: `x`
+  and `y` both grow, and `x/y` keeps describing the position within the loaded
+  content. The old `scrollYAtStart` adjustment in `infinite-scroll.ts` is gone.
+
+`scrollYAtStart` had no other consumer, so it is removed from `useScroll`, from
+`setupContent`, and from `useInfiniteScroll`'s parameter list (which no longer
+takes `UseScroll` at all).
+
+`calcRelativePageNumbers` therefore takes three arguments — `scrollY`,
+`maxScrollY`, `scrollAmount` — not four.
 
 ### Scope: loaded content only
 

@@ -80,31 +80,29 @@ export function calcPageScrollDistance(
 }
 
 /**
- * Relative page numbers for the page-number overlay: how far the current scroll
- * position is from the origin, and how many pages there are between the origin
- * and the end of the currently loaded content.
+ * Relative page numbers for the page-number overlay: the current position and
+ * the end of the currently loaded content, both measured from the top of that
+ * content.
  *
- * Both numbers share the same origin, so resetting the origin (tapping the
- * overlay) turns the total into "pages remaining from here". With the origin at
- * the start of the content — the normal case — the total is the page count of
- * the loaded document.
+ * Page 0 is always the top of what is loaded, so opening a document halfway
+ * down a page reads as 0.5 rather than 0, and the total is the page count of
+ * the loaded content. When infinite scroll prepends chapters, both numbers grow
+ * accordingly — they always describe the position within the loaded content.
  *
  * @param scrollY current vertical scroll position in px
- * @param scrollYAtStart scroll position the page numbering is measured from
  * @param maxScrollY largest scrollable position (scrollHeight - viewport height)
  * @param scrollAmount distance a single page scroll moves (calcPageScrollDistance)
- * @returns fractional `current` page (may be negative above the origin) and a
- *          non-negative, rounded-up `total`
+ * @returns fractional `current` page and a non-negative, rounded-up `total`
  */
 export function calcRelativePageNumbers(
     scrollY: number,
-    scrollYAtStart: number,
     maxScrollY: number,
     scrollAmount: number,
 ): {current: number, total: number} {
     // Before the layout is measured scrollAmount can be 0 or NaN — avoid NaN/Infinity output.
     if (!(scrollAmount > 0)) return {current: 0, total: 0};
-    const current = (scrollY - scrollYAtStart) / scrollAmount;
-    const total = Math.max(0, Math.ceil((maxScrollY - scrollYAtStart) / scrollAmount));
-    return {current, total};
+    return {
+        current: scrollY / scrollAmount,
+        total: Math.max(0, Math.ceil(maxScrollY / scrollAmount)),
+    };
 }

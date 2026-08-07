@@ -1343,7 +1343,7 @@
     <string name="prefs_volume_keys_scroll_title">Volume buttons scroll</string>
     <string name="prefs_volume_keys_scroll_summary">Use volume up/down to scroll Bible text and lists</string>
     <string name="page_number_title">Relative page number</string>
-    <string name="page_number_summary">Show page number overlay. Page number is relative to the starting position.</string>
+    <string name="page_number_summary">Show page number overlay as current/total. Both are relative to the start of the loaded text.</string>
     <string name="select_custom_icon">Select custom marker icon</string>
     <string name="invalid_url_message">The URL you entered is invalid. Please enter a valid URL (e.g., https://nextcloud.example.com)</string>
     <string name="memorize_description">Memorize Bible verses</string>
