@@ -38,6 +38,7 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.firstBibleDoc
@@ -121,6 +122,12 @@ open class WindowControl @Inject constructor() {
 
         if (!linksWindowWasVisible) {
             ABEventBus.post(NumberOfWindowsChangedEvent())
+        } else {
+            // The links window was already visible but its document (and thus its
+            // BookCategory) may have changed. Re-push config so windows recompute
+            // strongsLinkOpen and it does not go stale (e.g. a cross-reference
+            // replaces a Strong's definition in the shared links window).
+            ABEventBus.post(AppSettingsUpdated())
         }
     }
 
