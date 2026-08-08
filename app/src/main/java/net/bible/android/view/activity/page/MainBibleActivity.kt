@@ -782,15 +782,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
             binding.drawerLayout.closeDrawers()
         } else {
-            val visibleLinksWindow = windowControl.windowRepository.visibleWindows.firstOrNull { it.isLinksWindow }
+            // Prefer the active links window: when a (possibly nested) link popup opens it becomes
+            // active, so this is the most-recently-opened one on top. Fall back to any visible links
+            // window for the case where a links window is open but the main window kept focus.
+            val linksWindowToClose = windowControl.activeWindow.takeIf { it.isLinksWindow && it.isVisible }
+                ?: windowControl.windowRepository.visibleWindows.firstOrNull { it.isLinksWindow }
             if (documentViewManager.documentView.backButtonPressed()) {
                 // An in-window overlay (e.g. an open Vue.js modal) consumed the back press.
                 this.lastBackPressed = null
-            } else if (visibleLinksWindow != null && windowControl.isWindowRemovable(visibleLinksWindow)) {
+            } else if (linksWindowToClose != null && windowControl.isWindowRemovable(linksWindowToClose)) {
                 // A links window (e.g. Strong's definition or cross-reference popup) is transient,
                 // so the back button closes it directly instead of stepping through its history.
                 this.lastBackPressed = null
-                windowControl.closeWindow(visibleLinksWindow)
+                windowControl.closeWindow(linksWindowToClose)
             } else if (!historyTraversal.goBack()) {
                 if(lastBackPressed == null || lastBackPressed < now - 1000) {
                     this.lastBackPressed = now
