@@ -57,6 +57,14 @@ Everyone is welcome to help translate AndBible to different languages via easy t
 ## 🤝 All Contributors
 
 There are so many ways to contribute to AndBible! See our [contributor guide](https://github.com/AndBible/and-bible/wiki/How-to-contribute).
+### Repository Setup
+
+After cloning the repository, run:
+
+```powershell
+.\scripts\setup-repository.ps1
+```
+This configures the upstream remote to track the original And Bible repository
 
 ## 🪙 Sponsor AndBible development
 
