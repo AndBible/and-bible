@@ -429,6 +429,21 @@ export function getAllEventFunctions(event: EventWithEventFunctions): Callback[]
     return sortBy(all, [v => -v.options.priority, v => v.options.title]);
 }
 
+/**
+ * When a Strong's definition window is open, a tap on a word carrying a Strong's
+ * number should switch the open definition to that word directly, bypassing the
+ * ambiguous-selection menu. Returns the Strong's callback to fire, or null when
+ * no switch should happen (window closed, or no Strong's candidate under the tap).
+ */
+export function findStrongsSwitchCallback(
+    allEventFunctions: Callback[],
+    strongsLinkOpen: boolean
+): Nullable<() => void> {
+    if (!strongsLinkOpen) return null;
+    const strongsFunc = allEventFunctions.find(e => e.options.strongs);
+    return strongsFunc?.callback ?? null;
+}
+
 export function draggableElement(element: HTMLElement, dragHandle: HTMLElement) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
