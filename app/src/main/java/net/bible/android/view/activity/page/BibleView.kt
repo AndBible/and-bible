@@ -1497,6 +1497,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val isActive get() = windowControl.activeWindow.id == window.id
 
+    /** True when a dedicated links window is currently visible showing a
+     *  dictionary document (i.e. a Strong's / lexicon definition). Used by the
+     *  Vue side to switch the open definition on a subsequent Strong's tap. */
+    private val strongsLinkOpen get() =
+        windowControl.windowRepository.visibleWindows.any {
+            it.isLinksWindow &&
+                it.pageManager.currentPage.currentDocument?.bookCategory == BookCategory.DICTIONARY
+        }
+
     private fun updateActive() =
         executeJavascriptOnUiThread("""bibleView.emit('set_active', {isActive: $isActive, hasActiveIndicator: $hasActiveIndicator})""")
 
@@ -1526,6 +1535,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     config: ${displaySettings.toJson()},
                     appSettings: {
                         activeWindow: $isActive,
+                        strongsLinkOpen: $strongsLinkOpen,
                         isBottomWindow: $isBottomWindow,
                         hasActiveIndicator: $hasActiveIndicator,
                         nightMode: $nightMode,
