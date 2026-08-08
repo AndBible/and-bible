@@ -782,7 +782,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
             binding.drawerLayout.closeDrawers()
         } else {
-            if (!documentViewManager.documentView.backButtonPressed() && !historyTraversal.goBack()) {
+            val visibleLinksWindow = windowControl.windowRepository.visibleWindows.firstOrNull { it.isLinksWindow }
+            if (documentViewManager.documentView.backButtonPressed()) {
+                // An in-window overlay (e.g. an open Vue.js modal) consumed the back press.
+                this.lastBackPressed = null
+            } else if (visibleLinksWindow != null && windowControl.isWindowRemovable(visibleLinksWindow)) {
+                // A links window (e.g. Strong's definition or cross-reference popup) is transient,
+                // so the back button closes it directly instead of stepping through its history.
+                this.lastBackPressed = null
+                windowControl.closeWindow(visibleLinksWindow)
+            } else if (!historyTraversal.goBack()) {
                 if(lastBackPressed == null || lastBackPressed < now - 1000) {
                     this.lastBackPressed = now
                     Toast.makeText(this, getString(R.string.one_more_back_press), Toast.LENGTH_SHORT).show()
