@@ -87,6 +87,7 @@ import {
     getEventVerseInfo,
     getHighestPriorityEventFunctions,
     isBottomHalfClicked,
+    findStrongsSwitchCallback,
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton.vue";
 import {emit, setupEventBusListener} from "@/eventbus";
@@ -328,6 +329,15 @@ async function handle(event: MouseEvent) {
         return;
     }
     multiSelectionMode.value = false;
+
+    // A Strong's definition window is open: a tap on a Strong's word switches the
+    // open definition immediately, skipping the ambiguous-selection menu.
+    const strongsSwitch = findStrongsSwitchCallback(allEventFunctions, appSettings.strongsLinkOpen);
+    if (strongsSwitch) {
+        strongsSwitch();
+        close();
+        return;
+    }
 
     if (eventFunctions.length > 0 || _verseInfo != null || _ordinalInfo != null) {
         const firstFunc = eventFunctions[0];
