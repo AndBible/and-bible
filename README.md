@@ -83,4 +83,4 @@ You should have received a copy of the GNU General Public License along with And
 
 ## ⭐ Star history
 
-[![Star History Chart](https://api.star-history.com/svg?repos=AndBible/and-bible&type=date&legend=top-left)](https://www.star-history.com/#taigrr/spank&type=date&legend=top-left)
+[![Star History Chart](https://star-history.dera.page/svg?repos=AndBible/and-bible&type=date&legend=top-left)](https://star-history.dera.page/#AndBible/and-bible&type=date&legend=top-left)
