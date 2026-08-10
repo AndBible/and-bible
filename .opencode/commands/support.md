@@ -73,9 +73,47 @@ State the recommendation in one bold line, e.g. **Recommend: link #1234 and clos
 
 ### If recommending create issue
 - Suggested **title**
-- Suggested **body** bullets (version, device, Android, symptom guess, that user left no steps)
 - Labels if obvious (`bug`, etc.) — don’t invent process
 - Say whether operator should wait for logs from the ticket attachments (logcat) before filing
+- Suggested **body** loosely following this GitHub issue template (omit empty sections; fill from the paste; note gaps honestly):
+
+```
+**Describe the bug**
+A clear and concise description of what the bug is.
+
+**Bug was found on AndBible version**
+Build XXX.X or version X.X.
+
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
+
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
+
+**Smartphone (please complete the following information):**
+ - Device: [e.g. Samsung Galaxy S6]
+ - OS: [e.g. Android]
+ - Version [e.g. 8.0]
+
+**Additional context**
+Add any other context about the problem here.
+
+**Support ticket**
+https://support.andbible.org/scp/tickets.php?id=NNNN
+```
+
+Fill rules for that body:
+- **Describe the bug:** best symptom guess from dump/text; if user left no story, say so (e.g. empty in-app report / crash only).
+- **Version:** use reported app version/build exactly when present.
+- **To Reproduce:** real steps only if the user gave them; otherwise state that steps were not provided.
+- **Screenshots:** include this section **only** when a screenshot is actually supplied or clearly mentioned as attached (`screenshot.webp`, etc.). Otherwise **omit the section entirely** — no placeholder text.
+- **Smartphone:** Manufacturer/Model, Android version from the device block when present.
+- **Additional context:** channel (in-app Report bug), WebView/SQLITE/heap one-liners if useful, that logcat may be on the ticket, links to related issues — no invented stacks.
+- **Support ticket:** include whenever the paste/notes look like osTicket (or operator says ticket/osTicket/scp). Detect ticket number from operator notes, pasted URL, subject lines like `Ticket #12345`, `[#12345]`, or `tickets.php?id=…`. Link format: `https://support.andbible.org/scp/tickets.php?id=NNNN` (use the real id). If it seems ticket-sourced but no id is available, still add a **Support ticket** line noting osTicket and that the operator should paste the ticket URL/id. Omit this section only for clearly non-ticket channels (e.g. bare Play review, pure in-app dump with no ticket context).
 
 ### If recommending a user acknowledgment
 Put the optional paste-ready text in a fenced code block **after** the triage (same fence rules as mode B). Keep it very short; match user language if the template/UI language is clear (e.g. Spanish template → Spanish reply).
