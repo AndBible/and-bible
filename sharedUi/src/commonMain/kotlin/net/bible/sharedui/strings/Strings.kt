@@ -118,6 +118,13 @@ interface Strings {
      */
     val searchClear: String
 
+    /**
+     * Shown while indexing runs inside the reading view's search sheet. NOT [indexingWaitMsg]: that
+     * one promises the user will be taken to the search screen, which was true of the Activity chain
+     * and is false here — the search runs in place when indexing finishes.
+     */
+    val searchIndexingThenSearch: String
+
     // Batch 5 (Plan B) — EPUB search
     val ftsQuery: String
     val helpFts5: String

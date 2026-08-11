@@ -73,7 +73,7 @@ fun SearchIndexPanel(
     val strings = LocalStrings.current
     Column(Modifier.fillMaxWidth().padding(16.dp)) {
         if (indexing) {
-            Text(text = strings.indexingWaitMsg, style = MaterialTheme.typography.bodyMedium)
+            Text(text = strings.searchIndexingThenSearch, style = MaterialTheme.typography.bodyMedium)
             // ProgressRow carries its own 16.dp horizontal padding, as it does inside
             // SearchIndexProgressScreen's equally-padded Column; the rows are meant to sit inset
             // from the paragraph above them.

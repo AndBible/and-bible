@@ -115,6 +115,10 @@
     <string name="search_options">Search settings</string>
     <string name="search_submit">Search</string>
     <string name="search_clear">Clear search text</string>
+    <!-- F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place. -->
+    <string name="search_indexing_then_search">When indexing finishes, the search will run automatically.</string>
     <string name="choose_translations">Choose translations…</string>
     <string name="multi_search_results">%1$d verses in %2$d translations</string>
     <string name="search_index_not_created">no index</string>
