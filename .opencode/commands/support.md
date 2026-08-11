@@ -47,7 +47,9 @@ Be concise. Structure:
 
 ## Version
 - Compare reported `Version: …` to latest on https://github.com/AndBible/and-bible/releases (check with `gh` or fetch if needed).
-- If clearly old: note that upgrading may already fix it.
+- Treat the reported version as a **snapshot at report time**, not proof of what they run now—especially on **old tickets** (weeks/months ago, backlog, “responding late”).
+- If clearly old **and** the report is fresh/current: note that upgrading may already fix it.
+- If clearly old **and** the ticket is old: say the version may be stale; they may already have updated. Prefer “if still on X / if this still happens on current” over assuming they need an upgrade nag.
 - If current/recent: treat as potentially still valid.
 
 ## GitHub
@@ -116,14 +118,18 @@ Fill rules for that body:
 - **Support ticket:** include whenever the paste/notes look like osTicket (or operator says ticket/osTicket/scp). Detect ticket number from operator notes, pasted URL, subject lines like `Ticket #12345`, `[#12345]`, or `tickets.php?id=…`. Link format: `https://support.andbible.org/scp/tickets.php?id=NNNN` (use the real id). If it seems ticket-sourced but no id is available, still add a **Support ticket** line noting osTicket and that the operator should paste the ticket URL/id. Omit this section only for clearly non-ticket channels (e.g. bare Play review, pure in-app dump with no ticket context).
 
 ### If recommending a user acknowledgment
-Put the optional paste-ready text in a fenced code block **after** the triage (same fence rules as mode B). Keep it very short; match user language if the template/UI language is clear (e.g. Spanish template → Spanish reply).
+Put the optional paste-ready text in a fenced code block **after** the triage (same fence rules as mode B). Keep it very short; match user language if the template/UI language is clear (e.g. Spanish template → Spanish reply). If you write the acknowledgment in the user's language, also include the exact English translation in a second fenced code block after it for the operator to verify.
 
 ### Rules for triage
 - Don’t pretend you saw logcat contents if they weren’t pasted—only the template was.
 - Don’t invent stack traces.
 - Prefer **just close** or **ask for steps** over filing empty “crash on unknown” issues when there’s no signal.
 - Prefer **link dupe** over new issue when search finds a solid match.
-- Version matters: outdated + empty report → lean close/upgrade; brand-new version + empty report → ask steps or hold for logcat, don’t spam GitHub.
+- Version matters, but **ticket age matters too**:
+  - Fresh ticket + outdated version + empty report → lean close/upgrade.
+  - **Old ticket** + outdated version → don’t treat “update” as the main story; they may already be current. Lean “still happening?” / close if no signal, or ask current version + whether it persists.
+  - Brand-new version + empty report → ask steps or hold for logcat, don’t spam GitHub.
+- Optional user acknowledgments on old tickets: avoid “your version is old, please update” as if they never left that build; ask if the problem still occurs (and on which version) instead.
 
 ---
 
@@ -148,6 +154,8 @@ Return **only** the reply text, wrapped in a single markdown fenced code block (
 
 Optional: if something is unclear and you must ask the operator one clarifying question, or you have a dupe-issue / version note, put it **outside** the fence on its own line after the draft, prefixed with `OPERATOR:`. Prefer drafting a best-effort reply instead.
 
+**User's language ≠ English:** when you match the user's language (non-English draft), you MUST also include the exact same response translated to English in a second fenced code block right after the draft, so the operator can verify the translation. Put the English copy in its own fence ```` ``` ```` block, unlabeled or prefixed `[English]`. No `OPERATOR:` prefix for it — it's a verbatim translation, not a note.
+
 ### Tone
 
 - Warm, patient, respectful
@@ -156,12 +164,22 @@ Optional: if something is unclear and you must ask the operator one clarifying q
 - Not overly apologetic unless we clearly caused a problem
 - Match the user's language when they wrote in a non-English language (if you can); otherwise English
 
+### Old tickets / delayed replies
+
+We often answer tickets **long after** they were opened. App version (and sometimes Android version) in the paste is what they had **then**, not necessarily now.
+
+- **Do not** open with “you’re on an old version, please update” when the report looks stale relative to today’s latest (e.g. they reported ~910 and current is past ~1100). They may already have updated months ago.
+- If an upgrade might have fixed it: ask whether the issue **still happens**, and only then gently suggest checking they’re on the latest from Play/F-Droid/GitHub—or ask which version they use now.
+- If the problem is unrelated to version (how-to, backup, downloads, etc.): answer the question; skip version nags unless the operator notes say they’re still on that build.
+- Operator notes like “old ticket”, “late reply”, “from months ago”, or an obviously aged thread → apply this section strictly.
+- Put version-gap context for the operator in `OPERATOR:` (e.g. reported 910 vs latest 11xx; draft assumes they may have moved on), not as a scolding user-facing upgrade pitch.
+
 ### What to do
 
 1. Read the user message and any operator notes in `$ARGUMENTS`.
-2. Identify the real question/problem.
+2. Identify the real question/problem. Note ticket age / delayed-reply signals if present.
 3. If needed, quickly check project docs/code/wiki context in this repo for accurate steps (Backup & Restore, downloads, speak, etc.). Prefer current docs links over outdated wiki-only pages when both exist.
-4. Give the **shortest useful** answer: what to try, or where to look next.
+4. Give the **shortest useful** answer: what to try, or where to look next. Respect **Old tickets / delayed replies** when version looks historical.
 5. Include links only when they help. Prefer one primary link.
 6. If it’s a bug with a known GitHub issue, you may mention/link it in the reply when that helps the user; still keep the reply short. Put deeper triage in `OPERATOR:` if useful.
 
