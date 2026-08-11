@@ -16,8 +16,15 @@ class SearchFormController(
     loadRecentTerms: () -> List<String> = { emptyList() },
     private val maxRecentTerms: Int = 10,
 ) {
-    private val _query = MutableStateFlow("")
-    val query: StateFlow<String> = _query.asStateFlow()
+    /** Query text and the recent-terms MRU, shared with EPUB search by composition. */
+    private val queries = SearchQueryController(
+        persistRecentTerms = persistRecentTerms,
+        loadRecentTerms = loadRecentTerms,
+        maxRecentTerms = maxRecentTerms,
+    )
+
+    val query: StateFlow<String> get() = queries.query
+    val recentTerms: StateFlow<List<String>> get() = queries.recentTerms
 
     private val _searchType = MutableStateFlow(SearchType.ALL_WORDS)
     val searchType: StateFlow<SearchType> = _searchType.asStateFlow()
@@ -31,19 +38,10 @@ class SearchFormController(
     private val _availableTranslations = MutableStateFlow<List<Pair<String, String>>>(emptyList())
     val availableTranslations: StateFlow<List<Pair<String, String>>> = _availableTranslations.asStateFlow()
 
-    private val _recentTerms = MutableStateFlow(loadRecentTerms())
-    val recentTerms: StateFlow<List<String>> = _recentTerms.asStateFlow()
-
     /** Add [term] to the front of the recent-terms MRU (trimmed, de-duplicated, capped), and persist. */
-    fun recordRecentTerm(term: String) {
-        val t = term.trim()
-        if (t.isEmpty()) return
-        val updated = (listOf(t) + _recentTerms.value.filter { it != t }).take(maxRecentTerms)
-        _recentTerms.value = updated
-        persistRecentTerms(updated)
-    }
+    fun recordRecentTerm(term: String) = queries.recordRecentTerm(term)
 
-    fun setQuery(v: String) { _query.value = v }
+    fun setQuery(v: String) = queries.setQuery(v)
     fun setSearchType(v: SearchType) { _searchType.value = v }
     fun setBibleSection(v: SearchBibleSection) { _bibleSection.value = v }
     fun setAvailableTranslations(v: List<Pair<String, String>>) { _availableTranslations.value = v }
@@ -57,7 +55,7 @@ class SearchFormController(
     fun seedTranslations(ids: List<String>) { _selectedTranslationIds.value = ids }
 
     fun buildRequest() = SearchRequest(
-        query = _query.value,
+        query = queries.query.value,
         searchType = _searchType.value,
         bibleSection = _bibleSection.value,
         translationIds = _selectedTranslationIds.value,
