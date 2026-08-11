@@ -29,20 +29,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,26 +43,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedcore.search.TranslationMatchVd
-import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbLoadingIndicator
-import net.bible.sharedui.components.AbMultiSelectDialog
-import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
 import net.bible.sharedui.strings.LocalStrings
@@ -115,7 +100,6 @@ fun SearchResultsScreen(
 ) {
     val strings = LocalStrings.current
     val expanded = remember { mutableStateMapOf<String, Boolean>().apply { initiallyExpanded.forEach { put(it, true) } } }
-    var chooserOpen by remember { mutableStateOf(initiallyChooserOpen) }
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialScrollIndex)
 
     LaunchedEffect(listState) {
@@ -128,35 +112,17 @@ fun SearchResultsScreen(
                 title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 onNavigateUp = onNavigateUp,
                 actions = {
-                    if (candidates.isNotEmpty()) {
-                        AssistChip(
-                            onClick = { chooserOpen = true },
-                            label = { Text(selectedAbbreviations) },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Filled.Translate,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(AssistChipDefaults.IconSize),
-                                )
-                            },
-                            modifier = Modifier
-                                .padding(end = 4.dp)
-                                .semantics { contentDescription = strings.chooseTranslations },
-                        )
-                    }
-                    if (scriptureToggleVisible) {
-                        AbActionIcon(
-                            icon = if (scriptureShown) Icons.AutoMirrored.Filled.MenuBook else Icons.Filled.Book,
-                            contentDescription = if (scriptureShown) strings.deuterocanonical else strings.bible,
-                            onClick = onToggleScripture,
-                        )
-                    }
-                    AbOverflowMenu(contentDescription = null) { close ->
-                        DropdownMenuItem(
-                            text = { Text(strings.openResultsInWindow) },
-                            onClick = { close(); onOpenInWindow() },
-                        )
-                    }
+                    BibleResultsActions(
+                        candidates = candidates,
+                        selectedIds = selectedIds,
+                        selectedAbbreviations = selectedAbbreviations,
+                        scriptureToggleVisible = scriptureToggleVisible,
+                        scriptureShown = scriptureShown,
+                        onToggleScripture = onToggleScripture,
+                        onOpenInWindow = onOpenInWindow,
+                        onSelectTranslations = onSelectTranslations,
+                        initiallyChooserOpen = initiallyChooserOpen,
+                    )
                 },
             )
         },
@@ -181,35 +147,25 @@ fun SearchResultsScreen(
                 // ONE of them has no chips (that's the collapsed-multi affordance), so label its single
                 // card with the matched translation — otherwise there's no way to tell which one it is.
                 val labelSingleMatchTranslation = selectedIds.size > 1
-                items(rows, key = { it.referenceName }) { row ->
-                    ResultCard(
-                        row = row,
-                        expanded = expanded[row.referenceName] == true,
-                        onToggleExpand = { expanded[row.referenceName] = !(expanded[row.referenceName] == true) },
-                        onSelect = onSelect,
-                        labelSingleMatchTranslation = labelSingleMatchTranslation,
-                    )
-                }
+                bibleResultRows(
+                    rows = rows,
+                    expanded = expanded,
+                    labelSingleMatchTranslation = labelSingleMatchTranslation,
+                    onSelect = onSelect,
+                )
             }
-        }
-        if (chooserOpen) {
-            AbMultiSelectDialog(
-                title = strings.chooseTranslations,
-                options = candidates,
-                selectedIds = selectedIds,
-                idOf = { it.id },
-                labelOf = { it.abbreviation },
-                confirmText = strings.okay,
-                dismissText = strings.cancel,
-                onConfirm = { ids -> chooserOpen = false; onSelectTranslations(ids) },
-                onDismiss = { chooserOpen = false },
-            )
         }
     }
 }
 
+/**
+ * One verse-reference result card. `internal` (not `private`) so [bibleResultRows] can list it for
+ * both this screen and the reading view's search sheet; its body is unchanged from when it was this
+ * file's private `ResultCard`, because F19 (chips while collapsed), F20 (expanded = breakdown only)
+ * and F27 (label a single-match card) are encoded in it.
+ */
 @Composable
-private fun ResultCard(
+internal fun BibleResultCard(
     row: SwordResultRow,
     expanded: Boolean,
     onToggleExpand: () -> Unit,
