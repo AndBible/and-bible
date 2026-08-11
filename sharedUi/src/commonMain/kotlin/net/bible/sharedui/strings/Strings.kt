@@ -112,6 +112,12 @@ interface Strings {
     val searchOptions: String
     val searchSubmit: String
 
+    /**
+     * The field's clear button. `AbSearchField` leaves its own clear icon's `contentDescription` null,
+     * which is one of the open a11y items — the toolbar's field does not repeat that.
+     */
+    val searchClear: String
+
     // Batch 5 (Plan B) — EPUB search
     val ftsQuery: String
     val helpFts5: String

@@ -103,6 +103,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val searchClose: String get() = context.getString(R.string.search_close)
     override val searchOptions: String get() = context.getString(R.string.search_options)
     override val searchSubmit: String get() = context.getString(R.string.search_submit)
+    override val searchClear: String get() = context.getString(R.string.search_clear)
 
     // Batch 5 (Plan B) — EPUB search
     override val ftsQuery: String get() = context.getString(R.string.search_fts_query)

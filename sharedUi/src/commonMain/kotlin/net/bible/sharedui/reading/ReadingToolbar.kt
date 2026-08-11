@@ -47,8 +47,20 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
@@ -269,23 +281,71 @@ fun ReadingToolbar(
                     // extends under the status bar instead of stopping below it.
                     .background(container)
                     .windowInsetsPadding(WindowInsets.statusBars)
+                    // The normal row does the same below: without it the field slides under a display
+                    // cutout in landscape.
+                    .windowInsetsPadding(
+                        WindowInsets.systemBars.union(WindowInsets.displayCutout)
+                            .only(WindowInsetsSides.Horizontal)
+                    )
                     .height(ToolbarHeight),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                ToolbarIconButton(icons.home, strings.searchClose, searchBarCallbacks.onClose)
+                ToolbarVectorButton(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    strings.searchClose,
+                    searchBarCallbacks.onClose,
+                )
                 Box(Modifier.weight(1f)) {
-                    AbSearchField(
+                    // Deliberately NOT AbSearchField. That is an `OutlinedTextField`, and it fails here
+                    // twice over — both found by inspecting the recorded goldens zoomed, neither
+                    // detectable by any assertion:
+                    //
+                    //  1. Its M3 minimum height is exactly [ToolbarHeight], so its outline lands flush on
+                    //     the toolbar's top and bottom edges (measured: the border occupied rows 0 and 55
+                    //     of a 56px capture), pressing against the status bar with no breathing room.
+                    //  2. Its colours come from M3's own defaults rather than this toolbar's `onContainer`,
+                    //     so on a saturated workspace colour the text and both field icons rendered dark on
+                    //     purple while the neighbouring toolbar icons were white. Same defect family as
+                    //     batch 3's F1.
+                    //
+                    // In an app bar the bar IS the container, so this is a bare field whose every colour
+                    // derives from `onContainer`.
+                    BasicTextField(
                         value = searchBar.query,
                         onValueChange = searchBarCallbacks.onQueryChange,
-                        placeholder = strings.search,
-                        verticalPadding = 0.dp,
-                        horizontalPadding = 0.dp,
-                        onImeSearch = searchBarCallbacks.onSubmit,
-                        onLeadingIconClick = if (searchBar.recentTerms.isNotEmpty()) {
-                            searchBarCallbacks.onRecentTermsOpen
-                        } else null,
-                        leadingIconContentDescription =
-                            if (searchBar.recentTerms.isNotEmpty()) strings.recentSearches else null,
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = onContainer),
+                        cursorBrush = SolidColor(onContainer),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = { searchBarCallbacks.onSubmit() }),
+                        modifier = Modifier.fillMaxWidth(),
+                        decorationBox = { innerTextField ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (searchBar.recentTerms.isNotEmpty()) {
+                                    ToolbarVectorButton(
+                                        Icons.Filled.History,
+                                        strings.recentSearches,
+                                        searchBarCallbacks.onRecentTermsOpen,
+                                    )
+                                }
+                                Box(Modifier.weight(1f)) {
+                                    if (searchBar.query.isEmpty()) {
+                                        Text(
+                                            strings.search,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = onContainer.copy(alpha = 0.6f),
+                                        )
+                                    }
+                                    innerTextField()
+                                }
+                                if (searchBar.query.isNotEmpty()) {
+                                    ToolbarVectorButton(
+                                        Icons.Filled.Clear,
+                                        strings.searchClear,
+                                    ) { searchBarCallbacks.onQueryChange("") }
+                                }
+                            }
+                        },
                     )
                     DropdownMenu(
                         expanded = searchBar.recentMenuOpen,
@@ -299,8 +359,11 @@ fun ReadingToolbar(
                         }
                     }
                 }
-                ToolbarIconButton(icons.overflow, strings.searchOptions, searchBarCallbacks.onOpenSettings)
-                ToolbarIconButton(icons.search, strings.searchSubmit, searchBarCallbacks.onSubmit)
+                // `Tune` rather than the host's overflow painter: this opens settings, and Tune is what
+                // `AbSettingsSummarySheet` already uses for exactly that. A vertical ⋮ reads as "more
+                // actions", which this is not.
+                ToolbarVectorButton(Icons.Filled.Tune, strings.searchOptions, searchBarCallbacks.onOpenSettings)
+                ToolbarVectorButton(Icons.Filled.Search, strings.searchSubmit, searchBarCallbacks.onSubmit)
             }
         }
         return
@@ -395,6 +458,34 @@ private fun QuickToolbarButton(
         ToolbarButton.SPEAK -> ToolbarIconButton(icons.speak, strings.speak, callbacks.onSpeak, callbacks.onSpeakLong)
         // TODO: no LocalStrings field for this yet — keep literal until one is added.
         ToolbarButton.WORKSPACE -> ToolbarIconButton(icons.workspace, "Workspace", callbacks.onWorkspace)
+    }
+}
+
+/**
+ * [ToolbarIconButton] for a Material vector icon rather than a host-supplied [Painter]. The search row
+ * uses vectors throughout: its affordances (back, recent searches, clear, settings, submit) are generic
+ * Material ones, so routing them through [ReadingToolbarIcons] would mean five new host resources for no
+ * gain.
+ */
+@Composable
+private fun ToolbarVectorButton(
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(ToolbarButtonWidth)
+            .combinedClickable(onClick = onClick),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(AbActionIconSize),
+        )
     }
 }
 
