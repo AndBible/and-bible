@@ -25,12 +25,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,6 +54,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -72,8 +78,11 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -86,6 +95,7 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.window.WindowStateServiceImpl
+import net.bible.android.control.search.SearchControl
 import net.bible.android.database.IdType
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -101,6 +111,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.AgentForegroundService
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.epub.isEpub
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ai.AgentPermissionRequest
@@ -113,12 +124,29 @@ import net.bible.sharedcore.reading.DrawerCloseLatch
 import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
+import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.reading.bibleReferenceOverlayVisible
 import net.bible.sharedcore.reading.paneButtonDragAction
 import net.bible.sharedcore.reading.paneButtonFadeMillis
 import net.bible.sharedcore.reading.paneButtonHiddenAlpha
+import net.bible.sharedcore.search.BibleSearchService
+import net.bible.sharedcore.search.IndexPollDecision
+import net.bible.sharedcore.search.PollOutcome
+import net.bible.sharedcore.search.ProgressJob
+import net.bible.sharedcore.search.ReadingSearchController
+import net.bible.sharedcore.search.ReadingSearchPhase
+import net.bible.sharedcore.search.SearchBibleSection
+import net.bible.sharedcore.search.SearchDocumentCategory
+import net.bible.sharedcore.search.SearchDocumentInfo
+import net.bible.sharedcore.search.SearchIndexProgressController
+import net.bible.sharedcore.search.SearchIndexService
+import net.bible.sharedcore.search.SearchQueryController
+import net.bible.sharedcore.search.SearchRequest
+import net.bible.sharedcore.search.SearchResultsCache
+import net.bible.sharedcore.search.SearchResultsController
+import net.bible.sharedcore.search.SearchType
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.sharedcore.speak.SpeakTransportController
 import net.bible.sharedcore.speak.SpeakTransportDialog
@@ -139,6 +167,7 @@ import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
 import net.bible.sharedui.reading.QuickDocMenuState
 import net.bible.sharedui.reading.ReadingDrawerContent
 import net.bible.sharedui.reading.ReadingDrawerWidth
+import net.bible.sharedui.reading.ReadingSearchBarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
@@ -147,8 +176,21 @@ import net.bible.sharedui.reading.WindowButton
 import net.bible.sharedui.reading.WindowButtonMode
 import net.bible.sharedui.reading.WindowPaneMenu
 import net.bible.sharedui.reading.WindowTabBar
+import net.bible.sharedui.search.BibleResultsActions
+import net.bible.sharedui.search.BibleSearchSettings
+import net.bible.sharedui.search.SearchIndexPanel
+import net.bible.sharedui.search.SearchSettingsSheet
+import net.bible.sharedui.search.SearchSheetContent
+import net.bible.sharedui.search.bibleResultRows
 import net.bible.sharedui.textOptionDrawableRes
+import org.crosswire.common.progress.JobManager
+import org.crosswire.common.progress.Progress
+import org.crosswire.common.progress.WorkEvent
+import org.crosswire.common.progress.WorkListener
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.index.IndexStatus
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -380,6 +422,297 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         hostScope,
         onConfig = { activity.startActivity(ScreenLauncher.intentFor(activity, Screen.BibleSpeak)) },
     )
+
+    // ------------------------------------------------------------------------------------------
+    // F6 Task 8a — SWORD search inside the reading view (the toolbar's search mode + the sheet).
+    // ------------------------------------------------------------------------------------------
+
+    private val bibleSearchService: BibleSearchService by inject()
+    private val searchIndexService: SearchIndexService by inject()
+    private val searchResultsCache: SearchResultsCache by inject()
+    private val searchControl: SearchControl by inject()
+
+    /**
+     * Query text + the recent-terms MRU. Persistence is host-side under the SAME settings key the
+     * search Activities use (`SearchComposeActivity.kt:199-208`), **newline**-separated because a
+     * query may contain a comma — unlike the translation list, which is comma-joined.
+     */
+    private val searchQueries = SearchQueryController(
+        persistRecentTerms = { terms ->
+            CommonUtils.settings.setString(SEARCH_RECENT_TERMS_KEY, terms.joinToString("\n"))
+        },
+        loadRecentTerms = { loadRecentSearchTerms() },
+    )
+
+    /**
+     * The search *settings* (word mode, bible section, translations) and the list of Bibles to
+     * choose from. Host-owned Compose `State` rather than a `SearchFormController`: that controller
+     * takes `currentBookName` as a constructor value, whereas the reading view's current book moves
+     * as the user reads, so the name is read fresh per search instead (see [buildSearchRequest]).
+     */
+    private val searchType = mutableStateOf(SearchType.ALL_WORDS)
+    private val searchSection = mutableStateOf(SearchBibleSection.ALL)
+    private val searchTranslations = mutableStateOf<List<String>>(emptyList())
+    private val searchAvailableTranslations = mutableStateOf<List<Pair<String, String>>>(emptyList())
+
+    /** Whether the modal search-settings sheet (the toolbar's ⚙/Tune affordance) is open. */
+    private val searchSettingsOpen = mutableStateOf(false)
+
+    /** Whether the toolbar field's recent-terms dropdown is open (state-IN, see [ReadingSearchBarState]). */
+    private val searchRecentMenuOpen = MutableStateFlow(false)
+
+    /**
+     * Which result rows are expanded, and the result list's scroll position — both owned by the
+     * HOST rather than remembered inside the sheet's composition, so they survive the sheet being
+     * closed and reopened (F25's scroll restore, which the Activity flow did with an Intent extra).
+     */
+    private val searchResultsExpanded = mutableStateMapOf<String, Boolean>()
+    private val searchResultsListState = LazyListState()
+
+    /**
+     * The SWORD results themselves, constructed exactly as `SearchResultsComposeActivity.kt:72`
+     * does (the Koin [BibleSearchService], the activity's `lifecycleScope`, the Koin
+     * [SearchResultsCache] single — so the F26 same-request cache is shared with that Activity).
+     * [ReadingSearchController] deliberately does not own results; it owns the session (spec §5).
+     */
+    val searchResults = SearchResultsController(bibleSearchService, activity.lifecycleScope, searchResultsCache)
+
+    /**
+     * Index-build progress rows, feeding [SearchIndexPanel]'s progress half. Reused verbatim from
+     * the Activity path; only `onHide` differs — there is no Activity to `finish()`, so it closes
+     * the sheet.
+     */
+    val searchIndexProgress = SearchIndexProgressController(onHide = { searchController.closeSheet() })
+
+    /**
+     * The search session state machine (Task 3). Every effect it needs is injected here, which is
+     * what keeps the machine itself Android-free and host-testable:
+     * - `resolveDoc` reads the ACTIVE window's document each time, so search always applies to what
+     *   is being read now (`searchDocumentInfo` is the JSword→portable mapping, Step 1).
+     * - `onLeaveFullScreen` uses the [MainBibleActivity.fullScreen] setter because `toggleFullScreen`
+     *   is private; assigning `false` is idempotent there.
+     * - `onRunSearch` hands the RAW query plus the real word-mode/section to the service, which
+     *   decorates once internally — the Activity pair had to pass an already-decorated string with
+     *   identity decorators to avoid decorating twice (`SearchResultsComposeActivity.kt:97-101`).
+     * - `onUnavailable` is Task 10's snackbar; nothing is shown yet.
+     */
+    val searchController = ReadingSearchController(
+        resolveDoc = { searchDocumentInfo(activity.documentControl.currentDocument) },
+        onUnavailable = { /* Task 10: the "<document> cannot be searched" snackbar. */ },
+        onLeaveFullScreen = { activity.fullScreen = false },
+        onStartIndexing = { docId -> startSearchIndexing(docId) },
+        // `forEpub` is ignored: an EPUB never reaches here (see [searchOpensInReadingView]) —
+        // EPUB search keeps its own Activities until Plan B.
+        onRunSearch = { docId, query, _ -> runSearch(docId, query) },
+        queries = searchQueries,
+    )
+
+    /**
+     * What the toolbar renders in search mode, or `null` when search mode is off (which is what
+     * makes `ReadingToolbar` draw its normal row). Assembled here rather than in `mountComposeView`
+     * because three of its four inputs are `StateFlow`s owned by [searchController]/[searchQueries]
+     * and one is host state; `mountComposeView` just collects the result, the same shape as its
+     * `toolbar: StateFlow<ToolbarState>` parameter.
+     */
+    val searchBar: StateFlow<ReadingSearchBarState?> = combine(
+        searchController.searchModeActive,
+        searchQueries.query,
+        searchQueries.recentTerms,
+        searchRecentMenuOpen,
+    ) { active, query, recentTerms, recentMenuOpen ->
+        if (!active) null
+        else ReadingSearchBarState(query = query, recentTerms = recentTerms, recentMenuOpen = recentMenuOpen)
+    }.stateIn(hostScope, SharingStarted.Eagerly, null)
+
+    /** The JSword index-build feed (Step 5) — see [startSearchIndexing]. */
+    private var searchIndexWorkListener: WorkListener? = null
+    private val searchIndexFinishedJobs = HashSet<Progress>()
+    private var searchIndexPoll: IndexPollDecision? = null
+    private var searchIndexDocument: Book? = null
+
+    /**
+     * Whether search for the active window's document belongs in the reading view at all. Plan A
+     * moves the **SWORD** search here and explicitly leaves the EPUB path on its own Activities, so
+     * an EPUB still goes the `SearchControl.getSearchIntent` route: `searchKindFor` classifies it as
+     * `Epub`, but nothing in Plan A can run an EPUB (FTS5) search, and running the Lucene one over
+     * it would return zero rows in silence. Every entry point asks this before [openSearch].
+     */
+    val searchOpensInReadingView: Boolean
+        get() = activity.documentControl.currentDocument?.isEpub != true
+
+    /**
+     * Opens search for the active window's document — the target of every retargeted entry point
+     * (`MainBibleActivity.composeSearch()` here in Task 8a; the remaining five in Task 8b).
+     * [seedQuery] is for the entry points that bypass the form (text-selection "Search …", Strong's
+     * find-all) and runs immediately.
+     */
+    fun openSearch(seedQuery: String? = null) {
+        // Defensive twin of [searchOpensInReadingView]: doing nothing is bad, but silently running
+        // a Bible search over an EPUB and reporting "no results" would be worse.
+        if (!searchOpensInReadingView) return
+        refreshSearchTranslations()
+        searchController.open(seedQuery)
+    }
+
+    /**
+     * The two-stage back for search, in one call: first press closes the results/index sheet
+     * (keeping the query and the results), second leaves search mode. Returns whether the press was
+     * consumed. Wired into `MainBibleActivity.onBackPressed` by Task 9 — inert until then.
+     */
+    fun closeSearchIfOpen(): Boolean {
+        if (searchController.closeSheet()) return true
+        if (searchController.closeSearchMode()) {
+            stopSearchIndexFeed()
+            return true
+        }
+        return false
+    }
+
+    /** Leaves search entirely (the toolbar's close affordance, and the index prompt's Cancel). */
+    private fun leaveSearch() {
+        searchController.closeSheet()
+        if (searchController.closeSearchMode()) stopSearchIndexFeed()
+    }
+
+    /**
+     * Reloads the Bibles offered by the settings sheet and re-seeds the selection from the
+     * persisted choice, falling back to the document being read — `SearchComposeActivity.kt:81-90`
+     * (its `onResume` does the same reload, for the same reason: the choice may have changed
+     * elsewhere). Called on every [openSearch] rather than once, since the read document changes.
+     */
+    private fun refreshSearchTranslations() {
+        val bibles = SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().sortedBy { it.abbreviation }
+        searchAvailableTranslations.value = bibles.map { it.initials to it.abbreviation }
+        val fallback = activity.documentControl.currentDocument?.initials?.let { listOf(it) } ?: emptyList()
+        searchTranslations.value = loadSelectedSearchTranslations().ifEmpty { fallback }
+    }
+
+    /** Applies (and persists) a translation choice made in the settings sheet. */
+    private fun setSearchTranslations(ids: List<String>) {
+        searchTranslations.value = ids
+        // Same comma-joined key classic `Search.saveSelectedTranslations` writes.
+        CommonUtils.settings.setString(SEARCH_TRANSLATIONS_KEY, ids.joinToString(","))
+    }
+
+    /** `SearchComposeActivity.loadSelectedTranslations` — only initials that still resolve to a Bible. */
+    private fun loadSelectedSearchTranslations(): List<String> {
+        val saved = CommonUtils.settings.getString(SEARCH_TRANSLATIONS_KEY, null)
+        if (saved.isNullOrBlank()) return emptyList()
+        val available = SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().map { it.initials }.toSet()
+        return saved.split(",").filter { it in available }
+    }
+
+    /** `SearchComposeActivity.loadRecentTerms` — newline-separated, see [searchQueries]. */
+    private fun loadRecentSearchTerms(): List<String> {
+        val saved = CommonUtils.settings.getString(SEARCH_RECENT_TERMS_KEY, null)
+        if (saved.isNullOrBlank()) return emptyList()
+        return saved.split("\n").filter { it.isNotBlank() }
+    }
+
+    private fun buildSearchRequest(docId: String, query: String) = SearchRequest(
+        query = query,
+        searchType = searchType.value,
+        bibleSection = searchSection.value,
+        // Addressing key (`Book.initials`), never a list index. Falls back to the document being
+        // read, which is the seed `SearchComposeActivity.kt:90` uses.
+        translationIds = searchTranslations.value.ifEmpty { listOf(docId) },
+        currentBookName = searchControl.currentBookName,
+    )
+
+    private fun runSearch(docId: String, query: String) {
+        // A new query's rows are new rows: keep no stale expansion state keyed by reference name.
+        searchResultsExpanded.clear()
+        searchResults.run(buildSearchRequest(docId, query))
+    }
+
+    /**
+     * Starts a JSword index build and begins feeding [searchIndexProgress] from `JobManager` —
+     * lifted from `SearchIndexProgressComposeActivity` (`:80-123`), whose whole reason for existing
+     * was to own this listener. The listener lives only for the `Indexing` phase: it is added here
+     * and removed by [stopSearchIndexFeed] once the build resolves (or search mode closes), so a
+     * closed sheet keeps no listener alive.
+     */
+    private fun startSearchIndexing(docId: String) {
+        searchIndexDocument = SwordDocumentFacade.getDocumentByInitials(docId)
+        searchIndexPoll = IndexPollDecision()
+        searchIndexFinishedJobs.clear()
+        // Listener FIRST, then the build: the Activity pair registered only once the progress
+        // screen had been launched, so the first work events of a fast build could arrive with
+        // nobody listening.
+        if (searchIndexWorkListener == null) {
+            val listener = object : WorkListener {
+                override fun workProgressed(ev: WorkEvent) = onSearchIndexWorkEvent(ev)
+                override fun workStateChanged(ev: WorkEvent) = onSearchIndexWorkEvent(ev)
+            }
+            searchIndexWorkListener = listener
+            JobManager.addWorkListener(listener)
+        }
+        searchIndexService.createIndex(docId)
+        refreshSearchIndexJobs()
+        // Classic parity (`SearchIndexProgressComposeActivity.onResume`): the "no tasks running"
+        // line is revealed only after ~4s, and only if still idle.
+        hostScope.launch {
+            delay(SEARCH_INDEX_NO_TASKS_DELAY_MS)
+            searchIndexProgress.revealNoTasksIfIdle()
+        }
+    }
+
+    private fun stopSearchIndexFeed() {
+        searchIndexWorkListener?.let { JobManager.removeWorkListener(it) }
+        searchIndexWorkListener = null
+    }
+
+    /**
+     * `SearchIndexProgressComposeActivity.onWorkEvent`/`jobFinished` (`:328-336`, `:362-391`), with
+     * two deliberate differences: the blocking `pause(2)` loop is a coroutine `delay` around the
+     * pure [IndexPollDecision] (Task 7), and the `startActivity`/`finish` branch is NOT ported —
+     * what happens after a successful build is [ReadingSearchController.onIndexingFinished]'s
+     * decision (auto-run a waiting query, else back to the form), and Task 3's tests pin it.
+     *
+     * `WorkListener` fires off the main thread, so everything is hopped onto [hostScope] (Main).
+     */
+    private fun onSearchIndexWorkEvent(ev: WorkEvent) {
+        val job = ev.job
+        hostScope.launch {
+            refreshSearchIndexJobs()
+            if (!job.isFinished || !searchIndexFinishedJobs.add(job)) return@launch
+            val poll = searchIndexPoll ?: return@launch
+            val indexDone = awaitIndexDone(
+                poll = poll,
+                indexDone = { searchIndexDocument?.indexStatus == IndexStatus.DONE },
+                pause = { delay(SEARCH_INDEX_POLL_INTERVAL_MS) },
+            )
+            // Classic only reported the failure once nothing else was still running.
+            if (!indexDone && isEverySearchIndexJobFinished()) searchIndexProgress.showError()
+            stopSearchIndexFeed()
+            searchController.onIndexingFinished(indexDone)
+        }
+    }
+
+    /** `SearchIndexProgressComposeActivity.refreshJobs` (`:338-353`) verbatim. */
+    private fun refreshSearchIndexJobs() {
+        val snapshot = ArrayList<ProgressJob>()
+        val it = JobManager.iterator()
+        while (it.hasNext()) {
+            val job = it.next()
+            snapshot.add(
+                ProgressJob(
+                    id = System.identityHashCode(job).toString(),
+                    label = job.jobName,
+                    percent = job.work,
+                    indeterminate = job.work == 0,
+                )
+            )
+        }
+        searchIndexProgress.setJobs(snapshot)
+    }
+
+    /** `SearchIndexProgressComposeActivity.isAllJobsFinished` (`:355-360`) verbatim. */
+    private fun isEverySearchIndexJobFinished(): Boolean {
+        val it = JobManager.iterator()
+        while (it.hasNext()) if (!it.next().isFinished) return false
+        return true
+    }
 
     private val generation = ComposeReadingViewGeneration()
 
@@ -747,6 +1080,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      */
     fun dispose() {
         ABEventBus.unregister(this)
+        // F6 Task 8a: a `JobManager` WorkListener outlives the activity that registered it (the
+        // manager is a process-wide static), so an in-flight index build would otherwise leak this
+        // host through it.
+        stopSearchIndexFeed()
         hostScope.cancel()
     }
 
@@ -1017,7 +1354,149 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             permissionState = permissions.pending,
             onPermissionChoice = { permissions.respond(it) },
             onPermissionDismiss = { permissions.dismiss() },
+            // F6 Task 8a: the toolbar's search mode. Every callback goes to [searchController] or to
+            // the host's own menu/settings flags — none of them touches the pane subtree, which is
+            // what `ReadingSearchHostTest.openingAndClosingSearchMustNotRebuildThePaneSubtree`
+            // guards.
+            searchBarState = searchBar,
+            searchBarCallbacks = ReadingSearchBarCallbacks(
+                onQueryChange = { searchQueries.setQuery(it) },
+                onSubmit = { searchController.submit() },
+                onRecentTermsOpen = { searchRecentMenuOpen.value = true },
+                onRecentTermsDismiss = { searchRecentMenuOpen.value = false },
+                // Parity with `SearchComposeActivity` (`onRecentTermSelected = controller::setQuery`):
+                // picking a recent term fills the field, it does not search by itself.
+                onRecentTermSelected = { term ->
+                    searchRecentMenuOpen.value = false
+                    searchQueries.setQuery(term)
+                },
+                onOpenSettings = { searchSettingsOpen.value = true },
+                onClose = { leaveSearch() },
+            ),
+            searchSheetVisibleState = searchController.sheetVisible,
+            onSearchSheetDismissed = { searchController.closeSheet() },
+            searchSheetSlot = { SearchSheetSlot() },
+            searchSettingsSlot = { SearchSettingsSlot() },
         )
+    }
+
+    /**
+     * What the search sheet holds, per phase: the index prompt/progress panel while the document
+     * has no usable index, the results otherwise. `Form` and `Closed` render nothing — the form
+     * lives in the toolbar (Task 4) and in the modal settings sheet, not in this sheet.
+     *
+     * A member `@Composable` (rather than a lambda built inline in [install]) only because it is
+     * long; it closes over exactly the same host state either way.
+     */
+    @Composable
+    private fun SearchSheetSlot() {
+        val phase by searchController.phase.collectAsState()
+        val indexDocId = when (val p = phase) {
+            is ReadingSearchPhase.NeedsIndex -> p.docId
+            is ReadingSearchPhase.Indexing -> p.docId
+            else -> null
+        }
+        if (indexDocId != null) {
+            val jobs by searchIndexProgress.jobs.collectAsState()
+            val indexError by searchIndexProgress.error.collectAsState()
+            // Both reads hit the file system, so they are resolved once per document rather than on
+            // every recomposition of a progressing index.
+            val documentName = remember(indexDocId) {
+                SwordDocumentFacade.getDocumentByInitials(indexDocId)?.name ?: indexDocId
+            }
+            val isRebuild = remember(indexDocId) { searchIndexService.hasIndex(indexDocId) }
+            SearchIndexPanel(
+                documentName = documentName,
+                isRebuild = isRebuild,
+                indexing = phase is ReadingSearchPhase.Indexing,
+                jobs = jobs,
+                error = indexError,
+                onCreate = { searchController.acceptIndexing() },
+                // Declining the index is declining the search: there is nothing else this session
+                // could do with a document Lucene cannot read.
+                onCancel = { leaveSearch() },
+                onDismissError = searchIndexProgress::dismissError,
+            )
+            return
+        }
+        if (phase !is ReadingSearchPhase.Results) return
+        val loading by searchResults.loading.collectAsState()
+        val results by searchResults.results.collectAsState()
+        val rows by searchResults.displayed.collectAsState()
+        val scriptureShown by searchResults.scriptureShown.collectAsState()
+        val scriptureToggleVisible by searchResults.scriptureToggleVisible.collectAsState()
+        val error by searchResults.error.collectAsState()
+        val selected by searchResults.selectedTranslations.collectAsState()
+        val candidates by searchResults.candidates.collectAsState()
+        SearchSheetContent(
+            countLabel = activity.getString(R.string.multi_search_results, results.total, selected.size),
+            loading = loading,
+            error = error,
+            // "Nothing found" only once a search has actually finished — an empty list while
+            // loading is not an empty result.
+            empty = !loading && rows.isEmpty(),
+            listState = searchResultsListState,
+            onDismissError = searchResults::dismissError,
+            actions = {
+                BibleResultsActions(
+                    candidates = candidates,
+                    selectedIds = selected,
+                    selectedAbbreviations = selected
+                        .mapNotNull { id -> candidates.firstOrNull { it.id == id }?.abbreviation }
+                        .joinToString(", "),
+                    scriptureToggleVisible = scriptureToggleVisible,
+                    scriptureShown = scriptureShown,
+                    onToggleScripture = searchResults::toggleScripture,
+                    // Task 8b Step 2 owns result navigation (both of these open documents).
+                    onOpenInWindow = { },
+                    onSelectTranslations = { ids -> onSearchTranslationsChosen(ids) },
+                )
+            },
+        ) {
+            bibleResultRows(
+                rows = rows,
+                expanded = searchResultsExpanded,
+                // F27: labelling a single-match card with its translation only says anything when
+                // more than one translation was searched.
+                labelSingleMatchTranslation = selected.size > 1,
+                onSelect = { _, _ -> /* Task 8b Step 2: setCurrentDocumentAndKey, no startActivity. */ },
+            )
+        }
+    }
+
+    /**
+     * The results document selector's choice. Mirrors
+     * `SearchResultsComposeActivity.onSelectTranslations` — the controller persists the choice and
+     * re-runs — except for the unindexed branch: that Activity launched `Screen.SearchIndex`
+     * carrying the whole search context, and the reading-view session has no way to ask for an index
+     * of a document OTHER than the one being read ([ReadingSearchController] resolves `NeedsIndex`
+     * from the active window). So the choice is kept and the search is not re-run; the row stays in
+     * the sheet with the previous results. Recorded as a Plan-A gap rather than papered over.
+     */
+    private fun onSearchTranslationsChosen(ids: List<String>) {
+        searchResults.selectTranslations(ids) { _, _ -> }
+        searchTranslations.value = ids
+    }
+
+    /** The modal search-settings sheet (the toolbar's Tune affordance) — Task 5's form in Task 5's shell. */
+    @Composable
+    private fun SearchSettingsSlot() {
+        SearchSettingsSheet(
+            open = searchSettingsOpen.value,
+            // Task 10 Step 3 adds `searchController.settingsClosed()` here, which re-runs the
+            // search when a query is already in flight.
+            onDismiss = { searchSettingsOpen.value = false },
+        ) {
+            BibleSearchSettings(
+                searchType = searchType.value,
+                bibleSection = searchSection.value,
+                availableTranslations = searchAvailableTranslations.value,
+                selectedTranslationIds = searchTranslations.value,
+                onSearchType = { searchType.value = it },
+                onBibleSection = { searchSection.value = it },
+                onTranslations = { ids -> setSearchTranslations(ids) },
+            )
+        }
     }
 
     companion object {
@@ -1031,6 +1510,68 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
          * the Compose overflow menu's item-building out of its own composable call site.
          */
         internal fun buildTabBarModel(layout: WindowLayoutState): WindowTabBarModel = buildWindowTabBar(layout)
+
+        /** Settings keys shared with the search Activities — see [searchQueries]/[setSearchTranslations]. */
+        private const val SEARCH_TRANSLATIONS_KEY = "search_selected_translations"
+        private const val SEARCH_RECENT_TERMS_KEY = "search_recent_terms"
+
+        /** `SearchIndexProgressComposeActivity`'s two timings (`:320`, `:365`'s `pause(2)`). */
+        private const val SEARCH_INDEX_NO_TASKS_DELAY_MS = 4_000L
+        private const val SEARCH_INDEX_POLL_INTERVAL_MS = 2_000L
+
+        /**
+         * The JSword `Book` → portable [SearchDocumentInfo] mapping that feeds
+         * [net.bible.sharedcore.search.searchKindFor] (F6 Task 8a Step 1) — the one place the
+         * reading view turns a document into "what kind of search does this support".
+         *
+         * Non-private (`internal`, on the companion) for the same reason as [buildTabBarModel]:
+         * `ReadingSearchHostTest` asserts the mapping — and with it both defects the spec's §7
+         * names — against real `SwordBook`s, without booting a [MainBibleActivity].
+         *
+         * Two mapping details carry the fixes:
+         * - every category outside Bible/Commentary/Dictionary becomes [SearchDocumentCategory.GENERAL_BOOK],
+         *   which `searchKindFor` reports as `Unavailable` unless it is an EPUB;
+         * - `isEpub` is carried separately (rather than folded into the category, which JSword
+         *   reports as GENERAL_BOOK for an EPUB), because `searchKindFor` must test it FIRST.
+         */
+        internal fun searchDocumentInfo(book: Book?): SearchDocumentInfo? {
+            if (book == null) return null
+            val category = when (book.bookCategory) {
+                BookCategory.BIBLE -> SearchDocumentCategory.BIBLE
+                BookCategory.COMMENTARY -> SearchDocumentCategory.COMMENTARY
+                BookCategory.DICTIONARY -> SearchDocumentCategory.DICTIONARY
+                else -> SearchDocumentCategory.GENERAL_BOOK
+            }
+            return SearchDocumentInfo(
+                docId = book.initials,
+                category = category,
+                isEpub = book.isEpub,
+                indexDone = book.indexStatus == IndexStatus.DONE,
+            )
+        }
+
+        /**
+         * Waits out JSword's "the job says finished before `indexStatus` says DONE" gap and reports
+         * whether the index actually appeared. The bookkeeping (and the ~12s cap) is [poll]'s; the
+         * waiting is [pause]'s, so this is testable with no clock at all.
+         *
+         * `internal` so `ReadingSearchHostTest` drives the REAL loop rather than a replica of it —
+         * the `GaveUp` outcome (an index that finishes but never reaches DONE) is exactly what the
+         * cap exists for, and what must land back in `NeedsIndex` instead of empty `Results`.
+         */
+        internal suspend fun awaitIndexDone(
+            poll: IndexPollDecision,
+            indexDone: () -> Boolean,
+            pause: suspend () -> Unit,
+        ): Boolean {
+            while (true) {
+                when (poll.onPoll(indexDone())) {
+                    PollOutcome.Done -> return true
+                    PollOutcome.GaveUp -> return false
+                    PollOutcome.KeepPolling -> pause()
+                }
+            }
+        }
 
         /**
          * Drawable-name -> `R.drawable.*` for every icon the Compose drawer can ask for: the 22
@@ -1281,6 +1822,28 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             permissionState: StateFlow<AgentPermissionRequest?> = MutableStateFlow<AgentPermissionRequest?>(null).asStateFlow(),
             onPermissionChoice: (AgentPermissionChoice) -> Unit = {},
             onPermissionDismiss: () -> Unit = {},
+            // F6 Task 8a additions — the reading-view search. Appended at the END with inert
+            // defaults, the convention every earlier slot followed, so `ComposeReadingViewHostTest`
+            // and `AgentLogHostTest` keep compiling unchanged.
+            //
+            // `searchBarState` is a `StateFlow` for the same reason as `toolbar` above:
+            // [ComposeReadingViewHost.searchBar] already combines the session's flows into it, and
+            // this only collects it. A `null` value means "not in search mode", which is what makes
+            // `ReadingToolbar` draw its normal row (Task 4).
+            searchBarState: StateFlow<ReadingSearchBarState?> = MutableStateFlow<ReadingSearchBarState?>(null).asStateFlow(),
+            searchBarCallbacks: ReadingSearchBarCallbacks? = null,
+            // Drives the (unconditional, see below) `BottomSheetScaffold`'s sheet open/closed.
+            searchSheetVisibleState: StateFlow<Boolean> = MutableStateFlow(false).asStateFlow(),
+            // A user drag that puts the sheet away must reach the session, or `sheetVisible` would
+            // stay true and the next `open()` for the same query would change nothing at all.
+            onSearchSheetDismissed: () -> Unit = {},
+            // Pre-built `@Composable` lambdas, the same pass-through shape as `agentLogSlot`/
+            // `speakBarSlot`: [ComposeReadingViewHost.install] already owns the live controllers and
+            // closes over them. `searchSheetSlot` is what goes INSIDE the sheet (index prompt/
+            // progress, or results); `searchSettingsSlot` is the separate modal settings sheet,
+            // composed as a sibling overlay like the dialogs.
+            searchSheetSlot: @Composable () -> Unit = { },
+            searchSettingsSlot: @Composable () -> Unit = { },
         ) {
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
@@ -1307,6 +1870,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             val paneMenuWindowId by paneMenuWindowIdState
                             val paneMenuItems by paneMenuItemsState
                             val paneMenuAnchor by paneMenuAnchorState
+                            // F6 Task 8a: `null` outside search mode, which is what makes
+                            // `ReadingToolbar` draw its normal row.
+                            val searchBar by searchBarState.collectAsState()
                             // Classic `resetTouchTimer`'s 2s hide countdown (`SplitBibleArea.kt:511-524`),
                             // restarted on every `touchTick` bump (a real touch, or `openPaneMenu`).
                             // Suppressed entirely while a pane menu is open (mirrors classic
@@ -1449,18 +2015,45 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                 // search open/close. `skipHiddenState = false` is what makes
                                 // "always present" and "fully closable" compatible: the sheet
                                 // reaches `SheetValue.Hidden` while the scaffold never goes away.
-                                // A later task supplies the real sheet content and drives the state;
-                                // for now it is hidden with a zero peek height, so it draws nothing.
+                                // Task 8a fills `sheetContent` (the index prompt/progress panel, or
+                                // the results) and drives the sheet from the session's
+                                // `sheetVisible` — see [DriveSearchSheet], which also carries why
+                                // `expand()` and not `partialExpand()` is what shows it.
                                 val searchSheetState = rememberBottomSheetScaffoldState(
                                     bottomSheetState = rememberStandardBottomSheetState(
                                         initialValue = SheetValue.Hidden,
                                         skipHiddenState = false,
                                     ),
                                 )
+                                val searchSheetVisible by searchSheetVisibleState.collectAsState()
+                                DriveSearchSheet(searchSheetState, searchSheetVisible, onSearchSheetDismissed)
                                 BottomSheetScaffold(
                                     scaffoldState = searchSheetState,
                                     sheetPeekHeight = 0.dp,
-                                    sheetContent = { Box(Modifier) },
+                                    sheetContent = {
+                                        // The sheet is exactly as tall as its content — a short
+                                        // index prompt stays short — but never taller than
+                                        // [SearchSheetMaxHeightFraction] of the window, so the
+                                        // reading text it was opened from stays visible above it.
+                                        // `BoxWithConstraints` supplies that ceiling in Dp without
+                                        // reaching for the (Android-only) configuration.
+                                        //
+                                        // The 1.dp FLOOR is load-bearing: an empty sheet measures to
+                                        // zero, and M3 publishes no `Expanded` anchor for a
+                                        // zero-height sheet at all — so an `expand()` that lands
+                                        // before the content's first layout pass would be a silent
+                                        // no-op. Keeping a hairline sheet keeps the anchor alive at
+                                        // all times (invisible: at 1.dp the sheet sits a pixel off
+                                        // the bottom edge, and `Hidden` is where it rests anyway).
+                                        BoxWithConstraints(Modifier.fillMaxWidth()) {
+                                            Box(
+                                                Modifier.heightIn(
+                                                    min = 1.dp,
+                                                    max = maxHeight * SearchSheetMaxHeightFraction,
+                                                )
+                                            ) { searchSheetSlot() }
+                                        }
+                                    },
                                 ) { _ ->
                                     // Keying the whole screen on `gen` forces every pane's `AndroidView`
                                     // factory to re-run on `rebuild()` — see the `generation` kdoc above.
@@ -1475,6 +2068,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                             onSeparatorCommitted = controller::onSeparatorCommitted,
                                             pane = pane,
                                             paneBackground = paneBackground,
+                                            // F6 Task 8a: a non-null pair replaces the toolbar's
+                                            // normal row with the search field (Task 4).
+                                            searchBar = searchBar,
+                                            searchBarCallbacks = searchBarCallbacks,
                                             overflowItems = overflowItems,
                                             overflowExpanded = overflowExpanded,
                                             onOverflowItemClick = onOverflowItemClick,
@@ -1597,11 +2194,77 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                     onDismiss = { onPermissionDismiss() },
                                 )
                             }
+                            // F6 Task 8a: the modal search-settings sheet — a fourth sibling
+                            // overlay, for the same reason as the three above: a `ModalBottomSheet`
+                            // renders in its own window regardless of where it is composed, so
+                            // opening it can never re-key the pane subtree. It self-hides when
+                            // closed (`SearchSettingsSheet` returns early), so this stays
+                            // unconditional here.
+                            searchSettingsSlot()
                     }
                 }
             }
             container.addView(composeView)
         }
+    }
+}
+
+/**
+ * How much of the window the reading-view search sheet may take at most (F6 Task 8a). Its content
+ * is otherwise self-sizing, so a short index prompt does not become a half-screen panel.
+ */
+private const val SearchSheetMaxHeightFraction = 0.6f
+
+/** Bound for [DriveSearchSheet]'s expand retry — ~10 × 50ms, i.e. well under a second. */
+private const val SearchSheetExpandAttempts = 10
+private const val SearchSheetExpandRetryMillis = 50L
+
+/**
+ * Keeps the (always-present) search sheet in step with the session's `sheetVisible`, both ways
+ * (F6 Task 8a Step 3).
+ *
+ * Its own function rather than two `LaunchedEffect`s inline in `mountComposeView` for two reasons:
+ * the conditional inside it would otherwise sit directly above the `BottomSheetScaffold` call,
+ * which `SearchSheetStructureGuardTest` reads as the scaffold becoming conditional; and the two
+ * non-obvious mechanics below deserve one place to be explained.
+ *
+ * **`expand()`, not `partialExpand()`.** With `sheetPeekHeight = 0.dp` the `PartiallyExpanded`
+ * anchor sits at `layoutHeight - peekHeight`, i.e. exactly where `Hidden` sits — so a partial
+ * expand animates to an invisible sheet, and `show()` (which prefers `PartiallyExpanded` whenever
+ * that anchor exists) would do the same. `Expanded` puts the sheet at its own content height, which
+ * with the cap in `sheetContent` is what makes both the short index panel and the tall result list
+ * look right. (The plan's snippet said `partialExpand()`; it would have shown nothing.)
+ *
+ * **The expand is retried.** The `Expanded` anchor is published while the sheet is MEASURED, and
+ * this effect can run before that layout pass, in which case the animation is a no-op and the sheet
+ * stays hidden with the session believing otherwise. Bounded retries close that window; the 1.dp
+ * floor on the sheet content (see `sheetContent`) makes it a narrow one.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DriveSearchSheet(
+    scaffoldState: BottomSheetScaffoldState,
+    visible: Boolean,
+    onDismissedByUser: () -> Unit,
+) {
+    val sheet = scaffoldState.bottomSheetState
+    LaunchedEffect(visible) {
+        if (visible) {
+            repeat(SearchSheetExpandAttempts) {
+                if (sheet.currentValue == SheetValue.Expanded) return@LaunchedEffect
+                sheet.expand()
+                if (sheet.currentValue != SheetValue.Expanded) delay(SearchSheetExpandRetryMillis)
+            }
+        } else if (sheet.currentValue != SheetValue.Hidden) {
+            sheet.hide()
+        }
+    }
+    // A sheet dragged away must reach the session too: otherwise `sheetVisible` stays true, the
+    // effect above never re-fires, and the next `open()` for the same query looks dead. Anything
+    // other than `Expanded` is invisible here (see above), so it all counts as dismissed — and the
+    // initial `Hidden` emission is harmless (`closeSheet()` returns false when nothing is open).
+    LaunchedEffect(sheet) {
+        snapshotFlow { sheet.currentValue }.collect { if (it != SheetValue.Expanded) onDismissedByUser() }
     }
 }
 

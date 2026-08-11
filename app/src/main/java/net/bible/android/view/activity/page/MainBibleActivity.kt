@@ -1131,7 +1131,23 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         windowRepository.activeWindow.bibleView?.requestFocus()
     }
 
+    /**
+     * The Compose toolbar's search button (F6 entry point 2). With a Compose host mounted, SWORD
+     * search now happens IN the reading view — the toolbar enters search mode and the results/index
+     * sheet rises — instead of starting the search Activity chain.
+     *
+     * Two cases keep the Intent route: an EPUB (its search is Plan B; see
+     * [ComposeReadingViewHost.searchOpensInReadingView]), and anything at all on the classic path,
+     * where `composeReadingViewHost` is null. This method is only reached from the Compose toolbar,
+     * so the null branch is unreachable in practice; it is kept so the flag-OFF behaviour of this
+     * body is unchanged by inspection — the same idiom as the Z-early drawer retargeting.
+     */
     internal fun composeSearch() {
+        val host = composeReadingViewHost
+        if (host != null && host.searchOpensInReadingView) {
+            host.openSearch()
+            return
+        }
         searchControl.getSearchIntent(documentControl.currentDocument, this)?.let { intent ->
             startActivityForResult(intent, STD_REQUEST_CODE)
         }
