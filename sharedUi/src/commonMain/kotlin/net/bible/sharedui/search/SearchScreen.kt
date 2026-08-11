@@ -26,19 +26,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -86,27 +79,15 @@ fun SearchScreen(
     initiallyRecentMenuOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
-    val sections = SearchBibleSection.entries
-    val sectionLabels = listOf(
-        strings.searchAllBible,
-        strings.searchOldTestament,
-        strings.searchNewTestament,
-        strings.searchCurrentBook,
-    )
-    val types = SearchType.entries
-    val typeLabels = listOf(strings.allWords, strings.anyWord, strings.phrase)
-
-    var dialogOpen by remember { mutableStateOf(false) }
     var recentMenuOpen by remember { mutableStateOf(initiallyRecentMenuOpen) }
 
-    val translationsSummary = availableTranslations
-        .filter { it.first in selectedTranslationIds }
-        .joinToString(", ") { it.second }
-        .ifEmpty { strings.all }
-    val settingsSummary =
-        "${sectionLabels[sections.indexOf(bibleSection)]}" +
-            " · ${typeLabels[types.indexOf(searchType)]}" +
-            " · $translationsSummary"
+    val settingsSummary = bibleSearchSettingsSummary(
+        strings = strings,
+        searchType = searchType,
+        bibleSection = bibleSection,
+        availableTranslations = availableTranslations,
+        selectedTranslationIds = selectedTranslationIds,
+    )
 
     AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
         Column(
@@ -147,63 +128,22 @@ fun SearchScreen(
                 summary = settingsSummary,
                 initiallyOpen = initiallySettingsOpen,
             ) { _ ->
-                // Full-width in the sheet: no truncation, so the four section labels render fully.
-                SingleChoiceSegmentedButtonRow(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-                ) {
-                    sections.forEachIndexed { index, section ->
-                        SegmentedButton(
-                            selected = bibleSection == section,
-                            onClick = { onBibleSection(section) },
-                            shape = SegmentedButtonDefaults.itemShape(index, sections.size),
-                            icon = {},
-                        ) { Text(sectionLabels[index]) }
-                    }
-                }
-
-                SingleChoiceSegmentedButtonRow(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-                ) {
-                    types.forEachIndexed { index, type ->
-                        SegmentedButton(
-                            selected = searchType == type,
-                            onClick = { onSearchType(type) },
-                            shape = SegmentedButtonDefaults.itemShape(index, types.size),
-                        ) { Text(typeLabels[index]) }
-                    }
-                }
-
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(strings.chooseTranslations, style = MaterialTheme.typography.titleSmall)
-                        Text(translationsSummary, style = MaterialTheme.typography.bodyMedium)
-                    }
-                    IconButton(onClick = { dialogOpen = true }) {
-                        Icon(Icons.Filled.Edit, contentDescription = strings.chooseTranslations)
-                    }
-                }
+                BibleSearchSettings(
+                    searchType = searchType,
+                    bibleSection = bibleSection,
+                    availableTranslations = availableTranslations,
+                    selectedTranslationIds = selectedTranslationIds,
+                    onSearchType = onSearchType,
+                    onBibleSection = onBibleSection,
+                    onTranslations = onTranslations,
+                )
             }
         }
-    }
-
-    if (dialogOpen) {
-        TranslationsDialog(
-            availableTranslations = availableTranslations,
-            selectedTranslationIds = selectedTranslationIds,
-            onConfirm = {
-                onTranslations(it)
-                dialogOpen = false
-            },
-            onDismiss = { dialogOpen = false },
-        )
     }
 }
 
 @Composable
-private fun TranslationsDialog(
+internal fun TranslationsDialog(
     availableTranslations: List<Pair<String, String>>,
     selectedTranslationIds: List<String>,
     onConfirm: (List<String>) -> Unit,
