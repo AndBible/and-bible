@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.reading.OptionsMenuItem
+import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.window.WindowLayoutState
 
@@ -76,6 +77,11 @@ import net.bible.sharedcore.window.WindowLayoutState
  * [overflowIcon] is forwarded verbatim to [ReadingToolbar]'s `overflowIcon` parameter — the host
  * lambda resolving each overflow-menu row's [OptionsMenuItem.iconKey] to a `Painter`. Defaulted to
  * always-`null` so existing call sites and their goldens are unaffected.
+ *
+ * [searchBar]/[searchBarCallbacks] are forwarded verbatim to [ReadingToolbar] — a non-null pair puts
+ * the toolbar into F6's search mode. Both default to `null` so existing call sites and their goldens
+ * are unaffected. Search mode does NOT alter the `if (!fullScreen)` guard: opening search leaves
+ * fullscreen (Task 8) rather than drawing a toolbar over it.
  */
 @Composable
 fun ReadingViewScreen(
@@ -100,6 +106,8 @@ fun ReadingViewScreen(
     tabBar: (@Composable () -> Unit)? = null,
     agentLog: (@Composable () -> Unit)? = null,
     speakBar: (@Composable () -> Unit)? = null,
+    searchBar: ReadingSearchBarState? = null,
+    searchBarCallbacks: ReadingSearchBarCallbacks? = null,
     paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
     bottomOverlay: (@Composable BoxScope.() -> Unit)? = null,
     overflowIcon: @Composable (iconKey: String) -> Painter? = { null },
@@ -112,6 +120,8 @@ fun ReadingViewScreen(
                 state = toolbar,
                 icons = toolbarIcons,
                 callbacks = toolbarCallbacks,
+                searchBar = searchBar,
+                searchBarCallbacks = searchBarCallbacks,
                 searchMoreRecent = searchMoreRecent,
                 overflowItems = overflowItems,
                 overflowExpanded = overflowExpanded,

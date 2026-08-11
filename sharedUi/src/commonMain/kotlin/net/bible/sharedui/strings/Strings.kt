@@ -106,6 +106,12 @@ interface Strings {
     fun rebuildIndexFor(documentName: String): String
     val rebuildIndexButton: String
 
+    // F6 — the reading toolbar's search mode. searchOptions, NOT searchSettings: that name is
+    // already taken below by the Settings screen's "search within settings" hint.
+    val searchClose: String
+    val searchOptions: String
+    val searchSubmit: String
+
     // Batch 5 (Plan B) — EPUB search
     val ftsQuery: String
     val helpFts5: String

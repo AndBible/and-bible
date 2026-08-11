@@ -18,13 +18,9 @@
 package net.bible.android.view.compose.golden
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.painterResource
 import net.bible.android.TEST_SDK
-import net.bible.android.activity.R
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedui.reading.ReadingToolbar
-import net.bible.sharedui.reading.ReadingToolbarCallbacks
-import net.bible.sharedui.reading.ReadingToolbarIcons
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -36,26 +32,9 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class ReadingToolbarGoldenTest {
 
-    // Same drawables main_bible_view.xml's toolbarLayout buttons use (homeButton/searchButton/
-    // speakButton/strongsButton/bibleButton/commentaryButton/workspaceButton/optionsMenu).
-    @Composable
-    private fun icons() = ReadingToolbarIcons(
-        home = painterResource(R.drawable.ic_menu),
-        search = painterResource(R.drawable.ic_search_24dp),
-        speak = painterResource(R.drawable.ic_baseline_headphones_24),
-        strongs = painterResource(R.drawable.ic_strongs_hebrew),
-        bible = painterResource(R.drawable.ic_bible_24dp),
-        commentary = painterResource(R.drawable.ic_commentary),
-        workspace = painterResource(R.drawable.ic_workspace_solid_24dp),
-        overflow = painterResource(R.drawable.ic_more_vert_black_24dp),
-    )
-
-    private val noopCallbacks = ReadingToolbarCallbacks(
-        onHome = {}, onTitleTap = {}, onTitleLongPress = {}, onTitleFlingVertical = {},
-        onTitleFlingHorizontal = {}, onBible = {}, onBibleLong = {}, onCommentary = {},
-        onCommentaryLong = {}, onStrongs = {}, onStrongsLong = {}, onSearch = {}, onSpeak = {},
-        onSpeakLong = {}, onWorkspace = {}, onOverflow = {},
-    )
+    // The icons and the no-op callbacks now live in ReadingToolbarGoldenFixtures.kt in this same
+    // package, shared with ReadingToolbarSearchGoldenTest. Same values, so these goldens are
+    // unchanged.
 
     // Requests only Bible + Search + Workspace (3 quick buttons) — comfortably fits even at the
     // default portrait budget (maxButtons=3 at 320dp), so on a wide (land) render every requested
@@ -114,7 +93,7 @@ class ReadingToolbarGoldenTest {
     private val workspaceColorState = fullState.copy(workspaceColorArgb = 0xFF1B5E20.toInt())
 
     private fun screen(state: ToolbarState): @Composable () -> Unit = {
-        ReadingToolbar(state = state, icons = icons(), callbacks = noopCallbacks)
+        ReadingToolbar(state = state, icons = goldenToolbarIcons(), callbacks = goldenToolbarCallbacks())
     }
 
     @Test

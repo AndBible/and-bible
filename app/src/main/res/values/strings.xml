@@ -108,6 +108,12 @@
     <!-- Multi-translation search -->
     <string name="search_translations">Translations</string>
     <string name="recent_searches">Recent searches</string>
+    <!-- F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording. -->
+    <string name="search_close">Close search</string>
+    <string name="search_options">Search settings</string>
+    <string name="search_submit">Search</string>
     <string name="choose_translations">Choose translations…</string>
     <string name="multi_search_results">%1$d verses in %2$d translations</string>
     <string name="search_index_not_created">no index</string>

@@ -99,6 +99,11 @@ class AndroidStrings(private val context: Context) : Strings {
         context.getString(R.string.rebuild_index_for, documentName)
     override val rebuildIndexButton: String get() = context.getString(R.string.rebuild_index_button)
 
+    // F6 — the reading toolbar's search mode
+    override val searchClose: String get() = context.getString(R.string.search_close)
+    override val searchOptions: String get() = context.getString(R.string.search_options)
+    override val searchSubmit: String get() = context.getString(R.string.search_submit)
+
     // Batch 5 (Plan B) — EPUB search
     override val ftsQuery: String get() = context.getString(R.string.search_fts_query)
     override val helpFts5: String get() = context.getString(R.string.help_fts5)

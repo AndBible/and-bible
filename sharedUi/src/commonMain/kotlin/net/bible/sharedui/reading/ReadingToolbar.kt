@@ -43,6 +43,8 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -72,12 +74,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.QuickDocMenuItem
+import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.ToolbarButton
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.fitToolbarButtons
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.reading.readingToolbarContainerArgb
 import net.bible.sharedui.components.AbActionIconSize
+import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.sharedui.theme.LocalIsDarkTheme
@@ -128,6 +132,20 @@ data class ReadingToolbarCallbacks(
 /** Host-owned quick-document picker state for one toolbar doc button (Bible or Commentary). */
 data class QuickDocMenuState(val expanded: Boolean = false, val items: List<QuickDocMenuItem> = emptyList())
 
+/**
+ * The interactions [ReadingToolbar]'s search mode can invoke (F6 Task 4). Paired with a non-null
+ * [ReadingSearchBarState]; Task 8 wires both to `ReadingSearchController`.
+ */
+data class ReadingSearchBarCallbacks(
+    val onQueryChange: (String) -> Unit,
+    val onSubmit: () -> Unit,
+    val onRecentTermsOpen: () -> Unit,
+    val onRecentTermsDismiss: () -> Unit,
+    val onRecentTermSelected: (String) -> Unit,
+    val onOpenSettings: () -> Unit,
+    val onClose: () -> Unit,
+)
+
 /** Height of the toolbar row — matches the classic `@dimen/toolbar_height` (56dp). */
 private val ToolbarHeight = 56.dp
 
@@ -159,6 +177,12 @@ private val ToolbarButtonWidth = 48.dp
  * [overflowIcon] is forwarded verbatim to [ReadingOverflowMenu]'s `icon` parameter — the host
  * lambda resolving each row's [OptionsMenuItem.iconKey] to a `Painter`. Defaulted to always-`null`
  * so existing call sites and their goldens are unaffected.
+ *
+ * A non-null [searchBar] (with its [searchBarCallbacks]) replaces the whole normal row with the
+ * search field — the F6 in-place search mode. Both default to `null`, i.e. "not searching", which is
+ * why every existing call site is unchanged and the normal-mode goldens are byte-identical. The
+ * field lives HERE rather than in its own composable because the three colours it needs
+ * (`container`, `onContainer`, `documentTitleColor`) are computed inline below and exposed nowhere.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -166,6 +190,8 @@ fun ReadingToolbar(
     state: ToolbarState,
     icons: ReadingToolbarIcons,
     callbacks: ReadingToolbarCallbacks,
+    searchBar: ReadingSearchBarState? = null,
+    searchBarCallbacks: ReadingSearchBarCallbacks? = null,
     searchMoreRecent: Boolean = true,
     overflowItems: List<OptionsMenuItem> = emptyList(),
     overflowExpanded: Boolean = false,
@@ -226,6 +252,59 @@ fun ReadingToolbar(
     // statusBarColor (API < 35) and the icon appearance (all API levels). fillWindowBackground is
     // false because the background modifier below already paints the strip on API 35+.
     SyncSystemBars(container = container, fillWindowBackground = false)
+    // F6 search mode. Deliberately BELOW SyncSystemBars (so the status bar keeps the toolbar's
+    // colour while searching) and ABOVE BoxWithConstraints (which applies `modifier`, the background,
+    // the insets and the height itself, and measures the quick-button budget this row does not use).
+    // Wrapped in its own LocalContentColor provider so the field, its icons and its placeholder
+    // inherit the toolbar's content colour in all four display modes and on a workspace-coloured
+    // toolbar, exactly as the normal row does.
+    if (searchBar != null && searchBarCallbacks != null) {
+        val strings = LocalStrings.current
+        CompositionLocalProvider(LocalContentColor provides onContainer) {
+            Row(
+                modifier
+                    .fillMaxWidth()
+                    // .background BEFORE .windowInsetsPadding, same reason as the normal row below:
+                    // a background covers the padding applied after it, so the container colour
+                    // extends under the status bar instead of stopping below it.
+                    .background(container)
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .height(ToolbarHeight),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ToolbarIconButton(icons.home, strings.searchClose, searchBarCallbacks.onClose)
+                Box(Modifier.weight(1f)) {
+                    AbSearchField(
+                        value = searchBar.query,
+                        onValueChange = searchBarCallbacks.onQueryChange,
+                        placeholder = strings.search,
+                        verticalPadding = 0.dp,
+                        horizontalPadding = 0.dp,
+                        onImeSearch = searchBarCallbacks.onSubmit,
+                        onLeadingIconClick = if (searchBar.recentTerms.isNotEmpty()) {
+                            searchBarCallbacks.onRecentTermsOpen
+                        } else null,
+                        leadingIconContentDescription =
+                            if (searchBar.recentTerms.isNotEmpty()) strings.recentSearches else null,
+                    )
+                    DropdownMenu(
+                        expanded = searchBar.recentMenuOpen,
+                        onDismissRequest = searchBarCallbacks.onRecentTermsDismiss,
+                    ) {
+                        searchBar.recentTerms.forEach { term ->
+                            DropdownMenuItem(
+                                text = { Text(term) },
+                                onClick = { searchBarCallbacks.onRecentTermSelected(term) },
+                            )
+                        }
+                    }
+                }
+                ToolbarIconButton(icons.overflow, strings.searchOptions, searchBarCallbacks.onOpenSettings)
+                ToolbarIconButton(icons.search, strings.searchSubmit, searchBarCallbacks.onSubmit)
+            }
+        }
+        return
+    }
     BoxWithConstraints(
         modifier
             .fillMaxWidth()

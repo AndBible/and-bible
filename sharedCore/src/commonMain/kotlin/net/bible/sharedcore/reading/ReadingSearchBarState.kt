@@ -1,0 +1,40 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.sharedcore.reading
+
+/**
+ * Everything the reading toolbar's search mode renders, as plain data (F6 Task 4).
+ *
+ * The recent-terms list and whether its menu is open are state-IN rather than remembered inside the
+ * composable, so both stay unit-testable: an expanded `DropdownMenu` cannot be photographed (it
+ * hangs Roborazzi), which makes the golden useless as the regression test for it.
+ *
+ * A `null` instance of this class — the default on both `ReadingToolbar` and `ReadingViewScreen` —
+ * means "not in search mode", so the normal toolbar path and its goldens are untouched.
+ */
+data class ReadingSearchBarState(
+    val query: String,
+    val recentTerms: List<String> = emptyList(),
+    val recentMenuOpen: Boolean = false,
+) {
+    /**
+     * A blank query must not reach Lucene: classic `SearchControl.validateQuery` rejects it, and an
+     * empty search would clear the results the user is still looking at.
+     */
+    val submitEnabled: Boolean get() = query.isNotBlank()
+}
