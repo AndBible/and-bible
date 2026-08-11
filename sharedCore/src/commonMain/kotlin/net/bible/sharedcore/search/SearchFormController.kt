@@ -12,9 +12,12 @@ import kotlinx.coroutines.flow.asStateFlow
 class SearchFormController(
     private val currentBookName: String,
     private val persistTranslations: (List<String>) -> Unit,
-    private val persistRecentTerms: (List<String>) -> Unit = {},
+    // The three recent-terms parameters are plain constructor parameters, not properties: they are
+    // consumed once by the `queries` initializer below, and keeping them as `private val` would store
+    // the same lambda and cap twice per search session. The signature is unchanged either way.
+    persistRecentTerms: (List<String>) -> Unit = {},
     loadRecentTerms: () -> List<String> = { emptyList() },
-    private val maxRecentTerms: Int = 10,
+    maxRecentTerms: Int = 10,
 ) {
     /** Query text and the recent-terms MRU, shared with EPUB search by composition. */
     private val queries = SearchQueryController(
