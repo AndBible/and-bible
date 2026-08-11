@@ -30,11 +30,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -1113,6 +1118,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
          * Collaborators are passed explicitly so this can be exercised without booting a full
          * [MainBibleActivity] (see `ComposeReadingViewHostTest`).
          */
+        @OptIn(ExperimentalMaterial3Api::class)
         fun mountComposeView(
             container: ViewGroup,
             windowState: WindowStateServiceImpl,
@@ -1435,97 +1441,119 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                     }
                                 },
                             ) {
-                                // Keying the whole screen on `gen` forces every pane's `AndroidView`
-                                // factory to re-run on `rebuild()` — see the `generation` kdoc above.
-                                key(gen) {
-                                    ReadingViewScreen(
-                                        layout = layout,
-                                        toolbar = toolbarState,
-                                        toolbarIcons = readingToolbarIcons(),
-                                        toolbarCallbacks = toolbarCallbacks,
-                                        fullScreen = fullScreen,
-                                        onWindowActivated = controller::onWindowActivated,
-                                        onSeparatorCommitted = controller::onSeparatorCommitted,
-                                        pane = pane,
-                                        paneBackground = paneBackground,
-                                        overflowItems = overflowItems,
-                                        overflowExpanded = overflowExpanded,
-                                        onOverflowItemClick = onOverflowItemClick,
-                                        onOverflowDismiss = onOverflowDismiss,
-                                        overflowIcon = menuIcon,
-                                        bibleQuickDoc = bibleQuickDoc,
-                                        commentaryQuickDoc = commentaryQuickDoc,
-                                        onQuickDocSelect = onQuickDocSelect,
-                                        onQuickDocDismiss = onQuickDocDismiss,
-                                        paneOverlay = { windowId ->
-                                            val window = layout.windows.firstOrNull { it.id == windowId }
-                                            PaneWindowButtonOverlay(
-                                                windowId = windowId,
-                                                window = window,
-                                                isActive = windowId == layout.activeWindowId,
-                                                showButton = showPaneButtons,
-                                                autoHidden = paneButtonsAutoHidden,
-                                                nightMode = nightModeState.value,
-                                                disableAnimations = CommonUtils.settings.disableAnimations,
-                                                monochrome = monochromeState.value,
-                                                // A/B batch 3 F5b: this surface only reports a menu open
-                                                // when it (not the rail) is the anchor — see [menuWindowIdFor].
-                                                paneMenuWindowId = menuWindowIdFor(PaneMenuAnchor.Pane, paneMenuAnchor, paneMenuWindowId),
-                                                paneMenuItems = paneMenuItems,
-                                                controller = controller,
-                                                onOpenPaneMenu = onOpenPaneMenu,
-                                                onPaneMenuItemClick = onPaneMenuItemClick,
-                                                onPaneMenuDismiss = onPaneMenuDismiss,
-                                                icon = menuIcon,
-                                            )
-                                        },
-                                        agentLog = agentLogSlot,
-                                        speakBar = speakBarSlot,
-                                        bottomOverlay = { BibleReferenceOverlay(visible = overlayVisible, text = overlayText) },
-                                        tabBar = if (hideTabBarInFullScreen) null else {
-                                            {
-                                                WindowTabBar(
-                                                    // Classic lifts restoreButtonsContainer clear of the
-                                                    // system/transport chrome with translationY(-bottomOffset2)
-                                                    // (SplitBibleArea.kt:619). mainBibleView is bottom-padded
-                                                    // only while the IME is open (MainBibleActivity.kt:642-648),
-                                                    // so the floating rail must consume the navigation-bar inset
-                                                    // itself. The agentLog/speakBar slots sit BELOW the split
-                                                    // and are unaffected by this padding.
-                                                    modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars),
-                                                    model = tabBarModel,
-                                                    onRestore = controller::onRestore,
-                                                    // Plan B Task 5: a rail long-press now opens the SAME
-                                                    // per-window ☰ menu as tapping the floating pane button.
-                                                    // Final-review fix: activate the window first, mirroring
-                                                    // classic `SplitBibleArea.showPopupMenu`'s
-                                                    // `if (window.isVisible) windowControl.activeWindow = window`
-                                                    // and the floating ☰ button's own gestures (both of which
-                                                    // activate before opening the menu).
-                                                    onWindowLongPress = { id ->
-                                                        controller.onWindowActivated(id)
-                                                        onOpenPaneMenu(id, PaneMenuAnchor.Rail)
-                                                    },
-                                                    // A/B batch 3 F5b: the rail renders its OWN anchored
-                                                    // `WindowPaneMenu` (Task 11) — only when the rail (not
-                                                    // the pane overlay) is the anchor. See [menuWindowIdFor].
-                                                    menuWindowId = menuWindowIdFor(PaneMenuAnchor.Rail, paneMenuAnchor, paneMenuWindowId),
-                                                    menuItems = paneMenuItems,
-                                                    onMenuItemClick = onPaneMenuItemClick,
-                                                    onMenuDismiss = onPaneMenuDismiss,
-                                                    menuIcon = menuIcon,
-                                                    onAddWindow = { controller.onAddWindow(layout.activeWindowId) },
-                                                    onUnMaximise = controller::onUnMaximise,
-                                                    onToggleCollapse = {
-                                                        controller.onSetRestoreButtonsVisible(!layout.restoreButtonsVisible)
-                                                    },
-                                                    windowLabel = windowLabel,
-                                                    windowIcon = windowIcon,
-                                                    windowTopLabel = windowTopLabel,
+                                // F6 Task 0: the search sheet's scaffold. UNCONDITIONALLY present
+                                // and ENCLOSING `key(gen)` — the same "outer wrap, never inside the
+                                // pane subtree" rule the drawer above follows. Conditionality, not
+                                // the wrapper, is what would re-parent every pane's `AndroidView`
+                                // and so destroy and recreate every `BibleView` WebView on each
+                                // search open/close. `skipHiddenState = false` is what makes
+                                // "always present" and "fully closable" compatible: the sheet
+                                // reaches `SheetValue.Hidden` while the scaffold never goes away.
+                                // A later task supplies the real sheet content and drives the state;
+                                // for now it is hidden with a zero peek height, so it draws nothing.
+                                val searchSheetState = rememberBottomSheetScaffoldState(
+                                    bottomSheetState = rememberStandardBottomSheetState(
+                                        initialValue = SheetValue.Hidden,
+                                        skipHiddenState = false,
+                                    ),
+                                )
+                                BottomSheetScaffold(
+                                    scaffoldState = searchSheetState,
+                                    sheetPeekHeight = 0.dp,
+                                    sheetContent = { Box(Modifier) },
+                                ) { _ ->
+                                    // Keying the whole screen on `gen` forces every pane's `AndroidView`
+                                    // factory to re-run on `rebuild()` — see the `generation` kdoc above.
+                                    key(gen) {
+                                        ReadingViewScreen(
+                                            layout = layout,
+                                            toolbar = toolbarState,
+                                            toolbarIcons = readingToolbarIcons(),
+                                            toolbarCallbacks = toolbarCallbacks,
+                                            fullScreen = fullScreen,
+                                            onWindowActivated = controller::onWindowActivated,
+                                            onSeparatorCommitted = controller::onSeparatorCommitted,
+                                            pane = pane,
+                                            paneBackground = paneBackground,
+                                            overflowItems = overflowItems,
+                                            overflowExpanded = overflowExpanded,
+                                            onOverflowItemClick = onOverflowItemClick,
+                                            onOverflowDismiss = onOverflowDismiss,
+                                            overflowIcon = menuIcon,
+                                            bibleQuickDoc = bibleQuickDoc,
+                                            commentaryQuickDoc = commentaryQuickDoc,
+                                            onQuickDocSelect = onQuickDocSelect,
+                                            onQuickDocDismiss = onQuickDocDismiss,
+                                            paneOverlay = { windowId ->
+                                                val window = layout.windows.firstOrNull { it.id == windowId }
+                                                PaneWindowButtonOverlay(
+                                                    windowId = windowId,
+                                                    window = window,
+                                                    isActive = windowId == layout.activeWindowId,
+                                                    showButton = showPaneButtons,
+                                                    autoHidden = paneButtonsAutoHidden,
+                                                    nightMode = nightModeState.value,
+                                                    disableAnimations = CommonUtils.settings.disableAnimations,
+                                                    monochrome = monochromeState.value,
+                                                    // A/B batch 3 F5b: this surface only reports a menu open
+                                                    // when it (not the rail) is the anchor — see [menuWindowIdFor].
+                                                    paneMenuWindowId = menuWindowIdFor(PaneMenuAnchor.Pane, paneMenuAnchor, paneMenuWindowId),
+                                                    paneMenuItems = paneMenuItems,
+                                                    controller = controller,
+                                                    onOpenPaneMenu = onOpenPaneMenu,
+                                                    onPaneMenuItemClick = onPaneMenuItemClick,
+                                                    onPaneMenuDismiss = onPaneMenuDismiss,
+                                                    icon = menuIcon,
                                                 )
-                                            }
-                                        },
-                                    )
+                                            },
+                                            agentLog = agentLogSlot,
+                                            speakBar = speakBarSlot,
+                                            bottomOverlay = { BibleReferenceOverlay(visible = overlayVisible, text = overlayText) },
+                                            tabBar = if (hideTabBarInFullScreen) null else {
+                                                {
+                                                    WindowTabBar(
+                                                        // Classic lifts restoreButtonsContainer clear of the
+                                                        // system/transport chrome with translationY(-bottomOffset2)
+                                                        // (SplitBibleArea.kt:619). mainBibleView is bottom-padded
+                                                        // only while the IME is open (MainBibleActivity.kt:642-648),
+                                                        // so the floating rail must consume the navigation-bar inset
+                                                        // itself. The agentLog/speakBar slots sit BELOW the split
+                                                        // and are unaffected by this padding.
+                                                        modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars),
+                                                        model = tabBarModel,
+                                                        onRestore = controller::onRestore,
+                                                        // Plan B Task 5: a rail long-press now opens the SAME
+                                                        // per-window ☰ menu as tapping the floating pane button.
+                                                        // Final-review fix: activate the window first, mirroring
+                                                        // classic `SplitBibleArea.showPopupMenu`'s
+                                                        // `if (window.isVisible) windowControl.activeWindow = window`
+                                                        // and the floating ☰ button's own gestures (both of which
+                                                        // activate before opening the menu).
+                                                        onWindowLongPress = { id ->
+                                                            controller.onWindowActivated(id)
+                                                            onOpenPaneMenu(id, PaneMenuAnchor.Rail)
+                                                        },
+                                                        // A/B batch 3 F5b: the rail renders its OWN anchored
+                                                        // `WindowPaneMenu` (Task 11) — only when the rail (not
+                                                        // the pane overlay) is the anchor. See [menuWindowIdFor].
+                                                        menuWindowId = menuWindowIdFor(PaneMenuAnchor.Rail, paneMenuAnchor, paneMenuWindowId),
+                                                        menuItems = paneMenuItems,
+                                                        onMenuItemClick = onPaneMenuItemClick,
+                                                        onMenuDismiss = onPaneMenuDismiss,
+                                                        menuIcon = menuIcon,
+                                                        onAddWindow = { controller.onAddWindow(layout.activeWindowId) },
+                                                        onUnMaximise = controller::onUnMaximise,
+                                                        onToggleCollapse = {
+                                                            controller.onSetRestoreButtonsVisible(!layout.restoreButtonsVisible)
+                                                        },
+                                                        windowLabel = windowLabel,
+                                                        windowIcon = windowIcon,
+                                                        windowTopLabel = windowTopLabel,
+                                                    )
+                                                }
+                                            },
+                                        )
+                                    }
                                 }
                             }
                             // Sibling of `ReadingViewScreen` (not nested inside `key(gen)`, which
