@@ -186,4 +186,27 @@ class ReadingSearchControllerTest {
         assertEquals("light", c.queries.query.value)
         assertEquals(1, r.searchesRun.size, "reopening must serve the existing results, not re-run")
     }
+
+    @Test
+    fun reopeningAfterTheQueryChangedRunsTheNewSearchRatherThanServingStaleResults() {
+        // Search mode stays active once the sheet is closed, and the entry points that do not go through
+        // the toolbar field — Ctrl+F, the device SEARCH key, the drawer — can call open() again after the
+        // query has been edited. Tracking only "results exist" would serve the previous query's results
+        // under the new query.
+        val (r, c) = controller()
+        c.open()
+        c.queries.setQuery("light")
+        c.submit()
+        c.closeSheet()
+
+        c.queries.setQuery("water")
+        c.open()
+
+        assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), c.phase.value)
+        assertEquals(
+            listOf(Triple("KJV", "light", false), Triple("KJV", "water", false)),
+            r.searchesRun,
+            "the edited query must be searched, not the one the stale results belong to",
+        )
+    }
 }

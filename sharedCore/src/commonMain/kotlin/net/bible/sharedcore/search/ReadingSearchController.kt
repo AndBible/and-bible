@@ -39,8 +39,14 @@ class ReadingSearchController(
     private val _sheetVisible = MutableStateFlow(false)
     val sheetVisible: StateFlow<Boolean> = _sheetVisible.asStateFlow()
 
-    /** True once a search has produced results for the current query, so reopening need not re-run. */
-    private var hasResults = false
+    /**
+     * The query the current results belong to, or null if there are none. Deliberately the query itself
+     * rather than a boolean: search mode stays active after the sheet is closed, and the entry points that
+     * do not go through the toolbar field (Ctrl+F, the device SEARCH key, the drawer) can call [open]
+     * again after the query has been edited. A boolean would then serve the previous query's results for
+     * the new query.
+     */
+    private var resultsForQuery: String? = null
 
     /**
      * Opens search for the active window's document. [seedQuery] comes from the entry points that bypass
@@ -76,7 +82,7 @@ class ReadingSearchController(
                 _phase.value = ReadingSearchPhase.Form(docId, forEpub)
                 _sheetVisible.value = false
             }
-            hasResults -> {
+            resultsForQuery == q -> {
                 // Reopening after a back press: serve what we already have rather than re-running.
                 _phase.value = ReadingSearchPhase.Results(docId, forEpub)
                 _sheetVisible.value = true
@@ -87,7 +93,7 @@ class ReadingSearchController(
 
     private fun runSearch(docId: String, forEpub: Boolean, query: String) {
         onRunSearch(docId, query, forEpub)
-        hasResults = true
+        resultsForQuery = query
         _phase.value = ReadingSearchPhase.Results(docId, forEpub)
         _sheetVisible.value = true
     }
@@ -152,7 +158,7 @@ class ReadingSearchController(
         if (!_searchModeActive.value) return false
         _searchModeActive.value = false
         _phase.value = ReadingSearchPhase.Closed
-        hasResults = false
+        resultsForQuery = null
         return true
     }
 
