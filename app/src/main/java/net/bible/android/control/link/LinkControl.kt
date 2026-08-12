@@ -375,6 +375,16 @@ class LinkControl constructor(
         // mounted AND the search document is already indexed. Classic's not-indexed branch is kept
         // unconditionally below — prompting for an index of a document other than the active
         // window's is Task 11's machinery, which does not exist yet.
+        //
+        // Recorded Plan-A gap (review item C): `checkStrongs(searchBible)` above checks the
+        // RESOLVED Strong's Bible (the remembered/auto-detected translation), but
+        // `ReadingSearchController.open` derives its `NeedsIndex`/`Results` phase from the
+        // ACTIVE WINDOW's document (`ComposeReadingViewHost.searchOpensInReadingView`'s
+        // `resolveDoc`). If the Bible being READ is unindexed while the remembered Strong's Bible
+        // is indexed (the case just above returns `true` and this branch is taken), the reading
+        // view can raise an "index this document?" prompt for the READ document — which is not the
+        // one this find-all is actually about — instead of running immediately. Not fixed here:
+        // the same "index a document other than the active window's" gap Task 11 exists for.
         val activity = CurrentActivityHolder.currentActivity!!
         if (!needToIndex &&
             (activity as? MainBibleActivity)?.composeSearchStrongsIfHosted(ref, selection.map { it.initials }) == true

@@ -22,6 +22,8 @@ import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.search.SearchControl
@@ -31,12 +33,19 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MenuCommandHandler
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
+import net.bible.service.download.FakeBookFactory
+import net.bible.sharedcore.search.MultiSearchResults
 import net.bible.sharedcore.search.ReadingSearchPhase
 import net.bible.sharedcore.search.SearchBibleSection
+import net.bible.sharedcore.search.SearchRequest
+import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.SearchType
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordBookMetaData
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import org.crosswire.jsword.passage.Verse
@@ -134,6 +143,29 @@ class ReadingSearchEntryPointsTest {
         windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
     }
 
+    /**
+     * A fake Bible with its `indexStatus` set directly to `DONE` (`NullBackend`, no real Lucene
+     * index on disk) — same construction `ReadingSearchHostTest.book()` uses. Needed only by the
+     * `openSearchWith...` real-path test below: `ReadingSearchController.open` must resolve
+     * `SearchKind.Bible` (not `NeedsIndex`) to ever reach `buildSearchRequest` at all, and KJV
+     * itself (see [setKjvAsCurrentDocument]'s kdoc) carries no real index in this environment.
+     */
+    private fun indexedFakeBible(initials: String): SwordBook {
+        val conf = """
+            [$initials]
+            Description=$initials
+            Abbreviation=$initials
+            Category=Biblical Texts
+            ModDrv=RawText
+            DataPath=./modules/texts/ztext/$initials/
+            Encoding=UTF-8
+            Versification=KJV
+        """.trimIndent()
+        return SwordBook(SwordBookMetaData(conf.toByteArray(), initials), NullBackend()).apply {
+            indexStatus = IndexStatus.DONE
+        }
+    }
+
     // ---- The shared guard (entry points 2, 4, 5, 6, 7's exact logic) ---------------------------
 
     @Test fun composeSearchIfHostedOpensSearchModeOnTheHost() {
@@ -193,6 +225,15 @@ class ReadingSearchEntryPointsTest {
      * through `ALL_WORDS.decorate` a second time inserts a stray `+` inside the quotes (see
      * [ComposeReadingViewHost.openSearch]'s kdoc). Forcing identity decorators here is what makes
      * that impossible regardless of what the live settings sheet is set to.
+     *
+     * Review Critical 1 note: this drives `buildSearchRequest` with the SAME (untrimmed) `decorated`
+     * string `openSearch` was seeded with, so — unlike production, where the controller always
+     * `.trim()`s the query before it ever reaches `buildSearchRequest`
+     * (`ReadingSearchController.enterFormOrResults`/`submit`/`settingsClosed`) — this alone could
+     * not have caught a missing `.trim()` on the storage/comparison side: both sides here are
+     * always equal by construction. [openSearchWithAPreDecoratedSeedReachesBuildSearchRequestWithIdentityDecoratorsThroughTheRealPath]
+     * below is the one that actually exercises the trim boundary; this test is kept as direct
+     * coverage of `buildSearchRequest`'s own logic once the flag is set.
      */
     @Test fun buildSearchRequestForcesIdentityDecoratorsForAPreDecoratedSeed() {
         val host = host()
@@ -204,6 +245,55 @@ class ReadingSearchEntryPointsTest {
         assertEquals(SearchType.ANY_WORDS, request.searchType, "ANY_WORDS is the identity decorator")
         assertEquals(SearchBibleSection.ALL, request.bibleSection, "ALL is the identity section term")
         assertFalse(request.isStrongsSearch, "the pre-decorated seed is not a Strong's search")
+    }
+
+    /**
+     * The real production path: `ReadingSearchController` always hands `buildSearchRequest` a
+     * `.trim()`med query (`enterFormOrResults`'s `queries.query.value.trim()`), while
+     * [ComposeReadingViewHost.openSearch] originally stored the seed UNTRIMMED in
+     * `searchPreDecoratedQuery` — so `query == searchPreDecoratedQuery` never matched for entry
+     * point 7's seed, which always carries a leading space (`SearchControl.decorateSearchString`'s
+     * `ALL`-section term joins with a literal `" "`). That is Critical 1: the override this whole
+     * class of test exists for silently never fired, and the query would have been decorated
+     * TWICE. Proven here through the real path — `openSearch`, not a hand-built
+     * `buildSearchRequest` call — by pre-seeding the Koin-singleton [SearchResultsCache] (the SAME
+     * instance `host.searchResults` reads) with a distinctively-marked result keyed on the request
+     * the fix predicts; `SearchResultsController.run` checks the cache SYNCHRONOUSLY before ever
+     * touching the real `BibleSearchService`/Lucene, so a cache HIT (the marker appearing) proves
+     * the request `buildSearchRequest` actually produced equals the expected one byte-for-byte, with
+     * no Koin override of `BibleSearchService` needed (which would risk leaking a swapped binding
+     * into later tests the way the review's noted pre-existing `unloadKoinModules` bug does).
+     */
+    @Test fun openSearchWithAPreDecoratedSeedReachesBuildSearchRequestWithIdentityDecoratorsThroughTheRealPath() {
+        val fakeBook = indexedFakeBible("PreDec")
+        Books.installed().addBook(fakeBook)
+        try {
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(fakeBook, verse)
+            val host = host()
+            val decorated = " \"the Lord\""
+            val marker = MultiSearchResults(main = emptyList(), other = emptyList(), total = 4242)
+            val expectedRequest = SearchRequest(
+                query = decorated.trim(),
+                searchType = SearchType.ANY_WORDS,
+                bibleSection = SearchBibleSection.ALL,
+                translationIds = listOf("PreDec"),
+                currentBookName = activity.searchControl.currentBookName,
+                isStrongsSearch = false,
+            )
+            GlobalContext.get().get<SearchResultsCache>().put(expectedRequest, marker)
+
+            host.openSearch(decorated, preDecorated = true)
+
+            assertEquals(
+                4242, host.searchResults.results.value.total,
+                "the request buildSearchRequest actually produced through the real path must equal " +
+                    "the one the fix predicts — a mismatch here means the cache missed and a REAL " +
+                    "(uncontrolled) Lucene search ran instead",
+            )
+        } finally {
+            Books.installed().removeBook(fakeBook)
+        }
     }
 
     /** Editing the query after a pre-decorated open drops the override with no explicit clearing. */
@@ -219,8 +309,10 @@ class ReadingSearchEntryPointsTest {
     /**
      * Entry point 8: the RAW `strong:$ref` query, [SearchType.ANY_WORDS] forced (classic's own
      * reason: it "does not add anything"), [net.bible.sharedcore.search.SearchRequest.isStrongsSearch]
-     * set — and, unlike the pre-decorated case, the LIVE settings-sheet section still applies (there
-     * is nothing to protect: the raw query carries no section term of its own yet).
+     * set, and (review item A) `ALL` forced for the section too — classic's ONLY caller of
+     * `showAllOccurrences` always passes `ALL` (`BibleView.kt:1465`); applying the live
+     * settings-sheet section instead would silently narrow a find-all to whatever OT/NT restriction
+     * the user last left there, with no indication in the results.
      */
     @Test fun openSearchStrongsSeedsARawQueryAndForcesAnyWordsAndTheStrongsFlag() {
         val host = host()
@@ -230,9 +322,24 @@ class ReadingSearchEntryPointsTest {
         assertEquals("strong:H430", host.searchController.queries.query.value)
         val request = host.buildSearchRequest("KJV", "strong:H430")
         assertEquals(SearchType.ANY_WORDS, request.searchType)
-        assertEquals(SearchBibleSection.ALL, request.bibleSection, "the live default; nothing forces it here")
+        assertEquals(SearchBibleSection.ALL, request.bibleSection)
         assertTrue(request.isStrongsSearch)
         assertEquals(listOf("KJV", "WLC"), request.translationIds, "seeds the resolved Strong's-Bible selection")
+    }
+
+    /**
+     * Review item A, the regression this guards against: with the settings sheet left restricted
+     * to a non-`ALL` section (as it would be after ANY prior ordinary search that touched it),
+     * Strong's find-all must still search `ALL` — not the leftover restriction.
+     */
+    @Test fun openSearchStrongsForcesAllEvenWhenTheSettingsSheetIsRestricted() {
+        val host = host()
+        host.searchSection.value = SearchBibleSection.NEW_TESTAMENT
+
+        host.openSearchStrongs("H430", listOf("KJV"))
+
+        val request = host.buildSearchRequest("KJV", "strong:H430")
+        assertEquals(SearchBibleSection.ALL, request.bibleSection, "must override the live NEW_TESTAMENT restriction")
     }
 
     /** A re-run from the results document selector or the settings sheet is the SAME query text —
@@ -288,6 +395,35 @@ class ReadingSearchEntryPointsTest {
         assertTrue(handled, "a built classic intent still reports handled")
         val started = shadowOf(activity).nextStartedActivityForResult
         assertEquals(ActivityBase.STD_REQUEST_CODE, started?.requestCode)
+    }
+
+    /**
+     * Review Important 2: classic gated the WHOLE action on `isSearchable` — false for My Notes,
+     * dictionary, map and non-EPUB general-book pages — but the retarget originally called
+     * `composeSearchIfHosted()` BEFORE that check, and `searchOpensInReadingView` only excludes
+     * EPUB. My Notes' `isSearchable` is a hardcoded `false` (`CurrentMyNotePage.kt:54`), so it needs
+     * no document setup to prove the fix: switching the active window to it must leave the row
+     * fully inert — no host retarget AND no classic intent — even with a host mounted.
+     */
+    @Test fun menuSearchButtonDoesNothingOnANonSearchablePageEvenWhenHosted() {
+        activity.composeReadingViewHost = host()
+        val pageManager = windowRepository.activeWindow.pageManager
+        // `currentPage`'s setter is private; the documented way to switch pages is
+        // `setCurrentDocumentAndKey` with a book `getBookPage` maps to the target page —
+        // `FakeBookFactory.myNotesDocument`'s osisID ("Commentaries.MyNote") maps to
+        // `currentMyNotePage` (`CurrentPageManager.kt:244-245`).
+        val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+        pageManager.setCurrentDocumentAndKey(FakeBookFactory.myNotesDocument, verse)
+        assertFalse(pageManager.currentPage.isSearchable, "sanity")
+
+        val handled = MenuCommandHandler(activity).handleMenuRequest(R.id.searchButton)
+
+        assertFalse(handled, "a non-searchable page must not be handled even when hosted")
+        assertFalse(
+            activity.composeReadingViewHost!!.searchController.searchModeActive.value,
+            "must not retarget into the host's search either",
+        )
+        assertNull(shadowOf(activity).nextStartedActivityForResult)
     }
 
     // ---- Entry point 6: the device SEARCH key ---------------------------------------------------
@@ -393,5 +529,33 @@ class ReadingSearchEntryPointsTest {
 
         activity.updateSearchSheetOffsets(visible = false, heightPx = 250)
         assertEquals(before, activity.bottomOffsetForWebView, "hidden: the height must not be reserved")
+    }
+
+    /**
+     * Review item B: only the arithmetic was covered above — nothing asserted that
+     * [MainBibleActivity.updateSearchSheetOffsets] actually posts
+     * [MainBibleActivity.SearchSheetOffsetsUpdated], which is the ONLY thing that makes
+     * [BibleView.updateOffsets] re-read [MainBibleActivity.bottomOffsetForWebView] and push it to
+     * the Vue side at runtime (see that event's kdoc). `on<T>`, not `onMain<T>`, dispatches
+     * synchronously (`ABEventBus.post`) — no coroutine/dispatcher wait needed.
+     */
+    @Test fun updateSearchSheetOffsetsPostsTheEventOnlyWhenSomethingActuallyChanged() {
+        var updates = 0
+        ABEventBus.register(this) { on<MainBibleActivity.SearchSheetOffsetsUpdated> { updates++ } }
+        try {
+            activity.updateSearchSheetOffsets(visible = true, heightPx = 100)
+            assertEquals(1, updates, "a real change must post")
+
+            activity.updateSearchSheetOffsets(visible = true, heightPx = 100)
+            assertEquals(1, updates, "an unchanged (visible, height) pair must not repost")
+
+            activity.updateSearchSheetOffsets(visible = true, heightPx = 150)
+            assertEquals(2, updates, "a height-only change must still post")
+
+            activity.updateSearchSheetOffsets(visible = false, heightPx = 150)
+            assertEquals(3, updates, "a visibility-only change must still post")
+        } finally {
+            ABEventBus.unregister(this)
+        }
     }
 }

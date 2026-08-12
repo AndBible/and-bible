@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.DrawerDefaults
@@ -456,7 +457,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * as the user reads, so the name is read fresh per search instead (see [buildSearchRequest]).
      */
     private val searchType = mutableStateOf(SearchType.ALL_WORDS)
-    private val searchSection = mutableStateOf(SearchBibleSection.ALL)
+    // `internal`, not `private` — same test-visibility convention as [buildSearchRequest] — so a
+    // test can prove Strong's find-all forces `ALL` even when the settings sheet has been left on
+    // a non-default section (review item A), without a `ComposeTestRule` to drive the real sheet.
+    internal val searchSection = mutableStateOf(SearchBibleSection.ALL)
     private val searchTranslations = mutableStateOf<List<String>>(emptyList())
     private val searchAvailableTranslations = mutableStateOf<List<Pair<String, String>>>(emptyList())
 
@@ -562,7 +566,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // a Bible search over an EPUB and reporting "no results" would be worse.
         if (!searchOpensInReadingView) return
         refreshSearchTranslations()
-        searchPreDecoratedQuery = seedQuery?.takeIf { preDecorated }
+        // Review Critical 1: stored TRIMMED — `ReadingSearchController`/`buildSearchRequest` both
+        // compare against `queries.query.value.trim()`, and entry point 7's seed always carries a
+        // leading space (`SearchControl.decorateSearchString`'s `ALL`-section term joins with a
+        // literal `" "`), so an untrimmed store here never matched and the override silently never
+        // fired.
+        searchPreDecoratedQuery = seedQuery?.trim()?.takeIf { preDecorated }
         searchStrongsQuery = null
         searchController.open(seedQuery)
     }
@@ -589,7 +598,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         refreshSearchTranslations()
         searchTranslations.value = translationIds
         val query = "strong:$ref"
-        searchStrongsQuery = query
+        // `ref` cannot contain whitespace in practice, but `.trim()` here anyway — the SAME
+        // defensive normalisation as [openSearch]'s [searchPreDecoratedQuery], so this flag can
+        // never go stale the same way for a reason that only shows up later.
+        searchStrongsQuery = query.trim()
         searchPreDecoratedQuery = null
         searchController.open(query)
     }
@@ -689,18 +701,30 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     // convention (see `ReadingSearchEntryPointsTest`); every production call site still goes through
     // [runSearch].
     internal fun buildSearchRequest(docId: String, query: String): SearchRequest {
-        val preDecorated = query == searchPreDecoratedQuery
-        val strongsSearch = query == searchStrongsQuery
+        // Review Critical 1: `query` arrives already `.trim()`med by
+        // `ReadingSearchController.enterFormOrResults`/`submit`/`settingsClosed` (all read
+        // `queries.query.value.trim()`), but entry point 7's seed always carries a leading space
+        // (`SearchControl.decorateSearchString`'s `ALL`-section term is `""`, joined with a literal
+        // `" "`) — so a naive `query == searchPreDecoratedQuery` comparison against the UNTRIMMED
+        // seed stored by `openSearch` never matched, and the override silently never fired. Both
+        // sides are trimmed here (not just at the storage site) so a future caller that hands
+        // `buildSearchRequest` an untrimmed query directly (as a test legitimately might) is not a
+        // second way to reintroduce the same miss.
+        val trimmedQuery = query.trim()
+        val preDecorated = trimmedQuery == searchPreDecoratedQuery
+        val strongsSearch = trimmedQuery == searchStrongsQuery
         return SearchRequest(
             query = query,
             // Both one-shot modes force ANY_WORDS: the pre-decorated case because it is the
             // identity decorator (see [searchPreDecoratedQuery]'s kdoc), Strong's because that is
             // exactly why classic chose it (`LinkControl.kt:372`: "does not add anything").
             searchType = if (preDecorated || strongsSearch) SearchType.ANY_WORDS else searchType.value,
-            // Only the pre-decorated case also forces the section to the identity (empty) — Strong's
-            // still applies the live settings-sheet section, matching classic (`showAllOccurrences`
-            // takes a real `bibleSection` argument; its one caller always passes `ALL` today).
-            bibleSection = if (preDecorated) SearchBibleSection.ALL else searchSection.value,
+            // Both one-shot modes now force the section to ALL: the pre-decorated case because ALL
+            // is the identity (empty) section term, Strong's because classic's ONLY caller
+            // (`BibleView.kt:1465`) always passes `ALL` — applying the live settings-sheet section
+            // instead would silently narrow a find-all to whatever OT/NT restriction the user last
+            // left in the settings sheet, with no indication in the results (review Important/A).
+            bibleSection = if (preDecorated || strongsSearch) SearchBibleSection.ALL else searchSection.value,
             // Addressing key (`Book.initials`), never a list index. Falls back to the document being
             // read, which is the seed `SearchComposeActivity.kt:90` uses.
             translationIds = searchTranslations.value.ifEmpty { listOf(docId) },
@@ -2189,14 +2213,30 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                 // Task 8b Step 3: the sheet is self-sizing (see the 1.dp-floor/60%-
                                 // ceiling comment below), so its height for `bottomOffsetForWebView`
                                 // must be MEASURED off the real content, not guessed as a constant —
-                                // `onSizeChanged` on the sheet content's root reports it in px.
-                                var searchSheetHeightPx by remember { mutableIntStateOf(0) }
-                                LaunchedEffect(searchSheetVisible, searchSheetHeightPx) {
-                                    onSearchSheetOffsetsChanged(searchSheetVisible, searchSheetHeightPx)
+                                // `onSizeChanged` reports each piece in px. Review Important 3: the
+                                // on-screen sheet is the CONTENT plus M3's own drag-handle band, which
+                                // `BottomSheetScaffold` renders as a SEPARATE composable above
+                                // `sheetContent` — measuring only the content under-counted the sheet
+                                // by the handle's height, leaving that much of the reading text hidden
+                                // behind it. Rather than hardcode the default handle's height (a
+                                // constant M3 could change under us), `sheetDragHandle` below is
+                                // supplied explicitly so its own real height is measured the same way.
+                                var searchSheetContentHeightPx by remember { mutableIntStateOf(0) }
+                                var searchSheetHandleHeightPx by remember { mutableIntStateOf(0) }
+                                LaunchedEffect(searchSheetVisible, searchSheetContentHeightPx, searchSheetHandleHeightPx) {
+                                    onSearchSheetOffsetsChanged(
+                                        searchSheetVisible,
+                                        searchSheetContentHeightPx + searchSheetHandleHeightPx,
+                                    )
                                 }
                                 BottomSheetScaffold(
                                     scaffoldState = searchSheetState,
                                     sheetPeekHeight = 0.dp,
+                                    sheetDragHandle = {
+                                        Box(Modifier.onSizeChanged { size -> searchSheetHandleHeightPx = size.height }) {
+                                            BottomSheetDefaults.DragHandle()
+                                        }
+                                    },
                                     sheetContent = {
                                         // The sheet is exactly as tall as its content — a short
                                         // index prompt stays short — but never taller than
@@ -2219,7 +2259,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                                         min = 1.dp,
                                                         max = maxHeight * SearchSheetMaxHeightFraction,
                                                     )
-                                                    .onSizeChanged { size -> searchSheetHeightPx = size.height }
+                                                    .onSizeChanged { size -> searchSheetContentHeightPx = size.height }
                                             ) { searchSheetSlot() }
                                         }
                                     },
