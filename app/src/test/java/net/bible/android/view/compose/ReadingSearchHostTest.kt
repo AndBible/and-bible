@@ -20,13 +20,20 @@ import android.widget.FrameLayout
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewGeneration
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
+import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.search.IndexPollDecision
 import net.bible.sharedcore.search.ReadingSearchController
@@ -37,17 +44,27 @@ import net.bible.sharedcore.search.SearchKind
 import net.bible.sharedcore.search.searchKindFor
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
+import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.index.IndexStatus
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.system.Versifications
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /** No-op fake — mirrors `AgentLogHostTest`/`ReadingLlmHostTest`'s own private copies (this repo has
@@ -88,6 +105,15 @@ private val noopCommands = object : WindowCommands {
  * covers `ComposeReadingViewHost`, so the mount test below can only prove the new parameters exist
  * and reach `mountComposeView` (composition never runs for a container that is never attached to a
  * window) — the same limit `AgentLogHostTest` documents.
+ *
+ * 4. **F6 Task 11's index prompt for a translation other than the one being read** — a real
+ *    [ComposeReadingViewHost] against a real (never `.install()`ed) [MainBibleActivity], same
+ *    precedent as `ReadingSearchEntryPointsTest.host()`, plus real unindexed fake Bibles added to
+ *    [Books.installed] (no fake `BibleSearchService`, no Koin swap — `unindexedAmong` reads real
+ *    `indexStatus` through `SwordDocumentFacade`). The chaining DECISION itself
+ *    ([ComposeReadingViewHost.nextSelectorIndexPrompt]) is tested directly, the same way
+ *    [awaitIndexDone] above is: driving the real thing would need a genuine JSword
+ *    `Progress`/`WorkEvent`/`JobManager` round trip, which no test in this repo attempts.
  */
 @RunWith(RobolectricTestRunner::class)
 // TestBibleApplication, not the bare Application the other `*HostTest`s use: `Book.isEpub` lives in
@@ -95,6 +121,63 @@ private val noopCommands = object : WindowCommands {
 // leaves that lateinit unset and every mapping test dies in `<clinit>`.
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingSearchHostTest {
+
+    // ---- F6 Task 11's real-host fixture (only the tests below this need it) --------------------
+
+    private lateinit var windowControl: WindowControl
+    private lateinit var windowRepository: WindowRepository
+    private lateinit var activity: MainBibleActivity
+
+    /** Mirrors `ReadingSearchEntryPointsTest.setUp`/`tearDown` — a real [MainBibleActivity]/
+     *  [WindowControl]/[WindowRepository] graph, activity built WITHOUT `.create()`, host
+     *  constructed directly and never `.install()`ed. */
+    @Before
+    fun setUpRealHost() {
+        windowControl = CommonUtils.windowControl
+        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl.windowRepository = windowRepository
+        windowRepository.initialize()
+
+        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
+        activity.windowRepository = windowRepository
+        activity.setNewHistoryTraversal(GlobalContext.get().get())
+        CurrentActivityHolder.activate(activity)
+
+        // KJV ships with no real Lucene index in this test environment (same fixture
+        // `ReadingSearchEntryPointsTest` documents), so setting it active is enough to get a
+        // search session OPEN (not `Closed`) via `openSearch()` without needing an indexed document
+        // — the tests below only care that a session exists to redirect, not what it starts on.
+        val kjv = Books.installed().getBook("KJV") as SwordBook
+        val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+        windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
+    }
+
+    @After
+    fun tearDownRealHost() {
+        CurrentActivityHolder.deactivate(activity)
+        DatabaseResetter.resetDatabase(windowRepository.scope)
+    }
+
+    private fun host() = ComposeReadingViewHost(activity)
+
+    /**
+     * A fake Bible left UNINDEXED (no `indexStatus` override) — the twin of
+     * `ReadingSearchEntryPointsTest.indexedFakeBible`, same `NullBackend` construction, same
+     * `Biblical Texts`/`RawText` conf so it is a valid Bible candidate.
+     */
+    private fun unindexedFakeBible(initials: String): SwordBook {
+        val conf = """
+            [$initials]
+            Description=$initials
+            Abbreviation=$initials
+            Category=Biblical Texts
+            ModDrv=RawText
+            DataPath=./modules/texts/ztext/$initials/
+            Encoding=UTF-8
+            Versification=KJV
+        """.trimIndent()
+        return SwordBook(SwordBookMetaData(conf.toByteArray(), initials), NullBackend())
+    }
 
     // ---- Step 1: Book -> SearchDocumentInfo ----------------------------------------------------
 
@@ -313,5 +396,131 @@ class ReadingSearchHostTest {
             (0 until container.childCount).any { container.getChildAt(it) is ComposeView },
             "mountComposeView must still add its ComposeView child with the new search params present",
         )
+    }
+
+    // ---- F6 Task 11: an index prompt for a translation other than the one being read ------------
+
+    /**
+     * The gap this task closes: [ReadingSearchController] only derives `NeedsIndex` from the
+     * ACTIVE window's document, so before `promptIndexFor` existed, choosing an unindexed
+     * translation in the results selector had no way to prompt for THAT translation. Two fresh,
+     * genuinely unindexed fake Bibles (real `Books.installed()` entries, real `indexStatus`, no
+     * fake `BibleSearchService`) prove `onSearchTranslationsChosen` redirects the session to the
+     * FIRST one rather than re-deriving `NeedsIndex` from the active KJV.
+     */
+    @Test
+    fun choosingAnUnindexedTranslationInTheSelectorPromptsForThatTranslationNotTheActiveDocument() {
+        val u1 = unindexedFakeBible("HostU1")
+        val u2 = unindexedFakeBible("HostU2")
+        Books.installed().addBook(u1)
+        Books.installed().addBook(u2)
+        try {
+            val host = host()
+            host.openSearch()
+            assertTrue(host.searchController.sheetVisible.value, "sanity: a session is open")
+
+            host.onSearchTranslationsChosen(listOf("HostU1", "HostU2"))
+
+            assertEquals(
+                ReadingSearchPhase.NeedsIndex("HostU1", forEpub = false),
+                host.searchController.phase.value,
+                "must prompt for the CHOSEN translation, not KJV (the active document)",
+            )
+            assertTrue(host.searchController.sheetVisible.value)
+            assertEquals(
+                listOf("HostU1", "HostU2"),
+                host.searchSelectorPendingIdsForTest,
+                "the whole chosen set must be remembered so the second can be chained to later",
+            )
+        } finally {
+            Books.installed().removeBook(u1)
+            Books.installed().removeBook(u2)
+        }
+    }
+
+    /** A selection with no unindexed translation at all must not arm the pending-chain field —
+     *  that field is what keeps an ordinary submit from ever chaining (see Step 3's gate). */
+    @Test
+    fun choosingAFullyIndexedSelectionArmsNoPendingChain() {
+        val indexed = unindexedFakeBible("HostIdx").apply { indexStatus = IndexStatus.DONE }
+        Books.installed().addBook(indexed)
+        try {
+            val host = host()
+            host.openSearch()
+
+            host.onSearchTranslationsChosen(listOf("HostIdx"))
+
+            assertNull(host.searchSelectorPendingIdsForTest)
+        } finally {
+            Books.installed().removeBook(indexed)
+        }
+    }
+
+    /** Cancelling out of search entirely must leave nothing armed for a later, unrelated session —
+     *  the single cleanup point ([ComposeReadingViewHost]'s `onSearchModeClosed`) covers both the
+     *  first back press (closes the sheet) and the second (leaves search mode). */
+    @Test
+    fun leavingSearchClearsThePendingSelectorChain() {
+        val u1 = unindexedFakeBible("HostU3")
+        Books.installed().addBook(u1)
+        try {
+            val host = host()
+            host.openSearch()
+            host.onSearchTranslationsChosen(listOf("HostU3"))
+            assertEquals(listOf("HostU3"), host.searchSelectorPendingIdsForTest, "sanity")
+
+            assertTrue(host.closeSearchIfOpen(), "first back closes the sheet")
+            assertTrue(host.closeSearchIfOpen(), "second back leaves search mode")
+
+            assertNull(host.searchSelectorPendingIdsForTest)
+        } finally {
+            Books.installed().removeBook(u1)
+        }
+    }
+
+    // ---- The chaining decision itself (mirrors `awaitIndexDone`'s direct-drive style above) -----
+
+    @Test
+    fun nextSelectorIndexPromptChainsToTheSecondUnindexedTranslationRatherThanRerunning() {
+        val next = ComposeReadingViewHost.nextSelectorIndexPrompt(
+            pendingIds = listOf("A", "B"),
+            indexDone = true,
+            unindexedAmong = { listOf("B") }, // A just finished; B is still not indexed
+        )
+        assertEquals("B", next)
+    }
+
+    @Test
+    fun nextSelectorIndexPromptReturnsNullOnceTheSetIsCleanSoTheOrdinaryRerunTakesOver() {
+        val next = ComposeReadingViewHost.nextSelectorIndexPrompt(
+            pendingIds = listOf("A", "B"),
+            indexDone = true,
+            unindexedAmong = { emptyList() }, // both now indexed
+        )
+        assertNull(next)
+    }
+
+    /** Gate: the plain "document being read has no index" flow (no selector involved) must never
+     *  chain — `pendingIds` is `null` there, and `unindexedAmong` must not even be consulted. */
+    @Test
+    fun nextSelectorIndexPromptReturnsNullOutsideASelectorDrivenRun() {
+        var consulted = false
+        val next = ComposeReadingViewHost.nextSelectorIndexPrompt(
+            pendingIds = null,
+            indexDone = true,
+            unindexedAmong = { consulted = true; it },
+        )
+        assertNull(next)
+        assertFalse(consulted, "an ordinary submit must not even query unindexedAmong")
+    }
+
+    @Test
+    fun nextSelectorIndexPromptReturnsNullWhenTheBuildFailed() {
+        val next = ComposeReadingViewHost.nextSelectorIndexPrompt(
+            pendingIds = listOf("A"),
+            indexDone = false,
+            unindexedAmong = { it },
+        )
+        assertNull(next, "a failed build must fall back to onIndexingFinished(false), not chain")
     }
 }

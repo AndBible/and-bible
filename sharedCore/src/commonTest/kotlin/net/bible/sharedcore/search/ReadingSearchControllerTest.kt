@@ -187,6 +187,80 @@ class ReadingSearchControllerTest {
         assertEquals(1, r.searchesRun.size, "reopening must serve the existing results, not re-run")
     }
 
+    // ---- F6 Task 11: promptIndexFor (index prompt for a translation other than the active one) ---
+
+    /**
+     * The results document selector can choose a translation that is not the one being read.
+     * `promptIndexFor` must raise `NeedsIndex` for THAT translation, not re-derive it from
+     * `resolveDoc()` (which would just report the active window's document again).
+     */
+    @Test
+    fun aChosenTranslationWithoutAnIndexRaisesThePromptForThatTranslation() {
+        val (_, c) = controller() // active document is the indexed "KJV"
+        c.open()
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value, "sanity")
+
+        val consumed = c.promptIndexFor("ESV")
+
+        assertTrue(consumed)
+        assertEquals(ReadingSearchPhase.NeedsIndex("ESV", forEpub = false), c.phase.value)
+        assertTrue(c.sheetVisible.value)
+    }
+
+    @Test
+    fun acceptingThatPromptIndexesTheChosenTranslationNotTheActiveDocument() {
+        val (r, c) = controller() // active document is "KJV"
+        c.open()
+        c.promptIndexFor("ESV")
+
+        c.acceptIndexing()
+
+        assertEquals(ReadingSearchPhase.Indexing("ESV", forEpub = false), c.phase.value)
+        assertEquals(listOf("ESV"), r.indexingStarted, "must index the CHOSEN translation, not KJV")
+    }
+
+    @Test
+    fun theSearchRerunsAgainstTheChosenTranslationOnceItsIndexIsBuilt() {
+        val (r, c) = controller()
+        c.open(seedQuery = "light") // runs immediately against the indexed active document "KJV"
+        c.promptIndexFor("ESV")
+        c.acceptIndexing()
+
+        c.onIndexingFinished(indexDone = true)
+
+        assertEquals(ReadingSearchPhase.Results("ESV", forEpub = false), c.phase.value)
+        assertEquals(
+            listOf(Triple("KJV", "light", false), Triple("ESV", "light", false)),
+            r.searchesRun,
+            "the waiting query must re-run against the newly-indexed ESV",
+        )
+    }
+
+    @Test
+    fun aFailedBuildFallsBackToThePromptForTheSameTranslation() {
+        val (r, c) = controller()
+        c.open()
+        c.promptIndexFor("ESV")
+        c.acceptIndexing()
+
+        c.onIndexingFinished(indexDone = false)
+
+        assertEquals(ReadingSearchPhase.NeedsIndex("ESV", forEpub = false), c.phase.value)
+        assertEquals(emptyList(), r.searchesRun)
+    }
+
+    @Test
+    fun promptIndexForIsIgnoredOutsideASearchSession() {
+        val (_, c) = controller()
+        // No `open()` — the session is Closed.
+
+        val consumed = c.promptIndexFor("ESV")
+
+        assertFalse(consumed)
+        assertEquals(ReadingSearchPhase.Closed, c.phase.value)
+        assertFalse(c.sheetVisible.value)
+    }
+
     @Test
     fun reopeningAfterTheQueryChangedRunsTheNewSearchRatherThanServingStaleResults() {
         // Search mode stays active once the sheet is closed, and the entry points that do not go through

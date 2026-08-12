@@ -109,6 +109,28 @@ class ReadingSearchController(
         runSearch(docId, forEpub, q)
     }
 
+    /**
+     * Redirects the current search session to prompt for an index of [docId] — a translation OTHER
+     * than the one [resolveDoc] would report, as chosen in the results document selector (which can
+     * pick any Bible, not just the one being read). Returns `false` and leaves the phase untouched
+     * when the session is [ReadingSearchPhase.Closed] (there is nothing to redirect).
+     *
+     * This is the only place the phase's `docId` is set to something other than what [resolveDoc]
+     * reports — everywhere else it flows from `resolveDoc()` via [open]. So from here on, "the
+     * phase's `docId`" means "the document THIS SESSION is currently addressing", which after a
+     * selector choice is the chosen translation rather than the active window's document. That is
+     * exactly what [acceptIndexing] and [onIndexingFinished] already key off (both read `phase.docId`,
+     * never `resolveDoc()`), and what `buildSearchRequest`'s `translationIds` fallback wants — so
+     * routing through the SAME phase, rather than adding a parallel "index this other document" path,
+     * is what lets the existing indexing pipeline serve a document the active window isn't showing.
+     */
+    fun promptIndexFor(docId: String): Boolean {
+        val forEpub = forEpubOf(_phase.value) ?: return false
+        _phase.value = ReadingSearchPhase.NeedsIndex(docId, forEpub)
+        _sheetVisible.value = true
+        return true
+    }
+
     fun acceptIndexing() {
         val p = _phase.value as? ReadingSearchPhase.NeedsIndex ?: return
         onStartIndexing(p.docId)

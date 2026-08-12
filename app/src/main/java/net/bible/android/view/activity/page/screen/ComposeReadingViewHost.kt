@@ -626,12 +626,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         if (searchController.closeSearchMode()) onSearchModeClosed()
     }
 
-    /** Common tail of leaving search mode (Task 8b): drops the index feed AND both one-shot
-     *  decoration flags below, so a later [openSearch] never inherits a stale override. */
+    /** Common tail of leaving search mode (Task 8b): drops the index feed, both one-shot decoration
+     *  flags, and (Task 11) the pending selector-index chain, so a later [openSearch] never inherits
+     *  a stale override and a cancelled index-prompt chain leaves nothing armed. */
     private fun onSearchModeClosed() {
         stopSearchIndexFeed()
         searchPreDecoratedQuery = null
         searchStrongsQuery = null
+        searchSelectorPendingIds = null
     }
 
     /**
@@ -695,6 +697,23 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * Cleared when search mode closes — see [onSearchModeClosed].
      */
     private var searchStrongsQuery: String? = null
+
+    /**
+     * F6 Task 11: the FULL set of translation ids chosen in the results document selector, held
+     * only while the index-prompt chain [onSearchIndexWorkEvent] drives is running for them — i.e.
+     * from [onSearchTranslationsChosen] finding at least one unindexed translation in that set until
+     * every one of them is indexed (or a build fails). `null` in every other flow, including the
+     * plain "the document being read has no index" case ([ReadingSearchController.open]'s own
+     * `NeedsIndex`) — [onSearchIndexWorkEvent] gates the chaining on THIS field rather than on
+     * whether the chosen set contains an unindexed translation in general, because a persisted
+     * selection that happens to hold one must not start prompting on an ordinary submit; only a
+     * fresh choice made in the selector may. Cleared in [onSearchModeClosed] so a cancelled session
+     * leaves nothing armed.
+     */
+    private var searchSelectorPendingIds: List<String>? = null
+
+    /** Test-only read of [searchSelectorPendingIds] — same convention as [paneMenuWindowIdForTest]. */
+    internal val searchSelectorPendingIdsForTest: List<String>? get() = searchSelectorPendingIds
 
     // `internal`, not `private`, purely for direct test coverage of the two one-shot overrides above
     // — mirrors this file's own `paneMenuWindowIdForTest`/`buildTabBarModel` test-visibility
@@ -799,6 +818,16 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // Classic only reported the failure once nothing else was still running.
             if (!indexDone && isEverySearchIndexJobFinished()) searchIndexProgress.showError()
             stopSearchIndexFeed()
+            // F6 Task 11: a selection made in the results document selector can hold more than one
+            // unindexed translation (classic indexed only the first and silently dropped the rest).
+            // While `searchSelectorPendingIds` is set, chain to the next one instead of letting
+            // `onIndexingFinished` re-run against only the just-built translation.
+            val next = nextSelectorIndexPrompt(searchSelectorPendingIds, indexDone) { bibleSearchService.unindexedAmong(it) }
+            if (next != null) {
+                searchController.promptIndexFor(next)
+                return@launch
+            }
+            searchSelectorPendingIds = null
             searchController.onIndexingFinished(indexDone)
         }
     }
@@ -1640,16 +1669,25 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
 
     /**
      * The results document selector's choice. Mirrors
-     * `SearchResultsComposeActivity.onSelectTranslations` — the controller persists the choice and
-     * re-runs — except for the unindexed branch: that Activity launched `Screen.SearchIndex`
-     * carrying the whole search context, and the reading-view session has no way to ask for an index
-     * of a document OTHER than the one being read ([ReadingSearchController] resolves `NeedsIndex`
-     * from the active window). So the choice is kept and the search is not re-run; the row stays in
-     * the sheet with the previous results. Recorded as a Plan-A gap rather than papered over.
+     * `SearchResultsComposeActivity.onSelectTranslations` — [SearchResultsController.selectTranslations]
+     * persists the choice and re-runs — except when it contains a translation with no usable index:
+     * that Activity launched `Screen.SearchIndex` carrying the whole search context; here,
+     * [ReadingSearchController.promptIndexFor] (F6 Task 11) redirects the session's own phase to
+     * `NeedsIndex` for the FIRST unindexed translation, and [searchSelectorPendingIds] remembers the
+     * whole chosen set so [onSearchIndexWorkEvent] can chain to any others once that one is built.
+     * `promptIndexFor` is what makes this possible at all: [ReadingSearchController] otherwise only
+     * derives `NeedsIndex` from the ACTIVE window's document, which a selector choice need not be.
      */
-    private fun onSearchTranslationsChosen(ids: List<String>) {
-        searchResults.selectTranslations(ids) { _, _ -> }
+    // `internal`, not `private` — same test-visibility rationale as [buildSearchRequest]/
+    // [onSearchResultSelected] above: `BibleResultsActions`' selector lives behind a Compose sheet
+    // this repo's `:app` unit tests cannot drive (no `ComposeTestRule`), so `ReadingSearchHostTest`
+    // calls this callback directly instead.
+    internal fun onSearchTranslationsChosen(ids: List<String>) {
         searchTranslations.value = ids
+        searchResults.selectTranslations(ids) { unindexed, chosenIds ->
+            searchSelectorPendingIds = chosenIds
+            searchController.promptIndexFor(unindexed.first())
+        }
     }
 
     /** The modal search-settings sheet (the toolbar's Tune affordance) — Task 5's form in Task 5's shell. */
@@ -1747,6 +1785,30 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     PollOutcome.KeepPolling -> pause()
                 }
             }
+        }
+
+        /**
+         * F6 Task 11's chaining decision for [onSearchIndexWorkEvent]: once a build resolves, decides
+         * whether to prompt again for a DIFFERENT translation from the results selector's chosen set,
+         * or let [ReadingSearchController.onIndexingFinished] behave exactly as it did before this
+         * task. Returns the next unindexed translation id to prompt for, or `null` when there is
+         * nothing left to chain — the build failed, [pendingIds] is `null` (this is not a
+         * selector-driven run at all — the plain "document being read has no index" flow), or
+         * [unindexedAmong] reports every id in [pendingIds] as indexed now.
+         *
+         * `internal` on the companion for the same reason as [awaitIndexDone]/[searchDocumentInfo]
+         * just above: `ReadingSearchHostTest` drives the decision directly, with no real JSword
+         * `Progress`/`WorkEvent`/`JobManager` round trip (the only production caller,
+         * [onSearchIndexWorkEvent], is itself untested end-to-end for the same reason `awaitIndexDone`
+         * already is not).
+         */
+        internal fun nextSelectorIndexPrompt(
+            pendingIds: List<String>?,
+            indexDone: Boolean,
+            unindexedAmong: (List<String>) -> List<String>,
+        ): String? {
+            if (pendingIds == null || !indexDone) return null
+            return unindexedAmong(pendingIds).firstOrNull()
         }
 
         /**
