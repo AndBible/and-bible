@@ -44,6 +44,7 @@ import net.bible.sharedcore.search.SearchKind
 import net.bible.sharedcore.search.searchKindFor
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
+import net.bible.sharedui.strings.AndroidStrings
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
@@ -345,19 +346,133 @@ class ReadingSearchHostTest {
      * which destroys and recreates every `BibleView` WebView (losing the loaded document, the scroll
      * position and every bit of JS state). The scaffold's shape is guarded separately, at the source
      * level, by `SearchSheetStructureGuardTest`.
+     *
+     * Review I4: this used to drive a *detached* [ReadingSearchController] and then assert over a
+     * LOCAL [ComposeReadingViewGeneration] that no production code could reach — so it passed no
+     * matter what the search path did. It now drives the REAL host through the real entry point and
+     * reads **the host's own** counter ([ComposeReadingViewHost.generationForTest]), which is the only
+     * arrangement in which a `rebuild()` added anywhere on this path can turn it red. (Verified by
+     * temporarily calling `generation.rebuild()` from `openSearch`: this test failed, `expected 0,
+     * actual 1`.)
      */
     @Test
     fun openingAndClosingSearchMustNotRebuildThePaneSubtree() {
-        val generation = ComposeReadingViewGeneration()
-        val session = Session(indexedBible)
-        session.controller.queries.setQuery("light")
+        val host = host()
+        assertEquals(0, host.generationForTest.state.value, "sanity: nothing has rebuilt yet")
 
-        session.controller.open()
-        assertTrue(session.controller.sheetVisible.value, "results must open the sheet")
-        assertTrue(session.controller.closeSheet(), "the first back closes the sheet")
-        assertTrue(session.controller.closeSearchMode(), "the second leaves search mode")
+        host.openSearch()
+        assertTrue(host.searchController.searchModeActive.value, "sanity: a session is open")
+        assertTrue(host.searchController.sheetVisible.value, "sanity: the sheet is up (KJV has no index)")
+        assertTrue(host.closeSearchIfOpen(), "the first back closes the sheet")
+        assertTrue(host.closeSearchIfOpen(), "the second leaves search mode")
 
-        assertEquals(0, generation.state.value)
+        assertEquals(
+            0, host.generationForTest.state.value,
+            "no step of opening, parking or closing search may bump the generation — a bump remounts " +
+                "every pane's BibleView WebView",
+        )
+    }
+
+    // ---- Review I1: a FOREIGN finished JSword job must not resolve the index build ---------------
+
+    /**
+     * The regression this pins (a port defect, not classic's): `JobManager`'s work listener is global,
+     * so a module download or install finishing mid-build used to tear the index feed down, poll,
+     * possibly report failure and drop the session back to `NeedsIndex` — whose Create then runs
+     * `deleteDocumentIndex` under the build that was about to succeed. See
+     * [ComposeReadingViewHost.shouldResolveIndexBuild]'s kdoc for why the gate is "no job is still
+     * running" rather than the build's own `Progress` identity.
+     */
+    @Test
+    fun aForeignFinishedJobMustNotResolveTheIndexBuildWhileAnotherJobIsStillRunning() {
+        assertFalse(
+            ComposeReadingViewHost.shouldResolveIndexBuild(jobFinished = true, everyJobFinished = false),
+            "a finished job while something else is still running says nothing about the index build",
+        )
+    }
+
+    @Test
+    fun anUnfinishedJobNeverResolvesTheIndexBuild() {
+        assertFalse(ComposeReadingViewHost.shouldResolveIndexBuild(jobFinished = false, everyJobFinished = false))
+        // `everyJobFinished` cannot really be true while this very job is unfinished, but the guard
+        // must not depend on that invariant holding in a JSword version that reports them differently.
+        assertFalse(ComposeReadingViewHost.shouldResolveIndexBuild(jobFinished = false, everyJobFinished = true))
+    }
+
+    /** The liveness half: once nothing is running any more, the finish event MUST resolve — otherwise
+     *  the sheet would sit in `Indexing` forever. */
+    @Test
+    fun aFinishedJobWithNothingElseRunningResolvesTheIndexBuild() {
+        assertTrue(ComposeReadingViewHost.shouldResolveIndexBuild(jobFinished = true, everyJobFinished = true))
+    }
+
+    // ---- Review item 2: the Unavailable message with no document to name ------------------------
+
+    /**
+     * `searchUnavailableDocName` is composed from `currentDocument?.name.orEmpty()`, and "no current
+     * document at all" (an error page) is itself one of `searchKindFor`'s `Unavailable` cases — so the
+     * parameterised string produced a snackbar reading " cannot be searched".
+     */
+    @Test
+    fun theUnavailableMessageFallsBackToAGenericSentenceWhenThereIsNoDocumentName() {
+        val strings = AndroidStrings(ApplicationProvider.getApplicationContext())
+
+        val message = ComposeReadingViewHost.searchUnavailableMessage("", strings)
+
+        assertEquals(strings.searchNotAvailable, message)
+        assertFalse(message.startsWith(" "), "the empty-name string must not be interpolated at all")
+        assertTrue(message.isNotBlank())
+    }
+
+    @Test
+    fun theUnavailableMessageNamesTheDocumentWhenThereIsOne() {
+        val strings = AndroidStrings(ApplicationProvider.getApplicationContext())
+
+        assertEquals(
+            strings.searchNotAvailableForDocument("Strong's Hebrew"),
+            ComposeReadingViewHost.searchUnavailableMessage("Strong's Hebrew", strings),
+        )
+    }
+
+    // ---- Review item 4: the per-open UI flags are cleared with the session ----------------------
+
+    /**
+     * Leaving search mode must not leave the recent-terms dropdown or the settings sheet flagged
+     * open: re-entering search would come up with the dropdown already down over the field.
+     */
+    @Test
+    fun leavingSearchModeClearsTheRecentTermsMenuAndTheSettingsSheetFlags() {
+        val host = host()
+        host.openSearch()
+        host.searchRecentMenuOpen.value = true
+        host.searchSettingsOpen.value = true
+
+        assertTrue(host.closeSearchIfOpen(), "first back closes the sheet")
+        assertTrue(host.closeSearchIfOpen(), "second back leaves search mode")
+
+        assertFalse(host.searchRecentMenuOpen.value, "the recent-terms dropdown must not stay flagged open")
+        assertFalse(host.searchSettingsOpen.value, "nor the settings sheet")
+    }
+
+    // ---- Review item 7: the recent-terms MRU is re-read per open --------------------------------
+
+    /**
+     * The MRU store is shared with the classic/EPUB search Activities, and this host outlives any
+     * single search — so a term recorded there while the host was alive must be picked up on the next
+     * open, not clobbered by the host's stale in-memory list.
+     */
+    @Test
+    fun openingSearchRereadsTheRecentTermsWrittenByTheClassicPath() {
+        val host = host()
+
+        // Exactly what `SearchComposeActivity` writes (newline-separated, same settings key). The
+        // write REPLACES the key, so this asserts an exact list without depending on what any other
+        // test in this JVM left in the store.
+        CommonUtils.settings.setString("search_recent_terms", "water\nlight")
+
+        host.openSearch()
+
+        assertEquals(listOf("water", "light"), host.searchController.queries.recentTerms.value)
     }
 
     // ---- The host seam ------------------------------------------------------------------------

@@ -137,9 +137,13 @@ fun BibleSearchSettings(
 
 /**
  * One-line read-only rendering of the current [BibleSearchSettings] selections:
- * `section · word mode · translations`. Takes [strings] as a parameter (rather than reading
- * `LocalStrings`) so it is callable from non-composable code — the reading toolbar needs it to
- * label the settings affordance.
+ * `section · word mode · translations`.
+ *
+ * Takes [strings] as a parameter rather than reading `LocalStrings` so it stays a plain function:
+ * its one caller, [SearchScreen], already has `LocalStrings.current` in hand and derives this
+ * summary as a value, not as a composable. (An earlier version of this comment claimed the reading
+ * toolbar needed a non-composable summary; the reading-view search mode does not use this at all —
+ * F6's settings live in their own sheet, whose contents are the real [BibleSearchSettings].)
  */
 fun bibleSearchSettingsSummary(
     strings: Strings,

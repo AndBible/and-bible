@@ -61,7 +61,9 @@ import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNotSame
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 /**
@@ -292,6 +294,67 @@ class ReadingSearchEntryPointsTest {
                     "(uncontrolled) Lucene search ran instead",
             )
         } finally {
+            // Review item 1: this cache is a Koin SINGLE, so a seeded entry is JVM-global — leaving it
+            // behind is exactly the class of leakage that cost this batch two debugging sessions (a
+            // swapped Koin binding, JSword's `BookName` flag).
+            GlobalContext.get().get<SearchResultsCache>().clear()
+            Books.installed().removeBook(fakeBook)
+        }
+    }
+
+    /**
+     * Review I2: a NEW query must open its results at the top — the screen this replaced created its
+     * `LazyListState` per screen (`SearchResultsScreen.kt:103`), while the host hoists one so the
+     * scroll survives closing and reopening the sheet (F25). Both halves are asserted here, since the
+     * fix must not undo F25: a run replaces the state, reopening the sheet for the query the results
+     * already belong to does not.
+     *
+     * The cache is seeded exactly as the pre-decorated test above does, so the "search" is a
+     * synchronous cache hit and no real Lucene query runs.
+     */
+    @Test fun aNewQueryResetsTheResultsScrollWhileReopeningTheSheetKeepsIt() {
+        val fakeBook = indexedFakeBible("ScrollDoc")
+        Books.installed().addBook(fakeBook)
+        try {
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(fakeBook, verse)
+            val host = host()
+            val decorated = " \"the Lord\""
+            GlobalContext.get().get<SearchResultsCache>().put(
+                SearchRequest(
+                    query = decorated.trim(),
+                    searchType = SearchType.ANY_WORDS,
+                    bibleSection = SearchBibleSection.ALL,
+                    translationIds = listOf("ScrollDoc"),
+                    currentBookName = activity.searchControl.currentBookName,
+                    isStrongsSearch = false,
+                ),
+                MultiSearchResults(main = emptyList(), other = emptyList(), total = 7),
+            )
+            val beforeTheSearch = host.searchResultsListStateForTest
+
+            host.openSearch(decorated, preDecorated = true)
+
+            val afterTheSearch = host.searchResultsListStateForTest
+            assertEquals(7, host.searchResults.results.value.total, "sanity: the seeded search ran")
+            assertNotSame(
+                beforeTheSearch, afterTheSearch,
+                "a new query must get a fresh list state — otherwise three hits open clamped at the " +
+                    "previous search's row 40 and look like an empty result",
+            )
+
+            // First back closes only the sheet; re-entering search with no seed serves the SAME
+            // results (`ReadingSearchController.enterFormOrResults`' `resultsForQuery` branch) and so
+            // must keep the scroll position F25 exists to preserve.
+            assertTrue(host.closeSearchIfOpen(), "sanity: the sheet was open")
+            host.openSearch()
+
+            assertSame(
+                afterTheSearch, host.searchResultsListStateForTest,
+                "reopening the sheet for the same query must NOT reset the scroll (F25)",
+            )
+        } finally {
+            GlobalContext.get().get<SearchResultsCache>().clear()
             Books.installed().removeBook(fakeBook)
         }
     }
@@ -353,6 +416,40 @@ class ReadingSearchEntryPointsTest {
 
         assertTrue(first.isStrongsSearch)
         assertTrue(second.isStrongsSearch, "same query text -> still a Strong's search")
+    }
+
+    /**
+     * Review item 5: the one-shot overrides are keyed to the query TEXT, and a SEEDLESS open does not
+     * change the text — so it must not drop them. The reported sequence: Strong's find-all -> results
+     * -> a seedless re-entry (Ctrl+F, the device SEARCH key, the drawer row) -> closing the settings
+     * sheet re-ran the very same `strong:H430` string as an ordinary word-mode search
+     * (`ReadingSearchController.settingsClosed` re-runs whatever query is in flight).
+     */
+    @Test fun aSeedlessReEntryKeepsTheStrongsOverrideForTheSameQuery() {
+        val host = host()
+        host.openSearchStrongs("H430", listOf("KJV"))
+        assertTrue(host.buildSearchRequest("KJV", "strong:H430").isStrongsSearch, "sanity")
+
+        host.openSearch() // no seed: the query text stays `strong:H430`
+
+        val request = host.buildSearchRequest("KJV", "strong:H430")
+        assertTrue(request.isStrongsSearch, "a seedless re-entry must keep the flag for the same query")
+        assertEquals(SearchType.ANY_WORDS, request.searchType)
+        assertEquals(SearchBibleSection.ALL, request.bibleSection)
+    }
+
+    /** The other side of item 5's narrowing: a NEW seed still replaces the previous run's overrides —
+     *  the reset was narrowed, not removed. */
+    @Test fun aNewSeedStillReplacesTheOneShotOverrides() {
+        val host = host()
+        host.openSearchStrongs("H430", listOf("KJV"))
+
+        host.openSearch("grace") // a fresh, raw seed
+
+        assertFalse(
+            host.buildSearchRequest("KJV", "strong:H430").isStrongsSearch,
+            "a new seed must clear the previous run's Strong's flag",
+        )
     }
 
     // ---- Entry point 2: the Compose toolbar's search button (Task 8a; asserted here per the brief) ----

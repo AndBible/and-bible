@@ -24,4 +24,18 @@ class SearchResultsCache {
         request = forRequest
         results = value
     }
+
+    /**
+     * Empties the single slot, so the next [get] misses whatever was cached.
+     *
+     * Production never needs this (a genuinely new request misses and overwrites by itself); it
+     * exists for **test isolation**: this cache is a DI *singleton*, so a test that seeds it — see
+     * `ReadingSearchEntryPointsTest`, which seeds a marker result to prove which `SearchRequest` the
+     * host actually built — would otherwise leave a JVM-global entry behind for every later test in
+     * the same JVM to hit.
+     */
+    fun clear() {
+        request = null
+        results = null
+    }
 }

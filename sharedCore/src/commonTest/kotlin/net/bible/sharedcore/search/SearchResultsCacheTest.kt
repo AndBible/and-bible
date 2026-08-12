@@ -28,6 +28,15 @@ class SearchResultsCacheTest {
         assertNull(c.get(req("x", listOf("ESV"))), "different translations miss")
     }
 
+    @Test fun clear_empties_the_slot() {
+        val c = SearchResultsCache()
+        val r = req("x", listOf("KJV"))
+        c.put(r, results("Gen 1:1"))
+        assertNotNull(c.get(r), "sanity: seeded")
+        c.clear()
+        assertNull(c.get(r), "a cleared cache must miss the request it was seeded with")
+    }
+
     @Test fun put_overwrites_single_slot() {
         val c = SearchResultsCache()
         c.put(req("x", listOf("KJV")), results("Gen 1:1"))

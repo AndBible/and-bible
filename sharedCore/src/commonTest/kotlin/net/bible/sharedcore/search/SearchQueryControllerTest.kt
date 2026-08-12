@@ -47,6 +47,30 @@ class SearchQueryControllerTest {
         assertEquals(listOf("light"), c.recentTerms.value)
     }
 
+    /**
+     * The MRU store is shared with the classic/EPUB search Activities, and the reading-view host
+     * outlives any single search — so a term recorded elsewhere must be picked up, not clobbered by
+     * the host's stale in-memory copy.
+     */
+    @Test
+    fun reloadRecentTermsPicksUpTermsWrittenToTheStoreElsewhere() {
+        var stored = listOf("light")
+        val c = SearchQueryController(
+            persistRecentTerms = { stored = it },
+            loadRecentTerms = { stored },
+        )
+        assertEquals(listOf("light"), c.recentTerms.value)
+
+        stored = listOf("water", "light") // as if the classic Activity had searched "water"
+        c.reloadRecentTerms()
+        assertEquals(listOf("water", "light"), c.recentTerms.value)
+
+        // And a term recorded after the reload builds on the fresh list rather than dropping "water".
+        c.recordRecentTerm("fire")
+        assertEquals(listOf("fire", "water", "light"), c.recentTerms.value)
+        assertEquals(listOf("fire", "water", "light"), stored)
+    }
+
     @Test
     fun setQueryUpdatesTheQueryFlow() {
         val c = SearchQueryController()

@@ -468,19 +468,38 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val searchTranslations = mutableStateOf<List<String>>(emptyList())
     private val searchAvailableTranslations = mutableStateOf<List<Pair<String, String>>>(emptyList())
 
-    /** Whether the modal search-settings sheet (the toolbar's ⚙/Tune affordance) is open. */
-    private val searchSettingsOpen = mutableStateOf(false)
+    /**
+     * Whether the modal search-settings sheet (the toolbar's ⚙/Tune affordance) is open.
+     *
+     * `internal`, not `private` — same test-visibility convention as [searchSection] below: `:app`
+     * has no `ComposeTestRule`, so proving [onSearchModeClosed] clears this (review item 4) means a
+     * test setting it directly.
+     */
+    internal val searchSettingsOpen = mutableStateOf(false)
 
-    /** Whether the toolbar field's recent-terms dropdown is open (state-IN, see [ReadingSearchBarState]). */
-    private val searchRecentMenuOpen = MutableStateFlow(false)
+    /**
+     * Whether the toolbar field's recent-terms dropdown is open (state-IN, see [ReadingSearchBarState]).
+     * `internal` for the same reason as [searchSettingsOpen] just above.
+     */
+    internal val searchRecentMenuOpen = MutableStateFlow(false)
 
     /**
      * Which result rows are expanded, and the result list's scroll position — both owned by the
      * HOST rather than remembered inside the sheet's composition, so they survive the sheet being
      * closed and reopened (F25's scroll restore, which the Activity flow did with an Intent extra).
+     *
+     * The scroll position is held in a `mutableStateOf` **holder** rather than as a single fixed
+     * [LazyListState] so that [runSearch] can replace it: surviving a close/reopen is right, but
+     * inheriting the previous search's offset into a NEW query's results is not — `SearchResultsScreen`
+     * (`:103`) got that for free by creating the state per screen. A holder, not a plain `var`,
+     * because the sheet reads it inside composition and a non-snapshot read would never be recomposed
+     * for (the "modifier runs before content" class of bug this port has already paid for once).
      */
     private val searchResultsExpanded = mutableStateMapOf<String, Boolean>()
-    private val searchResultsListState = LazyListState()
+    private val searchResultsListState = mutableStateOf(LazyListState())
+
+    /** Test-only read of the current results-list state — same convention as [searchSelectorPendingIdsForTest]. */
+    internal val searchResultsListStateForTest: LazyListState get() = searchResultsListState.value
 
     /**
      * The SWORD results themselves, constructed exactly as `SearchResultsComposeActivity.kt:72`
@@ -589,13 +608,25 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // a Bible search over an EPUB and reporting "no results" would be worse.
         if (!searchOpensInReadingView) return
         refreshSearchTranslations()
-        // Review Critical 1: stored TRIMMED — `ReadingSearchController`/`buildSearchRequest` both
-        // compare against `queries.query.value.trim()`, and entry point 7's seed always carries a
-        // leading space (`SearchControl.decorateSearchString`'s `ALL`-section term joins with a
-        // literal `" "`), so an untrimmed store here never matched and the override silently never
-        // fired.
-        searchPreDecoratedQuery = seedQuery?.trim()?.takeIf { preDecorated }
-        searchStrongsQuery = null
+        // Review item 7: the MRU store is shared with the classic/EPUB search Activities and this
+        // host outlives any single search, so it is re-read here for the same reason the translations
+        // are — a search performed there meanwhile would otherwise be clobbered by this host's stale
+        // in-memory list on its next `recordRecentTerm`.
+        searchQueries.reloadRecentTerms()
+        // Review item 5: BOTH one-shot flags are keyed to the query TEXT (see their kdoc), which a
+        // seedless open does not change — so only a call that brings a new seed may replace them. An
+        // unconditional reset here dropped them for a run they should have covered: Strong's find-all
+        // -> results -> a seedless re-entry (Ctrl+F / the SEARCH key / the drawer) -> closing the
+        // settings sheet re-ran the very same `strong:H430` text as an ordinary word-mode search.
+        if (seedQuery != null) {
+            // Review Critical 1: stored TRIMMED — `ReadingSearchController`/`buildSearchRequest` both
+            // compare against `queries.query.value.trim()`, and entry point 7's seed always carries a
+            // leading space (`SearchControl.decorateSearchString`'s `ALL`-section term joins with a
+            // literal `" "`), so an untrimmed store here never matched and the override silently never
+            // fired.
+            searchPreDecoratedQuery = seedQuery.trim().takeIf { preDecorated }
+            searchStrongsQuery = null
+        }
         searchController.open(seedQuery)
     }
 
@@ -619,6 +650,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     fun openSearchStrongs(ref: String, translationIds: List<String>) {
         if (!searchOpensInReadingView) return
         refreshSearchTranslations()
+        // Per-open refresh, exactly as in [openSearch] — see review item 7 there.
+        searchQueries.reloadRecentTerms()
         searchTranslations.value = translationIds
         val query = "strong:$ref"
         // `ref` cannot contain whitespace in practice, but `.trim()` here anyway — the SAME
@@ -650,13 +683,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     }
 
     /** Common tail of leaving search mode (Task 8b): drops the index feed, both one-shot decoration
-     *  flags, and (Task 11) the pending selector-index chain, so a later [openSearch] never inherits
-     *  a stale override and a cancelled index-prompt chain leaves nothing armed. */
+     *  flags, (Task 11) the pending selector-index chain and (review item 4) the two per-open UI
+     *  flags, so a later [openSearch] never inherits a stale override, a cancelled index-prompt chain
+     *  leaves nothing armed, and re-entering search mode does not come up with the recent-terms
+     *  dropdown already down or the settings sheet already open. */
     private fun onSearchModeClosed() {
         stopSearchIndexFeed()
         searchPreDecoratedQuery = null
         searchStrongsQuery = null
         searchSelectorPendingIds = null
+        searchRecentMenuOpen.value = false
+        searchSettingsOpen.value = false
     }
 
     /**
@@ -778,6 +815,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private fun runSearch(docId: String, query: String) {
         // A new query's rows are new rows: keep no stale expansion state keyed by reference name.
         searchResultsExpanded.clear()
+        // Review I2: nor a stale scroll offset. Only a genuine (re-)run reaches here — reopening the
+        // sheet for the query the results already belong to is served by
+        // `ReadingSearchController.enterFormOrResults` without calling back — so the F25 scroll
+        // survival is untouched, while three hits after scrolling to row 40 no longer open clamped
+        // at the bottom and looking empty.
+        searchResultsListState.value = LazyListState()
         searchResults.run(buildSearchRequest(docId, query))
     }
 
@@ -792,6 +835,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         searchIndexDocument = SwordDocumentFacade.getDocumentByInitials(docId)
         searchIndexPoll = IndexPollDecision()
         searchIndexFinishedJobs.clear()
+        // Review item 3: the Activity that used to own this controller was created per build; this
+        // host owns one for its lifetime, so a previous build's failure the user walked away from
+        // (rather than dismissed) would raise its error dialog over this brand-new prompt, on top of
+        // the previous build's job rows.
+        searchIndexProgress.reset()
         // Listener FIRST, then the build: the Activity pair registered only once the progress
         // screen had been launched, so the first work events of a fast build could arrive with
         // nobody listening.
@@ -805,12 +853,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         }
         searchIndexService.createIndex(docId)
         refreshSearchIndexJobs()
-        // Classic parity (`SearchIndexProgressComposeActivity.onResume`): the "no tasks running"
-        // line is revealed only after ~4s, and only if still idle.
-        hostScope.launch {
-            delay(SEARCH_INDEX_NO_TASKS_DELAY_MS)
-            searchIndexProgress.revealNoTasksIfIdle()
-        }
+        // Review item 6: there is deliberately no `revealNoTasksIfIdle()` timer here. The Activity
+        // path shows a "no tasks running" line after ~4 s; `SearchIndexPanel` has no such line and
+        // never reads `SearchIndexProgressController.noTasks`, so the delayed reveal set a flag
+        // nothing renders while its comment claimed classic parity. (The flag itself stays — the
+        // controller is still shared with `SearchIndexProgressComposeActivity`, which does render it.)
     }
 
     private fun stopSearchIndexFeed() {
@@ -831,14 +878,22 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         val job = ev.job
         hostScope.launch {
             refreshSearchIndexJobs()
-            if (!job.isFinished || !searchIndexFinishedJobs.add(job)) return@launch
+            // Review I1: `JobManager`'s listener is GLOBAL, so `job` is any JSword job — a module
+            // download or install finishing mid-build used to resolve the index build early (poll,
+            // maybe `showError()`, drop the feed and fall back to `NeedsIndex`) while the real build
+            // was still running, leaving the user on an index prompt whose Create deletes the index
+            // that was about to succeed. See [shouldResolveIndexBuild] for why this is gated on "no
+            // job is still running" rather than on the build's own `Progress`.
+            if (!shouldResolveIndexBuild(job.isFinished, isEverySearchIndexJobFinished())) return@launch
+            if (!searchIndexFinishedJobs.add(job)) return@launch
             val poll = searchIndexPoll ?: return@launch
             val indexDone = awaitIndexDone(
                 poll = poll,
                 indexDone = { searchIndexDocument?.indexStatus == IndexStatus.DONE },
                 pause = { delay(SEARCH_INDEX_POLL_INTERVAL_MS) },
             )
-            // Classic only reported the failure once nothing else was still running.
+            // Classic only reported the failure once nothing else was still running. Re-read rather
+            // than reuse the gate's answer above: the ≤12 s poll may have straddled a new job's start.
             if (!indexDone && isEverySearchIndexJobFinished()) searchIndexProgress.showError()
             stopSearchIndexFeed()
             // F6 Task 11: a selection made in the results document selector can hold more than one
@@ -881,6 +936,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     }
 
     private val generation = ComposeReadingViewGeneration()
+
+    /**
+     * Test-only read of THIS host's generation counter — same convention as
+     * [searchSelectorPendingIdsForTest]. Exposed for review finding I4: the guard for the batch's
+     * headline invariant ("nothing on the search path may rebuild the pane subtree") used to assert
+     * over a LOCAL [ComposeReadingViewGeneration] that no production code could ever reach, so it
+     * passed unconditionally. A test has to read the host's own counter to be able to fail.
+     */
+    internal val generationForTest: ComposeReadingViewGeneration get() = generation
 
     /** See [HostedStateRefresher]. */
     private val hostedStateRefresher = HostedStateRefresher(toolbarStateService, generation)
@@ -1606,7 +1670,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // "Nothing found" only once a search has actually finished — an empty list while
             // loading is not an empty result.
             empty = !loading && rows.isEmpty(),
-            listState = searchResultsListState,
+            listState = searchResultsListState.value,
             onDismissError = searchResults::dismissError,
             actions = {
                 BibleResultsActions(
@@ -1759,8 +1823,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         private const val SEARCH_TRANSLATIONS_KEY = "search_selected_translations"
         private const val SEARCH_RECENT_TERMS_KEY = "search_recent_terms"
 
-        /** `SearchIndexProgressComposeActivity`'s two timings (`:320`, `:365`'s `pause(2)`). */
-        private const val SEARCH_INDEX_NO_TASKS_DELAY_MS = 4_000L
+        /** `SearchIndexProgressComposeActivity`'s post-finish poll interval (`:365`'s `pause(2)`).
+         *  Its other timing — the ~4 s "no tasks running" reveal — is deliberately not reproduced;
+         *  see [startSearchIndexing]. */
         private const val SEARCH_INDEX_POLL_INTERVAL_MS = 2_000L
 
         /**
@@ -1816,6 +1881,50 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 }
             }
         }
+
+        /**
+         * The "cannot be searched" snackbar's text (review item 2).
+         *
+         * [ComposeReadingViewHost.searchUnavailableDocName] is composed from
+         * `currentDocument?.name.orEmpty()`, and "there is no current document" — the reading view
+         * showing an error page — is itself one of `searchKindFor`'s `Unavailable` cases, so a blank
+         * name is reachable and the parameterised string then read " cannot be searched". Pure and
+         * `internal` so `ReadingSearchHostTest` can assert both branches against real resources
+         * without a `ComposeTestRule` to render the snackbar.
+         */
+        internal fun searchUnavailableMessage(docName: String, strings: Strings): String =
+            if (docName.isBlank()) strings.searchNotAvailable
+            else strings.searchNotAvailableForDocument(docName)
+
+        /**
+         * Whether a `JobManager` work event may resolve the index build the search sheet is waiting
+         * on — i.e. poll `indexStatus`, possibly report failure, tear the feed down and hand the
+         * session back to [ReadingSearchController.onIndexingFinished].
+         *
+         * Review I1 (a regression against classic, not a port of one). `JobManager`'s listener is
+         * global: a `WorkEvent` fires for EVERY JSword job, so [jobFinished] says nothing about the
+         * index build. Resolving on it meant an unrelated finished job (a module download, an
+         * install) tore the feed down mid-build — after which the real completion had nobody
+         * listening, the phase had already fallen back to `NeedsIndex`, and that prompt's Create ran
+         * `deleteDocumentIndex` under the build that was about to succeed. Classic's
+         * `SearchIndexProgressComposeActivity` has the same "any finished job" shape but keeps its
+         * listener registered until `onPause` (`:92-96`), so the real completion is still handled
+         * there; the early teardown is the port's own doing.
+         *
+         * So the gate is [everyJobFinished] — no JSword job is still running anywhere — and NOT the
+         * identity of the build's own `Progress`, for two reasons: the host never sees that object
+         * (JSword creates it inside `IndexManager.scheduleIndexCreation`, layers below
+         * `SearchIndexServiceImpl.createIndex`, and nothing on that path returns it), and matching by
+         * `jobName` would key behaviour on a localised progress label. The cost is deferral, not
+         * correctness: while a foreign job is still running nothing resolves, and that job's own
+         * finish event then opens this gate, whereupon the poll finds the index `DONE`.
+         *
+         * It also has to sit BEFORE the poll rather than after it: the ≤12 s budget lives in one
+         * [IndexPollDecision] per build (its own kdoc: "the counter is not reset"), so polling on a
+         * foreign job would spend the real completion's budget and report a false failure.
+         */
+        internal fun shouldResolveIndexBuild(jobFinished: Boolean, everyJobFinished: Boolean): Boolean =
+            jobFinished && everyJobFinished
 
         /**
          * F6 Task 11's chaining decision for [onSearchIndexWorkEvent]: once a build resolves, decides
@@ -2610,7 +2719,7 @@ private fun DriveSearchUnavailableSnackbar(
     LaunchedEffect(docName) {
         if (docName == null) return@LaunchedEffect
         onShown()
-        snackbarHostState.showSnackbar(strings.searchNotAvailableForDocument(docName))
+        snackbarHostState.showSnackbar(ComposeReadingViewHost.searchUnavailableMessage(docName, strings))
     }
 }
 

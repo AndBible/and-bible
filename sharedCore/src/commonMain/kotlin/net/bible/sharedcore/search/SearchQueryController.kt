@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 class SearchQueryController(
     private val persistRecentTerms: (List<String>) -> Unit = {},
-    loadRecentTerms: () -> List<String> = { emptyList() },
+    private val loadRecentTerms: () -> List<String> = { emptyList() },
     private val maxRecentTerms: Int = 10,
 ) {
     private val _query = MutableStateFlow("")
@@ -24,6 +24,17 @@ class SearchQueryController(
     val recentTerms: StateFlow<List<String>> = _recentTerms.asStateFlow()
 
     fun setQuery(v: String) { _query.value = v }
+
+    /**
+     * Re-reads the persisted MRU into [recentTerms].
+     *
+     * The list is loaded once at construction, which is right for a screen that is created per
+     * search — but the reading-view host lives as long as the activity, and the SAME store is
+     * written by the classic/EPUB search Activities. Without this, a term recorded there while the
+     * host was alive is clobbered the next time the host records one of its own (it would persist
+     * its stale in-memory list). Called per search-open, next to the other per-open refreshes.
+     */
+    fun reloadRecentTerms() { _recentTerms.value = loadRecentTerms() }
 
     /** Most-recent-first, de-duplicated, trimmed, capped. Blank terms are ignored. */
     fun recordRecentTerm(term: String) {

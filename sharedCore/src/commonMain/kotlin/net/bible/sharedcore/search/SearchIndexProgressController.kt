@@ -52,6 +52,21 @@ class SearchIndexProgressController(
     /** Reveal the "no tasks running" line only if still idle (called after the ~4s classic delay). */
     fun revealNoTasksIfIdle() { _noTasks.value = _jobs.value.isEmpty() }
 
+    /**
+     * Back to the state a fresh build starts from.
+     *
+     * The Activity that used to own this controller was created per index build, so nothing had to
+     * reset it. The reading-view host owns ONE instance for its whole lifetime, and a failure the
+     * user walked away from (instead of dismissing) leaves [error] set — the next index prompt in
+     * the same host would then open with the previous build's error dialog over it, and the previous
+     * build's job rows still listed. Called from the host's `startSearchIndexing`.
+     */
+    fun reset() {
+        _jobs.value = emptyList()
+        _noTasks.value = false
+        _error.value = null
+    }
+
     fun showError() { _error.value = SearchIndexError.FAILED }
     fun dismissError() { _error.value = null }
     fun hide() { onHide() }

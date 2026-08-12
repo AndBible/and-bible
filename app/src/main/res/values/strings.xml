@@ -123,6 +123,9 @@
          unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
          no-ops (a zero-result search, and an unindexed EPUB that did nothing). -->
     <string name="search_not_available_for_document">%1$s cannot be searched</string>
+    <!-- Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases. -->
+    <string name="search_not_available">This document cannot be searched</string>
     <string name="choose_translations">Choose translations…</string>
     <string name="multi_search_results">%1$d verses in %2$d translations</string>
     <string name="search_index_not_created">no index</string>

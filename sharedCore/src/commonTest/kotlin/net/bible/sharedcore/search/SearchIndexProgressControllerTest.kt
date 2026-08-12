@@ -34,6 +34,27 @@ class SearchIndexProgressControllerTest {
         assertNull(c.error.value)
     }
 
+    /**
+     * The reading-view host reuses one controller for every build, so a build must not start on the
+     * previous one's leftovers — an error the user never dismissed would otherwise raise the failure
+     * dialog over a brand-new index prompt.
+     */
+    @Test
+    fun reset_clears_error_jobs_and_the_no_tasks_line() {
+        val c = SearchIndexProgressController(onHide = {})
+        c.setJobs(listOf(ProgressJob("a", "Indexing", 50, false)))
+        c.showError()
+        c.setJobs(emptyList())
+        c.revealNoTasksIfIdle()
+        assertTrue(c.noTasks.value, "sanity: all three are set")
+
+        c.reset()
+
+        assertNull(c.error.value)
+        assertEquals(emptyList(), c.jobs.value)
+        assertFalse(c.noTasks.value)
+    }
+
     @Test
     fun hide_calls_onHide() {
         var hidden = false

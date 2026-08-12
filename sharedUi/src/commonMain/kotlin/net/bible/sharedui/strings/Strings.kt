@@ -132,6 +132,13 @@ interface Strings {
      */
     fun searchNotAvailableForDocument(name: String): String  // R.string.search_not_available_for_document (%1$s)
 
+    /**
+     * The same message with no document name in it — for the case `resolveDoc` returns null (no
+     * current document at all, e.g. an error page), which `searchKindFor` also reports as
+     * `Unavailable`. Without it the snackbar read " cannot be searched".
+     */
+    val searchNotAvailable: String
+
     // Batch 5 (Plan B) — EPUB search
     val ftsQuery: String
     val helpFts5: String
