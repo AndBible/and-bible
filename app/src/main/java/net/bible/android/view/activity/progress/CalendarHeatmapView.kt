@@ -48,7 +48,7 @@ class CalendarHeatmapView @JvmOverloads constructor(
         style = Paint.Style.FILL
     }
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.GRAY
+        color = context.themeColor(android.R.attr.textColorSecondary, Color.GRAY)
         textSize = 10f * resources.displayMetrics.density
     }
 
