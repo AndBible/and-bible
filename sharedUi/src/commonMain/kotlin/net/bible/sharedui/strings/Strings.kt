@@ -125,6 +125,13 @@ interface Strings {
      */
     val searchIndexingThenSearch: String
 
+    /**
+     * F6 Task 10: the reading-view search snackbar shown when `open()` finds the active document
+     * unsearchable at all (a dictionary or SWORD general book, via `searchKindFor` -> `Unavailable`)
+     * — [name] is the document's JSword display name.
+     */
+    fun searchNotAvailableForDocument(name: String): String  // R.string.search_not_available_for_document (%1$s)
+
     // Batch 5 (Plan B) — EPUB search
     val ftsQuery: String
     val helpFts5: String

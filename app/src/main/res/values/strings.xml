@@ -119,6 +119,10 @@
          indexing_wait_msg, which says the user will be taken to the search screen — true of the
          classic Activity chain, false here, where the search runs in place. -->
     <string name="search_indexing_then_search">When indexing finishes, the search will run automatically.</string>
+    <!-- F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing). -->
+    <string name="search_not_available_for_document">%1$s cannot be searched</string>
     <string name="choose_translations">Choose translations…</string>
     <string name="multi_search_results">%1$d verses in %2$d translations</string>
     <string name="search_index_not_created">no index</string>

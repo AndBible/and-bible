@@ -939,9 +939,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed $fullScreen")
         // Batch Z-early A7 fix A: this override never calls `onBackPressedDispatcher.onBackPressed()`,
-        // so it is the ONLY live back route today: `android:enableOnBackInvokedCallback` is not
-        // declared in AndroidManifest.xml, and that flag only defaults to true starting at
-        // targetSdk 36 — this app targets 35 (app/build.gradle.kts), so predictive back /
+        // so it is the ONLY live back route today: `AndroidManifest.xml` explicitly declares
+        // `android:enableOnBackInvokedCallback="false"` (targetSdk is 36, `app/build.gradle.kts`,
+        // where that flag would otherwise default to true) — a temporary opt-out documented there as
+        // ignored again from targetSdk 37, see the Z-late pointer below. So predictive back /
         // `OnBackInvokedCallback` dispatch is OFF and Material3's `PredictiveBackHandler(enabled =
         // drawerState.isOpen)` inside `ModalNavigationDrawer` is never invoked; this method fires for
         // every back press, Compose drawer open or not. Hence this explicit `composeCloseDrawerIfOpen()`
@@ -949,10 +950,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // drawer is locked), so without this line, back with the Compose drawer open would fall
         // through to WebView-back → `historyTraversal.goBack()` → the double-back exit toast, drawer
         // still open. Inert on the classic path (no host → `false`), which keeps the branch order
-        // below byte-identical. If `enableOnBackInvokedCallback` is ever declared, or targetSdk
-        // moves to 36+, the two dispatch routes become mutually exclusive (the dispatcher intercepts
-        // first while the drawer is open, and this method is not reached) — so the guard stays
-        // correct either way, it just becomes redundant on that future path rather than dead now.
+        // below byte-identical. Once that opt-out is removed (see the Z-late pointer below), the two
+        // dispatch routes become mutually exclusive (the dispatcher intercepts first while the drawer
+        // is open, and this method is not reached) — so the guard stays correct either way, it just
+        // becomes redundant on that future path rather than dead now.
         if (composeCloseDrawerIfOpen()) return
         // F6 Task 9: the reading-view search's two-stage back — first press closes the
         // results/index sheet (keeping the query and results), second leaves search mode. See

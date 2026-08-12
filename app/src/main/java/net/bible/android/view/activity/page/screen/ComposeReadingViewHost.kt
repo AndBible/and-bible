@@ -44,6 +44,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberStandardBottomSheetState
@@ -188,6 +190,8 @@ import net.bible.sharedui.search.SearchIndexPanel
 import net.bible.sharedui.search.SearchSettingsSheet
 import net.bible.sharedui.search.SearchSheetContent
 import net.bible.sharedui.search.bibleResultRows
+import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.textOptionDrawableRes
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
@@ -494,6 +498,23 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     val searchIndexProgress = SearchIndexProgressController(onHide = { searchController.closeSheet() })
 
     /**
+     * Task 10's snackbar payload: non-null while a "cannot be searched" message is waiting to be
+     * shown, holding the JSword display name (`Book.name`, NOT [SearchDocumentInfo] — the portable
+     * model carries no name) of the document `onUnavailable` fired for. [DriveSearchUnavailableSnackbar]
+     * turns it into a real `Snackbar` via the reading view's own [BottomSheetScaffold] `snackbarHost`
+     * slot (there is no second scaffold for this) and calls [searchUnavailableMessageShown] to clear
+     * it. Exposed (not test-only) for the same reason [searchOpensInReadingView] is: `:app` has no
+     * `ComposeTestRule`, so a test asserting this state is the closest it gets to the real UI event.
+     */
+    private val _searchUnavailableDocName = MutableStateFlow<String?>(null)
+    val searchUnavailableDocName: StateFlow<String?> = _searchUnavailableDocName.asStateFlow()
+
+    /** Clears [searchUnavailableDocName] once [DriveSearchUnavailableSnackbar] has started showing it. */
+    fun searchUnavailableMessageShown() {
+        _searchUnavailableDocName.value = null
+    }
+
+    /**
      * The search session state machine (Task 3). Every effect it needs is injected here, which is
      * what keeps the machine itself Android-free and host-testable:
      * - `resolveDoc` reads the ACTIVE window's document each time, so search always applies to what
@@ -503,11 +524,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * - `onRunSearch` hands the RAW query plus the real word-mode/section to the service, which
      *   decorates once internally — the Activity pair had to pass an already-decorated string with
      *   identity decorators to avoid decorating twice (`SearchResultsComposeActivity.kt:97-101`).
-     * - `onUnavailable` is Task 10's snackbar; nothing is shown yet.
+     * - `onUnavailable` is Task 10's snackbar: `open()` returns without entering search mode or
+     *   showing the sheet (there is nothing to search), and this only records the document name for
+     *   [DriveSearchUnavailableSnackbar] to show.
      */
     val searchController = ReadingSearchController(
         resolveDoc = { searchDocumentInfo(activity.documentControl.currentDocument) },
-        onUnavailable = { /* Task 10: the "<document> cannot be searched" snackbar. */ },
+        onUnavailable = { _searchUnavailableDocName.value = activity.documentControl.currentDocument?.name.orEmpty() },
         onLeaveFullScreen = { activity.fullScreen = false },
         onStartIndexing = { docId -> startSearchIndexing(docId) },
         // `forEpub` is ignored: an EPUB never reaches here (see [searchOpensInReadingView]) —
@@ -1522,6 +1545,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             searchSettingsSlot = { SearchSettingsSlot() },
             // Task 8b Step 3: feeds MainBibleActivity.bottomOffsetForWebView's fourth term.
             onSearchSheetOffsetsChanged = { visible, heightPx -> activity.updateSearchSheetOffsets(visible, heightPx) },
+            // Task 10: the "<document> cannot be searched" snackbar.
+            searchUnavailableDocNameState = searchUnavailableDocName,
+            onSearchUnavailableMessageShown = { searchUnavailableMessageShown() },
         )
     }
 
@@ -1695,9 +1721,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private fun SearchSettingsSlot() {
         SearchSettingsSheet(
             open = searchSettingsOpen.value,
-            // Task 10 Step 3 adds `searchController.settingsClosed()` here, which re-runs the
-            // search when a query is already in flight.
-            onDismiss = { searchSettingsOpen.value = false },
+            // `settingsClosed()` re-runs the search when a query is already in flight (Task 3's
+            // logic; this is just the wiring) — the same "translation selector refreshes the cache"
+            // shape the old results screen already had.
+            onDismiss = {
+                searchSettingsOpen.value = false
+                searchController.settingsClosed()
+            },
         ) {
             BibleSearchSettings(
                 searchType = searchType.value,
@@ -2089,6 +2119,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // Defaulted to a no-op so `ComposeReadingViewHostTest` (which never renders the sheet) is
             // unaffected.
             onSearchSheetOffsetsChanged: (visible: Boolean, heightPx: Int) -> Unit = { _, _ -> },
+            // Task 10: the "<document> cannot be searched" snackbar. `searchUnavailableDocNameState`
+            // mirrors [ComposeReadingViewHost.searchUnavailableDocName] (non-null while a message is
+            // waiting); `onSearchUnavailableMessageShown` mirrors [ComposeReadingViewHost
+            // .searchUnavailableMessageShown]. Defaulted to an always-null flow + no-op so
+            // `ComposeReadingViewHostTest` (which never triggers `onUnavailable`) is unaffected.
+            searchUnavailableDocNameState: StateFlow<String?> = MutableStateFlow<String?>(null).asStateFlow(),
+            onSearchUnavailableMessageShown: () -> Unit = {},
         ) {
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
@@ -2272,6 +2309,22 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                 )
                                 val searchSheetVisible by searchSheetVisibleState.collectAsState()
                                 DriveSearchSheet(searchSheetState, searchSheetVisible, onSearchSheetDismissed)
+                                // Task 10: the "<document> cannot be searched" snackbar. Uses the
+                                // reading view's own scaffold's `snackbarHost` slot below — the one
+                                // `BottomSheetScaffold` this host mounts — rather than a second one
+                                // built just for this. `LocalStrings.current` is available here
+                                // because this whole tree sits inside `AbAppTheme`'s
+                                // `ProvideAppLocals`; `onUnavailable` itself fires outside
+                                // composition, which is why it only records the document name and
+                                // leaves formatting to this composable.
+                                val searchSnackbarHostState = remember { SnackbarHostState() }
+                                val searchUnavailableDocName by searchUnavailableDocNameState.collectAsState()
+                                DriveSearchUnavailableSnackbar(
+                                    snackbarHostState = searchSnackbarHostState,
+                                    docName = searchUnavailableDocName,
+                                    strings = LocalStrings.current,
+                                    onShown = onSearchUnavailableMessageShown,
+                                )
                                 // Task 8b Step 3: the sheet is self-sizing (see the 1.dp-floor/60%-
                                 // ceiling comment below), so its height for `bottomOffsetForWebView`
                                 // must be MEASURED off the real content, not guessed as a constant —
@@ -2294,6 +2347,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                 BottomSheetScaffold(
                                     scaffoldState = searchSheetState,
                                     sheetPeekHeight = 0.dp,
+                                    snackbarHost = { SnackbarHost(searchSnackbarHostState) },
                                     sheetDragHandle = {
                                         Box(Modifier.onSizeChanged { size -> searchSheetHandleHeightPx = size.height }) {
                                             BottomSheetDefaults.DragHandle()
@@ -2536,6 +2590,27 @@ private fun DriveSearchSheet(
     // initial `Hidden` emission is harmless (`closeSheet()` returns false when nothing is open).
     LaunchedEffect(sheet) {
         snapshotFlow { sheet.currentValue }.collect { if (it != SheetValue.Expanded) onDismissedByUser() }
+    }
+}
+
+/**
+ * Task 10: turns [ComposeReadingViewHost.searchUnavailableDocName] into a real `Snackbar`. [docName]
+ * transitions null -> name -> null (host clears it via [onShown] the moment this effect starts, not
+ * when the snackbar is dismissed) so a second `open()` on the same kind of document — even with the
+ * identical name — still restarts the effect and shows again, the same way [SnackbarHostState] itself
+ * replaces a currently-shown snackbar with a newly requested one.
+ */
+@Composable
+private fun DriveSearchUnavailableSnackbar(
+    snackbarHostState: SnackbarHostState,
+    docName: String?,
+    strings: Strings,
+    onShown: () -> Unit,
+) {
+    LaunchedEffect(docName) {
+        if (docName == null) return@LaunchedEffect
+        onShown()
+        snackbarHostState.showSnackbar(strings.searchNotAvailableForDocument(docName))
     }
 }
 

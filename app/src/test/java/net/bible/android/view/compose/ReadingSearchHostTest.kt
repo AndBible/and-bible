@@ -398,6 +398,67 @@ class ReadingSearchHostTest {
         )
     }
 
+    // ---- F6 Task 10: the Unavailable message --------------------------------------------------
+
+    /**
+     * Defect 2's own symptom, from the user's side: a dictionary used to return zero results with
+     * no explanation. `open()` on a document [searchKindFor] classifies `Unavailable` must show the
+     * message instead of entering search mode — there is nothing to search, so the toolbar must not
+     * switch to the search field and the (always-present) sheet must not open.
+     */
+    @Test
+    fun openingSearchOnADictionaryShowsTheUnavailableMessageAndStaysOutOfSearchMode() {
+        val dict = book("HostDict", category = "Lexicons / Dictionaries", modDrv = "RawLD", indexed = true)
+        // Must be registered in `Books.installed()` — `CurrentPageBase.currentDocument`'s getter
+        // treats an unregistered book as `isRemoved` (`FakeBookFactory.isRemoved`) and silently
+        // swaps in whatever real dictionary happens to be installed instead, which is exactly the
+        // "dictionary page auto-selects a default document" trap `CachedKeyPageTest` documents.
+        Books.installed().addBook(dict)
+        try {
+            // `setCurrentDocument` (not `currentDictionary.setCurrentDocument` + a direct
+            // `currentPage` assignment — `currentPage`'s setter is private) sets `currentPage`
+            // synchronously before it may fire a key-chooser popup, so this is safe against a
+            // never-`.create()`d activity.
+            windowRepository.activeWindow.pageManager.setCurrentDocument(dict)
+
+            val host = host()
+            assertNull(host.searchUnavailableDocName.value, "sanity: nothing pending before open()")
+
+            host.openSearch()
+
+            assertFalse(host.searchController.searchModeActive.value, "a dictionary has nothing to search")
+            assertFalse(host.searchController.sheetVisible.value, "the sheet must not open for it either")
+            assertEquals(
+                "HostDict",
+                host.searchUnavailableDocName.value,
+                "the message payload must carry the JSword display name, ready for the snackbar",
+            )
+        } finally {
+            Books.installed().removeBook(dict)
+        }
+    }
+
+    /** [ComposeReadingViewHost.searchUnavailableMessageShown] is what the composable calls once it
+     *  has started showing the snackbar — it must clear the payload so the same message is not
+     *  replayed on the next unrelated recomposition. */
+    @Test
+    fun searchUnavailableMessageShownClearsThePendingMessage() {
+        val dict = book("HostDict2", category = "Lexicons / Dictionaries", modDrv = "RawLD", indexed = true)
+        Books.installed().addBook(dict)
+        try {
+            windowRepository.activeWindow.pageManager.setCurrentDocument(dict)
+            val host = host()
+            host.openSearch()
+            assertEquals("HostDict2", host.searchUnavailableDocName.value, "sanity")
+
+            host.searchUnavailableMessageShown()
+
+            assertNull(host.searchUnavailableDocName.value)
+        } finally {
+            Books.installed().removeBook(dict)
+        }
+    }
+
     // ---- F6 Task 11: an index prompt for a translation other than the one being read ------------
 
     /**
