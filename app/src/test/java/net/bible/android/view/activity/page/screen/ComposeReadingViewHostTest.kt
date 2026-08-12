@@ -17,6 +17,7 @@ import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
+import net.bible.android.control.page.toolbar.ToolbarStateServiceImpl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
@@ -43,6 +44,8 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -715,7 +718,19 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
 
             assertEquals(1, fakeToolbar.refreshCount, "CurrentBibleVerseChanged must reach refreshHostedState() -> hostedStateRefresher.refresh() -> toolbarStateService.refresh()")
         } finally {
+            // `unloadKoinModules` only REMOVES the override module's definition — it does NOT
+            // restore the production `CoreModule` binding it replaced, and `GlobalContext` is
+            // process-wide (shared by every test class in this Gradle test JVM fork). Left as a
+            // bare `unloadKoinModules`, any later test in the same fork that constructs a
+            // `ComposeReadingViewHost` (which injects `ToolbarStateService`) would throw
+            // `NoDefinitionFoundException`. Re-install the exact same production definition
+            // `CoreModule.kt` installs, so the singleton binding is intact again afterwards.
             unloadKoinModules(overrideModule)
+            loadKoinModules(module { singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() } })
+            assertTrue(
+                GlobalContext.get().get<ToolbarStateService>() is ToolbarStateServiceImpl,
+                "must not leak the fake ToolbarStateService binding into later tests",
+            )
         }
     }
 }
