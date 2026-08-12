@@ -211,9 +211,11 @@ class BibleJavascriptInterface(
             val verseName = synchronized(BookName::class.java) {
                 val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
-                val text = verse?.name ?: ""
-                BookName.setFullBookName(oldValue)
-                text
+                try {
+                    verse?.name ?: ""
+                } finally {
+                    BookName.setFullBookName(oldValue)
+                }
             }
 
             bibleView.executeJavascriptOnUiThread("bibleView.response($callId, '$verseName');")

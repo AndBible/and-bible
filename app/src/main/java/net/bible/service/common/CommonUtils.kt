@@ -2116,14 +2116,17 @@ val Key.tinyName: String get() =
     if(this is VerseKey<*>)
         synchronized(BookName::class.java) {
             val prevTruncateLength = BookName.getTruncateShortName()
-            var length = 5
-            var name: String
-            do {
-                BookName.setTruncateShortName(length--)
-                name = this.name
-            } while(length > 0 && name.length > 7)
-            BookName.setTruncateShortName(prevTruncateLength)
-            name
+            try {
+                var length = 5
+                var name: String
+                do {
+                    BookName.setTruncateShortName(length--)
+                    name = this.name
+                } while(length > 0 && name.length > 7)
+                name
+            } finally {
+                BookName.setTruncateShortName(prevTruncateLength)
+            }
         }
     else name
 
@@ -2133,9 +2136,11 @@ val Key.shortName: String get() =
         synchronized(BookName::class.java) {
             val oldValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
-            val text = name
-            BookName.setFullBookName(oldValue)
-            return text
+            try {
+                return name
+            } finally {
+                BookName.setFullBookName(oldValue)
+            }
         }
     else name
 

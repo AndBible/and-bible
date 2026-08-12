@@ -397,17 +397,20 @@ class WindowPaneMenuStateBuilder(
         synchronized(BookName::class.java) {
             val oldValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
-            windowRepository.visibleWindows.forEachIndexed { order, other ->
-                if (other.id == window.id) return@forEachIndexed
-                val page = other.pageManager.currentPage
-                items += WindowPaneMenuItem(
-                    id = idForCopySettingsToWindow(order),
-                    label = app.getString(
-                        R.string.copy_settings_to_window, order + 1, page.currentDocument?.abbreviation, page.key?.name,
-                    ),
-                )
+            try {
+                windowRepository.visibleWindows.forEachIndexed { order, other ->
+                    if (other.id == window.id) return@forEachIndexed
+                    val page = other.pageManager.currentPage
+                    items += WindowPaneMenuItem(
+                        id = idForCopySettingsToWindow(order),
+                        label = app.getString(
+                            R.string.copy_settings_to_window, order + 1, page.currentDocument?.abbreviation, page.key?.name,
+                        ),
+                    )
+                }
+            } finally {
+                BookName.setFullBookName(oldValue)
             }
-            BookName.setFullBookName(oldValue)
         }
         // A/B batch 4a whole-batch review M1: opensDialog left at its false default here, matching
         // the dynamic copySettingsToWindow rows above -- all three call windowControl.copySettingsTo*,

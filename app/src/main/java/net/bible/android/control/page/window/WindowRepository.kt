@@ -276,12 +276,13 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         synchronized(BookName::class.java) {
             val prevFullBookNameValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
-
-            for (it in windowList) {
-                keyTitle.add("${it.pageManager.currentPage.singleKey?.name} (${it.pageManager.currentPage.currentDocument?.abbreviation})")
+            try {
+                for (it in windowList) {
+                    keyTitle.add("${it.pageManager.currentPage.singleKey?.name} (${it.pageManager.currentPage.currentDocument?.abbreviation})")
+                }
+            } finally {
+                BookName.setFullBookName(prevFullBookNameValue)
             }
-
-            BookName.setFullBookName(prevFullBookNameValue)
         }
         return keyTitle.joinToString(", ")
     }

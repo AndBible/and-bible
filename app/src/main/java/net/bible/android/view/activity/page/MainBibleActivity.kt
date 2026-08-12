@@ -1934,9 +1934,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             synchronized(BookName::class.java) {
                 val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
-                val text = pageTitleText
-                BookName.setFullBookName(oldValue)
-                return "$bookName:$text"
+                try {
+                    return "$bookName:$pageTitleText"
+                } finally {
+                    BookName.setFullBookName(oldValue)
+                }
             }
         }
 
@@ -1948,8 +1950,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 synchronized(BookName::class.java) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
-                    binding.pageTitle.text = pageTitleText
-                    BookName.setFullBookName(oldValue)
+                    try {
+                        binding.pageTitle.text = pageTitleText
+                    } finally {
+                        BookName.setFullBookName(oldValue)
+                    }
                 }
             }
         } catch (_: KeyIsNull) {}

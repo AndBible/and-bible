@@ -157,45 +157,46 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
             synchronized(BookName::class.java) {
                 val fullBookNameSave = BookName.isFullBookName()
                 BookName.setFullBookName(!CommonUtils.isPortrait)
+                try {
+                    readingViews = emptyList<ReadingPlanOneReadingBinding>().toMutableList()
+                    for (i in 1..readingsDto.numReadings) {
+                        val child = ReadingPlanOneReadingBinding.inflate(layoutInflater, null, false)
+                        readingViews.add(child)
 
-                readingViews = emptyList<ReadingPlanOneReadingBinding>().toMutableList()
-                for (i in 1..readingsDto.numReadings) {
-                    val child = ReadingPlanOneReadingBinding.inflate(layoutInflater, null, false)
-                    readingViews.add(child)
+                        // Ticks
+                        val imageTick = child.tick
 
-                    // Ticks
-                    val imageTick = child.tick
+                        // Allow check box to be clicked to mark off the day
+                        imageTick.setOnClickListener {
+                            val status = getReadingStatus
+                            if (status.isRead(i)) {
+                                status.setUnread(i)
+                            } else {
+                                status.setRead(i)
+                            }
 
-                    // Allow check box to be clicked to mark off the day
-                    imageTick.setOnClickListener {
-                        val status = getReadingStatus
-                        if (status.isRead(i)) {
-                            status.setUnread(i)
-                        } else {
-                            status.setRead(i)
+                            updateTicksAndDone()
                         }
 
-                        updateTicksAndDone()
+                        // Passage description
+                        val rdgText = child.passage
+                        val key = readingsDto.getReadingKey(i)
+                        rdgText.text = key.name
+
+                        // handle read button clicks
+                        val readBtn = child.readButton
+                        readBtn.setOnClickListener { onRead(i) }
+
+                        // handle speak button clicks
+                        val speakBtn = child.speakButton
+                        speakBtn.setOnClickListener { onSpeak(i) }
+
+                        layout.addView(child.root, i - 1)
                     }
-
-                    // Passage description
-                    val rdgText = child.passage
-                    val key = readingsDto.getReadingKey(i)
-                    rdgText.text = key.name
-
-                    // handle read button clicks
-                    val readBtn = child.readButton
-                    readBtn.setOnClickListener { onRead(i) }
-
-                    // handle speak button clicks
-                    val speakBtn = child.speakButton
-                    speakBtn.setOnClickListener { onSpeak(i) }
-
-                    layout.addView(child.root, i - 1)
+                } finally {
+                    // restore full book name setting
+                    BookName.setFullBookName(fullBookNameSave)
                 }
-
-                // restore full book name setting
-                BookName.setFullBookName(fullBookNameSave)
             }
 
             updateTicksAndDone()

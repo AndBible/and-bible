@@ -700,8 +700,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 synchronized(BookName::class.java) {
                     val wasFullBookName = BookName.isFullBookName()
                     BookName.setFullBookName(false)
-                    item.title = context.getString(R.string.go_to_ref, ref.name)
-                    BookName.setFullBookName(wasFullBookName)
+                    try {
+                        item.title = context.getString(R.string.go_to_ref, ref.name)
+                    } finally {
+                        BookName.setFullBookName(wasFullBookName)
+                    }
                 }
             }
             if(ref == null && currentSelectionText != null) {

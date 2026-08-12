@@ -779,30 +779,32 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             copySettingSubMenu.removeItem(R.id.copySettingsToWindow)
 
             BookName.setFullBookName(false)
-            val windowList = windowRepository.windowList.filter { it.isPinMode == window.isPinMode }
-            val thisIdx = windowList.indexOf(window)
-            windowList.forEach {
-                if (it.id != window.id) {
-                    val p = it.pageManager.currentPage
-                    val moveWindowTitle = app.getString(R.string.move_window_to_position2, moveWindowCount + 1, p.currentDocument?.abbreviation, p.key?.name)
-                    val moveWindowItem = moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, moveWindowCount, moveWindowTitle)
-                    moveWindowItem.setIcon(if (thisIdx > moveWindowCount) R.drawable.ic_arrow_drop_up_grey_24dp else R.drawable.ic_arrow_drop_down_grey_24dp)
+            try {
+                val windowList = windowRepository.windowList.filter { it.isPinMode == window.isPinMode }
+                val thisIdx = windowList.indexOf(window)
+                windowList.forEach {
+                    if (it.id != window.id) {
+                        val p = it.pageManager.currentPage
+                        val moveWindowTitle = app.getString(R.string.move_window_to_position2, moveWindowCount + 1, p.currentDocument?.abbreviation, p.key?.name)
+                        val moveWindowItem = moveWindowsSubMenu.add(Menu.NONE, R.id.moveItem, moveWindowCount, moveWindowTitle)
+                        moveWindowItem.setIcon(if (thisIdx > moveWindowCount) R.drawable.ic_arrow_drop_up_grey_24dp else R.drawable.ic_arrow_drop_down_grey_24dp)
+                    }
+                    moveWindowCount++;
                 }
-                moveWindowCount++;
-            }
 
-            val windowList2 = windowRepository.visibleWindows
-            moveWindowCount = 0
-            for (it in windowList2) {
-                if (it.id != window.id) {
-                    val p = it.pageManager.currentPage
-                    val copySettingsTitle = BibleApplication.application.getString(R.string.copy_settings_to_window, moveWindowCount + 1, p.currentDocument?.abbreviation, p.key?.name)
-                    copySettingSubMenu.add(Menu.NONE, R.id.copySettingsToWindow, moveWindowCount, copySettingsTitle)
+                val windowList2 = windowRepository.visibleWindows
+                moveWindowCount = 0
+                for (it in windowList2) {
+                    if (it.id != window.id) {
+                        val p = it.pageManager.currentPage
+                        val copySettingsTitle = BibleApplication.application.getString(R.string.copy_settings_to_window, moveWindowCount + 1, p.currentDocument?.abbreviation, p.key?.name)
+                        copySettingSubMenu.add(Menu.NONE, R.id.copySettingsToWindow, moveWindowCount, copySettingsTitle)
+                    }
+                    moveWindowCount++;
                 }
-                moveWindowCount++;
+            } finally {
+                BookName.setFullBookName(oldValue)
             }
-
-            BookName.setFullBookName(oldValue)
         }
 
         val lastSettings = CommonUtils.lastDisplaySettingsSorted

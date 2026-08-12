@@ -554,9 +554,12 @@ object SwordContentFacade {
                 synchronized(BookName::class.java) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
-                    val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
-                    BookName.setFullBookName(oldValue)
-                    "$verseRangeName"
+                    try {
+                        val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
+                        "$verseRangeName"
+                    } finally {
+                        BookName.setFullBookName(oldValue)
+                    }
                 }
             } else {
                 val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
