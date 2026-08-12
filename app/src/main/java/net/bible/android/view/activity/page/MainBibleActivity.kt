@@ -954,6 +954,24 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // first while the drawer is open, and this method is not reached) — so the guard stays
         // correct either way, it just becomes redundant on that future path rather than dead now.
         if (composeCloseDrawerIfOpen()) return
+        // F6 Task 9: the reading-view search's two-stage back — first press closes the
+        // results/index sheet (keeping the query and results), second leaves search mode. See
+        // `composeCloseSearchIfOpen`/`ComposeReadingViewHost.closeSearchIfOpen`. Placed after the
+        // drawer guard (the drawer is modal — it must win) and before the fullscreen guard below,
+        // though the two can never both apply anyway: entering search always leaves fullscreen
+        // first (`ReadingSearchController.open`'s `onLeaveFullScreen`), so the fullscreen branch is
+        // already unreachable while search is open — this ordering just makes that explicit rather
+        // than relying on it. Inert on the classic path (no host -> `false`), which keeps the
+        // branch order below byte-identical.
+        //
+        // Z-late pointer: this method is reached at all only because `AndroidManifest.xml` declares
+        // `android:enableOnBackInvokedCallback="false"` (a temporary opt-out, documented there as
+        // ignored again from targetSdk 37 — this app is already at targetSdk 36, see
+        // `app/build.gradle.kts`). Once that opt-out is removed, `onBackPressed()` stops being
+        // called for a real BACK press and this branch (and the drawer one above it) must move to
+        // an `OnBackPressedCallback` on `onBackPressedDispatcher`, or search becomes un-closable by
+        // back. Tracked in the superrepo's `.local/todo-predictive-back-api36.md`.
+        if (composeCloseSearchIfOpen()) return
         if(fullScreen) {
             toggleFullScreen()
             return
@@ -982,6 +1000,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // native check below can no longer see an open drawer on the compose path. Inert on the
         // classic path (no host → `false`).
         if (composeDrawerOpen && keyCode == KeyEvent.KEYCODE_BACK) {
+            return true
+        }
+        // F6 Task 9: the same swallow for the Compose reading-view search — a focused search field
+        // is reachable here now, and a long-press back must not fall through to opening History out
+        // from under it. Inert on the classic path (no host -> `false`).
+        if (composeSearchModeActive && keyCode == KeyEvent.KEYCODE_BACK) {
             return true
         }
         if (binding.drawerLayout.isDrawerVisible(GravityCompat.START) && keyCode == KeyEvent.KEYCODE_BACK) {
@@ -1195,6 +1219,22 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         host.openSearchStrongs(ref, translationIds)
         return true
     }
+
+    /**
+     * F6 Task 9: the reading-view search's two-stage back, wired into [onBackPressed] as a leading
+     * guard right after [composeCloseDrawerIfOpen] — first press closes the results/index sheet
+     * (keeping the query and results), second leaves search mode. Returns whether the press was
+     * consumed. Always `false` on the classic path (no host), same idiom as [composeCloseDrawerIfOpen].
+     */
+    internal fun composeCloseSearchIfOpen(): Boolean = composeReadingViewHost?.closeSearchIfOpen() ?: false
+
+    /**
+     * Whether the Compose reading-view search mode is active — `false` on the classic path (no
+     * host). F6 Task 9: used in [onKeyLongPress] to swallow a long-press back while a search field
+     * is focused, the same role [composeDrawerOpen] plays for the drawer there.
+     */
+    internal val composeSearchModeActive: Boolean
+        get() = composeReadingViewHost?.searchController?.searchModeActive?.value == true
 
     /**
      * F6 Task 8b Step 3: [ComposeReadingViewHost.install]'s report of the search sheet's live
