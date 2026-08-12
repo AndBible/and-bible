@@ -886,8 +886,12 @@ class BibleJavascriptInterface(
                 }
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()
                 "CtrlKeyF" -> {
-                    val intent = mainBibleActivity.searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, mainBibleActivity)
-                    intent?.let {mainBibleActivity.startActivityForResult(it, ActivityBase.STD_REQUEST_CODE)}
+                    // F6 Task 8b entry point 5: retarget into the reading view's search when a
+                    // Compose host is mounted; classic behaviour unchanged otherwise.
+                    if (!mainBibleActivity.composeSearchIfHosted()) {
+                        val intent = mainBibleActivity.searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, mainBibleActivity)
+                        intent?.let {mainBibleActivity.startActivityForResult(it, ActivityBase.STD_REQUEST_CODE)}
+                    }
                 }
                 "Space" -> {
                     if(!mainBibleActivity.speakControl.isStopped) {

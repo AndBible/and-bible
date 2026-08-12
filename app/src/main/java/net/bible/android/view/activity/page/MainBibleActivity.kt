@@ -278,6 +278,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var agentLogVisible = false
     private var agentLogHeight = 0
 
+    // F6 Task 8b Step 3: the Compose reading-view search sheet's (visible, measured-height-in-px)
+    // pair, fed by ComposeReadingViewHost.install() — see updateSearchSheetOffsets. Mirrors
+    // agentLogVisible/agentLogHeight above (Compose-only; always false/0 on the classic path).
+    private var searchSheetVisible = false
+    private var searchSheetHeight = 0
+
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
@@ -310,7 +316,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         (if (imeHeight > 0) 0 else bottomOffset1) + // navigation bar (excluded when IME padding applied)
             (if (transportBarVisible) transportBarHeight else 0) +
             (if (restoreButtonsVisible) windowButtonHeight else 0) +
-            (if (agentLogVisible) agentLogHeight else 0)
+            (if (agentLogVisible) agentLogHeight else 0) +
+            (if (searchSheetVisible) searchSheetHeight else 0)
 
     // IME keyboard height in pixels (0 when keyboard hidden)
     val imeHeight get() = bottomOffset1 - bottomOffset1WithoutIme
@@ -1151,6 +1158,57 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         searchControl.getSearchIntent(documentControl.currentDocument, this)?.let { intent ->
             startActivityForResult(intent, STD_REQUEST_CODE)
         }
+    }
+
+    /**
+     * Opens the reading-view search for a hosted Compose activity; returns whether it did. Always
+     * `false` on the classic path (no host) or for an EPUB (its search stays on the classic
+     * Activities — see [ComposeReadingViewHost.searchOpensInReadingView]), so every caller can use
+     * this as a leading guard and fall through to its existing classic `Intent` unchanged — the same
+     * idiom as [composeOpenDrawerIfHosted]. F6 Task 8b entry points 4 (`MenuCommandHandler`'s drawer
+     * search row), 5 (`BibleJavascriptInterface`'s Ctrl+F) and 6 (the device SEARCH key, below).
+     *
+     * [preDecorated] marks [seedQuery] as ALREADY run through
+     * [net.bible.android.control.search.SearchControl.decorateSearchString] (entry point 7,
+     * `BibleView`'s selection "Search…") rather than a raw user query — see
+     * [ComposeReadingViewHost.openSearch]'s kdoc for why that needs a different re-decoration path
+     * than a fresh query.
+     */
+    internal fun composeSearchIfHosted(seedQuery: String? = null, preDecorated: Boolean = false): Boolean {
+        val host = composeReadingViewHost ?: return false
+        if (!host.searchOpensInReadingView) return false
+        host.openSearch(seedQuery, preDecorated)
+        return true
+    }
+
+    /**
+     * Strong's find-all (F6 Task 8b entry point 8, [net.bible.android.control.link.LinkControl.showAllOccurrences])
+     * retargeted into a hosted Compose activity's search; returns whether it did. Same "leading
+     * guard, fall through to classic otherwise" idiom as [composeSearchIfHosted] — `LinkControl`
+     * calls this only once it has already decided the search document is indexed (the not-indexed
+     * branch keeps classic's `Screen.SearchIndex` route unconditionally: prompting to index a
+     * document other than the active window's is Task 11's machinery, which does not exist yet).
+     */
+    internal fun composeSearchStrongsIfHosted(ref: String, translationIds: List<String>): Boolean {
+        val host = composeReadingViewHost ?: return false
+        if (!host.searchOpensInReadingView) return false
+        host.openSearchStrongs(ref, translationIds)
+        return true
+    }
+
+    /**
+     * F6 Task 8b Step 3: [ComposeReadingViewHost.install]'s report of the search sheet's live
+     * (visible, measured-height-in-px) state — the fourth term in [bottomOffsetForWebView], mirroring
+     * [agentLogVisible]/[agentLogHeight]. Posts [SearchSheetOffsetsUpdated] (the same "recompute and
+     * push to the WebView" idiom as [AgentLogOffsetsUpdated]) so [BibleView.updateOffsets] picks up
+     * the new value; a no-op when nothing actually changed, so a benign recomposition doesn't spam
+     * `set_offsets` calls.
+     */
+    internal fun updateSearchSheetOffsets(visible: Boolean, heightPx: Int) {
+        if (searchSheetVisible == visible && searchSheetHeight == heightPx) return
+        searchSheetVisible = visible
+        searchSheetHeight = heightPx
+        ABEventBus.post(SearchSheetOffsetsUpdated())
     }
 
     internal fun composeToggleSpeak() {
@@ -2034,6 +2092,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     class AgentLogOffsetsUpdated
 
+    /** See [updateSearchSheetOffsets]. */
+    class SearchSheetOffsetsUpdated
+
     private fun openLink(uri: Uri) {
         when (uri.host) {
             "read.andbible.org" -> {
@@ -2543,8 +2604,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         //if (bibleKeyHandler.onKeyUp(keyCode, event)) {
         //    return true
         if (keyCode == KeyEvent.KEYCODE_SEARCH && windowControl.activeWindowPageManager.currentPage.isSearchable) {
-            searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, this)?.let { intent ->
-                startActivityForResult(intent, STD_REQUEST_CODE)
+            // F6 Task 8b entry point 6: retarget into the reading view's search when a Compose host
+            // is mounted; classic behaviour unchanged otherwise.
+            if (!composeSearchIfHosted()) {
+                searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, this)?.let { intent ->
+                    startActivityForResult(intent, STD_REQUEST_CODE)
+                }
             }
             return true
         }

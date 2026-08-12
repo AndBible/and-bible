@@ -1,0 +1,397 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+package net.bible.android.view.compose
+
+import android.view.KeyEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import net.bible.android.TEST_SDK
+import net.bible.android.TestBibleApplication
+import net.bible.android.activity.R
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.control.search.SearchControl
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.MenuCommandHandler
+import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
+import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.search.ReadingSearchPhase
+import net.bible.sharedcore.search.SearchBibleSection
+import net.bible.sharedcore.search.SearchType
+import net.bible.test.DatabaseResetter
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.versification.system.Versifications
+import org.crosswire.jsword.passage.Verse
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
+import org.robolectric.Robolectric
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+/**
+ * F6 Task 8b — the six entry points that hand SWORD search to the reading view when a Compose host
+ * is mounted, and the flag-OFF guarantee that every one of them still produces the classic `Intent`
+ * with no host installed. Also covers Step 2 (a result tap navigates without an Activity round trip)
+ * and the [ComposeReadingViewHost.buildSearchRequest] one-shot decoration overrides that make entry
+ * points 7 and 8 correct (see their kdoc).
+ *
+ * Built the same way as [net.bible.android.view.activity.page.OptionsMenuStateBuilderTest] /
+ * [net.bible.android.view.activity.page.screen.MainBibleActivityHandleWindowPaneMenuItemTest]: a
+ * REAL [MainBibleActivity]/[WindowControl]/[WindowRepository] graph (Robolectric +
+ * [TestBibleApplication]), activity built WITHOUT `.create()`, host constructed directly and never
+ * `.install()`ed. No "recording fake host" substitute is used for entry points 2/4/6/8's real call
+ * sites — a REAL [ComposeReadingViewHost] is cheap here (same pattern those two test files already
+ * establish) and its own `searchController` state IS the recording. Entry points 5
+ * ([net.bible.android.view.activity.page.BibleJavascriptInterface]'s Ctrl+F) and 7
+ * ([net.bible.android.view.activity.page.BibleView]'s selection "Search…") are NOT exercised through
+ * their own files: both are one-line calls to [MainBibleActivity.composeSearchIfHosted] (7 passes
+ * `preDecorated = true`), and neither `BibleJavascriptInterface` nor `BibleView` (a `WebView`
+ * subclass) is constructible in this test suite today (no existing test does so) — their logic is
+ * exactly what [composeSearchIfHostedSeedsAPreDecoratedQueryUnchanged] /
+ * [composeSearchIfHostedReturnsFalseWhenNoHostIsInstalled] cover, and their call sites are two-line
+ * diffs, readable by inspection (see the task report for this noted as a scoping decision, not an
+ * oversight).
+ *
+ * Entry point 8's REAL call site ([LinkControl.showAllOccurrences]) can only be driven through its
+ * classic branch here: `checkStrongs` needs a genuine Lucene index on disk, which this test's KJV
+ * fixture module does not have (confirmed: `~/.sword` ships the KJV text but no search index), so
+ * `needToIndex` is always `true` and the host is never even consulted — which is itself a correct,
+ * useful assertion (the not-indexed branch must stay classic even when hosted, per the task's
+ * resolution 3). Entry point 8's HOSTED behaviour ([ComposeReadingViewHost.openSearchStrongs]'s raw
+ * query + forced `ANY_WORDS`/`isStrongsSearch`) is covered directly instead.
+ */
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+class ReadingSearchEntryPointsTest {
+    private lateinit var windowControl: WindowControl
+    private lateinit var windowRepository: WindowRepository
+    private lateinit var activity: MainBibleActivity
+
+    @Before
+    fun setUp() {
+        windowControl = CommonUtils.windowControl
+        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl.windowRepository = windowRepository
+        windowRepository.initialize()
+
+        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
+        activity.windowRepository = windowRepository
+        // The classic fallback branches call startActivity/startActivityForResult, which need
+        // ActivityBase.historyTraversal primed (normally done in onCreate()) — same minimal-boot
+        // step MainBibleActivityHandleWindowPaneMenuItemTest.setUp takes for the same reason.
+        activity.setNewHistoryTraversal(GlobalContext.get().get())
+        CurrentActivityHolder.activate(activity)
+
+        setKjvAsCurrentDocument()
+    }
+
+    @After
+    fun tearDown() {
+        CurrentActivityHolder.deactivate(activity)
+        DatabaseResetter.resetDatabase(windowRepository.scope)
+    }
+
+    /** Builds a real [ComposeReadingViewHost] against the test [activity] (never `.install()`ed —
+     *  see the class kdoc's precedent). */
+    private fun host() = ComposeReadingViewHost(activity)
+
+    /**
+     * KJV ships `Feature=StrongsNumbers` (verified against this environment's `~/.sword` fixture),
+     * so it is searchable AND a valid Strong's Bible, but carries no Lucene index — every entry
+     * point below needs SOME current document (`documentControl.currentDocument`, `currentPage`)
+     * to get past its own early-return guards.
+     */
+    private fun setKjvAsCurrentDocument() {
+        val kjv = Books.installed().getBook("KJV") as SwordBook
+        val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+        windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
+    }
+
+    // ---- The shared guard (entry points 2, 4, 5, 6, 7's exact logic) ---------------------------
+
+    @Test fun composeSearchIfHostedOpensSearchModeOnTheHost() {
+        activity.composeReadingViewHost = host()
+
+        val handled = activity.composeSearchIfHosted()
+
+        assertTrue(handled)
+        assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
+    }
+
+    @Test fun composeSearchIfHostedReturnsFalseWhenNoHostIsInstalled() {
+        assertNull(activity.composeReadingViewHost, "sanity: fallback path")
+
+        assertFalse(activity.composeSearchIfHosted())
+    }
+
+    /**
+     * Entry point 7's exact call ([BibleView]'s selection "Search…" passes `preDecorated = true`).
+     * The seed reaches the toolbar's query field verbatim — [ComposeReadingViewHost.openSearch]
+     * itself does no decorating; only [ComposeReadingViewHost.buildSearchRequest] (covered below)
+     * treats it specially once a search actually runs.
+     */
+    @Test fun composeSearchIfHostedSeedsAPreDecoratedQueryUnchanged() {
+        activity.composeReadingViewHost = host()
+        val decorated = " \"grace\""
+
+        val handled = activity.composeSearchIfHosted(decorated, preDecorated = true)
+
+        assertTrue(handled)
+        assertEquals(decorated, activity.composeReadingViewHost!!.searchController.queries.query.value)
+    }
+
+    @Test fun composeSearchStrongsIfHostedReturnsFalseWhenNoHostIsInstalled() {
+        assertFalse(activity.composeSearchStrongsIfHosted("H430", listOf("KJV")))
+    }
+
+    // ---- The one-shot decoration overrides (why entry points 7 and 8 are correct) --------------
+
+    /**
+     * Default case (no entry point 7/8 seed active): the live settings-sheet word-mode/section
+     * apply — `ALL_WORDS`/`ALL` are [ComposeReadingViewHost]'s own defaults.
+     */
+    @Test fun buildSearchRequestUsesLiveSettingsByDefault() {
+        val host = host()
+
+        val request = host.buildSearchRequest("KJV", "grace")
+
+        assertEquals(SearchType.ALL_WORDS, request.searchType)
+        assertEquals(SearchBibleSection.ALL, request.bibleSection)
+        assertFalse(request.isStrongsSearch)
+        assertEquals("grace", request.query)
+    }
+
+    /**
+     * The bug this guards: without the override, an ALREADY phrase-decorated multi-word string run
+     * through `ALL_WORDS.decorate` a second time inserts a stray `+` inside the quotes (see
+     * [ComposeReadingViewHost.openSearch]'s kdoc). Forcing identity decorators here is what makes
+     * that impossible regardless of what the live settings sheet is set to.
+     */
+    @Test fun buildSearchRequestForcesIdentityDecoratorsForAPreDecoratedSeed() {
+        val host = host()
+        val decorated = " \"the Lord\""
+        host.openSearch(decorated, preDecorated = true)
+
+        val request = host.buildSearchRequest("KJV", decorated)
+
+        assertEquals(SearchType.ANY_WORDS, request.searchType, "ANY_WORDS is the identity decorator")
+        assertEquals(SearchBibleSection.ALL, request.bibleSection, "ALL is the identity section term")
+        assertFalse(request.isStrongsSearch, "the pre-decorated seed is not a Strong's search")
+    }
+
+    /** Editing the query after a pre-decorated open drops the override with no explicit clearing. */
+    @Test fun buildSearchRequestDropsThePreDecoratedOverrideOnceTheQueryChanges() {
+        val host = host()
+        host.openSearch(" \"the Lord\"", preDecorated = true)
+
+        val request = host.buildSearchRequest("KJV", "a different, user-edited query")
+
+        assertEquals(SearchType.ALL_WORDS, request.searchType, "an edited query is no longer pre-decorated")
+    }
+
+    /**
+     * Entry point 8: the RAW `strong:$ref` query, [SearchType.ANY_WORDS] forced (classic's own
+     * reason: it "does not add anything"), [net.bible.sharedcore.search.SearchRequest.isStrongsSearch]
+     * set — and, unlike the pre-decorated case, the LIVE settings-sheet section still applies (there
+     * is nothing to protect: the raw query carries no section term of its own yet).
+     */
+    @Test fun openSearchStrongsSeedsARawQueryAndForcesAnyWordsAndTheStrongsFlag() {
+        val host = host()
+
+        host.openSearchStrongs("H430", listOf("KJV", "WLC"))
+
+        assertEquals("strong:H430", host.searchController.queries.query.value)
+        val request = host.buildSearchRequest("KJV", "strong:H430")
+        assertEquals(SearchType.ANY_WORDS, request.searchType)
+        assertEquals(SearchBibleSection.ALL, request.bibleSection, "the live default; nothing forces it here")
+        assertTrue(request.isStrongsSearch)
+        assertEquals(listOf("KJV", "WLC"), request.translationIds, "seeds the resolved Strong's-Bible selection")
+    }
+
+    /** A re-run from the results document selector or the settings sheet is the SAME query text —
+     *  the Strong's flag must survive it (task resolution 3: "no stale flag to clear by hand"). */
+    @Test fun buildSearchRequestKeepsTheStrongsFlagAcrossARepeatedQuery() {
+        val host = host()
+        host.openSearchStrongs("H430", listOf("KJV"))
+
+        val first = host.buildSearchRequest("KJV", "strong:H430")
+        val second = host.buildSearchRequest("KJV", "strong:H430")
+
+        assertTrue(first.isStrongsSearch)
+        assertTrue(second.isStrongsSearch, "same query text -> still a Strong's search")
+    }
+
+    // ---- Entry point 2: the Compose toolbar's search button (Task 8a; asserted here per the brief) ----
+
+    @Test fun composeSearchOpensHostSearchWhenHosted() {
+        activity.composeReadingViewHost = host()
+
+        activity.composeSearch()
+
+        assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
+        assertNull(shadowOf(activity).nextStartedActivityForResult, "must not ALSO start the classic intent")
+    }
+
+    @Test fun composeSearchFallsBackToClassicIntentWhenNotHosted() {
+        assertNull(activity.composeReadingViewHost, "sanity: fallback path")
+
+        activity.composeSearch()
+
+        val started = shadowOf(activity).nextStartedActivityForResult
+        assertEquals(ActivityBase.STD_REQUEST_CODE, started?.requestCode)
+    }
+
+    // ---- Entry point 4: MenuCommandHandler's drawer/menu search row ----------------------------
+
+    @Test fun menuSearchButtonOpensHostSearchWhenHosted() {
+        activity.composeReadingViewHost = host()
+
+        val handled = MenuCommandHandler(activity).handleMenuRequest(R.id.searchButton)
+
+        assertTrue(handled)
+        assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
+        assertNull(shadowOf(activity).nextStartedActivityForResult)
+    }
+
+    @Test fun menuSearchButtonFallsBackToClassicIntentWhenNotHosted() {
+        assertNull(activity.composeReadingViewHost, "sanity: fallback path")
+
+        val handled = MenuCommandHandler(activity).handleMenuRequest(R.id.searchButton)
+
+        assertTrue(handled, "a built classic intent still reports handled")
+        val started = shadowOf(activity).nextStartedActivityForResult
+        assertEquals(ActivityBase.STD_REQUEST_CODE, started?.requestCode)
+    }
+
+    // ---- Entry point 6: the device SEARCH key ---------------------------------------------------
+
+    private fun searchKeyEvent() = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_SEARCH)
+
+    @Test fun searchKeyOpensHostSearchWhenHosted() {
+        activity.composeReadingViewHost = host()
+
+        val handled = activity.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
+
+        assertTrue(handled)
+        assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
+        assertNull(shadowOf(activity).nextStartedActivityForResult)
+    }
+
+    @Test fun searchKeyFallsBackToClassicIntentWhenNotHosted() {
+        assertNull(activity.composeReadingViewHost, "sanity: fallback path")
+
+        val handled = activity.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
+
+        assertTrue(handled)
+        val started = shadowOf(activity).nextStartedActivityForResult
+        assertEquals(ActivityBase.STD_REQUEST_CODE, started?.requestCode)
+    }
+
+    // ---- Entry point 8: LinkControl.showAllOccurrences (Strong's find-all) ----------------------
+
+    /**
+     * The not-indexed branch must stay classic REGARDLESS of whether a Compose host is mounted —
+     * task resolution 3: prompting to index a document other than the active window's is Task 11's
+     * machinery, which does not exist yet. KJV's `Feature=StrongsNumbers` without a real Lucene
+     * index (see the class kdoc) makes this branch the only one reachable through the real
+     * `LinkControl` call site in this test environment, which is itself the guarantee under test.
+     */
+    @Test fun showAllOccurrencesKeepsTheClassicIndexRouteEvenWhenHosted() {
+        activity.composeReadingViewHost = host()
+
+        activity.linkControl.showAllOccurrences("H430", SearchControl.SearchBibleSection.ALL)
+
+        assertNotNull(shadowOf(activity).nextStartedActivity, "classic SearchIndex intent must still launch")
+        assertFalse(
+            activity.composeReadingViewHost!!.searchController.searchModeActive.value,
+            "must NOT retarget while the search document is not indexed",
+        )
+    }
+
+    @Test fun showAllOccurrencesFallsBackToClassicIndexRouteWhenNotHosted() {
+        assertNull(activity.composeReadingViewHost, "sanity: fallback path")
+
+        activity.linkControl.showAllOccurrences("H430", SearchControl.SearchBibleSection.ALL)
+
+        assertNotNull(shadowOf(activity).nextStartedActivity)
+    }
+
+    // ---- Step 2: a result tap navigates without an Activity round trip --------------------------
+
+    /**
+     * `onSearchResultSelected` resolves the SWORD key pair and navigates the active window directly,
+     * then closes only the sheet (not the whole search session) — see its kdoc for why `closeSheet()`
+     * and not `partialExpand()`. Driven into `NeedsIndex` (not `Results`) to reach `sheetVisible =
+     * true`, which needs no real index — see the class kdoc for why `Results` is out of reach here.
+     */
+    @Test fun onSearchResultSelectedNavigatesAndClosesOnlyTheSheet() {
+        val host = host()
+        host.openSearch("grace")
+        assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), host.searchController.phase.value, "sanity")
+        assertTrue(host.searchController.sheetVisible.value, "sanity: NeedsIndex opens the sheet too")
+
+        host.onSearchResultSelected("Gen.1.5", "KJV")
+
+        val kjv = Books.installed().getBook("KJV") as SwordBook
+        assertEquals(
+            kjv.getKey("Gen.1.5").osisRef,
+            // `currentBible.key` (non-single) reports the whole DISPLAYED unit (e.g. a whole
+            // chapter) rather than the exact verse last navigated to; `singleKey` is the precise
+            // verse `setCurrentDocumentAndKey` was actually called with.
+            windowRepository.activeWindow.pageManager.currentBible.singleKey.osisRef,
+        )
+        assertFalse(host.searchController.sheetVisible.value, "the sheet closes")
+        assertTrue(host.searchController.searchModeActive.value, "search mode itself stays open")
+    }
+
+    /** An empty result set (nothing to add to the multi-document link) must not throw, and still
+     *  closes the sheet exactly like a populated one. */
+    @Test fun openSearchResultsInWindowClosesTheSheetEvenWithNoRows() {
+        val host = host()
+        host.openSearch("grace")
+        assertTrue(host.searchController.sheetVisible.value, "sanity")
+
+        host.openSearchResultsInWindow()
+
+        assertFalse(host.searchController.sheetVisible.value)
+    }
+
+    // ---- Step 3: the search sheet's WebView bottom-offset term ----------------------------------
+
+    @Test fun bottomOffsetForWebViewIncludesTheSearchSheetHeightOnlyWhileVisible() {
+        val before = activity.bottomOffsetForWebView
+
+        activity.updateSearchSheetOffsets(visible = true, heightPx = 250)
+        assertEquals(before + 250, activity.bottomOffsetForWebView)
+
+        activity.updateSearchSheetOffsets(visible = false, heightPx = 250)
+        assertEquals(before, activity.bottomOffsetForWebView, "hidden: the height must not be reserved")
+    }
+}

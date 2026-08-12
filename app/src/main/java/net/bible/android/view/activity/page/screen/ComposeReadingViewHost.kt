@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.page.screen
 
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -65,6 +66,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -108,8 +110,11 @@ import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.AgentForegroundService
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
 import net.bible.sharedcore.ai.AgentPermissionChoice
@@ -545,13 +550,48 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * (`MainBibleActivity.composeSearch()` here in Task 8a; the remaining five in Task 8b).
      * [seedQuery] is for the entry points that bypass the form (text-selection "Search …", Strong's
      * find-all) and runs immediately.
+     *
+     * [preDecorated] marks [seedQuery] as ALREADY run through [SearchControl.decorateSearchString]
+     * (the text-selection "Search…" entry point) rather than a raw user query. Strong's find-all
+     * does NOT set this — it seeds the RAW `strong:$ref` and goes through [openSearchStrongs]
+     * instead, since it needs its own document-selection restore, not just a decoration override —
+     * see [searchPreDecoratedQuery] and [searchStrongsQuery]'s kdoc for why each needs its own flag.
      */
-    fun openSearch(seedQuery: String? = null) {
+    fun openSearch(seedQuery: String? = null, preDecorated: Boolean = false) {
         // Defensive twin of [searchOpensInReadingView]: doing nothing is bad, but silently running
         // a Bible search over an EPUB and reporting "no results" would be worse.
         if (!searchOpensInReadingView) return
         refreshSearchTranslations()
+        searchPreDecoratedQuery = seedQuery?.takeIf { preDecorated }
+        searchStrongsQuery = null
         searchController.open(seedQuery)
+    }
+
+    /**
+     * Strong's find-all (F6 Task 8b entry point 8, [net.bible.android.control.link.LinkControl.showAllOccurrences]).
+     * [ref] is the RAW Strong's number/reference, NOT decorated here: [buildSearchRequest] forces
+     * [SearchType.ANY_WORDS] for it below (classic's own comment — "the below uses ANY_WORDS because
+     * that does not add anything to the search string" — `LinkControl.kt:372`), so decorating the raw
+     * `strong:$ref` exactly once, host-side, reproduces classic's query. There is no double-decoration
+     * risk to guard against the way [openSearch]'s [preDecorated] path has to, because nothing has
+     * decorated [ref] yet.
+     *
+     * [translationIds] is the Strong's-Bible selection [LinkControl] already resolved (the remembered
+     * `SearchControl.STRONGS_SEARCH_TRANSLATIONS_PREF` choice, filtered to installed Strong's-enabled
+     * Bibles, else the auto-detected default) — the host only seeds [searchTranslations] with it, it
+     * does not re-derive it. `LinkControl` keeps classic's routing for the not-yet-indexed document
+     * case (`Screen.SearchIndex`): prompting to index a document other than the active window's is
+     * Task 11's machinery, which does not exist yet, so this is only called once the document is
+     * already indexed.
+     */
+    fun openSearchStrongs(ref: String, translationIds: List<String>) {
+        if (!searchOpensInReadingView) return
+        refreshSearchTranslations()
+        searchTranslations.value = translationIds
+        val query = "strong:$ref"
+        searchStrongsQuery = query
+        searchPreDecoratedQuery = null
+        searchController.open(query)
     }
 
     /**
@@ -562,7 +602,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     fun closeSearchIfOpen(): Boolean {
         if (searchController.closeSheet()) return true
         if (searchController.closeSearchMode()) {
-            stopSearchIndexFeed()
+            onSearchModeClosed()
             return true
         }
         return false
@@ -571,7 +611,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     /** Leaves search entirely (the toolbar's close affordance, and the index prompt's Cancel). */
     private fun leaveSearch() {
         searchController.closeSheet()
-        if (searchController.closeSearchMode()) stopSearchIndexFeed()
+        if (searchController.closeSearchMode()) onSearchModeClosed()
+    }
+
+    /** Common tail of leaving search mode (Task 8b): drops the index feed AND both one-shot
+     *  decoration flags below, so a later [openSearch] never inherits a stale override. */
+    private fun onSearchModeClosed() {
+        stopSearchIndexFeed()
+        searchPreDecoratedQuery = null
+        searchStrongsQuery = null
     }
 
     /**
@@ -609,15 +657,57 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         return saved.split("\n").filter { it.isNotBlank() }
     }
 
-    private fun buildSearchRequest(docId: String, query: String) = SearchRequest(
-        query = query,
-        searchType = searchType.value,
-        bibleSection = searchSection.value,
-        // Addressing key (`Book.initials`), never a list index. Falls back to the document being
-        // read, which is the seed `SearchComposeActivity.kt:90` uses.
-        translationIds = searchTranslations.value.ifEmpty { listOf(docId) },
-        currentBookName = searchControl.currentBookName,
-    )
+    /**
+     * Set for the duration of a query seeded already-decorated by the caller (entry point 7, the
+     * text-selection "Search…" action, `BibleView.kt`) — [buildSearchRequest] then forces IDENTITY
+     * decorators ([SearchType.ANY_WORDS] + [SearchBibleSection.ALL], see `LuceneQueryDecorator
+     * .decorateAnyWords` — literally "don't need to do anything") instead of the live settings-sheet
+     * word-mode/section, so re-decorating reproduces the caller's already-decorated string exactly
+     * rather than decorating it twice (a real bug: e.g. re-running `ALL_WORDS.decorate` over an
+     * already phrase-quoted multi-word string inserts a stray `+` inside the quotes). Mirrors
+     * `SearchResultsComposeActivity`'s identical "the launcher already decorated the query" handling
+     * of the same class of entry point (`:97-101`).
+     *
+     * Matches `query`, not a plain boolean, for the same self-clearing reason as [searchStrongsQuery]
+     * below: editing the query in the toolbar field makes it stop matching with no explicit reset
+     * needed. Cleared when search mode closes — see [onSearchModeClosed].
+     */
+    private var searchPreDecoratedQuery: String? = null
+
+    /**
+     * Set for the duration of a Strong's find-all query (entry point 8, [openSearchStrongs]) —
+     * [buildSearchRequest] compares `query == searchStrongsQuery` to force [SearchType.ANY_WORDS] and
+     * set [SearchRequest.isStrongsSearch], so a re-run from the results document selector or the
+     * settings sheet (same query text — see [ReadingSearchController.settingsClosed]) keeps behaving
+     * like a Strong's search, while editing the query in the toolbar field drops the flag on its own.
+     * Cleared when search mode closes — see [onSearchModeClosed].
+     */
+    private var searchStrongsQuery: String? = null
+
+    // `internal`, not `private`, purely for direct test coverage of the two one-shot overrides above
+    // — mirrors this file's own `paneMenuWindowIdForTest`/`buildTabBarModel` test-visibility
+    // convention (see `ReadingSearchEntryPointsTest`); every production call site still goes through
+    // [runSearch].
+    internal fun buildSearchRequest(docId: String, query: String): SearchRequest {
+        val preDecorated = query == searchPreDecoratedQuery
+        val strongsSearch = query == searchStrongsQuery
+        return SearchRequest(
+            query = query,
+            // Both one-shot modes force ANY_WORDS: the pre-decorated case because it is the
+            // identity decorator (see [searchPreDecoratedQuery]'s kdoc), Strong's because that is
+            // exactly why classic chose it (`LinkControl.kt:372`: "does not add anything").
+            searchType = if (preDecorated || strongsSearch) SearchType.ANY_WORDS else searchType.value,
+            // Only the pre-decorated case also forces the section to the identity (empty) — Strong's
+            // still applies the live settings-sheet section, matching classic (`showAllOccurrences`
+            // takes a real `bibleSection` argument; its one caller always passes `ALL` today).
+            bibleSection = if (preDecorated) SearchBibleSection.ALL else searchSection.value,
+            // Addressing key (`Book.initials`), never a list index. Falls back to the document being
+            // read, which is the seed `SearchComposeActivity.kt:90` uses.
+            translationIds = searchTranslations.value.ifEmpty { listOf(docId) },
+            currentBookName = searchControl.currentBookName,
+            isStrongsSearch = strongsSearch,
+        )
+    }
 
     private fun runSearch(docId: String, query: String) {
         // A new query's rows are new rows: keep no stale expansion state keyed by reference name.
@@ -1377,6 +1467,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onSearchSheetDismissed = { searchController.closeSheet() },
             searchSheetSlot = { SearchSheetSlot() },
             searchSettingsSlot = { SearchSettingsSlot() },
+            // Task 8b Step 3: feeds MainBibleActivity.bottomOffsetForWebView's fourth term.
+            onSearchSheetOffsetsChanged = { visible, heightPx -> activity.updateSearchSheetOffsets(visible, heightPx) },
         )
     }
 
@@ -1447,8 +1539,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     scriptureToggleVisible = scriptureToggleVisible,
                     scriptureShown = scriptureShown,
                     onToggleScripture = searchResults::toggleScripture,
-                    // Task 8b Step 2 owns result navigation (both of these open documents).
-                    onOpenInWindow = { },
+                    onOpenInWindow = ::openSearchResultsInWindow,
                     onSelectTranslations = { ids -> onSearchTranslationsChosen(ids) },
                 )
             },
@@ -1459,10 +1550,69 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 // F27: labelling a single-match card with its translation only says anything when
                 // more than one translation was searched.
                 labelSingleMatchTranslation = selected.size > 1,
-                onSelect = { _, _ -> /* Task 8b Step 2: setCurrentDocumentAndKey, no startActivity. */ },
+                onSelect = ::onSearchResultSelected,
             )
         }
     }
+
+    /**
+     * A result row tap (Task 8b Step 2). Resolves the SWORD key pair exactly as
+     * `SearchResultsComposeActivity.onSelect` does (`:171-183`) and navigates the active window
+     * directly: `setCurrentDocumentAndKey` posts `PassageChangeMediator.onCurrentPageChanged`
+     * synchronously (`CurrentPageManager.kt:197-231`), so navigation is complete at that call —
+     * unlike the old Activity pair, there is no Activity here to bring to front or `finish()`.
+     *
+     * Closes the SHEET only (not the whole search session — see [ReadingSearchController.closeSheet]),
+     * not `partialExpand()`: the scaffold runs with `sheetPeekHeight = 0.dp`, where M3's
+     * `PartiallyExpanded` anchor sits exactly where `Hidden` does (see [DriveSearchSheet]'s kdoc), and
+     * poking the M3 sheet state directly would desync it from the session's own `sheetVisible`, which
+     * is what actually drives it. `closeSheet()` keeps search mode and the `Results` phase, so the
+     * verse is readable and re-opening search serves the same results without re-running.
+     */
+    // `internal`, not `private`, for direct test coverage (`ReadingSearchEntryPointsTest`) — same
+    // rationale as [buildSearchRequest] above; production only reaches this via `SearchSheetSlot`'s
+    // `onSelect`.
+    internal fun onSearchResultSelected(referenceName: String, translationId: String?) {
+        val book = resolveSearchResultBook(translationId) ?: return
+        try {
+            val key = book.getKey(referenceName)
+            activity.windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+            searchController.closeSheet()
+        } catch (e: Exception) {
+            Log.e(TAG, "onSearchResultSelected: bad key '$referenceName' in ${book.initials}", e)
+        }
+    }
+
+    /**
+     * "Open results in a window" — `SearchResultsComposeActivity.openResultsInAWindow` (`:207-224`)
+     * verbatim, minus the `finish()` (there is no Activity here to finish) and closing the sheet
+     * afterward instead, for the same reason as [onSearchResultSelected] above.
+     */
+    // `internal`, not `private` — same test-visibility rationale as [onSearchResultSelected] above.
+    internal fun openSearchResultsInWindow() {
+        val list = BookAndKeyList()
+        for (row in searchResults.displayed.value) {
+            for (match in row.matches) {
+                val book = resolveSearchResultBook(match.translationId) ?: continue
+                val key = try {
+                    book.getKey(row.referenceName)
+                } catch (e: Exception) {
+                    Log.e(TAG, "openSearchResultsInWindow: bad key '${row.referenceName}' in ${book.initials}", e)
+                    continue
+                }
+                list.addAll(BookAndKey(key, book))
+            }
+        }
+        activity.linkControl.showLink(FakeBookFactory.multiDocument, list)
+        searchController.closeSheet()
+    }
+
+    /** Resolve the target book by initials, falling back to the first selected translation — the
+     *  SAME pair `SearchResultsComposeActivity.resolveBook` uses (`:166-168`). */
+    private fun resolveSearchResultBook(translationId: String?): SwordBook? =
+        (translationId?.let { SwordDocumentFacade.getDocumentByInitials(it) }
+            ?: searchResults.selectedTranslations.value.firstOrNull()
+                ?.let { SwordDocumentFacade.getDocumentByInitials(it) }) as? SwordBook
 
     /**
      * The results document selector's choice. Mirrors
@@ -1510,6 +1660,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
          * the Compose overflow menu's item-building out of its own composable call site.
          */
         internal fun buildTabBarModel(layout: WindowLayoutState): WindowTabBarModel = buildWindowTabBar(layout)
+
+        private const val TAG = "ComposeReadingViewHost"
 
         /** Settings keys shared with the search Activities — see [searchQueries]/[setSearchTranslations]. */
         private const val SEARCH_TRANSLATIONS_KEY = "search_selected_translations"
@@ -1844,6 +1996,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // composed as a sibling overlay like the dialogs.
             searchSheetSlot: @Composable () -> Unit = { },
             searchSettingsSlot: @Composable () -> Unit = { },
+            // Task 8b Step 3: reports the search sheet's live (visible, measured-height-in-px) pair
+            // so [ComposeReadingViewHost.install] can feed `MainBibleActivity.bottomOffsetForWebView`
+            // — see [MainBibleActivity.updateSearchSheetOffsets]'s kdoc for why the height must be
+            // MEASURED rather than a constant guess (the sheet is self-sizing under a 60% ceiling).
+            // Defaulted to a no-op so `ComposeReadingViewHostTest` (which never renders the sheet) is
+            // unaffected.
+            onSearchSheetOffsetsChanged: (visible: Boolean, heightPx: Int) -> Unit = { _, _ -> },
         ) {
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
@@ -2027,6 +2186,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                 )
                                 val searchSheetVisible by searchSheetVisibleState.collectAsState()
                                 DriveSearchSheet(searchSheetState, searchSheetVisible, onSearchSheetDismissed)
+                                // Task 8b Step 3: the sheet is self-sizing (see the 1.dp-floor/60%-
+                                // ceiling comment below), so its height for `bottomOffsetForWebView`
+                                // must be MEASURED off the real content, not guessed as a constant —
+                                // `onSizeChanged` on the sheet content's root reports it in px.
+                                var searchSheetHeightPx by remember { mutableIntStateOf(0) }
+                                LaunchedEffect(searchSheetVisible, searchSheetHeightPx) {
+                                    onSearchSheetOffsetsChanged(searchSheetVisible, searchSheetHeightPx)
+                                }
                                 BottomSheetScaffold(
                                     scaffoldState = searchSheetState,
                                     sheetPeekHeight = 0.dp,
@@ -2047,10 +2214,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                         // the bottom edge, and `Hidden` is where it rests anyway).
                                         BoxWithConstraints(Modifier.fillMaxWidth()) {
                                             Box(
-                                                Modifier.heightIn(
-                                                    min = 1.dp,
-                                                    max = maxHeight * SearchSheetMaxHeightFraction,
-                                                )
+                                                Modifier
+                                                    .heightIn(
+                                                        min = 1.dp,
+                                                        max = maxHeight * SearchSheetMaxHeightFraction,
+                                                    )
+                                                    .onSizeChanged { size -> searchSheetHeightPx = size.height }
                                             ) { searchSheetSlot() }
                                         }
                                     },

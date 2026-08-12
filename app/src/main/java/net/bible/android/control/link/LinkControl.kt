@@ -31,6 +31,7 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.service.common.CommonUtils.settings
@@ -369,6 +370,18 @@ class LinkControl constructor(
         if (needToIndex) {
             Log.i(TAG, "Index status is NOT DONE")
         }
+
+        // F6 Task 8b entry point 8: retarget into the reading view's search when a Compose host is
+        // mounted AND the search document is already indexed. Classic's not-indexed branch is kept
+        // unconditionally below — prompting for an index of a document other than the active
+        // window's is Task 11's machinery, which does not exist yet.
+        val activity = CurrentActivityHolder.currentActivity!!
+        if (!needToIndex &&
+            (activity as? MainBibleActivity)?.composeSearchStrongsIfHosted(ref, selection.map { it.initials }) == true
+        ) {
+            return
+        }
+
         // The below uses ANY_WORDS because that does not add anything to the search string
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
         // Section-less decorated query for highlighting result previews (mirrors Search.kt); shows
@@ -376,7 +389,6 @@ class LinkControl constructor(
         val highlightText = searchControl.highlightSearchString("strong:$ref", SearchType.ANY_WORDS)
         val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, bibleSection, null)
         Log.i(TAG, "Search text:$searchText")
-        val activity = CurrentActivityHolder.currentActivity!!
         val searchParams = Bundle()
         searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
         searchParams.putString(SearchControl.SEARCH_HIGHLIGHT_TEXT, highlightText)

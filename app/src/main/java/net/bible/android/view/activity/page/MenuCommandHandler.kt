@@ -163,7 +163,11 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     isHandled = true
                 }
                 R.id.searchButton -> {
-                    if(currentPage.isSearchable) {
+                    // F6 Task 8b entry point 4: retarget into the reading view's search when a
+                    // Compose host is mounted; classic behaviour unchanged otherwise.
+                    if (mainBibleActivity.composeSearchIfHosted()) {
+                        isHandled = true
+                    } else if (currentPage.isSearchable) {
                         handlerIntent = searchControl.getSearchIntent(currentPage.currentDocument, mainBibleActivity)
                     }
                 }

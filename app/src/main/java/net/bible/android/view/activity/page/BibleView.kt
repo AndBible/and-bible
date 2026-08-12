@@ -444,6 +444,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     SearchControl.SearchBibleSection.ALL,
                     ""
                 )
+
+                // F6 Task 8b entry point 7: retarget into the reading view's search when a Compose
+                // host is mounted. `searchText` is ALREADY decorated (PHRASE + no section term) —
+                // `preDecorated = true` tells the host to re-decorate with identity decorators
+                // instead of the live settings-sheet word-mode/section, reproducing this exact
+                // string rather than decorating it twice (see
+                // `ComposeReadingViewHost.openSearch`'s kdoc). Classic behaviour unchanged otherwise.
+                if (mainBibleActivity.composeSearchIfHosted(searchText, preDecorated = true)) {
+                    return true
+                }
+
                 val searchParams = Bundle().apply {
                     putString(SearchControl.SEARCH_TEXT, searchText)
                     putString(SearchControl.SEARCH_HIGHLIGHT_TEXT, highlightText)
@@ -1148,6 +1159,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
                     on<MainBibleActivity.AgentLogOffsetsUpdated> { event ->
                         Log.i(TAG, "BibleView received AgentLogOffsetsUpdated")
+                        updateOffsets(true)
+                    }
+                    // F6 Task 8b Step 3: the search sheet's own visible/height pair changed — see
+                    // MainBibleActivity.updateSearchSheetOffsets.
+                    on<MainBibleActivity.SearchSheetOffsetsUpdated> { event ->
                         updateOffsets(true)
                     }
                     on<WebViewsBuiltEvent> { event ->
