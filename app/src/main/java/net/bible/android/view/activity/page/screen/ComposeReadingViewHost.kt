@@ -54,6 +54,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
@@ -1627,16 +1628,36 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // visible. The `speakBarVisible(...)` expression here is copied verbatim from
             // `speakBarSlot`'s own guard above so the two cannot disagree about when the bar is on
             // screen.
+            //
+            // Whole-branch review fix (Important 2): this lambda has a non-Unit (Boolean) return
+            // type, so it is NOT a restartable @Composable -- its state reads get attributed to the
+            // nearest enclosing restartable scope instead, which is the `BottomSheetScaffold`
+            // content lambda wrapping `key(gen) { ReadingViewScreen(...) }`. Reading
+            // `agentLog.state`/`speakTransport.state` with `by` directly in THIS lambda would
+            // therefore subscribe that whole outer scope to both flows, and `AgentLogController`
+            // emits on every log line/status/cost update during a run -- so the entire reading
+            // screen would recompose per log line (compounded by `readingToolbarIcons()` allocating
+            // a fresh unstable object every call, which defeats skipping). Fix: collect the flows
+            // as State (no `by`, so the collectAsState() call itself doesn't leak a read into the
+            // caller) and fold them into a `derivedStateOf` that only changes value when the
+            // resulting boolean actually flips; only `.value` on that derived state is read, and a
+            // value-returning lambda merely returning an already-computed State read is cheap here
+            // because the derived state itself absorbs the per-line churn.
             reserveBottomInset = {
-                val agentLogUiState by agentLog.state.collectAsState()
-                val speakState by speakTransport.state.collectAsState()
-                bottomInsetReserved(
-                    agentLogVisible = agentLogUiState.visible,
-                    speakBarVisible = speakBarVisible(
-                        fullScreen = fullScreen.value,
-                        transportVisible = speakState.visible,
-                    ),
-                )
+                val agentLogState = agentLog.state.collectAsState()
+                val speakState = speakTransport.state.collectAsState()
+                val reserved = remember {
+                    derivedStateOf {
+                        bottomInsetReserved(
+                            agentLogVisible = agentLogState.value.visible,
+                            speakBarVisible = speakBarVisible(
+                                fullScreen = fullScreen.value,
+                                transportVisible = speakState.value.visible,
+                            ),
+                        )
+                    }
+                }
+                reserved.value
             },
             speakDialogState = speakTransport.dialog,
             onSpeakBookmarkChosen = speakTransport::onSpeakBookmarkChosen,

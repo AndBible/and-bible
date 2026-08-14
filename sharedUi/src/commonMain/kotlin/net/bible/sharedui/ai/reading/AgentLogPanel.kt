@@ -61,7 +61,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.reading.AgentLogEntryVd
@@ -209,10 +208,14 @@ private fun AgentLogHeader(
                 contentDescription = strings.agentLogExpand,
             )
         }
-        // Classic makes the robot AND the status text expand/collapse toggles -- the XML comments
-        // at agent_log_widget.xml:44-47 and :94-96 exist to stop those neighbours stealing the
-        // caret's and the close button's taps. The port had only the caret button, so the panel's
-        // largest, most obvious target did nothing.
+        // Classic makes the robot, the status text AND the cost text expand/collapse toggles
+        // (AgentLogWidget.kt: statusIcon/statusText/headerCostText all bind `toggleListener`) --
+        // the XML comments at agent_log_widget.xml:44-47 and :94-96 exist to stop those neighbours
+        // stealing the caret's and the close button's taps. The port originally had only the caret
+        // button and, after that was fixed, still left the cost text as a dead strip between the
+        // toggle band and the stop/close button (whole-branch review, Minor 6) -- it is now part of
+        // the same band, still its own un-weighted `Text` so it never joins the status text's
+        // ellipsis.
         Row(
             modifier = Modifier
                 .weight(1f)
@@ -235,15 +238,15 @@ private fun AgentLogHeader(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f).padding(start = 8.dp),
             )
-        }
-        val headerCost = snapshot.headerCost
-        if (headerCost != null) {
-            Text(
-                text = headerCost,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 4.dp),
-            )
+            val headerCost = snapshot.headerCost
+            if (headerCost != null) {
+                Text(
+                    text = headerCost,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                )
+            }
         }
         if (snapshot.running) {
             IconButton(onClick = onStop) {
@@ -259,8 +262,9 @@ private fun AgentLogHeader(
 
 /**
  * An M3-spec drag handle (32x4dp, `onSurfaceVariant` at 40%), shown ONLY while the panel is
- * expanded: collapsed, the panel is a ~32dp status strip and a handle would nearly double it for
- * no gain, while expanded the extra ~24dp is what makes the surface read as a sheet.
+ * expanded: collapsed, the header is already `heightIn(min = 48.dp)` (Task 5) and a handle would
+ * add its own ~20dp (4dp pill + 8dp top/bottom padding) for no gain, while expanded that same
+ * ~20dp is what makes the surface read as a sheet.
  *
  * It is TAPPABLE (collapsing the panel), because a handle that can neither be dragged nor tapped
  * lies about its affordance. There is no drag gesture: M3 offers no non-modal sheet able to coexist
@@ -268,16 +272,21 @@ private fun AgentLogHeader(
  * hand-rolled gesture was explicitly not in scope.
  *
  * Drawn by hand rather than with `BottomSheetDefaults.DragHandle` so this file opts into no
- * experimental Material 3 API, and semantics-cleared so TalkBack routes users to the labelled
- * caret instead of announcing two identical collapse actions.
+ * experimental Material 3 API. Labelled via `clickable`'s own `onClickLabel` (whole-branch review,
+ * Minor 5) rather than `clearAndSetSemantics {}` with no label: `clearAndSetSemantics` is documented
+ * to clear DESCENDANT semantics, and it is not established that it also clears semantics
+ * contributed by another modifier on the SAME node (here `clickable`'s own click action) -- if it
+ * doesn't, an unlabelled clear leaves this announcing as an unlabelled button, worse than the
+ * labelled caret it was meant to defer to. Reusing [strings]`.agentLogExpand` (the caret's own
+ * description) is correct either way: same action, same label.
  */
 @Composable
 private fun AgentLogDragHandle(onClick: () -> Unit) {
+    val strings = LocalStrings.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .clearAndSetSemantics {}
+            .clickable(onClickLabel = strings.agentLogExpand, onClick = onClick)
             .padding(vertical = 8.dp),
         contentAlignment = Alignment.Center,
     ) {

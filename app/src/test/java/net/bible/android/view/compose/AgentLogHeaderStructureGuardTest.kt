@@ -18,7 +18,6 @@ package net.bible.android.view.compose
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.junit.Test
 
 /**
@@ -29,6 +28,14 @@ import org.junit.Test
  * There is no Compose UI-test harness in this repo and compose-ui-test cannot be added under
  * strict egress (see SettingsBadgeLayoutDriftTest), so this source-level guard is what stops both
  * regressions; the re-recorded AgentLogPanel goldens are the visual proof.
+ *
+ * The tap-to-toggle guard asserts the caret's and the status band's wiring as two INDEPENDENT
+ * exact-shape checks (`theCaretIconButtonTogglesExpansion` / `theStatusBandClickableTogglesExpansion`),
+ * not a combined occurrence count. A count of `onClick = onToggleExpanded` (the original form of
+ * this guard) can't distinguish a real toggle wiring from `AgentLogDragHandle(onClick =
+ * onToggleExpanded)` -- the drag handle's *call site*, which passes the argument through but wires
+ * no toggle of its own -- so deleting the band's `.clickable` left the count at exactly the
+ * threshold and the regression it exists to catch went undetected (whole-branch review, round 6).
  */
 class AgentLogHeaderStructureGuardTest {
     private val source =
@@ -49,14 +56,26 @@ class AgentLogHeaderStructureGuardTest {
     }
 
     @Test
-    fun theToggleHasMoreThanOneCallSiteSoTheRobotAndStatusTextAreTappable() {
-        // The caret IconButton plus the robot/status-text band -- and, from Task 6, the drag
-        // handle. Counting call sites (not identifier occurrences) keeps this insensitive to kdoc.
-        val callSites = Regex("""onClick = onToggleExpanded""").findAll(source).count()
+    fun theCaretIconButtonTogglesExpansion() {
+        // A plain count of `onClick = onToggleExpanded` occurrences (the previous form of this
+        // test) could not tell the caret's wiring apart from the drag handle's *call site* --
+        // `AgentLogDragHandle(onClick = onToggleExpanded)` -- passing at "2" even after the band's
+        // own wiring below was deleted. Assert the caret's exact shape so it is guarded on its own.
         assertThat(
-            "onToggleExpanded must be wired from at least the caret and the status band",
-            callSites,
-            greaterThanOrEqualTo(2),
+            "the caret IconButton must wire onToggleExpanded directly: IconButton(onClick = onToggleExpanded)",
+            source.contains("IconButton(onClick = onToggleExpanded)"),
+            equalTo(true),
+        )
+    }
+
+    @Test
+    fun theStatusBandClickableTogglesExpansion() {
+        // Same rationale as theCaretIconButtonTogglesExpansion: assert the band's exact shape
+        // so removing it fails independently of the caret and the drag-handle call site.
+        assertThat(
+            "the robot/status-text band must wire onToggleExpanded via .clickable(onClick = onToggleExpanded)",
+            source.contains(".clickable(onClick = onToggleExpanded)"),
+            equalTo(true),
         )
     }
 }
