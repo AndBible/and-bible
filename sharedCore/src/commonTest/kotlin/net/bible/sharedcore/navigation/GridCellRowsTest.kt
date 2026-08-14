@@ -27,4 +27,13 @@ class GridCellRowsTest {
         // A long verse list still uses its own, larger row count and scrolls.
         assertEquals(36, gridCellRows(buttonCount = 176, columns = 5, minRows = 10))
     }
+
+    @Test
+    fun `sectioned cell rows apply the same floor across all sections`() {
+        // Two tiny sections sum to 2 rows - well below the designer's floor of 10, which must win.
+        assertEquals(10, gridCellRowsForSections(sectionSizes = listOf(2, 3), columns = 6, minRows = 10))
+        // A bigger sectioned list (two 6-item sections, 6 columns = 1 row each) already exceeds a
+        // floor of 1 on its own, so the floor is a no-op here - proving it doesn't over-apply.
+        assertEquals(2, gridCellRowsForSections(sectionSizes = listOf(6, 6), columns = 6, minRows = 1))
+    }
 }

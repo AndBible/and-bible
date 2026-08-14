@@ -137,9 +137,9 @@ class GridChoosePassageComposeActivity : ActivityBase() {
         val sections = if (opts.groupByCategory) buttons.groupBy { coarseGroup(it.id) }.values.toList() else null
         val ordered = if (sections == null && CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
         val showDeut = navigationControl.getBibleBooks(false).isNotEmpty()
-        return GridUi(GridStep.BOOK, "$baseTitle ($workspaceName)", columns,
+        return assembleGridUi(GridStep.BOOK, "$baseTitle ($workspaceName)", layout,
             showLongNames = opts.longNames, showProgress = opts.showProgress, showDeutToggle = showDeut,
-            buttons = ordered, sections = sections, minRows = layout.rows)
+            buttons = ordered, sections = sections)
     }
 
     private fun buildChapterStep(opts: GridOptions): GridUi {
@@ -158,8 +158,8 @@ class GridChoosePassageComposeActivity : ActivityBase() {
         val layout = layoutGrid(buttons.size, CommonUtils.isPortrait, isBookGrid = false)
         val columns = layout.columns
         val ordered = if (CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
-        return GridUi(GridStep.CHAPTER, v11n.getLongName(book), columns,
-            showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered, minRows = layout.rows)
+        return assembleGridUi(GridStep.CHAPTER, v11n.getLongName(book), layout,
+            showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered)
     }
 
     private fun buildVerseStep(opts: GridOptions): GridUi {
@@ -179,8 +179,8 @@ class GridChoosePassageComposeActivity : ActivityBase() {
         val layout = layoutGrid(buttons.size, CommonUtils.isPortrait, isBookGrid = false)
         val columns = layout.columns
         val ordered = if (CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
-        return GridUi(GridStep.VERSE, "${v11n.getLongName(book)} $selectedChapter", columns,
-            showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered, minRows = layout.rows)
+        return assembleGridUi(GridStep.VERSE, "${v11n.getLongName(book)} $selectedChapter", layout,
+            showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered)
     }
 
     // ---- pick branches (port bookSelected / chapter buttonPressed) ----
@@ -282,5 +282,27 @@ class GridChoosePassageComposeActivity : ActivityBase() {
             val minCols = if (isPortrait) 5 else 8
             return GridLayout(columns = maxOf(minCols, cols), rows = rows)
         }
+
+        /**
+         * Assembles the final [GridUi] for a step, wiring [layout]'s row count into [GridUi.minRows]
+         * (and its column count into [GridUi.columns]). The three `build*Step` methods differ only in
+         * step/title/flags/buttons — they all funnel through here for the actual `GridUi`
+         * construction, so this one function is what a dropped `minRows` wiring would actually break,
+         * and it can be tested without an Activity instance (see `GridLayoutRowsTest`).
+         */
+        internal fun assembleGridUi(
+            step: GridStep,
+            title: String,
+            layout: GridLayout,
+            showLongNames: Boolean,
+            showProgress: Boolean,
+            showDeutToggle: Boolean,
+            buttons: List<GridButton>,
+            sections: List<List<GridButton>>? = null,
+        ): GridUi = GridUi(
+            step, title, layout.columns,
+            showLongNames = showLongNames, showProgress = showProgress, showDeutToggle = showDeutToggle,
+            buttons = buttons, sections = sections, minRows = layout.rows,
+        )
     }
 }
