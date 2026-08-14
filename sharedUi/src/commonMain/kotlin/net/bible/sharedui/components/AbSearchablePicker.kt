@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -73,7 +74,6 @@ fun <T> AbSearchablePicker(
     searchPlaceholder: String = "",
 ) {
     var open by remember { mutableStateOf(false) }
-    var query by remember { mutableStateOf("") }
 
     // No built-in horizontal margin: the caller owns spacing (e.g. the single-row filter bar).
     Box(modifier = modifier.fillMaxWidth().padding(vertical = 4.dp)) {
@@ -95,44 +95,105 @@ fun <T> AbSearchablePicker(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                 ) {
-                    query = ""
                     open = true
                 },
         )
     }
 
     if (open) {
-        val filtered = filterPickerOptions(options, query, optionLabel)
-        ModalBottomSheet(onDismissRequest = { open = false }) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    singleLine = true,
-                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                    placeholder = { Text(searchPlaceholder) },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        AbSearchableOptionSheet(
+            options = options,
+            selected = selected,
+            optionLabel = optionLabel,
+            onSelect = { onSelect(it); open = false },
+            onDismiss = { open = false },
+            // Pass the String through as-is, NEVER mapping "" to null: AbSearchablePicker has
+            // always rendered its search field, and its other caller (AiModelsScreen) may rely on
+            // the default empty placeholder. Only a caller that explicitly passes null gets no field.
+            searchPlaceholder = searchPlaceholder,
+        )
+    }
+}
+
+/**
+ * The bottom sheet half of [AbSearchablePicker], usable on its own by callers that already have
+ * their own trigger (e.g. the document-selection filter chips) and therefore want no field.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun <T> AbSearchableOptionSheet(
+    options: List<T>,
+    selected: T,
+    optionLabel: (T) -> String,
+    onSelect: (T) -> Unit,
+    onDismiss: () -> Unit,
+    searchPlaceholder: String? = null,
+    leadingIcon: (@Composable (T) -> Unit)? = null,
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        AbSearchableOptionSheetContent(
+            options = options,
+            selected = selected,
+            optionLabel = optionLabel,
+            onSelect = onSelect,
+            searchPlaceholder = searchPlaceholder,
+            leadingIcon = leadingIcon,
+        )
+    }
+}
+
+/**
+ * The sheet's contents, separate from [ModalBottomSheet] so goldens can capture it: a live
+ * ModalBottomSheet is a popup, and popups hang Roborazzi captures.
+ *
+ * @param searchPlaceholder placeholder for the type-to-filter field; null renders no field at all
+ *   (right for short lists such as the seven document types).
+ * @param leadingIcon optional per-option leading slot. Supply a fixed-size slot for every option —
+ *   including the ones with no icon — so the labels stay aligned.
+ */
+@Composable
+fun <T> AbSearchableOptionSheetContent(
+    options: List<T>,
+    selected: T,
+    optionLabel: (T) -> String,
+    onSelect: (T) -> Unit,
+    modifier: Modifier = Modifier,
+    searchPlaceholder: String? = null,
+    leadingIcon: (@Composable (T) -> Unit)? = null,
+) {
+    var query by remember { mutableStateOf("") }
+    val filtered = if (searchPlaceholder == null) options else filterPickerOptions(options, query, optionLabel)
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        if (searchPlaceholder != null) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                singleLine = true,
+                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                placeholder = { Text(searchPlaceholder) },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            )
+        }
+        // heightIn(max) keeps the incoming constraint bounded (a ModalBottomSheet column is
+        // otherwise unbounded → an unconstrained LazyColumn would crash), while still wrapping
+        // to content for short filtered lists.
+        LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp)) {
+            // No label-derived key: LazyColumn requires unique keys, but two options can
+            // share a display name (e.g. same-named languages), which would throw
+            // "Key ... was already used" and crash the picker. The filtered list is not
+            // reordered by stable identity, so the default positional key is correct here.
+            items(filtered) { opt ->
+                ListItem(
+                    headlineContent = { Text(optionLabel(opt)) },
+                    leadingContent = leadingIcon?.let { icon -> { icon(opt) } },
+                    trailingContent = if (opt == selected) {
+                        { Icon(Icons.Filled.Check, contentDescription = null) }
+                    } else {
+                        null
+                    },
+                    modifier = Modifier.fillMaxWidth().clickable { onSelect(opt) },
                 )
-                // heightIn(max) keeps the incoming constraint bounded (a ModalBottomSheet column is
-                // otherwise unbounded → an unconstrained LazyColumn would crash), while still wrapping
-                // to content for short filtered lists.
-                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp)) {
-                    // No label-derived key: LazyColumn requires unique keys, but two options can
-                    // share a display name (e.g. same-named languages), which would throw
-                    // "Key ... was already used" and crash the picker. The filtered list is not
-                    // reordered by stable identity, so the default positional key is correct here.
-                    items(filtered) { opt ->
-                        ListItem(
-                            headlineContent = { Text(optionLabel(opt)) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    onSelect(opt)
-                                    open = false
-                                },
-                        )
-                    }
-                }
             }
         }
     }
