@@ -28,8 +28,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -52,12 +55,14 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedcore.workspaces.CopySettingsState
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
+import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbMultiSelectDialog
-import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbReorderableColumn
 import net.bible.sharedui.components.AbScaffold
-import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbTextInputDialog
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
 
@@ -78,9 +83,12 @@ fun WorkspaceSelectorScreen(
     canDelete: Boolean,
     filtering: Boolean,
     query: String,
+    searchModeActive: Boolean,
     copySettingsState: CopySettingsState?,
     pendingSelectId: String?,
     onQueryChange: (String) -> Unit,
+    onOpenSearch: () -> Unit,
+    onCloseSearch: () -> Unit,
     onMove: (from: Int, to: Int) -> Unit,
     onSelect: (id: String) -> Unit,
     onRename: (id: String, name: String) -> Unit,
@@ -106,18 +114,36 @@ fun WorkspaceSelectorScreen(
     var renameFor by remember { mutableStateOf<WorkspaceRowVd?>(null) }
     var cloneFor by remember { mutableStateOf<WorkspaceRowVd?>(null) }
 
+    // Round 6. Classic has three action-bar icons and NO overflow: search (added with order = 0 by
+    // RecyclerViewSearchHelper:75, so it comes first), New and Help (workspace_options_menu.xml).
+    // The port had buried New and Help in a 3-dot menu and pinned the search field permanently
+    // below the bar; both are restored here.
     AbScaffold(
         title = title,
-        onNavigateUp = onNavigateUp,
+        onNavigateUp = if (searchModeActive) null else onNavigateUp,
         actions = {
-            AbOverflowMenu(contentDescription = null) { close ->
-                DropdownMenuItem(text = { Text(s.newItem) }, onClick = { close(); createOpen = true })
-                DropdownMenuItem(text = { Text(s.helpLabel) }, onClick = { close(); onHelp() })
+            if (!searchModeActive) {
+                AbActionIcon(Icons.Filled.Search, s.search, onOpenSearch)
+                AbActionIcon(Icons.Filled.AddCircleOutline, s.newItem, { createOpen = true })
+                AbActionIcon(Icons.Filled.HelpOutline, s.helpLabel, onHelp)
             }
         },
+        search = if (searchModeActive) {
+            AbTopBarSearchState(
+                query = query,
+                // Focus on entering search mode, release on leaving. Recomputed from
+                // searchModeActive rather than held as state: the bar acks each instruction back to
+                // null itself, and the only transitions that matter are the two edges.
+                imeRequest = AbSearchImeRequest.Focus,
+            )
+        } else null,
+        searchCallbacks = AbTopBarSearchCallbacks(
+            onQueryChange = onQueryChange,
+            onClose = onCloseSearch,
+            onImeRequestHandled = {},
+        ),
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            AbSearchField(value = query, onValueChange = onQueryChange, placeholder = s.searchHint)
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 AbReorderableColumn(items = workspaces, key = { it.id }, onMove = onMove) { item, handle ->
                     Row(
@@ -167,8 +193,8 @@ fun WorkspaceSelectorScreen(
                 }
             }
             Row(modifier = Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                TextButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text(s.cancel) }
-                TextButton(onClick = onSave, enabled = dirty, modifier = Modifier.weight(1f)) { Text(s.okay) }
+                TextButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text(s.dismiss) }
+                TextButton(onClick = onSave, enabled = dirty, modifier = Modifier.weight(1f)) { Text(s.saveAndExit) }
             }
         }
     }

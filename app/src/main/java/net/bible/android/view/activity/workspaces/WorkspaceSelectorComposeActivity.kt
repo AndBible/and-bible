@@ -90,11 +90,15 @@ class WorkspaceSelectorComposeActivity : ActivityBase() {
                     val canDelete by controller.canDelete.collectAsState()
                     val copy by controller.copySettingsState.collectAsState()
                     val pending by controller.pendingSelectId.collectAsState()
+                    val searchModeActive by controller.searchModeActive.collectAsState()
                     WorkspaceSelectorScreen(
                         title = getString(R.string.workspace_selector_title),
                         workspaces = workspaces, dirty = dirty, canDelete = canDelete,
-                        filtering = filtering, query = query, copySettingsState = copy, pendingSelectId = pending,
+                        filtering = filtering, query = query, searchModeActive = searchModeActive,
+                        copySettingsState = copy, pendingSelectId = pending,
                         onQueryChange = controller::setQuery,
+                        onOpenSearch = controller::openSearch,
+                        onCloseSearch = controller::closeSearch,
                         onMove = controller::moveIndex,
                         onSelect = controller::selectWorkspace,
                         onRename = controller::rename,
@@ -119,7 +123,12 @@ class WorkspaceSelectorComposeActivity : ActivityBase() {
     }
 
     @Deprecated("Deprecated in Java")
-    override fun onBackPressed() { controller.cancel(); super.onBackPressed() }
+    override fun onBackPressed() {
+        // Round 6: back leaves search mode before it leaves the screen (classic parity — a
+        // collapsed SearchView consumed back the same way).
+        if (controller.searchModeActive.value) { controller.closeSearch(); return }
+        controller.cancel(); super.onBackPressed()
+    }
 
     override fun onDetachedFromWindow() {
         if (!finished) controller.cancel()

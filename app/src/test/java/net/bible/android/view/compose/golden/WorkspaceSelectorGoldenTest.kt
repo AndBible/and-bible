@@ -24,12 +24,14 @@ class WorkspaceSelectorGoldenTest {
     @Composable
     private fun screen(
         items: List<WorkspaceRowVd> = rows, dirty: Boolean = false, canDelete: Boolean = true,
-        filtering: Boolean = false, query: String = "",
+        filtering: Boolean = false, query: String = "", searchModeActive: Boolean = false,
         copy: CopySettingsState? = null, pending: String? = null,
     ) = WorkspaceSelectorScreen(
         title = "Workspaces", workspaces = items, dirty = dirty, canDelete = canDelete,
-        filtering = filtering, query = query, copySettingsState = copy, pendingSelectId = pending,
-        onQueryChange = {}, onMove = { _, _ -> }, onSelect = {}, onRename = { _, _ -> },
+        filtering = filtering, query = query, searchModeActive = searchModeActive,
+        copySettingsState = copy, pendingSelectId = pending,
+        onQueryChange = {}, onOpenSearch = {}, onCloseSearch = {},
+        onMove = { _, _ -> }, onSelect = {}, onRename = { _, _ -> },
         onClone = { _, _ -> }, onDelete = {}, onEditSettings = {}, onCopySettings = {},
         onCopySettingsToGlobal = {}, onChooseCopyTypes = {}, onChooseCopyTargets = {},
         onCancelCopySettings = {}, onCreate = {}, onSave = {}, onCancel = {},
@@ -50,6 +52,13 @@ class WorkspaceSelectorGoldenTest {
     @Test fun workspaceSelector_filtering() {
         captureGolden("WorkspaceSelector", "filtering", EDGE_MODE, heightDp = 900) {
             screen(items = rows.filter { it.name.contains("Ser") }, filtering = true, query = "Ser")
+        }
+    }
+
+    @Test fun workspaceSelector_searchMode() {
+        captureMatrix("WorkspaceSelector", "searchMode", heightDp = 900) {
+            screen(items = rows.filter { it.name.contains("Ser") }, filtering = true,
+                   query = "Ser", searchModeActive = true)
         }
     }
 
