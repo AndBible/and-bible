@@ -61,6 +61,20 @@ class ReadingOverflowMenuGoldenTest {
         OptionsMenuItem(id = "textOptions", label = "Text options", checkable = false, checked = false, enabled = true, opensDialog = true, iconKey = "textOptions"),
     )
 
+    /**
+     * Batch 5 F1: static rows, then a recent-settings section (divider above its first row), then
+     * `allTextOptions` last (no divider of its own here, since the recent section already carries
+     * one) — the real shape [net.bible.android.view.activity.page.OptionsMenuStateBuilder.build]
+     * produces once the user has any display-setting history.
+     */
+    private val itemsWithRecentSection = listOf(
+        OptionsMenuItem(id = "nightMode", label = "Night mode", checkable = true, checked = true, enabled = true, opensDialog = false, iconKey = "nightMode"),
+        OptionsMenuItem(id = "showBookmarks", label = "Show bookmarks", checkable = true, checked = false, enabled = true, opensDialog = false, iconKey = "bookmarks"),
+        OptionsMenuItem(id = "textOptionItem:0", label = "Font size", checkable = false, checked = false, enabled = true, opensDialog = false, startsNewSection = true),
+        OptionsMenuItem(id = "textOptionItem:1", label = "Margin size", checkable = false, checked = false, enabled = true, opensDialog = false),
+        OptionsMenuItem(id = "allTextOptions", label = "All text options", checkable = false, checked = false, enabled = true, opensDialog = true, iconKey = "textOptions"),
+    )
+
     /** Resolves the sample [iconKey]s above to real drawables, following [ReadingToolbarGoldenTest]'s style. */
     @Composable
     private fun icon(iconKey: String): Painter? = when (iconKey) {
@@ -73,5 +87,10 @@ class ReadingOverflowMenuGoldenTest {
     @Test fun items_matrix() =
         captureMatrix("ReadingOverflowMenu", "items") {
             Column { ReadingOverflowMenuRows(items, onItemClick = {}, icon = { key -> icon(key) }) }
+        }
+
+    @Test fun recentSection_matrix() =
+        captureMatrix("ReadingOverflowMenu", "recentSection") {
+            Column { ReadingOverflowMenuRows(itemsWithRecentSection, onItemClick = {}, icon = { key -> icon(key) }) }
         }
 }

@@ -91,10 +91,13 @@ object OptionsMenuStateBuilder {
     }
 
     /**
-     * Reproduces `MainBibleActivity.showOptionsMenu`'s build loop: every visible static entry (in
-     * [staticEntries] order) followed by one row per [CommonUtils.lastDisplaySettingsSorted]
-     * index — pre-filtered on `enabled && visible`, exactly like the classic loop that only
-     * `menu.add`s a dynamic row passing that same check.
+     * Reproduces classic's *rendered* order (not `showOptionsMenu`'s inflate order): every visible
+     * static entry except `allTextOptions` (in [staticEntries] order), then one row per
+     * [CommonUtils.lastDisplaySettingsSorted] index — pre-filtered on `enabled && visible`, exactly
+     * like the classic loop that only `menu.add`s a dynamic row passing that same check — then
+     * `allTextOptions` last, with [OptionsMenuItem.startsNewSection] marking the first row of that
+     * trailing group (the recent-settings rows if any exist, else `allTextOptions` itself) so the
+     * renderer can draw a divider there.
      *
      * A static entry's [OptionsMenuItemInterface.title] is always `null` (unlike the dynamic
      * `textOptionItem` rows, built from [Preference], which DO carry a type-specific title, none
@@ -106,6 +109,9 @@ object OptionsMenuStateBuilder {
     fun build(getItemOptions: (resId: Int, order: Int) -> OptionsMenuItemInterface): List<OptionsMenuItem> {
         val items = mutableListOf<OptionsMenuItem>()
         for (entry in staticEntries) {
+            // Emitted last instead, below the recent rows — classic orders it there via
+            // android:orderInCategory="1000" inside textOptionsGroup.
+            if (entry.resId == R.id.allTextOptions) continue
             val m = getItemOptions(entry.resId, 0)
             if (!m.visible) continue
             items += OptionsMenuItem(
@@ -118,6 +124,7 @@ object OptionsMenuStateBuilder {
                 iconKey = entry.iconKey,
             )
         }
+        var isFirstOfSection = true
         for ((order, _) in CommonUtils.lastDisplaySettingsSorted.withIndex()) {
             val m = getItemOptions(R.id.textOptionItem, order)
             if (!(m.enabled && m.visible)) continue
@@ -131,6 +138,23 @@ object OptionsMenuStateBuilder {
                 // A/B batch 3 F4: classic draws these rows with the setting's own icon
                 // (`ItemPreference.icon`); the port shipped them iconless.
                 iconKey = m.icon?.let { application.resources.getResourceEntryName(it) },
+                startsNewSection = isFirstOfSection,
+            )
+            isFirstOfSection = false
+        }
+        val allTextOptions = staticEntryByResId.getValue(R.id.allTextOptions)
+        val m = getItemOptions(allTextOptions.resId, 0)
+        if (m.visible) {
+            items += OptionsMenuItem(
+                id = allTextOptions.idName,
+                label = m.title ?: application.getString(allTextOptions.titleRes),
+                checkable = m.isBoolean,
+                checked = m.value == true,
+                enabled = m.enabled,
+                opensDialog = m.opensDialog,
+                iconKey = allTextOptions.iconKey,
+                // Carries the divider itself when there are no recent rows to carry it.
+                startsNewSection = isFirstOfSection,
             )
         }
         return items
