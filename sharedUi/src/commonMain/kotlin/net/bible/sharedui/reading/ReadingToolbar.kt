@@ -63,12 +63,16 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.Painter
@@ -78,7 +82,9 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
@@ -87,6 +93,7 @@ import kotlinx.coroutines.launch
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.ReadingSearchBarState
+import net.bible.sharedcore.reading.SearchFieldImeRequest
 import net.bible.sharedcore.reading.ToolbarButton
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.fitToolbarButtons
@@ -156,6 +163,15 @@ data class ReadingSearchBarCallbacks(
     val onRecentTermSelected: (String) -> Unit,
     val onOpenSettings: () -> Unit,
     val onClose: () -> Unit,
+    /** The field has been focused or released as [ReadingSearchBarState.imeRequest] asked. */
+    val onImeRequestHandled: () -> Unit,
+    /**
+     * The field gained or lost focus. Reported because `MainBibleActivity` keys its IME padding on
+     * this and not on search mode being active: search mode outlives the results sheet, so a WebView
+     * note editor can be opened while it is still on, and that editor must still be lifted above the
+     * keyboard (spec §4).
+     */
+    val onFieldFocusChanged: (Boolean) -> Unit,
 )
 
 /** Height of the toolbar row — matches the classic `@dimen/toolbar_height` (56dp). */
@@ -272,6 +288,21 @@ fun ReadingToolbar(
     // toolbar, exactly as the normal row does.
     if (searchBar != null && searchBarCallbacks != null) {
         val strings = LocalStrings.current
+        val focusRequester = remember { FocusRequester() }
+        val keyboard = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
+        // F6-B2/B3. Keyed on the instruction so the ack (which returns it to null) is what arms the
+        // next edge — a level would not fire twice for two submits in a row. `show()` follows
+        // `requestFocus()` belt-and-braces: focusing a field usually raises the IME, and findings
+        // F23/F24 are this repo's record of "usually" not being good enough.
+        LaunchedEffect(searchBar.imeRequest) {
+            when (searchBar.imeRequest) {
+                null -> return@LaunchedEffect
+                SearchFieldImeRequest.Focus -> { focusRequester.requestFocus(); keyboard?.show() }
+                SearchFieldImeRequest.Release -> { focusManager.clearFocus(); keyboard?.hide() }
+            }
+            searchBarCallbacks.onImeRequestHandled()
+        }
         CompositionLocalProvider(LocalContentColor provides onContainer) {
             Row(
                 modifier
@@ -318,7 +349,10 @@ fun ReadingToolbar(
                         cursorBrush = SolidColor(onContainer),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                         keyboardActions = KeyboardActions(onSearch = { searchBarCallbacks.onSubmit() }),
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester)
+                            .onFocusChanged { searchBarCallbacks.onFieldFocusChanged(it.isFocused) },
                         decorationBox = { innerTextField ->
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (searchBar.recentTerms.isNotEmpty()) {

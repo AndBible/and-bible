@@ -484,6 +484,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     internal val searchRecentMenuOpen = MutableStateFlow(false)
 
     /**
+     * Whether the toolbar's search field currently holds focus. Read by `MainBibleActivity` to decide
+     * whether the IME padding applies — see spec §4: keying that on search mode being ACTIVE would
+     * suppress the padding for a WebView note editor opened while search mode is still on.
+     */
+    val searchFieldFocused = MutableStateFlow(false)
+
+    /**
      * Which result rows are expanded, and the result list's scroll position — both owned by the
      * HOST rather than remembered inside the sheet's composition, so they survive the sheet being
      * closed and reopened (F25's scroll restore, which the Activity flow did with an Intent extra).
@@ -570,9 +577,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         searchQueries.query,
         searchQueries.recentTerms,
         searchRecentMenuOpen,
-    ) { active, query, recentTerms, recentMenuOpen ->
+        searchController.imeRequest,
+    ) { active, query, recentTerms, recentMenuOpen, imeRequest ->
         if (!active) null
-        else ReadingSearchBarState(query = query, recentTerms = recentTerms, recentMenuOpen = recentMenuOpen)
+        else ReadingSearchBarState(
+            query = query,
+            recentTerms = recentTerms,
+            recentMenuOpen = recentMenuOpen,
+            imeRequest = imeRequest,
+        )
     }.stateIn(hostScope, SharingStarted.Eagerly, null)
 
     /** The JSword index-build feed (Step 5) — see [startSearchIndexing]. */
@@ -680,6 +693,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private fun leaveSearch() {
         searchController.closeSheet()
         if (searchController.closeSearchMode()) onSearchModeClosed()
+        // Belt and braces: removing the field from composition does fire onFocusChanged(false), but
+        // the activity's IME padding must not depend on that assumption.
+        searchFieldFocused.value = false
     }
 
     /** Common tail of leaving search mode (Task 8b): drops the index feed, both one-shot decoration
@@ -1602,6 +1618,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 },
                 onOpenSettings = { searchSettingsOpen.value = true },
                 onClose = { leaveSearch() },
+                onImeRequestHandled = { searchController.imeRequestHandled() },
+                onFieldFocusChanged = { searchFieldFocused.value = it },
             ),
             searchSheetVisibleState = searchController.sheetVisible,
             onSearchSheetDismissed = { searchController.closeSheet() },

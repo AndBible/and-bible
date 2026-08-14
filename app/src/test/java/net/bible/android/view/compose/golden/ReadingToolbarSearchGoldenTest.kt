@@ -57,7 +57,7 @@ class ReadingToolbarSearchGoldenTest {
             icons = goldenToolbarIcons(),
             callbacks = goldenToolbarCallbacks(),
             searchBar = searchBar,
-            searchBarCallbacks = ReadingSearchBarCallbacks({}, {}, {}, {}, {}, {}, {}),
+            searchBarCallbacks = ReadingSearchBarCallbacks({}, {}, {}, {}, {}, {}, {}, {}, {}),
         )
     }
 

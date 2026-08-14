@@ -500,6 +500,8 @@ class ReadingSearchHostTest {
                 onRecentTermSelected = {},
                 onOpenSettings = {},
                 onClose = {},
+                onImeRequestHandled = {},
+                onFieldFocusChanged = {},
             ),
             searchSheetVisibleState = MutableStateFlow(true),
             onSearchSheetDismissed = {},
