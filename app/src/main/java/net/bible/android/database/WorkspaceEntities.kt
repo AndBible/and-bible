@@ -571,6 +571,13 @@ class WorkspaceEntities {
              * merged resolved value, so a partially-populated legacy row will not be nulled even when every
              * field it does set matches. Worth knowing before reading a device-test miss here as a new bug.
              *
+             * Because [resolvedSource] is resolved through [actual], the sub-object types (MARGINSIZE,
+             * COLORS) are written to the global row FULLY MERGED — every field populated, falling back
+             * through the hierarchy to [default] — where the old (pre-fix) code wrote whatever partial
+             * object the source held. An improvement, but it also pins those fields against future changes
+             * to [default]: a later change to a default field is now baked into any global row copied this
+             * way, not left as an unset "inherit" hole.
+             *
              * NOT covered by this function's own unit tests: that the call sites actually invoke this seam.
              * That is verified by the on-device checklist, not by a unit test on this function alone.
              */

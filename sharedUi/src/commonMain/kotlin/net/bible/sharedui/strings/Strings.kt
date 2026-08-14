@@ -237,7 +237,6 @@ interface Strings {
     val deleteWorkspaceLabel: String          // R.string.delete_workspace
     val workspaceSettingsLabel: String        // R.string.workspace_settings
     val copyWorkspaceSettings: String         // R.string.copy_workspace_settings
-    val copySettingsToGlobal: String          // R.string.copy_settings_to_global
     val copySettingsToWorkspaces: String       // R.string.copy_settings_to_workspaces (submenu child)
     val copySettingsToGlobalDefaults: String   // R.string.copy_settings_to_global_defaults (submenu child)
     val menuBack: String                       // R.string.menu_back (in-place submenu back row)

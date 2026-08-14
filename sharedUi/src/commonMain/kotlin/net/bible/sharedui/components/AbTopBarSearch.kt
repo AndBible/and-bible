@@ -45,6 +45,11 @@ data class AbTopBarSearchState(
  *
  * [onClose] is expected to leave search mode AND clear the query (classic parity: collapsing the
  * SearchView clears the filter). The bar does not clear anything itself — it is stateless.
+ *
+ * The component has no way to intercept hardware back itself — a host that wants "back leaves
+ * search mode before it leaves the screen" is responsible for routing hardware back to [onClose]
+ * on its own (e.g. an `onBackPressed`/`OnBackPressedCallback` override that checks search-mode
+ * state first).
  */
 class AbTopBarSearchCallbacks(
     val onQueryChange: (String) -> Unit,

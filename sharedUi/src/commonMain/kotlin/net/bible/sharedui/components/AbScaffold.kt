@@ -61,7 +61,10 @@ import net.bible.sharedui.theme.SyncSystemBars
  * Round 6. [search] / [searchCallbacks] default to `null`, meaning "not in search mode" — the bar
  * this file has always drawn. Defaulted so every existing call site and all committed Roborazzi
  * goldens are unaffected by construction — the same contract ReadingToolbar documents at :219-223
- * for its own search parameters.
+ * for its own search parameters. When both are non-null, search mode REPLACES the whole bar
+ * ([AbSearchTopAppBar]) rather than augmenting it: [title], [onNavigateUp] and [actions] are all
+ * ignored in that case, not just visually superseded. A caller that also wants to suppress them
+ * itself while search is active is being redundant with this contract, not disagreeing with it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

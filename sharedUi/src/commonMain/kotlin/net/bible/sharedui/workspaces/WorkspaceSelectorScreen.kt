@@ -116,13 +116,19 @@ fun WorkspaceSelectorScreen(
     var renameFor by remember { mutableStateOf<WorkspaceRowVd?>(null) }
     var cloneFor by remember { mutableStateOf<WorkspaceRowVd?>(null) }
 
-    // Round 6. Classic has the same three action-bar icons and NO overflow: search, New and Help
-    // (workspace_options_menu.xml). Our order here (search, new, help) differs deliberately from
-    // classic's render order and was approved from a rendered preview — an approved arrangement
-    // outweighs matching classic's icon order exactly. The port had buried New and Help in a 3-dot
-    // menu and pinned the search field permanently below the bar; both are restored here.
+    // Round 6. Classic has the same three action-bar icons and NO overflow — New and Help are
+    // declared in workspace_options_menu.xml; the search action is added programmatically by
+    // RecyclerViewSearchHelper.setupRecyclerViewSearch, not by that XML. Our order here (search,
+    // new, help) differs deliberately from classic's render order and was approved from a rendered
+    // preview — an approved arrangement outweighs matching classic's icon order exactly. The port
+    // had buried New and Help in a 3-dot menu and pinned the search field permanently below the
+    // bar; both are restored here.
     AbScaffold(
         title = title,
+        // Belt-and-braces: AbTopAppBar already suppresses onNavigateUp/actions itself in search
+        // mode (search replaces the whole bar), so this is redundant with that contract, not a
+        // disagreement with it — kept because it is behaviour-identical either way and removing it
+        // would need fresh golden verification for no gain.
         onNavigateUp = if (searchModeActive) null else onNavigateUp,
         actions = {
             if (!searchModeActive) {
@@ -145,11 +151,13 @@ fun WorkspaceSelectorScreen(
                 imeRequest = AbSearchImeRequest.Focus,
             )
         } else null,
-        searchCallbacks = AbTopBarSearchCallbacks(
-            onQueryChange = onQueryChange,
-            onClose = onCloseSearch,
-            onImeRequestHandled = {},
-        ),
+        searchCallbacks = if (searchModeActive) {
+            AbTopBarSearchCallbacks(
+                onQueryChange = onQueryChange,
+                onClose = onCloseSearch,
+                onImeRequestHandled = {},
+            )
+        } else null,
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
