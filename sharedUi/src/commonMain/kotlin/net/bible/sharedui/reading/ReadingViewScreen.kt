@@ -20,7 +20,11 @@ package net.bible.sharedui.reading
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -106,6 +110,15 @@ fun ReadingViewScreen(
     tabBar: (@Composable () -> Unit)? = null,
     agentLog: (@Composable () -> Unit)? = null,
     speakBar: (@Composable () -> Unit)? = null,
+    /**
+     * Whether to reserve the bottom navigation-bar inset below the last bottom bar. The host
+     * computes it with `bottomInsetReserved(agentLogVisible, speakBarVisible)`: the [agentLog] and
+     * [speakBar] slots both hide themselves, so neither can tell whether it is the bottom-most one,
+     * and this screen is the only place that knows their order. Defaulted to `false` so existing
+     * call sites and their goldens are unaffected, and so a pane-only reading view keeps extending
+     * under the navigation bar as classic does.
+     */
+    reserveBottomInset: Boolean = false,
     searchBar: ReadingSearchBarState? = null,
     searchBarCallbacks: ReadingSearchBarCallbacks? = null,
     paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
@@ -147,5 +160,8 @@ fun ReadingViewScreen(
         )
         agentLog?.invoke()
         speakBar?.invoke()
+        if (reserveBottomInset) {
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+        }
     }
 }

@@ -281,6 +281,25 @@ internal fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Bo
     !fullScreen && transportVisible
 
 /**
+ * Whether `ReadingViewScreen` must reserve the bottom navigation-bar inset — true iff at least one
+ * of its in-flow bottom bars is on screen.
+ *
+ * The whole Compose reading tree is edge-to-edge: the toolbar consumes `statusBars` itself and the
+ * floating window rail consumes `navigationBars` itself, so the bottom-most in-flow child has to
+ * consume the bottom inset. Neither the agent panel nor the speak bar can do it alone — both hide
+ * themselves, so neither knows whether it is the bottom-most one, and padding both would leave dead
+ * space between them whenever both are visible. Hence one decision, here, fed to one `Spacer`.
+ *
+ * With neither bar visible the result is false and the WebView pane keeps extending under the
+ * navigation bar, which is what classic does (`mainBibleView` is bottom-padded only while the IME
+ * is open, `MainBibleActivity.kt:642-648`).
+ *
+ * A pure function, mirroring [speakBarVisible] above, so the decision is unit-testable.
+ */
+internal fun bottomInsetReserved(agentLogVisible: Boolean, speakBarVisible: Boolean): Boolean =
+    agentLogVisible || speakBarVisible
+
+/**
  * Whether the classic native bottom chrome — [net.bible.android.view.util.widget.AgentLogWidget]
  * and `MainBibleActivity`'s classic `speakTransport` bar — is allowed to make itself visible.
  * `false` on the Compose path, where `ReadingViewScreen`'s `agentLog`/`speakBar` slots (see
@@ -1604,6 +1623,21 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     )
                 }
             },
+            // A/B round 6: reserves the bottom navigation-bar inset iff either bottom bar above is
+            // visible. The `speakBarVisible(...)` expression here is copied verbatim from
+            // `speakBarSlot`'s own guard above so the two cannot disagree about when the bar is on
+            // screen.
+            reserveBottomInset = {
+                val agentLogUiState by agentLog.state.collectAsState()
+                val speakState by speakTransport.state.collectAsState()
+                bottomInsetReserved(
+                    agentLogVisible = agentLogUiState.visible,
+                    speakBarVisible = speakBarVisible(
+                        fullScreen = fullScreen.value,
+                        transportVisible = speakState.visible,
+                    ),
+                )
+            },
             speakDialogState = speakTransport.dialog,
             onSpeakBookmarkChosen = speakTransport::onSpeakBookmarkChosen,
             onSpeakDialogDismiss = speakTransport::dismissDialog,
@@ -2285,6 +2319,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // `ComposeReadingViewHostTest` (which never triggers `onUnavailable`) is unaffected.
             searchUnavailableDocNameState: StateFlow<String?> = MutableStateFlow<String?>(null).asStateFlow(),
             onSearchUnavailableMessageShown: () -> Unit = {},
+            // A/B round 6: whether to reserve the bottom navigation-bar inset. A @Composable
+            // lambda rather than a plain Boolean because both inputs live in StateFlows/MutableState
+            // that must be read INSIDE the composition to recompose correctly -- the same reason
+            // `agentLogSlot` is a pre-built composable lambda rather than raw state.
+            reserveBottomInset: @Composable () -> Boolean = { false },
         ) {
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
@@ -2589,6 +2628,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                             },
                                             agentLog = agentLogSlot,
                                             speakBar = speakBarSlot,
+                                            reserveBottomInset = reserveBottomInset(),
                                             bottomOverlay = { BibleReferenceOverlay(visible = overlayVisible, text = overlayText) },
                                             tabBar = if (hideTabBarInFullScreen) null else {
                                                 {

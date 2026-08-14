@@ -346,6 +346,14 @@ class ComposeReadingViewHostTest {
         )
         assertEquals(expected, ComposeReadingViewHost.menuIconResIds.keys)
     }
+
+    @Test
+    fun bottomInsetIsReservedWheneverEitherBottomBarIsVisible() {
+        assertFalse(bottomInsetReserved(agentLogVisible = false, speakBarVisible = false))
+        assertTrue(bottomInsetReserved(agentLogVisible = true, speakBarVisible = false))
+        assertTrue(bottomInsetReserved(agentLogVisible = false, speakBarVisible = true))
+        assertTrue(bottomInsetReserved(agentLogVisible = true, speakBarVisible = true))
+    }
 }
 
 /**
