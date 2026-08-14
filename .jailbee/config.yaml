@@ -1,10 +1,10 @@
-# gie configuration for AndBible.
+# jailbee configuration for AndBible.
 # Android (Kotlin) + Vue.js hybrid app. Java 17 + Node 20 are required;
 # Gradle reaches a fairly broad set of Google/Maven mirrors during builds.
-# See docs/config.md for the full reference.
+# See https://jailbee.gisgro.com (and docs/config.md) for the full reference.
 
 # Chrome is not needed for this repo — turn it off regardless of what
-# ~/.config/gie/global.yaml says.
+# ~/.config/jailbee/global.yaml says.
 chrome:
   enabled: true
 
@@ -15,7 +15,7 @@ new:
 # JetBrains Toolbox. `ide: studio` matches the Toolbox launcher binary
 # name (/opt/jetbrains-toolbox/apps/android-studio/bin/studio.sh).
 # autostart is OFF by repo policy; flip on per-user in global.yaml if
-# you want `gie new` to launch the IDE automatically.
+# you want `jailbee new` to launch the IDE automatically.
 jetbrains:
   enabled: true
   ide: studio
@@ -36,8 +36,8 @@ jetbrains:
 # Pair the phone once on the host (`adb pair`, `adb connect`); the
 # container inherits the running server with no extra steps.
 #
-# IMPORTANT: the socket file must exist on host before `gie new` / `gie
-# start` (Incus binds files at container start). If you ever see a mount
+# IMPORTANT: the socket file must exist on host before `jailbee new` /
+# `jailbee start` (Incus binds files at container start). If you ever see a mount
 # error, just run `adb start-server` on host and retry.
 
 # Repo-specific host bind-mounts.
@@ -48,7 +48,7 @@ jetbrains:
 # no need to expose ~/.android (adb-client doesn't read adbkey; that's
 # only used server-side for authenticating with the phone).
 # Personal mounts (~/.gnupg, ~/.gitconfig, JetBrains/Toolbox) belong in
-# ~/.config/gie/global.yaml.
+# ~/.config/jailbee/global.yaml.
 host_mounts:
   - { host: ~/Android/Sdk,       container: /home/dev/Android/Sdk, readonly: true  }
   - { host: ~/.android/adb.sock, container: /home/dev/.adb.sock,   readonly: false }
@@ -59,7 +59,7 @@ host_mounts:
   # Sibling git repos that are gitignored in the main repo but live
   # under the working tree (ai-local, wiki, readthedocs). All three are
   # mounted RW so edits/commits made inside the container are reflected
-  # on the host. gie clones the main repo at /home/dev/<repo-root.name>.
+  # on the host. jailbee clones the main repo at /home/dev/<repo-root.name>.
   - { host: ai-local,    container: /home/dev/and-bible/ai-local,    readonly: false }
   - { host: wiki,        container: /home/dev/and-bible/wiki,        readonly: false }
   - { host: readthedocs, container: /home/dev/and-bible/readthedocs, readonly: false }
@@ -67,15 +67,15 @@ host_mounts:
 # Persistent shared caches (bind-mounted from <shared_dir>/<host_subpath>).
 # The ai-local ostickethelper / playwright tools install Chromium (~150 MB)
 # into ~/.cache/ms-playwright, which is NOT bind-mounted by default and lives
-# on the container's ephemeral overlay — so it vanishes on every `gie new` and
-# re-downloads each session. Persisting just ms-playwright (not all of
-# ~/.cache) keeps the browser around; gie auto-creates the host subpath, so no
-# manual mkdir is needed.
+# on the container's ephemeral overlay — so it vanishes on every `jailbee new`
+# and re-downloads each session. Persisting just ms-playwright (not all of
+# ~/.cache) keeps the browser around; jailbee auto-creates the host subpath,
+# so no manual mkdir is needed.
 shared_caches:
   - { name: cache, host_subpath: home-caches, container_path: ~/.cache }
   # Persist ~/.android so the generated debug.keystore (and thus the debug
-  # signing key) stays identical across `gie new` sessions. Without this the
-  # keystore lives on the ephemeral overlay and is regenerated each session,
+  # signing key) stays identical across `jailbee new` sessions. Without this
+  # the keystore lives on the ephemeral overlay and is regenerated each session,
   # giving a new signing key every time — so `adb install -r` of a debug build
   # fails with INSTALL_FAILED_UPDATE_INCOMPATIBLE against a previous session's
   # install. A stable key lets debug builds upgrade in place.
@@ -86,7 +86,7 @@ shared_caches:
 # goes over the bind-mounted Unix socket, not the network, so no egress
 # rule is needed for it.
 # Add github.com only when you actually need to push (or switch to
-# `gie net loose <name>` for that session).
+# `jailbee net loose <name>` for that session).
 egress_allow:
   # Android / Google
   - dl.google.com
@@ -129,7 +129,7 @@ golden:
   extra_apt_packages:
     - android-tools-adb
     # typst is NOT in apt — it's installed from a GitHub release binary by
-    # .gie/install.d/95-typst.sh (PDF receipt generation for ostickethelper).
+    # .jailbee/install.d/95-typst.sh (PDF receipt generation for ostickethelper).
     # xz-utils provides the `xz` decompressor that snippet's `tar -xJf` needs.
     - xz-utils
 
@@ -141,7 +141,7 @@ golden:
 #       working_dir: app/bibleview-js
 #       network: loose
 # Container-wide env vars injected via the Incus base profile — visible
-# in every process Incus spawns (gie shell, gie tmux, autostart steps,
+# in every process Incus spawns (jailbee shell, jailbee tmux, autostart steps,
 # the IDE). ADB_SERVER_SOCKET points at the host adb-server's Unix
 # socket bind-mounted under ~/.android. ANDROID_HOME / ANDROID_SDK_ROOT
 # let the Android SDK be discovered from the RO-mounted host SDK.
