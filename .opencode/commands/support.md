@@ -8,6 +8,25 @@ Content is in `$ARGUMENTS`.
 
 ---
 
+## osTicket URL id (critical)
+
+osTicket has **two different numbers**. Do not mix them up.
+
+- `Ticket #607700` (also `[#607700]`, subject “Ticket #…”) is the **public ticket number**. It is **not** the staff URL id.
+- `id=3342` (operator note, or a pasted `tickets.php?id=3342`) is the **staff URL id**.
+
+**Support URL:** `https://support.andbible.org/scp/tickets.php?id=NNNN` — use **only** the number from explicit `id=NNNN` or a pasted `tickets.php?id=NNNN`.
+
+**Never** put `Ticket #…` into that URL. Example: paste says `Ticket #607700` and `id=3342` → link is `…?id=3342`, not `…?id=607700`.
+
+**If `id=` is missing:** do **not** invent or guess a URL. Do **not** output `tickets.php?id=…` anywhere (issue body, triage, notes). Ask first:
+
+`OPERATOR: Need staff ticket id (id=NNNN) for the support URL — Ticket # is not that id.`
+
+Then omit the **Support ticket** link (you may still write “osTicket, Ticket #607700 — no staff id given”).
+
+---
+
 ## Mode detection
 
 Choose **one** mode:
@@ -115,7 +134,7 @@ Fill rules for that body:
 - **Screenshots:** include this section **only** when a screenshot is actually supplied or clearly mentioned as attached (`screenshot.webp`, etc.). Otherwise **omit the section entirely** — no placeholder text.
 - **Smartphone:** Manufacturer/Model, Android version from the device block when present.
 - **Additional context:** channel (in-app Report bug), WebView/SQLITE/heap one-liners if useful, that logcat may be on the ticket, links to related issues — no invented stacks.
-- **Support ticket:** include whenever the paste/notes look like osTicket (or operator says ticket/osTicket/scp). Detect ticket number from operator notes, pasted URL, subject lines like `Ticket #12345`, `[#12345]`, or `tickets.php?id=…`. Link format: `https://support.andbible.org/scp/tickets.php?id=NNNN` (use the real id). If it seems ticket-sourced but no id is available, still add a **Support ticket** line noting osTicket and that the operator should paste the ticket URL/id. Omit this section only for clearly non-ticket channels (e.g. bare Play review, pure in-app dump with no ticket context).
+- **Support ticket:** include whenever the paste/notes look like osTicket (or operator says ticket/osTicket/scp). **URL id** is only `id=NNNN` or `tickets.php?id=NNNN` — **never** `Ticket #…` (see **osTicket URL id** above). If `id=` is present, link `https://support.andbible.org/scp/tickets.php?id=NNNN` with that number. If it seems ticket-sourced but **no `id=`**, do **not** output a ticket URL; add **Support ticket** as text only (e.g. osTicket, Ticket # if given) and ask for `id=` in `OPERATOR:`. Omit this section only for clearly non-ticket channels (e.g. bare Play review, pure in-app dump with no ticket context).
 
 ### If recommending a user acknowledgment
 Put the optional paste-ready text in a fenced code block **after** the triage (same fence rules as mode B). Keep it very short; match user language if the template/UI language is clear (e.g. Spanish template → Spanish reply). If you write the acknowledgment in the user's language, also include the exact English translation in a second fenced code block after it for the operator to verify.
