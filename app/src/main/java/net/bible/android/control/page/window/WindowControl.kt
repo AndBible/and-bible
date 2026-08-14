@@ -351,6 +351,9 @@ open class WindowControl constructor() {
         val types = WorkspaceEntities.TextDisplaySettings.Types.values()
         val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
         val dirtyTypes = types.filterIndexed { i, _ -> checkedTypes[i] }.toSet()
+        // Reachable with nothing checked; an empty dirtyTypes would otherwise write the global row
+        // back unchanged and run a full workspaces x windows x pageManager database scan for nothing.
+        if (dirtyTypes.isEmpty()) return@launch
         val global = CommonUtils.globalTextDisplaySettings
 
         // Resolve through window -> workspace -> global before copying, so a window that INHERITS a

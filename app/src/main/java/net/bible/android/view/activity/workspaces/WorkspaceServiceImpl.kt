@@ -111,6 +111,8 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
     }
 
     override fun copySettingsToGlobal(sourceId: String, typeIndices: List<Int>) {
+        // No isEmpty() guard needed here: WorkspaceSelectorController.chooseCopyTypes already refuses
+        // to call this with an empty selection.
         val types = WorkspaceEntities.TextDisplaySettings.Types.values()
         val dirtyTypes = typeIndices.map { types[it] }.toSet()
         val source = find(sourceId)
@@ -123,7 +125,14 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
             workspaceSettings = source.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings(),
             globalSettings = global,
         )
-        val newGlobal = WorkspaceEntities.TextDisplaySettings.globalWithCopiedValues(global, resolved, dirtyTypes)
+        // copyIntoGlobalDefaults also nulls any STAGED workspace override (this screen holds its own
+        // working copies and flushes them on Save) that now matches the new global — without that,
+        // Save would write the old override straight back over the propagation below. Windows are not
+        // staged here, so they are left to the database walk.
+        val newGlobal = WorkspaceEntities.TextDisplaySettings.copyIntoGlobalDefaults(
+            global, resolved, dirtyTypes,
+            working.mapNotNull { it.textDisplaySettings },
+        )
         CommonUtils.globalTextDisplaySettings = newGlobal
 
         // Walk the tree, as every other writer of the global level does. Without this the new
@@ -131,15 +140,11 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
         // looks like it did nothing.
         windowControl.windowRepository.propagateGlobalTextDisplaySettingsChange(dirtyTypes, newGlobal)
 
-        // ...and again over the STAGED entities. propagateGlobalTextDisplaySettingsChange walks the
-        // database, but this screen holds its own working copies and flushes them on Save — so
-        // without this, Save would write the old overrides straight back over the propagation.
-        // Windows are not staged here, hence the empty window lists; the database walk above covers
-        // them. A staged workspace with null textDisplaySettings holds no override to clear.
-        WorkspaceEntities.TextDisplaySettings.propagateGlobalChange(
-            dirtyTypes, newGlobal,
-            working.mapNotNull { ws -> ws.textDisplaySettings?.let { it to emptyList<WorkspaceEntities.TextDisplaySettings>() } },
-        )
+        // ...and repaint, as every other writer of the global level does (TextDisplaySettingsServiceImpl,
+        // MainBibleActivity, WindowControl.copySettingsToGlobal). The propagation above only mutates the
+        // in-memory workspace/window state; nothing else repaints the BibleViews, so without this the
+        // reading view keeps showing the old settings until something unrelated forces a reload.
+        windowControl.windowRepository.updateAllWindowsTextDisplaySettings()
     }
 
     override fun settingsBundleJson(id: String): String = bundleFor(find(id)).toJson()

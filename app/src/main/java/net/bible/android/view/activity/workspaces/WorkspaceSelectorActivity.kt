@@ -507,19 +507,25 @@ class WorkspaceSelectorActivity: ActivityBase() {
             .setPositiveButton(R.string.okay) { _, _ ->
                 val types = WorkspaceEntities.TextDisplaySettings.Types.values()
                 val dirtyTypes = types.filterIndexed { i, _ -> checkedItems[i] }.toSet()
+                // Unlike the Compose controller (WorkspaceSelectorController.chooseCopyTypes), nothing
+                // upstream refuses an empty selection here, and an empty dirtyTypes would otherwise write
+                // the global row back unchanged and run a full workspaces x windows x pageManager database
+                // scan for nothing.
+                if (dirtyTypes.isEmpty()) return@setPositiveButton
                 val global = CommonUtils.globalTextDisplaySettings
                 val resolved = WorkspaceEntities.TextDisplaySettings.actual(
                     pageManagerSettings = null,
                     workspaceSettings = workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings(),
                     globalSettings = global,
                 )
-                val newGlobal = WorkspaceEntities.TextDisplaySettings.globalWithCopiedValues(global, resolved, dirtyTypes)
+                // See WorkspaceServiceImpl.copySettingsToGlobal for why the staged half is needed.
+                val newGlobal = WorkspaceEntities.TextDisplaySettings.copyIntoGlobalDefaults(
+                    global, resolved, dirtyTypes,
+                    dataSet.mapNotNull { it.textDisplaySettings },
+                )
                 CommonUtils.globalTextDisplaySettings = newGlobal
                 windowControl.windowRepository.propagateGlobalTextDisplaySettingsChange(dirtyTypes, newGlobal)
-                WorkspaceEntities.TextDisplaySettings.propagateGlobalChange(
-                    dirtyTypes, newGlobal,
-                    dataSet.mapNotNull { ws -> ws.textDisplaySettings?.let { it to emptyList<WorkspaceEntities.TextDisplaySettings>() } },
-                )
+                windowControl.windowRepository.updateAllWindowsTextDisplaySettings()
             }
             .setMultiChoiceItems(items, checkedItems) { _, pos, value ->
                 checkedItems[pos] = value

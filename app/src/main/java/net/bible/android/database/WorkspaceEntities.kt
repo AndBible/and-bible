@@ -548,6 +548,42 @@ class WorkspaceEntities {
                 }
                 return result
             }
+
+            /**
+             * The whole "copy these settings into the global defaults" decision, in one testable place.
+             *
+             * Returns the new global row AND nulls every staged workspace override that now matches it.
+             * The staged half exists because the workspace selectors hold in-memory copies they flush on
+             * Save, while this command writes the global row immediately: propagating only the database
+             * would let a later Save write the stale overrides straight back over it.
+             *
+             * [resolvedSource] must already be resolved through [actual] — see [globalWithCopiedValues].
+             * [stagedWorkspaceSettings] are the selector's staged workspace-level settings; windows are not
+             * staged by either selector, so they are covered by the caller's database walk instead. Accepted
+             * edge case: if a workspace ALSO has a staged (unsaved) edit at the time copy-to-global runs, the
+             * database walk can null a window override against a parent value that the staged edit will then
+             * replace on Save — so that window ends up inheriting the staged value instead of the value it
+             * displayed when the command ran. Inherent to "copy-to-global is immediate while workspace edits
+             * are staged"; accepted rather than worked around.
+             *
+             * Also note (pre-existing, not introduced here): for the sub-object types (MARGINSIZE, COLORS)
+             * the equality test inside [propagateGlobalChange] compares a stored override against the fully
+             * merged resolved value, so a partially-populated legacy row will not be nulled even when every
+             * field it does set matches. Worth knowing before reading a device-test miss here as a new bug.
+             *
+             * NOT covered by this function's own unit tests: that the call sites actually invoke this seam.
+             * That is verified by the on-device checklist, not by a unit test on this function alone.
+             */
+            fun copyIntoGlobalDefaults(
+                global: TextDisplaySettings,
+                resolvedSource: TextDisplaySettings,
+                dirtyTypes: Set<Types>,
+                stagedWorkspaceSettings: List<TextDisplaySettings>,
+            ): TextDisplaySettings {
+                val newGlobal = globalWithCopiedValues(global, resolvedSource, dirtyTypes)
+                propagateGlobalChange(dirtyTypes, newGlobal, stagedWorkspaceSettings.map { it to emptyList() })
+                return newGlobal
+            }
         }
     }
 
