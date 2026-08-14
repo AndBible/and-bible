@@ -346,14 +346,6 @@ class ComposeReadingViewHostTest {
         )
         assertEquals(expected, ComposeReadingViewHost.menuIconResIds.keys)
     }
-
-    @Test
-    fun bottomInsetIsReservedWheneverEitherBottomBarIsVisible() {
-        assertFalse(bottomInsetReserved(agentLogVisible = false, speakBarVisible = false))
-        assertTrue(bottomInsetReserved(agentLogVisible = true, speakBarVisible = false))
-        assertTrue(bottomInsetReserved(agentLogVisible = false, speakBarVisible = true))
-        assertTrue(bottomInsetReserved(agentLogVisible = true, speakBarVisible = true))
-    }
 }
 
 /**
@@ -812,6 +804,22 @@ class SpeakBarVisibilityTest {
         assertFalse(speakBarVisible(fullScreen = true, transportVisible = true))
         assertFalse(speakBarVisible(fullScreen = false, transportVisible = false))
         assertFalse(speakBarVisible(fullScreen = true, transportVisible = false))
+    }
+}
+
+/**
+ * A/B round 6: [bottomInsetReserved] decides whether `ReadingViewScreen` must reserve the bottom
+ * navigation-bar inset — true iff at least one of the agent-log/speak-bar slots is on screen. A
+ * pure function, mirroring [SpeakBarVisibilityTest] above, so the decision is unit-testable without
+ * a `ComposeTestRule`.
+ */
+class BottomInsetReservedTest {
+    @Test
+    fun bottomInsetIsReservedWheneverEitherBottomBarIsVisible() {
+        assertFalse(bottomInsetReserved(agentLogVisible = false, speakBarVisible = false))
+        assertTrue(bottomInsetReserved(agentLogVisible = true, speakBarVisible = false))
+        assertTrue(bottomInsetReserved(agentLogVisible = false, speakBarVisible = true))
+        assertTrue(bottomInsetReserved(agentLogVisible = true, speakBarVisible = true))
     }
 }
 
