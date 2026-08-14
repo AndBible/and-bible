@@ -318,6 +318,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val agentLogViewRaw: String get() = context.getString(R.string.agent_log_view_raw)
     override val agentLogStop: String get() = context.getString(R.string.agent_log_stop)
     override val agentLogClose: String get() = context.getString(R.string.agent_log_close)
+    override val agentLogExpand: String get() = context.getString(R.string.agent_log_expand)
     override val aiTaskCompleted: String get() = context.getString(R.string.ai_task_completed)
     override fun agentLogModelSelector(model: String): String = context.getString(R.string.agent_log_model_selector, model)
 

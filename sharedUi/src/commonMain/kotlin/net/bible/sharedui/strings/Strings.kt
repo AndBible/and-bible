@@ -357,6 +357,7 @@ interface Strings {
     val agentLogViewRaw: String                    // R.string.agent_log_view_raw
     val agentLogStop: String                       // R.string.agent_log_stop
     val agentLogClose: String                      // R.string.agent_log_close
+    val agentLogExpand: String                     // R.string.agent_log_expand
     val aiTaskCompleted: String                    // R.string.ai_task_completed
     fun agentLogModelSelector(model: String): String   // R.string.agent_log_model_selector (%1$s)
 

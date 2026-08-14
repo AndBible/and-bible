@@ -164,7 +164,10 @@ private fun AgentLogHeader(
 ) {
     val strings = LocalStrings.current
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val pulseScale: Float = if (snapshot.running && animateStatus) {
@@ -182,20 +185,43 @@ private fun AgentLogHeader(
         } else {
             1.0f
         }
-        Icon(
-            painter = statusIcon,
-            contentDescription = null,
+        // Classic puts the expand toggle FIRST, in the drag-handle position
+        // (agent_log_widget.xml:47-60), and maps collapsed -> ic_expand_less (UP): the panel is
+        // bottom-anchored and expanding grows it upward. The five downward-expanding Compose
+        // surfaces keep the opposite mapping -- see the plan's global constraints.
+        IconButton(onClick = onToggleExpanded) {
+            Icon(
+                imageVector = if (expanded) Icons.Filled.ExpandMore else Icons.Filled.ExpandLess,
+                contentDescription = strings.agentLogExpand,
+            )
+        }
+        // Classic makes the robot AND the status text expand/collapse toggles -- the XML comments
+        // at agent_log_widget.xml:44-47 and :94-96 exist to stop those neighbours stealing the
+        // caret's and the close button's taps. The port had only the caret button, so the panel's
+        // largest, most obvious target did nothing.
+        Row(
             modifier = Modifier
-                .size(24.dp)
-                .graphicsLayer(scaleX = pulseScale, scaleY = pulseScale),
-        )
-        Text(
-            text = snapshot.statusText ?: strings.agentLogIdle,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f).padding(start = 8.dp),
-        )
+                .weight(1f)
+                .heightIn(min = 48.dp)
+                .clickable(onClick = onToggleExpanded),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                painter = statusIcon,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .size(24.dp)
+                    .graphicsLayer(scaleX = pulseScale, scaleY = pulseScale),
+            )
+            Text(
+                text = snapshot.statusText ?: strings.agentLogIdle,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f).padding(start = 8.dp),
+            )
+        }
         val headerCost = snapshot.headerCost
         if (headerCost != null) {
             Text(
@@ -203,12 +229,6 @@ private fun AgentLogHeader(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 4.dp),
-            )
-        }
-        IconButton(onClick = onToggleExpanded) {
-            Icon(
-                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                contentDescription = null,
             )
         }
         if (snapshot.running) {
