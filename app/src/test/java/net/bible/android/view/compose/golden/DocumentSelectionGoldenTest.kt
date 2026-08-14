@@ -137,6 +137,7 @@ class DocumentSelectionGoldenTest {
         downloadMode: Boolean = false,
         isRefreshing: Boolean = false,
         selectedLanguage: LangOption? = null,
+        selectedTypeFilter: DocTypeFilter = DocTypeFilter.ALL,
     ) = DocumentSelectionScreen(
         title = if (downloadMode) "Download documents" else "Documents",
         downloadMode = downloadMode,
@@ -147,7 +148,7 @@ class DocumentSelectionGoldenTest {
         languages = languages,
         selectedLanguage = selectedLanguage,
         typeFilters = typeFilters,
-        selectedTypeFilter = DocTypeFilter.ALL,
+        selectedTypeFilter = selectedTypeFilter,
         query = "",
         resultCount = count,
         selectionMode = selectionMode,
@@ -223,6 +224,24 @@ class DocumentSelectionGoldenTest {
                 displayed = downloadRows,
                 count = downloadResultCount,
                 selectedLanguage = LangOption("pt-BR", "Portuguese (Brazil)", "pt"),
+            )
+        }
+    }
+
+    /**
+     * A non-ALL type selected: the type chip's leading icon is now a real category icon
+     * (TypeFilterIcon's non-null branch), not the empty ALL slot. Guards against the icon being
+     * sized for the sheet's ListItem (24dp) instead of the chip (AssistChipDefaults.IconSize,
+     * 18dp) — nothing else in this suite ever selects a non-ALL type, so without this test the
+     * chip-vs-sheet icon-size mismatch was invisible to every check that ran.
+     */
+    @Test fun download_selectedType() {
+        captureGolden("Download", "selectedType", EDGE_MODE) {
+            screen(
+                downloadMode = true,
+                displayed = downloadRows,
+                count = downloadResultCount,
+                selectedTypeFilter = DocTypeFilter.MAPS,
             )
         }
     }
