@@ -693,9 +693,6 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private fun leaveSearch() {
         searchController.closeSheet()
         if (searchController.closeSearchMode()) onSearchModeClosed()
-        // Belt and braces: removing the field from composition does fire onFocusChanged(false), but
-        // the activity's IME padding must not depend on that assumption.
-        searchFieldFocused.value = false
     }
 
     /** Common tail of leaving search mode (Task 8b): drops the index feed, both one-shot decoration
@@ -710,6 +707,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         searchSelectorPendingIds = null
         searchRecentMenuOpen.value = false
         searchSettingsOpen.value = false
+        // Every exit from search mode routes through here, which is why the field's focus flag is reset
+        // HERE and not at the call sites: `closeSearchIfOpen()` (the live back-button path, and the
+        // ordinary way out of an empty form) would otherwise leave it true with no field on screen, and
+        // the activity keys its IME padding on it. Belt and braces too — removing the field from
+        // composition does fire onFocusChanged(false), but the padding must not depend on that.
+        searchFieldFocused.value = false
     }
 
     /**

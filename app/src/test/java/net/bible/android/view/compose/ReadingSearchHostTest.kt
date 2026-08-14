@@ -656,6 +656,49 @@ class ReadingSearchHostTest {
         }
     }
 
+    /**
+     * F6-B2/B3 fix-round 1: [ComposeReadingViewHost.searchFieldFocused] must be reset by
+     * [ComposeReadingViewHost.onSearchModeClosed] itself, not only by `leaveSearch()`'s toolbar-close
+     * path — because `closeSearchIfOpen()` (the live back-button path) reaches `onSearchModeClosed()`
+     * too, and does so on the FIRST press whenever the sheet is not up: an already-indexed document
+     * with an empty query opens straight into `Form` (`sheetVisible = false`), so the ordinary way out
+     * is a single back press. Before the fix, that press left the flag `true` with no field left on
+     * screen, and the activity keys its IME padding on it for the rest of the activity's life.
+     */
+    @Test
+    fun closingSearchViaTheBackButtonFromAnEmptyFormResetsTheFieldFocusFlag() {
+        val indexed = unindexedFakeBible("HostFocusIdx").apply { indexStatus = IndexStatus.DONE }
+        Books.installed().addBook(indexed)
+        try {
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(indexed, verse)
+            val host = host()
+
+            host.openSearch()
+            assertFalse(
+                host.searchController.sheetVisible.value,
+                "sanity: an already-indexed document with an empty query opens straight into Form",
+            )
+
+            // Simulate the toolbar field having taken focus, as `ReadingToolbar`'s `LaunchedEffect`
+            // does in response to entering `Form` phase.
+            host.searchFieldFocused.value = true
+
+            assertTrue(
+                host.closeSearchIfOpen(),
+                "a single back press must leave search mode entirely from an empty form",
+            )
+
+            assertFalse(
+                host.searchFieldFocused.value,
+                "the field-focus flag must not survive search mode closing, or the activity's IME " +
+                    "padding stays suppressed for the rest of the activity's life",
+            )
+        } finally {
+            Books.installed().removeBook(indexed)
+        }
+    }
+
     // ---- The chaining decision itself (mirrors `awaitIndexDone`'s direct-drive style above) -----
 
     @Test
