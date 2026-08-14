@@ -88,8 +88,10 @@ class ToolbarStateServiceImpl(
      * mid-load, when the repository has no active window yet. Reading
      * `windowControl.activeWindowPageManager` at that moment used to re-enter `loadFromDb` through
      * the lazy `activeWindow` getter (see `WindowRepository.loadingFromDb` for the full failure).
-     * The load ends with `notifyWindowsChanged()`, whose `CurrentWindowChangedEvent` refreshes us
-     * again, so nothing is lost by skipping the mid-load refresh.
+     * Before the load ends, `setDefaultActiveWindow()` assigns `activeWindow`, whose setter posts
+     * `CurrentWindowChangedEvent` and refreshes us again — NOT `notifyWindowsChanged()`, which posts
+     * `NumberOfWindowsChangedEvent`, an event this service does not subscribe to — so nothing is lost
+     * by skipping the mid-load refresh.
      */
     override fun refresh() {
         if (!windowControl.windowRepository.initialized) return
