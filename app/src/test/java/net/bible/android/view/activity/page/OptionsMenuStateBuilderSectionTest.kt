@@ -21,6 +21,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,10 +49,16 @@ class OptionsMenuStateBuilderSectionTest {
      * `lastDisplaySettings` seeded leaks into whichever test runs next. Reset unconditionally
      * before every test (not just the three that want "no recents") rather than repeating the
      * null-out per test — this doubles as this class's OWN prior-test isolation, not just its
-     * neighbours'.
+     * neighbours'. The last test seeds two settings, so the same reset also runs `@After`: `@Before`
+     * alone only protects this class from its predecessors, not its successors.
      */
     @Before
     fun resetLastDisplaySettings() {
+        CommonUtils.settings.setString("lastDisplaySettings", null)
+    }
+
+    @After
+    fun resetLastDisplaySettingsAfter() {
         CommonUtils.settings.setString("lastDisplaySettings", null)
     }
 
@@ -106,5 +113,40 @@ class OptionsMenuStateBuilderSectionTest {
         assertEquals("allTextOptions", items.last().id)
         assertTrue(recentIndices.max() < items.lastIndex, "recents come before allTextOptions")
         assertEquals(listOf(items[recentIndices.min()].id), items.filter { it.startsNewSection }.map { it.id })
+    }
+
+    /**
+     * T1-minor (final whole-branch review): the `continue` in `build()`'s recent-row loop fires
+     * before `isFirstOfSection` is read, so a row filtered out by `enabled && visible` is skipped
+     * entirely rather than becoming a phantom section start — the flag rolls forward to the next
+     * row that IS emitted.
+     */
+    @Test
+    fun `a recent row filtered out by enabled-and-visible does not become a section start, and the flag rolls to the next emitted row`() {
+        CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
+        CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.MARGINSIZE)
+
+        val items = OptionsMenuStateBuilder.build { resId, order ->
+            if (resId == R.id.textOptionItem && order == 0) option(visible = false)
+            else option(title = if (resId == R.id.textOptionItem) "recent$order" else null)
+        }
+
+        val recentIds = items.filter { it.id.startsWith("textOptionItem:") }.map { it.id }
+        assertEquals(listOf("textOptionItem:1"), recentIds)
+        assertEquals(listOf("textOptionItem:1"), items.filter { it.startsNewSection }.map { it.id })
+    }
+
+    /** Same rule, taken to its other end: when EVERY recent row is filtered out, the flag rolls all the way to `allTextOptions`, same as the no-recents case. */
+    @Test
+    fun `when every recent row is filtered out, the divider falls before all text options`() {
+        CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
+        CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.MARGINSIZE)
+
+        val items = OptionsMenuStateBuilder.build { resId, _ ->
+            if (resId == R.id.textOptionItem) option(enabled = false) else option()
+        }
+
+        assertTrue(items.none { it.id.startsWith("textOptionItem:") }, "expected every recent row to be filtered out")
+        assertEquals(listOf("allTextOptions"), items.filter { it.startsNewSection }.map { it.id })
     }
 }
