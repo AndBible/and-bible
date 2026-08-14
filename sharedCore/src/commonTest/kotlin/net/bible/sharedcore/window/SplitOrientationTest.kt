@@ -51,10 +51,13 @@ class SplitOrientationTest {
         assertFalse(splitIsHorizontal(500f, 400f, reverseSplitMode = false, imeVisible = true, previous = false))
     }
 
-    // The mirror case: landscape side-by-side must not become stacked either.
+    // The mirror case, and it needs `reverseSplitMode` to exist at all: losing height can only flip
+    // stacked -> side-by-side, so with reverse OFF there is no pair where the raw formula would turn a
+    // side-by-side split into a stacked one. With reverse ON, portrait 500x1000 computes side-by-side
+    // and the IME shrink to 500x400 would compute stacked — so this is what the latch has to hold.
     @Test
     fun aVisibleImeHoldsTheSideBySideAnswerToo() {
-        assertTrue(splitIsHorizontal(1000f, 200f, reverseSplitMode = false, imeVisible = true, previous = true))
+        assertTrue(splitIsHorizontal(500f, 400f, reverseSplitMode = true, imeVisible = true, previous = true))
     }
 
     // First composition with the keyboard ALREADY up (e.g. the activity was recreated while search
