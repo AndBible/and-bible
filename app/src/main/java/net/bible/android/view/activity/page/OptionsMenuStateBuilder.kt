@@ -40,10 +40,12 @@ import net.bible.sharedcore.reading.OptionsMenuItem
 object OptionsMenuStateBuilder {
 
     /**
-     * The static ids from `R.menu.main_bible_options_menu`, in menu-declaration order (the
-     * group's `allTextOptions` last). Mirrors classic `showOptionsMenu`'s inflate of that XML.
-     * The dynamic `textOptionItem` rows (one per [CommonUtils.lastDisplaySettingsSorted] index —
-     * see [build]) are appended after all of these.
+     * The static ids from `R.menu.main_bible_options_menu`, in menu-declaration order — EXCEPT
+     * `allTextOptions`, which [build] emits last of all (after the dynamic `textOptionItem` rows,
+     * one per [CommonUtils.lastDisplaySettingsSorted] index), matching classic's rendered order
+     * (`android:orderInCategory="1000"` inside `textOptionsGroup`) rather than the XML's
+     * declaration order. See [build]'s kdoc for the full rendered ordering and the section-divider
+     * rule.
      */
     private data class StaticEntry(val resId: Int, val idName: String, val titleRes: Int, val iconKey: String?)
 

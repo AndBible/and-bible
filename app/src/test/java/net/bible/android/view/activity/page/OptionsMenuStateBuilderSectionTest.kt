@@ -21,6 +21,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -42,6 +43,18 @@ import kotlin.test.assertTrue
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class OptionsMenuStateBuilderSectionTest {
 
+    /**
+     * `:app`'s unit test suite runs in ONE JVM with no `maxParallelForks`, so a test that leaves
+     * `lastDisplaySettings` seeded leaks into whichever test runs next. Reset unconditionally
+     * before every test (not just the three that want "no recents") rather than repeating the
+     * null-out per test — this doubles as this class's OWN prior-test isolation, not just its
+     * neighbours'.
+     */
+    @Before
+    fun resetLastDisplaySettings() {
+        CommonUtils.settings.setString("lastDisplaySettings", null)
+    }
+
     /** Minimal fake for one menu row; only the fields `build()` reads. */
     private fun option(
         visible: Boolean = true,
@@ -62,14 +75,12 @@ class OptionsMenuStateBuilderSectionTest {
 
     @Test
     fun `all text options is the last row, below the recent settings rows`() {
-        CommonUtils.settings.setString("lastDisplaySettings", null)
         val itemsWithNoRecents = OptionsMenuStateBuilder.build { _, _ -> option() }
         assertEquals("allTextOptions", itemsWithNoRecents.last().id)
     }
 
     @Test
     fun `with no recent rows the divider falls before all text options`() {
-        CommonUtils.settings.setString("lastDisplaySettings", null)
         val items = OptionsMenuStateBuilder.build { _, _ -> option() }
         val sectionStarts = items.filter { it.startsNewSection }.map { it.id }
         assertEquals(listOf("allTextOptions"), sectionStarts)
@@ -77,7 +88,6 @@ class OptionsMenuStateBuilderSectionTest {
 
     @Test
     fun `no row before the first is ever a section start`() {
-        CommonUtils.settings.setString("lastDisplaySettings", null)
         val items = OptionsMenuStateBuilder.build { _, _ -> option() }
         assertFalse(items.first().startsNewSection)
     }
