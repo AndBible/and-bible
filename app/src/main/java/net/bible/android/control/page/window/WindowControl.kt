@@ -350,16 +350,20 @@ open class WindowControl constructor() {
     fun copySettingsToGlobal(window: Window) = scope.launch(Dispatchers.Main) {
         val types = WorkspaceEntities.TextDisplaySettings.Types.values()
         val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
-        val target = CommonUtils.globalTextDisplaySettings
-        val source = window.pageManager.textDisplaySettings
+        val dirtyTypes = types.filterIndexed { i, _ -> checkedTypes[i] }.toSet()
+        val global = CommonUtils.globalTextDisplaySettings
 
-        for ((tIdx, type) in types.withIndex()) {
-            if (checkedTypes[tIdx]) {
-                target.setValue(type, source.getValue(type))
-            }
-        }
+        // Resolve through window -> workspace -> global before copying, so a window that INHERITS a
+        // type cannot reset the global to the factory default by writing null into it.
+        val resolved = WorkspaceEntities.TextDisplaySettings.actual(
+            pageManagerSettings = window.pageManager.textDisplaySettings,
+            workspaceSettings = windowRepository.textDisplaySettings,
+            globalSettings = global,
+        )
+        val newGlobal = WorkspaceEntities.TextDisplaySettings.globalWithCopiedValues(global, resolved, dirtyTypes)
+        CommonUtils.globalTextDisplaySettings = newGlobal
 
-        CommonUtils.globalTextDisplaySettings = target
+        windowRepository.propagateGlobalTextDisplaySettingsChange(dirtyTypes, newGlobal)
         windowRepository.updateAllWindowsTextDisplaySettings()
     }
 

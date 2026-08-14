@@ -112,10 +112,34 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
 
     override fun copySettingsToGlobal(sourceId: String, typeIndices: List<Int>) {
         val types = WorkspaceEntities.TextDisplaySettings.Types.values()
+        val dirtyTypes = typeIndices.map { types[it] }.toSet()
         val source = find(sourceId)
-        val target = CommonUtils.globalTextDisplaySettings
-        typeIndices.forEach { ti -> target.setValue(types[ti], source.textDisplaySettings?.getValue(types[ti])) }
-        CommonUtils.globalTextDisplaySettings = target
+        val global = CommonUtils.globalTextDisplaySettings
+
+        // Resolve through the source's own parent chain first: a workspace that INHERITS a type has
+        // null there, and writing that null used to reset the global to the factory default.
+        val resolved = WorkspaceEntities.TextDisplaySettings.actual(
+            pageManagerSettings = null,
+            workspaceSettings = source.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings(),
+            globalSettings = global,
+        )
+        val newGlobal = WorkspaceEntities.TextDisplaySettings.globalWithCopiedValues(global, resolved, dirtyTypes)
+        CommonUtils.globalTextDisplaySettings = newGlobal
+
+        // Walk the tree, as every other writer of the global level does. Without this the new
+        // default stays invisible behind every existing workspace/window override and the command
+        // looks like it did nothing.
+        windowControl.windowRepository.propagateGlobalTextDisplaySettingsChange(dirtyTypes, newGlobal)
+
+        // ...and again over the STAGED entities. propagateGlobalTextDisplaySettingsChange walks the
+        // database, but this screen holds its own working copies and flushes them on Save — so
+        // without this, Save would write the old overrides straight back over the propagation.
+        // Windows are not staged here, hence the empty window lists; the database walk above covers
+        // them. A staged workspace with null textDisplaySettings holds no override to clear.
+        WorkspaceEntities.TextDisplaySettings.propagateGlobalChange(
+            dirtyTypes, newGlobal,
+            working.mapNotNull { ws -> ws.textDisplaySettings?.let { it to emptyList<WorkspaceEntities.TextDisplaySettings>() } },
+        )
     }
 
     override fun settingsBundleJson(id: String): String = bundleFor(find(id)).toJson()

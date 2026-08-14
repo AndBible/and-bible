@@ -506,13 +506,20 @@ class WorkspaceSelectorActivity: ActivityBase() {
         val dialog = AlertDialog.Builder(this)
             .setPositiveButton(R.string.okay) { _, _ ->
                 val types = WorkspaceEntities.TextDisplaySettings.Types.values()
-                val target = CommonUtils.globalTextDisplaySettings
-                for ((tIdx, type) in types.withIndex()) {
-                    if (checkedItems[tIdx]) {
-                        target.setValue(type, workspace.textDisplaySettings?.getValue(type))
-                    }
-                }
-                CommonUtils.globalTextDisplaySettings = target
+                val dirtyTypes = types.filterIndexed { i, _ -> checkedItems[i] }.toSet()
+                val global = CommonUtils.globalTextDisplaySettings
+                val resolved = WorkspaceEntities.TextDisplaySettings.actual(
+                    pageManagerSettings = null,
+                    workspaceSettings = workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings(),
+                    globalSettings = global,
+                )
+                val newGlobal = WorkspaceEntities.TextDisplaySettings.globalWithCopiedValues(global, resolved, dirtyTypes)
+                CommonUtils.globalTextDisplaySettings = newGlobal
+                windowControl.windowRepository.propagateGlobalTextDisplaySettingsChange(dirtyTypes, newGlobal)
+                WorkspaceEntities.TextDisplaySettings.propagateGlobalChange(
+                    dirtyTypes, newGlobal,
+                    dataSet.mapNotNull { ws -> ws.textDisplaySettings?.let { it to emptyList<WorkspaceEntities.TextDisplaySettings>() } },
+                )
             }
             .setMultiChoiceItems(items, checkedItems) { _, pos, value ->
                 checkedItems[pos] = value
