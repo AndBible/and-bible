@@ -104,15 +104,17 @@ export function calcMaxScrollY(
  * the end of the currently loaded content, both measured from the top of that
  * content.
  *
- * Page 0 is always the top of what is loaded, so opening a document halfway
- * down a page reads as 0.5 rather than 0, and the total is the page count of
- * the loaded content. When infinite scroll prepends chapters, both numbers grow
- * accordingly — they always describe the position within the loaded content.
+ * Numbering is one-based: the top of the loaded content is page 1, so opening a
+ * document halfway down the first page reads as 1.5, and the total is the page
+ * count of the loaded content (one page for the first screenful plus one per
+ * page scroll needed to reach the end). When infinite scroll prepends chapters,
+ * both numbers grow accordingly — they always describe the position within the
+ * loaded content.
  *
  * @param scrollY current vertical scroll position in px
  * @param maxScrollY largest scrollable position (scrollHeight - viewport height)
  * @param scrollAmount distance a single page scroll moves (calcPageScrollDistance)
- * @returns fractional `current` page and a non-negative, rounded-up `total`
+ * @returns fractional `current` page and a rounded-up `total`, both >= 1
  */
 export function calcRelativePageNumbers(
     scrollY: number,
@@ -120,9 +122,9 @@ export function calcRelativePageNumbers(
     scrollAmount: number,
 ): {current: number, total: number} {
     // Before the layout is measured scrollAmount can be 0 or NaN — avoid NaN/Infinity output.
-    if (!(scrollAmount > 0)) return {current: 0, total: 0};
+    if (!(scrollAmount > 0)) return {current: 1, total: 1};
     return {
-        current: scrollY / scrollAmount,
-        total: Math.max(0, Math.ceil(maxScrollY / scrollAmount)),
+        current: 1 + scrollY / scrollAmount,
+        total: 1 + Math.max(0, Math.ceil(maxScrollY / scrollAmount)),
     };
 }
