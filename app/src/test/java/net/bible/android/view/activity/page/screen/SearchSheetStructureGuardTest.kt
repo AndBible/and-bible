@@ -22,6 +22,24 @@ import org.hamcrest.Matchers.equalTo
 import org.junit.Test
 
 /**
+ * Strips Kotlin `//` line comments and slash-star ... star-slash block comments from [text], so a
+ * source-text scan can't be defeated — or taxed — by a comment that legitimately quotes the very
+ * pattern the scan looks for (see the class kdoc on [SearchSheetStructureGuardTest]).
+ *
+ * Deliberately simple, NOT a Kotlin lexer: it does not track string literals, so a comment marker
+ * that happens to appear inside a Kotlin string constant would be (wrongly) treated as the start
+ * of a comment. Acceptable for a guard scanning hand-written production source, where that
+ * pattern doesn't occur in the lines these assertions care about.
+ */
+private fun stripComments(text: String): String {
+    val noBlockComments = Regex("/\\*.*?\\*/", RegexOption.DOT_MATCHES_ALL).replace(text, "")
+    return noBlockComments.lines().joinToString("\n") { line ->
+        val commentAt = line.indexOf("//")
+        if (commentAt >= 0) line.substring(0, commentAt) else line
+    }
+}
+
+/**
  * F6 Task 0 — a source guard for the search sheet's one structural rule.
  *
  * The `BottomSheetScaffold` that hosts the reading-view search sheet must be **unconditionally
@@ -35,19 +53,29 @@ import org.junit.Test
  * `mountComposeView` test the container is never attached to a window, so composition never runs and no
  * `AndroidView` factory is ever invoked. Same idiom as `SettingsBadgeLayoutDriftTest`.
  *
- * Note on matching: the literal `key(gen)` appears five times in the host, four of them inside comments
- * (the first at line 1351, *above* the scaffold), so ordering assertions match on `key(gen) {` — the
- * single actual call site — and the conditional scan ignores comment lines.
+ * Note on matching: the literal `key(gen)` appears several times in the host, most of them inside
+ * comments, so ordering assertions match on `key(gen) {` — the single actual call site.
+ *
+ * **All scanned source has its comments stripped first (see [stripComments])**, not just lines that
+ * happen to start with a comment marker. A guard that scans raw source text for a literal pattern must
+ * not be defeatable — or, just as bad, TAXED — by an explanatory comment that legitimately quotes the
+ * very pattern the guard looks for: a whole-branch-review comment once added above the real
+ * `reserveBottomInset` call site quoted `key(gen) { ReadingViewScreen(...) }` verbatim, far earlier in
+ * the file than the real call, and [theScaffoldEnclosesTheGenerationKeyRatherThanSittingInsideIt] (which
+ * scanned raw, unstripped `source`) picked up the comment's occurrence instead of the code's and failed
+ * on a production structure that was, in fact, unchanged.
  */
 class SearchSheetStructureGuardTest {
 
-    private val source = java.io.File(
+    private val rawSource = java.io.File(
         "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt"
     ).readText()
 
+    private val source = stripComments(rawSource)
+
     private val codeLines = source.lines()
         .map { it.trim() }
-        .filterNot { it.startsWith("//") || it.startsWith("*") || it.startsWith("/*") }
+        .filterNot { it.isEmpty() }
 
     @Test
     fun theBottomSheetScaffoldIsPresent() {
@@ -91,5 +119,38 @@ class SearchSheetStructureGuardTest {
         // `skipHiddenState = false` is what lets the sheet close completely while the scaffold itself
         // never goes away — the two requirements are only compatible because of this flag.
         assertThat(source.contains("skipHiddenState = false"), equalTo(true))
+    }
+
+    @Test
+    fun stripCommentsRemovesALineCommentThatQuotesTheGuardedPattern() {
+        // Reproduces the exact failure this class's guards must NOT be vulnerable to: the ONLY
+        // occurrence of `key(gen) {` in this synthetic source is inside a `//` comment that sits
+        // BEFORE the real BottomSheetScaffold( call -- precisely the shape that made the real
+        // ComposeReadingViewHost.kt:1635 comment defeat the raw-source version of
+        // theScaffoldEnclosesTheGenerationKeyRatherThanSittingInsideIt.
+        val synthetic = """
+            |// explanatory note: this mirrors key(gen) { ReadingViewScreen(...) } elsewhere
+            |BottomSheetScaffold(
+            |    content = { Text("no real key(gen) call in this body") }
+            |)
+        """.trimMargin()
+        assertThat("sanity: the pattern is present before stripping", synthetic.contains("key(gen) {"), equalTo(true))
+        val stripped = stripComments(synthetic)
+        assertThat("the comment's occurrence of the pattern must be gone after stripping", stripped.contains("key(gen) {"), equalTo(false))
+    }
+
+    @Test
+    fun stripCommentsRemovesABlockCommentThatQuotesTheGuardedPattern() {
+        val synthetic = """
+            |/*
+            | * explanatory note: this mirrors key(gen) { ReadingViewScreen(...) } elsewhere
+            | */
+            |BottomSheetScaffold(
+            |    content = { Text("no real key(gen) call in this body") }
+            |)
+        """.trimMargin()
+        assertThat("sanity: the pattern is present before stripping", synthetic.contains("key(gen) {"), equalTo(true))
+        val stripped = stripComments(synthetic)
+        assertThat("the comment's occurrence of the pattern must be gone after stripping", stripped.contains("key(gen) {"), equalTo(false))
     }
 }
