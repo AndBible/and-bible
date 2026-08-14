@@ -302,18 +302,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     var rightOffset1 = 0
     var leftOffset1 = 0
 
-    // Bottom offset with navigation bar, transport bar and agent log
-    // When IME is visible, bottomOffset1 is excluded because mainBibleView padding handles it.
-    val bottomOffset2 get() = (if (imeHeight > 0) 0 else bottomOffset1) +
+    // Bottom offset with navigation bar, transport bar and agent log.
+    // The term is dropped when the mainBibleView padding is handling the keyboard, and is the
+    // IME-FREE offset otherwise — `bottomOffset1` includes the keyboard height while it is up, so
+    // using it here would reserve the keyboard's space twice (see the predicate above).
+    val bottomOffset2 get() = (if (imePaddingApplied) 0 else bottomOffset1WithoutIme) +
         (if (transportBarVisible) transportBarHeight else 0) +
         (if (agentLogVisible) agentLogHeight else 0)
 
-    // WebView bottom offset: navigation bar + transport + buttons + agent log
-    // When IME is visible on Android 15+, bottomOffset1 is excluded because the WebView
-    // is already resized above the keyboard via mainBibleView padding.
-    // On pre-Android 15, bottomOffset1 is always 0, so only transport + buttons.
+    // WebView bottom offset: navigation bar + transport + buttons + agent log + search sheet.
+    // Same three cases as above: padding applied -> 0; no keyboard -> system bars; keyboard up with
+    // the padding suppressed -> system bars, because the keyboard overlays and nothing should move.
+    // `bottomOffset1WithoutIme` equals `bottomOffset1` whenever the keyboard is hidden, so the two
+    // pre-existing cases are byte-identical.
     val bottomOffsetForWebView get() =
-        (if (imeHeight > 0) 0 else bottomOffset1) + // navigation bar (excluded when IME padding applied)
+        (if (imePaddingApplied) 0 else bottomOffset1WithoutIme) +
             (if (transportBarVisible) transportBarHeight else 0) +
             (if (restoreButtonsVisible) windowButtonHeight else 0) +
             (if (agentLogVisible) agentLogHeight else 0) +
@@ -321,6 +324,31 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     // IME keyboard height in pixels (0 when keyboard hidden)
     val imeHeight get() = bottomOffset1 - bottomOffset1WithoutIme
+
+    /**
+     * Whether the Compose reading-view search field currently holds focus. `false` on the classic path
+     * (no host), which is what keeps that path byte-identical.
+     */
+    internal val composeSearchFieldFocused: Boolean
+        get() = composeReadingViewHost?.searchFieldFocused?.value == true
+
+    /**
+     * Whether the IME-height padding on `binding.mainBibleView` is in effect.
+     *
+     * The Compose search field lives in the TOOLBAR, at the top of the very container this padding
+     * shrinks — so while THAT field owns the keyboard the padding buys nothing and costs the whole
+     * layout: it shrinks the Compose tree, which flipped `SplitContent`'s orientation from stacked to
+     * side-by-side mid-typing (A/B F6-B1).
+     *
+     * Keyed on the field's FOCUS, never on search mode being active. Search mode outlives the results
+     * sheet by design (tap a result, Back closes the sheet, the toolbar stays in search mode until a
+     * second Back), so a WebView note editor can be opened while search mode is still on — and that
+     * editor must still be lifted above the keyboard, which is the whole reason this padding exists.
+     *
+     * [bottomOffset2] and [bottomOffsetForWebView] MUST read this same predicate: both zero their
+     * navigation-bar term on the grounds that the padding is covering it.
+     */
+    private val imePaddingApplied: Boolean get() = imeHeight > 0 && !composeSearchFieldFocused
 
     private val restoreButtonsVisible get() = windowRepository.workspaceSettings.restoreButtonsVisible
 
@@ -647,13 +675,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     bottomOffset1 = systemBarInsets.bottom
                 }
 
-                // Resize WebView area when keyboard is visible to fix position:fixed drift.
-                // This restores the pre-Android 15 ADJUST_RESIZE behavior manually.
-                if (imeInsets.bottom > systemBarInsets.bottom) {
-                    binding.mainBibleView.setPadding(0, 0, 0, bottomOffset1)
-                } else {
-                    binding.mainBibleView.setPadding(0, 0, 0, 0)
-                }
+                // Resize the WebView area when the keyboard is visible, to fix position:fixed drift.
+                // This restores the pre-Android 15 ADJUST_RESIZE behaviour manually.
+                applyImePadding()
 
                 // Trigger any layout updates that depend on these offsets
                 updateBottomBars()
@@ -1250,6 +1274,29 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         searchSheetVisible = visible
         searchSheetHeight = heightPx
         ABEventBus.post(SearchSheetOffsetsUpdated())
+    }
+
+    /**
+     * Applies (or removes) the IME-height padding on the Compose/WebView container.
+     *
+     * Reads live state, so it needs no snapshot of the insets: the listener's original condition
+     * `imeInsets.bottom > systemBarInsets.bottom` is algebraically identical to `imeHeight > 0`
+     * (`imeHeight` is `maxOf(sb, ime) - sb`), and both offsets it derives from are fields the listener
+     * keeps up to date.
+     */
+    private fun applyImePadding() {
+        binding.mainBibleView.setPadding(0, 0, 0, if (imePaddingApplied) bottomOffset1 else 0)
+    }
+
+    /**
+     * The Compose search field gained or lost focus, which changes whether the padding applies without
+     * changing any inset — so the insets listener never fires and both the padding and the WebView's
+     * offsets would go stale. Same "recompute and push to the WebView" idiom as
+     * [updateSearchSheetOffsets] and the agent log's.
+     */
+    internal fun onComposeSearchFieldFocusChanged() {
+        applyImePadding()
+        ABEventBus.post(ImePaddingChanged())
     }
 
     internal fun composeToggleSpeak() {
@@ -2140,6 +2187,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     /** See [updateSearchSheetOffsets]. */
     class SearchSheetOffsetsUpdated
+
+    /** See [onComposeSearchFieldFocusChanged]. */
+    class ImePaddingChanged
 
     private fun openLink(uri: Uri) {
         when (uri.host) {

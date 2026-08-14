@@ -1169,6 +1169,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     on<MainBibleActivity.SearchSheetOffsetsUpdated> { event ->
                         updateOffsets(true)
                     }
+                    on<MainBibleActivity.ImePaddingChanged> { event ->
+                        updateOffsets(true)
+                    }
                     on<WebViewsBuiltEvent> { event ->
                         checkWindows = true
                     }

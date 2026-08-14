@@ -1189,6 +1189,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // item (scrolling verse-by-verse in a multi-window split is where it would show).
             onMain<CurrentBibleVerseChanged> { refreshHostedState() }
         }
+
+        // F6-B1: the activity's IME padding is keyed on this field's focus, and NO inset changes when
+        // focus moves — so the insets listener never fires and the change has to be pushed.
+        hostScope.launch {
+            searchFieldFocused.collect { activity.onComposeSearchFieldFocusChanged() }
+        }
     }
 
     /**
