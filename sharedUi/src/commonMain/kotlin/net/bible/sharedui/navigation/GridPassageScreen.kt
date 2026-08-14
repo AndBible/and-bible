@@ -18,6 +18,8 @@ package net.bible.sharedui.navigation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -44,8 +46,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.navigation.GridButton
 import net.bible.sharedcore.navigation.GridOption
 import net.bible.sharedcore.navigation.GridOptions
@@ -172,11 +176,31 @@ private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) ->
                             style = MaterialTheme.typography.labelMedium,
                         )
                         b.longLabel?.let {
-                            Text(
+                            // Classic shrinks a long name with nested <small> tags picked from the longest word
+                            // (ButtonGrid.kt:220-267) — a heuristic that measures nothing. Compose Multiplatform
+                            // measures for real: StepBased tries maxFontSize and steps down to minFontSize until
+                            // the text fits the cell. minFontSize is about half the label size, comparable to
+                            // classic's smallest step (0.512x) and still legible.
+                            BasicText(
                                 text = it,
-                                color = textColor,
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    color = textColor,
+                                    textAlign = TextAlign.Center,
+                                ),
+                                // maxLines=1 is what makes autoSize actually shrink: with wrapping
+                                // unrestricted, any font size "fits" by using more lines, so StepBased
+                                // never sees an overflow to correct. Force one line so an oversized
+                                // word triggers the step-down search instead of wrapping+clipping.
+                                // overflow=Ellipsis is the last-resort fallback for a name that still
+                                // does not fit at minFontSize (an extremely narrow cell) — visibly
+                                // truncated is better than a silent mid-word cut.
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                autoSize = TextAutoSize.StepBased(
+                                    minFontSize = 7.sp,
+                                    maxFontSize = MaterialTheme.typography.labelSmall.fontSize,
+                                    stepSize = 0.5.sp,
+                                ),
                             )
                         }
                     }

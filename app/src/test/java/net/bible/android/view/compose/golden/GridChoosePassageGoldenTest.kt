@@ -58,6 +58,16 @@ class GridChoosePassageGoldenTest {
         }
     }
 
+    // Reproduces the reported defect: a long single-word book name ("Thessalonians") does not fit
+    // the long-name line in showLongNames mode and must shrink to fit instead of wrapping/clipping.
+    // Same 12-book/6-column shape as grid_book_longnames, with one short name swapped for a long one.
+    @Test fun grid_book_longnames_overflow() {
+        val longBooks = books.map { if (it.id == 8) it.copy(label = "1Thess", longLabel = "Thessalonians") else it }
+        captureGolden("GridChoosePassage", "book_long_overflow", EDGE_MODE) {
+            GridChoosePassageScreen(bookUi(long = true).copy(buttons = longBooks), opts.copy(longNames = true), {}, {}, {})
+        }
+    }
+
     @Test fun grid_chapter() {
         val chapters = (1..24).map { GridButton(it, it.toString(), colorGroup = 2, isCurrent = it == 3, readProgress = if (it < 3) 1f else 0f) }
         captureGolden("GridChoosePassage", "chapter", EDGE_MODE) {
