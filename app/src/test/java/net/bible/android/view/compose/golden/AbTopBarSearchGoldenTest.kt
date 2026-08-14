@@ -27,8 +27,9 @@ class AbTopBarSearchGoldenTest {
         searchCallbacks = callbacks,
     ) { }
 
-    // Light AND dark: the bar's content colour is the thing most likely to break, and the
-    // untinted-content-colour defect family (batch 3 F1) is invisible in light mode alone.
+    // All four modes (dark/light/BW/e-ink): the bar's content colour is the thing most likely to
+    // break, and the untinted-content-colour defect family (batch 3 F1) is invisible in light mode
+    // alone.
     @Test fun abTopBarSearch_empty() { captureMatrix("AbTopBarSearch", "empty", heightDp = 120) { bar("") } }
 
     @Test fun abTopBarSearch_typed() { captureMatrix("AbTopBarSearch", "typed", heightDp = 120) { bar("Ser") } }

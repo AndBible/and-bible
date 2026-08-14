@@ -45,7 +45,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -60,11 +59,11 @@ import net.bible.sharedui.theme.SyncSystemBars
  * Reusable Material3 top app bar: a title slot, optional up-navigation, and trailing actions.
  *
  * Round 6. [search] / [searchCallbacks] default to `null`, meaning "not in search mode" — the bar
- * this file has always drawn. Defaulted so all existing call sites and all 716 committed goldens
- * are unaffected by construction — the same contract ReadingToolbar documents at :219-223 for its
- * own search parameters.
+ * this file has always drawn. Defaulted so every existing call site and all committed Roborazzi
+ * goldens are unaffected by construction — the same contract ReadingToolbar documents at :219-223
+ * for its own search parameters.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AbTopAppBar(
     title: @Composable () -> Unit,
@@ -117,7 +116,7 @@ fun AbTopAppBar(
  * on the reading toolbar (`ReadingToolbar.kt:342-355`) — in an app bar the bar IS the container, so
  * this is a bare field whose every colour derives from the bar's content colour.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AbSearchTopAppBar(
     search: AbTopBarSearchState,
@@ -191,6 +190,18 @@ private fun AbSearchTopAppBar(
                     AbActionIcon(Icons.Filled.Clear, s.searchClear) { callbacks.onQueryChange("") }
                 }
             },
+            // M3's TopAppBar re-provides content colour per slot from its own `colors`, so the outer
+            // CompositionLocalProvider above does NOT reach navigationIcon/actions (it only colours
+            // the placeholder text drawn directly in the title slot). Left at the default,
+            // actionIconContentColor resolves to onSurfaceVariant while navigationIconContentColor/
+            // titleContentColor resolve to onSurface — a different token, so the Clear icon would
+            // render in a visibly different shade from the back arrow and field text. Pass all three
+            // explicitly so every visible colour in this bar derives from the same onContainer.
+            colors = TopAppBarDefaults.topAppBarColors(
+                navigationIconContentColor = onContainer,
+                titleContentColor = onContainer,
+                actionIconContentColor = onContainer,
+            ),
             windowInsets = WindowInsets(0, 0, 0, 0),
         )
     }
