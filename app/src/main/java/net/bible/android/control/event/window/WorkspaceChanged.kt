@@ -25,5 +25,19 @@ package net.bible.android.control.event.window
  * event after one of them is how the next stale-state defect gets written — the colour seed being
  * exactly the one that was stale before this event existed (`AbAppTheme` refreshed only on
  * [WorkspaceColorChanged], so a switch left the UI in the previous workspace's colour).
+ *
+ * **Measured on-device (A/B feedback batch 5, task 5, fix round 1): a listener registered on a
+ * `BibleView` will NEVER receive this event.** `MainBibleActivity.currentWorkspaceId`'s setter
+ * calls `bibleViewFactory.clear()` first, which `doDestroy()`s every cached `BibleView` — setting
+ * `listenEvents = false` and unregistering it from [net.bible.android.control.event.ABEventBus] —
+ * *before* `loadFromDb()` runs and posts this event. `ABEventBus.post` dispatches against a
+ * snapshot of registrations taken at call time, and the replacement `BibleView`s aren't
+ * constructed until a later recomposition, well after `post` has already returned. `loadFromDb`'s
+ * only other caller is cold-start `initialize()`, where no `BibleView` exists yet either. A
+ * `BibleView`-registered handler for this event was added, measured with an on-device log (fired
+ * 0 times across 10 confirmed workspace switches, versus 10/10 for the `AbAppTheme` listener
+ * below), and removed as dead code the same day. The reading page re-themes anyway because a
+ * freshly built `BibleView` reads the already-updated workspace state at construction time — it
+ * picks the new colours up by being built late, not by being pushed to.
  */
 class WorkspaceChanged : WindowEvent

@@ -93,7 +93,6 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.event.window.WindowSizeChangedEvent
-import net.bible.android.control.event.window.WorkspaceChanged
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
@@ -981,11 +980,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     }
                     on<AppSettingsUpdated> { event ->
                         updateConfig()
-                    }
-                    on<WorkspaceChanged> { event ->
-                        // The page's themeColors come from the workspace's colour seed
-                        // (getUpdateConfigCommand), and a switch changes it with no other push.
-                        updateTextDisplaySettings()
                     }
                     on<BookmarksAddedOrUpdatedEvent> { event ->
                         val document = firstDocument
