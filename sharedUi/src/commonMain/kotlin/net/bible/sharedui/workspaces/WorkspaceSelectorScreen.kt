@@ -114,10 +114,11 @@ fun WorkspaceSelectorScreen(
     var renameFor by remember { mutableStateOf<WorkspaceRowVd?>(null) }
     var cloneFor by remember { mutableStateOf<WorkspaceRowVd?>(null) }
 
-    // Round 6. Classic has three action-bar icons and NO overflow: search (added with order = 0 by
-    // RecyclerViewSearchHelper:75, so it comes first), New and Help (workspace_options_menu.xml).
-    // The port had buried New and Help in a 3-dot menu and pinned the search field permanently
-    // below the bar; both are restored here.
+    // Round 6. Classic has the same three action-bar icons and NO overflow: search, New and Help
+    // (workspace_options_menu.xml). Our order here (search, new, help) differs deliberately from
+    // classic's render order and was approved from a rendered preview — an approved arrangement
+    // outweighs matching classic's icon order exactly. The port had buried New and Help in a 3-dot
+    // menu and pinned the search field permanently below the bar; both are restored here.
     AbScaffold(
         title = title,
         onNavigateUp = if (searchModeActive) null else onNavigateUp,
@@ -125,6 +126,11 @@ fun WorkspaceSelectorScreen(
             if (!searchModeActive) {
                 AbActionIcon(Icons.Filled.Search, s.search, onOpenSearch)
                 AbActionIcon(Icons.Filled.AddCircleOutline, s.newItem, { createOpen = true })
+                // Icons.Filled.HelpOutline (not AutoMirrored) is deliberate: classic's
+                // ic_help_white_24dp.xml has no android:autoMirrored, and Material Icons Extended
+                // only ships an AutoMirrored variant for HelpOutline here, not for Search or
+                // AddCircleOutline — switching this one would REGRESS RTL parity on a screen that
+                // does have an RTL golden. Don't "fix" this in a later cross-screen icon pass.
                 AbActionIcon(Icons.Filled.HelpOutline, s.helpLabel, onHelp)
             }
         },
