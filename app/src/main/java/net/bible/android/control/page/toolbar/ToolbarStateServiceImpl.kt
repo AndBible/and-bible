@@ -80,8 +80,19 @@ class ToolbarStateServiceImpl(
         }
     }
 
-    /** Rebuilds the snapshot from the active window's current page, preserving [ToolbarState.syncRunning]. */
+    /**
+     * Rebuilds the snapshot from the active window's current page, preserving [ToolbarState.syncRunning].
+     *
+     * No-op while the workspace is being (re)loaded. `WindowRepository.loadFromDb` restores each
+     * window's page, and that posts `CurrentBibleVerseChanged` — which lands here synchronously,
+     * mid-load, when the repository has no active window yet. Reading
+     * `windowControl.activeWindowPageManager` at that moment used to re-enter `loadFromDb` through
+     * the lazy `activeWindow` getter (see `WindowRepository.loadingFromDb` for the full failure).
+     * The load ends with `notifyWindowsChanged()`, whose `CurrentWindowChangedEvent` refreshes us
+     * again, so nothing is lost by skipping the mid-load refresh.
+     */
     override fun refresh() {
+        if (!windowControl.windowRepository.initialized) return
         _toolbar.value = buildSnapshot().copy(syncRunning = _toolbar.value.syncRunning)
     }
 

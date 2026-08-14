@@ -95,8 +95,29 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     val sortedWindows: List<Window> get() = windowList.sortedWith(compareBy({it.isLinksWindow}, { !it.isPinMode }))
 
+    /**
+     * True for the whole of [loadFromDb]. Load starts with [clear], which nulls `_activeWindow`, so
+     * [initialized] reads `false` until `setDefaultActiveWindow()` at the very end — and anything
+     * that touches [activeWindow] in between would make its lazy getter call [initialize], which
+     * calls [loadFromDb] again, RE-ENTRANTLY.
+     *
+     * That is not hypothetical: restoring a window's page posts `CurrentBibleVerseChanged`
+     * (`CurrentBibleVerse.setVerseSelected`, reached from `CurrentPageManager.restoreFrom`), which
+     * `ComposeReadingViewHost` handles synchronously by rebuilding the toolbar snapshot from
+     * `windowControl.activeWindowPageManager`. Measured on a workspace switch: 340 nested loads,
+     * ~4.7 s of blocked main thread (ANR), and a [windowList] with hundreds of DUPLICATE windows —
+     * each nesting level clears the list and the unwinding outer levels re-append their own. The
+     * duplicate ids then crash the Compose reading view, whose panes are keyed by window id: two
+     * panes resolve to the SAME cached `BibleView`, and the second `AndroidView` host throws
+     * `IllegalStateException: The specified child already has a parent`.
+     *
+     * See also the guard in `ToolbarStateServiceImpl.refresh()`, which keeps that observer from
+     * reading a repository that is mid-load at all.
+     */
+    private var loadingFromDb = false
+
     fun initialize() {
-        if(initialized) return
+        if(initialized || loadingFromDb) return
         if(id.isEmpty) {
             val newId = settings.getString("current_workspace_id")?.let{IdType(it)}?.apply { this@WindowRepository.id = this }
             if (newId == null || dao.workspace(newId) == null) {
@@ -367,7 +388,17 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         ABEventBus.post(RestoreButtonsVisibilityChanged())
     }
 
+    /** Rebuilds this repository from the given (or first) workspace. Not re-entrant — see [loadingFromDb]. */
     fun loadFromDb(workspaceId: IdType?) {
+        loadingFromDb = true
+        try {
+            loadFromDbInner(workspaceId)
+        } finally {
+            loadingFromDb = false
+        }
+    }
+
+    private fun loadFromDbInner(workspaceId: IdType?) {
         Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
         val entity = (if(workspaceId != null) dao.workspace(workspaceId) else null)?: dao.firstWorkspace()
             ?: WorkspaceEntities.Workspace("").apply{

@@ -1463,6 +1463,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     // background until its first document finishes loading -- same flash, one layer up.
                     AndroidView(modifier = Modifier.fillMaxSize(), factory = {
                         activity.bibleViewFactory.getOrCreateBibleView(window).apply {
+                            // Classic parity + safety net: `BibleFrame.build()/recreate()` detach the
+                            // BibleView from its old frame before adding it (`BibleFrame.kt:128,147`).
+                            // Compose has no equivalent — `AndroidViewHolder.onRelease()` only runs the
+                            // release block, and ONLY `onDeactivate()` (reusable nodes) calls
+                            // `removeAllViewsInLayout()` — so a cached BibleView stays a child of a
+                            // long-released holder forever. Handing it to a second holder then throws
+                            // `IllegalStateException: The specified child already has a parent`. The
+                            // duplicate-window-id load that produced that crash is fixed at its source
+                            // (`WindowRepository.loadingFromDb`); this keeps the pane host itself from
+                            // being the thing that turns any such state bug into a hard crash.
+                            (parent as? ViewGroup)?.removeView(this)
                             // MATCH_PARENT is REQUIRED here, and not for Android layout reasons --
                             // `Modifier.fillMaxSize()` above already gives the WebView an EXACTLY
                             // height MeasureSpec. It is Chromium that reads the layout params:
