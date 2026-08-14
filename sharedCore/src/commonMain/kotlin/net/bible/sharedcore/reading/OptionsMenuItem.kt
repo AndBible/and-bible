@@ -28,4 +28,12 @@ data class OptionsMenuItem(
      * optional for parity with [net.bible.sharedcore.window.WindowPaneMenuItem]).
      */
     val iconKey: String? = null,
+    /**
+     * True on the first row of a new visual section: the renderer draws a divider above it (never
+     * above the very first row). Classic gets the same rule for free from
+     * `<group android:id="@+id/textOptionsGroup">` plus `MenuCompat.setGroupDividerEnabled`
+     * (`MainBibleActivity.kt:1549`). A boolean boundary rather than a group id, because drawing a
+     * rule between runs is the only thing a menu renderer can do with grouping.
+     */
+    val startsNewSection: Boolean = false,
 )

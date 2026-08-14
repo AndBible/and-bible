@@ -289,6 +289,12 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
 
     /** Reproduces `MainBibleActivity.onActivityResult`'s COLORS_CHANGED write-back, per scope. */
     private fun applyColors(scope: SettingsScope, colors: WorkspaceEntities.Colors) {
+        // COLORS is the one TextSettingType that is a navigation row rather than a value row
+        // (TextSettingRowValue.ColorsNav), so it never goes through setValue() -> Preference.value,
+        // which is the single site that records a setting as recently used
+        // (CommonUtils.displaySettingChanged, called from OptionsMenuItems.kt:183). Without this the
+        // colour editor never appears as a shortcut in the overflow menu, however often it is used.
+        CommonUtils.displaySettingChanged(TextDisplaySettings.Types.COLORS)
         when (scope) {
             is SettingsScope.Window -> {
                 val window = repo.getWindow(IdType(scope.windowId))!!
@@ -343,6 +349,8 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
     // Whole-Colors reset — reproduces the classic ColorSettingsActivity "Reset" (MainBibleActivity
     // COLORS_CHANGED reset branch): WINDOW -> colours null (inherit); WORKSPACE/GLOBAL -> default.colors.
     override fun resetColors(scope: SettingsScope) {
+        // See applyColors.
+        CommonUtils.displaySettingChanged(TextDisplaySettings.Types.COLORS)
         when (scope) {
             is SettingsScope.Window -> {
                 val window = repo.getWindow(IdType(scope.windowId))!!

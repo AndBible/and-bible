@@ -18,6 +18,8 @@ package net.bible.sharedui.navigation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -42,19 +45,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.navigation.GridButton
 import net.bible.sharedcore.navigation.GridOption
 import net.bible.sharedcore.navigation.GridOptions
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.GridUi
+import net.bible.sharedcore.navigation.gridCellRows
+import net.bible.sharedcore.navigation.gridCellRowsForSections
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
 import net.bible.sharedui.strings.LocalStrings
+
+/**
+ * The long-name autosize floor, as a fraction of the long-name line's own [MaterialTheme]
+ * `labelSmall` size rather than a hard-coded sp literal — so the floor cannot drift out of sync if
+ * the typography changes. Comparable to classic's smallest `<small>` step (0.512x) and still
+ * legible; at today's Material3 default (labelSmall = 11.sp) this works out to 7.15.sp, close to
+ * the earlier literal 7.sp so the goldens do not shift for this reason alone.
+ */
+private const val LONG_NAME_MIN_FONT_SIZE_FRACTION = 0.65f
 
 @Composable
 fun GridChoosePassageScreen(
@@ -97,9 +114,9 @@ fun GridChoosePassageScreen(
         // Content rows: each section starts on a fresh row (a full-span spacer forces the break),
         // so count rows per section, not across the whole list.
         val contentRows = if (sections != null) {
-            sections.sumOf { (it.size + cols - 1) / cols }.coerceAtLeast(1)
+            gridCellRowsForSections(sectionSizes = sections.map { it.size }, columns = cols, minRows = ui.minRows)
         } else {
-            ((ui.buttons.size + cols - 1) / cols).coerceAtLeast(1)
+            gridCellRows(buttonCount = ui.buttons.size, columns = cols, minRows = ui.minRows)
         }
         BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
             // Fill the viewport height like the classic grid: divide the available height by the
@@ -158,6 +175,9 @@ private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) ->
             Box(contentAlignment = Alignment.Center) {
                 if (ui.showLongNames) {
                     // Abbreviation (bold) on top, full name below.
+                    val density = LocalDensity.current
+                    val abbrStyle = MaterialTheme.typography.labelMedium
+                    val longStyle = MaterialTheme.typography.labelSmall
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.padding(2.dp),
@@ -167,14 +187,54 @@ private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) ->
                             color = textColor,
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.labelMedium,
+                            style = abbrStyle,
                         )
                         b.longLabel?.let {
-                            Text(
+                            // Classic wraps a long name over multiple lines and shrinks it with nested
+                            // <small> tags picked from the longest word (ButtonGrid.kt:220-267) — a
+                            // heuristic that measures nothing. Compose Multiplatform measures for real:
+                            // StepBased tries maxFontSize and steps down to minFontSize until the text
+                            // fits. But StepBased only sees an "overflow" against constraints it is
+                            // actually given — an unconstrained Column lets any font size "fit" by using
+                            // more lines, so it never shrinks (verified: with no maxLines/height bound,
+                            // the golden was pixel-identical to the unfixed original). So this needs its
+                            // own real constraints: maxLines=2 (classic's practical wrap depth — enough
+                            // to show most long names in full without letting a pathological one grow
+                            // forever) and heightIn(max=...) sized from what's actually left in the cell
+                            // after the abbreviation line and the Column's own padding, so the shrink
+                            // search has a genuine vertical bound to solve against. minFontSize is
+                            // derived from the label size (below) rather than a bare literal, comparable
+                            // to classic's smallest step (0.512x) and still legible; overflow=Ellipsis is
+                            // the last-resort floor for a name that still doesn't fit at minFontSize over
+                            // 2 lines.
+                            val abbrHeight = with(density) { abbrStyle.lineHeight.toDp() }
+                            // A fraction of maxFontSize, not a bare literal, so the two cannot drift
+                            // apart if the typography changes; ~0.65x keeps today's ~7sp value (11sp
+                            // labelSmall * 0.65 = 7.15sp).
+                            val minFontSize = longStyle.fontSize * LONG_NAME_MIN_FONT_SIZE_FRACTION
+                            // abbrHeight scales with the user's font-scale setting while cellHeight does
+                            // not, so at the 40dp minCell floor with a large font scale the bound above
+                            // can collapse to a few dp — and since maxLines/width (not height) drive the
+                            // ellipsis, a tiny height bound clips the name away entirely instead of
+                            // ellipsizing it. Floor at one line rendered at minFontSize, computed from
+                            // the style's own lineHeight:fontSize ratio so it scales the same way.
+                            val lineHeightRatio = longStyle.lineHeight.value / longStyle.fontSize.value
+                            val oneLineAtMinFontSize = with(density) { (minFontSize.value * lineHeightRatio).sp.toDp() }
+                            val longNameMaxHeight = (cellHeight - 4.dp - abbrHeight).coerceAtLeast(oneLineAtMinFontSize)
+                            BasicText(
                                 text = it,
-                                color = textColor,
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.labelSmall,
+                                style = longStyle.copy(
+                                    color = textColor,
+                                    textAlign = TextAlign.Center,
+                                ),
+                                modifier = Modifier.heightIn(max = longNameMaxHeight),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                autoSize = TextAutoSize.StepBased(
+                                    minFontSize = minFontSize,
+                                    maxFontSize = longStyle.fontSize,
+                                    stepSize = 0.5.sp,
+                                ),
                             )
                         }
                     }

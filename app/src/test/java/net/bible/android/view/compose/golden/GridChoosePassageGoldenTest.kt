@@ -33,7 +33,7 @@ class GridChoosePassageGoldenTest {
     )
     private val opts = GridOptions(showScripture = true, alphabetical = false, ltr = false, groupByCategory = false, longNames = false, showProgress = true)
     private fun bookUi(long: Boolean = false, sections: List<List<GridButton>>? = null) =
-        GridUi(GridStep.BOOK, "Choose passage (Workspace 1)", 6, showLongNames = long, showProgress = true, showDeutToggle = true, buttons = books, sections = sections)
+        GridUi(GridStep.BOOK, "Choose passage (Workspace 1)", 6, showLongNames = long, showProgress = true, showDeutToggle = true, buttons = books, sections = sections, minRows = 11)
 
     @Test fun grid_book_flat() {
         captureMatrix("GridChoosePassage", "book_flat") { GridChoosePassageScreen(bookUi(), opts, {}, {}, {}) }
@@ -58,11 +58,55 @@ class GridChoosePassageGoldenTest {
         }
     }
 
+    // Reproduces the reported defect: a long single-word book name ("Thessalonians") does not fit
+    // the long-name line in showLongNames mode and must shrink to fit instead of wrapping/clipping.
+    // Same 12-book/6-column shape as grid_book_longnames, with one short name swapped for a long one.
+    @Test fun grid_book_longnames_overflow() {
+        val longBooks = books.map { if (it.id == 8) it.copy(label = "1Thess", longLabel = "Thessalonians") else it }
+        captureGolden("GridChoosePassage", "book_long_overflow", EDGE_MODE) {
+            GridChoosePassageScreen(bookUi(long = true).copy(buttons = longBooks), opts.copy(longNames = true), {}, {}, {})
+        }
+    }
+
+    // Real-world case: a Finnish long-form book name (~2.5x "Thessalonians") is where minFontSize
+    // + ellipsis either degrades gracefully or looks bad — this app's users hit this, not just the
+    // English edge case above.
+    @Test fun grid_book_longnames_overflow_fi() {
+        val longBooks = books.map {
+            if (it.id == 8) it.copy(label = "1Tess", longLabel = "Ensimmäinen tessalonikalaiskirje") else it
+        }
+        captureGolden("GridChoosePassage", "book_long_overflow_fi", EDGE_MODE) {
+            GridChoosePassageScreen(bookUi(long = true).copy(buttons = longBooks), opts.copy(longNames = true), {}, {}, {})
+        }
+    }
+
     @Test fun grid_chapter() {
         val chapters = (1..24).map { GridButton(it, it.toString(), colorGroup = 2, isCurrent = it == 3, readProgress = if (it < 3) 1f else 0f) }
         captureGolden("GridChoosePassage", "chapter", EDGE_MODE) {
             GridChoosePassageScreen(
-                GridUi(GridStep.CHAPTER, "Psalms", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = chapters),
+                GridUi(GridStep.CHAPTER, "Psalms", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = chapters, minRows = 10),
+                opts, {}, {}, {},
+            )
+        }
+    }
+
+    // Reproduces the reported defect: a book with very few chapters (Jude: one) must NOT get a
+    // screen-filling button — the row-count floor keeps the cell sized like the other grids.
+    @Test fun grid_chapter_one() {
+        val chapters = listOf(GridButton(1, "1", colorGroup = 8, isCurrent = true, readProgress = 1f))
+        captureGolden("GridChoosePassage", "chapter_one", EDGE_MODE) {
+            GridChoosePassageScreen(
+                GridUi(GridStep.CHAPTER, "Jude", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = chapters, minRows = 10),
+                opts, {}, {}, {},
+            )
+        }
+    }
+
+    @Test fun grid_chapter_twelve() {
+        val chapters = (1..12).map { GridButton(it, it.toString(), colorGroup = 3, isCurrent = it == 1, readProgress = if (it == 1) 1f else 0f) }
+        captureGolden("GridChoosePassage", "chapter_twelve", EDGE_MODE) {
+            GridChoosePassageScreen(
+                GridUi(GridStep.CHAPTER, "Daniel", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = chapters, minRows = 10),
                 opts, {}, {}, {},
             )
         }
@@ -72,7 +116,7 @@ class GridChoosePassageGoldenTest {
         val verses = (1..31).map { GridButton(it, it.toString(), colorGroup = 2, isCurrent = it == 6, memProgress = if (it == 6) 1f else 0f) }
         captureGolden("GridChoosePassage", "verse", EDGE_MODE) {
             GridChoosePassageScreen(
-                GridUi(GridStep.VERSE, "Psalms 3", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = verses),
+                GridUi(GridStep.VERSE, "Psalms 3", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = verses, minRows = 10),
                 opts, {}, {}, {},
             )
         }

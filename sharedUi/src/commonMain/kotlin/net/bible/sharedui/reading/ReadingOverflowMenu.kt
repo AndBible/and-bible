@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -96,7 +97,10 @@ fun ReadingOverflowMenuRows(
     icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     val (rows, reserveIconSlot) = resolveMenuIconRows(items, OptionsMenuItem::iconKey, icon)
-    rows.forEach { (item, resolvedIcon) ->
+    rows.forEachIndexed { index, row ->
+        val (item, resolvedIcon) = row
+        // Classic's group divider (MenuCompat.setGroupDividerEnabled). Never above the first row.
+        if (index > 0 && item.startsNewSection) HorizontalDivider()
         DropdownMenuItem(
             text = { Text(if (item.opensDialog) "${item.label} …" else item.label) },
             enabled = item.enabled,
