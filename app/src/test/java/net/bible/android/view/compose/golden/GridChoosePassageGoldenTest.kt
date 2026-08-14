@@ -68,6 +68,18 @@ class GridChoosePassageGoldenTest {
         }
     }
 
+    // Real-world case: a Finnish long-form book name (~2.5x "Thessalonians") is where minFontSize
+    // + ellipsis either degrades gracefully or looks bad — this app's users hit this, not just the
+    // English edge case above.
+    @Test fun grid_book_longnames_overflow_fi() {
+        val longBooks = books.map {
+            if (it.id == 8) it.copy(label = "1Tess", longLabel = "Ensimmäinen tessalonikalaiskirje") else it
+        }
+        captureGolden("GridChoosePassage", "book_long_overflow_fi", EDGE_MODE) {
+            GridChoosePassageScreen(bookUi(long = true).copy(buttons = longBooks), opts.copy(longNames = true), {}, {}, {})
+        }
+    }
+
     @Test fun grid_chapter() {
         val chapters = (1..24).map { GridButton(it, it.toString(), colorGroup = 2, isCurrent = it == 3, readProgress = if (it < 3) 1f else 0f) }
         captureGolden("GridChoosePassage", "chapter", EDGE_MODE) {

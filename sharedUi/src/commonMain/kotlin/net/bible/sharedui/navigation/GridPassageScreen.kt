@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -44,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -164,6 +166,9 @@ private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) ->
             Box(contentAlignment = Alignment.Center) {
                 if (ui.showLongNames) {
                     // Abbreviation (bold) on top, full name below.
+                    val density = LocalDensity.current
+                    val abbrStyle = MaterialTheme.typography.labelMedium
+                    val longStyle = MaterialTheme.typography.labelSmall
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.padding(2.dp),
@@ -173,32 +178,39 @@ private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) ->
                             color = textColor,
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.labelMedium,
+                            style = abbrStyle,
                         )
                         b.longLabel?.let {
-                            // Classic shrinks a long name with nested <small> tags picked from the longest word
-                            // (ButtonGrid.kt:220-267) — a heuristic that measures nothing. Compose Multiplatform
-                            // measures for real: StepBased tries maxFontSize and steps down to minFontSize until
-                            // the text fits the cell. minFontSize is about half the label size, comparable to
-                            // classic's smallest step (0.512x) and still legible.
+                            // Classic wraps a long name over multiple lines and shrinks it with nested
+                            // <small> tags picked from the longest word (ButtonGrid.kt:220-267) — a
+                            // heuristic that measures nothing. Compose Multiplatform measures for real:
+                            // StepBased tries maxFontSize and steps down to minFontSize until the text
+                            // fits. But StepBased only sees an "overflow" against constraints it is
+                            // actually given — an unconstrained Column lets any font size "fit" by using
+                            // more lines, so it never shrinks (verified: with no maxLines/height bound,
+                            // the golden was pixel-identical to the unfixed original). So this needs its
+                            // own real constraints: maxLines=2 (classic's practical wrap depth — enough
+                            // to show most long names in full without letting a pathological one grow
+                            // forever) and heightIn(max=...) sized from what's actually left in the cell
+                            // after the abbreviation line and the Column's own padding, so the shrink
+                            // search has a genuine vertical bound to solve against. minFontSize is about
+                            // half the label size, comparable to classic's smallest step (0.512x) and
+                            // still legible; overflow=Ellipsis is the last-resort floor for a name that
+                            // still doesn't fit at minFontSize over 2 lines.
+                            val abbrHeight = with(density) { abbrStyle.lineHeight.toDp() }
+                            val longNameMaxHeight = (cellHeight - 4.dp - abbrHeight).coerceAtLeast(0.dp)
                             BasicText(
                                 text = it,
-                                style = MaterialTheme.typography.labelSmall.copy(
+                                style = longStyle.copy(
                                     color = textColor,
                                     textAlign = TextAlign.Center,
                                 ),
-                                // maxLines=1 is what makes autoSize actually shrink: with wrapping
-                                // unrestricted, any font size "fits" by using more lines, so StepBased
-                                // never sees an overflow to correct. Force one line so an oversized
-                                // word triggers the step-down search instead of wrapping+clipping.
-                                // overflow=Ellipsis is the last-resort fallback for a name that still
-                                // does not fit at minFontSize (an extremely narrow cell) — visibly
-                                // truncated is better than a silent mid-word cut.
-                                maxLines = 1,
+                                modifier = Modifier.heightIn(max = longNameMaxHeight),
+                                maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 autoSize = TextAutoSize.StepBased(
                                     minFontSize = 7.sp,
-                                    maxFontSize = MaterialTheme.typography.labelSmall.fontSize,
+                                    maxFontSize = longStyle.fontSize,
                                     stepSize = 0.5.sp,
                                 ),
                             )
