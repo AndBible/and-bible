@@ -163,7 +163,9 @@ class ReadingViewScreenGoldenTest {
             fullScreen = false,
             agentLog = {
                 AgentLogPanel(
-                    agentLogRunningExpanded, animateStatus = false, onToggleExpanded = {}, onStop = {},
+                    agentLogRunningExpanded, animateStatus = false,
+                    statusIcon = painterResource(R.drawable.icon_robot),
+                    onToggleExpanded = {}, onStop = {},
                     onClose = {}, onModelSelectorClick = {}, onModelChosen = {}, onModelPickerDismiss = {},
                     onRawLogClick = {},
                 )

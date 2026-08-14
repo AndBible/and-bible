@@ -1572,6 +1572,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 AgentLogPanel(
                     agentLogUiState,
                     animateStatus = !CommonUtils.settings.disableAnimations,
+                    statusIcon = painterResource(R.drawable.icon_robot),
                     onToggleExpanded = agentLog::toggleExpanded,
                     onStop = agentLog::stop,
                     onClose = agentLog::hide,

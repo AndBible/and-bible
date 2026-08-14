@@ -1,7 +1,9 @@
 package net.bible.android.view.compose.golden
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
 import net.bible.android.TEST_SDK
+import net.bible.android.activity.R
 import net.bible.sharedcore.ai.reading.*
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import org.junit.Test
@@ -27,7 +29,8 @@ class AgentLogPanelGoldenTest {
         ReadingModelVd("m2", "claude-3", "Anthropic", isDefault = false, supported = true),
     )
     private fun panel(s: AgentLogUiState) = @Composable {
-        AgentLogPanel(s, animateStatus = false, onToggleExpanded = {}, onStop = {}, onClose = {},
+        AgentLogPanel(s, animateStatus = false, statusIcon = painterResource(R.drawable.icon_robot),
+            onToggleExpanded = {}, onStop = {}, onClose = {},
             onModelSelectorClick = {}, onModelChosen = {}, onModelPickerDismiss = {}, onRawLogClick = {})
     }
     private val runningExpanded = AgentLogUiState(visible = true, expanded = true,

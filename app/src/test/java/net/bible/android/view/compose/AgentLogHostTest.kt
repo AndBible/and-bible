@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.sharedcore.ai.reading.AgentLogController
@@ -127,6 +129,7 @@ class AgentLogHostTest {
                 AgentLogPanel(
                     agentLogUiState,
                     animateStatus = false,
+                    statusIcon = painterResource(R.drawable.icon_robot),
                     onToggleExpanded = controller::toggleExpanded,
                     onStop = controller::stop,
                     onClose = controller::hide,

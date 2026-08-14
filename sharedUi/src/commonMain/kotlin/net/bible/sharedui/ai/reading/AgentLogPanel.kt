@@ -44,7 +44,6 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,6 +56,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -78,9 +78,11 @@ private val maxBodyHeight = 240.dp
  * `AgentLogAdapter`). Self-hiding: renders nothing when [state]`.visible` is false, so a host may
  * always slot it into its layout.
  *
- * **Header**: a pulsing (while running) robot status icon, the latest status message (or the idle
- * label), an optional cumulative session cost, an expand/collapse toggle, and a trailing
- * stop-while-running / close-while-idle button.
+ * **Header**: a pulsing (while running) robot status icon — host-supplied as [statusIcon] since
+ * this module cannot reference `R.drawable`; the caller resolves `icon_robot`, the JS side's
+ * `faRobot`, already shared with the Compose drawer/overflow/pane menus — the latest status
+ * message (or the idle label), an optional cumulative session cost, an expand/collapse toggle,
+ * and a trailing stop-while-running / close-while-idle button.
  *
  * **Body** (only while [state]`.expanded`): a height-bounded, scrollable list — a model-selector
  * row first, then one row per log entry (leading kind icon, message/details/cost, trailing status
@@ -98,6 +100,7 @@ private val maxBodyHeight = 240.dp
 fun AgentLogPanel(
     state: AgentLogUiState,
     animateStatus: Boolean,
+    statusIcon: Painter,
     onToggleExpanded: () -> Unit,
     onStop: () -> Unit,
     onClose: () -> Unit,
@@ -116,6 +119,7 @@ fun AgentLogPanel(
         Column(modifier = Modifier.fillMaxWidth()) {
             AgentLogHeader(
                 snapshot = state.snapshot,
+                statusIcon = statusIcon,
                 expanded = state.expanded,
                 animateStatus = animateStatus,
                 onToggleExpanded = onToggleExpanded,
@@ -125,6 +129,7 @@ fun AgentLogPanel(
             if (state.expanded) {
                 AgentLogBody(
                     snapshot = state.snapshot,
+                    statusIcon = statusIcon,
                     onModelSelectorClick = onModelSelectorClick,
                     onRawLogClick = onRawLogClick,
                 )
@@ -150,6 +155,7 @@ private fun modelChoiceLabel(isDefault: Boolean, modelId: String, providerName: 
 @Composable
 private fun AgentLogHeader(
     snapshot: AgentLogSnapshot,
+    statusIcon: Painter,
     expanded: Boolean,
     animateStatus: Boolean,
     onToggleExpanded: () -> Unit,
@@ -177,7 +183,7 @@ private fun AgentLogHeader(
             1.0f
         }
         Icon(
-            imageVector = Icons.Filled.SmartToy,
+            painter = statusIcon,
             contentDescription = null,
             modifier = Modifier
                 .size(24.dp)
@@ -220,21 +226,34 @@ private fun AgentLogHeader(
 @Composable
 private fun AgentLogBody(
     snapshot: AgentLogSnapshot,
+    statusIcon: Painter,
     onModelSelectorClick: () -> Unit,
     onRawLogClick: () -> Unit,
 ) {
     val strings = LocalStrings.current
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = maxBodyHeight)) {
         item {
-            Text(
-                text = strings.agentLogModelSelector(snapshot.defaultModelText ?: strings.agentLogModelNotConfigured),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onModelSelectorClick)
                     .padding(horizontal = 16.dp, vertical = 12.dp),
-            )
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                // Classic's AgentLogAdapter draws icon_robot on this row (AgentLogAdapter.kt:110).
+                Icon(
+                    painter = statusIcon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp),
+                )
+                Text(
+                    text = strings.agentLogModelSelector(snapshot.defaultModelText ?: strings.agentLogModelNotConfigured),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 16.dp),
+                )
+            }
         }
         items(snapshot.entries, key = { it.id }) { entry ->
             AgentLogEntryRow(entry = entry, onRawLogClick = onRawLogClick)
