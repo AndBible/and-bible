@@ -16,7 +16,7 @@ private data class Pong(val s: String)
 class EventBridgeTest {
     @AfterTest fun cleanup() = ABEventBus.unregisterAll()
 
-    @Test fun `eventsOf filters by type - delivers T, drops non-T`() = runTest {
+    @Test fun `eventsOf filters by type - delivers T and drops non-T`() = runTest {
         val collected = mutableListOf<Int>()
         // Subscribe BEFORE posting: ABEventBus's SharedFlow has replay=0, so a collector
         // only receives events posted after it is actively collecting. launchIn + yield()
