@@ -55,9 +55,12 @@ import net.bible.sharedcore.navigation.filterPickerOptions
  * [LazyColumn] of options, filtered case-insensitively by [optionLabel] via [filterPickerOptions].
  * Selecting an option calls [onSelect] and dismisses the sheet.
  *
- * This is the type-to-filter, fast-opening replacement for [AbDropdownField] on long lists (e.g.
- * the ~100+ language filter): it fixes both the "not typeable" and the "slow to open / eagerly
- * composes every item" regressions. Keep [AbDropdownField] for short enum lists.
+ * This is the type-to-filter, fast-opening replacement for [AbDropdownField] on long lists: it
+ * fixes both the "not typeable" and the "slow to open / eagerly composes every item" regressions.
+ * Keep [AbDropdownField] for short enum lists. The document-selection language filter (its
+ * original motivating case, ~100+ languages) moved to [net.bible.sharedui.navigation.DocumentFilterBar]'s
+ * chip + [AbSearchableOptionSheet] in round 6; this field form's remaining caller is
+ * [net.bible.sharedui.ai.AiModelsScreen].
  *
  * Fully portable (commonMain, no Android APIs) so it compiles for iOS too.
  *
