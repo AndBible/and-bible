@@ -20,9 +20,11 @@ package net.bible.android.control.page.toolbar
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import net.bible.android.TEST_SDK
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.sharedcore.reading.ToolbarState
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,6 +58,18 @@ class ToolbarStateServiceLoadGuardTest {
      * this test asserts never runs.
      */
     private inline fun <reified T : Any> neverTouched(): T = ObjenesisHelper.newInstance(T::class.java)
+
+    /**
+     * `ToolbarStateServiceImpl`'s `init` registers on [ABEventBus] with no matching unregister — by
+     * design, it is normally a process-lifetime singleton. This test constructs one directly under
+     * plain `android.app.Application`, so `TestBibleApplication.onTerminate()`'s
+     * `ABEventBus.unregisterAll()` never runs for it, and the subscriber would otherwise leak into
+     * later tests sharing this JVM.
+     */
+    @After
+    fun tearDown() {
+        ABEventBus.unregisterAll()
+    }
 
     @Test
     fun `refresh does not read the repository while a workspace is still loading`() {
