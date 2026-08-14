@@ -40,9 +40,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.reading.DrawerMenuState
 
 /**
@@ -51,7 +53,7 @@ import net.bible.sharedcore.reading.DrawerMenuState
  * fixed classic-scale width is used instead of reproducing `wrap_content`, so the drawer does not
  * change size with the longest translated label (which would also jump between LTR and RTL).
  *
- * These seven constants are the density knobs: if a later A/B pass still reads as too roomy, tune
+ * These nine constants are the density knobs: if a later A/B pass still reads as too roomy, tune
  * them here rather than sprinkling paddings through the tree.
  */
 val ReadingDrawerWidth: Dp = 300.dp
@@ -61,6 +63,8 @@ private val DrawerIconLabelGap = 16.dp
 private val DrawerIconSize = 24.dp
 private val DrawerGroupSpacing = 4.dp
 private val DrawerGroupHeadingSpacing = 8.dp
+private val DrawerHeaderMinHeight = 100.dp
+private val DrawerHeaderTopPadding = 24.dp
 
 /**
  * The reading view's main navigation drawer content — the Compose port of classic
@@ -190,6 +194,13 @@ private fun DrawerRow(
  * real visual regression — so the logo uses [Image] while the single-colour 24dp [DrawerRow] glyphs
  * below keep using `Icon`, tinted to match each row's label colour (including the disabled 0.38-alpha
  * treatment).
+ *
+ * The block reproduces `nav_header_main.xml`'s proportions exactly: [DrawerHeaderMinHeight] (100dp)
+ * mirrors its `minHeight`, [DrawerHeaderTopPadding] (24dp) its `marginTop`, and the label is styled
+ * 18sp bold to match its `android:textStyle="bold"` 18sp label. A/B round 6 finding 2: the maintainer
+ * compared this header against classic's and found classic's roomier block (~124dp) the prettier of
+ * the two; the port previously used `padding(top = 12, bottom = 4)` with no minimum height and
+ * `titleMedium` (16sp Medium), which came out to only ~64dp.
  */
 @Composable
 fun ReadingDrawerHeader(appName: String, logo: Painter?) {
@@ -198,7 +209,8 @@ fun ReadingDrawerHeader(appName: String, logo: Painter?) {
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = DrawerRowHorizontalPadding, end = DrawerRowHorizontalPadding, top = 12.dp, bottom = 4.dp),
+            .heightIn(min = DrawerHeaderMinHeight)
+            .padding(start = DrawerRowHorizontalPadding, end = DrawerRowHorizontalPadding, top = DrawerHeaderTopPadding),
     ) {
         if (logo != null) {
             Image(painter = logo, contentDescription = null, modifier = Modifier.size(48.dp))
@@ -206,7 +218,11 @@ fun ReadingDrawerHeader(appName: String, logo: Painter?) {
         }
         Text(
             text = appName,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontSize = 18.sp,
+                lineHeight = 24.sp,
+                fontWeight = FontWeight.Bold,
+            ),
             color = MaterialTheme.colorScheme.onSurface,
         )
     }
