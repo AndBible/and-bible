@@ -1629,6 +1629,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onClose = { leaveSearch() },
                 onImeRequestHandled = { searchController.imeRequestHandled() },
                 onFieldFocusChanged = { searchFieldFocused.value = it },
+                onRebuildIndex = { searchController.requestRebuildIndex() },
             ),
             searchSheetVisibleState = searchController.sheetVisible,
             onSearchSheetDismissed = { searchController.closeSheet() },

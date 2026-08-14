@@ -119,6 +119,19 @@ interface Strings {
     val searchClear: String
 
     /**
+     * F6-B5. The Bible-search help dialog, restored to the Compose path: classic offered it from the
+     * search screen's action bar (`R.menu.search_actionbar_menu`) and the Compose form dropped it
+     * along with the rebuild-index item, because `SearchScreen` passes `AbScaffold` no `actions` slot.
+     * [helpSearchDetails] takes the link label, matching `custom_repositories_help2`'s shape.
+     */
+    val helpSearchText2: String
+    fun helpSearchDetails(link: String): String
+    val helpApacheLucene: String
+
+    /** Content description for an overflow (⋮) button. */
+    val menu: String
+
+    /**
      * Shown while indexing runs inside the reading view's search sheet. NOT [indexingWaitMsg]: that
      * one promises the user will be taken to the search screen, which was true of the Activity chain
      * and is false here — the search runs in place when indexing finishes.

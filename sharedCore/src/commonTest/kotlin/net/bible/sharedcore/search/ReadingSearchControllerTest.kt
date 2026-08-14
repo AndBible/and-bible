@@ -469,4 +469,38 @@ class ReadingSearchControllerTest {
         assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
         assertEquals(SearchFieldImeRequest.Focus, c.imeRequest.value)
     }
+
+    // ---- F6-B5: rebuild index, reachable from the toolbar overflow ----
+
+    // Reuses the existing NeedsIndex pipeline wholesale: the sheet's SearchIndexPanel already renders
+    // the rebuild wording off its isRebuild flag, which the host computes from hasIndex(docId) and is
+    // therefore true for a working index. No new Activity, no new panel, no new state.
+    @Test
+    fun requestingARebuildPromptsForTheSessionsOwnDocument() {
+        val (_, c) = controller()
+        c.open()
+        assertTrue(c.requestRebuildIndex())
+        assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), c.phase.value)
+        assertTrue(c.sheetVisible.value)
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+    }
+
+    // It addresses the phase's document, which after a results-selector choice is the CHOSEN
+    // translation rather than the one being read — the same rule promptIndexFor already documents.
+    @Test
+    fun requestingARebuildAfterASelectorChoiceTargetsTheChosenDocument() {
+        val (_, c) = controller()
+        c.open()
+        c.promptIndexFor("ESV")
+        assertTrue(c.requestRebuildIndex())
+        assertEquals(ReadingSearchPhase.NeedsIndex("ESV", forEpub = false), c.phase.value)
+    }
+
+    // Nothing to rebuild when there is no session; must not invent a phase.
+    @Test
+    fun requestingARebuildWithNoSessionDoesNothing() {
+        val (_, c) = controller()
+        assertFalse(c.requestRebuildIndex())
+        assertEquals(ReadingSearchPhase.Closed, c.phase.value)
+    }
 }

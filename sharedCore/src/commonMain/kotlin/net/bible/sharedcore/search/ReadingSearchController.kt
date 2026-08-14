@@ -155,6 +155,19 @@ class ReadingSearchController(
         return true
     }
 
+    /**
+     * The toolbar overflow's "Rebuild index": prompt for a rebuild of the document THIS SESSION is
+     * addressing. Returns `false` when there is no session (nothing to rebuild).
+     *
+     * Classic had to start the `SearchIndex` Activity for this (`Search.kt:269-280`); the in-sheet
+     * panel that replaced it is one call away, and it already words itself as a rebuild when the
+     * document has a working index. So this is a redirect into the existing pipeline, not a feature.
+     */
+    fun requestRebuildIndex(): Boolean {
+        val docId = docIdOf(_phase.value) ?: return false
+        return promptIndexFor(docId)
+    }
+
     fun acceptIndexing() {
         val p = _phase.value as? ReadingSearchPhase.NeedsIndex ?: return
         onStartIndexing(p.docId)

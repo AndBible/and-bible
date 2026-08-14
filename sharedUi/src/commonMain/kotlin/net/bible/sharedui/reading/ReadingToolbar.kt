@@ -54,6 +54,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.MaterialTheme
@@ -65,8 +66,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -100,6 +104,7 @@ import net.bible.sharedcore.reading.fitToolbarButtons
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.reading.readingToolbarContainerArgb
 import net.bible.sharedui.components.AbActionIconSize
+import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
@@ -172,6 +177,8 @@ data class ReadingSearchBarCallbacks(
      * keyboard (spec §4).
      */
     val onFieldFocusChanged: (Boolean) -> Unit,
+    /** The overflow's "Rebuild index" — see `ReadingSearchController.requestRebuildIndex`. */
+    val onRebuildIndex: () -> Unit,
 )
 
 /** Height of the toolbar row — matches the classic `@dimen/toolbar_height` (56dp). */
@@ -179,6 +186,9 @@ private val ToolbarHeight = 56.dp
 
 /** Touch-target width for a single icon button (home / quick button / overflow). */
 private val ToolbarButtonWidth = 48.dp
+
+/** Classic's own help link (`Search.kt:283`), kept verbatim so the help says the same thing. */
+private const val LUCENE_QUERY_SYNTAX_URL = "https://lucene.apache.org/core/2_9_4/queryparsersyntax.html"
 
 /**
  * Stateless port of the classic `MainBibleActivity` toolbar (`main_bible_view.xml`'s
@@ -291,6 +301,8 @@ fun ReadingToolbar(
         val focusRequester = remember { FocusRequester() }
         val keyboard = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
+        var searchHelpOpen by remember { mutableStateOf(false) }
+        var searchMenuOpen by remember { mutableStateOf(false) }
         // F6-B2/B3. Keyed on the instruction so the ack (which returns it to null) is what arms the
         // next edge — a level would not fire twice for two submits in a row. `show()` follows
         // `requestFocus()` belt-and-braces: focusing a field usually raises the IME, and findings
@@ -397,8 +409,42 @@ fun ReadingToolbar(
                 // `AbSettingsSummarySheet` already uses for exactly that. A vertical ⋮ reads as "more
                 // actions", which this is not.
                 ToolbarVectorButton(Icons.Filled.Tune, strings.searchOptions, searchBarCallbacks.onOpenSettings)
-                ToolbarVectorButton(Icons.Filled.Search, strings.searchSubmit, searchBarCallbacks.onSubmit)
+                // The submit button is gone: the IME already carries `ImeAction.Search`, and a button
+                // duplicating it does not earn a slot in a row this crowded. The slot holds the
+                // overflow classic had on its search screen instead (F6-B5).
+                //
+                // Hand-rolled from ToolbarVectorButton + DropdownMenu rather than reusing
+                // AbOverflowMenu, for the same reason the recent-terms menu just above is: this row
+                // is not a TopAppBar, its buttons are fixed-width ToolbarVectorButtons, and
+                // AbOverflowMenu's IconButton would be a different width — changing the row's
+                // geometry to add a menu item.
+                Box {
+                    ToolbarVectorButton(Icons.Filled.MoreVert, strings.menu) { searchMenuOpen = true }
+                    DropdownMenu(expanded = searchMenuOpen, onDismissRequest = { searchMenuOpen = false }) {
+                        DropdownMenuItem(
+                            text = { Text(strings.rebuildIndex) },
+                            onClick = { searchMenuOpen = false; searchBarCallbacks.onRebuildIndex() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(strings.help) },
+                            onClick = { searchMenuOpen = false; searchHelpOpen = true },
+                        )
+                    }
+                }
             }
+        }
+        if (searchHelpOpen) {
+            // A faithful conversion of classic `Search.help()` (`Search.kt:282-298`): the same two
+            // sentences, and the Lucene link as AbInfoDialog's read-more. Inlining the link label
+            // into the body AND repeating it as readMoreLabel is the established pattern here —
+            // `CustomRepositoriesScreen.kt:110-116` does exactly this.
+            AbInfoDialog(
+                title = strings.help,
+                body = "${strings.helpSearchText2}\n\n${strings.helpSearchDetails(strings.helpApacheLucene)}",
+                onDismiss = { searchHelpOpen = false },
+                readMoreLabel = strings.helpApacheLucene,
+                readMoreUrl = LUCENE_QUERY_SYNTAX_URL,
+            )
         }
         return
     }
