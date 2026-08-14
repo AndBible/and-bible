@@ -268,4 +268,40 @@ class DocumentSelectionControllerTest {
         assertTrue(c.selectionMode.value)
         assertEquals(setOf("a"), c.selectedIds.value)
     }
+
+    /**
+     * Pins the property behind the Round-6 fix wave's Important-1 fix: DownloadComposeActivity's
+     * refreshRowStatus() (called from doDownload() after downloadControl.downloadDocument() returns,
+     * i.e. on both completion AND cancellation) used to call controller.setDocuments(...), which runs
+     * refilter() — a full re-sort plus clearSelection(). On cancel the terminal status is NOT_INSTALLED,
+     * which always differs from the BEING_INSTALLED mirror, so that path fired deterministically on
+     * every cancellation: the row dropped out of the installing position and any active multi-selection
+     * was silently wiped. The fix routes refreshRowStatus() through updateDownloadStatus() instead,
+     * which updates the row IN PLACE. This test is host-unreachable (refreshRowStatus is a private
+     * method on an Activity with a heavy DI/JSword surface, not exercised by any existing unit test
+     * harness), so it pins the equivalent controller-level property the fix relies on: a transition
+     * back to NOT_INSTALLED (what a cancel produces) via updateDownloadStatus() keeps the row's index
+     * and does not clear an active selection.
+     */
+    @Test fun cancel_keeps_the_row_at_its_index_and_preserves_selection() {
+        val c = controller()
+        c.setDocuments(
+            listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE)),
+            null,
+        )
+        c.enterSelection(); c.toggle("a")
+        assertEquals(1, c.displayed.value.indexOfFirst { it.docId == "b" })
+
+        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 30)
+        assertEquals(1, c.displayed.value.indexOfFirst { it.docId == "b" })
+
+        // Cancel: getDocumentStatus() reverts to NOT_INSTALLED. This is the exact transition
+        // refreshRowStatus() feeds through updateDownloadStatus() after the fix.
+        c.updateDownloadStatus("b", DocInstallStatus.NOT_INSTALLED, 0)
+
+        assertEquals(1, c.displayed.value.indexOfFirst { it.docId == "b" }) // row did not move
+        assertEquals(DocInstallStatus.NOT_INSTALLED, c.displayed.value[1].installStatus)
+        assertTrue(c.selectionMode.value) // selection survived
+        assertEquals(setOf("a"), c.selectedIds.value)
+    }
 }
