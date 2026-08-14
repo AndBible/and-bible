@@ -1328,4 +1328,59 @@ class TextDisplaySettingsTest {
         )
         assertEquals(InheritedFrom.WORKSPACE, bundle.inheritedFrom(Types.VERSENUMBERS))
     }
+
+    // --- globalWithCopiedValues() tests ---
+
+    @Test
+    fun `globalWithCopiedValues copies only the dirty types`() {
+        val global = TextDisplaySettings().apply {
+            setValue(Types.FONTSIZE, 10)
+            setValue(Types.HYPHENATION, true)
+        }
+        val resolved = TextDisplaySettings().apply {
+            setValue(Types.FONTSIZE, 22)
+            setValue(Types.HYPHENATION, false)
+        }
+
+        val result = TextDisplaySettings.globalWithCopiedValues(global, resolved, setOf(Types.FONTSIZE))
+
+        assertEquals(22, result.getValue(Types.FONTSIZE))
+        assertEquals(true, result.getValue(Types.HYPHENATION))   // untouched
+    }
+
+    @Test
+    fun `globalWithCopiedValues never writes null`() {
+        // The bug this function exists to prevent: the raw source value is legitimately null when the
+        // source inherits the type, and writing that null resets the global to the factory default
+        // instead of leaving it alone. The caller passes an ALREADY RESOLVED source, so every value it
+        // copies is concrete — this test pins that the function does not reintroduce a null.
+        val global = TextDisplaySettings().apply { setValue(Types.FONTSIZE, 10) }
+        val resolved = TextDisplaySettings.actual(null, TextDisplaySettings(), global)
+
+        val result = TextDisplaySettings.globalWithCopiedValues(global, resolved, setOf(Types.FONTSIZE))
+
+        assertNotNull(result.getValue(Types.FONTSIZE))
+        assertEquals(10, result.getValue(Types.FONTSIZE))        // inheriting source => global unchanged
+    }
+
+    @Test
+    fun `globalWithCopiedValues does not mutate the inputs`() {
+        val global = TextDisplaySettings().apply { setValue(Types.FONTSIZE, 10) }
+        val resolved = TextDisplaySettings().apply { setValue(Types.FONTSIZE, 22) }
+
+        TextDisplaySettings.globalWithCopiedValues(global, resolved, setOf(Types.FONTSIZE))
+
+        assertEquals(10, global.getValue(Types.FONTSIZE))
+        assertEquals(22, resolved.getValue(Types.FONTSIZE))
+    }
+
+    @Test
+    fun `globalWithCopiedValues with no dirty types returns an equal global`() {
+        val global = TextDisplaySettings().apply { setValue(Types.FONTSIZE, 10) }
+        val resolved = TextDisplaySettings().apply { setValue(Types.FONTSIZE, 22) }
+
+        val result = TextDisplaySettings.globalWithCopiedValues(global, resolved, emptySet())
+
+        assertEquals(10, result.getValue(Types.FONTSIZE))
+    }
 }

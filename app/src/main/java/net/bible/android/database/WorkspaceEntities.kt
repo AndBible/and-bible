@@ -514,6 +514,33 @@ class WorkspaceEntities {
                 }
                 return anyChanged
             }
+
+            /**
+             * A copy of [global] with [dirtyTypes] taken from [resolvedSource].
+             *
+             * [resolvedSource] must ALREADY be resolved through [actual] by the caller — each copy
+             * site has a different parent chain (a workspace resolves through global; a window
+             * resolves through its workspace and then global), so the resolution cannot live here.
+             *
+             * Why resolution matters at all: the copy sites used to read the raw
+             * `source.getValue(type)`, which is legitimately null when the source inherits that
+             * type. Writing that null into the global row does not mean "leave it alone" — it means
+             * the global falls back to [default]. So copying a setting the user cannot even see as
+             * source-specific silently reset it.
+             *
+             * Returns a new instance; neither argument is mutated.
+             */
+            fun globalWithCopiedValues(
+                global: TextDisplaySettings,
+                resolvedSource: TextDisplaySettings,
+                dirtyTypes: Set<Types>,
+            ): TextDisplaySettings {
+                val result = global.copy()
+                for (t in dirtyTypes) {
+                    result.setValue(t, resolvedSource.getValue(t))
+                }
+                return result
+            }
         }
     }
 
