@@ -18,16 +18,6 @@
 package net.bible.sharedcore.reading
 
 /**
- * Everything the reading toolbar's search mode renders, as plain data (F6 Task 4).
- *
- * The recent-terms list and whether its menu is open are state-IN rather than remembered inside the
- * composable, so both stay unit-testable: an expanded `DropdownMenu` cannot be photographed (it
- * hangs Roborazzi), which makes the golden useless as the regression test for it.
- *
- * A `null` instance of this class — the default on both `ReadingToolbar` and `ReadingViewScreen` —
- * means "not in search mode", so the normal toolbar path and its goldens are untouched.
- */
-/**
  * A one-shot instruction to the toolbar's search field about focus and the software keyboard.
  *
  * One nullable enum rather than two booleans, for two reasons: `Focus` and `Release` are then mutually
@@ -41,6 +31,16 @@ package net.bible.sharedcore.reading
  */
 enum class SearchFieldImeRequest { Focus, Release }
 
+/**
+ * Everything the reading toolbar's search mode renders, as plain data (F6 Task 4).
+ *
+ * The recent-terms list and whether its menu is open are state-IN rather than remembered inside the
+ * composable, so both stay unit-testable: an expanded `DropdownMenu` cannot be photographed (it
+ * hangs Roborazzi), which makes the golden useless as the regression test for it.
+ *
+ * A `null` instance of this class — the default on both `ReadingToolbar` and `ReadingViewScreen` —
+ * means "not in search mode", so the normal toolbar path and its goldens are untouched.
+ */
 data class ReadingSearchBarState(
     val query: String,
     val recentTerms: List<String> = emptyList(),

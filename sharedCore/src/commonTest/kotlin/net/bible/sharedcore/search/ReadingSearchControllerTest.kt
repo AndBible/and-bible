@@ -434,4 +434,39 @@ class ReadingSearchControllerTest {
         c.closeSearchMode()
         assertNull(c.imeRequest.value)
     }
+
+    // Reaches `enterFormOrResults`' cache-hit branch specifically: search mode is still active and
+    // `resultsForQuery` still holds this query, so `open()` serves the existing results rather than
+    // re-running. `reopeningOnAnAlreadyServedQueryReleasesTheField` cannot reach it —
+    // `closeSearchMode()` resets `resultsForQuery`, so it falls through `runSearch` instead.
+    @Test
+    fun reopeningWithoutLeavingSearchModeServesTheCacheAndReleasesTheField() {
+        val (r, c) = controller()
+        c.open()
+        c.queries.setQuery("light")
+        c.submit()
+        c.imeRequestHandled()
+        c.open()
+        assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), c.phase.value)
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+        // The point of the branch: it serves what it has instead of searching again.
+        assertEquals(1, r.searchesRun.size)
+    }
+
+    // The Critical this round fixed: indexing finishing with no query yet hands over to the FORM, which
+    // is the one phase that must focus the field. Before the fix this branch requested nothing, so the
+    // `Release` from the index prompt survived into it and the field stayed unfocused — the reported bug,
+    // alive in the indexing path.
+    @Test
+    fun indexingFinishingWithNoQueryFocusesTheFormsField() {
+        val (_, c) = controller(
+            doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+        )
+        c.open()
+        c.acceptIndexing()
+        c.imeRequestHandled()
+        c.onIndexingFinished(indexDone = true)
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
+        assertEquals(SearchFieldImeRequest.Focus, c.imeRequest.value)
+    }
 }

@@ -160,6 +160,7 @@ class ReadingSearchController(
         onStartIndexing(p.docId)
         _phase.value = ReadingSearchPhase.Indexing(p.docId, p.forEpub)
         _sheetVisible.value = true
+        requestFieldRelease()
     }
 
     /**
@@ -171,12 +172,14 @@ class ReadingSearchController(
         val p = _phase.value as? ReadingSearchPhase.Indexing ?: return
         if (!indexDone) {
             _phase.value = ReadingSearchPhase.NeedsIndex(p.docId, p.forEpub)
+            requestFieldRelease()
             return
         }
         val q = queries.query.value.trim()
         if (q.isEmpty()) {
             _phase.value = ReadingSearchPhase.Form(p.docId, p.forEpub)
             _sheetVisible.value = false
+            requestFieldFocus()
         } else {
             runSearch(p.docId, p.forEpub, q)
         }
