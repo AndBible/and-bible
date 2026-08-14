@@ -207,10 +207,17 @@ fun ReadingDrawerHeader(appName: String, logo: Painter?) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
+        // Order matters: padding OUTSIDE heightIn. Compose nests a modifier chain outer→inner
+        // left-to-right, so with heightIn outer (as originally written here) the 24dp top padding
+        // would be applied INSIDE the 100dp minimum -- i.e. absorbed into it -- yielding a 100dp
+        // total block, not the 124dp classic's nav_header_main.xml produces (there, marginTop sits
+        // outside the view's own minHeight box and is additive). With padding outer and heightIn
+        // inner, the content box is independently forced to >=100dp and the 24dp is added on top of
+        // that, giving >=124dp total, matching classic.
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = DrawerHeaderMinHeight)
-            .padding(start = DrawerRowHorizontalPadding, end = DrawerRowHorizontalPadding, top = DrawerHeaderTopPadding),
+            .padding(start = DrawerRowHorizontalPadding, end = DrawerRowHorizontalPadding, top = DrawerHeaderTopPadding)
+            .heightIn(min = DrawerHeaderMinHeight),
     ) {
         if (logo != null) {
             Image(painter = logo, contentDescription = null, modifier = Modifier.size(48.dp))
