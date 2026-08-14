@@ -23,7 +23,9 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Cancel
@@ -58,6 +61,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.reading.AgentLogEntryVd
@@ -114,9 +118,19 @@ fun AgentLogPanel(
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
+        // Rounded top corners + a shadow read as an M3 bottom surface rising over the panes.
+        // Classic's equivalents are a 1dp top divider plus android:elevation="8dp" on the root
+        // (agent_log_widget.xml:25-32); the divider is redundant next to corners and a shadow and
+        // is deliberately not ported. This is NOT a real bottom sheet -- see the round 6 spec
+        // section 4.4 for the four reasons it cannot be one.
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
         tonalElevation = 3.dp,
+        shadowElevation = 8.dp,
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
+            if (state.expanded) {
+                AgentLogDragHandle(onClick = onToggleExpanded)
+            }
             AgentLogHeader(
                 snapshot = state.snapshot,
                 statusIcon = statusIcon,
@@ -240,6 +254,41 @@ private fun AgentLogHeader(
                 Icon(imageVector = Icons.Filled.Close, contentDescription = strings.agentLogClose)
             }
         }
+    }
+}
+
+/**
+ * An M3-spec drag handle (32x4dp, `onSurfaceVariant` at 40%), shown ONLY while the panel is
+ * expanded: collapsed, the panel is a ~32dp status strip and a handle would nearly double it for
+ * no gain, while expanded the extra ~24dp is what makes the surface read as a sheet.
+ *
+ * It is TAPPABLE (collapsing the panel), because a handle that can neither be dragged nor tapped
+ * lies about its affordance. There is no drag gesture: M3 offers no non-modal sheet able to coexist
+ * with the reading view's existing search `BottomSheetScaffold` (round 6 spec section 4.4), and a
+ * hand-rolled gesture was explicitly not in scope.
+ *
+ * Drawn by hand rather than with `BottomSheetDefaults.DragHandle` so this file opts into no
+ * experimental Material 3 API, and semantics-cleared so TalkBack routes users to the labelled
+ * caret instead of announcing two identical collapse actions.
+ */
+@Composable
+private fun AgentLogDragHandle(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .clearAndSetSemantics {}
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(width = 32.dp, height = 4.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                    shape = RoundedCornerShape(2.dp),
+                )
+        )
     }
 }
 
