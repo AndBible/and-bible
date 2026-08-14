@@ -16,17 +16,12 @@
  */
 package net.bible.android.view.compose.golden
 
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
-import net.bible.sharedcore.navigation.iconCategory
 import net.bible.sharedui.components.AbSearchableOptionSheetContent
-import net.bible.sharedui.navigation.LocalCategoryIcon
+import net.bible.sharedui.navigation.TypeFilterIcon
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -73,7 +68,12 @@ class DocumentFilterBarGoldenTest {
         }
     }
 
-    /** The type sheet's configuration: per-option leading category icons, no search field. */
+    /**
+     * The type sheet's configuration: per-option leading category icons, no search field.
+     * Uses production's [TypeFilterIcon] (made public for exactly this) rather than a hand-copied
+     * re-implementation of its reserved-slot rule, so this golden actually pins production
+     * behaviour instead of a private copy of it that could silently drift away.
+     */
     @Test fun typeSheet() {
         captureGolden("DocumentFilterBar", "typeSheet", EDGE_MODE) {
             AbSearchableOptionSheetContent(
@@ -82,18 +82,7 @@ class DocumentFilterBarGoldenTest {
                 optionLabel = { it.second },
                 onSelect = {},
                 searchPlaceholder = null,
-                leadingIcon = { pair ->
-                    val category = pair.first.iconCategory
-                    if (category == null) {
-                        Spacer(Modifier.size(typeFilterIconSize))
-                    } else {
-                        Icon(
-                            painter = LocalCategoryIcon.current(category),
-                            contentDescription = null,
-                            modifier = Modifier.size(typeFilterIconSize),
-                        )
-                    }
-                },
+                leadingIcon = { pair -> TypeFilterIcon(pair.first, contentDescription = null, size = typeFilterIconSize) },
             )
         }
     }

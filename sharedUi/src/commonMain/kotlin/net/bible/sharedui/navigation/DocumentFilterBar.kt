@@ -37,6 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -122,6 +124,13 @@ fun DocumentFilterBar(
             type = {
                 AssistChip(
                     onClick = { openSheet = FilterSheet.Type },
+                    // The content description lives on the chip itself, not on the leading icon
+                    // slot: that slot disappears entirely when the filter is ALL (no reserved-slot
+                    // spacer here, unlike the sheet's list), so a description hung off it went
+                    // silent in the chip's default state -- the type chip announced only its value,
+                    // never that it WAS a type filter. Attaching it here means the chip's
+                    // accessible label doesn't depend on which of its slots happen to be present.
+                    modifier = Modifier.semantics { contentDescription = strings.documentTypeLabel },
                     label = { Text(selectedTypePair.second, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                     leadingIcon = if (selectedTypeFilter.iconCategory == null) {
                         // No reserved-slot spacer here: that's only needed in the sheet's LIST, to
@@ -131,7 +140,9 @@ fun DocumentFilterBar(
                     } else {
                         // Chip-sized icon (AssistChipDefaults.IconSize), NOT TypeFilterIconSize:
                         // that larger size is only right for the sheet's ListItem leading slot.
-                        { TypeFilterIcon(selectedTypeFilter, contentDescription = strings.documentTypeLabel, size = AssistChipDefaults.IconSize) }
+                        // contentDescription = null: the chip-level semantics above already carries
+                        // the label, so the icon doesn't need (and shouldn't duplicate) its own.
+                        { TypeFilterIcon(selectedTypeFilter, contentDescription = null, size = AssistChipDefaults.IconSize) }
                     },
                     trailingIcon = {
                         Icon(Icons.Filled.ArrowDropDown, contentDescription = null, modifier = Modifier.size(AssistChipDefaults.IconSize))
@@ -187,6 +198,11 @@ private enum class FilterSheet { None, Language, Type }
  * measure and place them at the widths (and gap) it returns. Keeping the arithmetic out of the
  * `Layout` block is what makes it host-testable at all: a golden image renders exactly one state,
  * not the branch/clamp logic behind it.
+ *
+ * [minWidth] is [shrinkToFitPair]'s per-chip floor, converted to px here since that function is
+ * pure Compose-free arithmetic. Without it, a long language name can shrink the type chip down to
+ * a single ambiguous character ("A…" for both "All types" and "Add-ons") — a filter that hides its
+ * own state.
  */
 @Composable
 private fun ShrinkingChipPair(
@@ -195,6 +211,7 @@ private fun ShrinkingChipPair(
     modifier: Modifier = Modifier,
     gap: Dp = 8.dp,
     languageShareOfShortfall: Float = 2f / 3f,
+    minWidth: Dp = ChipMinWidth,
 ) {
     Layout(modifier = modifier, content = {
         language()
@@ -209,6 +226,7 @@ private fun ShrinkingChipPair(
             languageNatural = languageNatural,
             typeNatural = typeNatural,
             languageShareOfShortfall = languageShareOfShortfall,
+            minWidth = minWidth.roundToPx(),
         )
 
         val languagePlaceable = languageMeasurable.measure(
@@ -234,9 +252,15 @@ private fun ShrinkingChipPair(
  * `AssistChip` leading slot want different sizes ([TypeFilterIconSize] vs
  * [AssistChipDefaults.IconSize]), and using the larger, list-appropriate size inside the chip was
  * exactly what starved the chip of width for its own label.
+ *
+ * Public (not `private`) so [net.bible.android.view.compose.golden.DocumentFilterBarGoldenTest] —
+ * in the separate `:app` module — can capture the type sheet through the SAME leading-icon lambda
+ * production uses, rather than a hand-copied re-implementation of this reserved-slot rule that
+ * could silently drift from it. `internal` is not enough here: Kotlin `internal` visibility is
+ * scoped to the compilation module, and `:app` is a different Gradle module from `:sharedUi`.
  */
 @Composable
-private fun TypeFilterIcon(filter: DocTypeFilter, contentDescription: String?, size: Dp = TypeFilterIconSize) {
+fun TypeFilterIcon(filter: DocTypeFilter, contentDescription: String?, size: Dp = TypeFilterIconSize) {
     val category = filter.iconCategory
     if (category == null) {
         Spacer(Modifier.size(size))
@@ -250,3 +274,21 @@ private fun TypeFilterIcon(filter: DocTypeFilter, contentDescription: String?, s
 }
 
 private val TypeFilterIconSize = 24.dp
+
+/**
+ * Floor passed to [shrinkToFitPair] via [ShrinkingChipPair]: chip chrome (leading icon, trailing
+ * arrow, their gaps to the label, and the chip's own horizontal content padding) plus roughly four
+ * characters of label at [AssistChip]'s default text style. Prevents the type chip in particular
+ * from shrinking to a single ambiguous character ("A…" reads as both "All types" and "Add-ons") —
+ * see finding Important-3 in the round-6 fix wave.
+ *
+ * 80dp, not a larger "safe" number: measured against `Download_filtersLongLanguageName`'s actual
+ * inputs (a 320dp-wide device, "Portuguese (Brazil)" selected), the two chips only have ~195px of
+ * combined budget once the result count and screen padding are subtracted. A floor much above 80dp
+ * would make `2 * minWidth` exceed that budget, and [shrinkToFitPair] relaxes the floor back to
+ * floor-free behaviour entirely rather than violate the stronger "never claim more than available"
+ * invariant — so an over-generous floor constant would silently stop protecting the exact golden
+ * this fix exists for. At 80dp the type chip still lands with ~4-5 characters of legible label
+ * ("All t…"/"Add-…") instead of one.
+ */
+private val ChipMinWidth = 80.dp

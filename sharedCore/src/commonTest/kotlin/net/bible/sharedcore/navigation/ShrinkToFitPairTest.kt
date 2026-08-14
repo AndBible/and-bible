@@ -84,6 +84,11 @@ class ShrinkToFitPairTest {
      * would ever produce (available narrower than the nominal gap cannot happen on a real device),
      * because the point of fixing this "by construction" is that it holds unconditionally, not
      * only for the inputs anyone thought to check by hand.
+     *
+     * Also sweeps [net.bible.sharedcore.navigation.shrinkToFitPair]'s `minWidth` floor (added for
+     * the round-6 fix wave's Important-3 finding) across the same combinations, so the floor
+     * parameter is proven not to break the base invariant for any input, including one it cannot
+     * possibly honor (a floor larger than `available` itself).
      */
     @Test
     fun `invariant -- widths plus the actual gap never exceed available and neither width is negative`() {
@@ -91,32 +96,82 @@ class ShrinkToFitPairTest {
         val gaps = listOf(0, 1, 8, 20)
         val naturals = listOf(0, 1, 5, 30, 200, 1000)
         val shares = listOf(0f, 1f / 3f, 2f / 3f, 1f)
+        val minWidths = listOf(0, 1, 40, 1000)
 
         for (available in availables) {
             for (gap in gaps) {
                 for (languageNatural in naturals) {
                     for (typeNatural in naturals) {
                         for (share in shares) {
-                            val r = shrinkToFitPair(available, gap, languageNatural, typeNatural, share)
-                            assertTrue(
-                                r.languageWidth >= 0,
-                                "languageWidth negative for available=$available gap=$gap " +
-                                    "languageNatural=$languageNatural typeNatural=$typeNatural share=$share -> $r",
-                            )
-                            assertTrue(
-                                r.typeWidth >= 0,
-                                "typeWidth negative for available=$available gap=$gap " +
-                                    "languageNatural=$languageNatural typeNatural=$typeNatural share=$share -> $r",
-                            )
-                            assertTrue(
-                                r.languageWidth + r.typeWidth + r.gap <= available,
-                                "invariant violated for available=$available gap=$gap " +
-                                    "languageNatural=$languageNatural typeNatural=$typeNatural share=$share -> $r",
-                            )
+                            for (minWidth in minWidths) {
+                                val r = shrinkToFitPair(available, gap, languageNatural, typeNatural, share, minWidth)
+                                val ctx = "available=$available gap=$gap languageNatural=$languageNatural " +
+                                    "typeNatural=$typeNatural share=$share minWidth=$minWidth -> $r"
+                                assertTrue(r.languageWidth >= 0, "languageWidth negative for $ctx")
+                                assertTrue(r.typeWidth >= 0, "typeWidth negative for $ctx")
+                                assertTrue(
+                                    r.languageWidth + r.typeWidth + r.gap <= available,
+                                    "invariant violated for $ctx",
+                                )
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Important-3 fix: with room to honor it, neither chip is cut below [minWidth] -- the defect
+     * being fixed was a long language name shrinking the type chip down to a single letter ("A…"),
+     * which is ambiguous between "All types" and "Add-ons".
+     */
+    @Test
+    fun `floor -- neither chip is cut below minWidth when there is room to honor it`() {
+        // Both naturals are comfortably above the floor and there is exactly enough budget to
+        // cut both down to the floor (40 + 40 + gap 8 = 88) with room to spare.
+        val r = shrinkToFitPair(available = 100, gap = 8, languageNatural = 300, typeNatural = 300, minWidth = 40)
+        assertTrue(r.languageWidth >= 40, "languageWidth $r fell below the floor")
+        assertTrue(r.typeWidth >= 40, "typeWidth $r fell below the floor")
+        assertEquals(92, r.languageWidth + r.typeWidth) // fully uses the budget (100 - gap 8)
+    }
+
+    /**
+     * The floor is honored by taking the shortfall from the OTHER chip first: language's ordinary
+     * 2/3-of-shortfall share would cut it below the floor here, so type absorbs the rest instead of
+     * language being pushed under 40.
+     */
+    @Test
+    fun `floor -- the other chip absorbs what the floor won't let one chip give up`() {
+        // language's ordinary 2/3-of-shortfall share (166) would cut it from 50 down to -116; it
+        // is clamped at the floor (40) instead, and type -- which can afford it -- absorbs the rest.
+        val r = shrinkToFitPair(available = 100, gap = 0, languageNatural = 50, typeNatural = 300, minWidth = 40)
+        assertEquals(40, r.languageWidth) // clamped at the floor, not cut further
+        assertEquals(60, r.typeWidth) // absorbed the rest of the shortfall
+        assertEquals(100, r.languageWidth + r.typeWidth)
+    }
+
+    /**
+     * When honoring both floors together genuinely would not fit -- here 2 * 40 + gap(8) = 88 >
+     * available(50) -- the floor cannot be a bound this function enforces without breaking the
+     * stronger "never claim more than available" invariant, so it is relaxed back to the
+     * floor-free clamp-and-redistribute behaviour (matching a `minWidth = 0` call with the same
+     * other inputs) rather than silently overflowing `available`.
+     */
+    @Test
+    fun `floor -- relaxed entirely when honoring both floors would not fit in available`() {
+        val withFloor = shrinkToFitPair(available = 50, gap = 0, languageNatural = 20, typeNatural = 200, minWidth = 40)
+        val withoutFloor = shrinkToFitPair(available = 50, gap = 0, languageNatural = 20, typeNatural = 200, minWidth = 0)
+        assertEquals(withoutFloor, withFloor)
+    }
+
+    /** A chip whose own natural width is already under the floor is left alone -- never padded up. */
+    @Test
+    fun `floor -- a chip already narrower than the floor is not grown`() {
+        // language is short ("All") and would never need cutting on its own; only type's bulk
+        // triggers the shrink. language's floor (40) exceeds its natural width (20), so its
+        // effective floor is capped to what it naturally has -- it must not be grown past 20.
+        val r = shrinkToFitPair(available = 60, gap = 0, languageNatural = 20, typeNatural = 300, minWidth = 40)
+        assertTrue(r.languageWidth <= 20, "a chip must never be grown past its own natural width: $r")
     }
 }
