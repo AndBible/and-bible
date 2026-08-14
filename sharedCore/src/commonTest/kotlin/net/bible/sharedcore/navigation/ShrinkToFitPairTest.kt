@@ -86,7 +86,7 @@ class ShrinkToFitPairTest {
      * only for the inputs anyone thought to check by hand.
      */
     @Test
-    fun `invariant -- widths plus the actual gap never exceed available, and neither width is negative`() {
+    fun `invariant -- widths plus the actual gap never exceed available and neither width is negative`() {
         val availables = listOf(0, 1, 2, 3, 5, 7, 8, 9, 15, 50, 100, 500)
         val gaps = listOf(0, 1, 8, 20)
         val naturals = listOf(0, 1, 5, 30, 200, 1000)
