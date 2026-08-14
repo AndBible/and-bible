@@ -157,14 +157,25 @@ class ReadingSearchController(
 
     /**
      * The toolbar overflow's "Rebuild index": prompt for a rebuild of the document THIS SESSION is
-     * addressing. Returns `false` when there is no session (nothing to rebuild).
+     * addressing. Returns `false` when there is no session (nothing to rebuild); when a build is
+     * already running it raises the sheet on the in-progress build instead of restarting it.
      *
      * Classic had to start the `SearchIndex` Activity for this (`Search.kt:269-280`); the in-sheet
      * panel that replaced it is one call away, and it already words itself as a rebuild when the
      * document has a working index. So this is a redirect into the existing pipeline, not a feature.
      */
     fun requestRebuildIndex(): Boolean {
-        val docId = docIdOf(_phase.value) ?: return false
+        val p = _phase.value
+        // Already building: show the build in progress rather than restarting it. The sheet is a
+        // NON-modal `BottomSheetScaffold`, so the toolbar's overflow stays tappable during indexing —
+        // and overwriting the phase to `NeedsIndex` here would orphan `onIndexingFinished`'s
+        // `as? Indexing` guard. The real build's completion would be swallowed, the sheet would sit on
+        // the prompt, and accepting again would start a SECOND concurrent build.
+        if (p is ReadingSearchPhase.Indexing) {
+            _sheetVisible.value = true
+            return true
+        }
+        val docId = docIdOf(p) ?: return false
         return promptIndexFor(docId)
     }
 

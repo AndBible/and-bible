@@ -503,4 +503,38 @@ class ReadingSearchControllerTest {
         assertFalse(c.requestRebuildIndex())
         assertEquals(ReadingSearchPhase.Closed, c.phase.value)
     }
+
+    // The Important this round fixed, part one: the sheet is non-modal, so the overflow stays tappable
+    // during a build. A rebuild request must not restart or re-prompt — it shows the build already running.
+    @Test
+    fun requestingARebuildWhileIndexingShowsTheRunningBuildInsteadOfRestartingIt() {
+        val (r, c) = controller(
+            doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+        )
+        c.open()
+        c.acceptIndexing()
+        assertEquals(listOf("KJV"), r.indexingStarted)
+        c.closeSheet()
+        assertTrue(c.requestRebuildIndex())
+        assertEquals(ReadingSearchPhase.Indexing("KJV", forEpub = false), c.phase.value)
+        assertTrue(c.sheetVisible.value)
+        // No second build was started.
+        assertEquals(listOf("KJV"), r.indexingStarted)
+    }
+
+    // Part two, and the one that pins the real failure mode: overwriting the phase mid-build orphaned
+    // `onIndexingFinished`'s `as? Indexing` guard, so the completion of the build that WAS running got
+    // swallowed. This asserts the completion still lands.
+    @Test
+    fun aRebuildRequestMidBuildDoesNotSwallowThatBuildsCompletion() {
+        val (r, c) = controller(
+            doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+        )
+        c.open(seedQuery = "light")
+        c.acceptIndexing()
+        c.requestRebuildIndex()
+        c.onIndexingFinished(indexDone = true)
+        assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), c.phase.value)
+        assertEquals(listOf(Triple("KJV", "light", false)), r.searchesRun)
+    }
 }
