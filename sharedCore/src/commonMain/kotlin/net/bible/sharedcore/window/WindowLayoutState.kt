@@ -42,8 +42,9 @@ data class WindowSnapshot(
  *
  * Split *orientation* is deliberately absent: classically it is `enableReverseSplitMode
  * XOR isPortrait`, i.e. orientation-derived (a config concern). Only the pure workspace
- * flag `reverseSplitMode` is carried here; the Compose chrome (12b) computes
- * `isSplitVertically` from `LocalConfiguration`/`BoxWithConstraints`.
+ * flag `reverseSplitMode` is carried here; the Compose chrome derives the orientation in
+ * `SplitContent` via [splitIsHorizontal], from `BoxWithConstraints`' measured size plus an
+ * IME latch. It does NOT read `LocalConfiguration` — nothing in this repo does.
  */
 data class WindowLayoutState(
     val windows: List<WindowSnapshot>,

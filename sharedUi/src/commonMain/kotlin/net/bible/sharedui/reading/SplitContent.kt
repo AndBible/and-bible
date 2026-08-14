@@ -27,12 +27,15 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
@@ -51,6 +54,7 @@ import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.effectiveWeights
 import net.bible.sharedcore.window.separatorDrag
 import net.bible.sharedcore.window.separatorIsActive
+import net.bible.sharedcore.window.splitIsHorizontal
 
 /** Classic `window_separator_width` (`res/values/dimens.xml:32`): the only space the seam occupies in flow. */
 private val SEPARATOR_THICKNESS = 4.dp
@@ -144,13 +148,25 @@ fun SplitContent(
     val windows = layout.windows.filter { it.isVisible }
     BoxWithConstraints(modifier.fillMaxSize()) {
         val density = LocalDensity.current
-        val isHorizontal = (maxWidth > maxHeight) != layout.reverseSplitMode
-        val weights = effectiveWeights(windows)
         // Captured here (BoxWithConstraintsScope is the only implicit receiver in scope) so the
         // averageExtentPx lambdas below — defined inside the nested Row/Column scope — don't need
         // to resolve maxWidth/maxHeight through an ambiguous nested-receiver chain.
         val maxWidthPx = with(density) { maxWidth.toPx() }
         val maxHeightPx = with(density) { maxHeight.toPx() }
+        // A/B F6-B1: the orientation must not follow the keyboard. `splitIsHorizontal` latches the
+        // last committed answer while the IME is visible; see its kdoc for why the measured height is
+        // not a safe input. Recorded in a SideEffect rather than assigned here, because writing
+        // snapshot state during composition is exactly the pattern Compose warns about.
+        var latchedHorizontal by remember { mutableStateOf<Boolean?>(null) }
+        val isHorizontal = splitIsHorizontal(
+            widthPx = maxWidthPx,
+            heightPx = maxHeightPx,
+            reverseSplitMode = layout.reverseSplitMode,
+            imeVisible = WindowInsets.ime.getBottom(density) > 0,
+            previous = latchedHorizontal,
+        )
+        SideEffect { latchedHorizontal = isHorizontal }
+        val weights = effectiveWeights(windows)
 
         // Transient live-drag override; null when no separator is currently being dragged, in
         // which case rendering below is byte-identical to the pre-live-drag behaviour.
