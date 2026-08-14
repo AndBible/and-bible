@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.HelpOutline
@@ -43,6 +44,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -275,20 +277,70 @@ private fun RowOverflow(
     onEditSettings: () -> Unit, onRename: () -> Unit, onClone: () -> Unit, onDelete: () -> Unit,
     onCopySettings: () -> Unit, onCopySettingsToGlobal: () -> Unit,
 ) {
-    val s = LocalStrings.current
     var expanded by remember { mutableStateOf(false) }
+    var submenuOpen by remember { mutableStateOf(false) }
+    // Reset to the root whenever the menu closes, so the next open never starts inside the submenu
+    // (WindowPaneMenu.kt:64-66 does the same with its path stack).
+    LaunchedEffect(expanded) { if (!expanded) submenuOpen = false }
     Box {
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(text = { Text(s.workspaceSettingsLabel) }, onClick = { expanded = false; onEditSettings() })
-            DropdownMenuItem(text = { Text(s.rename) }, onClick = { expanded = false; onRename() })
-            DropdownMenuItem(text = { Text(s.newCopiedWorkspace) }, onClick = { expanded = false; onClone() })
-            DropdownMenuItem(
-                text = { Text(s.deleteWorkspaceLabel) }, enabled = canDelete,
-                onClick = { expanded = false; onDelete() },
+            WorkspaceRowMenuRows(
+                canDelete = canDelete,
+                submenuOpen = submenuOpen,
+                onEnterSubmenu = { submenuOpen = true },
+                onBack = { submenuOpen = false },
+                onEditSettings = { expanded = false; onEditSettings() },
+                onRename = { expanded = false; onRename() },
+                onClone = { expanded = false; onClone() },
+                onDelete = { expanded = false; onDelete() },
+                onCopySettings = { expanded = false; onCopySettings() },
+                onCopySettingsToGlobal = { expanded = false; onCopySettingsToGlobal() },
             )
-            DropdownMenuItem(text = { Text(s.copyWorkspaceSettings) }, onClick = { expanded = false; onCopySettings() })
-            DropdownMenuItem(text = { Text(s.copySettingsToGlobal) }, onClick = { expanded = false; onCopySettingsToGlobal() })
         }
     }
+}
+
+/**
+ * One level of the per-workspace row menu.
+ *
+ * Public and factored out of [RowOverflow] for the same reason `WindowPaneMenuRows` is: an expanded
+ * `DropdownMenu` cannot be photographed — it hangs Roborazzi, and two open popups on one page hang
+ * the whole `:app` suite — so the golden renders this directly instead of opening the real popup.
+ *
+ * Row order follows classic `workspace_popup_menu.xml`. The last two classic rows are folded into a
+ * "Copy settings…" submenu: "Global defaults" named an action ("copy these into the global
+ * defaults") as though it were a destination, which read as a mystery in both UIs.
+ */
+@Composable
+fun WorkspaceRowMenuRows(
+    canDelete: Boolean,
+    submenuOpen: Boolean,
+    onEnterSubmenu: () -> Unit,
+    onBack: () -> Unit,
+    onEditSettings: () -> Unit, onRename: () -> Unit, onClone: () -> Unit, onDelete: () -> Unit,
+    onCopySettings: () -> Unit, onCopySettingsToGlobal: () -> Unit,
+) {
+    val s = LocalStrings.current
+    if (submenuOpen) {
+        DropdownMenuItem(
+            text = { Text("‹ ${s.menuBack}") },
+            onClick = onBack,
+        )
+        DropdownMenuItem(text = { Text(s.copySettingsToWorkspaces) }, onClick = onCopySettings)
+        DropdownMenuItem(text = { Text(s.copySettingsToGlobalDefaults) }, onClick = onCopySettingsToGlobal)
+        return
+    }
+    DropdownMenuItem(
+        text = { Text(s.deleteWorkspaceLabel) }, enabled = canDelete,
+        onClick = onDelete,
+    )
+    DropdownMenuItem(text = { Text(s.rename) }, onClick = onRename)
+    DropdownMenuItem(text = { Text(s.newCopiedWorkspace) }, onClick = onClone)
+    DropdownMenuItem(text = { Text(s.workspaceSettingsLabel) }, onClick = onEditSettings)
+    DropdownMenuItem(
+        text = { Text(s.copyWorkspaceSettings) },
+        trailingIcon = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+        onClick = onEnterSubmenu,
+    )
 }

@@ -359,6 +359,9 @@
     <string name="copy_settings_to_workspace">Workspace</string>
     <string name="copy_settings_to_window">Window %1$d (%2$s: %3$s)</string>
     <string name="copy_settings_to_global">Global defaults</string>
+    <string name="copy_settings_to_workspaces">To other workspaces…</string>
+    <string name="copy_settings_to_global_defaults">To global defaults…</string>
+    <string name="menu_back">Back</string>
     <string name="change_to_normal">Change to normal window</string>
     <string name="window_pin_mode">Pin</string>
 

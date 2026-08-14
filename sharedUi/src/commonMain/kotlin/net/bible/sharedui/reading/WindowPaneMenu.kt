@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.window.WindowPaneMenuItem
+import net.bible.sharedui.strings.LocalStrings
 
 /**
  * The per-window (☰) pane popup menu: a Material3 [DropdownMenu] listing [items] in order, with
@@ -123,7 +124,7 @@ fun WindowPaneMenuRows(
     icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     if (showBack) {
-        DropdownMenuItem(text = { Text("‹ Back") }, onClick = onBack)
+        DropdownMenuItem(text = { Text("‹ ${LocalStrings.current.menuBack}") }, onClick = onBack)
     }
     val (rows, reserveIconSlot) = resolveMenuIconRows(items, WindowPaneMenuItem::iconKey, icon)
     rows.forEach { (item, resolvedIcon) ->

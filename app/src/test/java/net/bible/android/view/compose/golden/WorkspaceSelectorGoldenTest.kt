@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.workspaces.CopySettingsState
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
+import net.bible.sharedui.workspaces.WorkspaceRowMenuRows
 import net.bible.sharedui.workspaces.WorkspaceSelectorScreen
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,5 +73,23 @@ class WorkspaceSelectorGoldenTest {
         captureGolden("WorkspaceSelector", "copySettings", EDGE_MODE, heightDp = 900) {
             screen(copy = CopySettingsState.ChooseTypes("1", listOf("Font size", "Colors", "Margins")))
         }
+    }
+
+    @Composable
+    private fun rowMenu(submenuOpen: Boolean) = androidx.compose.foundation.layout.Column {
+        WorkspaceRowMenuRows(
+            canDelete = true, submenuOpen = submenuOpen,
+            onEnterSubmenu = {}, onBack = {},
+            onEditSettings = {}, onRename = {}, onClone = {}, onDelete = {},
+            onCopySettings = {}, onCopySettingsToGlobal = {},
+        )
+    }
+
+    @Test fun workspaceRowMenu_root() {
+        captureGolden("WorkspaceRowMenu", "root", EDGE_MODE, heightDp = 400) { rowMenu(submenuOpen = false) }
+    }
+
+    @Test fun workspaceRowMenu_copySubmenu() {
+        captureGolden("WorkspaceRowMenu", "copySubmenu", EDGE_MODE, heightDp = 400) { rowMenu(submenuOpen = true) }
     }
 }
