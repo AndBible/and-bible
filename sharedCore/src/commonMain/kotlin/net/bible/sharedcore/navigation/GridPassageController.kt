@@ -43,7 +43,23 @@ data class GridUi(
     val showDeutToggle: Boolean,
     val buttons: List<GridButton>,
     val sections: List<List<GridButton>>? = null,
+    /**
+     * Floor for the row count the screen sizes its cells against — classic's fixed `LayoutDesigner`
+     * row count. Without it a short list (Jude: one chapter) computes one row and inflates its one
+     * button to the full viewport height.
+     */
+    val minRows: Int = 1,
 )
+
+/**
+ * Rows to divide the viewport height by when sizing one grid cell: the content's own row count, but
+ * never fewer than the layout designer's [minRows]. See `GridUi.minRows`.
+ */
+fun gridCellRows(buttonCount: Int, columns: Int, minRows: Int): Int {
+    val cols = columns.coerceAtLeast(1)
+    val contentRows = ((buttonCount + cols - 1) / cols).coerceAtLeast(1)
+    return maxOf(contentRows, minRows)
+}
 
 /** Persisted grid preferences (host maps these to the divergent classic stores). */
 data class GridOptions(

@@ -51,6 +51,7 @@ import net.bible.sharedcore.navigation.GridOption
 import net.bible.sharedcore.navigation.GridOptions
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.GridUi
+import net.bible.sharedcore.navigation.gridCellRows
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
@@ -97,9 +98,9 @@ fun GridChoosePassageScreen(
         // Content rows: each section starts on a fresh row (a full-span spacer forces the break),
         // so count rows per section, not across the whole list.
         val contentRows = if (sections != null) {
-            sections.sumOf { (it.size + cols - 1) / cols }.coerceAtLeast(1)
+            maxOf(sections.sumOf { (it.size + cols - 1) / cols }.coerceAtLeast(1), ui.minRows)
         } else {
-            ((ui.buttons.size + cols - 1) / cols).coerceAtLeast(1)
+            gridCellRows(buttonCount = ui.buttons.size, columns = cols, minRows = ui.minRows)
         }
         BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
             // Fill the viewport height like the classic grid: divide the available height by the

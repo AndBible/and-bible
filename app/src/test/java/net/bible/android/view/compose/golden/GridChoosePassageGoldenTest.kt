@@ -68,6 +68,28 @@ class GridChoosePassageGoldenTest {
         }
     }
 
+    // Reproduces the reported defect: a book with very few chapters (Jude: one) must NOT get a
+    // screen-filling button — the row-count floor keeps the cell sized like the other grids.
+    @Test fun grid_chapter_one() {
+        val chapters = listOf(GridButton(1, "1", colorGroup = 8, isCurrent = true, readProgress = 1f))
+        captureGolden("GridChoosePassage", "chapter_one", EDGE_MODE) {
+            GridChoosePassageScreen(
+                GridUi(GridStep.CHAPTER, "Jude", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = chapters, minRows = 10),
+                opts, {}, {}, {},
+            )
+        }
+    }
+
+    @Test fun grid_chapter_twelve() {
+        val chapters = (1..12).map { GridButton(it, it.toString(), colorGroup = 3, isCurrent = it == 1, readProgress = if (it == 1) 1f else 0f) }
+        captureGolden("GridChoosePassage", "chapter_twelve", EDGE_MODE) {
+            GridChoosePassageScreen(
+                GridUi(GridStep.CHAPTER, "Daniel", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = chapters, minRows = 10),
+                opts, {}, {}, {},
+            )
+        }
+    }
+
     @Test fun grid_verse() {
         val verses = (1..31).map { GridButton(it, it.toString(), colorGroup = 2, isCurrent = it == 6, memProgress = if (it == 6) 1f else 0f) }
         captureGolden("GridChoosePassage", "verse", EDGE_MODE) {

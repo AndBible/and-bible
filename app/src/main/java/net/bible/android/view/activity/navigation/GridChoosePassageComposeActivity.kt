@@ -132,13 +132,14 @@ class GridChoosePassageComposeActivity : ActivityBase() {
                 memProgress = if (opts.showProgress) ProgressControl.getMemorizationProgress(v11n, book) else 0f,
             )
         }
-        val columns = layoutColumns(buttons.size, CommonUtils.isPortrait, isBookGrid = true)
+        val layout = layoutGrid(buttons.size, CommonUtils.isPortrait, isBookGrid = true)
+        val columns = layout.columns
         val sections = if (opts.groupByCategory) buttons.groupBy { coarseGroup(it.id) }.values.toList() else null
         val ordered = if (sections == null && CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
         val showDeut = navigationControl.getBibleBooks(false).isNotEmpty()
         return GridUi(GridStep.BOOK, "$baseTitle ($workspaceName)", columns,
             showLongNames = opts.longNames, showProgress = opts.showProgress, showDeutToggle = showDeut,
-            buttons = ordered, sections = sections)
+            buttons = ordered, sections = sections, minRows = layout.rows)
     }
 
     private fun buildChapterStep(opts: GridOptions): GridUi {
@@ -154,10 +155,11 @@ class GridChoosePassageComposeActivity : ActivityBase() {
                 memProgress = if (opts.showProgress) ProgressControl.getMemorizationProgress(v11n, book, ch) else 0f,
             )
         }
-        val columns = layoutColumns(buttons.size, CommonUtils.isPortrait, isBookGrid = false)
+        val layout = layoutGrid(buttons.size, CommonUtils.isPortrait, isBookGrid = false)
+        val columns = layout.columns
         val ordered = if (CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
         return GridUi(GridStep.CHAPTER, v11n.getLongName(book), columns,
-            showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered)
+            showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered, minRows = layout.rows)
     }
 
     private fun buildVerseStep(opts: GridOptions): GridUi {
@@ -174,10 +176,11 @@ class GridChoosePassageComposeActivity : ActivityBase() {
                 memProgress = if (opts.showProgress && ProgressControl.isVerseMemorized(v11n, book, selectedChapter, vs)) 1f else 0f,
             )
         }
-        val columns = layoutColumns(buttons.size, CommonUtils.isPortrait, isBookGrid = false)
+        val layout = layoutGrid(buttons.size, CommonUtils.isPortrait, isBookGrid = false)
+        val columns = layout.columns
         val ordered = if (CommonUtils.isPortrait && !opts.ltr) columnMajor(buttons, columns) else buttons
         return GridUi(GridStep.VERSE, "${v11n.getLongName(book)} $selectedChapter", columns,
-            showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered)
+            showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered, minRows = layout.rows)
     }
 
     // ---- pick branches (port bookSelected / chapter buttonPressed) ----
@@ -243,19 +246,6 @@ class GridChoosePassageComposeActivity : ActivityBase() {
         else -> categoryIndex(ordinal)
     }
 
-    /** Column count reproducing LayoutDesigner's intent (66-book special case + MIN_COLS). */
-    private fun layoutColumns(count: Int, isPortrait: Boolean, isBookGrid: Boolean): Int {
-        if (isBookGrid && count == 66) return if (isPortrait) 6 else 11
-        val rows = when {
-            count <= 50 -> if (isPortrait) 10 else 5
-            count <= 100 -> 10
-            else -> if (isPortrait) 15 else 10
-        }
-        val cols = ceil(count.toDouble() / rows).toInt()
-        val minCols = if (isPortrait) 5 else 8
-        return maxOf(minCols, cols)
-    }
-
     /** Reorder a flat list so a row-major LazyVerticalGrid renders it column-major (portrait, LTR off). */
     private fun columnMajor(items: List<GridButton>, columns: Int): List<GridButton> {
         if (columns <= 1 || items.isEmpty()) return items
@@ -266,5 +256,31 @@ class GridChoosePassageComposeActivity : ActivityBase() {
             if (idx < items.size) out.add(items[idx])
         }
         return out
+    }
+
+    /** Column AND row count reproducing LayoutDesigner's intent (66-book special case + MIN_COLS). */
+    internal data class GridLayout(val columns: Int, val rows: Int)
+
+    companion object {
+        /**
+         * Classic sizes a grid cell as `height / rows` for a FIXED row count and pads the shortfall
+         * with invisible spacers (`ButtonGrid.addButtons`), which is why a one-chapter book gets one
+         * normal-sized button rather than a screen-filling one. The row count is therefore part of
+         * the layout, not a throwaway intermediate — see LayoutDesigner.kt:84's comment about
+         * "a couple of large buttons on the screen".
+         */
+        internal fun layoutGrid(count: Int, isPortrait: Boolean, isBookGrid: Boolean): GridLayout {
+            if (isBookGrid && count == 66) {
+                return if (isPortrait) GridLayout(columns = 6, rows = 11) else GridLayout(columns = 11, rows = 6)
+            }
+            val rows = when {
+                count <= 50 -> if (isPortrait) 10 else 5
+                count <= 100 -> 10
+                else -> if (isPortrait) 15 else 10
+            }
+            val cols = ceil(count.toDouble() / rows).toInt()
+            val minCols = if (isPortrait) 5 else 8
+            return GridLayout(columns = maxOf(minCols, cols), rows = rows)
+        }
     }
 }
