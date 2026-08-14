@@ -42,9 +42,13 @@ class ImePaddingPredicateDriftTest {
             "the predicate must exist",
             source.contains("private val imePaddingApplied"), equalTo(true),
         )
+        // Counts CALL SITES, not mentions: the padding write, `bottomOffset2` and
+        // `bottomOffsetForWebView`. An earlier version counted every occurrence of the identifier and so
+        // failed whenever a comment or a KDoc link named it — a guard that taxes the documentation
+        // explaining the code it guards. Prose is free; a fourth `if (imePaddingApplied)` is not.
         assertThat(
-            "padding write + bottomOffset2 + bottomOffsetForWebView = 3 reads, plus the declaration",
-            Regex("imePaddingApplied").findAll(source).count(), equalTo(4),
+            "padding write + bottomOffset2 + bottomOffsetForWebView = 3 call sites",
+            Regex("""if \(imePaddingApplied\)""").findAll(source).count(), equalTo(3),
         )
     }
 

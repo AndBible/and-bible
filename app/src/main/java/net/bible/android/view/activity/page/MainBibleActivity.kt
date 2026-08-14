@@ -305,7 +305,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Bottom offset with navigation bar, transport bar and agent log.
     // The term is dropped when the mainBibleView padding is handling the keyboard, and is the
     // IME-FREE offset otherwise — `bottomOffset1` includes the keyboard height while it is up, so
-    // using it here would reserve the keyboard's space twice (see the predicate above).
+    // using it here would reserve the keyboard's space twice (see `imePaddingApplied`).
     val bottomOffset2 get() = (if (imePaddingApplied) 0 else bottomOffset1WithoutIme) +
         (if (transportBarVisible) transportBarHeight else 0) +
         (if (agentLogVisible) agentLogHeight else 0)
@@ -1289,7 +1289,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     /**
-     * The Compose search field gained or lost focus, which changes whether the padding applies without
+     * The Compose search field gained or lost focus, which changes [imePaddingApplied] without
      * changing any inset — so the insets listener never fires and both the padding and the WebView's
      * offsets would go stale. Same "recompute and push to the WebView" idiom as
      * [updateSearchSheetOffsets] and the agent log's.
