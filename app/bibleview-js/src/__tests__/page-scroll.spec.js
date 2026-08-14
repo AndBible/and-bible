@@ -93,40 +93,44 @@ describe("calcPageScrollDistance", () => {
 describe("calcRelativePageNumbers", () => {
     it("counts pages from the top of the loaded content and rounds the total up", () => {
         // 800px pages, 12100px of scrollable content
-        // → current = 2400/800 = 3, total = ceil(12100/800) = ceil(15.125) = 16
-        expect(calcRelativePageNumbers(2400, 12100, 800)).toEqual({current: 3, total: 16});
+        // → current = 2400/800 + 1 = 4, total = ceil(12100/800) + 1 = ceil(15.125) + 1 = 17
+        expect(calcRelativePageNumbers(2400, 12100, 800)).toEqual({current: 4, total: 17});
+    });
+
+    it("starts at page 1 at the top of the content", () => {
+        expect(calcRelativePageNumbers(0, 12100, 800).current).toBe(1);
     });
 
     it("keeps the current page fractional", () => {
-        expect(calcRelativePageNumbers(2000, 12100, 800).current).toBeCloseTo(2.5);
+        expect(calcRelativePageNumbers(2000, 12100, 800).current).toBeCloseTo(3.5);
     });
 
-    it("reports a non-zero current page when the document opens mid-content", () => {
-        // Opening at a verse halfway down the first page must not read as page 0
-        expect(calcRelativePageNumbers(400, 12100, 800).current).toBeCloseTo(0.5);
+    it("reports a fractional first page when the document opens mid-content", () => {
+        // Opening at a verse halfway down the first page reads as 1.5, not 1.0
+        expect(calcRelativePageNumbers(400, 12100, 800).current).toBeCloseTo(1.5);
     });
 
     it("reports an exact total without rounding up a whole page", () => {
-        // 12800/800 = 16 exactly — must stay 16, not 17
-        expect(calcRelativePageNumbers(0, 12800, 800).total).toBe(16);
+        // 12800/800 = 16 exactly → 16 scrolls past the first page = 17 pages
+        expect(calcRelativePageNumbers(0, 12800, 800).total).toBe(17);
     });
 
     it("reports the current page as the last page at the end of the content", () => {
         const {current, total} = calcRelativePageNumbers(12100, 12100, 800);
-        expect(current).toBeCloseTo(15.125);
-        expect(total).toBe(16);
+        expect(current).toBeCloseTo(16.125);
+        expect(total).toBe(17);
     });
 
-    it("reports zero total when the content fits on one screen", () => {
-        // maxScrollY <= 0 means nothing to scroll — the total must not go negative
-        expect(calcRelativePageNumbers(0, 0, 800)).toEqual({current: 0, total: 0});
-        expect(calcRelativePageNumbers(0, -50, 800)).toEqual({current: 0, total: 0});
+    it("reports a single page when the content fits on one screen", () => {
+        // maxScrollY <= 0 means nothing to scroll — that is still one page, "1.0/1"
+        expect(calcRelativePageNumbers(0, 0, 800)).toEqual({current: 1, total: 1});
+        expect(calcRelativePageNumbers(0, -50, 800)).toEqual({current: 1, total: 1});
     });
 
-    it("returns zeroes instead of NaN/Infinity when the page size is not measured yet", () => {
-        expect(calcRelativePageNumbers(2400, 12100, 0)).toEqual({current: 0, total: 0});
-        expect(calcRelativePageNumbers(2400, 12100, -10)).toEqual({current: 0, total: 0});
-        expect(calcRelativePageNumbers(2400, 12100, NaN)).toEqual({current: 0, total: 0});
+    it("returns a single page instead of NaN/Infinity when the page size is not measured yet", () => {
+        expect(calcRelativePageNumbers(2400, 12100, 0)).toEqual({current: 1, total: 1});
+        expect(calcRelativePageNumbers(2400, 12100, -10)).toEqual({current: 1, total: 1});
+        expect(calcRelativePageNumbers(2400, 12100, NaN)).toEqual({current: 1, total: 1});
     });
 });
 
