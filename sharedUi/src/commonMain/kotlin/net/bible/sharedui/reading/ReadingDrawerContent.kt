@@ -20,11 +20,13 @@ package net.bible.sharedui.reading
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,7 +51,7 @@ import net.bible.sharedcore.reading.DrawerMenuState
  * fixed classic-scale width is used instead of reproducing `wrap_content`, so the drawer does not
  * change size with the longest translated label (which would also jump between LTR and RTL).
  *
- * These six constants are the density knobs: if a later A/B pass still reads as too roomy, tune
+ * These seven constants are the density knobs: if a later A/B pass still reads as too roomy, tune
  * them here rather than sprinkling paddings through the tree.
  */
 val ReadingDrawerWidth: Dp = 300.dp
@@ -58,6 +60,7 @@ private val DrawerRowHorizontalPadding = 16.dp
 private val DrawerIconLabelGap = 16.dp
 private val DrawerIconSize = 24.dp
 private val DrawerGroupSpacing = 4.dp
+private val DrawerGroupHeadingSpacing = 8.dp
 
 /**
  * The reading view's main navigation drawer content — the Compose port of classic
@@ -88,12 +91,31 @@ fun ReadingDrawerContent(
             state.groups.forEachIndexed { index, group ->
                 val title = group.title
                 if (title != null) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = DrawerRowHorizontalPadding, top = 12.dp, bottom = 4.dp),
-                    )
+                    // Classic's NavigationView inserts a separator before every subheader that is
+                    // not the first item (NavigationMenuPresenter), with 8dp above it -- three
+                    // lines in main_bible_drawer_menu.xml: Administration, Information, Contact.
+                    // `index > 0` is the whole rule: DrawerMenu.build already drops groups left
+                    // with no visible rows, so this can never strand a divider above nothing.
+                    if (index > 0) {
+                        Spacer(Modifier.height(DrawerGroupHeadingSpacing))
+                        HorizontalDivider()
+                    }
+                    // Classic subheaders are full listPreferredItemHeightSmall (48dp) rows with
+                    // 16dp horizontal padding and Body2 (14sp Medium); M3's titleSmall is already
+                    // 14sp Medium, so only the row box changes.
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = DrawerRowHeight)
+                            .padding(horizontal = DrawerRowHorizontalPadding),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 } else if (index > 0) {
                     Spacer(Modifier.height(DrawerGroupSpacing))
                 }
