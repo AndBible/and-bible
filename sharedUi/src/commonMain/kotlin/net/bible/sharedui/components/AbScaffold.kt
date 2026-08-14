@@ -52,7 +52,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.SyncSystemBars
 
@@ -227,10 +226,7 @@ fun AbScaffold(
     Scaffold(
         topBar = {
             AbTopAppBar(
-                // Round 6: single line + ellipsis, matching both M3 and classic's ActionBar. Without this
-                // a title wraps to two lines as soon as a screen carries enough actions to squeeze it —
-                // found on Workspaces once it grew three action icons.
-                title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = { Text(title) },
                 onNavigateUp = onNavigateUp,
                 actions = actions,
                 search = search,
