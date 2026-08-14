@@ -113,12 +113,13 @@ class ReadingSearchController(
         }
     }
 
-    private fun runSearch(docId: String, forEpub: Boolean, query: String) {
+    private fun runSearch(docId: String, forEpub: Boolean, query: String, touchIme: Boolean = true) {
         onRunSearch(docId, query, forEpub)
         resultsForQuery = query
         _phase.value = ReadingSearchPhase.Results(docId, forEpub)
         _sheetVisible.value = true
-        requestFieldRelease()
+        // `touchIme = false` only from the asynchronous indexing completion — see onIndexingFinished.
+        if (touchIme) requestFieldRelease()
     }
 
     /** Submit from the toolbar field (IME action or the submit button). Blank queries are ignored. */
@@ -170,9 +171,13 @@ class ReadingSearchController(
         // NON-modal `BottomSheetScaffold`, so the toolbar's overflow stays tappable during indexing —
         // and overwriting the phase to `NeedsIndex` here would orphan `onIndexingFinished`'s
         // `as? Indexing` guard. The real build's completion would be swallowed, the sheet would sit on
-        // the prompt, and accepting again would start a SECOND concurrent build.
+        // the prompt, and accepting again would start a SECOND concurrent build. Every phase-related
+        // transition names its IME instruction explicitly rather than relying on what a predecessor
+        // left standing, and this one is no exception: the sheet is showing progress, nothing is to be
+        // typed, so release.
         if (p is ReadingSearchPhase.Indexing) {
             _sheetVisible.value = true
+            requestFieldRelease()
             return true
         }
         val docId = docIdOf(p) ?: return false
@@ -194,18 +199,25 @@ class ReadingSearchController(
      */
     fun onIndexingFinished(indexDone: Boolean) {
         val p = _phase.value as? ReadingSearchPhase.Indexing ?: return
+        // This is the only IME-instruction producer that is NOT driven by a gesture on the search UI —
+        // a JSword WorkListener fires it whenever the build happens to finish. Search mode deliberately
+        // outlives the sheet, so by then the user may be typing a note in a WebView editor. Touching the
+        // IME at all would then steal their focus or hide their keyboard (spec §4's constraint, arriving
+        // through the focus channel rather than the padding one). If they are no longer watching this
+        // session, the session changes phase silently.
+        val stillWatching = _sheetVisible.value
         if (!indexDone) {
             _phase.value = ReadingSearchPhase.NeedsIndex(p.docId, p.forEpub)
-            requestFieldRelease()
+            if (stillWatching) requestFieldRelease()
             return
         }
         val q = queries.query.value.trim()
         if (q.isEmpty()) {
             _phase.value = ReadingSearchPhase.Form(p.docId, p.forEpub)
             _sheetVisible.value = false
-            requestFieldFocus()
+            if (stillWatching) requestFieldFocus()
         } else {
-            runSearch(p.docId, p.forEpub, q)
+            runSearch(p.docId, p.forEpub, q, touchIme = stillWatching)
         }
     }
 

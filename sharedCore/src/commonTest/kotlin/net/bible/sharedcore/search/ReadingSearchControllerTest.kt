@@ -405,6 +405,54 @@ class ReadingSearchControllerTest {
         assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
     }
 
+    // Final review I1: `onIndexingFinished` is the only IME producer not driven by a gesture on the search
+    // UI. Search mode outlives the sheet, so with the sheet closed the user may be typing a note in a
+    // WebView editor — grabbing focus there would land their keystrokes in the query.
+    @Test
+    fun indexingFinishingAfterTheSheetWasClosedDoesNotTouchTheIme() {
+        val (_, c) = controller(
+            doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+        )
+        c.open()
+        c.acceptIndexing()
+        c.closeSheet()
+        c.imeRequestHandled()
+        c.onIndexingFinished(indexDone = true)
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
+        assertNull(c.imeRequest.value)
+    }
+
+    // The milder variant of the same defect: with a query pending the auto-run would have requested
+    // `Release`, hiding the note editor's keyboard mid-sentence.
+    @Test
+    fun theAutoRunAfterIndexingDoesNotTouchTheImeWhenTheSheetWasClosed() {
+        val (r, c) = controller(
+            doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+        )
+        c.open(seedQuery = "light")
+        c.acceptIndexing()
+        c.closeSheet()
+        c.imeRequestHandled()
+        c.onIndexingFinished(indexDone = true)
+        // The search still runs and the sheet still rises — only the IME is left alone.
+        assertEquals(listOf(Triple("KJV", "light", false)), r.searchesRun)
+        assertTrue(c.sheetVisible.value)
+        assertNull(c.imeRequest.value)
+    }
+
+    // The gate must not disable the feature: with the sheet still up, the form still takes focus.
+    @Test
+    fun indexingFinishingWhileTheSheetIsStillUpStillFocusesTheForm() {
+        val (_, c) = controller(
+            doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+        )
+        c.open()
+        c.acceptIndexing()
+        c.imeRequestHandled()
+        c.onIndexingFinished(indexDone = true)
+        assertEquals(SearchFieldImeRequest.Focus, c.imeRequest.value)
+    }
+
     // Redirecting to another translation's index prompt is a prompt, not a form.
     @Test
     fun promptingForAnotherDocumentsIndexReleasesTheField() {

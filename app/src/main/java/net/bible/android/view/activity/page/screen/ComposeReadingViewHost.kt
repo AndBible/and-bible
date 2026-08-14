@@ -1662,12 +1662,19 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         if (indexDocId != null) {
             val jobs by searchIndexProgress.jobs.collectAsState()
             val indexError by searchIndexProgress.error.collectAsState()
-            // Both reads hit the file system, so they are resolved once per document rather than on
-            // every recomposition of a progressing index.
+            // The name is invariant per document, so it is resolved once rather than on every
+            // recomposition of a progressing index.
             val documentName = remember(indexDocId) {
                 SwordDocumentFacade.getDocumentByInitials(indexDocId)?.name ?: indexDocId
             }
-            val isRebuild = remember(indexDocId) { searchIndexService.hasIndex(indexDocId) }
+            // Deliberately NOT remembered: `SearchIndexServiceImpl.createIndex` deletes the existing
+            // index up front, before the (transactional, build-to-temp-then-rename-on-success) rebuild
+            // even starts. So a failed rebuild leaves the document with NO index, even though it had
+            // one when this composable was entered — memoizing on `indexDocId` alone would miss that,
+            // since the fail->NeedsIndex retry carries the same docId and never re-enters this branch
+            // from outside it. A plain read is a single cheap file-existence/DB check, so recomputing
+            // it on every recomposition is not worth trading correctness for.
+            val isRebuild = searchIndexService.hasIndex(indexDocId)
             SearchIndexPanel(
                 documentName = documentName,
                 isRebuild = isRebuild,
