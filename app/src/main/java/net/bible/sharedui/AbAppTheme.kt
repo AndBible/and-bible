@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
+import net.bible.android.control.event.window.WorkspaceChanged
 import net.bible.android.control.event.window.WorkspaceColorChanged
 import net.bible.android.control.page.window.WindowControl
 import net.bible.service.common.CommonUtils
@@ -107,6 +108,9 @@ fun AbAppTheme(darkTheme: Boolean? = null, content: @Composable () -> Unit) {
         val subscriber = Any()
         ABEventBus.register(subscriber) {
             onMain<WorkspaceColorChanged> { seedArgb = currentWorkspaceThemeSeedArgb() }
+            // A workspace switch replaces workspaceSettings wholesale and posts no colour event, so
+            // without this the UI keeps the previous workspace's seed.
+            onMain<WorkspaceChanged> { seedArgb = currentWorkspaceThemeSeedArgb() }
         }
         onDispose { ABEventBus.unregister(subscriber) }
     }
