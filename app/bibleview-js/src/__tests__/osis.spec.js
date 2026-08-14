@@ -73,7 +73,7 @@ function verifyXmlRendering(xmlTemplate, renderedHtml) {
     expect(wrapper.html() + "\n").toBe(renderedHtml);
 }
 
-function mountOsisSegment(xmlTemplate, {showRedLetters = false} = {}) {
+function mountOsisSegment(xmlTemplate, {showRedLetters = false, convert = true, isNativeHtml = false} = {}) {
     const {config, appSettings, calculatedConfig} = useConfig(ref("bible"));
     config.showRedLetters = showRedLetters;
 
@@ -95,7 +95,7 @@ function mountOsisSegment(xmlTemplate, {showRedLetters = false} = {}) {
         [modalKey]: useModal(android),
     };
     const components = {AmbiguousSelection, LabelList, BookmarkLabelActions};
-    return mount(OsisSegment, {props: {osisTemplate: xmlTemplate, convert: true}, global: {provide, components}});
+    return mount(OsisSegment, {props: {osisTemplate: xmlTemplate, convert, isNativeHtml}, global: {provide, components}});
 }
 
 describe("OsisSegment.vue", () => {
@@ -114,5 +114,32 @@ describe("OsisSegment.vue", () => {
     it("does not add red letter class when disabled", () => {
         const wrapper = mountOsisSegment("<J>Jesus words</J>", {showRedLetters: false});
         expect(wrapper.find(".redLetters").exists()).toBe(false);
+    });
+
+    // Document content is data, not a Vue template. Mustache braces occurring in it (markdown
+    // imported into MyDocuments, EPUB text, module text) must be rendered literally instead of
+    // being compiled as interpolation expressions, which would throw and kill the whole render.
+    describe("mustache braces in content", () => {
+        it("renders braces literally in OSIS content", () => {
+            const wrapper = mountOsisSegment("<p>Deadline {{ date }} passed</p>");
+            expect(wrapper.text()).toContain("{{ date }}");
+        });
+
+        it("renders braces literally in native HTML content", () => {
+            const wrapper = mountOsisSegment("<div>Set {{ date }} here</div>",
+                {convert: false, isNativeHtml: true});
+            expect(wrapper.text()).toContain("{{ date }}");
+        });
+
+        it("renders the rest of the content around braces", () => {
+            const wrapper = mountOsisSegment("<p>before {{ unknownVariable }} after</p>");
+            expect(wrapper.text()).toContain("before");
+            expect(wrapper.text()).toContain("after");
+        });
+
+        it("renders single braces literally", () => {
+            const wrapper = mountOsisSegment("<p>a { b } c</p>");
+            expect(wrapper.text()).toContain("a { b } c");
+        });
     });
 });
