@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedcore.navigation.iconCategory
+import net.bible.sharedcore.navigation.shrinkToFitPair
 import net.bible.sharedui.components.AbSearchableOptionSheet
 import net.bible.sharedui.strings.LocalStrings
 
@@ -181,10 +182,11 @@ private enum class FilterSheet { None, Language, Type }
  * child that would otherwise fit with room to spare (both weighted equally) — see the call site's
  * kdoc for the two rejected attempts this replaced.
  *
- * [languageShareOfShortfall] biases which chip gives up more when both must shrink: language
- * display names are the more variable, often-longer values, so language yields 2/3 of any
- * shortfall and type only 1/3 — but neither is ever shrunk below zero, and neither is touched at
- * all unless shrinking is actually necessary.
+ * The actual sizing decision is [shrinkToFitPair], a pure function with no Compose types — this
+ * composable does nothing but measure the two children at their natural width, call it, then
+ * measure and place them at the widths (and gap) it returns. Keeping the arithmetic out of the
+ * `Layout` block is what makes it host-testable at all: a golden image renders exactly one state,
+ * not the branch/clamp logic behind it.
  */
 @Composable
 private fun ShrinkingChipPair(
@@ -199,36 +201,26 @@ private fun ShrinkingChipPair(
         type()
     }) { measurables, constraints ->
         val (languageMeasurable, typeMeasurable) = measurables
-        val gapPx = gap.roundToPx()
-        val available = constraints.maxWidth
         val languageNatural = languageMeasurable.maxIntrinsicWidth(constraints.maxHeight)
         val typeNatural = typeMeasurable.maxIntrinsicWidth(constraints.maxHeight)
-        val neededTotal = languageNatural + typeNatural + gapPx
-
-        val languageMaxWidth: Int
-        val typeMaxWidth: Int
-        if (neededTotal <= available) {
-            // Both fit as-is — nothing shrinks, nothing is truncated that doesn't need to be.
-            languageMaxWidth = languageNatural
-            typeMaxWidth = typeNatural
-        } else {
-            val shortfall = neededTotal - available
-            val languageCut = (shortfall * languageShareOfShortfall).toInt().coerceIn(0, languageNatural)
-            val typeCut = (shortfall - languageCut).coerceIn(0, typeNatural)
-            languageMaxWidth = (languageNatural - languageCut).coerceAtLeast(0)
-            typeMaxWidth = (typeNatural - typeCut).coerceAtLeast(0)
-        }
+        val widths = shrinkToFitPair(
+            available = constraints.maxWidth,
+            gap = gap.roundToPx(),
+            languageNatural = languageNatural,
+            typeNatural = typeNatural,
+            languageShareOfShortfall = languageShareOfShortfall,
+        )
 
         val languagePlaceable = languageMeasurable.measure(
-            Constraints(maxWidth = languageMaxWidth, maxHeight = constraints.maxHeight),
+            Constraints(maxWidth = widths.languageWidth, maxHeight = constraints.maxHeight),
         )
         val typePlaceable = typeMeasurable.measure(
-            Constraints(maxWidth = typeMaxWidth, maxHeight = constraints.maxHeight),
+            Constraints(maxWidth = widths.typeWidth, maxHeight = constraints.maxHeight),
         )
         val height = maxOf(languagePlaceable.height, typePlaceable.height)
-        layout(available, height) {
+        layout(constraints.maxWidth, height) {
             languagePlaceable.placeRelative(0, (height - languagePlaceable.height) / 2)
-            typePlaceable.placeRelative(languagePlaceable.width + gapPx, (height - typePlaceable.height) / 2)
+            typePlaceable.placeRelative(languagePlaceable.width + widths.gap, (height - typePlaceable.height) / 2)
         }
     }
 }
