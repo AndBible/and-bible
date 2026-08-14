@@ -20,6 +20,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -87,6 +88,21 @@ class AbSearchableOptionSheetContentTest {
         }
         compose.onNodeWithText("Gamma").performClick()
         assertEquals("Gamma", picked)
+    }
+
+    @Test fun the_check_mark_renders_on_the_selected_option_and_only_on_it() {
+        setContent {
+            AbSearchableOptionSheetContent(
+                options = options, selected = "Beta", optionLabel = { it },
+                onSelect = {}, searchPlaceholder = null,
+            )
+        }
+        // Positive: the selected row shows the check. ListItem merges its slots' semantics into
+        // one node, so the per-icon testTag is only visible via the unmerged tree.
+        compose.onNodeWithTag("ab-searchable-option-check-Beta", useUnmergedTree = true).assertExists()
+        // Negative: neither non-selected row shows one.
+        compose.onNodeWithTag("ab-searchable-option-check-Alpha", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("ab-searchable-option-check-Gamma", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test fun duplicate_labels_do_not_crash_the_list() {

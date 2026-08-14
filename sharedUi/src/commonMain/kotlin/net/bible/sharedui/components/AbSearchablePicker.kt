@@ -42,6 +42,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.navigation.filterPickerOptions
@@ -188,7 +189,15 @@ fun <T> AbSearchableOptionSheetContent(
                     headlineContent = { Text(optionLabel(opt)) },
                     leadingContent = leadingIcon?.let { icon -> { icon(opt) } },
                     trailingContent = if (opt == selected) {
-                        { Icon(Icons.Filled.Check, contentDescription = null) }
+                        // Test-only hook (no visual/accessibility effect): tagged per-option so a
+                        // test can assert the check renders on the selected row and only on it.
+                        {
+                            Icon(
+                                Icons.Filled.Check,
+                                contentDescription = null,
+                                modifier = Modifier.testTag("ab-searchable-option-check-${optionLabel(opt)}"),
+                            )
+                        }
                     } else {
                         null
                     },
