@@ -36,15 +36,24 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * A/B feedback round 5, task 2: the Compose colour editor writes
- * `repo.textDisplaySettings.colors` (and friends) directly, bypassing `Preference.value`'s
- * setter — the only site that used to call [CommonUtils.displaySettingChanged] — so changing
- * colours never made COLORS show up as a recently-used setting in the overflow menu, though the
- * classic UI's [ColorSettingsActivity] path did (it goes through the same MainBibleActivity
- * COLORS_CHANGED write-back the doc comment on `applyColors` references, plus a direct call to
- * `displaySettingChanged`). This test constructs [TextDisplaySettingsServiceImpl] directly
- * (following [TextDisplaySettingsServiceImplColorsTest]'s setup), which is the honest route: the
- * service builds cleanly in the unit-test environment with only a fresh [WindowRepository], so no
+ * A/B feedback round 5, task 2: `COLORS` is the one [WorkspaceEntities.TextDisplaySettings.Types]
+ * that is a navigation row rather than a value row, so it never goes through `Preference.value`'s
+ * setter — the only production call site of [CommonUtils.displaySettingChanged]
+ * (`OptionsMenuItems.kt:183`). The Compose colour editor's mutators,
+ * `TextDisplaySettingsServiceImpl.applyColors`/`resetColors`, wrote
+ * `repo.textDisplaySettings.colors` directly, bypassing that setter, so changing colours never
+ * made COLORS show up as a recently-used setting in the overflow menu. This test pins the fix:
+ * both mutators now call [CommonUtils.displaySettingChanged] themselves.
+ *
+ * Classic has the same omission and is NOT fixed here: `MainBibleActivity`'s own `COLORS_CHANGED`
+ * branch (`onActivityResult`) also writes `windowRepository.textDisplaySettings.colors` directly
+ * with no call to `displaySettingChanged`, so a colour change through the classic
+ * `ColorSettingsActivity` path does not record COLORS as recently used either. Left alone
+ * deliberately (see the spec's F2 section): that branch only runs once COLORS is already in the
+ * recent list (so it doesn't reproduce the reported symptom), and classic is being deleted in
+ * Batch Z-late. This test constructs [TextDisplaySettingsServiceImpl] directly (following
+ * [TextDisplaySettingsServiceImplColorsTest]'s setup), which is the honest route: the service
+ * builds cleanly in the unit-test environment with only a fresh [WindowRepository], so no
  * fallback to testing an extracted-and-isolated tail was needed.
  */
 @RunWith(RobolectricTestRunner::class)
