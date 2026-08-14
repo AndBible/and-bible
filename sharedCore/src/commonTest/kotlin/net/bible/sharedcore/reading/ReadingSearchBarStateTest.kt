@@ -19,6 +19,7 @@ package net.bible.sharedcore.reading
 
 import kotlin.test.Test
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ReadingSearchBarStateTest {
@@ -30,4 +31,11 @@ class ReadingSearchBarStateTest {
 
     @Test fun submitIsEnabledOnceThereIsANonBlankQuery() =
         assertTrue(ReadingSearchBarState(query = "light").submitEnabled)
+
+    // The new field must default to null, so every existing construction site — and every golden
+    // that builds a bar state positionally — keeps rendering an unfocused field.
+    @Test
+    fun theImeRequestDefaultsToNull() {
+        assertNull(ReadingSearchBarState(query = "light").imeRequest)
+    }
 }

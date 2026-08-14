@@ -3,6 +3,7 @@ package net.bible.sharedcore.search
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import net.bible.sharedcore.reading.SearchFieldImeRequest
 
 /** Which surface the reading-view search session is showing. */
 sealed interface ReadingSearchPhase {
@@ -40,6 +41,24 @@ class ReadingSearchController(
     val sheetVisible: StateFlow<Boolean> = _sheetVisible.asStateFlow()
 
     /**
+     * The pending focus/keyboard instruction for the toolbar field, or `null` when there is none.
+     * Set by the transitions below and cleared by [imeRequestHandled] once the UI has acted.
+     */
+    private val _imeRequest = MutableStateFlow<SearchFieldImeRequest?>(null)
+    val imeRequest: StateFlow<SearchFieldImeRequest?> = _imeRequest.asStateFlow()
+
+    /** The UI has focused or released the field; the instruction is spent. */
+    fun imeRequestHandled() { _imeRequest.value = null }
+
+    /**
+     * The one rule behind every call site: the field is focused with the keyboard up exactly when the
+     * phase becomes [ReadingSearchPhase.Form] — "the user is expected to type". Every other phase
+     * releases it. The two setters clear each other so a stale opposite instruction can never fire.
+     */
+    private fun requestFieldFocus() { _imeRequest.value = SearchFieldImeRequest.Focus }
+    private fun requestFieldRelease() { _imeRequest.value = SearchFieldImeRequest.Release }
+
+    /**
      * The query the current results belong to, or null if there are none. Deliberately the query itself
      * rather than a boolean: search mode stays active after the sheet is closed, and the entry points that
      * do not go through the toolbar field (Ctrl+F, the device SEARCH key, the drawer) can call [open]
@@ -68,6 +87,7 @@ class ReadingSearchController(
             is SearchKind.NeedsIndex -> {
                 _phase.value = ReadingSearchPhase.NeedsIndex(kind.docId, kind.forEpub)
                 _sheetVisible.value = true
+                requestFieldRelease()
             }
             is SearchKind.Bible -> enterFormOrResults(kind.docId, forEpub = false)
             is SearchKind.Epub -> enterFormOrResults(kind.docId, forEpub = true)
@@ -81,11 +101,13 @@ class ReadingSearchController(
             q.isEmpty() -> {
                 _phase.value = ReadingSearchPhase.Form(docId, forEpub)
                 _sheetVisible.value = false
+                requestFieldFocus()
             }
             resultsForQuery == q -> {
                 // Reopening after a back press: serve what we already have rather than re-running.
                 _phase.value = ReadingSearchPhase.Results(docId, forEpub)
                 _sheetVisible.value = true
+                requestFieldRelease()
             }
             else -> runSearch(docId, forEpub, q)
         }
@@ -96,6 +118,7 @@ class ReadingSearchController(
         resultsForQuery = query
         _phase.value = ReadingSearchPhase.Results(docId, forEpub)
         _sheetVisible.value = true
+        requestFieldRelease()
     }
 
     /** Submit from the toolbar field (IME action or the submit button). Blank queries are ignored. */
@@ -128,6 +151,7 @@ class ReadingSearchController(
         val forEpub = forEpubOf(_phase.value) ?: return false
         _phase.value = ReadingSearchPhase.NeedsIndex(docId, forEpub)
         _sheetVisible.value = true
+        requestFieldRelease()
         return true
     }
 
@@ -181,6 +205,7 @@ class ReadingSearchController(
         _searchModeActive.value = false
         _phase.value = ReadingSearchPhase.Closed
         resultsForQuery = null
+        _imeRequest.value = null
         return true
     }
 

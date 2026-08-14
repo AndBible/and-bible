@@ -27,10 +27,25 @@ package net.bible.sharedcore.reading
  * A `null` instance of this class — the default on both `ReadingToolbar` and `ReadingViewScreen` —
  * means "not in search mode", so the normal toolbar path and its goldens are untouched.
  */
+/**
+ * A one-shot instruction to the toolbar's search field about focus and the software keyboard.
+ *
+ * One nullable enum rather than two booleans, for two reasons: `Focus` and `Release` are then mutually
+ * exclusive by construction, and the host's `combine` over the bar-state inputs stays inside Kotlin's
+ * five-flow overloads.
+ *
+ * It is an INSTRUCTION, not a level — the composable acts on it and then acknowledges, which returns it
+ * to `null`. That is what lets the same instruction fire twice: submitting again from an open results
+ * sheet is a `Results -> Results` transition, so anything derived from the phase would not even emit.
+ * Same shape as the reading host's existing `searchUnavailableDocNameState` + `onSearchUnavailableMessageShown`.
+ */
+enum class SearchFieldImeRequest { Focus, Release }
+
 data class ReadingSearchBarState(
     val query: String,
     val recentTerms: List<String> = emptyList(),
     val recentMenuOpen: Boolean = false,
+    val imeRequest: SearchFieldImeRequest? = null,
 ) {
     /**
      * A blank query must not reach Lucene: classic `SearchControl.validateQuery` rejects it, and an

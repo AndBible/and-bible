@@ -1,8 +1,10 @@
 package net.bible.sharedcore.search
 
+import net.bible.sharedcore.reading.SearchFieldImeRequest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ReadingSearchControllerTest {
@@ -282,5 +284,154 @@ class ReadingSearchControllerTest {
             r.searchesRun,
             "the edited query must be searched, not the one the stale results belong to",
         )
+    }
+
+    // ---- F6-B2 / F6-B3: the field's focus and the software keyboard ----
+
+    // B3. Entering search mode with nothing typed is the "user is expected to type" case.
+    @Test
+    fun openingTheFormRequestsFieldFocus() {
+        val (_, c) = controller()
+        c.open()
+        assertEquals(SearchFieldImeRequest.Focus, c.imeRequest.value)
+    }
+
+    // B3's counter-case, and the reason this is state rather than a line in the composable: the
+    // seeded entry points (text-selection "Search …", Strong's find-all) run the search at once, so
+    // focusing the field would pop a keyboard over results the user never asked to type into.
+    @Test
+    fun openingWithASeedQueryReleasesTheFieldInsteadOfFocusingIt() {
+        val (_, c) = controller()
+        c.open(seedQuery = "light")
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+    }
+
+    // B2, the reported symptom.
+    @Test
+    fun submittingReleasesTheField() {
+        val (_, c) = controller()
+        c.open()
+        c.queries.setQuery("light")
+        c.imeRequestHandled()
+        c.submit()
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+    }
+
+    // B2's hard case, and the second reason this is an acknowledged request rather than a flag
+    // derived from `phase`: a resubmit from an open results sheet is Results -> Results, so a
+    // phase-derived StateFlow would not even emit and the keyboard would stay up.
+    @Test
+    fun aSecondSubmitFromTheResultsPhaseRequestsReleaseAgain() {
+        val (_, c) = controller()
+        c.open()
+        c.queries.setQuery("light")
+        c.submit()
+        assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), c.phase.value)
+        c.imeRequestHandled()
+        assertNull(c.imeRequest.value)
+        c.queries.setQuery("water")
+        c.submit()
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+    }
+
+    // A blank query never reaches Lucene, so it is not a submit and must not disturb the field.
+    @Test
+    fun submittingABlankQueryLeavesTheRequestAlone() {
+        val (_, c) = controller()
+        c.open()
+        c.imeRequestHandled()
+        c.queries.setQuery("   ")
+        c.submit()
+        assertNull(c.imeRequest.value)
+    }
+
+    // The index prompt is a sheet with buttons; there is nothing to type.
+    @Test
+    fun theIndexPromptReleasesTheField() {
+        val (_, c) = controller(
+            doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+        )
+        c.open()
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+    }
+
+    // Reopening on a query whose results are already served shows results, so no keyboard.
+    @Test
+    fun reopeningOnAnAlreadyServedQueryReleasesTheField() {
+        val (_, c) = controller()
+        c.open()
+        c.queries.setQuery("light")
+        c.submit()
+        c.closeSearchMode()
+        c.open()
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+    }
+
+    // Closing the sheet deliberately changes nothing: it hides the results without changing the
+    // phase, and popping a keyboard at someone who just closed the results to READ would be hostile.
+    @Test
+    fun closingTheSheetDoesNotTouchTheRequest() {
+        val (_, c) = controller()
+        c.open()
+        c.queries.setQuery("light")
+        c.submit()
+        c.imeRequestHandled()
+        c.closeSheet()
+        assertNull(c.imeRequest.value)
+    }
+
+    // The settings sheet re-runs the search on close; that is a search, not an invitation to type.
+    @Test
+    fun closingTheSettingsSheetReRunsAndReleasesTheField() {
+        val (_, c) = controller()
+        c.open()
+        c.queries.setQuery("light")
+        c.submit()
+        c.imeRequestHandled()
+        c.settingsClosed()
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+    }
+
+    // Auto-running after indexing finishes produces results, so the field is released.
+    @Test
+    fun theAutoRunAfterIndexingReleasesTheField() {
+        val (_, c) = controller(
+            doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+        )
+        c.open(seedQuery = "light")
+        c.acceptIndexing()
+        c.imeRequestHandled()
+        c.onIndexingFinished(indexDone = true)
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+    }
+
+    // Redirecting to another translation's index prompt is a prompt, not a form.
+    @Test
+    fun promptingForAnotherDocumentsIndexReleasesTheField() {
+        val (_, c) = controller()
+        c.open()
+        c.imeRequestHandled()
+        c.promptIndexFor("ESV")
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+    }
+
+    // The acknowledgement is what makes the NEXT edge fire; without it a repeated request is a
+    // no-op state write and the composable's LaunchedEffect never relaunches.
+    @Test
+    fun theAcknowledgementClearsTheRequest() {
+        val (_, c) = controller()
+        c.open()
+        assertEquals(SearchFieldImeRequest.Focus, c.imeRequest.value)
+        c.imeRequestHandled()
+        assertNull(c.imeRequest.value)
+    }
+
+    // No stale request may survive into the next session.
+    @Test
+    fun leavingSearchModeClearsTheRequest() {
+        val (_, c) = controller()
+        c.open()
+        c.closeSearchMode()
+        assertNull(c.imeRequest.value)
     }
 }
