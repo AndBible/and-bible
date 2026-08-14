@@ -537,7 +537,14 @@ class WorkspaceEntities {
             ): TextDisplaySettings {
                 val result = global.copy()
                 for (t in dirtyTypes) {
-                    result.setValue(t, resolvedSource.getValue(t))
+                    // Defence in depth. The contract is that [resolvedSource] has already been through
+                    // [actual], which never yields null — but a future call site that forgets to resolve
+                    // would otherwise write null into the global row, and a null there does not mean
+                    // "leave it alone": it means the global falls back to [default]. That is the exact
+                    // defect this function exists to prevent, so refuse it here rather than trusting
+                    // every present and future caller to resolve first.
+                    val v = resolvedSource.getValue(t) ?: continue
+                    result.setValue(t, v)
                 }
                 return result
             }

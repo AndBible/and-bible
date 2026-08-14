@@ -1349,18 +1349,17 @@ class TextDisplaySettingsTest {
     }
 
     @Test
-    fun `globalWithCopiedValues never writes null`() {
-        // The bug this function exists to prevent: the raw source value is legitimately null when the
-        // source inherits the type, and writing that null resets the global to the factory default
-        // instead of leaving it alone. The caller passes an ALREADY RESOLVED source, so every value it
-        // copies is concrete — this test pins that the function does not reintroduce a null.
+    fun `globalWithCopiedValues leaves the global alone when the source value is null`() {
+        // An unresolved source: this workspace INHERITS its font size, so getValue is null.
+        // Writing that null into the global row would silently reset the global to the factory
+        // default. The guard must keep the global's own value instead.
         val global = TextDisplaySettings().apply { setValue(Types.FONTSIZE, 10) }
-        val resolved = TextDisplaySettings.actual(null, TextDisplaySettings(), global)
+        val unresolvedSource = TextDisplaySettings()          // no font size of its own
+        assertNull(unresolvedSource.getValue(Types.FONTSIZE))  // the precondition this test rests on
 
-        val result = TextDisplaySettings.globalWithCopiedValues(global, resolved, setOf(Types.FONTSIZE))
+        val result = TextDisplaySettings.globalWithCopiedValues(global, unresolvedSource, setOf(Types.FONTSIZE))
 
-        assertNotNull(result.getValue(Types.FONTSIZE))
-        assertEquals(10, result.getValue(Types.FONTSIZE))        // inheriting source => global unchanged
+        assertEquals(10, result.getValue(Types.FONTSIZE))
     }
 
     @Test
@@ -1382,5 +1381,26 @@ class TextDisplaySettingsTest {
         val result = TextDisplaySettings.globalWithCopiedValues(global, resolved, emptySet())
 
         assertEquals(10, result.getValue(Types.FONTSIZE))
+    }
+
+    @Test
+    fun `globalWithCopiedValues copies a sub-object without mutating the original global`() {
+        // MARGINSIZE/COLORS are the two sub-object types: getValue/setValue pass the whole
+        // object by reference, and the function's copy() is shallow, so this pins that copying
+        // one through does not alias back into the original `global`'s own sub-object.
+        val global = TextDisplaySettings(
+            marginSize = MarginSize(marginLeft = 3, marginRight = 3, maxWidth = 170)
+        )
+        val resolved = TextDisplaySettings(
+            marginSize = MarginSize(marginLeft = 9, marginRight = 9, maxWidth = 200)
+        )
+
+        val result = TextDisplaySettings.globalWithCopiedValues(global, resolved, setOf(Types.MARGINSIZE))
+
+        assertEquals(MarginSize(marginLeft = 9, marginRight = 9, maxWidth = 200), result.marginSize)
+        assertEquals(
+            "original global's own MarginSize must be untouched",
+            MarginSize(marginLeft = 3, marginRight = 3, maxWidth = 170), global.marginSize
+        )
     }
 }
