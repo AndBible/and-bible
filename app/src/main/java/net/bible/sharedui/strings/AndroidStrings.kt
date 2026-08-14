@@ -88,6 +88,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val searchOldTestament: String get() = context.getString(R.string.search_old_testament)
     override val searchNewTestament: String get() = context.getString(R.string.search_new_testament)
     override val searchCurrentBook: String get() = context.getString(R.string.search_current_book)
+    override val searchWhere: String get() = context.getString(R.string.search_bible_section_group_prompt)
     override val chooseTranslations: String get() = context.getString(R.string.search_translations)
     override val recentSearches: String get() = context.getString(R.string.recent_searches)
     override val create: String get() = context.getString(R.string.index_create)

@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchType
+import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -63,19 +64,13 @@ fun BibleSearchSettings(
     bibleSection: SearchBibleSection,
     availableTranslations: List<Pair<String, String>>,
     selectedTranslationIds: List<String>,
+    currentBookName: String,
     onSearchType: (SearchType) -> Unit,
     onBibleSection: (SearchBibleSection) -> Unit,
     onTranslations: (List<String>) -> Unit,
     initiallyDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
-    val sections = SearchBibleSection.entries
-    val sectionLabels = listOf(
-        strings.searchAllBible,
-        strings.searchOldTestament,
-        strings.searchNewTestament,
-        strings.searchCurrentBook,
-    )
     val types = SearchType.entries
     val typeLabels = listOf(strings.allWords, strings.anyWord, strings.phrase)
 
@@ -83,19 +78,16 @@ fun BibleSearchSettings(
 
     val translationsSummary = translationsSummaryOf(strings, availableTranslations, selectedTranslationIds)
 
-    // Full-width in the sheet: no truncation, so the four section labels render fully.
-    SingleChoiceSegmentedButtonRow(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-    ) {
-        sections.forEachIndexed { index, section ->
-            SegmentedButton(
-                selected = bibleSection == section,
-                onClick = { onBibleSection(section) },
-                shape = SegmentedButtonDefaults.itemShape(index, sections.size),
-                icon = {},
-            ) { Text(sectionLabels[index]) }
-        }
-    }
+    // F6-B4: four localized labels never fit four equal-width segments — they soft-wrapped MID-WORD
+    // ("Old Testam / ent") and clipped, in English at 320dp and worse in Finnish. A dropdown absorbs
+    // any label length, which is also what lets `CURRENT_BOOK` carry the open book's name.
+    AbDropdownField(
+        label = strings.searchWhere,
+        selected = bibleSection,
+        options = SearchBibleSection.entries,
+        optionLabel = { searchSectionLabel(strings, it, currentBookName) },
+        onSelect = onBibleSection,
+    )
 
     SingleChoiceSegmentedButtonRow(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
@@ -151,18 +143,12 @@ fun bibleSearchSettingsSummary(
     bibleSection: SearchBibleSection,
     availableTranslations: List<Pair<String, String>>,
     selectedTranslationIds: List<String>,
+    currentBookName: String,
 ): String {
-    val sections = SearchBibleSection.entries
-    val sectionLabels = listOf(
-        strings.searchAllBible,
-        strings.searchOldTestament,
-        strings.searchNewTestament,
-        strings.searchCurrentBook,
-    )
     val types = SearchType.entries
     val typeLabels = listOf(strings.allWords, strings.anyWord, strings.phrase)
     val translationsSummary = translationsSummaryOf(strings, availableTranslations, selectedTranslationIds)
-    return "${sectionLabels[sections.indexOf(bibleSection)]}" +
+    return searchSectionLabel(strings, bibleSection, currentBookName) +
         " · ${typeLabels[types.indexOf(searchType)]}" +
         " · $translationsSummary"
 }
@@ -176,3 +162,20 @@ private fun translationsSummaryOf(
     .filter { it.first in selectedTranslationIds }
     .joinToString(", ") { it.second }
     .ifEmpty { strings.all }
+
+/**
+ * The label for one search scope. `CURRENT_BOOK` is named after the open book, which is what classic
+ * did by overwriting its radio button's text at runtime (`Search.kt:168-179`,
+ * `SearchControl.currentBookName`). The static label is the fallback for callers with no book to name
+ * — `SearchScreen`'s `currentBookName` parameter is defaulted to `""`.
+ */
+internal fun searchSectionLabel(
+    strings: Strings,
+    section: SearchBibleSection,
+    currentBookName: String,
+): String = when (section) {
+    SearchBibleSection.ALL -> strings.searchAllBible
+    SearchBibleSection.OLD_TESTAMENT -> strings.searchOldTestament
+    SearchBibleSection.NEW_TESTAMENT -> strings.searchNewTestament
+    SearchBibleSection.CURRENT_BOOK -> currentBookName.ifBlank { strings.searchCurrentBook }
+}

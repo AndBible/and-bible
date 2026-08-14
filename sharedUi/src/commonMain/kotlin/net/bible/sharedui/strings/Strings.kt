@@ -97,6 +97,9 @@ interface Strings {
     val searchOldTestament: String
     val searchNewTestament: String
     val searchCurrentBook: String
+
+    /** The scope dropdown's label ("Search Where") — classic's own `RadioGroup` prompt for this. */
+    val searchWhere: String
     val chooseTranslations: String
     val recentSearches: String
     val create: String

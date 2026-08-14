@@ -67,6 +67,7 @@ fun SearchScreen(
     bibleSection: SearchBibleSection,
     availableTranslations: List<Pair<String, String>>,
     selectedTranslationIds: List<String>,
+    currentBookName: String = "",
     onQueryChange: (String) -> Unit,
     onSearchType: (SearchType) -> Unit,
     onBibleSection: (SearchBibleSection) -> Unit,
@@ -87,6 +88,7 @@ fun SearchScreen(
         bibleSection = bibleSection,
         availableTranslations = availableTranslations,
         selectedTranslationIds = selectedTranslationIds,
+        currentBookName = currentBookName,
     )
 
     AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
@@ -133,6 +135,7 @@ fun SearchScreen(
                     bibleSection = bibleSection,
                     availableTranslations = availableTranslations,
                     selectedTranslationIds = selectedTranslationIds,
+                    currentBookName = currentBookName,
                     onSearchType = onSearchType,
                     onBibleSection = onBibleSection,
                     onTranslations = onTranslations,

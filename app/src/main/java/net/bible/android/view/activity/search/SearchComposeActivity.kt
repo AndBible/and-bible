@@ -111,6 +111,7 @@ class SearchComposeActivity : ActivityBase() {
                         bibleSection = bibleSection,
                         availableTranslations = availableTranslations,
                         selectedTranslationIds = selectedTranslationIds,
+                        currentBookName = currentBookName,
                         onQueryChange = controller::setQuery,
                         onSearchType = controller::setSearchType,
                         onBibleSection = controller::setBibleSection,

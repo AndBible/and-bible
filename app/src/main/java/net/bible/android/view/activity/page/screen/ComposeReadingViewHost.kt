@@ -1826,6 +1826,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 bibleSection = searchSection.value,
                 availableTranslations = searchAvailableTranslations.value,
                 selectedTranslationIds = searchTranslations.value,
+                // Read at composition time rather than collected: this is a plain getter over the
+                // active window's page, and the settings sheet is modal and short-lived.
+                currentBookName = searchControl.currentBookName,
                 onSearchType = { searchType.value = it },
                 onBibleSection = { searchSection.value = it },
                 onTranslations = { ids -> setSearchTranslations(ids) },

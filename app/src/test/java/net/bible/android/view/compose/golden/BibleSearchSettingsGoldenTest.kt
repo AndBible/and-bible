@@ -49,6 +49,7 @@ class BibleSearchSettingsGoldenTest {
         bibleSection: SearchBibleSection = SearchBibleSection.ALL,
         availableTranslations: List<Pair<String, String>> = translations,
         selectedTranslationIds: List<String> = listOf("esv"),
+        currentBookName: String = "",
     ): @Composable () -> Unit = {
         Column {
             BibleSearchSettings(
@@ -56,6 +57,7 @@ class BibleSearchSettingsGoldenTest {
                 bibleSection = bibleSection,
                 availableTranslations = availableTranslations,
                 selectedTranslationIds = selectedTranslationIds,
+                currentBookName = currentBookName,
                 onSearchType = {},
                 onBibleSection = {},
                 onTranslations = {},
@@ -64,6 +66,18 @@ class BibleSearchSettingsGoldenTest {
     }
 
     @Test fun default() = captureMatrix("BibleSearchSettings", "default", content = settings())
+
+    // F6-B4's second half: the CURRENT_BOOK option must show the open book's name, as classic did.
+    // This is the only capture that proves a book name reaches the control.
+    @Test
+    fun currentBookNamed() =
+        captureGolden(
+            "BibleSearchSettings", "currentBookNamed", EDGE_MODE,
+            content = settings(
+                bibleSection = SearchBibleSection.CURRENT_BOOK,
+                currentBookName = "Luke",
+            ),
+        )
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
