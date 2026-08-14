@@ -104,6 +104,12 @@ function getComponents(isNativeHtml: boolean): Record<string, Component> {
     }
 }
 
+// Document content is data (module text, EPUB and MyDocument HTML), not a Vue template written by
+// us. With the default delimiters, mustache braces occurring in that content would be compiled as
+// interpolation expressions and silently render as nothing. Delimiters that cannot occur in real
+// content turn interpolation off, so the braces are rendered as the literal text they are.
+const noInterpolationDelimiters: [string, string] = ["{{andbible-no-interpolation}}", "{{/andbible-no-interpolation}}"]
+
 export default defineComponent({
     name: "OsisSegment",
     props: {
@@ -117,6 +123,7 @@ export default defineComponent({
             components: getComponents(this.isNativeHtml),
             compilerOptions: {
                 whitespace: 'preserve',
+                delimiters: noInterpolationDelimiters,
             },
         });
     },

@@ -87,6 +87,16 @@ covered by the observer firing on the root element.
 
 ### Origin semantics
 
+**Revised 2026-08-14:** numbering is one-based. The top of the loaded content is
+page `1`, not `0`, so a freshly opened document reads `1.0/y` instead of `0.0/y`.
+Both numbers gain the same `+1`, so the end of the content still reads `x ≈ y`:
+
+- `current = 1 + scrollY / scrollAmount`
+- `total = 1 + max(0, ceil(maxScrollY / scrollAmount))` — one page for the first
+  screenful plus one per page scroll needed to reach the end.
+- Content shorter than the viewport (`maxScrollY <= 0`) is `1.0/1`, and the
+  unmeasured-layout guard returns `{current: 1, total: 1}` rather than zeroes.
+
 **Revised 2026-08-07** (supersedes the `scrollYAtStart` design below, which was
 implemented first):
 

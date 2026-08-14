@@ -49,14 +49,20 @@ val Key.uniqueId: String get() {
     }
 }
 
-fun wrapString(str_: String?, replaceBackslash: Boolean = false): String =
+/**
+ * Wraps arbitrary content as a JavaScript template literal for injection into the WebView.
+ *
+ * Everything the content could otherwise do to the literal must be escaped: `${...}` would be
+ * evaluated as a substitution (throwing ReferenceError and aborting the whole injected script),
+ * a backslash would start an escape sequence, and a backtick would close the literal early.
+ */
+fun wrapString(str_: String?): String =
     if(str_ == null) "null"
     else {
-        var str = str_
-        if(replaceBackslash) {
-            str = str.replace("\\", "\\\\")
-        }
-        str = str.replace("`", "\\`")
+        val str = str_
+            .replace("\\", "\\\\")
+            .replace("`", "\\`")
+            .replace("$", "\\$")
         "`$str`"
     }
 

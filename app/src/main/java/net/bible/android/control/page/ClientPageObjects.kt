@@ -287,7 +287,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.BibleBookmarkWithNote
             val bookmarks = bookmarks.map { ClientBibleBookmark(it, KJVA).asJson }
             return mapOf(
                 "id" to wrapString(verseRange.uniqueId),
-                "type" to wrapString("notes", true),
+                "type" to wrapString("notes"),
                 "bookmarks" to listToJson(bookmarks),
                 "ordinalRange" to json.encodeToString(serializer(), listOf(verseRange.start.ordinal, verseRange.end.ordinal)),
                 "verseRange" to wrapString(verseRange.name),
@@ -330,7 +330,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
     }
 
     override val asHashMap: Map<String, String> get() {
-        val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
+        val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes)
         return mapOf(
             "id" to wrapString(bookmark.id.toString()),
             "hashCode" to (abs(bookmark.id.hashCode())).toString(),
@@ -374,7 +374,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
     }
 
     override val asHashMap: Map<String, String> get() {
-        val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
+        val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes)
         return mapOf(
             "id" to wrapString(bookmark.id.toString()),
             "key" to wrapString(bookmark.key),
@@ -484,8 +484,8 @@ class ClientAiDocMarker(
             "bookAbbreviation" to wrapString(marker.documentInitials),
             "createdAt" to "0",
             "lastUpdatedOn" to "0",
-            "text" to wrapString(marker.pageTitle, true),
-            "fullText" to wrapString(marker.pageTitle, true),
+            "text" to wrapString(marker.pageTitle),
+            "fullText" to wrapString(marker.pageTitle),
             "notes" to "null",
             "notesContentType" to "null",
             "hasNote" to "false",
@@ -495,7 +495,7 @@ class ClientAiDocMarker(
             "sourcePromptId" to wrapString(marker.sourcePromptId?.toString()),
             // AI doc marker specific fields
             "verseRangeAbbreviated" to wrapString(verseRangeAbbreviated),
-            "title" to wrapString(marker.pageTitle, true),
+            "title" to wrapString(marker.pageTitle),
             "documentInitials" to wrapString(marker.documentInitials),
             "pageKey" to wrapString(marker.pageKey),
             "sourceBookInitials" to wrapString(marker.sourceBookInitials),
