@@ -64,6 +64,15 @@ import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
 import net.bible.sharedui.strings.LocalStrings
 
+/**
+ * The long-name autosize floor, as a fraction of the long-name line's own [MaterialTheme]
+ * `labelSmall` size rather than a hard-coded sp literal — so the floor cannot drift out of sync if
+ * the typography changes. Comparable to classic's smallest `<small>` step (0.512x) and still
+ * legible; at today's Material3 default (labelSmall = 11.sp) this works out to 7.15.sp, close to
+ * the earlier literal 7.sp so the goldens do not shift for this reason alone.
+ */
+private const val LONG_NAME_MIN_FONT_SIZE_FRACTION = 0.65f
+
 @Composable
 fun GridChoosePassageScreen(
     ui: GridUi,
@@ -193,12 +202,25 @@ private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) ->
                             // to show most long names in full without letting a pathological one grow
                             // forever) and heightIn(max=...) sized from what's actually left in the cell
                             // after the abbreviation line and the Column's own padding, so the shrink
-                            // search has a genuine vertical bound to solve against. minFontSize is about
-                            // half the label size, comparable to classic's smallest step (0.512x) and
-                            // still legible; overflow=Ellipsis is the last-resort floor for a name that
-                            // still doesn't fit at minFontSize over 2 lines.
+                            // search has a genuine vertical bound to solve against. minFontSize is
+                            // derived from the label size (below) rather than a bare literal, comparable
+                            // to classic's smallest step (0.512x) and still legible; overflow=Ellipsis is
+                            // the last-resort floor for a name that still doesn't fit at minFontSize over
+                            // 2 lines.
                             val abbrHeight = with(density) { abbrStyle.lineHeight.toDp() }
-                            val longNameMaxHeight = (cellHeight - 4.dp - abbrHeight).coerceAtLeast(0.dp)
+                            // A fraction of maxFontSize, not a bare literal, so the two cannot drift
+                            // apart if the typography changes; ~0.65x keeps today's ~7sp value (11sp
+                            // labelSmall * 0.65 = 7.15sp).
+                            val minFontSize = longStyle.fontSize * LONG_NAME_MIN_FONT_SIZE_FRACTION
+                            // abbrHeight scales with the user's font-scale setting while cellHeight does
+                            // not, so at the 40dp minCell floor with a large font scale the bound above
+                            // can collapse to a few dp — and since maxLines/width (not height) drive the
+                            // ellipsis, a tiny height bound clips the name away entirely instead of
+                            // ellipsizing it. Floor at one line rendered at minFontSize, computed from
+                            // the style's own lineHeight:fontSize ratio so it scales the same way.
+                            val lineHeightRatio = longStyle.lineHeight.value / longStyle.fontSize.value
+                            val oneLineAtMinFontSize = with(density) { (minFontSize.value * lineHeightRatio).sp.toDp() }
+                            val longNameMaxHeight = (cellHeight - 4.dp - abbrHeight).coerceAtLeast(oneLineAtMinFontSize)
                             BasicText(
                                 text = it,
                                 style = longStyle.copy(
@@ -209,7 +231,7 @@ private fun GridCell(b: GridButton, ui: GridUi, cellHeight: Dp, onPick: (Int) ->
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 autoSize = TextAutoSize.StepBased(
-                                    minFontSize = 7.sp,
+                                    minFontSize = minFontSize,
                                     maxFontSize = longStyle.fontSize,
                                     stepSize = 0.5.sp,
                                 ),
