@@ -113,6 +113,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
+import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
 import net.bible.android.view.activity.search.epubSearchRunFor
 import net.bible.android.view.activity.search.toClassicSearchTypeName
@@ -940,7 +941,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * that Activity there is no `startActivity` and no `finish()`: the reading view is already here,
      * so this only navigates the active window and drops the sheet (see [onSearchResultSelected]).
      *
-     * [ordinal] is not yet used — Task 2 attaches the ordinal to the key.
+     * [ordinal] is re-attached to the resolved key via [epubKeyFor] — see its kdoc: classic passes the
+     * whole `BookAndKey` (`OrdinalRange` included) to `setCurrentDocumentAndKey`, so the reader lands on
+     * the hit rather than the top of the fragment.
      */
     internal fun onEpubSearchResultSelected(keyId: String, ordinal: Int) {
         val docId = (searchController.phase.value as? ReadingSearchPhase.Results)?.docId
@@ -954,7 +957,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             return
         }
         try {
-            val key = book.getKey(keyId.removePrefix("$docId:"))
+            val key = epubKeyFor(book, docId, keyId, ordinal)
             activity.windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
             searchController.closeSheet()
         } catch (e: Exception) {

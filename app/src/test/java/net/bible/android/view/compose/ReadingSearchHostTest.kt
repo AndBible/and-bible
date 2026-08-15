@@ -34,6 +34,7 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewGeneration
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.search.AndroidEpubSearchService
+import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchRunFor
 import net.bible.android.view.activity.search.stripSearchDecoration
 import net.bible.service.common.CommonUtils
@@ -957,6 +958,54 @@ class ReadingSearchHostTest {
         h.openSearch()
 
         assertEquals(EpubSearchMode.PHRASE, h.epubSearchMode.value)
+    }
+
+    // ---- Task 2: an EPUB result tap navigates to the hit's ordinal -----------------------------
+
+    /**
+     * [epubKeyFor] is the seam both Compose EPUB-result surfaces
+     * ([ComposeReadingViewHost.onEpubSearchResultSelected] and
+     * `EpubSearchResultsComposeActivity.onSelect`) resolve a tapped row's key through, and the fix this
+     * task makes: classic hands `setCurrentDocumentAndKey` the whole `BookAndKey` with its
+     * `OrdinalRange` included (`EpubSearchResults.kt:171-178`), so the reader lands on the hit rather
+     * than the top of the fragment.
+     *
+     * Driving [ComposeReadingViewHost.onEpubSearchResultSelected] itself end to end would need a real
+     * EPUB backend with genbook data on disk: the `TestEpub` `NullBackend` fixtures this file already
+     * uses (`book(...)`, `givenCurrentDocumentIsAnEpub` in `ReadingSearchEntryPointsTest`) activate to
+     * an EMPTY key map (`NullBackend.readIndex()` returns an empty `DefaultKeyList`), so
+     * `Book.getKey(text)` throws `NoSuchKeyException` for every key on them — the navigation call would
+     * never be reached and the test would pass or fail for a reason unrelated to the ordinal. This pins
+     * the pure reattachment logic directly instead: a real KJV verse key stands in for any
+     * `Book.getKey`-resolvable key (the resolution itself is untouched by this task; only the ordinal
+     * reattachment is), and both call sites are reviewed to confirm they call this SAME function rather
+     * than a copy (see the fix-round report).
+     */
+    @Test
+    fun epubKeyForReattachesTheHitOrdinalAsAnOrdinalRange() {
+        val kjv = Books.installed().getBook("KJV") as SwordBook
+
+        val key = epubKeyFor(kjv, docId = "KJV", keyId = "KJV:Gen.1.1", ordinal = 12)
+
+        assertEquals("Gen.1.1", key.key.osisRef, "the docId prefix must be stripped before re-resolving")
+        assertEquals(12, key.ordinal?.start, "the hit's ordinal must reach the returned BookAndKey")
+        assertNull(
+            key.ordinal?.end,
+            "a single hit has no range end, matching the search hit's own OrdinalRange(it.ordinal)",
+        )
+    }
+
+    /** A different ordinal for the same key must produce a different result — guards against a wiring
+     *  bug that hardcodes or silently drops the parameter (e.g. always attaching `0`). */
+    @Test
+    fun epubKeyForOrdinalTracksTheArgumentNotTheKey() {
+        val kjv = Books.installed().getBook("KJV") as SwordBook
+
+        val first = epubKeyFor(kjv, docId = "KJV", keyId = "KJV:Gen.1.1", ordinal = 3)
+        val second = epubKeyFor(kjv, docId = "KJV", keyId = "KJV:Gen.1.1", ordinal = 40)
+
+        assertEquals(3, first.ordinal?.start)
+        assertEquals(40, second.ordinal?.start)
     }
 
     // ---- Review I1: the pure decoration strip ------------------------------------------------------

@@ -136,13 +136,14 @@ class EpubSearchResultsComposeActivity : ActivityBase() {
      * re-resolve the inner osisRef via [org.crosswire.jsword.book.Book.getKey] — the same round-trip
      * [net.bible.service.sword.BookAndKeySerialized] uses to restore epub keys from history/workspace.
      *
-     * [ordinal] is not yet used — Task 2 attaches the ordinal to the key.
+     * [ordinal] is re-attached to the resolved key via [epubKeyFor] — see its kdoc: classic passes the
+     * whole `BookAndKey` (`OrdinalRange` included) to `setCurrentDocumentAndKey`, so the reader lands on
+     * the hit rather than the top of the fragment.
      */
     private fun onSelect(keyId: String, ordinal: Int) {
         val book = Books.installed().getBook(docId) ?: return
         try {
-            val innerOsisRef = keyId.removePrefix("$docId:")
-            val key = book.getKey(innerOsisRef)
+            val key = epubKeyFor(book, docId, keyId, ordinal)
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
             startActivity(Intent(this, MainBibleActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP

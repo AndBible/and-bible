@@ -38,7 +38,8 @@ import net.bible.sharedui.strings.LocalStrings
  * EPUB full-text-search results list. Pure state-in / callbacks-out: the host owns the FTS query and
  * key navigation. Each [EpubResultRow] is one hit — line 1 the display key name, line 2 the highlighted
  * FTS snippet (the `<b>…</b>` match), rendered via [styledTextToAnnotatedString] so the highlight shows.
- * Tapping a row addresses the hit by its stable [EpubResultRow.keyId].
+ * Tapping a row addresses the hit by its stable [EpubResultRow.keyId] paired with its
+ * [EpubResultRow.ordinal] — the fragment plus which hit within it.
  */
 @Composable
 fun EpubSearchResultsScreen(
