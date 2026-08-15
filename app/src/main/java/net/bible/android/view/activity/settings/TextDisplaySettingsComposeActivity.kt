@@ -158,7 +158,24 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
 
         setContent {
             AbAppTheme {
-                    BackHandler { if (searchMode.active.value) searchMode.close() else pop() }
+                    // Fix round 1 (Task 7 review): searchMode is hoisted to ACTIVITY level (see the
+                    // field above), so — unlike the old `remember`-in-composable design, which was
+                    // disposed the instant the composition navigated away — it now OUTLIVES pushing
+                    // the Colors/chooser sub-destinations. Those destinations render no search UI at
+                    // all, so `searchMode.active` gate must not fire there: a back press from inside
+                    // Colors must always `pop()`. Gating unconditionally on `searchMode.active.value`
+                    // would `close()` an invisible search bar and swallow that press entirely (pop()
+                    // never runs), leaving the user apparently stuck needing two back presses.
+                    // INVARIANT: only close search from the list destination itself (no colorsScope/
+                    // chooserNight pushed) — do not widen this to "search active" alone.
+                    BackHandler {
+                        val atListDestination = colorsScope == null && chooserNight == null
+                        if (shouldCloseSearchOnBack(atListDestination, searchMode.active.value)) {
+                            searchMode.close()
+                        } else {
+                            pop()
+                        }
+                    }
 
                     val activeColorsScope = colorsScope
                     if (activeColorsScope != null) {
@@ -525,6 +542,25 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
         }
     }
 }
+
+/**
+ * Whether a back press at the CURRENT destination should close search mode instead of falling
+ * through to normal back navigation ([TextDisplaySettingsComposeActivity.pop]).
+ *
+ * Pure Kotlin (no Compose/Robolectric needed) so this can be unit-tested directly — see
+ * [net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivityBackTest], which
+ * proves the previous unconditional `searchMode.active.value` check swallowed a back press from
+ * inside the Colors/chooser sub-destinations (Task 7 review Finding 1: search state is hoisted to
+ * ACTIVITY level so it now outlives navigating into those destinations, unlike the old
+ * `remember`-in-composable design, which was disposed the instant the composition navigated away).
+ *
+ * [atListDestination] must be `false` whenever the Colors or background-image-chooser
+ * sub-destination is showing (they render no search UI at all) — do not simplify this to
+ * `searchActive` alone, or a back press from Colors while search happens to still be active would
+ * silently close it and eat the press instead of popping one level.
+ */
+fun shouldCloseSearchOnBack(atListDestination: Boolean, searchActive: Boolean): Boolean =
+    atListDestination && searchActive
 
 /** Reconstructs the initial [SettingsScope] from the extras [TextDisplaySettingsComposeActivity.intentFor] set. */
 private fun scopeFromIntent(intent: Intent): SettingsScope = when (intent.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL)) {
