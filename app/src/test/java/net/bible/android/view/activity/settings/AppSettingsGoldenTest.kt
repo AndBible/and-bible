@@ -196,4 +196,10 @@ class AppSettingsGoldenTest {
     // non-matching categories collapse away, so the filtered list is short — no heightDp override needed.
     @Test fun filtered_edge() =
         captureGolden("AppSettings", "filtered", EDGE_MODE, content = filteredScreen(baseSnapshot(), "night"))
+
+    // Same filtered state as [filtered_edge], but across the full 4-mode theme matrix (light/dark/
+    // bw/eink) rather than a single EDGE_MODE capture, so the search-mode top app bar itself (query
+    // text + clear/close action icons) is pinned in every theme, not just light.
+    @Test fun searchMode_matrix() =
+        captureMatrix("AppSettings", "searchMode", content = filteredScreen(baseSnapshot(), "night"))
 }

@@ -68,6 +68,7 @@ class CloudDocumentsGoldenTest {
         selectionMode: Boolean = false,
         selectedIds: Set<String> = emptySet(),
         syncNowDialog: SyncNowDialogState? = null,
+        query: String = "",
         searchModeActive: Boolean = false,
     ) = CloudDocumentsScreen(
         title = "Manage cloud documents",
@@ -75,7 +76,7 @@ class CloudDocumentsGoldenTest {
         displayed = displayed,
         statusFilters = statusFilters, selectedStatusFilter = CloudDocFilter.ALL,
         categoryFilters = categoryFilters, selectedCategoryFilter = null,
-        query = "", selectionMode = selectionMode, selectedIds = selectedIds, syncEnabled = false,
+        query = query, selectionMode = selectionMode, selectedIds = selectedIds, syncEnabled = false,
         syncNowDialog = syncNowDialog,
         topBarActions = {}, onQueryChange = {},
         searchModeActive = searchModeActive, onOpenSearch = {}, onCloseSearch = {},
@@ -89,6 +90,12 @@ class CloudDocumentsGoldenTest {
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun cloud_populated_rtl() = captureRtl("CloudDocuments", "populated") { screen() }
+
+    // Search-mode top app bar: non-empty query (so the clear/close action icon is visible),
+    // displayed pre-filtered to what that query would actually match.
+    @Test fun cloud_searchMode() = captureMatrix("CloudDocuments", "searchMode") {
+        screen(displayed = rows.filter { it.name.contains("King") }, query = "King", searchModeActive = true)
+    }
 
     @Test fun cloud_empty() = captureGolden("CloudDocuments", "empty", EDGE_MODE) { screen(displayed = emptyList()) }
 

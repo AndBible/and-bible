@@ -138,6 +138,7 @@ class DocumentSelectionGoldenTest {
         isRefreshing: Boolean = false,
         selectedLanguage: LangOption? = null,
         selectedTypeFilter: DocTypeFilter = DocTypeFilter.ALL,
+        query: String = "",
         searchModeActive: Boolean = false,
     ) = DocumentSelectionScreen(
         title = if (downloadMode) "Download documents" else "Documents",
@@ -150,7 +151,7 @@ class DocumentSelectionGoldenTest {
         selectedLanguage = selectedLanguage,
         typeFilters = typeFilters,
         selectedTypeFilter = selectedTypeFilter,
-        query = "",
+        query = query,
         resultCount = count,
         selectionMode = selectionMode,
         selectedIds = selectedIds,
@@ -194,6 +195,19 @@ class DocumentSelectionGoldenTest {
                 selectedIds = setOf(rows.first().docId),
                 deleteVisible = true,
                 unlockVisible = false,
+            )
+        }
+    }
+
+    // Search-mode top app bar: non-empty query (so the clear/close action icon is visible),
+    // displayed pre-filtered to what that query would actually match.
+    @Test fun chooseDocument_searchMode() {
+        captureMatrix("ChooseDocument", "searchMode") {
+            screen(
+                displayed = rows.filter { it.name.contains("King") },
+                count = "1 document",
+                query = "King",
+                searchModeActive = true,
             )
         }
     }

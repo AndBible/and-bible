@@ -93,6 +93,7 @@ class BookmarksGoldenTest {
         rows: List<BookmarkRow> = rows(),
         showNotes: Boolean = true,
         selection: Set<String> = emptySet(),
+        searchText: String = "",
         searchModeActive: Boolean = false,
     ) = @androidx.compose.runtime.Composable {
         BookmarksScreen(
@@ -101,7 +102,7 @@ class BookmarksGoldenTest {
             filterLabels = filterLabels(),
             selectedFilterIndex = 0,
             sortMode = BookmarkSortMode.BIBLE_ORDER,
-            searchText = "",
+            searchText = searchText,
             showNotes = showNotes,
             selection = selection,
             loading = false,
@@ -142,6 +143,13 @@ class BookmarksGoldenTest {
             "Bookmarks", "selection", EDGE_MODE, heightDp = 800,
             content = screen(selection = setOf("b1", "b3")),
         )
+
+    // Search-mode top app bar, captured with an EMPTY query on purpose (not the usual non-empty
+    // convention used elsewhere): this screen's search field carries its own placeholder text
+    // ("Filter by notes", strings.bookmarksSearchNotesHint) which a text field only draws while its
+    // value is empty, so an empty query is the one capture that actually shows that placeholder.
+    @Test fun bookmarks_searchMode() =
+        captureMatrix("Bookmarks", "searchMode", heightDp = 800, content = screen(searchModeActive = true))
 
     @Test fun bookmarks_empty() =
         captureGolden("Bookmarks", "empty", EDGE_MODE, heightDp = 800, content = screen(rows = emptyList()))
