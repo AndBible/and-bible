@@ -272,6 +272,47 @@ class ReadingSearchHostTest {
         assertTrue(doc!!.indexDone)
     }
 
+    /**
+     * The two-argument [ComposeReadingViewHost.documentIndexDone] overload is the seam that lets
+     * a unit test drive both sides of the EPUB branch — no unit test can construct a real
+     * `EpubBackend`. This is the intermediate TRUE that is the whole point of the task: even
+     * though `indexStatus` says UNDONE, an EPUB whose backend resolver reports indexed must count
+     * as indexed.
+     */
+    @Test
+    fun anEpubWithAnIndexedBackendIsIndexedEvenWhenIndexStatusSaysUndone() {
+        val epub = book(
+            "TestEpub", category = "Generic Books", modDrv = "RawGenBook",
+            extraConf = "AndBibleEpubModule=1", indexed = false,
+        )
+        assertTrue(ComposeReadingViewHost.documentIndexDone(epub) { true })
+    }
+
+    /** The mirror: a DONE `indexStatus` must not override a backend resolver reporting not-indexed. */
+    @Test
+    fun anEpubWithAnUnindexedBackendIsNotIndexedEvenWhenIndexStatusSaysDone() {
+        val epub = book(
+            "TestEpub", category = "Generic Books", modDrv = "RawGenBook",
+            extraConf = "AndBibleEpubModule=1", indexed = true,
+        )
+        assertFalse(ComposeReadingViewHost.documentIndexDone(epub) { false })
+    }
+
+    /**
+     * A non-EPUB must ignore the resolver entirely — both in its return value (still driven by
+     * `indexStatus`) and by never invoking it. Without the "never called" half, a future
+     * "simplification" that calls the resolver for every document type would still pass the
+     * value-only assertion (the resolver here always answers `true`, matching `indexStatus`).
+     */
+    @Test
+    fun aNonEpubIgnoresTheBackendResolverEntirely() {
+        val bible = book("TestBible", category = "Biblical Texts", indexed = true)
+        var resolverCalled = false
+        val result = ComposeReadingViewHost.documentIndexDone(bible) { resolverCalled = true; true }
+        assertTrue(result, "non-EPUB indexDone must still come from indexStatus")
+        assertFalse(resolverCalled, "the backend resolver must never be invoked for a non-EPUB")
+    }
+
     @Test
     fun anIndexedBibleBecomesABibleSearchKind() {
         val doc = ComposeReadingViewHost.searchDocumentInfo(

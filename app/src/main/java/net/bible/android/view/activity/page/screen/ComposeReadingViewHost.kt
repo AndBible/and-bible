@@ -1979,8 +1979,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
          * book is not in.
          */
         internal fun documentIndexDone(book: Book): Boolean =
-            if (book.isEpub) book.epubBackend?.state?.isIndexed == true
-            else book.indexStatus == IndexStatus.DONE
+            documentIndexDone(book) { it.epubBackend?.state?.isIndexed == true }
+
+        /**
+         * The two-argument overload exists so a unit test can drive both sides of the EPUB
+         * branch: no unit test can construct a real `EpubBackend` (that needs an EPUB directory
+         * plus its Room database, and `EpubSearch`'s SQLite driver is deliberately null under unit
+         * tests), so [epubIndexed] is the seam a test substitutes to prove the branch, while the
+         * single-argument entry point above wires the real backend read for production.
+         */
+        internal fun documentIndexDone(book: Book, epubIndexed: (Book) -> Boolean): Boolean =
+            if (book.isEpub) epubIndexed(book) else book.indexStatus == IndexStatus.DONE
 
         /**
          * Waits out JSword's "the job says finished before `indexStatus` says DONE" gap and reports
