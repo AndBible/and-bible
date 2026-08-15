@@ -38,6 +38,24 @@ enum class DocTypeFilter(private val predicate: (DocRow) -> Boolean) {
 }
 
 /**
+ * The document category whose icon represents this filter in the type picker, or null for
+ * [DocTypeFilter.ALL] (which spans every non-addon category and therefore has no single icon).
+ *
+ * The `when` is exhaustive on purpose: adding an eighth filter must fail this build rather than
+ * silently render a blank icon slot in the type sheet.
+ */
+val DocTypeFilter.iconCategory: DocCategory?
+    get() = when (this) {
+        DocTypeFilter.ALL -> null
+        DocTypeFilter.BIBLE -> DocCategory.BIBLE
+        DocTypeFilter.COMMENTARY -> DocCategory.COMMENTARY
+        DocTypeFilter.DICTIONARY -> DocCategory.DICTIONARY
+        DocTypeFilter.GENERAL_BOOK -> DocCategory.GENERAL_BOOK
+        DocTypeFilter.MAPS -> DocCategory.MAPS
+        DocTypeFilter.ADDON -> DocCategory.AND_BIBLE
+    }
+
+/**
  * Flattened, framework-free view of one JSword Book. The host owns the docId->Book map.
  * [docId] = Book.initials (command/result key). [osisId] = Book.osisID (search intersection only).
  */

@@ -781,7 +781,8 @@
     <string name="doc_type_book">Book</string>
     <string name="doc_type_map">Map</string>
     <string name="doc_type_addons">Add-ons</string>
-    
+    <string name="document_type_label">Document type</string>
+
     <!-- Languages -->
     <string name="lang_default">Default</string>
 

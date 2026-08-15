@@ -140,7 +140,15 @@ class DocumentSelectionControllerTest {
         c.dismissError(); assertNull(c.error.value)
     }
 
-    @Test fun updateDownloadStatus_floats_being_installed_and_preserves_selection() {
+    /**
+     * Updated 2026-08-14 (Round 6 download-row fix): this test used to pin the exact defect being
+     * fixed here — a progress tick re-sorted the displayed list and floated BEING_INSTALLED to the
+     * top, moving the row out from under the user. updateDownloadStatus now updates the row IN
+     * PLACE and leaves sorting to the four compositional triggers (setDocuments/setLanguage/
+     * setTypeFilter/setSearchResults). See download_progress_keeps_the_row_at_its_index and
+     * download_progress_does_not_clear_an_active_selection below for the dedicated coverage.
+     */
+    @Test fun updateDownloadStatus_does_not_float_and_preserves_selection() {
         val c = controller()
         c.setDocuments(listOf(row("a", DocCategory.BIBLE, abbr = "a"), row("b", DocCategory.BIBLE, abbr = "b")), null)
         c.setTypeFilter(DocTypeFilter.ALL)
@@ -149,10 +157,10 @@ class DocumentSelectionControllerTest {
         c.enterSelection(); c.toggle("a")
         assertTrue(c.selectionMode.value); assertEquals(setOf("a"), c.selectedIds.value)
 
-        // A progress update on the OTHER row -> it becomes BEING_INSTALLED and floats to the top.
+        // A progress update on the OTHER row -> it becomes BEING_INSTALLED but stays at its index.
         c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 30)
 
-        assertEquals(listOf("b", "a"), c.displayed.value.map { it.docId }) // being-installed floats first
+        assertEquals(listOf("a", "b"), c.displayed.value.map { it.docId }) // no re-sort, no float
         val bRow = c.displayed.value.first { it.docId == "b" }
         assertEquals(DocInstallStatus.BEING_INSTALLED, bRow.installStatus)
         assertEquals(30, bRow.percentDone)
@@ -172,5 +180,128 @@ class DocumentSelectionControllerTest {
         // Unknown docId -> no change.
         c.updateDownloadStatus("does-not-exist", DocInstallStatus.INSTALLED, 100)
         assertTrue(before === c.displayed.value)
+    }
+
+    /**
+     * Classic parity: a download must not move the row. computeDisplayed floats BEING_INSTALLED
+     * to the top, so re-sorting on a progress tick made the row jump — the reported defect.
+     */
+    @Test fun download_progress_keeps_the_row_at_its_index() {
+        val c = controller()
+        // Sorted by abbreviation within the same status/category, so ids a..e are indexes 0..4.
+        c.setDocuments(
+            listOf(
+                row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE),
+                row("d", DocCategory.BIBLE), row("e", DocCategory.BIBLE),
+            ),
+            null,
+        )
+        assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
+
+        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 0)
+        assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
+        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 45)
+        assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
+        assertEquals(45, c.displayed.value[2].percentDone)
+        c.updateDownloadStatus("c", DocInstallStatus.INSTALLED, 100)
+        assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
+        assertEquals(DocInstallStatus.INSTALLED, c.displayed.value[2].installStatus)
+    }
+
+    @Test fun download_progress_leaves_result_count_alone() {
+        val c = controller()
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), null)
+        assertEquals(2, c.resultCount.value)
+        c.updateDownloadStatus("a", DocInstallStatus.BEING_INSTALLED, 10)
+        assertEquals(2, c.resultCount.value)
+    }
+
+    @Test fun download_progress_for_a_filtered_out_row_updates_documents_only() {
+        val c = controller()
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.COMMENTARY)), null)
+        c.setTypeFilter(DocTypeFilter.BIBLE)
+        assertEquals(listOf("a"), c.displayed.value.map { it.docId })
+
+        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 30)
+
+        assertEquals(listOf("a"), c.displayed.value.map { it.docId })
+        assertEquals(
+            DocInstallStatus.BEING_INSTALLED,
+            c.documents.value.first { it.docId == "b" }.installStatus,
+        )
+    }
+
+    /** The four compositional triggers DO re-sort, so the installing row floats to the top there. */
+    @Test fun setDocuments_resorts_and_floats_the_installing_row() {
+        val c = controller()
+        val rows = listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE))
+        c.setDocuments(rows, null)
+        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 20)
+        assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
+
+        // A refresh re-pushes the master list, which is where classic re-sorts too.
+        c.setDocuments(c.documents.value, null)
+        assertEquals(0, c.displayed.value.indexOfFirst { it.docId == "c" })
+    }
+
+    @Test fun changing_a_filter_resorts_and_floats_the_installing_row() {
+        val c = controller()
+        c.setDocuments(
+            listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE)),
+            null,
+        )
+        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 20)
+        assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
+
+        c.setTypeFilter(DocTypeFilter.BIBLE)
+        assertEquals(0, c.displayed.value.indexOfFirst { it.docId == "c" })
+    }
+
+    @Test fun download_progress_does_not_clear_an_active_selection() {
+        val c = controller()
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), null)
+        c.enterSelection()
+        c.toggle("a")
+
+        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 5)
+
+        assertTrue(c.selectionMode.value)
+        assertEquals(setOf("a"), c.selectedIds.value)
+    }
+
+    /**
+     * Pins the property behind the Round-6 fix wave's Important-1 fix: DownloadComposeActivity's
+     * refreshRowStatus() (called from doDownload() after downloadControl.downloadDocument() returns,
+     * i.e. on both completion AND cancellation) used to call controller.setDocuments(...), which runs
+     * refilter() — a full re-sort plus clearSelection(). On cancel the terminal status is NOT_INSTALLED,
+     * which always differs from the BEING_INSTALLED mirror, so that path fired deterministically on
+     * every cancellation: the row dropped out of the installing position and any active multi-selection
+     * was silently wiped. The fix routes refreshRowStatus() through updateDownloadStatus() instead,
+     * which updates the row IN PLACE. This test is host-unreachable (refreshRowStatus is a private
+     * method on an Activity with a heavy DI/JSword surface, not exercised by any existing unit test
+     * harness), so it pins the equivalent controller-level property the fix relies on: a transition
+     * back to NOT_INSTALLED (what a cancel produces) via updateDownloadStatus() keeps the row's index
+     * and does not clear an active selection.
+     */
+    @Test fun cancel_keeps_the_row_at_its_index_and_preserves_selection() {
+        val c = controller()
+        c.setDocuments(
+            listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE)),
+            null,
+        )
+        c.enterSelection(); c.toggle("a")
+        assertEquals(1, c.displayed.value.indexOfFirst { it.docId == "b" })
+
+        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 30)
+        assertEquals(1, c.displayed.value.indexOfFirst { it.docId == "b" })
+
+        // Cancel: getDocumentStatus() reverts to NOT_INSTALLED. This is the exact transition
+        // refreshRowStatus() feeds through updateDownloadStatus() after the fix.
+        c.updateDownloadStatus("b", DocInstallStatus.NOT_INSTALLED, 0)
+
+        assertEquals(1, c.displayed.value.indexOfFirst { it.docId == "b" }) // row did not move
+        assertEquals(DocInstallStatus.NOT_INSTALLED, c.displayed.value[1].installStatus)
+        assertTrue(c.selectionMode.value) // selection survived
+        assertEquals(setOf("a"), c.selectedIds.value)
     }
 }

@@ -48,10 +48,16 @@ private fun stripComments(text: String): String {
  * time search is opened or closed. The same rule the drawer wrap follows; see the comment at
  * `ComposeReadingViewHost.kt:1350-1357`.
  *
- * This is a *source* guard because the invariant cannot be tested by rendering: `:app` has no
- * `ComposeTestRule` (`compose-ui-test` cannot be added under this container's strict egress), and in a
- * `mountComposeView` test the container is never attached to a window, so composition never runs and no
- * `AndroidView` factory is ever invoked. Same idiom as `SettingsBadgeLayoutDriftTest`.
+ * This is a *source* guard rather than a render test. `compose-ui-test` (`ui-test-junit4` /
+ * `ui-test-manifest`) IS available in this module — added in round 6 for
+ * `AbSearchableOptionSheetContentTest` — so unavailability is not the reason. The reason is scope:
+ * exercising this invariant by rendering would need a `ComposeTestRule` hosting the whole
+ * `ComposeReadingViewHost` composable, with its WebView/AndroidView/Koin/window-manager surface —
+ * a far heavier harness than this one structural rule justifies. (Separately, a plain
+ * `mountComposeView` test — the idiom this guard predates `compose-ui-test` from — never attaches
+ * its container to a window, so composition never runs there and no `AndroidView` factory is ever
+ * invoked; that idiom genuinely cannot exercise this invariant.) Same idiom as
+ * `SettingsBadgeLayoutDriftTest`.
  *
  * Note on matching: the literal `key(gen)` appears several times in the host, most of them inside
  * comments, so ordering assertions match on `key(gen) {` — the single actual call site.

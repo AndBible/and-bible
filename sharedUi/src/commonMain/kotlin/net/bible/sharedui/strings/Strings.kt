@@ -73,6 +73,7 @@ interface Strings {
     val docTypeMaps: String
     val docTypeAddon: String
     val languageLabel: String
+    val documentTypeLabel: String
     val aboutDoc: String
     val deleteLabel: String
     val deleteIndexLabel: String

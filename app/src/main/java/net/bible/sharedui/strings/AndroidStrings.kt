@@ -63,6 +63,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val docTypeMaps: String get() = context.getString(R.string.doc_type_map)
     override val docTypeAddon: String get() = context.getString(R.string.doc_type_addons)
     override val languageLabel: String get() = context.getString(R.string.chooce_language_hint)
+    override val documentTypeLabel: String get() = context.getString(R.string.document_type_label)
     override val aboutDoc: String get() = context.getString(R.string.about)
     override val deleteLabel: String get() = context.getString(R.string.delete)
     override val deleteIndexLabel: String get() = context.getString(R.string.delete_index)

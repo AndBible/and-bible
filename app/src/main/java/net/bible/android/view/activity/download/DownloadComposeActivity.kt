@@ -236,8 +236,10 @@ open class DownloadComposeActivity : ActivityBase() {
             }
         }
 
-        // Live per-row download progress: rebuild affected rows and re-push so the controller's
-        // five-key sort floats being-installed rows to the top (classic notifyDataSetChanged parity).
+        // Live per-row download progress: push each row's live status into the controller, which
+        // updates it IN PLACE without re-sorting or touching selection (classic notifyDataSetChanged
+        // parity — classic never re-sorts on progress either; DocumentSelectionBase.filterDocuments()
+        // is the only sort site).
         lifecycleScope.launch {
             bridge.statuses.collect { statusMap -> applyProgress(statusMap) }
         }
@@ -516,11 +518,11 @@ open class DownloadComposeActivity : ActivityBase() {
 
     private fun applyProgress(statusMap: Map<String, RowDownloadStatus>) {
         if (statusMap.isEmpty()) return
-        // Push each row's live status straight into the controller, which re-sorts (floating
-        // BEING_INSTALLED rows to the top, classic notifyDataSetChanged parity) WITHOUT clearing an
-        // active multi-selection — unlike setDocuments()/refilter(), which would call clearSelection()
-        // on every progress tick. Keep the host-side currentRows mirror in sync so a later
-        // refreshRowStatus()/setDocuments() doesn't revert the in-progress status.
+        // Push each row's live status straight into the controller, which updates it IN PLACE —
+        // no re-sort, no clearSelection() — unlike setDocuments()/refilter(), which would re-sort
+        // (floating BEING_INSTALLED to the top) and clear an active multi-selection on every progress
+        // tick. Keep the host-side currentRows mirror in sync so a later refreshRowStatus()/
+        // setDocuments() doesn't revert the in-progress status.
         var mirror = currentRows
         for ((docId, s) in statusMap) {
             controller.updateDownloadStatus(docId, s.status, s.percentDone)
@@ -546,7 +548,15 @@ open class DownloadComposeActivity : ActivityBase() {
         }
         if (updated != currentRows) {
             currentRows = updated
-            controller.setDocuments(updated, currentSearchIds)
+            // updateDownloadStatus() updates the row IN PLACE, never re-sorting/clearing selection —
+            // setDocuments() would run refilter() (full re-sort + clearSelection()), and on a cancel the
+            // terminal NOT_INSTALLED status vs. the pre-cancel mirror always differs, so that path fired
+            // on every single cancellation.
+            controller.updateDownloadStatus(
+                book.repoIdentity,
+                status.documentInstallStatus.toDocInstallStatus(),
+                status.percentDone,
+            )
         }
     }
 

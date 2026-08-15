@@ -505,6 +505,8 @@ dependencies {
     testImplementation(libs.roborazzi.compose)
     testImplementation(libs.roborazzi.junit.rule)
     testImplementation(libs.androidx.compose.material.icons.extended)  // DragHandle etc. in golden tests
+    testImplementation("androidx.compose.ui:ui-test-junit4")  // createComposeRule, for AbSearchableOptionSheetContentTest
+    debugImplementation("androidx.compose.ui:ui-test-manifest")  // registers the ComponentActivity createComposeRule() launches
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("org.hamcrest:hamcrest-library:2.2")
     testImplementation("org.mockito:mockito-core:3.12.4")
