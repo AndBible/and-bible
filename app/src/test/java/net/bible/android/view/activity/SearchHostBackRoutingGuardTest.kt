@@ -68,6 +68,13 @@ private fun stripComments(text: String): String {
  * source, not how many times. A previous round in this project set a similar guard's threshold to
  * a match count, and the guarded feature could then be deleted while the guard still passed.
  *
+ * The entry-point patterns match an actual CALL SITE, not a bare token: `override\s+fun\s+
+ * onBackPressed` (not bare `onBackPressed`, which also matches the harmless `super.onBackPressed()`
+ * inside the override body) and `BackHandler\s*[({]` (not bare `BackHandler`, which also matches
+ * `import androidx.activity.compose.BackHandler` -- an import that would keep satisfying a
+ * bare-token guard even after the real `BackHandler { ... }` call site is deleted, exactly the
+ * "silently no routing" shape this guard exists to catch).
+ *
  * **All scanned source has its comments stripped first** (see [stripComments]) so that a
  * commented-out override cannot satisfy this guard.
  */
@@ -84,8 +91,13 @@ class SearchHostBackRoutingGuardTest {
             "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettingsComposeActivity.kt",
         )
 
-        private const val BACK_ENTRY_ON_BACK_PRESSED = "onBackPressed"
-        private const val BACK_ENTRY_BACK_HANDLER = "BackHandler"
+        // Call-site patterns, not bare tokens: a bare "onBackPressed" also matches inside
+        // `super.onBackPressed()`, and a bare "BackHandler" also matches the import statement
+        // `import androidx.activity.compose.BackHandler` -- neither proves a real entry point
+        // exists, so an import left behind after the real call site is deleted would otherwise
+        // silently satisfy the guard.
+        private val BACK_ENTRY_ON_BACK_PRESSED = Regex("override\\s+fun\\s+onBackPressed")
+        private val BACK_ENTRY_BACK_HANDLER = Regex("BackHandler\\s*[({]")
 
         private const val SEARCH_STATE_ACTIVE = "searchModeActive"
         private const val SEARCH_STATE_MODE_ACTIVE = "searchMode.active"
@@ -98,7 +110,7 @@ class SearchHostBackRoutingGuardTest {
         for (path in SEARCH_HOST_FILES) {
             val source = strippedSourceOf(path)
 
-            val hasBackEntryPoint = source.contains(BACK_ENTRY_ON_BACK_PRESSED) || source.contains(BACK_ENTRY_BACK_HANDLER)
+            val hasBackEntryPoint = BACK_ENTRY_ON_BACK_PRESSED.containsMatchIn(source) || BACK_ENTRY_BACK_HANDLER.containsMatchIn(source)
             assertThat(
                 "$path must override `onBackPressed` or use `BackHandler` to route hardware back " +
                     "while search is open (found neither)",
@@ -117,24 +129,46 @@ class SearchHostBackRoutingGuardTest {
     @Test
     fun stripCommentsRemovesALineCommentThatQuotesTheGuardedPattern() {
         val synthetic = """
-            |// explanatory note: some hosts use onBackPressed and searchModeActive
+            |// explanatory note: some hosts use override fun onBackPressed and searchModeActive
             |class Foo
         """.trimMargin()
-        assertThat("sanity: the pattern is present before stripping", synthetic.contains(BACK_ENTRY_ON_BACK_PRESSED), equalTo(true))
+        assertThat("sanity: the pattern is present before stripping", BACK_ENTRY_ON_BACK_PRESSED.containsMatchIn(synthetic), equalTo(true))
         val stripped = stripComments(synthetic)
-        assertThat("the comment's occurrence of the pattern must be gone after stripping", stripped.contains(BACK_ENTRY_ON_BACK_PRESSED), equalTo(false))
+        assertThat("the comment's occurrence of the pattern must be gone after stripping", BACK_ENTRY_ON_BACK_PRESSED.containsMatchIn(stripped), equalTo(false))
     }
 
     @Test
     fun stripCommentsRemovesABlockCommentThatQuotesTheGuardedPattern() {
         val synthetic = """
             |/*
-            | * explanatory note: some hosts use onBackPressed and searchModeActive
+            | * explanatory note: some hosts use override fun onBackPressed and searchModeActive
             | */
             |class Foo
         """.trimMargin()
-        assertThat("sanity: the pattern is present before stripping", synthetic.contains(BACK_ENTRY_ON_BACK_PRESSED), equalTo(true))
+        assertThat("sanity: the pattern is present before stripping", BACK_ENTRY_ON_BACK_PRESSED.containsMatchIn(synthetic), equalTo(true))
         val stripped = stripComments(synthetic)
-        assertThat("the comment's occurrence of the pattern must be gone after stripping", stripped.contains(BACK_ENTRY_ON_BACK_PRESSED), equalTo(false))
+        assertThat("the comment's occurrence of the pattern must be gone after stripping", BACK_ENTRY_ON_BACK_PRESSED.containsMatchIn(stripped), equalTo(false))
+    }
+
+    @Test
+    fun anUnusedBackHandlerImportDoesNotSatisfyTheBackHandlerShape() {
+        // Reproduces the exact gap this round's fix closes: a bare-token match on "BackHandler"
+        // would be satisfied by the import line alone, even with the real `BackHandler { ... }`
+        // call site deleted -- which is precisely the "silently no routing" failure this guard
+        // exists to catch.
+        val synthetic = """
+            |import androidx.activity.compose.BackHandler
+            |
+            |class Foo {
+            |    fun bar() {
+            |        // BackHandler call site intentionally removed
+            |    }
+            |}
+        """.trimMargin()
+        val stripped = stripComments(synthetic)
+        assertThat(
+            "an import alone must not satisfy the BackHandler call-site pattern",
+            BACK_ENTRY_BACK_HANDLER.containsMatchIn(stripped), equalTo(false),
+        )
     }
 }
