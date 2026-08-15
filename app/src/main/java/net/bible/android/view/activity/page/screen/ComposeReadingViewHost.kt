@@ -112,7 +112,9 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
+import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
+import net.bible.android.view.activity.search.epubSearchRunFor
 import net.bible.android.view.activity.search.toClassicSearchTypeName
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -569,6 +571,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * The backing [MutableStateFlow] is `private`: every caller must go through
      * [persistEpubSearchMode] so a mode set here always reaches the settings key too, never just the
      * in-memory flow.
+     *
+     * Seeded here and RE-READ on every [openSearch] — the store is shared, so this seed is only ever
+     * a starting value, never the truth (review M3).
      */
     private val _epubSearchMode = MutableStateFlow(loadEpubSearchMode())
     val epubSearchMode: StateFlow<EpubSearchMode> = _epubSearchMode.asStateFlow()
@@ -670,6 +675,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // are — a search performed there meanwhile would otherwise be clobbered by this host's stale
         // in-memory list on its next `recordRecentTerm`.
         searchQueries.reloadRecentTerms()
+        // Review M3: and for the SAME reason, the EPUB word-mode. It is stored under a key the two
+        // standalone EPUB search Activities also write ([EPUB_SEARCH_TYPE_KEY]), and this host
+        // outlives any single search — so a mode changed on one of those surfaces meanwhile would
+        // otherwise be invisible here until the process restarted, and worse, be overwritten by this
+        // host's stale value on the next `persistEpubSearchMode`. Read once at construction is only
+        // correct for state nothing else owns; this is not that.
+        _epubSearchMode.value = loadEpubSearchMode()
         // Review item 5: BOTH one-shot flags are keyed to the query TEXT (see their kdoc), which a
         // seedless open does not change — so only a call that brings a new seed may replace them. An
         // unconditional reset here dropped them for a run they should have covered: Strong's find-all
@@ -883,7 +895,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         )
     }
 
-    private fun runSearch(docId: String, query: String) {
+    // `internal`, not `private` — same test-visibility rationale as [runEpubSearch] below: review M10
+    // asked for the BIBLE direction of the routing to be pinned too (a Bible query must leave the EPUB
+    // controller untouched), and that assertion has to call this side directly.
+    internal fun runSearch(docId: String, query: String) {
         // A new query's rows are new rows: keep no stale expansion state keyed by reference name.
         searchResultsExpanded.clear()
         // Review I2: nor a stale scroll offset. Only a genuine (re-)run reaches here — reopening the
@@ -904,7 +919,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      */
     internal fun runEpubSearch(docId: String, query: String) {
         searchResultsListState.value = LazyListState()
-        epubSearchResults.run(docId, query, epubSearchMode.value)
+        // Review I1: the text-selection "Search '…'" entry point seeds an ALREADY Lucene-decorated
+        // query (`BibleView.kt`'s `decorateSearchString(sel, PHRASE, ALL, "")`), and that decoration
+        // is meaningless to FTS5 — with the stored mode PHRASE it would be quoted twice into a
+        // syntax error, and with a word mode read as one long phrase. The SWORD path honours the
+        // flag in [buildSearchRequest]; this is its EPUB counterpart, matched the same trimmed way
+        // and for the same self-clearing reason (editing the field drops the override).
+        val params = epubSearchRunFor(
+            query = query,
+            preDecorated = query.trim() == searchPreDecoratedQuery,
+            storedMode = epubSearchMode.value,
+        )
+        epubSearchResults.run(docId, params.query, params.mode)
     }
 
     /**
@@ -1013,7 +1039,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             val poll = searchIndexPoll ?: return@launch
             val indexDone = awaitIndexDone(
                 poll = poll,
-                indexDone = { searchIndexDocument?.indexStatus == IndexStatus.DONE },
+                // Review I2: through [documentIndexDone], NOT a bare `indexStatus` read. This is the
+                // completion gate for the index the prompt just built, so an EPUB reaching it via
+                // `indexStatus` would re-introduce exactly the dependency spec D3 removed everywhere
+                // else — the flag lies for EPUBs, and here a lie means polling to `GaveUp` and
+                // landing the user back on the prompt for an index that in fact exists.
+                indexDone = { searchIndexDocument?.let { documentIndexDone(it) } == true },
                 pause = { delay(SEARCH_INDEX_POLL_INTERVAL_MS) },
             )
             // Classic only reported the failure once nothing else was still running. Re-read rather
@@ -2035,13 +2066,19 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         }
     }
 
-    /** The phase's EPUB flag, or false for [ReadingSearchPhase.Closed], which carries none. */
+    /**
+     * The phase's EPUB flag, or false for [ReadingSearchPhase.Closed], which carries none.
+     *
+     * Exhaustive over the sealed interface deliberately (review M2): with an `else` branch, a phase
+     * added later would silently default to the BIBLE settings sheet for an EPUB session — a wrong
+     * screen, not a compile error. Written out, the compiler makes the next author decide.
+     */
     private fun forEpubOfPhase(phase: ReadingSearchPhase): Boolean = when (phase) {
         is ReadingSearchPhase.Form -> phase.forEpub
         is ReadingSearchPhase.NeedsIndex -> phase.forEpub
         is ReadingSearchPhase.Indexing -> phase.forEpub
         is ReadingSearchPhase.Results -> phase.forEpub
-        else -> false
+        ReadingSearchPhase.Closed -> false
     }
 
     companion object {
@@ -2061,9 +2098,6 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         /** Settings keys shared with the search Activities — see [searchQueries]/[setSearchTranslations]. */
         private const val SEARCH_TRANSLATIONS_KEY = "search_selected_translations"
         private const val SEARCH_RECENT_TERMS_KEY = "search_recent_terms"
-
-        /** Shared with `EpubSearchComposeActivity` — see [persistEpubSearchMode]. */
-        private const val EPUB_SEARCH_TYPE_KEY = "epubSearch-SearchType"
 
         /** `SearchIndexProgressComposeActivity`'s post-finish poll interval (`:365`'s `pause(2)`).
          *  Its other timing — the ~4 s "no tasks running" reveal — is deliberately not reproduced;

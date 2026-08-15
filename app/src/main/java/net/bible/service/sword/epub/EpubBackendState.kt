@@ -30,6 +30,7 @@ import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
 import net.bible.service.sword.BookAndKey
 import org.crosswire.common.progress.JobManager
+import org.crosswire.common.progress.Progress
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.state.OpenFileState
@@ -272,26 +273,41 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             return
         }
         bookMetaData.indexStatus = IndexStatus.CREATING
-        val jobName = application.getString(R.string.creating_index_for, bookMetaData.name)
-        val job = JobManager.createJob("index-creation-${epubDir.path}", jobName, null)
-        job.isNotifyUser = true
-        job.beginJob(jobName)
-        search.createTable()
-        val frags = dao.fragments()
-        job.totalWork = frags.size
-        for(i in frags.indices) {
-            val frag = frags[i]
-            job.work = i
-            val key = getKey(frag)
-            val reader = StringReader(read(key))
-            val doc = useSaxBuilder { it.build(reader) }
-            for(bva in useXPathInstance { xp -> xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(doc) }) {
-                val ordinal = bva.getAttribute("ordinal").value.toInt()
-                search.addContent(bva.text, frag.id, ordinal)
+        // This whole build is wrapped because it runs on a bare `Thread`
+        // (`SwordDocumentFacade.scheduleIndexCreation`) with nothing but the platform's default
+        // uncaught-exception handler behind it. An escaping exception used to leave `indexStatus`
+        // stuck at CREATING — and `ensureIndexCreation` skips the build whenever the status is
+        // CREATING or SCHEDULED, so EVERY retry for the rest of the session became a silent no-op
+        // and the search sheet sat on "Indexing…" forever. Resetting to UNDONE is what makes the
+        // next attempt actually attempt something. `job.done()` is in the `finally` for the same
+        // reason: an abandoned JobManager job keeps a progress row alive with no one to finish it.
+        var job: Progress? = null
+        try {
+            val jobName = application.getString(R.string.creating_index_for, bookMetaData.name)
+            job = JobManager.createJob("index-creation-${epubDir.path}", jobName, null)
+            job.isNotifyUser = true
+            job.beginJob(jobName)
+            search.createTable()
+            val frags = dao.fragments()
+            job.totalWork = frags.size
+            for(i in frags.indices) {
+                val frag = frags[i]
+                job.work = i
+                val key = getKey(frag)
+                val reader = StringReader(read(key))
+                val doc = useSaxBuilder { it.build(reader) }
+                for(bva in useXPathInstance { xp -> xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(doc) }) {
+                    val ordinal = bva.getAttribute("ordinal").value.toInt()
+                    search.addContent(bva.text, frag.id, ordinal)
+                }
             }
+            bookMetaData.indexStatus = IndexStatus.DONE
+        } catch (e: Exception) {
+            Log.e(TAG, "buildSearchIndex failed for ${bookMetaData.initials}", e)
+            bookMetaData.indexStatus = IndexStatus.UNDONE
+        } finally {
+            job?.done()
         }
-        bookMetaData.indexStatus = IndexStatus.DONE
-        job.done()
     }
 
     fun search(search: String): List<KeyAndText> {

@@ -33,9 +33,14 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewGeneration
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
+import net.bible.android.view.activity.search.AndroidEpubSearchService
+import net.bible.android.view.activity.search.epubSearchRunFor
+import net.bible.android.view.activity.search.stripSearchDecoration
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.ReadingSearchBarState
+import net.bible.sharedcore.search.EpubResultRow
 import net.bible.sharedcore.search.EpubSearchMode
+import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.IndexPollDecision
 import net.bible.sharedcore.search.ReadingSearchController
 import net.bible.sharedcore.search.ReadingSearchPhase
@@ -61,6 +66,11 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.unloadKoinModules
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.module
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -841,6 +851,152 @@ class ReadingSearchHostTest {
         assertEquals(0, h.searchResults.results.value.total, "the SWORD controller must be untouched")
     }
 
+    /**
+     * Review M10 — the OTHER direction of the same routing, which nothing pinned: a Bible query must
+     * drive the SWORD controller and leave the EPUB one completely untouched. Without this, a
+     * `runSearch` that accidentally ran BOTH (or an `onRunSearch` lambda whose branch inverted) would
+     * still pass [runEpubSearchDrivesTheEpubControllerAndNotTheSwordOne] above.
+     */
+    @Test
+    fun runSearchDrivesTheSwordControllerAndNotTheEpubOne() {
+        val h = host()
+
+        h.runSearch("KJV", "grace")
+
+        assertTrue(h.searchResults.loading.value, "run() must flip loading synchronously")
+        assertFalse(h.epubSearchResults.loading.value, "the EPUB controller must be untouched")
+        assertTrue(h.epubSearchResults.results.value.isEmpty(), "no EPUB rows may appear for a Bible query")
+    }
+
+    /**
+     * Review I1, end to end — the text-selection "Search '…'" seed arrives ALREADY Lucene-decorated
+     * (`BibleView`'s `decorateSearchString(sel, PHRASE, ALL, "")` → `" \"…\""`), and handing that to
+     * FTS5 is either a syntax error (mode `PHRASE`, quoted twice) or silently wrong (a word mode
+     * reading the whole quoted blob as one phrase).
+     *
+     * Driven through the REAL controller down to the service seam — a Koin-swapped recording
+     * [EpubSearchService], the same idiom `ComposeReadingViewHostTest.currentBibleVerseChangedTriggersARefresh`
+     * uses — rather than asserting on `epubSearchRunFor` alone: the pure tests below already pin the
+     * function, and what a pure test CANNOT catch is `runEpubSearch` forgetting to call it. That
+     * failure mode (a seam proved in isolation, unwired in production) is exactly what this port has
+     * shipped before.
+     */
+    @Test
+    fun aPreDecoratedEpubSeedReachesTheServiceStrippedAndAsAPhrase() {
+        val fake = RecordingEpubSearchService()
+        val overrideModule = module { single<EpubSearchService> { fake } }
+        loadKoinModules(overrideModule)
+        try {
+            val h = host()
+            h.persistEpubSearchMode(EpubSearchMode.ALL_WORDS)
+            // Exactly what the "Search '…'" action produces, stored the way `openSearch` stores it.
+            h.openSearch(" \"in the beginning\"", preDecorated = true)
+
+            h.runEpubSearch("TestEpub", "\"in the beginning\"")
+
+            assertEquals(
+                listOf(Triple("TestEpub", "in the beginning", EpubSearchMode.PHRASE)), fake.calls,
+                "the decoration must be stripped and the run forced to PHRASE — a selection IS a phrase",
+            )
+            assertEquals(
+                EpubSearchMode.ALL_WORDS, h.epubSearchMode.value,
+                "but the forcing is one-shot: it must not be written back over the user's choice",
+            )
+            assertEquals(
+                "ALL_WORDS", CommonUtils.settings.getString("epubSearch-SearchType"),
+                "nor may it reach the settings key the standalone EPUB Activities share",
+            )
+        } finally {
+            // See `ComposeReadingViewHostTest`'s note: `unloadKoinModules` removes the override's
+            // definition WITHOUT restoring the production one, and `GlobalContext` is process-wide
+            // across this Gradle test JVM fork — so the real binding is re-installed by hand.
+            unloadKoinModules(overrideModule)
+            loadKoinModules(module { singleOf(::AndroidEpubSearchService) { bind<EpubSearchService>() } })
+            assertTrue(
+                GlobalContext.get().get<EpubSearchService>() is AndroidEpubSearchService,
+                "must not leak the fake EpubSearchService binding into later tests",
+            )
+        }
+    }
+
+    /** An ordinary (not pre-decorated) EPUB query must reach the service untouched, under the stored
+     *  mode — the control case for the test above, and the one every normal search takes. */
+    @Test
+    fun anOrdinaryEpubQueryReachesTheServiceVerbatimUnderTheStoredMode() {
+        val fake = RecordingEpubSearchService()
+        val overrideModule = module { single<EpubSearchService> { fake } }
+        loadKoinModules(overrideModule)
+        try {
+            val h = host()
+            h.persistEpubSearchMode(EpubSearchMode.ANY_WORD)
+
+            h.runEpubSearch("TestEpub", "\"quoted\" on purpose")
+
+            assertEquals(
+                listOf(Triple("TestEpub", "\"quoted\" on purpose", EpubSearchMode.ANY_WORD)), fake.calls,
+                "nothing may be stripped or overridden for a query the user typed",
+            )
+        } finally {
+            unloadKoinModules(overrideModule)
+            loadKoinModules(module { singleOf(::AndroidEpubSearchService) { bind<EpubSearchService>() } })
+        }
+    }
+
+    /**
+     * Review M3 — the mode store is shared with the two standalone EPUB search Activities, so the
+     * host must RE-READ it on every open, not once at construction. Written as "another surface set
+     * it while this host was alive", which is the case that used to read back stale.
+     */
+    @Test
+    fun openSearchRereadsTheEpubWordModeFromTheSharedStore() {
+        val h = host()
+        h.persistEpubSearchMode(EpubSearchMode.FTS)
+        // The standalone Activity's write, performed behind this host's back.
+        CommonUtils.settings.setString("epubSearch-SearchType", "PHRASE")
+
+        h.openSearch()
+
+        assertEquals(EpubSearchMode.PHRASE, h.epubSearchMode.value)
+    }
+
+    // ---- Review I1: the pure decoration strip ------------------------------------------------------
+
+    @Test
+    fun anUndecoratedSeedIsLeftExactlyAsItIs() {
+        assertEquals("in the beginning", stripSearchDecoration("in the beginning"))
+    }
+
+    @Test
+    fun aDecoratedSeedLosesExactlyOneLayerOfQuotes() {
+        // What `SearchControl.decorateSearchString(sel, PHRASE, ALL, "")` produces: a leading space
+        // (the empty ALL-section term, joined with a literal " ") plus the phrase quotes.
+        assertEquals("in the beginning", stripSearchDecoration(" \"in the beginning\""))
+        // One layer only — a doubly quoted string keeps its inner pair.
+        assertEquals("\"in the beginning\"", stripSearchDecoration("\"\"in the beginning\"\""))
+    }
+
+    @Test
+    fun quotesInsideTheSelectionSurviveTheStrip() {
+        assertEquals("he said \"no\" twice", stripSearchDecoration("\"he said \"no\" twice\""))
+        // Unbalanced/one-sided quoting is not decoration, so nothing is removed.
+        assertEquals("\"unclosed", stripSearchDecoration("\"unclosed"))
+        assertEquals("\"", stripSearchDecoration(" \" "))
+    }
+
+    @Test
+    fun anOrdinaryRunKeepsTheStoredModeAndTheQueryAsTyped() {
+        val params = epubSearchRunFor("\"quoted\" on purpose", preDecorated = false, storedMode = EpubSearchMode.FTS)
+        assertEquals("\"quoted\" on purpose", params.query)
+        assertEquals(EpubSearchMode.FTS, params.mode)
+    }
+
+    @Test
+    fun aPreDecoratedRunIsStrippedAndForcedToPhrase() {
+        val params = epubSearchRunFor(" \"in the beginning\"", preDecorated = true, storedMode = EpubSearchMode.ANY_WORD)
+        assertEquals("in the beginning", params.query)
+        assertEquals(EpubSearchMode.PHRASE, params.mode)
+    }
+
     /** The word-mode round-trips through the SAME settings key the standalone EPUB Activity uses. */
     @Test
     fun theEpubSearchModePersistsUnderTheClassicSettingsKey() {
@@ -877,5 +1033,15 @@ class ReadingSearchHostTest {
 
             assertEquals(mode, fresh.epubSearchMode.value, "a fresh host must read back the mode $mode just persisted")
         }
+    }
+}
+
+/** Recording fake — no mocking framework in this repo (see `noopCommands` above for the same idiom). */
+private class RecordingEpubSearchService : EpubSearchService {
+    val calls = mutableListOf<Triple<String, String, EpubSearchMode>>()
+    override fun isIndexed(docId: String): Boolean = true
+    override suspend fun searchEpub(docId: String, query: String, mode: EpubSearchMode): List<EpubResultRow> {
+        calls.add(Triple(docId, query, mode))
+        return emptyList()
     }
 }

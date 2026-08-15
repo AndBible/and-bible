@@ -87,6 +87,15 @@ class EpubSearchSheetGoldenTest {
     @Test fun empty() =
         captureGolden("EpubSearchSheet", "empty", EDGE_MODE, content = sheet(empty = true, rows = emptyList()))
 
+    /**
+     * The EPUB error dialog — the batch's one genuinely NEW EPUB rendering. `EpubSearchResultsController`
+     * carries only a Boolean, so `ComposeReadingViewHost` maps it to `R.string.error_executing_search`
+     * itself; the standalone Activity toasted and finished, so nothing has ever rendered an EPUB search
+     * failure over a sheet that stays open. Mirrors `SearchSheetGoldenTest.error`.
+     */
+    @Test fun error() =
+        captureGolden("EpubSearchSheet", "error", EDGE_MODE, content = sheet(error = "Error executing search"))
+
     @Test fun settings() = captureMatrix("EpubSearchSheet", "settings", content = {
         EpubSearchSettings(mode = EpubSearchMode.PHRASE, onMode = {})
     })

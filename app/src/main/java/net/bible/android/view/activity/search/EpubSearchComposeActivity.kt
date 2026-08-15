@@ -43,7 +43,7 @@ import org.koin.android.ext.android.inject
  * Compose host for the EPUB (general-book) search form — the new-path twin of classic [EpubSearch].
  * Resolves the document from the current page, persists/seeds the word-mode via
  * [toClassicSearchTypeName]/[epubSearchModeFromClassicName] (the shared classic settings wire format,
- * key "epubSearch-SearchType"), then routes the submitted query to [Screen.EpubSearchResults] using
+ * key [EPUB_SEARCH_TYPE_KEY]), then routes the submitted query to [Screen.EpubSearchResults] using
  * the classic ad-hoc extras VERBATIM.
  */
 class EpubSearchComposeActivity : ActivityBase() {
@@ -92,11 +92,11 @@ class EpubSearchComposeActivity : ActivityBase() {
 
     /** Read the persisted word-mode via the shared wire format — see [epubSearchModeFromClassicName]. */
     private fun loadMode(): EpubSearchMode =
-        epubSearchModeFromClassicName(CommonUtils.settings.getString("epubSearch-SearchType"))
+        epubSearchModeFromClassicName(CommonUtils.settings.getString(EPUB_SEARCH_TYPE_KEY))
 
     /** Persist the word-mode via the shared wire format — see [toClassicSearchTypeName]. */
     private fun saveMode(mode: EpubSearchMode) {
-        CommonUtils.settings.setString("epubSearch-SearchType", mode.toClassicSearchTypeName())
+        CommonUtils.settings.setString(EPUB_SEARCH_TYPE_KEY, mode.toClassicSearchTypeName())
     }
 
     private fun onSubmit(query: String, mode: EpubSearchMode) {
