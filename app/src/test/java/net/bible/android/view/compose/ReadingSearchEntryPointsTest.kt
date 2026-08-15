@@ -34,6 +34,7 @@ import net.bible.android.view.activity.page.MenuCommandHandler
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.sword.epub.isEpub
 import net.bible.sharedcore.search.MultiSearchResults
 import net.bible.sharedcore.search.ReadingSearchPhase
 import net.bible.sharedcore.search.SearchBibleSection
@@ -41,6 +42,7 @@ import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.SearchType
 import net.bible.test.DatabaseResetter
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
@@ -168,6 +170,42 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
+    /**
+     * F43 Task 6: makes the active window's page an EPUB — a `GENERAL_BOOK`-category document,
+     * same fixture construction `ReadingSearchHostTest.book()` uses (`NullBackend`, `Category=Generic
+     * Books`/`ModDrv=RawGenBook`, `AndBibleEpubModule=1`). `currentPage`'s setter is private, so the
+     * documented way to switch pages is `setCurrentDocumentAndKey` on the `CurrentPageManager` itself
+     * — exactly the pattern `menuSearchButtonDoesNothingOnANonSearchablePageEvenWhenHosted` above uses
+     * for `FakeBookFactory.myNotesDocument`: `getBookPage` maps the book's category (here GENERAL_BOOK)
+     * to `currentGeneralBook`. The key is a plain `Verse`, same as every other fixture in this class —
+     * nothing under test reads it, only `documentControl.currentDocument`.
+     *
+     * The book must be registered with `Books.installed()` (same as [indexedFakeBible]'s callers do):
+     * `CurrentPageBase.currentDocument`'s getter treats any book NOT found there as removed
+     * (`Book.isRemoved`, `FakeBookFactory.kt:215`) and silently falls back to the category default —
+     * which for a never-installed `GENERAL_BOOK` is `null`, making `documentControl.currentDocument`
+     * null and every assertion below fail for a reason that has nothing to do with the fix under test.
+     * The caller MUST remove it again (`Books.installed().removeBook(...)`, in a `finally`) — this
+     * registry is process-global, and a leaked "TestEpub" would leak into later tests.
+     */
+    private fun givenCurrentDocumentIsAnEpub(): Book {
+        val conf = """
+            [TestEpub]
+            Description=TestEpub
+            Abbreviation=TestEpub
+            Category=Generic Books
+            ModDrv=RawGenBook
+            DataPath=./modules/genbook/TestEpub/
+            Encoding=UTF-8
+            AndBibleEpubModule=1
+        """.trimIndent()
+        val epub = SwordBook(SwordBookMetaData(conf.toByteArray(), "TestEpub"), NullBackend())
+        Books.installed().addBook(epub)
+        val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+        windowRepository.activeWindow.pageManager.setCurrentDocumentAndKey(epub, verse)
+        return epub
+    }
+
     // ---- The shared guard (entry points 2, 4, 5, 6, 7's exact logic) ---------------------------
 
     @Test fun composeSearchIfHostedOpensSearchModeOnTheHost() {
@@ -203,6 +241,49 @@ class ReadingSearchEntryPointsTest {
 
     @Test fun composeSearchStrongsIfHostedReturnsFalseWhenNoHostIsInstalled() {
         assertFalse(activity.composeSearchStrongsIfHosted("H430", listOf("KJV")))
+    }
+
+    /**
+     * F43: with an EPUB open, pressing search did NOTHING — the host opted EPUB out, and the
+     * `getSearchIntent` fallback returns null for a general book, which the caller's `?.let` drops
+     * in silence. This is the assertion whose absence let that ship.
+     */
+    @Test fun composeSearchIfHostedOpensSearchModeForAnEpub() {
+        activity.composeReadingViewHost = host()
+        val epub = givenCurrentDocumentIsAnEpub()
+        try {
+            val handled = activity.composeSearchIfHosted()
+
+            assertTrue(handled, "an EPUB must be handled by the reading-view search, not dropped")
+            assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
+            // The stronger assertion: not just "some search mode", but the exact EPUB NeedsIndex phase
+            // (this fixture's EPUB has a null `epubBackend`, so `documentIndexDone` reports it
+            // unindexed — the precise F43 scenario, an unindexed EPUB reaching the in-sheet index
+            // prompt).
+            assertEquals(
+                ReadingSearchPhase.NeedsIndex("TestEpub", forEpub = true),
+                activity.composeReadingViewHost!!.searchController.phase.value,
+            )
+        } finally {
+            Books.installed().removeBook(epub)
+        }
+    }
+
+    /**
+     * Strong's is Bible-only and used to be guarded by the SAME predicate that excluded EPUBs.
+     * Removing that predicate must not let a Strong's find-all open over an EPUB.
+     */
+    @Test fun composeSearchStrongsIfHostedRefusesAnEpub() {
+        activity.composeReadingViewHost = host()
+        val epub = givenCurrentDocumentIsAnEpub()
+        try {
+            activity.composeSearchStrongsIfHosted("H430", listOf("KJV"))
+
+            assertFalse(activity.composeReadingViewHost!!.searchController.searchModeActive.value,
+                "Strong's must not open a search over an EPUB")
+        } finally {
+            Books.installed().removeBook(epub)
+        }
     }
 
     // ---- The one-shot decoration overrides (why entry points 7 and 8 are correct) --------------
@@ -497,10 +578,10 @@ class ReadingSearchEntryPointsTest {
     /**
      * Review Important 2: classic gated the WHOLE action on `isSearchable` — false for My Notes,
      * dictionary, map and non-EPUB general-book pages — but the retarget originally called
-     * `composeSearchIfHosted()` BEFORE that check, and `searchOpensInReadingView` only excludes
-     * EPUB. My Notes' `isSearchable` is a hardcoded `false` (`CurrentMyNotePage.kt:54`), so it needs
-     * no document setup to prove the fix: switching the active window to it must leave the row
-     * fully inert — no host retarget AND no classic intent — even with a host mounted.
+     * `composeSearchIfHosted()` BEFORE that check, and (pre-F43-Task-6) `searchOpensInReadingView`
+     * only excluded EPUB. My Notes' `isSearchable` is a hardcoded `false` (`CurrentMyNotePage.kt:54`),
+     * so it needs no document setup to prove the fix: switching the active window to it must leave
+     * the row fully inert — no host retarget AND no classic intent — even with a host mounted.
      */
     @Test fun menuSearchButtonDoesNothingOnANonSearchablePageEvenWhenHosted() {
         activity.composeReadingViewHost = host()

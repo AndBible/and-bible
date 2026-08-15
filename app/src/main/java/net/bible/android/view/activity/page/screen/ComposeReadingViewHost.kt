@@ -586,8 +586,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * model carries no name) of the document `onUnavailable` fired for. [DriveSearchUnavailableSnackbar]
      * turns it into a real `Snackbar` via the reading view's own [BottomSheetScaffold] `snackbarHost`
      * slot (there is no second scaffold for this) and calls [searchUnavailableMessageShown] to clear
-     * it. Exposed (not test-only) for the same reason [searchOpensInReadingView] is: `:app` has no
-     * `ComposeTestRule`, so a test asserting this state is the closest it gets to the real UI event.
+     * it. Exposed (not test-only) for the same reason [openSearchStrongs]'s EPUB guard is: `:app` has
+     * no `ComposeTestRule`, so a test asserting this state is the closest it gets to the real UI event.
      */
     private val _searchUnavailableDocName = MutableStateFlow<String?>(null)
     val searchUnavailableDocName: StateFlow<String?> = _searchUnavailableDocName.asStateFlow()
@@ -616,8 +616,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         onUnavailable = { _searchUnavailableDocName.value = activity.documentControl.currentDocument?.name.orEmpty() },
         onLeaveFullScreen = { activity.fullScreen = false },
         onStartIndexing = { docId -> startSearchIndexing(docId) },
-        // F43 Task 4: the host can now run either search, but nothing routes an EPUB here yet — see
-        // [searchOpensInReadingView] — so this branch is inert until Task 6 flips the route.
+        // F43 Task 6: every document type now reaches here (see [openSearch]) — an EPUB runs
+        // `runEpubSearch`, everything else the SWORD `runSearch`.
         onRunSearch = { docId, query, forEpub -> if (forEpub) runEpubSearch(docId, query) else runSearch(docId, query) },
         queries = searchQueries,
     )
@@ -652,16 +652,6 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private var searchIndexDocument: Book? = null
 
     /**
-     * Whether search for the active window's document belongs in the reading view at all. Plan A
-     * moves the **SWORD** search here and explicitly leaves the EPUB path on its own Activities, so
-     * an EPUB still goes the `SearchControl.getSearchIntent` route: `searchKindFor` classifies it as
-     * `Epub`, but nothing in Plan A can run an EPUB (FTS5) search, and running the Lucene one over
-     * it would return zero rows in silence. Every entry point asks this before [openSearch].
-     */
-    val searchOpensInReadingView: Boolean
-        get() = activity.documentControl.currentDocument?.isEpub != true
-
-    /**
      * Opens search for the active window's document — the target of every retargeted entry point
      * (`MainBibleActivity.composeSearch()` here in Task 8a; the remaining five in Task 8b).
      * [seedQuery] is for the entry points that bypass the form (text-selection "Search …", Strong's
@@ -674,9 +664,6 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * see [searchPreDecoratedQuery] and [searchStrongsQuery]'s kdoc for why each needs its own flag.
      */
     fun openSearch(seedQuery: String? = null, preDecorated: Boolean = false) {
-        // Defensive twin of [searchOpensInReadingView]: doing nothing is bad, but silently running
-        // a Bible search over an EPUB and reporting "no results" would be worse.
-        if (!searchOpensInReadingView) return
         refreshSearchTranslations()
         // Review item 7: the MRU store is shared with the classic/EPUB search Activities and this
         // host outlives any single search, so it is re-read here for the same reason the translations
@@ -718,7 +705,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * already indexed.
      */
     fun openSearchStrongs(ref: String, translationIds: List<String>) {
-        if (!searchOpensInReadingView) return
+        // Strong's is a Bible concept: `LinkControl.showAllOccurrences` searches Strong's-enabled
+        // BIBLES, not the open document. This used to ride on `searchOpensInReadingView`, which
+        // excluded EPUBs for an unrelated reason; that predicate is gone now, so the guard is
+        // explicit — without it a find-all would open a Bible search session over an EPUB.
+        if (activity.documentControl.currentDocument?.isEpub == true) return
         refreshSearchTranslations()
         // Per-open refresh, exactly as in [openSearch] — see review item 7 there.
         searchQueries.reloadRecentTerms()
@@ -2040,7 +2031,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         }
     }
 
-    /** The phase's EPUB flag, or false for the two phases that carry none. */
+    /** The phase's EPUB flag, or false for [ReadingSearchPhase.Closed], which carries none. */
     private fun forEpubOfPhase(phase: ReadingSearchPhase): Boolean = when (phase) {
         is ReadingSearchPhase.Form -> phase.forEpub
         is ReadingSearchPhase.NeedsIndex -> phase.forEpub

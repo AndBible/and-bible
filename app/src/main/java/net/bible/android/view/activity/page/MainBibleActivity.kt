@@ -1188,19 +1188,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     /**
-     * The Compose toolbar's search button (F6 entry point 2). With a Compose host mounted, SWORD
-     * search now happens IN the reading view — the toolbar enters search mode and the results/index
-     * sheet rises — instead of starting the search Activity chain.
+     * The Compose toolbar's search button (F6 entry point 2). With a Compose host mounted, search
+     * now happens IN the reading view for every document type — the toolbar enters search mode and
+     * the results/index sheet rises — instead of starting the search Activity chain. A document that
+     * cannot be searched at all is handled downstream by `searchKindFor` → `Unavailable` →
+     * [ComposeReadingViewHost.searchUnavailableDocName]'s snackbar, not by keeping it off this path.
      *
-     * Two cases keep the Intent route: an EPUB (its search is Plan B; see
-     * [ComposeReadingViewHost.searchOpensInReadingView]), and anything at all on the classic path,
-     * where `composeReadingViewHost` is null. This method is only reached from the Compose toolbar,
-     * so the null branch is unreachable in practice; it is kept so the flag-OFF behaviour of this
-     * body is unchanged by inspection — the same idiom as the Z-early drawer retargeting.
+     * The Intent route survives only for the classic case, where `composeReadingViewHost` is null.
+     * This method is only reached from the Compose toolbar, so that branch is unreachable in
+     * practice; it is kept so the flag-OFF behaviour of this body is unchanged by inspection — the
+     * same idiom as the Z-early drawer retargeting.
      */
     internal fun composeSearch() {
         val host = composeReadingViewHost
-        if (host != null && host.searchOpensInReadingView) {
+        if (host != null) {
             host.openSearch()
             return
         }
@@ -1211,11 +1212,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     /**
      * Opens the reading-view search for a hosted Compose activity; returns whether it did. Always
-     * `false` on the classic path (no host) or for an EPUB (its search stays on the classic
-     * Activities — see [ComposeReadingViewHost.searchOpensInReadingView]), so every caller can use
-     * this as a leading guard and fall through to its existing classic `Intent` unchanged — the same
-     * idiom as [composeOpenDrawerIfHosted]. F6 Task 8b entry points 4 (`MenuCommandHandler`'s drawer
-     * search row), 5 (`BibleJavascriptInterface`'s Ctrl+F) and 6 (the device SEARCH key, below).
+     * `false` on the classic path (no host), so every caller can use this as a leading guard and fall
+     * through to its existing classic `Intent` unchanged — the same idiom as
+     * [composeOpenDrawerIfHosted]. F6 Task 8b entry points 4 (`MenuCommandHandler`'s drawer search
+     * row), 5 (`BibleJavascriptInterface`'s Ctrl+F) and 6 (the device SEARCH key, below).
      *
      * [preDecorated] marks [seedQuery] as ALREADY run through
      * [net.bible.android.control.search.SearchControl.decorateSearchString] (entry point 7,
@@ -1225,7 +1225,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     internal fun composeSearchIfHosted(seedQuery: String? = null, preDecorated: Boolean = false): Boolean {
         val host = composeReadingViewHost ?: return false
-        if (!host.searchOpensInReadingView) return false
         host.openSearch(seedQuery, preDecorated)
         return true
     }
@@ -1237,10 +1236,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * calls this only once it has already decided the search document is indexed (the not-indexed
      * branch keeps classic's `Screen.SearchIndex` route unconditionally: prompting to index a
      * document other than the active window's is Task 11's machinery, which does not exist yet).
+     * Strong's is a Bible concept, so [ComposeReadingViewHost.openSearchStrongs] itself declines
+     * (no-op) when the active window's document is an EPUB — see its kdoc.
      */
     internal fun composeSearchStrongsIfHosted(ref: String, translationIds: List<String>): Boolean {
         val host = composeReadingViewHost ?: return false
-        if (!host.searchOpensInReadingView) return false
         host.openSearchStrongs(ref, translationIds)
         return true
     }
