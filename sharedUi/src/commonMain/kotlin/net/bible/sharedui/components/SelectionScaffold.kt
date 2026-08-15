@@ -30,9 +30,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 
 /**
- * Scaffold whose top bar switches between a normal [AbTopAppBar] and a selection bar.
- * In selection mode the bar shows a close (✕) navigation icon, the selected-item count as
- * the title, and [selectionActions] instead of the normal [actions].
+ * Scaffold whose top bar has three modes, in this precedence: selection > search > normal.
+ * In selection mode the bar shows a close (✕) navigation icon, the selected-item count as the title,
+ * and [selectionActions] instead of the normal [actions] — selection wins outright and is unaware of
+ * search. Otherwise [search] and [searchCallbacks], when BOTH non-null, hand the whole bar to the
+ * inline search field (see [AbTopAppBar]); the screen's search mode lives in its controller, so
+ * leaving selection mode brings the search bar back with its query intact and nothing has to be
+ * preserved across the swap.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +48,8 @@ fun AbSelectionScaffold(
     onExitSelection: () -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
     selectionActions: @Composable RowScope.() -> Unit = {},
+    search: AbTopBarSearchState? = null,
+    searchCallbacks: AbTopBarSearchCallbacks? = null,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -59,7 +65,13 @@ fun AbSelectionScaffold(
                     actions = selectionActions,
                 )
             } else {
-                AbTopAppBar(title = { Text(title) }, onNavigateUp = onNavigateUp, actions = actions)
+                AbTopAppBar(
+                    title = { Text(title) },
+                    onNavigateUp = onNavigateUp,
+                    actions = actions,
+                    search = search,
+                    searchCallbacks = searchCallbacks,
+                )
             }
         },
         content = content,
