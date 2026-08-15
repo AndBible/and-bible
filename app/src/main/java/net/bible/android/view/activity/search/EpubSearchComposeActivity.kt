@@ -155,8 +155,13 @@ class EpubSearchComposeActivity : ActivityBase() {
         /**
          * Map [EpubSearchMode] to the classic JSword [SearchType] name for the settings/extras wire
          * format: ALL_WORDS→"ALL_WORDS", ANY_WORD→"ANY_WORDS", PHRASE→"PHRASE", FTS→null.
+         *
+         * Not `private`: [net.bible.android.view.activity.page.screen.ComposeReadingViewHost]'s
+         * `persistEpubSearchMode` (F43 Task 4) reuses this exact mapping rather than re-implementing
+         * it, so the reading-view host and this standalone Activity can never drift apart on the
+         * classic settings wire format.
          */
-        private fun EpubSearchMode.toClassicSearchTypeName(): String? = when (this) {
+        fun EpubSearchMode.toClassicSearchTypeName(): String? = when (this) {
             EpubSearchMode.ALL_WORDS -> SearchType.ALL_WORDS.name
             EpubSearchMode.ANY_WORD -> SearchType.ANY_WORDS.name
             EpubSearchMode.PHRASE -> SearchType.PHRASE.name

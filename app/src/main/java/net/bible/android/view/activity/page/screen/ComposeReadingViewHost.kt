@@ -107,6 +107,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.search.EpubSearchComposeActivity.Companion.toClassicSearchTypeName
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.Selection
@@ -142,6 +143,9 @@ import net.bible.sharedcore.reading.paneButtonDragAction
 import net.bible.sharedcore.reading.paneButtonFadeMillis
 import net.bible.sharedcore.reading.paneButtonHiddenAlpha
 import net.bible.sharedcore.search.BibleSearchService
+import net.bible.sharedcore.search.EpubSearchMode
+import net.bible.sharedcore.search.EpubSearchResultsController
+import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.IndexPollDecision
 import net.bible.sharedcore.search.PollOutcome
 import net.bible.sharedcore.search.ProgressJob
@@ -463,6 +467,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val searchResultsCache: SearchResultsCache by inject()
     private val searchControl: SearchControl by inject()
 
+    /** F43 Task 4: the EPUB counterpart of [bibleSearchService]. Declared BEFORE [epubSearchResults],
+     *  which consumes it at construction time. */
+    private val epubSearchService: EpubSearchService by inject()
+
     /**
      * Query text + the recent-terms MRU. Persistence is host-side under the SAME settings key the
      * search Activities use (`SearchComposeActivity.kt:199-208`), **newline**-separated because a
@@ -538,6 +546,25 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     val searchResults = SearchResultsController(bibleSearchService, activity.lifecycleScope, searchResultsCache)
 
     /**
+     * The EPUB results, the counterpart of [searchResults]. Two deliberate asymmetries with the
+     * SWORD side, both inherited from `EpubSearchResultsController` as it stands: there is no
+     * result cache (F26 is SWORD-only) and no candidate/translation state, because an EPUB search
+     * targets exactly one document.
+     */
+    val epubSearchResults = EpubSearchResultsController(
+        scope = activity.lifecycleScope,
+        service = epubSearchService,
+        onSelect = ::onEpubSearchResultSelected,
+    )
+
+    /**
+     * The EPUB word-mode, seeded from the SAME settings key the standalone EPUB search Activity
+     * reads and writes (`EpubSearchComposeActivity.loadMode`/`saveMode`), so the two stay
+     * interoperable until that Activity is deleted.
+     */
+    val epubSearchMode = MutableStateFlow(loadEpubSearchMode())
+
+    /**
      * Index-build progress rows, feeding [SearchIndexPanel]'s progress half. Reused verbatim from
      * the Activity path; only `onHide` differs — there is no Activity to `finish()`, so it closes
      * the sheet.
@@ -580,9 +607,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         onUnavailable = { _searchUnavailableDocName.value = activity.documentControl.currentDocument?.name.orEmpty() },
         onLeaveFullScreen = { activity.fullScreen = false },
         onStartIndexing = { docId -> startSearchIndexing(docId) },
-        // `forEpub` is ignored: an EPUB never reaches here (see [searchOpensInReadingView]) —
-        // EPUB search keeps its own Activities until Plan B.
-        onRunSearch = { docId, query, _ -> runSearch(docId, query) },
+        // F43 Task 4: the host can now run either search, but nothing routes an EPUB here yet — see
+        // [searchOpensInReadingView] — so this branch is inert until Task 6 flips the route.
+        onRunSearch = { docId, query, forEpub -> if (forEpub) runEpubSearch(docId, query) else runSearch(docId, query) },
         queries = searchQueries,
     )
 
@@ -862,6 +889,56 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // at the bottom and looking empty.
         searchResultsListState.value = LazyListState()
         searchResults.run(buildSearchRequest(docId, query))
+    }
+
+    /**
+     * An EPUB query — the EPUB counterpart of [runSearch]. Resets the sheet's scroll for the same
+     * reason [runSearch] does: new rows are new rows.
+     */
+    internal fun runEpubSearch(docId: String, query: String) {
+        searchResultsListState.value = LazyListState()
+        epubSearchResults.run(docId, query, epubSearchMode.value)
+    }
+
+    /**
+     * An EPUB result row tap. The row's [keyId] is the `BookAndKey.osisRef`
+     * (`"<initials>:<fragmentId>"`); strip the initials prefix and re-resolve the inner osisRef —
+     * the same round-trip `EpubSearchResultsComposeActivity.onSelect` (`:130-146`) performs. Unlike
+     * that Activity there is no `startActivity` and no `finish()`: the reading view is already here,
+     * so this only navigates the active window and drops the sheet (see [onSearchResultSelected]).
+     */
+    internal fun onEpubSearchResultSelected(keyId: String) {
+        val docId = (searchController.phase.value as? ReadingSearchPhase.Results)?.docId ?: return
+        val book = SwordDocumentFacade.getDocumentByInitials(docId) ?: return
+        try {
+            val key = book.getKey(keyId.removePrefix("$docId:"))
+            activity.windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+            searchController.closeSheet()
+        } catch (e: Exception) {
+            Log.e(TAG, "onEpubSearchResultSelected: bad key '$keyId' in $docId", e)
+        }
+    }
+
+    /**
+     * Persist the word-mode in the CLASSIC settings format — the JSword `SearchType` name, or null
+     * for FTS — mirroring `EpubSearchComposeActivity.saveMode` (`:116-118`) exactly, so a mode set
+     * here is the mode that Activity shows and vice versa.
+     */
+    internal fun persistEpubSearchMode(mode: EpubSearchMode) {
+        epubSearchMode.value = mode
+        CommonUtils.settings.setString(EPUB_SEARCH_TYPE_KEY, mode.toClassicSearchTypeName())
+    }
+
+    /** The read half of [persistEpubSearchMode]; absent or unknown → FTS, as classic's radio did. */
+    private fun loadEpubSearchMode(): EpubSearchMode {
+        val name = CommonUtils.settings.getString(EPUB_SEARCH_TYPE_KEY) ?: return EpubSearchMode.FTS
+        val jsword = try { SearchType.valueOf(name) } catch (e: IllegalArgumentException) { return EpubSearchMode.FTS }
+        return when (jsword) {
+            SearchType.ALL_WORDS -> EpubSearchMode.ALL_WORDS
+            SearchType.ANY_WORDS -> EpubSearchMode.ANY_WORD
+            SearchType.PHRASE -> EpubSearchMode.PHRASE
+            else -> EpubSearchMode.FTS
+        }
     }
 
     /**
@@ -1928,6 +2005,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         /** Settings keys shared with the search Activities — see [searchQueries]/[setSearchTranslations]. */
         private const val SEARCH_TRANSLATIONS_KEY = "search_selected_translations"
         private const val SEARCH_RECENT_TERMS_KEY = "search_recent_terms"
+
+        /** Shared with `EpubSearchComposeActivity` — see [persistEpubSearchMode]. */
+        private const val EPUB_SEARCH_TYPE_KEY = "epubSearch-SearchType"
 
         /** `SearchIndexProgressComposeActivity`'s post-finish poll interval (`:365`'s `pause(2)`).
          *  Its other timing — the ~4 s "no tasks running" reveal — is deliberately not reproduced;

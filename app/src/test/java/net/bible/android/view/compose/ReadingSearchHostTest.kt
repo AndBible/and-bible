@@ -35,6 +35,7 @@ import net.bible.android.view.activity.page.screen.ComposeReadingViewGeneration
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.ReadingSearchBarState
+import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedcore.search.IndexPollDecision
 import net.bible.sharedcore.search.ReadingSearchController
 import net.bible.sharedcore.search.ReadingSearchPhase
@@ -812,5 +813,39 @@ class ReadingSearchHostTest {
             unindexedAmong = { it },
         )
         assertNull(next, "a failed build must fall back to onIndexingFinished(false), not chain")
+    }
+
+    // ---- Task 4: the host owns an EPUB search -----------------------------------------------------
+
+    /** An EPUB query must reach the EPUB controller, never the SWORD one. */
+    @Test
+    fun runEpubSearchDrivesTheEpubControllerAndNotTheSwordOne() {
+        val h = host()
+
+        h.runEpubSearch("TestEpub", "grace")
+
+        assertTrue(h.epubSearchResults.loading.value || h.epubSearchResults.results.value.isEmpty())
+        assertEquals(0, h.searchResults.results.value.total, "the SWORD controller must be untouched")
+    }
+
+    /** The word-mode round-trips through the SAME settings key the standalone EPUB Activity uses. */
+    @Test
+    fun theEpubSearchModePersistsUnderTheClassicSettingsKey() {
+        val h = host()
+
+        h.persistEpubSearchMode(EpubSearchMode.PHRASE)
+
+        assertEquals("PHRASE", CommonUtils.settings.getString("epubSearch-SearchType"))
+    }
+
+    /** FTS is stored as an ABSENT value, exactly as classic wrote `searchType?.name`. */
+    @Test
+    fun theFtsModePersistsAsNoStoredSearchType() {
+        val h = host()
+        h.persistEpubSearchMode(EpubSearchMode.PHRASE)
+
+        h.persistEpubSearchMode(EpubSearchMode.FTS)
+
+        assertNull(CommonUtils.settings.getString("epubSearch-SearchType"))
     }
 }
