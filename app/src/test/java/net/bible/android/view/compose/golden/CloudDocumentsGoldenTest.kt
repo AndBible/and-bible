@@ -68,6 +68,7 @@ class CloudDocumentsGoldenTest {
         selectionMode: Boolean = false,
         selectedIds: Set<String> = emptySet(),
         syncNowDialog: SyncNowDialogState? = null,
+        searchModeActive: Boolean = false,
     ) = CloudDocumentsScreen(
         title = "Manage cloud documents",
         loading = loading, isRefreshing = false, onRefresh = {},
@@ -76,7 +77,9 @@ class CloudDocumentsGoldenTest {
         categoryFilters = categoryFilters, selectedCategoryFilter = null,
         query = "", selectionMode = selectionMode, selectedIds = selectedIds, syncEnabled = false,
         syncNowDialog = syncNowDialog,
-        topBarActions = {}, onQueryChange = {}, onStatusFilterChange = {}, onCategoryFilterChange = {},
+        topBarActions = {}, onQueryChange = {},
+        searchModeActive = searchModeActive, onOpenSearch = {}, onCloseSearch = {},
+        onStatusFilterChange = {}, onCategoryFilterChange = {},
         onRowClick = {}, onRowLongClick = {}, onRowAction = { _, _ -> }, onBulkAction = {},
         onSyncNowConfirm = {}, onSyncNowDismiss = {}, onNavigateUp = {}, onExitSelection = {},
     )

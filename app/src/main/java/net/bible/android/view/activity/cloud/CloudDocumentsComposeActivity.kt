@@ -108,6 +108,7 @@ class CloudDocumentsComposeActivity : ActivityBase() {
                     val statusFilter by controller.statusFilter.collectAsState()
                     val categoryFilter by controller.categoryFilter.collectAsState()
                     val query by controller.query.collectAsState()
+                    val searchModeActive by controller.searchModeActive.collectAsState()
                     val selectionMode by controller.selectionMode.collectAsState()
                     val selectedIds by controller.selectedIds.collectAsState()
                     val busy by controller.busy.collectAsState()
@@ -132,6 +133,9 @@ class CloudDocumentsComposeActivity : ActivityBase() {
                         syncNowDialog = syncNowDialog,
                         topBarActions = { OverflowMenu(showRemoved) },
                         onQueryChange = controller::setQuery,
+                        searchModeActive = searchModeActive,
+                        onOpenSearch = controller::openSearch,
+                        onCloseSearch = controller::closeSearch,
                         onStatusFilterChange = controller::setStatusFilter,
                         onCategoryFilterChange = controller::setCategoryFilter,
                         onRowClick = { if (selectionMode) controller.toggle(it.initials) },
@@ -148,6 +152,16 @@ class CloudDocumentsComposeActivity : ActivityBase() {
     }
 
     override fun onDestroy() { bridge.unregister(); super.onDestroy() }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        // Back dismisses what is visually on top: the selection bar covers the search bar
+        // (AbSelectionScaffold's precedence), so selection goes first. Closing search underneath a
+        // visible selection bar would clear the query and re-filter the list invisibly.
+        if (controller.selectionMode.value) { controller.clearSelection(); return }
+        if (controller.searchModeActive.value) { controller.closeSearch(); return }
+        super.onBackPressed()
+    }
 
     // --- Gate + loading (ported from classic openOrGate / refresh / renderFromCache) --------
     private fun openOrGate() = lifecycleScope.launch {

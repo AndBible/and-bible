@@ -1,6 +1,7 @@
 package net.bible.sharedcore.cloud
 
 import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.search.SearchModeController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +33,8 @@ class CloudDocumentsController(
     val categoryFilter: StateFlow<DocCategory?> = _categoryFilter.asStateFlow()
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
+    private val searchMode = SearchModeController(onClearQuery = { setQuery("") })
+    val searchModeActive: StateFlow<Boolean> = searchMode.active
     private val _selectionMode = MutableStateFlow(false)
     val selectionMode: StateFlow<Boolean> = _selectionMode.asStateFlow()
     private val _selectedIds = MutableStateFlow<Set<String>>(emptySet())
@@ -63,6 +66,8 @@ class CloudDocumentsController(
     fun setStatusFilter(f: CloudDocFilter) { _statusFilter.value = f; refilter(resetSelection = true) }
     fun setCategoryFilter(c: DocCategory?) { _categoryFilter.value = c; refilter(resetSelection = true) }
     fun setQuery(q: String) { _query.value = q; refilter(resetSelection = true) }
+    fun openSearch() = searchMode.open()
+    fun closeSearch() = searchMode.close()
     fun setShowRemoved(show: Boolean) {
         _showRemoved.value = show
         // The REMOVED filter is only reachable while removed items are shown; hiding them again

@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
@@ -71,11 +72,14 @@ import net.bible.sharedcore.cloud.cloudDocStatus
 import net.bible.sharedcore.cloud.documentMenuActions
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.theme.accentArgbFor
+import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbPullToRefresh
-import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbSelectionScaffold
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.theme.LocalDisplayColorMode
@@ -98,6 +102,9 @@ fun CloudDocumentsScreen(
     syncNowDialog: SyncNowDialogState?,
     topBarActions: @Composable RowScope.() -> Unit,
     onQueryChange: (String) -> Unit,
+    searchModeActive: Boolean,
+    onOpenSearch: () -> Unit,
+    onCloseSearch: () -> Unit,
     onStatusFilterChange: (CloudDocFilter) -> Unit,
     onCategoryFilterChange: (DocCategory?) -> Unit,
     onRowClick: (CloudDocItem) -> Unit,
@@ -122,7 +129,10 @@ fun CloudDocumentsScreen(
         selectedCount = selectedIds.size,
         onNavigateUp = onNavigateUp,
         onExitSelection = onExitSelection,
-        actions = topBarActions,
+        actions = {
+            AbActionIcon(Icons.Filled.Search, strings.search, onOpenSearch)
+            topBarActions()
+        },
         selectionActions = {
             bulkActions.forEach { action ->
                 IconButton(onClick = { onBulkAction(action) }) {
@@ -130,9 +140,18 @@ fun CloudDocumentsScreen(
                 }
             }
         },
+        search = if (searchModeActive) {
+            AbTopBarSearchState(query = query, imeRequest = AbSearchImeRequest.Focus)
+        } else null,
+        searchCallbacks = if (searchModeActive) {
+            AbTopBarSearchCallbacks(
+                onQueryChange = onQueryChange,
+                onClose = onCloseSearch,
+                onImeRequestHandled = {},
+            )
+        } else null,
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            AbSearchField(value = query, onValueChange = onQueryChange, placeholder = strings.searchHint)
             AbDropdownField(
                 label = "",
                 selected = selectedStatusPair,

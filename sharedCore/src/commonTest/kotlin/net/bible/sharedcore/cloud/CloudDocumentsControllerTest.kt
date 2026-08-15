@@ -152,6 +152,17 @@ class CloudDocumentsControllerTest {
         assertNull(c.syncNowDialog.value) // confirm dismisses
     }
 
+    @Test
+    fun closeSearchLeavesSearchModeAndClearsTheQuery() {
+        val c = controller()
+        c.setQuery("kjv")
+        c.openSearch()
+        assertTrue(c.searchModeActive.value)
+        c.closeSearch()
+        assertFalse(c.searchModeActive.value)
+        assertEquals("", c.query.value)
+    }
+
     @Test fun show_removed_toggles_state_and_reports() {
         var reported: Boolean? = null
         val c = controller(onShowRemovedChange = { reported = it })
