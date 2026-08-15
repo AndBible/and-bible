@@ -43,7 +43,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -51,7 +54,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.SyncSystemBars
 
@@ -151,12 +156,28 @@ private fun AbSearchTopAppBar(
         onDispose { keyboard?.hide() }
     }
 
+    // The hoisted `search.query` can arrive a frame late (the host publishes it through
+    // combine/stateIn on a non-immediate Main dispatcher). A String-valued BasicTextField then
+    // recomposes against the STALE text, and TextFieldValue's constructor clamps the selection to
+    // that text's length — the caret jumps to 0 and the next character lands in front (F44/B2,
+    // diagnosed on ReadingToolbar.kt's identical field). Owning the TextFieldValue here makes the
+    // field correct no matter how many hops the hoisted value takes. An external change (seeded
+    // query, clear button) is adopted with the caret at the end; an echo of our own edit —
+    // fieldValue's text already matches search.query — is left alone, selection intact.
+    var fieldValue by remember { mutableStateOf(TextFieldValue(search.query, TextRange(search.query.length))) }
+    if (fieldValue.text != search.query) {
+        fieldValue = TextFieldValue(search.query, TextRange(search.query.length))
+    }
+
     CompositionLocalProvider(LocalContentColor provides onContainer) {
         TopAppBar(
             title = {
                 BasicTextField(
-                    value = search.query,
-                    onValueChange = callbacks.onQueryChange,
+                    value = fieldValue,
+                    onValueChange = {
+                        fieldValue = it
+                        callbacks.onQueryChange(it.text)
+                    },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = onContainer),
                     cursorBrush = SolidColor(onContainer),

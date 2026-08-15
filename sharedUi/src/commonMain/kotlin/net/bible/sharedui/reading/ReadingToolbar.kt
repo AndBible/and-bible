@@ -77,6 +77,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.Painter
@@ -89,6 +90,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
@@ -222,6 +227,58 @@ private const val LUCENE_QUERY_SYNTAX_URL = "https://lucene.apache.org/core/2_9_
  * field lives HERE rather than in its own composable because the three colours it needs
  * (`container`, `onContainer`, `documentTitleColor`) are computed inline below and exposed nowhere.
  */
+/** [Modifier.testTag] on [ReadingSearchField], so [SearchFieldCaretTest] (`:app`) can drive it. */
+const val SEARCH_FIELD_TAG = "reading-search-field"
+
+/**
+ * The bare `BasicTextField` the reading toolbar's search mode renders (F44/B2).
+ *
+ * Owns a local [TextFieldValue] rather than trusting [value] for the selection too: the host
+ * publishes [value] through a `combine`/`stateIn` hop that can land one recomposition AFTER the
+ * keystroke that produced it. A `String`-valued `BasicTextField` recomposing against that stale text
+ * has its selection clamped to 0 by `TextFieldValue`'s own constructor — the caret jumps to the start
+ * and the next character lands in front of the first ("ba" instead of "ab"). Keeping the
+ * `TextFieldValue` here makes the field correct no matter how many hops the hoisted value takes.
+ *
+ * An external change (a seeded query, the clear button, a recent-term pick) is adopted with the
+ * caret placed at the end; an echo of our own edit — [fieldValue]'s text already matches [value] —
+ * is left alone, selection intact.
+ *
+ * Extracted to its own (public, not just inlined) composable so [SearchFieldCaretTest] in `:app` can
+ * drive the SAME field the toolbar renders, via [SEARCH_FIELD_TAG] — a test against a copy of this
+ * field would pass while the real field stayed broken.
+ */
+@Composable
+fun ReadingSearchField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    textStyle: TextStyle,
+    cursorBrush: Brush,
+    keyboardOptions: KeyboardOptions,
+    keyboardActions: KeyboardActions,
+    modifier: Modifier = Modifier,
+    decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit = { it() },
+) {
+    var fieldValue by remember { mutableStateOf(TextFieldValue(value, TextRange(value.length))) }
+    if (fieldValue.text != value) {
+        fieldValue = TextFieldValue(value, TextRange(value.length))
+    }
+    BasicTextField(
+        value = fieldValue,
+        onValueChange = {
+            fieldValue = it
+            onValueChange(it.text)
+        },
+        singleLine = true,
+        textStyle = textStyle,
+        cursorBrush = cursorBrush,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        modifier = modifier.testTag(SEARCH_FIELD_TAG),
+        decorationBox = decorationBox,
+    )
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ReadingToolbar(
@@ -353,10 +410,9 @@ fun ReadingToolbar(
                     //
                     // In an app bar the bar IS the container, so this is a bare field whose every colour
                     // derives from `onContainer`.
-                    BasicTextField(
+                    ReadingSearchField(
                         value = searchBar.query,
                         onValueChange = searchBarCallbacks.onQueryChange,
-                        singleLine = true,
                         textStyle = MaterialTheme.typography.bodyLarge.copy(color = onContainer),
                         cursorBrush = SolidColor(onContainer),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
