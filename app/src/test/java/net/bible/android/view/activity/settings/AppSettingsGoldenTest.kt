@@ -194,12 +194,11 @@ class AppSettingsGoldenTest {
 
     // "night" matches the Night-mode list-choice row (and any row whose title/summary contains it);
     // non-matching categories collapse away, so the filtered list is short — no heightDp override needed.
-    @Test fun filtered_edge() =
-        captureGolden("AppSettings", "filtered", EDGE_MODE, content = filteredScreen(baseSnapshot(), "night"))
-
-    // Same filtered state as [filtered_edge], but across the full 4-mode theme matrix (light/dark/
-    // bw/eink) rather than a single EDGE_MODE capture, so the search-mode top app bar itself (query
-    // text + clear/close action icons) is pinned in every theme, not just light.
+    //
+    // A single-mode "filtered_edge" capture used to exist here too, but with search now the only way
+    // to filter this list, filtered == search mode: its content function was byte-for-byte identical
+    // to searchMode_matrix's light capture (same snapshot, same query, same searchModeActive = true),
+    // so it was a redundant golden, not a distinct state. Removed rather than kept in sync forever.
     @Test fun searchMode_matrix() =
         captureMatrix("AppSettings", "searchMode", content = filteredScreen(baseSnapshot(), "night"))
 }

@@ -273,7 +273,7 @@ open class DownloadComposeActivity : ActivityBase() {
                             lifecycleScope.launch {
                                 refreshing.value = true
                                 try {
-                                    controller.setQuery("")
+                                    controller.closeSearch()
                                     downloadDocJson()
                                     loadDocuments(refresh = true)
                                     updateLastRepoRefreshDate()
@@ -368,7 +368,10 @@ open class DownloadComposeActivity : ActivityBase() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        // Back leaves search mode before it leaves the screen.
+        // Back dismisses what is visually on top: the selection bar covers the search bar
+        // (AbSelectionScaffold's precedence), so selection goes first. Closing search underneath a
+        // visible selection bar would clear the query and re-filter the list invisibly.
+        if (controller.selectionMode.value) { controller.clearSelection(); return }
         if (controller.searchModeActive.value) { controller.closeSearch(); return }
         super.onBackPressed()
     }

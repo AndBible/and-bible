@@ -295,8 +295,18 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
         when (key) {
             // The workspace link only appears at WINDOW scope; the host always edits the active
             // workspace, so its id is windowRepository.id (matches the Window scope's workspaceId).
-            KEY_OPEN_WORKSPACE_SETTINGS -> navStack = navStack + SettingsScope.Workspace(windowRepository.id.toString())
-            KEY_OPEN_GLOBAL_SETTINGS -> navStack = navStack + SettingsScope.Global
+            KEY_OPEN_WORKSPACE_SETTINGS -> {
+                // The pushed scope is rendered fresh; a query left over from the scope being left
+                // would silently filter a list it was never typed against (e.g. "workspace", tap the
+                // Workspace settings row, land on a list filtered by a query describing the row just
+                // tapped rather than the new screen).
+                searchMode.close()
+                navStack = navStack + SettingsScope.Workspace(windowRepository.id.toString())
+            }
+            KEY_OPEN_GLOBAL_SETTINGS -> {
+                searchMode.close()
+                navStack = navStack + SettingsScope.Global
+            }
             TextSettingType.COLORS.name -> {
                 chooserNight = null
                 colorsScope = scope
@@ -559,7 +569,7 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
  * `searchActive` alone, or a back press from Colors while search happens to still be active would
  * silently close it and eat the press instead of popping one level.
  */
-fun shouldCloseSearchOnBack(atListDestination: Boolean, searchActive: Boolean): Boolean =
+internal fun shouldCloseSearchOnBack(atListDestination: Boolean, searchActive: Boolean): Boolean =
     atListDestination && searchActive
 
 /** Reconstructs the initial [SettingsScope] from the extras [TextDisplaySettingsComposeActivity.intentFor] set. */
