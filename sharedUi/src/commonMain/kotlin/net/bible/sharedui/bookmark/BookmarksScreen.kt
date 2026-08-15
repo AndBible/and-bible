@@ -189,7 +189,7 @@ fun BookmarksScreen(
             AbActionIcon(Icons.Filled.Delete, contentDescription = strings.deleteLabel, onClick = onDeleteSelected)
         },
         search = if (searchModeActive) {
-            AbTopBarSearchState(query = searchText, imeRequest = AbSearchImeRequest.Focus)
+            AbTopBarSearchState(query = searchText, imeRequest = AbSearchImeRequest.Focus, placeholder = strings.bookmarksSearchNotesHint)
         } else null,
         searchCallbacks = if (searchModeActive) {
             AbTopBarSearchCallbacks(

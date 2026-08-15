@@ -37,6 +37,12 @@ enum class AbSearchImeRequest { Focus, Release }
 data class AbTopBarSearchState(
     val query: String,
     val imeRequest: AbSearchImeRequest? = null,
+    /**
+     * Placeholder shown while [query] is empty. Null means the generic "search" hint — screens whose
+     * search covers something narrower than the whole list should say so here, because the hint is
+     * the only thing on screen that states what the search matches.
+     */
+    val placeholder: String? = null,
 )
 
 /**

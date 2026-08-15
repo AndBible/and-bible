@@ -168,7 +168,7 @@ private fun AbSearchTopAppBar(
                             Box(Modifier.weight(1f)) {
                                 if (search.query.isEmpty()) {
                                     Text(
-                                        s.searchHint,
+                                        search.placeholder ?: s.searchHint,
                                         style = MaterialTheme.typography.bodyLarge,
                                         color = onContainer.copy(alpha = 0.6f),
                                     )

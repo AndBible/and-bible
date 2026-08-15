@@ -112,4 +112,24 @@ class AbSelectionScaffoldSearchTest {
         }
         rule.onNodeWithText("Documents").assertIsDisplayed()
     }
+
+    @Test
+    fun theSearchBarShowsAScreenSuppliedPlaceholderInsteadOfTheGenericOne() {
+        rule.setContent {
+            Wrapped {
+                AbSelectionScaffold(
+                    title = "Bookmarks",
+                    selectionMode = false,
+                    selectedCount = 0,
+                    onNavigateUp = {},
+                    onExitSelection = {},
+                    search = AbTopBarSearchState(query = "", placeholder = "Filter by notes"),
+                    searchCallbacks = AbTopBarSearchCallbacks(
+                        onQueryChange = {}, onClose = {}, onImeRequestHandled = {},
+                    ),
+                ) {}
+            }
+        }
+        rule.onNodeWithText("Filter by notes").assertIsDisplayed()
+    }
 }
