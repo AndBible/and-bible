@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.EpubResultRow
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbScaffold
-import net.bible.sharedui.components.TwoLineListItem
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -64,13 +62,7 @@ fun EpubSearchResultsScreen(
                     modifier = Modifier.align(Alignment.Center),
                 )
                 else -> LazyColumn(Modifier.fillMaxSize()) {
-                    items(rows, key = { it.keyId }) { row ->
-                        TwoLineListItem(
-                            title = row.keyName,
-                            subtitle = styledTextToAnnotatedString(row.text),
-                            onClick = { onSelect(row.keyId) },
-                        )
-                    }
+                    epubResultRows(rows = rows, onSelect = onSelect)
                 }
             }
         }

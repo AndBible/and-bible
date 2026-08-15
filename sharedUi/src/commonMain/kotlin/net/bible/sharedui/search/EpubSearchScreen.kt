@@ -28,9 +28,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -60,8 +57,6 @@ fun EpubSearchScreen(
     onNavigateUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
-    val modes = EpubSearchMode.entries
-    val modeLabels = listOf(strings.allWords, strings.anyWord, strings.phrase, strings.ftsQuery)
 
     AbScaffold(
         title = title,
@@ -89,17 +84,7 @@ fun EpubSearchScreen(
                 onImeSearch = onSubmit,
             )
 
-            SingleChoiceSegmentedButtonRow(
-                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-            ) {
-                modes.forEachIndexed { index, m ->
-                    SegmentedButton(
-                        selected = mode == m,
-                        onClick = { onMode(m) },
-                        shape = SegmentedButtonDefaults.itemShape(index, modes.size),
-                    ) { Text(modeLabels[index]) }
-                }
-            }
+            EpubSearchSettings(mode = mode, onMode = onMode)
 
             Spacer(Modifier.height(8.dp))
             Button(
