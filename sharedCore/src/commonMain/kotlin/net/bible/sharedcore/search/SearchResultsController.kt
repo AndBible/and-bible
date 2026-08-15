@@ -26,10 +26,24 @@ class SearchResultsController(
         combine(_results, _scriptureShown) { r, s -> if (s) r.main else r.other }
             .stateIn(scope, SharingStarted.Eagerly, emptyList())
 
-    fun run(request: SearchRequest) {
+    /**
+     * Runs [request] and publishes it to the results sheet.
+     *
+     * [userSelection] is what the results document selector shows as checked, and therefore what a
+     * confirm in that selector hands back to [selectTranslations] — which PERSISTS it. It defaults to
+     * the searched list, which is right for every caller whose searched list IS the user's choice
+     * (the standalone results Activity). The reading view is not one of them: since F44/B4 it appends
+     * the active window's document to the persisted selection, and publishing that merged list here
+     * would silently turn an auto-appended document into part of the user's SAVED selection through a
+     * second channel — contradicting the spec's D4 ("the persisted selection is the user's own; the
+     * active document is only added to the SEARCH"), leaving the settings sheet's picker (which reads
+     * the persisted list) disagreeing with this one, and, for a commentary, checking a document that
+     * is not even among the selector's candidates and so vanishes on the next confirm.
+     */
+    fun run(request: SearchRequest, userSelection: List<String> = request.translationIds) {
         storedRequest = request
         isStrongsSearch = request.isStrongsSearch
-        _selectedTranslations.value = request.translationIds
+        _selectedTranslations.value = userSelection
         _candidates.value = candidateDocuments(request.isStrongsSearch, service.candidateBibles())
         _scriptureShown.value = service.isCurrentlyShowingScripture()
         _toggleVisible.value = service.containsNonScripture()

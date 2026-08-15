@@ -136,6 +136,39 @@ class SearchResultsControllerTest {
         assertEquals(countAfterRerun, fake.searchCount)
     }
 
+    /**
+     * F44 fix round I2 — what a search COVERED and what the user has SELECTED are two different
+     * lists, and only the second may be persisted. Here the search covers `["KJV", "NASB"]` (B4
+     * appended the active window's indexed document) while the user's own selection is `["KJV"]`.
+     * The results document selector renders `selectedTranslations` as its checked set and hands
+     * exactly that back on confirm, where [SearchResultsController.selectTranslations] persists it —
+     * so publishing the merged list here would silently save "NASB" as part of the user's selection
+     * through a second channel, contradicting the spec's D4.
+     */
+    @Test fun run_publishes_the_user_selection_so_a_confirm_cannot_persist_an_appended_document() =
+        runTest(UnconfinedTestDispatcher()) {
+            val c = SearchResultsController(fake, backgroundScope)
+            c.run(
+                SearchRequest("x", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV", "NASB"), ""),
+                userSelection = listOf("KJV"),
+            )
+            assertEquals(listOf("KJV"), c.selectedTranslations.value)
+            assertEquals(
+                listOf("KJV", "NASB"), fake.lastRequest?.translationIds,
+                "the SEARCH itself must still cover the appended document",
+            )
+            // The user opens the selector and presses OK on what it shows, changing nothing.
+            c.selectTranslations(c.selectedTranslations.value) { _, _ -> }
+            assertEquals(listOf("KJV"), fake.persistedIds, "an auto-appended document must never be persisted")
+        }
+
+    @Test fun run_defaults_the_user_selection_to_the_searched_list() = runTest(UnconfinedTestDispatcher()) {
+        // The standalone results Activity searches exactly what the user chose, so the default holds.
+        val c = SearchResultsController(fake, backgroundScope)
+        c.run(SearchRequest("x", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV", "ESV"), ""))
+        assertEquals(listOf("KJV", "ESV"), c.selectedTranslations.value)
+    }
+
     @Test fun selectTranslations_unindexed_calls_onNeedIndex_and_does_not_rerun() = runTest(UnconfinedTestDispatcher()) {
         fake.unindexed = listOf("ESV")
         val c = SearchResultsController(fake, backgroundScope)

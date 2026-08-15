@@ -724,6 +724,48 @@ class ReadingSearchEntryPointsTest {
         assertFalse(host.searchController.sheetVisible.value)
     }
 
+    // ---- F44 fix round M2: the settings sheet renders from the LIVE target ----------------------
+
+    /**
+     * Spec §5: the settings sheet's mode row renders from the live target, not from the phase. In a
+     * `Results` phase the phase is the RECORDED document, so reading it gave the user the wrong form
+     * whenever the two disagreed — EPUB results → tap a Bible pane → open settings → the EPUB
+     * word-mode row appeared, and closing it ran a BIBLE search whose word mode, section and
+     * translation selection the user had never been shown (`settingsClosed()` re-resolves the target
+     * itself). Whatever the sheet offers must be what closing it will apply.
+     *
+     * The phase here is pinned with `promptIndexFor` purely to make the test DETERMINISTIC: it marks
+     * the prompt "explicit", which is the one state `activeDocumentChanged()` refuses to refresh, so
+     * the phase provably still records the Bible after the pane switch no matter whether the host's
+     * `onMain` event subscription has been drained. Any `Results`/`Indexing` phase reaches the same
+     * disagreement by the ordinary route; neither can be produced here without a real Lucene index or
+     * a real JSword index build.
+     */
+    @Test fun theSearchSettingsSheetFollowsTheActiveDocumentNotThePhase() {
+        val h = host()
+        activity.composeReadingViewHost = h
+        // setUp leaves KJV (a Bible) current.
+        assertFalse(h.searchSettingsForEpub(), "sanity: a Bible pane must offer the Bible form")
+        h.openSearch()
+        assertTrue(h.searchController.promptIndexFor("KJV"), "sanity: a session exists to pin")
+
+        val epub = givenCurrentDocumentIsAnEpub()
+        try {
+            val phase = h.searchController.phase.value
+            assertTrue(
+                phase is ReadingSearchPhase.NeedsIndex && !phase.forEpub,
+                "sanity: the pinned phase still records the BIBLE, so phase and live target disagree",
+            )
+
+            assertTrue(
+                h.searchSettingsForEpub(),
+                "the settings sheet must offer the EPUB word-mode row the active pane's document needs",
+            )
+        } finally {
+            Books.installed().removeBook(epub)
+        }
+    }
+
     // ---- Step 3: the search sheet's WebView bottom-offset term ----------------------------------
 
     @Test fun bottomOffsetForWebViewIncludesTheSearchSheetHeightOnlyWhileVisible() {

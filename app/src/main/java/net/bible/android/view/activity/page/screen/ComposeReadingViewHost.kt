@@ -916,7 +916,16 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // survival is untouched, while three hits after scrolling to row 40 no longer open clamped
         // at the bottom and looking empty.
         searchResultsListState.value = LazyListState()
-        searchResults.run(buildSearchRequest(docId, query))
+        val request = buildSearchRequest(docId, query)
+        // The searched list and the USER's selection are two different things (F44 fix round, I2):
+        // `buildSearchRequest` appends the active document when it is indexed (B4), but the results
+        // sheet's document selector must keep showing — and, on confirm, persisting — only what the
+        // user chose, or the auto-appended document would become part of the saved selection through
+        // `selectTranslations` → `persistSelection`. `searchTranslations` is the same list the
+        // settings sheet's picker shows, so the two pickers now agree as well. `ifEmpty` covers the
+        // one case where there is no user selection at all (nothing persisted and no current
+        // document): the searched list is then the only honest thing to show.
+        searchResults.run(request, userSelection = searchTranslations.value.ifEmpty { request.translationIds })
     }
 
     /**
@@ -2072,8 +2081,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 searchController.settingsClosed()
             },
         ) {
-            val phase by searchController.phase.collectAsState()
-            if (forEpubOfPhase(phase)) {
+            if (searchSettingsForEpub()) {
                 val mode by epubSearchMode.collectAsState()
                 EpubSearchSettings(mode = mode, onMode = ::persistEpubSearchMode)
             } else {
@@ -2094,19 +2102,25 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     }
 
     /**
-     * The phase's EPUB flag, or false for [ReadingSearchPhase.Closed], which carries none.
+     * Whether the settings sheet must show the EPUB word-mode row rather than the Bible form —
+     * decided from the LIVE target, the same `resolveDoc()` reading [ReadingSearchController.submit]
+     * and [ReadingSearchController.settingsClosed] use, and what spec §5 asks for.
      *
-     * Exhaustive over the sealed interface deliberately (review M2): with an `else` branch, a phase
-     * added later would silently default to the BIBLE settings sheet for an EPUB session — a wrong
-     * screen, not a compile error. Written out, the compiler makes the next author decide.
+     * It used to read the PHASE (F44 fix round, M2), which in a `Results` phase is the document the
+     * rows came FROM, not what the next search will target: EPUB results → tap a Bible pane → open
+     * settings showed the EPUB word-mode row, and closing it ran a Bible search whose word mode and
+     * translation selection the user had never been shown. Whatever the sheet offers has to be what
+     * `settingsClosed()` will then apply.
+     *
+     * Read at composition time rather than collected, exactly like `currentBookName` below: the sheet
+     * is modal and its content composes only while it is open ([SearchSettingsSheet] returns early
+     * when closed), so the active window cannot change under it.
+     *
+     * `internal`, not `private` — `:app` has no `ComposeTestRule`, so `ReadingSearchEntryPointsTest`
+     * pins this decision by calling it directly, the same convention as [buildSearchRequest].
      */
-    private fun forEpubOfPhase(phase: ReadingSearchPhase): Boolean = when (phase) {
-        is ReadingSearchPhase.Form -> phase.forEpub
-        is ReadingSearchPhase.NeedsIndex -> phase.forEpub
-        is ReadingSearchPhase.Indexing -> phase.forEpub
-        is ReadingSearchPhase.Results -> phase.forEpub
-        ReadingSearchPhase.Closed -> false
-    }
+    internal fun searchSettingsForEpub(): Boolean =
+        searchDocumentInfo(activity.documentControl.currentDocument)?.isEpub == true
 
     companion object {
         /**

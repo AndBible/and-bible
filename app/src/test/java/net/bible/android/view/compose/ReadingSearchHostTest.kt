@@ -1219,6 +1219,48 @@ class ReadingSearchHostTest {
             Books.installed().removeBook(active)
         }
     }
+
+    // ---- F44 fix round I2: what was SEARCHED vs what the user has SELECTED ----------------------
+
+    /**
+     * B4's auto-appended document must not become part of the user's persisted selection through the
+     * results sheet. `SearchResultsController.selectedTranslations` is what that sheet's document
+     * selector shows as CHECKED, and confirming it calls `selectTranslations` → `persistSelection` —
+     * so if `runSearch` published the merged `translationIds` there, one confirm (changing nothing)
+     * would save the appended document as the user's own choice, which the spec's D4 forbids. It
+     * would also leave this picker disagreeing with the settings sheet's, which reads the persisted
+     * list.
+     *
+     * The fixture is the discriminating one: the persisted selection (`["KJV"]`, seeded through
+     * `openSearchStrongs`'s direct-assignment seam, as the B4 test above does) does NOT contain the
+     * search target, and the target IS indexed — so `buildSearchRequest` appends it and the two lists
+     * genuinely differ. Asserting both directions matters: the SEARCH must still cover the appended
+     * document, only the published selection may not.
+     */
+    @Test
+    fun runSearchPublishesTheUsersSelectionNotTheAutoAppendedSearchList() {
+        val target = unindexedFakeBible("HostI2Target").apply { indexStatus = IndexStatus.DONE }
+        Books.installed().addBook(target)
+        try {
+            val host = host()
+            host.openSearchStrongs("unused", listOf("KJV"))
+
+            host.runSearch("HostI2Target", "grace")
+
+            assertEquals(
+                listOf("KJV", "HostI2Target"),
+                host.buildSearchRequest("HostI2Target", "grace").translationIds,
+                "sanity: the SEARCH itself does cover the auto-appended target",
+            )
+            assertEquals(
+                listOf("KJV"),
+                host.searchResults.selectedTranslations.value,
+                "the results selector must show (and therefore persist) only the user's own selection",
+            )
+        } finally {
+            Books.installed().removeBook(target)
+        }
+    }
 }
 
 /** Recording fake — no mocking framework in this repo (see `noopCommands` above for the same idiom). */

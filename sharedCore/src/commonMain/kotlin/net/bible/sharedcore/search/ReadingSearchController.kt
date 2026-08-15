@@ -58,14 +58,26 @@ class ReadingSearchController(
     private fun requestFieldFocus() { _imeRequest.value = SearchFieldImeRequest.Focus }
     private fun requestFieldRelease() { _imeRequest.value = SearchFieldImeRequest.Release }
 
+    /** What the rows the hosts' result controllers are currently holding were produced by. */
+    private data class ResultsKey(val query: String, val docId: String, val forEpub: Boolean)
+
     /**
-     * The query the current results belong to, or null if there are none. Deliberately the query itself
+     * What the current results belong to, or null if there are none. Deliberately the query itself
      * rather than a boolean: search mode stays active after the sheet is closed, and the entry points that
      * do not go through the toolbar field (Ctrl+F, the device SEARCH key, the drawer) can call [open]
      * again after the query has been edited. A boolean would then serve the previous query's results for
      * the new query.
+     *
+     * The DOCUMENT is part of the key for the same reason (F44 fix round, I1): since B3 the target is
+     * re-resolved on every entry, so the same query can be re-entered against a different document —
+     * search a Bible, press back once (the sheet closes, search mode stays active), tap the EPUB pane
+     * and trigger the same query again. Keyed on the query alone, [enterFormOrResults] would then have
+     * built `Results(epubDocId, forEpub = true)` WITHOUT running a search, and the sheet would render
+     * the EPUB branch over the EPUB controller's empty/stale rows while the header counted the Bible's
+     * hits. The cache is served only when the query AND the resolved target both match; anything else
+     * runs the search.
      */
-    private var resultsForQuery: String? = null
+    private var lastResults: ResultsKey? = null
 
     /**
      * True while a [ReadingSearchPhase.NeedsIndex] prompt addresses a document chosen in the results
@@ -112,7 +124,7 @@ class ReadingSearchController(
                 _sheetVisible.value = false
                 requestFieldFocus()
             }
-            resultsForQuery == q -> {
+            lastResults == ResultsKey(q, docId, forEpub) -> {
                 // Reopening after a back press: serve what we already have rather than re-running.
                 _phase.value = ReadingSearchPhase.Results(docId, forEpub)
                 _sheetVisible.value = true
@@ -124,7 +136,7 @@ class ReadingSearchController(
 
     private fun runSearch(docId: String, forEpub: Boolean, query: String, touchIme: Boolean = true) {
         onRunSearch(docId, query, forEpub)
-        resultsForQuery = query
+        lastResults = ResultsKey(query, docId, forEpub)
         _phase.value = ReadingSearchPhase.Results(docId, forEpub)
         _sheetVisible.value = true
         // `touchIme = false` only from the asynchronous indexing completion — see onIndexingFinished.
@@ -137,23 +149,60 @@ class ReadingSearchController(
      * The target is resolved HERE, not read back out of the phase: search mode outlives a window
      * switch, so the document to search is whatever the active window shows at the moment the user
      * submits (F44/B3). The phase's own docId is what a RESULT SET belongs to, which is a different
-     * question and is set by [runSearch].
+     * question and is set by [runSearch]. The one phase that is NOT retargeted is an index build in
+     * flight — see [keepIndexingInFlight].
      */
     fun submit() {
         if (_phase.value == ReadingSearchPhase.Closed) return
         val q = queries.query.value.trim()
         if (q.isEmpty()) return
+        if (keepIndexingInFlight()) return
         when (val kind = searchKindFor(resolveDoc())) {
             SearchKind.Unavailable -> onUnavailable()
             is SearchKind.NeedsIndex -> {
                 queries.recordRecentTerm(q)
-                _phase.value = ReadingSearchPhase.NeedsIndex(kind.docId, kind.forEpub)
-                _sheetVisible.value = true
-                requestFieldRelease()
+                promptIndexImplicitly(kind.docId, kind.forEpub)
             }
             is SearchKind.Bible -> { queries.recordRecentTerm(q); runSearch(kind.docId, false, q) }
             is SearchKind.Epub -> { queries.recordRecentTerm(q); runSearch(kind.docId, true, q) }
         }
+    }
+
+    /**
+     * An index build already running governs the session until it finishes (spec §9: the RECORDED
+     * document, not the live target, governs a build in flight). [submit] and [settingsClosed] would
+     * otherwise overwrite [ReadingSearchPhase.Indexing] with results for another document, and
+     * [onIndexingFinished]'s `as? Indexing` guard would then early-return — silently dropping the
+     * completed build's automatic search, with the user left looking at results they did not ask for.
+     *
+     * What the user sees instead: the progress panel stays exactly where it is, raised into view (the
+     * sheet may have been dismissed with a back press), and the search they typed runs by itself the
+     * moment the build completes — that is [onIndexingFinished]'s existing "a query is already
+     * waiting" path, which reads the very query they just submitted. Returns true when it consumed
+     * the call.
+     *
+     * The term is deliberately NOT recorded as a recent term here: nothing has been searched yet, and
+     * `onIndexingFinished`'s automatic run does not record one either.
+     */
+    private fun keepIndexingInFlight(): Boolean {
+        if (_phase.value !is ReadingSearchPhase.Indexing) return false
+        _sheetVisible.value = true
+        requestFieldRelease()
+        return true
+    }
+
+    /**
+     * An index prompt derived from the ACTIVE window's document rather than chosen in the results
+     * document selector, so [indexPromptIsExplicit] must be cleared (F44 fix round, M1): the flag is
+     * sticky otherwise — set by [promptIndexFor], cleared only by [open]/[closeSearchMode] — so after
+     * one use of the results document selector, no prompt for the rest of the session would ever
+     * follow the active window again ([activeDocumentChanged] refuses to refresh an "explicit" one).
+     */
+    private fun promptIndexImplicitly(docId: String, forEpub: Boolean) {
+        _phase.value = ReadingSearchPhase.NeedsIndex(docId, forEpub)
+        _sheetVisible.value = true
+        requestFieldRelease()
+        indexPromptIsExplicit = false
     }
 
     /**
@@ -271,18 +320,16 @@ class ReadingSearchController(
     }
 
     /** The settings sheet closed: re-run if there is something to re-run (spec §2), against the
-     *  document the active window shows now — same rule as [submit]. */
+     *  document the active window shows now — same rule as [submit], including its
+     *  [keepIndexingInFlight] exception. */
     fun settingsClosed() {
         if (_phase.value == ReadingSearchPhase.Closed) return
         val q = queries.query.value.trim()
         if (q.isEmpty()) return
+        if (keepIndexingInFlight()) return
         when (val kind = searchKindFor(resolveDoc())) {
             SearchKind.Unavailable -> onUnavailable()
-            is SearchKind.NeedsIndex -> {
-                _phase.value = ReadingSearchPhase.NeedsIndex(kind.docId, kind.forEpub)
-                _sheetVisible.value = true
-                requestFieldRelease()
-            }
+            is SearchKind.NeedsIndex -> promptIndexImplicitly(kind.docId, kind.forEpub)
             is SearchKind.Bible -> runSearch(kind.docId, false, q)
             is SearchKind.Epub -> runSearch(kind.docId, true, q)
         }
@@ -300,7 +347,7 @@ class ReadingSearchController(
         if (!_searchModeActive.value) return false
         _searchModeActive.value = false
         _phase.value = ReadingSearchPhase.Closed
-        resultsForQuery = null
+        lastResults = null
         _imeRequest.value = null
         indexPromptIsExplicit = false
         return true
