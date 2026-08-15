@@ -166,10 +166,11 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     // F6 Task 8b entry point 4: retarget into the reading view's search when a
                     // Compose host is mounted; classic behaviour unchanged otherwise. Review
                     // Important 2: `isSearchable` gates BOTH branches, not just the classic one —
-                    // `composeSearchIfHosted`'s `searchOpensInReadingView` only excludes EPUB, so
+                    // `composeSearchIfHosted` (since F43 Task 6) admits every document type, so
                     // without this gate a hosted search became reachable from My Notes/dictionary/
-                    // map/general-book pages that classic always refused (entry point 6 already
-                    // keeps this same gate around its own retarget, `MainBibleActivity.onKeyUp`).
+                    // map/non-EPUB-general-book pages that classic always refused (entry point 6
+                    // already keeps this same gate around its own retarget,
+                    // `MainBibleActivity.onKeyUp`).
                     if (currentPage.isSearchable) {
                         if (mainBibleActivity.composeSearchIfHosted()) {
                             isHandled = true

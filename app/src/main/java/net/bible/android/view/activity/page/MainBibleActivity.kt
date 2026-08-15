@@ -1236,13 +1236,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * calls this only once it has already decided the search document is indexed (the not-indexed
      * branch keeps classic's `Screen.SearchIndex` route unconditionally: prompting to index a
      * document other than the active window's is Task 11's machinery, which does not exist yet).
-     * Strong's is a Bible concept, so [ComposeReadingViewHost.openSearchStrongs] itself declines
-     * (no-op) when the active window's document is an EPUB — see its kdoc.
+     *
+     * A `false` return means the caller MUST use its own classic fallback — this is not just "no
+     * host mounted" any more: [ComposeReadingViewHost.openSearchStrongs] also returns `false` (and
+     * does nothing) when the active window's document is an EPUB, because Strong's find-all is a
+     * Bible concept — it searches Strong's-enabled BIBLES, not the open document — so an EPUB on
+     * screen must not swallow the request silently. (F43 Task 6 fix round 1: this method used to
+     * return `true` unconditionally whenever a host was mounted, which turned that EPUB decline into
+     * a silent no-op instead of falling through to the classic Strong's search.)
      */
     internal fun composeSearchStrongsIfHosted(ref: String, translationIds: List<String>): Boolean {
         val host = composeReadingViewHost ?: return false
-        host.openSearchStrongs(ref, translationIds)
-        return true
+        return host.openSearchStrongs(ref, translationIds)
     }
 
     /**

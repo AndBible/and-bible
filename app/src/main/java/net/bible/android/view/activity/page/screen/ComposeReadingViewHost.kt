@@ -703,13 +703,16 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * case (`Screen.SearchIndex`): prompting to index a document other than the active window's is
      * Task 11's machinery, which does not exist yet, so this is only called once the document is
      * already indexed.
+     *
+     * Returns whether it actually opened the search. `false` means the caller (`LinkControl` via
+     * [MainBibleActivity.composeSearchStrongsIfHosted]) MUST fall back to its own classic route —
+     * this declines (does nothing) when the active window's document is an EPUB, because Strong's
+     * find-all is a Bible concept: it searches Strong's-enabled BIBLES, not the open document, so an
+     * EPUB on screen must not swallow the request silently (F43 Task 6 fix round 1 — this used to
+     * fall off the end returning `Unit`, which the caller could not distinguish from success).
      */
-    fun openSearchStrongs(ref: String, translationIds: List<String>) {
-        // Strong's is a Bible concept: `LinkControl.showAllOccurrences` searches Strong's-enabled
-        // BIBLES, not the open document. This used to ride on `searchOpensInReadingView`, which
-        // excluded EPUBs for an unrelated reason; that predicate is gone now, so the guard is
-        // explicit — without it a find-all would open a Bible search session over an EPUB.
-        if (activity.documentControl.currentDocument?.isEpub == true) return
+    fun openSearchStrongs(ref: String, translationIds: List<String>): Boolean {
+        if (activity.documentControl.currentDocument?.isEpub == true) return false
         refreshSearchTranslations()
         // Per-open refresh, exactly as in [openSearch] — see review item 7 there.
         searchQueries.reloadRecentTerms()
@@ -721,6 +724,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         searchStrongsQuery = query.trim()
         searchPreDecoratedQuery = null
         searchController.open(query)
+        return true
     }
 
     /**

@@ -272,18 +272,45 @@ class ReadingSearchEntryPointsTest {
     /**
      * Strong's is Bible-only and used to be guarded by the SAME predicate that excluded EPUBs.
      * Removing that predicate must not let a Strong's find-all open over an EPUB.
+     *
+     * F43 Task 6 fix round 1: the RETURN VALUE assertion is the whole point of this test. The first
+     * cut of this fix let `composeSearchStrongsIfHosted` return `true` unconditionally whenever a
+     * host was mounted, so `LinkControl.showAllOccurrences` (`ref: MainBibleActivity.kt:1250`, itself
+     * called from `LinkControl.kt:388-393`) treated the EPUB decline as "handled" and never fell
+     * through to the classic Strong's search — the find-all did NOTHING at all, worse than before
+     * this batch (which correctly ran the classic search, since Strong's find-all searches
+     * Strong's-enabled BIBLES, not the open document). Asserting only `searchModeActive` stays false
+     * would NOT have caught that regression — a `true` return with search mode still closed is
+     * exactly what the regression produced.
      */
     @Test fun composeSearchStrongsIfHostedRefusesAnEpub() {
         activity.composeReadingViewHost = host()
         val epub = givenCurrentDocumentIsAnEpub()
         try {
-            activity.composeSearchStrongsIfHosted("H430", listOf("KJV"))
+            val handled = activity.composeSearchStrongsIfHosted("H430", listOf("KJV"))
 
+            assertFalse(handled, "an EPUB decline must be reported to the caller so it can fall back")
             assertFalse(activity.composeReadingViewHost!!.searchController.searchModeActive.value,
                 "Strong's must not open a search over an EPUB")
         } finally {
             Books.installed().removeBook(epub)
         }
+    }
+
+    /**
+     * The companion to the test above: with a normal (non-EPUB) document current, Strong's find-all
+     * must still open and report `true` — otherwise an implementation that always returns `false`
+     * would pass the EPUB-refusal test above for the wrong reason.
+     */
+    @Test fun composeSearchStrongsIfHostedOpensForANonEpubDocument() {
+        activity.composeReadingViewHost = host()
+        // sanity: KJV (set in setUp) is not an EPUB.
+        assertFalse(activity.documentControl.currentDocument?.isEpub == true, "sanity")
+
+        val handled = activity.composeSearchStrongsIfHosted("H430", listOf("KJV"))
+
+        assertTrue(handled, "a non-EPUB document must open the Strong's search")
+        assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
     }
 
     // ---- The one-shot decoration overrides (why entry points 7 and 8 are correct) --------------
