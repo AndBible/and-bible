@@ -45,7 +45,7 @@ fun EpubSearchResultsScreen(
     title: String,
     loading: Boolean,
     rows: List<EpubResultRow>,
-    onSelect: (keyId: String) -> Unit,
+    onSelect: (keyId: String, ordinal: Int) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     val strings = LocalStrings.current

@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 class EpubSearchResultsController(
     private val scope: CoroutineScope,
     private val service: EpubSearchService,
-    private val onSelect: (keyId: String) -> Unit,
+    private val onSelect: (keyId: String, ordinal: Int) -> Unit,
 ) {
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
@@ -28,6 +28,6 @@ class EpubSearchResultsController(
         }
     }
 
-    fun select(keyId: String) = onSelect(keyId)
+    fun select(keyId: String, ordinal: Int) = onSelect(keyId, ordinal)
     fun dismissError() { _error.value = false }
 }

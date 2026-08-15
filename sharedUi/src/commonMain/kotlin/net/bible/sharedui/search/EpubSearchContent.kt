@@ -43,13 +43,15 @@ import net.bible.sharedui.strings.LocalStrings
  */
 fun LazyListScope.epubResultRows(
     rows: List<EpubResultRow>,
-    onSelect: (keyId: String) -> Unit,
+    onSelect: (keyId: String, ordinal: Int) -> Unit,
 ) {
-    items(rows, key = { it.keyId }) { row ->
+    // `keyId` addresses the fragment, so it repeats when one fragment holds several hits; the list
+    // key must be the hit (F44/B1).
+    items(rows, key = { it.rowId }) { row ->
         TwoLineListItem(
             title = row.keyName,
             subtitle = styledTextToAnnotatedString(row.text),
-            onClick = { onSelect(row.keyId) },
+            onClick = { onSelect(row.keyId, row.ordinal) },
         )
     }
 }

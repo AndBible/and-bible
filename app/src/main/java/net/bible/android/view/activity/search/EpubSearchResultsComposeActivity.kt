@@ -135,8 +135,10 @@ class EpubSearchResultsComposeActivity : ActivityBase() {
      * [keyId] is the `BookAndKey.osisRef` (`"<initials>:<fragmentId>"`); strip the initials prefix and
      * re-resolve the inner osisRef via [org.crosswire.jsword.book.Book.getKey] — the same round-trip
      * [net.bible.service.sword.BookAndKeySerialized] uses to restore epub keys from history/workspace.
+     *
+     * [ordinal] is not yet used — Task 2 attaches the ordinal to the key.
      */
-    private fun onSelect(keyId: String) {
+    private fun onSelect(keyId: String, ordinal: Int) {
         val book = Books.installed().getBook(docId) ?: return
         try {
             val innerOsisRef = keyId.removePrefix("$docId:")

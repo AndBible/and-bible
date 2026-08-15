@@ -939,8 +939,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * the same round-trip `EpubSearchResultsComposeActivity.onSelect` (`:130-146`) performs. Unlike
      * that Activity there is no `startActivity` and no `finish()`: the reading view is already here,
      * so this only navigates the active window and drops the sheet (see [onSearchResultSelected]).
+     *
+     * [ordinal] is not yet used — Task 2 attaches the ordinal to the key.
      */
-    internal fun onEpubSearchResultSelected(keyId: String) {
+    internal fun onEpubSearchResultSelected(keyId: String, ordinal: Int) {
         val docId = (searchController.phase.value as? ReadingSearchPhase.Results)?.docId
         if (docId == null) {
             Log.w(TAG, "onEpubSearchResultSelected: dropped '$keyId' — no Results phase to resolve a docId from")

@@ -3,8 +3,21 @@ package net.bible.sharedcore.search
 /** EPUB FTS5 query mode. FTS = the user typed a raw FTS5 expression (classic `ftsQuery` radio → null). */
 enum class EpubSearchMode { ALL_WORDS, ANY_WORD, PHRASE, FTS }
 
-/** One EPUB search hit: [keyId] = stable BookAndKey id (addressing key), [keyName] = display, [text] = highlighted snippet. */
-data class EpubResultRow(val keyId: String, val keyName: String, val text: StyledText)
+/**
+ * One EPUB search hit. [keyId] is the stable `BookAndKey` id addressing the FRAGMENT
+ * (`"<initials>:<fragmentId>"`); [ordinal] is the hit's position WITHIN that fragment, which the
+ * FTS5 index stores per `BVA` element. The pair is what identifies a hit: a fragment can contain
+ * several hits, so [keyId] alone is not unique — using it as a list key crashed the reading view
+ * (F44/B1). [rowId] is that pair, for list keys; navigation uses both parts separately.
+ */
+data class EpubResultRow(
+    val keyId: String,
+    val ordinal: Int,
+    val keyName: String,
+    val text: StyledText,
+) {
+    val rowId: String get() = "$keyId#$ordinal"
+}
 
 /** Port of classic EpubSearchResults.adjustSearchText — mode → FTS5 query syntax. */
 fun adjustSearchText(mode: EpubSearchMode, text: String): String = when (mode) {

@@ -50,9 +50,9 @@ class EpubSearchSheetGoldenTest {
     )
 
     private val rows = listOf(
-        EpubResultRow("Book:frag1", "Chapter 1", preview("It was the age of ", "wisdom", ", it was…")),
-        EpubResultRow("Book:frag2", "Chapter 4", preview("…a matter of ", "wisdom", " and patience.")),
-        EpubResultRow("Book:frag3", "Appendix", preview("On ", "wisdom", " literature.")),
+        EpubResultRow("Book:frag1", 11, "Chapter 1", preview("It was the age of ", "wisdom", ", it was…")),
+        EpubResultRow("Book:frag2", 12, "Chapter 4", preview("…a matter of ", "wisdom", " and patience.")),
+        EpubResultRow("Book:frag3", 13, "Appendix", preview("On ", "wisdom", " literature.")),
     )
 
     private fun sheet(
@@ -71,7 +71,7 @@ class EpubSearchSheetGoldenTest {
             onDismissError = {},
             actions = {},
         ) {
-            epubResultRows(rows = rows, onSelect = {})
+            epubResultRows(rows = rows, onSelect = { _, _ -> })
         }
     }
 

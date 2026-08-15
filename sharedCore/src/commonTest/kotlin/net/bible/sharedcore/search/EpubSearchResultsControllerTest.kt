@@ -7,7 +7,7 @@ import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EpubSearchResultsControllerTest {
-    private val row = EpubResultRow("Gen.1.1", "Genesis 1:1", StyledText(listOf(StyledRun("hit", true))))
+    private val row = EpubResultRow("Gen.1.1", 11, "Genesis 1:1", StyledText(listOf(StyledRun("hit", true))))
     private class FakeService(val out: List<EpubResultRow>, val fail: Boolean = false) : EpubSearchService {
         override fun isIndexed(docId: String) = true
         override suspend fun searchEpub(docId: String, query: String, mode: EpubSearchMode): List<EpubResultRow> {
@@ -19,7 +19,7 @@ class EpubSearchResultsControllerTest {
     // is settled by the time the assertions read it; backgroundScope hosts the controller's scope so
     // runTest cancels it (no UncompletedCoroutinesError). Mirrors SearchResultsControllerTest.
     @Test fun run_populates_results_and_clears_loading() = runTest(UnconfinedTestDispatcher()) {
-        val c = EpubSearchResultsController(backgroundScope, FakeService(listOf(row)), onSelect = {})
+        val c = EpubSearchResultsController(backgroundScope, FakeService(listOf(row)), onSelect = { _, _ -> })
         c.run("book", "hit", EpubSearchMode.PHRASE)
         assertEquals(listOf(row), c.results.value)
         assertFalse(c.loading.value)
@@ -27,21 +27,24 @@ class EpubSearchResultsControllerTest {
     }
 
     @Test fun run_failure_sets_error() = runTest(UnconfinedTestDispatcher()) {
-        val c = EpubSearchResultsController(backgroundScope, FakeService(emptyList(), fail = true), onSelect = {})
+        val c = EpubSearchResultsController(backgroundScope, FakeService(emptyList(), fail = true), onSelect = { _, _ -> })
         c.run("book", "hit", EpubSearchMode.PHRASE)
         assertTrue(c.error.value)
         assertFalse(c.loading.value)
     }
 
-    @Test fun select_forwards_keyId() = runTest(UnconfinedTestDispatcher()) {
-        val picked = mutableListOf<String>()
-        val c = EpubSearchResultsController(backgroundScope, FakeService(emptyList()), onSelect = { picked.add(it) })
-        c.select("Gen.1.1")
-        assertEquals(listOf("Gen.1.1"), picked)
+    @Test fun select_forwards_keyId_and_ordinal() = runTest(UnconfinedTestDispatcher()) {
+        val picked = mutableListOf<Pair<String, Int>>()
+        val c = EpubSearchResultsController(
+            backgroundScope, FakeService(emptyList()),
+            onSelect = { keyId, ordinal -> picked.add(keyId to ordinal) },
+        )
+        c.select("Gen.1.1", 11)
+        assertEquals(listOf("Gen.1.1" to 11), picked)
     }
 
     @Test fun dismissError_clears_error() = runTest(UnconfinedTestDispatcher()) {
-        val c = EpubSearchResultsController(backgroundScope, FakeService(emptyList(), fail = true), onSelect = {})
+        val c = EpubSearchResultsController(backgroundScope, FakeService(emptyList(), fail = true), onSelect = { _, _ -> })
         c.run("book", "hit", EpubSearchMode.PHRASE)
         assertTrue(c.error.value)
         c.dismissError()

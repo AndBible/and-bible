@@ -26,9 +26,9 @@ class EpubSearchResultsGoldenTest {
     )
 
     private val rows = listOf(
-        EpubResultRow("k1", "Chapter 1 — Introduction", snippet("…the ", "grace", " of God abounds…")),
-        EpubResultRow("k2", "Chapter 4 — On Faith", snippet("…justified by ", "grace", " through faith…")),
-        EpubResultRow("k3", "Appendix — Notes", snippet("…a further note on ", "grace", " and works…")),
+        EpubResultRow("k1", 11, "Chapter 1 — Introduction", snippet("…the ", "grace", " of God abounds…")),
+        EpubResultRow("k2", 12, "Chapter 4 — On Faith", snippet("…justified by ", "grace", " through faith…")),
+        EpubResultRow("k3", 13, "Appendix — Notes", snippet("…a further note on ", "grace", " and works…")),
     )
 
     private fun screen(
@@ -39,7 +39,7 @@ class EpubSearchResultsGoldenTest {
             title = "Search results",
             loading = loading,
             rows = rows,
-            onSelect = {},
+            onSelect = { _, _ -> },
             onNavigateUp = {},
         )
     }
