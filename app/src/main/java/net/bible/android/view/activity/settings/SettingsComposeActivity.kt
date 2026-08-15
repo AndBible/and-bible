@@ -31,6 +31,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -43,6 +44,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
+import net.bible.sharedcore.search.SearchModeController
 import net.bible.sharedcore.settings.AppSettingsController
 import net.bible.sharedcore.settings.AppSettingsLabels
 import net.bible.sharedcore.settings.AppSettingsNav
@@ -94,11 +96,19 @@ class SettingsComposeActivity : ActivityBase() {
         )
     }
 
+    // Search state is hoisted here (activity-level, NOT inside the composition) so onBackPressed
+    // below can reach it — :sharedUi has commonMain only, so AbSettingsScreen/AppSettingsScreen
+    // cannot use BackHandler themselves.
+    private val searchQuery = MutableStateFlow("")
+    private val searchMode = SearchModeController(onClearQuery = { searchQuery.value = "" })
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             AbAppTheme {
                     val state by controller.state.collectAsState()
+                    val query by searchQuery.collectAsState()
+                    val searchModeActive by searchMode.active.collectAsState()
                     AppSettingsScreen(
                         state = state,
                         onUp = { finish() },
@@ -110,9 +120,20 @@ class SettingsComposeActivity : ActivityBase() {
                         onNavigate = controller::onNavigate,
                         onReset = { confirmResetSettings() },
                         resetContentDescription = getString(R.string.reset_settings),
+                        searchQuery = query,
+                        searchModeActive = searchModeActive,
+                        onSearchQueryChange = { searchQuery.value = it },
+                        onOpenSearch = searchMode::open,
+                        onCloseSearch = searchMode::close,
                     )
             }
         }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (searchMode.active.value) { searchMode.close(); return }
+        super.onBackPressed()
     }
 
     override fun onResume() {

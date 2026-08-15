@@ -137,6 +137,11 @@ fun TextDisplaySettingsScreen(
     onRevert: (String) -> Unit,
     onReset: () -> Unit,
     onNavigate: (String) -> Unit,
+    searchQuery: String = "",
+    searchModeActive: Boolean = false,
+    onSearchQueryChange: (String) -> Unit = {},
+    onOpenSearch: () -> Unit = {},
+    onCloseSearch: () -> Unit = {},
 ) {
     // Screen-local dialog state: the STABLE KEY of the open editor (if any), never a captured item
     // snapshot — see the kdoc above and AbSettingsContent's identical discipline for its own dialogs.
@@ -170,6 +175,11 @@ fun TextDisplaySettingsScreen(
             onLongPress = { key -> if (isRevertableSettingsKey(key)) revertKey = key },
             searchable = true,
             searchHint = LocalStrings.current.searchSettings,
+            searchQuery = searchQuery,
+            searchModeActive = searchModeActive,
+            onSearchQueryChange = onSearchQueryChange,
+            onOpenSearch = onOpenSearch,
+            onCloseSearch = onCloseSearch,
             actions = {
                 IconButton(onClick = { showResetConfirm = true }) {
                     Icon(Icons.Filled.RestartAlt, contentDescription = dialogLabels.resetContentDescription)

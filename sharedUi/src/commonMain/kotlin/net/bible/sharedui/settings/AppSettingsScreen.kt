@@ -44,6 +44,11 @@ fun AppSettingsScreen(
     onNavigate: (String) -> Unit,
     onReset: () -> Unit,
     resetContentDescription: String,
+    searchQuery: String = "",
+    searchModeActive: Boolean = false,
+    onSearchQueryChange: (String) -> Unit = {},
+    onOpenSearch: () -> Unit = {},
+    onCloseSearch: () -> Unit = {},
 ) {
     val searchHint = LocalStrings.current.searchSettings
     AbSettingsScreen(
@@ -57,6 +62,11 @@ fun AppSettingsScreen(
         onMultiSelectChange = onMultiSelectChange,
         searchable = true,
         searchHint = searchHint,
+        searchQuery = searchQuery,
+        searchModeActive = searchModeActive,
+        onSearchQueryChange = onSearchQueryChange,
+        onOpenSearch = onOpenSearch,
+        onCloseSearch = onCloseSearch,
         actions = {
             IconButton(onClick = onReset) {
                 Icon(Icons.Filled.RestartAlt, contentDescription = resetContentDescription)

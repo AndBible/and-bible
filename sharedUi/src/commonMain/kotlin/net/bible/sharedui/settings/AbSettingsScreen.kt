@@ -33,7 +33,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,13 +53,16 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedcore.settings.filterSettingsItems
+import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbScaffold
-import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.components.AbTextInputDialog
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.components.SettingsRowBadgeChip
 import net.bible.sharedui.strings.LocalStrings
 
@@ -92,8 +94,11 @@ fun AbSettingsScreen(
     actions: @Composable RowScope.() -> Unit = {},
     searchable: Boolean = false,
     searchHint: String = "",
-    searchMode: SettingsSearchMode = SettingsSearchMode.AlwaysVisible,
-    initialSearchQuery: String = "",
+    searchQuery: String = "",
+    searchModeActive: Boolean = false,
+    onSearchQueryChange: (String) -> Unit = {},
+    onOpenSearch: () -> Unit = {},
+    onCloseSearch: () -> Unit = {},
     onLongPress: ((String) -> Unit)? = null,
 ) {
     if (!searchable) {
@@ -115,40 +120,32 @@ fun AbSettingsScreen(
         return
     }
 
-    var query by remember { mutableStateOf(initialSearchQuery) }
-    // In collapsible mode the field starts expanded iff there is already a seeded query.
-    var searchExpanded by remember { mutableStateOf(initialSearchQuery.isNotEmpty()) }
-    val fieldVisible = searchMode == SettingsSearchMode.AlwaysVisible || searchExpanded
-
     // Filter against the already-visibility-filtered items so hidden rows never surface via search.
     val filteredState =
-        if (query.isNotBlank()) state.copy(items = filterSettingsItems(state.visibleItems, query))
+        if (searchQuery.isNotBlank()) state.copy(items = filterSettingsItems(state.visibleItems, searchQuery))
         else state
 
     val topActions: @Composable RowScope.() -> Unit = {
+        AbActionIcon(Icons.Filled.Search, searchHint, onOpenSearch)
         actions()
-        if (searchMode == SettingsSearchMode.CollapsibleIcon) {
-            IconButton(onClick = {
-                searchExpanded = !searchExpanded
-                if (!searchExpanded) query = ""   // collapse clears the query (classic parity)
-            }) {
-                Icon(
-                    if (searchExpanded) Icons.Filled.Close else Icons.Filled.Search,
-                    contentDescription = searchHint,
-                )
-            }
-        }
     }
 
-    AbScaffold(title = state.title, onNavigateUp = onUp, actions = topActions) { padding ->
+    AbScaffold(
+        title = state.title,
+        onNavigateUp = onUp,
+        actions = topActions,
+        search = if (searchModeActive) {
+            AbTopBarSearchState(query = searchQuery, imeRequest = AbSearchImeRequest.Focus, placeholder = searchHint)
+        } else null,
+        searchCallbacks = if (searchModeActive) {
+            AbTopBarSearchCallbacks(
+                onQueryChange = onSearchQueryChange,
+                onClose = onCloseSearch,
+                onImeRequestHandled = {},
+            )
+        } else null,
+    ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            if (fieldVisible) {
-                AbSearchField(
-                    value = query,
-                    onValueChange = { query = it },
-                    placeholder = searchHint,
-                )
-            }
             AbSettingsContent(
                 state = filteredState,
                 onSwitch = onSwitch,

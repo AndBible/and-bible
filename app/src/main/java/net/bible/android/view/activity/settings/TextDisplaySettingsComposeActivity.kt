@@ -37,6 +37,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlin.coroutines.resume
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.android.activity.R
@@ -47,6 +48,7 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.search.SearchModeController
 import net.bible.sharedcore.settings.ColorSettingsController
 import net.bible.sharedcore.settings.InheritedFrom
 import net.bible.sharedcore.settings.KEY_OPEN_GLOBAL_SETTINGS
@@ -116,6 +118,12 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
 
     private var navStack by mutableStateOf<List<SettingsScope>>(emptyList())
 
+    // Search state is hoisted here (activity-level, NOT inside the composition) so pop()/BackHandler
+    // below can reach it — :sharedUi has commonMain only, so TextDisplaySettingsScreen cannot use
+    // BackHandler itself.
+    private val searchQuery = MutableStateFlow("")
+    private val searchMode = SearchModeController(onClearQuery = { searchQuery.value = "" })
+
     /** Non-null while the internal `colors` destination is shown, holding the [SettingsScope] it
      * was opened for. Null pops back to the text-settings list ([TextDisplaySettingsScreen]). */
     private var colorsScope by mutableStateOf<SettingsScope?>(null)
@@ -150,7 +158,7 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
 
         setContent {
             AbAppTheme {
-                    BackHandler { pop() }
+                    BackHandler { if (searchMode.active.value) searchMode.close() else pop() }
 
                     val activeColorsScope = colorsScope
                     if (activeColorsScope != null) {
@@ -194,6 +202,8 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
                         val scope = navStack.last()
                         val controller = controllerFor(scope)
                         val state by controller.state.collectAsState()
+                        val query by searchQuery.collectAsState()
+                        val searchModeActive by searchMode.active.collectAsState()
 
                         TextDisplaySettingsScreen(
                             state = state,
@@ -207,6 +217,11 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
                             onRevert = controller::onRevert,
                             onReset = controller::onReset,
                             onNavigate = { key -> onNavigate(scope, key) },
+                            searchQuery = query,
+                            searchModeActive = searchModeActive,
+                            onSearchQueryChange = { searchQuery.value = it },
+                            onOpenSearch = searchMode::open,
+                            onCloseSearch = searchMode::close,
                         )
                     }
             }

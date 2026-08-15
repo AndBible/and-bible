@@ -187,7 +187,8 @@ class AppSettingsGoldenTest {
             onMultiSelectChange = { _, _ -> },
             searchable = true,
             searchHint = "Search settings",
-            initialSearchQuery = query,
+            searchQuery = query,
+            searchModeActive = true,
         )
     }
 
