@@ -1166,6 +1166,59 @@ class ReadingSearchHostTest {
             Books.installed().removeBook(other)
         }
     }
+
+    // ---- F44/B4 fix round 1: `activeIsIndexed` must describe the search TARGET, not the window ---
+
+    /**
+     * Every `translationIds` assertion before this fix round (`ReadingSearchEntryPointsTest`'s
+     * `buildSearchRequest*` tests, `openSearchStrongs*` tests) calls `buildSearchRequest("KJV", ...)`
+     * in a fixture where "KJV" is ALSO the active window's current document — so `docId` and
+     * `documentControl.currentDocument` are the same book everywhere else, and the whole point of
+     * the controller's override (reading `indexDone` for the search TARGET, `docId`, rather than for
+     * the active window's document — the two differ after `ReadingSearchController.promptIndexFor`
+     * redirects the session to a translation the active window is not showing) is invisible to the
+     * rest of the suite. A regression that reverted `activeIsIndexed` back to
+     * `searchDocumentInfo(activity.documentControl.currentDocument)?.indexDone == true` would pass
+     * every one of those tests untouched.
+     *
+     * The discriminating shape: the persisted selection (`["KJV"]`, seeded via `openSearchStrongs`'s
+     * direct-assignment seam — the same one `ReadingSearchEntryPointsTest.openSearchStrongsSeeds*`
+     * already uses to populate `searchTranslations` without going through `onSearchTranslationsChosen`'s
+     * `selectTranslations`/`unindexedAmong` machinery, which is unrelated noise here) does NOT contain
+     * the search target; the target ("HostB4Target") IS indexed; the ACTIVE WINDOW's own current
+     * document ("HostB4Active") is a DIFFERENT, genuinely UNINDEXED fake Bible (same
+     * `unindexedFakeBible` construction the F6 Task 11 tests above use). Correct code appends the
+     * target (`["KJV", "HostB4Target"]`); code that reads the active window's flag instead sees an
+     * unindexed document and skips the append (`["KJV"]`).
+     */
+    @Test
+    fun buildSearchRequestAppendsTheSearchTargetsIndexStateNotTheActiveWindowsDocuments() {
+        val target = unindexedFakeBible("HostB4Target").apply { indexStatus = IndexStatus.DONE }
+        val active = unindexedFakeBible("HostB4Active")
+        Books.installed().addBook(target)
+        Books.installed().addBook(active)
+        try {
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(active, verse)
+            val host = host()
+            // Seeds `searchTranslations.value = listOf("KJV")` directly (see kdoc above) — the ref
+            // text and the Strong's/ANY_WORDS overrides it also sets are irrelevant here, since the
+            // `buildSearchRequest` call below uses an unrelated plain query.
+            host.openSearchStrongs("unused", listOf("KJV"))
+
+            val request = host.buildSearchRequest("HostB4Target", "grace")
+
+            assertEquals(
+                listOf("KJV", "HostB4Target"),
+                request.translationIds,
+                "must append the TARGET document's index state (indexed), not the active window's " +
+                    "current document's (unindexed)",
+            )
+        } finally {
+            Books.installed().removeBook(target)
+            Books.installed().removeBook(active)
+        }
+    }
 }
 
 /** Recording fake — no mocking framework in this repo (see `noopCommands` above for the same idiom). */
