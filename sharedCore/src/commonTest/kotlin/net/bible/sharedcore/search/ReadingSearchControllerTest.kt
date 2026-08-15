@@ -585,4 +585,49 @@ class ReadingSearchControllerTest {
         assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), c.phase.value)
         assertEquals(listOf(Triple("KJV", "light", false)), r.searchesRun)
     }
+
+    // ---- F43: EPUB reading-search phase paths (forEpub = true) — never exercised until now,
+    // since every test above uses a Bible document and the EPUB branch (searchKindFor's
+    // SearchKind.Epub, ReadingSearchController.open's `is SearchKind.Epub -> ...`) is not yet
+    // routed to from anywhere in the app. This is coverage for a branch about to go live, added
+    // ahead of that switch so a pre-existing defect surfaces now rather than after it ships. ----
+
+    @Test
+    fun anIndexedEpubEntersTheFormWithTheEpubFlagSet() {
+        val doc = SearchDocumentInfo("TestEpub", SearchDocumentCategory.GENERAL_BOOK, isEpub = true, indexDone = true)
+        val (_, c) = controller(doc = doc)
+        c.open()
+        assertEquals(ReadingSearchPhase.Form("TestEpub", forEpub = true), c.phase.value)
+    }
+
+    @Test
+    fun anEpubQueryRunsWithTheEpubFlagSet() {
+        val doc = SearchDocumentInfo("TestEpub", SearchDocumentCategory.GENERAL_BOOK, isEpub = true, indexDone = true)
+        val (r, c) = controller(doc = doc)
+        c.open("grace")
+        assertEquals(listOf(Triple("TestEpub", "grace", true)), r.searchesRun)
+        assertEquals(ReadingSearchPhase.Results("TestEpub", forEpub = true), c.phase.value)
+    }
+
+    @Test
+    fun anUnindexedEpubOffersIndexingWithTheEpubFlagSet() {
+        val doc = SearchDocumentInfo("TestEpub", SearchDocumentCategory.GENERAL_BOOK, isEpub = true, indexDone = false)
+        val (_, c) = controller(doc = doc)
+        c.open()
+        assertEquals(ReadingSearchPhase.NeedsIndex("TestEpub", forEpub = true), c.phase.value)
+    }
+
+    @Test
+    fun anEpubIndexBuildCarriesTheFlagThroughIndexingAndCompletion() {
+        val doc = SearchDocumentInfo("TestEpub", SearchDocumentCategory.GENERAL_BOOK, isEpub = true, indexDone = false)
+        val (r, c) = controller(doc = doc)
+        c.open()
+
+        c.acceptIndexing()
+        assertEquals(ReadingSearchPhase.Indexing("TestEpub", forEpub = true), c.phase.value)
+        assertEquals(listOf("TestEpub"), r.indexingStarted)
+
+        c.onIndexingFinished(indexDone = true)
+        assertEquals(ReadingSearchPhase.Form("TestEpub", forEpub = true), c.phase.value)
+    }
 }
