@@ -149,9 +149,11 @@ class BookmarksComposeActivity : ActivityBase() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        // Back leaves search mode first, then selection mode, then the screen.
-        if (controller.searchModeActive.value) { controller.closeSearch(); return }
+        // Back dismisses what is visually on top: the selection bar covers the search bar
+        // (AbSelectionScaffold's precedence), so selection goes first. Closing search underneath a
+        // visible selection bar would clear the query and re-filter the list invisibly.
         if (controller.selection.value.isNotEmpty()) { controller.clearSelection(); return }
+        if (controller.searchModeActive.value) { controller.closeSearch(); return }
         super.onBackPressed()
     }
 

@@ -319,6 +319,7 @@ class DocumentSelectionControllerTest {
         val c = controller()
         c.setQuery("gen")
         c.openSearch()
+        assertTrue(c.searchModeActive.value)
         c.closeSearch()
         assertFalse(c.searchModeActive.value)
         assertEquals("", c.query.value)

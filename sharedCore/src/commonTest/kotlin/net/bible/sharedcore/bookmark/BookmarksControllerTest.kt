@@ -280,6 +280,7 @@ class BookmarksControllerTest {
         val c = controller(scope = backgroundScope)
         c.setSearch("note")
         c.openSearch()
+        assertTrue(c.searchModeActive.value)
         c.closeSearch()
         assertFalse(c.searchModeActive.value)
         assertEquals("", c.searchText.value)
@@ -290,6 +291,7 @@ class BookmarksControllerTest {
         val c = controller(scope = backgroundScope)          // showNotes starts on in this fixture; assert it, then toggle
         assertTrue(c.showNotes.value)
         c.openSearch()
+        assertTrue(c.searchModeActive.value)
         c.setSearch("note")
         c.toggleShowNotes()
         assertFalse(c.showNotes.value)
