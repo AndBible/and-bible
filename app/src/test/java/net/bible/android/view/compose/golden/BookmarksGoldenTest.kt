@@ -93,6 +93,7 @@ class BookmarksGoldenTest {
         rows: List<BookmarkRow> = rows(),
         showNotes: Boolean = true,
         selection: Set<String> = emptySet(),
+        searchModeActive: Boolean = false,
     ) = @androidx.compose.runtime.Composable {
         BookmarksScreen(
             title = "Bookmarks",
@@ -107,6 +108,9 @@ class BookmarksGoldenTest {
             onSelectFilter = {},
             onCycleSort = {},
             onSearch = {},
+            searchModeActive = searchModeActive,
+            onOpenSearch = {},
+            onCloseSearch = {},
             onToggleShowNotes = {},
             onRowClick = { _, _ -> },
             onRowLongClick = {},

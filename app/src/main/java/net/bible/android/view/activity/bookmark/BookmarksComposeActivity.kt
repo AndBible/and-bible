@@ -105,6 +105,7 @@ class BookmarksComposeActivity : ActivityBase() {
                     val selectedFilterIndex by controller.selectedFilterIndex.collectAsState()
                     val sortMode by controller.sortMode.collectAsState()
                     val searchText by controller.searchText.collectAsState()
+                    val searchModeActive by controller.searchModeActive.collectAsState()
                     val showNotes by controller.showNotes.collectAsState()
                     val selection by controller.selection.collectAsState()
                     val loading by controller.loading.collectAsState()
@@ -122,6 +123,9 @@ class BookmarksComposeActivity : ActivityBase() {
                         onSelectFilter = controller::setFilter,
                         onCycleSort = controller::cycleSort,
                         onSearch = controller::setSearch,
+                        searchModeActive = searchModeActive,
+                        onOpenSearch = controller::openSearch,
+                        onCloseSearch = controller::closeSearch,
                         onToggleShowNotes = controller::toggleShowNotes,
                         onRowClick = controller::selectRow,
                         onRowLongClick = controller::enterSelection,
@@ -141,6 +145,14 @@ class BookmarksComposeActivity : ActivityBase() {
     override fun onDestroy() {
         ABEventBus.unregister(this)
         super.onDestroy()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        // Back leaves search mode first, then selection mode, then the screen.
+        if (controller.searchModeActive.value) { controller.closeSearch(); return }
+        if (controller.selection.value.isNotEmpty()) { controller.clearSelection(); return }
+        super.onBackPressed()
     }
 
     // --- select (mirrors classic Bookmarks.bookmarkSelected, Bookmarks.kt:295-323) ---

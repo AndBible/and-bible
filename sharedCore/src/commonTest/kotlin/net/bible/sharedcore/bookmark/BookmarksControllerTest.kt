@@ -274,4 +274,26 @@ class BookmarksControllerTest {
         val c2 = controller(service, backgroundScope, initialFilterIndex = -5)
         assertEquals(0, c2.selectedFilterIndex.value)
     }
+
+    @Test
+    fun closeSearchLeavesSearchModeAndClearsTheText() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(scope = backgroundScope)
+        c.setSearch("note")
+        c.openSearch()
+        c.closeSearch()
+        assertFalse(c.searchModeActive.value)
+        assertEquals("", c.searchText.value)
+    }
+
+    @Test
+    fun switchingShowNotesOffAlsoClosesSearchMode() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(scope = backgroundScope)          // showNotes starts on in this fixture; assert it, then toggle
+        assertTrue(c.showNotes.value)
+        c.openSearch()
+        c.setSearch("note")
+        c.toggleShowNotes()
+        assertFalse(c.showNotes.value)
+        assertFalse(c.searchModeActive.value, "the search icon is gone, so the bar must not stay in search mode")
+        assertEquals("", c.searchText.value)
+    }
 }

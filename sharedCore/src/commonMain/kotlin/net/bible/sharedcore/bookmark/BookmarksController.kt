@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import net.bible.sharedcore.search.SearchModeController
 
 /**
  * Owns the UI state for the Bookmarks list (mirrors classic `Bookmarks.kt`): filter/sort/search/
@@ -37,6 +38,9 @@ class BookmarksController(
 
     private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText.asStateFlow()
+
+    private val searchMode = SearchModeController(onClearQuery = { setSearch("") })
+    val searchModeActive: StateFlow<Boolean> = searchMode.active
 
     private val _showNotes = MutableStateFlow(service.loadShowNotes())
     val showNotes: StateFlow<Boolean> = _showNotes.asStateFlow()
@@ -82,11 +86,14 @@ class BookmarksController(
         reload()
     }
 
+    fun openSearch() = searchMode.open()
+    fun closeSearch() = searchMode.close()
+
     fun toggleShowNotes() {
         val next = !_showNotes.value
         _showNotes.value = next
         service.saveShowNotes(next)
-        if (!next) _searchText.value = ""
+        if (!next) { _searchText.value = ""; searchMode.reset() }
         reload()
     }
 

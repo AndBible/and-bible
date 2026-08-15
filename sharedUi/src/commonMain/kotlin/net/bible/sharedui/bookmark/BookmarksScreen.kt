@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Headphones
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -61,8 +62,10 @@ import net.bible.sharedui.components.AbColor
 import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbOverflowMenu
-import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbSelectionScaffold
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.search.styledTextToAnnotatedString
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
@@ -80,16 +83,20 @@ import net.bible.sharedui.strings.Strings
  * `bookmark_context_menu.xml`'s `assign_labels`/`delete`); the count is rendered by
  * [AbSelectionScaffold] itself. Exiting selection ([onClearSelection]) clears it.
  *
- * **Top bar (non-selection).** Two always-visible [AbActionIcon]s — Manage Labels, then a
- * quick-access sort icon reflecting the current [sortMode] (up/down arrow for ascending/
+ * **Top bar (non-selection).** A conditional search icon (only when [showNotes], since search only
+ * ever matches note text — see below), then two always-visible [AbActionIcon]s — Manage Labels,
+ * then a quick-access sort icon reflecting the current [sortMode] (up/down arrow for ascending/
  * descending; classic only toasted the new order on tap, this port additionally encodes direction
  * in the icon) — plus an [AbOverflowMenu] with Show notes (checkable) / Export CSV / Import CSV.
  * This matches `bookmark_actionbar_menu.xml`: `manageLabels`/`sortByToggle` are
  * `showAsAction="always"`, `showNotes`/`exportCsv`/`importCsv` are overflow-only.
  *
  * **Filter + search.** The label filter is an always-visible [AbDropdownField] (classic's label
- * spinner). The notes-search field ([AbSearchField]) only shows when [showNotes] (classic hid
- * `textSearchLayout` unless "Show notes" was on, since search only ever matched note text).
+ * spinner). Search lives in the top bar (via [AbSelectionScaffold]'s `search`/`searchCallbacks`,
+ * [searchModeActive] gating whether it renders) and only ever appears when [showNotes] is on
+ * (classic hid `textSearchLayout` unless "Show notes" was on, since search only ever matched note
+ * text) — [onToggleShowNotes] switching notes off also leaves search mode host-side, since its
+ * trigger icon disappears from the bar at the same time.
  *
  * **Row.** A row of small tinted label-colour chips (classic `ic_label_24dp` circles, one per
  * non-speak label per [BookmarkRow.labelColors]'s contract), a speak icon when [BookmarkRow.isSpeak],
@@ -111,6 +118,9 @@ fun BookmarksScreen(
     onSelectFilter: (Int) -> Unit,
     onCycleSort: () -> Unit,
     onSearch: (String) -> Unit,
+    searchModeActive: Boolean,
+    onOpenSearch: () -> Unit,
+    onCloseSearch: () -> Unit,
     onToggleShowNotes: () -> Unit,
     onRowClick: (id: String, index: Int) -> Unit,
     onRowLongClick: (id: String) -> Unit,
@@ -136,6 +146,13 @@ fun BookmarksScreen(
         onNavigateUp = onUp,
         onExitSelection = onClearSelection,
         actions = {
+            if (showNotes) {
+                AbActionIcon(
+                    icon = Icons.Filled.Search,
+                    contentDescription = strings.search,
+                    onClick = onOpenSearch,
+                )
+            }
             AbActionIcon(
                 icon = Icons.AutoMirrored.Filled.Label,
                 contentDescription = strings.manageLabelsLabel,
@@ -171,6 +188,16 @@ fun BookmarksScreen(
             AbActionIcon(Icons.AutoMirrored.Filled.Label, contentDescription = strings.assignLabelsLabel, onClick = onAssignSelected)
             AbActionIcon(Icons.Filled.Delete, contentDescription = strings.deleteLabel, onClick = onDeleteSelected)
         },
+        search = if (searchModeActive) {
+            AbTopBarSearchState(query = searchText, imeRequest = AbSearchImeRequest.Focus)
+        } else null,
+        searchCallbacks = if (searchModeActive) {
+            AbTopBarSearchCallbacks(
+                onQueryChange = onSearch,
+                onClose = onCloseSearch,
+                onImeRequestHandled = {},
+            )
+        } else null,
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             AbDropdownField(
@@ -180,13 +207,6 @@ fun BookmarksScreen(
                 optionLabel = { it.displayName },
                 onSelect = { onSelectFilter(it.index) },
             )
-            if (showNotes) {
-                AbSearchField(
-                    value = searchText,
-                    onValueChange = onSearch,
-                    placeholder = strings.bookmarksSearchNotesHint,
-                )
-            }
             if (loading) {
                 AbLoadingIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
             }
