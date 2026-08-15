@@ -111,11 +111,40 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
     }
 
     override fun copySettingsToGlobal(sourceId: String, typeIndices: List<Int>) {
+        // No isEmpty() guard needed here: WorkspaceSelectorController.chooseCopyTypes already refuses
+        // to call this with an empty selection.
         val types = WorkspaceEntities.TextDisplaySettings.Types.values()
+        val dirtyTypes = typeIndices.map { types[it] }.toSet()
         val source = find(sourceId)
-        val target = CommonUtils.globalTextDisplaySettings
-        typeIndices.forEach { ti -> target.setValue(types[ti], source.textDisplaySettings?.getValue(types[ti])) }
-        CommonUtils.globalTextDisplaySettings = target
+        val global = CommonUtils.globalTextDisplaySettings
+
+        // Resolve through the source's own parent chain first: a workspace that INHERITS a type has
+        // null there, and writing that null used to reset the global to the factory default.
+        val resolved = WorkspaceEntities.TextDisplaySettings.actual(
+            pageManagerSettings = null,
+            workspaceSettings = source.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings(),
+            globalSettings = global,
+        )
+        // copyIntoGlobalDefaults also nulls any STAGED workspace override (this screen holds its own
+        // working copies and flushes them on Save) that now matches the new global — without that,
+        // Save would write the old override straight back over the propagation below. Windows are not
+        // staged here, so they are left to the database walk.
+        val newGlobal = WorkspaceEntities.TextDisplaySettings.copyIntoGlobalDefaults(
+            global, resolved, dirtyTypes,
+            working.mapNotNull { it.textDisplaySettings },
+        )
+        CommonUtils.globalTextDisplaySettings = newGlobal
+
+        // Walk the tree, as every other writer of the global level does. Without this the new
+        // default stays invisible behind every existing workspace/window override and the command
+        // looks like it did nothing.
+        windowControl.windowRepository.propagateGlobalTextDisplaySettingsChange(dirtyTypes, newGlobal)
+
+        // ...and repaint, as every other writer of the global level does (TextDisplaySettingsServiceImpl,
+        // MainBibleActivity, WindowControl.copySettingsToGlobal). The propagation above only mutates the
+        // in-memory workspace/window state; nothing else repaints the BibleViews, so without this the
+        // reading view keeps showing the old settings until something unrelated forces a reload.
+        windowControl.windowRepository.updateAllWindowsTextDisplaySettings()
     }
 
     override fun settingsBundleJson(id: String): String = bundleFor(find(id)).toJson()

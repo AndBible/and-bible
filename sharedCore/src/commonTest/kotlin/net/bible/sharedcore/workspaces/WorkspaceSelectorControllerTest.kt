@@ -252,4 +252,55 @@ class WorkspaceSelectorControllerTest {
         val c = controller(FakeService(listOf(vd("1")))); c.editSettings("1")
         assertEquals("1", editSettingsId)
     }
+
+    @Test fun searchModeStartsClosed() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(FakeService(listOf(vd("1"), vd("2"))))
+        c.load()
+        assertFalse(c.searchModeActive.value)
+    }
+
+    @Test fun openSearchOpensWithoutTouchingTheQuery() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(FakeService(listOf(vd("1", "Alpha"), vd("2", "Beta"))))
+        c.load()
+        c.setQuery("Ser")
+        c.openSearch()
+        assertTrue(c.searchModeActive.value)
+        assertEquals("Ser", c.query.value)
+        assertTrue(c.filtering.value)
+    }
+
+    @Test fun closeSearchClearsTheQueryAndStopsFiltering() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(FakeService(listOf(vd("1", "Alpha"), vd("2", "Beta"))))
+        c.load()
+        c.openSearch()
+        c.setQuery("Ser")
+        assertTrue(c.filtering.value)
+
+        c.closeSearch()
+
+        assertFalse(c.searchModeActive.value)
+        assertEquals("", c.query.value)
+        assertFalse(c.filtering.value)
+    }
+
+    @Test fun closeSearchRestoresTheFullList() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(FakeService(listOf(vd("1", "Alpha"), vd("2", "Beta"))))
+        c.load()
+        val all = c.workspaces.value.size
+        c.openSearch()
+        c.setQuery("no-such-workspace-name")
+        assertEquals(0, c.workspaces.value.size)
+
+        c.closeSearch()
+
+        assertEquals(all, c.workspaces.value.size)
+    }
+
+    @Test fun loadResetsSearchMode() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(FakeService(listOf(vd("1"), vd("2"))))
+        c.load()
+        c.openSearch()
+        c.load()
+        assertFalse(c.searchModeActive.value)
+    }
 }

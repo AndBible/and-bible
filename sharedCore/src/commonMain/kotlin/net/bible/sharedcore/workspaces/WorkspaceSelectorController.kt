@@ -31,6 +31,13 @@ class WorkspaceSelectorController(
     private val _dirty = MutableStateFlow(false); val dirty: StateFlow<Boolean> = _dirty.asStateFlow()
     private val _query = MutableStateFlow(""); val query: StateFlow<String> = _query.asStateFlow()
     private val _filtering = MutableStateFlow(false); val filtering: StateFlow<Boolean> = _filtering.asStateFlow()
+    private val _searchModeActive = MutableStateFlow(false)
+    /**
+     * Whether the top bar is showing its inline search field. Held here rather than in the
+     * composable so it survives recomposition and so [closeSearch] can route through [setQuery],
+     * which is what keeps [filtering] — and therefore the row drag handles — in step with it.
+     */
+    val searchModeActive: StateFlow<Boolean> = _searchModeActive.asStateFlow()
     private val _copy = MutableStateFlow<CopySettingsState?>(null); val copySettingsState: StateFlow<CopySettingsState?> = _copy.asStateFlow()
     private val _pendingSelect = MutableStateFlow<String?>(null); val pendingSelectId: StateFlow<String?> = _pendingSelect.asStateFlow()
     private val _canDelete = MutableStateFlow(false); val canDelete: StateFlow<Boolean> = _canDelete.asStateFlow()
@@ -39,6 +46,7 @@ class WorkspaceSelectorController(
         working.clear(); working.addAll(service.loadAll())
         created.clear(); deleted.clear(); renamed.clear(); changed.clear()
         _query.value = ""; _filtering.value = false; _dirty.value = false; _copy.value = null; _pendingSelect.value = null
+        _searchModeActive.value = false
         publish()
     }
 
@@ -54,6 +62,11 @@ class WorkspaceSelectorController(
     }
 
     fun setQuery(q: String) { _query.value = q; publish() }
+
+    fun openSearch() { _searchModeActive.value = true }
+
+    /** Classic parity: collapsing the SearchView clears the filter (RecyclerViewSearchHelper:110-114). */
+    fun closeSearch() { _searchModeActive.value = false; setQuery("") }
 
     fun moveIndex(from: Int, to: Int) {
         if (from == to || from !in working.indices || to !in working.indices) return

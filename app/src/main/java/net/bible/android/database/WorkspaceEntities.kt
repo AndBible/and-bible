@@ -514,6 +514,83 @@ class WorkspaceEntities {
                 }
                 return anyChanged
             }
+
+            /**
+             * A copy of [global] with [dirtyTypes] taken from [resolvedSource].
+             *
+             * [resolvedSource] must ALREADY be resolved through [actual] by the caller — each copy
+             * site has a different parent chain (a workspace resolves through global; a window
+             * resolves through its workspace and then global), so the resolution cannot live here.
+             *
+             * Why resolution matters at all: the copy sites used to read the raw
+             * `source.getValue(type)`, which is legitimately null when the source inherits that
+             * type. Writing that null into the global row does not mean "leave it alone" — it means
+             * the global falls back to [default]. So copying a setting the user cannot even see as
+             * source-specific silently reset it.
+             *
+             * Returns a new instance; neither argument is mutated.
+             */
+            fun globalWithCopiedValues(
+                global: TextDisplaySettings,
+                resolvedSource: TextDisplaySettings,
+                dirtyTypes: Set<Types>,
+            ): TextDisplaySettings {
+                val result = global.copy()
+                for (t in dirtyTypes) {
+                    // Defence in depth. The contract is that [resolvedSource] has already been through
+                    // [actual], which never yields null — but a future call site that forgets to resolve
+                    // would otherwise write null into the global row, and a null there does not mean
+                    // "leave it alone": it means the global falls back to [default]. That is the exact
+                    // defect this function exists to prevent, so refuse it here rather than trusting
+                    // every present and future caller to resolve first.
+                    val v = resolvedSource.getValue(t) ?: continue
+                    result.setValue(t, v)
+                }
+                return result
+            }
+
+            /**
+             * The whole "copy these settings into the global defaults" decision, in one testable place.
+             *
+             * Returns the new global row AND nulls every staged workspace override that now matches it.
+             * The staged half exists because the workspace selectors hold in-memory copies they flush on
+             * Save, while this command writes the global row immediately: propagating only the database
+             * would let a later Save write the stale overrides straight back over it.
+             *
+             * [resolvedSource] must already be resolved through [actual] — see [globalWithCopiedValues].
+             * [stagedWorkspaceSettings] are the selector's staged workspace-level settings; windows are not
+             * staged by either selector, so they are covered by the caller's database walk instead. Accepted
+             * edge case: if a workspace ALSO has a staged (unsaved) edit at the time copy-to-global runs, the
+             * database walk can null a window override against a parent value that the staged edit will then
+             * replace on Save — so that window ends up inheriting the staged value instead of the value it
+             * displayed when the command ran. Inherent to "copy-to-global is immediate while workspace edits
+             * are staged"; accepted rather than worked around.
+             *
+             * Also note (pre-existing, not introduced here): for the sub-object types (MARGINSIZE, COLORS)
+             * the equality test inside [propagateGlobalChange] compares a stored override against the fully
+             * merged resolved value, so a partially-populated legacy row will not be nulled even when every
+             * field it does set matches. Worth knowing before reading a device-test miss here as a new bug.
+             *
+             * Because [resolvedSource] is resolved through [actual], the sub-object types (MARGINSIZE,
+             * COLORS) are written to the global row FULLY MERGED — every field populated, falling back
+             * through the hierarchy to [default] — where the old (pre-fix) code wrote whatever partial
+             * object the source held. An improvement, but it also pins those fields against future changes
+             * to [default]: a later change to a default field is now baked into any global row copied this
+             * way, not left as an unset "inherit" hole.
+             *
+             * NOT covered by this function's own unit tests: that the call sites actually invoke this seam.
+             * That is verified by the on-device checklist, not by a unit test on this function alone.
+             */
+            fun copyIntoGlobalDefaults(
+                global: TextDisplaySettings,
+                resolvedSource: TextDisplaySettings,
+                dirtyTypes: Set<Types>,
+                stagedWorkspaceSettings: List<TextDisplaySettings>,
+            ): TextDisplaySettings {
+                val newGlobal = globalWithCopiedValues(global, resolvedSource, dirtyTypes)
+                propagateGlobalChange(dirtyTypes, newGlobal, stagedWorkspaceSettings.map { it to emptyList() })
+                return newGlobal
+            }
         }
     }
 
