@@ -138,6 +138,7 @@ class DocumentSelectionGoldenTest {
         isRefreshing: Boolean = false,
         selectedLanguage: LangOption? = null,
         selectedTypeFilter: DocTypeFilter = DocTypeFilter.ALL,
+        searchModeActive: Boolean = false,
     ) = DocumentSelectionScreen(
         title = if (downloadMode) "Download documents" else "Documents",
         downloadMode = downloadMode,
@@ -156,6 +157,9 @@ class DocumentSelectionGoldenTest {
         error = null,
         topBarActions = {},
         onQueryChange = {},
+        searchModeActive = searchModeActive,
+        onOpenSearch = {},
+        onCloseSearch = {},
         onLanguageChange = {},
         onTypeFilterChange = {},
         onRowClick = {},

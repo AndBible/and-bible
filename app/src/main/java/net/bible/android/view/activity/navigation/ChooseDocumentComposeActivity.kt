@@ -116,7 +116,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
         // Initial document-type filter (classic ChooseDocument.setInitialDocumentType + base "addons").
         controller.setTypeFilter(initialTypeFilter())
         // Pre-seed the free-text search from the "search" extra (classic base initialiseView).
-        intent.getStringExtra("search")?.let { controller.setQuery(it) }
+        intent.getStringExtra("search")?.let { controller.setQuery(it); controller.openSearch() }
 
         val title = getString(R.string.chooseBook)
 
@@ -145,6 +145,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                     val selectionMode by controller.selectionMode.collectAsState()
                     val selectedIds by controller.selectedIds.collectAsState()
                     val error by controller.error.collectAsState()
+                    val searchModeActive by controller.searchModeActive.collectAsState()
 
                     val firstSelected = displayed.firstOrNull { it.docId in selectedIds }
 
@@ -166,6 +167,9 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                         error = error,
                         topBarActions = { OverflowMenu() },
                         onQueryChange = controller::setQuery,
+                        searchModeActive = searchModeActive,
+                        onOpenSearch = controller::openSearch,
+                        onCloseSearch = controller::closeSearch,
                         onLanguageChange = controller::setLanguage,
                         onTypeFilterChange = {
                             // Persist like classic's spinner listener so "else last saved" works.
@@ -193,6 +197,13 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                     )
             }
         }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        // Back leaves search mode before it leaves the screen.
+        if (controller.searchModeActive.value) { controller.closeSearch(); return }
+        super.onBackPressed()
     }
 
     // --- Loading / DocRow construction ------------------------------------------------------

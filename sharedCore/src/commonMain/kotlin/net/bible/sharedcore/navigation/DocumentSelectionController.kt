@@ -19,6 +19,7 @@ package net.bible.sharedcore.navigation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import net.bible.sharedcore.search.SearchModeController
 
 /**
  * Framework-free controller ported from DocumentSelectionBase's filter/sort/multi-select surface.
@@ -52,6 +53,8 @@ class DocumentSelectionController(
     val selectedTypeFilter: StateFlow<DocTypeFilter> = _selectedTypeFilter.asStateFlow()
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
+    private val searchMode = SearchModeController(onClearQuery = { setQuery("") })
+    val searchModeActive: StateFlow<Boolean> = searchMode.active
     private val _resultCount = MutableStateFlow(0)
     val resultCount: StateFlow<Int> = _resultCount.asStateFlow()
     private val _selectionMode = MutableStateFlow(false)
@@ -104,6 +107,8 @@ class DocumentSelectionController(
 
     fun setSearchResults(osisIds: Set<String>?) { searchIds = osisIds; refilter() }
     fun setQuery(q: String) { _query.value = q } // host observes query, runs FTS when >=3, calls setSearchResults
+    fun openSearch() = searchMode.open()
+    fun closeSearch() = searchMode.close()
     fun setLanguage(lang: LangOption?) { _selectedLanguage.value = lang; onStickyLanguage(lang); refilter() }
     fun setTypeFilter(f: DocTypeFilter) { _selectedTypeFilter.value = f; refilter() }
 

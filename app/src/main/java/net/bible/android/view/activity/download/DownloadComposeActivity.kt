@@ -209,7 +209,7 @@ open class DownloadComposeActivity : ActivityBase() {
         if (firstDownload) updateHasBible() // seed the OK gate once on create
 
         controller.setTypeFilter(initialTypeFilter())
-        intent.getStringExtra("search")?.let { controller.setQuery(it) }
+        intent.getStringExtra("search")?.let { controller.setQuery(it); controller.openSearch() }
 
         lifecycleScope.launch {
             if (!askIfWantToProceed()) {
@@ -258,6 +258,7 @@ open class DownloadComposeActivity : ActivityBase() {
                     val selectedIds by controller.selectedIds.collectAsState()
                     val error by controller.error.collectAsState()
                     val isRefreshing by refreshing.collectAsState()
+                    val searchModeActive by controller.searchModeActive.collectAsState()
 
                     val firstSelected = displayed.firstOrNull { it.docId in selectedIds }
                     val bibleInstalled by hasBible.collectAsState()
@@ -293,6 +294,9 @@ open class DownloadComposeActivity : ActivityBase() {
                         error = error,
                         topBarActions = { OverflowMenu() },
                         onQueryChange = controller::setQuery,
+                        searchModeActive = searchModeActive,
+                        onOpenSearch = controller::openSearch,
+                        onCloseSearch = controller::closeSearch,
                         onLanguageChange = controller::setLanguage,
                         onTypeFilterChange = {
                             CommonUtils.settings.setInt("selected_document_filter_no", it.ordinal)
@@ -360,6 +364,13 @@ open class DownloadComposeActivity : ActivityBase() {
         if (firstDownload) {
             JobManager.removeWorkListener(downloadCompletionListener)
         }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        // Back leaves search mode before it leaves the screen.
+        if (controller.searchModeActive.value) { controller.closeSearch(); return }
+        super.onBackPressed()
     }
 
     // --- Network JSON (ported verbatim from classic DownloadActivity) -----------------------

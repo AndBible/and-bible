@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,11 +38,14 @@ import net.bible.sharedcore.navigation.ChooserError
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
+import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbPullToRefresh
-import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbSelectionScaffold
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -68,6 +72,9 @@ fun DocumentSelectionScreen(
     error: ChooserError?,
     topBarActions: @Composable RowScope.() -> Unit,
     onQueryChange: (String) -> Unit,
+    searchModeActive: Boolean,
+    onOpenSearch: () -> Unit,
+    onCloseSearch: () -> Unit,
     onLanguageChange: (LangOption?) -> Unit,
     onTypeFilterChange: (DocTypeFilter) -> Unit,
     onRowClick: (DocRow) -> Unit,
@@ -94,7 +101,20 @@ fun DocumentSelectionScreen(
         // Tapping the selection-CAB Close (X) exits selection mode only; the host wires this to
         // controller::clearSelection. onNavigateUp still leaves the whole screen (finish()).
         onExitSelection = onExitSelection,
-        actions = topBarActions,
+        actions = {
+            AbActionIcon(Icons.Filled.Search, strings.search, onOpenSearch)
+            topBarActions()
+        },
+        search = if (searchModeActive) {
+            AbTopBarSearchState(query = query, imeRequest = AbSearchImeRequest.Focus)
+        } else null,
+        searchCallbacks = if (searchModeActive) {
+            AbTopBarSearchCallbacks(
+                onQueryChange = onQueryChange,
+                onClose = onCloseSearch,
+                onImeRequestHandled = {},
+            )
+        } else null,
         selectionActions = {
             IconButton(onClick = onSelectionAbout) {
                 Icon(Icons.Filled.Info, contentDescription = null)
@@ -115,17 +135,10 @@ fun DocumentSelectionScreen(
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            // The search field keeps its own row (moving it into the toolbar is deliberately a
-            // later change). Below it, DocumentFilterBar carries the language and type filters as
-            // chips that show their current value and open one bottom sheet at a time — which is
-            // why the controls are not hosted in a summary sheet: nesting bottom sheets is not an
-            // option, and AbSearchableOptionSheet is itself a ModalBottomSheet.
-            AbSearchField(
-                value = query,
-                onValueChange = onQueryChange,
-                placeholder = strings.searchHint,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            // Search lives in the top bar (round 7). DocumentFilterBar carries the language and type
+            // filters as chips that show their current value and open one bottom sheet at a time —
+            // which is why the controls are not hosted in a summary sheet: nesting bottom sheets is
+            // not an option, and AbSearchableOptionSheet is itself a ModalBottomSheet.
             DocumentFilterBar(
                 languages = languages,
                 selectedLanguage = selectedLanguage,

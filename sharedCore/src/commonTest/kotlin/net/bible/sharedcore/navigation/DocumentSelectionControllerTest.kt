@@ -304,4 +304,23 @@ class DocumentSelectionControllerTest {
         assertTrue(c.selectionMode.value) // selection survived
         assertEquals(setOf("a"), c.selectedIds.value)
     }
+
+    @Test
+    fun openSearchDoesNotTouchTheQuery() {
+        val c = controller()
+        c.setQuery("gen")
+        c.openSearch()
+        assertTrue(c.searchModeActive.value)
+        assertEquals("gen", c.query.value)
+    }
+
+    @Test
+    fun closeSearchLeavesSearchModeAndClearsTheQuery() {
+        val c = controller()
+        c.setQuery("gen")
+        c.openSearch()
+        c.closeSearch()
+        assertFalse(c.searchModeActive.value)
+        assertEquals("", c.query.value)
+    }
 }
