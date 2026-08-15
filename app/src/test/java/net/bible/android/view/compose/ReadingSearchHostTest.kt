@@ -66,6 +66,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotSame
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -817,14 +818,26 @@ class ReadingSearchHostTest {
 
     // ---- Task 4: the host owns an EPUB search -----------------------------------------------------
 
-    /** An EPUB query must reach the EPUB controller, never the SWORD one. */
+    /**
+     * An EPUB query must reach the EPUB controller, never the SWORD one — and must actually run:
+     * loading flips synchronously (`EpubSearchResultsController.run` sets `_loading.value = true`
+     * BEFORE launching the coroutine, so this is deterministic, not a race), and the results sheet's
+     * scroll state is reset to a fresh instance, exactly as [ComposeReadingViewHost.runSearch] does
+     * for a SWORD query. (Verified this test goes RED against an emptied `runEpubSearch` body — see
+     * the fix-round section of `task-4-report.md`.)
+     */
     @Test
     fun runEpubSearchDrivesTheEpubControllerAndNotTheSwordOne() {
         val h = host()
+        val listStateBefore = h.searchResultsListStateForTest
 
         h.runEpubSearch("TestEpub", "grace")
 
-        assertTrue(h.epubSearchResults.loading.value || h.epubSearchResults.results.value.isEmpty())
+        assertTrue(h.epubSearchResults.loading.value, "run() must flip loading synchronously")
+        assertNotSame(
+            listStateBefore, h.searchResultsListStateForTest,
+            "a new EPUB query must reset the sheet's scroll state, same as a SWORD query",
+        )
         assertEquals(0, h.searchResults.results.value.total, "the SWORD controller must be untouched")
     }
 
@@ -847,5 +860,22 @@ class ReadingSearchHostTest {
         h.persistEpubSearchMode(EpubSearchMode.FTS)
 
         assertNull(CommonUtils.settings.getString("epubSearch-SearchType"))
+    }
+
+    /**
+     * The read half ([ComposeReadingViewHost]'s private `loadEpubSearchMode`) has no direct test of
+     * its own — this pins the round trip in BOTH directions for every mode, which is exactly what
+     * would have caught the wrong-`SearchType`-enum defect (fix-round 1): a fresh host must read back
+     * whatever a previous host just persisted.
+     */
+    @Test
+    fun theEpubSearchModeRoundTripsForEveryValueThroughAFreshHost() {
+        for (mode in EpubSearchMode.entries) {
+            host().persistEpubSearchMode(mode)
+
+            val fresh = host()
+
+            assertEquals(mode, fresh.epubSearchMode.value, "a fresh host must read back the mode $mode just persisted")
+        }
     }
 }

@@ -33,13 +33,11 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.sword.epub.isEpub
-import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedcore.search.EpubSearchResultsController
 import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.search.EpubSearchResultsScreen
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.index.search.SearchType
 import org.koin.android.ext.android.inject
 
 /**
@@ -66,7 +64,7 @@ class EpubSearchResultsComposeActivity : ActivityBase() {
 
         // Ad-hoc EPUB extras, read VERBATIM for classic parity (see EpubSearch.onSearch / EpubSearchResults).
         val searchText = intent.getStringExtra("searchText") ?: ""
-        val mode = intent.getStringExtra("searchType").toEpubSearchMode()
+        val mode = epubSearchModeFromClassicName(intent.getStringExtra("searchType"))
         docId = intent.getStringExtra("searchDocument").let {
             if (it.isNullOrEmpty())
                 windowControl.activeWindowPageManager.currentBible.currentDocument!!.initials
@@ -154,26 +152,5 @@ class EpubSearchResultsComposeActivity : ActivityBase() {
 
     companion object {
         private const val TAG = "EpubSearchResultsCompose"
-
-        /**
-         * Map the ad-hoc `searchType` extra (a JSword [SearchType] name, or absent for the FTS radio) to
-         * the portable [EpubSearchMode]. Parity with classic `EpubSearchResults.adjustSearchText`: absent
-         * → FTS, ANY_WORDS → ANY_WORD (note the enum name differs), unknown → FTS. Defensive against a bad
-         * value so the host never crashes on a malformed extra.
-         */
-        private fun String?.toEpubSearchMode(): EpubSearchMode {
-            if (this == null) return EpubSearchMode.FTS
-            val jswordType = try {
-                SearchType.valueOf(this)
-            } catch (e: IllegalArgumentException) {
-                return EpubSearchMode.FTS
-            }
-            return when (jswordType) {
-                SearchType.ALL_WORDS -> EpubSearchMode.ALL_WORDS
-                SearchType.ANY_WORDS -> EpubSearchMode.ANY_WORD
-                SearchType.PHRASE -> EpubSearchMode.PHRASE
-                else -> EpubSearchMode.FTS
-            }
-        }
     }
 }

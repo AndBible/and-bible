@@ -37,14 +37,14 @@ import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.search.EpubSearchScreen
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.index.search.SearchType
 import org.koin.android.ext.android.inject
 
 /**
  * Compose host for the EPUB (general-book) search form — the new-path twin of classic [EpubSearch].
- * Resolves the document from the current page, persists/seeds the word-mode via the classic settings
- * key "epubSearch-SearchType" (stored as the JSword [SearchType] name, FTS ↔ absent), then routes the
- * submitted query to [Screen.EpubSearchResults] using the classic ad-hoc extras VERBATIM.
+ * Resolves the document from the current page, persists/seeds the word-mode via
+ * [toClassicSearchTypeName]/[epubSearchModeFromClassicName] (the shared classic settings wire format,
+ * key "epubSearch-SearchType"), then routes the submitted query to [Screen.EpubSearchResults] using
+ * the classic ad-hoc extras VERBATIM.
  */
 class EpubSearchComposeActivity : ActivityBase() {
     override val integrateWithHistoryManager: Boolean = true
@@ -90,29 +90,11 @@ class EpubSearchComposeActivity : ActivityBase() {
         }
     }
 
-    /**
-     * Read the persisted word-mode from the classic settings key. The value is a JSword [SearchType]
-     * name (classic stored `searchType?.name`); absent → FTS (classic's `ftsQuery` radio), unknown → FTS.
-     */
-    private fun loadMode(): EpubSearchMode {
-        val name = CommonUtils.settings.getString("epubSearch-SearchType") ?: return EpubSearchMode.FTS
-        val jsword = try {
-            SearchType.valueOf(name)
-        } catch (e: IllegalArgumentException) {
-            return EpubSearchMode.FTS
-        }
-        return when (jsword) {
-            SearchType.ALL_WORDS -> EpubSearchMode.ALL_WORDS
-            SearchType.ANY_WORDS -> EpubSearchMode.ANY_WORD
-            SearchType.PHRASE -> EpubSearchMode.PHRASE
-            else -> EpubSearchMode.FTS
-        }
-    }
+    /** Read the persisted word-mode via the shared wire format — see [epubSearchModeFromClassicName]. */
+    private fun loadMode(): EpubSearchMode =
+        epubSearchModeFromClassicName(CommonUtils.settings.getString("epubSearch-SearchType"))
 
-    /**
-     * Persist the word-mode in the classic settings format: the JSword [SearchType] name, or null for
-     * FTS (classic wrote `searchType?.name`, ftsQuery → null). Keeps classic/Compose interoperable.
-     */
+    /** Persist the word-mode via the shared wire format — see [toClassicSearchTypeName]. */
     private fun saveMode(mode: EpubSearchMode) {
         CommonUtils.settings.setString("epubSearch-SearchType", mode.toClassicSearchTypeName())
     }
@@ -151,21 +133,5 @@ class EpubSearchComposeActivity : ActivityBase() {
 
     companion object {
         private const val TAG = "EpubSearchCompose"
-
-        /**
-         * Map [EpubSearchMode] to the classic JSword [SearchType] name for the settings/extras wire
-         * format: ALL_WORDS→"ALL_WORDS", ANY_WORD→"ANY_WORDS", PHRASE→"PHRASE", FTS→null.
-         *
-         * Not `private`: [net.bible.android.view.activity.page.screen.ComposeReadingViewHost]'s
-         * `persistEpubSearchMode` (F43 Task 4) reuses this exact mapping rather than re-implementing
-         * it, so the reading-view host and this standalone Activity can never drift apart on the
-         * classic settings wire format.
-         */
-        fun EpubSearchMode.toClassicSearchTypeName(): String? = when (this) {
-            EpubSearchMode.ALL_WORDS -> SearchType.ALL_WORDS.name
-            EpubSearchMode.ANY_WORD -> SearchType.ANY_WORDS.name
-            EpubSearchMode.PHRASE -> SearchType.PHRASE.name
-            EpubSearchMode.FTS -> null
-        }
     }
 }

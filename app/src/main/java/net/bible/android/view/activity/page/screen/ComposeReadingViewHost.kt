@@ -107,12 +107,13 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.search.EpubSearchComposeActivity.Companion.toClassicSearchTypeName
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
+import net.bible.android.view.activity.search.epubSearchModeFromClassicName
+import net.bible.android.view.activity.search.toClassicSearchTypeName
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.FakeBookFactory
@@ -558,11 +559,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     )
 
     /**
-     * The EPUB word-mode, seeded from the SAME settings key the standalone EPUB search Activity
-     * reads and writes (`EpubSearchComposeActivity.loadMode`/`saveMode`), so the two stay
-     * interoperable until that Activity is deleted.
+     * The EPUB word-mode, seeded from the SAME settings key the standalone EPUB search Activities
+     * read and write, via the shared wire format [toClassicSearchTypeName]/[epubSearchModeFromClassicName]
+     * (`EpubSearchModeWire.kt`), so all three surfaces stay interoperable until those Activities are
+     * deleted.
+     *
+     * The backing [MutableStateFlow] is `private`: every caller must go through
+     * [persistEpubSearchMode] so a mode set here always reaches the settings key too, never just the
+     * in-memory flow.
      */
-    val epubSearchMode = MutableStateFlow(loadEpubSearchMode())
+    private val _epubSearchMode = MutableStateFlow(loadEpubSearchMode())
+    val epubSearchMode: StateFlow<EpubSearchMode> = _epubSearchMode.asStateFlow()
 
     /**
      * Index-build progress rows, feeding [SearchIndexPanel]'s progress half. Reused verbatim from
@@ -893,7 +900,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
 
     /**
      * An EPUB query — the EPUB counterpart of [runSearch]. Resets the sheet's scroll for the same
-     * reason [runSearch] does: new rows are new rows.
+     * reason [runSearch] does: new rows are new rows. Deliberately does NOT clear
+     * [searchResultsExpanded] the way [runSearch] does: EPUB result rows carry no expansion state
+     * (there is no candidate/translation model to expand — see [epubSearchResults]'s kdoc), so there
+     * is nothing there to go stale.
      */
     internal fun runEpubSearch(docId: String, query: String) {
         searchResultsListState.value = LazyListState()
@@ -908,8 +918,16 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * so this only navigates the active window and drops the sheet (see [onSearchResultSelected]).
      */
     internal fun onEpubSearchResultSelected(keyId: String) {
-        val docId = (searchController.phase.value as? ReadingSearchPhase.Results)?.docId ?: return
-        val book = SwordDocumentFacade.getDocumentByInitials(docId) ?: return
+        val docId = (searchController.phase.value as? ReadingSearchPhase.Results)?.docId
+        if (docId == null) {
+            Log.w(TAG, "onEpubSearchResultSelected: dropped '$keyId' — no Results phase to resolve a docId from")
+            return
+        }
+        val book = SwordDocumentFacade.getDocumentByInitials(docId)
+        if (book == null) {
+            Log.w(TAG, "onEpubSearchResultSelected: dropped '$keyId' — '$docId' is not an installed document")
+            return
+        }
         try {
             val key = book.getKey(keyId.removePrefix("$docId:"))
             activity.windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
@@ -920,26 +938,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     }
 
     /**
-     * Persist the word-mode in the CLASSIC settings format — the JSword `SearchType` name, or null
-     * for FTS — mirroring `EpubSearchComposeActivity.saveMode` (`:116-118`) exactly, so a mode set
-     * here is the mode that Activity shows and vice versa.
+     * Persist the word-mode via the shared wire format [toClassicSearchTypeName] — mirroring
+     * `EpubSearchComposeActivity.saveMode` exactly, so a mode set here is the mode that Activity
+     * shows and vice versa.
      */
     internal fun persistEpubSearchMode(mode: EpubSearchMode) {
-        epubSearchMode.value = mode
+        _epubSearchMode.value = mode
         CommonUtils.settings.setString(EPUB_SEARCH_TYPE_KEY, mode.toClassicSearchTypeName())
     }
 
-    /** The read half of [persistEpubSearchMode]; absent or unknown → FTS, as classic's radio did. */
-    private fun loadEpubSearchMode(): EpubSearchMode {
-        val name = CommonUtils.settings.getString(EPUB_SEARCH_TYPE_KEY) ?: return EpubSearchMode.FTS
-        val jsword = try { SearchType.valueOf(name) } catch (e: IllegalArgumentException) { return EpubSearchMode.FTS }
-        return when (jsword) {
-            SearchType.ALL_WORDS -> EpubSearchMode.ALL_WORDS
-            SearchType.ANY_WORDS -> EpubSearchMode.ANY_WORD
-            SearchType.PHRASE -> EpubSearchMode.PHRASE
-            else -> EpubSearchMode.FTS
-        }
-    }
+    /** The read half of [persistEpubSearchMode] — see [epubSearchModeFromClassicName]. */
+    private fun loadEpubSearchMode(): EpubSearchMode =
+        epubSearchModeFromClassicName(CommonUtils.settings.getString(EPUB_SEARCH_TYPE_KEY))
 
     /**
      * Starts a JSword index build and begins feeding [searchIndexProgress] from `JobManager` —
@@ -1896,7 +1906,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     // rationale as [buildSearchRequest] above; production only reaches this via `SearchSheetSlot`'s
     // `onSelect`.
     internal fun onSearchResultSelected(referenceName: String, translationId: String?) {
-        val book = resolveSearchResultBook(translationId) ?: return
+        val book = resolveSearchResultBook(translationId)
+        if (book == null) {
+            Log.w(TAG, "onSearchResultSelected: dropped '$referenceName' — no book resolved for translationId '$translationId'")
+            return
+        }
         try {
             val key = book.getKey(referenceName)
             activity.windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
