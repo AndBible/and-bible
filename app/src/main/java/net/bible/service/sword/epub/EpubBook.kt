@@ -38,8 +38,6 @@ import org.crosswire.jsword.book.sword.Backend
 import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordGenBook
-import org.crosswire.jsword.index.IndexManagerFactory
-import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.jdom2.input.JDOMParseException
@@ -172,11 +170,11 @@ fun addEpubBook(epubDir: File) {
     val backend = EpubBackend(state, metadata)
     val book = SwordGenBook(metadata, backend)
 
-    if(IndexManagerFactory.getIndexManager().isIndexed(book)) {
-        metadata.indexStatus = IndexStatus.DONE
-    } else {
-        metadata.indexStatus = IndexStatus.UNDONE
-    }
+    // NO indexStatus re-derivation here. `EpubBackendState`'s init (:253-255) has already set it from
+    // the FTS5 table, which is the only index an EPUB ever has; the LUCENE check that used to run here
+    // can never be true for an EPUB, so it forced UNDONE onto every manually-installed EPUB and made
+    // its search silently unreachable (finding F43). The SWORD-installed path (epubBookType.getBackend)
+    // never had this and was correct all along.
 
     Books.installed().addBook(book)
 }

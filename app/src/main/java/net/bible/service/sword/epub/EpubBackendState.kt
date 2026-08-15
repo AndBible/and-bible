@@ -263,7 +263,14 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     }
 
     fun buildSearchIndex() {
-        if (search.isIndexed) return
+        // Not just `return`: an existing index must also be REPORTED as done. Without this a caller
+        // that polls `indexStatus` after accepting an index prompt (the reading view's search sheet)
+        // waits out its whole timeout and falls back to the prompt — an infinite loop for a document
+        // that is in fact fully indexed.
+        if (search.isIndexed) {
+            bookMetaData.indexStatus = IndexStatus.DONE
+            return
+        }
         bookMetaData.indexStatus = IndexStatus.CREATING
         val jobName = application.getString(R.string.creating_index_for, bookMetaData.name)
         val job = JobManager.createJob("index-creation-${epubDir.path}", jobName, null)
