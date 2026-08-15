@@ -264,10 +264,16 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     }
 
     fun buildSearchIndex() {
-        // Not just `return`: an existing index must also be REPORTED as done. Without this a caller
-        // that polls `indexStatus` after accepting an index prompt (the reading view's search sheet)
-        // waits out its whole timeout and falls back to the prompt — an infinite loop for a document
-        // that is in fact fully indexed.
+        // Not just `return`: an existing index must also be REPORTED as done, so that any caller
+        // polling `indexStatus` learns the truth rather than waiting out a timeout.
+        //
+        // NOTE, because an earlier version of this comment claimed otherwise: this branch is NOT
+        // reachable from the reading view's index prompt. `SearchIndexServiceImpl.createIndex:42`
+        // calls `SwordDocumentFacade.deleteDocumentIndex` FIRST, which for an EPUB drops the FTS5
+        // table outright (`EpubSearch.deleteIndex` is a `DROP TABLE`), so `search.isIndexed` is
+        // always false by the time this runs from that path. The branch guards a direct caller that
+        // has not deleted first — it is correct and cheap, but it has no test and no device-checklist
+        // item, and nothing in the F43 batch exercises it.
         if (search.isIndexed) {
             bookMetaData.indexStatus = IndexStatus.DONE
             return

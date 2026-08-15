@@ -20,10 +20,11 @@ import net.bible.sharedcore.search.EpubSearchMode
 import org.crosswire.jsword.index.search.SearchType
 
 /**
- * The classic settings key the EPUB search word-mode is stored under, shared by all three surfaces
- * that read or write it — the reading-view host and the two standalone EPUB search Activities. Kept
- * beside the wire format itself (below) because the key and the format are one contract: a surface
- * that gets either half wrong reads back a mode another surface never set.
+ * The classic settings key the EPUB search word-mode is stored under. Two surfaces read or write it:
+ * the reading-view host and `EpubSearchComposeActivity`. (`EpubSearchResultsComposeActivity` uses the
+ * wire FORMAT below but never this key — it receives the mode as a `"searchType"` intent extra.) Kept
+ * beside the format itself because the key and the format are one contract: a surface that gets
+ * either half wrong reads back a mode another surface never set.
  *
  * Classic `EpubSearch.kt` deliberately still spells the same key literally: it is on the deletion
  * path, and importing an `:app` Compose-era const into it would only make that deletion noisier.
