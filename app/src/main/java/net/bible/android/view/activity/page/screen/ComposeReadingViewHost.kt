@@ -193,10 +193,12 @@ import net.bible.sharedui.reading.WindowPaneMenu
 import net.bible.sharedui.reading.WindowTabBar
 import net.bible.sharedui.search.BibleResultsActions
 import net.bible.sharedui.search.BibleSearchSettings
+import net.bible.sharedui.search.EpubSearchSettings
 import net.bible.sharedui.search.SearchIndexPanel
 import net.bible.sharedui.search.SearchSettingsSheet
 import net.bible.sharedui.search.SearchSheetContent
 import net.bible.sharedui.search.bibleResultRows
+import net.bible.sharedui.search.epubResultRows
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.textOptionDrawableRes
@@ -1845,6 +1847,36 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             return
         }
         if (phase !is ReadingSearchPhase.Results) return
+        val resultsPhase = phase as ReadingSearchPhase.Results
+        if (resultsPhase.forEpub) {
+            val loading by epubSearchResults.loading.collectAsState()
+            val rows by epubSearchResults.results.collectAsState()
+            val error by epubSearchResults.error.collectAsState()
+            val docAbbrev = remember(resultsPhase.docId) {
+                SwordDocumentFacade.getDocumentByInitials(resultsPhase.docId)?.abbreviation ?: resultsPhase.docId
+            }
+            // Classic's "+" overflow affordance: the service caps at MAX+1, so size > MAX is
+            // detectable — `EpubSearchResultsComposeActivity.kt:117-121` verbatim.
+            val amount =
+                if (rows.size > SearchControl.MAX_SEARCH_RESULTS) "${SearchControl.MAX_SEARCH_RESULTS}+"
+                else rows.size.toString()
+            SearchSheetContent(
+                countLabel = activity.getString(R.string.search_with_results2, amount, docAbbrev),
+                loading = loading,
+                // `SearchSheetContent.error` is a `String?` (non-null shows a dialog over a sheet
+                // that stays open). The SWORD controller already carries a message; the EPUB one
+                // carries only a Boolean, so the message is supplied here — the same string the
+                // standalone EPUB results Activity toasts (`:105-110`), minus its `finish()`.
+                error = if (error) activity.getString(R.string.error_executing_search) else null,
+                empty = !loading && rows.isEmpty(),
+                listState = searchResultsListState.value,
+                onDismissError = epubSearchResults::dismissError,
+                actions = {},
+            ) {
+                epubResultRows(rows = rows, onSelect = epubSearchResults::select)
+            }
+            return
+        }
         val loading by searchResults.loading.collectAsState()
         val results by searchResults.results.collectAsState()
         val rows by searchResults.displayed.collectAsState()
@@ -1987,19 +2019,34 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 searchController.settingsClosed()
             },
         ) {
-            BibleSearchSettings(
-                searchType = searchType.value,
-                bibleSection = searchSection.value,
-                availableTranslations = searchAvailableTranslations.value,
-                selectedTranslationIds = searchTranslations.value,
-                // Read at composition time rather than collected: this is a plain getter over the
-                // active window's page, and the settings sheet is modal and short-lived.
-                currentBookName = searchControl.currentBookName,
-                onSearchType = { searchType.value = it },
-                onBibleSection = { searchSection.value = it },
-                onTranslations = { ids -> setSearchTranslations(ids) },
-            )
+            val phase by searchController.phase.collectAsState()
+            if (forEpubOfPhase(phase)) {
+                val mode by epubSearchMode.collectAsState()
+                EpubSearchSettings(mode = mode, onMode = ::persistEpubSearchMode)
+            } else {
+                BibleSearchSettings(
+                    searchType = searchType.value,
+                    bibleSection = searchSection.value,
+                    availableTranslations = searchAvailableTranslations.value,
+                    selectedTranslationIds = searchTranslations.value,
+                    // Read at composition time rather than collected: this is a plain getter over the
+                    // active window's page, and the settings sheet is modal and short-lived.
+                    currentBookName = searchControl.currentBookName,
+                    onSearchType = { searchType.value = it },
+                    onBibleSection = { searchSection.value = it },
+                    onTranslations = { ids -> setSearchTranslations(ids) },
+                )
+            }
         }
+    }
+
+    /** The phase's EPUB flag, or false for the two phases that carry none. */
+    private fun forEpubOfPhase(phase: ReadingSearchPhase): Boolean = when (phase) {
+        is ReadingSearchPhase.Form -> phase.forEpub
+        is ReadingSearchPhase.NeedsIndex -> phase.forEpub
+        is ReadingSearchPhase.Indexing -> phase.forEpub
+        is ReadingSearchPhase.Results -> phase.forEpub
+        else -> false
     }
 
     companion object {
