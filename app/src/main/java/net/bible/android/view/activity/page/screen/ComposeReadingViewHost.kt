@@ -165,6 +165,7 @@ import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
+import net.bible.sharedcore.search.searchTranslationIds
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.sharedcore.speak.SpeakTransportController
 import net.bible.sharedcore.speak.SpeakTransportDialog
@@ -888,9 +889,16 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // instead would silently narrow a find-all to whatever OT/NT restriction the user last
             // left in the settings sheet, with no indication in the results (review Important/A).
             bibleSection = if (preDecorated || strongsSearch) SearchBibleSection.ALL else searchSection.value,
-            // Addressing key (`Book.initials`), never a list index. Falls back to the document being
-            // read, which is the seed `SearchComposeActivity.kt:90` uses.
-            translationIds = searchTranslations.value.ifEmpty { listOf(docId) },
+            // The persisted selection, plus the document this search is running for when that
+            // document is already indexed (F44/B4). Addressing keys (`Book.initials`), never list
+            // indices. NB the flag is read for `docId` — after `promptIndexFor` the phase addresses a
+            // translation the active window is not showing, so `documentControl.currentDocument`
+            // would describe a different book.
+            translationIds = searchTranslationIds(
+                persisted = searchTranslations.value,
+                activeDocId = docId,
+                activeIsIndexed = searchDocumentInfo(SwordDocumentFacade.getDocumentByInitials(docId))?.indexDone == true,
+            ),
             currentBookName = searchControl.currentBookName,
             isStrongsSearch = strongsSearch,
         )
