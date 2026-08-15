@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import net.bible.sharedcore.search.SearchModeController
 
 /**
  * Staging brain for the workspace selector. Owns the working ordered list (as [WorkspaceRowVd]) plus
@@ -31,13 +32,14 @@ class WorkspaceSelectorController(
     private val _dirty = MutableStateFlow(false); val dirty: StateFlow<Boolean> = _dirty.asStateFlow()
     private val _query = MutableStateFlow(""); val query: StateFlow<String> = _query.asStateFlow()
     private val _filtering = MutableStateFlow(false); val filtering: StateFlow<Boolean> = _filtering.asStateFlow()
-    private val _searchModeActive = MutableStateFlow(false)
+    private val searchMode = SearchModeController(onClearQuery = { setQuery("") })
+
     /**
-     * Whether the top bar is showing its inline search field. Held here rather than in the
-     * composable so it survives recomposition and so [closeSearch] can route through [setQuery],
-     * which is what keeps [filtering] — and therefore the row drag handles — in step with it.
+     * Whether the top bar is showing its inline search field. Held in the controller rather than the
+     * composable so it survives recomposition, and so closing routes through [setQuery] — which is
+     * what keeps [filtering], and therefore the row drag handles, in step with it.
      */
-    val searchModeActive: StateFlow<Boolean> = _searchModeActive.asStateFlow()
+    val searchModeActive: StateFlow<Boolean> = searchMode.active
     private val _copy = MutableStateFlow<CopySettingsState?>(null); val copySettingsState: StateFlow<CopySettingsState?> = _copy.asStateFlow()
     private val _pendingSelect = MutableStateFlow<String?>(null); val pendingSelectId: StateFlow<String?> = _pendingSelect.asStateFlow()
     private val _canDelete = MutableStateFlow(false); val canDelete: StateFlow<Boolean> = _canDelete.asStateFlow()
@@ -46,7 +48,7 @@ class WorkspaceSelectorController(
         working.clear(); working.addAll(service.loadAll())
         created.clear(); deleted.clear(); renamed.clear(); changed.clear()
         _query.value = ""; _filtering.value = false; _dirty.value = false; _copy.value = null; _pendingSelect.value = null
-        _searchModeActive.value = false
+        searchMode.reset()
         publish()
     }
 
@@ -63,10 +65,10 @@ class WorkspaceSelectorController(
 
     fun setQuery(q: String) { _query.value = q; publish() }
 
-    fun openSearch() { _searchModeActive.value = true }
+    fun openSearch() = searchMode.open()
 
     /** Classic parity: collapsing the SearchView clears the filter (RecyclerViewSearchHelper:110-114). */
-    fun closeSearch() { _searchModeActive.value = false; setQuery("") }
+    fun closeSearch() = searchMode.close()
 
     fun moveIndex(from: Int, to: Int) {
         if (from == to || from !in working.indices || to !in working.indices) return
