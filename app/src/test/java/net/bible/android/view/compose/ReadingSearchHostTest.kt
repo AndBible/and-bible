@@ -245,6 +245,33 @@ class ReadingSearchHostTest {
         assertEquals(SearchKind.NeedsIndex("TestEpub", forEpub = true), searchKindFor(doc))
     }
 
+    /**
+     * `indexStatus` is not the truth for an EPUB: `EpubBook.addEpubBook` re-derives it from the
+     * LUCENE index manager, which is never true for an EPUB, so a manually-installed EPUB with a
+     * working FTS5 index reports UNDONE — and, symmetrically, nothing may conclude "indexed" from a
+     * DONE it did not earn. The Compose path therefore reads the EPUB's own backend, so this
+     * document is NOT treated as searchable even though its indexStatus says DONE.
+     */
+    @Test
+    fun anEpubIsNotTreatedAsIndexedJustBecauseIndexStatusSaysSo() {
+        val doc = ComposeReadingViewHost.searchDocumentInfo(
+            book("TestEpub", category = "Generic Books", modDrv = "RawGenBook",
+                 extraConf = "AndBibleEpubModule=1", indexed = true)
+        )
+        assertTrue(doc!!.isEpub, "sanity: the fixture is an EPUB")
+        assertFalse(doc.indexDone, "indexDone must come from the EPUB backend, not indexStatus")
+        assertEquals(SearchKind.NeedsIndex("TestEpub", forEpub = true), searchKindFor(doc))
+    }
+
+    /** The non-EPUB half is unchanged: `indexStatus` remains the source of truth there. */
+    @Test
+    fun aNonEpubStillDerivesIndexDoneFromIndexStatus() {
+        val doc = ComposeReadingViewHost.searchDocumentInfo(
+            book("TestBible", category = "Biblical Texts", indexed = true)
+        )
+        assertTrue(doc!!.indexDone)
+    }
+
     @Test
     fun anIndexedBibleBecomesABibleSearchKind() {
         val doc = ComposeReadingViewHost.searchDocumentInfo(

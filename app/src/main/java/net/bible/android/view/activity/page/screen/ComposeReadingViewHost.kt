@@ -120,6 +120,7 @@ import net.bible.service.llm.agent.AgentForegroundService
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ai.AgentPermissionController
@@ -1960,9 +1961,26 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 docId = book.initials,
                 category = category,
                 isEpub = book.isEpub,
-                indexDone = book.indexStatus == IndexStatus.DONE,
+                indexDone = documentIndexDone(book),
             )
         }
+
+        /**
+         * Whether [book]'s search index actually exists. For everything but an EPUB that is
+         * `indexStatus`; for an EPUB it is the FTS5 table's existence, read from the book's own
+         * backend, because `indexStatus` is not reliable for EPUBs — `EpubBook.addEpubBook` re-derives
+         * it from the LUCENE index manager (which is never true for an EPUB) and
+         * `EpubBackendState.buildSearchIndex` returns early without setting DONE when the index is
+         * already there. Both are fixed at the source too, but this read is what makes the reading
+         * view's search independent of them ever regressing.
+         *
+         * Deliberately NOT `SwordDocumentFacade.hasIndex`, which re-resolves the book through
+         * `Books.installed()` — an indirection that buys nothing here and that a test-constructed
+         * book is not in.
+         */
+        internal fun documentIndexDone(book: Book): Boolean =
+            if (book.isEpub) book.epubBackend?.state?.isIndexed == true
+            else book.indexStatus == IndexStatus.DONE
 
         /**
          * Waits out JSword's "the job says finished before `indexStatus` says DONE" gap and reports
