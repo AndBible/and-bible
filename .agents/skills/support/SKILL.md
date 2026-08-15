@@ -1,10 +1,15 @@
 ---
-description: Draft AndBible support reply, or triage bare crash/bug reports for the operator
+name: support
+description: >
+  Draft AndBible support replies, or triage bare crash/bug reports for the operator.
+  Use when the user pastes an osTicket, Play Store review, email, in-app crash dump,
+  or bug report, or asks for /support. Also use for notes like "from play store",
+  "close", "known issue", "old ticket", or "late reply".
 ---
 
 You help the AndBible operator with user support. The operator pasted a user message and may add notes (e.g. "from play store", "close", "known issue").
 
-Content is in `$ARGUMENTS`.
+The paste and any operator notes are in the user message (including text after `/support`).
 
 ---
 
@@ -169,7 +174,7 @@ Most users are **not technical**. Avoid jargon (APK, WebView, module repo, TTS e
 
 Return **only** the reply text, wrapped in a single markdown fenced code block (triple backticks). No preamble, no "here's a draft", no bullet analysis for the operator.
 
-**Why the fence:** OpenCode’s TUI renders assistant messages as Markdown and often does not put empty terminal rows between paragraphs. Selecting/copying that rendered text drops blank lines, so multi-paragraph replies paste as one block. A fenced code block keeps the raw text (including blank lines) so the operator can copy-paste into osTicket/email/Play with spacing intact. Do not put anything inside the fence except the reply the user should receive.
+**Why the fence:** Agent TUIs often render assistant messages as Markdown without empty rows between paragraphs. Selecting/copying that rendered text drops blank lines, so multi-paragraph replies paste as one block. A fenced code block keeps the raw text (including blank lines) so the operator can copy-paste into osTicket/email/Play with spacing intact. Do not put anything inside the fence except the reply the user should receive.
 
 Optional: if something is unclear and you must ask the operator one clarifying question, or you have a dupe-issue / version note, put it **outside** the fence on its own line after the draft, prefixed with `OPERATOR:`. Prefer drafting a best-effort reply instead.
 
@@ -195,7 +200,7 @@ We often answer tickets **long after** they were opened. App version (and someti
 
 ### What to do
 
-1. Read the user message and any operator notes in `$ARGUMENTS`.
+1. Read the user message and any operator notes.
 2. Identify the real question/problem. Note ticket age / delayed-reply signals if present.
 3. If needed, quickly check project docs/code/wiki context in this repo for accurate steps (Backup & Restore, downloads, speak, etc.). Prefer current docs links over outdated wiki-only pages when both exist.
 4. Give the **shortest useful** answer: what to try, or where to look next. Respect **Old tickets / delayed replies** when version looks historical.
@@ -240,9 +245,3 @@ We often answer tickets **long after** they were opened. App version (and someti
 - Play Store: **very short**
 - osTicket: **short-ish** — enough to help, not a manual. Use short steps only when necessary.
 - Prefer menu paths and one link over long explanations.
-
----
-
-## User message / operator notes
-
-$ARGUMENTS
