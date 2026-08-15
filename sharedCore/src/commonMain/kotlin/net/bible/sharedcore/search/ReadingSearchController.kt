@@ -68,6 +68,14 @@ class ReadingSearchController(
     private var resultsForQuery: String? = null
 
     /**
+     * True while a [ReadingSearchPhase.NeedsIndex] prompt addresses a document chosen in the results
+     * document selector rather than the active window's — see [promptIndexFor]. Such a prompt must
+     * survive a window switch, or the user's explicit choice would be overwritten by whatever pane
+     * they tapped next.
+     */
+    private var indexPromptIsExplicit = false
+
+    /**
      * Opens search for the active window's document. [seedQuery] comes from the entry points that bypass
      * the form (text-selection "Search …", Strong's find-all), and runs immediately.
      */
@@ -81,6 +89,7 @@ class ReadingSearchController(
         // leaves it. `fullScreen = false` is idempotent host-side.
         onLeaveFullScreen()
         _searchModeActive.value = true
+        indexPromptIsExplicit = false
         if (seedQuery != null) queries.setQuery(seedQuery)
 
         when (kind) {
@@ -122,15 +131,29 @@ class ReadingSearchController(
         if (touchIme) requestFieldRelease()
     }
 
-    /** Submit from the toolbar field (IME action or the submit button). Blank queries are ignored. */
+    /**
+     * Submit from the toolbar field (IME action or the submit button). Blank queries are ignored.
+     *
+     * The target is resolved HERE, not read back out of the phase: search mode outlives a window
+     * switch, so the document to search is whatever the active window shows at the moment the user
+     * submits (F44/B3). The phase's own docId is what a RESULT SET belongs to, which is a different
+     * question and is set by [runSearch].
+     */
     fun submit() {
-        val p = _phase.value
-        val docId = docIdOf(p) ?: return
-        val forEpub = forEpubOf(p) ?: return
+        if (_phase.value == ReadingSearchPhase.Closed) return
         val q = queries.query.value.trim()
         if (q.isEmpty()) return
-        queries.recordRecentTerm(q)
-        runSearch(docId, forEpub, q)
+        when (val kind = searchKindFor(resolveDoc())) {
+            SearchKind.Unavailable -> onUnavailable()
+            is SearchKind.NeedsIndex -> {
+                queries.recordRecentTerm(q)
+                _phase.value = ReadingSearchPhase.NeedsIndex(kind.docId, kind.forEpub)
+                _sheetVisible.value = true
+                requestFieldRelease()
+            }
+            is SearchKind.Bible -> { queries.recordRecentTerm(q); runSearch(kind.docId, false, q) }
+            is SearchKind.Epub -> { queries.recordRecentTerm(q); runSearch(kind.docId, true, q) }
+        }
     }
 
     /**
@@ -153,6 +176,7 @@ class ReadingSearchController(
         _phase.value = ReadingSearchPhase.NeedsIndex(docId, forEpub)
         _sheetVisible.value = true
         requestFieldRelease()
+        indexPromptIsExplicit = true
         return true
     }
 
@@ -193,6 +217,31 @@ class ReadingSearchController(
     }
 
     /**
+     * The active window, or the document shown in it, changed while search mode is open. The phases
+     * that describe what will be searched NEXT follow it; the ones that describe work already done
+     * or in flight do not (F44/B3):
+     *
+     * - [ReadingSearchPhase.Form] and a non-explicit [ReadingSearchPhase.NeedsIndex] re-resolve;
+     * - [ReadingSearchPhase.Results] keeps the document its rows came from, so a result tap still
+     *   opens the document the hit was found in;
+     * - [ReadingSearchPhase.Indexing] keeps the document whose build is running;
+     * - an [SearchKind.Unavailable] new document leaves the session untouched — there is nothing to
+     *   show for it, and [submit] reports it honestly if the user then searches.
+     */
+    fun activeDocumentChanged() {
+        val p = _phase.value
+        val refreshable = p is ReadingSearchPhase.Form ||
+            (p is ReadingSearchPhase.NeedsIndex && !indexPromptIsExplicit)
+        if (!refreshable) return
+        when (val kind = searchKindFor(resolveDoc())) {
+            SearchKind.Unavailable -> Unit
+            is SearchKind.NeedsIndex -> _phase.value = ReadingSearchPhase.NeedsIndex(kind.docId, kind.forEpub)
+            is SearchKind.Bible -> _phase.value = ReadingSearchPhase.Form(kind.docId, forEpub = false)
+            is SearchKind.Epub -> _phase.value = ReadingSearchPhase.Form(kind.docId, forEpub = true)
+        }
+    }
+
+    /**
      * Called when the indexing job reports done. On success the search runs automatically if a query is
      * already waiting; otherwise the form takes over. On failure we fall back to the prompt rather than
      * pretending the document is searchable.
@@ -221,14 +270,22 @@ class ReadingSearchController(
         }
     }
 
-    /** The settings sheet closed: re-run if there is something to re-run (spec §2). */
+    /** The settings sheet closed: re-run if there is something to re-run (spec §2), against the
+     *  document the active window shows now — same rule as [submit]. */
     fun settingsClosed() {
-        val p = _phase.value
-        val docId = docIdOf(p) ?: return
-        val forEpub = forEpubOf(p) ?: return
+        if (_phase.value == ReadingSearchPhase.Closed) return
         val q = queries.query.value.trim()
         if (q.isEmpty()) return
-        runSearch(docId, forEpub, q)
+        when (val kind = searchKindFor(resolveDoc())) {
+            SearchKind.Unavailable -> onUnavailable()
+            is SearchKind.NeedsIndex -> {
+                _phase.value = ReadingSearchPhase.NeedsIndex(kind.docId, kind.forEpub)
+                _sheetVisible.value = true
+                requestFieldRelease()
+            }
+            is SearchKind.Bible -> runSearch(kind.docId, false, q)
+            is SearchKind.Epub -> runSearch(kind.docId, true, q)
+        }
     }
 
     /** First back press. Returns true if it consumed the press. */
@@ -245,6 +302,7 @@ class ReadingSearchController(
         _phase.value = ReadingSearchPhase.Closed
         resultsForQuery = null
         _imeRequest.value = null
+        indexPromptIsExplicit = false
         return true
     }
 
