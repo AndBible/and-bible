@@ -1300,10 +1300,24 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onMain<CurrentVerseChangedEvent> {
                 overlayText.value = readOverlayText()
                 activeIsBibleShown.value = activity.windowControl.activeWindow.pageManager.isBibleShown
+                // F44/B3b: this is the event a document swap WITHIN one window reliably fires
+                // synchronously — `CurrentPageManager.setCurrentDocument` ->
+                // `PassageChangeMediator.onCurrentPageChanged` posts it right after the swap takes
+                // effect on the page manager, before any async content load. `PassageChangedEvent`
+                // (`PassageChangeMediator.contentChangeFinished`) also follows a document swap, but
+                // only once `Window.loadText`'s background IO coroutine finishes fetching + handing
+                // the doc to the (possibly still-null, in a headless/invisible window) `BibleView` —
+                // and it is skipped entirely when the window is not visible. This event is already
+                // subscribed to here for the same "active document may have changed" purpose, so the
+                // controller refresh reuses this proven, synchronous channel rather than adding a
+                // second, less reliable one.
+                searchController.activeDocumentChanged()
             }
             onMain<CurrentWindowChangedEvent> {
                 overlayText.value = readOverlayText()
                 activeIsBibleShown.value = activity.windowControl.activeWindow.pageManager.isBibleShown
+                // F44/B3: search mode outlives a window switch, so the panel's target follows it.
+                searchController.activeDocumentChanged()
             }
             // Task 4 (F2b): classic's per-window rail top label (`WindowButtonWidget.kt:148`,
             // `pageManager.titleText`) is refreshed on this SAME event

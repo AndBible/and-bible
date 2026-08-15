@@ -1083,6 +1083,89 @@ class ReadingSearchHostTest {
             assertEquals(mode, fresh.epubSearchMode.value, "a fresh host must read back the mode $mode just persisted")
         }
     }
+
+    // ---- Task 5 (F44/B3b): the host tells the controller when the active document changes -------
+
+    /**
+     * `ReadingSearchController.activeDocumentChanged()` (Task 4) is only useful once something
+     * actually calls it. This drives the REAL `CurrentWindowChangedEvent` through `ABEventBus` with
+     * the real host subscribed (same idiom as `ComposeReadingViewHostTest.currentBibleVerseChangedTriggersARefresh`),
+     * and proves the effect end to end: switching the active window to one showing a DIFFERENT
+     * document must move the search session's target with it, not leave it pinned to the document
+     * that was active when search opened.
+     */
+    @Test
+    fun currentWindowChangedEventRefreshesTheSearchTargetToTheNewActiveWindowsDocument() {
+        val other = unindexedFakeBible("HostWinSwap")
+        Books.installed().addBook(other)
+        try {
+            val host = host()
+            host.openSearch()
+            assertEquals(
+                ReadingSearchPhase.NeedsIndex("KJV", forEpub = false),
+                host.searchController.phase.value,
+                "sanity: search opened on the active window's KJV",
+            )
+
+            val window2 = windowRepository.addNewWindow()
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            window2.pageManager.currentBible.setCurrentDocumentAndKey(other, verse)
+
+            windowControl.activeWindow = window2
+
+            assertEquals(
+                ReadingSearchPhase.NeedsIndex("HostWinSwap", forEpub = false),
+                host.searchController.phase.value,
+                "CurrentWindowChangedEvent must refresh the search target to the new active window's document",
+            )
+        } finally {
+            Books.installed().removeBook(other)
+        }
+    }
+
+    /**
+     * The other half: a document swap WITHIN the still-active window. Verified from source
+     * (`CurrentPageManager.setCurrentDocument` -> `PassageChangeMediator.onCurrentPageChanged`,
+     * `PassageChangeMediator.kt:34-37`) that this path posts `CurrentVerseChangedEvent`
+     * SYNCHRONOUSLY, right after the swap lands on the page manager — unlike `PassageChangedEvent`
+     * (`PassageChangeMediator.contentChangeFinished`, posted from `Window.loadText`'s background IO
+     * coroutine only once the WebView content load finishes, and skipped entirely when the window
+     * isn't visible), which is neither synchronously observable in this headless suite nor
+     * guaranteed to fire at all for an invisible/backgrounded window. `CurrentVerseChangedEvent` is
+     * also the event the host already subscribes to for the same "active document may have changed"
+     * purpose (the overlay-text/`activeIsBibleShown` refresh right above), so this reuses that
+     * existing, proven channel instead of adding a second, less reliable subscription.
+     *
+     * `pageManager.setCurrentDocument(...)` (not `setCurrentDocumentAndKey`, which bypasses
+     * `PassageChangeMediator` entirely) is the same real-path idiom
+     * `openingSearchOnADictionaryShowsTheUnavailableMessageAndStaysOutOfSearchMode` above already
+     * uses safely against this never-`.create()`d activity fixture.
+     */
+    @Test
+    fun currentVerseChangedEventFromADocumentSwapWithinOneWindowRefreshesTheSearchTarget() {
+        val other = unindexedFakeBible("HostDocSwap")
+        Books.installed().addBook(other)
+        try {
+            val host = host()
+            host.openSearch()
+            assertEquals(
+                ReadingSearchPhase.NeedsIndex("KJV", forEpub = false),
+                host.searchController.phase.value,
+                "sanity: search opened on the active window's KJV",
+            )
+
+            windowRepository.activeWindow.pageManager.setCurrentDocument(other)
+
+            assertEquals(
+                ReadingSearchPhase.NeedsIndex("HostDocSwap", forEpub = false),
+                host.searchController.phase.value,
+                "a document swap within the active window must refresh the search target via " +
+                    "CurrentVerseChangedEvent",
+            )
+        } finally {
+            Books.installed().removeBook(other)
+        }
+    }
 }
 
 /** Recording fake — no mocking framework in this repo (see `noopCommands` above for the same idiom). */
