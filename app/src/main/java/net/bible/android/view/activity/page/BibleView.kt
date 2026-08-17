@@ -1547,6 +1547,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val colorEinkMode = CommonUtils.settings.colorEinkMode
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
+        val highlightStrongsWord = CommonUtils.settings.highlightStrongsWord
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
         return """
                 bibleView.emit('set_config', {
@@ -1554,6 +1555,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     appSettings: {
                         activeWindow: $isActive,
                         strongsLinkOpen: $strongsLinkOpen,
+                        highlightStrongsWord: $highlightStrongsWord,
                         isBottomWindow: $isBottomWindow,
                         hasActiveIndicator: $hasActiveIndicator,
                         nightMode: $nightMode,

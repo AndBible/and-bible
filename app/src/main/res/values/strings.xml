@@ -132,6 +132,9 @@
     <string name="prefs_disable_click_to_edit_title">Disable Study Pad click-to-edit</string>
     <string name="prefs_disable_click_to_edit_summary">Requires using the edit button to edit notes in the Study Pad.</string>
 
+    <string name="prefs_highlight_strongs_word_title">Strong\'s tap highlight</string>
+    <string name="prefs_highlight_strongs_word_summary">When tapping a word with Strong\'s numbers, highlight only that word instead of the whole verse.</string>
+
     <string name="prefs_notes_content_type_title">Format for new bookmark notes</string>
     <string name="prefs_notes_content_type_summary">Text format used when creating new bookmark notes and Study Pad entries</string>
     <string name="notes_content_type_html">Rich text (HTML)</string>

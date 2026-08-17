@@ -447,12 +447,16 @@ export function findStrongsSwitchCallback(
 /**
  * When the ambiguous-selection menu opens for a tap that carries a Strong's number,
  * highlight only the tapped word (instead of the whole verse) to make clear which
- * word's definition the lexicon action applies to. Returns the word-highlight
- * function supplied by the tapped word (W.vue), or null when the tap has no Strong's
- * candidate (plain word / bookmark-only), in which case the existing whole-verse
- * highlight is kept.
+ * word's definition the lexicon action applies to. Gated by the "Strong's tap
+ * highlight" setting. Returns the word-highlight function supplied by the tapped word
+ * (W.vue), or null when the setting is off or the tap has no Strong's candidate
+ * (plain word / bookmark-only) — in which case the whole-verse highlight is kept.
  */
-export function findWordHighlightOnMenu(allEventFunctions: Callback[]): Nullable<() => void> {
+export function findWordHighlightOnMenu(
+    allEventFunctions: Callback[],
+    highlightStrongsWord: boolean
+): Nullable<() => void> {
+    if (!highlightStrongsWord) return null;
     const strongsFunc = allEventFunctions.find(e => e.options.strongs);
     return strongsFunc?.options?.highlightWord ?? null;
 }

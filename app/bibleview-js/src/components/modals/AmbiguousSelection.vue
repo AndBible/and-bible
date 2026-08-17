@@ -343,7 +343,7 @@ async function handle(event: MouseEvent) {
     // When opening the menu for a Strong's tap, highlight only the tapped word
     // (replacing the whole-verse highlight) so it is clear which word's definition
     // the lexicon action applies to. Null for plain/bookmark-only taps (verse highlight kept).
-    const highlightWordOnMenu = findWordHighlightOnMenu(allEventFunctions);
+    const highlightWordOnMenu = findWordHighlightOnMenu(allEventFunctions, appSettings.highlightStrongsWord);
 
     if (eventFunctions.length > 0 || _verseInfo != null || _ordinalInfo != null) {
         const firstFunc = eventFunctions[0];

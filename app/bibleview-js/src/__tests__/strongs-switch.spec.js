@@ -34,10 +34,16 @@ describe("findStrongsSwitchCallback", () => {
 });
 
 describe("findWordHighlightOnMenu", () => {
-    it("returns the strongs candidate's highlightWord when present", () => {
+    it("returns the strongs candidate's highlightWord when the setting is on", () => {
         const highlightWord = vi.fn();
         const funcs = [fn({priority: 10, strongs: true, highlightWord})];
-        expect(findWordHighlightOnMenu(funcs)).toBe(highlightWord);
+        expect(findWordHighlightOnMenu(funcs, true)).toBe(highlightWord);
+    });
+
+    it("returns null when the setting is off, even with a strongs candidate", () => {
+        const highlightWord = vi.fn();
+        const funcs = [fn({priority: 10, strongs: true, highlightWord})];
+        expect(findWordHighlightOnMenu(funcs, false)).toBeNull();
     });
 
     it("returns highlightWord even when a bookmark also sits on the word (no carve-out)", () => {
@@ -46,16 +52,16 @@ describe("findWordHighlightOnMenu", () => {
             fn({priority: 5, bookmarkId: "x"}),
             fn({priority: 10, strongs: true, highlightWord}),
         ];
-        expect(findWordHighlightOnMenu(funcs)).toBe(highlightWord);
+        expect(findWordHighlightOnMenu(funcs, true)).toBe(highlightWord);
     });
 
     it("returns null when there is no strongs candidate", () => {
         const funcs = [fn({priority: 5, bookmarkId: "x"})];
-        expect(findWordHighlightOnMenu(funcs)).toBeNull();
+        expect(findWordHighlightOnMenu(funcs, true)).toBeNull();
     });
 
     it("returns null when the strongs candidate has no highlightWord", () => {
         const funcs = [fn({priority: 10, strongs: true})];
-        expect(findWordHighlightOnMenu(funcs)).toBeNull();
+        expect(findWordHighlightOnMenu(funcs, true)).toBeNull();
     });
 });
