@@ -1,5 +1,5 @@
 import {describe, it, expect, vi} from "vitest";
-import {findStrongsSwitchCallback} from "@/utils";
+import {findStrongsSwitchCallback, findWordHighlightOnMenu} from "@/utils";
 
 function fn(options, callback = () => {}) {
     return {type: "callback", callback, options};
@@ -30,5 +30,32 @@ describe("findStrongsSwitchCallback", () => {
     it("returns null when the strongs candidate has no callback", () => {
         const funcs = [fn({priority: 10, strongs: true}, null)];
         expect(findStrongsSwitchCallback(funcs, true)).toBeNull();
+    });
+});
+
+describe("findWordHighlightOnMenu", () => {
+    it("returns the strongs candidate's highlightWord when present", () => {
+        const highlightWord = vi.fn();
+        const funcs = [fn({priority: 10, strongs: true, highlightWord})];
+        expect(findWordHighlightOnMenu(funcs)).toBe(highlightWord);
+    });
+
+    it("returns highlightWord even when a bookmark also sits on the word (no carve-out)", () => {
+        const highlightWord = vi.fn();
+        const funcs = [
+            fn({priority: 5, bookmarkId: "x"}),
+            fn({priority: 10, strongs: true, highlightWord}),
+        ];
+        expect(findWordHighlightOnMenu(funcs)).toBe(highlightWord);
+    });
+
+    it("returns null when there is no strongs candidate", () => {
+        const funcs = [fn({priority: 5, bookmarkId: "x"})];
+        expect(findWordHighlightOnMenu(funcs)).toBeNull();
+    });
+
+    it("returns null when the strongs candidate has no highlightWord", () => {
+        const funcs = [fn({priority: 10, strongs: true})];
+        expect(findWordHighlightOnMenu(funcs)).toBeNull();
     });
 });

@@ -444,6 +444,19 @@ export function findStrongsSwitchCallback(
     return strongsFunc?.callback ?? null;
 }
 
+/**
+ * When the ambiguous-selection menu opens for a tap that carries a Strong's number,
+ * highlight only the tapped word (instead of the whole verse) to make clear which
+ * word's definition the lexicon action applies to. Returns the word-highlight
+ * function supplied by the tapped word (W.vue), or null when the tap has no Strong's
+ * candidate (plain word / bookmark-only), in which case the existing whole-verse
+ * highlight is kept.
+ */
+export function findWordHighlightOnMenu(allEventFunctions: Callback[]): Nullable<() => void> {
+    const strongsFunc = allEventFunctions.find(e => e.options.strongs);
+    return strongsFunc?.options?.highlightWord ?? null;
+}
+
 export function draggableElement(element: HTMLElement, dragHandle: HTMLElement) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 

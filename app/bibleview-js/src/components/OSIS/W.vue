@@ -96,12 +96,18 @@ function formatLink(first?: string, second?: string): string {
 
 function goToLink(event: MouseEvent, url: string) {
     const priority = showStrongsSeparately.value ? EventPriorities.STRONGS_LINK : EventPriorities.STRONGS_DOTTED;
-    addEventFunction(event, () => {
-        window.location.assign(url)
+    // Highlight just this word (independent of the verse-ordinal highlight). Passed in the
+    // event options so AmbiguousSelection can highlight only the tapped word when it opens
+    // the menu for a Strong's tap, instead of highlighting the whole verse.
+    const highlightWord = () => {
         resetHighlights();
         isHighlighted.value = true;
         addCustom(() => isHighlighted.value = false);
-    }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, strongs: true, dottedStrongs: !showStrongsSeparately.value, hiddenStrongs:showStrongsHidden.value});
+    };
+    addEventFunction(event, () => {
+        window.location.assign(url)
+        highlightWord();
+    }, {priority, icon: "custom-morph", title: strings.strongsAndMorph, strongs: true, highlightWord, dottedStrongs: !showStrongsSeparately.value, hiddenStrongs:showStrongsHidden.value});
 }
 
 const exportMode = inject(exportModeKey, ref(false));
