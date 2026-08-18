@@ -17,6 +17,9 @@
 package net.bible.android.view.compose
 
 import android.content.Context
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
@@ -24,6 +27,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
@@ -79,16 +83,24 @@ class DocumentRowMarkersTest {
         compose.setContent {
             ProvideAppLocals {
                 AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
-                    DocumentRow(
-                        row = row,
-                        downloadMode = true,
-                        selectionMode = selectionMode,
-                        selected = selectionMode,
-                        onClick = {},
-                        onLongClick = {},
-                        onDownload = {},
-                        onCancel = {},
-                    )
+                    // Robolectric's default test window is 320dp wide with no qualifiers set, well
+                    // below a real Android phone's ~360-410dp -- and the property this file's
+                    // subtitle-overflow test cares about ("at a realistic phone width the install
+                    // size stays readable") is meaningless without pinning a stated, realistic
+                    // width. 360dp is the narrow end of that range, so it is also the strictest
+                    // realistic case.
+                    Box(Modifier.width(360.dp)) {
+                        DocumentRow(
+                            row = row,
+                            downloadMode = true,
+                            selectionMode = selectionMode,
+                            selected = selectionMode,
+                            onClick = {},
+                            onLongClick = {},
+                            onDownload = {},
+                            onCancel = {},
+                        )
+                    }
                 }
             }
         }
@@ -127,15 +139,10 @@ class DocumentRowMarkersTest {
         setRow(row(recommended = true))
         val layout = subtitleLayout()
         val full = layout.layoutInput.text.text
-        val density = layout.layoutInput.density.density
-        val widthPx = layout.size.width
-        val widthDp = widthPx / density
-        val dm = context.resources.displayMetrics
-        println("DIAG widthPx=$widthPx widthDp=$widthDp density=$density lineCount=${layout.lineCount} hasVisualOverflow=${layout.hasVisualOverflow} screenWidthPx=${dm.widthPixels} screenWidthDp=${dm.widthPixels / dm.density} screenDensity=${dm.density}")
         assertTrue(full.endsWith("4.2 MB"), "subtitle should end with the install size, was: '$full'")
         assertFalse(
             layout.hasVisualOverflow,
-            "the recommended row's subtitle is truncated, so the install size is not readable: '$full' widthDp=$widthDp lineCount=${layout.lineCount}",
+            "the recommended row's subtitle is truncated, so the install size is not readable: '$full'",
         )
     }
 
