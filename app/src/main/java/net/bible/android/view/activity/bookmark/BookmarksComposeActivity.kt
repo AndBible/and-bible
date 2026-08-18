@@ -108,6 +108,7 @@ class BookmarksComposeActivity : ActivityBase() {
                     val searchModeActive by controller.searchModeActive.collectAsState()
                     val showNotes by controller.showNotes.collectAsState()
                     val selection by controller.selection.collectAsState()
+                    val expandedIds by controller.expandedIds.collectAsState()
                     val loading by controller.loading.collectAsState()
 
                     BookmarksScreen(
@@ -119,6 +120,7 @@ class BookmarksComposeActivity : ActivityBase() {
                         searchText = searchText,
                         showNotes = showNotes,
                         selection = selection,
+                        expandedIds = expandedIds,
                         loading = loading,
                         onSelectFilter = controller::setFilter,
                         onCycleSort = controller::cycleSort,
@@ -130,6 +132,7 @@ class BookmarksComposeActivity : ActivityBase() {
                         onRowClick = controller::selectRow,
                         onRowLongClick = controller::enterSelection,
                         onToggleSelected = controller::toggleSelection,
+                        onToggleExpand = controller::toggleExpanded,
                         onAssignSelected = controller::assignSelected,
                         onDeleteSelected = controller::deleteSelected,
                         onClearSelection = controller::clearSelection,

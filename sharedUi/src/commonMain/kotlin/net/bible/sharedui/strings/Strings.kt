@@ -647,6 +647,8 @@ interface Strings {
     // Round 8b — document-row markers
     val recommendedDocument: String                         // R.string.recommended_document
     val badDocumentWarning: String                          // R.string.bad_document_warning
+    val expandRow: String                                   // R.string.bookmark_expand_row
+    val collapseRow: String                                 // R.string.bookmark_collapse_row
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

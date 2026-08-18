@@ -93,6 +93,7 @@ class BookmarksGoldenTest {
         rows: List<BookmarkRow> = rows(),
         showNotes: Boolean = true,
         selection: Set<String> = emptySet(),
+        expandedIds: Set<String> = emptySet(),
         searchText: String = "",
         searchModeActive: Boolean = false,
     ) = @androidx.compose.runtime.Composable {
@@ -105,6 +106,7 @@ class BookmarksGoldenTest {
             searchText = searchText,
             showNotes = showNotes,
             selection = selection,
+            expandedIds = expandedIds,
             loading = false,
             onSelectFilter = {},
             onCycleSort = {},
@@ -116,6 +118,7 @@ class BookmarksGoldenTest {
             onRowClick = { _, _ -> },
             onRowLongClick = {},
             onToggleSelected = {},
+            onToggleExpand = {},
             onAssignSelected = {},
             onDeleteSelected = {},
             onClearSelection = {},

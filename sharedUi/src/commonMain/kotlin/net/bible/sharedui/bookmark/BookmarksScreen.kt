@@ -19,6 +19,7 @@ package net.bible.sharedui.bookmark
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,8 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Checkbox
@@ -49,6 +52,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -102,6 +109,10 @@ import net.bible.sharedui.strings.Strings
  * non-speak label per [BookmarkRow.labelColors]'s contract), a speak icon when [BookmarkRow.isSpeak],
  * the title + date on one line, [BookmarkRow.content] rendered via [styledTextToAnnotatedString]
  * (bold selection highlight), and [BookmarkRow.notes] the same way when [showNotes] and non-null.
+ * Content and notes are COLLAPSED by default (3 lines / 1 line) — classic was unbounded here and let
+ * one multi-verse bookmark fill the screen. When either field is actually clipped, a chevron
+ * appears; tapping it (via [onToggleExpand], driven by [expandedIds]) expands or re-collapses just
+ * that row, without disturbing the row's own tap-to-open behaviour ([onRowClick]).
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -114,6 +125,7 @@ fun BookmarksScreen(
     searchText: String,
     showNotes: Boolean,
     selection: Set<String>,
+    expandedIds: Set<String>,
     loading: Boolean,
     onSelectFilter: (Int) -> Unit,
     onCycleSort: () -> Unit,
@@ -125,6 +137,7 @@ fun BookmarksScreen(
     onRowClick: (id: String, index: Int) -> Unit,
     onRowLongClick: (id: String) -> Unit,
     onToggleSelected: (id: String) -> Unit,
+    onToggleExpand: (id: String) -> Unit,
     onAssignSelected: () -> Unit,
     onDeleteSelected: () -> Unit,
     onClearSelection: () -> Unit,
@@ -222,8 +235,10 @@ fun BookmarksScreen(
                             showNotes = showNotes,
                             selectionMode = selectionMode,
                             selected = row.id in selection,
+                            expanded = row.id in expandedIds,
                             onClick = { if (selectionMode) onToggleSelected(row.id) else onRowClick(row.id, index) },
                             onLongClick = { onRowLongClick(row.id) },
+                            onToggleExpand = { onToggleExpand(row.id) },
                         )
                     }
                 }
@@ -245,9 +260,20 @@ private fun sortIcon(mode: BookmarkSortMode): ImageVector = when (mode) {
 private fun sortModeLabel(mode: BookmarkSortMode, strings: Strings): String =
     if (mode.isBibleOrder) strings.sortByBibleBookLabel else strings.sortByDateLabel
 
+/** Collapsed line budgets. Deliberately asymmetric: the bible text is bodyMedium and the note is
+ *  bodySmall, so three lines of the former and one of the latter read as comparable weight. */
+private const val COLLAPSED_CONTENT_LINES = 3
+private const val COLLAPSED_NOTES_LINES = 1
+
 /**
  * One bookmark row: label-colour chips + speak icon + title/date line, then the highlighted
  * content, then notes (when shown). Mirrors `bookmark_list_item.xml`'s layout order.
+ *
+ * Rows are COLLAPSED by default ([COLLAPSED_CONTENT_LINES] / [COLLAPSED_NOTES_LINES]) — an
+ * improvement over classic, which was unbounded too and let one multi-verse bookmark fill the
+ * screen. The expand chevron appears only when something is actually clipped, and carries its own
+ * `clickable`: an inner clickable consumes the tap, so expanding never reaches the row's
+ * `combinedClickable` and a row tap still opens the bookmark.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -256,10 +282,17 @@ private fun BookmarkListRow(
     showNotes: Boolean,
     selectionMode: Boolean,
     selected: Boolean,
+    expanded: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
+    onToggleExpand: () -> Unit,
 ) {
     val strings = LocalStrings.current
+    // Whether the collapsed text is really clipped. This is MEASURED, not derived: it depends on
+    // the width and the font, which the model cannot know. Keyed by row id so a reused row
+    // re-measures instead of inheriting its predecessor's answer.
+    var contentClipped by remember(row.id) { mutableStateOf(false) }
+    var notesClipped by remember(row.id) { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -309,6 +342,11 @@ private fun BookmarkListRow(
         Text(
             text = styledTextToAnnotatedString(row.content),
             style = MaterialTheme.typography.bodyMedium,
+            maxLines = if (expanded) Int.MAX_VALUE else COLLAPSED_CONTENT_LINES,
+            overflow = TextOverflow.Ellipsis,
+            // Guarded on !expanded so an expanded row (which never overflows) cannot clear the
+            // flag and make the collapse affordance vanish.
+            onTextLayout = { if (!expanded) contentClipped = it.hasVisualOverflow },
         )
         val notes = row.notes
         if (showNotes && notes != null) {
@@ -317,7 +355,23 @@ private fun BookmarkListRow(
                 text = styledTextToAnnotatedString(notes),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = if (expanded) Int.MAX_VALUE else COLLAPSED_NOTES_LINES,
+                overflow = TextOverflow.Ellipsis,
+                onTextLayout = { if (!expanded) notesClipped = it.hasVisualOverflow },
             )
+        }
+        if (expanded || contentClipped || notesClipped) {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                Icon(
+                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (expanded) strings.collapseRow else strings.expandRow,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .clickable(onClick = onToggleExpand)
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        .size(24.dp),
+                )
+            }
         }
     }
 }

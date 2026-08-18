@@ -591,4 +591,6 @@ class AndroidStrings(private val context: Context) : Strings {
     // Round 8b — document-row markers
     override val recommendedDocument: String get() = context.getString(R.string.recommended_document)
     override val badDocumentWarning: String get() = context.getString(R.string.bad_document_warning)
+    override val expandRow: String get() = context.getString(R.string.bookmark_expand_row)
+    override val collapseRow: String get() = context.getString(R.string.bookmark_collapse_row)
 }
