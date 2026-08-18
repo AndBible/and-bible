@@ -66,7 +66,6 @@ import net.bible.sharedcore.bookmark.BookmarkRow
 import net.bible.sharedcore.bookmark.BookmarkSortMode
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbColor
-import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbSearchImeRequest
@@ -98,8 +97,9 @@ import net.bible.sharedui.strings.Strings
  * This matches `bookmark_actionbar_menu.xml`: `manageLabels`/`sortByToggle` are
  * `showAsAction="always"`, `showNotes`/`exportCsv`/`importCsv` are overflow-only.
  *
- * **Filter + search.** The label filter is an always-visible [AbDropdownField] (classic's label
- * spinner). Search lives in the top bar (via [AbSelectionScaffold]'s `search`/`searchCallbacks`,
+ * **Filter + search.** The label filter is a [BookmarkFilterBar] chip (classic's label spinner)
+ * that opens a searchable bottom sheet. Search lives in the top bar (via [AbSelectionScaffold]'s
+ * `search`/`searchCallbacks`,
  * [searchModeActive] gating whether it renders) and only ever appears when [showNotes] is on
  * (classic hid `textSearchLayout` unless "Show notes" was on, since search only ever matched note
  * text) — [onToggleShowNotes] switching notes off also leaves search mode host-side, since its
@@ -148,9 +148,6 @@ fun BookmarksScreen(
 ) {
     val strings = LocalStrings.current
     val selectionMode = selection.isNotEmpty()
-    val selectedFilter = filterLabels.firstOrNull { it.index == selectedFilterIndex }
-        ?: filterLabels.firstOrNull()
-        ?: BookmarkFilterLabel(selectedFilterIndex, "")
 
     AbSelectionScaffold(
         title = title,
@@ -213,12 +210,10 @@ fun BookmarksScreen(
         } else null,
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            AbDropdownField(
-                label = "",
-                selected = selectedFilter,
-                options = filterLabels,
-                optionLabel = { it.displayName },
-                onSelect = { onSelectFilter(it.index) },
+            BookmarkFilterBar(
+                filterLabels = filterLabels,
+                selectedFilterIndex = selectedFilterIndex,
+                onSelectFilter = onSelectFilter,
             )
             if (loading) {
                 AbLoadingIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))

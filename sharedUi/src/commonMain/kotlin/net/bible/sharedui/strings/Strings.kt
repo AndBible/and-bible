@@ -649,6 +649,7 @@ interface Strings {
     val badDocumentWarning: String                          // R.string.bad_document_warning
     val expandRow: String                                   // R.string.bookmark_expand_row
     val collapseRow: String                                 // R.string.bookmark_collapse_row
+    val bookmarkLabelFilter: String                        // R.string.bookmark_label_filter
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

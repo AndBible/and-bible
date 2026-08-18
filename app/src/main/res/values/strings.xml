@@ -2034,4 +2034,5 @@
     <string name="color_picker_custom">Custom</string>
     <string name="bookmark_expand_row">Show full text</string>
     <string name="bookmark_collapse_row">Show less</string>
+    <string name="bookmark_label_filter">Filter by label</string>
 </resources>
