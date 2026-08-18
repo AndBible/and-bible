@@ -52,6 +52,12 @@ data class WindowLayoutState(
     val maximizedWindowId: String?,
     val reverseSplitMode: Boolean,
     val restoreButtonsVisible: Boolean,
+    /**
+     * The workspace's auto-pin setting (`workspaceSettings.autoPin`). Carried here, beside
+     * [reverseSplitMode], because it is a pure workspace flag — and it is needed at the drawing
+     * site: see [shouldShowPinIndicator] for why a pin indicator must be suppressed while it is on.
+     */
+    val autoPin: Boolean = false,
 ) {
     companion object {
         val EMPTY = WindowLayoutState(
@@ -60,6 +66,7 @@ data class WindowLayoutState(
             maximizedWindowId = null,
             reverseSplitMode = false,
             restoreButtonsVisible = true,
+            autoPin = false,
         )
     }
 }
