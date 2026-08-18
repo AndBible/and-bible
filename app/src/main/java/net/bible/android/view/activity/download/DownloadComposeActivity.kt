@@ -626,30 +626,40 @@ open class DownloadComposeActivity : ActivityBase() {
         }
     }
 
-    /** Classic DocumentSelectionBase.handleDelete. */
+    /**
+     * Classic `DocumentSelectionBase.handleDelete`, with one deliberate change: classic — and this
+     * port's first copy of it — opened one `AlertDialog` PER selected document, so a three-document
+     * selection stacked three dialogs, each naming one document and each triggering its own reload.
+     * One dialog now lists every document that will be deleted, and the non-deletable remainder is
+     * reported once rather than once per document.
+     */
     private fun handleDelete(ids: Set<String>) {
-        for (document in ids.mapNotNull { booksById[it] }) {
-            if (documentControl.canDelete(document.installedDocument)) {
-                val msg: CharSequence = getString(R.string.delete_doc, document.name)
-                AlertDialog.Builder(this)
-                    .setMessage(msg).setCancelable(true)
-                    .setPositiveButton(R.string.yes) { _, _ ->
-                        try {
-                            Log.i(TAG, "Deleting:$document")
-                            documentControl.deleteDocument(document.installedDocument)
-                            lifecycleScope.launch { loadDocuments(false) }
-                            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Deleting document crashed", e)
-                            Dialogs.showErrorMsg(R.string.error_occurred, e)
-                        }
-                    }
-                    .setNegativeButton(R.string.no, null)
-                    .create().show()
-            } else {
-                ABEventBus.post(ToastEvent(R.string.cant_delete_document))
-            }
+        val selected = ids.mapNotNull { booksById[it] }
+        val (deletable, rest) = selected.partition { documentControl.canDelete(it.installedDocument) }
+        if (rest.isNotEmpty()) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
+        if (deletable.isEmpty()) return
+        val msg: CharSequence = if (deletable.size == 1) {
+            getString(R.string.delete_doc, deletable.single().name)
+        } else {
+            getString(R.string.delete_docs_confirm) + "\n\n" + deletable.joinToString("\n") { it.name }
         }
+        AlertDialog.Builder(this)
+            .setMessage(msg).setCancelable(true)
+            .setPositiveButton(R.string.yes) { _, _ ->
+                for (document in deletable) {
+                    try {
+                        Log.i(TAG, "Deleting:$document")
+                        documentControl.deleteDocument(document.installedDocument)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Deleting document crashed", e)
+                        Dialogs.showErrorMsg(R.string.error_occurred, e)
+                    }
+                }
+                lifecycleScope.launch { loadDocuments(false) }
+                ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+            }
+            .setNegativeButton(R.string.no, null)
+            .create().show()
     }
 
     /** Classic DocumentSelectionBase.handleDeleteIndex. */

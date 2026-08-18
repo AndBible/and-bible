@@ -474,6 +474,7 @@
     <string name="delete_index">Delete search index</string>
     <string name="about">About</string>
     <string name="delete_doc">Delete %s?</string>
+    <string name="delete_docs_confirm">Delete these documents?</string>
     <string name="delete_search_index_doc">Delete index of %s?</string>
 
     <!-- Verse context menu -->
