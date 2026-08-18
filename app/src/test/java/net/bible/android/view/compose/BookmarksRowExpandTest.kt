@@ -17,6 +17,7 @@
 package net.bible.android.view.compose
 
 import android.content.Context
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -67,9 +68,14 @@ class BookmarksRowExpandTest {
         isSpeak = false,
     )
 
+    /**
+     * [showNotes] is a lambda, not a plain Boolean, so a test can flip it mid-composition: it is
+     * read inside `setContent`, which makes the read a tracked snapshot read.
+     */
     private fun setScreen(
         rows: List<BookmarkRow>,
         expandedIds: Set<String> = emptySet(),
+        showNotes: () -> Boolean = { true },
         onToggleExpand: (String) -> Unit = {},
         onRowClick: (String, Int) -> Unit = { _, _ -> },
     ) {
@@ -83,7 +89,7 @@ class BookmarksRowExpandTest {
                         selectedFilterIndex = 0,
                         sortMode = BookmarkSortMode.BIBLE_ORDER,
                         searchText = "",
-                        showNotes = true,
+                        showNotes = showNotes(),
                         selection = emptySet(),
                         expandedIds = expandedIds,
                         loading = false,
@@ -124,6 +130,27 @@ class BookmarksRowExpandTest {
     @Test fun a_row_whose_only_long_field_is_the_note_gets_a_chevron_too() {
         setScreen(listOf(row("b1", "Short verse.", notes = longText)))
         compose.onNodeWithContentDescription(expandText).assertIsDisplayed()
+    }
+
+/**
+     * The measured clipping flags self-correct while the measured `Text` stays in composition — but
+     * the notes `Text` LEAVES composition when "Show notes" is switched off, so nothing could clear
+     * `notesClipped` and the row kept a chevron that expanded nothing visible. Flipping the flag on
+     * a live composition is the only way to see it: a screen composed with showNotes=false from the
+     * start never sets the flag at all.
+     */
+    @Test fun hiding_the_notes_retires_the_chevron_that_only_a_long_note_earned() {
+        val showNotes = mutableStateOf(true)
+        setScreen(
+            rows = listOf(row("b1", "Short verse.", notes = longText)),
+            showNotes = { showNotes.value },
+        )
+        compose.onNodeWithContentDescription(expandText).assertIsDisplayed()
+
+        showNotes.value = false
+        compose.waitForIdle()
+
+        compose.onNodeWithContentDescription(expandText).assertDoesNotExist()
     }
 
     @Test fun tapping_the_chevron_toggles_expansion_and_does_not_open_the_bookmark() {

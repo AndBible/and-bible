@@ -264,11 +264,12 @@ private const val COLLAPSED_NOTES_LINES = 1
  * One bookmark row: label-colour chips + speak icon + title/date line, then the highlighted
  * content, then notes (when shown). Mirrors `bookmark_list_item.xml`'s layout order.
  *
- * Rows are COLLAPSED by default ([COLLAPSED_CONTENT_LINES] / [COLLAPSED_NOTES_LINES]) — an
- * improvement over classic, which was unbounded too and let one multi-verse bookmark fill the
- * screen. The expand chevron appears only when something is actually clipped, and carries its own
- * `clickable`: an inner clickable consumes the tap, so expanding never reaches the row's
- * `combinedClickable` and a row tap still opens the bookmark.
+ * Rows are COLLAPSED by default ([COLLAPSED_CONTENT_LINES] / [COLLAPSED_NOTES_LINES]). Classic did
+ * not bound these rows either, so one multi-verse bookmark could fill the screen; the line budget is
+ * therefore an improvement on classic rather than a parity fix. The expand chevron appears only when
+ * something is actually clipped, and carries its own `clickable`: an inner clickable consumes the
+ * tap, so expanding never reaches the row's `combinedClickable` and a row tap still opens the
+ * bookmark.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -355,7 +356,11 @@ private fun BookmarkListRow(
                 onTextLayout = { if (!expanded) notesClipped = it.hasVisualOverflow },
             )
         }
-        if (expanded || contentClipped || notesClipped) {
+        // The notes half of the gate is conditioned on the notes actually being SHOWN: the measured
+        // flags self-correct while their Text stays in composition, but switching "Show notes" off
+        // removes the notes Text entirely, so nothing could ever clear notesClipped -- leaving a row
+        // with short content and a long note holding a chevron that expanded nothing visible.
+        if (expanded || contentClipped || (showNotes && notes != null && notesClipped)) {
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                 Icon(
                     imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
@@ -363,7 +368,9 @@ private fun BookmarkListRow(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .clickable(onClick = onToggleExpand)
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        // 12dp of padding on every side around the 24dp icon: the clickable is
+                        // outermost, so the touch target is 48x48dp -- Android's recommended minimum.
+                        .padding(horizontal = 12.dp, vertical = 12.dp)
                         .size(24.dp),
                 )
             }
