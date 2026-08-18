@@ -5,7 +5,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import net.bible.android.activity.R
 import net.bible.sharedui.navigation.LocalCategoryIcon
+import net.bible.sharedui.reading.LocalPinIcon
 import net.bible.sharedui.settings.LocalSettingsIcon
 import net.bible.sharedui.strings.AndroidStrings
 import net.bible.sharedui.strings.LocalStrings
@@ -25,6 +27,9 @@ import net.bible.sharedui.theme.LocalSystemBarSync
  * `iconKey` to its classic drawable via [settingsDrawableRes]; unmapped keys resolve to `null` (no
  * icon), so this stays a no-op until a screen actually sets an `iconKey`.
  *
+ * [LocalPinIcon] supplies classic's `ic_pin` to [net.bible.sharedui.reading.WindowButton]'s
+ * Pane-mode pin indicator.
+ *
  * [LocalSystemBarSync] resolves the current [LocalContext]'s Activity (via [findActivity]) and calls
  * [applySystemBarColor] on it; it no-ops only when there is no Activity at all (e.g. an isolated
  * `@Preview`). The Roborazzi golden harness is NOT that case — `captureRoboImage` runs inside a real
@@ -38,6 +43,7 @@ fun ProvideAppLocals(content: @Composable () -> Unit) {
     CompositionLocalProvider(
         LocalStrings provides AndroidStrings(context),
         LocalCategoryIcon provides { category -> painterResource(categoryDrawableRes(category)) },
+        LocalPinIcon provides { painterResource(R.drawable.ic_pin) },
         LocalSettingsIcon provides { key -> settingsDrawableRes(key)?.let { painterResource(it) } },
         // A/B batch 3 F1. Resolves the Activity lazily on each call and no-ops only when there is
         // none (e.g. an isolated `@Preview`, or a plain-`Context` caller). The Roborazzi golden

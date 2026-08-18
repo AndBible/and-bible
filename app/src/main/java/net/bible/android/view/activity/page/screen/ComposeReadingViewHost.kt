@@ -2873,6 +2873,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                                     showButton = showPaneButtons,
                                                     autoHidden = paneButtonsAutoHidden,
                                                     autoPin = layout.autoPin,
+                                                    // Currently unreachable as true: `showPaneButtons` (passed as
+                                                    // `showButton` below) is a SINGLE value shared by every window
+                                                    // and is false whenever ANY window is maximised, so
+                                                    // `PaneWindowButtonOverlay` never composes `WindowButton` (and
+                                                    // therefore never evaluates `shouldShowPinIndicator` with this
+                                                    // argument) while `layout.maximizedWindowId == windowId` could
+                                                    // hold. Harmless, and kept per-window (not hard-coded false)
+                                                    // because it is the correct value if a future change ever composes
+                                                    // pane buttons during maximise.
                                                     isMaximised = layout.maximizedWindowId == windowId,
                                                     nightMode = nightModeState.value,
                                                     disableAnimations = CommonUtils.settings.disableAnimations,
