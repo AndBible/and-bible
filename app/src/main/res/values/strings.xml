@@ -402,6 +402,7 @@
     <string name="failed_repositories_message">Could not connect to the following document server: \n\n%s\n\n</string>
     <string name="failed_downloads_message">The following files could not be downloaded:\n\n%s\n\n</string>
     <string name="cant_delete_document">This document can not be deleted.</string>
+    <string name="bad_document_warning">This document has known problems.</string>
 
     <!--  Install zip file -->
     <string name="install_zip">Load Documents From Files</string>

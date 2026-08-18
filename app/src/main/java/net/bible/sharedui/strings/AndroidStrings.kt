@@ -587,4 +587,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override val colorPickerTitle: String get() = context.getString(R.string.color_picker_title)
     override val colorPickerPresets: String get() = context.getString(R.string.color_picker_presets)
     override val colorPickerCustom: String get() = context.getString(R.string.color_picker_custom)
+
+    // Round 8b — document-row markers
+    override val recommendedDocument: String get() = context.getString(R.string.recommended_document)
+    override val badDocumentWarning: String get() = context.getString(R.string.bad_document_warning)
 }

@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -44,12 +45,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.theme.accentArgbFor
+import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
 
 /** Multiplatform-safe "%.1f MB" (no java String.format / no NumberFormat). */
@@ -57,6 +64,9 @@ private fun formatSizeMb(mb: Double): String {
     val tenths = (mb * 10.0).roundToInt()
     return "${tenths / 10}.${tenths % 10} MB"
 }
+
+/** Classic `@color/yellow_600` (`document_list_item.xml`'s recommendedIcon tint). */
+private val RECOMMENDED_STAR_ARGB: Int = 0xFFFDD835.toInt()
 
 /**
  * One row in the document-selection list. Renders a leading checkbox (selection mode) or a category
@@ -77,6 +87,7 @@ fun DocumentRow(
     onDownload: () -> Unit,
     onCancel: () -> Unit,
 ) {
+    val strings = LocalStrings.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -85,8 +96,7 @@ fun DocumentRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // Leading: checkbox in selection mode, else the classic per-category icon (via the host
-        // seam). The recommended star rides as a small badge on the leading icon's corner (classic
-        // look), so it no longer costs a trailing slot.
+        // seam).
         Box(contentAlignment = Alignment.Center) {
             if (selectionMode) {
                 Checkbox(checked = selected, onCheckedChange = null)
@@ -97,14 +107,36 @@ fun DocumentRow(
                     modifier = Modifier.size(24.dp),
                 )
             }
-            if (row.recommended) {
-                Icon(
-                    Icons.Filled.Star,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(14.dp).align(Alignment.BottomEnd),
-                )
-            }
+        }
+        // Markers BESIDE the leading icon, as classic did (document_list_item.xml constrains both
+        // start_toEndOf the type icon) -- not as a badge ON it. The badge position, added in
+        // 4f7b8774f, both dimmed the star against the icon it overlapped and, in selection mode,
+        // put it on top of the checkbox.
+        //
+        // The star is decoration and is dropped in selection mode; the bad-document warning is
+        // safety information and stays, because selection mode is exactly when the user is about
+        // to act on the document.
+        if (row.recommended && !selectionMode) {
+            Spacer(Modifier.width(6.dp))
+            Icon(
+                Icons.Filled.Star,
+                contentDescription = strings.recommendedDocument,
+                // accentArgbFor keeps classic's amber in the normal and COLOR_EINK modes and
+                // greys it on BW/monochrome, exactly like the download arrow below.
+                tint = Color(accentArgbFor(RECOMMENDED_STAR_ARGB, LocalDisplayColorMode.current)),
+                modifier = Modifier.size(16.dp),
+            )
+        }
+        if (row.badWarn) {
+            Spacer(Modifier.width(6.dp))
+            Icon(
+                Icons.Filled.ThumbDown,
+                contentDescription = strings.badDocumentWarning,
+                // colorScheme.error, not classic's hardcoded red, per this file's standing
+                // modernization note -- so BW/e-ink degrade automatically.
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(16.dp),
+            )
         }
         Spacer(Modifier.width(16.dp))
 
@@ -117,7 +149,7 @@ fun DocumentRow(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = buildSubtitle(row, downloadMode),
+                text = buildSubtitle(row, downloadMode, strings.recommendedDocument),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -125,8 +157,7 @@ fun DocumentRow(
             )
         }
 
-        // Trailing markers: locked/enciphered (theme-tinted, not classic red/green). The recommended
-        // star moved to the leading icon (see above).
+        // Trailing markers: locked/enciphered (theme-tinted, not classic red/green).
         if (row.locked || row.enciphered) {
             Spacer(Modifier.width(8.dp))
             Icon(
@@ -142,7 +173,21 @@ fun DocumentRow(
     }
 }
 
-private fun buildSubtitle(row: DocRow, downloadMode: Boolean): String = buildString {
+/**
+ * The subtitle line. A recommended document leads with classic's bold "Recommended!" caption
+ * (`recommendedString` in `document_list_item.xml`, which the port had dropped) — as a prefix
+ * rather than classic's own dedicated line, so it costs no row height. The caption stays in
+ * selection mode: it is text, and unlike the star marker nothing can overlap it.
+ */
+private fun buildSubtitle(
+    row: DocRow,
+    downloadMode: Boolean,
+    recommendedCaption: String,
+): AnnotatedString = buildAnnotatedString {
+    if (row.recommended) {
+        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(recommendedCaption) }
+        append(" · ")
+    }
     append(row.language.displayName)
     if (row.repository.isNotEmpty()) {
         append(" · ")

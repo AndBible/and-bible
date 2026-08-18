@@ -643,6 +643,10 @@ interface Strings {
     val colorPickerTitle: String
     val colorPickerPresets: String
     val colorPickerCustom: String
+
+    // Round 8b — document-row markers
+    val recommendedDocument: String                         // R.string.recommended_document
+    val badDocumentWarning: String                          // R.string.bad_document_warning
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
