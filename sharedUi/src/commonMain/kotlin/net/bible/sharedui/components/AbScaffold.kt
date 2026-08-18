@@ -107,6 +107,16 @@ fun AbTopAppBar(
             }
         },
         actions = actions,
+        // The M3 default gives the title `onSurface` but the action and navigation icons
+        // `onSurfaceVariant`, so one bar drew its own contents in two colours. The search branch
+        // already overrides this deliberately (see AbSearchTopAppBar); this is the same fix for the
+        // normal branch. The CONTAINER colour is left at the M3 default, which `container` above
+        // already reads for SyncSystemBars.
+        colors = TopAppBarDefaults.topAppBarColors(
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+        ),
         // F2: the Compose hosts run inside an AppCompatActivity (ActivityBase) whose content
         // frame already insets for the status bar (like the classic View screens). The M3
         // default here would add the status-bar inset a SECOND time → the bar sat one bar-
