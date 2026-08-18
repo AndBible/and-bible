@@ -79,7 +79,7 @@ class DocumentRowMarkersTest {
         installSizeMb = 4.2,
     )
 
-    private fun setRow(row: DocRow, selectionMode: Boolean = false) {
+    private fun setRow(row: DocRow, selectionMode: Boolean = false, widthDp: Int = 360) {
         compose.setContent {
             ProvideAppLocals {
                 AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
@@ -88,8 +88,9 @@ class DocumentRowMarkersTest {
                     // subtitle-overflow test cares about ("at a realistic phone width the install
                     // size stays readable") is meaningless without pinning a stated, realistic
                     // width. 360dp is the narrow end of that range, so it is also the strictest
-                    // realistic case.
-                    Box(Modifier.width(360.dp)) {
+                    // realistic case. A second test below deliberately pins a narrower width to
+                    // show the field order (not just the width) is what keeps the size readable.
+                    Box(Modifier.width(widthDp.dp)) {
                         DocumentRow(
                             row = row,
                             downloadMode = true,
@@ -118,7 +119,10 @@ class DocumentRowMarkersTest {
 
     @Test fun a_recommended_row_prefixes_the_subtitle_with_the_caption() {
         setRow(row(recommended = true))
-        compose.onNodeWithText("$recommendedText · English · CrossWire", substring = true)
+        // Field order is [caption ·] size · language · repository: the install size is the
+        // number a download decision needs, so it comes right after the caption and the
+        // repository -- the least decision-relevant field -- is last (see buildSubtitle KDoc).
+        compose.onNodeWithText("$recommendedText · 4.2 MB · English · CrossWire", substring = true)
             .assertIsDisplayed()
     }
 
@@ -139,10 +143,42 @@ class DocumentRowMarkersTest {
         setRow(row(recommended = true))
         val layout = subtitleLayout()
         val full = layout.layoutInput.text.text
-        assertTrue(full.endsWith("4.2 MB"), "subtitle should end with the install size, was: '$full'")
+        // Not endsWith: the field order now puts the size right after the caption (it is the
+        // repository that trails and gets truncated instead, per buildSubtitle's KDoc), but this
+        // test's job is only "the size is present and the line isn't truncated at this width".
+        assertTrue(full.contains("4.2 MB"), "subtitle should contain the install size, was: '$full'")
         assertFalse(
             layout.hasVisualOverflow,
             "the recommended row's subtitle is truncated, so the install size is not readable: '$full'",
+        )
+    }
+
+    /**
+     * At a deliberately narrow 280dp (below the 360dp width the previous test pins -- and,
+     * measured, below the width at which this content still fits: at 320dp this exact row does
+     * NOT overflow, at 280dp it does), the subtitle DOES overflow -- but the field order
+     * (`[caption ·] size · language · repository`) puts the install size right after the caption,
+     * so it is still among the visibly PAINTED characters even though the line as a whole is
+     * truncated. Checking the semantics text (`onNodeWithText`) cannot show this: it always
+     * carries the full, untruncated string. Checking only `hasVisualOverflow` cannot show it
+     * either: overflow is expected and correct here, it just must not have eaten the size yet. So
+     * this asserts against the LAID-OUT result's own idea of what is visible:
+     * `getLineEnd(lastLine, visibleEnd = true)` returns the offset of the last character actually
+     * painted (excluding any ellipsis), and the size's character range must fall entirely before
+     * that offset.
+     */
+    @Test fun a_narrow_row_still_paints_the_install_size_before_the_truncation_point() {
+        setRow(row(recommended = true), widthDp = 280)
+        val layout = subtitleLayout()
+        val full = layout.layoutInput.text.text
+        val sizeIndex = full.indexOf("4.2 MB")
+        assertTrue(sizeIndex >= 0, "subtitle text should contain the install size, was: '$full'")
+        val lastVisibleOffset = layout.getLineEnd(layout.lineCount - 1, visibleEnd = true)
+        assertTrue(
+            sizeIndex + "4.2 MB".length <= lastVisibleOffset,
+            "the install size ('4.2 MB' at [$sizeIndex, ${sizeIndex + "4.2 MB".length})) must be " +
+                "fully painted before the truncation point (last visible offset $lastVisibleOffset), " +
+                "full text: '$full'",
         )
     }
 

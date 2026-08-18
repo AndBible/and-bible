@@ -183,6 +183,15 @@ fun DocumentRow(
  * (`recommendedString` in `document_list_item.xml`, which the port had dropped) — as a prefix
  * rather than classic's own dedicated line, so it costs no row height. The caption stays in
  * selection mode: it is text, and unlike the star marker nothing can overlap it.
+ *
+ * Field order in download mode is `[caption ·] size · language · repository` — deliberately NOT
+ * alphabetical or "most specific last". With `maxLines = 2` the line still ellipsizes on a narrow
+ * phone (measured: at 320dp the subtitle column is 176dp wide and overflows even at two lines;
+ * 360dp is the first width that fits), so the field ORDER decides what survives truncation, not
+ * just what is technically present. The install size is the one number a download decision
+ * needs, so it goes first among the data fields (right after the caption); the repository is the
+ * least decision-relevant field, so it is placed last and is the one sacrificed when space runs
+ * out. Non-download mode (Choose-documents) has no size at all and stays `language · repository`.
  */
 private fun buildSubtitle(
     row: DocRow,
@@ -193,15 +202,15 @@ private fun buildSubtitle(
         withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(recommendedCaption) }
         append(" · ")
     }
+    val sizeMb = row.installSizeMb
+    if (downloadMode && sizeMb != null) {
+        append(formatSizeMb(sizeMb))
+        append(" · ")
+    }
     append(row.language.displayName)
     if (row.repository.isNotEmpty()) {
         append(" · ")
         append(row.repository)
-    }
-    val sizeMb = row.installSizeMb
-    if (downloadMode && sizeMb != null) {
-        append(" · ")
-        append(formatSizeMb(sizeMb))
     }
 }
 
