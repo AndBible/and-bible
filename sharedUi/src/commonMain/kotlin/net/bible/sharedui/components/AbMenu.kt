@@ -20,6 +20,7 @@ package net.bible.sharedui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -117,4 +118,15 @@ fun AbMenuItem(
         trailingIcon = trailingSlot,
         colors = abMenuItemColors(),
     )
+}
+
+/**
+ * The leading icon every "Help" row in this app uses. A single shared value so the icon can't
+ * drift screen to screen — before this it was hand-copied, verbatim, at five call sites
+ * ([net.bible.sharedui.reading.ReadingToolbar], [net.bible.sharedui.search.EpubSearchScreen],
+ * [net.bible.sharedui.progress.ReadingProgressScreen], [net.bible.sharedui.speak.BibleSpeakScreen],
+ * [net.bible.sharedui.speak.AdvancedSpeakSettingsScreen]) — a sixth screen would have made it six.
+ */
+val AbHelpMenuIcon: @Composable () -> Unit = {
+    Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null)
 }

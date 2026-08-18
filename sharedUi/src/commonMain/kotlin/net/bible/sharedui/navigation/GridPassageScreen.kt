@@ -36,9 +36,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.Icon
@@ -104,7 +104,7 @@ fun GridChoosePassageScreen(
                                 )
                             }
                             CheckItem(strings.menuAlphabetical, options.alphabetical, { Icon(Icons.Filled.SortByAlpha, contentDescription = null) }) { close(); onToggle(GridOption.ALPHABETICAL) }
-                            CheckItem(strings.menuRowOrder, options.ltr, { Icon(Icons.Filled.Sort, contentDescription = null) }) { close(); onToggle(GridOption.LTR) }
+                            CheckItem(strings.menuRowOrder, options.ltr, { Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = null) }) { close(); onToggle(GridOption.LTR) }
                             CheckItem(strings.menuGroupByCategory, options.groupByCategory, { Icon(Icons.Filled.Category, contentDescription = null) }) { close(); onToggle(GridOption.GROUP_BY_CATEGORY) }
                             CheckItem(strings.menuShowLongName, options.longNames, { Icon(Icons.Filled.TextFields, contentDescription = null) }) { close(); onToggle(GridOption.LONG_NAMES) }
                             CheckItem(strings.menuShowProgressBars, options.showProgress, { Icon(Icons.Filled.BarChart, contentDescription = null) }) { close(); onToggle(GridOption.SHOW_PROGRESS) }

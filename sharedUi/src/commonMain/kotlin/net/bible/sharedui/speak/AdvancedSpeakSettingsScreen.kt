@@ -22,15 +22,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.speak.AdvancedSpeakVd
+import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
@@ -61,7 +59,7 @@ fun AdvancedSpeakSettingsScreen(
                 AbMenuItem(
                     text = strings.helpLabel,
                     onClick = { close(); onHelp() },
-                    icon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null) },
+                    icon = AbHelpMenuIcon,
                 )
             }
         },

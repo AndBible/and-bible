@@ -51,7 +51,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.History
@@ -110,6 +109,7 @@ import net.bible.sharedcore.reading.fitToolbarButtons
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.reading.readingToolbarContainerArgb
 import net.bible.sharedui.components.AbActionIconSize
+import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbSearchField
@@ -488,7 +488,7 @@ fun ReadingToolbar(
                         AbMenuItem(
                             text = strings.help,
                             onClick = { searchMenuOpen = false; searchHelpOpen = true },
-                            icon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null) },
+                            icon = AbHelpMenuIcon,
                         )
                     }
                 }

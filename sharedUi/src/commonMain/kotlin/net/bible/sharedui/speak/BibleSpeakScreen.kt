@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material3.HorizontalDivider
@@ -38,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.speak.SpeakPlaybackVd
+import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
@@ -82,7 +82,7 @@ fun BibleSpeakScreen(
                 AbMenuItem(
                     text = strings.helpLabel,
                     onClick = { close(); onHelp() },
-                    icon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null) },
+                    icon = AbHelpMenuIcon,
                 )
             }
         },

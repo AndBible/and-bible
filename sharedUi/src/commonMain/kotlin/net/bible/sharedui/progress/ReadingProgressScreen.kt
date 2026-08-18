@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Settings
@@ -51,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.progress.ReadingProgressModel
 import net.bible.sharedcore.progress.ReadingTab
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
@@ -97,7 +97,7 @@ fun ReadingProgressScreen(
                 AbMenuItem(
                     text = strings.help,
                     onClick = { close(); onShowHelp() },
-                    icon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null) },
+                    icon = AbHelpMenuIcon,
                 )
             }
         },
