@@ -26,11 +26,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -47,6 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.SearchBibleSection
 import net.bible.sharedcore.search.SearchType
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.components.AbSettingsSummarySheet
@@ -115,12 +118,13 @@ fun SearchScreen(
                     onDismissRequest = { recentMenuOpen = false },
                 ) {
                     recentTerms.forEach { term ->
-                        DropdownMenuItem(
-                            text = { Text(term) },
+                        AbMenuItem(
+                            text = term,
                             onClick = {
                                 onRecentTermSelected(term)
                                 recentMenuOpen = false
                             },
+                            icon = { Icon(Icons.Filled.History, contentDescription = null) },
                         )
                     }
                 }

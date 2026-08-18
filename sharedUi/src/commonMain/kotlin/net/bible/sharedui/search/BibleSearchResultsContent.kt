@@ -24,10 +24,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.strings.LocalStrings
@@ -100,9 +101,10 @@ fun BibleResultsActions(
         )
     }
     AbOverflowMenu(contentDescription = null) { close ->
-        DropdownMenuItem(
-            text = { Text(strings.openResultsInWindow) },
+        AbMenuItem(
+            text = strings.openResultsInWindow,
             onClick = { close(); onOpenInWindow() },
+            icon = { Icon(Icons.Filled.OpenInNew, contentDescription = null) },
         )
     }
 
