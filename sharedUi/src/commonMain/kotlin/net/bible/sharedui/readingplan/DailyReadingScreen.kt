@@ -10,12 +10,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.filled.EditCalendar
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,6 +36,7 @@ import net.bible.sharedcore.readingplan.SpeakState
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
@@ -93,11 +98,27 @@ fun DailyReadingScreen(
                     }
                     AbOverflowMenu(contentDescription = null) { close ->
                         if (!ui.isDateBasedPlan) {
-                            DropdownMenuItem(text = { Text(strings.setCurrentDay) }, onClick = { close(); onSetCurrentDay() })
-                            DropdownMenuItem(text = { Text(strings.setStartDate) }, onClick = { close(); onSetStartDate() })
+                            AbMenuItem(
+                                text = strings.setCurrentDay,
+                                onClick = { close(); onSetCurrentDay() },
+                                icon = { Icon(Icons.Filled.Today, contentDescription = null) },
+                            )
+                            AbMenuItem(
+                                text = strings.setStartDate,
+                                onClick = { close(); onSetStartDate() },
+                                icon = { Icon(Icons.Filled.EditCalendar, contentDescription = null) },
+                            )
                         }
-                        DropdownMenuItem(text = { Text(strings.resetGeneric) }, onClick = { close(); onReset() })
-                        DropdownMenuItem(text = { Text(strings.importReadingPlan) }, onClick = { close(); onImportPlan() })
+                        AbMenuItem(
+                            text = strings.resetGeneric,
+                            onClick = { close(); onReset() },
+                            icon = { Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = null) },
+                        )
+                        AbMenuItem(
+                            text = strings.importReadingPlan,
+                            onClick = { close(); onImportPlan() },
+                            icon = { Icon(Icons.Filled.FileDownload, contentDescription = null) },
+                        )
                     }
                 },
             )

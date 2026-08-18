@@ -28,15 +28,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +63,7 @@ import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedcore.workspaces.CopySettingsState
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbReorderableColumn
 import net.bible.sharedui.components.AbScaffold
@@ -331,24 +337,48 @@ fun WorkspaceRowMenuRows(
 ) {
     val s = LocalStrings.current
     if (submenuOpen) {
-        DropdownMenuItem(
-            text = { Text("‹ ${s.menuBack}") },
+        AbMenuItem(
+            text = s.menuBack,
             onClick = onBack,
+            icon = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) },
         )
-        DropdownMenuItem(text = { Text(s.copySettingsToWorkspaces) }, onClick = onCopySettings)
-        DropdownMenuItem(text = { Text(s.copySettingsToGlobalDefaults) }, onClick = onCopySettingsToGlobal)
+        AbMenuItem(
+            text = s.copySettingsToWorkspaces,
+            onClick = onCopySettings,
+            icon = { Icon(Icons.Filled.ContentCopy, contentDescription = null) },
+        )
+        AbMenuItem(
+            text = s.copySettingsToGlobalDefaults,
+            onClick = onCopySettingsToGlobal,
+            icon = { Icon(Icons.Filled.Public, contentDescription = null) },
+        )
         return
     }
-    DropdownMenuItem(
-        text = { Text(s.deleteWorkspaceLabel) }, enabled = canDelete,
+    AbMenuItem(
+        text = s.deleteWorkspaceLabel,
         onClick = onDelete,
+        icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+        enabled = canDelete,
     )
-    DropdownMenuItem(text = { Text(s.rename) }, onClick = onRename)
-    DropdownMenuItem(text = { Text(s.newCopiedWorkspace) }, onClick = onClone)
-    DropdownMenuItem(text = { Text(s.workspaceSettingsLabel) }, onClick = onEditSettings)
-    DropdownMenuItem(
-        text = { Text(s.copyWorkspaceSettings) },
-        trailingIcon = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+    AbMenuItem(
+        text = s.rename,
+        onClick = onRename,
+        icon = { Icon(Icons.Filled.DriveFileRenameOutline, contentDescription = null) },
+    )
+    AbMenuItem(
+        text = s.newCopiedWorkspace,
+        onClick = onClone,
+        icon = { Icon(Icons.Filled.ContentCopy, contentDescription = null) },
+    )
+    AbMenuItem(
+        text = s.workspaceSettingsLabel,
+        onClick = onEditSettings,
+        icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
+    )
+    AbMenuItem(
+        text = s.copyWorkspaceSettings,
         onClick = onEnterSubmenu,
+        icon = { Icon(Icons.Filled.ContentCopy, contentDescription = null) },
+        trailing = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
     )
 }

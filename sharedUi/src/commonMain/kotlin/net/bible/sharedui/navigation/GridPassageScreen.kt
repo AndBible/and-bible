@@ -34,9 +34,14 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.filled.SortByAlpha
+import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -59,6 +64,7 @@ import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.GridUi
 import net.bible.sharedcore.navigation.gridCellRows
 import net.bible.sharedcore.navigation.gridCellRowsForSections
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
@@ -91,16 +97,17 @@ fun GridChoosePassageScreen(
                     if (ui.step == GridStep.BOOK) {
                         AbOverflowMenu(contentDescription = null) { close ->
                             if (ui.showDeutToggle) {
-                                DropdownMenuItem(
-                                    text = { Text(if (options.showScripture) strings.deuterocanonical else strings.bible) },
+                                AbMenuItem(
+                                    text = if (options.showScripture) strings.deuterocanonical else strings.bible,
                                     onClick = { close(); onToggle(GridOption.DEUTEROCANONICAL) },
+                                    icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null) },
                                 )
                             }
-                            CheckItem(strings.menuAlphabetical, options.alphabetical) { close(); onToggle(GridOption.ALPHABETICAL) }
-                            CheckItem(strings.menuRowOrder, options.ltr) { close(); onToggle(GridOption.LTR) }
-                            CheckItem(strings.menuGroupByCategory, options.groupByCategory) { close(); onToggle(GridOption.GROUP_BY_CATEGORY) }
-                            CheckItem(strings.menuShowLongName, options.longNames) { close(); onToggle(GridOption.LONG_NAMES) }
-                            CheckItem(strings.menuShowProgressBars, options.showProgress) { close(); onToggle(GridOption.SHOW_PROGRESS) }
+                            CheckItem(strings.menuAlphabetical, options.alphabetical, { Icon(Icons.Filled.SortByAlpha, contentDescription = null) }) { close(); onToggle(GridOption.ALPHABETICAL) }
+                            CheckItem(strings.menuRowOrder, options.ltr, { Icon(Icons.Filled.Sort, contentDescription = null) }) { close(); onToggle(GridOption.LTR) }
+                            CheckItem(strings.menuGroupByCategory, options.groupByCategory, { Icon(Icons.Filled.Category, contentDescription = null) }) { close(); onToggle(GridOption.GROUP_BY_CATEGORY) }
+                            CheckItem(strings.menuShowLongName, options.longNames, { Icon(Icons.Filled.TextFields, contentDescription = null) }) { close(); onToggle(GridOption.LONG_NAMES) }
+                            CheckItem(strings.menuShowProgressBars, options.showProgress, { Icon(Icons.Filled.BarChart, contentDescription = null) }) { close(); onToggle(GridOption.SHOW_PROGRESS) }
                         }
                     }
                 },
@@ -272,12 +279,6 @@ private fun Bar(fraction: Float, color: Color) {
 }
 
 @Composable
-private fun CheckItem(text: String, checked: Boolean, onClick: () -> Unit) {
-    DropdownMenuItem(
-        text = { Text(text) },
-        onClick = onClick,
-        leadingIcon = {
-            Checkbox(checked = checked, onCheckedChange = { onClick() }, colors = CheckboxDefaults.colors())
-        },
-    )
+private fun CheckItem(text: String, checked: Boolean, icon: @Composable () -> Unit, onClick: () -> Unit) {
+    AbMenuItem(text = text, onClick = onClick, icon = icon, checkable = true, checked = checked)
 }
