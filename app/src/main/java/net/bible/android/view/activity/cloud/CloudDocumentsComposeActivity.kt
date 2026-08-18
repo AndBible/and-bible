@@ -21,17 +21,11 @@ import android.text.format.Formatter
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.drop
@@ -52,8 +46,9 @@ import net.bible.sharedcore.cloud.CloudDocumentsController
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.cloud.CloudDocumentsScreen
+import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.docCategoryOf
-import org.crosswire.jsword.book.BookCategory
 
 /**
  * Compose host for the cloud documents management view — the new-path twin of classic
@@ -320,34 +315,45 @@ class CloudDocumentsComposeActivity : ActivityBase() {
     // --- Overflow menu (Sync now / Re-scan / Show removed / Help) ---------------------------
     @Composable
     private fun OverflowMenu(showRemoved: Boolean) {
-        var expanded by remember { mutableStateOf(false) }
-        IconButton(onClick = { expanded = true }) {
-            Text("⋮", fontSize = 24.sp) // vertical ellipsis (Material icons aren't on the app-module classpath); sized to match the 28dp shared top-bar icons
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        AbOverflowMenu(contentDescription = null) { close ->
             if (CloudSync.signedIn) {
-                DropdownMenuItem(text = { Text(getString(R.string.cloud_doc_sync_now)) }, onClick = { expanded = false; showSyncNow() })
-                DropdownMenuItem(text = { Text(getString(R.string.cloud_doc_rescan)) }, onClick = { expanded = false; controller.rescan() })
-                DropdownMenuItem(
-                    text = { Text((if (showRemoved) "✓ " else "") + getString(R.string.cloud_doc_show_removed)) },
-                    onClick = { expanded = false; controller.setShowRemoved(!showRemoved) },
+                AbMenuItem(
+                    text = getString(R.string.cloud_doc_sync_now),
+                    onClick = { close(); showSyncNow() },
+                    icon = { Icon(painterResource(R.drawable.ic_sync_white_24dp), contentDescription = null) },
+                )
+                AbMenuItem(
+                    text = getString(R.string.cloud_doc_rescan),
+                    onClick = { close(); controller.rescan() },
+                    icon = { Icon(painterResource(R.drawable.ic_baseline_refresh_24), contentDescription = null) },
+                )
+                AbMenuItem(
+                    text = getString(R.string.cloud_doc_show_removed),
+                    onClick = { close(); controller.setShowRemoved(!showRemoved) },
+                    icon = { Icon(painterResource(R.drawable.ic_baseline_visibility_24), contentDescription = null) },
+                    checkable = true,
+                    checked = showRemoved,
                 )
             }
-            DropdownMenuItem(text = { Text(getString(R.string.help)) }, onClick = {
-                expanded = false
-                CommonUtils.showHelpDialog(
-                    activity = this@CloudDocumentsComposeActivity,
-                    titleResId = R.string.help,
-                    messageResId = R.string.help_document_sync_text,
-                    helpPath = "document_sync.html",
-                )
-            })
+            AbMenuItem(
+                text = getString(R.string.help),
+                onClick = {
+                    close()
+                    CommonUtils.showHelpDialog(
+                        activity = this@CloudDocumentsComposeActivity,
+                        titleResId = R.string.help,
+                        messageResId = R.string.help_document_sync_text,
+                        helpPath = "document_sync.html",
+                    )
+                },
+                icon = { Icon(painterResource(R.drawable.ic_help_white_24dp), contentDescription = null) },
+            )
         }
     }
 
     // --- View-data flatten + filter labels --------------------------------------------------
     private fun DocumentSync.DocumentStatusItem.toCloudDocItem(): CloudDocItem = CloudDocItem(
-        initials = initials, name = name, category = docCategoryOf(category),
+        initials = initials, name = name, category = category?.let { docCategoryOf(it) },
         cloudVersion = cloudVersion, localVersion = localVersion,
         cloudOnly = cloudOnly, localOnly = localOnly, updateAvailable = updateAvailable, localNewer = localNewer,
         blocked = blocked, canDeleteLocal = canDeleteLocal, cloudDeleted = cloudDeleted,

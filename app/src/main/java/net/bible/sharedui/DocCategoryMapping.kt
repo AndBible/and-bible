@@ -25,13 +25,21 @@ import org.crosswire.jsword.book.BookCategory
  * Was copy-pasted in `ChooseDocumentComposeActivity`, `DownloadComposeActivity` and
  * `CloudDocumentsComposeActivity`; the quick-doc picker (F45) would have made a fourth copy, so it
  * moved here instead — next to [categoryDrawableRes], which consumes the result.
+ *
+ * [category] is intentionally non-null: [net.bible.service.cloudsync.documents.DocumentSync.DocumentStatusItem.category]
+ * is the only nullable source, and its `null` is meaningful there (unknown/never-installed
+ * category) and distinct from [BookCategory.OTHER] — so that call site maps null→null itself
+ * (`category?.let { docCategoryOf(it) }`) instead of this function silently collapsing both into
+ * one value.
  */
-fun docCategoryOf(category: BookCategory?): DocCategory = when (category) {
+fun docCategoryOf(category: BookCategory): DocCategory = when (category) {
     BookCategory.BIBLE -> DocCategory.BIBLE
     BookCategory.COMMENTARY -> DocCategory.COMMENTARY
     BookCategory.DICTIONARY -> DocCategory.DICTIONARY
     BookCategory.MAPS -> DocCategory.MAPS
     BookCategory.GENERAL_BOOK -> DocCategory.GENERAL_BOOK
     BookCategory.AND_BIBLE -> DocCategory.AND_BIBLE
+    // DAILY_DEVOTIONS, GLOSSARY, QUESTIONABLE, ESSAYS, IMAGES have no DocCategory of their own —
+    // genuinely unmapped, not a null-substitute.
     else -> DocCategory.OTHER
 }

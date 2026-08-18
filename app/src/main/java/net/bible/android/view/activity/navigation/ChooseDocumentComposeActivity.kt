@@ -22,16 +22,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -65,6 +59,8 @@ import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedui.AbAppTheme
+import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.docCategoryOf
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.strings.LocalStrings
@@ -371,23 +367,21 @@ class ChooseDocumentComposeActivity : ActivityBase() {
 
     @androidx.compose.runtime.Composable
     private fun OverflowMenu() {
-        var expanded by remember { mutableStateOf(false) }
-        // Material icons aren't on the app module classpath; a glyph keeps the host dependency-free.
-        IconButton(onClick = { expanded = true }) {
-            Text("⋮", fontSize = 24.sp) // vertical ellipsis (overflow); sized to match the 28dp shared top-bar icons
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(
-                text = { Text(getString(R.string.download)) },
-                onClick = { expanded = false; onDownload() },
+        AbOverflowMenu(contentDescription = null) { close ->
+            AbMenuItem(
+                text = getString(R.string.download),
+                onClick = { close(); onDownload() },
+                icon = { Icon(painterResource(R.drawable.ic_file_download_24dp), contentDescription = null) },
             )
-            DropdownMenuItem(
-                text = { Text(getString(R.string.backup_modules2)) },
-                onClick = { expanded = false; onBackup() },
+            AbMenuItem(
+                text = getString(R.string.backup_modules2),
+                onClick = { close(); onBackup() },
+                icon = { Icon(painterResource(R.drawable.ic_backup_black_24dp), contentDescription = null) },
             )
-            DropdownMenuItem(
-                text = { Text(getString(R.string.install_zip)) },
-                onClick = { expanded = false; onInstallZip() },
+            AbMenuItem(
+                text = getString(R.string.install_zip),
+                onClick = { close(); onInstallZip() },
+                icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
             )
         }
     }
