@@ -130,7 +130,8 @@ class DocumentRowMarkersTest {
         val density = layout.layoutInput.density.density
         val widthPx = layout.size.width
         val widthDp = widthPx / density
-        println("DIAG widthPx=$widthPx widthDp=$widthDp density=$density lineCount=${layout.lineCount} hasVisualOverflow=${layout.hasVisualOverflow}")
+        val dm = context.resources.displayMetrics
+        println("DIAG widthPx=$widthPx widthDp=$widthDp density=$density lineCount=${layout.lineCount} hasVisualOverflow=${layout.hasVisualOverflow} screenWidthPx=${dm.widthPixels} screenWidthDp=${dm.widthPixels / dm.density} screenDensity=${dm.density}")
         assertTrue(full.endsWith("4.2 MB"), "subtitle should end with the install size, was: '$full'")
         assertFalse(
             layout.hasVisualOverflow,
