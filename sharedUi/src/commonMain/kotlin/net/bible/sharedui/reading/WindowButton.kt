@@ -47,9 +47,11 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import net.bible.sharedcore.reading.railLabelFontScale
 
 /**
  * The two call sites of classic Android's single `WindowButtonWidget(isRestoreButton = true/false)`:
@@ -73,6 +75,18 @@ private val WindowButtonCorner = 8.dp
 private val BadgeIconSize = 14.dp
 /** Shared inset for the top-end/top-start badges' `Modifier.padding(...)` — also the basis of [RailBadgeRowHeight]. */
 private val BadgeInset = 2.dp
+/** The sync badge's glyph size (classic `synchronize` ImageView is 12dip; 9.dp reads the same beside an 8.dp digit). */
+private val SyncBadgeIconSize = 9.dp
+/**
+ * The sync-group digit's size, declared in **dp** and converted to sp at use.
+ *
+ * A badge digit inside a FIXED 40.dp button cannot honour the system font scale: the button will
+ * not grow, so a scaling glyph can only overflow — and it would overflow into precisely the two
+ * things positioned relative to [RailBadgeRowHeight] (the rail label pair, and the Pane pin icon).
+ * Declaring it in dp is what makes [RailBadgeRowHeight] an honest bound instead of an optimistic
+ * one, by construction rather than by luck.
+ */
+private val SyncBadgeDigitSize = 8.dp
 private val PinDotSize = 6.dp
 private val BorderWidth = 1.dp
 private val MinimisedBorderWidth = 1.5.dp
@@ -85,6 +99,8 @@ private val RailLabelSize = 13.sp
 private val RailTopLabelSize = 9.sp
 /** Classic `buttonText`/`topButtonText` start padding (`window_button.xml`, `paddingStart="1dip"` + the badge column). */
 private val RailTextStartPadding = 2.dp
+/** Classic `buttonText` bottom padding — subtracted from the label box before scaling the lines. */
+private val RailLabelBottomPadding = 1.dp
 /**
  * The tallest top-badge extent this file actually draws — the top-end `docType`/link [Icon]'s
  * `Modifier.align(Alignment.TopEnd).padding(BadgeInset).size(BadgeIconSize)` below — **derived**
@@ -210,32 +226,47 @@ fun WindowButton(
             // badge row, regardless of actual font-metric variance (see [RailBadgeRowHeight]).
             // verticalArrangement=Bottom then still hugs the two lines to the bottom, mirroring
             // classic's `buttonText` `Bottom_toBottomOf="@id/windowButton"`.
-            WindowButtonMode.Rail -> Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .height(WindowButtonSize - RailBadgeRowHeight)
-                    .padding(start = RailTextStartPadding, end = 1.dp, bottom = 1.dp),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Bottom,
-            ) {
-                if (topLabel != null) {
+            WindowButtonMode.Rail -> {
+                // The box is dp, the lines are sp: above ~1.05 font scale the bottom-anchored
+                // Column would overflow upward into the badge row. One shared factor keeps the two
+                // lines proportional to each other and inside the box; at scale 1.0 it is exactly
+                // 1f, so nothing moves. See railLabelFontScale's kdoc.
+                val density = LocalDensity.current
+                val labelBoxHeight = WindowButtonSize - RailBadgeRowHeight
+                val availablePx = with(density) { (labelBoxHeight - RailLabelBottomPadding).toPx() }
+                val requiredPx = with(density) {
+                    RailLabelSize.toPx() + if (topLabel != null) RailTopLabelSize.toPx() else 0f
+                }
+                val scale = railLabelFontScale(availablePx, requiredPx)
+                val topLabelSize = RailTopLabelSize * scale
+                val labelSize = RailLabelSize * scale
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .height(labelBoxHeight)
+                        .padding(start = RailTextStartPadding, end = 1.dp, bottom = RailLabelBottomPadding),
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Bottom,
+                ) {
+                    if (topLabel != null) {
+                        Text(
+                            text = topLabel,
+                            fontSize = topLabelSize,
+                            lineHeight = topLabelSize,
+                            color = contentColor,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                     Text(
-                        text = topLabel,
-                        fontSize = RailTopLabelSize,
-                        lineHeight = RailTopLabelSize,
+                        text = label,
+                        fontSize = labelSize,
+                        lineHeight = labelSize,
                         color = contentColor,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Text(
-                    text = label,
-                    fontSize = RailLabelSize,
-                    lineHeight = RailLabelSize,
-                    color = contentColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
         }
 
@@ -285,13 +316,20 @@ fun WindowButton(
 
 @Composable
 private fun SyncGroupBadge(group: Int, color: Color, modifier: Modifier = Modifier) {
+    val digitSize = with(LocalDensity.current) { SyncBadgeDigitSize.toSp() }
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Icon(
             imageVector = Icons.Filled.Sync,
             contentDescription = null,
             tint = color,
-            modifier = Modifier.size(9.dp),
+            modifier = Modifier.size(SyncBadgeIconSize),
         )
-        Text(text = group.toString(), color = color, fontSize = 8.sp, maxLines = 1)
+        Text(
+            text = group.toString(),
+            color = color,
+            fontSize = digitSize,
+            lineHeight = digitSize,
+            maxLines = 1,
+        )
     }
 }
