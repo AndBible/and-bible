@@ -29,13 +29,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
-import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
@@ -140,12 +141,7 @@ fun WorkspaceSelectorScreen(
             if (!searchModeActive) {
                 AbActionIcon(Icons.Filled.Search, s.search, onOpenSearch)
                 AbActionIcon(Icons.Filled.AddCircleOutline, s.newItem, { createOpen = true })
-                // Icons.Filled.HelpOutline (not AutoMirrored) is deliberate: classic's
-                // ic_help_white_24dp.xml has no android:autoMirrored, and Material Icons Extended
-                // only ships an AutoMirrored variant for HelpOutline here, not for Search or
-                // AddCircleOutline — switching this one would REGRESS RTL parity on a screen that
-                // does have an RTL golden. Don't "fix" this in a later cross-screen icon pass.
-                AbActionIcon(Icons.Filled.HelpOutline, s.helpLabel, onHelp)
+                AbActionIcon(Icons.AutoMirrored.Filled.HelpOutline, s.helpLabel, onHelp)
             }
         },
         search = if (searchModeActive) {
@@ -368,7 +364,9 @@ fun WorkspaceRowMenuRows(
     AbMenuItem(
         text = s.newCopiedWorkspace,
         onClick = onClone,
-        icon = { Icon(Icons.Filled.ContentCopy, contentDescription = null) },
+        // A distinct glyph from the settings-copy rows below (which keep ContentCopy) — this row
+        // clones the whole workspace into a new entry, not settings onto an existing one.
+        icon = { Icon(Icons.Filled.LibraryAdd, contentDescription = null) },
     )
     AbMenuItem(
         text = s.workspaceSettingsLabel,
