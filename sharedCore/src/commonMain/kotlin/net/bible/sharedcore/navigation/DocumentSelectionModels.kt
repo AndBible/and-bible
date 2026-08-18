@@ -76,3 +76,17 @@ data class DocRow(
     val canDelete: Boolean,
     val installSizeMb: Double?,
 )
+
+/**
+ * Whether the current selection contains at least one deletable document — the rule behind the
+ * selection bar's delete action.
+ *
+ * It lives here rather than in the hosts for two reasons. It used to be the inline host expression
+ * `displayed.firstOrNull { it.docId in selectedIds }?.canDelete == true`, which (a) no test could
+ * reach and (b) consulted an arbitrary row of a multi-selection, so whether the action appeared
+ * depended on set iteration order. Classic showed the menu entry unconditionally and toasted
+ * `cant_delete_document` for the ones it could not delete; "at least one deletable" is the closest
+ * honest rule that never offers an action that would do nothing at all.
+ */
+fun anySelectedDeletable(rows: List<DocRow>, selectedIds: Set<String>): Boolean =
+    rows.any { it.docId in selectedIds && it.canDelete }
