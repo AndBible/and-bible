@@ -27,9 +27,7 @@ import android.widget.TextView
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -73,6 +71,7 @@ import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.bookmark.ManageLabelsScreen
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import org.koin.android.ext.android.inject
@@ -225,23 +224,44 @@ class ManageLabelsComposeActivity : ActivityBase() {
     @Composable
     private fun RowScope.ManageLabelsActions(onExportStudyPads: () -> Unit, onImportStudyPads: () -> Unit) {
         AbOverflowMenu(contentDescription = null) { close ->
-            DropdownMenuItem(text = { Text(getString(R.string.new_item)) }, onClick = { close(); controller.newLabel() })
-            DropdownMenuItem(text = { Text(getString(R.string.help)) }, onClick = { close(); help() })
+            AbMenuItem(
+                text = getString(R.string.new_item),
+                onClick = { close(); controller.newLabel() },
+                icon = { Icon(painterResource(R.drawable.ic_add_circle_outline_white_24dp), contentDescription = null) },
+            )
+            AbMenuItem(
+                text = getString(R.string.help),
+                onClick = { close(); help() },
+                icon = { Icon(painterResource(R.drawable.ic_help_white_24dp), contentDescription = null) },
+            )
             if (controller.mode.hasReOrderButton) {
-                DropdownMenuItem(text = { Text(getString(R.string.reorder)) }, onClick = { close(); controller.reOrder() })
+                AbMenuItem(
+                    text = getString(R.string.reorder),
+                    onClick = { close(); controller.reOrder() },
+                    icon = { Icon(painterResource(R.drawable.ic_baseline_refresh_24), contentDescription = null) },
+                )
             }
             if (controller.mode.hasResetButton) {
-                DropdownMenuItem(text = { Text(getString(R.string.reset_generic)) }, onClick = { close(); controller.reset() })
+                AbMenuItem(
+                    text = getString(R.string.reset_generic),
+                    onClick = { close(); controller.reset() },
+                    icon = { Icon(painterResource(R.drawable.ic_baseline_undo_24), contentDescription = null) },
+                )
             }
             // Export/import StudyPads: visible in ALL modes (classic ManageLabels.kt:379-386
             // onCreateOptionsMenu parity — only resetButton/reOrder are mode-conditional there).
-            DropdownMenuItem(
-                text = { Text(getString(R.string.export_something, getString(R.string.studypads))) },
+            // Icons deliberately do NOT copy classic's `manage_labels_options_menu.xml`, which reused
+            // ic_baseline_undo_24 (an undo glyph) for both these rows — a copy-paste artefact there,
+            // not ported here.
+            AbMenuItem(
+                text = getString(R.string.export_something, getString(R.string.studypads)),
                 onClick = { close(); onExportStudyPads() },
+                icon = { Icon(painterResource(R.drawable.file_export), contentDescription = null) },
             )
-            DropdownMenuItem(
-                text = { Text(getString(R.string.import_items, getString(R.string.studypads))) },
+            AbMenuItem(
+                text = getString(R.string.import_items, getString(R.string.studypads)),
                 onClick = { close(); onImportStudyPads() },
+                icon = { Icon(painterResource(R.drawable.ic_file_download_24dp), contentDescription = null) },
             )
         }
     }

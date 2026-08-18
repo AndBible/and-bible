@@ -35,15 +35,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.filled.Abc
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -66,6 +68,7 @@ import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
 import net.bible.sharedui.components.AbColor
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.search.styledTextToAnnotatedString
@@ -200,17 +203,26 @@ private fun SearchModeSelector(
             Text(label)
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(
-                text = { Text(strings.searchModeNameStart) },
+            AbMenuItem(
+                text = strings.searchModeNameStart,
                 onClick = { expanded = false; onSetSearchMode(SearchMode.NAME_START) },
+                icon = { Icon(Icons.Filled.TextFields, contentDescription = null) },
+                checkable = true,
+                checked = searchMode == SearchMode.NAME_START,
             )
-            DropdownMenuItem(
-                text = { Text(strings.searchModeNameContains) },
+            AbMenuItem(
+                text = strings.searchModeNameContains,
                 onClick = { expanded = false; onSetSearchMode(SearchMode.NAME_CONTAINS) },
+                icon = { Icon(Icons.Filled.Abc, contentDescription = null) },
+                checkable = true,
+                checked = searchMode == SearchMode.NAME_CONTAINS,
             )
-            DropdownMenuItem(
-                text = { Text(strings.searchModeContent) },
+            AbMenuItem(
+                text = strings.searchModeContent,
                 onClick = { expanded = false; onSetSearchMode(SearchMode.CONTENT) },
+                icon = { Icon(Icons.AutoMirrored.Filled.Article, contentDescription = null) },
+                checkable = true,
+                checked = searchMode == SearchMode.CONTENT,
             )
         }
     }
