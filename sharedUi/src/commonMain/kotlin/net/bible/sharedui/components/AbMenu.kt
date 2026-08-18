@@ -17,10 +17,20 @@
 
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.MenuItemColors
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 /**
  * The one `MenuItemColors` every popup-menu row in this app uses.
@@ -44,3 +54,67 @@ fun abMenuItemColors(): MenuItemColors = MenuDefaults.itemColors(
     leadingIconColor = MaterialTheme.colorScheme.onSurface,
     trailingIconColor = MaterialTheme.colorScheme.onSurface,
 )
+
+/** The leading-icon slot's size, and the width reserved when [AbMenuItem.reserveIconSlot] is set. */
+private val AbMenuIconSize = 24.dp
+
+/**
+ * One row of a popup menu — the single seam every menu in this app goes through.
+ *
+ * Why a seam at all: before F49 this app called `DropdownMenuItem` directly from ~70 places and
+ * grew FIVE different ways to show a selected row (a trailing `Check`; a leading `Checkbox`; a
+ * leading `CheckBox`/`CheckBoxOutlineBlank` vector; a `"✓ "` prefix baked into the label string;
+ * and nothing at all). This function owns that decision once: a checked row gets a trailing
+ * [Icons.Default.Check], which is the reading-view 3-dot menu's long-standing look.
+ *
+ * [icon] is a SLOT rather than an `ImageVector`/`Painter` parameter so `:sharedUi` callers can pass
+ * a Material icon and `:app` callers a `painterResource` drawable through one function — the four
+ * `:app` menus have no Material icons on their classpath but do have the classic drawables.
+ *
+ * [reserveIconSlot] draws an empty icon-sized box for a row that genuinely has no icon, keeping its
+ * label on the same left edge as its iconned neighbours. Material3 inserts the leading-icon box on
+ * `leadingIcon != null`, so without this a mixed level steps in and out. This mirrors classic's
+ * `MenuPopupHelper.setForceShowIcon(true)` (a `null` icon there became `mEmptyIcon`/`INVISIBLE`,
+ * never `GONE`) — see [net.bible.sharedui.reading.MenuIconRows] for the same rationale applied to
+ * the reading-view menus' data-driven rows. It defaults to `false` because the F49 migration gives
+ * essentially every row an icon; it is the escape hatch, not the norm.
+ *
+ * [trailing] is for a non-state affordance such as a submenu chevron. A checked row's check WINS
+ * over it: no row in this app is both a submenu and a toggle, and if one ever is, its state is the
+ * more important of the two to show.
+ */
+@Composable
+fun AbMenuItem(
+    text: String,
+    onClick: () -> Unit,
+    icon: (@Composable () -> Unit)? = null,
+    checkable: Boolean = false,
+    checked: Boolean = false,
+    enabled: Boolean = true,
+    reserveIconSlot: Boolean = false,
+    trailing: (@Composable () -> Unit)? = null,
+) {
+    val leading: (@Composable () -> Unit)? = when {
+        icon != null -> {
+            { Box(Modifier.size(AbMenuIconSize), contentAlignment = Alignment.Center) { icon() } }
+        }
+        reserveIconSlot -> {
+            { Box(Modifier.size(AbMenuIconSize)) }
+        }
+        else -> null
+    }
+    val trailingSlot: (@Composable () -> Unit)? = when {
+        checkable && checked -> {
+            { Icon(Icons.Default.Check, contentDescription = null) }
+        }
+        else -> trailing
+    }
+    DropdownMenuItem(
+        text = { Text(text) },
+        onClick = onClick,
+        enabled = enabled,
+        leadingIcon = leading,
+        trailingIcon = trailingSlot,
+        colors = abMenuItemColors(),
+    )
+}
