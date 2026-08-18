@@ -84,13 +84,13 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.RepoFactory
 import net.bible.service.download.isPseudoBook
-import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
+import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.strings.LocalStrings
@@ -524,13 +524,22 @@ open class DownloadComposeActivity : ActivityBase() {
             badWarn = isBadDocument(badDocuments, BadDocumentAction.WARN),
             locked = isLocked,
             enciphered = isEnciphered,
-            // From the INSTALLED copy, not this repository catalogue entry: a repo Book's driver
-            // is an installer driver and is never deletable, which is why the Download screen's
-            // delete action was unreachable. `handleDelete` already resolved installedDocument.
-            canDelete = runCatching { installedDocument?.canDelete ?: false }.getOrDefault(false),
+            canDelete = canDeleteNow(this),
             installSizeMb = sizeMb,
         )
     }
+
+    /**
+     * From the INSTALLED copy, not the repository catalogue entry: a repo Book's driver is an
+     * installer driver and is never deletable, which is why the Download screen's delete action was
+     * unreachable. `handleDelete` already resolved installedDocument.
+     *
+     * Re-resolved on every in-place row update, not just at load: the installed copy does not exist
+     * until the download finishes, so a row loaded as not-deletable becomes deletable while the
+     * screen is open — and the row would otherwise keep the stale flag until the screen was reopened.
+     */
+    private fun canDeleteNow(book: Book?): Boolean =
+        runCatching { book?.installedDocument?.canDelete ?: false }.getOrDefault(false)
 
     // --- Live progress ----------------------------------------------------------------------
 
@@ -543,10 +552,16 @@ open class DownloadComposeActivity : ActivityBase() {
         // setDocuments() doesn't revert the in-progress status.
         var mirror = currentRows
         for ((docId, s) in statusMap) {
-            controller.updateDownloadStatus(docId, s.status, s.percentDone)
+            // A completed install arrives HERE (DownloadProgressBridge -> DocumentDownloadEvent),
+            // not through refreshRowStatus: downloadControl.downloadDocument only enqueues the job.
+            // So this is the path on which canDelete actually flips, and it has to be re-resolved.
+            val canDelete = canDeleteNow(booksById[docId])
+            controller.updateDownloadStatus(docId, s.status, s.percentDone, canDelete)
             mirror = mirror.map { row ->
-                if (row.docId == docId && (row.installStatus != s.status || row.percentDone != s.percentDone)) {
-                    row.copy(installStatus = s.status, percentDone = s.percentDone)
+                if (row.docId == docId &&
+                    (row.installStatus != s.status || row.percentDone != s.percentDone || row.canDelete != canDelete)
+                ) {
+                    row.copy(installStatus = s.status, percentDone = s.percentDone, canDelete = canDelete)
                 } else row
             }
         }
@@ -556,11 +571,13 @@ open class DownloadComposeActivity : ActivityBase() {
     /** Refresh one row's status directly from getDocumentStatus (immediate feedback on download start). */
     private fun refreshRowStatus(book: Book) {
         val status = downloadControl.getDocumentStatus(book)
+        val canDelete = canDeleteNow(book)
         val updated = currentRows.map { row ->
             if (row.docId == book.repoIdentity) {
                 row.copy(
                     installStatus = status.documentInstallStatus.toDocInstallStatus(),
                     percentDone = status.percentDone,
+                    canDelete = canDelete,
                 )
             } else row
         }
@@ -574,6 +591,7 @@ open class DownloadComposeActivity : ActivityBase() {
                 book.repoIdentity,
                 status.documentInstallStatus.toDocInstallStatus(),
                 status.percentDone,
+                canDelete,
             )
         }
     }
@@ -646,7 +664,13 @@ open class DownloadComposeActivity : ActivityBase() {
         AlertDialog.Builder(this)
             .setMessage(msg).setCancelable(true)
             .setPositiveButton(R.string.yes) { _, _ ->
+                // Re-checked per document INSIDE the loop, not just in the partition above:
+                // Book.canDelete is `!lastBible && ...`, so with exactly two Bibles installed both
+                // pass the partition, and deleting them both would leave zero Bibles — the state the
+                // lastBible guard exists to prevent. Deleting one flips the other's flag.
+                var skipped = false
                 for (document in deletable) {
+                    if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
                     try {
                         Log.i(TAG, "Deleting:$document")
                         documentControl.deleteDocument(document.installedDocument)
@@ -655,6 +679,7 @@ open class DownloadComposeActivity : ActivityBase() {
                         Dialogs.showErrorMsg(R.string.error_occurred, e)
                     }
                 }
+                if (skipped) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
                 lifecycleScope.launch { loadDocuments(false) }
                 ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
             }

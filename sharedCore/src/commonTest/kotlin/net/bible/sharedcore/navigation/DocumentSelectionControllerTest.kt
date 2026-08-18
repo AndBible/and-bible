@@ -158,7 +158,7 @@ class DocumentSelectionControllerTest {
         assertTrue(c.selectionMode.value); assertEquals(setOf("a"), c.selectedIds.value)
 
         // A progress update on the OTHER row -> it becomes BEING_INSTALLED but stays at its index.
-        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 30)
+        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 30, canDelete = false)
 
         assertEquals(listOf("a", "b"), c.displayed.value.map { it.docId }) // no re-sort, no float
         val bRow = c.displayed.value.first { it.docId == "b" }
@@ -172,13 +172,55 @@ class DocumentSelectionControllerTest {
         val c = controller()
         c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), null)
         c.setTypeFilter(DocTypeFilter.ALL)
-        c.updateDownloadStatus("a", DocInstallStatus.BEING_INSTALLED, 40)
+        c.updateDownloadStatus("a", DocInstallStatus.BEING_INSTALLED, 40, canDelete = false)
         val before = c.displayed.value
         // Same status+percent -> no change, same list instance (early return).
-        c.updateDownloadStatus("a", DocInstallStatus.BEING_INSTALLED, 40)
+        c.updateDownloadStatus("a", DocInstallStatus.BEING_INSTALLED, 40, canDelete = false)
         assertTrue(before === c.displayed.value)
         // Unknown docId -> no change.
-        c.updateDownloadStatus("does-not-exist", DocInstallStatus.INSTALLED, 100)
+        c.updateDownloadStatus("does-not-exist", DocInstallStatus.INSTALLED, 100, canDelete = false)
+        assertTrue(before === c.displayed.value)
+    }
+
+/**
+     * A completed download has to publish the row's NEW deletability. DocRow.canDelete is derived
+     * from the Book's installedDocument, which the host can only resolve when it builds the row —
+     * so a document that finished installing while the Download screen stayed open kept
+     * canDelete=false and long-pressing it offered no delete action until the user left the screen
+     * and came back. The in-place update path now carries the flag.
+     */
+    @Test fun updateDownloadStatus_applies_a_changed_canDelete() {
+        val c = controller()
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), null)
+        c.setTypeFilter(DocTypeFilter.ALL)
+        assertFalse(c.displayed.value.first { it.docId == "a" }.canDelete)
+        assertFalse(anySelectedDeletable(c.displayed.value, setOf("a")))
+
+        c.updateDownloadStatus("a", DocInstallStatus.INSTALLED, 100, canDelete = true)
+
+        assertTrue(c.displayed.value.first { it.docId == "a" }.canDelete)
+        assertTrue(c.documents.value.first { it.docId == "a" }.canDelete)
+        // anySelectedDeletable is what drives the delete action's visibility, so assert through it.
+        assertTrue(anySelectedDeletable(c.displayed.value, setOf("a")))
+    }
+
+    /**
+     * The status and percentage a completed install reports can equal what the row already shows
+     * (the host refreshes a row directly on download start AND observes the download events), so
+     * canDelete must be part of the equality short-circuit — otherwise the one update that matters
+     * is exactly the one it swallows. The short-circuit's own purpose survives: a tick that changes
+     * nothing at all still publishes no new list, so it can never reorder or re-scroll the list.
+     */
+    @Test fun updateDownloadStatus_applies_canDelete_even_when_status_and_progress_are_unchanged() {
+        val c = controller()
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE, status = DocInstallStatus.INSTALLED)), null)
+        assertFalse(c.displayed.value.single().canDelete)
+
+        c.updateDownloadStatus("a", DocInstallStatus.INSTALLED, 0, canDelete = true)
+        assertTrue(c.displayed.value.single().canDelete)
+
+        val before = c.displayed.value
+        c.updateDownloadStatus("a", DocInstallStatus.INSTALLED, 0, canDelete = true)
         assertTrue(before === c.displayed.value)
     }
 
@@ -198,12 +240,12 @@ class DocumentSelectionControllerTest {
         )
         assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
 
-        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 0)
+        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 0, canDelete = false)
         assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
-        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 45)
+        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 45, canDelete = false)
         assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
         assertEquals(45, c.displayed.value[2].percentDone)
-        c.updateDownloadStatus("c", DocInstallStatus.INSTALLED, 100)
+        c.updateDownloadStatus("c", DocInstallStatus.INSTALLED, 100, canDelete = false)
         assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
         assertEquals(DocInstallStatus.INSTALLED, c.displayed.value[2].installStatus)
     }
@@ -212,7 +254,7 @@ class DocumentSelectionControllerTest {
         val c = controller()
         c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), null)
         assertEquals(2, c.resultCount.value)
-        c.updateDownloadStatus("a", DocInstallStatus.BEING_INSTALLED, 10)
+        c.updateDownloadStatus("a", DocInstallStatus.BEING_INSTALLED, 10, canDelete = false)
         assertEquals(2, c.resultCount.value)
     }
 
@@ -222,7 +264,7 @@ class DocumentSelectionControllerTest {
         c.setTypeFilter(DocTypeFilter.BIBLE)
         assertEquals(listOf("a"), c.displayed.value.map { it.docId })
 
-        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 30)
+        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 30, canDelete = false)
 
         assertEquals(listOf("a"), c.displayed.value.map { it.docId })
         assertEquals(
@@ -236,7 +278,7 @@ class DocumentSelectionControllerTest {
         val c = controller()
         val rows = listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE))
         c.setDocuments(rows, null)
-        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 20)
+        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 20, canDelete = false)
         assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
 
         // A refresh re-pushes the master list, which is where classic re-sorts too.
@@ -250,7 +292,7 @@ class DocumentSelectionControllerTest {
             listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE)),
             null,
         )
-        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 20)
+        c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 20, canDelete = false)
         assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
 
         c.setTypeFilter(DocTypeFilter.BIBLE)
@@ -263,7 +305,7 @@ class DocumentSelectionControllerTest {
         c.enterSelection()
         c.toggle("a")
 
-        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 5)
+        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 5, canDelete = false)
 
         assertTrue(c.selectionMode.value)
         assertEquals(setOf("a"), c.selectedIds.value)
@@ -292,12 +334,12 @@ class DocumentSelectionControllerTest {
         c.enterSelection(); c.toggle("a")
         assertEquals(1, c.displayed.value.indexOfFirst { it.docId == "b" })
 
-        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 30)
+        c.updateDownloadStatus("b", DocInstallStatus.BEING_INSTALLED, 30, canDelete = false)
         assertEquals(1, c.displayed.value.indexOfFirst { it.docId == "b" })
 
         // Cancel: getDocumentStatus() reverts to NOT_INSTALLED. This is the exact transition
         // refreshRowStatus() feeds through updateDownloadStatus() after the fix.
-        c.updateDownloadStatus("b", DocInstallStatus.NOT_INSTALLED, 0)
+        c.updateDownloadStatus("b", DocInstallStatus.NOT_INSTALLED, 0, canDelete = false)
 
         assertEquals(1, c.displayed.value.indexOfFirst { it.docId == "b" }) // row did not move
         assertEquals(DocInstallStatus.NOT_INSTALLED, c.displayed.value[1].installStatus)

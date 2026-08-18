@@ -70,7 +70,8 @@ private val RECOMMENDED_STAR_ARGB: Int = 0xFFFDD835.toInt()
 
 /**
  * One row in the document-selection list. Renders a leading checkbox (selection mode) or a category
- * icon, a two-line title/subtitle, recommended/locked markers, and an install-status affordance.
+ * icon, a two-line title/subtitle, the recommended/bad-document/locked markers, and an
+ * install-status affordance.
  *
  * Modernization note: the classic red/green lock and status colours are intentionally dropped in
  * favour of [MaterialTheme.colorScheme] tints, so black-and-white / e-ink themes degrade automatically.
@@ -152,7 +153,11 @@ fun DocumentRow(
                 text = buildSubtitle(row, downloadMode, strings.recommendedDocument),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
+                // TWO lines, because the bold "Recommended!" caption prefixes this line in download
+                // mode and one line then ellipsized away both the repository and the install size --
+                // the one number a download decision needs, missing on exactly the documents the
+                // user is most likely to choose. A non-recommended row still fits one line.
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
         }

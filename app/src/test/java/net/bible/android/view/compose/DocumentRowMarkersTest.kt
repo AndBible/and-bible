@@ -17,11 +17,13 @@
 package net.bible.android.view.compose
 
 import android.content.Context
-import androidx.compose.runtime.Composable
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
@@ -39,6 +41,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 // Mandatory wrapping (see DocumentFilterBarTest): DocumentRow reads LocalStrings.current and
 // LocalCategoryIcon.current, both staticCompositionLocalOf with no default, so a bare
@@ -112,6 +116,28 @@ class DocumentRowMarkersTest {
         compose.onNodeWithText(recommendedText, substring = true).assertDoesNotExist()
     }
 
+    /**
+     * The subtitle's semantics carry the FULL string even when the line is visually ellipsized, so
+     * an `onNodeWithText` assertion cannot see this defect at all — only the laid-out result can.
+     * With `maxLines = 1` the bold "Recommended!" caption pushed the repository and the install
+     * size off the end of the single line, so the one number a download decision needs was missing
+     * precisely on the documents the user is most likely to pick.
+     */
+    @Test fun a_recommended_download_row_still_shows_the_install_size() {
+        setRow(row(recommended = true))
+        val layout = subtitleLayout()
+        val full = layout.layoutInput.text.text
+        val density = layout.layoutInput.density.density
+        val widthPx = layout.size.width
+        val widthDp = widthPx / density
+        println("DIAG widthPx=$widthPx widthDp=$widthDp density=$density lineCount=${layout.lineCount} hasVisualOverflow=${layout.hasVisualOverflow}")
+        assertTrue(full.endsWith("4.2 MB"), "subtitle should end with the install size, was: '$full'")
+        assertFalse(
+            layout.hasVisualOverflow,
+            "the recommended row's subtitle is truncated, so the install size is not readable: '$full' widthDp=$widthDp lineCount=${layout.lineCount}",
+        )
+    }
+
     @Test fun a_bad_document_shows_the_warning_outside_selection_mode() {
         setRow(row(badWarn = true))
         compose.onNodeWithContentDescription(badWarnText).assertIsDisplayed()
@@ -120,5 +146,19 @@ class DocumentRowMarkersTest {
     @Test fun the_bad_document_warning_survives_selection_mode_because_it_is_safety_information() {
         setRow(row(badWarn = true), selectionMode = true)
         compose.onNodeWithContentDescription(badWarnText).assertIsDisplayed()
+    }
+
+    /**
+     * The laid-out subtitle (the node carrying the "Recommended!" caption). The UNMERGED tree is
+     * mandatory: the row's `combinedClickable` merges its descendants, so a merged-tree query
+     * returns the whole row — whose GetTextLayoutResult action is the title's, not the subtitle's.
+     */
+    private fun subtitleLayout(): TextLayoutResult =
+        compose.onNodeWithText(recommendedText, substring = true, useUnmergedTree = true).textLayout()
+
+    private fun SemanticsNodeInteraction.textLayout(): TextLayoutResult {
+        val results = mutableListOf<TextLayoutResult>()
+        fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action!!.invoke(results)
+        return results.first()
     }
 }

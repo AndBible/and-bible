@@ -87,13 +87,20 @@ class DocumentSelectionController(
      * which reads as the row disappearing from where the user left it. The sort keys are correct
      * and unchanged; they apply at the next re-sort (setDocuments / setLanguage / setTypeFilter /
      * setSearchResults), exactly as in classic.
+     *
+     * [canDelete] travels with the status because a finished install CHANGES it: the flag is
+     * derived from the installed copy of the document, which does not exist until the download
+     * completes. Without it the row kept the deletability it was loaded with, so the delete action
+     * stayed hidden on a document the user had just installed until the screen was reopened. It is
+     * part of the equality short-circuit below for the same reason — the terminal event can carry
+     * a status and percentage the row already shows, and that is exactly the update that matters.
      */
-    fun updateDownloadStatus(docId: String, status: DocInstallStatus, percentDone: Int) {
+    fun updateDownloadStatus(docId: String, status: DocInstallStatus, percentDone: Int, canDelete: Boolean) {
         val idx = all.indexOfFirst { it.docId == docId }
         if (idx < 0) return
         val cur = all[idx]
-        if (cur.installStatus == status && cur.percentDone == percentDone) return
-        val updated = cur.copy(installStatus = status, percentDone = percentDone)
+        if (cur.installStatus == status && cur.percentDone == percentDone && cur.canDelete == canDelete) return
+        val updated = cur.copy(installStatus = status, percentDone = percentDone, canDelete = canDelete)
         all = all.toMutableList().apply { this[idx] = updated }
         _documents.value = all
         val shown = _displayed.value

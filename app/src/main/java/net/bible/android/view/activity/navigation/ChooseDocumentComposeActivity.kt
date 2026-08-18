@@ -59,13 +59,13 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.SwordDocumentFacade
-import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
+import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.strings.LocalStrings
@@ -316,7 +316,13 @@ class ChooseDocumentComposeActivity : ActivityBase() {
         AlertDialog.Builder(this)
             .setMessage(msg).setCancelable(true)
             .setPositiveButton(R.string.yes) { _, _ ->
+                // Re-checked per document INSIDE the loop, not just in the partition above:
+                // Book.canDelete is `!lastBible && ...`, so with exactly two Bibles installed both
+                // pass the partition, and deleting them both would leave zero Bibles — the state the
+                // lastBible guard exists to prevent. Deleting one flips the other's flag.
+                var skipped = false
                 for (document in deletable) {
+                    if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
                     try {
                         Log.i(TAG, "Deleting:$document")
                         documentControl.deleteDocument(document.installedDocument)
@@ -325,6 +331,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                         Dialogs.showErrorMsg(R.string.error_occurred, e)
                     }
                 }
+                if (skipped) ABEventBus.post(net.bible.android.control.event.ToastEvent(R.string.cant_delete_document))
                 lifecycleScope.launch { loadDocuments() }
                 ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
             }
