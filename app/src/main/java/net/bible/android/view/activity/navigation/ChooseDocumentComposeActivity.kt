@@ -59,6 +59,7 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
@@ -190,7 +191,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                         onSelectionDeleteIndex = controller::deleteIndex,
                         onSelectionUnlock = controller::unlock,
                         unlockVisible = firstSelected?.enciphered == true,
-                        deleteVisible = firstSelected?.canDelete == true,
+                        deleteVisible = anySelectedDeletable(displayed, selectedIds),
                         onDismissError = controller::dismissError,
                         onNavigateUp = { finish() },
                         onExitSelection = controller::clearSelection,
@@ -269,7 +270,9 @@ class ChooseDocumentComposeActivity : ActivityBase() {
             badWarn = false,
             locked = isLocked,
             enciphered = isEnciphered,
-            canDelete = runCatching { canDelete }.getOrDefault(false),
+            // From the INSTALLED copy, so both document screens derive this flag from the same
+            // object handleDelete acts on (here they are the same Book, so the value is unchanged).
+            canDelete = runCatching { installedDocument?.canDelete ?: false }.getOrDefault(false),
             installSizeMb = null, // ChooseDocument does not show install size (download-only)
         )
     }

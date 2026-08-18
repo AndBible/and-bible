@@ -84,6 +84,7 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.RepoFactory
 import net.bible.service.download.isPseudoBook
+import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
@@ -316,7 +317,7 @@ open class DownloadComposeActivity : ActivityBase() {
                         onSelectionDeleteIndex = controller::deleteIndex,
                         onSelectionUnlock = controller::unlock,
                         unlockVisible = firstSelected?.enciphered == true,
-                        deleteVisible = firstSelected?.canDelete == true,
+                        deleteVisible = anySelectedDeletable(displayed, selectedIds),
                         onDismissError = controller::dismissError,
                         onNavigateUp = { finish() },
                         onExitSelection = controller::clearSelection,
@@ -523,7 +524,10 @@ open class DownloadComposeActivity : ActivityBase() {
             badWarn = isBadDocument(badDocuments, BadDocumentAction.WARN),
             locked = isLocked,
             enciphered = isEnciphered,
-            canDelete = runCatching { canDelete }.getOrDefault(false),
+            // From the INSTALLED copy, not this repository catalogue entry: a repo Book's driver
+            // is an installer driver and is never deletable, which is why the Download screen's
+            // delete action was unreachable. `handleDelete` already resolved installedDocument.
+            canDelete = runCatching { installedDocument?.canDelete ?: false }.getOrDefault(false),
             installSizeMb = sizeMb,
         )
     }
