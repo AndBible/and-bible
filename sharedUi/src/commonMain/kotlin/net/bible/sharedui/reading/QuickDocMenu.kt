@@ -17,15 +17,12 @@
 
 package net.bible.sharedui.reading
 
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.reading.QuickDocMenuItem
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.navigation.LocalCategoryIcon
 
 /**
@@ -50,7 +47,7 @@ fun QuickDocMenu(
 
 /**
  * The menu's row content, factored out of [QuickDocMenu] so it can be rendered outside a
- * [DropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [DropdownMenuItem] is a plain
+ * [DropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [androidx.compose.material3.DropdownMenuItem] is a plain
  * composable, not scoped to a menu container). Deliberately public (not `internal`): it's called
  * directly, inside a plain `Column`, by `QuickDocMenuGoldenTest` (in the `:app` module, so
  * `internal` visibility would not reach it) as a golden-capture surrogate for the real popup:
@@ -66,20 +63,11 @@ fun QuickDocMenu(
 fun QuickDocMenuRows(items: List<QuickDocMenuItem>, onSelect: (id: String) -> Unit) {
     val categoryIcon = LocalCategoryIcon.current
     items.forEach { item ->
-        DropdownMenuItem(
-            text = { Text(item.label) },
-            leadingIcon = {
-                Icon(
-                    painter = categoryIcon(item.category),
-                    contentDescription = null,
-                    modifier = Modifier.size(QuickDocIconSize),
-                )
-            },
-            enabled = item.enabled,
+        AbMenuItem(
+            text = item.label,
             onClick = { onSelect(item.id) },
+            icon = { Icon(painter = categoryIcon(item.category), contentDescription = null) },
+            enabled = item.enabled,
         )
     }
 }
-
-/** Matches `DocumentRow`'s category icon so the same document reads the same in both places. */
-private val QuickDocIconSize = 24.dp

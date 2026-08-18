@@ -44,7 +44,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.foundation.text.BasicTextField
@@ -52,6 +51,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MoreVert
@@ -110,6 +111,7 @@ import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.reading.readingToolbarContainerArgb
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
@@ -454,9 +456,10 @@ fun ReadingToolbar(
                         onDismissRequest = searchBarCallbacks.onRecentTermsDismiss,
                     ) {
                         searchBar.recentTerms.forEach { term ->
-                            DropdownMenuItem(
-                                text = { Text(term) },
+                            AbMenuItem(
+                                text = term,
                                 onClick = { searchBarCallbacks.onRecentTermSelected(term) },
+                                icon = { Icon(Icons.Filled.History, contentDescription = null) },
                             )
                         }
                     }
@@ -477,13 +480,15 @@ fun ReadingToolbar(
                 Box {
                     ToolbarVectorButton(Icons.Filled.MoreVert, strings.menu) { searchMenuOpen = true }
                     DropdownMenu(expanded = searchMenuOpen, onDismissRequest = { searchMenuOpen = false }) {
-                        DropdownMenuItem(
-                            text = { Text(strings.rebuildIndex) },
+                        AbMenuItem(
+                            text = strings.rebuildIndex,
                             onClick = { searchMenuOpen = false; searchBarCallbacks.onRebuildIndex() },
+                            icon = { Icon(Icons.Filled.Autorenew, contentDescription = null) },
                         )
-                        DropdownMenuItem(
-                            text = { Text(strings.help) },
+                        AbMenuItem(
+                            text = strings.help,
                             onClick = { searchMenuOpen = false; searchHelpOpen = true },
+                            icon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null) },
                         )
                     }
                 }

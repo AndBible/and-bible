@@ -18,11 +18,10 @@
 package net.bible.sharedui.reading
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.window.WindowPaneMenuItem
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -44,7 +44,7 @@ import net.bible.sharedui.strings.LocalStrings
  * Structurally identical to [ReadingOverflowMenu] with one addition: a row whose
  * [WindowPaneMenuItem.submenu] is non-empty pushes that submenu onto an internal navigation
  * [path] instead of firing [onItemClick] (mirrors iOS's `BibleWindowPaneMenuPopup` submenu
- * stack), and a "‹ Back" row pops back to the parent level. The path resets whenever the menu
+ * stack), and a "Back" row pops back to the parent level. The path resets whenever the menu
  * closes ([expanded] goes false) so the next open always starts at the root.
  *
  * [icon] resolves each row's [WindowPaneMenuItem.iconKey] to a `Painter` — the same host-lambda
@@ -79,7 +79,7 @@ fun WindowPaneMenu(
 
 /**
  * One level's row content, factored out of [WindowPaneMenu] so it can be rendered outside a
- * [DropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [DropdownMenuItem] is a plain
+ * [DropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [androidx.compose.material3.DropdownMenuItem] is a plain
  * composable, not scoped to a menu container). Deliberately public (not `internal`): it's called
  * directly, inside a plain `Column`, by `WindowPaneMenuGoldenTest` (in the `:app` module, so
  * `internal` visibility would not reach it) as a golden-capture surrogate for the real popup —
@@ -88,12 +88,12 @@ fun WindowPaneMenu(
  * single implementation is shared by both the real popup (one level at a time) and the golden's
  * non-popup surrogate.
  *
- * [showBack] renders a leading "‹ Back" row (calling [onBack] on click) when a submenu is open —
- * it gets no [icon] and never participates in [reserveIconSlot] below (classic has no such row at
- * all, so there is nothing to mirror). Each item renders its label (suffixed " …" when
- * [WindowPaneMenuItem.opensDialog]) with a trailing check mark (when checkable+checked) or "›"
- * (when it has a non-empty [submenu]); clicking a submenu row calls [onEnterSubmenu] instead of
- * [onItemClick].
+ * [showBack] renders a leading "Back" row (calling [onBack] on click, with a leading back-arrow
+ * icon of its own) when a submenu is open — it is emitted before [items] is resolved, so it never
+ * participates in [reserveIconSlot] below (classic has no such row at all, so there is nothing to
+ * mirror). Each item renders its label (suffixed " …" when [WindowPaneMenuItem.opensDialog]) with
+ * a trailing check mark (when checkable+checked) or a chevron (when it has a non-empty [submenu]);
+ * clicking a submenu row calls [onEnterSubmenu] instead of [onItemClick].
  *
  * [icon] resolves [WindowPaneMenuItem.iconKey] to a leading `Painter` (see [WindowPaneMenu]'s
  * kdoc). Classic's `MenuPopupHelper.setForceShowIcon(true)` (`SplitBibleArea.kt:859`,
@@ -124,25 +124,26 @@ fun WindowPaneMenuRows(
     icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
     if (showBack) {
-        DropdownMenuItem(text = { Text("‹ ${LocalStrings.current.menuBack}") }, onClick = onBack)
+        AbMenuItem(
+            text = LocalStrings.current.menuBack,
+            onClick = onBack,
+            icon = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) },
+        )
     }
-    val (rows, reserveIconSlot) = resolveMenuIconRows(items, WindowPaneMenuItem::iconKey, icon)
-    rows.forEach { (item, resolvedIcon) ->
+    val resolved = resolveMenuIconRows(items, WindowPaneMenuItem::iconKey, icon)
+    resolved.rows.forEach { (item, painter) ->
         val hasSubmenu = item.submenu.isNotEmpty()
-        DropdownMenuItem(
-            text = { Text(if (item.opensDialog) "${item.label} …" else item.label) },
-            enabled = item.enabled,
-            leadingIcon = if (reserveIconSlot) {
-                { resolvedIcon?.let { Icon(painter = it, contentDescription = null) } }
-            } else null,
-            trailingIcon = {
-                if (item.checkable && item.checked) {
-                    Icon(Icons.Default.Check, contentDescription = null)
-                } else if (hasSubmenu) {
-                    Text("›")
-                }
-            },
+        AbMenuItem(
+            text = if (item.opensDialog) "${item.label} …" else item.label,
             onClick = { if (hasSubmenu) onEnterSubmenu(item) else onItemClick(item.id) },
+            icon = painter?.let { p -> { Icon(painter = p, contentDescription = null) } },
+            reserveIconSlot = resolved.reserveIconSlot && painter == null,
+            checkable = item.checkable,
+            checked = item.checked,
+            enabled = item.enabled,
+            trailing = if (hasSubmenu) {
+                { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) }
+            } else null,
         )
     }
 }
