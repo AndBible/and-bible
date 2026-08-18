@@ -19,6 +19,7 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -78,6 +79,12 @@ fun AbSelectionScaffold(
                         navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
                         actionIconContentColor = MaterialTheme.colorScheme.onSurface,
                     ),
+                    // Same fix as AbTopAppBar's normal branch (see its F2 comment): this app's
+                    // Compose hosts run inside an AppCompatActivity whose content frame already
+                    // insets for the status bar, so the M3 default here would add it a SECOND
+                    // time and the bar would visibly jump one bar-height lower on entering
+                    // selection mode.
+                    windowInsets = WindowInsets(0, 0, 0, 0),
                 )
             } else {
                 AbTopAppBar(
