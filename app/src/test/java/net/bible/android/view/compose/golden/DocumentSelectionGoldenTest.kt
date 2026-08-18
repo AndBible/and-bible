@@ -125,6 +125,31 @@ class DocumentSelectionGoldenTest {
 
     private val downloadResultCount = "7 documents"
 
+    /**
+     * Round 8b: the marker slot beside the leading icon. Three rows -- recommended-only,
+     * bad-only, and both markers on the same row -- all NOT_INSTALLED in download mode.
+     */
+    private val markerRows = listOf(
+        DocRow(
+            docId = "REC", osisId = "REC", abbreviation = "REC", name = "English Standard Version",
+            language = english, repository = "CrossWire", category = DocCategory.BIBLE,
+            installStatus = DocInstallStatus.NOT_INSTALLED, percentDone = 0, recommended = true,
+            badWarn = false, locked = false, enciphered = false, canDelete = false, installSizeMb = 3.8,
+        ),
+        DocRow(
+            docId = "BAD", osisId = "BAD", abbreviation = "BAD", name = "Suspect Bible Edition",
+            language = english, repository = "CrossWire", category = DocCategory.BIBLE,
+            installStatus = DocInstallStatus.NOT_INSTALLED, percentDone = 0, recommended = false,
+            badWarn = true, locked = false, enciphered = false, canDelete = false, installSizeMb = 4.1,
+        ),
+        DocRow(
+            docId = "BOTH", osisId = "BOTH", abbreviation = "BOTH", name = "Recommended But Flagged",
+            language = english, repository = "CrossWire", category = DocCategory.BIBLE,
+            installStatus = DocInstallStatus.NOT_INSTALLED, percentDone = 0, recommended = true,
+            badWarn = true, locked = false, enciphered = false, canDelete = false, installSizeMb = 2.9,
+        ),
+    )
+
     @Composable
     private fun screen(
         loading: Boolean = false,
@@ -281,6 +306,31 @@ class DocumentSelectionGoldenTest {
     @Test fun download_refreshing() {
         captureGolden("Download", "refreshing", EDGE_MODE) {
             screen(downloadMode = true, displayed = downloadRows, count = downloadResultCount, isRefreshing = true)
+        }
+    }
+
+    /** Round 8b: the marker slot beside the leading icon. `recommended` was only ever incidental
+     *  inside `download_populated`, and `badWarn` had never been captured at all because nothing
+     *  rendered it. */
+    @Test fun download_markers() {
+        captureMatrix("Download", "markers") {
+            screen(downloadMode = true, displayed = markerRows, count = "3 documents")
+        }
+    }
+
+    /** Pins the star's ABSENCE in selection mode -- the reported defect was the star landing on the
+     *  checkbox, so this is the golden that would catch a regression of that fix. The bad-document
+     *  marker must still be visible here. */
+    @Test fun download_markersSelection() {
+        captureGolden("Download", "markersSelection", EDGE_MODE) {
+            screen(
+                downloadMode = true,
+                displayed = markerRows,
+                count = "3 documents",
+                selectionMode = true,
+                selectedIds = setOf("REC", "BAD"),
+                deleteVisible = false,
+            )
         }
     }
 }

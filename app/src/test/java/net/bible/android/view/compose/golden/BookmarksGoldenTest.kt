@@ -82,6 +82,44 @@ class BookmarksGoldenTest {
         ),
     )
 
+    /** Round 8b: a clipped row (`b1`, ~600-character content plus a long note -- long enough to
+     *  overflow the 3-line/1-line collapsed budget) and a short row (`b2`, grows no chevron). */
+    private fun longRows(): List<BookmarkRow> = listOf(
+        BookmarkRow(
+            id = "b1",
+            title = "Genesis 1",
+            dateText = "Mon, 2026-07-13 09:15",
+            content = StyledText.plain(
+                "In the beginning God created the heavens and the earth. Now the earth was formless " +
+                    "and empty, darkness was over the surface of the deep, and the Spirit of God was " +
+                    "hovering over the waters. And God said, \"Let there be light,\" and there was " +
+                    "light. God saw that the light was good, and he separated the light from the " +
+                    "darkness. God called the light \"day,\" and the darkness he called \"night.\" And " +
+                    "there was evening, and there was morning -- the first day. And God said, \"Let " +
+                    "there be a vault between the waters to separate water from water.\" So God made " +
+                    "the vault and separated the water under the vault from the water above it. And it " +
+                    "was so. God called the vault \"sky.\" And there was evening, and there was " +
+                    "morning -- the second day.",
+            ),
+            notes = StyledText.plain(
+                "This is a long personal note about the creation account, covering the literary " +
+                    "structure of the six days, cross-references to John 1 and Colossians 1, and a " +
+                    "reminder to follow up with the small group on the days-vs-ages question next week.",
+            ),
+            labelColors = listOf(AbColor.palette[0], AbColor.palette[3]),
+            isSpeak = false,
+        ),
+        BookmarkRow(
+            id = "b2",
+            title = "Psalm 23:1",
+            dateText = "Wed, 2026-07-15 07:03",
+            content = StyledText.plain("The Lord is my shepherd; I shall not want."),
+            notes = null,
+            labelColors = listOf(AbColor.palette[0]),
+            isSpeak = false,
+        ),
+    )
+
     private fun filterLabels(): List<BookmarkFilterLabel> = listOf(
         BookmarkFilterLabel(0, "All"),
         BookmarkFilterLabel(1, "Unlabeled"),
@@ -156,4 +194,15 @@ class BookmarksGoldenTest {
 
     @Test fun bookmarks_empty() =
         captureGolden("Bookmarks", "empty", EDGE_MODE, heightDp = 800, content = screen(rows = emptyList()))
+
+    /** Round 8b: a clipped row, and the same row expanded. Collapsed is already covered by
+     *  `bookmarks_primary`; this pins the expanded state and the chevron's two icons. */
+    @Test fun bookmarks_expandedRow() =
+        captureGolden(
+            "Bookmarks", "expandedRow", EDGE_MODE, heightDp = 800,
+            content = screen(rows = longRows(), expandedIds = setOf("b1")),
+        )
+
+    @Test fun bookmarks_collapsedLongRow() =
+        captureGolden("Bookmarks", "collapsedLongRow", EDGE_MODE, heightDp = 800, content = screen(rows = longRows()))
 }
