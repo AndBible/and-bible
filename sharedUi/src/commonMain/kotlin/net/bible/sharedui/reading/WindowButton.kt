@@ -85,6 +85,16 @@ private val SyncBadgeIconSize = 9.dp
  * things positioned relative to [RailBadgeRowHeight] (the rail label pair, and the Pane pin icon).
  * Declaring it in dp is what makes [RailBadgeRowHeight] an honest bound instead of an optimistic
  * one, by construction rather than by luck.
+ *
+ * [SyncGroupBadge] deliberately leaves this `Text`'s `lineHeight` unset (ambient default, a
+ * multiple of [SyncBadgeDigitSize]) rather than pinning it to the font size: a fixed dp font size
+ * already makes the measured line box a CONSTANT number of pixels at every system font scale —
+ * that constant is all [RailBadgeRowHeight] needs — so pinning `lineHeight` too buys nothing.
+ * It does cost something: a fix-round-1 device pass found that explicit `lineHeight =
+ * digitSize` changes the digit's measured/rendered position even at font scale 1.0 (two
+ * goldens moved with no font-scale change at all), which breaks this batch's whole verification
+ * strategy — an unrecorded golden must mean a real scale-dependent regression, never a stray
+ * line-height tweak. Leave `lineHeight` unset here.
  */
 private val SyncBadgeDigitSize = 8.dp
 private val PinDotSize = 6.dp
@@ -328,7 +338,6 @@ private fun SyncGroupBadge(group: Int, color: Color, modifier: Modifier = Modifi
             text = group.toString(),
             color = color,
             fontSize = digitSize,
-            lineHeight = digitSize,
             maxLines = 1,
         )
     }
