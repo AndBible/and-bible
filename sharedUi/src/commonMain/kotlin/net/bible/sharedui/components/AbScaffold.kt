@@ -90,6 +90,11 @@ private val AbTopBarTitleMinFontSize = 15.sp
  */
 @Composable
 fun AbTopBarTitle(text: String) {
+    // Reads MaterialTheme.typography.titleLarge directly rather than LocalTextStyle.current (the
+    // style M3's TopAppBar actually provides into its title slot, from its own titleTextStyle
+    // parameter). Equal today — nothing in this repo overrides titleTextStyle — but a future
+    // TopAppBar call site that does would have its override silently ignored here, since the
+    // autosizer would keep solving against titleLarge instead of what the bar is actually drawing.
     val style = MaterialTheme.typography.titleLarge
     BasicText(
         text = text,

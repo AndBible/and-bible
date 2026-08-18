@@ -793,6 +793,11 @@ open class DownloadComposeActivity : ActivityBase() {
                     icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
                 )
             }
+            // Same drawable as "Install zip" above — deliberate classic parity, not a copy-paste
+            // artefact: classic's own `download_documents.xml` reuses ic_unarchive_white_24dp for
+            // both rows too. Contrast ManageLabelsComposeActivity.kt's undo-glyph rows, where the
+            // identical classic reuse WAS judged a mistake and given distinct icons instead — the
+            // two cases were decided independently and this one intentionally kept the duplicate.
             AbMenuItem(
                 text = getString(R.string.custom_repositories),
                 onClick = { close(); onCustomRepositories() },

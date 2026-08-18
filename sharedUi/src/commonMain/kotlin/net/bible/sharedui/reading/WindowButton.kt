@@ -127,6 +127,10 @@ private val RailLabelBottomPadding = 1.dp
  * — the y-offset classic's `topButtonText` sits directly below (`Top_toBottomOf="@id/docType"`,
  * `window_button.xml:52`). See the `WindowButtonMode.Rail` branch below for why this is reserved as
  * a *fixed* height rather than left as padding on a bottom-anchored column.
+ *
+ * See also: this constant is not Rail-only despite the name — the Pane pin [Icon]'s `top` offset
+ * (below, the `isPinned && mode == WindowButtonMode.Pane` block) derives from it too, as the bound
+ * the top-start sync badge must stay within for that offset to be correct.
  */
 private val RailBadgeRowHeight = BadgeIconSize + BadgeInset
 
