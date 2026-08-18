@@ -52,6 +52,7 @@ import net.bible.sharedcore.cloud.CloudDocumentsController
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.cloud.CloudDocumentsScreen
+import net.bible.sharedui.docCategoryOf
 import org.crosswire.jsword.book.BookCategory
 
 /**
@@ -346,22 +347,12 @@ class CloudDocumentsComposeActivity : ActivityBase() {
 
     // --- View-data flatten + filter labels --------------------------------------------------
     private fun DocumentSync.DocumentStatusItem.toCloudDocItem(): CloudDocItem = CloudDocItem(
-        initials = initials, name = name, category = category?.toDocCategory(),
+        initials = initials, name = name, category = docCategoryOf(category),
         cloudVersion = cloudVersion, localVersion = localVersion,
         cloudOnly = cloudOnly, localOnly = localOnly, updateAvailable = updateAvailable, localNewer = localNewer,
         blocked = blocked, canDeleteLocal = canDeleteLocal, cloudDeleted = cloudDeleted,
         sizeLabel = if (sizeBytes > 0) Formatter.formatShortFileSize(this@CloudDocumentsComposeActivity, sizeBytes) else null,
     )
-
-    private fun BookCategory.toDocCategory(): DocCategory = when (this) {
-        BookCategory.BIBLE -> DocCategory.BIBLE
-        BookCategory.COMMENTARY -> DocCategory.COMMENTARY
-        BookCategory.DICTIONARY -> DocCategory.DICTIONARY
-        BookCategory.GENERAL_BOOK -> DocCategory.GENERAL_BOOK
-        BookCategory.MAPS -> DocCategory.MAPS
-        BookCategory.AND_BIBLE -> DocCategory.AND_BIBLE
-        else -> DocCategory.OTHER
-    }
 
     private fun statusFilterLabels(showRemoved: Boolean): List<Pair<CloudDocFilter, String>> = buildList {
         add(CloudDocFilter.ALL to getString(R.string.cloud_doc_filter_all))

@@ -20,9 +20,10 @@ package net.bible.sharedcore.reading
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import net.bible.sharedcore.navigation.DocCategory
 
 class QuickDocPickerTest {
-    private fun row(id: String, lang: String, abbr: String) = QuickDocRow(id, "$abbr ($lang)", lang, abbr)
+    private fun row(id: String, lang: String, abbr: String) = QuickDocRow(id, "$abbr ($lang)", lang, abbr, DocCategory.BIBLE)
 
     @Test fun emptyListYieldsNone() {
         assertEquals(QuickDocAction.None, QuickDocPicker.action(emptyList(), "x"))
@@ -43,5 +44,19 @@ class QuickDocPickerTest {
         val items = (QuickDocPicker.action(rows, "b") as QuickDocAction.ShowPopup).items
         assertEquals(false, items.first { it.id == "b" }.enabled)
         assertTrue(items.filter { it.id != "b" }.all { it.enabled })
+    }
+    @Test
+    fun `the popup carries each row's category through the sort`() {
+        val rows = listOf(
+            QuickDocRow("ESV", "English Standard Version", "en", "ESV", DocCategory.BIBLE),
+            QuickDocRow("MHC", "Matthew Henry", "en", "MHC", DocCategory.COMMENTARY),
+            QuickDocRow("EAST", "Easton", "en", "EAST", DocCategory.DICTIONARY),
+        )
+        val action = QuickDocPicker.action(rows, activeId = "ESV")
+        val items = (action as QuickDocAction.ShowPopup).items
+        assertEquals(
+            listOf(DocCategory.DICTIONARY, DocCategory.BIBLE, DocCategory.COMMENTARY),
+            items.map { it.category },
+        )
     }
 }

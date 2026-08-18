@@ -17,12 +17,16 @@
 
 package net.bible.sharedui.reading
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.reading.QuickDocMenuItem
+import net.bible.sharedui.navigation.LocalCategoryIcon
 
 /**
  * The reading-view toolbar's quick-document picker: a Material3 [DropdownMenu] anchored to the
@@ -54,14 +58,28 @@ fun QuickDocMenu(
  * hung this repo's golden capture (see [ReadingOverflowMenuRows]'s kdoc) — so this single
  * implementation is shared by both the real popup and the golden's non-popup surrogate, keeping the
  * rendered rows byte-for-byte the same rather than duplicating the item-building logic.
+ *
+ * Each row's leading icon comes from the [LocalCategoryIcon] seam, keyed on [QuickDocMenuItem]'s
+ * `category` — so any host rendering this (including the golden harness) must provide it.
  */
 @Composable
 fun QuickDocMenuRows(items: List<QuickDocMenuItem>, onSelect: (id: String) -> Unit) {
+    val categoryIcon = LocalCategoryIcon.current
     items.forEach { item ->
         DropdownMenuItem(
             text = { Text(item.label) },
+            leadingIcon = {
+                Icon(
+                    painter = categoryIcon(item.category),
+                    contentDescription = null,
+                    modifier = Modifier.size(QuickDocIconSize),
+                )
+            },
             enabled = item.enabled,
             onClick = { onSelect(item.id) },
         )
     }
 }
+
+/** Matches `DocumentRow`'s category icon so the same document reads the same in both places. */
+private val QuickDocIconSize = 24.dp

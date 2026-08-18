@@ -59,13 +59,13 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.SwordDocumentFacade
-import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedui.AbAppTheme
+import net.bible.sharedui.docCategoryOf
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.strings.LocalStrings
 import org.crosswire.jsword.book.Book
@@ -262,7 +262,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
             language = langByKey[key]
                 ?: LangOption(language.code ?: "", language.name, key),
             repository = getProperty(DownloadManager.REPOSITORY_KEY) ?: "",
-            category = bookCategory.toDocCategory(),
+            category = docCategoryOf(bookCategory),
             installStatus = status.documentInstallStatus.toDocInstallStatus(),
             percentDone = status.percentDone,
             recommended = false,
@@ -441,16 +441,6 @@ class ChooseDocumentComposeActivity : ActivityBase() {
         DocTypeFilter.MAPS to strings.docTypeMaps,
         DocTypeFilter.ADDON to strings.docTypeAddon,
     )
-
-    private fun BookCategory.toDocCategory(): DocCategory = when (this) {
-        BookCategory.BIBLE -> DocCategory.BIBLE
-        BookCategory.COMMENTARY -> DocCategory.COMMENTARY
-        BookCategory.DICTIONARY -> DocCategory.DICTIONARY
-        BookCategory.GENERAL_BOOK -> DocCategory.GENERAL_BOOK
-        BookCategory.MAPS -> DocCategory.MAPS
-        BookCategory.AND_BIBLE -> DocCategory.AND_BIBLE
-        else -> DocCategory.OTHER
-    }
 
     private fun DocumentInstallStatus.toDocInstallStatus(): DocInstallStatus = when (this) {
         DocumentInstallStatus.INSTALLED -> DocInstallStatus.INSTALLED

@@ -187,6 +187,7 @@ import net.bible.sharedcore.reading.QuickDocPicker
 import net.bible.sharedcore.reading.QuickDocRow
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.window.ReadingViewController
+import net.bible.sharedui.docCategoryOf
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -1399,7 +1400,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      *  directly / had nothing). Mirrors classic `menuForDocs` (:1905-1924) via `QuickDocPicker`. */
     internal fun composeQuickDocItems(books: List<Book>): List<QuickDocMenuItem> {
         val byId = books.associateBy { it.initials }
-        val rows = books.map { QuickDocRow(it.initials, getString(R.string.something_with_parenthesis, it.abbreviation, it.language.code), it.language.code, it.abbreviation) }
+        val rows = books.map {
+            QuickDocRow(
+                it.initials,
+                getString(R.string.something_with_parenthesis, it.abbreviation, it.language.code),
+                it.language.code,
+                it.abbreviation,
+                category = docCategoryOf(it.bookCategory),
+            )
+        }
         return when (val a = QuickDocPicker.action(rows, currentDocument?.initials ?: "")) {
             is QuickDocAction.None -> emptyList()
             is QuickDocAction.SwitchDirectly -> { setCurrentDocument(byId[a.id]); emptyList() }
