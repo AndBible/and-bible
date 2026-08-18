@@ -298,4 +298,40 @@ class BookmarksControllerTest {
         assertFalse(c.searchModeActive.value, "the search icon is gone, so the bar must not stay in search mode")
         assertEquals("", c.searchText.value)
     }
+
+    @Test
+    fun no_row_is_expanded_to_begin_with() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(scope = backgroundScope)
+        assertEquals(emptySet(), c.expandedIds.value)
+    }
+
+    @Test
+    fun toggleExpanded_expands_then_collapses_the_same_row() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(scope = backgroundScope)
+        c.toggleExpanded("b1")
+        assertEquals(setOf("b1"), c.expandedIds.value)
+        c.toggleExpanded("b1")
+        assertEquals(emptySet(), c.expandedIds.value)
+    }
+
+    @Test
+    fun two_rows_expand_independently() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(scope = backgroundScope)
+        c.toggleExpanded("b1")
+        c.toggleExpanded("b2")
+        assertEquals(setOf("b1", "b2"), c.expandedIds.value)
+        c.toggleExpanded("b1")
+        assertEquals(setOf("b2"), c.expandedIds.value)
+    }
+
+    @Test
+    fun expansion_is_independent_of_the_selection() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(scope = backgroundScope)
+        c.toggleExpanded("b1")
+        c.enterSelection("b2")
+        assertEquals(setOf("b1"), c.expandedIds.value)
+        assertEquals(setOf("b2"), c.selection.value)
+        c.clearSelection()
+        assertEquals(setOf("b1"), c.expandedIds.value)
+    }
 }

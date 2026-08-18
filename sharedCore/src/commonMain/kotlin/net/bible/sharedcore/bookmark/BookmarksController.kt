@@ -48,6 +48,9 @@ class BookmarksController(
     private val _selection = MutableStateFlow<Set<String>>(emptySet())
     val selection: StateFlow<Set<String>> = _selection.asStateFlow()
 
+    private val _expandedIds = MutableStateFlow<Set<String>>(emptySet())
+    val expandedIds: StateFlow<Set<String>> = _expandedIds.asStateFlow()
+
     private val _rows = MutableStateFlow<List<BookmarkRow>>(emptyList())
     val rows: StateFlow<List<BookmarkRow>> = _rows.asStateFlow()
 
@@ -107,6 +110,17 @@ class BookmarksController(
     }
     fun clearSelection() {
         _selection.value = emptySet()
+    }
+
+    /**
+     * Expand or collapse one row's full bible text and note. This is view state, hoisted here
+     * rather than remembered inside the row so the screen stays stateless — and so a unit test and
+     * a golden can drive it. It is deliberately NOT reset by [reload] or [refresh]: ids that leave
+     * the list simply stop matching, and a filter change that keeps a row should keep its state.
+     */
+    fun toggleExpanded(id: String) {
+        val current = _expandedIds.value
+        _expandedIds.value = if (current.contains(id)) current - id else current + id
     }
 
     fun selectRow(id: String, listPosition: Int) {
