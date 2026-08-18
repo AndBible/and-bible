@@ -81,7 +81,7 @@ fun AbSelectionScaffold(
                 )
             } else {
                 AbTopAppBar(
-                    title = { Text(title) },
+                    title = { AbTopBarTitle(title) },
                     onNavigateUp = onNavigateUp,
                     actions = actions,
                     search = search,

@@ -68,6 +68,7 @@ import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
+import net.bible.sharedui.components.AbTopBarTitle
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -91,7 +92,7 @@ fun GridChoosePassageScreen(
     AbScaffold(
         topBar = {
             AbTopAppBar(
-                title = { Text(ui.title) },
+                title = { AbTopBarTitle(ui.title) },
                 onNavigateUp = onNavigateUp,
                 actions = {
                     if (ui.step == GridStep.BOOK) {

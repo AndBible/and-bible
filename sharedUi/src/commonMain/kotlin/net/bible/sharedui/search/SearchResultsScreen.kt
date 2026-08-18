@@ -49,7 +49,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.BibleOption
 import net.bible.sharedcore.search.SwordResultRow
@@ -57,6 +56,7 @@ import net.bible.sharedcore.search.TranslationMatchVd
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
+import net.bible.sharedui.components.AbTopBarTitle
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -109,7 +109,7 @@ fun SearchResultsScreen(
     AbScaffold(
         topBar = {
             AbTopAppBar(
-                title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = { AbTopBarTitle(title) },
                 onNavigateUp = onNavigateUp,
                 actions = {
                     BibleResultsActions(
