@@ -86,15 +86,19 @@ private val SyncBadgeIconSize = 9.dp
  * Declaring it in dp is what makes [RailBadgeRowHeight] an honest bound instead of an optimistic
  * one, by construction rather than by luck.
  *
- * [SyncGroupBadge] deliberately leaves this `Text`'s `lineHeight` unset (ambient default, a
- * multiple of [SyncBadgeDigitSize]) rather than pinning it to the font size: a fixed dp font size
- * already makes the measured line box a CONSTANT number of pixels at every system font scale —
- * that constant is all [RailBadgeRowHeight] needs — so pinning `lineHeight` too buys nothing.
- * It does cost something: a fix-round-1 device pass found that explicit `lineHeight =
- * digitSize` changes the digit's measured/rendered position even at font scale 1.0 (two
- * goldens moved with no font-scale change at all), which breaks this batch's whole verification
- * strategy — an unrecorded golden must mean a real scale-dependent regression, never a stray
- * line-height tweak. Leave `lineHeight` unset here.
+ * [SyncGroupBadge] pins BOTH this digit `Text`'s `fontSize` (this constant, dp-derived, so the
+ * glyph itself is scale-invariant) AND its `lineHeight` (to the same dp-derived size) — a `Text`
+ * with `fontSize` set but `lineHeight` left unspecified still takes its line height from the
+ * ambient `LocalTextStyle` (Material3's `typography.bodyLarge`, 24.sp), which has no relationship
+ * to an 8.dp digit. That inflates the digit's measured line box to ~24.dp, and because the
+ * containing `Row` uses `verticalAlignment = CenterVertically`, the much smaller sync [Icon] gets
+ * centred inside that oversized box and pushed roughly halfway down it — past where the rail
+ * label region starts. That push-down, present even at font scale 1.0, was the ORIGINAL F46
+ * defect ("the sync icon overlaps the bible reference"); pinning `lineHeight` here removes it.
+ * [SyncGroupBadge]'s `Row` additionally pins its own height to [SyncBadgeIconSize] for the same
+ * reason, so nothing (a future style change, an ambient theme tweak) can reintroduce the
+ * inflated box by another route — that pin is what finally makes [RailBadgeRowHeight] an HONEST
+ * bound on what this badge draws, rather than a bound that merely happened to hold.
  */
 private val SyncBadgeDigitSize = 8.dp
 private val PinDotSize = 6.dp
@@ -327,7 +331,14 @@ fun WindowButton(
 @Composable
 private fun SyncGroupBadge(group: Int, color: Color, modifier: Modifier = Modifier) {
     val digitSize = with(LocalDensity.current) { SyncBadgeDigitSize.toSp() }
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+    // .height(SyncBadgeIconSize) pins this Row's own cross-axis size so CenterVertically can never
+    // centre the icon inside a taller-than-intended box again (see SyncBadgeDigitSize's kdoc).
+    // Chained AFTER the caller's modifier (align + padding), matching the top-end badge's own
+    // align -> padding -> size order, so the padding still surrounds the fixed-height content.
+    Row(
+        modifier = modifier.height(SyncBadgeIconSize),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Icon(
             imageVector = Icons.Filled.Sync,
             contentDescription = null,
@@ -338,6 +349,7 @@ private fun SyncGroupBadge(group: Int, color: Color, modifier: Modifier = Modifi
             text = group.toString(),
             color = color,
             fontSize = digitSize,
+            lineHeight = digitSize,
             maxLines = 1,
         )
     }
