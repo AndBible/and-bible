@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
@@ -28,9 +29,14 @@ import org.robolectric.annotation.GraphicsMode
  *  one in. Not cosmetic: with an empty slot the MARKER preview is indistinguishable from HIDDEN,
  *  which is the pair [net.bible.sharedui.bookmark.BookmarkStylePreview] exists to separate.
  *  Package-visible (not `private`) so other golden tests in this package share one stand-in icon
- *  instead of each inlining its own -- see [BookmarkStylePreviewGoldenTest]'s use. */
-val bookmarkIcon: @Composable (String?) -> Unit = {
-    Icon(Icons.Filled.Bookmark, contentDescription = null)
+ *  instead of each inlining its own -- see [BookmarkStylePreviewGoldenTest]'s use.
+ *
+ *  Paints with the caller-supplied [Color], mirroring the real host's `AndroidLabelIcon` (which
+ *  also takes an explicit tint since round-9a's I1 fix) -- ignoring it here is exactly what let
+ *  the identity row's avatar golden show a crisp glyph on a same-coloured disc, a picture the app
+ *  never actually produced (M3). */
+val bookmarkIcon: @Composable (String?, Color) -> Unit = { _, tint ->
+    Icon(Icons.Filled.Bookmark, contentDescription = null, tint = tint)
 }
 
 /** Varies with the key on purpose: with a constant glyph the grid golden cannot distinguish
@@ -125,7 +131,7 @@ class LabelEditGoldenTest {
                     iconKeys = listOf("book", "cross", "star", "question", "robot", null),
                     iconVisible = true,
                     onName = {}, onColor = {}, onCustomIcon = {},
-                    iconSlot = { key -> Icon(standInIconFor(key), contentDescription = null) },
+                    iconSlot = { key, tint -> Icon(standInIconFor(key), contentDescription = null, tint = tint) },
                 )
             },
         )

@@ -51,6 +51,7 @@ import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelEditState
 import net.bible.sharedcore.bookmark.OverrideMode
 import net.bible.sharedcore.theme.accentArgbFor
+import net.bible.sharedcore.theme.isLightColor
 import net.bible.sharedui.components.AbChoiceGroup
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSwitchRow
@@ -71,6 +72,16 @@ import net.bible.sharedui.theme.LocalDisplayColorMode
  * live via [onName]/[onColor]/[onCustomIcon]. The heart's own click toggles favourite directly and
  * does not open the sheet: a single combined target would make "mark as favourite" and "edit the
  * name" the same gesture.
+ *
+ * [iconSlot] now takes a `tint` alongside the icon key: the glyph's colour depends on WHERE it is
+ * drawn, not on the label's own colour, so each call site picks its own tint rather than
+ * [net.bible.android.view.activity.bookmark.LabelEditComposeActivity]'s `AndroidLabelIcon`
+ * deriving one internally. The avatar sits on a disc filled with the label's own colour, so tinting
+ * the glyph with that SAME colour made it disappear (round-9a whole-branch review I1) — the
+ * avatar instead picks black or white by [isLightColor]'s luminance threshold on the disc's actual
+ * background, the same rule [net.bible.sharedui.components.ColorPickerPresetsPage]'s swatch check
+ * mark uses for the identical problem. The style-preview glyph (in [BookmarkStylePreview], on a
+ * neutral card) keeps the label-colour tint it always had — that background never collides with it.
  */
 @Composable
 fun LabelEditScreen(
@@ -88,11 +99,19 @@ fun LabelEditScreen(
     onOverrideMode: (OverrideMode) -> Unit,
     onUp: () -> Unit,
     iconKeys: List<String?>,
-    iconSlot: @Composable (String?) -> Unit,
+    iconSlot: @Composable (String?, Color) -> Unit,
     actions: @Composable RowScope.() -> Unit,
 ) {
     val strings = LocalStrings.current
     var identitySheetOpen by remember { mutableStateOf(false) }
+    val discColorArgb = accentArgbFor(state.color, LocalDisplayColorMode.current)
+    // Contrast WITH THE DISC, not the label colour itself — reusing the disc colour as the glyph
+    // tint (the pre-fix behaviour) makes the glyph invisible whenever accentArgbFor leaves the
+    // colour unchanged (every mode but BW). Same threshold as the colour-picker's check mark.
+    val avatarIconTint = if (isLightColor(discColorArgb)) Color.Black else Color.White
+    // The style-preview glyph sits on a neutral card, so the label-colour tint it always had is
+    // kept as-is; only the "no custom icon" default glyph keeps its neutral grey, matching classic.
+    val previewIconTint = if (state.customIcon == null) NoCustomIconTint else Color(state.color)
 
     AbScaffold(title = strings.editLabelTitle, onNavigateUp = onUp, actions = actions) { padding ->
         Column(
@@ -105,25 +124,36 @@ fun LabelEditScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { identitySheetOpen = true }
+                    .clickable(onClickLabel = strings.editLabelTitle) { identitySheetOpen = true }
                     .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
                     Modifier
                         .size(40.dp)
-                        .background(
-                            Color(accentArgbFor(state.color, LocalDisplayColorMode.current)),
-                            CircleShape,
-                        ),
+                        .background(Color(discColorArgb), CircleShape),
                     contentAlignment = Alignment.Center,
-                ) { iconSlot(state.customIcon) }
+                ) { iconSlot(state.customIcon, avatarIconTint) }
                 Spacer(Modifier.width(16.dp))
-                Text(
-                    state.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f),
-                )
+                if (state.name.isBlank()) {
+                    // No hint/placeholder here read as an empty gap with no affordance at all — a
+                    // brand-new label (toolbar "+" with no live search query) opened with a name
+                    // the user could not tell was editable, and saving silently discarded it
+                    // (round-9a whole-branch review I2). Style identically to the real name so the
+                    // row's layout does not shift once a name is typed.
+                    Text(
+                        strings.labelNameHint,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f),
+                    )
+                } else {
+                    Text(
+                        state.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
                 if (state.favouriteVisible) {
                     // The heart's own click toggles favourite; only the rest of the row opens the
                     // sheet. A single combined target would make "mark as favourite" and "edit the
@@ -149,7 +179,7 @@ fun LabelEditScreen(
                         style = state.selectionStyle,
                         colorArgb = state.color,
                         sampleText = strings.bookmarkStylePreviewSample,
-                        iconSlot = { iconSlot(state.customIcon) },
+                        iconSlot = { iconSlot(state.customIcon, previewIconTint) },
                     )
                 },
             )
@@ -164,7 +194,7 @@ fun LabelEditScreen(
                         style = state.wholeVerseStyle,
                         colorArgb = state.color,
                         sampleText = strings.bookmarkStylePreviewSample,
-                        iconSlot = { iconSlot(state.customIcon) },
+                        iconSlot = { iconSlot(state.customIcon, previewIconTint) },
                     )
                 },
             )
@@ -203,9 +233,14 @@ fun LabelEditScreen(
             onColor = onColor,
             onCustomIcon = onCustomIcon,
             onDismiss = { identitySheetOpen = false },
-        ) { key -> iconSlot(key) }
+        ) { key, tint -> iconSlot(key, tint) }
     }
 }
+
+/** The default-icon tint used only where the glyph sits on a neutral (non-label-coloured)
+ *  background — mirrors classic's `grey_500`, the tint the pre-fix `AndroidLabelIcon` used
+ *  whenever no custom icon was chosen. */
+private val NoCustomIconTint = Color(0xFF9E9E9E)
 
 @Composable
 private fun SectionTitle(title: String) {

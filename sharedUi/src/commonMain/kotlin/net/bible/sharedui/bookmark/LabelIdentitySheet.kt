@@ -30,6 +30,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -62,6 +63,11 @@ import net.bible.sharedui.strings.LocalStrings
  * question`, `icon_robot`) whose vector `fillColor` is `darker_gray`: going through the host's
  * tinted renderer means no drawable's own fill colour is ever read again.
  *
+ * The grid tints every cell with the surrounding surface's own content colour, never the label's
+ * colour: a pale label made every glyph near-invisible on this sheet's light surface (round-9a
+ * whole-branch review M1), and the cell's selection is already carried by its background
+ * highlight, so the tint does not need to carry the label's identity too.
+ *
  * Split into [LabelIdentitySheet] (the `ModalBottomSheet` wrapper, owning dismissal) and
  * [LabelIdentitySheetContent] (the column of controls) so a golden test can capture the content
  * directly — a `ModalBottomSheet`'s own entrance animation makes a capture flaky. Same split as
@@ -80,7 +86,7 @@ fun LabelIdentitySheet(
     onColor: (Int) -> Unit,
     onCustomIcon: (String?) -> Unit,
     onDismiss: () -> Unit,
-    iconSlot: @Composable (String?) -> Unit,
+    iconSlot: @Composable (String?, Color) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
@@ -115,7 +121,7 @@ fun LabelIdentitySheetContent(
     onColor: (Int) -> Unit,
     onCustomIcon: (String?) -> Unit,
     modifier: Modifier = Modifier,
-    iconSlot: @Composable (String?) -> Unit,
+    iconSlot: @Composable (String?, Color) -> Unit,
 ) {
     val strings = LocalStrings.current
     var customPickerOpen by remember { mutableStateOf(false) }
@@ -167,7 +173,7 @@ fun LabelIdentitySheetContent(
                         // Cells go through the HOST's slot, so every glyph is tinted by the host's
                         // AndroidLabelIcon. That is the fix for the two icons whose vector fillColor
                         // is darker_gray rather than black: no drawable's own fill colour is read.
-                        iconSlot(key)
+                        iconSlot(key, LocalContentColor.current)
                     }
                 }
             }

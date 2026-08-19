@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -18,33 +18,61 @@ package net.bible.android.view.activity.backup
 
 import kotlinx.coroutines.test.runTest
 import net.bible.android.control.backup.SaveOrShare
+import net.bible.android.control.backup.resolveDestination
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
  * The destination chooser is a suspend seam so a Compose host can supply its own dialog while the
- * classic path keeps the platform one. This test pins the seam's contract — a chooser returning
- * null means "cancelled" and must not be confused with SAVE — without booting an Activity, which
- * is what makes it worth having at all.
+ * classic path keeps the platform one. This test pins the seam's contract against the REAL
+ * [resolveDestination] (not a re-implementation of it) — the C1 whole-branch review defect was
+ * exactly that the previous version of this test asserted on its own copy of the bug instead of
+ * on production code, so it stayed green while the app re-opened the platform dialog after the
+ * Compose one was cancelled.
  */
 class SaveOrShareDestinationTest {
 
-    private suspend fun run(chooser: (suspend () -> SaveOrShare?)?): SaveOrShare? =
-        chooser?.invoke()
-
     @Test
-    fun `a chooser returning SHARE yields SHARE`() = runTest {
-        assertEquals(SaveOrShare.SHARE, run { SaveOrShare.SHARE })
+    fun `a chooser returning SHARE yields SHARE and does not run the platform prompt`() = runTest {
+        var platformRan = false
+        val result = resolveDestination(
+            chooseDestination = { SaveOrShare.SHARE },
+            platformPrompt = { platformRan = true; SaveOrShare.SAVE },
+        )
+        assertEquals(SaveOrShare.SHARE, result)
+        assertFalse("a supplied chooser must not fall through to the platform prompt", platformRan)
     }
 
     @Test
-    fun `a chooser returning null means cancelled`() = runTest {
-        assertNull(run { null })
+    fun `a chooser returning SAVE yields SAVE and does not run the platform prompt`() = runTest {
+        var platformRan = false
+        val result = resolveDestination(
+            chooseDestination = { SaveOrShare.SAVE },
+            platformPrompt = { platformRan = true; SaveOrShare.SHARE },
+        )
+        assertEquals(SaveOrShare.SAVE, result)
+        assertFalse("a supplied chooser must not fall through to the platform prompt", platformRan)
     }
 
     @Test
-    fun `no chooser at all falls through to the platform dialog path`() = runTest {
-        assertNull(run(null))
+    fun `a cancelled chooser does not fall through to the platform prompt`() = runTest {
+        var platformRan = false
+        val result = resolveDestination(
+            chooseDestination = { null },
+            platformPrompt = { platformRan = true; SaveOrShare.SAVE },
+        )
+        assertNull(result)
+        assertFalse("cancelling the Compose dialog must abort, not re-ask", platformRan)
+    }
+
+    @Test
+    fun `a null chooser falls through to the platform dialog path`() = runTest {
+        val result = resolveDestination(
+            chooseDestination = null,
+            platformPrompt = { SaveOrShare.SHARE },
+        )
+        assertEquals(SaveOrShare.SHARE, result)
     }
 }

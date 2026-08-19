@@ -34,8 +34,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color as ComposeColor
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
@@ -118,7 +117,7 @@ class LabelEditComposeActivity : ActivityBase() {
                         onOverrideMode = controller::setOverrideMode,
                         onUp = { requestUp() },
                         iconKeys = iconKeys,
-                        iconSlot = { name -> AndroidLabelIcon(name, state.color) },
+                        iconSlot = { name, tint -> AndroidLabelIcon(name, tint) },
                         actions = { LabelEditActions(state.isSpecialLabel) },
                     )
 
@@ -262,13 +261,18 @@ class LabelEditComposeActivity : ActivityBase() {
 
 /**
  * Renders the current custom-icon selection: [customIconMap]`[name]` or the default bookmark
- * drawable, tinted `grey_500` when [name] is null (no custom icon), else [colorArgb] (the label
- * color) — parity with classic `updateUI()`'s `customIconSelector` icon tinting.
+ * drawable, tinted with the caller-supplied [tint] rather than deriving one here.
+ *
+ * [tint] used to be derived internally from the label's own colour (grey when [name] was null),
+ * which is exactly what made the identity-row avatar's glyph disappear onto its same-coloured
+ * disc (round-9a whole-branch review I1): a single internal rule cannot serve both a disc
+ * filled with the label's colour (needs a contrast tint) and a neutral background (can use the
+ * label's colour safely). Every call site in [net.bible.sharedui.bookmark.LabelEditScreen] /
+ * [net.bible.sharedui.bookmark.LabelIdentitySheetContent] now picks its own tint instead.
  */
 @Composable
-private fun AndroidLabelIcon(name: String?, colorArgb: Int) {
+private fun AndroidLabelIcon(name: String?, tint: Color) {
     val drawableId = customIconMap[name] ?: R.drawable.ic_baseline_bookmark_24
-    val tint = if (name == null) colorResource(R.color.grey_500) else ComposeColor(colorArgb)
     Icon(
         painter = painterResource(drawableId),
         contentDescription = null,

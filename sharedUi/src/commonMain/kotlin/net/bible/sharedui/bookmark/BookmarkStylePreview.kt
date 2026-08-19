@@ -93,7 +93,11 @@ fun BookmarkStylePreview(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+            // `surface`, not `surfaceVariant`: the BW highlight fill is a fixed light/dark grey
+            // close in tone to surfaceVariant, so HIGHLIGHT read as barely different from HIDDEN
+            // here even though the reader shows a clear contrast on its white page (round-9a
+            // whole-branch review M4).
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

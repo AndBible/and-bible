@@ -2,6 +2,7 @@ package net.bible.android.view.compose.golden
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedui.bookmark.BookmarkStylePreview
@@ -29,9 +30,12 @@ class BookmarkStylePreviewGoldenTest {
                     style = style,
                     colorArgb = AbColor.palette.first(),
                     sampleText = "For God so loved the world",
-                    // bookmarkIcon (LabelEditGoldenTest.kt) takes a nullable icon-name key; this
-                    // preview's iconSlot takes none, so adapt at this call site.
-                    iconSlot = { bookmarkIcon(null) },
+                    // bookmarkIcon (LabelEditGoldenTest.kt) takes a nullable icon-name key plus a
+                    // tint; this preview's iconSlot takes neither, so adapt at this call site --
+                    // Color(colorArgb) mirrors what LabelEditScreen's real preview call passes for
+                    // a non-null custom icon (the label's own colour, since this background is the
+                    // neutral card, not a same-coloured disc).
+                    iconSlot = { bookmarkIcon(null, Color(AbColor.palette.first())) },
                 )
             }
         }

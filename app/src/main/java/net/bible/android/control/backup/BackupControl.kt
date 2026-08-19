@@ -134,6 +134,20 @@ const val ZIP_MIMETYPE = "application/zip"
 enum class SaveOrShare {SAVE, SHARE}
 
 /**
+ * Which destination dialog to run. Branches on whether a chooser was SUPPLIED, never on what it
+ * returned: a chooser returning null means the user cancelled, and must abort the export rather
+ * than fall through to the platform dialog asking the same question again (the C1 whole-branch
+ * review defect — an elvis on the chooser's RESULT cannot tell "no chooser" apart from "chooser
+ * ran and was cancelled", so Cancel on the Compose dialog re-opened the platform one). Internal so
+ * [net.bible.android.view.activity.backup.SaveOrShareDestinationTest] can pin this contract
+ * directly, without booting an Activity.
+ */
+internal suspend fun resolveDestination(
+    chooseDestination: (suspend () -> SaveOrShare?)?,
+    platformPrompt: suspend () -> SaveOrShare?,
+): SaveOrShare? = if (chooseDestination != null) chooseDestination() else platformPrompt()
+
+/**
  * Maps each backed-up database filename to its user-facing title resource.
  *
  * This is the single source of truth for database titles shown in backup/restore UI.
@@ -183,8 +197,8 @@ object BackupControl {
         // path — and every existing caller — keeps the platform AlertDialog byte-for-byte.
         chooseDestination: (suspend () -> SaveOrShare?)? = null,
     ): Boolean {
-        val saveOrShare = (
-            chooseDestination?.invoke() ?: withContext(Dispatchers.Main) {
+        val saveOrShare = resolveDestination(chooseDestination) {
+            withContext(Dispatchers.Main) {
                 suspendCoroutine<SaveOrShare?> {
                     AlertDialog.Builder(activity)
                         .setTitle(promptTitle)
@@ -196,7 +210,7 @@ object BackupControl {
                         .show()
                 }
             }
-            ) ?: return false
+        } ?: return false
 
         val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", file)
         val intent = when(saveOrShare) {
