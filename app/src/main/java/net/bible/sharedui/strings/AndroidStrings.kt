@@ -426,12 +426,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val labelNameHint: String get() = context.getString(R.string.label_name_prompt)
     override val selectCustomIconLabel: String get() = context.getString(R.string.select_custom_icon)
     override val favouriteLabelSwitchLabel: String get() = context.getString(R.string.favourite_label)
-    override val underlineStyleLabel: String get() = context.getString(R.string.bookmark_underline_style_arbitrary)
-    override val underlineStyleWholeVerseLabel: String get() = context.getString(R.string.bookmark_underline_style_whole_verse)
-    override val markerStyleLabel: String get() = context.getString(R.string.marker_style)
-    override val markerStyleWholeVerseLabel: String get() = context.getString(R.string.marker_style_whole_verse)
-    override val hideStyleLabel: String get() = context.getString(R.string.hide_style)
-    override val hideStyleWholeVerseLabel: String get() = context.getString(R.string.hide_style_whole_verse)
     override val thisBookmarkSectionTitle: String get() = context.getString(R.string.this_bookmark)
     override val addedToBookmarkLabel: String get() = context.getString(R.string.added_to_bookmark)
     override val primaryLabelSwitchLabel: String get() = context.getString(R.string.primary_label)
@@ -447,8 +441,6 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Batch 7b-1 — ManageLabelsScreen
     override val labelsSearchHint: String get() = context.getString(R.string.labels_search_hint)
-    override val matchStartOfText: String get() = context.getString(R.string.match_start_of_text)
-    override val matchAnyText: String get() = context.getString(R.string.match_any_text)
     override val activeLabelsHeader: String get() = context.getString(R.string.active_labels)
     override val recentLabelsHeader: String get() = context.getString(R.string.recent_labels)
     override val otherLabelsHeader: String get() = context.getString(R.string.other_labels)

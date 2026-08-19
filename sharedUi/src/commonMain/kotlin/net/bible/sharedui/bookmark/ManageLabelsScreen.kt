@@ -223,8 +223,9 @@ private fun SearchModeMenu(
  * real popup.
  *
  * The two name-match rows use [Strings.searchModeNameStart] / [Strings.searchModeNameContains]
- * ("Name (from start)" / "Name (contains)"), translated in 50 locales — NOT
- * [Strings.matchStartOfText] / [Strings.matchAnyText] ("Ab*" / "*ab*"), which were the label of
+ * ("Name (from start)" / "Name (contains)"), translated in 50 locales — NOT the strings behind
+ * `R.string.match_start_of_text` / `R.string.match_any_text` ("Ab*" / "*ab*", removed from
+ * [Strings] as unused once this menu stopped referencing them), which were the label of
  * classic's 40dp toggle *button* and have zero locale translations, so using them here made this
  * menu read as "Ab*" / "*ab*" / "Content" in every language.
  */

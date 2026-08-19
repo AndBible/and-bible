@@ -480,12 +480,6 @@ interface Strings {
     val labelNameHint: String                     // R.string.label_name_prompt (name field hint)
     val selectCustomIconLabel: String              // R.string.select_custom_icon
     val favouriteLabelSwitchLabel: String          // R.string.favourite_label
-    val underlineStyleLabel: String                // R.string.bookmark_underline_style_arbitrary
-    val underlineStyleWholeVerseLabel: String      // R.string.bookmark_underline_style_whole_verse
-    val markerStyleLabel: String                   // R.string.marker_style
-    val markerStyleWholeVerseLabel: String          // R.string.marker_style_whole_verse
-    val hideStyleLabel: String                     // R.string.hide_style
-    val hideStyleWholeVerseLabel: String            // R.string.hide_style_whole_verse
     val thisBookmarkSectionTitle: String            // R.string.this_bookmark
     val addedToBookmarkLabel: String                // R.string.added_to_bookmark
     val primaryLabelSwitchLabel: String             // R.string.primary_label
@@ -501,8 +495,6 @@ interface Strings {
 
     // Batch 7b-1 — ManageLabelsScreen
     val labelsSearchHint: String                    // R.string.labels_search_hint
-    val matchStartOfText: String                    // R.string.match_start_of_text
-    val matchAnyText: String                        // R.string.match_any_text
     val activeLabelsHeader: String                  // R.string.active_labels
     val recentLabelsHeader: String                  // R.string.recent_labels
     val otherLabelsHeader: String                   // R.string.other_labels
