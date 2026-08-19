@@ -32,6 +32,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -81,6 +82,10 @@ class BookmarkDatabaseMigration12To13Test {
         "sel${selection.first}${selection.second}${selection.third}" +
             "-wv${wholeVerse.first}${wholeVerse.second}${wholeVerse.third}"
 
+    /** Fixed 16-byte ids (as hex) so the FK regression test can find its own rows after migration. */
+    private val fkLabelIdHex = "22".repeat(16)
+    private val fkBookmarkIdHex = "11".repeat(16)
+
     @Before
     fun setUp() {
         dbFile = File.createTempFile("bookmarks-v12-", ".sqlite3").also { it.delete() }
@@ -121,6 +126,7 @@ class BookmarkDatabaseMigration12To13Test {
                     insertLabel(raw, rowName(selection, wholeVerse), selection, wholeVerse)
                 }
             }
+            insertBibleBookmarkWithLabelAssociation(raw)
             raw.execSQL("PRAGMA user_version = 12")
         }
     }
@@ -134,6 +140,37 @@ class BookmarkDatabaseMigration12To13Test {
             """.trimIndent(),
             arrayOf<Any?>(name, selection.second, wholeVerse.second, selection.third,
                     wholeVerse.third, selection.first, wholeVerse.first),
+        )
+    }
+
+    /**
+     * Seeds one `BibleBookmark` row and one `BibleBookmarkToLabel` row pointing at a real `Label`
+     * row (`BibleBookmarkToLabel.labelId` and `BibleBookmark.primaryLabelId` both reference `Label`,
+     * the former `ON DELETE CASCADE`) — the regression fixture for finding 2: the 12->13 migration
+     * rebuilds `Label` via `DROP TABLE`, and if foreign keys were ever enforced during that, the
+     * `Label` drop would cascade-delete this association. Column lists follow the v12 schema export
+     * (`schemas/net.bible.android.database.BookmarkDatabase/12.json`), same as [insertLabel] above.
+     */
+    private fun insertBibleBookmarkWithLabelAssociation(raw: SQLiteDatabase) {
+        raw.execSQL(
+            """
+            INSERT INTO Label (id, name, color, markerStyle, markerStyleWholeVerse, underlineStyle,
+                               underlineStyleWholeVerse, hideStyle, hideStyleWholeVerse, favourite, type, customIcon)
+            VALUES (X'$fkLabelIdHex', 'fk-regression-label', 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL)
+            """.trimIndent()
+        )
+        raw.execSQL(
+            """
+            INSERT INTO BibleBookmark (kjvOrdinalStart, kjvOrdinalEnd, ordinalStart, ordinalEnd, v11n,
+                                       id, createdAt, primaryLabelId)
+            VALUES (100, 100, 100, 100, 'KJV', X'$fkBookmarkIdHex', 0, X'$fkLabelIdHex')
+            """.trimIndent()
+        )
+        raw.execSQL(
+            """
+            INSERT INTO BibleBookmarkToLabel (bookmarkId, labelId, orderNumber, indentLevel, expandContent)
+            VALUES (X'$fkBookmarkIdHex', X'$fkLabelIdHex', 0, 0, 0)
+            """.trimIndent()
         )
     }
 
@@ -158,7 +195,9 @@ class BookmarkDatabaseMigration12To13Test {
     @Test
     fun `every legacy flag combination migrates to the style the reader already drew`() {
         openMigrated()
-        val rows = styles()
+        // Excludes the fixed fk-regression-label row seeded for the FK cascade regression test
+        // below: it isn't part of the 8x8 style cross this test is counting.
+        val rows = styles().filterKeys { it != "fk-regression-label" }
         assertEquals(64, rows.size)
         for (selection in allTriples) {
             for (wholeVerse in allTriples) {
@@ -207,5 +246,18 @@ class BookmarkDatabaseMigration12To13Test {
         assertEquals(1 to "0", columns["displayStyle"])
         assertEquals(0 to "1", columns["displayStyleWholeVerse"])
         assertEquals(13, db!!.openHelper.readableDatabase.version)
+    }
+
+    @Test
+    fun `the Label rebuild does not cascade-delete BibleBookmarkToLabel rows`() {
+        openMigrated()
+        db!!.openHelper.readableDatabase
+            .query("""
+                SELECT hex(bookmarkId), hex(labelId) FROM BibleBookmarkToLabel
+                WHERE hex(bookmarkId) = '${fkBookmarkIdHex.uppercase()}'
+            """).use { c ->
+                assertTrue("BibleBookmarkToLabel row must survive the Label rebuild", c.moveToFirst())
+                assertEquals(fkLabelIdHex.uppercase(), c.getString(1))
+            }
     }
 }

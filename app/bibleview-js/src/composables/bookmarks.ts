@@ -513,7 +513,7 @@ export function useBookmarks(
     }
 
     /** The one style that is actually drawn for this bookmark: the label's axis for its kind. */
-    function styleFor(b: BaseBookmark, label = getBookmarkStyleLabel(b)): BookmarkDisplayStyle {
+    function styleFor(b: BaseBookmark, label: LabelAndStyle): BookmarkDisplayStyle {
         return b.wholeVerse ? label.displayStyleWholeVerse : label.displayStyle;
     }
 
@@ -576,7 +576,7 @@ export function useBookmarks(
                 const label = getBookmarkStyleLabel(b);
                 const labelId = label.id;
                 const style = styleFor(b, label);
-                const forcedHidden = intersection(new Set(b.labels), hideLabels).size > 0;
+                const forcedHidden = hideLabels.size > 0 && intersection(new Set(b.labels), hideLabels).size > 0;
 
                 // MARKER shares the hidden bucket on purpose: a marker draws an icon (see the icon
                 // pass below) and no text decoration at all.

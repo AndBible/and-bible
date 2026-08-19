@@ -231,6 +231,15 @@ private val labelDisplayStyleEnum = makeMigration(12..13) { db ->
     // database by comparing `TableInfo` (columns, affinities, notNull, defaults, primary key,
     // indices) against the entity, never the DDL text — so keep it equivalent to
     // `schemas/net.bible.android.database.BookmarkDatabase/13.json`, do not try to diff the strings.
+    //
+    // `BibleBookmarkToLabel`/`GenericBookmarkToLabel` reference `Label` with ON DELETE CASCADE, and
+    // `BibleBookmark`/`GenericBookmark.primaryLabelId` with ON DELETE SET NULL. `DROP TABLE Label`
+    // below would fire those actions if foreign keys were enforced, deleting every bookmark<->label
+    // association. Room only turns FKs on in `onOpen`, after `onUpgrade` runs, so this is not live
+    // today — but this migration also runs against sync patch files applied through other paths, so
+    // it must be safe regardless of the caller's FK setting, the same way
+    // `OldMonolithicAppDatabaseMigrations.kt`'s `MIGRATION_14_15` guards its own table rebuild.
+    db.execSQL("PRAGMA foreign_keys=OFF")
     db.execSQL("""
         CREATE TABLE `Label_new` (
             `id` BLOB NOT NULL, `name` TEXT NOT NULL, `color` INTEGER NOT NULL DEFAULT 0,
@@ -251,6 +260,7 @@ private val labelDisplayStyleEnum = makeMigration(12..13) { db ->
     db.execSQL("DROP TABLE Label")
     db.execSQL("ALTER TABLE Label_new RENAME TO Label")
     db.execSQL("CREATE INDEX IF NOT EXISTS `index_Label_favourite` ON `Label` (`favourite`)")
+    db.execSQL("PRAGMA foreign_keys=ON")
 }
 
 val bookmarkMigrations: Array<Migration> = arrayOf(
