@@ -594,4 +594,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val expandRow: String get() = context.getString(R.string.bookmark_expand_row)
     override val collapseRow: String get() = context.getString(R.string.bookmark_collapse_row)
     override val bookmarkLabelFilter: String get() = context.getString(R.string.bookmark_label_filter)
+
+    // Round 9a Plan B — label style picker
+    override val bookmarkStylePreviewSample: String get() = context.getString(R.string.bookmark_style_preview_sample)
 }

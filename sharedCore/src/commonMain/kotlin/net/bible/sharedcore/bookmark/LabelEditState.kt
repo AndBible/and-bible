@@ -4,6 +4,17 @@ package net.bible.sharedcore.bookmark
 enum class OverrideMode { NONE, HIGHLIGHT, UNDERLINE, MARKER, HIDDEN }
 
 /**
+ * The effective look of a bookmark carrying this label, for ONE of the two bookmark kinds
+ * (text-selection or whole-verse). The `Label` row stores six independent booleans, but the
+ * renderer is a strict if/else chain (`bibleview-js/src/composables/bookmarks.ts:585-602`) under
+ * the precedence `hide > marker > underline > highlight`, so per kind exactly one of these four
+ * applies. HIGHLIGHT is the chain's `else` branch — the classic UI had no affordance for it at all,
+ * which is why this enum exists. Same vocabulary as [OverrideMode]'s four non-NONE values on
+ * purpose; `WorkspaceLabelOverride` already collapsed the same six booleans into one enum.
+ */
+enum class BookmarkDisplayStyle { HIGHLIGHT, UNDERLINE, MARKER, HIDDEN }
+
+/**
  * Plain, portable editable state for one label. [labelId] is the opaque `IdType.toString()`
  * (empty for a brand-new label). [color] is ARGB. No Android/Room/JSword types.
  */

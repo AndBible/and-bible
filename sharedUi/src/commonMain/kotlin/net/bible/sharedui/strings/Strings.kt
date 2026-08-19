@@ -650,6 +650,9 @@ interface Strings {
     val expandRow: String                                   // R.string.bookmark_expand_row
     val collapseRow: String                                 // R.string.bookmark_collapse_row
     val bookmarkLabelFilter: String                        // R.string.bookmark_label_filter
+
+    // Round 9a Plan B — label style picker
+    val bookmarkStylePreviewSample: String           // R.string.bookmark_style_preview_sample
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
