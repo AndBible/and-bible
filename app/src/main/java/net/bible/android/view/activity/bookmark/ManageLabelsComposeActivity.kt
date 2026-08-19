@@ -144,6 +144,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
                     val rows by controller.rows.collectAsState()
                     val searchText by controller.searchText.collectAsState()
                     val searchMode by controller.searchMode.collectAsState()
+                    val searchModeActive by controller.searchModeActive.collectAsState()
                     var showExportDialog by remember { mutableStateOf(false) }
 
                     ManageLabelsScreen(
@@ -154,6 +155,8 @@ class ManageLabelsComposeActivity : ActivityBase() {
                         searchMode = searchMode,
                         onSearch = controller::setSearch,
                         onSetSearchMode = controller::setSearchMode,
+                        searchModeActive = searchModeActive,
+                        onCloseSearch = controller::closeSearch,
                         onRowClick = { id ->
                             if (data.mode == ManageLabels.Mode.STUDYPAD) {
                                 // A content-search hit carries its own firstMatchEntryId; a plain
@@ -214,10 +217,16 @@ class ManageLabelsComposeActivity : ActivityBase() {
         }
     }
 
-    /** Classic `ManageLabels.onBackPressed()` (ManageLabels.kt:148-150) always saves & exits — no
-     *  discard confirmation (unlike [LabelEditComposeActivity]'s dirty-check). */
+    /** Search mode is a bar state, not a screen, so hardware back must leave it rather than leave
+     *  the screen — same routing as WorkspaceSelectorComposeActivity.kt:126-130. Only once search
+     *  is closed does back mean "done", which for this screen is still an unconditional
+     *  saveAndExit() (no discard confirmation, unlike LabelEditComposeActivity's dirty check). */
     @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
+        if (controller.searchModeActive.value) {
+            controller.closeSearch()
+            return
+        }
         saveAndExit()
     }
 

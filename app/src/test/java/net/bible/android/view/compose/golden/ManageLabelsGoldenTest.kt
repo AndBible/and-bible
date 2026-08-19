@@ -89,12 +89,17 @@ class ManageLabelsGoldenTest {
         return out
     }
 
-    private fun screen(mode: ManageLabelsMode, searchMode: SearchMode = SearchMode.NAME_START) = @androidx.compose.runtime.Composable {
+    private fun screen(
+        mode: ManageLabelsMode,
+        searchMode: SearchMode = SearchMode.NAME_START,
+        searchModeActive: Boolean = false,
+        searchText: String = "",
+    ) = @androidx.compose.runtime.Composable {
         ManageLabelsScreen(
             title = "Manage labels",
             rows = rows(mode),
             mode = mode,
-            searchText = "",
+            searchText = searchText,
             searchMode = searchMode,
             onSearch = {},
             onSetSearchMode = {},
@@ -107,6 +112,8 @@ class ManageLabelsGoldenTest {
             onUp = {},
             iconSlot = { _, _ -> },
             actions = {},
+            searchModeActive = searchModeActive,
+            onCloseSearch = {},
         )
     }
 
@@ -165,6 +172,8 @@ class ManageLabelsGoldenTest {
             onUp = {},
             iconSlot = { _, _ -> },
             actions = {},
+            searchModeActive = false,
+            onCloseSearch = {},
         )
     }
 
@@ -193,4 +202,13 @@ class ManageLabelsGoldenTest {
      *  captured across all modes since highlight legibility is the point of this state. */
     @Test fun manageLabels_studypad_content() =
         captureMatrix("ManageLabels", "studypad_content", heightDp = 800, content = contentSearchScreen())
+
+    /** Search mode: the bar becomes the search field, and the mode picker lives in its actions
+     *  row. STUDYPAD so all three SearchModes are offered. The menu itself is NOT expanded — an
+     *  expanded DropdownMenu hangs Roborazzi (see the two-popups finding). */
+    @Test fun manageLabels_search() =
+        captureGolden(
+            "ManageLabels", "search", EDGE_MODE, heightDp = 700,
+            content = screen(mode = ManageLabelsMode.STUDYPAD, searchMode = SearchMode.CONTENT, searchModeActive = true, searchText = "gen"),
+        )
 }

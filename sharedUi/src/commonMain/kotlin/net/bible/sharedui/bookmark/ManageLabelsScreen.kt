@@ -43,14 +43,12 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,10 +65,13 @@ import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
+import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbColor
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbScaffold
-import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.AbSearchImeRequest
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.search.styledTextToAnnotatedString
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
@@ -103,6 +104,8 @@ fun ManageLabelsScreen(
     searchMode: SearchMode,
     onSearch: (String) -> Unit,
     onSetSearchMode: (SearchMode) -> Unit,
+    searchModeActive: Boolean,
+    onCloseSearch: () -> Unit,
     onRowClick: (labelId: String) -> Unit,
     onRowLongClick: (labelId: String) -> Unit,
     onToggleChecked: (labelId: String) -> Unit,
@@ -115,44 +118,35 @@ fun ManageLabelsScreen(
 ) {
     val strings = LocalStrings.current
 
-    AbScaffold(title = title, onNavigateUp = onUp, actions = actions) { padding: PaddingValues ->
-        Column(modifier = Modifier.fillMaxWidth().padding(padding)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                AbSearchField(
-                    value = searchText,
-                    onValueChange = onSearch,
-                    placeholder = strings.labelsSearchHint,
-                    modifier = Modifier.weight(1f),
-                    horizontalPadding = 8.dp,
-                )
-                if (mode == ManageLabelsMode.STUDYPAD) {
-                    // StudyPad content-search: a 3-way selector over all SearchModes.
-                    SearchModeSelector(
-                        searchMode = searchMode,
-                        onSetSearchMode = onSetSearchMode,
-                        strings = strings,
-                    )
-                } else {
-                    // Non-STUDYPAD modes only ever filter by name: a simple two-state toggle.
-                    val insideText = searchMode == SearchMode.NAME_CONTAINS
-                    TextButton(
-                        onClick = {
-                            onSetSearchMode(if (insideText) SearchMode.NAME_START else SearchMode.NAME_CONTAINS)
-                        },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = if (insideText) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                        ),
-                        modifier = Modifier.padding(end = 8.dp),
-                    ) {
-                        Text(if (insideText) strings.matchAnyText else strings.matchStartOfText)
-                    }
-                }
+    AbScaffold(
+        title = title,
+        // In search mode the bar is entirely the search field (AbTopAppBar's contract), so the
+        // up-arrow and the normal actions are not drawn at all; passing them anyway would be
+        // redundant with that contract rather than disagreeing with it, but nulling onNavigateUp
+        // keeps the intent readable at the call site.
+        onNavigateUp = if (searchModeActive) null else onUp,
+        actions = { if (!searchModeActive) actions() },
+        search = if (searchModeActive) {
+            AbTopBarSearchState(
+                query = searchText,
+                imeRequest = AbSearchImeRequest.Focus,
+                placeholder = strings.labelsSearchHint,
+            )
+        } else null,
+        searchCallbacks = if (searchModeActive) {
+            AbTopBarSearchCallbacks(
+                onQueryChange = onSearch,
+                onClose = onCloseSearch,
+                onImeRequestHandled = {},
+            )
+        } else null,
+        searchActions = {
+            if (searchModeActive) {
+                SearchModeMenu(mode = mode, searchMode = searchMode, onSetSearchMode = onSetSearchMode, strings = strings)
             }
-
+        },
+    ) { padding: PaddingValues ->
+        Column(modifier = Modifier.fillMaxWidth().padding(padding)) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(rows, key = ::rowKey) { row ->
                     when (row) {
@@ -182,41 +176,36 @@ fun ManageLabelsScreen(
 }
 
 /**
- * StudyPad-only 3-way search-mode picker (name-from-start / name-contains / content), a small
- * button showing the active mode's label that opens a dropdown over all [SearchMode] values —
- * the portable analogue of classic `ManageLabels`'s `PopupMenu` (`R.menu.search_mode_menu`).
+ * The search bar's mode picker: one icon + menu replacing the two widgets this screen used to draw
+ * side by side (a 3-way dropdown in STUDYPAD, a 2-state text button everywhere else). The item set
+ * is derived from [mode], so behaviour per mode is unchanged — only one widget now expresses it.
+ * The content option is StudyPad-only because only StudyPads have searchable content.
  */
 @Composable
-private fun SearchModeSelector(
+private fun SearchModeMenu(
+    mode: ManageLabelsMode,
     searchMode: SearchMode,
     onSetSearchMode: (SearchMode) -> Unit,
     strings: Strings,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val label = when (searchMode) {
-        SearchMode.NAME_START -> strings.searchModeNameStart
-        SearchMode.NAME_CONTAINS -> strings.searchModeNameContains
-        SearchMode.CONTENT -> strings.searchModeContent
-    }
-    Box {
-        TextButton(onClick = { expanded = true }, modifier = Modifier.padding(end = 4.dp)) {
-            Text(label)
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            AbMenuItem(
-                text = strings.searchModeNameStart,
-                onClick = { expanded = false; onSetSearchMode(SearchMode.NAME_START) },
-                icon = { Icon(Icons.Filled.TextFields, contentDescription = null) },
-                checkable = true,
-                checked = searchMode == SearchMode.NAME_START,
-            )
-            AbMenuItem(
-                text = strings.searchModeNameContains,
-                onClick = { expanded = false; onSetSearchMode(SearchMode.NAME_CONTAINS) },
-                icon = { Icon(Icons.Filled.Abc, contentDescription = null) },
-                checkable = true,
-                checked = searchMode == SearchMode.NAME_CONTAINS,
-            )
+    AbActionIcon(Icons.Filled.Tune, strings.search) { expanded = true }
+    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        AbMenuItem(
+            text = strings.matchStartOfText,
+            onClick = { expanded = false; onSetSearchMode(SearchMode.NAME_START) },
+            icon = { Icon(Icons.Filled.TextFields, contentDescription = null) },
+            checkable = true,
+            checked = searchMode == SearchMode.NAME_START,
+        )
+        AbMenuItem(
+            text = strings.matchAnyText,
+            onClick = { expanded = false; onSetSearchMode(SearchMode.NAME_CONTAINS) },
+            icon = { Icon(Icons.Filled.Abc, contentDescription = null) },
+            checkable = true,
+            checked = searchMode == SearchMode.NAME_CONTAINS,
+        )
+        if (mode == ManageLabelsMode.STUDYPAD) {
             AbMenuItem(
                 text = strings.searchModeContent,
                 onClick = { expanded = false; onSetSearchMode(SearchMode.CONTENT) },
