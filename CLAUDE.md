@@ -247,7 +247,10 @@ All entities use `IdType` (UUID-based) for primary keys.
 1. Update entity classes in `WorkspaceEntities.kt` or `BookmarkEntities.kt`
 2. Increment database version constant (e.g., `WORKSPACE_DATABASE_VERSION`)
 3. Create migration class in `app/src/main/java/net/bible/android/database/migrations/`
-4. Register migration in `DatabaseContainer.kt`
+4. Add the migration to its database's own migrations array (e.g. `bookmarkMigrations` in
+   `BookmarkMigrations.kt`, `workspacesMigrations` in `WorkspacesMigrations.kt`) — that array
+   is the actual registration point; `DatabaseContainer.kt` just spreads it
+   (`.addMigrations(*bookmarkMigrations)`) and needs no edit of its own.
 5. Commit the KSP-generated schema export it produces at `app/schemas/<Database class>/<new
    version>.json` (e.g. `app/schemas/net.bible.android.database.BookmarkDatabase/13.json`). It is
    generated on build (`room.schemaLocation`, `app/build.gradle.kts`) but is not auto-staged by git —
