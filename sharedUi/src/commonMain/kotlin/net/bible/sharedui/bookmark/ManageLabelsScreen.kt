@@ -93,6 +93,12 @@ import net.bible.sharedui.strings.Strings
  * colour-filled circle (mirrors `ic_label_circle`, drawn natively — no host round-trip needed for a
  * solid dot); otherwise [iconSlot] renders the label's own icon (custom, or the host's built-in
  * default when [net.bible.sharedcore.bookmark.LabelItem.customIcon] is `null`).
+ *
+ * [searchActions] is a second host action slot, rendered in the *search* bar (alongside this
+ * screen's own [SearchModeMenu]) rather than the normal one [actions] occupies. The host puts its
+ * New (⊕) icon there: without it, a search that finds nothing had no way to become a label seeded
+ * with the query, because the only path to that was the ⊕ in [actions], which the screen never
+ * draws while search is active.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -115,6 +121,7 @@ fun ManageLabelsScreen(
     onUp: () -> Unit,
     iconSlot: @Composable (customIcon: String?, colorArgb: Int) -> Unit,
     actions: @Composable RowScope.() -> Unit,
+    searchActions: @Composable RowScope.() -> Unit,
 ) {
     val strings = LocalStrings.current
 
@@ -142,6 +149,10 @@ fun ManageLabelsScreen(
         } else null,
         searchActions = {
             if (searchModeActive) {
+                // Host's search-bar actions first (its ⊕ lands here — see the KDoc above), then this
+                // screen's own mode menu, so the bar reads [back | query | host actions | mode | ✕]
+                // and the built-in Clear button stays the edge-most control.
+                searchActions()
                 SearchModeMenu(mode = mode, searchMode = searchMode, onSetSearchMode = onSetSearchMode, strings = strings)
             }
         },
@@ -180,6 +191,10 @@ fun ManageLabelsScreen(
  * side by side (a 3-way dropdown in STUDYPAD, a 2-state text button everywhere else). The item set
  * is derived from [mode], so behaviour per mode is unchanged — only one widget now expresses it.
  * The content option is StudyPad-only because only StudyPads have searchable content.
+ *
+ * The icon's contentDescription is [Strings.searchOptions] ("Search settings"), not
+ * [Strings.search] ("Find") — the bar it sits in is already a search field, so a TalkBack user
+ * hearing "Find, button" for the control that opens the *match-mode* menu would be misled.
  */
 @Composable
 private fun SearchModeMenu(
@@ -189,31 +204,59 @@ private fun SearchModeMenu(
     strings: Strings,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    AbActionIcon(Icons.Filled.Tune, strings.search) { expanded = true }
+    AbActionIcon(Icons.Filled.Tune, strings.searchOptions) { expanded = true }
     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-        AbMenuItem(
-            text = strings.matchStartOfText,
-            onClick = { expanded = false; onSetSearchMode(SearchMode.NAME_START) },
-            icon = { Icon(Icons.Filled.TextFields, contentDescription = null) },
-            checkable = true,
-            checked = searchMode == SearchMode.NAME_START,
+        ManageLabelsSearchModeMenuRows(
+            mode = mode,
+            searchMode = searchMode,
+            onSetSearchMode = { expanded = false; onSetSearchMode(it) },
+            strings = strings,
         )
+    }
+}
+
+/**
+ * The mode menu's item set, factored out of [SearchModeMenu] for the same reason
+ * `WorkspaceRowMenuRows` is (see `WorkspaceSelectorScreen.kt`): an expanded `DropdownMenu` cannot be
+ * photographed — it hangs Roborazzi, and two open popups on one page hang the whole `:app` suite —
+ * so the golden renders this composable directly, inside a plain `Column`, instead of opening the
+ * real popup.
+ *
+ * The two name-match rows use [Strings.searchModeNameStart] / [Strings.searchModeNameContains]
+ * ("Name (from start)" / "Name (contains)"), translated in 50 locales — NOT
+ * [Strings.matchStartOfText] / [Strings.matchAnyText] ("Ab*" / "*ab*"), which were the label of
+ * classic's 40dp toggle *button* and have zero locale translations, so using them here made this
+ * menu read as "Ab*" / "*ab*" / "Content" in every language.
+ */
+@Composable
+fun ManageLabelsSearchModeMenuRows(
+    mode: ManageLabelsMode,
+    searchMode: SearchMode,
+    onSetSearchMode: (SearchMode) -> Unit,
+    strings: Strings,
+) {
+    AbMenuItem(
+        text = strings.searchModeNameStart,
+        onClick = { onSetSearchMode(SearchMode.NAME_START) },
+        icon = { Icon(Icons.Filled.TextFields, contentDescription = null) },
+        checkable = true,
+        checked = searchMode == SearchMode.NAME_START,
+    )
+    AbMenuItem(
+        text = strings.searchModeNameContains,
+        onClick = { onSetSearchMode(SearchMode.NAME_CONTAINS) },
+        icon = { Icon(Icons.Filled.Abc, contentDescription = null) },
+        checkable = true,
+        checked = searchMode == SearchMode.NAME_CONTAINS,
+    )
+    if (mode == ManageLabelsMode.STUDYPAD) {
         AbMenuItem(
-            text = strings.matchAnyText,
-            onClick = { expanded = false; onSetSearchMode(SearchMode.NAME_CONTAINS) },
-            icon = { Icon(Icons.Filled.Abc, contentDescription = null) },
+            text = strings.searchModeContent,
+            onClick = { onSetSearchMode(SearchMode.CONTENT) },
+            icon = { Icon(Icons.AutoMirrored.Filled.Article, contentDescription = null) },
             checkable = true,
-            checked = searchMode == SearchMode.NAME_CONTAINS,
+            checked = searchMode == SearchMode.CONTENT,
         )
-        if (mode == ManageLabelsMode.STUDYPAD) {
-            AbMenuItem(
-                text = strings.searchModeContent,
-                onClick = { expanded = false; onSetSearchMode(SearchMode.CONTENT) },
-                icon = { Icon(Icons.AutoMirrored.Filled.Article, contentDescription = null) },
-                checkable = true,
-                checked = searchMode == SearchMode.CONTENT,
-            )
-        }
     }
 }
 

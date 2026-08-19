@@ -184,6 +184,12 @@ class ManageLabelsComposeActivity : ActivityBase() {
                                 onImportStudyPads = ::importStudyPads,
                             )
                         },
+                        // The New icon lives here too, not just in `actions`: a search that finds
+                        // nothing has no other reachable "create it with this name" action once the
+                        // normal bar's ⊕ is suppressed for search mode, and onEditLabel's
+                        // `suggestedName` (below) is seeded from the live query specifically to serve
+                        // this one-tap path.
+                        searchActions = { NewLabelIcon(onClick = controller::newLabel) },
                     )
 
                     // Mirrors classic ManageLabels.kt:394-406 (export_studypads menu handler): a
@@ -238,6 +244,23 @@ class ManageLabelsComposeActivity : ActivityBase() {
         saveAndExit()
     }
 
+    /**
+     * The New (⊕) icon, factored out so the identical button can be placed in both the normal
+     * bar's [ManageLabelsActions] AND the search bar's `searchActions` slot (wired at the
+     * [ManageLabelsScreen] call site) — see the comment there for why the search bar needs its own
+     * copy rather than relying on the normal bar's.
+     */
+    @Composable
+    private fun RowScope.NewLabelIcon(onClick: () -> Unit) {
+        IconButton(onClick = onClick) {
+            Icon(
+                painter = painterResource(R.drawable.ic_add_circle_outline_white_24dp),
+                contentDescription = getString(R.string.new_item),
+                modifier = Modifier.size(AbActionIconSize),
+            )
+        }
+    }
+
     @Composable
     private fun RowScope.ManageLabelsActions(
         onOpenSearch: () -> Unit,
@@ -257,13 +280,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
                 modifier = Modifier.size(AbActionIconSize),
             )
         }
-        IconButton(onClick = { controller.newLabel() }) {
-            Icon(
-                painter = painterResource(R.drawable.ic_add_circle_outline_white_24dp),
-                contentDescription = getString(R.string.new_item),
-                modifier = Modifier.size(AbActionIconSize),
-            )
-        }
+        NewLabelIcon(onClick = { controller.newLabel() })
         AbOverflowMenu(contentDescription = null) { close ->
             AbMenuItem(
                 text = getString(R.string.help),

@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose.golden
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
@@ -31,7 +32,9 @@ import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.bookmark.ManageLabelsScreen
+import net.bible.sharedui.bookmark.ManageLabelsSearchModeMenuRows
 import net.bible.sharedui.components.AbColor
+import net.bible.sharedui.strings.LocalStrings
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -44,15 +47,28 @@ import org.robolectric.annotation.GraphicsMode
 class ManageLabelsGoldenTest {
 
     /** Stand-in for the host's real bar actions (which the host renders itself via
-     *  painterResource'd Android drawables -- outside golden coverage). Proves the screen's
-     *  actions slot renders at all, and -- paired with manageLabels_search below -- that Task 3's
-     *  `actions = { if (!searchModeActive) actions() }` gate actually suppresses them in search
-     *  mode. material-icons-extended is a real dependency of the :app TEST source set, so Material
-     *  vectors are fine here even though production :app code can't use them. */
+     *  painterResource'd Android drawables -- outside golden coverage). Paired with
+     *  [standInSearchActions] below, this establishes three things, not two: manageLabels_actions
+     *  shows the normal bar renders the host's `actions` slot at all; manageLabels_search shows that
+     *  SAME normal-bar slot renders NONE of these icons while search is active -- `AbTopAppBar`'s own
+     *  "search replaces the bar" contract (it discards `actions` whenever `search != null`), not
+     *  something Task 3's screen-level gate adds on top; and manageLabels_search ALSO shows the
+     *  search bar DOES render the host's separate `searchActions` slot ([standInSearchActions]) --
+     *  the slot the real ⊕ reaches through post-I1, and the reason "no match -> create it with that
+     *  name" is reachable again. material-icons-extended is a real dependency of the :app TEST
+     *  source set, so Material vectors are fine here even though production :app code can't use
+     *  them. */
     private val standInActions: @Composable RowScope.() -> Unit = {
         Icon(Icons.Filled.Search, contentDescription = null)
         Icon(Icons.Filled.AddCircleOutline, contentDescription = null)
         Icon(Icons.Filled.MoreVert, contentDescription = null)
+    }
+
+    /** Stands in for the host's ⊕ in the SEARCH bar (I1). Deliberately a single distinct glyph, so
+     *  the search golden shows at a glance which icons came from `searchActions` (present) and which
+     *  from `actions` (absent -- the bar discards those under `search != null`). */
+    private val standInSearchActions: @Composable RowScope.() -> Unit = {
+        Icon(Icons.Filled.AddCircleOutline, contentDescription = null)
     }
 
     private fun label(
@@ -114,6 +130,7 @@ class ManageLabelsGoldenTest {
         searchModeActive: Boolean = false,
         searchText: String = "",
         actions: @Composable RowScope.() -> Unit = {},
+        searchActions: @Composable RowScope.() -> Unit = {},
     ) = @androidx.compose.runtime.Composable {
         ManageLabelsScreen(
             title = "Manage labels",
@@ -132,6 +149,7 @@ class ManageLabelsGoldenTest {
             onUp = {},
             iconSlot = { _, _ -> },
             actions = actions,
+            searchActions = searchActions,
             searchModeActive = searchModeActive,
             onCloseSearch = {},
         )
@@ -192,7 +210,13 @@ class ManageLabelsGoldenTest {
             onUp = {},
             iconSlot = { _, _ -> },
             actions = {},
-            searchModeActive = false,
+            searchActions = {},
+            // Production can never have a non-empty query with the bar closed: nothing but the
+            // bar's onQueryChange writes searchText, and closeSearch clears it. searchModeActive =
+            // true depicts the state production actually reaches, and incidentally gives the search
+            // bar its dark / BW / COLOR_EINK coverage via captureMatrix below (previously only in
+            // light, since manageLabels_search below is a single captureGolden call).
+            searchModeActive = true,
             onCloseSearch = {},
         )
     }
@@ -217,23 +241,33 @@ class ManageLabelsGoldenTest {
     @Test fun manageLabels_studypad() =
         captureGolden("ManageLabels", "studypad", EDGE_MODE, heightDp = 800, content = screen(ManageLabelsMode.STUDYPAD))
 
-    /** StudyPad content-search RESULTS state (SearchMode.CONTENT), search bar NOT active
-     *  (searchModeActive = false, so per AbScaffold's contract the bar -- and the mode menu that
-     *  only renders inside it -- are not drawn at all): just the SearchResult rows (colour dot,
-     *  name, match-count text, and a highlighted snippet span) under the plain title bar --
-     *  captured across all modes since highlight legibility is the point of this state. */
+    /** StudyPad content-search RESULTS state (SearchMode.CONTENT), search bar ACTIVE
+     *  (searchModeActive = true -- the only state production can actually reach, see
+     *  contentSearchScreen's comment): the SearchResult rows (colour dot, name, match-count text,
+     *  and a highlighted snippet span) under the search bar -- captured across all modes since
+     *  highlight legibility is the point of this state. */
     @Test fun manageLabels_studypad_content() =
         captureMatrix("ManageLabels", "studypad_content", heightDp = 800, content = contentSearchScreen())
 
-    /** Search mode: the bar becomes the search field, and the mode picker lives in its actions
-     *  row. STUDYPAD so all three SearchModes are offered. The menu itself is NOT expanded — an
-     *  expanded DropdownMenu hangs Roborazzi (see the two-popups finding). */
+    /** Search mode: the bar becomes the search field, the host's ⊕ ([standInSearchActions]) sits in
+     *  the search bar's own action slot, and the mode picker follows it. STUDYPAD so all three
+     *  SearchModes are offered. The menu itself is NOT expanded — an expanded DropdownMenu hangs
+     *  Roborazzi (see the two-popups finding).
+     *
+     *  This is the other half of the standInActions/standInSearchActions pair (see that KDoc above),
+     *  and now proves BOTH halves of the I1 fix in one image: `actions = standInActions` is passed
+     *  to show those three normal-bar icons are NOT drawn while search is active (`AbTopAppBar`'s
+     *  "search replaces the bar" contract, not something this screen adds); `searchActions =
+     *  standInSearchActions` is passed to show the search bar DOES render a distinct host icon of
+     *  its own. The bar should read [back arrow | "gen" | ⊕ | mode icon | ✕] -- exactly what
+     *  production now renders, and exactly the reachable "no match -> create it with that name" path
+     *  I1 restored. */
     @Test fun manageLabels_search() =
         captureGolden(
             "ManageLabels", "search", EDGE_MODE, heightDp = 700,
             content = screen(
                 mode = ManageLabelsMode.STUDYPAD, searchMode = SearchMode.CONTENT, searchModeActive = true,
-                searchText = "gen", actions = standInActions,
+                searchText = "gen", actions = standInActions, searchActions = standInSearchActions,
             ),
         )
 
@@ -245,4 +279,38 @@ class ManageLabelsGoldenTest {
             "ManageLabels", "actions", EDGE_MODE, heightDp = 700,
             content = screen(ManageLabelsMode.ASSIGN, actions = standInActions),
         )
+
+    /**
+     * The mode menu's ITEM SET, golden directly rather than via the real popup: an expanded
+     * `DropdownMenu` hangs Roborazzi (see the two-popups finding), so this follows
+     * `WorkspaceSelectorGoldenTest.workspaceRowMenu_root`'s pattern of rendering
+     * [net.bible.sharedui.bookmark.ManageLabelsSearchModeMenuRows] inside a plain `Column` instead
+     * of opening the real `DropdownMenu`. This is the coverage that would have caught the labels
+     * reading "Ab*" / "*ab*" instead of "Name (from start)" / "Name (contains)" (I2) -- a wording
+     * bug the earlier text-button widget never exposed and no prior golden rendered.
+     */
+    @Composable
+    private fun modeMenuRows(mode: ManageLabelsMode, searchMode: SearchMode = SearchMode.NAME_START) = Column {
+        ManageLabelsSearchModeMenuRows(
+            mode = mode,
+            searchMode = searchMode,
+            onSetSearchMode = {},
+            strings = LocalStrings.current,
+        )
+    }
+
+    /** STUDYPAD: three rows (name-start, name-contains, content), the content row checked. */
+    @Test fun manageLabelsSearchModeMenu_studypad() {
+        captureGolden("ManageLabelsSearchModeMenu", "studypad", EDGE_MODE, heightDp = 400) {
+            modeMenuRows(ManageLabelsMode.STUDYPAD, searchMode = SearchMode.CONTENT)
+        }
+    }
+
+    /** A non-StudyPad mode: only the two name-match rows -- no content option, since only
+     *  StudyPads have searchable content. */
+    @Test fun manageLabelsSearchModeMenu_assign() {
+        captureGolden("ManageLabelsSearchModeMenu", "assign", EDGE_MODE, heightDp = 400) {
+            modeMenuRows(ManageLabelsMode.ASSIGN)
+        }
+    }
 }

@@ -420,6 +420,34 @@ class ManageLabelsControllerTest {
         assertTrue(c.rows.value.all { it is ManageLabelsRow.Item })
     }
 
+    @Test fun content_search_closeSearch_during_live_content_search_restores_categorized_list() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val scope = TestScope(dispatcher)
+        val c = controller(
+            mode = ManageLabelsMode.STUDYPAD,
+            labels = listOf(A, B),
+            scope = scope,
+            contentSearch = { listOf(searchResult("A"), searchResult("B")) },
+        )
+        c.openSearch()
+        c.setSearchMode(SearchMode.CONTENT)
+        c.setSearch("ban") // >= 3 chars; contained in "Banana" only (name-filter fallback semantics)
+        scope.advanceTimeBy(300)
+        scope.advanceUntilIdle()
+        assertTrue(c.rows.value.all { it is ManageLabelsRow.SearchResult })
+
+        // closeSearch (hardware back / the bar's back arrow), not setSearchMode: it must clear the
+        // query AND drop the stale result rows, not leave the last content-search hits on screen
+        // under a now-empty query. With no query, both labels pass the (blank-query-matches-all)
+        // name filter, so the categorized list is the full A/B set, not just "B" the way the
+        // sibling test above sees it (that one leaves "ban" in place).
+        c.closeSearch()
+        assertFalse(c.searchModeActive.value)
+        assertEquals("", c.searchText.value)
+        assertEquals(listOf("A", "B"), describe(c.rows.value))
+        assertTrue(c.rows.value.none { it is ManageLabelsRow.SearchResult })
+    }
+
     @Test fun selectStudyPad_two_arg_overload_forwards_labelId_and_firstMatchEntryId() {
         var received: Pair<String, String?>? = null
         val c = ManageLabelsController(
