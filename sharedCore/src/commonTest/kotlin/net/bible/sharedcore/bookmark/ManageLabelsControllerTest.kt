@@ -439,4 +439,38 @@ class ManageLabelsControllerTest {
         c.selectStudyPad("A", "entry-42")
         assertEquals("A" to "entry-42", received)
     }
+
+    @Test
+    fun `search mode starts closed`() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = emptyList())
+        assertFalse(c.searchModeActive.value)
+    }
+
+    @Test
+    fun `opening search mode does not touch the query`() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = emptyList())
+        c.setSearch("gen")
+        c.openSearch()
+        assertTrue(c.searchModeActive.value)
+        assertEquals("gen", c.searchText.value)
+    }
+
+    @Test
+    fun `closing search mode clears the query`() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = emptyList())
+        c.openSearch()
+        c.setSearch("gen")
+        c.closeSearch()
+        assertFalse(c.searchModeActive.value)
+        assertEquals("", c.searchText.value)
+    }
+
+    @Test
+    fun `closing search mode is safe when it was never opened`() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = emptyList())
+        c.setSearch("gen")
+        c.closeSearch()
+        assertFalse(c.searchModeActive.value)
+        assertEquals("", c.searchText.value)
+    }
 }

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import net.bible.sharedcore.search.SearchModeController
 
 /**
  * Owns the mutable in-memory state for the ManageLabels list (mirroring classic `data` +
@@ -45,6 +46,12 @@ class ManageLabelsController(
     val searchText: StateFlow<String> = _searchText.asStateFlow()
     private val _searchMode = MutableStateFlow(SearchMode.NAME_START)
     val searchMode: StateFlow<SearchMode> = _searchMode.asStateFlow()
+
+    // Whether the top bar is showing its inline search field. Owns the MODE only; the query stays
+    // in _searchText because setSearch also drives the debounced StudyPad content search, so
+    // clearing has to go through it. Same shape as WorkspaceSelectorController.kt:35,42,68-71.
+    private val searchBarMode = SearchModeController(onClearQuery = { setSearch("") })
+    val searchModeActive: StateFlow<Boolean> = searchBarMode.active
 
     private val _rows = MutableStateFlow<List<ManageLabelsRow>>(emptyList())
     val rows: StateFlow<List<ManageLabelsRow>> = _rows.asStateFlow()
@@ -167,6 +174,8 @@ class ManageLabelsController(
     // ---- actions ----
     fun setSearch(t: String) { _searchText.value = t; dispatchSearchOrRebuild() }
     fun setSearchMode(mode: SearchMode) { _searchMode.value = mode; dispatchSearchOrRebuild() }
+    fun openSearch() = searchBarMode.open()
+    fun closeSearch() = searchBarMode.close()
     fun reOrder() = rebuild()
     fun toggleChecked(id: String) {
         val ctx = contextSelected()
