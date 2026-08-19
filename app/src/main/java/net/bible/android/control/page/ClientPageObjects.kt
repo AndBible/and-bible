@@ -409,12 +409,9 @@ data class ClientBookmarkStyle(
     val color: Int,
     val isSpeak: Boolean,
     val isParagraphBreak: Boolean,
-    val underline: Boolean,
-    val underlineWholeVerse: Boolean,
-    val markerStyle: Boolean,
-    val markerStyleWholeVerse: Boolean,
-    val hideStyle: Boolean,
-    val hideStyleWholeVerse: Boolean,
+    val displayStyle: BookmarkDisplayStyle,
+    /** Already resolved: the reader is never told that a style was inherited. */
+    val displayStyleWholeVerse: BookmarkDisplayStyle,
     val customIcon: String?
 )
 
@@ -431,15 +428,8 @@ data class ClientBookmarkLabel(
         ClientBookmarkStyle(
             color = label.color,
             isSpeak = label.isSpeakLabel,
-            // The wire still carries one boolean per (style, axis); Task 4 of round 9b replaces it.
-            // `effectiveWholeVerseStyle` resolves the "inherit" NULL, which the renderer has no
-            // representation for.
-            underline = label.displayStyle == BookmarkDisplayStyle.UNDERLINE,
-            underlineWholeVerse = label.effectiveWholeVerseStyle == BookmarkDisplayStyle.UNDERLINE,
-            markerStyle = label.displayStyle == BookmarkDisplayStyle.MARKER,
-            markerStyleWholeVerse = label.effectiveWholeVerseStyle == BookmarkDisplayStyle.MARKER,
-            hideStyle = label.displayStyle == BookmarkDisplayStyle.HIDDEN,
-            hideStyleWholeVerse = label.effectiveWholeVerseStyle == BookmarkDisplayStyle.HIDDEN,
+            displayStyle = label.displayStyle,
+            displayStyleWholeVerse = label.effectiveWholeVerseStyle,
             customIcon = label.customIcon,
             isParagraphBreak = label.isParagraphBreakLabel,
         ),

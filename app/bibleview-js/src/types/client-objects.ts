@@ -182,16 +182,16 @@ export function isStudyPadBookmark(item: StudyPadItem): item is BaseStudyPadBook
     return item.type === "bookmark" || item.type === "generic-bookmark"
 }
 
+/** Mirrors net.bible.sharedcore.bookmark.BookmarkDisplayStyle (serialized as its enum name). */
+export type BookmarkDisplayStyle = "HIGHLIGHT" | "UNDERLINE" | "MARKER" | "HIDDEN"
+
 export type BookmarkStyle = Readonly<{
     color: number
     isSpeak: boolean
     isParagraphBreak: boolean
-    underline: boolean
-    underlineWholeVerse: boolean
-    markerStyle: boolean
-    markerStyleWholeVerse: boolean
-    hideStyle: boolean
-    hideStyleWholeVerse: boolean
+    displayStyle: BookmarkDisplayStyle
+    /** Already resolved by the Kotlin side; never "inherit". */
+    displayStyleWholeVerse: BookmarkDisplayStyle
     customIcon: Nullable<string>
 }>
 

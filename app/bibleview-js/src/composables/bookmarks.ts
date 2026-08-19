@@ -33,6 +33,7 @@ import {
     AiDocMarker,
     BaseBookmark,
     BibleBookmark,
+    BookmarkDisplayStyle,
     BookmarkOrdinalKey,
     CombinedRange,
     GenericBookmark,
@@ -216,24 +217,16 @@ const AI_DOC_LABEL_STYLE: LabelAndStyle = {
         color: AI_DOC_COLOR,
         isSpeak: false,
         isParagraphBreak: false,
-        underline: false,
-        underlineWholeVerse: false,
-        markerStyle: true,
-        markerStyleWholeVerse: true,
-        hideStyle: false,
-        hideStyleWholeVerse: false,
+        displayStyle: "MARKER",
+        displayStyleWholeVerse: "MARKER",
         customIcon: "robot",
     },
     // Flatten style fields into LabelAndStyle (Label & BookmarkStyle)
     color: AI_DOC_COLOR,
     isSpeak: false,
     isParagraphBreak: false,
-    underline: false,
-    underlineWholeVerse: false,
-    markerStyle: true,
-    markerStyleWholeVerse: true,
-    hideStyle: false,
-    hideStyleWholeVerse: false,
+    displayStyle: "MARKER",
+    displayStyleWholeVerse: "MARKER",
     customIcon: "robot",
 };
 
@@ -519,12 +512,9 @@ export function useBookmarks(
             return point;
     }
 
-    function isHiddenBookmark(b: BaseBookmark, label = getBookmarkStyleLabel(b)) {
-        return (b.wholeVerse && label.hideStyleWholeVerse) || (!b.wholeVerse && label.hideStyle);
-    }
-
-    function isMarkerBookmark(b: BaseBookmark, label = getBookmarkStyleLabel(b)) {
-        return (b.wholeVerse && label.markerStyleWholeVerse) || (!b.wholeVerse && label.markerStyle);
+    /** The one style that is actually drawn for this bookmark: the label's axis for its kind. */
+    function styleFor(b: BaseBookmark, label = getBookmarkStyleLabel(b)): BookmarkDisplayStyle {
+        return b.wholeVerse ? label.displayStyleWholeVerse : label.displayStyle;
     }
 
     function showHighlight(b: BaseBookmark) {
@@ -585,11 +575,15 @@ export function useBookmarks(
             filteredBookmarks.forEach(b => {
                 const label = getBookmarkStyleLabel(b);
                 const labelId = label.id;
+                const style = styleFor(b, label);
+                const forcedHidden = intersection(new Set(b.labels), hideLabels).size > 0;
 
-                if (isHiddenBookmark(b, label) || isMarkerBookmark(b, label) || intersection(new Set(b.labels), hideLabels).size > 0) {
+                // MARKER shares the hidden bucket on purpose: a marker draws an icon (see the icon
+                // pass below) and no text decoration at all.
+                if (forcedHidden || style === "HIDDEN" || style === "MARKER") {
                     hiddenLabels.add(labelId);
                     hiddenLabelCount.set(labelId, (hiddenLabelCount.get(labelId) || 0) + 1);
-                } else if ((b.wholeVerse && label.underlineWholeVerse) || (!b.wholeVerse && label.underline)) {
+                } else if (style === "UNDERLINE") {
                     underlineLabels.add(labelId);
                     underlineLabelCount.set(labelId, (underlineLabelCount.get(labelId) || 0) + 1);
                     highlightedBookmarkIds.add(b.id);
@@ -813,8 +807,9 @@ export function useBookmarks(
 
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[1], [endOrdinal, endOff]))) {
                 const bookmarkLabel = getBookmarkStyleLabel(b);
-                if (!isHiddenBookmark(b, bookmarkLabel)) {
-                    if ((config.showBookmarks && (isMarkerBookmark(b, bookmarkLabel) || resolveIcon(b, bookmarkLabel) !== null))
+                const style = styleFor(b, bookmarkLabel);
+                if (style !== "HIDDEN") {
+                    if ((config.showBookmarks && (style === "MARKER" || resolveIcon(b, bookmarkLabel) !== null))
                         || (config.showMyNotes && b.hasNote)) {
                         bookmarkList.push(b)
                         if (b.hasNote) {
@@ -908,7 +903,7 @@ export function useBookmarks(
             // so the end ordinal is always present on this page.
             const key = b.ordinalRange[1];
             const bookmarkLabel = getBookmarkStyleLabel(b);
-            if (!isHiddenBookmark(b, bookmarkLabel) && intersection(new Set(b.labels), hideLabels).size === 0) {
+            if (styleFor(b, bookmarkLabel) !== "HIDDEN" && intersection(new Set(b.labels), hideLabels).size === 0) {
                 const value = bookmarkMap.get(key) || [];
                 value.push(b);
                 bookmarkMap.set(key, value);

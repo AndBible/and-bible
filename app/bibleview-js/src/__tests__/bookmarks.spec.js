@@ -97,7 +97,8 @@ describe("useBookmark tests", () => {
         gb.updateBookmarkLabels([{
             id: 1,
             color: 1,
-            underline: false,
+            displayStyle: "HIGHLIGHT",
+            displayStyleWholeVerse: "HIGHLIGHT",
         }])
     });
 
@@ -327,17 +328,8 @@ describe("marker visibility tests", () => {
         );
     });
 
-    it("hidden bookmark with marker style should be hidden from style ranges", () => {
-        // Create a label with both marker style and hide style - hide should override marker
-        gb.updateBookmarkLabels([{
-            id: 1,
-            color: 1,
-            underline: false,
-            markerStyle: true,
-            markerStyleWholeVerse: false,
-            hideStyle: true,
-            hideStyleWholeVerse: false,
-        }]);
+    it("hidden bookmark should be hidden from style ranges", () => {
+        gb.updateBookmarkLabels([{id: 1, color: 1, displayStyle: "HIDDEN", displayStyleWholeVerse: "HIDDEN"}]);
 
         // Add a bookmark with this label
         gb.updateBookmarks([{
@@ -360,17 +352,8 @@ describe("marker visibility tests", () => {
         expect(rs[0].underlineLabelIds).not.toContain(1);
     });
 
-    it("hidden bookmark with marker style (whole verse) should be hidden from style ranges", () => {
-        // Create a label with both marker style and hide style for whole verse
-        gb.updateBookmarkLabels([{
-            id: 1,
-            color: 1,
-            underline: false,
-            markerStyle: false,
-            markerStyleWholeVerse: true,
-            hideStyle: false,
-            hideStyleWholeVerse: true,
-        }]);
+    it("hidden bookmark (whole verse) should be hidden from style ranges", () => {
+        gb.updateBookmarkLabels([{id: 1, color: 1, displayStyle: "HIGHLIGHT", displayStyleWholeVerse: "HIDDEN"}]);
 
         // Add a whole verse bookmark with this label
         gb.updateBookmarks([{
@@ -393,17 +376,8 @@ describe("marker visibility tests", () => {
         expect(rs[0].underlineLabelIds).not.toContain(1);
     });
 
-    it("marker style bookmark without hide settings should show as highlighted", () => {
-        // Create a label with marker style but NO hide style
-        gb.updateBookmarkLabels([{
-            id: 1,
-            color: 1,
-            underline: false,
-            markerStyle: true,
-            markerStyleWholeVerse: false,
-            hideStyle: false,
-            hideStyleWholeVerse: false,
-        }]);
+    it("marker bookmark is moved to the hidden bucket for highlight processing", () => {
+        gb.updateBookmarkLabels([{id: 1, color: 1, displayStyle: "MARKER", displayStyleWholeVerse: "MARKER"}]);
 
         // Add a bookmark with this label
         gb.updateBookmarks([{
@@ -420,8 +394,8 @@ describe("marker visibility tests", () => {
         const rs = b.styleRanges.value;
         expect(rs.length).toBe(1);
         
-        // The bookmark should be marked as highlighted (since it's marker style but not hidden)
-        expect(rs[0].hiddenLabelIds).toContain(1); // Marker bookmarks are actually moved to hidden for highlight processing
+        // MARKER shares the hidden bucket on purpose (see styleRanges): it draws an icon, no text decoration.
+        expect(rs[0].hiddenLabelIds).toContain(1);
         expect(rs[0].highlightLabelIds).not.toContain(1);
         expect(rs[0].underlineLabelIds).not.toContain(1);
     });
