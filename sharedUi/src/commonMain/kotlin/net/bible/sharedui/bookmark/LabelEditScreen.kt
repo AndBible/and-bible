@@ -31,8 +31,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,17 +45,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelEditState
 import net.bible.sharedcore.bookmark.OverrideMode
+import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbChoiceGroup
-import net.bible.sharedui.components.AbColor
-import net.bible.sharedui.components.AbColorPickerDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
+import net.bible.sharedui.theme.LocalDisplayColorMode
 
 /**
  * Stateless port of the classic `LabelEditActivity` / `bookmark_label_edit.xml` editor. Every
@@ -61,16 +66,18 @@ import net.bible.sharedui.strings.Strings
  * resources live host-side, so this screen never touches them); [actions] is the top-bar
  * save/delete/share overflow, also host-built (needs Android resources/dialogs).
  *
- * The colour swatch opens [AbColorPickerDialog], which owns its own working colour and hands it
- * back via [onColor] only when the dialog is confirmed; dismissing it leaves the label's colour
- * unchanged.
+ * The colour circle, name and favourite heart collapse into one identity row that opens
+ * [LabelIdentitySheet] (name field, colour presets + custom picker, icon grid) — edits there apply
+ * live via [onName]/[onColor]/[onCustomIcon]. The heart's own click toggles favourite directly and
+ * does not open the sheet: a single combined target would make "mark as favourite" and "edit the
+ * name" the same gesture.
  */
 @Composable
 fun LabelEditScreen(
     state: LabelEditState,
     onName: (String) -> Unit,
     onColor: (Int) -> Unit,
-    onEditIcon: () -> Unit,
+    onCustomIcon: (String?) -> Unit,
     onSelectionStyle: (BookmarkDisplayStyle) -> Unit,
     onWholeVerseStyle: (BookmarkDisplayStyle) -> Unit,
     onToggleFavourite: () -> Unit,
@@ -80,11 +87,12 @@ fun LabelEditScreen(
     onToggleAutoAssignPrimary: () -> Unit,
     onOverrideMode: (OverrideMode) -> Unit,
     onUp: () -> Unit,
+    iconKeys: List<String?>,
     iconSlot: @Composable (String?) -> Unit,
     actions: @Composable RowScope.() -> Unit,
 ) {
     val strings = LocalStrings.current
-    var colorPickerOpen by remember { mutableStateOf(false) }
+    var identitySheetOpen by remember { mutableStateOf(false) }
 
     AbScaffold(title = strings.editLabelTitle, onNavigateUp = onUp, actions = actions) { padding ->
         Column(
@@ -94,30 +102,38 @@ fun LabelEditScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                ColorSwatch(color = state.color, onClick = { colorPickerOpen = true })
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { identitySheetOpen = true }
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    Modifier
+                        .size(40.dp)
+                        .background(
+                            Color(accentArgbFor(state.color, LocalDisplayColorMode.current)),
+                            CircleShape,
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) { iconSlot(state.customIcon) }
                 Spacer(Modifier.width(16.dp))
-                OutlinedTextField(
-                    value = state.name,
-                    onValueChange = onName,
-                    enabled = state.nameEditable,
-                    singleLine = true,
-                    label = { Text(strings.labelNameHint) },
-                    modifier = Modifier.fillMaxWidth(),
+                Text(
+                    state.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
                 )
-            }
-
-            if (state.customIconVisible) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = onEditIcon)
-                        .padding(vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    iconSlot(state.customIcon)
-                    Spacer(Modifier.width(16.dp))
-                    Text(strings.selectCustomIconLabel, style = MaterialTheme.typography.bodyLarge)
+                if (state.favouriteVisible) {
+                    // The heart's own click toggles favourite; only the rest of the row opens the
+                    // sheet. A single combined target would make "mark as favourite" and "edit the
+                    // name" the same gesture.
+                    IconButton(onClick = onToggleFavourite) {
+                        Icon(
+                            if (state.favourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            contentDescription = strings.favouriteLabelSwitchLabel,
+                        )
+                    }
                 }
             }
 
@@ -153,10 +169,6 @@ fun LabelEditScreen(
                 },
             )
 
-            if (state.favouriteVisible) {
-                AbSwitchRow(strings.favouriteLabelSwitchLabel, state.favourite, { onToggleFavourite() })
-            }
-
             if (state.thisBookmarkGroupVisible) {
                 SectionTitle(strings.thisBookmarkSectionTitle)
                 AbSwitchRow(strings.addedToBookmarkLabel, state.thisBookmarkSelected, { onToggleSelected() })
@@ -179,23 +191,20 @@ fun LabelEditScreen(
         }
     }
 
-    if (colorPickerOpen) {
-        AbColorPickerDialog(
-            initialColor = state.color,
-            onConfirm = { onColor(it); colorPickerOpen = false },
-            onDismiss = { colorPickerOpen = false },
-        )
+    if (identitySheetOpen) {
+        LabelIdentitySheet(
+            name = state.name,
+            nameEditable = state.nameEditable,
+            colorArgb = state.color,
+            customIcon = state.customIcon,
+            iconKeys = iconKeys,
+            iconVisible = state.customIconVisible,
+            onName = onName,
+            onColor = onColor,
+            onCustomIcon = onCustomIcon,
+            onDismiss = { identitySheetOpen = false },
+        ) { key -> iconSlot(key) }
     }
-}
-
-@Composable
-private fun ColorSwatch(color: Int, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(32.dp)
-            .clickable(onClick = onClick)
-            .background(AbColor.toComposeColor(color), CircleShape),
-    )
 }
 
 @Composable

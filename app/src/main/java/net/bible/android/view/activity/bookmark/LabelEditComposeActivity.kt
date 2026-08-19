@@ -17,14 +17,7 @@
 package net.bible.android.view.activity.bookmark
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.GridView
-import android.widget.ImageButton
-import android.widget.ImageView
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -37,17 +30,16 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.exportStudyPads
 import net.bible.sharedcore.bookmark.DeletePrompt
 import net.bible.sharedcore.bookmark.LabelEditController
@@ -66,10 +58,12 @@ import org.koin.android.ext.android.inject
  * extra + `RESULT_OK`/`RESULT_CANCELED` contract as the classic activity so both are
  * interchangeable behind `ScreenLauncher`.
  *
- * Everything that needs Android resources stays host-side: the custom-icon grid picker (Android
- * drawables, classic `GridView`+`AlertDialog`), the discard-changes confirmation on back-press,
- * and the delete-orphaned-bookmarks prompts (rendered as Compose dialogs, driven by
- * [LabelEditController.deletePrompt]).
+ * Everything that needs Android resources stays host-side: the custom-icon renderer
+ * ([AndroidLabelIcon], which every cell of the shared [net.bible.sharedui.bookmark.
+ * LabelIdentitySheet]'s icon grid renders through — the fix for the two icons whose vector
+ * `fillColor` bypassed tinting under the old raw-drawable `GridView` picker), the discard-changes
+ * confirmation on back-press, and the delete-orphaned-bookmarks prompts (rendered as Compose
+ * dialogs, driven by [LabelEditController.deletePrompt]).
  */
 class LabelEditComposeActivity : ActivityBase() {
     private val service: LabelEditService by inject()
@@ -88,12 +82,13 @@ class LabelEditComposeActivity : ActivityBase() {
             AbAppTheme {
                     val state by controller.state.collectAsState()
                     val deletePrompt by controller.deletePrompt.collectAsState()
+                    val iconKeys = remember { customIconMap.keys.toList() + null }
 
                     LabelEditScreen(
                         state = state,
                         onName = controller::setName,
                         onColor = controller::setColor,
-                        onEditIcon = { showCustomIconDialog() },
+                        onCustomIcon = controller::setCustomIcon,
                         onSelectionStyle = controller::setSelectionStyle,
                         onWholeVerseStyle = controller::setWholeVerseStyle,
                         onToggleFavourite = controller::toggleFavourite,
@@ -103,6 +98,7 @@ class LabelEditComposeActivity : ActivityBase() {
                         onToggleAutoAssignPrimary = controller::toggleAutoAssignPrimary,
                         onOverrideMode = controller::setOverrideMode,
                         onUp = { requestUp() },
+                        iconKeys = iconKeys,
                         iconSlot = { name -> AndroidLabelIcon(name, state.color) },
                         actions = { LabelEditActions(state.isSpecialLabel) },
                     )
@@ -223,60 +219,6 @@ class LabelEditComposeActivity : ActivityBase() {
     @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
         requestUp()
-    }
-
-    /** Classic-style `GridView` icon picker over [customIconMap] (+ a trailing "no icon" cell). */
-    private fun showCustomIconDialog() {
-        val iconNames = customIconMap.keys.toList()
-        val size = (40 * resources.displayMetrics.density).toInt()
-        val currentIcon = controller.state.value.customIcon
-        lateinit var dialog: android.app.AlertDialog
-        val gridView = GridView(this).apply {
-            numColumns = GridView.AUTO_FIT
-            columnWidth = size
-            stretchMode = GridView.STRETCH_COLUMN_WIDTH
-            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            minimumHeight = (resources.displayMetrics.heightPixels * 0.5).toInt()
-            val paddingPx = (16 * resources.displayMetrics.density).toInt()
-            setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
-            adapter = object : BaseAdapter() {
-                override fun getCount() = iconNames.size + 1
-                override fun getItem(position: Int): String? = iconNames.getOrNull(position)
-                override fun getItemId(position: Int) = position.toLong()
-                override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-                    val button = convertView as? ImageButton ?: ImageButton(this@LabelEditComposeActivity)
-                    if (position == count - 1) {
-                        button.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.icon_disabled))
-                        button.setBackgroundColor(
-                            if (currentIcon == null) CommonUtils.getResourceColor(R.color.grey_500) else Color.TRANSPARENT
-                        )
-                    } else {
-                        val name = iconNames[position]
-                        val drawableId = customIconMap[name]!!
-                        button.setImageDrawable(ContextCompat.getDrawable(context, drawableId))
-                        button.setBackgroundColor(
-                            if (name == currentIcon) CommonUtils.getResourceColor(R.color.grey_500) else Color.TRANSPARENT
-                        )
-                    }
-                    button.scaleType = ImageView.ScaleType.CENTER_INSIDE
-                    button.adjustViewBounds = true
-                    button.layoutParams = ViewGroup.LayoutParams(size, size)
-                    button.isClickable = false
-                    button.isFocusable = false
-                    return button
-                }
-            }
-        }
-        dialog = android.app.AlertDialog.Builder(this)
-            .setTitle(R.string.select_custom_icon)
-            .setView(gridView)
-            .setNegativeButton(R.string.cancel) { d, _ -> d.dismiss() }
-            .create()
-        gridView.setOnItemClickListener { _, _, position, _ ->
-            controller.setCustomIcon(if (position == gridView.adapter.count - 1) null else iconNames[position])
-            dialog.dismiss()
-        }
-        dialog.show()
     }
 }
 
