@@ -248,6 +248,24 @@ All entities use `IdType` (UUID-based) for primary keys.
 2. Increment database version constant (e.g., `WORKSPACE_DATABASE_VERSION`)
 3. Create migration class in `app/src/main/java/net/bible/android/database/migrations/`
 4. Register migration in `DatabaseContainer.kt`
+5. Commit the KSP-generated schema export it produces at `app/schemas/<Database class>/<new
+   version>.json` (e.g. `app/schemas/net.bible.android.database.BookmarkDatabase/13.json`). It is
+   generated on build (`room.schemaLocation`, `app/build.gradle.kts`) but is not auto-staged by git —
+   forgetting it leaves the new version's schema unfrozen, and any test that reads a schema export by
+   path (the migration-test pattern below) or a future migration test spanning this version will not
+   find it.
+6. Check whether the table you're changing is **pinned somewhere that names its columns
+   explicitly**, not just referenced generically:
+   - An **older migration with an explicit column list** — e.g. `deduplicateSpecialLabels` in
+     `BookmarkMigrations.kt` names six now-retired `Label` style columns by hand. It stays correct
+     unmodified only because it belongs to an earlier version range and runs before your new
+     migration in sequence — but any test that exercises it against a *later*-version database (as
+     `BookmarkControlTest` does) needs to re-add the columns it expects first.
+   - **`and-bible-ios`'s transcription of the Android schema** (e.g.
+     `AndroidBookmarkDatabaseContract.swift`) — it pins a specific schema version's DDL/identity hash
+     byte-exactly and has no migrator for every database, so a schema change on the Android side can
+     silently stop cross-platform sync for that table's category until iOS is updated to match (see
+     the compose-port-status.md round-9b entry for a worked example of this gate).
 
 ## Troubleshooting
 
