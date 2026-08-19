@@ -17,6 +17,13 @@
 
 package net.bible.android.view.compose.golden
 
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.bookmark.LabelCategory
 import net.bible.sharedcore.bookmark.LabelItem
@@ -35,6 +42,18 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class ManageLabelsGoldenTest {
+
+    /** Stand-in for the host's real bar actions (which the host renders itself via
+     *  painterResource'd Android drawables -- outside golden coverage). Proves the screen's
+     *  actions slot renders at all, and -- paired with manageLabels_search below -- that Task 3's
+     *  `actions = { if (!searchModeActive) actions() }` gate actually suppresses them in search
+     *  mode. material-icons-extended is a real dependency of the :app TEST source set, so Material
+     *  vectors are fine here even though production :app code can't use them. */
+    private val standInActions: @Composable RowScope.() -> Unit = {
+        Icon(Icons.Filled.Search, contentDescription = null)
+        Icon(Icons.Filled.AddCircleOutline, contentDescription = null)
+        Icon(Icons.Filled.MoreVert, contentDescription = null)
+    }
 
     private fun label(
         id: String,
@@ -94,6 +113,7 @@ class ManageLabelsGoldenTest {
         searchMode: SearchMode = SearchMode.NAME_START,
         searchModeActive: Boolean = false,
         searchText: String = "",
+        actions: @Composable RowScope.() -> Unit = {},
     ) = @androidx.compose.runtime.Composable {
         ManageLabelsScreen(
             title = "Manage labels",
@@ -111,7 +131,7 @@ class ManageLabelsGoldenTest {
             onToggleAutoAssign = {},
             onUp = {},
             iconSlot = { _, _ -> },
-            actions = {},
+            actions = actions,
             searchModeActive = searchModeActive,
             onCloseSearch = {},
         )
@@ -211,6 +231,18 @@ class ManageLabelsGoldenTest {
     @Test fun manageLabels_search() =
         captureGolden(
             "ManageLabels", "search", EDGE_MODE, heightDp = 700,
-            content = screen(mode = ManageLabelsMode.STUDYPAD, searchMode = SearchMode.CONTENT, searchModeActive = true, searchText = "gen"),
+            content = screen(
+                mode = ManageLabelsMode.STUDYPAD, searchMode = SearchMode.CONTENT, searchModeActive = true,
+                searchText = "gen", actions = standInActions,
+            ),
+        )
+
+    /** Normal (non-search) bar WITH host actions supplied: proves the screen renders the host's
+     *  action slot at all. The host's real icons are Android drawables it resolves itself, so this
+     *  stands in for them -- what is under test is the slot, not the glyphs. */
+    @Test fun manageLabels_actions() =
+        captureGolden(
+            "ManageLabels", "actions", EDGE_MODE, heightDp = 700,
+            content = screen(ManageLabelsMode.ASSIGN, actions = standInActions),
         )
 }

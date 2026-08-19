@@ -28,6 +28,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -71,6 +72,7 @@ import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.bookmark.ManageLabelsScreen
+import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbOverflowMenu
@@ -175,7 +177,13 @@ class ManageLabelsComposeActivity : ActivityBase() {
                         onToggleAutoAssign = controller::toggleAutoAssign,
                         onUp = { saveAndExit() },
                         iconSlot = { customIcon, colorArgb -> ManageLabelIcon(customIcon, colorArgb) },
-                        actions = { ManageLabelsActions(onExportStudyPads = { showExportDialog = true }, onImportStudyPads = ::importStudyPads) },
+                        actions = {
+                            ManageLabelsActions(
+                                onOpenSearch = controller::openSearch,
+                                onExportStudyPads = { showExportDialog = true },
+                                onImportStudyPads = ::importStudyPads,
+                            )
+                        },
                     )
 
                     // Mirrors classic ManageLabels.kt:394-406 (export_studypads menu handler): a
@@ -231,13 +239,32 @@ class ManageLabelsComposeActivity : ActivityBase() {
     }
 
     @Composable
-    private fun RowScope.ManageLabelsActions(onExportStudyPads: () -> Unit, onImportStudyPads: () -> Unit) {
-        AbOverflowMenu(contentDescription = null) { close ->
-            AbMenuItem(
-                text = getString(R.string.new_item),
-                onClick = { close(); controller.newLabel() },
-                icon = { Icon(painterResource(R.drawable.ic_add_circle_outline_white_24dp), contentDescription = null) },
+    private fun RowScope.ManageLabelsActions(
+        onOpenSearch: () -> Unit,
+        onExportStudyPads: () -> Unit,
+        onImportStudyPads: () -> Unit,
+    ) {
+        // Search + New as visible icons, matching WorkspaceSelectorScreen.kt:136-142 so the two
+        // list screens read as one family. Everything mode-gated or rare stays in the overflow.
+        // Drawables, not Material ImageVectors: `material-icons-extended` is deliberately
+        // testImplementation-only in :app (app/build.gradle.kts:507, "golden-test only"), and no
+        // :app/src/main file imports Material icons — the host renders every bar icon through
+        // painterResource, as LabelEditComposeActivity.kt:121-135 does.
+        IconButton(onClick = onOpenSearch) {
+            Icon(
+                painter = painterResource(R.drawable.ic_search_24dp),
+                contentDescription = getString(R.string.search),
+                modifier = Modifier.size(AbActionIconSize),
             )
+        }
+        IconButton(onClick = { controller.newLabel() }) {
+            Icon(
+                painter = painterResource(R.drawable.ic_add_circle_outline_white_24dp),
+                contentDescription = getString(R.string.new_item),
+                modifier = Modifier.size(AbActionIconSize),
+            )
+        }
+        AbOverflowMenu(contentDescription = null) { close ->
             AbMenuItem(
                 text = getString(R.string.help),
                 onClick = { close(); help() },
