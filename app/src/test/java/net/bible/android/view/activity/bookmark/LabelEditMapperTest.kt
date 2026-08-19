@@ -141,37 +141,55 @@ class LabelEditMapperTest {
         }
     }
 
+    /** (hide, marker, underline) per style, restated here rather than taken from
+     *  bookmarkStyleFlagsOf, so this test cannot agree with a bug in it. */
+    private fun expectedFlags(style: BookmarkDisplayStyle): Triple<Boolean, Boolean, Boolean> = when (style) {
+        BookmarkDisplayStyle.HIDDEN -> Triple(true, false, false)
+        BookmarkDisplayStyle.MARKER -> Triple(false, true, false)
+        BookmarkDisplayStyle.UNDERLINE -> Triple(false, false, true)
+        BookmarkDisplayStyle.HIGHLIGHT -> Triple(false, false, false)
+    }
+
     @Test
     fun `each axis reads and writes only its own three columns`() {
-        // Write side: an asymmetric pair (selection != wholeVerse) pins that applyToData does not
-        // cross the axes -- a symmetric pair would still pass even if wholeVerse wrote selection's
-        // flags (or vice versa), which is exactly the bug class the axis-symmetric tests above
-        // cannot catch.
-        val data = buildData()
-        val state = LabelEditMapper.toState(data)
-            .copy(selectionStyle = BookmarkDisplayStyle.HIGHLIGHT, wholeVerseStyle = BookmarkDisplayStyle.MARKER)
-        val out = LabelEditMapper.applyToData(data, state).label
-        assertFalse(out.hideStyle)
-        assertFalse(out.markerStyle)
-        assertFalse(out.underlineStyle)
-        assertFalse(out.hideStyleWholeVerse)
-        assertTrue(out.markerStyleWholeVerse)
-        assertFalse(out.underlineStyleWholeVerse)
+        // A single asymmetric pair cannot close this: each style sets at most one flag true, so
+        // any two styles differ in at most two of the three columns -- covering a swap in EVERY
+        // column (including a bare hide<->hide or underline<->underline crossing) needs every
+        // ordered pair of distinct styles, not one cleverly-chosen pair.
+        val styles = BookmarkDisplayStyle.entries
+        for (s in styles) {
+            for (w in styles) {
+                if (s == w) continue
 
-        // Read side: only the whole-verse columns are set; the selection columns are all false, so
-        // if toState read wholeVerseStyle from the wrong three columns this would derive HIGHLIGHT
-        // (or something other than MARKER) instead.
-        val readBack = buildData().also {
-            it.label.hideStyle = false
-            it.label.markerStyle = false
-            it.label.underlineStyle = false
-            it.label.hideStyleWholeVerse = false
-            it.label.markerStyleWholeVerse = true
-            it.label.underlineStyleWholeVerse = false
+                // Write side: applyToData must put s's flags on the selection columns and w's
+                // flags on the whole-verse columns, never crossed.
+                val data = buildData()
+                val state = LabelEditMapper.toState(data).copy(selectionStyle = s, wholeVerseStyle = w)
+                val out = LabelEditMapper.applyToData(data, state).label
+                val (hideS, markerS, underlineS) = expectedFlags(s)
+                val (hideW, markerW, underlineW) = expectedFlags(w)
+                assertEquals("hideStyle for selection=$s wholeVerse=$w", hideS, out.hideStyle)
+                assertEquals("markerStyle for selection=$s wholeVerse=$w", markerS, out.markerStyle)
+                assertEquals("underlineStyle for selection=$s wholeVerse=$w", underlineS, out.underlineStyle)
+                assertEquals("hideStyleWholeVerse for selection=$s wholeVerse=$w", hideW, out.hideStyleWholeVerse)
+                assertEquals("markerStyleWholeVerse for selection=$s wholeVerse=$w", markerW, out.markerStyleWholeVerse)
+                assertEquals("underlineStyleWholeVerse for selection=$s wholeVerse=$w", underlineW, out.underlineStyleWholeVerse)
+
+                // Read side: a Label built from s's flags on the selection columns and w's flags
+                // on the whole-verse columns must derive back exactly (s, w), never crossed.
+                val readBack = buildData().also {
+                    it.label.hideStyle = hideS
+                    it.label.markerStyle = markerS
+                    it.label.underlineStyle = underlineS
+                    it.label.hideStyleWholeVerse = hideW
+                    it.label.markerStyleWholeVerse = markerW
+                    it.label.underlineStyleWholeVerse = underlineW
+                }
+                val readState = LabelEditMapper.toState(readBack)
+                assertEquals("selectionStyle for selection=$s wholeVerse=$w", s, readState.selectionStyle)
+                assertEquals("wholeVerseStyle for selection=$s wholeVerse=$w", w, readState.wholeVerseStyle)
+            }
         }
-        val readState = LabelEditMapper.toState(readBack)
-        assertEquals(BookmarkDisplayStyle.HIGHLIGHT, readState.selectionStyle)
-        assertEquals(BookmarkDisplayStyle.MARKER, readState.wholeVerseStyle)
     }
 
     @Test
