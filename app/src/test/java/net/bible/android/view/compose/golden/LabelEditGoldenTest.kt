@@ -59,11 +59,13 @@ class LabelEditGoldenTest {
     /** [special] hides name-edit/favourite/auto-assign (isSpecialLabel) -- NOT custom-icon, which
      *  is gated on isSpeakLabel instead and stays visible here. [ws] gives a workspace context,
      *  revealing the "this workspace" group + override picker, pinned to MARKER so the picker's
-     *  non-default option renders. */
-    private fun sample(special: Boolean = false, ws: Boolean = false) = LabelEditState(
+     *  non-default option renders. [inherit] sets wholeVerseStyle to null (the "Same as selection"
+     *  tile) instead of the pinned MARKER used by every other case. */
+    private fun sample(special: Boolean = false, ws: Boolean = false, inherit: Boolean = false) = LabelEditState(
         labelId = "L1", name = "Study", color = AbColor.palette.first(),
         customIcon = null,
-        selectionStyle = BookmarkDisplayStyle.HIGHLIGHT, wholeVerseStyle = BookmarkDisplayStyle.MARKER,
+        selectionStyle = BookmarkDisplayStyle.HIGHLIGHT,
+        wholeVerseStyle = if (inherit) null else BookmarkDisplayStyle.MARKER,
         favourite = true, isAssigning = false,
         thisBookmarkSelected = false, thisBookmarkPrimary = false, hasWorkspaceContext = ws,
         autoAssign = false, autoAssignPrimary = false,
@@ -109,6 +111,12 @@ class LabelEditGoldenTest {
      *  is gated by isSpeakLabel, which this sample leaves false. */
     @Test fun labelEdit_special() =
         captureGolden("LabelEdit", "special", EDGE_MODE, heightDp = 1000, content = screen(sample(special = true)))
+
+    /** wholeVerseStyle = null: the whole-verse axis inherits the selection axis, so the leading
+     *  "Same as selection" tile is the selected one and the group's preview mirrors the selection
+     *  style rather than showing a style of its own. */
+    @Test fun labelEdit_inherit() =
+        captureGolden("LabelEdit", "inherit", EDGE_MODE, heightDp = 1000, content = screen(sample(inherit = true)))
 
     /** hasWorkspaceContext=true reveals the "this workspace" group + override picker, pinned to
      *  OverrideMode.MARKER so the picker shows a non-default selection -- needs more vertical

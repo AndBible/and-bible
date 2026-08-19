@@ -90,7 +90,7 @@ fun LabelEditScreen(
     onColor: (Int) -> Unit,
     onCustomIcon: (String?) -> Unit,
     onSelectionStyle: (BookmarkDisplayStyle) -> Unit,
-    onWholeVerseStyle: (BookmarkDisplayStyle) -> Unit,
+    onWholeVerseStyle: (BookmarkDisplayStyle?) -> Unit,
     onToggleFavourite: () -> Unit,
     onToggleSelected: () -> Unit,
     onTogglePrimary: () -> Unit,
@@ -185,13 +185,15 @@ fun LabelEditScreen(
             )
             AbChoiceGroup(
                 heading = strings.bookmarkStyleWholeVerseHeading,
-                options = BookmarkDisplayStyle.entries,
+                options = WholeVerseStyleOptions,
                 selected = state.wholeVerseStyle,
-                optionLabel = { it.label(strings) },
+                optionLabel = { it.wholeVerseLabel(strings) },
                 onSelect = onWholeVerseStyle,
                 preview = {
                     BookmarkStylePreview(
-                        style = state.wholeVerseStyle,
+                        // Inherit previews what it inherits, so the preview stays honest as the
+                        // selection axis changes.
+                        style = state.wholeVerseStyle ?: state.selectionStyle,
                         colorArgb = state.color,
                         sampleText = strings.bookmarkStylePreviewSample,
                         iconSlot = { iconSlot(state.customIcon, previewIconTint) },
@@ -269,3 +271,9 @@ private fun BookmarkDisplayStyle.label(strings: Strings): String = when (this) {
     BookmarkDisplayStyle.MARKER -> strings.displayModeMarker
     BookmarkDisplayStyle.HIDDEN -> strings.displayModeHidden
 }
+
+/** "Inherit" leads the whole-verse axis, so the common case is the first tile. */
+private val WholeVerseStyleOptions: List<BookmarkDisplayStyle?> = listOf(null) + BookmarkDisplayStyle.entries
+
+private fun BookmarkDisplayStyle?.wholeVerseLabel(strings: Strings): String =
+    this?.label(strings) ?: strings.displayModeInherit

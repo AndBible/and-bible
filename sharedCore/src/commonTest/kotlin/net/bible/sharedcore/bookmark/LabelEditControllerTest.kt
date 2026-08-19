@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.assertIs
 
@@ -68,5 +69,17 @@ class LabelEditControllerTest {
         // this test asserts nothing if the two ever end up equal.
         c.setSelectionStyle(BookmarkDisplayStyle.MARKER)
         assertTrue(c.isDirty())
+    }
+
+    @Test
+    fun `inherit is selectable and is not the same as an explicit style`() {
+        // state() pins wholeVerseStyle = UNDERLINE, so both moves below are real changes.
+        val c = controller(state())
+        c.setWholeVerseStyle(null)
+        assertNull(c.state.value.wholeVerseStyle)
+        assertTrue(c.isDirty())
+        c.setWholeVerseStyle(BookmarkDisplayStyle.UNDERLINE)
+        assertEquals(BookmarkDisplayStyle.UNDERLINE, c.state.value.wholeVerseStyle)
+        assertFalse(c.isDirty())
     }
 }

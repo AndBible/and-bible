@@ -149,8 +149,15 @@ class LabelEditMapperTest {
     }
 
     @Test
-    fun `an inherited whole-verse style reads as the selection style`() {
+    fun `an inherited whole-verse style reads back as null, not resolved`() {
         val data = buildData(selectionStyle = BookmarkDisplayStyle.MARKER, wholeVerseStyle = null)
-        assertEquals(BookmarkDisplayStyle.MARKER, LabelEditMapper.toState(data).wholeVerseStyle)
+        assertNull(LabelEditMapper.toState(data).wholeVerseStyle)
+    }
+
+    @Test
+    fun `choosing inherit writes NULL back to the label`() {
+        val data = buildData(selectionStyle = BookmarkDisplayStyle.MARKER, wholeVerseStyle = BookmarkDisplayStyle.HIDDEN)
+        val state = LabelEditMapper.toState(data).copy(wholeVerseStyle = null)
+        assertNull(LabelEditMapper.applyToData(data, state).label.displayStyleWholeVerse)
     }
 }

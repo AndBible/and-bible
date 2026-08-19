@@ -36,7 +36,7 @@ class LabelEditController(
     fun setCustomIcon(name: String?) { _state.value = _state.value.copy(customIcon = name) }
 
     fun setSelectionStyle(style: BookmarkDisplayStyle) { _state.value = _state.value.copy(selectionStyle = style) }
-    fun setWholeVerseStyle(style: BookmarkDisplayStyle) { _state.value = _state.value.copy(wholeVerseStyle = style) }
+    fun setWholeVerseStyle(style: BookmarkDisplayStyle?) { _state.value = _state.value.copy(wholeVerseStyle = style) }
     fun toggleFavourite() { _state.value = _state.value.copy(favourite = !_state.value.favourite) }
 
     fun toggleThisBookmarkSelected() {

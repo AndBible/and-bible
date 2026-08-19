@@ -492,6 +492,7 @@ interface Strings {
     val displayModeUnderline: String                // R.string.display_mode_underline
     val displayModeMarker: String                   // R.string.display_mode_marker
     val displayModeHidden: String                   // R.string.display_mode_hidden
+    val displayModeInherit: String                  // R.string.display_mode_inherit
 
     // Batch 7b-1 — ManageLabelsScreen
     val labelsSearchHint: String                    // R.string.labels_search_hint

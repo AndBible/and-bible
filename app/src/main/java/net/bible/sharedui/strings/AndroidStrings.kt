@@ -438,6 +438,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val displayModeUnderline: String get() = context.getString(R.string.display_mode_underline)
     override val displayModeMarker: String get() = context.getString(R.string.display_mode_marker)
     override val displayModeHidden: String get() = context.getString(R.string.display_mode_hidden)
+    override val displayModeInherit: String get() = context.getString(R.string.display_mode_inherit)
 
     // Batch 7b-1 — ManageLabelsScreen
     override val labelsSearchHint: String get() = context.getString(R.string.labels_search_hint)

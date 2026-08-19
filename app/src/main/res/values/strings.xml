@@ -1096,6 +1096,7 @@
     <string name="display_mode_underline">Underline</string>
     <string name="display_mode_marker">Marker only</string>
     <string name="display_mode_hidden">Hidden</string>
+    <string name="display_mode_inherit">Same as selection</string>
     <string name="workspace_override_indicator">This label has workspace-specific display mode</string>
     <string name="primary_label">Primary label</string>
     <string name="favourite_label">Favourite label</string>

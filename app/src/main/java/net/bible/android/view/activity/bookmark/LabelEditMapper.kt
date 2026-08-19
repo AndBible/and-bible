@@ -44,7 +44,7 @@ object LabelEditMapper {
             color = label.color,
             customIcon = label.customIcon,
             selectionStyle = label.displayStyle,
-            wholeVerseStyle = label.effectiveWholeVerseStyle,
+            wholeVerseStyle = label.displayStyleWholeVerse,
             favourite = label.favourite,
             isAssigning = data.isAssigning,
             thisBookmarkSelected = data.isThisBookmarkSelected,
