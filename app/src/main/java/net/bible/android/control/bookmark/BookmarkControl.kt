@@ -81,6 +81,7 @@ import java.lang.IllegalArgumentException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
 abstract class BookmarkEvent
 
@@ -549,7 +550,7 @@ open class BookmarkControl constructor(
     }
 
     val paragraphBreakLabel: Label get() = getOrCreateSpecialLabel(PARAGRAPH_BREAK_LABEL_ID) {
-        Label(id = PARAGRAPH_BREAK_LABEL_ID, name = PARAGRAH_BREAK_LABEL_NAME, hideStyle = true, hideStyleWholeVerse = true)
+        Label(id = PARAGRAPH_BREAK_LABEL_ID, name = PARAGRAH_BREAK_LABEL_NAME, displayStyle = BookmarkDisplayStyle.HIDDEN, displayStyleWholeVerse = null)
     }
 
     val aiLabel: Label get() = getOrCreateSpecialLabel(AI_LABEL_ID) {
@@ -557,8 +558,8 @@ open class BookmarkControl constructor(
             id = AI_LABEL_ID,
             name = AI_LABEL_NAME,
             color = Color.argb(255, 100, 100, 255),
-            markerStyle = true,
-            markerStyleWholeVerse = true,
+            displayStyle = BookmarkDisplayStyle.MARKER,
+            displayStyleWholeVerse = null,
             customIcon = "robot"
         )
     }

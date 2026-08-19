@@ -214,6 +214,40 @@ private val fixedSpecialLabelIds = makeMigration(11..12) { db ->
     deduplicateSpecialLabels(db)
 }
 
+/**
+ * The six style booleans become two enum columns. The CASE cascades are the reader's own precedence
+ * (`hide > marker > underline > highlight`, `bibleview-js/src/composables/bookmarks.ts:583-604`), so
+ * a row carrying a dominated flag collapses to what was already on screen — the migration cannot
+ * change any label's appearance. A whole-verse axis equal to the selection axis becomes NULL, which
+ * means "inherit". Spec: docs/superpowers/specs/2026-08-19-label-style-schema-migration-design.md
+ */
+private val labelDisplayStyleEnum = makeMigration(12..13) { db ->
+    // Create-copy-drop-rename rather than six ALTER TABLE ... DROP COLUMNs: the app bundles a
+    // SQLite new enough for DROP COLUMN (>= 3.35), but Robolectric's bundled native SQLite is not,
+    // so the migration test could not run the real statements. Rebuilding the table is supported
+    // everywhere and is the procedure SQLite itself documents for removing columns.
+    db.execSQL("""
+        CREATE TABLE IF NOT EXISTS `Label_new` (
+            `id` BLOB NOT NULL, `name` TEXT NOT NULL, `color` INTEGER NOT NULL DEFAULT 0,
+            `displayStyle` INTEGER NOT NULL DEFAULT 0, `displayStyleWholeVerse` INTEGER DEFAULT 1,
+            `favourite` INTEGER NOT NULL DEFAULT 0, `type` TEXT DEFAULT NULL,
+            `customIcon` TEXT DEFAULT NULL, PRIMARY KEY(`id`)
+        )
+    """)
+    db.execSQL("""
+        INSERT INTO Label_new (id, name, color, displayStyle, displayStyleWholeVerse, favourite, type, customIcon)
+        SELECT id, name, color,
+            CASE WHEN hideStyle THEN 3 WHEN markerStyle THEN 2 WHEN underlineStyle THEN 1 ELSE 0 END,
+            CASE WHEN hideStyleWholeVerse THEN 3 WHEN markerStyleWholeVerse THEN 2 WHEN underlineStyleWholeVerse THEN 1 ELSE 0 END,
+            favourite, type, customIcon
+        FROM Label
+    """)
+    db.execSQL("UPDATE Label_new SET displayStyleWholeVerse = NULL WHERE displayStyleWholeVerse = displayStyle")
+    db.execSQL("DROP TABLE Label")
+    db.execSQL("ALTER TABLE Label_new RENAME TO Label")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_Label_favourite` ON `Label` (`favourite`)")
+}
+
 val bookmarkMigrations: Array<Migration> = arrayOf(
     separateText,
     genericTables,
@@ -226,6 +260,7 @@ val bookmarkMigrations: Array<Migration> = arrayOf(
     editActionMigration,
     aiFieldsMigration,
     fixedSpecialLabelIds,
+    labelDisplayStyleEnum,
 )
 
-const val BOOKMARK_DATABASE_VERSION = 12
+const val BOOKMARK_DATABASE_VERSION = 13

@@ -193,6 +193,7 @@ import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
 @Suppress("DEPRECATION")
 fun htmlToSpan(html: String?): Spanned {
@@ -1337,10 +1338,10 @@ object CommonUtils : CommonUtilsBase() {
         var highlightLabels = emptyList<BookmarkEntities.Label>()
 
         if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") && it.name != migratedNotesName }) {
-            val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false, favourite = true)
-            val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false, favourite = true)
-            val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false, favourite = true)
-            val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), underlineStyle = true, underlineStyleWholeVerse = true, favourite = true)
+            val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), displayStyleWholeVerse = null, favourite = true)
+            val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), displayStyleWholeVerse = null, favourite = true)
+            val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), displayStyleWholeVerse = null, favourite = true)
+            val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), displayStyle = BookmarkDisplayStyle.UNDERLINE, displayStyleWholeVerse = null, favourite = true)
 
             highlightLabels = listOf(
                 redLabel,

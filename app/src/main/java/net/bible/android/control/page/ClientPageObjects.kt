@@ -56,6 +56,7 @@ import java.util.UUID.randomUUID
 import kotlin.math.abs
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
 /*
  * Serializable classes and utils that are used when transferring stuff to JS side
@@ -430,12 +431,15 @@ data class ClientBookmarkLabel(
         ClientBookmarkStyle(
             color = label.color,
             isSpeak = label.isSpeakLabel,
-            underline = label.underlineStyle,
-            underlineWholeVerse = label.underlineStyleWholeVerse,
-            markerStyle = label.markerStyle,
-            markerStyleWholeVerse = label.markerStyleWholeVerse,
-            hideStyle = label.hideStyle,
-            hideStyleWholeVerse = label.hideStyleWholeVerse,
+            // The wire still carries one boolean per (style, axis); Task 4 of round 9b replaces it.
+            // `effectiveWholeVerseStyle` resolves the "inherit" NULL, which the renderer has no
+            // representation for.
+            underline = label.displayStyle == BookmarkDisplayStyle.UNDERLINE,
+            underlineWholeVerse = label.effectiveWholeVerseStyle == BookmarkDisplayStyle.UNDERLINE,
+            markerStyle = label.displayStyle == BookmarkDisplayStyle.MARKER,
+            markerStyleWholeVerse = label.effectiveWholeVerseStyle == BookmarkDisplayStyle.MARKER,
+            hideStyle = label.displayStyle == BookmarkDisplayStyle.HIDDEN,
+            hideStyleWholeVerse = label.effectiveWholeVerseStyle == BookmarkDisplayStyle.HIDDEN,
             customIcon = label.customIcon,
             isParagraphBreak = label.isParagraphBreakLabel,
         ),

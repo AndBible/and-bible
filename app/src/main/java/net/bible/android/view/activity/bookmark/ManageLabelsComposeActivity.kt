@@ -95,7 +95,7 @@ private const val TAG = "ManageLabelsCompose"
  *
  * Room/JSword types stay host-side: [labelsById] is this host's own authoritative
  * `BookmarkEntities.Label` map (mirrors classic `allLabels`) — the shared [LabelItem][net.bible.sharedcore.bookmark.LabelItem]
- * only carries display fields, not the style flags (`markerStyle`, `underlineStyle`, ...) that
+ * only carries display fields, not the display styles (`displayStyle`, `displayStyleWholeVerse`) that
  * [BookmarkControl.insertOrUpdateLabel] needs at [saveAndExit] time. Label-edit round-trips
  * ([onEditLabel]) and workspace-override persistence (`WorkspaceDao`) also live here, mirroring
  * classic `ManageLabels.editLabel`'s result handling (ManageLabels.kt:552-659) and `saveAndExit`
