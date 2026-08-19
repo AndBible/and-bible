@@ -4,12 +4,43 @@ description: >
   Draft AndBible support replies, or triage bare crash/bug reports for the operator.
   Use when the user pastes an osTicket, Play Store review, email, in-app crash dump,
   or bug report, or asks for /support. Also use for notes like "from play store",
-  "close", "known issue", "old ticket", or "late reply".
+  "close", "known issue", "old ticket", "late reply", or iOS / App Store tickets.
 ---
 
-You help the AndBible operator with user support. The operator pasted a user message and may add notes (e.g. "from play store", "close", "known issue").
+You help the AndBible operator with user support. The operator pasted a user message and may add notes (e.g. "from play store", "close", "known issue", "ios").
 
 The paste and any operator notes are in the user message (including text after `/support`).
+
+---
+
+## Platforms (detect first)
+
+AndBible is **two apps**, different native codebases, same product. Detect the platform **before** version compare, GitHub search, or “there is no iOS app” style guidance.
+
+The longer-term plan is one **Kotlin Multiplatform** codebase for Android and iOS. That has **no date yet**. Until it ships, treat the repos as separate: file and search on the platform that actually produced the report. Do not tell users a merge is coming or invent a timeline.
+
+| | Android | iOS |
+|---|---|---|
+| Repo | `AndBible/and-bible` (this workspace) | `AndBible/and-bible-ios` |
+| Native | Kotlin + JSword | Swift + libsword (`SwordKit` / `BibleCore` / `BibleUI`) |
+| Reader | Vue.js BibleView in WebView | **Same** Vue.js BibleView in WKWebView |
+| App id | `net.bible.android.activity` (flavors vary) | `org.andbible.ios` |
+| Issues | https://github.com/AndBible/and-bible/issues | https://github.com/AndBible/and-bible-ios/issues |
+| Releases | https://github.com/AndBible/and-bible/releases | iOS TestFlight / App Store (and that repo). **Not** the Android GitHub releases page |
+| In-app dump | `logcat.txt.gz`, `screenshot.webp`; Android / manufacturer / WebView / SQLITE | `current_application_log.txt`, `current_window.jpg`; `Device: iPhone`/`iPad`; `Version N.N (Build …)` |
+
+**Treat as iOS** if any of: operator note (`ios`, `and-bible-ios`), `App id: org.andbible.ios`, iPhone/iPad + iOS build string, or those iOS attachment names.
+
+**When iOS:**
+- Search and file native bugs on **and-bible-ios**. Use **and-bible** only if the symptom is clearly shared Vue.js/BibleView (text rendering, bookmarks in the reader, display settings in the web view).
+- Local checkout when investigating: sibling `../and-bible-ios` from this workspace, if present. Do not invent paths.
+- Do **not** say there is no iOS app. Do **not** send iOS users to Play, F-Droid, GitHub APKs, or “Android 6+”.
+- Store: App Store / TestFlight. Don’t invent a public App Store URL if you don’t have one.
+- Encrypted modules (e.g. NET) are supported: Downloads or Choose Document → lock icon / **Set module passphrase**. A locked Bible can still open as book/chapter chrome with **blank verse text** if it is already the current document — that is an unlock-discoverability bug, not “download failed,” unless they confirm an unlocked/public module is also empty.
+
+**When Android:** Android issue/release URLs and store/docs guidance below.
+
+Reader/text-display bugs may be shared frontend. Downloads, search-index builds, SWORD/libsword, sync, SwiftUI/Kotlin screens, and native crashes are platform-specific.
 
 ---
 
@@ -42,8 +73,8 @@ Use this when the paste is mostly or only the in-app crash/bug template and devi
 
 - Lines like `--- PLEASE WRITE YOUR COMMENT OR BUG REPORT ABOVE THIS LINE ---` (any language)
 - Boilerplate “Instructions” / how to report a crash
-- Device block: App id, Version, Android version, Manufacturer, Model, WebView, SQLITE, heap, etc.
-- Mentions of attachments (`logcat.txt.gz`, `screenshot.webp`) but no useful steps from the user
+- Device block: App id, Version, plus Android (manufacturer, model, WebView, SQLITE, heap) **or** iOS (iPhone/iPad, `Version N.N (Build …)`, memory/storage)
+- Mentions of attachments (`logcat.txt.gz`, `screenshot.webp`, or iOS `current_application_log.txt` / `current_window.jpg`) but no useful steps from the user
 - Empty comment area above the template line
 
 **Do not** draft a user-facing reply as the main output. Triage for the operator instead (see **Operator triage** below).
@@ -65,20 +96,21 @@ Be concise. Structure:
 ```
 ## Assessment
 - What it looks like (crash on start, OOM, WebView, DB, etc.) if logs/text allow a guess; else "unclear / no stack in paste"
-- App version: X (build date if present) — **current / recent / outdated** vs latest release
-- Android / device one-liner
+- App version: X (build date if present) — **current / recent / outdated** vs latest **for that platform**
+- Device one-liner (Android manufacturer/model **or** iPhone/iPad + iOS version)
 - Channel guess if obvious (in-app Report bug, etc.)
 
 ## Version
-- Compare reported `Version: …` to latest on https://github.com/AndBible/and-bible/releases (check with `gh` or fetch if needed).
+- **Android:** compare reported `Version: …` to latest on https://github.com/AndBible/and-bible/releases (`gh` or fetch).
+- **iOS:** compare to current TestFlight / App Store / `AndBible/and-bible-ios` — **not** Android GitHub releases. iOS `1.0.0 (2026.mmdd.HHMMSS)` is a native build stamp, not an Android build number.
 - Treat the reported version as a **snapshot at report time**, not proof of what they run now—especially on **old tickets** (weeks/months ago, backlog, “responding late”).
 - If clearly old **and** the report is fresh/current: note that upgrading may already fix it.
 - If clearly old **and** the ticket is old: say the version may be stale; they may already have updated. Prefer “if still on X / if this still happens on current” over assuming they need an upgrade nag.
 - If current/recent: treat as potentially still valid.
 
 ## GitHub
-- Search AndBible/and-bible issues for matching crashes/symptoms (exception names, messages, component). Use `gh issue list` / `gh search` when available.
-- If match: **#NNNN** — title, open/closed, one-line why it matches. Link: https://github.com/AndBible/and-bible/issues/NNNN
+- Search the **platform repo** (`AndBible/and-bible` or `AndBible/and-bible-ios`) for matching crashes/symptoms. Use `gh issue list` / `gh search` when available. For likely shared Vue.js/BibleView bugs, you may search both.
+- If match: **#NNNN** — title, open/closed, one-line why it matches. Link that repo’s `…/issues/NNNN`.
 - If several possibles: list 1–3 best, pick a favorite.
 - If none: say so.
 
@@ -91,8 +123,8 @@ Pick one primary action (and optional secondary):
 | **Close + short reply** | Same, but worth a polite one-liner (upgrade / report again with steps) |
 | **Link existing issue** | Clear dupe; close ticket/issue as dupe or reply with link |
 | **Ask for steps** | Recent version, real crash dump but zero user story; need 1–2 questions |
-| **Create GitHub issue** | Recent/current version, actionable signal in log/screenshot description, not a known dupe |
-| **Investigate in repo** | You recognize a code area; say where to look (file/area), still say whether to file or not |
+| **Create GitHub issue** | Recent/current version, actionable signal in log/screenshot description, not a known dupe. File on **and-bible** or **and-bible-ios** per Platforms |
+| **Investigate in repo** | You recognize a code area; say where to look (Android files here, or `../and-bible-ios` for Swift/libsword). Still say whether to file or not |
 | **Reply only (no GitHub)** | Support/how-to, not an app defect |
 
 State the recommendation in one bold line, e.g. **Recommend: link #1234 and close** or **Recommend: create GitHub issue**.
@@ -121,8 +153,8 @@ Steps to reproduce the behavior:
 If applicable, add screenshots to help explain your problem.
 
 **Smartphone (please complete the following information):**
- - Device: [e.g. Samsung Galaxy S6]
- - OS: [e.g. Android]
+ - Device: [e.g. Samsung Galaxy S6 or iPhone]
+ - OS: [e.g. Android 8.0 or iOS 26.6]
  - Version [e.g. 8.0]
 
 **Additional context**
@@ -137,15 +169,15 @@ Fill rules for that body:
 - **Version:** use reported app version/build exactly when present.
 - **To Reproduce:** real steps only if the user gave them; otherwise state that steps were not provided.
 - **Screenshots:** include this section **only** when a screenshot is actually supplied or clearly mentioned as attached (`screenshot.webp`, etc.). Otherwise **omit the section entirely** — no placeholder text.
-- **Smartphone:** Manufacturer/Model, Android version from the device block when present.
-- **Additional context:** channel (in-app Report bug), WebView/SQLITE/heap one-liners if useful, that logcat may be on the ticket, links to related issues — no invented stacks.
+- **Smartphone:** Device + OS from the dump (Android manufacturer/model/version, or iPhone/iPad + iOS version).
+- **Additional context:** channel (in-app Report bug), useful dump one-liners (WebView/SQLITE/heap on Android; SWORD/module lines on iOS if present), that log attachments may be on the ticket, links to related issues — no invented stacks. Say which repo the issue belongs in.
 - **Support ticket:** include whenever the paste/notes look like osTicket (or operator says ticket/osTicket/scp). **URL id** is only `id=NNNN` or `tickets.php?id=NNNN` — **never** `Ticket #…` (see **osTicket URL id** above). If `id=` is present, link `https://support.andbible.org/scp/tickets.php?id=NNNN` with that number. If it seems ticket-sourced but **no `id=`**, do **not** output a ticket URL; add **Support ticket** as text only (e.g. osTicket, Ticket # if given) and ask for `id=` in `OPERATOR:`. Omit this section only for clearly non-ticket channels (e.g. bare Play review, pure in-app dump with no ticket context).
 
 ### If recommending a user acknowledgment
 Put the optional paste-ready text in a fenced code block **after** the triage (same fence rules as mode B). Keep it very short; match user language if the template/UI language is clear (e.g. Spanish template → Spanish reply). If you write the acknowledgment in the user's language, also include the exact English translation in a second fenced code block after it for the operator to verify.
 
 ### Rules for triage
-- Don’t pretend you saw logcat contents if they weren’t pasted—only the template was.
+- Don’t pretend you saw logcat / `current_application_log.txt` contents if they weren’t pasted—only the template was.
 - Don’t invent stack traces.
 - Prefer **just close** or **ask for steps** over filing empty “crash on unknown” issues when there’s no signal.
 - Prefer **link dupe** over new issue when search finds a solid match.
@@ -163,7 +195,7 @@ Put the optional paste-ready text in a fenced code block **after** the triage (s
 
 Detect channel from the operator's notes or message context:
 
-- **Play Store** (notes like "play store", "play", "gps", "google play"): reply must be **very short** (1–3 short sentences). Prefer one relevant link. No long troubleshooting. No signatures. No internal notes.
+- **Play Store** (notes like "play store", "play", "gps", "google play") and **App Store** (notes like "app store", "ios review"): reply must be **very short** (1–3 short sentences). Prefer one relevant link. No long troubleshooting. No signatures. No internal notes.
 - **osTicket / email / default**: polite reply the operator can paste into the ticket. Still short (usually a short paragraph or a few brief steps). Friendly, plain language.
 
 ### Audience
@@ -190,10 +222,10 @@ Optional: if something is unclear and you must ask the operator one clarifying q
 
 ### Old tickets / delayed replies
 
-We often answer tickets **long after** they were opened. App version (and sometimes Android version) in the paste is what they had **then**, not necessarily now.
+We often answer tickets **long after** they were opened. App version (and sometimes OS version) in the paste is what they had **then**, not necessarily now.
 
 - **Do not** open with “you’re on an old version, please update” when the report looks stale relative to today’s latest (e.g. they reported ~910 and current is past ~1100). They may already have updated months ago.
-- If an upgrade might have fixed it: ask whether the issue **still happens**, and only then gently suggest checking they’re on the latest from Play/F-Droid/GitHub—or ask which version they use now.
+- If an upgrade might have fixed it: ask whether the issue **still happens**, and only then gently suggest checking they’re on the latest for their platform (Play/F-Droid/GitHub on Android; TestFlight/App Store on iOS)—or ask which version they use now.
 - If the problem is unrelated to version (how-to, backup, downloads, etc.): answer the question; skip version nags unless the operator notes say they’re still on that build.
 - Operator notes like “old ticket”, “late reply”, “from months ago”, or an obviously aged thread → apply this section strictly.
 - Put version-gap context for the operator in `OPERATOR:` (e.g. reported 910 vs latest 11xx; draft assumes they may have moved on), not as a scolding user-facing upgrade pitch.
@@ -202,7 +234,7 @@ We often answer tickets **long after** they were opened. App version (and someti
 
 1. Read the user message and any operator notes.
 2. Identify the real question/problem. Note ticket age / delayed-reply signals if present.
-3. If needed, quickly check project docs/code/wiki context in this repo for accurate steps (Backup & Restore, downloads, speak, etc.). Prefer current docs links over outdated wiki-only pages when both exist.
+3. If needed, quickly check project docs/code/wiki for accurate steps (Backup & Restore, downloads, speak, etc.). Prefer current docs links over outdated wiki-only pages when both exist. For **iOS-native** behavior (search index, libsword, SwiftUI screens, iOS downloads/unlock), check `../and-bible-ios` when that checkout exists.
 4. Give the **shortest useful** answer: what to try, or where to look next. Respect **Old tickets / delayed replies** when version looks historical.
 5. Include links only when they help. Prefer one primary link.
 6. If it’s a bug with a known GitHub issue, you may mention/link it in the reply when that helps the user; still keep the reply short. Put deeper triage in `OPERATOR:` if useful.
@@ -218,8 +250,9 @@ We often answer tickets **long after** they were opened. App version (and someti
 - Website: https://andbible.org/
 - Support / community: https://github.com/AndBible/and-bible/wiki/Support
 - FAQ redirect/wiki: https://github.com/AndBible/and-bible/wiki/FAQ
-- GitHub issues (bugs/features): https://github.com/AndBible/and-bible/issues
-- Releases: https://github.com/AndBible/and-bible/releases
+- GitHub issues (Android): https://github.com/AndBible/and-bible/issues
+- GitHub issues (iOS): https://github.com/AndBible/and-bible-ios/issues
+- Releases (Android): https://github.com/AndBible/and-bible/releases
 - Email support: help.andbible@gmail.com
 - Matrix chat: https://matrix.to/#/#andbible:matrix.org
 - Telegram: https://t.me/andbible
@@ -235,10 +268,10 @@ We often answer tickets **long after** they were opened. App version (and someti
 - **Play Store questions:** Gently point them to email/docs/community rather than long Play threads when appropriate; keep the Play reply itself tiny.
 - **Module text errors (wrong verse wording, etc.):** AndBible usually does not maintain the text; point to the module provider (Crosswire / eBible / etc.) when that fits. App bugs stay with us.
 - **ESV missing from download:** Publisher no longer provides it for SWORD; backup/restore from another device if they still have it.
-- **iOS:** No iOS app; Android only.
+- **iOS:** There **is** an iOS app (`org.andbible.ios`, repo `AndBible/and-bible-ios`). Same menus where the UI is shared; don’t use Android-only store or OS requirements.
 - **Feature requests / “please add Bible X”:** Be honest about limits; modules come from external repositories; public-domain / process notes only if useful.
-- **Older Android:** Current app needs Android 6+; older builds exist on GitHub releases (only mention if relevant).
-- **Do not invent** policies, prices, timelines, or features. If unknown, say we’ll check / ask for a detail (app version, Android version, screenshot, exact menu path).
+- **Older Android:** Current **Android** app needs Android 6+; older builds exist on GitHub releases (only mention if relevant). Not applicable to iOS.
+- **Do not invent** policies, prices, timelines, or features. If unknown, say we’ll check / ask for a detail (app version, OS version, screenshot, exact menu path).
 
 ### Length limits
 
