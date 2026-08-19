@@ -30,15 +30,19 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
+import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.exportStudyPads
 import net.bible.sharedcore.bookmark.DeletePrompt
@@ -48,6 +52,8 @@ import net.bible.sharedcore.bookmark.LabelEditService
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.bookmark.LabelEditScreen
 import net.bible.sharedui.components.AbActionIconSize
+import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.AbOverflowMenu
 import org.koin.android.ext.android.inject
 
 /**
@@ -72,6 +78,19 @@ class LabelEditComposeActivity : ActivityBase() {
 
     private val controller: LabelEditController by lazy {
         LabelEditController(LabelEditMapper.toState(data), service, lifecycleScope, ::onFinish)
+    }
+
+    /**
+     * Non-null while the "Export to where?" chooser is awaiting an answer — rendered as a Compose
+     * dialog in [onCreate]'s `setContent`, so [exportStudyPads] (via [BackupControl.saveOrShare])
+     * skips its own platform `AlertDialog` and awaits this one instead. See [askDestination].
+     */
+    private var destinationRequest: CompletableDeferred<SaveOrShare?>? by mutableStateOf(null)
+
+    private suspend fun askDestination(): SaveOrShare? {
+        val deferred = CompletableDeferred<SaveOrShare?>()
+        destinationRequest = deferred
+        return try { deferred.await() } finally { destinationRequest = null }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,6 +123,23 @@ class LabelEditComposeActivity : ActivityBase() {
                     )
 
                     deletePrompt?.let { prompt -> DeletePromptDialog(prompt, state.name) }
+
+                    destinationRequest?.let { req ->
+                        ComposeAlertDialog(
+                            onDismissRequest = { req.complete(null) },
+                            title = { Text(getString(R.string.export_destination_title)) },
+                            text = { Text(getString(R.string.export_destination_message)) },
+                            confirmButton = {
+                                TextButton(onClick = { req.complete(SaveOrShare.SHARE) }) { Text(getString(R.string.share)) }
+                            },
+                            dismissButton = {
+                                Row {
+                                    TextButton(onClick = { req.complete(SaveOrShare.SAVE) }) { Text(getString(R.string.backup_phone_storage)) }
+                                    TextButton(onClick = { req.complete(null) }) { Text(getString(R.string.cancel)) }
+                                }
+                            },
+                        )
+                    }
             }
         }
     }
@@ -126,11 +162,11 @@ class LabelEditComposeActivity : ActivityBase() {
                 )
             }
         }
-        IconButton(onClick = { shareLabel() }) {
-            Icon(
-                painter = painterResource(R.drawable.ic_baseline_share_24),
-                contentDescription = getString(R.string.export),
-                modifier = Modifier.size(AbActionIconSize),
+        AbOverflowMenu(contentDescription = null) { close ->
+            AbMenuItem(
+                text = getString(R.string.export),
+                onClick = { close(); shareLabel() },
+                icon = { Icon(painterResource(R.drawable.ic_baseline_share_24), contentDescription = null) },
             )
         }
     }
@@ -179,7 +215,9 @@ class LabelEditComposeActivity : ActivityBase() {
     /** Mirrors classic `exportStudyPads` share action: applies pending (unsaved) edits first. */
     private fun shareLabel() {
         val current = LabelEditMapper.applyToData(data, controller.state.value)
-        lifecycleScope.launch { exportStudyPads(this@LabelEditComposeActivity, current.label) }
+        lifecycleScope.launch {
+            exportStudyPads(this@LabelEditComposeActivity, current.label, chooseDestination = ::askDestination)
+        }
     }
 
     private fun onFinish(result: LabelEditResult) {

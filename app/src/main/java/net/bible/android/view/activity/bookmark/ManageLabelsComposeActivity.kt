@@ -25,10 +25,14 @@ import android.text.style.ImageSpan
 import android.util.Log
 import android.widget.TextView
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog as ComposeAlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,9 +47,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
+import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
@@ -129,6 +135,19 @@ class ManageLabelsComposeActivity : ActivityBase() {
         )
     }
 
+    /**
+     * Same "Export to where?" chooser seam as `LabelEditComposeActivity.destinationRequest` —
+     * duplicated rather than shared, per the task brief: a third caller would justify factoring
+     * this out, two doesn't.
+     */
+    private var destinationRequest: CompletableDeferred<SaveOrShare?>? by mutableStateOf(null)
+
+    private suspend fun askDestination(): SaveOrShare? {
+        val deferred = CompletableDeferred<SaveOrShare?>()
+        destinationRequest = deferred
+        return try { deferred.await() } finally { destinationRequest = null }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         data = ManageLabels.ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
@@ -209,13 +228,34 @@ class ManageLabelsComposeActivity : ActivityBase() {
                                 val selected = exportableLabels.filter { ids.contains(it.id.toString()) }
                                 if (selected.isNotEmpty()) {
                                     lifecycleScope.launch(Dispatchers.Main) {
-                                        exportStudyPads(this@ManageLabelsComposeActivity, *selected.toTypedArray())
+                                        exportStudyPads(
+                                            this@ManageLabelsComposeActivity,
+                                            *selected.toTypedArray(),
+                                            chooseDestination = ::askDestination,
+                                        )
                                     }
                                 }
                             },
                             onDismiss = { showExportDialog = false },
                             selectAllText = getString(R.string.select_all),
                             selectNoneText = getString(R.string.select_none),
+                        )
+                    }
+
+                    destinationRequest?.let { req ->
+                        ComposeAlertDialog(
+                            onDismissRequest = { req.complete(null) },
+                            title = { Text(getString(R.string.export_destination_title)) },
+                            text = { Text(getString(R.string.export_destination_message)) },
+                            confirmButton = {
+                                TextButton(onClick = { req.complete(SaveOrShare.SHARE) }) { Text(getString(R.string.share)) }
+                            },
+                            dismissButton = {
+                                Row {
+                                    TextButton(onClick = { req.complete(SaveOrShare.SAVE) }) { Text(getString(R.string.backup_phone_storage)) }
+                                    TextButton(onClick = { req.complete(null) }) { Text(getString(R.string.cancel)) }
+                                }
+                            },
                         )
                     }
             }

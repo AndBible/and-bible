@@ -177,20 +177,26 @@ object BackupControl {
         chooserTitle: String,
         successMsg: Int? = null,
         errorMsg: Int = R.string.error_occurred,
+        promptTitle: Int = R.string.backup_backup_title,
+        promptMessage: Int = R.string.backup_backup_message,
+        // A Compose host supplies its own destination dialog here. Defaulted null so the classic
+        // path — and every existing caller — keeps the platform AlertDialog byte-for-byte.
+        chooseDestination: (suspend () -> SaveOrShare?)? = null,
     ): Boolean {
-        val saveOrShare =
-            withContext(Dispatchers.Main) {
+        val saveOrShare = (
+            chooseDestination?.invoke() ?: withContext(Dispatchers.Main) {
                 suspendCoroutine<SaveOrShare?> {
                     AlertDialog.Builder(activity)
-                        .setTitle(R.string.backup_backup_title)
-                        .setMessage(R.string.backup_backup_message)
+                        .setTitle(promptTitle)
+                        .setMessage(promptMessage)
                         .setNegativeButton(R.string.backup_phone_storage) { _, _ -> it.resume(SaveOrShare.SAVE) }
                         .setPositiveButton(R.string.share) { _, _ -> it.resume(SaveOrShare.SHARE) }
                         .setNeutralButton(R.string.cancel) { _, _ -> it.resume(null) }
                         .setOnCancelListener { _ -> it.resume(null) }
                         .show()
                 }
-            } ?: return false
+            }
+            ) ?: return false
 
         val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", file)
         val intent = when(saveOrShare) {

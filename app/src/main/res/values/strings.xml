@@ -737,6 +737,9 @@
     <string name="exported_studypads_message">Your %s database containing Bookmarks and Notes related to selected StudyPads is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
     <string name="send_backup_file">Send a backup file</string>
+    <string name="export_destination_title">Export to where?</string>
+    <string name="export_destination_message">Save the export to this phone, or send it elsewhere with Share.</string>
+    <string name="send_export_file">Send an export file</string>
     <string name="backup_modules_title">Select which modules to backup</string>
     <string name="install_zip_canceled">Module install cancelled</string>
     <string name="ask_restore_or_import">Database for %s can be either restored (i.e. existing database is removed and selected database is loaded) or imported (selected database is imported into existing database). What do you want to do?</string>
