@@ -177,8 +177,8 @@ class ManageLabelsGoldenTest {
         )
     }
 
-    // heightDp=800: search row + up to 3 category headers + 5 item rows -- the default viewport
-    // clips the tail of the list.
+    // heightDp=800: up to 3 category headers + 5 item rows -- the default viewport clips the
+    // tail of the list.
     @Test fun manageLabels_assign() =
         captureMatrix("ManageLabels", "assign", heightDp = 800, content = screen(ManageLabelsMode.ASSIGN))
 
@@ -197,8 +197,10 @@ class ManageLabelsGoldenTest {
     @Test fun manageLabels_studypad() =
         captureGolden("ManageLabels", "studypad", EDGE_MODE, heightDp = 800, content = screen(ManageLabelsMode.STUDYPAD))
 
-    /** STUDYPAD content-search results (SearchMode.CONTENT): the 3-way search-mode selector plus
-     *  SearchResult rows (colour dot, name, match-count text, and a highlighted snippet span) --
+    /** StudyPad content-search RESULTS state (SearchMode.CONTENT), search bar NOT active
+     *  (searchModeActive = false, so per AbScaffold's contract the bar -- and the mode menu that
+     *  only renders inside it -- are not drawn at all): just the SearchResult rows (colour dot,
+     *  name, match-count text, and a highlighted snippet span) under the plain title bar --
      *  captured across all modes since highlight legibility is the point of this state. */
     @Test fun manageLabels_studypad_content() =
         captureMatrix("ManageLabels", "studypad_content", heightDp = 800, content = contentSearchScreen())
