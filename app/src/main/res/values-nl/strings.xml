@@ -402,10 +402,6 @@ Komt van Wholesome Words, http://www.wholesomewords.org/, toestemming verleend.<
   <string name="auto_assign_labels1">Automatisch toewijzen label aan nieuwe bladwijzers</string>
   <string name="auto_assign_labels_primary">Auto-toewijzen als primair</string>
   <!--can be removed-->
-  <string name="marker_style">Gebruik alleen een bladwijzericoon voor selectie-bladwijzers</string>
-  <string name="marker_style_whole_verse">Gebruik alleen een bladwijzericoon voor de hele-vers bladwijzers</string>
-  <string name="hide_style">Verberg selectie-bladwijzers</string>
-  <string name="hide_style_whole_verse">Verberg hele-vers bladwijzers</string>
   <string name="bookmark_warning">Er zijn bladwijzers en/of notities voor dit document</string>
   <string name="bookmark_warning2">
 Als de indeling van het document is veranderd, kan het bijwerken van het document de bladwijzers/notities van plek laten veranderen of zelfs compleet laten verdwijnen uit het document </string>
@@ -904,8 +900,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="favourite_label">Favouriet label</string>
   <string name="edit_label">Label bewerken</string>
   <string name="delete_label_confirmation">Wilt u bladwijzer label \"%s\" verwijderen? Ook alle gekoppelde Studeermap notities worden verwijderd.</string>
-  <string name="bookmark_underline_style_arbitrary">Onderstreepstijl voor selectie-bladwijzers</string>
-  <string name="bookmark_underline_style_whole_verse">Onderstreepstijl voor hele-vers bladwijzers</string>
   <string name="active_labels">Geselecteerde labels</string>
   <string name="recent_labels">Recente labels</string>
   <string name="other_labels">Overige labels</string>

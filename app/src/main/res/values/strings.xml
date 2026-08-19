@@ -513,10 +513,6 @@
     <string name="auto_assign_labels1">Auto-assign label to new bookmarks</string>
     <string name="auto_assign_labels_primary">Auto-assign as primary</string>
   <!-- can be removed -->
-    <string name="marker_style">Show only marker for selection bookmarks</string>
-    <string name="marker_style_whole_verse">Show only marker for whole verse bookmarks</string>
-    <string name="hide_style">Hide for selection bookmarks</string>
-    <string name="hide_style_whole_verse">Hide for whole verse bookmarks</string>
     <string name="bookmark_warning">There are bookmarks and/or notes for this document.</string>
     <string name="bookmark_warning2">
         If document structure has changed, updating this document could make
@@ -1105,8 +1101,6 @@
     <string name="favourite_label">Favourite label</string>
     <string name="edit_label">Edit label</string>
     <string name="delete_label_confirmation">Do you want to remove bookmark label "%s"? Also all associated Study Pad notes will be removed.</string>
-    <string name="bookmark_underline_style_arbitrary">Underline style for selection bookmarks</string>
-    <string name="bookmark_underline_style_whole_verse">Underline style for whole verse bookmarks</string>
     <string name="active_labels">Selected labels</string>
     <string name="recent_labels">Recent labels</string>
     <string name="other_labels">Other labels</string>

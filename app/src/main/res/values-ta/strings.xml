@@ -412,10 +412,6 @@
   <string name="auto_assign_labels1">புதிய புக்மார்க்குகளுக்கு தானாக லேபிலை சேர்</string>
   <string name="auto_assign_labels_primary">முதன்மையானதாக தானாக குறி</string>
   <!--can be removed-->
-  <string name="marker_style">தேர்வு செய்யப்பட்ட புக் மார்க்குகளுக்கு மட்டும் குறியினை காட்டு</string>
-  <string name="marker_style_whole_verse">முழு வசனமும் புக் மார்க் செய்யப்பட்டவைக்கு மட்டும் குறியினை காட்டு</string>
-  <string name="hide_style">பகுதி வசன புக்மார்க்குகளுக்கு மறை</string>
-  <string name="hide_style_whole_verse">முழு வசன புக்மார்க்குகளுக்கு மறை</string>
   <string name="bookmark_warning">இந்த ஆவணத்திற்கு புக் மார்க்குகள் அல்லது/மற்றும் குறிப்புகள் உள்ளன</string>
   <string name="bookmark_warning2">
         ஆவண அமைப்பு மாறியிருந்தால், இதனைப் புதுப்பிப்பது 
@@ -942,8 +938,6 @@
   <string name="favourite_label">விருப்பமான லேபிள்</string>
   <string name="edit_label">லேபிளை மாற்ற</string>
   <string name="delete_label_confirmation">புக் மார்க் லேபிள் \"%s\"ஐ நீக்குவதில் நீங்கள் உறுதியாக இருக்கிறீர்களா? இதனோடு தொடர்புடைய அனைத்து ஸ்டடி பேட் குறிப்புகளும் நீக்கப்படும்.</string>
-  <string name="bookmark_underline_style_arbitrary">பகுதி புக் மார்க்குகளுக்கு அடிக்கோடு வடிவமைப்பு</string>
-  <string name="bookmark_underline_style_whole_verse">முழு வசன புக் மார்க்குகளுக்கு அடிக்கோடு வடிவமைப்பு</string>
   <string name="active_labels">தெரிவு செய்யப்பட்ட லேபில்கள்</string>
   <string name="recent_labels">அண்மைய லேபில்கள்</string>
   <string name="other_labels">பிற லேபில்கள்</string>

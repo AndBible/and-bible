@@ -413,10 +413,6 @@ i GT och NT varje dag.
   <string name="auto_assign_labels1">Tilldela etikett automatiskt till nya bokmärken</string>
   <string name="auto_assign_labels_primary">Tilldela automatiskt som primär</string>
   <!--can be removed-->
-  <string name="marker_style">Visa endast ikon vid markeringsbokmärken</string>
-  <string name="marker_style_whole_verse">Visa endast ikon vid versbokmärken</string>
-  <string name="hide_style">Dölj för markeringsbokmärken</string>
-  <string name="hide_style_whole_verse">Dölj för versbokmärken</string>
   <string name="bookmark_warning">Det finns bokmärken och/eller anteckningar till detta dokument</string>
   <string name="bookmark_warning2">
         Om dokumentets struktur har ändrat kan uppdatering av dokumentet göra att
@@ -944,8 +940,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="favourite_label">Favoritmarkerad etikett</string>
   <string name="edit_label">Redigera etikett</string>
   <string name="delete_label_confirmation">Vill du ta bort bokmärkesetiketten \"%s\"? Även alla tillhörande studieblock kommer att tas bort.</string>
-  <string name="bookmark_underline_style_arbitrary">Stryk under markeringsbokmärken</string>
-  <string name="bookmark_underline_style_whole_verse">Stryk under versbokmärken</string>
   <string name="active_labels">Markerade etiketter</string>
   <string name="recent_labels">Senaste etiketter</string>
   <string name="other_labels">Andra etiketter</string>

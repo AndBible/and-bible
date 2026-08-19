@@ -403,10 +403,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="auto_assign_labels1">Αυτόματη εκχώρηση ετικετών σε νέους σελιδοδείκτες</string>
   <string name="auto_assign_labels_primary">Αυτόματη εκχώρηση ως κύριας</string>
   <!--can be removed-->
-  <string name="marker_style">Δείξε μόνο επιλογέα για σελιδοδείκτες επιλογής</string>
-  <string name="marker_style_whole_verse">Δείξε μόνο επιλογέα για σελιδοδείκτες ολόκληρων στίχων</string>
-  <string name="hide_style">Απόκρυψη για σελιδοδείκτες επιλογής</string>
-  <string name="hide_style_whole_verse">Απόκρυψη για σελιδοδείκτες ολόκληρων στίχων</string>
   <string name="bookmark_warning">Υπάρχουν σελιδοδείκτες ή/και σημειώσεις για το έγγραφο αυτό</string>
   <string name="bookmark_warning2">
 Αν η δομή του εγγράφου έχει αλλάξει, ενημερώνοντας αυτό το έγγραφο θα μπορούσε να
@@ -893,8 +889,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="favourite_label">Αγαπημένη ετικέτα</string>
   <string name="edit_label">Επεξεργασία ετικέτας</string>
   <string name="delete_label_confirmation">Απομάκρυνση ετικέτας σελιδοδείκτη \"%s\"? Τα συνδεδεμένα Μπλοκ Μελέτης θα αφαιρεθούν επίσης.</string>
-  <string name="bookmark_underline_style_arbitrary">Στυλ υπογράμμισης για σελιδοδείκτες επιλογής</string>
-  <string name="bookmark_underline_style_whole_verse">Στυλ υπογράμμισης για σελιδοδείκτες ολόκληρου στίχου</string>
   <string name="active_labels">Επιλεγμένες ετικέτες</string>
   <string name="recent_labels">Πρόσφατες ετικέτες</string>
   <string name="other_labels">Άλλες ετικέτες</string>

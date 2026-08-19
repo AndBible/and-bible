@@ -383,10 +383,6 @@
   <string name="auto_assign_labels1">新しいブックマークにラベルを自動割り当て</string>
   <string name="auto_assign_labels_primary">プライマリとして自動割り当て</string>
   <!--can be removed-->
-  <string name="marker_style">選択範囲ブックマークにマーカーのみ表示</string>
-  <string name="marker_style_whole_verse">節全体ブックマークにマーカーのみ表示</string>
-  <string name="hide_style">選択範囲ブックマークを非表示</string>
-  <string name="hide_style_whole_verse">節全体ブックマークを非表示</string>
   <string name="bookmark_warning">このドキュメントにはブックマークやノートがあります。</string>
   <string name="bookmark_warning2">ドキュメントの構造が変更されている場合、このドキュメントを更新すると ブックマークやノートの位置がドキュメント内で移動したり、完全に消えたりする可能性があります。</string>
   <string name="bookmark_warning3">それでもモジュールを更新しますか？</string>
@@ -804,8 +800,6 @@
   <string name="favourite_label">お気に入りラベル</string>
   <string name="edit_label">ラベルを編集</string>
   <string name="delete_label_confirmation">ブックマークラベル「%s」を削除しますか？関連するすべてのスタディパッドのノートも削除されます。</string>
-  <string name="bookmark_underline_style_arbitrary">選択ブックマークの下線スタイル</string>
-  <string name="bookmark_underline_style_whole_verse">全節ブックマークの下線スタイル</string>
   <string name="active_labels">選択中のラベル</string>
   <string name="recent_labels">最近のラベル</string>
   <string name="other_labels">その他のラベル</string>

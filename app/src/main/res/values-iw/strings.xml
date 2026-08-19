@@ -407,10 +407,6 @@
   <string name="auto_assign_labels1">הוסף את התוית באופן אוטומטי לסימניות חדשות</string>
   <string name="auto_assign_labels_primary">הוסף באופן אוטומטי כראשית</string>
   <!--can be removed-->
-  <string name="marker_style">הצג רק סמן עבור סימניות בחירה</string>
-  <string name="marker_style_whole_verse">הצג רק סמן עבור סימניות פסוק שלם</string>
-  <string name="hide_style">הסתר עבור סימניות בחירה</string>
-  <string name="hide_style_whole_verse">הסתר עבור סימניות פסוק שלם</string>
   <string name="bookmark_warning">ישנן סימניות ו/או הערות עבור מסמך זה.</string>
   <string name="bookmark_warning2">אם מבנה המסמך השתנה, עדכון המסמך עלול לגרום לסימניות/הערות לעבור מיקום בתוך המסמך או להיעלם לחלוטין.</string>
   <string name="bookmark_warning3">האם ברצונך להמשיך ולעדכן את המודול?</string>
@@ -878,8 +874,6 @@
   <string name="favourite_label">תגית מועדפת</string>
   <string name="edit_label">עריכת תגית</string>
   <string name="delete_label_confirmation">האם ברצונך למחוק את התווית \"%s\"? בנוסף, יימחקו כל רשימות פנקסי הלימוד המקושרים אליה.</string>
-  <string name="bookmark_underline_style_arbitrary">סגנון הדגשה לסימניות של קטעים נבחרים</string>
-  <string name="bookmark_underline_style_whole_verse">סגנון הדגשה לסימניות של פסוקים שלמים</string>
   <string name="active_labels">תגיות נבחרות</string>
   <string name="recent_labels">תגיות אחרונות</string>
   <string name="other_labels">תגיות אחרות</string>

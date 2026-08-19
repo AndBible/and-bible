@@ -383,10 +383,6 @@
   <string name="auto_assign_labels1">नयाँ बुकमार्कहरूमा स्वतः-असाइन लेबल</string>
   <string name="auto_assign_labels_primary">मुख्यको रूपमा स्वतः-असाइन</string>
   <!--can be removed-->
-  <string name="marker_style">छनोट बुकमार्कहरूको लागि केवल मार्कर देखाउनुहोस्</string>
-  <string name="marker_style_whole_verse">पूर्ण श्लोक बुकमार्कहरूको लागि केवल मार्कर देखाउनुहोस्</string>
-  <string name="hide_style">छनोट बुकमार्कहरूको लागि लुकाउनुहोस्</string>
-  <string name="hide_style_whole_verse">पूर्ण श्लोक बुकमार्कहरूको लागि लुकाउनुहोस्</string>
   <string name="bookmark_warning">यस कागजातमा बुकमार्क र/वा टिप्पणीहरू छन्।</string>
   <string name="bookmark_warning2">यदि कागजात संरचना परिवर्तन भएको छ भने, यो कागजात अपडेट गर्दा यी बुकमार्क/टिप्पणीहरूको स्थानहरू कागजातभित्र सर्न वा पूर्ण रूपमा हराउन सक्छन्।</string>
   <string name="bookmark_warning3">के तपाईं अझै पनि module अपडेट गर्न चाहनुहुन्छ?</string>
@@ -804,8 +800,6 @@
   <string name="favourite_label">मनपर्ने लेबल</string>
   <string name="edit_label">लेबल सम्पादन गर्नुहोस्</string>
   <string name="delete_label_confirmation">के तपाईं बुकमार्क लेबल \"%s\" हटाउन चाहनुहुन्छ? सम्बन्धित सबै अध्ययन प्याड टिप्पणीहरू पनि हटाइनेछन्।</string>
-  <string name="bookmark_underline_style_arbitrary">छनोट बुकमार्कहरूको लागि रेखांकन शैली</string>
-  <string name="bookmark_underline_style_whole_verse">पूर्ण श्लोक बुकमार्कहरूको लागि रेखांकन शैली</string>
   <string name="active_labels">चयनित लेबलहरू</string>
   <string name="recent_labels">हालका लेबलहरू</string>
   <string name="other_labels">अन्य लेबलहरू</string>

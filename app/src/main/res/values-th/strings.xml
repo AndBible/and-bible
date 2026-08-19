@@ -383,10 +383,6 @@
   <string name="auto_assign_labels1">กำหนดป้ายกำกับอัตโนมัติสำหรับที่คั่นหน้าใหม่</string>
   <string name="auto_assign_labels_primary">กำหนดเป็นหลักอัตโนมัติ</string>
   <!--can be removed-->
-  <string name="marker_style">แสดงเฉพาะเครื่องหมายสำหรับที่คั่นหน้าส่วนที่เลือก</string>
-  <string name="marker_style_whole_verse">แสดงเฉพาะเครื่องหมายสำหรับที่คั่นหน้าข้อพระคัมภีร์ทั้งหมด</string>
-  <string name="hide_style">ซ่อนสำหรับที่คั่นหน้าส่วนที่เลือก</string>
-  <string name="hide_style_whole_verse">ซ่อนสำหรับที่คั่นหน้าข้อพระคัมภีร์ทั้งหมด</string>
   <string name="bookmark_warning">มีที่คั่นหน้าและ/หรือบันทึกสำหรับเอกสารนี้</string>
   <string name="bookmark_warning2">หากโครงสร้างเอกสารมีการเปลี่ยนแปลง การอัปเดตเอกสารนี้อาจทำให้ ตำแหน่งของที่คั่นหน้า/บันทึกเหล่านี้เคลื่อนไปในเอกสาร หรือหายไปโดยสิ้นเชิง</string>
   <string name="bookmark_warning3">คุณยังต้องการอัปเดตโมดูลอยู่หรือไม่?</string>
@@ -804,8 +800,6 @@
   <string name="favourite_label">ป้ายกำกับโปรด</string>
   <string name="edit_label">แก้ไขป้ายกำกับ</string>
   <string name="delete_label_confirmation">ต้องการลบป้ายกำกับที่คั่นหน้า \"%s\" หรือไม่? บันทึกแผ่นบันทึกการศึกษาที่เกี่ยวข้องทั้งหมดจะถูกลบด้วย</string>
-  <string name="bookmark_underline_style_arbitrary">รูปแบบขีดเส้นใต้สำหรับที่คั่นหน้าจากการเลือก</string>
-  <string name="bookmark_underline_style_whole_verse">รูปแบบขีดเส้นใต้สำหรับที่คั่นหน้าทั้งข้อ</string>
   <string name="active_labels">ป้ายกำกับที่เลือก</string>
   <string name="recent_labels">ป้ายกำกับล่าสุด</string>
   <string name="other_labels">ป้ายกำกับอื่น</string>

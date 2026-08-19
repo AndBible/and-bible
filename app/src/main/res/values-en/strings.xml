@@ -167,8 +167,6 @@ Workspaces allow having multiple working environments. Workspace functions can b
 The developers of this app are not responsible for maintaining documents (Bibles, commentaries, books etc).</string>
   <string name="primary_label">Main label</string>
   <string name="delete_label_confirmation">Do you want to remove the bookmark label \"%s\"? ALL associated Study Pad notes will also be removed.</string>
-  <string name="bookmark_underline_style_arbitrary">Use underline style for selection bookmarks</string>
-  <string name="bookmark_underline_style_whole_verse">Use underline style for whole verse bookmarks</string>
   <string name="reset_workspace_labels">Do you want to reset the label auto-assign and favorite settings for this workspace?</string>
   <string name="reset_hide_labels">Do you want to reset the hidden label settings?</string>
   <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->

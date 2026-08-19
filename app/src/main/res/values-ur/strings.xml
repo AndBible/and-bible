@@ -383,10 +383,6 @@
   <string name="auto_assign_labels1">نئے بک مارکس کو خودکار لیبل تفویض کریں</string>
   <string name="auto_assign_labels_primary">بنیادی کے طور پر خودکار تفویض کریں</string>
   <!--can be removed-->
-  <string name="marker_style">انتخاب بک مارکس کے لیے صرف مارکر دکھائیں</string>
-  <string name="marker_style_whole_verse">پوری آیت بک مارکس کے لیے صرف مارکر دکھائیں</string>
-  <string name="hide_style">انتخاب بک مارکس کے لیے چھپائیں</string>
-  <string name="hide_style_whole_verse">پوری آیت بک مارکس کے لیے چھپائیں</string>
   <string name="bookmark_warning">اس دستاویز کے لیے بک مارکس اور/یا نوٹس ہیں۔</string>
   <string name="bookmark_warning2">اگر دستاویز کا ڈھانچہ بدل گیا ہو تو اس دستاویز کو اپ ڈیٹ کرنے سے یہ بک مارکس/نوٹس دستاویز کے اندر ادھر ادھر ہو سکتے ہیں یا مکمل طور پر غائب ہو سکتے ہیں۔</string>
   <string name="bookmark_warning3">کیا آپ پھر بھی ماڈیول اپ ڈیٹ کرنا چاہتے ہیں؟</string>
@@ -804,8 +800,6 @@
   <string name="favourite_label">پسندیدہ لیبل</string>
   <string name="edit_label">لیبل ترمیم کریں</string>
   <string name="delete_label_confirmation">کیا آپ بک مارک لیبل \"%s\" ہٹانا چاہتے ہیں؟ اس سے منسلک تمام مطالعہ پیڈ نوٹس بھی ہٹ جائیں گے۔</string>
-  <string name="bookmark_underline_style_arbitrary">انتخاب بک مارکس کے لیے انڈر لائن انداز</string>
-  <string name="bookmark_underline_style_whole_verse">پوری آیت بک مارکس کے لیے انڈر لائن انداز</string>
   <string name="active_labels">منتخب لیبل</string>
   <string name="recent_labels">حالیہ لیبل</string>
   <string name="other_labels">دیگر لیبل</string>

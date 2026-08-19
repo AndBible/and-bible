@@ -414,10 +414,6 @@
   <string name="auto_assign_labels1">Etiketi yeni yer imlerine otomatik atayın</string>
   <string name="auto_assign_labels_primary">Birincil olarak otomatik ata</string>
   <!--can be removed-->
-  <string name="marker_style">Seçim yer imleri için yalnızca işaretleyiciyi göster</string>
-  <string name="marker_style_whole_verse">Tüm ayet yer imleri için yalnızca işaretleyiciyi göster</string>
-  <string name="hide_style">Seçim yer imleri için gizle</string>
-  <string name="hide_style_whole_verse">Tüm ayet yer imleri için gizle</string>
   <string name="bookmark_warning">Bu belge için yer imleri ve/veya notlar bulunmaktadır.</string>
   <string name="bookmark_warning2">
     Belge yapısı değiştiyse, bu belgenin güncellenmesi bu yer imlerinin/notların konumlarının
@@ -946,8 +942,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="favourite_label">Favori etiket</string>
   <string name="edit_label">Etiketi düzenle</string>
   <string name="delete_label_confirmation">\"%s\" yer imi etiketini kaldırmak istiyor musunuz? Ayrıca ilgili tüm Çalışma Defteri notları kaldırılacaktır. </string>
-  <string name="bookmark_underline_style_arbitrary">Seçim yer imleri için altı çizili stil</string>
-  <string name="bookmark_underline_style_whole_verse">Tüm ayet yer imleri için altı çizili stil</string>
   <string name="active_labels">Seçili etiketler</string>
   <string name="recent_labels">Son etiketler</string>
   <string name="other_labels">Diğer etiketler</string>

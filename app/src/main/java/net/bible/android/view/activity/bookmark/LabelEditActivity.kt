@@ -189,12 +189,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             val name = labelName.text.toString()
             data.label.name = name
         }
-        data.label.underlineStyle = underLineStyle.isChecked
-        data.label.underlineStyleWholeVerse = underLineStyleWholeVerse.isChecked
-        data.label.markerStyle = markerStyle.isChecked
-        data.label.markerStyleWholeVerse = markerStyleWholeVerse.isChecked
-        data.label.hideStyle = hideStyle.isChecked
-        data.label.hideStyleWholeVerse = hideStyleWholeVerse.isChecked
         data.label.favourite = favouriteLabelCheckBox.isChecked
         data.isAutoAssign = autoAssignCheckBox.isChecked
         data.isAutoAssignPrimary = primaryAutoAssignCheckBox.isChecked
@@ -233,22 +227,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             data.label.displayName
         }
         labelName.setText(displayName)
-        underLineStyle.isChecked = data.label.underlineStyle
-        underLineStyleWholeVerse.isChecked = data.label.underlineStyleWholeVerse
-        val isHideStyle = data.label.hideStyle
-        val isHideStyleWholeVerse = data.label.hideStyleWholeVerse
-        val isMarkerStyle = data.label.markerStyle
-        val isMarkerStyleWholeVerse = data.label.markerStyleWholeVerse
-        markerStyle.isChecked = isMarkerStyle
-        markerStyleWholeVerse.isChecked = isMarkerStyleWholeVerse
-
-        hideStyle.isChecked = isHideStyle
-        hideStyleWholeVerse.isChecked = isHideStyleWholeVerse
-
-        underLineStyle.isEnabled = !isHideStyle && !isMarkerStyle
-        underLineStyleWholeVerse.isEnabled = !isHideStyleWholeVerse && !isMarkerStyleWholeVerse
-        markerStyle.isEnabled = !isHideStyle
-        markerStyleWholeVerse.isEnabled = !isHideStyleWholeVerse
 
         updateColor()
         if (data.label.isSpecialLabel) {
@@ -469,11 +447,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
             for(v in listOf(
                 autoAssignCheckBox,
-                markerStyle,
-                markerStyleWholeVerse,
                 selectedLabelCheckBox,
-                hideStyle,
-                hideStyleWholeVerse,
             )) {
                 v.setOnCheckedChangeListener { _, _ ->
                     suppressOverrideSpinnerUpdate = true

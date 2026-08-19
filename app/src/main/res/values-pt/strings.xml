@@ -405,10 +405,6 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="auto_assign_labels1">Auto-atribuir etiqueta a novos marcadores</string>
   <string name="auto_assign_labels_primary">Auto-atribuir como principal</string>
   <!--can be removed-->
-  <string name="marker_style">Mostrar somente marcador para marcadores selecionados</string>
-  <string name="marker_style_whole_verse">Mostrar somente o marcador para versículos inteiros destacados</string>
-  <string name="hide_style">Ocultar para os marcadores selecionados</string>
-  <string name="hide_style_whole_verse">Ocultar para os versículos inteiros marcados</string>
   <string name="bookmark_warning">Há marcadores e/ou notas para este documento</string>
   <string name="bookmark_warning2">
 Se a estrutura do documento tiver sido alterada, a atualização deste documento poderá fazer com que
@@ -894,8 +890,6 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="favourite_label">Etiqueta de favorito</string>
   <string name="edit_label">Editar etiqueta</string>
   <string name="delete_label_confirmation">Deseja remover a etiqueta do marcador * %s\"? Além disso, todas as notas da Área de Estudo associadas serão removidas.</string>
-  <string name="bookmark_underline_style_arbitrary">Estilo de sublinhado para marcadores de seleção</string>
-  <string name="bookmark_underline_style_whole_verse">Estilo de sublinhado para marcadores de versículo inteiro</string>
   <string name="active_labels">Etiquetas seleccionadas</string>
   <string name="recent_labels">Etiquetas recentes</string>
   <string name="other_labels">Outras etiquetas</string>

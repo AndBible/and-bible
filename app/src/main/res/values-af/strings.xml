@@ -411,10 +411,6 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="auto_assign_labels1">Outo-toewys etiket aan nuwe boekmerke</string>
   <string name="auto_assign_labels_primary">Outo-toewys as primêre</string>
   <!--can be removed-->
-  <string name="marker_style">Wys slegs merker vir boekmerke seleksie</string>
-  <string name="marker_style_whole_verse">Wys slegs merker vir hele vers van boekmerke</string>
-  <string name="hide_style">Versteek vir seleksie boekmerke</string>
-  <string name="hide_style_whole_verse">Verstweek vir hele vers boekmerke</string>
   <string name="bookmark_warning">Daar is boekmerke en/of notas vir hierdie dokument.</string>
   <string name="bookmark_warning2">
 As dokument struktuur verander het, kan die opdatering van hierdie dokument maak
@@ -911,8 +907,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="favourite_label">Gunsteling etiket</string>
   <string name="edit_label">Wysig etiket</string>
   <string name="delete_label_confirmation">Wil jy die boekmerk  etiket  verwyder \"%s\"? Ook alle verwante Studiebloknotas sal verwyder word.</string>
-  <string name="bookmark_underline_style_arbitrary">Onderstreep styl vir keurings boekmerke</string>
-  <string name="bookmark_underline_style_whole_verse">Onderstreep styl vir alle vers boekmerke</string>
   <string name="active_labels">Geselekteerde etikette</string>
   <string name="recent_labels">Onlangse etikette</string>
   <string name="other_labels">Ander etikette</string>

@@ -411,10 +411,6 @@ Ni mogoče prepisati datotek: %s. Toda namestitev je bila uspešna.</string>
   <string name="auto_assign_labels1">K novim zaznamkom samodejno dodaj oznako</string>
   <string name="auto_assign_labels_primary">Določi kot osnovnega</string>
   <!--can be removed-->
-  <string name="marker_style">Prikaži samo oznako za izbirne zaznamke </string>
-  <string name="marker_style_whole_verse">Prikaži samo oznako za zaznamke celotnega verza</string>
-  <string name="hide_style">Skrijte zaznamke za izbiro</string>
-  <string name="hide_style_whole_verse">Skrijte zaznamke celotne vrstice</string>
   <string name="bookmark_warning">Ta dokument vsebuje zaznamke in/ali opombe.</string>
   <string name="bookmark_warning2">
 Če se je struktura dokumenta spremenila, lahko posodobitev tega dokumenta
@@ -925,8 +921,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="favourite_label">Priljubljena oznaka</string>
   <string name="edit_label">Uredi oznako</string>
   <string name="delete_label_confirmation">Ali želite odstraniti oznako zaznamka \"%s\"? Odstranjene bodo tudi vse povezane opombe!</string>
-  <string name="bookmark_underline_style_arbitrary">Podčrtan stil za izbrane zaznamke</string>
-  <string name="bookmark_underline_style_whole_verse">Podčrtan stil za celotno vrstico zaznamkov</string>
   <string name="active_labels">Izbrane oznake</string>
   <string name="recent_labels">Prejšnje oznake</string>
   <string name="other_labels">Ostale oznake</string>

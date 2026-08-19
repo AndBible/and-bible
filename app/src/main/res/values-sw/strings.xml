@@ -394,10 +394,6 @@ Ficha alamisho zilizowekwa alama na lebo maalum</string>
   <string name="auto_assign_labels1">Gawanya lebo kiotomatiki kwa alamisho mpya</string>
   <string name="auto_assign_labels_primary">Gawanya kiotomatiki kama ya msingi</string>
   <!--can be removed-->
-  <string name="marker_style">Onyesha alama tu kwa alamisho za uteuzi</string>
-  <string name="marker_style_whole_verse">Onyesha alama tu kwa alamisho za mstari wote</string>
-  <string name="hide_style">Ficha kwa alamisho za uteuzi</string>
-  <string name="hide_style_whole_verse">Ficha kwa alamisho za mstari wote</string>
   <string name="bookmark_warning">Kuna alamisho na/au maelezo kwa hati hii.</string>
   <string name="bookmark_warning2">
 Ikiwa muundo wa hati umebadilika, kusasisha hati hii kunaweza kufanya maeneo ya alamisho/maelezo hizi yahamie ndani ya hati au kutoweka kabisa.</string>
@@ -853,8 +849,6 @@ tafadhali ripoti matatizo kwa wadumishaji wa maandishi</string>
   <string name="favourite_label">Lebo ya kipendwa</string>
   <string name="edit_label">Hariri lebo</string>
   <string name="delete_label_confirmation">Je, unataka kuondoa lebo ya alamisho \"%s\"? Pia maelezo yote ya Daftari la Masomo yanayohusiana yataondolewa.</string>
-  <string name="bookmark_underline_style_arbitrary">Mtindo wa mstari kwa alamisho za uteuzi</string>
-  <string name="bookmark_underline_style_whole_verse">Mtindo wa mstari kwa alamisho za mstari wote</string>
   <string name="active_labels">Lebo zilizochaguliwa</string>
   <string name="recent_labels">Lebo za hivi karibuni</string>
   <string name="other_labels">Lebo nyingine</string>
