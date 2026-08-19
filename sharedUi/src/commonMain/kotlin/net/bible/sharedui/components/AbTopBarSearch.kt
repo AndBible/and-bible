@@ -56,6 +56,11 @@ data class AbTopBarSearchState(
  * search mode before it leaves the screen" is responsible for routing hardware back to [onClose]
  * on its own (e.g. an `onBackPressed`/`OnBackPressedCallback` override that checks search-mode
  * state first).
+ *
+ * The bar renders caller-supplied `searchActions` to the left of its own Clear button. That does
+ * not widen its responsibilities: it still owns no query, clears nothing, and cannot intercept
+ * hardware back. A caller whose search has a second dimension — a mode, a scope, a filter — puts
+ * that control there rather than leaving it stranded in the content below an empty row.
  */
 class AbTopBarSearchCallbacks(
     val onQueryChange: (String) -> Unit,

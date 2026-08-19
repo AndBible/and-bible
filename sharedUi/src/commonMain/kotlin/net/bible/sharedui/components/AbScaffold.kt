@@ -117,8 +117,10 @@ fun AbTopBarTitle(text: String) {
  * goldens are unaffected by construction — the same contract ReadingToolbar documents at :219-223
  * for its own search parameters. When both are non-null, search mode REPLACES the whole bar
  * ([AbSearchTopAppBar]) rather than augmenting it: [title], [onNavigateUp] and [actions] are all
- * ignored in that case, not just visually superseded. A caller that also wants to suppress them
- * itself while search is active is being redundant with this contract, not disagreeing with it.
+ * ignored in that case, not just visually superseded — [searchActions] is the one slot the search
+ * branch does render, and it is separate from [actions] precisely so the two cannot be confused.
+ * A caller that also wants to suppress them itself while search is active is being redundant with
+ * this contract, not disagreeing with it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,6 +130,7 @@ fun AbTopAppBar(
     actions: @Composable RowScope.() -> Unit = {},
     search: AbTopBarSearchState? = null,
     searchCallbacks: AbTopBarSearchCallbacks? = null,
+    searchActions: @Composable RowScope.() -> Unit = {},
 ) {
     // A/B batch 3 F1: every non-reading Compose screen draws this bar in the M3 small-top-app-bar
     // container colour but does NOT paint behind the system bars (the Activity content frame is
@@ -138,7 +141,7 @@ fun AbTopAppBar(
     SyncSystemBars(container = container, fillWindowBackground = true)
 
     if (search != null && searchCallbacks != null) {
-        AbSearchTopAppBar(search, searchCallbacks)
+        AbSearchTopAppBar(search, searchCallbacks, searchActions)
         return
     }
 
@@ -188,6 +191,7 @@ fun AbTopAppBar(
 private fun AbSearchTopAppBar(
     search: AbTopBarSearchState,
     callbacks: AbTopBarSearchCallbacks,
+    searchActions: @Composable RowScope.() -> Unit = {},
 ) {
     val s = LocalStrings.current
     val focusRequester = remember { FocusRequester() }
@@ -269,6 +273,9 @@ private fun AbSearchTopAppBar(
                 }
             },
             actions = {
+                // Caller-supplied actions first, so the built-in Clear stays the edge-most action
+                // whether or not the caller contributes any (Round 9a Plan A Task 1).
+                searchActions()
                 if (search.query.isNotEmpty()) {
                     AbActionIcon(Icons.Filled.Clear, s.searchClear) { callbacks.onQueryChange("") }
                 }
@@ -304,6 +311,7 @@ fun AbScaffold(
     bottomBar: @Composable () -> Unit = {},
     search: AbTopBarSearchState? = null,
     searchCallbacks: AbTopBarSearchCallbacks? = null,
+    searchActions: @Composable RowScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -314,6 +322,7 @@ fun AbScaffold(
                 actions = actions,
                 search = search,
                 searchCallbacks = searchCallbacks,
+                searchActions = searchActions,
             )
         },
         // A bottom bar here is Scaffold-managed on purpose: it reserves space in the content

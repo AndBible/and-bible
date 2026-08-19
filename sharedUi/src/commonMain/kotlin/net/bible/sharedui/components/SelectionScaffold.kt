@@ -59,6 +59,7 @@ fun AbSelectionScaffold(
     selectionActions: @Composable RowScope.() -> Unit = {},
     search: AbTopBarSearchState? = null,
     searchCallbacks: AbTopBarSearchCallbacks? = null,
+    searchActions: @Composable RowScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -93,6 +94,7 @@ fun AbSelectionScaffold(
                     actions = actions,
                     search = search,
                     searchCallbacks = searchCallbacks,
+                    searchActions = searchActions,
                 )
             }
         },
