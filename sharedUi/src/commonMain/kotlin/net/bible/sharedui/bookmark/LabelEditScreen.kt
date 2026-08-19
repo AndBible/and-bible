@@ -42,11 +42,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelEditState
 import net.bible.sharedcore.bookmark.OverrideMode
+import net.bible.sharedui.components.AbChoiceGroup
 import net.bible.sharedui.components.AbColor
 import net.bible.sharedui.components.AbColorPickerDialog
-import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.strings.LocalStrings
@@ -70,12 +71,8 @@ fun LabelEditScreen(
     onName: (String) -> Unit,
     onColor: (Int) -> Unit,
     onEditIcon: () -> Unit,
-    onToggleUnderline: () -> Unit,
-    onToggleUnderlineWholeVerse: () -> Unit,
-    onToggleMarker: () -> Unit,
-    onToggleMarkerWholeVerse: () -> Unit,
-    onToggleHide: () -> Unit,
-    onToggleHideWholeVerse: () -> Unit,
+    onSelectionStyle: (BookmarkDisplayStyle) -> Unit,
+    onWholeVerseStyle: (BookmarkDisplayStyle) -> Unit,
     onToggleFavourite: () -> Unit,
     onToggleSelected: () -> Unit,
     onTogglePrimary: () -> Unit,
@@ -124,12 +121,37 @@ fun LabelEditScreen(
                 }
             }
 
-            AbSwitchRow(strings.underlineStyleLabel, state.underline, { onToggleUnderline() }, enabled = state.underlineEnabled)
-            AbSwitchRow(strings.underlineStyleWholeVerseLabel, state.underlineWholeVerse, { onToggleUnderlineWholeVerse() }, enabled = state.underlineWholeVerseEnabled)
-            AbSwitchRow(strings.markerStyleLabel, state.marker, { onToggleMarker() }, enabled = state.markerEnabled)
-            AbSwitchRow(strings.markerStyleWholeVerseLabel, state.markerWholeVerse, { onToggleMarkerWholeVerse() }, enabled = state.markerWholeVerseEnabled)
-            AbSwitchRow(strings.hideStyleLabel, state.hide, { onToggleHide() })
-            AbSwitchRow(strings.hideStyleWholeVerseLabel, state.hideWholeVerse, { onToggleHideWholeVerse() })
+            SectionTitle(strings.bookmarkStyleSectionTitle)
+            AbChoiceGroup(
+                heading = strings.bookmarkStyleSelectionHeading,
+                options = BookmarkDisplayStyle.entries,
+                selected = state.selectionStyle,
+                optionLabel = { it.label(strings) },
+                onSelect = onSelectionStyle,
+                preview = {
+                    BookmarkStylePreview(
+                        style = state.selectionStyle,
+                        colorArgb = state.color,
+                        sampleText = strings.bookmarkStylePreviewSample,
+                        iconSlot = { iconSlot(state.customIcon) },
+                    )
+                },
+            )
+            AbChoiceGroup(
+                heading = strings.bookmarkStyleWholeVerseHeading,
+                options = BookmarkDisplayStyle.entries,
+                selected = state.wholeVerseStyle,
+                optionLabel = { it.label(strings) },
+                onSelect = onWholeVerseStyle,
+                preview = {
+                    BookmarkStylePreview(
+                        style = state.wholeVerseStyle,
+                        colorArgb = state.color,
+                        sampleText = strings.bookmarkStylePreviewSample,
+                        iconSlot = { iconSlot(state.customIcon) },
+                    )
+                },
+            )
 
             if (state.favouriteVisible) {
                 AbSwitchRow(strings.favouriteLabelSwitchLabel, state.favourite, { onToggleFavourite() })
@@ -146,10 +168,10 @@ fun LabelEditScreen(
                 AbSwitchRow(strings.autoAssignLabelSwitchLabel, state.autoAssign, { onToggleAutoAssign() })
                 AbSwitchRow(strings.autoAssignPrimaryLabelSwitchLabel, state.autoAssignPrimary, { onToggleAutoAssignPrimary() }, enabled = state.autoAssignPrimaryEnabled)
 
-                AbDropdownField(
-                    label = strings.overrideStyleFieldLabel,
-                    selected = state.overrideMode,
+                AbChoiceGroup(
+                    heading = strings.overrideStyleFieldLabel,
                     options = OverrideMode.entries,
+                    selected = state.overrideMode,
                     optionLabel = { it.label(strings) },
                     onSelect = onOverrideMode,
                 )
@@ -193,4 +215,13 @@ private fun OverrideMode.label(strings: Strings): String = when (this) {
     OverrideMode.UNDERLINE -> strings.displayModeUnderline
     OverrideMode.MARKER -> strings.displayModeMarker
     OverrideMode.HIDDEN -> strings.displayModeHidden
+}
+
+/** The four styles reuse the workspace display-mode strings verbatim, so the label's own style and
+ *  the workspace override that can replace it speak with one vocabulary. */
+private fun BookmarkDisplayStyle.label(strings: Strings): String = when (this) {
+    BookmarkDisplayStyle.HIGHLIGHT -> strings.displayModeHighlight
+    BookmarkDisplayStyle.UNDERLINE -> strings.displayModeUnderline
+    BookmarkDisplayStyle.MARKER -> strings.displayModeMarker
+    BookmarkDisplayStyle.HIDDEN -> strings.displayModeHidden
 }

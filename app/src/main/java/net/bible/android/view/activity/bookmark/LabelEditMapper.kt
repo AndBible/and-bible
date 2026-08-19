@@ -21,6 +21,8 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.displayName
 import net.bible.sharedcore.bookmark.LabelEditState
 import net.bible.sharedcore.bookmark.OverrideMode
+import net.bible.sharedcore.bookmark.bookmarkDisplayStyleOf
+import net.bible.sharedcore.bookmark.bookmarkStyleFlagsOf
 
 /**
  * Pure `LabelData` ↔ `LabelEditState` mapper. This is the one place Room types
@@ -43,12 +45,14 @@ object LabelEditMapper {
             name = name,
             color = label.color,
             customIcon = label.customIcon,
-            underline = label.underlineStyle,
-            underlineWholeVerse = label.underlineStyleWholeVerse,
-            marker = label.markerStyle,
-            markerWholeVerse = label.markerStyleWholeVerse,
-            hide = label.hideStyle,
-            hideWholeVerse = label.hideStyleWholeVerse,
+            selectionStyle = bookmarkDisplayStyleOf(
+                hide = label.hideStyle, marker = label.markerStyle, underline = label.underlineStyle,
+            ),
+            wholeVerseStyle = bookmarkDisplayStyleOf(
+                hide = label.hideStyleWholeVerse,
+                marker = label.markerStyleWholeVerse,
+                underline = label.underlineStyleWholeVerse,
+            ),
             favourite = label.favourite,
             isAssigning = data.isAssigning,
             thisBookmarkSelected = data.isThisBookmarkSelected,
@@ -75,12 +79,16 @@ object LabelEditMapper {
         }
         label.color = state.color
         label.customIcon = state.customIcon
-        label.underlineStyle = state.underline
-        label.underlineStyleWholeVerse = state.underlineWholeVerse
-        label.markerStyle = state.marker
-        label.markerStyleWholeVerse = state.markerWholeVerse
-        label.hideStyle = state.hide
-        label.hideStyleWholeVerse = state.hideWholeVerse
+        // Canonical expansion: exactly one flag per axis. This is also what clears any legacy
+        // row's dominated-but-set flag (classic greyed those out without clearing them).
+        val selection = bookmarkStyleFlagsOf(state.selectionStyle)
+        label.hideStyle = selection.hide
+        label.markerStyle = selection.marker
+        label.underlineStyle = selection.underline
+        val wholeVerse = bookmarkStyleFlagsOf(state.wholeVerseStyle)
+        label.hideStyleWholeVerse = wholeVerse.hide
+        label.markerStyleWholeVerse = wholeVerse.marker
+        label.underlineStyleWholeVerse = wholeVerse.underline
         label.favourite = state.favourite
 
         data.isAutoAssign = state.autoAssign

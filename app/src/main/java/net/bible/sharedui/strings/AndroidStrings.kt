@@ -597,4 +597,7 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Round 9a Plan B — label style picker
     override val bookmarkStylePreviewSample: String get() = context.getString(R.string.bookmark_style_preview_sample)
+    override val bookmarkStyleSectionTitle: String get() = context.getString(R.string.bookmark_style)
+    override val bookmarkStyleSelectionHeading: String get() = context.getString(R.string.bookmark_style_selection)
+    override val bookmarkStyleWholeVerseHeading: String get() = context.getString(R.string.bookmark_style_whole_verse)
 }

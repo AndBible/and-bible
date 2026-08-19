@@ -35,12 +35,8 @@ class LabelEditController(
     fun setColor(argb: Int) { _state.value = _state.value.copy(color = argb) }
     fun setCustomIcon(name: String?) { _state.value = _state.value.copy(customIcon = name) }
 
-    fun toggleUnderline() = with(_state.value) { if (underlineEnabled) _state.value = copy(underline = !underline) }
-    fun toggleUnderlineWholeVerse() = with(_state.value) { if (underlineWholeVerseEnabled) _state.value = copy(underlineWholeVerse = !underlineWholeVerse) }
-    fun toggleMarker() = with(_state.value) { if (markerEnabled) _state.value = copy(marker = !marker) }
-    fun toggleMarkerWholeVerse() = with(_state.value) { if (markerWholeVerseEnabled) _state.value = copy(markerWholeVerse = !markerWholeVerse) }
-    fun toggleHide() { _state.value = _state.value.copy(hide = !_state.value.hide) }
-    fun toggleHideWholeVerse() { _state.value = _state.value.copy(hideWholeVerse = !_state.value.hideWholeVerse) }
+    fun setSelectionStyle(style: BookmarkDisplayStyle) { _state.value = _state.value.copy(selectionStyle = style) }
+    fun setWholeVerseStyle(style: BookmarkDisplayStyle) { _state.value = _state.value.copy(wholeVerseStyle = style) }
     fun toggleFavourite() { _state.value = _state.value.copy(favourite = !_state.value.favourite) }
 
     fun toggleThisBookmarkSelected() {

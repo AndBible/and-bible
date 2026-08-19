@@ -22,9 +22,12 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.OverrideMode
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -121,5 +124,35 @@ class LabelEditMapperTest {
         val result = LabelEditMapper.applyToData(data, updated)
 
         assertNull(result.workspaceOverride?.overrideMode)
+    }
+
+    @Test
+    fun `each style expands to exactly one column per axis`() {
+        for (style in BookmarkDisplayStyle.entries) {
+            val data = buildData()   // the file's fixture builder at `:37`
+            val state = LabelEditMapper.toState(data).copy(selectionStyle = style, wholeVerseStyle = style)
+            val out = LabelEditMapper.applyToData(data, state).label
+            val set = listOf(out.hideStyle, out.markerStyle, out.underlineStyle).count { it }
+            val setWv = listOf(out.hideStyleWholeVerse, out.markerStyleWholeVerse, out.underlineStyleWholeVerse).count { it }
+            val expected = if (style == BookmarkDisplayStyle.HIGHLIGHT) 0 else 1
+            assertEquals("selection axis for $style", expected, set)
+            assertEquals("whole-verse axis for $style", expected, setWv)
+        }
+    }
+
+    @Test
+    fun `a legacy row with a dominated flag reads as hidden and normalises on write`() {
+        val data = buildData().also {
+            it.label.hideStyle = true
+            it.label.underlineStyle = true      // dominated: classic greyed it out but kept it
+            it.label.markerStyle = true         // dominated too
+        }
+        val state = LabelEditMapper.toState(data)
+        assertEquals(BookmarkDisplayStyle.HIDDEN, state.selectionStyle)
+
+        val out = LabelEditMapper.applyToData(data, state).label
+        assertTrue(out.hideStyle)
+        assertFalse(out.underlineStyle)
+        assertFalse(out.markerStyle)
     }
 }

@@ -11,8 +11,8 @@ import kotlin.test.assertIs
 class LabelEditControllerTest {
     private fun state() = LabelEditState(
         labelId = "L1", name = "Study", color = 1, customIcon = null,
-        underline = false, underlineWholeVerse = false, marker = false, markerWholeVerse = false,
-        hide = false, hideWholeVerse = false, favourite = false, isAssigning = true,
+        selectionStyle = BookmarkDisplayStyle.HIGHLIGHT, wholeVerseStyle = BookmarkDisplayStyle.UNDERLINE,
+        favourite = false, isAssigning = true,
         thisBookmarkSelected = false, thisBookmarkPrimary = true, hasWorkspaceContext = false,
         autoAssign = false, autoAssignPrimary = true, overrideMode = OverrideMode.NONE,
         isSpecialLabel = false, isSpeakLabel = false,
@@ -20,12 +20,6 @@ class LabelEditControllerTest {
     private fun controller(s: LabelEditState = state(), orphans: Int = 0, onFinish: (LabelEditResult) -> Unit = {}) =
         LabelEditController(s, object : LabelEditService { override fun orphanedBookmarkCount(labelId: String) = orphans },
             CoroutineScope(Dispatchers.Unconfined), onFinish)
-
-    @Test fun disabled_marker_toggle_is_noop() {
-        val c = controller(state().copy(hide = true)) // marker disabled
-        c.toggleMarker()
-        assertFalse(c.state.value.marker)
-    }
 
     @Test fun clearing_selection_clears_primary() {
         val c = controller(state().copy(thisBookmarkSelected = true, thisBookmarkPrimary = true))
@@ -54,5 +48,26 @@ class LabelEditControllerTest {
         c.save(); assertIs<LabelEditResult.Save>(result)
         c.confirmDelete(deleteOrphaned = true)
         val d = result; assertIs<LabelEditResult.Delete>(d); assertTrue(d.deleteOrphaned)
+    }
+
+    @Test
+    fun `setting one axis leaves the other alone`() {
+        val start = state()
+        val c = controller(start)
+        c.setSelectionStyle(BookmarkDisplayStyle.HIDDEN)
+        assertEquals(BookmarkDisplayStyle.HIDDEN, c.state.value.selectionStyle)
+        assertEquals(start.wholeVerseStyle, c.state.value.wholeVerseStyle)
+    }
+
+    @Test
+    fun `changing a style makes the editor dirty`() {
+        val start = state()
+        val c = controller(start)
+        assertFalse(c.isDirty())
+        // Must differ from `start.selectionStyle`, or this asserts nothing. The file's `state()`
+        // builder at `:12` decides that value — set the builder's selectionStyle to HIGHLIGHT and
+        // pass MARKER here.
+        c.setSelectionStyle(BookmarkDisplayStyle.MARKER)
+        assertTrue(c.isDirty())
     }
 }

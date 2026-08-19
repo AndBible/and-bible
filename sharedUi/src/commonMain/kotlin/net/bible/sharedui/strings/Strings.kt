@@ -653,6 +653,9 @@ interface Strings {
 
     // Round 9a Plan B — label style picker
     val bookmarkStylePreviewSample: String           // R.string.bookmark_style_preview_sample
+    val bookmarkStyleSectionTitle: String            // R.string.bookmark_style (EXISTS already)
+    val bookmarkStyleSelectionHeading: String        // R.string.bookmark_style_selection
+    val bookmarkStyleWholeVerseHeading: String       // R.string.bookmark_style_whole_verse
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
