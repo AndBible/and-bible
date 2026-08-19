@@ -2,6 +2,7 @@ package net.bible.android.view.compose.golden
 
 import androidx.compose.foundation.layout.Column
 import net.bible.android.TEST_SDK
+import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedui.reading.QuickDocMenuRows
 import org.junit.Test
@@ -26,11 +27,15 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class QuickDocMenuGoldenTest {
 
-    /** A few translations, sorted, with the current document (KJV) disabled - classic parity. */
+    /**
+     * A Bible, a commentary and a dictionary - exactly the mixture the Commentary button produces
+     * (classic parity: `commentariesForVerse + getBooks(GENERAL_BOOK) + getBooks(DICTIONARY)`), with
+     * the commentary disabled to also cover the dimmed-icon state.
+     */
     private val items = listOf(
-        QuickDocMenuItem(id = "ESV", label = "English Standard Version", enabled = true),
-        QuickDocMenuItem(id = "KJV", label = "King James Version", enabled = false),
-        QuickDocMenuItem(id = "NIV", label = "New International Version", enabled = true),
+        QuickDocMenuItem(id = "ESV", label = "English Standard Version", enabled = true, category = DocCategory.BIBLE),
+        QuickDocMenuItem(id = "MHC", label = "Matthew Henry's Commentary", enabled = false, category = DocCategory.COMMENTARY),
+        QuickDocMenuItem(id = "EAST", label = "Easton's Bible Dictionary", enabled = true, category = DocCategory.DICTIONARY),
     )
 
     @Test fun items_matrix() =

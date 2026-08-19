@@ -37,17 +37,17 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Label
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.CheckBox
-import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Headphones
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -65,6 +65,7 @@ import net.bible.sharedcore.bookmark.BookmarkFilterLabel
 import net.bible.sharedcore.bookmark.BookmarkRow
 import net.bible.sharedcore.bookmark.BookmarkSortMode
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbColor
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbOverflowMenu
@@ -174,23 +175,22 @@ fun BookmarksScreen(
                 onClick = onCycleSort,
             )
             AbOverflowMenu(contentDescription = null) { close ->
-                DropdownMenuItem(
-                    text = { Text(strings.showNotesLabel) },
-                    leadingIcon = {
-                        Icon(
-                            if (showNotes) Icons.Filled.CheckBox else Icons.Filled.CheckBoxOutlineBlank,
-                            contentDescription = null,
-                        )
-                    },
+                AbMenuItem(
+                    text = strings.showNotesLabel,
                     onClick = { close(); onToggleShowNotes() },
+                    icon = { Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null) },
+                    checkable = true,
+                    checked = showNotes,
                 )
-                DropdownMenuItem(
-                    text = { Text(strings.exportSomething("CSV")) },
+                AbMenuItem(
+                    text = strings.exportSomething("CSV"),
                     onClick = { close(); onExportCsv() },
+                    icon = { Icon(Icons.Filled.Save, contentDescription = null) },
                 )
-                DropdownMenuItem(
-                    text = { Text(strings.importItems("CSV")) },
+                AbMenuItem(
+                    text = strings.importItems("CSV"),
                     onClick = { close(); onImportCsv() },
+                    icon = { Icon(Icons.Filled.FileDownload, contentDescription = null) },
                 )
             }
         },

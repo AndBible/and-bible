@@ -22,16 +22,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -59,7 +53,6 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.SwordDocumentFacade
-import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocTypeFilter
@@ -67,6 +60,9 @@ import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedui.AbAppTheme
+import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.AbOverflowMenu
+import net.bible.sharedui.docCategoryOf
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.strings.LocalStrings
 import org.crosswire.jsword.book.Book
@@ -263,7 +259,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
             language = langByKey[key]
                 ?: LangOption(language.code ?: "", language.name, key),
             repository = getProperty(DownloadManager.REPOSITORY_KEY) ?: "",
-            category = bookCategory.toDocCategory(),
+            category = docCategoryOf(bookCategory),
             installStatus = status.documentInstallStatus.toDocInstallStatus(),
             percentDone = status.percentDone,
             recommended = false,
@@ -391,23 +387,21 @@ class ChooseDocumentComposeActivity : ActivityBase() {
 
     @androidx.compose.runtime.Composable
     private fun OverflowMenu() {
-        var expanded by remember { mutableStateOf(false) }
-        // Material icons aren't on the app module classpath; a glyph keeps the host dependency-free.
-        IconButton(onClick = { expanded = true }) {
-            Text("⋮", fontSize = 24.sp) // vertical ellipsis (overflow); sized to match the 28dp shared top-bar icons
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(
-                text = { Text(getString(R.string.download)) },
-                onClick = { expanded = false; onDownload() },
+        AbOverflowMenu(contentDescription = null) { close ->
+            AbMenuItem(
+                text = getString(R.string.download),
+                onClick = { close(); onDownload() },
+                icon = { Icon(painterResource(R.drawable.ic_file_download_24dp), contentDescription = null) },
             )
-            DropdownMenuItem(
-                text = { Text(getString(R.string.backup_modules2)) },
-                onClick = { expanded = false; onBackup() },
+            AbMenuItem(
+                text = getString(R.string.backup_modules2),
+                onClick = { close(); onBackup() },
+                icon = { Icon(painterResource(R.drawable.ic_backup_black_24dp), contentDescription = null) },
             )
-            DropdownMenuItem(
-                text = { Text(getString(R.string.install_zip)) },
-                onClick = { expanded = false; onInstallZip() },
+            AbMenuItem(
+                text = getString(R.string.install_zip),
+                onClick = { close(); onInstallZip() },
+                icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
             )
         }
     }
@@ -461,16 +455,6 @@ class ChooseDocumentComposeActivity : ActivityBase() {
         DocTypeFilter.MAPS to strings.docTypeMaps,
         DocTypeFilter.ADDON to strings.docTypeAddon,
     )
-
-    private fun BookCategory.toDocCategory(): DocCategory = when (this) {
-        BookCategory.BIBLE -> DocCategory.BIBLE
-        BookCategory.COMMENTARY -> DocCategory.COMMENTARY
-        BookCategory.DICTIONARY -> DocCategory.DICTIONARY
-        BookCategory.GENERAL_BOOK -> DocCategory.GENERAL_BOOK
-        BookCategory.MAPS -> DocCategory.MAPS
-        BookCategory.AND_BIBLE -> DocCategory.AND_BIBLE
-        else -> DocCategory.OTHER
-    }
 
     private fun DocumentInstallStatus.toDocInstallStatus(): DocInstallStatus = when (this) {
         DocumentInstallStatus.INSTALLED -> DocInstallStatus.INSTALLED

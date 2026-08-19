@@ -66,6 +66,7 @@ class WindowStateServiceImpl : WindowStateService {
             maximizedWindowId = repo.maximizedWindowId?.toString(),
             reverseSplitMode = settings.enableReverseSplitMode,
             restoreButtonsVisible = settings.restoreButtonsVisible,
+            autoPin = settings.autoPin,
         )
     }
 

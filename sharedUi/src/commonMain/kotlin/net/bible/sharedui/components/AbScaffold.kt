@@ -24,9 +24,11 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
@@ -57,8 +59,55 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.SyncSystemBars
+
+/**
+ * The floor the title is allowed to shrink to. Above this it autosizes; below it, it ellipsises.
+ *
+ * Chosen so an ORDINARY title still renders at full `titleLarge` and therefore does not move a
+ * single golden: the previous attempt at this problem set `maxLines = 1` with an ellipsis on this
+ * same seam and was reverted (`d2e8ecd71`) precisely because it truncated titles that were merely
+ * normal-length on the 320dp golden canvas ("Default tool settings" → "Default tool se…").
+ */
+private val AbTopBarTitleMinFontSize = 15.sp
+
+/**
+ * The shared screen title for [AbTopAppBar]'s `title` slot.
+ *
+ * Material3's `TopAppBar` GROWS with its title slot, and a bare `Text` wraps without bound — so a
+ * long screen title inflated the whole bar (reported as F15 and again in the F45–F50 round). Here
+ * the title shrinks to fit instead: up to two lines, autosized down to
+ * [AbTopBarTitleMinFontSize], then ellipsised. Classic's ActionBar truncated to one line, which is
+ * strictly less readable for a title that is only slightly too long.
+ *
+ * Uses `BasicText` because that is what carries `autoSize` — and `BasicText` takes its colour from
+ * its `style`, NOT from `LocalContentColor`, so the colour must be copied in explicitly. Omitting
+ * that renders the title in the default (unset) colour, which looks exactly like the top-bar colour
+ * work in F48 having no effect.
+ */
+@Composable
+fun AbTopBarTitle(text: String) {
+    // Reads MaterialTheme.typography.titleLarge directly rather than LocalTextStyle.current (the
+    // style M3's TopAppBar actually provides into its title slot, from its own titleTextStyle
+    // parameter). Equal today — nothing in this repo overrides titleTextStyle — but a future
+    // TopAppBar call site that does would have its override silently ignored here, since the
+    // autosizer would keep solving against titleLarge instead of what the bar is actually drawing.
+    val style = MaterialTheme.typography.titleLarge
+    BasicText(
+        text = text,
+        style = style.copy(color = LocalContentColor.current),
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+        autoSize = TextAutoSize.StepBased(
+            minFontSize = AbTopBarTitleMinFontSize,
+            maxFontSize = style.fontSize,
+            stepSize = 0.5.sp,
+        ),
+    )
+}
 
 /**
  * Reusable Material3 top app bar: a title slot, optional up-navigation, and trailing actions.
@@ -107,6 +156,16 @@ fun AbTopAppBar(
             }
         },
         actions = actions,
+        // The M3 default gives the title `onSurface` but the action and navigation icons
+        // `onSurfaceVariant`, so one bar drew its own contents in two colours. The search branch
+        // already overrides this deliberately (see AbSearchTopAppBar); this is the same fix for the
+        // normal branch. The CONTAINER colour is left at the M3 default, which `container` above
+        // already reads for SyncSystemBars.
+        colors = TopAppBarDefaults.topAppBarColors(
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+        ),
         // F2: the Compose hosts run inside an AppCompatActivity (ActivityBase) whose content
         // frame already insets for the status bar (like the classic View screens). The M3
         // default here would add the status-bar inset a SECOND time → the bar sat one bar-
@@ -250,7 +309,7 @@ fun AbScaffold(
     Scaffold(
         topBar = {
             AbTopAppBar(
-                title = { Text(title) },
+                title = { AbTopBarTitle(title) },
                 onNavigateUp = onNavigateUp,
                 actions = actions,
                 search = search,

@@ -28,20 +28,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -84,7 +79,6 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.RepoFactory
 import net.bible.service.download.isPseudoBook
-import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocTypeFilter
@@ -92,6 +86,9 @@ import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedui.AbAppTheme
+import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.AbOverflowMenu
+import net.bible.sharedui.docCategoryOf
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
@@ -517,7 +514,7 @@ open class DownloadComposeActivity : ActivityBase() {
             name = name,
             language = langByKey[key] ?: LangOption(language.code ?: "", language.name, key),
             repository = getProperty(DownloadManager.REPOSITORY_KEY) ?: "",
-            category = bookCategory.toDocCategory(),
+            category = docCategoryOf(bookCategory),
             installStatus = status.documentInstallStatus.toDocInstallStatus(),
             percentDone = status.percentDone,
             recommended = isRecommended(recommendedDocuments),
@@ -820,31 +817,36 @@ open class DownloadComposeActivity : ActivityBase() {
 
     @Composable
     private fun OverflowMenu() {
-        var expanded by remember { mutableStateOf(false) }
-        IconButton(onClick = { expanded = true }) {
-            Text("⋮", fontSize = 24.sp) // vertical ellipsis (Material icons aren't on the app-module classpath); sized to match the 28dp shared top-bar icons
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        AbOverflowMenu(contentDescription = null) { close ->
             if (hasErrors) {
-                DropdownMenuItem(
-                    text = { Text(getString(R.string.download_errors)) },
-                    onClick = { expanded = false; showErrors() },
+                AbMenuItem(
+                    text = getString(R.string.download_errors),
+                    onClick = { close(); showErrors() },
+                    icon = { Icon(painterResource(R.drawable.ic_error_outline_black_24dp), contentDescription = null) },
                 )
             }
             if (!firstDownload) { // classic FirstDownload hides installZip
-                DropdownMenuItem(
-                    text = { Text(getString(R.string.install_zip)) },
-                    onClick = { expanded = false; onInstallZip() },
+                AbMenuItem(
+                    text = getString(R.string.install_zip),
+                    onClick = { close(); onInstallZip() },
+                    icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
                 )
             }
-            DropdownMenuItem(
-                text = { Text(getString(R.string.custom_repositories)) },
-                onClick = { expanded = false; onCustomRepositories() },
+            // Same drawable as "Install zip" above — deliberate classic parity, not a copy-paste
+            // artefact: classic's own `download_documents.xml` reuses ic_unarchive_white_24dp for
+            // both rows too. Contrast ManageLabelsComposeActivity.kt's undo-glyph rows, where the
+            // identical classic reuse WAS judged a mistake and given distinct icons instead — the
+            // two cases were decided independently and this one intentionally kept the duplicate.
+            AbMenuItem(
+                text = getString(R.string.custom_repositories),
+                onClick = { close(); onCustomRepositories() },
+                icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
             )
             if (DocumentSyncSettings.enabled) {
-                DropdownMenuItem(
-                    text = { Text(getString(R.string.document_sync_manage_title)) },
-                    onClick = { expanded = false; startActivity(ScreenLauncher.intentFor(this@DownloadComposeActivity, Screen.CloudDocuments)) },
+                AbMenuItem(
+                    text = getString(R.string.document_sync_manage_title),
+                    onClick = { close(); startActivity(ScreenLauncher.intentFor(this@DownloadComposeActivity, Screen.CloudDocuments)) },
+                    icon = { Icon(painterResource(R.drawable.ic_syncdb_24dp), contentDescription = null) },
                 )
             }
         }
@@ -901,16 +903,6 @@ open class DownloadComposeActivity : ActivityBase() {
         DocTypeFilter.MAPS to strings.docTypeMaps,
         DocTypeFilter.ADDON to strings.docTypeAddon,
     )
-
-    private fun BookCategory.toDocCategory(): DocCategory = when (this) {
-        BookCategory.BIBLE -> DocCategory.BIBLE
-        BookCategory.COMMENTARY -> DocCategory.COMMENTARY
-        BookCategory.DICTIONARY -> DocCategory.DICTIONARY
-        BookCategory.GENERAL_BOOK -> DocCategory.GENERAL_BOOK
-        BookCategory.MAPS -> DocCategory.MAPS
-        BookCategory.AND_BIBLE -> DocCategory.AND_BIBLE
-        else -> DocCategory.OTHER
-    }
 
     private fun DocumentInstallStatus.toDocInstallStatus(): DocInstallStatus = when (this) {
         DocumentInstallStatus.INSTALLED -> DocInstallStatus.INSTALLED

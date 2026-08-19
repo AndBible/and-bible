@@ -25,11 +25,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.DriveFileRenameOutline
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.mydocuments.MyDocItem
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbReorderableColumn
 import net.bible.sharedui.components.AbScaffold
@@ -93,8 +99,16 @@ fun MyDocumentsScreen(
         onNavigateUp = onNavigateUp,
         actions = {
             AbOverflowMenu(contentDescription = null) { close ->
-                DropdownMenuItem(text = { Text(s.newItem) }, onClick = { close(); createOpen = true })
-                DropdownMenuItem(text = { Text(s.importDocument) }, onClick = { close(); onImport() })
+                AbMenuItem(
+                    text = s.newItem,
+                    onClick = { close(); createOpen = true },
+                    icon = { Icon(Icons.Filled.AddCircleOutline, contentDescription = null) },
+                )
+                AbMenuItem(
+                    text = s.importDocument,
+                    onClick = { close(); onImport() },
+                    icon = { Icon(Icons.Filled.FileDownload, contentDescription = null) },
+                )
             }
         },
     ) { padding ->
@@ -200,10 +214,26 @@ private fun RowOverflow(
     Box {
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(text = { Text(s.rename) }, onClick = { expanded = false; onRename() })
-            DropdownMenuItem(text = { Text(s.editDescriptionLabel) }, onClick = { expanded = false; onEditDescription() })
-            DropdownMenuItem(text = { Text(s.exportDocumentLabel) }, onClick = { expanded = false; onExport() })
-            DropdownMenuItem(text = { Text(s.deleteLabel) }, onClick = { expanded = false; onDelete() })
+            AbMenuItem(
+                text = s.rename,
+                onClick = { expanded = false; onRename() },
+                icon = { Icon(Icons.Filled.DriveFileRenameOutline, contentDescription = null) },
+            )
+            AbMenuItem(
+                text = s.editDescriptionLabel,
+                onClick = { expanded = false; onEditDescription() },
+                icon = { Icon(Icons.Filled.Edit, contentDescription = null) },
+            )
+            AbMenuItem(
+                text = s.exportDocumentLabel,
+                onClick = { expanded = false; onExport() },
+                icon = { Icon(Icons.Filled.FileUpload, contentDescription = null) },
+            )
+            AbMenuItem(
+                text = s.deleteLabel,
+                onClick = { expanded = false; onDelete() },
+                icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+            )
         }
     }
 }

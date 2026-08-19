@@ -28,8 +28,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.progress.ReadingProgressModel
 import net.bible.sharedcore.progress.ReadingTab
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbHelpMenuIcon
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
@@ -87,13 +89,15 @@ fun ReadingProgressScreen(
         onNavigateUp = onUp,
         actions = {
             AbOverflowMenu(contentDescription = null) { close ->
-                DropdownMenuItem(
-                    text = { Text(strings.readingProgressSettings) },
+                AbMenuItem(
+                    text = strings.readingProgressSettings,
                     onClick = { close(); onOpenSettings() },
+                    icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
                 )
-                DropdownMenuItem(
-                    text = { Text(strings.help) },
+                AbMenuItem(
+                    text = strings.help,
                     onClick = { close(); onShowHelp() },
+                    icon = AbHelpMenuIcon,
                 )
             }
         },

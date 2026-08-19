@@ -177,6 +177,7 @@ import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowTabBarModel
 import net.bible.sharedcore.window.buildWindowTabBar
+import net.bible.sharedcore.window.shouldShowPinIndicator
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.AgentPermissionDialog
 import net.bible.sharedui.ai.reading.AgentLogPanel
@@ -2871,6 +2872,17 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                                     isActive = windowId == layout.activeWindowId,
                                                     showButton = showPaneButtons,
                                                     autoHidden = paneButtonsAutoHidden,
+                                                    autoPin = layout.autoPin,
+                                                    // Currently unreachable as true: `showPaneButtons` (passed as
+                                                    // `showButton` below) is a SINGLE value shared by every window
+                                                    // and is false whenever ANY window is maximised, so
+                                                    // `PaneWindowButtonOverlay` never composes `WindowButton` (and
+                                                    // therefore never evaluates `shouldShowPinIndicator` with this
+                                                    // argument) while `layout.maximizedWindowId == windowId` could
+                                                    // hold. Harmless, and kept per-window (not hard-coded false)
+                                                    // because it is the correct value if a future change ever composes
+                                                    // pane buttons during maximise.
+                                                    isMaximised = layout.maximizedWindowId == windowId,
                                                     nightMode = nightModeState.value,
                                                     disableAnimations = CommonUtils.settings.disableAnimations,
                                                     monochrome = monochromeState.value,
@@ -3135,6 +3147,8 @@ private fun BoxScope.PaneWindowButtonOverlay(
     isActive: Boolean,
     showButton: Boolean,
     autoHidden: Boolean,
+    autoPin: Boolean,
+    isMaximised: Boolean,
     nightMode: Boolean,
     disableAnimations: Boolean,
     monochrome: Boolean,
@@ -3173,7 +3187,11 @@ private fun BoxScope.PaneWindowButtonOverlay(
                 label = "☰",
                 isActive = isActive,
                 isMinimised = false,
-                isPinned = window.isPinMode,
+                isPinned = shouldShowPinIndicator(
+                    isPinMode = window.isPinMode,
+                    autoPin = autoPin,
+                    isMaximised = isMaximised,
+                ),
                 isLinks = window.isLinksWindow,
                 syncGroup = if (window.isSynchronised) window.syncGroup + 1 else 0,
                 mode = WindowButtonMode.Pane,

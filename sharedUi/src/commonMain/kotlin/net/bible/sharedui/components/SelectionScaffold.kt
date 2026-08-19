@@ -19,14 +19,17 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 
 /**
@@ -37,6 +40,12 @@ import androidx.compose.runtime.Composable
  * inline search field (see [AbTopAppBar]); the screen's search mode lives in its controller, so
  * leaving selection mode brings the search bar back with its query intact and nothing has to be
  * preserved across the swap.
+ *
+ * All three of this app's raw `TopAppBar(...)` call sites (this one, [AbTopAppBar]'s normal branch
+ * and its search branch) set `titleContentColor`/`navigationIconContentColor`/
+ * `actionIconContentColor` explicitly to `onSurface`, so a bar never draws its own title and icons
+ * in two different M3 tokens — copy this pattern for a fourth call site rather than leaving colors
+ * at the M3 default.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,10 +72,23 @@ fun AbSelectionScaffold(
                         }
                     },
                     actions = selectionActions,
+                    // Same fix as AbTopAppBar's normal branch: the M3 default splits this bar's
+                    // title (onSurface) from its navigation/action icons (onSurfaceVariant).
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                        actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+                    // Same fix as AbTopAppBar's normal branch (see its F2 comment): this app's
+                    // Compose hosts run inside an AppCompatActivity whose content frame already
+                    // insets for the status bar, so the M3 default here would add it a SECOND
+                    // time and the bar would visibly jump one bar-height lower on entering
+                    // selection mode.
+                    windowInsets = WindowInsets(0, 0, 0, 0),
                 )
             } else {
                 AbTopAppBar(
-                    title = { Text(title) },
+                    title = { AbTopBarTitle(title) },
                     onNavigateUp = onNavigateUp,
                     actions = actions,
                     search = search,

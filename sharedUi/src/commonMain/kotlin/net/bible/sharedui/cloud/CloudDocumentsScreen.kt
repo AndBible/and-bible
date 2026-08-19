@@ -32,17 +32,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.SyncDisabled
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -75,6 +79,7 @@ import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbLoadingIndicator
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbPullToRefresh
 import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbSelectionScaffold
@@ -224,6 +229,25 @@ private fun bulkIcon(action: CloudDocAction): ImageVector = when (action) {
     CloudDocAction.PURGE -> Icons.Filled.CloudOff
 }
 
+/**
+ * The row-menu icon for one [CloudDocActionLabel] — the finer-grained, context-sensitive label
+ * set (`actionLabelKind()`) shown per row, as opposed to [bulkIcon]'s per-[CloudDocAction] icon for
+ * the selection-mode toolbar. Exhaustive with no `else`: a future eleventh label must pick an icon
+ * here or the build fails, rather than a new row silently rendering iconless.
+ */
+private fun cloudActionIcon(kind: CloudDocActionLabel): ImageVector = when (kind) {
+    CloudDocActionLabel.DOWNLOAD -> Icons.Filled.CloudDownload          // classic ic_cloud_download_24dp
+    CloudDocActionLabel.PUSH -> Icons.Filled.CloudUpload                // classic ic_cloud_upload_24dp
+    CloudDocActionLabel.REMOVE_CLOUD -> Icons.Filled.Delete             // classic ic_delete_24dp
+    CloudDocActionLabel.REMOVE_ALL_DEVICES -> Icons.Filled.DeleteSweep  // chosen
+    CloudDocActionLabel.BLOCK -> Icons.Filled.Block                     // chosen; matches bulkIcon
+    CloudDocActionLabel.DONT_SYNC -> Icons.Filled.SyncDisabled          // chosen
+    CloudDocActionLabel.UNBLOCK -> Icons.Filled.Sync                    // chosen; matches bulkIcon
+    CloudDocActionLabel.ALLOW_SYNC -> Icons.Filled.Sync                 // chosen
+    CloudDocActionLabel.RESTORE -> Icons.Filled.Restore                 // chosen
+    CloudDocActionLabel.PURGE -> Icons.Filled.CloudOff                  // chosen; matches bulkIcon
+}
+
 private fun statusLabel(status: CloudDocStatus, strings: Strings): String = when (status) {
     CloudDocStatus.SYNCED -> strings.cloudStatusSynced
     CloudDocStatus.LOCAL_ONLY -> strings.cloudStatusLocalOnly
@@ -303,9 +327,11 @@ private fun CloudDocRow(
             IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 documentMenuActions(item, syncEnabled).forEach { action ->
-                    DropdownMenuItem(
-                        text = { Text(actionLabel(actionLabelKind(action, item.localOnly, syncEnabled), strings)) },
+                    val kind = actionLabelKind(action, item.localOnly, syncEnabled)
+                    AbMenuItem(
+                        text = actionLabel(kind, strings),
                         onClick = { expanded = false; onAction(action) },
+                        icon = { Icon(cloudActionIcon(kind), contentDescription = null) },
                     )
                 }
             }

@@ -17,11 +17,23 @@
 
 package net.bible.sharedcore.reading
 
-/** One selectable document in the quick-switch picker. `id` = the SWORD `Book.initials` (stable). */
-data class QuickDocRow(val id: String, val label: String, val language: String, val abbreviation: String)
+import net.bible.sharedcore.navigation.DocCategory
+
+/**
+ * One selectable document in the quick-switch picker. `id` = the SWORD `Book.initials` (stable).
+ * [category] drives the row's leading icon: the Commentary button's menu deliberately also lists
+ * general books and dictionaries (classic parity), so the icon is what makes the mixture legible.
+ */
+data class QuickDocRow(
+    val id: String,
+    val label: String,
+    val language: String,
+    val abbreviation: String,
+    val category: DocCategory,
+)
 
 /** A rendered popup row: [enabled] is false for the current document (visible-but-disabled, classic parity). */
-data class QuickDocMenuItem(val id: String, val label: String, val enabled: Boolean)
+data class QuickDocMenuItem(val id: String, val label: String, val enabled: Boolean, val category: DocCategory)
 
 sealed interface QuickDocAction {
     /** No documents to offer — show nothing (classic would show an empty popup; None is the clean equivalent). */
@@ -45,7 +57,9 @@ object QuickDocPicker {
         return when (sorted.size) {
             0 -> QuickDocAction.None
             2 -> QuickDocAction.SwitchDirectly((sorted.firstOrNull { it.id != activeId } ?: sorted.first()).id)
-            else -> QuickDocAction.ShowPopup(sorted.map { QuickDocMenuItem(it.id, it.label, enabled = it.id != activeId) })
+            else -> QuickDocAction.ShowPopup(
+                sorted.map { QuickDocMenuItem(it.id, it.label, enabled = it.id != activeId, category = it.category) },
+            )
         }
     }
 }

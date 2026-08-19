@@ -17,17 +17,14 @@
 
 package net.bible.sharedui.reading
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import net.bible.sharedcore.reading.OptionsMenuItem
+import net.bible.sharedui.components.AbMenuItem
 
 /**
  * The reading-view toolbar's overflow ("3-dot") options menu: a Material3 [DropdownMenu] listing
@@ -61,7 +58,7 @@ fun ReadingOverflowMenu(
 
 /**
  * The menu's row content, factored out of [ReadingOverflowMenu] so it can be rendered outside a
- * [DropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [DropdownMenuItem] is a plain
+ * [DropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [androidx.compose.material3.DropdownMenuItem] is a plain
  * composable, not scoped to a menu container). Deliberately public (not `internal`): it's called
  * directly, inside a plain `Column`, by `ReadingOverflowMenuGoldenTest` (in the `:app` module, so
  * `internal` visibility would not reach it) as a golden-capture surrogate for the real popup:
@@ -96,19 +93,18 @@ fun ReadingOverflowMenuRows(
     onItemClick: (id: String) -> Unit,
     icon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
-    val (rows, reserveIconSlot) = resolveMenuIconRows(items, OptionsMenuItem::iconKey, icon)
-    rows.forEachIndexed { index, row ->
-        val (item, resolvedIcon) = row
+    val resolved = resolveMenuIconRows(items, OptionsMenuItem::iconKey, icon)
+    resolved.rows.forEachIndexed { index, (item, painter) ->
         // Classic's group divider (MenuCompat.setGroupDividerEnabled). Never above the first row.
         if (index > 0 && item.startsNewSection) HorizontalDivider()
-        DropdownMenuItem(
-            text = { Text(if (item.opensDialog) "${item.label} …" else item.label) },
-            enabled = item.enabled,
-            leadingIcon = if (reserveIconSlot) {
-                { resolvedIcon?.let { Icon(painter = it, contentDescription = null) } }
-            } else null,
-            trailingIcon = { if (item.checkable && item.checked) Icon(Icons.Default.Check, contentDescription = null) },
+        AbMenuItem(
+            text = if (item.opensDialog) "${item.label} …" else item.label,
             onClick = { onItemClick(item.id) },
+            icon = painter?.let { p -> { Icon(painter = p, contentDescription = null) } },
+            reserveIconSlot = resolved.reserveIconSlot && painter == null,
+            checkable = item.checkable,
+            checked = item.checked,
+            enabled = item.enabled,
         )
     }
 }

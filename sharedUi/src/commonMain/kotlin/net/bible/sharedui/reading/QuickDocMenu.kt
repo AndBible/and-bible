@@ -18,11 +18,12 @@
 package net.bible.sharedui.reading
 
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import net.bible.sharedcore.reading.QuickDocMenuItem
+import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.navigation.LocalCategoryIcon
 
 /**
  * The reading-view toolbar's quick-document picker: a Material3 [DropdownMenu] anchored to the
@@ -46,7 +47,7 @@ fun QuickDocMenu(
 
 /**
  * The menu's row content, factored out of [QuickDocMenu] so it can be rendered outside a
- * [DropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [DropdownMenuItem] is a plain
+ * [DropdownMenu]'s [androidx.compose.ui.window.Popup] too (each [androidx.compose.material3.DropdownMenuItem] is a plain
  * composable, not scoped to a menu container). Deliberately public (not `internal`): it's called
  * directly, inside a plain `Column`, by `QuickDocMenuGoldenTest` (in the `:app` module, so
  * `internal` visibility would not reach it) as a golden-capture surrogate for the real popup:
@@ -54,14 +55,19 @@ fun QuickDocMenu(
  * hung this repo's golden capture (see [ReadingOverflowMenuRows]'s kdoc) — so this single
  * implementation is shared by both the real popup and the golden's non-popup surrogate, keeping the
  * rendered rows byte-for-byte the same rather than duplicating the item-building logic.
+ *
+ * Each row's leading icon comes from the [LocalCategoryIcon] seam, keyed on [QuickDocMenuItem]'s
+ * `category` — so any host rendering this (including the golden harness) must provide it.
  */
 @Composable
 fun QuickDocMenuRows(items: List<QuickDocMenuItem>, onSelect: (id: String) -> Unit) {
+    val categoryIcon = LocalCategoryIcon.current
     items.forEach { item ->
-        DropdownMenuItem(
-            text = { Text(item.label) },
-            enabled = item.enabled,
+        AbMenuItem(
+            text = item.label,
             onClick = { onSelect(item.id) },
+            icon = { Icon(painter = categoryIcon(item.category), contentDescription = null) },
+            enabled = item.enabled,
         )
     }
 }
