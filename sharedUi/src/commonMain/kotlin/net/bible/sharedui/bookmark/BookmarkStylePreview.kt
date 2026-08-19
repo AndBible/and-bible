@@ -33,11 +33,11 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.theme.LocalIsDarkTheme
 
 /** The band drawn under UNDERLINE text. Odd-looking as a constant, but the underline has to read as
  *  a band rather than a hairline at every font scale, and 3dp is what the reading view's underline
@@ -52,9 +52,11 @@ private val UnderlineBandHeight = 3.dp
  * that here would be a second renderer to keep in step for no gain. What must be exact is which of
  * the four styles decorates the text and which does not — that is the thing the user is choosing.
  *
- * The monochrome and alpha treatments below are NOT part of that approximation — they mirror the
- * reader's own rules by design (`bibleview-js/src/composables/bookmarks.ts:140`, `:164-165`,
- * `:193-199`), so anyone changing the JS should find and update this too.
+ * The monochrome and alpha treatments below are NOT part of that approximation — they follow the
+ * reader's own rules (`bibleview-js/src/composables/bookmarks.ts:140`, `:164-165`, `:193-199`), so
+ * anyone changing the JS should find and update this too. One deliberate deviation: the monochrome
+ * underline uses the theme's `onSurface` rather than a hardcoded black/white, staying consistent
+ * with the rest of the theme instead of matching the JS literally.
  *
  * HIDDEN draws plain text and nothing else, because that is what a hidden bookmark looks like. It
  * is told apart from MARKER by MARKER drawing [iconSlot], and by the option label next to it.
@@ -76,9 +78,9 @@ fun BookmarkStylePreview(
     // accentArgbFor is for workspace accents and would grey the label colour into the container
     // tone here, making highlight, underline and hidden indistinguishable in BW.
     val monochrome = colorMode == DisplayColorMode.BW
-    // onSurface is light in a dark theme and dark in a light one, which is exactly the reader's
-    // nightMode ? white : black rule expressed through the theme.
-    val night = MaterialTheme.colorScheme.onSurface.luminance() > 0.5f
+    // The theme's own resolved night state, not re-derived from a colour (that is exactly what
+    // LocalIsDarkTheme exists to prevent) — this mirrors the reader's nightMode flag.
+    val night = LocalIsDarkTheme.current
     val labelColor = Color(colorArgb)
     val highlightFill = when {
         monochrome -> if (night) Color(0xFFB4B4B4) else Color(0xFFD2D2D2)   // 180 / 210 grey
