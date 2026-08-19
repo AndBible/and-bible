@@ -226,8 +226,13 @@ private val labelDisplayStyleEnum = makeMigration(12..13) { db ->
     // SQLite new enough for DROP COLUMN (>= 3.35), but Robolectric's bundled native SQLite is not,
     // so the migration test could not run the real statements. Rebuilding the table is supported
     // everywhere and is the procedure SQLite itself documents for removing columns.
+    //
+    // Label_new below must describe the SAME TABLE as the v13 entity: Room validates the migrated
+    // database by comparing `TableInfo` (columns, affinities, notNull, defaults, primary key,
+    // indices) against the entity, never the DDL text — so keep it equivalent to
+    // `schemas/net.bible.android.database.BookmarkDatabase/13.json`, do not try to diff the strings.
     db.execSQL("""
-        CREATE TABLE IF NOT EXISTS `Label_new` (
+        CREATE TABLE `Label_new` (
             `id` BLOB NOT NULL, `name` TEXT NOT NULL, `color` INTEGER NOT NULL DEFAULT 0,
             `displayStyle` INTEGER NOT NULL DEFAULT 0, `displayStyleWholeVerse` INTEGER DEFAULT 1,
             `favourite` INTEGER NOT NULL DEFAULT 0, `type` TEXT DEFAULT NULL,
