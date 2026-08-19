@@ -56,7 +56,7 @@ data class LabelEditState(
     val isAssigning: Boolean,            // gates the "this bookmark" group
     val thisBookmarkSelected: Boolean,
     val thisBookmarkPrimary: Boolean,
-    val hasWorkspaceContext: Boolean,    // gates the override dropdown + "this workspace" group
+    val hasWorkspaceContext: Boolean,    // gates the override picker + "this workspace" group
     val autoAssign: Boolean,
     val autoAssignPrimary: Boolean,
     val overrideMode: OverrideMode,

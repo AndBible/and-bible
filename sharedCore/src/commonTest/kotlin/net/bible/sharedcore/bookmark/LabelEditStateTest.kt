@@ -57,18 +57,23 @@ class LabelEditStateTest {
     }
 
     @Test
-    fun `all sixty-four boolean combinations map onto the sixteen enum pairs`() {
-        val pairs = mutableSetOf<Pair<BookmarkDisplayStyle, BookmarkDisplayStyle>>()
+    fun `all sixty-four boolean combinations map onto the expected style`() {
+        // Each iteration pins the ACTUAL expected value (computed independently of
+        // bookmarkDisplayStyleOf below), not just that 16 distinct pairs turn up -- a mapping that
+        // swapped, say, (hide=true, underline=true) to UNDERLINE instead of HIDDEN would still
+        // produce 16 distinct pairs overall and pass a cardinality-only check.
         for (bits in 0 until 64) {
-            val s = bookmarkDisplayStyleOf(
-                hide = bits and 1 != 0, marker = bits and 2 != 0, underline = bits and 4 != 0,
-            )
-            val w = bookmarkDisplayStyleOf(
-                hide = bits and 8 != 0, marker = bits and 16 != 0, underline = bits and 32 != 0,
-            )
-            pairs.add(s to w)
+            val hideS = bits and 1 != 0
+            val markerS = bits and 2 != 0
+            val underlineS = bits and 4 != 0
+            val hideW = bits and 8 != 0
+            val markerW = bits and 16 != 0
+            val underlineW = bits and 32 != 0
+            val expectedS = expectedStyle(hide = hideS, marker = markerS, underline = underlineS)
+            val expectedW = expectedStyle(hide = hideW, marker = markerW, underline = underlineW)
+            assertEquals(expectedS, styleOf(hideS, markerS, underlineS), "bits=$bits selection")
+            assertEquals(expectedW, styleOf(hideW, markerW, underlineW), "bits=$bits wholeVerse")
         }
-        assertEquals(16, pairs.size)
     }
 
     @Test
@@ -84,4 +89,13 @@ class LabelEditStateTest {
 
     private fun styleOf(hide: Boolean, marker: Boolean, underline: Boolean) =
         bookmarkDisplayStyleOf(hide = hide, marker = marker, underline = underline)
+
+    /** The precedence rule restated independently of [bookmarkDisplayStyleOf], so the
+     *  sixty-four-combination test pins the actual mapping rather than just its cardinality. */
+    private fun expectedStyle(hide: Boolean, marker: Boolean, underline: Boolean): BookmarkDisplayStyle = when {
+        hide -> BookmarkDisplayStyle.HIDDEN
+        marker -> BookmarkDisplayStyle.MARKER
+        underline -> BookmarkDisplayStyle.UNDERLINE
+        else -> BookmarkDisplayStyle.HIGHLIGHT
+    }
 }

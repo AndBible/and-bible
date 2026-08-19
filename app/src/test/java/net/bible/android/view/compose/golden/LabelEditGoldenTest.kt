@@ -18,9 +18,9 @@ import org.robolectric.annotation.GraphicsMode
 
 /** The host resolves a label's icon from an Android drawable, so goldens across this package stand
  *  one in. Not cosmetic: with an empty slot the MARKER preview is indistinguishable from HIDDEN,
- *  which is the pair [net.bible.sharedui.bookmark.BookmarkStylePreview] exists to separate. Package-
- *  visible (not `private`) so a later identity-sheet golden test in this same package can reuse it
- *  instead of inlining its own. */
+ *  which is the pair [net.bible.sharedui.bookmark.BookmarkStylePreview] exists to separate.
+ *  Package-visible (not `private`) so other golden tests in this package share one stand-in icon
+ *  instead of each inlining its own -- see [BookmarkStylePreviewGoldenTest]'s use. */
 val bookmarkIcon: @Composable (String?) -> Unit = {
     Icon(Icons.Filled.Bookmark, contentDescription = null)
 }
@@ -30,9 +30,10 @@ val bookmarkIcon: @Composable (String?) -> Unit = {
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class LabelEditGoldenTest {
 
-    /** [special] hides name-edit/favourite/auto-assign/custom-icon (isSpecialLabel). [ws] gives a
-     *  workspace context, revealing the "this workspace" group + override dropdown, pinned to
-     *  MARKER so the dropdown's non-default label renders. */
+    /** [special] hides name-edit/favourite/auto-assign (isSpecialLabel) -- NOT custom-icon, which
+     *  is gated on isSpeakLabel instead and stays visible here. [ws] gives a workspace context,
+     *  revealing the "this workspace" group + override picker, pinned to MARKER so the picker's
+     *  non-default option renders. */
     private fun sample(special: Boolean = false, ws: Boolean = false) = LabelEditState(
         labelId = "L1", name = "Study", color = AbColor.palette.first(),
         customIcon = null,
@@ -75,7 +76,9 @@ class LabelEditGoldenTest {
     fun labelEdit_primary_rtl() =
         captureRtl("LabelEdit", "primary", heightDp = 1000, content = screen(sample()))
 
-    /** isSpecialLabel=true: name field disabled, favourite/custom-icon rows hidden. */
+    /** isSpecialLabel=true: name field disabled, favourite row hidden. The custom-icon row is
+     *  NOT hidden by isSpecialLabel -- it is gated on isSpeakLabel, which this sample leaves
+     *  false, so it stays visible and editable here (visible in the recorded PNG). */
     @Test fun labelEdit_special() =
         captureGolden("LabelEdit", "special", EDGE_MODE, heightDp = 1000, content = screen(sample(special = true)))
 

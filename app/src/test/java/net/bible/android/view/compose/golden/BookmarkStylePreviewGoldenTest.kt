@@ -1,9 +1,6 @@
 package net.bible.android.view.compose.golden
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
@@ -32,7 +29,9 @@ class BookmarkStylePreviewGoldenTest {
                     style = style,
                     colorArgb = AbColor.palette.first(),
                     sampleText = "For God so loved the world",
-                    iconSlot = { Icon(Icons.Filled.Bookmark, contentDescription = null) },
+                    // bookmarkIcon (LabelEditGoldenTest.kt) takes a nullable icon-name key; this
+                    // preview's iconSlot takes none, so adapt at this call site.
+                    iconSlot = { bookmarkIcon(null) },
                 )
             }
         }

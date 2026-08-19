@@ -129,7 +129,8 @@ class LabelEditMapperTest {
     @Test
     fun `each style expands to exactly one column per axis`() {
         for (style in BookmarkDisplayStyle.entries) {
-            val data = buildData()   // the file's fixture builder at `:37`
+            // buildData() is this file's fixture builder, above.
+            val data = buildData()
             val state = LabelEditMapper.toState(data).copy(selectionStyle = style, wholeVerseStyle = style)
             val out = LabelEditMapper.applyToData(data, state).label
             val set = listOf(out.hideStyle, out.markerStyle, out.underlineStyle).count { it }
@@ -138,6 +139,39 @@ class LabelEditMapperTest {
             assertEquals("selection axis for $style", expected, set)
             assertEquals("whole-verse axis for $style", expected, setWv)
         }
+    }
+
+    @Test
+    fun `each axis reads and writes only its own three columns`() {
+        // Write side: an asymmetric pair (selection != wholeVerse) pins that applyToData does not
+        // cross the axes -- a symmetric pair would still pass even if wholeVerse wrote selection's
+        // flags (or vice versa), which is exactly the bug class the axis-symmetric tests above
+        // cannot catch.
+        val data = buildData()
+        val state = LabelEditMapper.toState(data)
+            .copy(selectionStyle = BookmarkDisplayStyle.HIGHLIGHT, wholeVerseStyle = BookmarkDisplayStyle.MARKER)
+        val out = LabelEditMapper.applyToData(data, state).label
+        assertFalse(out.hideStyle)
+        assertFalse(out.markerStyle)
+        assertFalse(out.underlineStyle)
+        assertFalse(out.hideStyleWholeVerse)
+        assertTrue(out.markerStyleWholeVerse)
+        assertFalse(out.underlineStyleWholeVerse)
+
+        // Read side: only the whole-verse columns are set; the selection columns are all false, so
+        // if toState read wholeVerseStyle from the wrong three columns this would derive HIGHLIGHT
+        // (or something other than MARKER) instead.
+        val readBack = buildData().also {
+            it.label.hideStyle = false
+            it.label.markerStyle = false
+            it.label.underlineStyle = false
+            it.label.hideStyleWholeVerse = false
+            it.label.markerStyleWholeVerse = true
+            it.label.underlineStyleWholeVerse = false
+        }
+        val readState = LabelEditMapper.toState(readBack)
+        assertEquals(BookmarkDisplayStyle.HIGHLIGHT, readState.selectionStyle)
+        assertEquals(BookmarkDisplayStyle.MARKER, readState.wholeVerseStyle)
     }
 
     @Test

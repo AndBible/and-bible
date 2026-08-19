@@ -64,9 +64,8 @@ class LabelEditControllerTest {
         val start = state()
         val c = controller(start)
         assertFalse(c.isDirty())
-        // Must differ from `start.selectionStyle`, or this asserts nothing. The file's `state()`
-        // builder at `:12` decides that value — set the builder's selectionStyle to HIGHLIGHT and
-        // pass MARKER here.
+        // HIGHLIGHT is state()'s value for selectionStyle, so MARKER here is a real change --
+        // this test asserts nothing if the two ever end up equal.
         c.setSelectionStyle(BookmarkDisplayStyle.MARKER)
         assertTrue(c.isDirty())
     }
