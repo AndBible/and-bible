@@ -18,11 +18,14 @@
 package net.bible.android.view.compose.golden
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.sharedui.components.AbExpandableSection
 import net.bible.sharedui.components.AbSwitchRow
@@ -49,13 +52,16 @@ class AbExpandableSectionGoldenTest {
                 title = "This workspace",
                 expanded = false,
                 onToggle = {},
-                indicators = { Icon(Icons.Filled.Bolt, contentDescription = null) },
+                // 16dp, matching both real call sites (LabelEditScreen.kt) -- with the default
+                // 24dp Icon size this golden was the only image of this component and it did not
+                // match production, which never renders a 24dp indicator here.
+                indicators = { Icon(Icons.Filled.Bolt, contentDescription = null, modifier = Modifier.size(16.dp)) },
             ) {}
             AbExpandableSection(
                 title = "This bookmark",
                 expanded = true,
                 onToggle = {},
-                indicators = { Icon(Icons.Filled.Bookmark, contentDescription = null) },
+                indicators = { Icon(Icons.Filled.Bookmark, contentDescription = null, modifier = Modifier.size(16.dp)) },
             ) {
                 AbSwitchRow(
                     label = "Auto-assign label to new bookmarks",

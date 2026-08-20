@@ -97,9 +97,11 @@ fun AbExpandableSection(
                 if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                // Deliberately smaller than the 24dp indicators/AbSwitchRow icons on this same
-                // row: a chevron is a disclosure affordance, not a content icon, and reads clearly
-                // at 20dp -- a size choice, not an oversight.
+                // 20dp: both production call sites (LabelEditScreen.kt) pass 16dp [indicators]
+                // icons, so the chevron is actually the LARGER icon on this header row -- the
+                // 24dp icons AbSwitchRow draws live one row down, inside the expanded content, not
+                // here. 20dp reads clearly as a disclosure affordance without visually competing
+                // with the smaller indicator marks beside it -- a size choice, not an oversight.
                 modifier = Modifier.size(20.dp),
             )
             Spacer(Modifier.width(8.dp))

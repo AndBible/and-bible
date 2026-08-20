@@ -106,8 +106,12 @@ class ManageLabelsGoldenTest {
     )
 
     /** One row per style, plus a row whose whole-verse axis really differs (so the second tag
-     *  appears) and one that inherits (so it does not). This is the image that shows whether the
-     *  list answers "what does this label look like" at all. */
+     *  appears) and one that inherits (so it does not). S2's whole-verse axis is deliberately
+     *  `MARKER`, not another plain-text style: that is the two-tags-where-the-second-carries-a-
+     *  glyph case, the exact width pressure two earlier fix rounds were about, and before this it
+     *  was never actually captured (no row anywhere in this fixture had `MARKER` on the whole-verse
+     *  axis). This is the image that shows whether the list answers "what does this label look
+     *  like" at all. */
     private fun styleRows(): List<ManageLabelsRow> = listOf(
         ManageLabelsRow.Item(
             label = label("S1", "Study", selectionStyle = BookmarkDisplayStyle.HIGHLIGHT),
@@ -117,7 +121,7 @@ class ManageLabelsGoldenTest {
             label = label(
                 "S2", "Sermon notes", color = AbColor.palette[1],
                 selectionStyle = BookmarkDisplayStyle.UNDERLINE,
-                wholeVerseStyle = BookmarkDisplayStyle.HIGHLIGHT,
+                wholeVerseStyle = BookmarkDisplayStyle.MARKER,
             ),
             checked = false, isAutoAssign = false, isPrimary = false, highlighted = false,
         ),
@@ -296,14 +300,18 @@ class ManageLabelsGoldenTest {
             content = screen(ManageLabelsMode.ASSIGN, rows = styleRows(), compact = true),
         )
 
-    /** WORKSPACE compact: no checkbox (`WORKSPACE.showCheckboxes == false`), so its four trailing
-     *  controls are override-dot + ⚡ + heart + primary -- one fewer than ASSIGN/HIDELABELS would
-     *  carry, which is exactly why the style tag still renders here (round-3's
-     *  `!mode.showCheckboxes` condition) against the longest name in the fixture. This is the
-     *  ONLY compact capture that shows the tag at all -- [manageLabels_styles_compact] above is
-     *  the compact-WITHOUT-a-tag case (it uses ASSIGN, which does carry a checkbox). Do not read
-     *  this row's control count as "the" four trailing controls; ASSIGN/HIDELABELS compact has a
-     *  different four (checkbox replaces the tag's space) and never shows the tag at all. */
+    /** WORKSPACE compact: no checkbox (`WORKSPACE.showCheckboxes == false`), so the row is never
+     *  "crowded" (`showCheckboxes && workspaceEdits` is false here) and the style tag survives --
+     *  this is the ONLY compact capture that shows the tag at all; [manageLabels_styles_compact]
+     *  above is the compact-WITHOUT-a-tag case (it uses ASSIGN, which IS crowded). No row in this
+     *  fixture ([rows]) actually carries four trailing controls at once: L1 is checked and
+     *  primary-eligible, so it shows tag + ⚡ + heart + 🔖 (bolt/heart/primary, no override dot,
+     *  since it has none); L2 has the override dot but is unchecked, so it shows tag + ⓣ(dot) + ⚡
+     *  + heart (no primary, since `primaryShown` also requires `row.checked`) -- the override dot
+     *  is a plain non-interactive `Icon`, not a tappable control, so even L2's row has only three
+     *  real controls. L3/L4 are unchecked with no override: tag + ⚡ + heart only. The trailing
+     *  Unlabeled row (`mode.showUnassigned`) shows only its tag -- auto-assign/favourite/primary
+     *  are all gated off for `label.isUnlabeled`. */
     @Test fun manageLabels_workspace_compact() =
         captureGolden(
             "ManageLabels", "workspace_compact", EDGE_MODE, heightDp = 800,

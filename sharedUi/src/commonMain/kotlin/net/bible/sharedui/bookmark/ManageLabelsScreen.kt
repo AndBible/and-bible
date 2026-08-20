@@ -355,24 +355,25 @@ private fun LabelItemRow(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f),
                     )
-                    // Tag shown only when the row is not already crowded by a fourth control
-                    // (round-3 fix -- Finding 1 was still open: `Modifier.weight(1f).widthIn(min =
-                    // ...)` cannot work, because `weight`'s `fill = true` gives the child an EXACT
-                    // width, so a chained `widthIn` minimum is overridden -- and more fundamentally,
-                    // the space plain doesn't exist. Compact ASSIGN/HIDELABELS carry a 24dp glyph, a
-                    // 12dp spacer, 32dp of horizontal padding, and up to four 48dp IconButton touch
-                    // targets (checkbox, bolt, heart, primary) -- roughly 260dp of a 320dp-wide
-                    // screen, leaving ~60dp for the name and tag TOGETHER. Nothing conjures space
-                    // that isn't there, so something has to yield, and it's the tag, not the name: a
-                    // 20dp tag says nothing while a 40dp name still identifies the row, and the
-                    // tag's information is exactly what the two-line mode exists to show -- nothing
-                    // is lost here, only deferred to the mode whose purpose it is.
-                    // `!mode.showCheckboxes` is read here as a PROXY, not a statement about
-                    // checkboxes: `showCheckboxes` is true exactly for HIDELABELS/ASSIGN, i.e. the
-                    // two modes with the fourth control that crowds the row, so this condition is
-                    // really "is this one of the modes with all four trailing controls" -- WORKSPACE
-                    // and STUDYPAD have no checkbox and thus fall through to showing the tag.
-                    if (!mode.showCheckboxes) {
+                    // Tag shown only when the row is not already crowded by a checkbox PLUS the
+                    // workspace-edit controls (round-3 fix -- Finding 1 was still open:
+                    // `Modifier.weight(1f).widthIn(min = ...)` cannot work, because `weight`'s
+                    // `fill = true` gives the child an EXACT width, so a chained `widthIn` minimum
+                    // is overridden -- and more fundamentally, the space plain doesn't exist. That
+                    // crowding only actually happens in ASSIGN: `showCheckboxes && workspaceEdits`
+                    // is true ONLY for ASSIGN (HIDELABELS has showCheckboxes but not workspaceEdits
+                    // -- its row carries just the checkbox; WORKSPACE has workspaceEdits but not
+                    // showCheckboxes). Compact ASSIGN carries a 24dp glyph, a 12dp spacer, 32dp of
+                    // horizontal padding, and up to four 48dp IconButton touch targets (checkbox,
+                    // bolt, heart, primary) -- roughly 260dp of a 320dp-wide screen, leaving ~60dp
+                    // for the name and tag TOGETHER. Nothing conjures space that isn't there, so
+                    // something has to yield, and it's the tag, not the name: a 20dp tag says
+                    // nothing while a 40dp name still identifies the row, and the tag's information
+                    // is exactly what the two-line mode exists to show -- nothing is lost here, only
+                    // deferred to the mode whose purpose it is. HIDELABELS, with only the checkbox
+                    // and roughly 200dp free, is not crowded and keeps its tag.
+                    val crowded = mode.showCheckboxes && mode.workspaceEdits
+                    if (!crowded) {
                         Spacer(Modifier.width(8.dp))
                         // Selection axis only when compact: one line cannot carry both and still
                         // leave the name legible. The whole-verse axis is what the two-line mode adds.
@@ -425,11 +426,12 @@ private fun LabelItemRow(
             Checkbox(checked = row.checked, onCheckedChange = { onToggleChecked(label.id) })
         }
 
-        // Auto-assign, in the same grammar as the favourite heart and the primary bookmark below:
-        // filled + primary tint on, outlined + muted off, tap toggles. Visible in BOTH states, so
-        // the setting is discoverable at all -- classic's plain tag glyph gave no hint that tapping
-        // it did anything, which is the confusion this replaces. Bolt, not AutoAwesome: the sparkle
-        // now reads as "AI".
+        // Auto-assign + favourite: same guard (`workspaceEdits && !label.isUnlabeled`), so they are
+        // one decision, not two -- both are workspace-scoped toggles, in the same visual grammar as
+        // the primary bookmark below: filled + primary tint on, outlined + muted off, tap toggles.
+        // Visible in BOTH states, so the setting is discoverable at all -- classic's plain tag glyph
+        // gave no hint that tapping it did anything, which is the confusion this replaces. Bolt, not
+        // AutoAwesome: the sparkle now reads as "AI".
         if (mode.workspaceEdits && !label.isUnlabeled) {
             IconButton(onClick = { onToggleAutoAssign(label.id) }) {
                 Icon(
@@ -443,9 +445,6 @@ private fun LabelItemRow(
                     modifier = Modifier.size(20.dp),
                 )
             }
-        }
-
-        if (mode.workspaceEdits && !label.isUnlabeled) {
             IconButton(onClick = { onToggleFavourite(label.id) }) {
                 Icon(
                     if (label.favourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
