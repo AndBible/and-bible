@@ -19,6 +19,7 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -75,7 +76,15 @@ import net.bible.sharedui.settings.LocalSettingsIcon
  *  [SettingsRowBadgeChip] INSIDE the row's text [Column] — never as a `Box` overlay on top of the
  *  row (that previously covered the summary and the switch). Same `if (badge != null)` conditional-
  *  emission shape as [iconKey] above: no badge means nothing is emitted, so every existing caller
- *  (which never passes `badge`) renders byte-identical to before. */
+ *  (which never passes `badge`) renders byte-identical to before.
+ *
+ *  [leadingIcon] defaults to `null` (round 10a Task 8): a caller-supplied leading [Composable],
+ *  drawn before [iconKey]'s icon in the same 24dp box + 16dp [Spacer] position. It exists because a
+ *  Material `ImageVector` living in `:sharedUi` cannot go through [iconKey], which resolves HOST
+ *  drawables by key via [net.bible.sharedui.settings.LocalSettingsIcon]. Same `if (leadingIcon !=
+ *  null)` conditional-emission shape as [iconKey] and [badge] above, and for the same reason: no
+ *  slot is emitted for a row without one, so every existing caller (which never passes
+ *  `leadingIcon`) renders byte-identical to before. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AbSwitchRow(
@@ -88,6 +97,7 @@ fun AbSwitchRow(
     onLongClick: (() -> Unit)? = null,
     iconKey: String? = null,
     badge: String? = null,
+    leadingIcon: (@Composable () -> Unit)? = null,
 ) {
     val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
     Row(
@@ -109,6 +119,14 @@ fun AbSwitchRow(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Same conditional-emission shape as iconKey below (and for the same reason): nothing is
+        // emitted for a row without one, so every existing caller renders byte-identical. This slot
+        // exists because a Material ImageVector living in :sharedUi cannot go through
+        // LocalSettingsIcon, which resolves HOST drawables by key.
+        if (leadingIcon != null) {
+            Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) { leadingIcon() }
+            Spacer(Modifier.width(16.dp))
+        }
         if (iconPainter != null) {
             Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.size(24.dp))
             Spacer(Modifier.width(16.dp))
