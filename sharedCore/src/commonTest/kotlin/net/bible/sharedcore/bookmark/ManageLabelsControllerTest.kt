@@ -28,6 +28,7 @@ class ManageLabelsControllerTest {
         private val overridden: Set<String> = emptySet(),
         private val unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null, false),
         private val contentSearch: suspend (String) -> List<ManageLabelsRow.SearchResult> = { emptyList() },
+        var compact: Boolean = false,
     ) : ManageLabelsService {
         override fun assignableLabels() = labels
         override fun unlabeledLabel() = unlabeled
@@ -35,6 +36,8 @@ class ManageLabelsControllerTest {
         override fun overriddenLabelIds() = overridden
         override fun randomColorArgb() = 0x11223344
         override suspend fun searchStudyPadsByContent(text: String): List<ManageLabelsRow.SearchResult> = contentSearch(text)
+        override fun compactLabelRows() = compact
+        override fun setCompactLabelRows(value: Boolean) { compact = value }
     }
 
     private fun controller(
@@ -50,9 +53,10 @@ class ManageLabelsControllerTest {
         unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null, false),
         scope: CoroutineScope = CoroutineScope(Dispatchers.Unconfined),
         contentSearch: suspend (String) -> List<ManageLabelsRow.SearchResult> = { emptyList() },
+        compact: Boolean = false,
     ): ManageLabelsController = ManageLabelsController(
         mode = mode,
-        service = FakeService(labels, recent, overridden, unlabeled, contentSearch),
+        service = FakeService(labels, recent, overridden, unlabeled, contentSearch, compact),
         scope = scope,
         initialSelected = initialSelected,
         initialAutoAssign = initialAutoAssign,
@@ -500,5 +504,31 @@ class ManageLabelsControllerTest {
         c.closeSearch()
         assertFalse(c.searchModeActive.value)
         assertEquals("", c.searchText.value)
+    }
+
+    @Test fun compact_row_mode_is_seeded_from_the_service_and_written_back() {
+        val service = FakeService(labels = listOf(label("L1", "Study")), compact = true)
+        val c = ManageLabelsController(
+            mode = ManageLabelsMode.ASSIGN,
+            service = service,
+            scope = CoroutineScope(Dispatchers.Unconfined),
+            initialSelected = emptySet(),
+            initialAutoAssign = emptySet(),
+            initialAutoAssignPrimary = null,
+            initialBookmarkPrimary = null,
+            highlightLabelId = null,
+            onEditLabel = {},
+            onSelectStudyPad = { _, _ -> },
+            onSave = {},
+            onReset = {},
+        )
+
+        // Seeded, not defaulted: the setting is global and survives across openings of the screen.
+        assertTrue(c.compact.value)
+
+        c.toggleCompact()
+        assertFalse(c.compact.value)
+        // Written through immediately -- there is no Save button for a view preference.
+        assertFalse(service.compact)
     }
 }

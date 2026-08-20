@@ -56,6 +56,9 @@ class ManageLabelsController(
     private val _rows = MutableStateFlow<List<ManageLabelsRow>>(emptyList())
     val rows: StateFlow<List<ManageLabelsRow>> = _rows.asStateFlow()
 
+    private val _compact = MutableStateFlow(service.compactLabelRows())
+    val compact: StateFlow<Boolean> = _compact.asStateFlow()
+
     // ---- StudyPad content-search debounce (verbatim classic ManageLabels.kt:804-842) ----
     private var contentSearchJob: Job? = null
     // Bumped on every dispatch (whether or not a job is actually launched) so a completed job can
@@ -195,6 +198,11 @@ class ManageLabelsController(
     }
     fun editLabel(id: String) = onEditLabel(id)
     fun newLabel() = onEditLabel(null)
+    fun toggleCompact() {
+        val value = !_compact.value
+        _compact.value = value
+        service.setCompactLabelRows(value)
+    }
     fun selectStudyPad(labelId: String, firstMatchEntryId: String?) = onSelectStudyPad(labelId, firstMatchEntryId)
     fun save() = onSave()
     fun reset() = onReset()
