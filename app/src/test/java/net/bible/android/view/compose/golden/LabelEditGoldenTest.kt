@@ -59,16 +59,21 @@ class LabelEditGoldenTest {
     /** [special] hides name-edit/favourite/auto-assign (isSpecialLabel) -- NOT custom-icon, which
      *  is gated on isSpeakLabel instead and stays visible here. [ws] gives a workspace context,
      *  revealing the "this workspace" group + override picker, pinned to MARKER so the picker's
-     *  non-default option renders. [inherit] sets wholeVerseStyle to null (the "Same as selection"
-     *  tile) instead of the pinned MARKER used by every other case. */
-    private fun sample(special: Boolean = false, ws: Boolean = false, inherit: Boolean = false) = LabelEditState(
+     *  non-default option renders, and pins `autoAssign = true` too so the section's ⚡ header
+     *  mark and its "set as main label" switch (`autoAssignPrimaryEnabled`) are both live rather
+     *  than a permanently-off/disabled row. [inherit] sets wholeVerseStyle to null (the "Same as
+     *  selection" tile) instead of the pinned MARKER used by every other case. [assigning] gives
+     *  the bookmark context that reveals the "this bookmark" group, with both its switches ON
+     *  (`thisBookmarkSelected`/`thisBookmarkPrimary`) so the group's own 🔖 header mark renders
+     *  too, the same way [ws] lights up the workspace group's marks. */
+    private fun sample(special: Boolean = false, ws: Boolean = false, inherit: Boolean = false, assigning: Boolean = false) = LabelEditState(
         labelId = "L1", name = "Study", color = AbColor.palette.first(),
         customIcon = null,
         selectionStyle = BookmarkDisplayStyle.HIGHLIGHT,
         wholeVerseStyle = if (inherit) null else BookmarkDisplayStyle.MARKER,
-        favourite = true, isAssigning = false,
-        thisBookmarkSelected = false, thisBookmarkPrimary = false, hasWorkspaceContext = ws,
-        autoAssign = false, autoAssignPrimary = false,
+        favourite = true, isAssigning = assigning,
+        thisBookmarkSelected = assigning, thisBookmarkPrimary = assigning, hasWorkspaceContext = ws,
+        autoAssign = ws, autoAssignPrimary = false,
         overrideMode = if (ws) OverrideMode.MARKER else OverrideMode.NONE,
         isSpecialLabel = special, isSpeakLabel = false,
     )
@@ -126,19 +131,34 @@ class LabelEditGoldenTest {
         captureGolden("LabelEdit", "inherit", EDGE_MODE, heightDp = 1000, content = screen(sample(inherit = true)))
 
     /** hasWorkspaceContext=true with the section COLLAPSED (the default): the "this workspace"
-     *  header carries the auto-assign (bolt) and override (tune) marks -- pinned to
-     *  OverrideMode.MARKER so the tune mark shows -- but the switches and override picker
-     *  underneath are not rendered at all. The expanded counterpart is labelEdit_override_expanded. */
+     *  header carries BOTH the auto-assign (⚡) mark -- `sample(ws = true)` now also pins
+     *  `autoAssign = true` -- and the override (⚙) mark -- pinned to OverrideMode.MARKER -- but
+     *  the switches and override picker underneath are not rendered at all. Proves ⚡ and ⚙. The
+     *  expanded counterpart is labelEdit_override_expanded. */
     @Test fun labelEdit_override() =
         captureGolden("LabelEdit", "override", EDGE_MODE, heightDp = 1400, content = screen(sample(ws = true)))
 
-    /** hasWorkspaceContext=true with the section EXPANDED: the auto-assign switch (with its ⚡, the
-     *  same mark the list row's toggle uses), the main-label switch, and the override picker. The
-     *  collapsed counterpart is labelEdit_override. */
+    /** hasWorkspaceContext=true with the section EXPANDED: the auto-assign switch is now CHECKED
+     *  (autoAssign = true), which also makes `autoAssignPrimaryEnabled` true so the "set as main
+     *  label" switch underneath is live rather than permanently greyed; plus the auto-assign
+     *  switch's own ⚡ leading icon (the same mark the list row's toggle uses, and the mark the
+     *  collapsed header in labelEdit_override shows), and the override picker. The collapsed
+     *  counterpart is labelEdit_override. */
     @Test fun labelEdit_override_expanded() =
         captureGolden(
             "LabelEdit", "override_expanded", EDGE_MODE, heightDp = 1400,
             content = screen(sample(ws = true), workspaceExpanded = true),
+        )
+
+    /** isAssigning=true with the "this bookmark" section EXPANDED: both switches are ON
+     *  (thisBookmarkSelected/thisBookmarkPrimary), so the section's own 🔖 header mark is visible
+     *  at the top AND the two switch rows underneath render -- this is the section's first-ever
+     *  golden coverage; nothing previously captured isAssigning=true at all. One EDGE_MODE capture
+     *  is enough: this is a state check, not a theme check. Proves 🔖. */
+    @Test fun labelEdit_assigning_expanded() =
+        captureGolden(
+            "LabelEdit", "assigning_expanded", EDGE_MODE, heightDp = 1200,
+            content = screen(sample(assigning = true), thisBookmarkExpanded = true),
         )
 
     /** The identity sheet open over the editor: name, colour presets, icon grid. Rendered directly
