@@ -374,10 +374,14 @@ private fun LabelItemRow(
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     LabelStyleTag(label.selectionStyle, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
-                    // Only when the whole-verse axis is really set: null means it inherits, and
-                    // repeating the same tag twice would say nothing.
+                    // Only when the whole-verse axis is really DIFFERENT from the selection axis:
+                    // null means it inherits, and an explicitly-set-but-equal value reads the same way
+                    // for display -- one tag already says everything, so a second identical tag is
+                    // noise, not information. Task 4's save path normalises the equal case to null
+                    // going forward, so an explicitly-equal stored value can only survive here as
+                    // legacy data; treating it the same as null keeps that legacy case honest too.
                     val wholeVerse = label.wholeVerseStyle
-                    if (wholeVerse != null) {
+                    if (wholeVerse != null && wholeVerse != label.selectionStyle) {
                         Text(
                             " · ",
                             style = MaterialTheme.typography.labelSmall,
