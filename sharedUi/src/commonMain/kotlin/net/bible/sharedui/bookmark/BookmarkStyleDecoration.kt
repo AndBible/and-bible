@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
@@ -148,6 +149,10 @@ fun LabelStyleTag(
             } else {
                 MaterialTheme.colorScheme.onSurface
             },
+            // A tag is a short label, not a paragraph -- it must never wrap. Wrapping also
+            // silently inflates the row past its 48dp target.
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = decoration.textModifier,
         )
         if (decoration.showsMarkerIcon) {

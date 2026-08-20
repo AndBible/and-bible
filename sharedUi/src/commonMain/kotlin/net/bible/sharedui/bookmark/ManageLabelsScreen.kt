@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -337,6 +338,13 @@ private fun LabelItemRow(
         // overflow casualty, and a clipped IconButton stays tappable and can steal its neighbour's
         // tap -- so the name absorbs any shortage and the tag and controls keep intrinsic width.
         Column(modifier = Modifier.weight(1f)) {
+            // The style tag is bounded on BOTH branches: without a cap, an intrinsic-width tag
+            // ("Marker only") can win the space contest against the weighted name and make it
+            // vanish entirely (round-1 fix -- Finding 1). 110dp comfortably fits any single
+            // translated style name (Roborazzi caught "Highlig/ht" wrapping before Finding 2's
+            // maxLines fix; 110dp plus that fix means it now ellipsizes instead of wrapping, in
+            // the case a translation is unusually long).
+            val tagMaxWidth = Modifier.widthIn(max = 110.dp)
             if (compact) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -345,12 +353,16 @@ private fun LabelItemRow(
                         fontWeight = if (row.highlighted) FontWeight.Bold else FontWeight.Normal,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f),
+                        // The name is the row's identity and must win the space contest, not just
+                        // avoid losing it to the trailing controls (which the outer weight(1f)
+                        // already handles) -- a floor keeps it from being squeezed to nothing by
+                        // the tag beside it in this same Row (round-1 fix -- Finding 1).
+                        modifier = Modifier.weight(1f).widthIn(min = 72.dp),
                     )
                     Spacer(Modifier.width(8.dp))
                     // Selection axis only when compact: one line cannot carry both and still leave
                     // the name legible. The whole-verse axis is what the two-line mode adds.
-                    LabelStyleTag(label.selectionStyle, label.color, iconSlot = markerGlyph)
+                    LabelStyleTag(label.selectionStyle, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
                 }
             } else {
                 Text(
@@ -361,7 +373,7 @@ private fun LabelItemRow(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    LabelStyleTag(label.selectionStyle, label.color, iconSlot = markerGlyph)
+                    LabelStyleTag(label.selectionStyle, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
                     // Only when the whole-verse axis is really set: null means it inherits, and
                     // repeating the same tag twice would say nothing.
                     val wholeVerse = label.wholeVerseStyle
@@ -371,7 +383,11 @@ private fun LabelItemRow(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        LabelStyleTag(wholeVerse, label.color, iconSlot = markerGlyph)
+                        // Bounded the same way as the selection tag above: two unbounded tags plus
+                        // the " · " separator can together overflow the name column's width just
+                        // as one unbounded tag could crowd out the name (round-1 fix -- Finding 1's
+                        // failure mode applies here too, one level up).
+                        LabelStyleTag(wholeVerse, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
                     }
                 }
             }
