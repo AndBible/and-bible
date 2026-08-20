@@ -20,8 +20,8 @@ package net.bible.android.view.compose.golden
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.AddCircleOutline
-import androidx.compose.material.icons.filled.Label
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -49,7 +49,7 @@ import org.robolectric.annotation.GraphicsMode
  *  stubbed empty and the colour was never in an image). The real host resolves an Android drawable
  *  per key; the glyph here only has to be visible and tinted. */
 val manageLabelIcon: @Composable (String?, Color) -> Unit = { _, tint ->
-    Icon(Icons.Filled.Label, contentDescription = null, tint = tint)
+    Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = tint)
 }
 
 @RunWith(RobolectricTestRunner::class)
