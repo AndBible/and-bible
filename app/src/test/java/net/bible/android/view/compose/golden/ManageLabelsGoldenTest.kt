@@ -310,19 +310,6 @@ class ManageLabelsGoldenTest {
             content = screen(ManageLabelsMode.WORKSPACE, compact = true),
         )
 
-    /** The two-line row at its tightest: a 320dp-wide screen in ASSIGN, where the trailing controls
-     *  take ~144dp and the name column keeps the rest. This is the width at which round 1's layout
-     *  starved the name to nothing, so it is worth a permanent capture rather than a one-off probe:
-     *  what must hold is that no tag text bleeds over the trailing icons and no name reaches zero
-     *  width -- the tag row is bounded by the weighted Column, so both tags ellipsize instead. */
-    @Test
-    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w320dp")
-    fun manageLabels_styles_narrow() =
-        captureGolden(
-            "ManageLabels", "styles_narrow", EDGE_MODE, heightDp = 500,
-            content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()),
-        )
-
     /** WORKSPACE: auto-assign circle icons, favourite hearts, override dot, and the Unlabeled row
      *  (mode.showUnassigned) rendered with a plain (non-clickable) icon -- the Task-3 parity fix. */
     @Test fun manageLabels_workspace() =

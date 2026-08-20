@@ -61,6 +61,11 @@ private fun capture(
     // are captured at an arbitrary animation phase, making the golden flaky (record != verify).
     // heightDp>0 overrides only the device HEIGHT (width stays the default), so a long-list golden
     // (e.g. the 8-status matrix) can render every row instead of clipping at the default viewport.
+    // The WIDTH is never overridden here or anywhere in this harness -- every golden in this repo
+    // is captured at the harness's default 320dp, the narrowest mainstream phone width. A capture
+    // already exercises the tightest layout case; a per-test `qualifiers = "w320dp"` changes
+    // nothing and only looks like it does (round-10a Task 6, fix round 5 -- a whole extra golden
+    // was recorded on that false premise before this comment existed).
     captureRoboImage(
         path,
         roborazziComposeOptions = RoborazziComposeOptions {
