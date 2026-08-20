@@ -95,4 +95,6 @@ fun BookmarkEntities.Label.toLabelItem(): LabelItem = LabelItem(
     isSpecial = isSpecialLabel,
     customIcon = customIcon,
     hasOverride = false,
+    selectionStyle = displayStyle,
+    wholeVerseStyle = displayStyleWholeVerse,
 )

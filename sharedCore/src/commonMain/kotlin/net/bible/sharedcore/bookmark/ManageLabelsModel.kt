@@ -35,6 +35,17 @@ data class LabelItem(
     val isSpecial: Boolean,
     val customIcon: String?,
     val hasOverride: Boolean,
+    // Appended, not inserted next to customIcon: ManageLabelsControllerTest constructs LabelItem
+    // POSITIONALLY in two places (`LabelItem("UNL", "Unlabeled", 0, false, true, true, null, false)`
+    // at roughly :29 and :50), so an inserted parameter would rebind hasOverride's argument. Append
+    // + default keeps every existing call site correct, which is the same append-only discipline
+    // the positional AppMessage keys taught this repo.
+    /** The label's own style for text-selection bookmarks. */
+    val selectionStyle: BookmarkDisplayStyle = BookmarkDisplayStyle.HIGHLIGHT,
+    /** The whole-verse axis; `null` means "inherit [selectionStyle]", which is a storage concept —
+     *  the list shows the tag for this axis only when it is non-null, i.e. only when it is really
+     *  set to something of its own. */
+    val wholeVerseStyle: BookmarkDisplayStyle? = null,
 )
 
 sealed interface ManageLabelsRow {
