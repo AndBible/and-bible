@@ -717,7 +717,13 @@ class BookmarkEntities {
         var name: String = "",
         @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
         @ColumnInfo(defaultValue = "0") var displayStyle: BookmarkDisplayStyle = BookmarkDisplayStyle.HIGHLIGHT,
-        @ColumnInfo(defaultValue = "1") var displayStyleWholeVerse: BookmarkDisplayStyle? = BookmarkDisplayStyle.UNDERLINE,
+        // The SQL default stays 1 (UNDERLINE) deliberately: changing it would alter the table's
+        // identity hash and force a schema bump plus an iOS contract update, and it is unreachable
+        // anyway -- Room names every column on insert, and ExportStudyPads / cloud sync derive their
+        // column lists from the live schema. The KOTLIN default is what a newly created label gets,
+        // and a new label now inherits (which is what the first-run sample labels already do
+        // explicitly, CommonUtils.kt:1341-1344).
+        @ColumnInfo(defaultValue = "1") var displayStyleWholeVerse: BookmarkDisplayStyle? = null,
         @ColumnInfo(defaultValue = "0") var favourite: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: LabelType? = null,
         @ColumnInfo(defaultValue = "NULL") var customIcon: String? = null,

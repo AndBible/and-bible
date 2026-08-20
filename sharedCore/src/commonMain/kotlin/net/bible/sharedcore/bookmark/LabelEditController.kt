@@ -53,7 +53,7 @@ class LabelEditController(
 
     fun isDirty(): Boolean = _state.value != initialState
 
-    fun save() = onFinish(LabelEditResult.Save(_state.value))
+    fun save() = onFinish(LabelEditResult.Save(_state.value.normalizedForSave()))
     fun cancel() = onFinish(LabelEditResult.Cancel)
 
     fun requestDelete() {

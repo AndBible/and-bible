@@ -44,4 +44,12 @@ data class LabelEditState(
 
     val thisBookmarkPrimaryEnabled: Boolean get() = thisBookmarkSelected
     val autoAssignPrimaryEnabled: Boolean get() = autoAssign
+
+    /**
+     * The state as it should be persisted: a whole-verse style equal to the selection style is
+     * stored as `null` (inherit), matching what the 12 → 13 migration did to the historical data
+     * (`BookmarkMigrations.kt:259`). Applied at SAVE time only, never to live editor state.
+     */
+    fun normalizedForSave(): LabelEditState =
+        if (wholeVerseStyle != null && wholeVerseStyle == selectionStyle) copy(wholeVerseStyle = null) else this
 }

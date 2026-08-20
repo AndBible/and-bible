@@ -82,4 +82,32 @@ class LabelEditControllerTest {
         assertEquals(BookmarkDisplayStyle.UNDERLINE, c.state.value.wholeVerseStyle)
         assertFalse(c.isDirty())
     }
+
+    @Test fun save_normalises_whole_verse_equal_to_selection() {
+        var result: LabelEditResult? = null
+        val c = controller(
+            state().copy(selectionStyle = BookmarkDisplayStyle.HIGHLIGHT, wholeVerseStyle = BookmarkDisplayStyle.MARKER),
+            onFinish = { result = it },
+        )
+
+        c.setWholeVerseStyle(BookmarkDisplayStyle.HIGHLIGHT)
+        // Live state keeps the explicit value: normalising here would flip the editor's checkbox
+        // off and collapse the group under the user's finger the moment they picked the matching
+        // style.
+        assertEquals(BookmarkDisplayStyle.HIGHLIGHT, c.state.value.wholeVerseStyle)
+
+        c.save()
+        assertNull((result as LabelEditResult.Save).state.wholeVerseStyle)
+    }
+
+    @Test fun save_keeps_a_whole_verse_style_that_differs() {
+        var result: LabelEditResult? = null
+        val c = controller(
+            state().copy(selectionStyle = BookmarkDisplayStyle.HIGHLIGHT, wholeVerseStyle = BookmarkDisplayStyle.UNDERLINE),
+            onFinish = { result = it },
+        )
+
+        c.save()
+        assertEquals(BookmarkDisplayStyle.UNDERLINE, (result as LabelEditResult.Save).state.wholeVerseStyle)
+    }
 }
