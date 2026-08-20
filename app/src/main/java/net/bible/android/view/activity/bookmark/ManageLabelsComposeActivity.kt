@@ -166,12 +166,14 @@ class ManageLabelsComposeActivity : ActivityBase() {
                     val searchText by controller.searchText.collectAsState()
                     val searchMode by controller.searchMode.collectAsState()
                     val searchModeActive by controller.searchModeActive.collectAsState()
+                    val compact by controller.compact.collectAsState()
                     var showExportDialog by remember { mutableStateOf(false) }
 
                     ManageLabelsScreen(
                         title = getString(data.titleId),
                         rows = rows,
                         mode = controller.mode,
+                        compact = compact,
                         searchText = searchText,
                         searchMode = searchMode,
                         onSearch = controller::setSearch,

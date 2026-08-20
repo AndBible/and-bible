@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -37,12 +38,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.filled.Abc
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
@@ -97,8 +100,8 @@ import net.bible.sharedui.theme.LocalDisplayColorMode
  * [net.bible.sharedcore.bookmark.LabelItem.customIcon] is `null`), tinted with the label's own
  * colour via [net.bible.sharedcore.theme.accentArgbFor] -- the same call the editor's avatar
  * already makes -- never a solid dot standing in for the icon. Auto-assign membership is no longer
- * expressed by replacing this glyph; it gets its own explicit control in the trailing run (a later
- * task's ⚡ toggle).
+ * expressed by replacing this glyph; it has its own explicit ⚡ toggle in the trailing run, in the
+ * same visual grammar as the favourite heart beside it (filled + tinted on, outlined + muted off).
  *
  * [searchActions] is a second host action slot, rendered in the *search* bar (alongside this
  * screen's own [SearchModeMenu]) rather than the normal one [actions] occupies. The host puts its
@@ -112,6 +115,7 @@ fun ManageLabelsScreen(
     title: String,
     rows: List<ManageLabelsRow>,
     mode: ManageLabelsMode,
+    compact: Boolean,
     searchText: String,
     searchMode: SearchMode,
     onSearch: (String) -> Unit,
@@ -171,6 +175,7 @@ fun ManageLabelsScreen(
                         is ManageLabelsRow.Item -> LabelItemRow(
                             row = row,
                             mode = mode,
+                            compact = compact,
                             onRowClick = onRowClick,
                             onRowLongClick = onRowLongClick,
                             onToggleChecked = onToggleChecked,
@@ -293,18 +298,23 @@ private fun CategoryHeaderRow(category: LabelCategory, strings: Strings) {
 private fun LabelItemRow(
     row: ManageLabelsRow.Item,
     mode: ManageLabelsMode,
+    compact: Boolean,
     onRowClick: (String) -> Unit,
     onRowLongClick: (String) -> Unit,
     onToggleChecked: (String) -> Unit,
     onToggleFavourite: (String) -> Unit,
     onSetPrimary: (String) -> Unit,
-    // Wired to the ⚡ toggle in the trailing run in the next task; the leading glyph deliberately
-    // stopped being its click target here.
-    @Suppress("UNUSED_PARAMETER") onToggleAutoAssign: (String) -> Unit,
+    onToggleAutoAssign: (String) -> Unit,
     iconSlot: @Composable (customIcon: String?, tint: Color) -> Unit,
     strings: Strings,
 ) {
     val label = row.label
+    // Identity glyph tint: accentArgbFor is what greys it in BW / e-ink, same call the editor
+    // avatar makes (LabelEditScreen.kt:235). The style tag below uses the READER's monochrome
+    // substitutions instead, via bookmarkStyleDecoration -- two different rules on purpose, one for
+    // a workspace accent and one for what the page actually looks like.
+    val glyphTint = Color(accentArgbFor(label.color, LocalDisplayColorMode.current))
+    val markerGlyph: @Composable () -> Unit = { iconSlot(label.customIcon, glyphTint) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -312,29 +322,60 @@ private fun LabelItemRow(
                 onClick = { onRowClick(label.id) },
                 onLongClick = { onRowLongClick(label.id) },
             )
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            // 48dp, not classic's 40dp: the row carries up to four tappable controls and 48dp is
+            // the Material minimum touch target. The old 40dp icon Box plus 8dp vertical padding
+            // made this ~56dp with a mostly empty leading column.
+            .heightIn(min = 48.dp)
+            .padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // The glyph is identity only: the label's icon (or the host's built-in default when
-        // customIcon == null) in the label's own colour. accentArgbFor is what greys it in BW /
-        // e-ink, the same call LabelEditScreen.kt:235 makes for the editor avatar. It is NOT a
-        // control any more -- classic's hidden "tap the icon to toggle auto-assign" gesture is
-        // replaced by an explicit ⚡ toggle in the trailing run (Task 6).
-        val glyphTint = Color(accentArgbFor(label.color, LocalDisplayColorMode.current))
-        Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) {
-            iconSlot(label.customIcon, glyphTint)
-        }
+        Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) { markerGlyph() }
 
         Spacer(Modifier.width(12.dp))
 
-        Text(
-            text = label.name,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = if (row.highlighted) FontWeight.Bold else FontWeight.Normal,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
-        )
+        // ONLY this column is weighted. A weighted trailing element would make the LAST child the
+        // overflow casualty, and a clipped IconButton stays tappable and can steal its neighbour's
+        // tap -- so the name absorbs any shortage and the tag and controls keep intrinsic width.
+        Column(modifier = Modifier.weight(1f)) {
+            if (compact) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = label.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = if (row.highlighted) FontWeight.Bold else FontWeight.Normal,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    // Selection axis only when compact: one line cannot carry both and still leave
+                    // the name legible. The whole-verse axis is what the two-line mode adds.
+                    LabelStyleTag(label.selectionStyle, label.color, iconSlot = markerGlyph)
+                }
+            } else {
+                Text(
+                    text = label.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = if (row.highlighted) FontWeight.Bold else FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    LabelStyleTag(label.selectionStyle, label.color, iconSlot = markerGlyph)
+                    // Only when the whole-verse axis is really set: null means it inherits, and
+                    // repeating the same tag twice would say nothing.
+                    val wholeVerse = label.wholeVerseStyle
+                    if (wholeVerse != null) {
+                        Text(
+                            " · ",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        LabelStyleTag(wholeVerse, label.color, iconSlot = markerGlyph)
+                    }
+                }
+            }
+        }
 
         if (label.hasOverride) {
             Icon(
@@ -347,6 +388,26 @@ private fun LabelItemRow(
 
         if (mode.showCheckboxes) {
             Checkbox(checked = row.checked, onCheckedChange = { onToggleChecked(label.id) })
+        }
+
+        // Auto-assign, in the same grammar as the favourite heart and the primary bookmark below:
+        // filled + primary tint on, outlined + muted off, tap toggles. Visible in BOTH states, so
+        // the setting is discoverable at all -- classic's plain tag glyph gave no hint that tapping
+        // it did anything, which is the confusion this replaces. Bolt, not AutoAwesome: the sparkle
+        // now reads as "AI".
+        if (mode.workspaceEdits && !label.isUnlabeled) {
+            IconButton(onClick = { onToggleAutoAssign(label.id) }) {
+                Icon(
+                    if (row.isAutoAssign) Icons.Filled.Bolt else Icons.Outlined.Bolt,
+                    contentDescription = strings.autoAssignLabelSwitchLabel,
+                    tint = if (row.isAutoAssign) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    modifier = Modifier.size(20.dp),
+                )
+            }
         }
 
         if (mode.workspaceEdits && !label.isUnlabeled) {

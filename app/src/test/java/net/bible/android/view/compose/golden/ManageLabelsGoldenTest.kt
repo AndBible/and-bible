@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import net.bible.android.TEST_SDK
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelCategory
 import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsMode
@@ -89,6 +90,8 @@ class ManageLabelsGoldenTest {
         favourite: Boolean = false,
         isUnlabeled: Boolean = false,
         hasOverride: Boolean = false,
+        selectionStyle: BookmarkDisplayStyle = BookmarkDisplayStyle.HIGHLIGHT,
+        wholeVerseStyle: BookmarkDisplayStyle? = null,
     ) = LabelItem(
         id = id,
         name = name,
@@ -97,7 +100,35 @@ class ManageLabelsGoldenTest {
         isUnlabeled = isUnlabeled,
         isSpecial = false,
         customIcon = null,
+        selectionStyle = selectionStyle,
+        wholeVerseStyle = wholeVerseStyle,
         hasOverride = hasOverride,
+    )
+
+    /** One row per style, plus a row whose whole-verse axis really differs (so the second tag
+     *  appears) and one that inherits (so it does not). This is the image that shows whether the
+     *  list answers "what does this label look like" at all. */
+    private fun styleRows(): List<ManageLabelsRow> = listOf(
+        ManageLabelsRow.Item(
+            label = label("S1", "Study", selectionStyle = BookmarkDisplayStyle.HIGHLIGHT),
+            checked = true, isAutoAssign = true, isPrimary = true, highlighted = false,
+        ),
+        ManageLabelsRow.Item(
+            label = label(
+                "S2", "Sermon notes", color = AbColor.palette[1],
+                selectionStyle = BookmarkDisplayStyle.UNDERLINE,
+                wholeVerseStyle = BookmarkDisplayStyle.HIGHLIGHT,
+            ),
+            checked = false, isAutoAssign = false, isPrimary = false, highlighted = false,
+        ),
+        ManageLabelsRow.Item(
+            label = label("S3", "Prayer requests", color = AbColor.palette[2], selectionStyle = BookmarkDisplayStyle.MARKER),
+            checked = false, isAutoAssign = false, isPrimary = false, highlighted = false,
+        ),
+        ManageLabelsRow.Item(
+            label = label("S4", "Old notes", color = AbColor.palette[3], selectionStyle = BookmarkDisplayStyle.HIDDEN),
+            checked = false, isAutoAssign = false, isPrimary = false, highlighted = false,
+        ),
     )
 
     /** A representative row list spanning ACTIVE/RECENT/OTHER, with a checked+primary row, a
@@ -142,11 +173,16 @@ class ManageLabelsGoldenTest {
         searchText: String = "",
         actions: @Composable RowScope.() -> Unit = {},
         searchActions: @Composable RowScope.() -> Unit = {},
+        compact: Boolean = false,
+        rows: List<ManageLabelsRow>? = null,
     ) = @androidx.compose.runtime.Composable {
         ManageLabelsScreen(
             title = "Manage labels",
-            rows = rows(mode),
+            // rows(mode) below: explicit `this.` is load-bearing -- the `rows` PARAMETER above
+            // shadows the `rows(mode)` MEMBER FUNCTION by simple name inside this scope.
+            rows = rows ?: this.rows(mode),
             mode = mode,
+            compact = compact,
             searchText = searchText,
             searchMode = searchMode,
             onSearch = {},
@@ -208,6 +244,7 @@ class ManageLabelsGoldenTest {
             title = "Manage labels",
             rows = searchResultRows(),
             mode = ManageLabelsMode.STUDYPAD,
+            compact = false,
             searchText = "god",
             searchMode = SearchMode.CONTENT,
             onSearch = {},
@@ -241,6 +278,28 @@ class ManageLabelsGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun manageLabels_assign_rtl() =
         captureRtl("ManageLabels", "assign", heightDp = 800, content = screen(ManageLabelsMode.ASSIGN))
+
+    /** Every style on one page, two-line (default) mode: the tag column is the thing under test.
+     *  Row S2's whole-verse axis differs so its second tag appears; the other three inherit, so
+     *  they show one tag each. */
+    @Test fun manageLabels_styles() =
+        captureMatrix("ManageLabels", "styles", heightDp = 500, content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()))
+
+    /** The same rows, compact: one line, selection tag only, ~48dp per row. Read against
+     *  ManageLabels_styles_light to see what the ⋮ toggle actually buys. */
+    @Test fun manageLabels_styles_compact() =
+        captureGolden(
+            "ManageLabels", "styles_compact", EDGE_MODE, heightDp = 500,
+            content = screen(ManageLabelsMode.ASSIGN, rows = styleRows(), compact = true),
+        )
+
+    /** WORKSPACE compact: the four trailing controls (checkbox, ⚡, heart, primary) at their
+     *  tightest, against the longest name in the fixture. This is the layout-overflow image. */
+    @Test fun manageLabels_workspace_compact() =
+        captureGolden(
+            "ManageLabels", "workspace_compact", EDGE_MODE, heightDp = 800,
+            content = screen(ManageLabelsMode.WORKSPACE, compact = true),
+        )
 
     /** WORKSPACE: auto-assign circle icons, favourite hearts, override dot, and the Unlabeled row
      *  (mode.showUnassigned) rendered with a plain (non-clickable) icon -- the Task-3 parity fix. */
