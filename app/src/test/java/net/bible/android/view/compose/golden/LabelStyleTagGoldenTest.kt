@@ -24,8 +24,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.Color
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
+import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.bookmark.LabelStyleTag
 import net.bible.sharedui.components.AbColor
+import net.bible.sharedui.theme.LocalDisplayColorMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -48,7 +50,11 @@ class LabelStyleTagGoldenTest {
         Column {
             BookmarkDisplayStyle.entries.forEach { style ->
                 LabelStyleTag(style = style, colorArgb = AbColor.palette[1]) {
-                    Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = Color(AbColor.palette[1]))
+                    // Stands in for the ROW's own glyph (ManageLabelsScreen.kt's `glyphTint`), not
+                    // for the style decoration -- accentArgbFor is exactly what's banned inside
+                    // bookmarkStyleDecoration, but here it is the correct precedent to follow.
+                    val glyphTint = Color(accentArgbFor(AbColor.palette[1], LocalDisplayColorMode.current))
+                    Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = glyphTint)
                 }
             }
         }
