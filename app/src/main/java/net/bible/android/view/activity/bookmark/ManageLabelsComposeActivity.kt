@@ -332,11 +332,15 @@ class ManageLabelsComposeActivity : ActivityBase() {
                 icon = { Icon(painterResource(R.drawable.ic_help_white_24dp), contentDescription = null) },
             )
             val compact by controller.compact.collectAsState()
+            // No icon: material-icons-extended is test-only in :app, and no drawable means "compact".
+            // The check mark lands in the trailing slot, so we reserve a leading slot to align this
+            // row's text with its icon-bearing siblings (Help, Reorder, Reset, Export/Import).
             AbMenuItem(
                 text = getString(R.string.compact_list),
                 onClick = { close(); controller.toggleCompact() },
                 checkable = true,
                 checked = compact,
+                reserveIconSlot = true,
             )
             if (controller.mode.hasReOrderButton) {
                 AbMenuItem(
