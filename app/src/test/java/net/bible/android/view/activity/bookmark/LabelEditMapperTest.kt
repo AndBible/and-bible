@@ -138,14 +138,24 @@ class LabelEditMapperTest {
     }
 
     @Test
-    fun `a fresh label defaults to highlight on selection and underline on whole verses`() {
-        // The whole-verse UNDERLINE default is a product decision, not a leftover: a full-verse
-        // background highlight is too heavy (MIGRATION_52_53_underline_default, 7e020fdd7). Defaulting
-        // it to inherit would silently turn every new label's whole-verse bookmarks into highlights.
-        // The SQL default is asserted by BookmarkDatabaseMigration12To13Test; this pins the Kotlin one.
+    fun `a fresh label defaults to highlight on selection and inherit on whole verses`() {
+        // Round 9b deliberately chose an EXPLICIT UNDERLINE here, not a leftover: a full-verse
+        // background highlight is too heavy (MIGRATION_52_53_underline_default, 7e020fdd7), and
+        // defaulting to inherit would silently turn every new label's whole-verse bookmarks into
+        // highlights.
+        //
+        // Round 10a (2026-08-20) superseded that: a new label now inherits instead, so it carries
+        // ONE style unless the user deliberately asks for two -- accepting, on purpose, that a new
+        // label's whole-verse bookmarks now highlight (the very outcome round 9b avoided). Both
+        // decisions are real; this comment keeps the lineage so a future reader does not "fix" this
+        // back to UNDERLINE without knowing it was already tried and deliberately reversed.
+        //
+        // The SQL default is asserted by BookmarkDatabaseMigration12To13Test and is deliberately
+        // UNCHANGED (still 1/UNDERLINE) -- changing it would bump the schema version and the iOS
+        // contract. This test pins only the Kotlin default.
         val label = BookmarkEntities.Label()
         assertEquals(BookmarkDisplayStyle.HIGHLIGHT, label.displayStyle)
-        assertEquals(BookmarkDisplayStyle.UNDERLINE, label.displayStyleWholeVerse)
+        assertNull(label.displayStyleWholeVerse)
     }
 
     @Test
