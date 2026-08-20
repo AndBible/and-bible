@@ -353,16 +353,26 @@ private fun LabelItemRow(
                         fontWeight = if (row.highlighted) FontWeight.Bold else FontWeight.Normal,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        // The name is the row's identity and must win the space contest, not just
-                        // avoid losing it to the trailing controls (which the outer weight(1f)
-                        // already handles) -- a floor keeps it from being squeezed to nothing by
-                        // the tag beside it in this same Row (round-1 fix -- Finding 1).
-                        modifier = Modifier.weight(1f).widthIn(min = 72.dp),
+                        modifier = Modifier.weight(1f),
                     )
-                    Spacer(Modifier.width(8.dp))
-                    // Selection axis only when compact: one line cannot carry both and still leave
-                    // the name legible. The whole-verse axis is what the two-line mode adds.
-                    LabelStyleTag(label.selectionStyle, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
+                    // Tag shown only when the row is not already crowded by a fourth control
+                    // (round-3 fix -- Finding 1 was still open: `Modifier.weight(1f).widthIn(min =
+                    // ...)` cannot work, because `weight`'s `fill = true` gives the child an EXACT
+                    // width, so a chained `widthIn` minimum is overridden -- and more fundamentally,
+                    // the space plain doesn't exist. Compact ASSIGN/HIDELABELS carry a 24dp glyph, a
+                    // 12dp spacer, 32dp of horizontal padding, and up to four 48dp IconButton touch
+                    // targets (checkbox, bolt, heart, primary) -- roughly 260dp of a 320dp-wide
+                    // screen, leaving ~60dp for the name and tag TOGETHER. Nothing conjures space
+                    // that isn't there, so something has to yield, and it's the tag, not the name: a
+                    // 20dp tag says nothing while a 40dp name still identifies the row, and the
+                    // tag's information is exactly what the two-line mode exists to show -- nothing
+                    // is lost here, only deferred to the mode whose purpose it is.
+                    if (!mode.showCheckboxes) {
+                        Spacer(Modifier.width(8.dp))
+                        // Selection axis only when compact: one line cannot carry both and still
+                        // leave the name legible. The whole-verse axis is what the two-line mode adds.
+                        LabelStyleTag(label.selectionStyle, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
+                    }
                 }
             } else {
                 Text(
