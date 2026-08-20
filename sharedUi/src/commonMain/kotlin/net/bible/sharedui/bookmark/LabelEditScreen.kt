@@ -17,7 +17,6 @@
 
 package net.bible.sharedui.bookmark
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,11 +28,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,8 +52,8 @@ import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelEditState
 import net.bible.sharedcore.bookmark.OverrideMode
 import net.bible.sharedcore.theme.accentArgbFor
-import net.bible.sharedcore.theme.isLightColor
 import net.bible.sharedui.components.AbChoiceGroup
+import net.bible.sharedui.components.AbExpandableSection
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.strings.LocalStrings
@@ -76,12 +77,18 @@ import net.bible.sharedui.theme.LocalDisplayColorMode
  * [iconSlot] now takes a `tint` alongside the icon key: the glyph's colour depends on WHERE it is
  * drawn, not on the label's own colour, so each call site picks its own tint rather than
  * [net.bible.android.view.activity.bookmark.LabelEditComposeActivity]'s `AndroidLabelIcon`
- * deriving one internally. The avatar sits on a disc filled with the label's own colour, so tinting
- * the glyph with that SAME colour made it disappear (round-9a whole-branch review I1) — the
- * avatar instead picks black or white by [isLightColor]'s luminance threshold on the disc's actual
- * background, the same rule [net.bible.sharedui.components.ColorPickerPresetsPage]'s swatch check
- * mark uses for the identical problem. The style-preview glyph (in [BookmarkStylePreview], on a
- * neutral card) keeps the label-colour tint it always had — that background never collides with it.
+ * deriving one internally. The avatar no longer sits on a disc (round-10a): a filled disc forced
+ * the glyph to a black/white contrast tint, so the label's real colour never appeared in the icon
+ * itself at all (round-9a I1 only fixed the glyph's invisibility on that disc, not this underlying
+ * cause). The glyph is now drawn directly in the label's own colour via [accentArgbFor], which
+ * keeps BW/e-ink correct. The style-preview glyph (in [BookmarkStylePreview], on a neutral card)
+ * keeps the label-colour tint it always had — that background never collided with it.
+ *
+ * The whole-verse style axis is gated behind an [AbSwitchRow]: off means the axis inherits
+ * [LabelEditState.selectionStyle] (stored as `null`), on reveals a second [AbChoiceGroup] seeded
+ * with the current effective style so nothing visibly jumps when it appears. "This bookmark" and
+ * "This workspace" collapse into [AbExpandableSection]s whose headers carry marks for whatever is
+ * already set inside them, so a collapsed section still tells the user something is there.
  */
 @Composable
 fun LabelEditScreen(
@@ -101,14 +108,21 @@ fun LabelEditScreen(
     iconKeys: List<String?>,
     iconSlot: @Composable (String?, Color) -> Unit,
     actions: @Composable RowScope.() -> Unit,
+    /** Test seams so a golden can photograph the expanded state — the sections are collapsed by
+     *  default in production, and a golden cannot press a header. Same justification as
+     *  [ManageLabelsSearchModeMenuRows] being public. */
+    initialThisBookmarkExpanded: Boolean = false,
+    initialWorkspaceExpanded: Boolean = false,
 ) {
     val strings = LocalStrings.current
     var identitySheetOpen by remember { mutableStateOf(false) }
-    val discColorArgb = accentArgbFor(state.color, LocalDisplayColorMode.current)
-    // Contrast WITH THE DISC, not the label colour itself — reusing the disc colour as the glyph
-    // tint (the pre-fix behaviour) makes the glyph invisible whenever accentArgbFor leaves the
-    // colour unchanged (every mode but BW). Same threshold as the colour-picker's check mark.
-    val avatarIconTint = if (isLightColor(discColorArgb)) Color.Black else Color.White
+    // No disc: a filled circle forced the glyph to a black/white contrast tint, so the label's
+    // real colour never appeared in the icon itself (round-9a I1 fixed the invisibility, not the
+    // cause). accentArgbFor keeps BW / e-ink correct. A colour close to the surface now draws a
+    // faint glyph — accepted, and informative: a colour that cannot be seen here cannot be seen in
+    // the reader either. The large swatch still exists where the colour is actually chosen, in
+    // LabelIdentitySheet.
+    val glyphTint = Color(accentArgbFor(state.color, LocalDisplayColorMode.current))
     // The style-preview glyph sits on a neutral card, so the label-colour tint it always had is
     // kept as-is; only the "no custom icon" default glyph keeps its neutral grey, matching classic.
     val previewIconTint = if (state.customIcon == null) NoCustomIconTint else Color(state.color)
@@ -128,12 +142,9 @@ fun LabelEditScreen(
                     .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(
-                    Modifier
-                        .size(40.dp)
-                        .background(Color(discColorArgb), CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) { iconSlot(state.customIcon, avatarIconTint) }
+                Box(Modifier.size(32.dp), contentAlignment = Alignment.Center) {
+                    iconSlot(state.customIcon, glyphTint)
+                }
                 Spacer(Modifier.width(16.dp))
                 if (state.name.isBlank()) {
                     // No hint/placeholder here read as an empty gap with no affordance at all — a
@@ -183,42 +194,116 @@ fun LabelEditScreen(
                     )
                 },
             )
-            AbChoiceGroup(
-                heading = strings.bookmarkStyleWholeVerseHeading,
-                options = WholeVerseStyleOptions,
-                selected = state.wholeVerseStyle,
-                optionLabel = { it.wholeVerseLabel(strings) },
-                onSelect = onWholeVerseStyle,
-                preview = {
-                    BookmarkStylePreview(
-                        // Inherit previews what it inherits, so the preview stays honest as the
-                        // selection axis changes.
-                        style = state.wholeVerseStyle ?: state.selectionStyle,
-                        colorArgb = state.color,
-                        sampleText = strings.bookmarkStylePreviewSample,
-                        iconSlot = { iconSlot(state.customIcon, previewIconTint) },
-                    )
-                },
+
+            // An AbSwitchRow, not a Checkbox: this editor already speaks entirely in switch rows,
+            // and a lone Checkbox would be a third widget style in one form. What matters is the
+            // SEMANTICS -- off means inherit. "Inherit" stops being an odd fifth radio and becomes
+            // the absence of a tick. Unchecking stores null; checking seeds the axis with what it
+            // already effectively was, so nothing jumps. A new label inherits
+            // (BookmarkEntities.kt:720), so this is unchecked and the second group absent in the
+            // common case -- which is the decluttering this round is for.
+            AbSwitchRow(
+                label = strings.bookmarkStyleWholeVerseCustom,
+                checked = state.wholeVerseStyle != null,
+                onCheckedChange = { on -> onWholeVerseStyle(if (on) state.selectionStyle else null) },
             )
+            val wholeVerseStyle = state.wholeVerseStyle
+            if (wholeVerseStyle != null) {
+                AbChoiceGroup(
+                    heading = strings.bookmarkStyleWholeVerseHeading,
+                    options = BookmarkDisplayStyle.entries,
+                    selected = wholeVerseStyle,
+                    optionLabel = { it.label(strings) },
+                    onSelect = { onWholeVerseStyle(it) },
+                    preview = {
+                        BookmarkStylePreview(
+                            style = wholeVerseStyle,
+                            colorArgb = state.color,
+                            sampleText = strings.bookmarkStylePreviewSample,
+                            iconSlot = { iconSlot(state.customIcon, previewIconTint) },
+                        )
+                    },
+                )
+            }
 
             if (state.thisBookmarkGroupVisible) {
-                SectionTitle(strings.thisBookmarkSectionTitle)
-                AbSwitchRow(strings.addedToBookmarkLabel, state.thisBookmarkSelected, { onToggleSelected() })
-                AbSwitchRow(strings.primaryLabelSwitchLabel, state.thisBookmarkPrimary, { onTogglePrimary() }, enabled = state.thisBookmarkPrimaryEnabled)
+                var thisBookmarkExpanded by remember { mutableStateOf(initialThisBookmarkExpanded) }
+                AbExpandableSection(
+                    title = strings.thisBookmarkSectionTitle,
+                    expanded = thisBookmarkExpanded,
+                    onToggle = { thisBookmarkExpanded = !thisBookmarkExpanded },
+                    indicators = {
+                        // Marks, not a sentence: a collapsed section still says whether anything
+                        // inside it is set, with no new translated string, and reusing exactly the
+                        // symbols the list row teaches.
+                        if (state.thisBookmarkPrimary) {
+                            Icon(
+                                Icons.Filled.Bookmark,
+                                contentDescription = strings.primaryLabelSwitchLabel,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                    },
+                ) {
+                    AbSwitchRow(strings.addedToBookmarkLabel, state.thisBookmarkSelected, { onToggleSelected() })
+                    AbSwitchRow(
+                        strings.primaryLabelSwitchLabel,
+                        state.thisBookmarkPrimary,
+                        { onTogglePrimary() },
+                        enabled = state.thisBookmarkPrimaryEnabled,
+                        leadingIcon = { Icon(Icons.Filled.Bookmark, contentDescription = null) },
+                    )
+                }
             }
 
             if (state.workspaceGroupVisible) {
-                SectionTitle(strings.thisWorkspaceSectionTitle)
-                AbSwitchRow(strings.autoAssignLabelSwitchLabel, state.autoAssign, { onToggleAutoAssign() })
-                AbSwitchRow(strings.autoAssignPrimaryLabelSwitchLabel, state.autoAssignPrimary, { onToggleAutoAssignPrimary() }, enabled = state.autoAssignPrimaryEnabled)
-
-                AbChoiceGroup(
-                    heading = strings.overrideStyleFieldLabel,
-                    options = OverrideMode.entries,
-                    selected = state.overrideMode,
-                    optionLabel = { it.label(strings) },
-                    onSelect = onOverrideMode,
-                )
+                var workspaceExpanded by remember { mutableStateOf(initialWorkspaceExpanded) }
+                AbExpandableSection(
+                    title = strings.thisWorkspaceSectionTitle,
+                    expanded = workspaceExpanded,
+                    onToggle = { workspaceExpanded = !workspaceExpanded },
+                    indicators = {
+                        if (state.autoAssign) {
+                            Icon(
+                                Icons.Filled.Bolt,
+                                contentDescription = strings.autoAssignLabelSwitchLabel,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                        if (state.overrideMode != OverrideMode.NONE) {
+                            Icon(
+                                Icons.Filled.Tune,
+                                contentDescription = strings.overrideStyleFieldLabel,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                    },
+                ) {
+                    AbSwitchRow(
+                        strings.autoAssignLabelSwitchLabel,
+                        state.autoAssign,
+                        { onToggleAutoAssign() },
+                        // The same bolt the list row's toggle uses: seeing it here is what teaches
+                        // the symbol there.
+                        leadingIcon = { Icon(Icons.Filled.Bolt, contentDescription = null) },
+                    )
+                    AbSwitchRow(
+                        strings.autoAssignPrimaryLabelSwitchLabel,
+                        state.autoAssignPrimary,
+                        { onToggleAutoAssignPrimary() },
+                        enabled = state.autoAssignPrimaryEnabled,
+                    )
+                    AbChoiceGroup(
+                        heading = strings.overrideStyleFieldLabel,
+                        options = OverrideMode.entries,
+                        selected = state.overrideMode,
+                        optionLabel = { it.label(strings) },
+                        onSelect = onOverrideMode,
+                    )
+                }
             }
         }
     }
@@ -271,9 +356,3 @@ private fun BookmarkDisplayStyle.label(strings: Strings): String = when (this) {
     BookmarkDisplayStyle.MARKER -> strings.displayModeMarker
     BookmarkDisplayStyle.HIDDEN -> strings.displayModeHidden
 }
-
-/** "Inherit" leads the whole-verse axis, so the common case is the first tile. */
-private val WholeVerseStyleOptions: List<BookmarkDisplayStyle?> = listOf(null) + BookmarkDisplayStyle.entries
-
-private fun BookmarkDisplayStyle?.wholeVerseLabel(strings: Strings): String =
-    this?.label(strings) ?: strings.displayModeInherit

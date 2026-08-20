@@ -73,7 +73,11 @@ class LabelEditGoldenTest {
         isSpecialLabel = special, isSpeakLabel = false,
     )
 
-    private fun screen(state: LabelEditState) = @androidx.compose.runtime.Composable {
+    private fun screen(
+        state: LabelEditState,
+        thisBookmarkExpanded: Boolean = false,
+        workspaceExpanded: Boolean = false,
+    ) = @androidx.compose.runtime.Composable {
         LabelEditScreen(
             state = state,
             onName = {},
@@ -91,6 +95,8 @@ class LabelEditGoldenTest {
             iconKeys = listOf("book", "cross", "star", "question", "robot", null),
             iconSlot = bookmarkIcon,
             actions = {},
+            initialThisBookmarkExpanded = thisBookmarkExpanded,
+            initialWorkspaceExpanded = workspaceExpanded,
         )
     }
 
@@ -112,17 +118,28 @@ class LabelEditGoldenTest {
     @Test fun labelEdit_special() =
         captureGolden("LabelEdit", "special", EDGE_MODE, heightDp = 1000, content = screen(sample(special = true)))
 
-    /** wholeVerseStyle = null: the whole-verse axis inherits the selection axis, so the leading
-     *  "Same as selection" tile is the selected one and the group's preview mirrors the selection
-     *  style rather than showing a style of its own. */
+    /** wholeVerseStyle = null: the "use a different style" switch is UNCHECKED and the whole-verse
+     *  choice group is absent entirely -- this is what a brand-new label shows (a new label
+     *  inherits, `BookmarkEntities.kt:720`), and it is visibly shorter than the old two-group
+     *  layout this round replaces. */
     @Test fun labelEdit_inherit() =
         captureGolden("LabelEdit", "inherit", EDGE_MODE, heightDp = 1000, content = screen(sample(inherit = true)))
 
-    /** hasWorkspaceContext=true reveals the "this workspace" group + override picker, pinned to
-     *  OverrideMode.MARKER so the picker shows a non-default selection -- needs more vertical
-     *  space than the other states (extra section heading + 2 switches + 5-option picker). */
+    /** hasWorkspaceContext=true with the section COLLAPSED (the default): the "this workspace"
+     *  header carries the auto-assign (bolt) and override (tune) marks -- pinned to
+     *  OverrideMode.MARKER so the tune mark shows -- but the switches and override picker
+     *  underneath are not rendered at all. The expanded counterpart is labelEdit_override_expanded. */
     @Test fun labelEdit_override() =
         captureGolden("LabelEdit", "override", EDGE_MODE, heightDp = 1400, content = screen(sample(ws = true)))
+
+    /** hasWorkspaceContext=true with the section EXPANDED: the auto-assign switch (with its ⚡, the
+     *  same mark the list row's toggle uses), the main-label switch, and the override picker. The
+     *  collapsed counterpart is labelEdit_override. */
+    @Test fun labelEdit_override_expanded() =
+        captureGolden(
+            "LabelEdit", "override_expanded", EDGE_MODE, heightDp = 1400,
+            content = screen(sample(ws = true), workspaceExpanded = true),
+        )
 
     /** The identity sheet open over the editor: name, colour presets, icon grid. Rendered directly
      *  rather than through a sheet-state toggle, because a ModalBottomSheet's own animation makes a

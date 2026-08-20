@@ -649,6 +649,7 @@ interface Strings {
     val bookmarkStyleSectionTitle: String            // R.string.bookmark_style (EXISTS already)
     val bookmarkStyleSelectionHeading: String        // R.string.bookmark_style_selection
     val bookmarkStyleWholeVerseHeading: String       // R.string.bookmark_style_whole_verse
+    val bookmarkStyleWholeVerseCustom: String       // R.string.bookmark_style_whole_verse_custom
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

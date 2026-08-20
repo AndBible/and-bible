@@ -593,4 +593,5 @@ class AndroidStrings(private val context: Context) : Strings {
     override val bookmarkStyleSectionTitle: String get() = context.getString(R.string.bookmark_style)
     override val bookmarkStyleSelectionHeading: String get() = context.getString(R.string.bookmark_style_selection)
     override val bookmarkStyleWholeVerseHeading: String get() = context.getString(R.string.bookmark_style_whole_verse)
+    override val bookmarkStyleWholeVerseCustom: String get() = context.getString(R.string.bookmark_style_whole_verse_custom)
 }
