@@ -56,6 +56,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -65,6 +66,7 @@ import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
+import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbColor
 import net.bible.sharedui.components.AbMenuItem
@@ -75,6 +77,7 @@ import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.search.styledTextToAnnotatedString
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
+import net.bible.sharedui.theme.LocalDisplayColorMode
 
 /**
  * Stateless port of the classic `ManageLabels` activity / `manage_labels.xml` +
@@ -86,13 +89,16 @@ import net.bible.sharedui.strings.Strings
  * top-bar overflow (new/help/reorder/reset/export-StudyPads/import-StudyPads — the single overflow
  * menu, all host-built; matches classic's one `manage_labels_options_menu.xml`).
  *
- * Design note on the leading icon: the classic adapter shows two *separate* `ImageView`s per row
- * (a label/auto-assign-circle glyph, and — further along the row — an optional custom-icon glyph).
- * This port's [iconSlot] contract only carries one glyph slot, so the two are consolidated here:
- * when the label is auto-assigned in a workspace-editing [mode], the leading slot is a plain
- * colour-filled circle (mirrors `ic_label_circle`, drawn natively — no host round-trip needed for a
- * solid dot); otherwise [iconSlot] renders the label's own icon (custom, or the host's built-in
- * default when [net.bible.sharedcore.bookmark.LabelItem.customIcon] is `null`).
+ * Design note on the leading icon: earlier this slot doubled as an *auto-assign* control -- a
+ * plain colour-filled circle replaced the label's own icon whenever the label was auto-assigned in
+ * a workspace-editing [mode], mirroring classic's separate label/auto-assign-circle `ImageView`.
+ * That consolidation is gone: the leading slot is now identity only. [iconSlot] renders the
+ * label's own icon (custom, or the host's built-in default when
+ * [net.bible.sharedcore.bookmark.LabelItem.customIcon] is `null`), tinted with the label's own
+ * colour via [net.bible.sharedcore.theme.accentArgbFor] -- the same call the editor's avatar
+ * already makes -- never a solid dot standing in for the icon. Auto-assign membership is no longer
+ * expressed by replacing this glyph; it gets its own explicit control in the trailing run (a later
+ * task's ⚡ toggle).
  *
  * [searchActions] is a second host action slot, rendered in the *search* bar (alongside this
  * screen's own [SearchModeMenu]) rather than the normal one [actions] occupies. The host puts its
@@ -119,7 +125,7 @@ fun ManageLabelsScreen(
     onSetPrimary: (labelId: String) -> Unit,
     onToggleAutoAssign: (labelId: String) -> Unit,
     onUp: () -> Unit,
-    iconSlot: @Composable (customIcon: String?, colorArgb: Int) -> Unit,
+    iconSlot: @Composable (customIcon: String?, tint: Color) -> Unit,
     actions: @Composable RowScope.() -> Unit,
     searchActions: @Composable RowScope.() -> Unit,
 ) {
@@ -292,8 +298,10 @@ private fun LabelItemRow(
     onToggleChecked: (String) -> Unit,
     onToggleFavourite: (String) -> Unit,
     onSetPrimary: (String) -> Unit,
-    onToggleAutoAssign: (String) -> Unit,
-    iconSlot: @Composable (customIcon: String?, colorArgb: Int) -> Unit,
+    // Wired to the ⚡ toggle in the trailing run in the next task; the leading glyph deliberately
+    // stopped being its click target here.
+    @Suppress("UNUSED_PARAMETER") onToggleAutoAssign: (String) -> Unit,
+    iconSlot: @Composable (customIcon: String?, tint: Color) -> Unit,
     strings: Strings,
 ) {
     val label = row.label
@@ -307,30 +315,14 @@ private fun LabelItemRow(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Leading glyph: auto-assign circle (workspace-editing modes only) or the icon rendered by
-        // the host's iconSlot (custom icon, or its built-in default when null). Clicking it toggles
-        // auto-assign membership, same as the classic labelIcon click.
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .then(
-                    if (mode.workspaceEdits && !label.isUnlabeled) {
-                        Modifier.clickable { onToggleAutoAssign(label.id) }
-                    } else {
-                        Modifier
-                    },
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (mode.workspaceEdits && !label.isUnlabeled && row.isAutoAssign) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .background(AbColor.toComposeColor(label.color), CircleShape),
-                )
-            } else {
-                iconSlot(label.customIcon, label.color)
-            }
+        // The glyph is identity only: the label's icon (or the host's built-in default when
+        // customIcon == null) in the label's own colour. accentArgbFor is what greys it in BW /
+        // e-ink, the same call LabelEditScreen.kt:235 makes for the editor avatar. It is NOT a
+        // control any more -- classic's hidden "tap the icon to toggle auto-assign" gesture is
+        // replaced by an explicit ⚡ toggle in the trailing run (Task 6).
+        val glyphTint = Color(accentArgbFor(label.color, LocalDisplayColorMode.current))
+        Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) {
+            iconSlot(label.customIcon, glyphTint)
         }
 
         Spacer(Modifier.width(12.dp))

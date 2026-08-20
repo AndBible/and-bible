@@ -40,8 +40,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color as ComposeColor
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
@@ -73,6 +72,7 @@ import net.bible.service.db.exportStudyPads
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.StudyPadKey
 import net.bible.sharedcore.bookmark.ManageLabelsController
+import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.bookmark.SearchMode
@@ -195,7 +195,9 @@ class ManageLabelsComposeActivity : ActivityBase() {
                         onSetPrimary = controller::setPrimary,
                         onToggleAutoAssign = controller::toggleAutoAssign,
                         onUp = { saveAndExit() },
-                        iconSlot = { customIcon, colorArgb -> ManageLabelIcon(customIcon, colorArgb) },
+                        iconSlot = { customIcon, tint ->
+                            ManageLabelIcon(customIcon, tint, controller.mode == ManageLabelsMode.STUDYPAD)
+                        },
                         actions = {
                             ManageLabelsActions(
                                 onOpenSearch = controller::openSearch,
@@ -656,17 +658,15 @@ class ManageLabelsComposeActivity : ActivityBase() {
     }
 }
 
-/**
- * Renders the current custom-icon selection: [customIconMap]`[name]` or the default bookmark
- * drawable, tinted `grey_500` when [name] is null (no custom icon), else [colorArgb] (the label
- * color) — parity with classic `ManageLabelItemAdapter`'s custom-icon tinting.
- */
+/** The label's glyph for a list row. The TINT is the caller's (the screen's) decision — this used
+ *  to derive it and grey out every label without a custom icon, which is the colourless list the
+ *  round-10a feedback reported. The default drawable mirrors classic `ManageLabelItemAdapter`:
+ *  the tag glyph, or the StudyPad glyph in STUDYPAD mode (`ManageLabelItemAdapter.kt:171-173,223`). */
 @Composable
-private fun ManageLabelIcon(name: String?, colorArgb: Int) {
-    val drawableId = customIconMap[name] ?: R.drawable.ic_baseline_bookmark_24
-    val tint = if (name == null) colorResource(R.color.grey_500) else ComposeColor(colorArgb)
+private fun ManageLabelIcon(name: String?, tint: Color, studyPadMode: Boolean) {
+    val defaultId = if (studyPadMode) R.drawable.ic_baseline_studypads_24 else R.drawable.ic_label_24dp
     Icon(
-        painter = painterResource(drawableId),
+        painter = painterResource(customIconMap[name] ?: defaultId),
         contentDescription = null,
         tint = tint,
         modifier = Modifier.size(24.dp),

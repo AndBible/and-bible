@@ -21,10 +21,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.Label
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.bookmark.LabelCategory
 import net.bible.sharedcore.bookmark.LabelItem
@@ -40,6 +42,15 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+
+/** Stand-in for the host's `ManageLabelIcon`. Paints with the caller-supplied [Color], because
+ *  after round 10a Task 1 the tint is the SCREEN's decision (the host derived it before, which is
+ *  why a grey glyph for every icon-less label survived the whole golden suite -- the slot was
+ *  stubbed empty and the colour was never in an image). The real host resolves an Android drawable
+ *  per key; the glyph here only has to be visible and tinted. */
+val manageLabelIcon: @Composable (String?, Color) -> Unit = { _, tint ->
+    Icon(Icons.Filled.Label, contentDescription = null, tint = tint)
+}
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -147,7 +158,7 @@ class ManageLabelsGoldenTest {
             onSetPrimary = {},
             onToggleAutoAssign = {},
             onUp = {},
-            iconSlot = { _, _ -> },
+            iconSlot = manageLabelIcon,
             actions = actions,
             searchActions = searchActions,
             searchModeActive = searchModeActive,
@@ -208,7 +219,7 @@ class ManageLabelsGoldenTest {
             onSetPrimary = {},
             onToggleAutoAssign = {},
             onUp = {},
-            iconSlot = { _, _ -> },
+            iconSlot = manageLabelIcon,
             actions = {},
             searchActions = {},
             // Production can never have a non-empty query with the bar closed: nothing but the
