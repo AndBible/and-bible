@@ -331,6 +331,13 @@ class ManageLabelsComposeActivity : ActivityBase() {
                 onClick = { close(); help() },
                 icon = { Icon(painterResource(R.drawable.ic_help_white_24dp), contentDescription = null) },
             )
+            val compact by controller.compact.collectAsState()
+            AbMenuItem(
+                text = getString(R.string.compact_list),
+                onClick = { close(); controller.toggleCompact() },
+                checkable = true,
+                checked = compact,
+            )
             if (controller.mode.hasReOrderButton) {
                 AbMenuItem(
                     text = getString(R.string.reorder),
