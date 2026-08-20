@@ -285,20 +285,42 @@ class ManageLabelsGoldenTest {
     @Test fun manageLabels_styles() =
         captureMatrix("ManageLabels", "styles", heightDp = 500, content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()))
 
-    /** The same rows, compact: one line, selection tag only, ~48dp per row. Read against
-     *  ManageLabels_styles_light to see what the ⋮ toggle actually buys. */
+    /** The same rows, compact, in ASSIGN: one line, ~48dp per row, NO style tag -- ASSIGN has
+     *  `showCheckboxes == true`, so compact drops the tag rather than starve the name (round-3
+     *  fix). Read against ManageLabels_styles_light to see what the two-line mode adds back. This
+     *  is the compact-WITHOUT-a-tag case; [manageLabels_workspace_compact] below is the only
+     *  capture of the opposite case (compact WITH a tag) -- see its KDoc. */
     @Test fun manageLabels_styles_compact() =
         captureGolden(
             "ManageLabels", "styles_compact", EDGE_MODE, heightDp = 500,
             content = screen(ManageLabelsMode.ASSIGN, rows = styleRows(), compact = true),
         )
 
-    /** WORKSPACE compact: the four trailing controls (checkbox, ⚡, heart, primary) at their
-     *  tightest, against the longest name in the fixture. This is the layout-overflow image. */
+    /** WORKSPACE compact: no checkbox (`WORKSPACE.showCheckboxes == false`), so its four trailing
+     *  controls are override-dot + ⚡ + heart + primary -- one fewer than ASSIGN/HIDELABELS would
+     *  carry, which is exactly why the style tag still renders here (round-3's
+     *  `!mode.showCheckboxes` condition) against the longest name in the fixture. This is the
+     *  ONLY compact capture that shows the tag at all -- [manageLabels_styles_compact] above is
+     *  the compact-WITHOUT-a-tag case (it uses ASSIGN, which does carry a checkbox). Do not read
+     *  this row's control count as "the" four trailing controls; ASSIGN/HIDELABELS compact has a
+     *  different four (checkbox replaces the tag's space) and never shows the tag at all. */
     @Test fun manageLabels_workspace_compact() =
         captureGolden(
             "ManageLabels", "workspace_compact", EDGE_MODE, heightDp = 800,
             content = screen(ManageLabelsMode.WORKSPACE, compact = true),
+        )
+
+    /** The two-line row at its tightest: a 320dp-wide screen in ASSIGN, where the trailing controls
+     *  take ~144dp and the name column keeps the rest. This is the width at which round 1's layout
+     *  starved the name to nothing, so it is worth a permanent capture rather than a one-off probe:
+     *  what must hold is that no tag text bleeds over the trailing icons and no name reaches zero
+     *  width -- the tag row is bounded by the weighted Column, so both tags ellipsize instead. */
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w320dp")
+    fun manageLabels_styles_narrow() =
+        captureGolden(
+            "ManageLabels", "styles_narrow", EDGE_MODE, heightDp = 500,
+            content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()),
         )
 
     /** WORKSPACE: auto-assign circle icons, favourite hearts, override dot, and the Unlabeled row

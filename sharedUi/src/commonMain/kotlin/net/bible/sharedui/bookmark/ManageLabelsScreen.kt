@@ -367,6 +367,11 @@ private fun LabelItemRow(
                     // 20dp tag says nothing while a 40dp name still identifies the row, and the
                     // tag's information is exactly what the two-line mode exists to show -- nothing
                     // is lost here, only deferred to the mode whose purpose it is.
+                    // `!mode.showCheckboxes` is read here as a PROXY, not a statement about
+                    // checkboxes: `showCheckboxes` is true exactly for HIDELABELS/ASSIGN, i.e. the
+                    // two modes with the fourth control that crowds the row, so this condition is
+                    // really "is this one of the modes with all four trailing controls" -- WORKSPACE
+                    // and STUDYPAD have no checkbox and thus fall through to showing the tag.
                     if (!mode.showCheckboxes) {
                         Spacer(Modifier.width(8.dp))
                         // Selection axis only when compact: one line cannot carry both and still
