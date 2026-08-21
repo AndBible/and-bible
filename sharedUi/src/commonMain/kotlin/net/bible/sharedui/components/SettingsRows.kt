@@ -18,6 +18,7 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,9 +46,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import net.bible.sharedui.settings.LocalSettingsIcon
+
+/** M3 settings section label: small, coloured with the primary accent.
+ *  Promoted from `AbSettingsScreen.kt`'s private `CategoryHeader` in round 13a so surfaces outside
+ *  the declarative settings framework (the Speak sheet) render the identical header. */
+@Composable
+fun AbSettingsCategoryHeader(title: String) = Text(
+    text = title,
+    style = MaterialTheme.typography.labelLarge,
+    color = MaterialTheme.colorScheme.primary,
+    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
+)
 
 /** A settings row: label (+ optional summary) on the left, an M3 [Switch] on the right. The whole
  *  row is clickable and toggles the switch (larger touch target than the thumb alone). When
@@ -148,6 +161,96 @@ fun AbSwitchRow(
     }
 }
 
+/**
+ * A generic clickable settings row (title + optional summary + optional leading icon + optional
+ * trailing content), used for the list-choice, text-input and navigation item types. Disabled rows
+ * dim and stop responding to clicks. [TwoLineListItem] isn't reused here because these rows may have
+ * a single line (no summary) and an optional trailing slot.
+ *
+ * [iconKey] defaults to `null` (no icon): [SettingsItem.NavigationRow], [SettingsItem.ListChoiceRow] and
+ * [SettingsItem.TextInputRow] all carry an optional `iconKey`, resolved here via [LocalSettingsIcon].
+ * [SettingsItem.SwitchRow] also has an `iconKey` field; it is now passed straight through to
+ * [net.bible.sharedui.components.AbSwitchRow]'s own (A/B batch 3 F4b) `iconKey` parameter, which
+ * resolves it via the same [LocalSettingsIcon] seam and only ever emits the icon `Composable` when
+ * non-null — so every OTHER caller of that shared component (`AppSettings`, the AI/backup/speak/
+ * bookmark screens, …), none of which passes `iconKey`, keeps its original icon-less layout.
+ *
+ * [onLongClick] defaults to `null` (Batch 12d-A Task 3's long-press-revert seam): when null the row
+ * keeps its original plain [clickable] modifier (byte-identical); when non-null it switches to
+ * [combinedClickable] to add the long-press gesture alongside the existing click.
+ *
+ * [badge] defaults to `null` (A/B batch 4a F2): an optional inheritance badge (e.g. "Workspace"/
+ * "Global", see [LocalSettingsRowBadge]), rendered via
+ * [net.bible.sharedui.components.SettingsRowBadgeChip] INSIDE the title/summary [Column] — never as
+ * a `Box` overlay on top of the row (that previously covered the summary and any trailing content).
+ * Same `if (badge != null)` conditional-emission shape as [iconKey] above.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun AbSettingsRow(
+    title: String,
+    summary: String?,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    iconKey: String? = null,
+    leadingIcon: (@Composable () -> Unit)? = null,
+    trailing: @Composable (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
+    badge: String? = null,
+) {
+    val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (onLongClick != null) {
+                    Modifier.combinedClickable(enabled = enabled, onClick = onClick, onLongClick = onLongClick)
+                } else {
+                    Modifier.clickable(enabled = enabled, onClick = onClick)
+                },
+            )
+            .rowEnabled(enabled)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        // Same conditional-emission shape as iconKey below, and for the same reason as
+        // AbSwitchRow.leadingIcon: nothing is emitted for a row without one, so every existing
+        // caller renders byte-identically. A Material ImageVector living in :sharedUi cannot go
+        // through LocalSettingsIcon, which resolves HOST drawables by key.
+        if (leadingIcon != null) {
+            Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) { leadingIcon() }
+            Spacer(Modifier.width(16.dp))
+        }
+        if (iconPainter != null) {
+            Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.size(24.dp))
+            Spacer(Modifier.width(16.dp))
+        }
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge)
+            if (badge != null) {
+                Spacer(Modifier.height(2.dp))
+                SettingsRowBadgeChip(badge)
+            }
+            if (summary != null) {
+                Text(
+                    summary,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        if (trailing != null) {
+            trailing()
+        }
+    }
+}
+
+/** Dim a row when disabled (matches the classic preference-screen greyed-out affordance). */
+private fun Modifier.rowEnabled(enabled: Boolean): Modifier =
+    if (enabled) this else this.then(Modifier.alpha(DISABLED_ALPHA))
+
 private const val DISABLED_ALPHA = 0.38f
 
 /**
@@ -197,6 +300,7 @@ fun AbSliderRow(
     valueLabel: String,
     onValueChangeFinished: (() -> Unit)? = null,
     valueLabelFor: ((Int) -> String)? = null,
+    leadingIcon: (@Composable () -> Unit)? = null,
 ) {
     // Re-seed the local drag position whenever the persisted [value] changes (e.g. after a release
     // persist round-trips a fresh snapshot, or an external reset).
@@ -204,6 +308,12 @@ fun AbSliderRow(
     val displayLabel = valueLabelFor?.invoke(dragValue.roundToInt()) ?: valueLabel
     Column(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            // Conditional emission (see AbSwitchRow.leadingIcon): callers without an icon render
+            // byte-identically to before this parameter existed.
+            if (leadingIcon != null) {
+                Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) { leadingIcon() }
+                Spacer(Modifier.width(16.dp))
+            }
             Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
             Text(displayLabel, style = MaterialTheme.typography.bodyMedium)
         }
