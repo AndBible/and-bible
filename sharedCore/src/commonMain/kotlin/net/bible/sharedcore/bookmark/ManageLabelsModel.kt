@@ -49,9 +49,7 @@ data class LabelItem(
      *  axes (`BookmarkEntities.Label.withStyleOverrides`), so this single value is what the reader
      *  draws for this label here, whatever [selectionStyle] and [wholeVerseStyle] say. */
     val overrideStyle: BookmarkDisplayStyle? = null,
-) {
-    val hasOverride: Boolean get() = overrideStyle != null
-}
+)
 
 sealed interface ManageLabelsRow {
     data class Header(val category: LabelCategory) : ManageLabelsRow

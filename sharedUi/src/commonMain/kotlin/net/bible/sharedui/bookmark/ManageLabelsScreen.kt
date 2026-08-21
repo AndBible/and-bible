@@ -23,7 +23,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -418,7 +417,12 @@ private fun LabelItemRow(
                 TrailingSlot {
                     Icon(
                         Icons.Filled.BookmarkBorder,
-                        contentDescription = strings.primaryLabelSwitchLabel,
+                        // null, not strings.primaryLabelSwitchLabel: this glyph is not a control
+                        // (no onClick reaches it here) and has no state of its own to report, so
+                        // announcing the SAME label the live button uses would tell a screen-reader
+                        // user this row has a primary toggle it does not have. Silence is the
+                        // honest choice for a decorative column-filler.
+                        contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = InertIndicatorAlpha),
                         modifier = Modifier.size(TrailingIconSize),
                     )
@@ -463,14 +467,22 @@ private fun TrailingSlot(content: @Composable () -> Unit) {
  * A `FlowRow` rather than a `Row`: three tags do not fit one 320dp line, and the third wrapping is
  * better than the third being clipped away.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun StyleTagRow(label: LabelItem, markerGlyph: @Composable () -> Unit, strings: Strings) {
     // Bounded on every branch: an intrinsic-width tag can win the space contest against the
-    // weighted name and make it vanish entirely (round-1 fix -- Finding 1). 110dp comfortably fits
-    // any single translated style name.
+    // weighted name and make it vanish entirely (round-1 fix -- Finding 1). 110dp is a CEILING,
+    // not what actually binds a tag's width in every mode -- in ASSIGN/WORKSPACE the name/tag
+    // column itself is narrower than 110dp (the trailing grid's reserved slots leave ~60dp in
+    // ASSIGN, ~108dp in WORKSPACE at the goldens' 320dp width), so the column is the real
+    // constraint there; the cap only binds where no slots are reserved (STUDYPAD/HIDELABELS,
+    // ~252dp/~204dp of column). Either way this stops an intrinsic-width tag from winning the
+    // space contest against the weighted name.
     val tagMaxWidth = Modifier.widthIn(max = 110.dp)
-    FlowRow(modifier = Modifier.fillMaxWidth()) {
+    // itemVerticalAlignment explicit rather than FlowRow's default Top: every tag here is one
+    // line tall today, but a centred baseline is the right call if a taller tag (e.g. a larger
+    // marker glyph) ever wraps to a second FlowRow line, matching the CenterVertically the
+    // per-tag Rows below already use for their own separator+icon+text groups.
+    FlowRow(modifier = Modifier.fillMaxWidth(), itemVerticalAlignment = Alignment.CenterVertically) {
         LabelStyleTag(
             label.selectionStyle,
             label.color,

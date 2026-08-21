@@ -300,33 +300,47 @@ class ManageLabelsGoldenTest {
         captureMatrix("ManageLabels", "styles", heightDp = 700, content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()))
 
     /**
-     * Task 6 addendum, answering the question Task 5's review left open: `LabelStyleTag`'s
-     * `decoratePartially` path renders two adjacent `Text`s (the decorated half + an
-     * ellipsis-able tail) inside a `Row` the caller bounds with `widthIn(max = 110.dp)`
-     * (`ManageLabelsScreen.kt`'s `tagMaxWidth`) -- and no Compose Foundation sources were
-     * available locally to confirm from the layout algorithm alone whether that cap constrains
-     * the PAIR's combined width or only the first child, letting the second spill past it. This
-     * capture answers it with a real translation instead of a guess: Vietnamese's
-     * "Đánh dấu nổi bật" is the longest `display_mode_highlight` string in the whole `res`
-     * tree (16 chars incl. 3 spaces, checked with a one-off scan of every locale's strings.xml),
-     * loaded the same way `manageLabels_assign_rtl` already loads Arabic -- a real `@Config`
-     * locale qualifier, not a fixture-only string override (there is no such override point; see
-     * [screen]/[label], which take no `Strings` parameter). It renders [styleRows] (S1-S5, so
-     * every tag position -- selection/partial, whole-verse/full, override/full -- gets the long
-     * localised name at once) under that locale, at the real 110dp cap.
+     * Fix round 1: whether `LabelStyleTag`'s `tagMaxWidth` (`widthIn(max = 110.dp)`,
+     * `ManageLabelsScreen.kt`) actually binds a tag's width at all -- checked with the widest real
+     * translated tag string, in a mode where the surrounding column is wide enough that the CAP,
+     * not the column, is what a reader is looking at.
      *
-     * Read this image for: does S1's undecorated tail ellipsise right at (or inside) 110dp from
-     * the tag's start, matching where the shorter S3/S4 tags in [manageLabels_styles] end -- or
-     * does the row visibly widen past that column, meaning the pair's width escaped the cap?
-     * (Comparing against [manageLabels_styles]'s own layout, same rows, English names, is the
-     * width reference; there is no ruler baked into the image itself.)
+     * The column is NOT a constant 110dp+ everywhere: at the goldens' 320dp width the content box
+     * is 288dp (320 - 2x16 padding), minus the 24dp glyph and 12dp spacer = 252dp, minus whatever
+     * the trailing grid reserves for the mode. ASSIGN reserves 4x48=192dp (checkbox + bolt + heart
+     * + primary) -> a 60dp name/tag column; WORKSPACE reserves 3x48=144dp -> 108dp. Both are
+     * narrower than the 110dp cap, so in [manageLabels_styles] (ASSIGN) the COLUMN truncates the
+     * tag long before the cap could -- that capture cannot show whether the cap itself works.
+     * STUDYPAD reserves nothing (`showCheckboxes`/`workspaceEdits`/`primaryShown` all false) -> a
+     * 252dp column, comfortably wider than the 110dp cap, which is why this capture uses it: here
+     * the cap is the binding constraint, not the column.
+     *
+     * The pressing string is French's `display_mode_marker`, "Marqueur uniquement" (19 chars) --
+     * the widest of any of the four display-mode strings in the whole `res` tree (checked with a
+     * one-off scan of every locale's strings.xml; Vietnamese's 16-char `display_mode_highlight`,
+     * used in an earlier draft of this test, presses less hard). It lands on row S2's WHOLE-VERSE
+     * tag ([styleRows]'s `wholeVerseStyle = BookmarkDisplayStyle.MARKER`) and additionally appends
+     * the superscript marker glyph ([net.bible.sharedui.bookmark.SuperscriptMarker]), so this is the single hardest-pressing
+     * real tag this codebase can render. Loaded via `@Config(qualifiers = "fr")`, the same real
+     * `@Config` locale mechanism `manageLabels_assign_rtl` already uses for Arabic -- there is no
+     * separate fixture-only string override point (see [screen]/[label], which take no `Strings`
+     * parameter).
+     *
+     * Read this image for: measure S2's second tag -- the one after the " · " separator, carrying
+     * "Marqueur uniquement" plus its superscript dot -- from its own left edge (right after the
+     * separator) to its own right edge (the last visible glyph or the ellipsis, whichever is
+     * later). At this capture's density (1.0), 1px = 1dp. If that measured span is at or under
+     * 110px, the cap is binding as intended (the string may also simply be short of 110dp and
+     * render whole with no ellipsis at all -- either is a pass). If it measures MEANINGFULLY MORE
+     * than 110px -- visibly reaching toward the rest of the 252dp column rather than stopping near
+     * its own 110dp box -- the cap has failed to bind and `tagMaxWidth` needs a real fix.
      */
     @Test
-    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "vi")
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "fr")
     fun manageLabels_styles_longName() =
         captureGolden(
             "ManageLabels", "styles_longname", EDGE_MODE, heightDp = 700,
-            content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()),
+            content = screen(ManageLabelsMode.STUDYPAD, rows = styleRows()),
         )
 
     /** WORKSPACE: the trailing grid's ⚡/♥/🔖 columns, an override tag (⚙) on the tag line, and
@@ -414,7 +428,11 @@ class ManageLabelsGoldenTest {
     }
 
     /** Deliberately covers every combination the grid has to line up: on/off × on/off × primary,
-     *  not-primary-but-selected, and not-selected (the inert 🔖) -- plus the Unlabeled row. */
+     *  not-primary-but-selected, and not-selected (the inert 🔖) -- plus the Unlabeled row for the
+     *  GEOMETRY of its two reserved-empty workspace columns, not as a reachable ASSIGN state: real
+     *  ASSIGN (mode.showUnassigned == false) never shows an Unlabeled row at all, so this row here
+     *  renders WITH a checkbox, which production never does. The reachable Unlabeled state (no
+     *  checkbox, WORKSPACE/HIDELABELS) is [manageLabels_workspace]. */
     private fun iconGridRows(): List<ManageLabelsRow> = listOf(
         ManageLabelsRow.Item(
             label = label("G1", "All on", favourite = true),
