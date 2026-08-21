@@ -1,10 +1,21 @@
 package net.bible.android.view.compose.golden
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.agentPermissionModeChoices
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.ai.AiConnectionSettingsScreen
+import net.bible.sharedui.components.AbListChoiceContent
+import net.bible.sharedui.components.AbTextInputContent
+import net.bible.sharedui.settings.SheetConfirmRow
+import net.bible.sharedui.strings.LocalStrings
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -234,8 +245,6 @@ class AiConnectionSettingsGoldenTest {
     private fun screen(
         state: SettingsScreenState,
         initiallyDisclaimerDialogOpen: Boolean = false,
-        initiallyLanguageDialogOpen: Boolean = false,
-        initiallyCustomLanguageDialogOpen: Boolean = false,
         initiallyCustomPromptDialogOpen: Boolean = false,
         customPromptTextFor: (String) -> String = { "" },
     ) =
@@ -252,8 +261,6 @@ class AiConnectionSettingsGoldenTest {
                 customLanguageValue = CUSTOM_LANGUAGE_VALUE,
                 onNavigate = {},
                 initiallyDisclaimerDialogOpen = initiallyDisclaimerDialogOpen,
-                initiallyLanguageDialogOpen = initiallyLanguageDialogOpen,
-                initiallyCustomLanguageDialogOpen = initiallyCustomLanguageDialogOpen,
                 initiallyCustomPromptDialogOpen = initiallyCustomPromptDialogOpen,
             )
         }
@@ -282,22 +289,48 @@ class AiConnectionSettingsGoldenTest {
             content = screen(configuredState(), initiallyDisclaimerDialogOpen = true),
         )
 
-    // F32: clicking the ai_language row opens AbListChoiceDialog (single-choice list, radio rows).
-    // heightDp=1400 (same as "configured") so the dialog renders over the full list.
-    @Test fun configured_language_matrix() =
-        captureMatrix(
-            "AiConnectionSettings", "language",
-            heightDp = 1400,
-            content = screen(configuredState(), initiallyLanguageDialogOpen = true),
-        )
+    // --- ai_language picker + "Custom…" sheet pages (Task 7: retired the nested AbListChoiceDialog/
+    // AbTextInputDialog pair in favor of a two-page SettingsEditorSheet push) ---
+    // Captured DIRECTLY (AbListChoiceContent / AbTextInputContent+SheetConfirmRow), never inside
+    // SettingsEditorSheet's ModalBottomSheet: forcing a ModalBottomSheet open in a Roborazzi capture
+    // hangs the capture and takes the whole :app suite with it (see SettingsEditorSheetGoldenTest's
+    // identical discipline). This replaces the old "language"/"customlanguage" goldens, which used
+    // to capture the pre-Task-7 AlertDialogs open through the real screen — that capture path is no
+    // longer available now that both steps are sheet pages, so the two dialog-open test methods (and
+    // their now-dead initiallyLanguageDialogOpen/initiallyCustomLanguageDialogOpen test seams) are
+    // retired along with them, exactly as Task 6 retired TextDisplaySettings' numeric/margin dialog
+    // goldens for the same reason.
 
-    // F32: picking the "Custom…" row opens AbTextInputDialog for a free-form language name/code.
-    @Test fun configured_customlanguage_matrix() =
-        captureMatrix(
-            "AiConnectionSettings", "customlanguage",
-            heightDp = 1400,
-            content = screen(configuredState(), initiallyCustomLanguageDialogOpen = true),
-        )
+    // F32: the picker's radio rows, with a KNOWN language ("en") selected — proves the
+    // isKnownLanguage branch of AiConnectionSettingsScreen's selectedValue logic renders the right
+    // row highlighted. Box(heightIn(max = 400.dp)) matches AiConnectionSettingsScreen's own ancestor
+    // bound for AbListChoiceContent (see that call site's comment for why the bound must live here,
+    // not in AbListChoiceContent's own `modifier` param).
+    @Test fun languageSheet_matrix() =
+        captureMatrix("AiConnectionSettings", "languageSheet") {
+            Column {
+                Box(modifier = Modifier.heightIn(max = 400.dp)) {
+                    AbListChoiceContent(choices = languageChoices, selectedValue = "en", onSelect = {})
+                }
+            }
+        }
+
+    // F32: the custom-language text-input page — a previously-saved custom value pre-fills the
+    // field (the isKnownLanguage=false branch), plus the hint text and the confirm/cancel row.
+    @Test fun customLanguageSheet_matrix() =
+        captureMatrix("AiConnectionSettings", "customLanguageSheet") {
+            Column {
+                val strings = LocalStrings.current
+                AbTextInputContent(initial = "Klingon", onValueChange = {})
+                Text(strings.aiLanguageCustomHint, style = MaterialTheme.typography.bodySmall)
+                SheetConfirmRow(
+                    confirmLabel = strings.okay,
+                    cancelLabel = strings.cancel,
+                    onConfirm = {},
+                    onCancel = {},
+                )
+            }
+        }
 
     // F36: CustomPromptDialog (agent system prompt) seeded with a long multi-paragraph prompt must
     // stay height-bounded (heightIn(max = 320.dp) on the text field), not stretch the dialog to

@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.ai
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -34,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,12 +45,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.settings.SettingsEditorPage
+import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.components.AbInfoDialog
-import net.bible.sharedui.components.AbListChoiceDialog
-import net.bible.sharedui.components.AbTextInputDialog
+import net.bible.sharedui.components.AbListChoiceContent
+import net.bible.sharedui.components.AbTextInputContent
 import net.bible.sharedui.settings.AbSettingsScreen
+import net.bible.sharedui.settings.SettingsEditorSheet
+import net.bible.sharedui.settings.SheetConfirmRow
 import net.bible.sharedui.strings.LocalStrings
 
 /** Stable keys this screen intercepts BEFORE they reach [AbSettingsScreen]'s generic renderer. */
@@ -60,6 +66,10 @@ private const val KEY_AI_LANGUAGE = "ai_language"
 /** [SettingsItem.InfoRow.onClickKey] the controller sets on the disclaimer row (F28); clicking it
  *  opens [AbInfoDialog] with the full disclaimer text rather than being forwarded to [onNavigate]. */
 private const val KEY_DISCLAIMER = "ai_disclaimer_warning"
+
+/** A synthetic page key: the "Custom language…" text-input page has no settings row of its own —
+ *  it is the second step of the [KEY_AI_LANGUAGE] picker. */
+private const val CUSTOM_LANGUAGE_PAGE_KEY = "ai_language_custom"
 
 private val SPECIAL_KEYS = setOf(
     KEY_CUSTOM_AGENT_PROMPT,
@@ -80,12 +90,15 @@ private val SPECIAL_KEYS = setOf(
  *   that greys the field. Save → `onTextInputInt("raw_log_retention", days)`, `-1` when disabled.
  * - [KEY_AI_LANGUAGE] (a `ListChoiceRow` with an empty `entries` list — the real locale list is
  *   Android-resource data that can't live in :sharedUi): rendered as a plain clickable summary
- *   row; the click opens [AbListChoiceDialog], populated from the host-supplied [languageChoices]
- *   (F32 — replaces the classic `AlertDialog` locale picker). Picking the [customLanguageValue]
- *   sentinel entry opens [AbTextInputDialog] for a free-form language name/code instead. Both
- *   dialogs report the chosen value back through the existing [onListChoice] callback (the
- *   controller's `onListChoice("ai_language", value)` already persists it via
- *   [net.bible.sharedcore.ai.AiSettingsService.setAiLanguage] — no new controller callback needed).
+ *   row; the click opens a [SettingsEditorSheet] picker page, populated from the host-supplied
+ *   [languageChoices] (F32 — replaces the classic `AlertDialog` locale picker; migrated to a sheet
+ *   page in Task 7). Picking the [customLanguageValue] sentinel entry `push`es a second sheet page
+ *   (keyed by the synthetic [CUSTOM_LANGUAGE_PAGE_KEY]) for a free-form language name/code, instead
+ *   of opening a second dialog on top of the first — cancelling that second step pops back to the
+ *   picker rather than leaving both open. Both pages report the chosen value back through the
+ *   existing [onListChoice] callback (the controller's `onListChoice("ai_language", value)`
+ *   already persists it via [net.bible.sharedcore.ai.AiSettingsService.setAiLanguage] — no new
+ *   controller callback needed).
  *
  * **Interception approach.** Rather than removing the four items from the state (which would lose
  * their position in the list) or re-implementing the whole row-rendering switch here, this screen
@@ -93,7 +106,7 @@ private val SPECIAL_KEYS = setOf(
  * `visible`/`enabled` — so [AbSettingsScreen] draws them as ordinary clickable rows (chevron
  * affordance, correct position) but never opens ITS generic list-choice/text-input dialog for them.
  * All navigation clicks funnel through one `onNavigate` lambda, which this screen overrides: the
- * four special keys open a local dialog; every other key (including
+ * four special keys open a local dialog or sheet; every other key (including
  * [net.bible.sharedcore.ai.AiConnectionNav.RESET_USAGE] and the other nav rows) is forwarded
  * unchanged to the real [onNavigate]. Every other row type (switches, the `agent_permission_mode`
  * `ListChoiceRow`, the two numeric `TextInputRow`s `commentary_max_response`/`agent_max_iterations`,
@@ -114,7 +127,8 @@ fun AiConnectionSettingsScreen(
      *  option, `""` conventionally meaning "app default" (see [net.bible.sharedcore.ai.AiSettingsService]). */
     languageChoices: List<SettingsItem.Choice>,
     /** Sentinel [SettingsItem.Choice.value] identifying the "Custom…" row in [languageChoices]; picking
-     *  it opens [AbTextInputDialog] instead of committing the sentinel itself as the language. */
+     *  it pushes the custom-language sheet page instead of committing the sentinel itself as the
+     *  language. */
     customLanguageValue: String,
     onNavigate: (String) -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
@@ -122,10 +136,6 @@ fun AiConnectionSettingsScreen(
      *  `initiallySettingsOpen`): lets golden tests capture the disclaimer [AbInfoDialog] open
      *  without a click-simulation harness (this module has no Compose UI-test dependency). */
     initiallyDisclaimerDialogOpen: Boolean = false,
-    /** Test-only seam: capture the [AbListChoiceDialog] language picker open. */
-    initiallyLanguageDialogOpen: Boolean = false,
-    /** Test-only seam: capture the [AbTextInputDialog] custom-language editor open. */
-    initiallyCustomLanguageDialogOpen: Boolean = false,
     /** Test-only seam: capture the [CustomPromptDialog] (agent system prompt) open, e.g. with a
      *  long [customPromptTextFor] result, to verify its height stays bounded (F36). */
     initiallyCustomPromptDialogOpen: Boolean = false,
@@ -139,8 +149,13 @@ fun AiConnectionSettingsScreen(
     }
     var retentionDialogOpen by remember { mutableStateOf(false) }
     var disclaimerDialogOpen by remember { mutableStateOf(initiallyDisclaimerDialogOpen) }
-    var languageDialogOpen by remember { mutableStateOf(initiallyLanguageDialogOpen) }
-    var customLanguageDialogOpen by remember { mutableStateOf(initiallyCustomLanguageDialogOpen) }
+
+    // The AI-language picker + its "Custom…" second step (Task 7): a two-page SettingsEditorStack
+    // dedicated to this screen's own ai_language flow, distinct from AbSettingsScreen's own
+    // generic editor stack — see the invariant comment below the two-page sheet render block for
+    // why one screen safely owns two SettingsEditorSheet call sites.
+    val editor = remember { SettingsEditorStack() }
+    val editorPages by editor.pages.collectAsState()
 
     // Defensive parity with AbSettingsScreen's own dialog-state handling: if the async state stops
     // carrying a key while its dialog is open (item removed outright), close the dialog rather than
@@ -156,10 +171,12 @@ fun AiConnectionSettingsScreen(
             retentionDialogOpen = false
         }
     }
-    LaunchedEffect(languageDialogOpen, state) {
-        if (languageDialogOpen && state.visibleItems.none { it.key == KEY_AI_LANGUAGE }) {
-            languageDialogOpen = false
-        }
+    // Same discipline, expressed via SettingsEditorStack.closeIf: if the ai_language row vanishes
+    // while either of its two pages (picker or custom-language) is open, close the WHOLE stack —
+    // the custom-language page was reached through the picker, so leaving it open would strand the
+    // user on a page whose parent row no longer exists.
+    LaunchedEffect(editorPages, state) {
+        editor.closeIf { state.visibleItems.none { item -> item.key == KEY_AI_LANGUAGE } }
     }
 
     AbSettingsScreen(
@@ -176,7 +193,7 @@ fun AiConnectionSettingsScreen(
                 KEY_DISCLAIMER -> disclaimerDialogOpen = true
                 KEY_CUSTOM_AGENT_PROMPT, KEY_CUSTOM_TEXT_TRANSFORM_PROMPT -> customPromptDialogKey = key
                 KEY_RAW_LOG_RETENTION -> retentionDialogOpen = true
-                KEY_AI_LANGUAGE -> languageDialogOpen = true
+                KEY_AI_LANGUAGE -> editor.open(SettingsEditorPage.Row(KEY_AI_LANGUAGE))
                 else -> onNavigate(key)
             }
         },
@@ -230,36 +247,68 @@ fun AiConnectionSettingsScreen(
     val currentAiLanguage = aiLanguageRow?.selectedValue ?: ""
     val isKnownLanguage = languageChoices.any { it.value == currentAiLanguage }
 
-    if (languageDialogOpen) {
-        AbListChoiceDialog(
+    // Two SettingsEditorSheet call sites live in this composable's subtree: AbSettingsScreen's own
+    // generic sheet (rendered inside AbSettingsScreen above, for the three generic row kinds it
+    // opens editors for) and this screen's own `editor`'s sheet below (for the ai_language
+    // picker/custom-language page). This is safe ONLY because SettingsEditorSheet composes nothing
+    // while its `page` is null, and a single row tap can populate at most one of the two stacks:
+    // AbSettingsContent's `onOpenEditor` fires for ListChoiceRow/TextInputRow/MultiSelectRow rows,
+    // none of which is ai_language (rewritten to a NavigationRow above, so AbSettingsContent never
+    // sees it as a ListChoiceRow at all) — while ai_language's own click is intercepted by THIS
+    // screen's `onNavigate` override, above, before it ever reaches AbSettingsScreen's generic
+    // renderer. So the two sheets can never both be open at once. A future row able to feed both
+    // stacks from one tap (e.g. a special key AbSettingsScreen's generic renderer ALSO treats as
+    // list-choice/text-input) would break this invariant and would need an explicit guard.
+    val page = editorPages.lastOrNull() as? SettingsEditorPage.Row
+    if (page != null) {
+        SettingsEditorSheet(
+            page = page,
             title = aiLanguageRow?.title ?: "",
-            choices = languageChoices,
-            selectedValue = if (isKnownLanguage) currentAiLanguage else customLanguageValue,
-            onSelect = { value ->
-                if (value == customLanguageValue) {
-                    customLanguageDialogOpen = true
-                } else {
-                    onListChoice(KEY_AI_LANGUAGE, value)
+            showBack = editorPages.size > 1,
+            onDismiss = { editor.pop() },
+            onClose = { editor.close() },
+        ) {
+            if (page.key == CUSTOM_LANGUAGE_PAGE_KEY) {
+                val strings = LocalStrings.current
+                var current by remember { mutableStateOf(if (isKnownLanguage) "" else currentAiLanguage) }
+                AbTextInputContent(
+                    initial = if (isKnownLanguage) "" else currentAiLanguage,
+                    onValueChange = { current = it },
+                )
+                Text(strings.aiLanguageCustomHint, style = MaterialTheme.typography.bodySmall)
+                SheetConfirmRow(
+                    confirmLabel = strings.okay,
+                    cancelLabel = strings.cancel,
+                    onConfirm = { onListChoice(KEY_AI_LANGUAGE, current.trim()); editor.close() },
+                    // Cancelling the second step returns to the picker (pop), not close: the old
+                    // nested AlertDialogs left both open on cancel, which is the bug this two-page
+                    // sheet fixes — see the class-level KDoc's KEY_AI_LANGUAGE bullet.
+                    onCancel = { editor.pop() },
+                )
+            } else {
+                // languageChoices may list every locale the host offers; bound the viewport from
+                // this ANCESTOR Box, never from AbListChoiceContent's own `modifier` param — that
+                // lands inside its `verticalScroll` and collapses the scroll range to 0 instead of
+                // bounding it (see that composable's KDoc). Matches GenericSettingsEditorSheet's
+                // identical Box(heightIn(max = 400.dp)) wrap for its own list-choice page.
+                Box(modifier = Modifier.heightIn(max = 400.dp)) {
+                    AbListChoiceContent(
+                        choices = languageChoices,
+                        selectedValue = if (isKnownLanguage) currentAiLanguage else customLanguageValue,
+                        onSelect = { value ->
+                            // "Custom…" pushes the text-input page onto THIS sheet instead of
+                            // opening a second dialog on top of the first (the old F32 behaviour).
+                            if (value == customLanguageValue) {
+                                editor.push(SettingsEditorPage.Row(CUSTOM_LANGUAGE_PAGE_KEY))
+                            } else {
+                                onListChoice(KEY_AI_LANGUAGE, value)
+                                editor.close()
+                            }
+                        },
+                    )
                 }
-            },
-            onDismiss = { languageDialogOpen = false },
-        )
-    }
-
-    if (customLanguageDialogOpen) {
-        val strings = LocalStrings.current
-        AbTextInputDialog(
-            title = aiLanguageRow?.title ?: "",
-            initial = if (isKnownLanguage) "" else currentAiLanguage,
-            confirmText = strings.okay,
-            dismissText = strings.cancel,
-            onConfirm = { value ->
-                onListChoice(KEY_AI_LANGUAGE, value.trim())
-                customLanguageDialogOpen = false
-            },
-            onDismiss = { customLanguageDialogOpen = false },
-            extraContent = { Text(strings.aiLanguageCustomHint, style = MaterialTheme.typography.bodySmall) },
-        )
+            }
+        }
     }
 }
 
