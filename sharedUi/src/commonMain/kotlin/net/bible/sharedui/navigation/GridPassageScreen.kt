@@ -115,41 +115,58 @@ fun GridChoosePassageScreen(
             )
         },
     ) { padding ->
-        val sections = ui.sections
-        val cols = ui.columns.coerceAtLeast(1)
-        // Row-break spacers between grouped sections (classic group gaps).
-        val spacerCount = if (sections != null) (sections.size - 1).coerceAtLeast(0) else 0
-        // Content rows: each section starts on a fresh row (a full-span spacer forces the break),
-        // so count rows per section, not across the whole list.
-        val contentRows = if (sections != null) {
-            gridCellRowsForSections(sectionSizes = sections.map { it.size }, columns = cols, minRows = ui.minRows)
-        } else {
-            gridCellRows(buttonCount = ui.buttons.size, columns = cols, minRows = ui.minRows)
-        }
-        BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(padding)) {
-            // Fill the viewport height like the classic grid: divide the available height by the
-            // row count. contentPadding is 4dp each side (=8dp) and each spacer is 8dp tall.
-            val available = maxHeight - 8.dp - (spacerCount * 8).dp
-            val minCell = 40.dp // below this we stop growing and let long (verse) lists scroll instead
-            val cellHeight = (available / contentRows).coerceAtLeast(minCell)
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(cols),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(4.dp),
-            ) {
-                if (sections != null) {
-                    sections.forEachIndexed { i, section ->
-                        items(section.size, key = { "s$i-${section[it].id}" }) { idx ->
-                            GridCell(section[idx], ui, cellHeight, onPick)
-                        }
-                        if (i < sections.lastIndex) {
-                            item(span = { GridItemSpan(maxLineSpan) }) { Box(Modifier.height(8.dp)) } // group row-break
-                        }
+        GridChoosePassageContent(ui, onPick, Modifier.fillMaxSize().padding(padding))
+    }
+}
+
+/**
+ * The passage grid's body, without chrome — so it can be hosted by the full-screen
+ * [GridChoosePassageScreen] and by a bottom-sheet page alike.
+ *
+ * [modifier] MUST supply a bounded height when this is hosted in a sheet: the cell size is
+ * `maxHeight / rowCount` (with a 40dp floor, below which the grid scrolls), and a bottom sheet's
+ * content column is height-unbounded, where a `LazyVerticalGrid` crashes outright.
+ */
+@Composable
+fun GridChoosePassageContent(
+    ui: GridUi,
+    onPick: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val sections = ui.sections
+    val cols = ui.columns.coerceAtLeast(1)
+    // Row-break spacers between grouped sections (classic group gaps).
+    val spacerCount = if (sections != null) (sections.size - 1).coerceAtLeast(0) else 0
+    // Content rows: each section starts on a fresh row (a full-span spacer forces the break),
+    // so count rows per section, not across the whole list.
+    val contentRows = if (sections != null) {
+        gridCellRowsForSections(sectionSizes = sections.map { it.size }, columns = cols, minRows = ui.minRows)
+    } else {
+        gridCellRows(buttonCount = ui.buttons.size, columns = cols, minRows = ui.minRows)
+    }
+    BoxWithConstraints(modifier = modifier) {
+        // Fill the viewport height like the classic grid: divide the available height by the
+        // row count. contentPadding is 4dp each side (=8dp) and each spacer is 8dp tall.
+        val available = maxHeight - 8.dp - (spacerCount * 8).dp
+        val minCell = 40.dp // below this we stop growing and let long (verse) lists scroll instead
+        val cellHeight = (available / contentRows).coerceAtLeast(minCell)
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(cols),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(4.dp),
+        ) {
+            if (sections != null) {
+                sections.forEachIndexed { i, section ->
+                    items(section.size, key = { "s$i-${section[it].id}" }) { idx ->
+                        GridCell(section[idx], ui, cellHeight, onPick)
                     }
-                } else {
-                    items(ui.buttons.size, key = { ui.buttons[it].id }) { idx ->
-                        GridCell(ui.buttons[idx], ui, cellHeight, onPick)
+                    if (i < sections.lastIndex) {
+                        item(span = { GridItemSpan(maxLineSpan) }) { Box(Modifier.height(8.dp)) } // group row-break
                     }
+                }
+            } else {
+                items(ui.buttons.size, key = { ui.buttons[it].id }) { idx ->
+                    GridCell(ui.buttons[idx], ui, cellHeight, onPick)
                 }
             }
         }
