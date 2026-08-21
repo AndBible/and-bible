@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.settings
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -36,11 +37,22 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsEditorPage
+import net.bible.sharedcore.settings.SettingsEditorStack
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.settings.SettingsScreenState
+import net.bible.sharedui.components.AbListChoiceContent
+import net.bible.sharedui.components.AbMultiSelectContent
+import net.bible.sharedui.components.AbTextInputContent
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -116,5 +128,114 @@ fun SheetConfirmRow(
         Spacer(Modifier.weight(1f))
         TextButton(onClick = onCancel) { Text(cancelLabel) }
         TextButton(onClick = onConfirm) { Text(confirmLabel) }
+    }
+}
+
+/**
+ * The generic settings editor sheet: the three item kinds `AbSettingsContent` used to open dialogs
+ * for. Re-resolves the row from [state] on every recomposition and closes the sheet if the key has
+ * vanished — the same discipline the three dialogs had, now expressed through
+ * [SettingsEditorStack.closeIf].
+ *
+ * `internal`, not `private`: [AbSettingsScreen] is not [AbSettingsContent]'s only direct caller —
+ * [net.bible.sharedui.settings.SyncSettingsScreen] and [net.bible.sharedui.ai.PromptEditScreen]'s
+ * Advanced tab also render it standalone (a host with its own top bar, per [AbSettingsContent]'s
+ * kdoc), so they reuse this composable rather than duplicating its `when` block. Kotlin `internal`
+ * is module-scoped, which covers both — they live in `:sharedUi` alongside this file. Lives here,
+ * not in `AbSettingsScreen.kt`, for the same module-shared-infrastructure reason as
+ * [SettingsEditorSheet]/[SheetConfirmRow] above.
+ */
+@Composable
+internal fun GenericSettingsEditorSheet(
+    state: SettingsScreenState,
+    editor: SettingsEditorStack,
+    page: SettingsEditorPage?,
+    depth: Int,
+    onListChoice: (String, String) -> Unit,
+    onTextInput: (String, String) -> Unit,
+    onMultiSelectChange: (String, Set<String>) -> Unit,
+) {
+    val rowPage = page as? SettingsEditorPage.Row ?: return
+    val row = state.visibleItems.firstOrNull { it.key == rowPage.key }
+    LaunchedEffect(rowPage, row) {
+        if (row == null) editor.closeIf { it is SettingsEditorPage.Row && it.key == rowPage.key }
+    }
+    if (row == null) return
+    val strings = LocalStrings.current
+    val title = when (row) {
+        is SettingsItem.ListChoiceRow -> row.title
+        is SettingsItem.TextInputRow -> row.title
+        is SettingsItem.MultiSelectRow -> row.title
+        // RenderSettingsItem only ever calls openListChoice/openTextInput/openMultiSelect for these
+        // three row kinds, so a Row page can never resolve to any other SettingsItem subtype today.
+        // Not exhaustively provable from this function alone, so kept as a safe no-op (a blank sheet
+        // never renders — SettingsEditorSheet only renders once `page` is non-null AND this function
+        // has returned a title) rather than an assertion that would crash if that ever changed.
+        else -> return
+    }
+    SettingsEditorSheet(
+        page = page,
+        title = title,
+        showBack = depth > 1,
+        onDismiss = { editor.pop() },
+        onClose = { editor.close() },
+    ) {
+        when (row) {
+            is SettingsItem.ListChoiceRow -> {
+                // AbListChoiceContent's own modifier parameter lands INSIDE its `verticalScroll`
+                // (`Modifier.verticalScroll(rememberScrollState()).then(modifier)`), so a height bound
+                // passed there is measured by verticalScroll's child with maxHeight = Infinity, clamps
+                // the inner Column's reported size only, and never reduces verticalScroll's own
+                // viewport — scroll range collapses to 0 and rows past the bound become unreachable
+                // rather than merely scroll-capped. Bounding from this true ANCESTOR Box instead makes
+                // verticalScroll receive the finite maxHeight it needs to compute a real scroll range.
+                // Matches AbMultiSelectContent's 400.dp — no reason for the sheet's two list editors to
+                // clip at different heights.
+                Box(modifier = Modifier.heightIn(max = 400.dp)) {
+                    AbListChoiceContent(
+                        choices = row.entries,
+                        selectedValue = row.selectedValue,
+                        // A single-choice pick commits and closes, exactly as the dialog's row onClick did.
+                        onSelect = { onListChoice(row.key, it); editor.pop() },
+                    )
+                }
+            }
+            is SettingsItem.TextInputRow -> {
+                var current by remember(row.key, row.value) { mutableStateOf(row.value) }
+                AbTextInputContent(
+                    initial = row.value,
+                    onValueChange = { current = it },
+                    numeric = row.numeric,
+                    masked = row.masked,
+                )
+                SheetConfirmRow(
+                    confirmLabel = strings.settingsEditorApply,
+                    cancelLabel = strings.cancel,
+                    onConfirm = { onTextInput(row.key, current); editor.pop() },
+                    onCancel = { editor.pop() },
+                )
+            }
+            is SettingsItem.MultiSelectRow -> {
+                var current by remember(row.key, row.selectedValues) {
+                    mutableStateOf(row.selectedValues.toList())
+                }
+                AbMultiSelectContent(
+                    options = row.options,
+                    selectedIds = row.selectedValues.toList(),
+                    idOf = { it.value },
+                    labelOf = { it.label },
+                    onCheckedChange = { current = it },
+                    selectAllText = strings.selectAll,
+                    selectNoneText = strings.selectNone,
+                )
+                SheetConfirmRow(
+                    confirmLabel = strings.settingsEditorApply,
+                    cancelLabel = strings.cancel,
+                    onConfirm = { onMultiSelectChange(row.key, current.toSet()); editor.pop() },
+                    onCancel = { editor.pop() },
+                )
+            }
+            else -> Unit
+        }
     }
 }

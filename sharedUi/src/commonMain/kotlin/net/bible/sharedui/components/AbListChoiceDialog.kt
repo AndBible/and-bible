@@ -42,7 +42,17 @@ import net.bible.sharedui.strings.LocalStrings
 /** Renders [choices] as a scrollable column of radio-button rows (theme-aware, uses the ambient
  *  M3 colour scheme). Selecting a row invokes [onSelect] with the choice's stable value; the
  *  content itself never dismisses anything — that is the caller's job. Renders gracefully with
- *  no choices (an empty column). */
+ *  no choices (an empty column).
+ *
+ *  CAUTION: [modifier] lands INSIDE this composable's own `verticalScroll`
+ *  (`Modifier.verticalScroll(rememberScrollState()).then(modifier)`), so a height bound passed
+ *  through it (e.g. `Modifier.heightIn(max = ...)`) is measured by `verticalScroll`'s child with
+ *  `maxHeight = Infinity` — it clamps the reported size of the inner [Column], not the scroll
+ *  viewport, so the scroll range collapses to 0 and content past the bound becomes permanently
+ *  unreachable rather than merely scroll-capped. To bound how much space this composable may use,
+ *  wrap the CALL SITE in an ancestor `Box`/`Column` with the height constraint instead — that
+ *  constraint reaches `verticalScroll` as a real, finite `maxHeight`, which is what it needs to
+ *  compute a working scroll range. (`GenericSettingsEditorSheet` does this.) */
 @Composable
 fun AbListChoiceContent(
     choices: List<SettingsItem.Choice>,

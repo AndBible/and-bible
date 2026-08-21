@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,10 +39,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.RowScope
@@ -58,17 +55,13 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedcore.settings.filterSettingsItems
 import net.bible.sharedui.components.AbActionIcon
-import net.bible.sharedui.components.AbListChoiceContent
-import net.bible.sharedui.components.AbMultiSelectContent
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.AbSwitchRow
-import net.bible.sharedui.components.AbTextInputContent
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.components.SettingsRowBadgeChip
-import net.bible.sharedui.strings.LocalStrings
 
 /**
  * Reusable declarative settings screen. Renders a [SettingsScreenState] (a flat list of
@@ -193,100 +186,6 @@ fun AbSettingsScreen(
         onTextInput = onTextInput,
         onMultiSelectChange = onMultiSelectChange,
     )
-}
-
-/**
- * The generic settings editor sheet: the three item kinds `AbSettingsContent` used to open dialogs
- * for. Re-resolves the row from [state] on every recomposition and closes the sheet if the key has
- * vanished — the same discipline the three dialogs had, now expressed through
- * [SettingsEditorStack.closeIf].
- *
- * `internal`, not `private`: [AbSettingsScreen] is not [AbSettingsContent]'s only direct caller —
- * [net.bible.sharedui.settings.SyncSettingsScreen] and [net.bible.sharedui.ai.PromptEditScreen]'s
- * Advanced tab also render it standalone (a host with its own top bar, per [AbSettingsContent]'s
- * kdoc), so they reuse this composable rather than duplicating its `when` block. Kotlin `internal`
- * is module-scoped, which covers both — they live in `:sharedUi` alongside this file.
- */
-@Composable
-internal fun GenericSettingsEditorSheet(
-    state: SettingsScreenState,
-    editor: SettingsEditorStack,
-    page: SettingsEditorPage?,
-    depth: Int,
-    onListChoice: (String, String) -> Unit,
-    onTextInput: (String, String) -> Unit,
-    onMultiSelectChange: (String, Set<String>) -> Unit,
-) {
-    val rowPage = page as? SettingsEditorPage.Row ?: return
-    val row = state.visibleItems.firstOrNull { it.key == rowPage.key }
-    LaunchedEffect(rowPage, row) {
-        if (row == null) editor.closeIf { it is SettingsEditorPage.Row && it.key == rowPage.key }
-    }
-    if (row == null) return
-    val strings = LocalStrings.current
-    val title = when (row) {
-        is SettingsItem.ListChoiceRow -> row.title
-        is SettingsItem.TextInputRow -> row.title
-        is SettingsItem.MultiSelectRow -> row.title
-        else -> return
-    }
-    SettingsEditorSheet(
-        page = page,
-        title = title,
-        showBack = depth > 1,
-        onDismiss = { editor.pop() },
-        onClose = { editor.close() },
-    ) {
-        when (row) {
-            is SettingsItem.ListChoiceRow -> AbListChoiceContent(
-                choices = row.entries,
-                selectedValue = row.selectedValue,
-                // A single-choice pick commits and closes, exactly as the dialog's row onClick did.
-                onSelect = { onListChoice(row.key, it); editor.pop() },
-                // AbListChoiceContent's verticalScroll has no maximum height of its own (fine inside
-                // AlertDialog, which bounded it) — bound it here so a long list (e.g. font families)
-                // cannot grow the sheet to full bleed or push a confirm row out of reach. Matches
-                // AbMultiSelectContent's own heightIn(max = 400.dp).
-                modifier = Modifier.heightIn(max = 400.dp),
-            )
-            is SettingsItem.TextInputRow -> {
-                var current by remember(row.key, row.value) { mutableStateOf(row.value) }
-                AbTextInputContent(
-                    initial = row.value,
-                    onValueChange = { current = it },
-                    numeric = row.numeric,
-                    masked = row.masked,
-                )
-                SheetConfirmRow(
-                    confirmLabel = strings.settingsEditorApply,
-                    cancelLabel = strings.cancel,
-                    onConfirm = { onTextInput(row.key, current); editor.pop() },
-                    onCancel = { editor.pop() },
-                )
-            }
-            is SettingsItem.MultiSelectRow -> {
-                var current by remember(row.key, row.selectedValues) {
-                    mutableStateOf(row.selectedValues.toList())
-                }
-                AbMultiSelectContent(
-                    options = row.options,
-                    selectedIds = row.selectedValues.toList(),
-                    idOf = { it.value },
-                    labelOf = { it.label },
-                    onCheckedChange = { current = it },
-                    selectAllText = strings.selectAll,
-                    selectNoneText = strings.selectNone,
-                )
-                SheetConfirmRow(
-                    confirmLabel = strings.settingsEditorApply,
-                    cancelLabel = strings.cancel,
-                    onConfirm = { onMultiSelectChange(row.key, current.toSet()); editor.pop() },
-                    onCancel = { editor.pop() },
-                )
-            }
-            else -> Unit
-        }
-    }
 }
 
 /**

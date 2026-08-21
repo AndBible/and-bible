@@ -1,6 +1,10 @@
 package net.bible.android.view.compose.golden
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbListChoiceContent
@@ -18,6 +22,15 @@ import org.robolectric.annotation.GraphicsMode
  * Captured **directly**, never inside `SettingsEditorSheet`: forcing a `ModalBottomSheet` open in a
  * capture hangs Roborazzi (see `SearchSheetGoldenTest`), and it is the page body — not the sheet
  * chrome — that needs proving. The wrapping `Column` stands in for the sheet's own `Column`.
+ *
+ * [listChoiceLong_matrix] additionally wraps the list-choice body in the same
+ * `Box(Modifier.heightIn(max = 400.dp))` ancestor `GenericSettingsEditorSheet` uses in production
+ * (fix round 1 finding: a bound passed via `AbListChoiceContent`'s own `modifier` parameter lands
+ * inside its `verticalScroll` and does not work — see that composable's KDoc). Honest scope of what
+ * a static capture can and cannot prove here: it shows the `Box` clamps to 400.dp and that rows past
+ * the clamp are not drawn (i.e. the bound is applied and nothing overflows the sheet) — it CANNOT
+ * prove the list is actually scrollable to reach those clipped rows, since a screenshot has no
+ * gesture. That half (does dragging the list reveal the rest) needs the on-device checklist.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -63,6 +76,20 @@ class SettingsEditorSheetGoldenTest {
                     selectAllText = "Select all",
                     selectNoneText = "Select none",
                 )
+            }
+        }
+
+    // A realistic long list (e.g. font families) at the SAME Box-wrapped composition
+    // GenericSettingsEditorSheet renders in production -- see the class kdoc for what this test
+    // proves and what it does not.
+    private val longChoices = (1..20).map { SettingsItem.Choice("font$it", "Font family $it") }
+
+    @Test fun listChoiceLong_matrix() =
+        captureMatrix("SettingsEditorSheet", "listChoiceLong") {
+            Column {
+                Box(modifier = Modifier.heightIn(max = 400.dp)) {
+                    AbListChoiceContent(choices = longChoices, selectedValue = "font1", onSelect = {})
+                }
             }
         }
 }
