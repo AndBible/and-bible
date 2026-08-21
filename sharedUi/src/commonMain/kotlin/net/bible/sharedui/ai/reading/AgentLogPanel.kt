@@ -137,8 +137,11 @@ fun AgentLogPanel(
      * which stashes the height the gesture starts from so [onHeightDrag]'s collapse branch can
      * restore it instead of the last intermediate pointer value (whole-branch review, Blocker 1).
      *
-     * Deliberately has no default: a call site that forgets it silently reintroduces the ratchet that
-     * shrank a dragged panel to a sliver, and nothing else in the build would notice.
+     * Deliberately has no default, so omitting it is a compile error rather than a silent
+     * regression. The failure it guards against is the one a default would allow: wiring it to a
+     * no-op, which reintroduces the ratchet that shrank a dragged panel to a sliver and which
+     * nothing else in the build would notice. The golden tests pass a no-op harmlessly, because they
+     * never drive a gesture; a production call site must not.
      */
     onHeightDragStarted: () -> Unit,
     /** One drag step on the handle, positive upward. Wired to `AgentLogController.onHeightDrag`. */
