@@ -18,7 +18,9 @@
 package net.bible.android.view.compose
 
 import java.io.File
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -36,4 +38,55 @@ class SpeakEntryPointGuardTest {
             "src/main/java/net/bible/android/view/activity/speak/SpeakSettingsComposeActivity.kt",
         ).forEach { assertFalse("$it should have been deleted in round 13a", File(it).exists()) }
     }
+
+    /**
+     * Round 13a T13: `Screen.BibleSpeak` now resolves to the CLASSIC activity only (T4), so every
+     * Compose-path call site must branch to [net.bible.android.view.activity.page.screen
+     * .ComposeReadingViewHost.showSpeakSettings] instead. A forgotten branch would silently drop the
+     * user into the classic Speak screen — a regression no golden and no unit test would notice, and
+     * one nothing else here would fail on.
+     *
+     * Same source-scan shape (and the same two traps avoided) as [MenuSeamGuardTest]: prose lines
+     * are filtered so an `import` or a comment cannot satisfy the guard, and the path list is
+     * asserted to exist so the scan can never pass vacuously.
+     */
+    private val callSites = listOf(
+        "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
+        "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
+        "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
+    )
+
+    @Test fun everyScannedCallSiteExists() {
+        val missing = callSites.filterNot { File(it).isFile }
+        assertEquals("scanned paths that no longer exist (guard would pass vacuously)", emptyList<String>(), missing)
+    }
+
+    @Test fun everyBibleSpeakIntentSiteAlsoBranchesToTheSheet() {
+        callSites.forEach { path ->
+            val code = codeLinesOf(path)
+            if (code.contains("Screen.BibleSpeak")) {
+                assertTrue(
+                    "$path launches Screen.BibleSpeak but never calls showSpeakSettings() — " +
+                        "the Compose path would open the CLASSIC Speak activity",
+                    code.contains("showSpeakSettings("),
+                )
+            }
+        }
+    }
+
+    /** At least one site must actually branch, or the `if` above could be satisfied by nothing. */
+    @Test fun atLeastOneCallSiteBranchesToTheSheet() {
+        assertTrue(
+            "no call site calls showSpeakSettings() at all — the Compose Speak entry point is gone",
+            callSites.any { codeLinesOf(it).contains("showSpeakSettings(") },
+        )
+    }
+
+    /** Non-prose lines only: an `import` line or a comment mentioning either name must not count. */
+    private fun codeLinesOf(path: String): String =
+        File(path).readLines().filterNot { line ->
+            val trimmed = line.trimStart()
+            trimmed.startsWith("import ") || trimmed.startsWith("//") ||
+                trimmed.startsWith("*") || trimmed.startsWith("/*")
+        }.joinToString("\n")
 }

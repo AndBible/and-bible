@@ -1125,8 +1125,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             speakButton.setOnLongClickListener {
-                val intent = ScreenLauncher.intentFor(this@MainBibleActivity, Screen.BibleSpeak)
-                startActivityForResult(intent, STD_REQUEST_CODE)
+                // Round 13a: on the Compose path the Speak settings are a sheet over the reading
+                // view — `Screen.BibleSpeak` now resolves to the CLASSIC activity, so the Intent
+                // route below is the classic path's only. Same "flag + host installed" guard as
+                // `handleWindowTextOptionItem`'s sheet interception.
+                val host = composeReadingViewHost
+                if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+                    host.showSpeakSettings()
+                } else {
+                    val intent = ScreenLauncher.intentFor(this@MainBibleActivity, Screen.BibleSpeak)
+                    startActivityForResult(intent, STD_REQUEST_CODE)
+                }
                 true
             }
             searchButton.setOnClickListener {
@@ -1362,7 +1371,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         updateBottomBars()
     }
 
+    /**
+     * The Compose toolbar's Speak long-press. Round 13a: opens the Speak settings SHEET over the
+     * reading view. The Intent route survives only for the classic case (no host / flag off), which
+     * this method cannot actually be reached in — it is kept so the flag-OFF behaviour of this body
+     * is unchanged by inspection, the same idiom as [composeSearch].
+     */
     internal fun composeSpeakLong() {
+        val host = composeReadingViewHost
+        if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+            host.showSpeakSettings()
+            return
+        }
         startActivityForResult(ScreenLauncher.intentFor(this, Screen.BibleSpeak), STD_REQUEST_CODE)
     }
 
