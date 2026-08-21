@@ -16,7 +16,7 @@
  */
 package net.bible.sharedui.mydocuments
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -101,6 +102,13 @@ fun MyDocumentsScreen(
     importNamePrompt: String? = null,
     onConfirmImport: (String) -> Unit = {},
     onDismissImport: () -> Unit = {},
+    // Selection mode (long-press to enter), driven by hoisted host state. TEMPORARY defaults so the
+    // not-yet-updated host call site (wired in Task 11) keeps compiling unchanged: no row ever selected.
+    selection: Set<Long> = emptySet(),
+    onToggleSelected: (Long) -> Unit = {},
+    onClearSelection: () -> Unit = {},
+    onDeleteSelected: () -> Unit = {},
+    onExportSelected: () -> Unit = {},
 ) {
     val s = LocalStrings.current
     // Local dialog state (which dialog + target item + text buffer). Not hoisted (pure UI).
@@ -109,18 +117,24 @@ fun MyDocumentsScreen(
     var descFor by remember { mutableStateOf<MyDocItem?>(null) }
     var deleteFor by remember { mutableStateOf<MyDocItem?>(null) }
     var blockedAiDelete by remember { mutableStateOf(false) }
+    val selectionMode = selection.isNotEmpty()
+    var confirmBatchDelete by remember { mutableStateOf(false) }
 
     AbSelectionScaffold(
         title = title,
-        selectionMode = false,
-        selectedCount = 0,
+        selectionMode = selectionMode,
+        selectedCount = selection.size,
         onNavigateUp = onNavigateUp,
-        onExitSelection = {},
+        onExitSelection = onClearSelection,
         actions = {
             if (!searchModeActive) {
                 AbActionIcon(Icons.Filled.Search, s.search, onOpenSearch)
                 AbActionIcon(Icons.Filled.AddCircleOutline, s.newItem) { createOpen = true }
             }
+        },
+        selectionActions = {
+            AbActionIcon(Icons.Filled.FileUpload, s.export, onExportSelected)
+            AbActionIcon(Icons.Filled.Delete, s.deleteLabel) { confirmBatchDelete = true }
         },
         search = if (searchModeActive) {
             AbTopBarSearchState(query = query, imeRequest = AbSearchImeRequest.Focus)
@@ -144,16 +158,27 @@ fun MyDocumentsScreen(
                 } else {
                     AbReorderableColumn(items = documents, key = { it.id }, onMove = onMove) { item, handle ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().clickable { onOpen(item.id) }.padding(vertical = 4.dp),
+                            modifier = Modifier.fillMaxWidth()
+                                .combinedClickable(
+                                    onClick = {
+                                        if (selectionMode) onToggleSelected(item.id) else onOpen(item.id)
+                                    },
+                                    onLongClick = { onToggleSelected(item.id) },
+                                )
+                                .padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            if (!filtering) {
-                                Icon(
+                            when {
+                                selectionMode -> Checkbox(
+                                    checked = item.id in selection,
+                                    onCheckedChange = { onToggleSelected(item.id) },
+                                    modifier = Modifier.padding(horizontal = 4.dp),
+                                )
+                                !filtering -> Icon(
                                     Icons.Filled.DragHandle, contentDescription = null,
                                     modifier = handle.padding(horizontal = 12.dp),
                                 )
-                            } else {
-                                Spacer(Modifier.size(48.dp))
+                                else -> Spacer(Modifier.size(48.dp))
                             }
                             if (item.isAiGenerated) {
                                 Icon(
@@ -169,12 +194,14 @@ fun MyDocumentsScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
-                            RowOverflow(
-                                onRename = { renameFor = item },
-                                onEditDescription = { descFor = item },
-                                onExport = { onExport(item.id) },
-                                onDelete = { if (item.canDelete) deleteFor = item else blockedAiDelete = true },
-                            )
+                            if (!selectionMode) {
+                                RowOverflow(
+                                    onRename = { renameFor = item },
+                                    onEditDescription = { descFor = item },
+                                    onExport = { onExport(item.id) },
+                                    onDelete = { if (item.canDelete) deleteFor = item else blockedAiDelete = true },
+                                )
+                            }
                         }
                     }
                 }
@@ -230,6 +257,21 @@ fun MyDocumentsScreen(
     }
     if (blockedAiDelete) {
         AbErrorDialog(message = s.cannotDeleteAiDocuments, confirmText = s.okay, onDismiss = { blockedAiDelete = false })
+    }
+    if (confirmBatchDelete) {
+        AbConfirmDialog(
+            title = null, message = s.deleteDocumentsConfirmation,
+            confirmText = s.yes, dismissText = s.no,
+            onConfirm = {
+                confirmBatchDelete = false
+                // Count the blocked rows BEFORE deleting. Safe to read from `documents`: a selection
+                // can only exist over the published rows, because changing the query clears it.
+                val blocked = documents.count { it.id in selection && !it.canDelete }
+                onDeleteSelected()
+                if (blocked > 0) blockedAiDelete = true
+            },
+            onDismiss = { confirmBatchDelete = false },
+        )
     }
 }
 

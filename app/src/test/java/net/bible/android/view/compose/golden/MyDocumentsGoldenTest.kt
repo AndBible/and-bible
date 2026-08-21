@@ -28,6 +28,7 @@ class MyDocumentsGoldenTest {
         query: String = "",
         filtering: Boolean = false,
         searchModeActive: Boolean = false,
+        selection: Set<Long> = emptySet(),
     ) = MyDocumentsScreen(
         title = "My documents", documents = items, dirty = dirty,
         query = query, filtering = filtering, searchModeActive = searchModeActive,
@@ -36,6 +37,8 @@ class MyDocumentsGoldenTest {
         onMove = { _, _ -> }, onOpen = {}, onRename = { _, _ -> }, onEditDescription = { _, _ -> },
         onDelete = {}, onExport = {}, onCreate = {}, onImport = {}, onSave = {}, onCancel = {},
         onNavigateUp = {},
+        selection = selection, onToggleSelected = {}, onClearSelection = {},
+        onDeleteSelected = {}, onExportSelected = {},
     )
 
     @Test fun myDocuments_populated() { captureMatrix("MyDocuments", "populated") { screen() } }
@@ -73,6 +76,13 @@ class MyDocumentsGoldenTest {
         // clears the query); this state exists to pin the drag handles being GONE while filtering.
         captureGolden("MyDocuments", "filtering", EDGE_MODE) {
             screen(items = docs.take(1), query = "rom", filtering = true, searchModeActive = false)
+        }
+    }
+
+    @Test fun myDocuments_selection() {
+        // Two rows selected, one of them the AI document that cannot be deleted.
+        captureGolden("MyDocuments", "selection", EDGE_MODE) {
+            screen(selection = setOf(0L, 2L))
         }
     }
 }
