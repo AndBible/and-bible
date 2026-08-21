@@ -568,7 +568,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         textSettingsEditor.open(page)
     }
 
-    private fun textSettingsControllerFor(scope: SettingsScope): TextDisplaySettingsController =
+    /** `internal`, not `private` -- same test-visibility convention as [searchSettingsOpen] above:
+     *  `:app` has no `ComposeTestRule` to drive [TextSettingsEditorSlot]'s composition, so proving
+     *  this construction itself never bumps [generation] means a test calling it directly. */
+    internal fun textSettingsControllerFor(scope: SettingsScope): TextDisplaySettingsController =
         textSettingsControllers.getOrPut(scope) {
             TextDisplaySettingsController(
                 service = textDisplaySettingsService,
@@ -585,8 +588,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      *  `TextDisplaySettingsComposeActivity.colorControllerFor`'s kdoc gives: its state is loaded
      *  once in the constructor, and a whole-scope reset elsewhere (this controller's own `onReset`)
      *  can change colours behind an idle instance — a cached, stale instance would then reopen
-     *  showing pre-reset values. */
-    private fun colorControllerFor(scope: SettingsScope): ColorSettingsController =
+     *  showing pre-reset values.
+     *
+     *  `internal`, not `private` -- same test-visibility reason as [textSettingsControllerFor]
+     *  above: a test needs to construct one directly to prove doing so never bumps [generation]. */
+    internal fun colorControllerFor(scope: SettingsScope): ColorSettingsController =
         ColorSettingsController(
             service = textDisplaySettingsService,
             scope = scope,

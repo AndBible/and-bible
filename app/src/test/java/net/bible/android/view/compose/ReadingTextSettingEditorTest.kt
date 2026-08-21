@@ -111,4 +111,67 @@ class ReadingTextSettingEditorTest {
         assertEquals(1, host.textSettingsEditor.depth)
         assertEquals(SettingsEditorPage.Row("FONTSIZE"), host.textSettingsEditor.current)
     }
+
+    // ---- Fix round 1, Finding 1: the pane subtree must survive this editor too ------------------
+
+    /**
+     * The invariant `ReadingSearchHostTest.openingAndClosingSearchMustNotRebuildThePaneSubtree`
+     * pins for search, pinned here for the in-place text-settings editor: nothing on this path may
+     * reach [net.bible.android.view.activity.page.screen.ComposeReadingViewGeneration.rebuild] — a
+     * bump re-runs every pane's `AndroidView` factory, destroying and recreating every `BibleView`
+     * WebView (losing the loaded document, the scroll position and every bit of JS state) — exactly
+     * what would happen to a user nudging a font size mid-read if the slot were ever moved back
+     * inside the generation-key block, or if the editor's state were ever fed into whatever computes
+     * the generation.
+     *
+     * `:app` has no `ComposeTestRule`, so [ComposeReadingViewHost.TextSettingsEditorSlot] itself
+     * never composes here (same limit `ReadingSearchHostTest` documents) -- what CAN run is every
+     * plain-function step the slot's composition would otherwise trigger: [ComposeReadingViewHost
+     * .showTextSettingEditor]/[net.bible.sharedcore.settings.SettingsEditorStack.close] themselves,
+     * plus the two controller constructions the slot resolves via `remember(scope) { ... }`
+     * ([ComposeReadingViewHost.textSettingsControllerFor]/[ComposeReadingViewHost.colorControllerFor],
+     * widened to `internal` for exactly this). Both page kinds are covered because they take
+     * different paths through the slot: a `Row` page only ever resolves a
+     * `TextDisplaySettingsController`, while `Colors`/`ColorPick`/`BackgroundImage` additionally
+     * resolve a `ColorSettingsController` (never cached -- a FRESH instance every time, per T10's
+     * own kdoc) -- if constructing either one could itself bump the generation, one of these two
+     * tests would say so.
+     */
+    @Test
+    fun openingAndClosingTheRowEditorMustNotRebuildThePaneSubtree() {
+        val host = host()
+        assertEquals(0, host.generationForTest.state.value, "sanity: nothing has rebuilt yet")
+
+        val scope = SettingsScope.Workspace("ws")
+        host.showTextSettingEditor(scope, SettingsEditorPage.Row(TextSettingType.FONTSIZE.name)) { }
+        // What TextSettingsEditorSlot's `remember(scope) { textSettingsControllerFor(scope) }` would
+        // resolve for a Row page, driven directly since composition cannot run here.
+        host.textSettingsControllerFor(scope)
+        host.textSettingsEditor.close()
+
+        assertEquals(
+            0, host.generationForTest.state.value,
+            "opening/closing the row editor (and resolving its TextDisplaySettingsController) must " +
+                "not bump the generation -- a bump remounts every pane's BibleView WebView",
+        )
+    }
+
+    @Test
+    fun openingAndClosingTheColoursEditorMustNotRebuildThePaneSubtree() {
+        val host = host()
+        assertEquals(0, host.generationForTest.state.value, "sanity: nothing has rebuilt yet")
+
+        val scope = SettingsScope.Workspace("ws")
+        host.showTextSettingEditor(scope, SettingsEditorPage.Colors) { }
+        // What TextSettingsEditorSlot's `remember(scope) { colorControllerFor(scope) }` would
+        // resolve for the Colors page family, driven directly since composition cannot run here.
+        host.colorControllerFor(scope)
+        host.textSettingsEditor.close()
+
+        assertEquals(
+            0, host.generationForTest.state.value,
+            "opening/closing the colours editor (and constructing its ColorSettingsController) " +
+                "must not bump the generation",
+        )
+    }
 }

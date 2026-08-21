@@ -167,7 +167,7 @@ fun buildColorSettingsLabels(context: Context) = ColorSettingsLabels(
     opacityNight = context.getString(R.string.background_image_opacity_night),
     change = context.getString(R.string.background_image_change),
     // No standalone R.string.reset exists (only "reset settings"-flavoured strings) -- reuse
-    // the same generic reset wording buildScreenLabels() uses for resetToInheritedLabel.
+    // the same generic reset wording buildTextDisplayScreenLabels() uses for resetToInheritedLabel.
     reset = context.getString(R.string.reset_generic),
 )
 
