@@ -59,7 +59,7 @@ private fun stripComments(text: String): String {
  * *shape* of routing -- a back entry point (`onBackPressed` override or a Compose `BackHandler`)
  * that also references the host's search-mode state -- not that the logic inside is correct.
  *
- * Two shapes are in use, by design, not by omission: five hosts override the deprecated
+ * Two shapes are in use, by design, not by omission: seven hosts override the deprecated
  * `onBackPressed()`; `TextDisplaySettingsComposeActivity` uses `BackHandler` instead, because it
  * already has a registered `OnBackPressedCallback` for its own destination-stack navigation, and a
  * registered callback wins over the deprecated override -- so a second `onBackPressed` override
