@@ -154,41 +154,60 @@ fun MyDocumentsScreen(
                 } else {
                     AbReorderableColumn(items = documents, key = { it.id }, onMove = onMove) { item, handle ->
                         Row(
-                            modifier = Modifier.fillMaxWidth()
-                                .combinedClickable(
-                                    onClick = {
-                                        if (selectionMode) onToggleSelected(item.id) else onOpen(item.id)
-                                    },
-                                    onLongClick = { onToggleSelected(item.id) },
-                                )
-                                .padding(vertical = 4.dp),
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            when {
-                                selectionMode -> Checkbox(
-                                    checked = item.id in selection,
-                                    onCheckedChange = { onToggleSelected(item.id) },
-                                    modifier = Modifier.padding(horizontal = 4.dp),
-                                )
-                                !filtering -> Icon(
-                                    Icons.Filled.DragHandle, contentDescription = null,
-                                    modifier = handle.padding(horizontal = 12.dp),
-                                )
-                                else -> Spacer(Modifier.size(48.dp))
+                            // The drag handle must sit OUTSIDE the clickable area. sh.calvin.reorderable's
+                            // press detector delegates to detectDragGestures, which neither consumes the
+                            // down nor claims the gesture before touch slop — so a parent long-press timer
+                            // runs concurrently, and holding the handle still to aim a deliberate reorder
+                            // fired onLongClick: selection mode came on, the handle was swapped for a
+                            // Checkbox, and the draggableHandle node vanished mid-gesture (aborting the
+                            // drag and removing every handle in the list). longPressToDrag = false does not
+                            // help — the conflict is with the row, not with the library's handle modes.
+                            if (!selectionMode) {
+                                if (!filtering) {
+                                    Icon(
+                                        Icons.Filled.DragHandle, contentDescription = null,
+                                        modifier = handle.padding(horizontal = 12.dp),
+                                    )
+                                } else {
+                                    Spacer(Modifier.size(48.dp))
+                                }
                             }
-                            if (item.isAiGenerated) {
-                                Icon(
-                                    Icons.Filled.AutoAwesome, contentDescription = null,
-                                    modifier = Modifier.padding(end = 8.dp),
-                                )
-                            }
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(item.name, style = MaterialTheme.typography.bodyLarge)
-                                Text(
-                                    item.description.ifEmpty { s.noDescription },
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                            Row(
+                                modifier = Modifier.weight(1f)
+                                    .combinedClickable(
+                                        onClick = {
+                                            if (selectionMode) onToggleSelected(item.id) else onOpen(item.id)
+                                        },
+                                        onLongClick = { onToggleSelected(item.id) },
+                                    ),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                // onCheckedChange = null so the enclosing clickable owns the gesture and the
+                                // row announces itself once (precedent: RawLogHistoryScreen, BookmarksScreen).
+                                if (selectionMode) {
+                                    Checkbox(
+                                        checked = item.id in selection,
+                                        onCheckedChange = null,
+                                        modifier = Modifier.padding(horizontal = 4.dp),
+                                    )
+                                }
+                                if (item.isAiGenerated) {
+                                    Icon(
+                                        Icons.Filled.AutoAwesome, contentDescription = null,
+                                        modifier = Modifier.padding(end = 8.dp),
+                                    )
+                                }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(item.name, style = MaterialTheme.typography.bodyLarge)
+                                    Text(
+                                        item.description.ifEmpty { s.noDescription },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
                             if (!selectionMode) {
                                 RowOverflow(
@@ -215,7 +234,9 @@ fun MyDocumentsScreen(
             initialName = s.newDocumentName(totalCount + 1),
             confirmText = s.okay,
             importText = s.importDocument,
-            onCreate = { createOpen = false; if (it.isNotBlank()) onCreate(it.trim()) },
+            // No blank/trim guard needed: AbCreateItemSheet disables its confirm button while the name
+            // is blank and hands over an already-trimmed value.
+            onCreate = { createOpen = false; onCreate(it) },
             onImport = { createOpen = false; onImport() },
             onDismiss = { createOpen = false },
         )
