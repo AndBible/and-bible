@@ -17,7 +17,6 @@
 package net.bible.android.view.activity.settings
 
 import android.content.Intent
-import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.SettingsBundle
@@ -27,6 +26,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -45,7 +45,7 @@ import org.robolectric.fakes.RoboMenuItem
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class SettingsActivityMissingBundleTest {
     private fun intentFor(cls: Class<*>, withBundle: Boolean) =
-        Intent(ApplicationProvider.getApplicationContext(), cls).apply {
+        Intent(RuntimeEnvironment.getApplication(), cls).apply {
             if(withBundle) putExtra("settingsBundle", SettingsBundle().toJson())
         }
 
