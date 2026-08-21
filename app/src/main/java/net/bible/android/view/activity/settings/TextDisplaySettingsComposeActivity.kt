@@ -19,7 +19,6 @@ package net.bible.android.view.activity.settings
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -30,8 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.lifecycleScope
 import kotlin.coroutines.resume
 import kotlinx.coroutines.CancellableContinuation
@@ -45,7 +42,6 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.search.SearchModeController
 import net.bible.sharedcore.settings.ColorSettingsController
@@ -54,16 +50,12 @@ import net.bible.sharedcore.settings.KEY_OPEN_GLOBAL_SETTINGS
 import net.bible.sharedcore.settings.KEY_OPEN_WORKSPACE_SETTINGS
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.TextDisplaySettingsController
-import net.bible.sharedcore.settings.TextDisplaySettingsLabels
 import net.bible.sharedcore.settings.TextDisplaySettingsScreenState
 import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedui.AbAppTheme
-import net.bible.sharedui.settings.BackgroundImageChooserLabels
 import net.bible.sharedui.settings.BackgroundImageChooserScreen
-import net.bible.sharedui.settings.ColorSettingsLabels
 import net.bible.sharedui.settings.ColorSettingsScreen
 import net.bible.sharedui.settings.TextDisplaySettingsScreen
-import net.bible.sharedui.settings.TextDisplaySettingsScreenLabels
 import org.koin.android.ext.android.inject
 
 /**
@@ -99,10 +91,10 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
 
     private val windowRepository get() = CommonUtils.windowControl.windowRepository
 
-    private val controllerLabels by lazy { buildControllerLabels() }
-    private val screenLabels by lazy { buildScreenLabels() }
-    private val colorSettingsLabels by lazy { buildColorSettingsLabels() }
-    private val backgroundImageChooserLabels by lazy { buildBackgroundImageChooserLabels() }
+    private val controllerLabels by lazy { buildTextDisplayControllerLabels(this) }
+    private val screenLabels by lazy { buildTextDisplayScreenLabels(this) }
+    private val colorSettingsLabels by lazy { buildColorSettingsLabels(this) }
+    private val backgroundImageChooserLabels by lazy { buildBackgroundImageChooserLabels(this) }
 
     /** One [TextDisplaySettingsController] per visited [SettingsScope], kept alive for the life of
      * the Activity so a pop back to an earlier scope reuses (and [refresh]es) the same instance
@@ -188,7 +180,7 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
                                 labels = backgroundImageChooserLabels,
                                 loading = colorState.loading,
                                 deleteConfirm = colorState.deleteConfirm,
-                                thumbnailFor = ::decodeThumbnail,
+                                thumbnailFor = thumbnailResolver::resolve,
                                 onUp = { pop() },
                                 onSelect = { initials ->
                                     colorController.onSelectBackgroundImage(night, initials)
@@ -325,27 +317,10 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
 
     // --- Background-image thumbnails ------------------------------------------------------------
 
-    private val thumbnailCache = mutableMapOf<String, ImageBitmap?>()
-
-    /** Ports classic `BackgroundImageChooserActivity.Adapter.decodeThumbnail`: down-samples via
-     * `inJustDecodeBounds` so a large source photo doesn't fully decode just to draw an 8dp grid
-     * tile. Cached per [BackgroundImageOption.thumbnailToken] (== module initials) for the lifetime
-     * of this Activity; null-safe throughout -- a missing/unreadable file yields `null`, and
-     * [BackgroundImageChooserScreen] falls back to a themed placeholder box for that tile. */
-    private fun decodeThumbnail(token: String): ImageBitmap? = thumbnailCache.getOrPut(token) {
-        val file = AndBibleAddons.providedBackgroundImages[token]?.file ?: return@getOrPut null
-        runCatching {
-            BitmapFactory.Options().run {
-                inJustDecodeBounds = true
-                BitmapFactory.decodeFile(file.path, this)
-                var sample = 1
-                while (outWidth / sample > 240 || outHeight / sample > 240) sample *= 2
-                inJustDecodeBounds = false
-                inSampleSize = sample
-                BitmapFactory.decodeFile(file.path, this)
-            }
-        }.getOrNull()?.asImageBitmap()
-    }
+    /** Hoisted to [BackgroundThumbnailResolver] (Settings editor sheets T10) so
+     * [net.bible.android.view.activity.page.screen.ComposeReadingViewHost]'s in-place editor can
+     * resolve thumbnails the same way, with its own cache instance -- see that class's kdoc. */
+    private val thumbnailResolver = BackgroundThumbnailResolver()
 
     // --- BOOKMARKS_HIDELABELS bridge (reproduces classic HideLabelsPreference.openDialog) -------
 
@@ -373,154 +348,6 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
             }
         }
     }
-
-    // --- Labels ----------------------------------------------------------------------------------
-
-    private fun buildControllerLabels() = TextDisplaySettingsLabels(
-        categoryParent = getString(R.string.parent_settings_category_title),
-        categoryFontColors = getString(R.string.prefs_font_and_colors_title),
-        categoryTextLayout = getString(R.string.prefs_text_layout_title),
-        categoryStrongsMorphology = getString(R.string.prefs_strongs_and_morphology_title),
-        categoryFootnotesXrefs = getString(R.string.prefs_footnotes_and_xrefs_title),
-        categoryVersesHeadings = getString(R.string.prefs_verses_and_headings_title),
-        categoryPageScrolling = getString(R.string.prefs_page_scrolling_title),
-        categoryBookmarks = getString(R.string.prefs_text_bookmarks_title),
-        categoryReadingMemorization = getString(R.string.prefs_reading_and_memorization_title),
-        // Contains "%s" -- left un-substituted here; the controller does its own .replace("%s", ...).
-        workspaceLinkTitleFormat = getString(R.string.workspace_text_options_link),
-        workspaceLinkSummary = getString(R.string.workspace_text_options_link_summary),
-        globalLinkTitle = getString(R.string.global_text_options_link),
-        globalLinkSummary = getString(R.string.global_text_options_link_summary),
-        badgeWorkspace = getString(R.string.text_options_inherited_workspace),
-        badgeGlobal = getString(R.string.text_options_inherited_global),
-        titles = mapOf(
-            TextSettingType.COLORS to getString(R.string.prefs_text_colors_menutitle),
-            TextSettingType.FONTSIZE to getString(R.string.font_size_title),
-            TextSettingType.FONTFAMILY to getString(R.string.pref_font_family_label),
-            TextSettingType.LINE_SPACING to getString(R.string.line_spacing_title),
-            TextSettingType.REDLETTERS to getString(R.string.prefs_red_letter_title),
-            TextSettingType.MARGINSIZE to getString(R.string.prefs_margin_size_title),
-            TextSettingType.TOPMARGIN to getString(R.string.prefs_top_margin_title),
-            TextSettingType.JUSTIFY to getString(R.string.prefs_justify_title),
-            TextSettingType.HYPHENATION to getString(R.string.prefs_hyphenation_title),
-            TextSettingType.VERSEPERLINE to getString(R.string.prefs_verse_per_line_title),
-            TextSettingType.STRONGS to getString(R.string.prefs_show_strongs_title),
-            TextSettingType.MORPH to getString(R.string.prefs_show_morphology_title),
-            TextSettingType.NON_STRONGS_WORD_ITALIC to getString(R.string.prefs_non_strongs_word_italic_title),
-            TextSettingType.FOOTNOTES to getString(R.string.prefs_show_footnotes_title),
-            TextSettingType.FOOTNOTES_INLINE to getString(R.string.prefs_show_footnotes_inline_title),
-            TextSettingType.XREFS to getString(R.string.prefs_show_xrefs_title),
-            TextSettingType.EXPAND_XREFS to getString(R.string.prefs_expand_footnotes_title),
-            TextSettingType.VERSENUMBERS to getString(R.string.prefs_show_verseno_title),
-            TextSettingType.SECTIONTITLES to getString(R.string.prefs_section_title_title),
-            TextSettingType.TITLE_SCROLL_BUTTON to getString(R.string.prefs_title_scroll_button_title),
-            TextSettingType.PAGENUMBER to getString(R.string.page_number_title),
-            TextSettingType.INFINITE_SCROLL to getString(R.string.prefs_infinite_scroll_title),
-            TextSettingType.PAGE_SCROLL_AMOUNT to getString(R.string.prefs_page_scroll_amount_title),
-            TextSettingType.SCROLL_HELPER_LINES to getString(R.string.prefs_scroll_helper_lines_title),
-            TextSettingType.SCROLL_HELPER_LINE_STYLE to getString(R.string.prefs_scroll_helper_line_style_title),
-            TextSettingType.PAGE_BUTTONS to getString(R.string.prefs_page_buttons_title),
-            TextSettingType.ORDINALS to getString(R.string.prefs_show_ordinals_title),
-            TextSettingType.SHOW_READING_PROGRESS to getString(R.string.prefs_show_reading_progress_title),
-            TextSettingType.BOOKMARKS_SHOW to getString(R.string.prefs_show_bookmarks_title),
-            TextSettingType.MYNOTES to getString(R.string.prefs_show_mynotes_title),
-            TextSettingType.AI_DOC_MARKERS to getString(R.string.prefs_show_ai_doc_markers_title),
-            TextSettingType.BOOKMARKS_HIDELABELS to getString(R.string.bookmark_settings_hide_labels_title),
-            TextSettingType.MARK_AS_READ_BUTTON to getString(R.string.prefs_mark_as_read_button_title),
-            TextSettingType.MEMORIZATION_INDICATORS to getString(R.string.prefs_show_memorization_indicators_title),
-            TextSettingType.AUTO_TRACK_READING to getString(R.string.prefs_auto_track_reading_title),
-        ),
-        summaries = mapOf(
-            TextSettingType.COLORS to getString(R.string.prefs_text_colors_summary),
-            TextSettingType.FONTSIZE to getString(R.string.prefs_font_text_size_summary),
-            TextSettingType.FONTFAMILY to getString(R.string.prefs_font_family_summary),
-            TextSettingType.LINE_SPACING to getString(R.string.line_spacing_summary),
-            TextSettingType.REDLETTERS to getString(R.string.prefs_red_letter_summary),
-            TextSettingType.MARGINSIZE to getString(R.string.prefs_margin_size_summary),
-            TextSettingType.TOPMARGIN to getString(R.string.prefs_top_margin_summary),
-            TextSettingType.JUSTIFY to getString(R.string.prefs_justify_summary),
-            TextSettingType.HYPHENATION to getString(R.string.prefs_hyphenation_summary),
-            TextSettingType.VERSEPERLINE to getString(R.string.prefs_verse_per_line_summary),
-            TextSettingType.STRONGS to getString(R.string.prefs_show_strongs_summary),
-            TextSettingType.MORPH to getString(R.string.prefs_show_morphology_summary),
-            TextSettingType.NON_STRONGS_WORD_ITALIC to getString(R.string.prefs_non_strongs_word_italic_summary),
-            TextSettingType.FOOTNOTES to getString(R.string.prefs_show_footnotes_summary),
-            TextSettingType.FOOTNOTES_INLINE to getString(R.string.prefs_show_footnotes_inline_summary),
-            TextSettingType.XREFS to getString(R.string.prefs_show_xrefs_summary),
-            TextSettingType.EXPAND_XREFS to getString(R.string.prefs_expand_footnotes_summary),
-            TextSettingType.VERSENUMBERS to getString(R.string.prefs_show_verseno_summary),
-            TextSettingType.SECTIONTITLES to getString(R.string.prefs_section_title_summary),
-            TextSettingType.TITLE_SCROLL_BUTTON to getString(R.string.prefs_title_scroll_button_summary),
-            TextSettingType.PAGENUMBER to getString(R.string.page_number_summary),
-            TextSettingType.INFINITE_SCROLL to getString(R.string.prefs_infinite_scroll_summary),
-            TextSettingType.PAGE_SCROLL_AMOUNT to getString(R.string.prefs_page_scroll_amount_summary),
-            TextSettingType.SCROLL_HELPER_LINES to getString(R.string.prefs_scroll_helper_lines_summary),
-            TextSettingType.SCROLL_HELPER_LINE_STYLE to getString(R.string.prefs_scroll_helper_line_style_summary),
-            TextSettingType.PAGE_BUTTONS to getString(R.string.prefs_page_buttons_summary),
-            TextSettingType.ORDINALS to getString(R.string.prefs_show_ordinals_summary),
-            TextSettingType.SHOW_READING_PROGRESS to getString(R.string.prefs_show_reading_progress_summary),
-            TextSettingType.BOOKMARKS_SHOW to getString(R.string.prefs_show_bookmarks_summary),
-            TextSettingType.MYNOTES to getString(R.string.prefs_show_mynotes_summary),
-            TextSettingType.AI_DOC_MARKERS to getString(R.string.prefs_show_ai_doc_markers_summary),
-            TextSettingType.BOOKMARKS_HIDELABELS to getString(R.string.bookmark_settings_hide_labels_summary),
-            TextSettingType.MARK_AS_READ_BUTTON to getString(R.string.prefs_mark_as_read_button_summary),
-            TextSettingType.MEMORIZATION_INDICATORS to getString(R.string.prefs_show_memorization_indicators_summary),
-            TextSettingType.AUTO_TRACK_READING to getString(R.string.prefs_auto_track_reading_summary),
-        ),
-    )
-
-    private fun buildScreenLabels() = TextDisplaySettingsScreenLabels(
-        resetContentDescription = getString(R.string.reset_settings),
-        resetConfirmMessage = getString(R.string.reset_are_you_sure),
-        // No classic string exists for a single-row "revert to inherited?" confirmation (this
-        // long-press interaction is new in the Compose screen -- classic's per-row reset lives
-        // inside each value-editor dialog, with no separate confirm step). Reusing the generic
-        // bulk-reset confirmation is an accepted, if imprecise, wording (see task report).
-        revertMessage = getString(R.string.reset_are_you_sure),
-        fontSizeDialogTitle = getString(R.string.font_size_title),
-        topMarginDialogTitle = getString(R.string.prefs_top_margin_title),
-        lineSpacingDialogTitle = getString(R.string.line_spacing_title),
-        marginSizeDialogTitle = getString(R.string.prefs_margin_size_title),
-        // Contain "%d" -- left un-substituted; TextDisplaySettingsScreen/MarginContent does its own
-        // .replace("%d", ...).
-        marginLeftLabelFormat = getString(R.string.pref_left_margin_label_mm),
-        marginRightLabelFormat = getString(R.string.pref_right_margin_label_mm),
-        marginMaxWidthLabelFormat = getString(R.string.pref_maximum_width_of_text_label_mm),
-        resetToInheritedLabel = getString(R.string.reset_generic),
-        badgeWorkspace = getString(R.string.text_options_inherited_workspace),
-        badgeGlobal = getString(R.string.text_options_inherited_global),
-        okLabel = getString(R.string.okay),
-        cancelLabel = getString(R.string.cancel),
-    )
-
-    private fun buildColorSettingsLabels() = ColorSettingsLabels(
-        dayMode = getString(R.string.colors_day_mode_title),
-        nightMode = getString(R.string.colors_night_mode_title),
-        textColor = getString(R.string.color_text),
-        backgroundColor = getString(R.string.color_background),
-        noise = getString(R.string.prefs_noise_title),
-        workspaceColor = getString(R.string.color_workspace),
-        backgroundImageDay = getString(R.string.background_image_day),
-        backgroundImageNight = getString(R.string.background_image_night),
-        opacityDay = getString(R.string.background_image_opacity_day),
-        opacityNight = getString(R.string.background_image_opacity_night),
-        change = getString(R.string.background_image_change),
-        // No standalone R.string.reset exists (only "reset settings"-flavoured strings) -- reuse
-        // the same generic reset wording buildScreenLabels() uses for resetToInheritedLabel.
-        reset = getString(R.string.reset_generic),
-    )
-
-    private fun buildBackgroundImageChooserLabels() = BackgroundImageChooserLabels(
-        title = getString(R.string.background_image_title),
-        none = getString(R.string.background_image_none),
-        import = getString(R.string.background_image_import),
-        empty = getString(R.string.background_image_empty),
-        importing = getString(R.string.background_image_importing),
-        deleteTitle = getString(R.string.background_image_delete_title),
-        deleteConfirm = getString(R.string.background_image_delete_confirm),
-        delete = getString(R.string.delete),
-        cancel = getString(R.string.cancel),
-    )
 
     companion object {
         const val EXTRA_START_DESTINATION = "startDestination"   // "text" | "colors"
