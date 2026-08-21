@@ -77,7 +77,6 @@ fun BackgroundImageChooserScreen(
         Box(Modifier.fillMaxSize().padding(padding)) {
             BackgroundImageChooserContent(
                 options = options,
-                selectedInitials = null,   // the full-screen route never highlights a selection
                 labels = labels,
                 thumbnailFor = thumbnailFor,
                 importVisible = true,
@@ -109,9 +108,10 @@ fun BackgroundImageChooserScreen(
  * of this content, not part of it: [BackgroundImageChooserScreen] keeps its own `AbLoadingOverlay`/
  * `AbConfirmDialog`, and the sheet renders its own confirm dialog from [ColorSettingsUiState.deleteConfirm]).
  *
- * [selectedInitials] is accepted for a future host that wants to highlight the current image (the
- * full-screen route has never done this, so it passes `null`); this content does not yet render a
- * selection indicator either, but the parameter lets a host state it without an API change later.
+ * No parameter for the currently-selected image on purpose: the full-screen chooser has never
+ * highlighted a selection (no such parameter, and [BackgroundImageTile] has no selection styling),
+ * so this content doesn't invent one either — whether to show a "currently selected" indicator is a
+ * product decision nobody has made, not something to smuggle in via an unused/inert parameter.
  *
  * [importVisible] hides the **Import** tile for a host with no photo-picker registered (see this
  * file's other kdoc / the T8 brief) — both current hosts pass `true`.
@@ -123,7 +123,6 @@ fun BackgroundImageChooserScreen(
 @Composable
 fun BackgroundImageChooserContent(
     options: List<BackgroundImageOption>,
-    selectedInitials: String?,
     labels: BackgroundImageChooserLabels,
     thumbnailFor: (token: String) -> ImageBitmap?,
     importVisible: Boolean,

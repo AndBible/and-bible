@@ -137,9 +137,13 @@ fun ColorSettingsScreen(
  * dialog itself, so a sheet host can push a page instead.
  *
  * [modifier] is applied OUTSIDE this Column's own `verticalScroll` (it wraps the whole `Column`,
- * before the scroll modifier in the chain) precisely so a caller CANNOT use it to bound the
- * viewport height — see [ColorSettingsEditorSheet]'s ancestor-`Box` treatment for how a sheet host
- * actually does that instead.
+ * before the scroll modifier in the chain) — for THIS chain order that would actually let a caller
+ * bound the viewport height through it. [ColorSettingsEditorSheet] does not rely on that, though:
+ * it bounds this content's height from an ancestor `Box` at its own call site instead, by
+ * convention (matching [GenericSettingsEditorSheet]'s list/grid pages) and because that form stays
+ * correct regardless of a content's internal chain order — see that class's kdoc for the general
+ * rule. Don't read this composable's own chain order as the reason the sheet is safe; it isn't the
+ * mechanism in use.
  */
 @Composable
 fun ColorSettingsContent(

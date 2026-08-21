@@ -106,7 +106,6 @@ class ColorSettingsScreenGoldenTest {
         Column {
             BackgroundImageChooserContent(
                 options = options,
-                selectedInitials = null,
                 labels = BackgroundImageChooserLabels.forTest(),
                 thumbnailFor = { null },
                 importVisible = importVisible,
@@ -148,7 +147,6 @@ class ColorSettingsScreenGoldenTest {
                 Box(modifier = Modifier.heightIn(max = 400.dp)) {
                     BackgroundImageChooserContent(
                         options = longChooserOpts,
-                        selectedInitials = null,
                         labels = BackgroundImageChooserLabels.forTest(),
                         thumbnailFor = { null },
                         importVisible = true,

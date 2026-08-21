@@ -61,10 +61,17 @@ import net.bible.sharedui.strings.LocalStrings
  * them the confirm/cancel buttons would have nothing to call and the flow could never complete.
  *
  * Both scrolling page bodies ([ColorSettingsContent] on `Colors`, [BackgroundImageChooserContent] on
- * `BackgroundImage`) are wrapped in their own ancestor `Box(Modifier.heightIn(max = …))` here, NOT
- * bounded via either content's own `modifier` parameter — matching [GenericSettingsEditorSheet]'s
- * established fix for the same class of bug (a bound passed through a content's own modifier can
- * land inside its scroll/lazy node and fail to clamp the viewport). The `ColorPick` page needs no
+ * `BackgroundImage`) are wrapped in their own ancestor `Box(Modifier.heightIn(max = …))` here, by
+ * CONVENTION, matching [GenericSettingsEditorSheet]'s own list/grid pages — not because either
+ * content's particular modifier-chain order requires it. Whether a size constraint passed through a
+ * composable's own `modifier` parameter can bound a scroll/lazy viewport depends entirely on where
+ * that parameter lands in the composable's internal chain: outside the scroll node (as in
+ * [ColorSettingsContent]'s own chain today) it would work, inside it (as in
+ * [net.bible.sharedui.components.AbListChoiceContent]'s `verticalScroll(state).then(modifier)`, the
+ * bug [GenericSettingsEditorSheet] had to work around) it silently would not. The ancestor `Box` form
+ * used here is unconditionally correct regardless of that internal order, so it is the one that never
+ * has to be re-derived per composable — that is the actual reason for using it here, not a claim
+ * that either content's own `modifier` parameter is unusable for this. The `ColorPick` page needs no
  * such wrapper: [AbColorPickerContent] already self-bounds to 420.dp internally, leaving room below
  * for this page's own confirm row, mirroring [net.bible.sharedui.components.AbColorPickerDialog]'s dialog contract.
  */
@@ -155,8 +162,6 @@ fun ColorSettingsEditorSheet(
                 Box(Modifier.heightIn(max = 400.dp)) {
                     BackgroundImageChooserContent(
                         options = state.backgroundOptions,
-                        selectedInitials = if (page.night) state.colors.nightBackgroundImageInitials
-                        else state.colors.dayBackgroundImageInitials,
                         labels = chooserLabels,
                         thumbnailFor = thumbnailFor,
                         importVisible = importVisible,
