@@ -27,14 +27,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,9 +52,11 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelEditState
 import net.bible.sharedcore.bookmark.OverrideMode
+import net.bible.sharedcore.bookmark.displayStyle
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbChoiceGroup
 import net.bible.sharedui.components.AbExpandableSection
+import net.bible.sharedui.components.AbIcons
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.strings.LocalStrings
@@ -81,8 +84,10 @@ import net.bible.sharedui.theme.LocalDisplayColorMode
  * the glyph to a black/white contrast tint, so the label's real colour never appeared in the icon
  * itself at all (round-9a I1 only fixed the glyph's invisibility on that disc, not this underlying
  * cause). The glyph is now drawn directly in the label's own colour via [accentArgbFor], which
- * keeps BW/e-ink correct. The style-preview glyph (in [BookmarkStylePreview], on a neutral card)
- * keeps the label-colour tint it always had — that background never collided with it.
+ * keeps BW/e-ink correct. The style-preview glyph (in [BookmarkStylePreview]/[LabelStyleTag], on a
+ * neutral card) uses that same [accentArgbFor] tint unconditionally now (round-12a), including for
+ * the default glyph: the reader tints a MARKER with the label colour regardless of icon choice, so
+ * a separate neutral-grey default here was a divergence from it, not a convention worth keeping.
  *
  * The whole-verse style axis is gated behind an [AbSwitchRow]: off means the axis inherits
  * [LabelEditState.selectionStyle] (stored as `null`), on reveals a second [AbChoiceGroup] seeded
@@ -123,9 +128,6 @@ fun LabelEditScreen(
     // the reader either. The large swatch still exists where the colour is actually chosen, in
     // LabelIdentitySheet.
     val glyphTint = Color(accentArgbFor(state.color, LocalDisplayColorMode.current))
-    // The style-preview glyph sits on a neutral card, so the label-colour tint it always had is
-    // kept as-is; only the "no custom icon" default glyph keeps its neutral grey, matching classic.
-    val previewIconTint = if (state.customIcon == null) NoCustomIconTint else Color(state.color)
 
     AbScaffold(title = strings.editLabelTitle, onNavigateUp = onUp, actions = actions) { padding ->
         Column(
@@ -186,11 +188,15 @@ fun LabelEditScreen(
                 optionLabel = { it.label(strings) },
                 onSelect = onSelectionStyle,
                 preview = {
+                    // The label's own colour, even for the default glyph: the reader tints a MARKER
+                    // with the label colour unconditionally (bookmarks.ts:825), and the grey default
+                    // this used to draw was a divergence, not a convention.
                     BookmarkStylePreview(
                         style = state.selectionStyle,
                         colorArgb = state.color,
                         sampleText = strings.bookmarkStylePreviewSample,
-                        iconSlot = { iconSlot(state.customIcon, previewIconTint) },
+                        decoratePartially = true,
+                        iconSlot = { iconSlot(state.customIcon, glyphTint) },
                     )
                 },
             )
@@ -216,11 +222,13 @@ fun LabelEditScreen(
                     optionLabel = { it.label(strings) },
                     onSelect = { onWholeVerseStyle(it) },
                     preview = {
+                        // Full decoration on purpose: this axis covers the whole verse, and the contrast
+                        // with the half-decorated selection preview above is what tells the two apart.
                         BookmarkStylePreview(
                             style = wholeVerseStyle,
                             colorArgb = state.color,
                             sampleText = strings.bookmarkStylePreviewSample,
-                            iconSlot = { iconSlot(state.customIcon, previewIconTint) },
+                            iconSlot = { iconSlot(state.customIcon, glyphTint) },
                         )
                     },
                 )
@@ -252,7 +260,12 @@ fun LabelEditScreen(
                         state.thisBookmarkPrimary,
                         { onTogglePrimary() },
                         enabled = state.thisBookmarkPrimaryEnabled,
-                        leadingIcon = { Icon(Icons.Filled.Bookmark, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                if (state.thisBookmarkPrimary) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
+                                contentDescription = null,
+                            )
+                        },
                     )
                 }
             }
@@ -264,6 +277,15 @@ fun LabelEditScreen(
                     expanded = workspaceExpanded,
                     onToggle = { workspaceExpanded = !workspaceExpanded },
                     indicators = {
+                        // Marks plus one miniature example, not a sentence: a collapsed section says
+                        // whether anything inside it is set, and -- for the override -- WHICH style
+                        // it imposes, which is strictly more than the ⚙ "something is set" glyph this
+                        // replaces. No new translated string, and the marks are exactly the symbols
+                        // the list row teaches.
+                        //
+                        // Set-only, deliberately: a header's job is "there is something inside".
+                        // Drawing every off state here would say nothing; the hollow states belong
+                        // on the controls themselves and in the list's grid.
                         if (state.autoAssign) {
                             Icon(
                                 Icons.Filled.Bolt,
@@ -272,12 +294,20 @@ fun LabelEditScreen(
                                 modifier = Modifier.size(16.dp),
                             )
                         }
-                        if (state.overrideMode != OverrideMode.NONE) {
+                        if (state.autoAssignPrimary) {
                             Icon(
-                                Icons.Filled.Tune,
-                                contentDescription = strings.overrideStyleFieldLabel,
+                                Icons.Filled.Bookmark,
+                                contentDescription = strings.autoAssignPrimaryLabelSwitchLabel,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(16.dp),
+                            )
+                        }
+                        state.overrideMode.displayStyle?.let { overrideStyle ->
+                            LabelStyleTag(
+                                overrideStyle,
+                                state.color,
+                                modifier = Modifier.widthIn(max = 90.dp),
+                                iconSlot = { iconSlot(state.customIcon, glyphTint) },
                             )
                         }
                     },
@@ -286,15 +316,28 @@ fun LabelEditScreen(
                         strings.autoAssignLabelSwitchLabel,
                         state.autoAssign,
                         { onToggleAutoAssign() },
-                        // The same bolt the list row's toggle uses: seeing it here is what teaches
-                        // the symbol there.
-                        leadingIcon = { Icon(Icons.Filled.Bolt, contentDescription = null) },
+                        // The same bolt the list row's toggle uses, in the same two states: filled
+                        // on, hollow off. Seeing the pair here is what teaches the pair there.
+                        leadingIcon = {
+                            Icon(
+                                if (state.autoAssign) Icons.Filled.Bolt else AbIcons.BoltOutline,
+                                contentDescription = null,
+                            )
+                        },
                     )
                     AbSwitchRow(
                         strings.autoAssignPrimaryLabelSwitchLabel,
                         state.autoAssignPrimary,
                         { onToggleAutoAssignPrimary() },
                         enabled = state.autoAssignPrimaryEnabled,
+                        // 🔖 is the list row's primary column; wearing it here is what connects
+                        // "add automatically as primary" to the mark the list draws.
+                        leadingIcon = {
+                            Icon(
+                                if (state.autoAssignPrimary) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
+                                contentDescription = null,
+                            )
+                        },
                     )
                     AbChoiceGroup(
                         heading = strings.overrideStyleFieldLabel,
@@ -302,6 +345,18 @@ fun LabelEditScreen(
                         selected = state.overrideMode,
                         optionLabel = { it.label(strings) },
                         onSelect = onOverrideMode,
+                        // Always present, including for NONE, where it shows the label's own style:
+                        // the group then answers "what will this workspace draw" either way, and
+                        // nothing appears or disappears as the radio moves. Same convention as the
+                        // "Bookmark style" group above -- one preview, plain radio labels.
+                        preview = {
+                            BookmarkStylePreview(
+                                style = state.overrideMode.displayStyle ?: state.selectionStyle,
+                                colorArgb = state.color,
+                                sampleText = strings.bookmarkStylePreviewSample,
+                                iconSlot = { iconSlot(state.customIcon, glyphTint) },
+                            )
+                        },
                     )
                 }
             }
@@ -323,11 +378,6 @@ fun LabelEditScreen(
         ) { key, tint -> iconSlot(key, tint) }
     }
 }
-
-/** The default-icon tint used only where the glyph sits on a neutral (non-label-coloured)
- *  background — mirrors classic's `grey_500`, the tint the pre-fix `AndroidLabelIcon` used
- *  whenever no custom icon was chosen. */
-private val NoCustomIconTint = Color(0xFF9E9E9E)
 
 @Composable
 private fun SectionTitle(title: String) {
