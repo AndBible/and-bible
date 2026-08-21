@@ -61,6 +61,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -414,14 +417,23 @@ private fun LabelItemRow(
                 // Shown but inert: the column has to exist on every row, and the false state has to
                 // be visible the way the heart's is -- but a tap here would both select the label
                 // AND promote it, two things from one gesture, so it is an indicator only.
-                TrailingSlot {
+                //
+                // The description is NOT silenced -- this is a state to report, not decoration: a
+                // primary column that only announces when it happens to be active would tell a
+                // screen-reader user this row has no primary concept at all. disabled() is what
+                // makes that honest -- announced as present-but-disabled, matching the visible
+                // muted glyph, rather than either a phantom control (a description with no onClick
+                // behind it) or silence (a state that vanishes for this input mode alone).
+                TrailingSlot(
+                    modifier = Modifier.semantics {
+                        contentDescription = strings.primaryLabelSwitchLabel
+                        disabled()
+                    },
+                ) {
                     Icon(
                         Icons.Filled.BookmarkBorder,
-                        // null, not strings.primaryLabelSwitchLabel: this glyph is not a control
-                        // (no onClick reaches it here) and has no state of its own to report, so
-                        // announcing the SAME label the live button uses would tell a screen-reader
-                        // user this row has a primary toggle it does not have. Silence is the
-                        // honest choice for a decorative column-filler.
+                        // null here: the description lives on the slot's own semantics node (set
+                        // above), not on the icon -- one announcement per row, not two.
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = InertIndicatorAlpha),
                         modifier = Modifier.size(TrailingIconSize),
@@ -444,8 +456,8 @@ private const val InertIndicatorAlpha = 0.38f
 /** One cell of the row's trailing grid. Fixed width whether it draws a control, an indicator or
  *  nothing: an `IconButton`'s intrinsic size is not something to align columns on. */
 @Composable
-private fun TrailingSlot(content: @Composable () -> Unit) {
-    Box(modifier = Modifier.size(TrailingSlotSize), contentAlignment = Alignment.Center) { content() }
+private fun TrailingSlot(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Box(modifier = modifier.size(TrailingSlotSize), contentAlignment = Alignment.Center) { content() }
 }
 
 /**
