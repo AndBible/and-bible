@@ -358,9 +358,13 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
 
     fun closeKeyboard() {
+        // Most of our activities have no input field, so having no focused view is the normal case
+        // and not an error: there is no keyboard to close. It used to be logged as an NPE from
+        // every single onPause, which made real crashes with the same message hard to spot.
+        val windowToken = currentFocus?.windowToken ?: return
         try {
             val inputMethodManager: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+            inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
         } catch (e: Exception) {
             Log.e(TAG, "closeKeyboard: $e")
         }
