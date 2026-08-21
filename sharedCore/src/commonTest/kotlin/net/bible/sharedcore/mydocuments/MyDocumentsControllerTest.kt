@@ -6,8 +6,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class MyDocumentsControllerTest {
-    private fun item(id: Long, name: String = "n$id", canDelete: Boolean = true) =
-        MyDocItem(id, "init$id", name, "", isAiGenerated = false, canDelete = canDelete)
+    private fun item(id: Long, name: String = "doc$id", description: String = "", canDelete: Boolean = true) =
+        MyDocItem(id, "Ini$id", name, description, isAiGenerated = !canDelete, canDelete = canDelete)
 
     private var savedOrder: List<Long>? = null
     private var savedChanged: Set<Long>? = null
@@ -100,5 +100,91 @@ class MyDocumentsControllerTest {
         assertEquals(listOf(1L, 0L), savedOrder)
         assertTrue(savedChanged!!.containsAll(setOf(0L, 1L)))
         assertEquals(setOf(2L), savedDeleted)
+    }
+
+    @Test fun query_filters_on_name_and_description_case_insensitively() {
+        val c = controller()
+        c.setDocuments(listOf(
+            item(0, "Sermon notes"), item(1, "Romans"), item(2, "Misc"),
+        ))
+        c.setQuery("rom")
+        assertEquals(listOf(1L), c.documents.value.map { it.id })
+        assertTrue(c.filtering.value)
+    }
+
+    @Test fun blank_query_republishes_everything_and_clears_filtering() {
+        val c = controller()
+        c.setDocuments(listOf(item(0), item(1)))
+        c.setQuery("zzz")
+        assertTrue(c.documents.value.isEmpty())
+        c.setQuery("   ")
+        assertEquals(listOf(0L, 1L), c.documents.value.map { it.id })
+        assertFalse(c.filtering.value)
+    }
+
+    @Test fun closeSearch_clears_the_query_and_the_filter() {
+        val c = controller()
+        c.setDocuments(listOf(item(0), item(1)))
+        c.openSearch()
+        assertTrue(c.searchModeActive.value)
+        c.setQuery("zzz")
+        c.closeSearch()
+        assertFalse(c.searchModeActive.value)
+        assertEquals("", c.query.value)
+        assertFalse(c.filtering.value)
+        assertEquals(listOf(0L, 1L), c.documents.value.map { it.id })
+    }
+
+    @Test fun moveItem_is_a_noop_while_filtering() {
+        val c = controller()
+        c.setDocuments(listOf(item(0), item(1), item(2)))
+        c.setQuery("x")                        // matches nothing, but filtering is on
+        c.moveItem(0, 2)
+        assertFalse(c.dirty.value)
+        c.setQuery("")
+        assertEquals(listOf(0L, 1L, 2L), c.documents.value.map { it.id })
+    }
+
+    @Test fun save_reports_the_full_order_even_while_filtered() {
+        val c = controller()
+        c.setDocuments(listOf(item(0, "aaa"), item(1, "bbb"), item(2, "ccc")))
+        c.setQuery("bbb")
+        assertEquals(listOf(1L), c.documents.value.map { it.id })
+        c.save()
+        assertEquals(listOf(0L, 1L, 2L), savedOrder)   // NOT the filtered list
+    }
+
+    @Test fun rename_while_filtered_survives_clearing_the_filter() {
+        val c = controller()
+        c.setDocuments(listOf(item(0, "aaa"), item(1, "bbb")))
+        c.setQuery("bbb")
+        c.rename(1, "renamed")
+        c.setQuery("")
+        assertEquals("renamed", c.documents.value.first { it.id == 1L }.name)
+    }
+
+    @Test fun totalCount_stays_unfiltered() {
+        val c = controller()
+        c.setDocuments(listOf(item(0, "aaa"), item(1, "bbb"), item(2, "ccc")))
+        c.setQuery("bbb")
+        assertEquals(1, c.documents.value.size)
+        assertEquals(3, c.totalCount.value)
+    }
+
+    @Test fun setDocuments_resets_query_and_search_mode() {
+        val c = controller()
+        c.setDocuments(listOf(item(0)))
+        c.openSearch(); c.setQuery("x")
+        c.setDocuments(listOf(item(0), item(1)))
+        assertEquals("", c.query.value)
+        assertFalse(c.filtering.value)
+        assertFalse(c.searchModeActive.value)
+    }
+
+    @Test fun query_matches_the_description_alone() {
+        val c = controller()
+        c.setDocuments(listOf(item(0, "aaa", "weekly outlines"), item(1, "bbb", "")))
+        c.setQuery("outlines")
+        assertEquals(listOf(0L), c.documents.value.map { it.id })
     }
 }
