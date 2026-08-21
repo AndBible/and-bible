@@ -22,7 +22,6 @@ import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.StudyPadSearchResult
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.displayName
 import net.bible.service.db.DatabaseContainer
@@ -30,6 +29,7 @@ import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
+import net.bible.sharedcore.bookmark.displayStyle
 import kotlin.random.Random.Default.nextInt
 
 /** Android-side impl of the [ManageLabelsService] seam, backed by [BookmarkControl]/[WindowControl]. */
@@ -103,11 +103,12 @@ fun BookmarkEntities.Label.toLabelItem(): LabelItem = LabelItem(
 
 /** The display style a `WorkspaceLabelOverride.overrideMode` int imposes, or `null` for no override.
  *  Must agree with [BookmarkEntities.Label.withStyleOverrides], which is what the reader obeys —
- *  `OverrideDisplayStyleTest` pins the two together. */
-internal fun overrideDisplayStyle(overrideMode: Int?): BookmarkDisplayStyle? = when (overrideMode) {
-    WorkspaceEntities.WorkspaceLabelOverride.MODE_HIGHLIGHT -> BookmarkDisplayStyle.HIGHLIGHT
-    WorkspaceEntities.WorkspaceLabelOverride.MODE_UNDERLINE -> BookmarkDisplayStyle.UNDERLINE
-    WorkspaceEntities.WorkspaceLabelOverride.MODE_MARKER -> BookmarkDisplayStyle.MARKER
-    WorkspaceEntities.WorkspaceLabelOverride.MODE_HIDDEN -> BookmarkDisplayStyle.HIDDEN
-    else -> null
-}
+ *  `OverrideDisplayStyleTest` pins the two together.
+ *
+ *  Expressed via [LabelEditMapper.overrideModeFromInt] + [displayStyle] rather than re-listing the
+ *  same four `WorkspaceLabelOverride.MODE_*` constants a second time — that mapper function is the
+ *  editor's own int↔[net.bible.sharedcore.bookmark.OverrideMode] conversion, already tested by
+ *  `LabelEditMapperTest`, and its own `else -> OverrideMode.NONE` fallback is exactly this
+ *  function's `null` fallback ([OverrideMode.NONE]'s `displayStyle` is `null`). */
+internal fun overrideDisplayStyle(overrideMode: Int?): BookmarkDisplayStyle? =
+    LabelEditMapper.overrideModeFromInt(overrideMode).displayStyle
