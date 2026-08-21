@@ -117,15 +117,49 @@ class ScrolledOsisRefKeyUpdateTest {
     }
 
     /**
-     * A single verse inside the entry range is a different location than the entry start, so it
-     * does move the page — the range is not treated as a catch-all.
+     * The #3866 case that a first fix attempt missed, reproduced on device as ticket 3419's step 5.
+     *
+     * A synced Bible window moves the commentary page's key *within* the displayed entry: scrolling
+     * the Bible to Heb 11:7 syncs the commentary page to that verse while the entry on screen is
+     * still 11:5-8. The next scroll tick in the commentary then reports that entry — which must be
+     * recognised as the location the page is already in.
+     *
+     * Comparing the entry's start verse (11:5) to the page key (11:7) called it a move, set the key
+     * back to 11:5 and dragged the Bible window back to verse 5. Once, not on every tick, which is
+     * why it survived the first fix: the page converges on 11:5 immediately afterwards.
      */
     @Test
-    fun aVerseInsideTheEntryStillMovesTheCommentaryPage() {
+    fun anEntryThatContainsTheCurrentVerseIsNotAMove() {
+        val page = commentaryPageAtEntry5to8()
+        page.doSetKey(heb11v7)      // what window sync does when the Bible window scrolls to v7
+
+        assertThat(page.updateKeyFromScrolledOsisRef(entry5to8.osisRef), equalTo(false))
+        assertThat(page.key?.osisRef, equalTo(heb11v7.osisRef))
+    }
+
+    /** The same, one verse further in: any verse of the entry counts as being in that entry. */
+    @Test
+    fun everyVerseOfTheEntryCountsAsTheSameLocation() {
         val page = commentaryPageAtEntry5to8()
 
-        assertThat(page.updateKeyFromScrolledOsisRef(heb11v7.osisRef), equalTo(true))
-        assertThat(page.key?.osisRef, equalTo(heb11v7.osisRef))
+        for (verse in entry5to8.toVerseArray()) {
+            page.doSetKey(verse)
+            assertThat(
+                "reporting the entry while the page is at ${verse.osisRef} must not be a move",
+                page.updateKeyFromScrolledOsisRef(entry5to8.osisRef), equalTo(false)
+            )
+            assertThat(page.key?.osisRef, equalTo(verse.osisRef))
+        }
+    }
+
+    /** ...but a verse of a *different* entry is a move, wherever in the current entry we are. */
+    @Test
+    fun aVerseOutsideTheEntryIsAMove() {
+        val page = commentaryPageAtEntry5to8()
+        page.doSetKey(heb11v7)
+
+        assertThat(page.updateKeyFromScrolledOsisRef(heb11v9.osisRef), equalTo(true))
+        assertThat(page.key?.osisRef, equalTo(heb11v9.osisRef))
     }
 
     /** An osisRef the document cannot resolve leaves the page where it is, without throwing. */

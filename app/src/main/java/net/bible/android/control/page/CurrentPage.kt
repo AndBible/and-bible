@@ -65,14 +65,14 @@ interface CurrentPage {
     fun doSetKey(key: Key?)
 
     /**
-     * The key this page would actually end up at if [doSetKey] were called with [key].
+     * Whether [key] describes the location this page is already at.
      *
-     * Not always [key] itself: a commentary page stores only the verse an entry starts at, so a
-     * whole entry range collapses to that verse. Lets callers tell "the client is reporting the
-     * location we are already at" from "the client has moved to a new location", without the
-     * side effects of actually setting the key.
+     * Not simply key equality: a commentary page is addressed by a single verse but displays a
+     * whole entry, so every verse of that entry is the same location. Lets callers tell "the client
+     * is reporting where we already are" from "the client has moved", without the side effects of
+     * actually setting the key.
      */
-    fun storedKeyFor(key: Key): Key
+    fun isAtSameLocationAs(key: Key): Boolean
 
     /**
      * Move the page to the location the BibleView reports having scrolled to, given as the
