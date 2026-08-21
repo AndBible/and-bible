@@ -77,3 +77,36 @@ class SettingsEditorStack {
         if (_pages.value.any(predicate)) close()
     }
 }
+
+/**
+ * Which editor page a text-display-settings row opens; `null` = the key navigates rather than
+ * edits, so it is not a sheet page (the two parent-scope drill-up links, and HIDELABELS, which
+ * bridges out to the ManageLabels screen).
+ *
+ * This is the *text-display-settings* routing table, not a general one. Every other
+ * `AbSettingsScreen`-based screen opens `SettingsEditorPage.Row(key)` directly, because the editor
+ * kind is already declared by the `SettingsItem` the row was built from (`ListChoiceRow`,
+ * `TextInputRow`, `MultiSelectRow`). Text display settings need a table because FONTSIZE /
+ * TOPMARGIN / LINE_SPACING / MARGINSIZE / COLORS are modelled as `NavigationRow`s, so their editor
+ * is not derivable from the row kind.
+ *
+ * Extracted from `TextDisplaySettingsScreen.handleNavigate` so it is unit-testable and so the
+ * reading view's in-place editor routes identically to the settings screen — one table, two
+ * surfaces.
+ */
+fun textSettingEditorPageFor(key: String): SettingsEditorPage? {
+    if (key == KEY_OPEN_WORKSPACE_SETTINGS || key == KEY_OPEN_GLOBAL_SETTINGS) return null
+    val type = TextSettingType.entries.firstOrNull { it.name == key } ?: return null
+    return when (type) {
+        TextSettingType.COLORS -> SettingsEditorPage.Colors
+        TextSettingType.FONTSIZE,
+        TextSettingType.TOPMARGIN,
+        TextSettingType.LINE_SPACING,
+        TextSettingType.MARGINSIZE,
+        TextSettingType.FONTFAMILY,
+        TextSettingType.STRONGS,
+        TextSettingType.PAGE_SCROLL_AMOUNT,
+        TextSettingType.SCROLL_HELPER_LINE_STYLE -> SettingsEditorPage.Row(type.name)
+        else -> null
+    }
+}

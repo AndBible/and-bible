@@ -36,10 +36,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import net.bible.sharedcore.settings.KEY_OPEN_GLOBAL_SETTINGS
 import net.bible.sharedcore.settings.KEY_OPEN_WORKSPACE_SETTINGS
+import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedcore.settings.TextDisplaySettingsScreenState
 import net.bible.sharedcore.settings.TextSettingRowValue
 import net.bible.sharedcore.settings.TextSettingType
+import net.bible.sharedcore.settings.textSettingEditorPageFor
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.strings.LocalStrings
@@ -124,6 +126,14 @@ data class TextDisplaySettingsScreenLabels(
 fun isRevertableSettingsKey(key: String): Boolean =
     key != KEY_OPEN_WORKSPACE_SETTINGS && key != KEY_OPEN_GLOBAL_SETTINGS
 
+/** The three text settings whose editor is a single numeric slider. MARGINSIZE has its own
+ *  three-slider editor and is routed separately. */
+private val NUMERIC_TEXT_SETTING_KEYS = setOf(
+    TextSettingType.FONTSIZE.name,
+    TextSettingType.TOPMARGIN.name,
+    TextSettingType.LINE_SPACING.name,
+)
+
 @Composable
 fun TextDisplaySettingsScreen(
     state: TextDisplaySettingsScreenState,
@@ -151,13 +161,16 @@ fun TextDisplaySettingsScreen(
     var showResetConfirm by remember { mutableStateOf(false) }
 
     fun handleNavigate(key: String) {
-        val type = runCatching { TextSettingType.valueOf(key) }.getOrNull()
+        val page = textSettingEditorPageFor(key)
         when {
-            key == KEY_OPEN_WORKSPACE_SETTINGS || key == KEY_OPEN_GLOBAL_SETTINGS -> onNavigate(key)
-            type == TextSettingType.COLORS || type == TextSettingType.BOOKMARKS_HIDELABELS -> onNavigate(key)
-            type == TextSettingType.FONTSIZE || type == TextSettingType.TOPMARGIN || type == TextSettingType.LINE_SPACING ->
-                numericDialogKey = key
-            type == TextSettingType.MARGINSIZE -> marginDialogKey = key
+            page == null || page is SettingsEditorPage.Colors -> onNavigate(key)
+            page is SettingsEditorPage.Row && page.key == TextSettingType.MARGINSIZE.name ->
+                marginDialogKey = page.key
+            page is SettingsEditorPage.Row && page.key in NUMERIC_TEXT_SETTING_KEYS ->
+                numericDialogKey = page.key
+            // The four ListChoiceRow types never reach here: AbSettingsContent opens their editor
+            // itself, so onNavigate is not called for them — same as before this extraction.
+            else -> Unit
         }
     }
 
