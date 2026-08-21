@@ -1193,9 +1193,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * Compose UI test harness (this repo has none and cannot get one under strict egress).
      */
     internal fun drawerShouldRestorePaneFocus(): Boolean =
-        shouldRestorePaneFocusOnDrawerClose(
-            searchBarOpen = composeReadingViewHost?.searchController?.searchModeActive?.value == true
-        )
+        shouldRestorePaneFocusOnDrawerClose(searchBarOpen = composeSearchModeActive)
 
     /** Compose-drawer parity for classic `onDrawerClosed`. */
     internal fun drawerRestorePaneFocus() {
