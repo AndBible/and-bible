@@ -26,6 +26,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,13 +73,15 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
     private var entityByLong: Map<Long, MyDocumentPage> = emptyMap()
     private lateinit var resultIntent: Intent
     private var finished = false
+    private var pendingExportIds: List<Long> = emptyList()
 
     private val controller by lazy {
         MyDocumentPagesController(
             onOpenPage = ::openPage,
-            onImport = { importFileLauncher.launch(arrayOf("text/*")) },
+            onImport = { importFilesLauncher.launch(arrayOf("text/*")) },
             onExport = { id -> entityByLong[id]?.let { exportPage(it) } },
             onCreatePage = ::createPage,
+            onExportSelected = { ids -> pendingExportIds = ids; exportBatchTreeLauncher.launch(null) },
             onSave = ::applyChanges,
         )
     }
@@ -99,10 +102,22 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
             AbAppTheme {
                     val pages by controller.pages.collectAsState()
                     val dirty by controller.dirty.collectAsState()
+                    val query by controller.query.collectAsState()
+                    val filtering by controller.filtering.collectAsState()
+                    val searchModeActive by controller.searchModeActive.collectAsState()
+                    val selection by controller.selection.collectAsState()
+                    val totalCount by controller.totalCount.collectAsState()
                     MyDocumentPagesScreen(
                         title = title,
                         pages = pages,
                         dirty = dirty,
+                        query = query,
+                        filtering = filtering,
+                        searchModeActive = searchModeActive,
+                        totalCount = totalCount,
+                        onOpenSearch = controller::openSearch,
+                        onCloseSearch = controller::closeSearch,
+                        onQueryChange = controller::setQuery,
                         onMove = controller::moveItem,
                         onOpen = controller::openPage,
                         onRename = controller::rename,
@@ -113,6 +128,11 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
                         onSave = { controller.save(); finishOk() },
                         onCancel = { finishCanceled() },
                         onNavigateUp = { onBackPressedDispatcher.onBackPressed() },
+                        selection = selection,
+                        onToggleSelected = controller::toggleSelect,
+                        onClearSelection = controller::clearSelection,
+                        onDeleteSelected = controller::deleteSelected,
+                        onExportSelected = controller::exportSelected,
                     )
             }
         }
@@ -199,11 +219,13 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
         finishOk()
     }
 
-    private val importFileLauncher = registerForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri == null) return@registerForActivityResult
-        importFile(uri)
+    private val importFilesLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenMultipleDocuments()
+    ) { uris ->
+        if (uris.isNullOrEmpty()) return@registerForActivityResult
+        // One page per picked file, in filename order — the same rule the documents-side import uses
+        // (MyDocumentsComposeActivity.importFromFiles sorts by filename before numbering).
+        for (uri in uris.sortedBy { getFileName(it) ?: "" }) importFile(uri)
     }
 
     /** Import a single text file as a new page. Ported verbatim from classic
@@ -251,6 +273,51 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
         }
     }
 
+    private val exportBatchTreeLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        val ids = pendingExportIds; pendingExportIds = emptyList()
+        if (uri != null && ids.isNotEmpty()) exportPagesToFolder(ids, uri)
+    }
+
+    /**
+     * Export several pages into one chosen folder. The single-page action keeps using
+     * [exportPage]'s share/save chooser — a chooser is the right shape for one file and the wrong
+     * one for twenty.
+     */
+    private fun exportPagesToFolder(ids: List<Long>, treeUri: Uri) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val treeDoc = DocumentFile.fromTreeUri(this@MyDocumentPagesComposeActivity, treeUri) ?: return@launch
+                for ((index, id) in ids.withIndex()) {
+                    val page = entityByLong[id] ?: continue
+                    val withContent = dao.pageByIdWithContent(page.id) ?: continue
+                    val ext = if (page.contentType == MyDocumentContentType.HTML) "html" else "md"
+                    val mimeType = if (ext == "html") "text/html" else "text/markdown"
+                    val orderPrefix = String.format("%02d", index + 1)
+                    val sanitizedTitle = page.title
+                        .replace(Regex("[^a-zA-Z0-9._\\- ]"), "")
+                        .take(50)
+                        .ifEmpty { getString(R.string.my_document_export_fallback_name) }
+                    val file = treeDoc.createFile(mimeType, "$orderPrefix-$sanitizedTitle.$ext") ?: continue
+                    contentResolver.openOutputStream(file.uri)?.use { out ->
+                        out.write((withContent.content ?: "").toByteArray(Charsets.UTF_8))
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@MyDocumentPagesComposeActivity,
+                        R.string.my_document_export_success,
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to export pages", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MyDocumentPagesComposeActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
     /** Resolve a display file name for a content Uri. Ported verbatim from classic
      * [MyDocumentPagesActivity.getFileName] (:345). */
     private fun getFileName(uri: Uri): String? {
@@ -265,6 +332,16 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
 
     private fun finishOk() { setResult(RESULT_OK, resultIntent); finished = true; finish() }
     private fun finishCanceled() { setResult(RESULT_CANCELED, resultIntent); finished = true; finish() }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        // Back dismisses what is visually on top: the selection bar covers the search bar
+        // (AbSelectionScaffold's precedence), so selection goes first. Closing search underneath a
+        // visible selection bar would clear the query and re-filter the list invisibly.
+        if (controller.selection.value.isNotEmpty()) { controller.clearSelection(); return }
+        if (controller.searchModeActive.value) { controller.closeSearch(); return }
+        super.onBackPressed()
+    }
 
     override fun onDetachedFromWindow() {
         if (!finished && controller.dirty.value) controller.save()   // classic auto-save-on-leave

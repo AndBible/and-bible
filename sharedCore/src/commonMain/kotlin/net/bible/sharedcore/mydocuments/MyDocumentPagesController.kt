@@ -27,9 +27,8 @@ class MyDocumentPagesController(
     val onImport: () -> Unit,
     val onExport: (id: Long) -> Unit,
     val onCreatePage: (name: String, type: ContentType) -> Unit,
-    /** Batch export. The `= {}` default is TEMPORARY: it keeps MyDocumentPagesComposeActivity
-     *  compiling until Task 12 wires this seam, which removes the default in the same commit. */
-    val onExportSelected: (ids: List<Long>) -> Unit = {},
+    /** Batch export. */
+    val onExportSelected: (ids: List<Long>) -> Unit,
     val onSave: (orderedIds: List<Long>, changed: Set<Long>, deleted: Set<Long>) -> Unit,
 ) {
     /** The full, unfiltered order. [pages] publishes a filtered view of this. */

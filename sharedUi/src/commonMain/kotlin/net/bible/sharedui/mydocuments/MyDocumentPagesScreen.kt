@@ -77,16 +77,13 @@ fun MyDocumentPagesScreen(
     title: String,
     pages: List<MyDocPageItem>,
     dirty: Boolean,
-    // Defaulted (rather than required) so the not-yet-updated host call site (wired in Task 12)
-    // keeps compiling unchanged: no search ever active, totalCount tracking the full list, exactly
-    // today's behaviour.
-    query: String = "",
-    filtering: Boolean = false,
-    searchModeActive: Boolean = false,
-    totalCount: Int = pages.size,
-    onOpenSearch: () -> Unit = {},
-    onCloseSearch: () -> Unit = {},
-    onQueryChange: (String) -> Unit = {},
+    query: String,
+    filtering: Boolean,
+    searchModeActive: Boolean,
+    totalCount: Int,
+    onOpenSearch: () -> Unit,
+    onCloseSearch: () -> Unit,
+    onQueryChange: (String) -> Unit,
     onMove: (from: Int, to: Int) -> Unit,
     onOpen: (id: Long) -> Unit,
     onRename: (id: Long, name: String) -> Unit,
@@ -97,13 +94,12 @@ fun MyDocumentPagesScreen(
     onSave: () -> Unit,
     onCancel: () -> Unit,
     onNavigateUp: () -> Unit,
-    // Selection mode (long-press to enter), driven by hoisted host state. TEMPORARY defaults so the
-    // not-yet-updated host call site (wired in Task 12) keeps compiling unchanged: no row ever selected.
-    selection: Set<Long> = emptySet(),
-    onToggleSelected: (Long) -> Unit = {},
-    onClearSelection: () -> Unit = {},
-    onDeleteSelected: () -> Unit = {},
-    onExportSelected: () -> Unit = {},
+    // Selection mode (long-press to enter), driven by hoisted host state.
+    selection: Set<Long>,
+    onToggleSelected: (Long) -> Unit,
+    onClearSelection: () -> Unit,
+    onDeleteSelected: () -> Unit,
+    onExportSelected: () -> Unit,
 ) {
     val s = LocalStrings.current
     var createOpen by remember { mutableStateOf(false) }
