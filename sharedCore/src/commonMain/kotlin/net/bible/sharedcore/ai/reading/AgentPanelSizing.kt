@@ -20,10 +20,16 @@ package net.bible.sharedcore.ai.reading
 /**
  * Every arithmetic decision the agent panel's drag gesture makes (round 12b §4).
  *
- * It lives here, in pure code, for one hard reason: this repo has no Compose UI/gesture test harness
- * and cannot add one (`compose-ui-test` is not installable under the container's strict egress), so
- * nothing can drive the gesture in a test. Keeping the numbers out of the modifier is what makes the
- * behaviour testable at all; the modifier is a shell that turns a drag delta into one call.
+ * It lives here, in pure code, as a deliberate design choice: the numbers are worth asserting
+ * directly. A pure test names the height it expects, runs in milliseconds and fails pointing at the
+ * rule, where a gesture test would assert the same arithmetic through pointer synthesis and layout.
+ * The modifier is left a shell that turns a drag delta into one call.
+ *
+ * It is NOT that nothing could drive the gesture (whole-branch review, Blocker 2 — the earlier
+ * wording here claimed exactly that). `compose-ui-test` IS available in `:app`'s unit-test source set
+ * (`app/build.gradle.kts:508-509`, added 2026-08-14) and `AbSearchableOptionSheetContentTest` already
+ * uses `createComposeRule()` under Robolectric. A gesture test is a complement to these — it would
+ * cover the WIRING, which arithmetic tests cannot see — not a substitute this file exists to replace.
  *
  * All values are dp as plain `Float` so this file stays free of Compose's `Dp` — `:sharedCore` has no
  * Compose dependency, and the UI converts at the boundary.
@@ -88,8 +94,9 @@ fun agentPanelHeight(state: AgentLogUiState, collapsedDp: Float, maxDp: Float): 
  * mode there is no toolbar and the expression degenerates to the top of the reading area, which is
  * the same rule with a zero-height toolbar.
  *
- * It lives here, with the rest of the panel's arithmetic, because `:sharedCore` is the only surface
- * this repo can unit-test (fix round 1, Minor 6): as one inline `+` inside a composable it was the
- * last load-bearing number with no test behind it.
+ * It lives here, with the rest of the panel's arithmetic, for the same reason as everything else in
+ * this file (fix round 1, Minor 6): as one inline `+` inside a composable it was the last load-bearing
+ * number with no test behind it, and a number is best asserted as a number. (Not because `:sharedCore`
+ * is the only testable surface — see the file kdoc's Blocker 2 correction.)
  */
 fun agentPanelDragCeiling(splitDp: Float, collapsedDp: Float): Float = splitDp + collapsedDp

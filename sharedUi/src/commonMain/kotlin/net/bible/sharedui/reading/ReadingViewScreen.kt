@@ -133,10 +133,14 @@ fun ReadingViewScreen(
      * measured collapsed height, and the callback by which it reports that height so this screen can
      * reserve exactly that much.
      *
+     * The panel's own drag callbacks are NOT threaded through here, deliberately: `onHeightDrag`,
+     * `onHeightDragStarted`, `onToggleExpanded`, `onStop` and `onClose` are all controller-side, and
+     * this screen has nothing to contribute to them. What it threads is what only it knows.
+     *
      * `collapsedHeightDp` is handed DOWN rather than remembered by the caller for a specific reason
      * (fix round 1, Important 1). The slot is composed inside `if (agentLog != null &&
      * agentLogVisible)`, so it leaves the composition every time the panel hides — while this screen
-     * stays composed for as long as the reading view is mounted. `AgentLogController.hide()` (and the
+     * survives that hide. `AgentLogController.hide()` (and the
      * auto-hide branch) clears `visible` but deliberately leaves `expanded` true, so the next run
      * auto-shows an already-EXPANDED panel, in a fresh slot composition, and the panel never reports
      * a collapsed height while expanded. A copy remembered in the slot would therefore be 0 for that
@@ -144,6 +148,17 @@ fun ReadingViewScreen(
      * of the header height, and a downward drag would shrink the panel to a sliver and leave it
      * "expanded" there. This screen's own measurement survives the hide, so it is the single source
      * of truth — do not "simplify" this back into a `remember` at the call site.
+     *
+     * **What it does not survive** (whole-branch review, Minor 1 — this kdoc used to say the screen
+     * "stays composed for as long as the reading view is mounted", which is not true).
+     * `ComposeReadingViewHost.kt:2841` wraps the whole `ReadingViewScreen` call in `key(gen)`, and
+     * `rebuild()` bumps `gen` on a workspace switch or a forced reload — which discards
+     * [collapsedAgentHeightDp] along with the rest of this screen's state, while the controller (owned
+     * by `install`, outside the key) keeps `expanded = true`. That is the very failure mode above,
+     * for one window: the reservation is back to 0 and the drag's clamp/snap work against 0 until the
+     * next collapse re-measures. It is narrower than the remembered-copy version (which lasted a whole
+     * showing rather than until the next collapse) and it is not what this parameter is for, but it is
+     * a real remaining window, not a case this design closes.
      */
     agentLog: (@Composable (
         applyNavBarInset: Boolean,
@@ -223,6 +238,14 @@ fun ReadingViewScreen(
                     bottomBarsHeightDp = with(density) { it.height.toDp() }.value
                 }
             ) {
+                // `speakBarVisible`, not `!agentLogOwnsNavBarInset(...) && speakBarVisible`. The value
+                // wanted is the latter — "is the speak bar the bottom-most visible bar" — and it
+                // reduces to the former ONLY because there are exactly two bottom bars and the speak
+                // bar is the lower of them, so it owns the inset whenever it is visible at all
+                // (`agentLogOwnsNavBarInset` is `agentLogVisible && !speakBarVisible`, which is false
+                // whenever `speakBarVisible` is true). Add a THIRD bottom bar below the speak bar and
+                // this line becomes wrong while still compiling: go through the shared predicate then,
+                // as the agent-log call site three lines down already does.
                 speakBar?.invoke(speakBarVisible)
             }
         }

@@ -366,5 +366,10 @@ class ReadingViewScreenGoldenTest {
  * (308dp) instead of being hidden behind it: 800 - 56dp toolbar - 48dp reservation leaves a 696dp
  * pane whose centre line sits ~90dp above the panel's top edge. `withSpeakBar`'s 640 is the
  * precedent for overriding the height at all.
+ *
+ * The `48dp` in that arithmetic is [agentLogSlot]'s seed, which is in turn the panel header's own
+ * `heightIn(min = 48.dp)` — one of the five unconnected places the number 48 now appears (whole-branch
+ * review; the status doc's round-12b entry lists all five). Change the seed and this comment's
+ * arithmetic goes stale with it.
  */
 private const val AGENT_OVERLAY_CANVAS_DP = 800
