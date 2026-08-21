@@ -101,8 +101,14 @@ private val SyncBadgeIconSize = 9.dp
  * bound on what this badge draws, rather than a bound that merely happened to hold.
  */
 private val SyncBadgeDigitSize = 8.dp
-/** Classic `pinMode` ImageView size (`window_button.xml:97-107`, 12dip). */
-private val PinIconSize = 12.dp
+/**
+ * Classic's drawn pin glyph, NOT its ImageView box. `window_button.xml:97-107` is `12dip` wide but
+ * also carries `android:paddingStart="2.5dip"`, and `ic_pin` fills essentially its whole 50x50
+ * viewport with no built-in padding — so with `fitCenter` classic renders the glyph into a ~9.5dp
+ * box. A bare `.size(12.dp)` here therefore drew it ~26% larger than the thing it claimed parity
+ * with (round 12b §2). Same correction [SyncBadgeIconSize] already applies to the sync badge.
+ */
+private val PinIconSize = 9.5.dp
 private val BorderWidth = 1.dp
 private val MinimisedBorderWidth = 1.5.dp
 private const val MinimisedAlpha = 0.62f
