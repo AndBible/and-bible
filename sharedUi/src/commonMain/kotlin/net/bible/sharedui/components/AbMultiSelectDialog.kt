@@ -31,8 +31,11 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -51,6 +54,51 @@ import androidx.compose.ui.unit.dp
  *   falls back to [selectAllText] itself when not given.
  */
 @Composable
+fun <T> AbMultiSelectContent(
+    options: List<T>,
+    selectedIds: List<String>,
+    idOf: (T) -> String,
+    labelOf: (T) -> String,
+    onCheckedChange: (List<String>) -> Unit,
+    selectAllText: String? = null,
+    selectNoneText: String? = null,
+    modifier: Modifier = Modifier,
+) {
+    // Local working copy of the checked set; reported to the host on every mutation.
+    val checked = remember(options, selectedIds) {
+        mutableStateListOf<String>().apply { addAll(selectedIds) }
+    }
+    LazyColumn(modifier.heightIn(max = 400.dp)) {
+        if (selectAllText != null) {
+            item {
+                val allSelected = options.isNotEmpty() && checked.size == options.size
+                TextButton(onClick = {
+                    if (allSelected) checked.clear()
+                    else { checked.clear(); checked.addAll(options.map { idOf(it) }) }
+                    onCheckedChange(checked.toList())
+                }) { Text(if (allSelected) (selectNoneText ?: selectAllText) else selectAllText) }
+            }
+        }
+        items(options, key = { idOf(it) }) { option ->
+            val id = idOf(option)
+            val isChecked = checked.contains(id)
+            val toggle = {
+                if (isChecked) checked.remove(id) else checked.add(id)
+                onCheckedChange(checked.toList())
+            }
+            Row(
+                Modifier.fillMaxWidth().clickable { toggle() }.padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(checked = isChecked, onCheckedChange = { toggle() })
+                Spacer(Modifier.width(8.dp))
+                Text(labelOf(option))
+            }
+        }
+    }
+}
+
+@Composable
 fun <T> AbMultiSelectDialog(
     title: String,
     options: List<T>,
@@ -65,42 +113,22 @@ fun <T> AbMultiSelectDialog(
     selectNoneText: String? = null,
 ) {
     // Local working copy of the checked set; committed to the host only on Confirm.
-    val checked = remember(options, selectedIds) {
-        mutableStateListOf<String>().apply { addAll(selectedIds) }
-    }
+    var current by remember(options, selectedIds) { mutableStateOf(selectedIds) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            LazyColumn(Modifier.heightIn(max = 400.dp)) {
-                if (selectAllText != null) {
-                    item {
-                        val allSelected = options.isNotEmpty() && checked.size == options.size
-                        TextButton(onClick = {
-                            if (allSelected) checked.clear()
-                            else { checked.clear(); checked.addAll(options.map { idOf(it) }) }
-                        }) { Text(if (allSelected) (selectNoneText ?: selectAllText) else selectAllText) }
-                    }
-                }
-                items(options, key = { idOf(it) }) { option ->
-                    val id = idOf(option)
-                    val isChecked = checked.contains(id)
-                    val toggle = {
-                        if (isChecked) checked.remove(id) else checked.add(id)
-                        Unit
-                    }
-                    Row(
-                        Modifier.fillMaxWidth().clickable { toggle() }.padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Checkbox(checked = isChecked, onCheckedChange = { toggle() })
-                        Spacer(Modifier.width(8.dp))
-                        Text(labelOf(option))
-                    }
-                }
-            }
+            AbMultiSelectContent(
+                options = options,
+                selectedIds = selectedIds,
+                idOf = idOf,
+                labelOf = labelOf,
+                onCheckedChange = { current = it },
+                selectAllText = selectAllText,
+                selectNoneText = selectNoneText,
+            )
         },
-        confirmButton = { TextButton(onClick = { onConfirm(checked.toList()) }) { Text(confirmText) } },
+        confirmButton = { TextButton(onClick = { onConfirm(current) }) { Text(confirmText) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(dismissText) } },
     )
 }

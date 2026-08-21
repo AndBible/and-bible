@@ -47,6 +47,39 @@ import net.bible.sharedui.strings.LocalStrings
  * practice, since consuming screens intercept such rows, but this must not crash).
  */
 @Composable
+fun AbListChoiceContent(
+    choices: List<SettingsItem.Choice>,
+    selectedValue: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()).then(modifier),
+    ) {
+        choices.forEach { choice ->
+            val selected = choice.value == selectedValue
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = selected,
+                        role = Role.RadioButton,
+                        onClick = {
+                            onSelect(choice.value)
+                        },
+                    )
+                    .padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = selected, onClick = null)
+                Spacer(Modifier.width(16.dp))
+                Text(choice.label, style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+    }
+}
+
+@Composable
 fun AbListChoiceDialog(
     title: String,
     choices: List<SettingsItem.Choice>,
@@ -59,31 +92,11 @@ fun AbListChoiceDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
-            ) {
-                choices.forEach { choice ->
-                    val selected = choice.value == selectedValue
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = selected,
-                                role = Role.RadioButton,
-                                onClick = {
-                                    onSelect(choice.value)
-                                    onDismiss()
-                                },
-                            )
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        RadioButton(selected = selected, onClick = null)
-                        Spacer(Modifier.width(16.dp))
-                        Text(choice.label, style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
-            }
+            AbListChoiceContent(
+                choices = choices,
+                selectedValue = selectedValue,
+                onSelect = { onSelect(it); onDismiss() },
+            )
         },
         confirmButton = {},
         dismissButton = {

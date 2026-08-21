@@ -38,6 +38,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.strings.LocalStrings
 
+/** The presets/custom page content, with [working] (the in-progress colour) and [presetsPage]
+ *  (which page to show) hoisted to the caller: both the dialog and a sheet page need to render
+ *  the OK affordance and the page switch in their own chrome. */
+@Composable
+fun AbColorPickerContent(
+    initialColor: Int,
+    working: Int,
+    onWorkingChange: (Int) -> Unit,
+    presetsPage: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    // The custom page is taller than the sliders it replaces; scroll rather than clip on a
+    // small screen (spec §9).
+    Box(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()).then(modifier)) {
+        if (presetsPage) {
+            ColorPickerPresetsPage(
+                initialColor = initialColor,
+                color = working,
+                onColorChange = onWorkingChange,
+            )
+        } else {
+            ColorPickerCustomPage(
+                initialColor = initialColor,
+                color = working,
+                onColorChange = onWorkingChange,
+            )
+        }
+    }
+}
+
 /** Classic's colour picker: a presets page and a custom page, one working colour, committed only
  *  on OK.
  *
@@ -64,23 +94,12 @@ fun AbColorPickerDialog(
         onDismissRequest = onDismiss,
         title = { Text(strings.colorPickerTitle) },
         text = {
-            // The custom page is taller than the sliders it replaces; scroll rather than clip on a
-            // small screen (spec §9).
-            Box(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
-                if (presetsPage) {
-                    ColorPickerPresetsPage(
-                        initialColor = opaqueInitial,
-                        color = working,
-                        onColorChange = { working = it },
-                    )
-                } else {
-                    ColorPickerCustomPage(
-                        initialColor = opaqueInitial,
-                        color = working,
-                        onColorChange = { working = it },
-                    )
-                }
-            }
+            AbColorPickerContent(
+                initialColor = opaqueInitial,
+                working = working,
+                onWorkingChange = { working = it },
+                presetsPage = presetsPage,
+            )
         },
         confirmButton = {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

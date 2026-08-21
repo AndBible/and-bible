@@ -45,6 +45,41 @@ import androidx.compose.ui.text.input.VisualTransformation
  * Shared component (promoted from MyDocuments); reused by WorkspaceSelector new/rename/clone.
  */
 @Composable
+fun AbTextInputContent(
+    initial: String,
+    onValueChange: (String) -> Unit,
+    numeric: Boolean = false,
+    masked: Boolean = false,
+    modifier: Modifier = Modifier,
+    extraContent: @Composable (() -> Unit)? = null,
+) {
+    var value by remember(initial) {
+        mutableStateOf(TextFieldValue(initial, selection = TextRange(0, initial.length)))
+    }
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = { value = it; onValueChange(it.text) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            visualTransformation = if (masked) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = when {
+                    masked -> KeyboardType.Password
+                    numeric -> KeyboardType.Number
+                    else -> KeyboardType.Text
+                },
+            ),
+        )
+        extraContent?.invoke()
+    }
+}
+
+@Composable
 fun AbTextInputDialog(
     title: String,
     initial: String,
@@ -56,34 +91,20 @@ fun AbTextInputDialog(
     numeric: Boolean = false,
     masked: Boolean = false,
 ) {
-    var value by remember {
-        mutableStateOf(TextFieldValue(initial, selection = TextRange(0, initial.length)))
-    }
+    var current by remember { mutableStateOf(initial) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            Column {
-                OutlinedTextField(
-                    value = value, onValueChange = { value = it }, singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = if (masked) {
-                        PasswordVisualTransformation()
-                    } else {
-                        VisualTransformation.None
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = when {
-                            masked -> KeyboardType.Password
-                            numeric -> KeyboardType.Number
-                            else -> KeyboardType.Text
-                        },
-                    ),
-                )
-                extraContent?.invoke()
-            }
+            AbTextInputContent(
+                initial = initial,
+                onValueChange = { current = it },
+                numeric = numeric,
+                masked = masked,
+                extraContent = extraContent,
+            )
         },
-        confirmButton = { TextButton(onClick = { onConfirm(value.text) }) { Text(confirmText) } },
+        confirmButton = { TextButton(onClick = { onConfirm(current) }) { Text(confirmText) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(dismissText) } },
     )
 }
