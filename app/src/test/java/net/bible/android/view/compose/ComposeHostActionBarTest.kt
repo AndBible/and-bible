@@ -139,21 +139,9 @@ class ComposeHostActionBarTest {
         )
     }
 
-    @Test fun `BibleSpeakComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.speak.BibleSpeakComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
-
-    @Test fun `SpeakSettingsComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.speak.SpeakSettingsComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
+    // Round 13a T4: BibleSpeakComposeActivity and SpeakSettingsComposeActivity were deleted (the
+    // Compose Speak entry point moves to a bottom sheet over the reading view, Task 13) — their
+    // no-native-ActionBar checks went with them.
 
     /** Stand-in for WorkspaceSelectorComposeActivity's window theme (Theme.AbCompose, NoActionBar). */
     class WorkspaceSelectorHostProbe : ActivityBase() {
@@ -254,7 +242,7 @@ class ComposeHostActionBarTest {
      * classifies that as [net.bible.android.view.activity.installzip.InstallZipEntryDecision.PickFile]
      * (the in-app "choose a file" prelude) -- a real, harmless entry path (no SAF/service side effects
      * happen synchronously in `create()`), so this exercises the real Activity exactly as the other
-     * real-activity cases above (`CloudDocumentsComposeActivity`, `BibleSpeakComposeActivity`, ...) do,
+     * real-activity cases above (`CloudDocumentsComposeActivity`, ...) do,
      * not a stand-in probe.
      */
     @Test fun `InstallZipComposeActivity has no native ActionBar (Theme_AbCompose)`() {

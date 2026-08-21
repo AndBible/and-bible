@@ -35,7 +35,7 @@ import org.koin.android.ext.android.inject
  * classic [net.bible.android.view.activity.progress.ReadingProgressSettingsActivity]
  * (`R.xml.reading_progress_settings`). This is the simplest of the Batch 10c hosts: a flat list
  * of switches + one list-choice row, no navigation rows, no reset action, no recreate parity to
- * worry about. Modelled on [net.bible.android.view.activity.speak.SpeakSettingsComposeActivity].
+ * worry about. Modelled on the (now-deleted, round 13a) SpeakSettingsComposeActivity's approach.
  */
 class ReadingProgressSettingsComposeActivity : ActivityBase() {
     private val service: ReadingProgressSettingsService by inject()

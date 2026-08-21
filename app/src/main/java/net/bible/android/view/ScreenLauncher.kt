@@ -109,7 +109,6 @@ import net.bible.android.view.activity.search.SearchIndexProgressStatus
 import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
-import net.bible.android.view.activity.speak.BibleSpeakComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import net.bible.service.common.CommonUtils
@@ -194,9 +193,11 @@ object ScreenLauncher {
         Screen.CloudDocuments ->
             if (useComposeFor(screen)) CloudDocumentsComposeActivity::class.java
             else CloudDocumentsActivity::class.java
-        Screen.BibleSpeak ->
-            if (useComposeFor(screen)) BibleSpeakComposeActivity::class.java
-            else BibleSpeakActivity::class.java
+        // Round 13a: there is no Compose Speak ACTIVITY any more — the Compose path opens
+        // `ComposeReadingViewHost.showSpeakSettings()` (a sheet over the reading view) instead, and
+        // `SpeakEntryPointGuardTest` enforces that every Compose call site does so. Reaching this
+        // line therefore always means the classic screen.
+        Screen.BibleSpeak -> BibleSpeakActivity::class.java
         Screen.WorkspaceSelector ->
             if (useComposeFor(screen)) WorkspaceSelectorComposeActivity::class.java
             else WorkspaceSelectorActivity::class.java
