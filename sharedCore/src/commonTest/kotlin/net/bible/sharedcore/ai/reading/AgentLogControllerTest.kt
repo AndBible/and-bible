@@ -171,4 +171,63 @@ class AgentLogControllerTest {
         val h = HostCalls(); val c = controller(Fake(), h)
         c.onRawLogClick(); assertEquals(1, h.rawLog)
     }
+
+    @Test fun drag_upFromCollapsedExpandsAndRecordsTheHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDrag(dragUpDp = 120f, collapsedDp = 48f, maxDp = 600f)
+
+        assertTrue(c.state.value.expanded)
+        assertEquals(168f, c.state.value.heightDp)
+    }
+
+    @Test fun drag_upIsClampedByTheMaximum() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDrag(dragUpDp = 5000f, collapsedDp = 48f, maxDp = 300f)
+
+        assertEquals(300f, c.state.value.heightDp)
+    }
+
+    @Test fun drag_downIntoTheSnapZoneCollapsesButKeepsTheHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDrag(dragUpDp = 300f, collapsedDp = 48f, maxDp = 600f)
+        val dragged = c.state.value.heightDp
+
+        c.onHeightDrag(dragUpDp = -1000f, collapsedDp = 48f, maxDp = 600f)
+
+        assertFalse(c.state.value.expanded)
+        assertEquals(dragged, c.state.value.heightDp, "collapsing is not closing: the height survives")
+    }
+
+    @Test fun toggleExpanded_keepsTheDraggedHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDrag(dragUpDp = 200f, collapsedDp = 48f, maxDp = 600f)
+        val dragged = c.state.value.heightDp
+
+        c.toggleExpanded()
+        c.toggleExpanded()
+
+        assertEquals(dragged, c.state.value.heightDp)
+    }
+
+    @Test fun hide_forgetsTheDraggedHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDrag(dragUpDp = 200f, collapsedDp = 48f, maxDp = 600f)
+
+        c.hide()
+
+        assertNull(c.state.value.heightDp, "a reopened panel must start at the default height")
+    }
+
+    @Test fun autoHide_forgetsTheDraggedHeight() = runTest {
+        val f = Fake(visiblePref = false, autoHide = true)
+        val c = controller(f)
+        f.snap.value = AgentLogSnapshot(running = true)
+        c.onHeightDrag(dragUpDp = 200f, collapsedDp = 48f, maxDp = 600f)
+        assertEquals(248f, c.state.value.heightDp, "sanity")
+
+        f.snap.value = AgentLogSnapshot(running = false, lastStopReason = AgentStopReasonVd.COMPLETED)
+
+        assertFalse(c.state.value.visible)
+        assertNull(c.state.value.heightDp, "an auto-hide is a close too")
+    }
 }

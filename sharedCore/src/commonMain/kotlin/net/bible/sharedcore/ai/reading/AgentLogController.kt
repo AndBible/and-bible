@@ -68,11 +68,40 @@ class AgentLogController(
             }
             else -> current.visible
         }
-        _state.update { it.copy(snapshot = snap, visible = newVisible) }
+        // Round 12b §4: an auto-hide is a close too, so it forgets the dragged height. Keyed off the
+        // transition to invisible rather than `newVisible == false` alone, so a snapshot arriving
+        // while the panel is already hidden does not keep rewriting the same null.
+        _state.update {
+            if (it.visible && !newVisible) it.copy(snapshot = snap, visible = false, heightDp = null)
+            else it.copy(snapshot = snap, visible = newVisible)
+        }
     }
 
     fun toggleExpanded() {
         _state.update { it.copy(expanded = !it.expanded) }
+    }
+
+    /**
+     * One drag step on the panel's handle. [dragUpDp] is POSITIVE upward — i.e. the direction that
+     * grows the panel — so the caller converts the platform's downward-positive pointer delta once,
+     * at the boundary, and this reducer reads the way the gesture feels.
+     *
+     * A drag that lands within [AGENT_PANEL_COLLAPSE_SNAP_DP] of the collapsed height collapses the
+     * panel but KEEPS `heightDp`: collapsing is not closing, and the maintainer's rule is that the
+     * height is remembered until the panel is closed. Dragging up from collapsed expands it, which is
+     * what makes the handle a real affordance in both directions.
+     */
+    fun onHeightDrag(dragUpDp: Float, collapsedDp: Float, maxDp: Float) {
+        val current = _state.value
+        val from = agentPanelHeight(current, collapsedDp, maxDp)
+        val requested = from + dragUpDp
+        if (shouldCollapseAfterDrag(requested, collapsedDp)) {
+            _state.update { it.copy(expanded = false) }
+        } else {
+            _state.update {
+                it.copy(expanded = true, heightDp = clampAgentPanelHeight(requested, collapsedDp, maxDp))
+            }
+        }
     }
 
     fun show() {
@@ -82,7 +111,10 @@ class AgentLogController(
 
     fun hide() {
         service.setLogVisiblePref(false)
-        _state.update { it.copy(visible = false) }
+        // Round 12b §4: closing forgets the dragged height — a newly opened panel starts at the
+        // default. This one line is the whole implementation of "remembered until closed", and is
+        // why the feature needs no new preference.
+        _state.update { it.copy(visible = false, heightDp = null) }
     }
 
     fun stop() {
