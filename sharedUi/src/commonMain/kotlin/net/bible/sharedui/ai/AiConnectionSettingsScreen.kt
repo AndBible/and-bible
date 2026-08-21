@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.ai.aiLanguageSelection
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsItem
@@ -241,11 +242,12 @@ fun AiConnectionSettingsScreen(
 
     // F32: AI-language picker. `currentAiLanguage` comes from the ORIGINAL (un-rewritten) `state`
     // — the ai_language item in `displayState` was already rewritten to a NavigationRow above and
-    // no longer carries `selectedValue`. A value not present in the host-supplied `languageChoices`
-    // (a previously-saved custom language) is treated as the "Custom…" row being selected.
+    // no longer carries `selectedValue`. The picker-selected / custom-page-prefill logic is pulled
+    // out into the pure aiLanguageSelection() (Task 7 fix round 1) so a unit test can reach it —
+    // the sheet page itself cannot be golden-captured (an open ModalBottomSheet hangs Roborazzi).
     val aiLanguageRow = state.items.firstOrNull { it.key == KEY_AI_LANGUAGE } as? SettingsItem.ListChoiceRow
     val currentAiLanguage = aiLanguageRow?.selectedValue ?: ""
-    val isKnownLanguage = languageChoices.any { it.value == currentAiLanguage }
+    val languageSelection = aiLanguageSelection(currentAiLanguage, languageChoices, customLanguageValue)
 
     // Two SettingsEditorSheet call sites live in this composable's subtree: AbSettingsScreen's own
     // generic sheet (rendered inside AbSettingsScreen above, for the three generic row kinds it
@@ -270,9 +272,9 @@ fun AiConnectionSettingsScreen(
         ) {
             if (page.key == CUSTOM_LANGUAGE_PAGE_KEY) {
                 val strings = LocalStrings.current
-                var current by remember { mutableStateOf(if (isKnownLanguage) "" else currentAiLanguage) }
+                var current by remember { mutableStateOf(languageSelection.customLanguageInitial) }
                 AbTextInputContent(
-                    initial = if (isKnownLanguage) "" else currentAiLanguage,
+                    initial = languageSelection.customLanguageInitial,
                     onValueChange = { current = it },
                 )
                 Text(strings.aiLanguageCustomHint, style = MaterialTheme.typography.bodySmall)
@@ -294,7 +296,7 @@ fun AiConnectionSettingsScreen(
                 Box(modifier = Modifier.heightIn(max = 400.dp)) {
                     AbListChoiceContent(
                         choices = languageChoices,
-                        selectedValue = if (isKnownLanguage) currentAiLanguage else customLanguageValue,
+                        selectedValue = languageSelection.pickerSelectedValue,
                         onSelect = { value ->
                             // "Custom…" pushes the text-input page onto THIS sheet instead of
                             // opening a second dialog on top of the first (the old F32 behaviour).
