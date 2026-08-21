@@ -484,7 +484,7 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
         topMarginDialogTitle = getString(R.string.prefs_top_margin_title),
         lineSpacingDialogTitle = getString(R.string.line_spacing_title),
         marginSizeDialogTitle = getString(R.string.prefs_margin_size_title),
-        // Contain "%d" -- left un-substituted; TextDisplaySettingsScreen/MarginDialog does its own
+        // Contain "%d" -- left un-substituted; TextDisplaySettingsScreen/MarginContent does its own
         // .replace("%d", ...).
         marginLeftLabelFormat = getString(R.string.pref_left_margin_label_mm),
         marginRightLabelFormat = getString(R.string.pref_right_margin_label_mm),

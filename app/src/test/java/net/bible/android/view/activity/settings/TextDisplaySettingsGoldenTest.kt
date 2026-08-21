@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.settings
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
 import net.bible.android.view.compose.golden.GoldenMode
@@ -37,8 +38,8 @@ import net.bible.sharedcore.settings.TextSettingRowValue
 import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedcore.settings.TextSettingValue
 import net.bible.sharedcore.settings.TextSettingsSnapshot
-import net.bible.sharedui.settings.MarginDialog
-import net.bible.sharedui.settings.NumericSliderDialog
+import net.bible.sharedui.settings.MarginContent
+import net.bible.sharedui.settings.NumericSliderContent
 import net.bible.sharedui.settings.TextDisplaySettingsScreen
 import net.bible.sharedui.settings.TextDisplaySettingsScreenLabels
 import org.junit.Test
@@ -255,45 +256,37 @@ class TextDisplaySettingsGoldenTest {
     @Test fun badges_light() =
         captureGolden("TextDisplaySettings", "badges", GoldenMode.LIGHT, heightDp = 900, content = badgeScreen())
 
-    // --- Numeric/margin dialog editors (review Finding 2, Batch 12d-A T4 fix) ---
-    // NumericSliderDialog/MarginDialog are public composables taking explicit params (un-privated
-    // from TextDisplaySettingsScreen.kt for exactly this), golden-tested DIRECTLY here the same way
-    // AbColorPickerGoldenTest calls AbColorPicker(...) -- no gesture simulation needed, an open
-    // AlertDialog tree captures fine as a static render (same technique as AbInfoDialogGoldenTest).
+    // --- Numeric/margin sheet-page editors (T6: retired the numeric/margin AlertDialogs in favor
+    // of TextSettingRowEditorSheet's sheet pages) ---
+    // NumericSliderContent/MarginContent are the page BODIES (see TextSettingRowEditorSheet),
+    // captured directly inside a plain Column -- never inside SettingsEditorSheet's ModalBottomSheet,
+    // which hangs Roborazzi (see SettingsEditorSheetGoldenTest's identical discipline).
     // Specifically exercises whether Material3 Slider's default `primary`-track color leaks a hue
     // into BW/COLOR_EINK (it shouldn't: AbTheme grayscales the WHOLE base ColorScheme, including
     // `primary`, in BW/COLOR_EINK -- see AbTheme.grayscale -- so the default Slider colors, which are
     // all derived from the theme's ColorScheme, should already come out grayscale with no extra
     // theming). Eyeball the _bw/_eink renders to confirm before trusting that reasoning.
 
-    @Test fun numeric_dialog_matrix() =
-        captureMatrix("TextDisplaySettings", "numeric_dialog") {
-            NumericSliderDialog(
-                title = testDialogLabels().fontSizeDialogTitle,
-                numeric = TextSettingRowValue.Numeric(16, 1, 60, "16 pt"),
-                okLabel = testDialogLabels().okLabel,
-                cancelLabel = testDialogLabels().cancelLabel,
-                resetLabel = testDialogLabels().resetToInheritedLabel,
-                onConfirm = {},
-                onReset = {},
-                onDismiss = {},
-            )
+    @Test fun numericSheet_matrix() =
+        captureMatrix("TextDisplaySettings", "numericSheet") {
+            Column {
+                NumericSliderContent(
+                    numeric = TextSettingRowValue.Numeric(16, 1, 60, "16 pt"),
+                    onValueChange = {},
+                )
+            }
         }
 
-    @Test fun margin_dialog_matrix() =
-        captureMatrix("TextDisplaySettings", "margin_dialog") {
-            MarginDialog(
-                title = testDialogLabels().marginSizeDialogTitle,
-                margins = TextSettingRowValue.Margins(3, 3, 170, 30, 30, 500, "3/3/170 mm"),
-                leftLabelFormat = testDialogLabels().marginLeftLabelFormat,
-                rightLabelFormat = testDialogLabels().marginRightLabelFormat,
-                maxWidthLabelFormat = testDialogLabels().marginMaxWidthLabelFormat,
-                okLabel = testDialogLabels().okLabel,
-                cancelLabel = testDialogLabels().cancelLabel,
-                resetLabel = testDialogLabels().resetToInheritedLabel,
-                onConfirm = { _, _, _ -> },
-                onReset = {},
-                onDismiss = {},
-            )
+    @Test fun marginSheet_matrix() =
+        captureMatrix("TextDisplaySettings", "marginSheet") {
+            Column {
+                MarginContent(
+                    margins = TextSettingRowValue.Margins(3, 3, 170, 30, 30, 500, "3/3/170 mm"),
+                    leftLabelFormat = testDialogLabels().marginLeftLabelFormat,
+                    rightLabelFormat = testDialogLabels().marginRightLabelFormat,
+                    maxWidthLabelFormat = testDialogLabels().marginMaxWidthLabelFormat,
+                    onValueChange = { _, _, _ -> },
+                )
+            }
         }
 }

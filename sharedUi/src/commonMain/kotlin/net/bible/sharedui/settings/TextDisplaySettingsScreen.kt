@@ -18,17 +18,13 @@
 package net.bible.sharedui.settings
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RestartAlt
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +34,7 @@ import androidx.compose.ui.Modifier
 import net.bible.sharedcore.settings.KEY_OPEN_GLOBAL_SETTINGS
 import net.bible.sharedcore.settings.KEY_OPEN_WORKSPACE_SETTINGS
 import net.bible.sharedcore.settings.SettingsEditorPage
+import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedcore.settings.TextDisplaySettingsScreenState
 import net.bible.sharedcore.settings.TextSettingRowValue
@@ -87,9 +84,10 @@ data class TextDisplaySettingsScreenLabels(
  *
  * - Switch/list-choice rows edit inline (through [onSwitch]/[onListChoice]); their revert is the
  *   uniform long-press path below (any interactive row can be long-pressed).
- * - FONTSIZE/TOPMARGIN/LINE_SPACING open a numeric slider dialog (own OK / neutral "reset to
- *   inherited" / Cancel).
- * - MARGINSIZE opens a 3-slider margin dialog (same 3-button shape).
+ * - FONTSIZE/TOPMARGIN/LINE_SPACING open a numeric slider sheet page (own OK / neutral "reset to
+ *   inherited" / Cancel) via [TextSettingRowEditorSheet].
+ * - MARGINSIZE opens a 3-slider margin sheet page (same 3-button shape), also via
+ *   [TextSettingRowEditorSheet].
  * - COLORS/BOOKMARKS_HIDELABELS and the two drill-up parent-link rows ([KEY_OPEN_WORKSPACE_SETTINGS]/
  *   [KEY_OPEN_GLOBAL_SETTINGS]) forward to [onNavigate] — the host decides where they lead (a
  *   colours screen, a label picker, or the enclosing workspace's / the global text-display-settings
@@ -111,7 +109,7 @@ data class TextDisplaySettingsScreenLabels(
  *
  * Numeric/margin slider ranges are NEVER hard-coded here — they're read fresh from `state.rows`
  * (a [TextSettingRowValue.Numeric] or [TextSettingRowValue.Margins]) on every recomposition,
- * mirroring [AbSettingsContent]'s dialog discipline: the dialog always renders the CURRENT row
+ * mirroring [AbSettingsContent]'s dialog discipline: the sheet page always renders the CURRENT row
  * (which may have changed underneath — e.g. a concurrent sync — while it was open), never a
  * click-time snapshot, and closes itself if the row disappears.
  */
@@ -127,12 +125,20 @@ data class TextDisplaySettingsScreenLabels(
 fun isRevertableSettingsKey(key: String): Boolean =
     key != KEY_OPEN_WORKSPACE_SETTINGS && key != KEY_OPEN_GLOBAL_SETTINGS
 
-/** The three text settings whose editor is a single numeric slider. MARGINSIZE has its own
- *  three-slider editor and is routed separately. */
-private val NUMERIC_TEXT_SETTING_KEYS = setOf(
+/** The text settings whose editor [TextDisplaySettingsScreen] renders itself as a sheet page. The
+ *  four ListChoiceRow types are NOT here: AbSettingsContent opens their page itself, so
+ *  handleNavigate is never called for them — same as before the sheet migration.
+ *
+ *  [textSettingEditorPageFor] (in `:sharedCore`) decides which [TextSettingType]s resolve to a
+ *  [SettingsEditorPage.Row] at all; this set decides which of THOSE this screen actually opens a
+ *  page for. Nothing in the type system ties the two together, so
+ *  `TextSettingRowEditorSheetCoverageTest` (`:app`) asserts they agree — see its kdoc for what a
+ *  disagreement would silently do. */
+private val SHEET_EDITED_TEXT_SETTING_KEYS = setOf(
     TextSettingType.FONTSIZE.name,
     TextSettingType.TOPMARGIN.name,
     TextSettingType.LINE_SPACING.name,
+    TextSettingType.MARGINSIZE.name,
 )
 
 @Composable
@@ -154,10 +160,9 @@ fun TextDisplaySettingsScreen(
     onOpenSearch: () -> Unit = {},
     onCloseSearch: () -> Unit = {},
 ) {
-    // Screen-local dialog state: the STABLE KEY of the open editor (if any), never a captured item
-    // snapshot — see the kdoc above and AbSettingsContent's identical discipline for its own dialogs.
-    var numericDialogKey by remember { mutableStateOf<String?>(null) }
-    var marginDialogKey by remember { mutableStateOf<String?>(null) }
+    // The numeric/margin sheet's page stack — see TextSettingRowEditorSheet, which renders it.
+    val editor = remember { SettingsEditorStack() }
+    val editorPages by editor.pages.collectAsState()
     var revertKey by remember { mutableStateOf<String?>(null) }
     var showResetConfirm by remember { mutableStateOf(false) }
 
@@ -165,10 +170,8 @@ fun TextDisplaySettingsScreen(
         val page = textSettingEditorPageFor(key)
         when {
             page == null || page is SettingsEditorPage.Colors -> onNavigate(key)
-            page is SettingsEditorPage.Row && page.key == TextSettingType.MARGINSIZE.name ->
-                marginDialogKey = page.key
-            page is SettingsEditorPage.Row && page.key in NUMERIC_TEXT_SETTING_KEYS ->
-                numericDialogKey = page.key
+            page is SettingsEditorPage.Row && page.key in SHEET_EDITED_TEXT_SETTING_KEYS ->
+                editor.open(page)
             // The four ListChoiceRow types never reach here: AbSettingsContent opens their editor
             // itself, so onNavigate is not called for them — same as before this extraction.
             else -> Unit
@@ -202,51 +205,16 @@ fun TextDisplaySettingsScreen(
         )
     }
 
-    val numericKey = numericDialogKey
-    val numericType = numericKey?.let { runCatching { TextSettingType.valueOf(it) }.getOrNull() }
-    val numericRow = numericType?.let { state.rows[it] }
-    LaunchedEffect(numericDialogKey, numericRow) {
-        if (numericDialogKey != null && numericRow == null) numericDialogKey = null
-    }
-    if (numericKey != null && numericType != null && numericRow != null) {
-        val numericTitle = when (numericType) {
-            TextSettingType.FONTSIZE -> dialogLabels.fontSizeDialogTitle
-            TextSettingType.TOPMARGIN -> dialogLabels.topMarginDialogTitle
-            TextSettingType.LINE_SPACING -> dialogLabels.lineSpacingDialogTitle
-            else -> ""
-        }
-        NumericSliderDialog(
-            title = numericTitle,
-            numeric = numericRow.value as TextSettingRowValue.Numeric,
-            okLabel = dialogLabels.okLabel,
-            cancelLabel = dialogLabels.cancelLabel,
-            resetLabel = dialogLabels.resetToInheritedLabel,
-            onConfirm = { chosen -> onNumericChange(numericKey, chosen); numericDialogKey = null },
-            onReset = { onRevert(numericKey); numericDialogKey = null },
-            onDismiss = { numericDialogKey = null },
-        )
-    }
-
-    val marginKey = marginDialogKey
-    val marginRow = marginKey?.let { state.rows[TextSettingType.MARGINSIZE] }
-    LaunchedEffect(marginDialogKey, marginRow) {
-        if (marginDialogKey != null && marginRow == null) marginDialogKey = null
-    }
-    if (marginKey != null && marginRow != null) {
-        MarginDialog(
-            title = dialogLabels.marginSizeDialogTitle,
-            margins = marginRow.value as TextSettingRowValue.Margins,
-            leftLabelFormat = dialogLabels.marginLeftLabelFormat,
-            rightLabelFormat = dialogLabels.marginRightLabelFormat,
-            maxWidthLabelFormat = dialogLabels.marginMaxWidthLabelFormat,
-            okLabel = dialogLabels.okLabel,
-            cancelLabel = dialogLabels.cancelLabel,
-            resetLabel = dialogLabels.resetToInheritedLabel,
-            onConfirm = { left, right, maxWidth -> onMarginsChange(marginKey, left, right, maxWidth); marginDialogKey = null },
-            onReset = { onRevert(marginKey); marginDialogKey = null },
-            onDismiss = { marginDialogKey = null },
-        )
-    }
+    TextSettingRowEditorSheet(
+        pages = editorPages,
+        rows = state.rows,
+        dialogLabels = dialogLabels,
+        onNumericChange = onNumericChange,
+        onMarginsChange = onMarginsChange,
+        onRevert = onRevert,
+        onPop = { editor.pop() },
+        onClose = { editor.close() },
+    )
 
     val pendingRevertKey = revertKey
     if (pendingRevertKey != null) {
@@ -272,8 +240,8 @@ fun TextDisplaySettingsScreen(
     }
 }
 
-/** The single slider FONTSIZE/TOPMARGIN/LINE_SPACING edit with. Owns the dragged value and reports
- *  it on every frame; the host commits it. */
+/** The single slider that FONTSIZE/TOPMARGIN/LINE_SPACING edit with. Owns the dragged value and
+ *  reports it on every frame; the host commits it. */
 @Composable
 fun NumericSliderContent(
     numeric: TextSettingRowValue.Numeric,
@@ -288,43 +256,6 @@ fun NumericSliderContent(
         valueRange = numeric.min.toFloat()..numeric.max.toFloat(),
         valueLabel = numeric.displayText,
         modifier = modifier,
-    )
-}
-
-/**
- * Slider dialog for [TextSettingType.FONTSIZE]/[TextSettingType.TOPMARGIN]/[TextSettingType.LINE_SPACING]:
- * one [AbSliderRow] ranging over [TextSettingRowValue.Numeric.min]`..`[TextSettingRowValue.Numeric.max]
- * (never hard-coded — carried by the service via [numeric]), an OK button committing the dragged value,
- * a neutral "reset to inherited" button, and Cancel.
- *
- * Public (not `private`) so golden tests can render it directly with explicit params, the same
- * way `AbColorPickerGoldenTest` calls `AbColorPicker(...)` — [TextDisplaySettingsScreen] itself
- * still only ever opens it internally (via its own screen-local dialog-key state); this does not
- * change that screen's own public behavior.
- */
-@Composable
-fun NumericSliderDialog(
-    title: String,
-    numeric: TextSettingRowValue.Numeric,
-    okLabel: String,
-    cancelLabel: String,
-    resetLabel: String,
-    onConfirm: (Int) -> Unit,
-    onReset: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    var current by remember(numeric) { mutableIntStateOf(numeric.value) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = { NumericSliderContent(numeric = numeric, onValueChange = { current = it }) },
-        confirmButton = { TextButton(onClick = { onConfirm(current) }) { Text(okLabel) } },
-        dismissButton = {
-            Row {
-                TextButton(onClick = onReset) { Text(resetLabel) }
-                TextButton(onClick = onDismiss) { Text(cancelLabel) }
-            }
-        },
     )
 }
 
@@ -364,52 +295,4 @@ fun MarginContent(
             valueLabel = "",
         )
     }
-}
-
-/**
- * Dialog for [TextSettingType.MARGINSIZE]: three [AbSliderRow]s (left/right/max-text-width), each
- * ranging `0..`[TextSettingRowValue.Margins.leftMax]/[rightMax][TextSettingRowValue.Margins.rightMax]/
- * [maxWidthMax][TextSettingRowValue.Margins.maxWidthMax] (never hard-coded — carried by [margins]).
- * Each slider's own row label carries its current value (the classic `SeekBarPreference` style — no
- * separate readout), formatted from the matching `dialogLabels.margin*LabelFormat` "%d" template.
- *
- * Public (not `private`) for the same golden-testing reason as [NumericSliderDialog] — see its kdoc.
- */
-@Composable
-fun MarginDialog(
-    title: String,
-    margins: TextSettingRowValue.Margins,
-    leftLabelFormat: String,
-    rightLabelFormat: String,
-    maxWidthLabelFormat: String,
-    okLabel: String,
-    cancelLabel: String,
-    resetLabel: String,
-    onConfirm: (left: Int, right: Int, maxWidth: Int) -> Unit,
-    onReset: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    var left by remember(margins) { mutableIntStateOf(margins.left) }
-    var right by remember(margins) { mutableIntStateOf(margins.right) }
-    var maxWidth by remember(margins) { mutableIntStateOf(margins.maxWidth) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            MarginContent(
-                margins = margins,
-                leftLabelFormat = leftLabelFormat,
-                rightLabelFormat = rightLabelFormat,
-                maxWidthLabelFormat = maxWidthLabelFormat,
-                onValueChange = { l, r, m -> left = l; right = r; maxWidth = m },
-            )
-        },
-        confirmButton = { TextButton(onClick = { onConfirm(left, right, maxWidth) }) { Text(okLabel) } },
-        dismissButton = {
-            Row {
-                TextButton(onClick = onReset) { Text(resetLabel) }
-                TextButton(onClick = onDismiss) { Text(cancelLabel) }
-            }
-        },
-    )
 }

@@ -131,6 +131,28 @@ fun SheetConfirmRow(
     }
 }
 
+/** A sheet page's reset/cancel/confirm triple — the sheet analogue of the numeric and margin
+ *  dialogs' neutral "reset to inherited" button beside Cancel and OK. */
+@Composable
+fun SheetResetConfirmRow(
+    resetLabel: String,
+    confirmLabel: String,
+    cancelLabel: String,
+    onReset: () -> Unit,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        TextButton(onClick = onReset) { Text(resetLabel) }
+        Spacer(Modifier.weight(1f))
+        TextButton(onClick = onCancel) { Text(cancelLabel) }
+        TextButton(onClick = onConfirm) { Text(confirmLabel) }
+    }
+}
+
 /**
  * The generic settings editor sheet: the three item kinds `AbSettingsContent` used to open dialogs
  * for. Re-resolves the row from [state] on every recomposition and closes the sheet if the key has
