@@ -80,7 +80,7 @@ class TextSettingRowEditorSheetCoverageTest {
         override fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?) {}
         override fun setBackgroundOpacity(scope: SettingsScope, night: Boolean, opacity: Int) {}
         override fun resetColors(scope: SettingsScope) {}
-        override suspend fun importBackgroundImage(): BackgroundImageOption? = null
+        override suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption? = null
         override fun deleteBackgroundImage(initials: String) {}
     }
 

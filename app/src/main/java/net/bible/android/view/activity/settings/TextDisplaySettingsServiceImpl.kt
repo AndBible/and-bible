@@ -386,19 +386,13 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
 
     // ---- Background image (Batch 12d-B T6) — register/import/delete ---------------------------
 
-    /** Host-set seam: launches the platform photo picker, returns the picked image's content-URI
-     *  string (or null on cancel). Set by [TextDisplaySettingsComposeActivity] via a registered
-     *  `PickVisualMedia` launcher bridged to a suspend fun; a Koin singleton can't own an
-     *  `ActivityResultLauncher` itself. */
-    var imagePicker: (suspend () -> String?)? = null
-
     override fun loadBackgroundOptions(): List<BackgroundImageOption> =
         AndBibleAddons.providedBackgroundImages.map { (initials, p) ->
             BackgroundImageOption(initials = initials, name = p.name, thumbnailToken = initials)
         }.sortedBy { it.name.lowercase() }
 
-    override suspend fun importBackgroundImage(): BackgroundImageOption? {
-        val uriStr = imagePicker?.invoke() ?: return null
+    override suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption? {
+        val uriStr = picker() ?: return null
         val file = withContext(Dispatchers.IO) { BackgroundImageImporter.copyAndRegister(app, Uri.parse(uriStr)) } ?: return null
         AndBibleAddons.clearCaches()
         // find the freshly-registered module whose file == the written file

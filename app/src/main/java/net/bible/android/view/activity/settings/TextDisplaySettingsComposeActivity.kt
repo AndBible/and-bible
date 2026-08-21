@@ -25,7 +25,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -95,14 +94,8 @@ import org.koin.android.ext.android.inject
  */
 class TextDisplaySettingsComposeActivity : ActivityBase() {
     // The CONCRETE service (not the `TextDisplaySettingsService` interface) — needed for the
-    // HIDELABELS bridge helper + the imagePicker seam, neither of which are part of the portable
-    // interface.
+    // HIDELABELS bridge helper, which isn't part of the portable interface.
     private val service: TextDisplaySettingsServiceImpl by inject()
-
-    /** Test-only escape hatch to reach [service] — e.g. to assert [TextDisplaySettingsServiceImpl.imagePicker]
-     *  got wired in [onCreate] (Batch 12d-B T7). */
-    @VisibleForTesting
-    val serviceForTest: TextDisplaySettingsServiceImpl get() = service
 
     private val windowRepository get() = CommonUtils.windowControl.windowRepository
 
@@ -140,21 +133,25 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
         pendingPick = null
     }
 
+    /**
+     * This Activity's own photo picker (Batch 12d-B T5/T6/T7, T9): bridges [photoPicker]'s
+     * callback-shaped `ActivityResultLauncher` to a suspend fun via [pendingPick]/[CancellableContinuation],
+     * handed to each [ColorSettingsController] this Activity builds ([colorControllerFor]) — a
+     * PARAMETER, not a property [TextDisplaySettingsServiceImpl] (a Koin singleton) could own itself.
+     * See `TextDisplaySettingsService.importBackgroundImage`'s kdoc for why that matters.
+     */
+    private val imagePicker: suspend () -> String? = {
+        suspendCancellableCoroutine { cont ->
+            pendingPick = cont
+            photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            cont.invokeOnCancellation { pendingPick = null }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val initialScope = scopeFromIntent(intent)
         navStack = listOf(initialScope)
-
-        // The imagePicker seam (Batch 12d-B T5/T6/T7): TextDisplaySettingsServiceImpl.importBackgroundImage()
-        // suspends on this to get the user's picked image's content-URI, since a Koin singleton can't
-        // own an ActivityResultLauncher itself.
-        service.imagePicker = {
-            suspendCancellableCoroutine { cont ->
-                pendingPick = cont
-                photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                cont.invokeOnCancellation { pendingPick = null }
-            }
-        }
 
         setContent {
             AbAppTheme {
@@ -289,7 +286,7 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
      * [TextDisplaySettingsController.onReset]) can change colours behind this screen's back while
      * it isn't shown -- a cached, stale instance would then reopen showing pre-reset values. */
     private fun colorControllerFor(scope: SettingsScope): ColorSettingsController =
-        ColorSettingsController(service = service, scope = scope, coroutineScope = lifecycleScope)
+        ColorSettingsController(service = service, scope = scope, coroutineScope = lifecycleScope, imagePicker = imagePicker)
 
     private fun onNavigate(scope: SettingsScope, key: String) {
         when (key) {

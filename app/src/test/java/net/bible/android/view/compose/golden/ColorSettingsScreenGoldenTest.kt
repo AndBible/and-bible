@@ -11,6 +11,7 @@ import net.bible.sharedcore.settings.BackgroundImageOption
 import net.bible.sharedcore.settings.ColorSettingsUiState
 import net.bible.sharedcore.settings.ColorsSnapshot
 import net.bible.sharedcore.settings.InheritedFrom
+import net.bible.sharedui.components.AbLoadingOverlay
 import net.bible.sharedui.settings.BackgroundImageChooserContent
 import net.bible.sharedui.settings.BackgroundImageChooserLabels
 import net.bible.sharedui.settings.ColorSettingsContent
@@ -36,6 +37,12 @@ import org.robolectric.annotation.GraphicsMode
  * `Box(Modifier.heightIn(max = 400.dp))` ancestor `ColorSettingsEditorSheet` uses in production, the
  * same honest-scope caveat as `SettingsEditorSheetGoldenTest.listChoiceLong_matrix` applies: this
  * proves the bound clips correctly, not that the grid is actually scrollable past it.
+ *
+ * T9 adds [backgroundImageContent_loading_edge], the same Box-wrapped composition PLUS an
+ * [AbLoadingOverlay] sibling — reproducing exactly what `ColorSettingsEditorSheet`'s `BackgroundImage`
+ * page now renders while `ColorSettingsUiState.loading` is true (Task 8 left that state deliberately
+ * unhandled there; T9 owns the import path and wires it). Still captured directly, not through the
+ * sheet's `ModalBottomSheet`.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -154,6 +161,30 @@ class ColorSettingsScreenGoldenTest {
                         onImport = {},
                         onRequestDelete = {},
                     )
+                }
+            }
+        }
+
+    // T9: ColorSettingsEditorSheet's BackgroundImage page while ColorSettingsUiState.loading is true —
+    // same Box(heightIn(max = 400.dp)) ancestor as production, plus the AbLoadingOverlay the sheet now
+    // renders as a sibling inside it (mirroring BackgroundImageChooserScreen's own overlay). Captured
+    // directly, never through ColorSettingsEditorSheet's ModalBottomSheet (see the class kdoc).
+    @Test fun backgroundImageContent_loading_edge() =
+        captureGolden(
+            "BackgroundImageChooserContent", "loading", EDGE_MODE, heightDp = 1200,
+        ) {
+            Column {
+                Box(modifier = Modifier.heightIn(max = 400.dp)) {
+                    BackgroundImageChooserContent(
+                        options = chooserOpts,
+                        labels = BackgroundImageChooserLabels.forTest(),
+                        thumbnailFor = { null },
+                        importVisible = true,
+                        onSelect = {},
+                        onImport = {},
+                        onRequestDelete = {},
+                    )
+                    AbLoadingOverlay(BackgroundImageChooserLabels.forTest().importing)
                 }
             }
         }

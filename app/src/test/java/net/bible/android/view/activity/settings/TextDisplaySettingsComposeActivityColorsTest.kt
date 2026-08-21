@@ -19,7 +19,7 @@ package net.bible.android.view.activity.settings
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.settings.SettingsScope
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -28,16 +28,24 @@ import org.robolectric.annotation.Config
 
 /**
  * Smoke test for Batch 12d-B T7: the host must render the internal Compose `colors` destination
- * (instead of the retired interim [ColorSettingsActivity] bridge) and wire the
- * [TextDisplaySettingsServiceImpl.imagePicker] seam to its registered `PickVisualMedia` launcher
- * during `onCreate`, before the Activity reaches RESUMED.
+ * (instead of the retired interim [ColorSettingsActivity] bridge) without crashing.
+ *
+ * T9 retired this test's original assertion — that `onCreate` wired
+ * `TextDisplaySettingsServiceImpl.imagePicker` — along with the property itself: the picker is now a
+ * constructor parameter of [net.bible.sharedcore.settings.ColorSettingsController], supplied per
+ * controller from this Activity's own `imagePicker` field, so there is no shared mutable seam left to
+ * assert on here (nor a `serviceForTest` escape hatch to reach it, since asserting the picker wiring
+ * was that property's only use). That behaviour is now covered, more precisely, by
+ * `ColorSettingsControllerTest.importPassesTheHostsPickerToTheService` in `:sharedCore`. What remains
+ * worth a Robolectric smoke test here is simply that this host still builds to RESUMED on the
+ * `colors` start-destination without crashing.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
 class TextDisplaySettingsComposeActivityColorsTest {
 
     @Test
-    fun `host wires imagePicker seam and starts on the colors destination without crashing`() {
+    fun `starts on the colors destination without crashing`() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         val repo = CommonUtils.windowControl.windowRepository
         val intent = TextDisplaySettingsComposeActivity.intentFor(
@@ -48,10 +56,9 @@ class TextDisplaySettingsComposeActivityColorsTest {
         val controller = Robolectric.buildActivity(TextDisplaySettingsComposeActivity::class.java, intent).setup()
         val activity = controller.get()
 
-        assertNotNull(
-            "TextDisplaySettingsComposeActivity must set TextDisplaySettingsServiceImpl.imagePicker " +
-                "(the PickVisualMedia seam) in onCreate so importBackgroundImage() has a launcher to call.",
-            activity.serviceForTest.imagePicker,
+        assertFalse(
+            "Activity must not have finished/crashed while starting on the colors destination",
+            activity.isFinishing,
         )
     }
 }

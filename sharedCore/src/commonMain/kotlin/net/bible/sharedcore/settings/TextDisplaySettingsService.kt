@@ -99,7 +99,12 @@ interface TextDisplaySettingsService {
      *  MainBibleActivity COLORS_CHANGED: WINDOW → colours null (inherit); WORKSPACE/GLOBAL →
      *  TextDisplaySettings.default.colors (+ workspaceColor default at WORKSPACE). */
     fun resetColors(scope: SettingsScope)
-    /** Launches the host photo picker + copies/registers the SWORD module; null = cancelled/failed. */
-    suspend fun importBackgroundImage(): BackgroundImageOption?
+    /**
+     * Import a background image the user picks. The picker is a PARAMETER, not a settable property on
+     * this (Koin-singleton) service: two hosts — the settings activity and the reading view — each own
+     * their own ActivityResultLauncher, and a shared `var` would let whichever registered last silently
+     * clobber the other. Returns null when the user cancels.
+     */
+    suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption?
     fun deleteBackgroundImage(initials: String)
 }

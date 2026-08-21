@@ -26,8 +26,12 @@ class ColorSettingsControllerTest {
         override fun setWorkspaceColor(scope: SettingsScope, argb: Int) { calls += "setWorkspaceColor:$argb" }
         override fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?) { calls += "setBg:$night:$initials"; if (!night) dayImage = initials }
         override fun setBackgroundOpacity(scope: SettingsScope, night: Boolean, opacity: Int) { calls += "setOpacity:$night:$opacity" }
-        override suspend fun importBackgroundImage(): BackgroundImageOption? {
-            val opt = BackgroundImageOption("BGIMG_new", "new", "BGIMG_new"); options = options + opt; calls += "import"; return opt
+        override suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption? {
+            val uri = picker() ?: run { calls += "import:cancelled"; return null }
+            val opt = BackgroundImageOption("BGIMG_new", "new", "BGIMG_new")
+            options = options + opt
+            calls += "import:$uri"
+            return opt
         }
         override fun deleteBackgroundImage(initials: String) { calls += "delete:$initials"; options = options.filterNot { it.initials == initials } }
         override fun resetColors(scope: SettingsScope) { calls += "reset"; dayImage = null }
@@ -37,8 +41,11 @@ class ColorSettingsControllerTest {
     // schedules launch{} on the real Dispatchers.Default background pool — a genuine cross-thread
     // race against the assertions below) runs a non-suspending launch{} body eagerly on the calling
     // thread, same pattern as SyncSettingsControllerTest.
-    private fun controller(svc: RecordingService, scope: SettingsScope = SettingsScope.Workspace("ws")) =
-        ColorSettingsController(svc, scope, CoroutineScope(Dispatchers.Unconfined))
+    private fun controller(
+        svc: RecordingService,
+        scope: SettingsScope = SettingsScope.Workspace("ws"),
+        imagePicker: suspend () -> String? = { null },
+    ) = ColorSettingsController(svc, scope, CoroutineScope(Dispatchers.Unconfined), imagePicker)
 
     @Test fun seedsFromServiceLoads() {
         val svc = RecordingService()
@@ -76,10 +83,37 @@ class ColorSettingsControllerTest {
 
     @Test fun importAddsOptionAndClearsLoading() {
         val svc = RecordingService()
-        val c = controller(svc)
+        val c = controller(svc, imagePicker = { "content://picked" })
         c.onImportBackgroundImage()
-        assertTrue(svc.calls.contains("import"))
+        assertTrue(svc.calls.contains("import:content://picked"))
         assertEquals(2, c.state.value.backgroundOptions.size)
+        assertEquals(false, c.state.value.loading)
+    }
+
+    // The picker is a PARAMETER of ColorSettingsController now (T9), not a settable property on the
+    // service -- this is what makes "two hosts clobber each other's picker" structurally impossible.
+    @Test fun importPassesTheHostsPickerToTheService() {
+        val svc = RecordingService()
+        var pickerCalls = 0
+        val c = ColorSettingsController(
+            svc, SettingsScope.Workspace("ws"), CoroutineScope(Dispatchers.Unconfined),
+            imagePicker = { pickerCalls++; "content://picked" },
+        )
+        c.onImportBackgroundImage()
+        assertEquals(1, pickerCalls)
+        assertTrue(svc.calls.contains("import:content://picked"))
+        assertEquals(false, c.state.value.loading)
+    }
+
+    @Test fun importWithACancelledPickerChangesNothing() {
+        val svc = RecordingService()
+        val c = ColorSettingsController(
+            svc, SettingsScope.Workspace("ws"), CoroutineScope(Dispatchers.Unconfined),
+            imagePicker = { null },
+        )
+        val before = c.state.value.backgroundOptions
+        c.onImportBackgroundImage()
+        assertEquals(before, c.state.value.backgroundOptions)
         assertEquals(false, c.state.value.loading)
     }
 

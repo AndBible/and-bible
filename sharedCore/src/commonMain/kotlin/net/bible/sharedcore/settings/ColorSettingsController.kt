@@ -25,6 +25,7 @@ class ColorSettingsController(
     private val service: TextDisplaySettingsService,
     private val scope: SettingsScope,
     private val coroutineScope: CoroutineScope,
+    private val imagePicker: suspend () -> String?,
 ) {
     private val _state = MutableStateFlow(
         ColorSettingsUiState(colors = service.loadColors(scope), backgroundOptions = service.loadBackgroundOptions())
@@ -69,7 +70,7 @@ class ColorSettingsController(
     fun onImportBackgroundImage() {
         _state.value = _state.value.copy(loading = true)
         coroutineScope.launch {
-            service.importBackgroundImage()
+            service.importBackgroundImage(imagePicker)
             reload()
             _state.value = _state.value.copy(loading = false)
         }

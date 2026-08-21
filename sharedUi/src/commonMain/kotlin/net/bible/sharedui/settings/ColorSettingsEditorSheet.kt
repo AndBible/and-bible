@@ -34,6 +34,7 @@ import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.colorForPage
 import net.bible.sharedui.components.AbColorPickerContent
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbLoadingOverlay
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -159,6 +160,17 @@ fun ColorSettingsEditorSheet(
             is SettingsEditorPage.BackgroundImage ->
                 // 400.dp: same bound GenericSettingsEditorSheet's own list/grid pages use -- no
                 // reason for this grid to clip at a different height than the sheet's other lists.
+                //
+                // AbLoadingOverlay while state.loading, exactly like BackgroundImageChooserScreen's own
+                // Box(fillMaxSize) { content; if (loading) AbLoadingOverlay(...) } -- Task 8 deliberately
+                // left ColorSettingsUiState.loading unhandled here, deferring it to T9 (the task that
+                // owns the import path this state exists for). Reusing the SAME overlay + SAME
+                // chooserLabels.importing message (rather than inventing a second "sheet busy" mechanism)
+                // keeps the sheet and the full-screen chooser giving identical feedback for the identical
+                // async operation. It fits fine inside a bounded ancestor Box: AbLoadingOverlay's
+                // `fillMaxSize()` fills whatever finite constraints it's given, and this Box already
+                // supplies a bounded (max 400.dp) height via heightIn -- no ModalBottomSheet-specific
+                // accommodation was needed.
                 Box(Modifier.heightIn(max = 400.dp)) {
                     BackgroundImageChooserContent(
                         options = state.backgroundOptions,
@@ -169,6 +181,7 @@ fun ColorSettingsEditorSheet(
                         onImport = onImportBackgroundImage,
                         onRequestDelete = onRequestDeleteBackgroundImage,
                     )
+                    if (state.loading) AbLoadingOverlay(chooserLabels.importing)
                 }
             is SettingsEditorPage.Row -> Unit
         }
