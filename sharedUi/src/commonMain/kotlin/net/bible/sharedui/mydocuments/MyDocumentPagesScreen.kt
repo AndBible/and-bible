@@ -16,23 +16,27 @@
  */
 package net.bible.sharedui.mydocuments
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
-import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,18 +53,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.mydocuments.ContentType
 import net.bible.sharedcore.mydocuments.MyDocPageItem
+import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbCreateItemSheet
 import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbMenuItem
-import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbReorderableColumn
-import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbSearchImeRequest
+import net.bible.sharedui.components.AbSelectionScaffold
 import net.bible.sharedui.components.AbTextInputDialog
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
 
 /**
  * Stateless page editor for one document. Sibling of [MyDocumentsScreen] minus the description; rows
- * carry a name + content-type subtitle, and the create-page dialog carries a content-type dropdown.
+ * carry a name + content-type subtitle, and the create-page sheet carries a content-type dropdown.
  * All persistence is hoisted (the host wires [net.bible.sharedcore.mydocuments.MyDocumentPagesController]
  * to these callbacks); only which dialog is open and its content-type buffer are local UI state.
  */
@@ -69,6 +77,16 @@ fun MyDocumentPagesScreen(
     title: String,
     pages: List<MyDocPageItem>,
     dirty: Boolean,
+    // Defaulted (rather than required) so the not-yet-updated host call site (wired in Task 12)
+    // keeps compiling unchanged: no search ever active, totalCount tracking the full list, exactly
+    // today's behaviour.
+    query: String = "",
+    filtering: Boolean = false,
+    searchModeActive: Boolean = false,
+    totalCount: Int = pages.size,
+    onOpenSearch: () -> Unit = {},
+    onCloseSearch: () -> Unit = {},
+    onQueryChange: (String) -> Unit = {},
     onMove: (from: Int, to: Int) -> Unit,
     onOpen: (id: Long) -> Unit,
     onRename: (id: Long, name: String) -> Unit,
@@ -79,30 +97,51 @@ fun MyDocumentPagesScreen(
     onSave: () -> Unit,
     onCancel: () -> Unit,
     onNavigateUp: () -> Unit,
+    // Selection mode (long-press to enter), driven by hoisted host state. TEMPORARY defaults so the
+    // not-yet-updated host call site (wired in Task 12) keeps compiling unchanged: no row ever selected.
+    selection: Set<Long> = emptySet(),
+    onToggleSelected: (Long) -> Unit = {},
+    onClearSelection: () -> Unit = {},
+    onDeleteSelected: () -> Unit = {},
+    onExportSelected: () -> Unit = {},
 ) {
     val s = LocalStrings.current
     var createOpen by remember { mutableStateOf(false) }
     var createType by remember { mutableStateOf(ContentType.MARKDOWN) }
     var renameFor by remember { mutableStateOf<MyDocPageItem?>(null) }
     var deleteFor by remember { mutableStateOf<MyDocPageItem?>(null) }
+    val selectionMode = selection.isNotEmpty()
+    var confirmBatchDelete by remember { mutableStateOf(false) }
 
-    AbScaffold(
+    AbSelectionScaffold(
         title = title,
+        selectionMode = selectionMode,
+        selectedCount = selection.size,
         onNavigateUp = onNavigateUp,
+        onExitSelection = onClearSelection,
         actions = {
-            AbOverflowMenu(contentDescription = null) { close ->
-                AbMenuItem(
-                    text = s.newPageTitle,
-                    onClick = { close(); createType = ContentType.MARKDOWN; createOpen = true },
-                    icon = { Icon(Icons.Filled.AddCircleOutline, contentDescription = null) },
-                )
-                AbMenuItem(
-                    text = s.importPage,
-                    onClick = { close(); onImport() },
-                    icon = { Icon(Icons.Filled.FileDownload, contentDescription = null) },
-                )
+            if (!searchModeActive) {
+                AbActionIcon(Icons.Filled.Search, s.search, onOpenSearch)
+                AbActionIcon(Icons.Filled.AddCircleOutline, s.newPageTitle) {
+                    createType = ContentType.MARKDOWN
+                    createOpen = true
+                }
             }
         },
+        selectionActions = {
+            AbActionIcon(Icons.Filled.FileUpload, s.export, onExportSelected)
+            AbActionIcon(Icons.Filled.Delete, s.deleteLabel) { confirmBatchDelete = true }
+        },
+        search = if (searchModeActive) {
+            AbTopBarSearchState(query = query, imeRequest = AbSearchImeRequest.Focus)
+        } else null,
+        searchCallbacks = if (searchModeActive) {
+            AbTopBarSearchCallbacks(
+                onQueryChange = onQueryChange,
+                onClose = onCloseSearch,
+                onImeRequestHandled = {},
+            )
+        } else null,
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -115,13 +154,28 @@ fun MyDocumentPagesScreen(
                 } else {
                     AbReorderableColumn(items = pages, key = { it.id }, onMove = onMove) { item, handle ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().clickable { onOpen(item.id) }.padding(vertical = 4.dp),
+                            modifier = Modifier.fillMaxWidth()
+                                .combinedClickable(
+                                    onClick = {
+                                        if (selectionMode) onToggleSelected(item.id) else onOpen(item.id)
+                                    },
+                                    onLongClick = { onToggleSelected(item.id) },
+                                )
+                                .padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(
-                                Icons.Filled.DragHandle, contentDescription = null,
-                                modifier = handle.padding(horizontal = 12.dp),
-                            )
+                            when {
+                                selectionMode -> Checkbox(
+                                    checked = item.id in selection,
+                                    onCheckedChange = { onToggleSelected(item.id) },
+                                    modifier = Modifier.padding(horizontal = 4.dp),
+                                )
+                                !filtering -> Icon(
+                                    Icons.Filled.DragHandle, contentDescription = null,
+                                    modifier = handle.padding(horizontal = 12.dp),
+                                )
+                                else -> Spacer(Modifier.size(48.dp))
+                            }
                             if (item.isAiGenerated) {
                                 Icon(
                                     Icons.Filled.AutoAwesome, contentDescription = null,
@@ -136,11 +190,13 @@ fun MyDocumentPagesScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
-                            PageOverflow(
-                                onRename = { renameFor = item },
-                                onExport = { onExport(item.id) },
-                                onDelete = { deleteFor = item },
-                            )
+                            if (!selectionMode) {
+                                PageOverflow(
+                                    onRename = { renameFor = item },
+                                    onExport = { onExport(item.id) },
+                                    onDelete = { deleteFor = item },
+                                )
+                            }
                         }
                     }
                 }
@@ -153,10 +209,13 @@ fun MyDocumentPagesScreen(
     }
 
     if (createOpen) {
-        AbTextInputDialog(
-            title = s.newPageTitle, initial = s.newPageName(pages.size + 1),
-            confirmText = s.okay, dismissText = s.cancel,
-            onConfirm = { createOpen = false; if (it.isNotBlank()) onCreate(it.trim(), createType) },
+        AbCreateItemSheet(
+            title = s.newPageTitle,
+            initialName = s.newPageName(totalCount + 1),
+            confirmText = s.okay,
+            importText = s.importPage,
+            onCreate = { createOpen = false; if (it.isNotBlank()) onCreate(it.trim(), createType) },
+            onImport = { createOpen = false; onImport() },
             onDismiss = { createOpen = false },
             extraContent = {
                 AbDropdownField(
@@ -179,6 +238,14 @@ fun MyDocumentPagesScreen(
             title = null, message = s.deletePageConfirmation(item.name),
             confirmText = s.yes, dismissText = s.no,
             onConfirm = { deleteFor = null; onDelete(item.id) }, onDismiss = { deleteFor = null },
+        )
+    }
+    if (confirmBatchDelete) {
+        AbConfirmDialog(
+            title = null, message = s.deletePagesConfirmation,
+            confirmText = s.yes, dismissText = s.no,
+            onConfirm = { confirmBatchDelete = false; onDeleteSelected() },
+            onDismiss = { confirmBatchDelete = false },
         )
     }
 }
