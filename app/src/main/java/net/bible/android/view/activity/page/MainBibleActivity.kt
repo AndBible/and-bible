@@ -60,6 +60,8 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
@@ -78,11 +80,13 @@ import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.android.common.toV11n
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
@@ -248,6 +252,31 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * Lets [DocumentViewManager.buildView] mirror classic's forced recreate (see its kdoc). */
     var composeReadingViewHost: ComposeReadingViewHost? = null
     private lateinit var mainMenuCommandHandler: MenuCommandHandler
+
+    // Registered eagerly (constructor-time property, mirroring TextDisplaySettingsComposeActivity's
+    // own photoPicker/pendingPick) so it's ready well before RESUMED, whichever reading-view sheet
+    // is showing — Settings editor sheets T10, the reading view's in-place text-settings editor.
+    private var pendingBackgroundImagePick: CancellableContinuation<String?>? = null
+    private val backgroundImagePicker =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            pendingBackgroundImagePick?.resume(uri?.toString())
+            pendingBackgroundImagePick = null
+        }
+
+    /** This Activity's own image picker for the in-place colours editor
+     * ([composeReadingViewHost]'s [net.bible.sharedcore.settings.ColorSettingsController]). Each
+     * host owns its own -- the service takes it as a PARAMETER precisely so two hosts cannot
+     * clobber one another; see [net.bible.sharedcore.settings.TextDisplaySettingsService
+     * .importBackgroundImage]'s kdoc for why that matters, and
+     * [net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity]'s own
+     * `imagePicker` for the twin of this property. */
+    internal val textSettingsImagePicker: suspend () -> String? = {
+        suspendCancellableCoroutine { cont ->
+            pendingBackgroundImagePick = cont
+            backgroundImagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            cont.invokeOnCancellation { pendingBackgroundImagePick = null }
+        }
+    }
 
     val llmDialogHelper = LlmDialogHelper(this)
 

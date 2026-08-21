@@ -188,16 +188,23 @@ fun SheetPageSwitchConfirmRow(
  * vanished — the same discipline the three dialogs had, now expressed through
  * [SettingsEditorStack.closeIf].
  *
- * `internal`, not `private`: [AbSettingsScreen] is not [AbSettingsContent]'s only direct caller —
+ * Public, not `internal`: [AbSettingsScreen] is not [AbSettingsContent]'s only caller —
  * [net.bible.sharedui.settings.SyncSettingsScreen] and [net.bible.sharedui.ai.PromptEditScreen]'s
  * Advanced tab also render it standalone (a host with its own top bar, per [AbSettingsContent]'s
- * kdoc), so they reuse this composable rather than duplicating its `when` block. Kotlin `internal`
- * is module-scoped, which covers both — they live in `:sharedUi` alongside this file. Lives here,
- * not in `AbSettingsScreen.kt`, for the same module-shared-infrastructure reason as
+ * kdoc), so they reuse this composable rather than duplicating its `when` block. It was `internal`
+ * (module-scoped) until Settings editor sheets T10, when a SECOND module started rendering it:
+ * [net.bible.android.view.activity.page.screen.ComposeReadingViewHost]'s reading-view in-place
+ * editor, in `:app`, needed the SAME list-choice/text-input/multi-select page bodies for the four
+ * text-display-settings `ListChoiceRow` types (FONTFAMILY/STRONGS/PAGE_SCROLL_AMOUNT/
+ * SCROLL_HELPER_LINE_STYLE) that `AbSettingsContent` itself never routes through the editor stack
+ * for the settings screen — see [net.bible.sharedcore.settings.textSettingEditorPageFor]. Widening
+ * the visibility was the ruled-out alternative to duplicating this `when` block a third time (which
+ * this project's review rubric treats as a defect, and the copies would drift). Lives here, not in
+ * `AbSettingsScreen.kt`, for the same module-shared-infrastructure reason as
  * [SettingsEditorSheet]/[SheetConfirmRow] above.
  */
 @Composable
-internal fun GenericSettingsEditorSheet(
+fun GenericSettingsEditorSheet(
     state: SettingsScreenState,
     editor: SettingsEditorStack,
     page: SettingsEditorPage?,

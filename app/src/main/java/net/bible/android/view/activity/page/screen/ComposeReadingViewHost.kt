@@ -117,6 +117,11 @@ import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
 import net.bible.android.view.activity.search.epubSearchRunFor
 import net.bible.android.view.activity.search.toClassicSearchTypeName
+import net.bible.android.view.activity.settings.BackgroundThumbnailResolver
+import net.bible.android.view.activity.settings.buildBackgroundImageChooserLabels
+import net.bible.android.view.activity.settings.buildColorSettingsLabels
+import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
+import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.FakeBookFactory
@@ -166,6 +171,14 @@ import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
 import net.bible.sharedcore.search.searchTranslationIds
+import net.bible.sharedcore.settings.ColorSettingsController
+import net.bible.sharedcore.settings.SettingsEditorPage
+import net.bible.sharedcore.settings.SettingsEditorStack
+import net.bible.sharedcore.settings.SettingsScope
+import net.bible.sharedcore.settings.SettingsScreenState
+import net.bible.sharedcore.settings.TextDisplaySettingsController
+import net.bible.sharedcore.settings.TextDisplaySettingsService
+import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.sharedcore.speak.SpeakTransportController
 import net.bible.sharedcore.speak.SpeakTransportDialog
@@ -204,6 +217,9 @@ import net.bible.sharedui.search.SearchSettingsSheet
 import net.bible.sharedui.search.SearchSheetContent
 import net.bible.sharedui.search.bibleResultRows
 import net.bible.sharedui.search.epubResultRows
+import net.bible.sharedui.settings.ColorSettingsEditorSheet
+import net.bible.sharedui.settings.GenericSettingsEditorSheet
+import net.bible.sharedui.settings.TextSettingRowEditorSheet
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.textOptionDrawableRes
@@ -504,6 +520,170 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     internal val searchSection = mutableStateOf(SearchBibleSection.ALL)
     private val searchTranslations = mutableStateOf<List<String>>(emptyList())
     private val searchAvailableTranslations = mutableStateOf<List<Pair<String, String>>>(emptyList())
+
+    // ------------------------------------------------------------------------------------------
+    // Settings editor sheets T10 — the reading view's in-place text-settings editor, opened over
+    // the reading view instead of launching TextDisplaySettingsComposeActivity (which pushed two
+    // destinations the user had to back out of separately). Wired to a menu in a later task; this
+    // task only builds the callable, tested surface.
+    // ------------------------------------------------------------------------------------------
+
+    private val textDisplaySettingsService: TextDisplaySettingsService by inject()
+
+    /** The in-place text-settings editor's page stack — the reading view's own instance,
+     *  independent of the settings activity's [SettingsEditorStack]. */
+    internal val textSettingsEditor = SettingsEditorStack()
+
+    /** The scope the open editor edits, and what to run after a change lands. Set by
+     *  [showTextSettingEditor]; the callback is the caller's own `onReady`, so a future workspace-
+     *  menu dispatch site can refresh every window while a pane-menu one refreshes just its own. */
+    private var textSettingsScope: SettingsScope? = null
+    private var textSettingsOnReady: () -> Unit = {}
+
+    /** One [TextDisplaySettingsController] per visited [SettingsScope] — cached like
+     *  `TextDisplaySettingsComposeActivity.controllerCache`, for the same reason: a `collectAsState`
+     *  subscriber must not lose its subscription across recompositions. */
+    private val textSettingsControllers = mutableMapOf<SettingsScope, TextDisplaySettingsController>()
+
+    private val textSettingsLabels by lazy { buildTextDisplayControllerLabels(activity) }
+    private val textSettingsScreenLabels by lazy { buildTextDisplayScreenLabels(activity) }
+    private val colorSettingsLabels by lazy { buildColorSettingsLabels(activity) }
+    private val backgroundChooserLabels by lazy { buildBackgroundImageChooserLabels(activity) }
+    private val backgroundThumbnailResolver = BackgroundThumbnailResolver()
+
+    /**
+     * Open the in-place editor for one text display setting, over the reading view. Meant to be
+     * called from `MainBibleActivity`'s two menu dispatch sites instead of `Preference.openDialog`
+     * (a later task), so the user never leaves the reading view and back has nowhere to land but
+     * here — the defect this whole feature exists to fix dies by construction rather than being
+     * worked around.
+     */
+    internal fun showTextSettingEditor(
+        scope: SettingsScope,
+        page: SettingsEditorPage,
+        onReady: () -> Unit,
+    ) {
+        textSettingsScope = scope
+        textSettingsOnReady = onReady
+        textSettingsEditor.open(page)
+    }
+
+    private fun textSettingsControllerFor(scope: SettingsScope): TextDisplaySettingsController =
+        textSettingsControllers.getOrPut(scope) {
+            TextDisplaySettingsController(
+                service = textDisplaySettingsService,
+                settingsScope = scope,
+                labels = textSettingsLabels,
+                // The in-place editor never navigates: every navigating key (the two drill-up
+                // links, COLORS, BOOKMARKS_HIDELABELS) is filtered out by textSettingEditorPageFor
+                // before showTextSettingEditor is ever reached with this scope's controller.
+                onNavigateCallback = { },
+            )
+        }
+
+    /** NOT cached across editor opens, for the exact reason
+     *  `TextDisplaySettingsComposeActivity.colorControllerFor`'s kdoc gives: its state is loaded
+     *  once in the constructor, and a whole-scope reset elsewhere (this controller's own `onReset`)
+     *  can change colours behind an idle instance — a cached, stale instance would then reopen
+     *  showing pre-reset values. */
+    private fun colorControllerFor(scope: SettingsScope): ColorSettingsController =
+        ColorSettingsController(
+            service = textDisplaySettingsService,
+            scope = scope,
+            coroutineScope = hostScope,
+            imagePicker = activity.textSettingsImagePicker,
+        )
+
+    /**
+     * Which of the eight [SettingsEditorPage.Row] keys [net.bible.sharedcore.settings
+     * .textSettingEditorPageFor] can hand back are rendered as a [GenericSettingsEditorSheet]
+     * list-choice page rather than a [TextSettingRowEditorSheet] numeric/margin page — mirrors
+     * `TextDisplaySettingsScreen`'s `SHEET_EDITED_TEXT_SETTING_KEYS` split, inverted: that screen's
+     * own [AbSettingsContent] (via `AbListChoiceDialog`) renders these four inline and never routes
+     * them through its editor stack at all, but this host has no such native list-choice dialog of
+     * its own, so it must render the same page body [GenericSettingsEditorSheet] does.
+     */
+    private val listChoiceTextSettingKeys = setOf(
+        TextSettingType.FONTFAMILY.name,
+        TextSettingType.STRONGS.name,
+        TextSettingType.PAGE_SCROLL_AMOUNT.name,
+        TextSettingType.SCROLL_HELPER_LINE_STYLE.name,
+    )
+
+    /** The in-place text-settings editor sheet — mounted as the FIFTH sibling overlay next to
+     *  [SearchSettingsSlot] (see its own mounting comment at the `mountComposeView` call site).
+     *  Self-hides via [SettingsEditorSheet]/[TextSettingRowEditorSheet]/[ColorSettingsEditorSheet]'s
+     *  own null/empty-pages early-return, so a host can render this unconditionally. */
+    @Composable
+    private fun TextSettingsEditorSlot() {
+        val pages by textSettingsEditor.pages.collectAsState()
+        val page = pages.lastOrNull() ?: return
+        val scope = textSettingsScope ?: return
+        val controller = remember(scope) { textSettingsControllerFor(scope) }
+        val state by controller.state.collectAsState()
+
+        when (page) {
+            is SettingsEditorPage.Row -> {
+                if (page.key in listChoiceTextSettingKeys) {
+                    GenericSettingsEditorSheet(
+                        state = SettingsScreenState(title = state.title, items = state.items),
+                        editor = textSettingsEditor,
+                        page = page,
+                        depth = pages.size,
+                        onListChoice = { key, v -> controller.onListChoice(key, v); textSettingsOnReady() },
+                        // Neither TextInputRow nor MultiSelectRow ever occurs among text-display
+                        // settings (see TextDisplaySettingsController.buildRow's when), so these
+                        // two are unreachable here — kept as harmless no-ops rather than throwing,
+                        // matching GenericSettingsEditorSheet's own "safe no-op" discipline for a
+                        // SettingsItem shape RenderSettingsItem never produces for this row kind.
+                        onTextInput = { _, _ -> },
+                        onMultiSelectChange = { _, _ -> },
+                    )
+                } else {
+                    TextSettingRowEditorSheet(
+                        pages = pages,
+                        rows = state.rows,
+                        dialogLabels = textSettingsScreenLabels,
+                        onNumericChange = { key, v -> controller.onNumericChange(key, v); textSettingsOnReady() },
+                        onMarginsChange = { key, l, r, m ->
+                            controller.onMarginsChange(key, l, r, m); textSettingsOnReady()
+                        },
+                        onRevert = { key -> controller.onRevert(key); textSettingsOnReady() },
+                        onPop = { textSettingsEditor.pop() },
+                        onClose = { textSettingsEditor.close() },
+                    )
+                }
+            }
+            is SettingsEditorPage.Colors,
+            is SettingsEditorPage.ColorPick,
+            is SettingsEditorPage.BackgroundImage -> {
+                val colorController = remember(scope) { colorControllerFor(scope) }
+                val colorState by colorController.state.collectAsState()
+                ColorSettingsEditorSheet(
+                    pages = pages,
+                    state = colorState,
+                    labels = colorSettingsLabels,
+                    chooserLabels = backgroundChooserLabels,
+                    thumbnailFor = backgroundThumbnailResolver::resolve,
+                    importVisible = true,
+                    onColorChange = { f, c -> colorController.onColorChange(f, c); textSettingsOnReady() },
+                    onWorkspaceColorChange = { c -> colorController.onWorkspaceColorChange(c); textSettingsOnReady() },
+                    onNoiseChange = { n, v -> colorController.onNoiseChange(n, v); textSettingsOnReady() },
+                    onOpacityChange = { n, v -> colorController.onOpacityChange(n, v); textSettingsOnReady() },
+                    onSelectBackgroundImage = { n, i ->
+                        colorController.onSelectBackgroundImage(n, i); textSettingsOnReady()
+                    },
+                    onImportBackgroundImage = colorController::onImportBackgroundImage,
+                    onRequestDeleteBackgroundImage = colorController::onRequestDeleteBackgroundImage,
+                    onConfirmDeleteBackgroundImage = colorController::onConfirmDeleteBackgroundImage,
+                    onDismissDeleteConfirm = colorController::onDismissDeleteConfirm,
+                    onPush = { textSettingsEditor.push(it) },
+                    onPop = { textSettingsEditor.pop() },
+                    onClose = { textSettingsEditor.close() },
+                )
+            }
+        }
+    }
 
     /**
      * Whether the modal search-settings sheet (the toolbar's ⚙/Tune affordance) is open.
@@ -1855,6 +2035,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onSearchSheetDismissed = { searchController.closeSheet() },
             searchSheetSlot = { SearchSheetSlot() },
             searchSettingsSlot = { SearchSettingsSlot() },
+            // Settings editor sheets T10: the reading view's in-place text-settings editor.
+            textSettingsEditorSlot = { TextSettingsEditorSlot() },
             // Task 8b Step 3: feeds MainBibleActivity.bottomOffsetForWebView's fourth term.
             onSearchSheetOffsetsChanged = { visible, heightPx -> activity.updateSearchSheetOffsets(visible, heightPx) },
             // Task 10: the "<document> cannot be searched" snackbar.
@@ -2565,6 +2747,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // composed as a sibling overlay like the dialogs.
             searchSheetSlot: @Composable () -> Unit = { },
             searchSettingsSlot: @Composable () -> Unit = { },
+            // Settings editor sheets T10: the reading view's in-place text-settings editor, a fifth
+            // sibling overlay next to `searchSettingsSlot` above (see its mounting call site below
+            // for why). Defaulted to a no-op so every existing `mountComposeView` caller/test keeps
+            // compiling unchanged.
+            textSettingsEditorSlot: @Composable () -> Unit = { },
             // Task 8b Step 3: reports the search sheet's live (visible, measured-height-in-px) pair
             // so [ComposeReadingViewHost.install] can feed `MainBibleActivity.bottomOffsetForWebView`
             // — see [MainBibleActivity.updateSearchSheetOffsets]'s kdoc for why the height must be
@@ -2996,6 +3183,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             // closed (`SearchSettingsSheet` returns early), so this stays
                             // unconditional here.
                             searchSettingsSlot()
+                            // Settings editor sheets T10: the in-place text-settings editor sheet —
+                            // a fifth sibling overlay, for the same reason as the four above: a
+                            // `ModalBottomSheet` renders in its own window regardless of where it is
+                            // composed, so opening it can never re-key the pane subtree and destroy
+                            // the panes' BibleView WebViews. It self-hides when closed, so this
+                            // stays unconditional here too.
+                            textSettingsEditorSlot()
                     }
                 }
             }
