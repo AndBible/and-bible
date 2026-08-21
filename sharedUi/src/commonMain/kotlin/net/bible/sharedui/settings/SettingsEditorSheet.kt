@@ -154,6 +154,35 @@ fun SheetResetConfirmRow(
 }
 
 /**
+ * A sheet page's page-switch/cancel/confirm triple — shaped exactly like [SheetResetConfirmRow] but
+ * for a page that toggles between two BODIES of the same page (e.g. the colour picker's presets/
+ * custom pages) rather than resetting a value to its inherited default. Kept as its own function
+ * rather than reusing [SheetResetConfirmRow]'s `onReset` slot for this: that slot's name would then
+ * lie about what the button does (it does not reset anything), and this branch has already paid
+ * for a misleading name twice. [switchLabel] re-labels itself to the page it would switch TO,
+ * mirroring [AbColorPickerDialog]'s neutral button.
+ */
+@Composable
+fun SheetPageSwitchConfirmRow(
+    switchLabel: String,
+    confirmLabel: String,
+    cancelLabel: String,
+    onSwitchPage: () -> Unit,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        TextButton(onClick = onSwitchPage) { Text(switchLabel) }
+        Spacer(Modifier.weight(1f))
+        TextButton(onClick = onCancel) { Text(cancelLabel) }
+        TextButton(onClick = onConfirm) { Text(confirmLabel) }
+    }
+}
+
+/**
  * The generic settings editor sheet: the three item kinds `AbSettingsContent` used to open dialogs
  * for. Re-resolves the row from [state] on every recomposition and closes the sheet if the key has
  * vanished — the same discipline the three dialogs had, now expressed through

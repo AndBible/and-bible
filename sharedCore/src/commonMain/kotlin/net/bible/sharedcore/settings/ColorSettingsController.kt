@@ -38,8 +38,11 @@ class ColorSettingsController(
         )
     }
 
+    /** [ColorField.WORKSPACE] has no `Colors` field of its own to write — it is routed to
+     *  [TextDisplaySettingsService.setWorkspaceColor] instead of [TextDisplaySettingsService.setColor],
+     *  same as the pre-sheet workspace swatch's separate dialog/callback always did. */
     fun onColorChange(field: ColorField, argb: Int) {
-        service.setColor(scope, field, argb)
+        if (field == ColorField.WORKSPACE) service.setWorkspaceColor(scope, argb) else service.setColor(scope, field, argb)
         reload()
     }
 

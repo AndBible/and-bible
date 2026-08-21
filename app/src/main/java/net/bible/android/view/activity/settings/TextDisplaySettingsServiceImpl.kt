@@ -323,12 +323,18 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
         }
     }
 
+    // ColorField.WORKSPACE has no Colors field of its own -- ColorSettingsController.onColorChange
+    // intercepts it and calls setWorkspaceColor directly, so this branch is unreachable in practice.
+    // It performs the identical write (setWorkspaceColor is also just `it.workspaceColor = argb`
+    // inside editColors) rather than throwing, so the enum stays total: a future caller that reaches
+    // setColor with WORKSPACE some other way gets the correct write, not a crash.
     override fun setColor(scope: SettingsScope, field: ColorField, argb: Int) = editColors(scope) {
         when (field) {
             ColorField.DAY_TEXT -> it.dayTextColor = argb
             ColorField.DAY_BACKGROUND -> it.dayBackground = argb
             ColorField.NIGHT_TEXT -> it.nightTextColor = argb
             ColorField.NIGHT_BACKGROUND -> it.nightBackground = argb
+            ColorField.WORKSPACE -> it.workspaceColor = argb
         }
     }
 

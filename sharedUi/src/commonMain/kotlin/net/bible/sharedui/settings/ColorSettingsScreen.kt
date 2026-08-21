@@ -48,12 +48,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.ColorField
 import net.bible.sharedcore.settings.ColorSettingsUiState
-import net.bible.sharedcore.settings.ColorsSnapshot
+import net.bible.sharedcore.settings.colorFor
 import net.bible.sharedui.components.AbColor
 import net.bible.sharedui.components.AbColorPickerDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSliderRow
-import net.bible.sharedui.strings.LocalStrings
 
 /**
  * Stateless port of the classic colours editor (`ColorSettingsFragment`/`colors_settings.xml`):
@@ -82,7 +81,6 @@ fun ColorSettingsScreen(
     onOpacityChange: (night: Boolean, value: Int) -> Unit,
     onChangeBackgroundImage: (night: Boolean) -> Unit,
 ) {
-    val strings = LocalStrings.current
     val colors = state.colors
     var colorFieldDialog by remember { mutableStateOf<ColorField?>(null) }
     var workspaceDialogOpen by remember { mutableStateOf(false) }
@@ -96,55 +94,16 @@ fun ColorSettingsScreen(
             }
         },
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
-        ) {
-            if (colors.workspaceColorVisible) {
-                ColorSwatchRow(
-                    label = labels.workspaceColor,
-                    color = colors.workspaceColor,
-                    onClick = { workspaceDialogOpen = true },
-                )
-            }
-
-            SectionTitle(labels.dayMode)
-            ColorModeSection(
-                labels = labels,
-                textColor = colors.dayTextColor,
-                backgroundColor = colors.dayBackground,
-                noise = colors.dayNoise,
-                backgroundImageLabel = labels.backgroundImageDay,
-                backgroundImageName = colors.dayBackgroundImageName,
-                opacityLabel = labels.opacityDay,
-                opacity = colors.dayBackgroundImageOpacity,
-                onTextColorClick = { colorFieldDialog = ColorField.DAY_TEXT },
-                onBackgroundColorClick = { colorFieldDialog = ColorField.DAY_BACKGROUND },
-                onNoiseChange = { onNoiseChange(false, it) },
-                onOpacityChange = { onOpacityChange(false, it) },
-                onChangeBackgroundImage = { onChangeBackgroundImage(false) },
-            )
-
-            SectionTitle(labels.nightMode)
-            ColorModeSection(
-                labels = labels,
-                textColor = colors.nightTextColor,
-                backgroundColor = colors.nightBackground,
-                noise = colors.nightNoise,
-                backgroundImageLabel = labels.backgroundImageNight,
-                backgroundImageName = colors.nightBackgroundImageName,
-                opacityLabel = labels.opacityNight,
-                opacity = colors.nightBackgroundImageOpacity,
-                onTextColorClick = { colorFieldDialog = ColorField.NIGHT_TEXT },
-                onBackgroundColorClick = { colorFieldDialog = ColorField.NIGHT_BACKGROUND },
-                onNoiseChange = { onNoiseChange(true, it) },
-                onOpacityChange = { onOpacityChange(true, it) },
-                onChangeBackgroundImage = { onChangeBackgroundImage(true) },
-            )
-        }
+        ColorSettingsContent(
+            state = state,
+            labels = labels,
+            onColorFieldClick = { colorFieldDialog = it },
+            onWorkspaceColorClick = { workspaceDialogOpen = true },
+            onNoiseChange = onNoiseChange,
+            onOpacityChange = onOpacityChange,
+            onChangeBackgroundImage = onChangeBackgroundImage,
+            modifier = Modifier.padding(padding),
+        )
     }
 
     val field = colorFieldDialog
@@ -165,6 +124,81 @@ fun ColorSettingsScreen(
             initialColor = colors.workspaceColor,
             onConfirm = { onWorkspaceColorChange(it); workspaceDialogOpen = false },
             onDismiss = { workspaceDialogOpen = false },
+        )
+    }
+}
+
+/**
+ * The colours form's body: the workspace-colour row plus the day and night sections. Everything
+ * [ColorSettingsScreen] renders inside its `AbScaffold`, with no scaffold of its own — extracted
+ * (T8) so [ColorSettingsEditorSheet] can render the identical body as a sheet page. The two swatch
+ * dialogs stay with the full-screen host ([ColorSettingsScreen]'s own `AbColorPickerDialog`s); this
+ * content only ever asks for one via [onColorFieldClick]/[onWorkspaceColorClick] — never opens a
+ * dialog itself, so a sheet host can push a page instead.
+ *
+ * [modifier] is applied OUTSIDE this Column's own `verticalScroll` (it wraps the whole `Column`,
+ * before the scroll modifier in the chain) precisely so a caller CANNOT use it to bound the
+ * viewport height — see [ColorSettingsEditorSheet]'s ancestor-`Box` treatment for how a sheet host
+ * actually does that instead.
+ */
+@Composable
+fun ColorSettingsContent(
+    state: ColorSettingsUiState,
+    labels: ColorSettingsLabels,
+    onColorFieldClick: (ColorField) -> Unit,
+    onWorkspaceColorClick: () -> Unit,
+    onNoiseChange: (night: Boolean, value: Int) -> Unit,
+    onOpacityChange: (night: Boolean, value: Int) -> Unit,
+    onChangeBackgroundImage: (night: Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = state.colors
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp),
+    ) {
+        if (colors.workspaceColorVisible) {
+            ColorSwatchRow(
+                label = labels.workspaceColor,
+                color = colors.workspaceColor,
+                onClick = onWorkspaceColorClick,
+            )
+        }
+
+        SectionTitle(labels.dayMode)
+        ColorModeSection(
+            labels = labels,
+            textColor = colors.dayTextColor,
+            backgroundColor = colors.dayBackground,
+            noise = colors.dayNoise,
+            backgroundImageLabel = labels.backgroundImageDay,
+            backgroundImageName = colors.dayBackgroundImageName,
+            opacityLabel = labels.opacityDay,
+            opacity = colors.dayBackgroundImageOpacity,
+            onTextColorClick = { onColorFieldClick(ColorField.DAY_TEXT) },
+            onBackgroundColorClick = { onColorFieldClick(ColorField.DAY_BACKGROUND) },
+            onNoiseChange = { onNoiseChange(false, it) },
+            onOpacityChange = { onOpacityChange(false, it) },
+            onChangeBackgroundImage = { onChangeBackgroundImage(false) },
+        )
+
+        SectionTitle(labels.nightMode)
+        ColorModeSection(
+            labels = labels,
+            textColor = colors.nightTextColor,
+            backgroundColor = colors.nightBackground,
+            noise = colors.nightNoise,
+            backgroundImageLabel = labels.backgroundImageNight,
+            backgroundImageName = colors.nightBackgroundImageName,
+            opacityLabel = labels.opacityNight,
+            opacity = colors.nightBackgroundImageOpacity,
+            onTextColorClick = { onColorFieldClick(ColorField.NIGHT_TEXT) },
+            onBackgroundColorClick = { onColorFieldClick(ColorField.NIGHT_BACKGROUND) },
+            onNoiseChange = { onNoiseChange(true, it) },
+            onOpacityChange = { onOpacityChange(true, it) },
+            onChangeBackgroundImage = { onChangeBackgroundImage(true) },
         )
     }
 }
@@ -259,12 +293,4 @@ private fun SectionTitle(title: String) {
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
     )
-}
-
-/** Picks the ARGB value out of [ColorsSnapshot] that [field] addresses. */
-private fun ColorsSnapshot.colorFor(field: ColorField): Int = when (field) {
-    ColorField.DAY_TEXT -> dayTextColor
-    ColorField.DAY_BACKGROUND -> dayBackground
-    ColorField.NIGHT_TEXT -> nightTextColor
-    ColorField.NIGHT_BACKGROUND -> nightBackground
 }

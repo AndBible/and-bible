@@ -57,6 +57,15 @@ class ColorSettingsControllerTest {
         assertEquals(listOf("setColor:DAY_TEXT:5", "setNoise:true:30", "setWorkspaceColor:9", "setOpacity:false:70"), svc.calls)
     }
 
+    // A ColorPick page addressing the workspace swatch (SettingsEditorPage.ColorPick(ColorField.WORKSPACE))
+    // must land on setWorkspaceColor, not setColor -- ColorField.WORKSPACE has no `Colors` field.
+    @Test fun workspaceFieldRoutesToSetWorkspaceColor() {
+        val svc = RecordingService()
+        val c = controller(svc)
+        c.onColorChange(ColorField.WORKSPACE, 7)
+        assertEquals(listOf("setWorkspaceColor:7"), svc.calls)
+    }
+
     @Test fun selectBackgroundImageAppliesAndReflectsInState() {
         val svc = RecordingService()
         val c = controller(svc)

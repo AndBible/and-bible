@@ -75,35 +75,17 @@ fun BackgroundImageChooserScreen(
 ) {
     AbScaffold(title = labels.title, onNavigateUp = onUp) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
-            Column(Modifier.fillMaxSize()) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(8.dp),
-                ) {
-                    item { FixedTile(text = labels.none, onClick = { onSelect(null) }) }
-                    item { FixedTile(text = labels.import, onClick = onImport) }
-                    items(options, key = { it.initials }) { option ->
-                        BackgroundImageTile(
-                            option = option,
-                            thumbnail = thumbnailFor(option.thumbnailToken),
-                            onClick = { onSelect(option.initials) },
-                            onLongClick = { onRequestDelete(option) },
-                        )
-                    }
-                    if (options.isEmpty()) {
-                        item(span = { GridItemSpan(maxLineSpan) }) {
-                            Text(
-                                text = labels.empty,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            )
-                        }
-                    }
-                }
-            }
+            BackgroundImageChooserContent(
+                options = options,
+                selectedInitials = null,   // the full-screen route never highlights a selection
+                labels = labels,
+                thumbnailFor = thumbnailFor,
+                importVisible = true,
+                onSelect = onSelect,
+                onImport = onImport,
+                onRequestDelete = onRequestDelete,
+                modifier = Modifier.fillMaxSize(),
+            )
             if (loading) AbLoadingOverlay(labels.importing)
         }
     }
@@ -117,6 +99,69 @@ fun BackgroundImageChooserScreen(
             onConfirm = onConfirmDelete,
             onDismiss = onDismissDelete,
         )
+    }
+}
+
+/**
+ * The chooser's body: the installed-image grid plus the None row and the import affordance.
+ * Extracted (T8) so [ColorSettingsEditorSheet] can render the identical grid as a sheet page — the
+ * loading overlay and the delete-confirm dialog stay with each host (they are chrome layered ON TOP
+ * of this content, not part of it: [BackgroundImageChooserScreen] keeps its own `AbLoadingOverlay`/
+ * `AbConfirmDialog`, and the sheet renders its own confirm dialog from [ColorSettingsUiState.deleteConfirm]).
+ *
+ * [selectedInitials] is accepted for a future host that wants to highlight the current image (the
+ * full-screen route has never done this, so it passes `null`); this content does not yet render a
+ * selection indicator either, but the parameter lets a host state it without an API change later.
+ *
+ * [importVisible] hides the **Import** tile for a host with no photo-picker registered (see this
+ * file's other kdoc / the T8 brief) — both current hosts pass `true`.
+ *
+ * The `LazyVerticalGrid` needs a bounded height from an ancestor when used somewhere that does not
+ * already constrain it to `fillMaxSize` (a lazy layout given `Infinity` height throws) — see
+ * [ColorSettingsEditorSheet]'s ancestor-`Box` treatment of the `BackgroundImage` page.
+ */
+@Composable
+fun BackgroundImageChooserContent(
+    options: List<BackgroundImageOption>,
+    selectedInitials: String?,
+    labels: BackgroundImageChooserLabels,
+    thumbnailFor: (token: String) -> ImageBitmap?,
+    importVisible: Boolean,
+    onSelect: (initials: String?) -> Unit,
+    onImport: () -> Unit,
+    onRequestDelete: (BackgroundImageOption) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier.fillMaxWidth()) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(8.dp),
+        ) {
+            item { FixedTile(text = labels.none, onClick = { onSelect(null) }) }
+            if (importVisible) {
+                item { FixedTile(text = labels.import, onClick = onImport) }
+            }
+            items(options, key = { it.initials }) { option ->
+                BackgroundImageTile(
+                    option = option,
+                    thumbnail = thumbnailFor(option.thumbnailToken),
+                    onClick = { onSelect(option.initials) },
+                    onLongClick = { onRequestDelete(option) },
+                )
+            }
+            if (options.isEmpty()) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Text(
+                        text = labels.empty,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    )
+                }
+            }
+        }
     }
 }
 

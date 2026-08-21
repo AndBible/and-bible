@@ -1,10 +1,19 @@
 package net.bible.android.view.compose.golden
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
+import net.bible.sharedcore.settings.BackgroundImageOption
 import net.bible.sharedcore.settings.ColorSettingsUiState
 import net.bible.sharedcore.settings.ColorsSnapshot
 import net.bible.sharedcore.settings.InheritedFrom
+import net.bible.sharedui.settings.BackgroundImageChooserContent
+import net.bible.sharedui.settings.BackgroundImageChooserLabels
+import net.bible.sharedui.settings.ColorSettingsContent
 import net.bible.sharedui.settings.ColorSettingsLabels
 import net.bible.sharedui.settings.ColorSettingsScreen
 import org.junit.Test
@@ -17,6 +26,16 @@ import org.robolectric.annotation.GraphicsMode
  * Goldens for [ColorSettingsScreen]. Unlike [SyncSettingsGoldenTest], no controller/service is
  * needed here — [ColorSettingsUiState] is built directly from a hand-written [ColorsSnapshot],
  * matching how simple this screen's state shape is.
+ *
+ * T8 additionally goldens the two sheet-page bodies extracted out of this screen and out of
+ * [net.bible.sharedui.settings.BackgroundImageChooserScreen] — [ColorSettingsContent] and
+ * [BackgroundImageChooserContent] — captured directly in a plain `Column`, never inside
+ * `net.bible.sharedui.settings.ColorSettingsEditorSheet`'s `ModalBottomSheet` (forcing one open in
+ * a capture hangs Roborazzi and the whole `:app` suite with it — see `SettingsEditorSheetGoldenTest`).
+ * [backgroundImageContent_long_matrix] additionally wraps the content in the SAME
+ * `Box(Modifier.heightIn(max = 400.dp))` ancestor `ColorSettingsEditorSheet` uses in production, the
+ * same honest-scope caveat as `SettingsEditorSheetGoldenTest.listChoiceLong_matrix` applies: this
+ * proves the bound clips correctly, not that the grid is actually scrollable past it.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -50,4 +69,94 @@ class ColorSettingsScreenGoldenTest {
     @Test fun windowscope_edge() = captureGolden("ColorSettings", "windowscope", EDGE_MODE, heightDp = 1600, content = screen(uiState(windowScope = true)))
 
     @Test fun withimage_edge() = captureGolden("ColorSettings", "withimage", EDGE_MODE, heightDp = 1600, content = screen(uiState(withImage = true)))
+
+    // --- T8: sheet-page bodies (ColorSettingsEditorSheet's Colors / BackgroundImage pages) ---
+
+    private fun colorSettingsContent(s: ColorSettingsUiState): @Composable () -> Unit = {
+        Column {
+            ColorSettingsContent(
+                state = s,
+                labels = ColorSettingsLabels.forTest(),
+                onColorFieldClick = {},
+                onWorkspaceColorClick = {},
+                onNoiseChange = { _, _ -> },
+                onOpacityChange = { _, _ -> },
+                onChangeBackgroundImage = {},
+            )
+        }
+    }
+
+    @Test fun colorSettingsContent_matrix() =
+        captureMatrix("ColorSettingsContent", "workspace", heightDp = 1600, content = colorSettingsContent(uiState()))
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
+    fun colorSettingsContent_rtl() =
+        captureRtl("ColorSettingsContent", "workspace", heightDp = 1600, content = colorSettingsContent(uiState()))
+
+    private val chooserOpts = listOf(
+        BackgroundImageOption("BGIMG_hills", "hills", "BGIMG_hills"),
+        BackgroundImageOption("BGIMG_sky", "sky", "BGIMG_sky"),
+    )
+
+    private fun backgroundImageChooserContent(
+        options: List<BackgroundImageOption> = chooserOpts,
+        importVisible: Boolean = true,
+    ): @Composable () -> Unit = {
+        Column {
+            BackgroundImageChooserContent(
+                options = options,
+                selectedInitials = null,
+                labels = BackgroundImageChooserLabels.forTest(),
+                thumbnailFor = { null },
+                importVisible = importVisible,
+                onSelect = {},
+                onImport = {},
+                onRequestDelete = {},
+            )
+        }
+    }
+
+    @Test fun backgroundImageChooserContent_matrix() =
+        captureMatrix("BackgroundImageChooserContent", "populated", heightDp = 1200, content = backgroundImageChooserContent())
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
+    fun backgroundImageChooserContent_rtl() =
+        captureRtl("BackgroundImageChooserContent", "populated", heightDp = 1200, content = backgroundImageChooserContent())
+
+    @Test fun backgroundImageChooserContent_empty_edge() =
+        captureGolden(
+            "BackgroundImageChooserContent", "empty", EDGE_MODE, heightDp = 1200,
+            content = backgroundImageChooserContent(options = emptyList()),
+        )
+
+    @Test fun backgroundImageChooserContent_noimport_edge() =
+        captureGolden(
+            "BackgroundImageChooserContent", "noimport", EDGE_MODE, heightDp = 1200,
+            content = backgroundImageChooserContent(importVisible = false),
+        )
+
+    // A realistic long list at the SAME Box-wrapped composition ColorSettingsEditorSheet renders in
+    // production for its BackgroundImage page — see the class kdoc for what this test proves and
+    // what it does not.
+    private val longChooserOpts = (1..12).map { BackgroundImageOption("BGIMG_img$it", "image $it", "BGIMG_img$it") }
+
+    @Test fun backgroundImageContent_long_matrix() =
+        captureMatrix("BackgroundImageChooserContent", "long", heightDp = 1200) {
+            Column {
+                Box(modifier = Modifier.heightIn(max = 400.dp)) {
+                    BackgroundImageChooserContent(
+                        options = longChooserOpts,
+                        selectedInitials = null,
+                        labels = BackgroundImageChooserLabels.forTest(),
+                        thumbnailFor = { null },
+                        importVisible = true,
+                        onSelect = {},
+                        onImport = {},
+                        onRequestDelete = {},
+                    )
+                }
+            }
+        }
 }

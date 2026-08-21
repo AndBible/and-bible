@@ -53,11 +53,32 @@ class ColorsSettingsDtoTest {
         assertEquals(InheritedFrom.WORKSPACE, s.inheritedFrom)
     }
 
-    @Test fun colorFieldHasFourEditableSwatches() {
+    // T8: ColorField grew a fifth value, WORKSPACE, so SettingsEditorPage.ColorPick(field) can also
+    // address the workspace swatch -- it is not one of TextDisplaySettingsService.setColor's four
+    // Colors fields (ColorSettingsController.onColorChange routes it to setWorkspaceColor instead).
+    @Test fun colorFieldHasFourColorsFieldsPlusWorkspace() {
         assertEquals(
-            listOf(ColorField.DAY_TEXT, ColorField.DAY_BACKGROUND, ColorField.NIGHT_TEXT, ColorField.NIGHT_BACKGROUND),
+            listOf(
+                ColorField.DAY_TEXT, ColorField.DAY_BACKGROUND, ColorField.NIGHT_TEXT, ColorField.NIGHT_BACKGROUND,
+                ColorField.WORKSPACE,
+            ),
             ColorField.entries.toList(),
         )
+    }
+
+    @Test fun colorForResolvesAllFiveFieldsIncludingWorkspace() {
+        val s = snap()
+        assertEquals(s.dayTextColor, s.colorFor(ColorField.DAY_TEXT))
+        assertEquals(s.dayBackground, s.colorFor(ColorField.DAY_BACKGROUND))
+        assertEquals(s.nightTextColor, s.colorFor(ColorField.NIGHT_TEXT))
+        assertEquals(s.nightBackground, s.colorFor(ColorField.NIGHT_BACKGROUND))
+        assertEquals(s.workspaceColor, s.colorFor(ColorField.WORKSPACE))
+    }
+
+    @Test fun colorForPageReadsThroughUiState() {
+        val state = ColorSettingsUiState(colors = snap(), backgroundOptions = emptyList())
+        assertEquals(snap().workspaceColor, colorForPage(state, ColorField.WORKSPACE))
+        assertEquals(snap().dayTextColor, colorForPage(state, ColorField.DAY_TEXT))
     }
 
     @Test fun serviceExposesColoursAndBackgroundMembers() {

@@ -69,6 +69,16 @@ class TextDisplaySettingsServiceImplColorsTest {
         assertEquals(-65536, repo.workspaceSettings.workspaceColor)
     }
 
+    // T8: setColor's `when(field)` gained a WORKSPACE branch to keep the enum total. Reached only if
+    // a future caller bypasses ColorSettingsController's routing (which intercepts WORKSPACE and
+    // calls setWorkspaceColor directly) -- proved here so that branch is not merely unreachable, but
+    // demonstrably correct too.
+    @Test fun setColorWithWorkspaceFieldWritesWorkspaceColor() {
+        val scope = SettingsScope.Workspace(repo.id.toString())
+        impl.setColor(scope, ColorField.WORKSPACE, -65536)
+        assertEquals(-65536, repo.workspaceSettings.workspaceColor)
+    }
+
     @Test fun setColorAtWindowWritesPageManagerColorsOnly() {
         val w = repo.activeWindow
         val scope = SettingsScope.Window(w.id.toString(), repo.id.toString())
