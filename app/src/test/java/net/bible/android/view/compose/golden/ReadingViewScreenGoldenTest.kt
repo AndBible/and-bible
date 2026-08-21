@@ -199,6 +199,7 @@ class ReadingViewScreenGoldenTest {
                 panelHeightDp = if (state.expanded) {
                     agentPanelHeight(state, collapsedHeightDp, maxHeightDp)
                 } else null,
+                onHeightDragStarted = {},
                 onHeightDrag = {},
                 onCollapsedHeightMeasured = onCollapsedHeightMeasured,
                 onToggleExpanded = {}, onStop = {},

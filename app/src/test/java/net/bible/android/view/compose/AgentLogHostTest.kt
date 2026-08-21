@@ -138,6 +138,7 @@ class AgentLogHostTest {
                     panelHeightDp = if (agentLogUiState.expanded) {
                         agentPanelHeight(agentLogUiState, collapsedDp, maxHeightDp)
                     } else null,
+                    onHeightDragStarted = controller::onHeightDragStarted,
                     onHeightDrag = { dragUpDp -> controller.onHeightDrag(dragUpDp, collapsedDp, maxHeightDp) },
                     onCollapsedHeightMeasured = onCollapsedHeightMeasured,
                     onToggleExpanded = controller::toggleExpanded,

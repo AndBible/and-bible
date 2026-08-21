@@ -32,7 +32,7 @@ class AgentLogPanelGoldenTest {
         AgentLogPanel(s, animateStatus = false, statusIcon = painterResource(R.drawable.icon_robot),
             applyNavBarInset = false,
             panelHeightDp = if (s.expanded) agentPanelHeight(s, collapsedDp = 48f, maxDp = maxHeightDp) else null,
-            onHeightDrag = {}, onCollapsedHeightMeasured = {},
+            onHeightDragStarted = {}, onHeightDrag = {}, onCollapsedHeightMeasured = {},
             onToggleExpanded = {}, onStop = {}, onClose = {},
             onModelSelectorClick = {}, onModelChosen = {}, onModelPickerDismiss = {}, onRawLogClick = {})
     }

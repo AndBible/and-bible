@@ -1739,6 +1739,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     panelHeightDp = if (agentLogUiState.expanded) {
                         agentPanelHeight(agentLogUiState, collapsedDp, maxHeightDp)
                     } else null,   // collapsed lays out intrinsically, exactly as before round 12b
+                    onHeightDragStarted = agentLog::onHeightDragStarted,
                     onHeightDrag = { dragUpDp ->
                         agentLog.onHeightDrag(dragUpDp, collapsedDp, maxHeightDp)
                     },

@@ -131,6 +131,15 @@ fun AgentLogPanel(
      * error anywhere.
      */
     panelHeightDp: Float?,
+    /**
+     * A drag gesture on the handle has begun. Wired to `AgentLogController.onHeightDragStarted`,
+     * which stashes the height the gesture starts from so [onHeightDrag]'s collapse branch can
+     * restore it instead of the last intermediate pointer value (whole-branch review, Blocker 1).
+     *
+     * Deliberately has no default: a call site that forgets it silently reintroduces the ratchet that
+     * shrank a dragged panel to a sliver, and nothing else in the build would notice.
+     */
+    onHeightDragStarted: () -> Unit,
     /** One drag step on the handle, positive upward. Wired to `AgentLogController.onHeightDrag`. */
     onHeightDrag: (dragUpDp: Float) -> Unit,
     /**
@@ -182,7 +191,11 @@ fun AgentLogPanel(
                 )
         ) {
             if (state.expanded) {
-                AgentLogDragHandle(onClick = onToggleExpanded, onDrag = onHeightDrag)
+                AgentLogDragHandle(
+                    onClick = onToggleExpanded,
+                    onDragStarted = onHeightDragStarted,
+                    onDrag = onHeightDrag,
+                )
             }
             AgentLogHeader(
                 snapshot = state.snapshot,
@@ -323,10 +336,11 @@ private fun AgentLogHeader(
  * ~20dp (4dp pill + 8dp top/bottom padding) for no gain, while expanded that same ~20dp is what
  * makes the surface read as a sheet.
  *
- * It is **draggable** (resizing the panel, [onDrag], positive upward) and **tappable** (collapsing
- * it, [onClick]). Round 12b §4 added the drag: round 6 had decided against it, and the maintainer's
- * objection is exactly right — a handle that renders the universal drag affordance and cannot be
- * dragged lies about the surface.
+ * It is **draggable** (resizing the panel, [onDrag] per pointer step plus [onDragStarted] once at
+ * the start of the gesture, positive upward) and **tappable** (collapsing it, [onClick]). Round 12b
+ * §4 added the drag: round 6 had decided against it, and the maintainer's objection is exactly right
+ * — a handle that renders the universal drag affordance and cannot be dragged lies about the
+ * surface.
  *
  * The panel is still NOT an M3 bottom sheet, and every reason round 6 gave still holds: the reading
  * view's one `BottomSheetScaffold` is taken by the F6 search results, a second sheet would have to
@@ -344,7 +358,11 @@ private fun AgentLogHeader(
  * description) is correct either way: same action, same label.
  */
 @Composable
-private fun AgentLogDragHandle(onClick: () -> Unit, onDrag: (dragUpDp: Float) -> Unit) {
+private fun AgentLogDragHandle(
+    onClick: () -> Unit,
+    onDragStarted: () -> Unit,
+    onDrag: (dragUpDp: Float) -> Unit,
+) {
     val strings = LocalStrings.current
     val density = LocalDensity.current
     Box(
@@ -357,6 +375,11 @@ private fun AgentLogDragHandle(onClick: () -> Unit, onDrag: (dragUpDp: Float) ->
                     onDrag(-with(density) { deltaPx.toDp() }.value)
                 },
                 orientation = Orientation.Vertical,
+                // The gesture BOUNDARY, not just its steps: the reducer needs the height the gesture
+                // started at to restore on a collapse, because each step commits its own height and
+                // the last one before a collapse is an intermediate pointer position, not a choice
+                // the user made (whole-branch review, Blocker 1).
+                onDragStarted = { onDragStarted() },
             )
             .clickable(onClickLabel = strings.agentLogExpand, onClick = onClick)
             .padding(vertical = 8.dp),
