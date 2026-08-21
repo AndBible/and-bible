@@ -454,9 +454,14 @@ private fun LabelItemRow(
     }
 }
 
-/** One trailing-grid cell. 48dp is the Material minimum touch target and the width every slot
- *  reserves, drawn or not, so the controls form columns down the list. */
-private val TrailingSlotSize = 48.dp
+/** One trailing-grid cell: the width every slot reserves, drawn or not, so the controls form
+ *  columns down the list. 40dp, deliberately BELOW Material's 48dp minimum touch target: at the
+ *  goldens' fixed 320dp width the reserved grid was starving the name+tag column (see
+ *  [StyleTagRow]'s KDoc for the per-mode numbers), and the row itself stays fully tappable
+ *  everywhere via its own `combinedClickable` -- only these three toggles get the smaller target.
+ *  This was a deliberate, user-made trade after trying 48dp first and rejecting it for exactly
+ *  that reason; do not "restore" 48dp as a fix. */
+private val TrailingSlotSize = 40.dp
 private val TrailingIconSize = 20.dp
 
 /** The inert primary indicator: visible enough to show the column and its off state, muted enough
@@ -493,12 +498,13 @@ private fun TrailingSlot(modifier: Modifier = Modifier, content: @Composable () 
 private fun StyleTagRow(label: LabelItem, markerGlyph: @Composable () -> Unit, strings: Strings) {
     // Bounded on every branch: an intrinsic-width tag can win the space contest against the
     // weighted name and make it vanish entirely (round-1 fix -- Finding 1). 110dp is a CEILING,
-    // not what actually binds a tag's width in every mode -- in ASSIGN/WORKSPACE the name/tag
-    // column itself is narrower than 110dp (the trailing grid's reserved slots leave ~60dp in
-    // ASSIGN, ~108dp in WORKSPACE at the goldens' 320dp width), so the column is the real
-    // constraint there; the cap only binds where no slots are reserved (STUDYPAD/HIDELABELS,
-    // ~252dp/~204dp of column). Either way this stops an intrinsic-width tag from winning the
-    // space contest against the weighted name.
+    // not what actually binds a tag's width in every mode -- with 40dp trailing slots (round 12a)
+    // the name/tag column at the goldens' 320dp width is: ASSIGN ~92dp (checkbox + 3 slots =
+    // 160dp reserved), WORKSPACE ~132dp (3 slots = 120dp), HIDELABELS ~212dp (checkbox only =
+    // 40dp), STUDYPAD ~252dp (no slots). So only ASSIGN's column is narrower than the 110dp cap
+    // and is the real constraint there; the cap binds in WORKSPACE, HIDELABELS and STUDYPAD.
+    // Either way this stops an intrinsic-width tag from winning the space contest against the
+    // weighted name.
     val tagMaxWidth = Modifier.widthIn(max = 110.dp)
     // itemVerticalAlignment explicit rather than FlowRow's default Top: every tag here is one
     // line tall today, but a centred baseline is the right call if a taller tag (e.g. a larger
