@@ -34,6 +34,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import net.bible.sharedcore.settings.KEY_OPEN_GLOBAL_SETTINGS
 import net.bible.sharedcore.settings.KEY_OPEN_WORKSPACE_SETTINGS
 import net.bible.sharedcore.settings.SettingsEditorPage
@@ -271,6 +272,25 @@ fun TextDisplaySettingsScreen(
     }
 }
 
+/** The single slider FONTSIZE/TOPMARGIN/LINE_SPACING edit with. Owns the dragged value and reports
+ *  it on every frame; the host commits it. */
+@Composable
+fun NumericSliderContent(
+    numeric: TextSettingRowValue.Numeric,
+    onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var current by remember(numeric) { mutableIntStateOf(numeric.value) }
+    AbSliderRow(
+        label = "",
+        value = current,
+        onValueChange = { current = it; onValueChange(it) },
+        valueRange = numeric.min.toFloat()..numeric.max.toFloat(),
+        valueLabel = numeric.displayText,
+        modifier = modifier,
+    )
+}
+
 /**
  * Slider dialog for [TextSettingType.FONTSIZE]/[TextSettingType.TOPMARGIN]/[TextSettingType.LINE_SPACING]:
  * one [AbSliderRow] ranging over [TextSettingRowValue.Numeric.min]`..`[TextSettingRowValue.Numeric.max]
@@ -297,15 +317,7 @@ fun NumericSliderDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
-        text = {
-            AbSliderRow(
-                label = "",
-                value = current,
-                onValueChange = { current = it },
-                valueRange = numeric.min.toFloat()..numeric.max.toFloat(),
-                valueLabel = numeric.displayText,
-            )
-        },
+        text = { NumericSliderContent(numeric = numeric, onValueChange = { current = it }) },
         confirmButton = { TextButton(onClick = { onConfirm(current) }) { Text(okLabel) } },
         dismissButton = {
             Row {
@@ -314,6 +326,44 @@ fun NumericSliderDialog(
             }
         },
     )
+}
+
+/** MARGINSIZE's three sliders. Reports the whole triple on every change. */
+@Composable
+fun MarginContent(
+    margins: TextSettingRowValue.Margins,
+    leftLabelFormat: String,
+    rightLabelFormat: String,
+    maxWidthLabelFormat: String,
+    onValueChange: (left: Int, right: Int, maxWidth: Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var left by remember(margins) { mutableIntStateOf(margins.left) }
+    var right by remember(margins) { mutableIntStateOf(margins.right) }
+    var maxWidth by remember(margins) { mutableIntStateOf(margins.maxWidth) }
+    Column(modifier = modifier) {
+        AbSliderRow(
+            label = leftLabelFormat.replace("%d", left.toString()),
+            value = left,
+            onValueChange = { left = it; onValueChange(left, right, maxWidth) },
+            valueRange = 0f..margins.leftMax.toFloat(),
+            valueLabel = "",
+        )
+        AbSliderRow(
+            label = rightLabelFormat.replace("%d", right.toString()),
+            value = right,
+            onValueChange = { right = it; onValueChange(left, right, maxWidth) },
+            valueRange = 0f..margins.rightMax.toFloat(),
+            valueLabel = "",
+        )
+        AbSliderRow(
+            label = maxWidthLabelFormat.replace("%d", maxWidth.toString()),
+            value = maxWidth,
+            onValueChange = { maxWidth = it; onValueChange(left, right, maxWidth) },
+            valueRange = 0f..margins.maxWidthMax.toFloat(),
+            valueLabel = "",
+        )
+    }
 }
 
 /**
@@ -346,29 +396,13 @@ fun MarginDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            Column {
-                AbSliderRow(
-                    label = leftLabelFormat.replace("%d", left.toString()),
-                    value = left,
-                    onValueChange = { left = it },
-                    valueRange = 0f..margins.leftMax.toFloat(),
-                    valueLabel = "",
-                )
-                AbSliderRow(
-                    label = rightLabelFormat.replace("%d", right.toString()),
-                    value = right,
-                    onValueChange = { right = it },
-                    valueRange = 0f..margins.rightMax.toFloat(),
-                    valueLabel = "",
-                )
-                AbSliderRow(
-                    label = maxWidthLabelFormat.replace("%d", maxWidth.toString()),
-                    value = maxWidth,
-                    onValueChange = { maxWidth = it },
-                    valueRange = 0f..margins.maxWidthMax.toFloat(),
-                    valueLabel = "",
-                )
-            }
+            MarginContent(
+                margins = margins,
+                leftLabelFormat = leftLabelFormat,
+                rightLabelFormat = rightLabelFormat,
+                maxWidthLabelFormat = maxWidthLabelFormat,
+                onValueChange = { l, r, m -> left = l; right = r; maxWidth = m },
+            )
         },
         confirmButton = { TextButton(onClick = { onConfirm(left, right, maxWidth) }) { Text(okLabel) } },
         dismissButton = {
