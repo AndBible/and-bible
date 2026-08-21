@@ -88,7 +88,10 @@ class ManageLabelsController(
                 // Stale-guard: only the most recent dispatch may publish (defense in depth on top of
                 // the cancel() above).
                 if (generation == searchGeneration) {
-                    if (results.isEmpty()) rebuild(reorder = true) else _rows.value = results
+                    // A content-search result list is not a `lastOrder`-shaped sequence at all (it's
+                    // SearchResult rows, not label/header keys), so the "lastOrder names the last
+                    // emitted sequence" invariant must be broken deliberately here, not left stale.
+                    if (results.isEmpty()) rebuild(reorder = true) else { lastOrder = null; _rows.value = results }
                 }
             }
         } else {
@@ -149,7 +152,9 @@ class ManageLabelsController(
             .map { it.copy(overrideStyle = overrides[it.id]) }.toMutableList<Any>()
         if (mode.showUnassigned) {
             val unl = service.unlabeledLabel()
-            if (nameMatches(unl.id, unl.name) && !changed.contains(unl.id)) shown.add(unl)
+            // Same relink as every real label above (:148-149) -- classic's adapter marks the ⚙
+            // override tag for ANY overridden id, Unlabeled included (ManageLabelItemAdapter.kt:236).
+            if (nameMatches(unl.id, unl.name) && !changed.contains(unl.id)) shown.add(unl.copy(overrideStyle = overrides[unl.id]))
         }
         // Sticky path: reuse the previous sequence, headers INCLUDED. The header set has to be
         // frozen too, not recomputed -- classic inserts headers only during a repopulate
@@ -216,9 +221,9 @@ class ManageLabelsController(
      * appeared (the already-selected search bypass in [nameMatches]) or vanished (a delete) has no
      * place in the old sequence, and inventing one would be worse than regrouping.
      */
-    private fun stickyOrder(previous: List<String>, mixed: List<Any>): List<Any>? {
-        val byKey = mixed.associateBy(::orderKey)
-        if (byKey.size != mixed.size) return null              // duplicate key: never reuse
+    private fun stickyOrder(previous: List<String>, fresh: List<Any>): List<Any>? {
+        val byKey = fresh.associateBy(::orderKey)
+        if (byKey.size != fresh.size) return null              // duplicate key: never reuse
         if (byKey.keys != previous.toSet()) return null         // set changed: full sort
         return previous.map { byKey.getValue(it) }
     }

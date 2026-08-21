@@ -516,6 +516,28 @@ class ManageLabelsControllerTest {
         val items = c.rows.value.filterIsInstance<ManageLabelsRow.Item>()
         assertNull(items.first { it.label.id == "L1" }.label.overrideStyle)
         assertEquals(BookmarkDisplayStyle.MARKER, items.first { it.label.id == "L2" }.label.overrideStyle)
+
+        // The STICKY path (any toggle) must relink just as faithfully as the initial reorder=true
+        // rebuild above -- otherwise a future edit that moves the relink after the sticky/fresh
+        // branch would silently blank the ⚙ tag on every toggle, with no crash and no failing test.
+        c.toggleChecked("L2")
+        val afterToggle = c.rows.value.filterIsInstance<ManageLabelsRow.Item>()
+        assertEquals(BookmarkDisplayStyle.MARKER, afterToggle.first { it.label.id == "L2" }.label.overrideStyle)
+    }
+
+    /** The Unlabeled pseudo-row is added raw, alongside every real label's relink -- classic's
+     *  adapter shows the ⚙ mark for any overridden id, Unlabeled included
+     *  (ManageLabelItemAdapter.kt:236), so this controller must not special-case it out. */
+    @Test
+    fun overrideStyle_reaches_the_unlabeled_row_too() {
+        val c = controller(
+            mode = ManageLabelsMode.WORKSPACE,
+            labels = listOf(label("L1", "Study")),
+            overridden = mapOf("UNL" to BookmarkDisplayStyle.HIGHLIGHT),
+        )
+
+        val items = c.rows.value.filterIsInstance<ManageLabelsRow.Item>()
+        assertEquals(BookmarkDisplayStyle.HIGHLIGHT, items.first { it.label.id == "UNL" }.label.overrideStyle)
     }
 
     private fun threeLabels() = listOf(label("L1", "Study"), label("L2", "Notes"), label("L3", "Prayer"))
@@ -542,13 +564,47 @@ class ManageLabelsControllerTest {
     fun the_other_three_toggles_do_not_move_rows_either() {
         val c = controller(mode = ManageLabelsMode.ASSIGN, labels = threeLabels())
         val before = describe(c.rows.value)
+        fun l3() = c.rows.value.filterIsInstance<ManageLabelsRow.Item>().first { it.label.id == "L3" }
 
+        // Each assertion below pins that the toggle's OWN field actually moved, not merely that the
+        // list order didn't -- otherwise these three checks would pass just as well against a toggle
+        // that silently did nothing.
         c.toggleChecked("L3")
         assertEquals(before, describe(c.rows.value))
+        assertTrue(l3().checked, "toggleChecked must actually flip checked")
+
         c.setPrimary("L3")
         assertEquals(before, describe(c.rows.value))
+        assertTrue(l3().isPrimary, "setPrimary must actually flip isPrimary")
+
         c.toggleFavourite("L3")
         assertEquals(before, describe(c.rows.value))
+        assertTrue(l3().label.favourite, "toggleFavourite must actually flip favourite")
+    }
+
+    /** Of the three host apply hooks, only a RENAME actually exercises `reorder = true`
+     *  (ManageLabelsController.kt:279): create/delete change the visible id set, so
+     *  [stickyOrder]'s own "set changed -> full sort" fallback would re-sort them anyway even with
+     *  reorder=false. A rename changes no id, so nothing else forces the re-sort -- if
+     *  applyLabelChanged ever stopped rebuilding with reorder=true, a rename that moves a label's
+     *  alphabetical position would silently stay parked in its old slot. */
+    @Test
+    fun a_rename_through_applyLabelChanged_re_alphabetises() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = threeLabels())
+        // threeLabels(): L1 "Study", L2 "Notes", L3 "Prayer", none selected/recent -> all three fall
+        // into OTHER, alpha order Notes, Prayer, Study. ASSIGN doesn't hide categories, so H_RECENT
+        // and H_OTHER are present even empty/single-bucket (see categorization_and_sort_order_ASSIGN).
+        assertEquals(listOf("H_RECENT", "H_OTHER", "L2", "L3", "L1"), describe(c.rows.value))
+
+        c.applyLabelChanged(
+            item = label("L1", "Aardvark"),
+            selectedFlag = false,
+            autoAssignFlag = false,
+            bookmarkPrimaryFlag = false,
+            autoAssignPrimaryFlag = false,
+        )
+
+        assertEquals(listOf("H_RECENT", "H_OTHER", "L1", "L2", "L3"), describe(c.rows.value))
     }
 
     @Test
