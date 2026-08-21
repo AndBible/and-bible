@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.ai.reading.agentPanelDragCeiling
 import net.bible.sharedcore.reading.agentLogOwnsNavBarInset
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.ReadingSearchBarState
@@ -43,11 +44,12 @@ import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.window.WindowLayoutState
 
 /**
- * Top-level reading-view screen: the [ReadingToolbar] (unless [fullScreen]) stacked above the
- * split reading area ([SplitContent]) in a single `Column`. Plan A (prior task) was the reading
- * area only; Plan B (this task) folds the toolbar in, dropping it entirely — rather than merely
- * hiding it — when [fullScreen], so [SplitContent] reclaims the full height via
- * `Modifier.weight(1f)`.
+ * Top-level reading-view screen: a two-layer `Box`. Layer 1 is the in-flow `Column` — the
+ * [ReadingToolbar] (unless [fullScreen]) above the split reading area ([SplitContent]) above the
+ * bottom bars; layer 2 is [agentLog]'s bottom-anchored overlay (round 12b §4 — it was a single
+ * `Column` with the panel in-flow until then). Plan A (prior task) was the reading area only; Plan B
+ * folds the toolbar in, dropping it entirely — rather than merely hiding it — when [fullScreen], so
+ * [SplitContent] reclaims the full height via `Modifier.weight(1f)`.
  *
  * [tabBar] is an optional slot floated over the split's bottom-end corner rather than rendered
  * in-flow in this `Column`: it is forwarded into [SplitContent]'s `railOverlay` (a sibling of the
@@ -69,10 +71,15 @@ import net.bible.sharedcore.window.WindowLayoutState
  * default, in which case nothing is rendered there; the host is expected to pass the live
  * `SpeakTransportBar` here. [agentLog]'s overlay is bottom-padded by this bar's measured height, so
  * the panel sits exactly on top of it rather than over it.
- * [tabBar]'s floating rail is composed OVER the split rather than joining this in-flow stack, and
- * it sits higher on screen than [agentLog]/[speakBar] — the same stacking classic uses, where
- * `restoreButtonsContainer` is lifted clear of the transport bar via
- * `translationY(-bottomOffset2)` (`SplitBibleArea.kt:619`) rather than being pushed down by it.
+ * [tabBar]'s floating rail is composed OVER the split rather than joining this in-flow stack, and it
+ * sits higher on screen than a COLLAPSED [agentLog] and than [speakBar] — the same stacking classic
+ * uses, where `restoreButtonsContainer` is lifted clear of the transport bar via
+ * `translationY(-bottomOffset2)` (`SplitBibleArea.kt:619`) rather than being pushed down by it. That
+ * parity is per-bar height, so it survives the panel becoming an overlay: the rail clears the space
+ * the collapsed panel reserves. An EXPANDED panel does cover the rail, since layer 2 is drawn after
+ * layer 1 and the rail lives inside [SplitContent] — a deliberate consequence of overlaying rather
+ * than reflowing (the alternative, reflowing the panes to keep the rail visible, is the WebView
+ * relayout the overlay exists to avoid), not a regression.
  *
  * [paneOverlay] is forwarded verbatim to [SplitContent]'s slot of the same name — an optional
  * per-pane overlay (e.g. the floating ☰ window button), composed inside every visible pane. `null`
@@ -122,12 +129,26 @@ fun ReadingViewScreen(
      * The agent-log panel, rendered as a bottom-anchored OVERLAY rather than an in-flow child
      * (round 12b §4). The parameters are what only this screen knows: whether the panel owns the
      * navigation-bar inset, how far up it may be dragged (`maxHeightDp`, the distance from the top of
-     * the reading area to the top of the bottom bars — i.e. the bottom of the toolbar), and the
-     * callback by which it reports its collapsed height so this screen can reserve exactly that much.
+     * the reading area to the top of the bottom bars — i.e. the bottom of the toolbar), the panel's
+     * measured collapsed height, and the callback by which it reports that height so this screen can
+     * reserve exactly that much.
+     *
+     * `collapsedHeightDp` is handed DOWN rather than remembered by the caller for a specific reason
+     * (fix round 1, Important 1). The slot is composed inside `if (agentLog != null &&
+     * agentLogVisible)`, so it leaves the composition every time the panel hides — while this screen
+     * stays composed for as long as the reading view is mounted. `AgentLogController.hide()` (and the
+     * auto-hide branch) clears `visible` but deliberately leaves `expanded` true, so the next run
+     * auto-shows an already-EXPANDED panel, in a fresh slot composition, and the panel never reports
+     * a collapsed height while expanded. A copy remembered in the slot would therefore be 0 for that
+     * whole showing: the drag's collapse-snap and its lower clamp would both work against 0 instead
+     * of the header height, and a downward drag would shrink the panel to a sliver and leave it
+     * "expanded" there. This screen's own measurement survives the hide, so it is the single source
+     * of truth — do not "simplify" this back into a `remember` at the call site.
      */
     agentLog: (@Composable (
         applyNavBarInset: Boolean,
         maxHeightDp: Float,
+        collapsedHeightDp: Float,
         onCollapsedHeightMeasured: (Float) -> Unit,
     ) -> Unit)? = null,
     /** The speak transport bar. Same `applyNavBarInset` contract as [agentLog]. */
@@ -216,7 +237,8 @@ fun ReadingViewScreen(
                 // whenever it is up.
                 agentLog(
                     agentLogOwnsNavBarInset(agentLogVisible, speakBarVisible),
-                    splitHeightDp + collapsedAgentHeightDp,
+                    agentPanelDragCeiling(splitHeightDp, collapsedAgentHeightDp),
+                    collapsedAgentHeightDp,
                 ) { measured -> collapsedAgentHeightDp = measured }
             }
         }

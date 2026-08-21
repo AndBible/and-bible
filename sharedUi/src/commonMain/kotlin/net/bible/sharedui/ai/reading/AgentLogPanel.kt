@@ -124,6 +124,11 @@ fun AgentLogPanel(
      * The panel's rendered height in dp, or `null` to lay out intrinsically (which is what a
      * collapsed panel does, exactly as before round 12b). The caller computes it with
      * `agentPanelHeight(state, collapsedDp, maxDp)`.
+     *
+     * `null` is valid ONLY while [state]`.expanded` is false (fix round 1, Minor 5): the expanded
+     * body takes `Modifier.weight(1f)`, which needs a bounded height, so a `null` height on an
+     * expanded panel inside an unbounded-height parent yields a zero-height log — silently, with no
+     * error anywhere.
      */
     panelHeightDp: Float?,
     /** One drag step on the handle, positive upward. Wired to `AgentLogController.onHeightDrag`. */

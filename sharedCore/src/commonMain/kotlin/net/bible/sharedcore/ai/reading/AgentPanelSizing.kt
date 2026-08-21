@@ -33,6 +33,13 @@ package net.bible.sharedcore.ai.reading
  * The expanded height a panel starts at before the user has dragged it: the drag handle (4dp pill +
  * 8dp top/bottom padding), the header's `heightIn(min = 48.dp)`, and the 240dp body cap that classic
  * `AgentLogWidget`'s fixed 200dp RecyclerView became. Stated as the sum so the derivation survives.
+ *
+ * CAVEAT (fix round 1, Minor 4): this is the panel's OUTER height, while the navigation-bar inset the
+ * panel consumes when it is the bottom-most bar (`agentLogOwnsNavBarInset` — the common case, since
+ * the speak bar is usually down) is padding INSIDE it. So the body's share is this sum minus that
+ * inset, ~192dp rather than 240dp on a typical ~48dp navigation bar. Deliberately not compensated
+ * for: what the default expanded height should be is a product decision, not arithmetic, and no
+ * golden can show the shortfall because every capture runs `applyNavBarInset = false`.
  */
 const val AGENT_PANEL_DEFAULT_EXPANDED_DP: Float = 20f + 48f + 240f
 
@@ -66,4 +73,23 @@ fun initialAgentPanelHeight(collapsedDp: Float, maxDp: Float): Float =
  */
 fun agentPanelHeight(state: AgentLogUiState, collapsedDp: Float, maxDp: Float): Float =
     if (!state.expanded) collapsedDp
-    else clampAgentPanelHeight(state.heightDp ?: AGENT_PANEL_DEFAULT_EXPANDED_DP, collapsedDp, maxDp)
+    else state.heightDp?.let { clampAgentPanelHeight(it, collapsedDp, maxDp) }
+        ?: initialAgentPanelHeight(collapsedDp, maxDp)
+
+/**
+ * The panel's drag ceiling: how tall it may become, given the measured height of the reading area
+ * ([splitDp]) and the in-flow space the collapsed panel reserves below it ([collapsedDp]).
+ *
+ * The sum IS "the bottom of the toolbar". `ReadingViewScreen`'s in-flow `Column` is
+ * `toolbar + split(weight 1f) + reservation + bottomBars`, of total height `H`, and the panel is an
+ * overlay whose bottom edge is bottom-aligned then lifted by the bottom bars — so it sits at
+ * `H - bottomBars`. A panel of this height therefore has its TOP at
+ * `H - bottomBars - (splitDp + collapsedDp)`, which is exactly where the toolbar ends. In full-screen
+ * mode there is no toolbar and the expression degenerates to the top of the reading area, which is
+ * the same rule with a zero-height toolbar.
+ *
+ * It lives here, with the rest of the panel's arithmetic, because `:sharedCore` is the only surface
+ * this repo can unit-test (fix round 1, Minor 6): as one inline `+` inside a composable it was the
+ * last load-bearing number with no test behind it.
+ */
+fun agentPanelDragCeiling(splitDp: Float, collapsedDp: Float): Float = splitDp + collapsedDp

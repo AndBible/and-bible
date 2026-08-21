@@ -66,4 +66,22 @@ class AgentPanelSizingTest {
         val state = AgentLogUiState(visible = true, expanded = true, heightDp = 500f)
         assertEquals(300f, agentPanelHeight(state, collapsedDp = 48f, maxDp = 300f))
     }
+
+    /**
+     * The ceiling is the reading area plus the collapsed panel's own reservation, which together are
+     * the distance from the bottom of the toolbar to the top of the bottom bars — see
+     * [agentPanelDragCeiling]'s kdoc for why that identity holds.
+     */
+    @Test fun dragCeiling_isTheReadingAreaPlusTheCollapsedReservation() {
+        assertEquals(648f, agentPanelDragCeiling(splitDp = 600f, collapsedDp = 48f))
+    }
+
+    /**
+     * The reservation is measured, not assumed, so it is 0 for the first frame of a showing (and for
+     * the whole of a showing that starts expanded, since the collapsed height is only reported while
+     * collapsed). The ceiling must still be the reading area rather than nothing.
+     */
+    @Test fun dragCeiling_beforeTheReservationHasBeenMeasuredIsJustTheReadingArea() {
+        assertEquals(600f, agentPanelDragCeiling(splitDp = 600f, collapsedDp = 0f))
+    }
 }

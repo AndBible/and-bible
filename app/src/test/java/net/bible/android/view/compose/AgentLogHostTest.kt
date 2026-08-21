@@ -20,8 +20,6 @@ import android.widget.FrameLayout
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.test.core.app.ApplicationProvider
@@ -92,7 +90,9 @@ private class FakeAgentSessionService(
 
 /**
  * Probe test (Batch 12e-B Task 6): `ComposeReadingViewHost.mountComposeView` must accept a new
- * `agentLogSlot` param — a pre-built `@Composable () -> Unit`, mirroring exactly how
+ * `agentLogSlot` param — a pre-built `@Composable` lambda (`(applyNavBarInset, maxHeightDp,
+ * collapsedHeightDp, onCollapsedHeightMeasured) -> Unit` since round 12b §4 made the panel a
+ * draggable overlay; it was `() -> Unit` when this probe was written), mirroring exactly how
  * `ComposeReadingViewHost.install` closes over the live `AgentLogController` to build
  * `AgentLogPanel` — and mount without crashing. Mirrors `ReadingLlmHostTest`'s minimal-mount
  * `installAccepts*` style: this repo's `:app` JVM unit tests have no `ComposeTestRule`, so
@@ -127,9 +127,8 @@ class AgentLogHostTest {
             pane = { },
             // Mirrors exactly what ComposeReadingViewHost.install builds for the real `agentLog`
             // controller field.
-            agentLogSlot = { _, maxHeightDp, onCollapsedHeightMeasured ->
+            agentLogSlot = { _, maxHeightDp, collapsedDp, onCollapsedHeightMeasured ->
                 val agentLogUiState by controller.state.collectAsState()
-                var collapsedDp by remember { mutableStateOf(0f) }
                 AgentLogPanel(
                     agentLogUiState,
                     animateStatus = false,
@@ -140,10 +139,7 @@ class AgentLogHostTest {
                         agentPanelHeight(agentLogUiState, collapsedDp, maxHeightDp)
                     } else null,
                     onHeightDrag = { dragUpDp -> controller.onHeightDrag(dragUpDp, collapsedDp, maxHeightDp) },
-                    onCollapsedHeightMeasured = { measured ->
-                        collapsedDp = measured
-                        onCollapsedHeightMeasured(measured)
-                    },
+                    onCollapsedHeightMeasured = onCollapsedHeightMeasured,
                     onToggleExpanded = controller::toggleExpanded,
                     onStop = controller::stop,
                     onClose = controller::hide,

@@ -88,8 +88,11 @@ class AgentLogController(
      *
      * A drag that lands within [AGENT_PANEL_COLLAPSE_SNAP_DP] of the collapsed height collapses the
      * panel but KEEPS `heightDp`: collapsing is not closing, and the maintainer's rule is that the
-     * height is remembered until the panel is closed. Dragging up from collapsed expands it, which is
-     * what makes the handle a real affordance in both directions.
+     * height is remembered until the panel is closed. The upward branch is NOT reachable from a
+     * collapsed panel — the handle is rendered only `if (state.expanded)`, so there is nothing to
+     * drag once it is shut (fix round 1, Minor 9 corrected the claim that there was). What the
+     * upward branch does is let a drag that started as a shrink be reversed within the same gesture,
+     * since every pointer step calls this reducer separately.
      */
     fun onHeightDrag(dragUpDp: Float, collapsedDp: Float, maxDp: Float) {
         val current = _state.value
