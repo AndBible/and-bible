@@ -3,6 +3,7 @@ package net.bible.android.view.compose.golden
 import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.mydocuments.MyDocItem
+import net.bible.sharedui.components.AbCreateItemSheetContent
 import net.bible.sharedui.mydocuments.MyDocumentsScreen
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,5 +41,15 @@ class MyDocumentsGoldenTest {
 
     @Test fun myDocuments_empty() {
         captureGolden("MyDocuments", "empty", EDGE_MODE) { screen(items = emptyList()) }
+    }
+
+    @Test fun myDocuments_createSheet() {
+        captureGolden("MyDocuments", "createSheet", EDGE_MODE) {
+            AbCreateItemSheetContent(
+                title = "Create new document", initialName = "Document 4",
+                confirmText = "OK", importText = "Import document",
+                onCreate = {}, onImport = {},
+            )
+        }
     }
 }

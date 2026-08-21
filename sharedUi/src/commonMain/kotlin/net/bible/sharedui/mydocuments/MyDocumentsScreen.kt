@@ -31,7 +31,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
@@ -49,12 +48,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.mydocuments.MyDocItem
+import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbCreateItemSheet
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbMenuItem
-import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbReorderableColumn
-import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbSelectionScaffold
 import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.strings.LocalStrings
 
@@ -94,22 +94,14 @@ fun MyDocumentsScreen(
     var deleteFor by remember { mutableStateOf<MyDocItem?>(null) }
     var blockedAiDelete by remember { mutableStateOf(false) }
 
-    AbScaffold(
+    AbSelectionScaffold(
         title = title,
+        selectionMode = false,
+        selectedCount = 0,
         onNavigateUp = onNavigateUp,
+        onExitSelection = {},
         actions = {
-            AbOverflowMenu(contentDescription = null) { close ->
-                AbMenuItem(
-                    text = s.newItem,
-                    onClick = { close(); createOpen = true },
-                    icon = { Icon(Icons.Filled.AddCircleOutline, contentDescription = null) },
-                )
-                AbMenuItem(
-                    text = s.importDocument,
-                    onClick = { close(); onImport() },
-                    icon = { Icon(Icons.Filled.FileDownload, contentDescription = null) },
-                )
-            }
+            AbActionIcon(Icons.Filled.AddCircleOutline, s.newItem) { createOpen = true }
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -162,10 +154,13 @@ fun MyDocumentsScreen(
     }
 
     if (createOpen) {
-        AbTextInputDialog(
-            title = s.createTitle, initial = s.newDocumentName(documents.size + 1),
-            confirmText = s.okay, dismissText = s.cancel,
-            onConfirm = { createOpen = false; if (it.isNotBlank()) onCreate(it.trim()) },
+        AbCreateItemSheet(
+            title = s.createTitle,
+            initialName = s.newDocumentName(documents.size + 1),
+            confirmText = s.okay,
+            importText = s.importDocument,
+            onCreate = { createOpen = false; if (it.isNotBlank()) onCreate(it.trim()) },
+            onImport = { createOpen = false; onImport() },
             onDismiss = { createOpen = false },
         )
     }
