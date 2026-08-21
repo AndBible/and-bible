@@ -50,10 +50,30 @@ private fun strippedSource(path: String): String = stripComments(File(path).read
 
 /**
  * Structural guards for the settings editor sheet. These are source-text assertions, in the style of
- * `SearchSheetStructureGuardTest` and `SettingsBadgeLayoutDriftTest`, because the behaviours they
- * protect cannot be reached by a `:app` unit test (no `ComposeTestRule` in this repo) and would
- * otherwise only be caught on a device -- or, for [noGoldenTestCapturesSettingsEditorSheet], by
- * hanging the entire Roborazzi suite.
+ * `SearchSheetStructureGuardTest` and `SettingsBadgeLayoutDriftTest`.
+ *
+ * **Correction (T13 fix round 1, Finding 2):** an earlier version of this kdoc claimed the
+ * behaviours here "cannot be reached by a `:app` unit test (no `ComposeTestRule` in this repo)".
+ * That is false -- `androidx.compose.ui:ui-test-junit4`/`ui-test-manifest` ARE dependencies of this
+ * module (`app/build.gradle.kts`), and eleven `:app` test files already use
+ * `createComposeRule`/`createAndroidComposeRule`, including `SettingsBadgeLayoutDriftTest`'s own
+ * neighbour `TextDisplaySettingsComposeActivityColorsTest` and the new
+ * `SettingsEditorSheetListChoiceScrollTest` this fix round added. `SearchSheetStructureGuardTest`'s
+ * own kdoc already warns against exactly this overclaim, for the same reason: compose-ui-test is
+ * available in this module, so unavailability is not why a behaviour goes untested here.
+ *
+ * The real reason these three guards are source-text assertions rather than `createComposeRule`
+ * tests is narrower and per-guard: [noSettingsScreenConstructsItsOwnModalBottomSheet] and
+ * [theSettingsPathHoldsNoEditorAlertDialogs] are absence checks across whole files, which a render
+ * test cannot express (there is no "assert this composable was never called" render assertion); and
+ * [noGoldenTestCapturesSettingsEditorSheet] is a check on OTHER test files' source, which is
+ * inherently a source scan, not a render test, regardless of what harness is available. The sheet's
+ * own chrome (header/back-arrow/close button/title truncation/RTL) and the page-routing wiring have
+ * NOT been proven by any test yet -- that is a real, currently-open gap, not an impossible one; see
+ * `docs/compose-ondevice-verification-checklist.md`'s "Settings editor bottom sheets" round entry.
+ * What remains permanently off-limits, for every harness, is capturing an OPEN `ModalBottomSheet` in
+ * Roborazzi -- that hangs the whole `:app` suite -- which is exactly what
+ * [noGoldenTestCapturesSettingsEditorSheet] polices.
  */
 class SettingsEditorSheetGuardTest {
 
@@ -95,10 +115,20 @@ class SettingsEditorSheetGuardTest {
         }
     }
 
-    /** The four editor kinds must not regress to AlertDialogs on the settings path. */
+    /**
+     * Three of the four editor kinds `AbSettingsContent` used to open as dialogs must not regress
+     * to an `AlertDialog` here. `AbColorPickerDialog` is deliberately NOT asserted in this file:
+     * it is never reachable from `AbSettingsScreen.kt` at all -- Colours goes through
+     * `ColorSettingsEditorSheet`/`ColorSettingsScreen` instead, and the only two real call sites
+     * are `ColorSettingsScreen.kt` (the full-screen colours route, which legitimately keeps its own
+     * colour-picker dialogs) and `LabelIdentitySheet.kt`. Asserting its absence here would not be
+     * merely useless, it would be WRONG: this file was never one of its callers, so the assertion
+     * would protect nothing while implying a regression risk that doesn't exist at this call site.
+     * (T13 fix round 1, Finding 4.)
+     */
     @Test fun theSettingsPathHoldsNoEditorAlertDialogs() {
         val src = strippedSource("../sharedUi/src/commonMain/kotlin/net/bible/sharedui/settings/AbSettingsScreen.kt")
-        listOf("AbListChoiceDialog", "AbTextInputDialog", "AbMultiSelectDialog", "AbColorPickerDialog")
+        listOf("AbListChoiceDialog", "AbTextInputDialog", "AbMultiSelectDialog")
             .forEach { dialog ->
                 assertFalse("$dialog must be a sheet page here, not a dialog", src.contains("$dialog("))
             }
