@@ -58,10 +58,18 @@ abstract class VersePage protected constructor(
     val currentPassageBook get() = currentDocument as AbstractPassageBook
 
     /**
-     * Verse pages keep only the verse of whatever key they are given (see their doSetKey), so a
-     * range - e.g. the whole verse range a commentary entry covers - collapses to its first verse.
+     * A verse page keeps only a single verse (see their doSetKey) of a document that may cover a
+     * whole range - a commentary entry spanning several verses - so the location it is at is the
+     * range *containing* that verse, not only the range starting at it.
+     *
+     * The difference matters because window sync moves this page to any verse of the entry on
+     * screen: syncing to Heb 11:7 while the entry covering 11:5-8 is displayed must not make the
+     * next scroll report of that entry look like a move back to 11:5 (#3866).
      */
-    override fun storedKeyFor(key: Key): Key = KeyUtil.getVerse(key).toV11n(versification)
+    override fun isAtSameLocationAs(key: Key): Boolean {
+        val current = this.key ?: return false
+        return key.contains(KeyUtil.getVerse(current).toV11n(versification))
+    }
 
     override fun localSetCurrentDocument(doc: Book?) { // update current verse possibly remapped to v11n of new bible
         doc ?: return

@@ -115,7 +115,7 @@ abstract class CurrentPageBase protected constructor(
         pageChange()
     }
 
-    override fun storedKeyFor(key: Key): Key = key
+    override fun isAtSameLocationAs(key: Key): Boolean = key == this.key
 
     override fun updateKeyFromScrolledOsisRef(osisRef: String): Boolean {
         if(key?.osisRef == osisRef) return false
@@ -125,11 +125,11 @@ abstract class CurrentPageBase protected constructor(
             Log.w(TAG, "Could not resolve scrolled osisRef $osisRef", e)
             null
         } ?: return false
-        // The osisRef the client reports is the displayed document's, which for a commentary is
-        // the entry's whole annotateRef range (e.g. Heb.11.5-Heb.11.8) while the page key is only
-        // the verse the entry starts at (Heb.11.5). Comparing the stored forms - rather than the
+        // The osisRef the client reports is the displayed document's, which for a commentary is the
+        // entry's whole annotateRef range (e.g. Heb.11.5-Heb.11.8) while the page key is a single
+        // verse of it. Asking the page whether that is where it already is - rather than comparing
         // osisRefs above - is what keeps scrolling inside one entry from counting as a move.
-        if(storedKeyFor(newKey) == key) return false
+        if(isAtSameLocationAs(newKey)) return false
         doSetKey(newKey)
         return true
     }
