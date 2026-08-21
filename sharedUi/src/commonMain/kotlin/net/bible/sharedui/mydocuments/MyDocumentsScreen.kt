@@ -187,12 +187,15 @@ fun MyDocumentsScreen(
                             ) {
                                 // onCheckedChange = null so the enclosing clickable owns the gesture and the
                                 // row announces itself once (precedent: RawLogHistoryScreen, BookmarksScreen).
+                                // The 48.dp box is load-bearing: a non-interactive Checkbox no longer gets
+                                // minimumInteractiveComponentSize, so it would measure its bare 24.dp visual
+                                // and the label column would land at a different x than in the drag-handle
+                                // mode — i.e. the whole list would jump sideways when selection mode starts.
+                                // This gives it exactly the handle's 48.dp leading slot instead.
                                 if (selectionMode) {
-                                    Checkbox(
-                                        checked = item.id in selection,
-                                        onCheckedChange = null,
-                                        modifier = Modifier.padding(horizontal = 4.dp),
-                                    )
+                                    Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                                        Checkbox(checked = item.id in selection, onCheckedChange = null)
+                                    }
                                 }
                                 if (item.isAiGenerated) {
                                     Icon(
