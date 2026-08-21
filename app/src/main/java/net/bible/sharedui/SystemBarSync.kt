@@ -92,5 +92,19 @@ fun applySystemBarColor(activity: Activity, container: Color, fillWindowBackgrou
         if (controller.isAppearanceLightStatusBars != statusBarBackgroundIsLight) {
             controller.isAppearanceLightStatusBars = statusBarBackgroundIsLight
         }
+
+        // Round 12b §3: the same luminance rule for the NAVIGATION bar's icons — but only when
+        // `fillWindowBackground` is true. That flag already means "the container colour IS the
+        // window background", which is exactly the condition under which the container is also what
+        // sits behind the navigation bar. When it is false (the reading toolbar, which paints only
+        // its own status-bar strip) the colour behind the navigation bar belongs to someone else —
+        // `MainBibleActivity.showSystemUI()` owns it there — and using the toolbar's colour would be
+        // the inverted-source mistake the comment above warns about, one bar down.
+        if (fillWindowBackground) {
+            val navBarBackgroundIsLight = container.luminance() >= 0.45f
+            if (controller.isAppearanceLightNavigationBars != navBarBackgroundIsLight) {
+                controller.isAppearanceLightNavigationBars = navBarBackgroundIsLight
+            }
+        }
     }
 }

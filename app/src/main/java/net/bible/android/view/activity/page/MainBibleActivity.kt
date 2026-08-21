@@ -68,12 +68,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
@@ -2457,6 +2459,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                         if (!composeUiEnabled) statusBarColor = toolbarColor
                         navigationBarColor = color
+                    }
+                }
+
+                // Round 12b §3: the navigation bar's ICON contrast, on ALL API levels — the colour
+                // write above is deprecated and platform-ignored from API 35, so on 35/36 nothing
+                // told the system whether it is drawing 3-button icons on a light or a dark
+                // surface, and the home/back glyphs could come out unreadable. `color` is already
+                // the right source: with no bottom bar the WebView extends under the navigation bar
+                // and `color` IS the pane background; when a bottom bar covers that strip it is a
+                // theme surface following the same day/night state, so the same value still holds.
+                WindowInsetsControllerCompat(window, window.decorView).let { controller ->
+                    val navBarBackgroundIsLight = ColorUtils.calculateLuminance(color) >= 0.45
+                    if (controller.isAppearanceLightNavigationBars != navBarBackgroundIsLight) {
+                        controller.isAppearanceLightNavigationBars = navBarBackgroundIsLight
                     }
                 }
 
