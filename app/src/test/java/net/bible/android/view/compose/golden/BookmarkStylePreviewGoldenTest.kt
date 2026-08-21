@@ -43,4 +43,25 @@ class BookmarkStylePreviewGoldenTest {
 
     @Test fun bookmarkStylePreview_all() =
         captureMatrix("BookmarkStylePreview", "all", heightDp = 400, content = allFour)
+
+    private val allFourPartial = @Composable {
+        Column {
+            BookmarkDisplayStyle.entries.forEach { style ->
+                BookmarkStylePreview(
+                    style = style,
+                    colorArgb = AbColor.palette.first(),
+                    sampleText = "For God so loved the world",
+                    decoratePartially = true,
+                    iconSlot = { bookmarkIcon(null, Color(AbColor.palette.first())) },
+                )
+            }
+        }
+    }
+
+    /** The selection axis: only the first half of the sentence is decorated. The full-decoration
+     *  counterpart is [bookmarkStylePreview_all]; reading the two together is what shows the
+     *  convention. MARKER's glyph is a superscript here, at 60% of the text size in the label's
+     *  colour, matching the reader. */
+    @Test fun bookmarkStylePreview_partial() =
+        captureMatrix("BookmarkStylePreview", "partial", heightDp = 400, content = allFourPartial)
 }

@@ -18,9 +18,13 @@
 package net.bible.sharedui.bookmark
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -32,8 +36,12 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedui.strings.LocalStrings
@@ -51,6 +59,10 @@ private val UnderlineBandHeight = 3.dp
  * One renderer, two call sites: [BookmarkStylePreview] (the editor's "what will this look like"
  * card) and [LabelStyleTag] (the list row's small tag). Duplicating the rules is what the
  * [BookmarkStylePreview] KDoc warns against.
+ *
+ * When [showsMarkerIcon] is true, the glyph is drawn by [SuperscriptMarker] — a shared 60%-scale,
+ * raised placement in the label's colour — rather than each call site drawing its icon slot at its
+ * own full size.
  */
 data class BookmarkStyleDecoration(val textModifier: Modifier, val showsMarkerIcon: Boolean)
 
@@ -112,6 +124,71 @@ fun bookmarkStyleDecoration(style: BookmarkDisplayStyle, colorArgb: Int): Bookma
 }
 
 /**
+ * Splits [text] into the part a text-selection bookmark decorates and the part it does not.
+ *
+ * Why half of anything at all: a fully decorated sample cannot be told from a whole-verse one, and
+ * the two axes are precisely what the tag and the preview have to distinguish. The cut is the space
+ * NEAREST the midpoint, searched in both directions (ties broken towards the earlier one) — a
+ * sentence breaks at whichever nearby word boundary is closest to half ("For God so| loved the
+ * world", where the space nine characters after the midpoint is exactly as close as the one three
+ * before it, so the earlier one wins), while a single word — every translated style name — has no
+ * space to find at all and falls through to the midpoint character ("High|light"), which is what
+ * makes a list tag read as partial. Scripts without word spaces take the same character-split
+ * fallback, which is correct rather than merely tolerable: the decoration is illustrative, not
+ * linguistic. A space sitting at index 0 is never used as the cut (that would decorate nothing at
+ * all), so a leading space cannot make the decorated half empty.
+ *
+ * The space itself stays with the UNdecorated tail, so a highlight band never ends on a trailing
+ * space.
+ */
+fun splitSelectionSample(text: String): Pair<String, String> {
+    if (text.length < 2) return text to ""
+    val mid = text.length / 2
+    val before = text.lastIndexOf(' ', mid)
+    val after = text.indexOf(' ', mid)
+    val cut = when {
+        before <= 0 && after < 0 -> mid
+        before <= 0 -> after
+        after < 0 -> before
+        (mid - before) <= (after - mid) -> before
+        else -> after
+    }
+    return text.substring(0, cut) to text.substring(cut)
+}
+
+/** The glyph size the hosts draw a label icon at (`ManageLabelIcon` / `AndroidLabelIcon`), which is
+ *  fixed there — so scaling for the superscript has to happen here. */
+private val HostGlyphSize = 24.dp
+
+/**
+ * The label's marker glyph as the reader draws it: a superscript.
+ *
+ * The reader's MARKER is a `<span class="bookmark-marker">` at `font-size: 60%` raised `top: -0.8em`
+ * with `vertical-align: top`, in the label's colour, immediately after the verse text
+ * (`bibleview-js/src/components/BibleView.vue:683-694`, `common.scss:86-91`,
+ * `composables/bookmarks.ts:646-659`). Compose drew it at the host's full 24dp, vertically centred —
+ * which is why it read as a large icon beside the text rather than a mark on it.
+ *
+ * The host slot's size is not ours to set, so the glyph is scaled by a `graphicsLayer` inside a box
+ * of the intended size: layout gets the small size, drawing gets the shrunken glyph. 8dp is a floor —
+ * below that the mark is not identifiable at any font scale.
+ */
+@Composable
+fun SuperscriptMarker(textSizeDp: Dp, iconSlot: @Composable () -> Unit) {
+    val size = max(textSizeDp * 0.6f, 8.dp)
+    val rise = textSizeDp * 0.35f
+    val scale = size / HostGlyphSize
+    Box(modifier = Modifier.size(size).offset(y = -rise), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .requiredSize(HostGlyphSize)
+                .graphicsLayer { scaleX = scale; scaleY = scale },
+            contentAlignment = Alignment.Center,
+        ) { iconSlot() }
+    }
+}
+
+/**
  * A label's style, small enough to sit on a list row: **the style's own localised name, drawn with
  * that style**, in the label's colour.
  *
@@ -130,6 +207,7 @@ fun LabelStyleTag(
     style: BookmarkDisplayStyle,
     colorArgb: Int,
     modifier: Modifier = Modifier,
+    decoratePartially: Boolean = false,
     iconSlot: @Composable () -> Unit,
 ) {
     val strings = LocalStrings.current
@@ -140,24 +218,39 @@ fun LabelStyleTag(
         BookmarkDisplayStyle.MARKER -> strings.displayModeMarker
         BookmarkDisplayStyle.HIDDEN -> strings.displayModeHidden
     }
+    val textStyle = MaterialTheme.typography.labelSmall
+    val color = if (style == BookmarkDisplayStyle.HIDDEN) {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text,
-            style = MaterialTheme.typography.labelSmall,
-            color = if (style == BookmarkDisplayStyle.HIDDEN) {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
-            // A tag is a short label, not a paragraph -- it must never wrap. Wrapping also
-            // silently inflates the row past its 48dp target.
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = decoration.textModifier,
-        )
+        // MARKER and HIDDEN decorate nothing, so a partial split would show as an invisible seam in
+        // the middle of a word -- skip it and keep one Text.
+        val split = decoratePartially && style != BookmarkDisplayStyle.MARKER && style != BookmarkDisplayStyle.HIDDEN
+        if (split) {
+            val (decorated, rest) = splitSelectionSample(text)
+            // The decorated half is never ellipsized -- it is the part that says "selection", so it
+            // must render whole or the demonstration is lost. The undecorated tail is expendable by
+            // comparison, so IT absorbs any width shortage against the 110dp cap the call site
+            // applies (ManageLabelsScreen.kt's `tagMaxWidth`).
+            Text(decorated, style = textStyle, color = color, maxLines = 1, modifier = decoration.textModifier)
+            Text(rest, style = textStyle, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        } else {
+            Text(
+                text,
+                style = textStyle,
+                color = color,
+                // A tag is a short label, not a paragraph -- it must never wrap. Wrapping also
+                // silently inflates the row past its 48dp target.
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = decoration.textModifier,
+            )
+        }
         if (decoration.showsMarkerIcon) {
-            Spacer(Modifier.width(4.dp))
-            iconSlot()
+            Spacer(Modifier.width(1.dp))
+            SuperscriptMarker(with(LocalDensity.current) { textStyle.fontSize.toDp() }, iconSlot)
         }
     }
 }
