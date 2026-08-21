@@ -23,17 +23,12 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.StudyPadSearchResult
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import kotlin.random.Random.Default.nextInt
-
-/** Default false: the two-line row is the default, because the feedback this round answers was that
- *  the list showed too little, not too much. */
-private const val COMPACT_LABEL_ROWS_KEY = "manage_labels_compact_rows"
 
 /** Android-side impl of the [ManageLabelsService] seam, backed by [BookmarkControl]/[WindowControl]. */
 class ManageLabelsServiceImpl(
@@ -69,13 +64,6 @@ class ManageLabelsServiceImpl(
         withContext(Dispatchers.IO) {
             bookmarkControl.searchStudyPadsByContent(text).map { it.toSearchResultRow() }
         }
-
-    override fun compactLabelRows(): Boolean =
-        CommonUtils.settings.getBoolean(COMPACT_LABEL_ROWS_KEY, false)
-
-    override fun setCompactLabelRows(value: Boolean) {
-        CommonUtils.settings.setBoolean(COMPACT_LABEL_ROWS_KEY, value)
-    }
 }
 
 /** [ManageLabelsRow.SearchResult] view of a classic [StudyPadSearchResult] — takes only the FIRST

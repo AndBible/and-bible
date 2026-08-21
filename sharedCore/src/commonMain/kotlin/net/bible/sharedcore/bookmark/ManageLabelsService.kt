@@ -15,10 +15,4 @@ interface ManageLabelsService {
      * applies the results (or falls back to the categorized list on error/empty/short text).
      */
     suspend fun searchStudyPadsByContent(text: String): List<ManageLabelsRow.SearchResult>
-
-    /** Whether the label list draws one-line rows. A global view preference, not per-workspace:
-     *  persisted host-side, seeded into the controller at construction and written through on every
-     *  toggle (there is no Save step for a view preference). */
-    fun compactLabelRows(): Boolean
-    fun setCompactLabelRows(value: Boolean)
 }

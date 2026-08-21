@@ -116,7 +116,6 @@ fun ManageLabelsScreen(
     title: String,
     rows: List<ManageLabelsRow>,
     mode: ManageLabelsMode,
-    compact: Boolean,
     searchText: String,
     searchMode: SearchMode,
     onSearch: (String) -> Unit,
@@ -176,7 +175,6 @@ fun ManageLabelsScreen(
                         is ManageLabelsRow.Item -> LabelItemRow(
                             row = row,
                             mode = mode,
-                            compact = compact,
                             onRowClick = onRowClick,
                             onRowLongClick = onRowLongClick,
                             onToggleChecked = onToggleChecked,
@@ -299,7 +297,6 @@ private fun CategoryHeaderRow(category: LabelCategory, strings: Strings) {
 private fun LabelItemRow(
     row: ManageLabelsRow.Item,
     mode: ManageLabelsMode,
-    compact: Boolean,
     onRowClick: (String) -> Unit,
     onRowLongClick: (String) -> Unit,
     onToggleChecked: (String) -> Unit,
@@ -345,70 +342,33 @@ private fun LabelItemRow(
             // maxLines fix; 110dp plus that fix means it now ellipsizes instead of wrapping, in
             // the case a translation is unusually long).
             val tagMaxWidth = Modifier.widthIn(max = 110.dp)
-            if (compact) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = label.name,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (row.highlighted) FontWeight.Bold else FontWeight.Normal,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                LabelStyleTag(label.selectionStyle, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
+                // Only when the whole-verse axis is really DIFFERENT from the selection axis:
+                // null means it inherits, and an explicitly-set-but-equal value reads the same way
+                // for display -- one tag already says everything, so a second identical tag is
+                // noise, not information. Task 4's save path normalises the equal case to null
+                // going forward, so an explicitly-equal stored value can only survive here as
+                // legacy data; treating it the same as null keeps that legacy case honest too.
+                val wholeVerse = label.wholeVerseStyle
+                if (wholeVerse != null && wholeVerse != label.selectionStyle) {
                     Text(
-                        text = label.name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = if (row.highlighted) FontWeight.Bold else FontWeight.Normal,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f),
+                        " · ",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    // Tag shown only when the row is not already crowded by a checkbox PLUS the
-                    // workspace-edit controls (round-3 fix -- Finding 1 was still open:
-                    // `Modifier.weight(1f).widthIn(min = ...)` cannot work, because `weight`'s
-                    // `fill = true` gives the child an EXACT width, so a chained `widthIn` minimum
-                    // is overridden -- and more fundamentally, the space plain doesn't exist. That
-                    // crowding only actually happens in ASSIGN: `showCheckboxes && workspaceEdits`
-                    // is true ONLY for ASSIGN (HIDELABELS has showCheckboxes but not workspaceEdits
-                    // -- its row carries just the checkbox; WORKSPACE has workspaceEdits but not
-                    // showCheckboxes). Compact ASSIGN carries a 24dp glyph, a 12dp spacer, 32dp of
-                    // horizontal padding, and up to four 48dp IconButton touch targets (checkbox,
-                    // bolt, heart, primary) -- roughly 260dp of a 320dp-wide screen, leaving ~60dp
-                    // for the name and tag TOGETHER. Nothing conjures space that isn't there, so
-                    // something has to yield, and it's the tag, not the name: a 20dp tag says
-                    // nothing while a 40dp name still identifies the row, and the tag's information
-                    // is exactly what the two-line mode exists to show -- nothing is lost here, only
-                    // deferred to the mode whose purpose it is. HIDELABELS, with only the checkbox
-                    // and roughly 200dp free, is not crowded and keeps its tag.
-                    val crowded = mode.showCheckboxes && mode.workspaceEdits
-                    if (!crowded) {
-                        Spacer(Modifier.width(8.dp))
-                        // Selection axis only when compact: one line cannot carry both and still
-                        // leave the name legible. The whole-verse axis is what the two-line mode adds.
-                        LabelStyleTag(label.selectionStyle, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
-                    }
-                }
-            } else {
-                Text(
-                    text = label.name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = if (row.highlighted) FontWeight.Bold else FontWeight.Normal,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    LabelStyleTag(label.selectionStyle, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
-                    // Only when the whole-verse axis is really DIFFERENT from the selection axis:
-                    // null means it inherits, and an explicitly-set-but-equal value reads the same way
-                    // for display -- one tag already says everything, so a second identical tag is
-                    // noise, not information. Task 4's save path normalises the equal case to null
-                    // going forward, so an explicitly-equal stored value can only survive here as
-                    // legacy data; treating it the same as null keeps that legacy case honest too.
-                    val wholeVerse = label.wholeVerseStyle
-                    if (wholeVerse != null && wholeVerse != label.selectionStyle) {
-                        Text(
-                            " · ",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        // Bounded the same way as the selection tag above: two unbounded tags plus
-                        // the " · " separator can together overflow the name column's width just
-                        // as one unbounded tag could crowd out the name (round-1 fix -- Finding 1's
-                        // failure mode applies here too, one level up).
-                        LabelStyleTag(wholeVerse, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
-                    }
+                    // Bounded the same way as the selection tag above: two unbounded tags plus
+                    // the " · " separator can together overflow the name column's width just
+                    // as one unbounded tag could crowd out the name (round-1 fix -- Finding 1's
+                    // failure mode applies here too, one level up).
+                    LabelStyleTag(wholeVerse, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
                 }
             }
         }

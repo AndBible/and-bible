@@ -177,7 +177,6 @@ class ManageLabelsGoldenTest {
         searchText: String = "",
         actions: @Composable RowScope.() -> Unit = {},
         searchActions: @Composable RowScope.() -> Unit = {},
-        compact: Boolean = false,
         rows: List<ManageLabelsRow>? = null,
     ) = @androidx.compose.runtime.Composable {
         ManageLabelsScreen(
@@ -186,7 +185,6 @@ class ManageLabelsGoldenTest {
             // shadows the `rows(mode)` MEMBER FUNCTION by simple name inside this scope.
             rows = rows ?: this.rows(mode),
             mode = mode,
-            compact = compact,
             searchText = searchText,
             searchMode = searchMode,
             onSearch = {},
@@ -248,7 +246,6 @@ class ManageLabelsGoldenTest {
             title = "Manage labels",
             rows = searchResultRows(),
             mode = ManageLabelsMode.STUDYPAD,
-            compact = false,
             searchText = "god",
             searchMode = SearchMode.CONTENT,
             onSearch = {},
@@ -288,35 +285,6 @@ class ManageLabelsGoldenTest {
      *  they show one tag each. */
     @Test fun manageLabels_styles() =
         captureMatrix("ManageLabels", "styles", heightDp = 500, content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()))
-
-    /** The same rows, compact, in ASSIGN: one line, ~48dp per row, NO style tag -- ASSIGN has
-     *  `showCheckboxes == true`, so compact drops the tag rather than starve the name (round-3
-     *  fix). Read against ManageLabels_styles_light to see what the two-line mode adds back. This
-     *  is the compact-WITHOUT-a-tag case; [manageLabels_workspace_compact] below is the only
-     *  capture of the opposite case (compact WITH a tag) -- see its KDoc. */
-    @Test fun manageLabels_styles_compact() =
-        captureGolden(
-            "ManageLabels", "styles_compact", EDGE_MODE, heightDp = 500,
-            content = screen(ManageLabelsMode.ASSIGN, rows = styleRows(), compact = true),
-        )
-
-    /** WORKSPACE compact: no checkbox (`WORKSPACE.showCheckboxes == false`), so the row is never
-     *  "crowded" (`showCheckboxes && workspaceEdits` is false here) and the style tag survives --
-     *  this is the ONLY compact capture that shows the tag at all; [manageLabels_styles_compact]
-     *  above is the compact-WITHOUT-a-tag case (it uses ASSIGN, which IS crowded). No row in this
-     *  fixture ([rows]) actually carries four trailing controls at once: L1 is checked and
-     *  primary-eligible, so it shows tag + ⚡ + heart + 🔖 (bolt/heart/primary, no override dot,
-     *  since it has none); L2 has the override dot but is unchecked, so it shows tag + ⓣ(dot) + ⚡
-     *  + heart (no primary, since `primaryShown` also requires `row.checked`) -- the override dot
-     *  is a plain non-interactive `Icon`, not a tappable control, so even L2's row has only three
-     *  real controls. L3/L4 are unchecked with no override: tag + ⚡ + heart only. The trailing
-     *  Unlabeled row (`mode.showUnassigned`) shows only its tag -- auto-assign/favourite/primary
-     *  are all gated off for `label.isUnlabeled`. */
-    @Test fun manageLabels_workspace_compact() =
-        captureGolden(
-            "ManageLabels", "workspace_compact", EDGE_MODE, heightDp = 800,
-            content = screen(ManageLabelsMode.WORKSPACE, compact = true),
-        )
 
     /** WORKSPACE: auto-assign circle icons, favourite hearts, override dot, and the Unlabeled row
      *  (mode.showUnassigned) rendered with a plain (non-clickable) icon -- the Task-3 parity fix. */
