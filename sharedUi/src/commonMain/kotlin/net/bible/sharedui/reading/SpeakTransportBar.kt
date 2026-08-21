@@ -49,10 +49,33 @@ fun SpeakTransportBar(
     onPlayPause: () -> Unit, onStop: () -> Unit, onRewind: () -> Unit, onForward: () -> Unit,
     onPrev: () -> Unit, onNext: () -> Unit, onBookmark: () -> Unit, onConfig: () -> Unit,
     showConfig: Boolean = true,
+    /**
+     * Round 12b §3: consume the bottom navigation-bar inset. `true` only when this bar is the
+     * bottom-most one in the reading view (`agentLogOwnsNavBarInset`'s complement); the speak
+     * SCREENS host this same bar as a `Scaffold` bottomBar, where the scaffold already handles
+     * insets — hence the `false` default, which leaves every other call site byte-identical.
+     *
+     * `ime` is excluded because `MainBibleActivity.applyImePadding()` already pads the container
+     * this whole Compose tree is installed into by `max(systemBars.bottom, ime.bottom)` whenever the
+     * keyboard is up, and `windowInsetsPadding` is not consumption-aware — without the exclusion a
+     * bar visible over an open keyboard would double-reserve and float a navigation-bar height above
+     * it. Applied INSIDE this composable, after `.background(...)`: a caller-supplied modifier is
+     * applied before the background, which would leave the inset strip unpainted — the very defect
+     * this parameter exists to fix.
+     */
+    applyNavBarInset: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
-    Column(modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant)) {
+    Column(
+        modifier.fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .then(
+                if (applyNavBarInset) {
+                    Modifier.windowInsetsPadding(WindowInsets.navigationBars.exclude(WindowInsets.ime))
+                } else Modifier
+            )
+    ) {
         // Rendered unconditionally (even when statusText is blank), NOT gated by isNotBlank(): classic's
         // statusText is android:lines="1" (speak_transport_widget.xml:27-40, with a placeholder
         // android:text="test") so it ALWAYS occupies exactly one line and the widget's height never

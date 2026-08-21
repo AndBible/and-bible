@@ -20,13 +20,7 @@ package net.bible.sharedui.reading
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -110,27 +104,23 @@ fun ReadingViewScreen(
     onQuickDocDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
     tabBar: (@Composable () -> Unit)? = null,
-    agentLog: (@Composable () -> Unit)? = null,
-    speakBar: (@Composable () -> Unit)? = null,
     /**
-     * Whether to reserve the bottom navigation-bar inset below the last bottom bar. The host
-     * computes it with `bottomInsetReserved(agentLogVisible, speakBarVisible)`: the [agentLog] and
-     * [speakBar] slots both hide themselves, so neither can tell whether it is the bottom-most one,
-     * and this screen is the only place that knows their order. Defaulted to `false` so existing
-     * call sites and their goldens are unaffected, and so a pane-only reading view keeps extending
-     * under the navigation bar as classic does.
-     *
-     * The reserved [Spacer] excludes [WindowInsets.ime] (whole-branch review, Important 3):
-     * `MainBibleActivity.applyImePadding()` already pads the container this whole Compose tree is
-     * installed into by `max(systemBars.bottom, ime.bottom)` whenever the IME is up (e.g. a WebView
-     * note editor -- not the Compose search field, which lives inside this tree), and
-     * `windowInsetsBottomHeight` is not consumption-aware. Without the exclusion, an agent-log panel
-     * showing while the keyboard is up (the panel can auto-show itself when a run starts, with no
-     * user action) would double-reserve: the host's IME padding PLUS this spacer's full
-     * navigation-bar height on top of it, floating the panel one navigation-bar height above the
-     * keyboard instead of sitting on it.
+     * The agent-log panel. Takes `applyNavBarInset` (round 12b §3): this screen is the only place
+     * that knows the bars' order, so it tells the bottom-most one to consume the bottom inset inside
+     * its own painted surface. Round 12b replaced the old `reserveBottomInset` + trailing `Spacer`,
+     * which reserved the space but painted nothing in it.
      */
-    reserveBottomInset: Boolean = false,
+    agentLog: (@Composable (applyNavBarInset: Boolean) -> Unit)? = null,
+    /** The speak transport bar. Same `applyNavBarInset` contract as [agentLog]. */
+    speakBar: (@Composable (applyNavBarInset: Boolean) -> Unit)? = null,
+    /**
+     * Whether [agentLog] will actually render. The slot self-hides, so it cannot report this, and
+     * this screen needs it to decide inset ownership (and, from round 12b Task 6, how much space to
+     * reserve for the collapsed panel).
+     */
+    agentLogVisible: Boolean = false,
+    /** Whether [speakBar] will actually render — see [agentLogVisible]. */
+    speakBarVisible: Boolean = false,
     searchBar: ReadingSearchBarState? = null,
     searchBarCallbacks: ReadingSearchBarCallbacks? = null,
     paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)? = null,
@@ -170,14 +160,9 @@ fun ReadingViewScreen(
             railOverlay = tabBar?.let { bar -> { Box(Modifier.align(Alignment.BottomEnd)) { bar() } } },
             paneBackground = paneBackground,
         )
-        agentLog?.invoke()
-        speakBar?.invoke()
-        if (reserveBottomInset) {
-            // Excludes WindowInsets.ime (see reserveBottomInset's kdoc, Important 3): the host
-            // already pads the container for the IME via MainBibleActivity.applyImePadding(), and
-            // this spacer is not consumption-aware, so without the exclusion an agent-log panel
-            // visible while the keyboard is up would double-reserve a navigation-bar height.
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars.exclude(WindowInsets.ime)))
-        }
+        // Round 12b §3: the bottom-most VISIBLE bar consumes the bottom navigation-bar inset inside
+        // its own painted surface. The speak bar is below the panel, so it wins whenever it is up.
+        agentLog?.invoke(agentLogVisible && !speakBarVisible)
+        speakBar?.invoke(speakBarVisible)
     }
 }

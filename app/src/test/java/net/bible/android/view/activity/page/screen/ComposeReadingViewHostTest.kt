@@ -808,18 +808,19 @@ class SpeakBarVisibilityTest {
 }
 
 /**
- * A/B round 6: [bottomInsetReserved] decides whether `ReadingViewScreen` must reserve the bottom
- * navigation-bar inset — true iff at least one of the agent-log/speak-bar slots is on screen. A
- * pure function, mirroring [SpeakBarVisibilityTest] above, so the decision is unit-testable without
- * a `ComposeTestRule`.
+ * Round 12b §3: [agentLogOwnsNavBarInset] decides whether the agent-log panel is the bottom-most
+ * visible bar and must therefore consume the bottom navigation-bar inset inside its own painted
+ * surface, replacing the old `bottomInsetReserved` (which only decided whether to reserve the
+ * space, not who paints it). A pure function, mirroring [SpeakBarVisibilityTest] above, so the
+ * decision is unit-testable without a `ComposeTestRule`.
  */
-class BottomInsetReservedTest {
-    @Test
-    fun bottomInsetIsReservedWheneverEitherBottomBarIsVisible() {
-        assertFalse(bottomInsetReserved(agentLogVisible = false, speakBarVisible = false))
-        assertTrue(bottomInsetReserved(agentLogVisible = true, speakBarVisible = false))
-        assertTrue(bottomInsetReserved(agentLogVisible = false, speakBarVisible = true))
-        assertTrue(bottomInsetReserved(agentLogVisible = true, speakBarVisible = true))
+class AgentLogOwnsNavBarInsetTest {
+    @Test fun theAgentPanelOwnsTheNavBarInsetOnlyWhenItIsTheBottomMostBar() {
+        assertTrue(agentLogOwnsNavBarInset(agentLogVisible = true, speakBarVisible = false))
+        assertFalse(agentLogOwnsNavBarInset(agentLogVisible = true, speakBarVisible = true),
+            "the speak bar sits below the panel, so it owns the inset when both are up")
+        assertFalse(agentLogOwnsNavBarInset(agentLogVisible = false, speakBarVisible = false))
+        assertFalse(agentLogOwnsNavBarInset(agentLogVisible = false, speakBarVisible = true))
     }
 }
 

@@ -121,8 +121,8 @@ class ReadingViewScreenGoldenTest {
     private fun screen(
         fullScreen: Boolean,
         tabBar: (@Composable () -> Unit)? = null,
-        agentLog: (@Composable () -> Unit)? = null,
-        speakBar: (@Composable () -> Unit)? = null,
+        agentLog: (@Composable (applyNavBarInset: Boolean) -> Unit)? = null,
+        speakBar: (@Composable (applyNavBarInset: Boolean) -> Unit)? = null,
     ): @Composable () -> Unit = {
         ReadingViewScreen(
             layout = layout,
@@ -136,6 +136,8 @@ class ReadingViewScreenGoldenTest {
             tabBar = tabBar,
             agentLog = agentLog,
             speakBar = speakBar,
+            agentLogVisible = agentLog != null,
+            speakBarVisible = speakBar != null,
         )
     }
 
@@ -161,7 +163,7 @@ class ReadingViewScreenGoldenTest {
         "ReadingViewScreen", "withAgentLog", EDGE_MODE,
         content = screen(
             fullScreen = false,
-            agentLog = {
+            agentLog = { _ ->
                 AgentLogPanel(
                     agentLogRunningExpanded, animateStatus = false,
                     statusIcon = painterResource(R.drawable.icon_robot),
@@ -244,7 +246,7 @@ class ReadingViewScreenGoldenTest {
         "ReadingViewScreen", "withSpeakBar", heightDp = 640,
         content = screen(
             fullScreen = false,
-            speakBar = {
+            speakBar = { _ ->
                 SpeakTransportBar(
                     speakTransportPlaying,
                     onPlayPause = {}, onStop = {}, onRewind = {}, onForward = {},

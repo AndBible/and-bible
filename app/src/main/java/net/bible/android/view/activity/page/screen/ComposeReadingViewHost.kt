@@ -295,23 +295,30 @@ internal fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Bo
     !fullScreen && transportVisible
 
 /**
- * Whether `ReadingViewScreen` must reserve the bottom navigation-bar inset — true iff at least one
- * of its in-flow bottom bars is on screen.
+ * Whether the agent-log panel is the bottom-most visible bar and must therefore consume the bottom
+ * navigation-bar inset inside its own painted surface.
  *
- * The whole Compose reading tree is edge-to-edge: the toolbar consumes `statusBars` itself and the
- * floating window rail consumes `navigationBars` itself, so the bottom-most in-flow child has to
- * consume the bottom inset. Neither the agent panel nor the speak bar can do it alone — both hide
- * themselves, so neither knows whether it is the bottom-most one, and padding both would leave dead
- * space between them whenever both are visible. Hence one decision, here, fed to one `Spacer`.
+ * Round 12b §3 replaces the old `bottomInsetReserved` + unpainted `Spacer` arrangement. The whole
+ * Compose reading tree is edge-to-edge: the toolbar consumes `statusBars` itself and the floating
+ * window rail consumes `navigationBars` itself, so the bottom-most in-flow child has to consume the
+ * bottom inset. Reserving it with a bare `Spacer` after the bars did reserve the right amount of
+ * SPACE but painted nothing there, so the strip showed `BottomSheetScaffold`'s default `surface`
+ * while the panel right above it is `surfaceColorAtElevation(3.dp)` — a visible seam, which is the
+ * reported defect. Padding inside the owning bar's surface makes the colour and the panel's rounded
+ * top corners come out right for free.
  *
- * With neither bar visible the result is false and the WebView pane keeps extending under the
- * navigation bar, which is what classic does (`mainBibleView` is bottom-padded only while the IME
- * is open, `MainBibleActivity.kt:642-648`).
+ * Neither bar can decide this alone — both hide themselves, so neither knows whether it is the
+ * bottom-most one, and padding both would leave dead space between them whenever both are visible.
+ * The speak bar sits below the panel in `ReadingViewScreen`'s `Column`, so it wins whenever visible.
+ *
+ * With neither bar visible nobody pads, and the WebView pane keeps extending under the navigation
+ * bar, which is what classic does (`mainBibleView` is bottom-padded only while the IME is open,
+ * `MainBibleActivity.kt:642-648`).
  *
  * A pure function, mirroring [speakBarVisible] above, so the decision is unit-testable.
  */
-internal fun bottomInsetReserved(agentLogVisible: Boolean, speakBarVisible: Boolean): Boolean =
-    agentLogVisible || speakBarVisible
+internal fun agentLogOwnsNavBarInset(agentLogVisible: Boolean, speakBarVisible: Boolean): Boolean =
+    agentLogVisible && !speakBarVisible
 
 /**
  * Whether the classic native bottom chrome — [net.bible.android.view.util.widget.AgentLogWidget]
@@ -1743,12 +1750,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // Batch 12e-B Task 6: the agent-log panel, pre-built here (closing over the live
             // `agentLog` controller) since `install` already owns it — mirrors how `pane` above is
             // threaded straight through `mountComposeView` rather than rebuilt from raw state.
-            agentLogSlot = {
+            agentLogSlot = { applyNavBarInset ->
                 val agentLogUiState by agentLog.state.collectAsState()
                 AgentLogPanel(
                     agentLogUiState,
                     animateStatus = !CommonUtils.settings.disableAnimations,
                     statusIcon = painterResource(R.drawable.icon_robot),
+                    applyNavBarInset = applyNavBarInset,
                     onToggleExpanded = agentLog::toggleExpanded,
                     onStop = agentLog::stop,
                     onClose = agentLog::hide,
@@ -1762,7 +1770,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // `speakTransport` controller) exactly the same pass-through shape as `agentLogSlot`
             // above — `install` already owns it, so it's threaded straight through
             // `mountComposeView` rather than rebuilt from raw state.
-            speakBarSlot = {
+            speakBarSlot = { applyNavBarInset ->
                 val speakState by speakTransport.state.collectAsState()
                 // `fullScreen` is the host's own MutableState (fed by FullScreenEvent), read here
                 // so the bar recomposes away when fullscreen is entered — see [speakBarVisible].
@@ -1777,43 +1785,36 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                         onNext = { speakTransport.nextVerse() },
                         onBookmark = { speakTransport.onBookmarkButton() },
                         onConfig = { speakTransport.onConfig() },
+                        applyNavBarInset = applyNavBarInset,
                     )
                 }
             },
-            // A/B round 6: reserves the bottom navigation-bar inset iff either bottom bar above is
-            // visible. The `speakBarVisible(...)` expression here is copied verbatim from
-            // `speakBarSlot`'s own guard above so the two cannot disagree about when the bar is on
-            // screen.
-            //
-            // Whole-branch review fix (Important 2): this lambda has a non-Unit (Boolean) return
-            // type, so it is NOT a restartable @Composable -- its state reads get attributed to the
-            // nearest enclosing restartable scope instead, which is the `BottomSheetScaffold`
-            // content lambda wrapping `key(gen) { ReadingViewScreen(...) }`. Reading
-            // `agentLog.state`/`speakTransport.state` with `by` directly in THIS lambda would
-            // therefore subscribe that whole outer scope to both flows, and `AgentLogController`
-            // emits on every log line/status/cost update during a run -- so the entire reading
-            // screen would recompose per log line (compounded by `readingToolbarIcons()` allocating
-            // a fresh unstable object every call, which defeats skipping). Fix: collect the flows
-            // as State (no `by`, so the collectAsState() call itself doesn't leak a read into the
-            // caller) and fold them into a `derivedStateOf` that only changes value when the
-            // resulting boolean actually flips; only `.value` on that derived state is read, and a
-            // value-returning lambda merely returning an already-computed State read is cheap here
-            // because the derived state itself absorbs the per-line churn.
-            reserveBottomInset = {
+            // Round 12b §3: whether the agent-log panel / speak bar will actually render, read as
+            // `@Composable` lambdas rather than plain booleans so the flow collection stays inside
+            // the composition that needs it (see the whole-branch-review non-restartable-lambda
+            // note this replaced, still true here: collecting `agentLog.state`/
+            // `speakTransport.state` with `by` directly at a non-Unit-returning lambda's call site
+            // would subscribe the nearest enclosing restartable scope -- the `BottomSheetScaffold`
+            // content lambda wrapping `key(gen) { ReadingViewScreen(...) }` -- to every log-line/
+            // status/cost update during a run). Each collects its own flow as State (no `by`) and
+            // folds it into a `derivedStateOf` that only changes value when the resulting boolean
+            // actually flips, so only that flip recomposes the outer scope.
+            agentLogVisibleState = {
                 val agentLogState = agentLog.state.collectAsState()
+                val visible = remember { derivedStateOf { agentLogState.value.visible } }
+                visible.value
+            },
+            speakBarVisibleState = {
                 val speakState = speakTransport.state.collectAsState()
-                val reserved = remember {
+                val visible = remember {
                     derivedStateOf {
-                        bottomInsetReserved(
-                            agentLogVisible = agentLogState.value.visible,
-                            speakBarVisible = speakBarVisible(
-                                fullScreen = fullScreen.value,
-                                transportVisible = speakState.value.visible,
-                            ),
+                        speakBarVisible(
+                            fullScreen = fullScreen.value,
+                            transportVisible = speakState.value.visible,
                         )
                     }
                 }
-                reserved.value
+                visible.value
             },
             speakDialogState = speakTransport.dialog,
             onSpeakBookmarkChosen = speakTransport::onSpeakBookmarkChosen,
@@ -2522,7 +2523,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // closes over it directly when building this, the same pass-through shape as [pane].
             // Defaulted to an inert no-op composable so `ComposeReadingViewHostTest`/
             // `ReadingLlmHostTest` (which never render an agent-log panel) are unaffected.
-            agentLogSlot: (@Composable () -> Unit)? = { },
+            agentLogSlot: (@Composable (applyNavBarInset: Boolean) -> Unit)? = { },
             // Batch 12f Task 6 additions: the reading-view Speak transport bar. `speakBarSlot` is a
             // pre-built `@Composable` lambda (same pass-through shape as `agentLogSlot` right
             // above — [ComposeReadingViewHost.install] already owns the live `speakTransport`
@@ -2532,7 +2533,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // it's rendered as a sibling overlay of `ReadingViewScreen`, not inside a slot. Defaulted
             // to inert no-ops so `ComposeReadingViewHostTest` (which never renders the bar/dialog)
             // is unaffected.
-            speakBarSlot: (@Composable () -> Unit)? = { },
+            speakBarSlot: (@Composable (applyNavBarInset: Boolean) -> Unit)? = { },
             speakDialogState: StateFlow<SpeakTransportDialog> = MutableStateFlow<SpeakTransportDialog>(SpeakTransportDialog.None).asStateFlow(),
             onSpeakBookmarkChosen: (id: String) -> Unit = {},
             onSpeakDialogDismiss: () -> Unit = {},
@@ -2582,11 +2583,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // `ComposeReadingViewHostTest` (which never triggers `onUnavailable`) is unaffected.
             searchUnavailableDocNameState: StateFlow<String?> = MutableStateFlow<String?>(null).asStateFlow(),
             onSearchUnavailableMessageShown: () -> Unit = {},
-            // A/B round 6: whether to reserve the bottom navigation-bar inset. A @Composable
-            // lambda rather than a plain Boolean because both inputs live in StateFlows/MutableState
-            // that must be read INSIDE the composition to recompose correctly -- the same reason
-            // `agentLogSlot` is a pre-built composable lambda rather than raw state.
-            reserveBottomInset: @Composable () -> Boolean = { false },
+            /**
+             * Whether the agent-log panel will render, and whether the speak bar will — read as
+             * `@Composable` lambdas rather than plain booleans so the flow collection stays inside
+             * the composition that needs it. `ReadingViewScreen` uses them for navigation-bar inset
+             * ownership (round 12b §3) and, from Task 6, for the overlay's in-flow reservation.
+             */
+            agentLogVisibleState: @Composable () -> Boolean = { false },
+            speakBarVisibleState: @Composable () -> Boolean = { false },
         ) {
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
@@ -2902,7 +2906,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                                             },
                                             agentLog = agentLogSlot,
                                             speakBar = speakBarSlot,
-                                            reserveBottomInset = reserveBottomInset(),
+                                            agentLogVisible = agentLogVisibleState(),
+                                            speakBarVisible = speakBarVisibleState(),
                                             bottomOverlay = { BibleReferenceOverlay(visible = overlayVisible, text = overlayText) },
                                             tabBar = if (hideTabBarInFullScreen) null else {
                                                 {
