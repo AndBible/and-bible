@@ -17,12 +17,14 @@
 package net.bible.android.control.page
 
 import android.util.Log
+import net.bible.android.common.toV11n
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 
@@ -54,6 +56,12 @@ abstract class VersePage protected constructor(
         }
 
     val currentPassageBook get() = currentDocument as AbstractPassageBook
+
+    /**
+     * Verse pages keep only the verse of whatever key they are given (see their doSetKey), so a
+     * range - e.g. the whole verse range a commentary entry covers - collapses to its first verse.
+     */
+    override fun storedKeyFor(key: Key): Key = KeyUtil.getVerse(key).toV11n(versification)
 
     override fun localSetCurrentDocument(doc: Book?) { // update current verse possibly remapped to v11n of new bible
         doc ?: return

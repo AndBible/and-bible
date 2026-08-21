@@ -131,9 +131,8 @@ class BibleJavascriptInterface(
             // both addressed by a single osisRef key. When infinite scroll brings a new block/entry
             // into view its document carries a different osisRef, so update the page key and notify
             // listeners (title bar / synced windows). Bible & MyNotes are handled above by ordinal.
-            if((curPage is CurrentGeneralBookPage || curPage is CurrentCommentaryPage) && doc is OsisDocument && curPage.key?.osisRef != keyStr) {
-                curPage.currentDocument?.getKey(keyStr)?.let {
-                    curPage.doSetKey(it)
+            if((curPage is CurrentGeneralBookPage || curPage is CurrentCommentaryPage) && doc is OsisDocument) {
+                if(curPage.updateKeyFromScrolledOsisRef(keyStr)) {
                     ABEventBus.post(CurrentVerseChangedEvent(window = bibleView.window))
                 }
             }

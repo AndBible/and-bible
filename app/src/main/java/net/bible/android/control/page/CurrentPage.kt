@@ -64,6 +64,25 @@ interface CurrentPage {
     /** set key without updating screens  */
     fun doSetKey(key: Key?)
 
+    /**
+     * The key this page would actually end up at if [doSetKey] were called with [key].
+     *
+     * Not always [key] itself: a commentary page stores only the verse an entry starts at, so a
+     * whole entry range collapses to that verse. Lets callers tell "the client is reporting the
+     * location we are already at" from "the client has moved to a new location", without the
+     * side effects of actually setting the key.
+     */
+    fun storedKeyFor(key: Key): Key
+
+    /**
+     * Move the page to the location the BibleView reports having scrolled to, given as the
+     * osisRef of the document that is now in view.
+     *
+     * @return true if this changed the page location, i.e. if listeners (title bar, window sync)
+     * need to be notified. Scrolling within the location the page is already at returns false.
+     */
+    fun updateKeyFromScrolledOsisRef(osisRef: String): Boolean
+
     val isSingleKey: Boolean
     // bible and commentary share a key (verse)
     val isShareKeyBetweenDocs: Boolean
