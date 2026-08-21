@@ -349,11 +349,20 @@ fun LabelEditScreen(
                         // the group then answers "what will this workspace draw" either way, and
                         // nothing appears or disappears as the radio moves. Same convention as the
                         // "Bookmark style" group above -- one preview, plain radio labels.
+                        //
+                        // decoratePartially differs by case, not by oversight: an actual override
+                        // takes both axes (selection AND whole-verse), so it is decorated in full,
+                        // same as the whole-verse preview above. NONE falls back to the label's own
+                        // SELECTION style, so it must speak the same half-decorated vocabulary as
+                        // that group's own preview two sections up -- otherwise this preview would
+                        // show the selection style decorated differently depending on which group
+                        // last drew it.
                         preview = {
                             BookmarkStylePreview(
                                 style = state.overrideMode.displayStyle ?: state.selectionStyle,
                                 colorArgb = state.color,
                                 sampleText = strings.bookmarkStylePreviewSample,
+                                decoratePartially = state.overrideMode == OverrideMode.NONE,
                                 iconSlot = { iconSlot(state.customIcon, glyphTint) },
                             )
                         },

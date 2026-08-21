@@ -234,14 +234,13 @@ fun LabelStyleTag(
             // The decorated half is never ellipsized -- it is the part that says "selection", so it
             // must render whole or the demonstration is lost. The undecorated tail is the one given
             // TextOverflow.Ellipsis, so IT alone ellipsizes once ITS OWN width exceeds what remains.
-            // What's guaranteed: each Text is single-line and the tail can shrink to an ellipsis.
-            // What's NOT verified here: whether the pair's combined width is kept inside the call
-            // site's cap (ManageLabelsScreen.kt's `tagMaxWidth`, 110dp) rather than the tail simply
-            // overflowing past it unclipped -- no sources jar for Compose Foundation was available
-            // in this environment to confirm how a non-weighted Row child's max-width constraint is
-            // computed, so this is left unresolved in code rather than guessed at. Task 6's golden
-            // test with the real 110dp cap and a long translated style name is what actually settles
-            // it -- look at that image, not this comment, before relying on this behaviour.
+            // Confirmed: the pair's combined width IS kept inside the call site's cap
+            // (ManageLabelsScreen.kt's `tagMaxWidth`, 110dp), not left to overflow past it unclipped.
+            // ManageLabels_styles_longname_light.png (STUDYPAD, qualifiers = "fr", whose
+            // display_mode_marker "Marqueur uniquement" is the widest style string in the tree)
+            // shows the split tag ellipsising inside its own bound rather than spilling past it --
+            // that golden is the evidence this Row-with-Ellipsis composition does the right thing
+            // under the real 110dp cap and the longest real-world label.
             Text(decorated, style = textStyle, color = color, maxLines = 1, modifier = decoration.textModifier)
             Text(rest, style = textStyle, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
         } else {
