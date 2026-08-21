@@ -9,7 +9,10 @@ class MyDocumentPagesControllerTest {
     private fun page(id: Long, name: String = "p$id", type: ContentType = ContentType.MARKDOWN) =
         MyDocPageItem(id, name, type, isAiGenerated = false)
 
-    private var savedOrder: List<Long>? = null
+    /** The full working list `save()` reports — ITEMS, not ids, so a consumer cannot substitute the
+     *  filtered `pages` publish (see [save_reports_a_rename_made_while_the_row_was_filtered_out]). */
+    private var savedItems: List<MyDocPageItem>? = null
+    private val savedOrder: List<Long>? get() = savedItems?.map { it.id }
     private var savedChanged: Set<Long>? = null
     private var savedDeleted: Set<Long>? = null
     private var createdType: ContentType? = null
@@ -19,7 +22,7 @@ class MyDocumentPagesControllerTest {
         onOpenPage = {}, onImport = {}, onExport = {},
         onCreatePage = { _, type -> createdType = type },
         onExportSelected = { ids -> exportedIds = ids },
-        onSave = { o, c, d -> savedOrder = o; savedChanged = c; savedDeleted = d },
+        onSave = { ordered, c, d -> savedItems = ordered; savedChanged = c; savedDeleted = d },
     )
 
     @Test fun starts_clean_and_empty() {
@@ -112,6 +115,54 @@ class MyDocumentPagesControllerTest {
         c.setQuery("bbb")
         c.save()
         assertEquals(listOf(0L, 1L, 2L), savedOrder)
+    }
+
+    @Test fun save_reports_a_rename_made_while_the_row_was_filtered_out() {
+        // The half nothing covered: `save()` must carry the RENAMED title of every page, including
+        // the ones the active filter hides. A consumer reading the filtered publish instead would
+        // write orderNumber 0 to the only visible page and silently lose this rename.
+        val c = controller()
+        c.setPages(listOf(page(0, "aaa"), page(1, "bbb"), page(2, "ccc")))
+        c.rename(1, "renamed")
+        c.setQuery("aaa")                                  // hides the renamed row
+        assertEquals(listOf(0L), c.pages.value.map { it.id })
+        c.save()
+        assertEquals(listOf(0L, 1L, 2L), savedOrder)
+        assertEquals("renamed", savedItems!!.first { it.id == 1L }.name)
+        assertTrue(savedChanged!!.contains(1L))
+    }
+
+    @Test fun exportSelected_reports_list_order_not_tap_order() {
+        // `_selection` is a LinkedHashSet, so it remembers the tap order; the host numbers the
+        // exported files `%02d-` from the order it receives, which must mean page order.
+        val c = controller()
+        c.setPages(listOf(page(0), page(1), page(2), page(3)))
+        c.toggleSelect(3); c.toggleSelect(1); c.toggleSelect(2)   // reverse-ish tap order
+        c.exportSelected()
+        assertEquals(listOf(1L, 2L, 3L), exportedIds)
+    }
+
+    @Test fun exportSelected_follows_a_reorder_rather_than_the_original_load_order() {
+        val c = controller()
+        c.setPages(listOf(page(0), page(1), page(2)))
+        c.moveItem(2, 0)                                          // order now [2,0,1]
+        c.toggleSelect(0); c.toggleSelect(2)
+        c.exportSelected()
+        assertEquals(listOf(2L, 0L), exportedIds)
+    }
+
+    @Test fun deleteSelected_ignores_an_id_that_is_not_in_the_list() {
+        // Sibling parity with MyDocumentsController.deleteSelected, which filters the selection down
+        // to ids actually present in `working`: an id the list does not hold must not be recorded as
+        // deleted, and must not dirty the editor.
+        val c = controller()
+        c.setPages(listOf(page(0)))
+        c.toggleSelect(7)                            // never in the list
+        c.deleteSelected()
+        assertFalse(c.dirty.value)
+        assertEquals(listOf(0L), c.pages.value.map { it.id })
+        c.save()
+        assertEquals(emptySet(), savedDeleted)
     }
 
     @Test fun deleteSelected_deletes_every_selected_page() {

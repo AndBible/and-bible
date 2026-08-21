@@ -28,7 +28,14 @@ class MyDocumentsController(
     val onCreate: (name: String) -> Unit,
     /** Batch export: hands the selected ids to the host, which owns SAF. */
     val onExportSelected: (ids: List<Long>) -> Unit,
-    val onSave: (orderedIds: List<Long>, changed: Set<Long>, deleted: Set<Long>) -> Unit,
+    /**
+     * Flushes the pending edits. Reports the WORKING ITEMS (not ids) on purpose: a consumer that
+     * only got ids had to look the rows up somewhere, and the obvious place — the published
+     * [documents] flow — is FILTERED, so a save made while a search was active silently dropped
+     * every hidden row's rename and left its orderNumber stale. Handing over the items makes that
+     * mistake unrepresentable.
+     */
+    val onSave: (ordered: List<MyDocItem>, changed: Set<Long>, deleted: Set<Long>) -> Unit,
 ) {
     /** The full, unfiltered order. [documents] publishes a filtered view of this. */
     private val working = mutableListOf<MyDocItem>()
@@ -152,9 +159,15 @@ class MyDocumentsController(
         publish()
     }
 
-    /** Hands the selected ids to the host (which owns SAF) and leaves selection mode. */
+    /**
+     * Hands the selected ids to the host (which owns SAF) and leaves selection mode. The ids are
+     * reported in LIST order, not selection order: `Set.plus` yields a LinkedHashSet, so
+     * `_selection` remembers the order the user tapped, and the host numbers the exported entries
+     * `%02d-` from the order it receives — a prefix that means document order everywhere else in
+     * this codebase.
+     */
     fun exportSelected() {
-        val ids = _selection.value.toList()
+        val ids = working.filter { it.id in _selection.value }.map { it.id }
         if (ids.isEmpty()) return
         _selection.value = emptySet()
         onExportSelected(ids)
@@ -165,5 +178,5 @@ class MyDocumentsController(
     fun export(id: Long) = onExport(id)
     fun create(name: String) = onCreate(name)
 
-    fun save() = onSave(working.map { it.id }, changed.toSet(), toDelete.toSet())
+    fun save() = onSave(working.toList(), changed.toSet(), toDelete.toSet())
 }

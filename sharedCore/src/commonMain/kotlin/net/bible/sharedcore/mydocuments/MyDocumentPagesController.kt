@@ -29,7 +29,14 @@ class MyDocumentPagesController(
     val onCreatePage: (name: String, type: ContentType) -> Unit,
     /** Batch export. */
     val onExportSelected: (ids: List<Long>) -> Unit,
-    val onSave: (orderedIds: List<Long>, changed: Set<Long>, deleted: Set<Long>) -> Unit,
+    /**
+     * Flushes the pending edits. Reports the WORKING ITEMS (not ids) on purpose: a consumer that
+     * only got ids had to look the rows up somewhere, and the obvious place — the published [pages]
+     * flow — is FILTERED, so a save made while a search was active silently dropped every hidden
+     * row's rename and left its orderNumber stale. Handing over the items makes that mistake
+     * unrepresentable. Mirrors [MyDocumentsController.onSave].
+     */
+    val onSave: (ordered: List<MyDocPageItem>, changed: Set<Long>, deleted: Set<Long>) -> Unit,
 ) {
     /** The full, unfiltered order. [pages] publishes a filtered view of this. */
     private val working = mutableListOf<MyDocPageItem>()
@@ -137,16 +144,26 @@ class MyDocumentPagesController(
         val ids = _selection.value
         _selection.value = emptySet()
         if (ids.isEmpty()) return
-        working.removeAll { it.id in ids }
-        toDelete.addAll(ids)
-        changed.removeAll(ids)
+        // Only ids actually present in `working` — same guard as MyDocumentsController.deleteSelected,
+        // so neither sibling can record a delete (and dirty the editor) for a row it does not hold.
+        val deletable = working.filter { it.id in ids }.map { it.id }
+        if (deletable.isEmpty()) return
+        working.removeAll { it.id in deletable }
+        toDelete.addAll(deletable)
+        changed.removeAll(deletable.toSet())
         _dirty.value = true
         publish()
     }
 
-    /** Hands the selected ids to the host (which owns SAF) and leaves selection mode. */
+    /**
+     * Hands the selected ids to the host (which owns SAF) and leaves selection mode. The ids are
+     * reported in LIST order, not selection order: `Set.plus` yields a LinkedHashSet, so
+     * `_selection` remembers the order the user tapped, while the host numbers the exported files
+     * `%02d-` from the order it receives — a prefix that means page order everywhere else in this
+     * codebase (see `writePagesInto`, which derives it from the DB order).
+     */
     fun exportSelected() {
-        val ids = _selection.value.toList()
+        val ids = working.filter { it.id in _selection.value }.map { it.id }
         if (ids.isEmpty()) return
         _selection.value = emptySet()
         onExportSelected(ids)
@@ -157,5 +174,5 @@ class MyDocumentPagesController(
     fun export(id: Long) = onExport(id)
     fun createPage(name: String, type: ContentType) = onCreatePage(name, type)
 
-    fun save() = onSave(working.map { it.id }, changed.toSet(), toDelete.toSet())
+    fun save() = onSave(working.toList(), changed.toSet(), toDelete.toSet())
 }

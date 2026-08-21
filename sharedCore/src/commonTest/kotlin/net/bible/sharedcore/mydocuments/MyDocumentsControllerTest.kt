@@ -9,7 +9,10 @@ class MyDocumentsControllerTest {
     private fun item(id: Long, name: String = "doc$id", description: String = "", canDelete: Boolean = true) =
         MyDocItem(id, "Ini$id", name, description, isAiGenerated = !canDelete, canDelete = canDelete)
 
-    private var savedOrder: List<Long>? = null
+    /** The full working list `save()` reports — ITEMS, not ids, so a consumer cannot substitute the
+     *  filtered `documents` publish (see [save_reports_a_rename_made_while_the_row_was_filtered_out]). */
+    private var savedItems: List<MyDocItem>? = null
+    private val savedOrder: List<Long>? get() = savedItems?.map { it.id }
     private var savedChanged: Set<Long>? = null
     private var savedDeleted: Set<Long>? = null
     private var exportedIds: List<Long>? = null
@@ -17,7 +20,7 @@ class MyDocumentsControllerTest {
     private fun controller() = MyDocumentsController(
         onOpen = {}, onImport = {}, onExport = {}, onCreate = {},
         onExportSelected = { ids -> exportedIds = ids },
-        onSave = { order, changed, deleted -> savedOrder = order; savedChanged = changed; savedDeleted = deleted },
+        onSave = { ordered, changed, deleted -> savedItems = ordered; savedChanged = changed; savedDeleted = deleted },
     )
 
     @Test fun starts_clean_and_empty() {
@@ -156,6 +159,30 @@ class MyDocumentsControllerTest {
         assertEquals(listOf(0L, 1L, 2L), savedOrder)   // NOT the filtered list
     }
 
+    @Test fun save_reports_a_rename_made_while_the_row_was_filtered_out() {
+        // The half nothing covered: `save()` must carry the RENAMED name of every row, including the
+        // ones the active filter hides. A consumer reading the filtered publish instead would write
+        // orderNumber 0 to the only visible row and silently lose this rename.
+        val c = controller()
+        c.setDocuments(listOf(item(0, "aaa"), item(1, "bbb"), item(2, "ccc")))
+        c.rename(1, "renamed")
+        c.setQuery("aaa")                                  // hides the renamed row
+        assertEquals(listOf(0L), c.documents.value.map { it.id })
+        c.save()
+        assertEquals(listOf(0L, 1L, 2L), savedOrder)
+        assertEquals("renamed", savedItems!!.first { it.id == 1L }.name)
+        assertTrue(savedChanged!!.contains(1L))
+    }
+
+    @Test fun save_reports_a_description_edit_made_while_the_row_was_filtered_out() {
+        val c = controller()
+        c.setDocuments(listOf(item(0, "aaa"), item(1, "bbb")))
+        c.editDescription(1, "outline")
+        c.setQuery("aaa")
+        c.save()
+        assertEquals("outline", savedItems!!.first { it.id == 1L }.description)
+    }
+
     @Test fun rename_while_filtered_survives_clearing_the_filter() {
         val c = controller()
         c.setDocuments(listOf(item(0, "aaa"), item(1, "bbb")))
@@ -257,6 +284,25 @@ class MyDocumentsControllerTest {
         c.exportSelected()
         assertEquals(setOf(0L, 2L), exportedIds?.toSet())
         assertTrue(c.selection.value.isEmpty())
+    }
+
+    @Test fun exportSelected_reports_list_order_not_tap_order() {
+        // `_selection` is a LinkedHashSet, so it remembers the tap order; the host numbers the
+        // exported entries `%02d-` from the order it receives, which must mean list order.
+        val c = controller()
+        c.setDocuments(listOf(item(0), item(1), item(2), item(3)))
+        c.toggleSelect(3); c.toggleSelect(1); c.toggleSelect(2)   // reverse-ish tap order
+        c.exportSelected()
+        assertEquals(listOf(1L, 2L, 3L), exportedIds)
+    }
+
+    @Test fun exportSelected_follows_a_reorder_rather_than_the_original_load_order() {
+        val c = controller()
+        c.setDocuments(listOf(item(0), item(1), item(2)))
+        c.moveItem(2, 0)                                          // order now [2,0,1]
+        c.toggleSelect(0); c.toggleSelect(2)
+        c.exportSelected()
+        assertEquals(listOf(2L, 0L), exportedIds)
     }
 
     @Test fun exportSelected_with_an_empty_selection_does_nothing() {

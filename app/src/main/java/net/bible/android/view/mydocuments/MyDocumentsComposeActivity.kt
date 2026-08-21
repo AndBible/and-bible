@@ -40,6 +40,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
+import net.bible.android.database.mydocument.MyDocumentPageWithContent
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
@@ -160,8 +161,14 @@ class MyDocumentsComposeActivity : ActivityBase() {
      * Mirror of classic [MyDocumentsActivity.applyChanges]: collect deleted docs' page ids →
      * unregister + delete each doc; then apply the current view-data order + renames/descriptions
      * onto the surviving entities and persist changed rows.
+     *
+     * [ordered] is the controller's FULL working list. It must not be replaced by a read of
+     * `controller.documents.value`, which is the *filtered* publish: a save while a search is
+     * active (leaving the screen, Save, opening a row, or the auto-save in
+     * [onDetachedFromWindow]) would then renumber only the visible rows and drop every hidden
+     * row's rename. The seam hands over items rather than ids precisely so that read is impossible.
      */
-    private fun applyChanges(orderedIds: List<Long>, changed: Set<Long>, deleted: Set<Long>) {
+    private fun applyChanges(ordered: List<MyDocItem>, changed: Set<Long>, deleted: Set<Long>) {
         resultIntent.putExtra("changed", true)
         // Collect page IDs before deletion (CASCADE will remove them).
         val deletedPageIds = deleted.mapNotNull { entityByLong[it] }.flatMap { doc ->
@@ -175,9 +182,8 @@ class MyDocumentsComposeActivity : ActivityBase() {
             }
         }
         // Apply order + renames/descriptions from the current view-data onto the entities.
-        val items = controller.documents.value
         val toUpdate = ArrayList<MyDocument>()
-        items.forEachIndexed { index, item ->
+        ordered.forEachIndexed { index, item ->
             val doc = entityByLong[item.id] ?: return@forEachIndexed
             doc.orderNumber = index
             doc.name = item.name
@@ -191,7 +197,9 @@ class MyDocumentsComposeActivity : ActivityBase() {
     /** Classic createNewDocument: insert + register a fresh empty document, then add it to the list. */
     private fun createDocument(name: String) {
         val initials = MyDocumentBookManager.generateInitials(name)
-        val newDoc = MyDocument(name = name, initials = initials, orderNumber = controller.documents.value.size)
+        // totalCount, not documents.value.size: the published list is filtered, so a create while a
+        // search is active would seed a colliding orderNumber.
+        val newDoc = MyDocument(name = name, initials = initials, orderNumber = controller.totalCount.value)
         dao.insert(newDoc)
         MyDocumentBookManager.registerDocument(newDoc)
         val id = nextLongId()
@@ -271,12 +279,17 @@ class MyDocumentsComposeActivity : ActivityBase() {
                 val treeDoc = DocumentFile.fromTreeUri(this@MyDocumentsComposeActivity, treeUri) ?: return@launch
                 for (id in ids) {
                     val document = entityByLong[id] ?: continue
+                    // Fetch first, and skip a page-less document BEFORE creating its subdirectory —
+                    // otherwise a batch containing an empty document leaves a stray empty folder in
+                    // the user's chosen directory (the single-document path returns early instead).
+                    val pages = dao.pagesWithContentForDocument(document.id)
+                    if (pages.isEmpty()) continue
                     val folderName = document.name
                         .replace(Regex("[^a-zA-Z0-9._\\- ]"), "")
                         .take(50)
                         .ifEmpty { document.initials }
                     val subDir = treeDoc.createDirectory(folderName) ?: continue
-                    writePagesInto(subDir, document)
+                    writePagesInto(subDir, pages)
                 }
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
@@ -295,9 +308,10 @@ class MyDocumentsComposeActivity : ActivityBase() {
     }
 
     /** The per-page write loop, lifted verbatim out of [exportDocumentToFolder] so the batch path
-     *  reuses it. Runs on the caller's (IO) dispatcher. */
-    private fun writePagesInto(dir: DocumentFile, document: MyDocument) {
-        val pages = dao.pagesWithContentForDocument(document.id)
+     *  reuses it. Takes the already-fetched [pages] — both callers need to inspect the list anyway
+     *  (to skip a page-less document), and querying it twice loaded every page's content twice.
+     *  Runs on the caller's (IO) dispatcher. */
+    private fun writePagesInto(dir: DocumentFile, pages: List<MyDocumentPageWithContent>) {
         for ((index, page) in pages.withIndex()) {
             val ext = if (page.contentType == MyDocumentContentType.HTML) "html" else "md"
             val mimeType = if (ext == "html") "text/html" else "text/markdown"
@@ -349,7 +363,9 @@ class MyDocumentsComposeActivity : ActivityBase() {
                 val newDocument = MyDocument(
                     name = documentName,
                     initials = initials,
-                    orderNumber = controller.documents.value.size
+                    // totalCount, not documents.value.size — this runs on IO while the user can be
+                    // typing in the search field, which would otherwise yield a filtered count.
+                    orderNumber = controller.totalCount.value
                 )
                 dao.insert(newDocument)
 
@@ -398,12 +414,13 @@ class MyDocumentsComposeActivity : ActivityBase() {
     private fun exportDocumentToFolder(document: MyDocument, treeUri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                if (dao.pagesWithContentForDocument(document.id).isEmpty()) return@launch
+                val pages = dao.pagesWithContentForDocument(document.id)
+                if (pages.isEmpty()) return@launch
 
                 val treeDoc = DocumentFile.fromTreeUri(this@MyDocumentsComposeActivity, treeUri)
                     ?: return@launch
 
-                writePagesInto(treeDoc, document)
+                writePagesInto(treeDoc, pages)
 
                 withContext(Dispatchers.Main) {
                     Toast.makeText(

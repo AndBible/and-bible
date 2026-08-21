@@ -156,14 +156,19 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
      * view-data order + renames onto the surviving entities and persist changed rows; always
      * refresh the SWORD book (new pages are inserted directly, so `changed` may be empty even when
      * the book is stale), and post [AiDocPagesChangedEvent] for the deleted pages.
+     *
+     * [ordered] is the controller's FULL working list. It must not be replaced by a read of
+     * `controller.pages.value`, which is the *filtered* publish: a save while a search is active
+     * (leaving the screen, Save, opening a page, or the auto-save in [onDetachedFromWindow]) would
+     * then renumber only the visible pages and drop every hidden page's rename. The seam hands over
+     * items rather than ids precisely so that read is impossible.
      */
-    private fun applyChanges(orderedIds: List<Long>, changed: Set<Long>, deleted: Set<Long>) {
+    private fun applyChanges(ordered: List<MyDocPageItem>, changed: Set<Long>, deleted: Set<Long>) {
         deleted.mapNotNull { entityByLong[it] }.forEach { p ->
             dao.pageById(p.id)?.let { dao.deletePageWithContent(it) }
         }
-        val items = controller.pages.value
         val toUpdate = ArrayList<MyDocumentPage>()
-        items.forEachIndexed { index, item ->
+        ordered.forEachIndexed { index, item ->
             val p = entityByLong[item.id] ?: return@forEachIndexed
             p.orderNumber = index
             p.title = item.name
@@ -197,7 +202,9 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
             title = title,
             pageKey = "page_$pageId",
             contentType = contentType,
-            orderNumber = controller.pages.value.size,
+            // totalCount, not pages.value.size: the published list is filtered, so a create/import
+            // while a search is active would seed a colliding orderNumber.
+            orderNumber = controller.totalCount.value,
         )
         dao.insertPageWithContent(page, content)
         val id = nextLongId()
@@ -287,6 +294,9 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val treeDoc = DocumentFile.fromTreeUri(this@MyDocumentPagesComposeActivity, treeUri) ?: return@launch
+                // `ids` arrives in LIST order (MyDocumentPagesController.exportSelected sorts the
+                // selection back into working order), so this index is the page's position in the
+                // document — the same meaning `%02d-` carries in the documents-side export.
                 for ((index, id) in ids.withIndex()) {
                     val page = entityByLong[id] ?: continue
                     val withContent = dao.pageByIdWithContent(page.id) ?: continue
