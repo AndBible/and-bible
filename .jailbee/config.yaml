@@ -22,40 +22,37 @@ jetbrains:
   autostart: false
 
 # adb model: a single host-side adb-server serves both host and container
-# adb-clients, communicating over a Unix socket at ~/.android/adb.sock.
-# Configured entirely via the ADB_SERVER_SOCKET env var — same value in
-# both places. Works identically for USB, `adb tcpip`, and Android 11+
-# wireless debugging.
+# adb-clients, reached from the container over a TCP port forward (see
+# `host_ports` below) rather than a bind-mounted Unix socket. Works
+# identically for USB, `adb tcpip`, and Android 11+ wireless debugging.
 #
-# One-time host setup — add to ~/.bashrc / ~/.zshrc:
-#   export ADB_SERVER_SOCKET=localfilesystem:$HOME/.android/adb.sock
-#   adb start-server   # idempotent; only starts if not already running
-# Then on next login (or `source ~/.bashrc`): adb-server reads
-# ADB_SERVER_SOCKET and listens on that Unix socket instead of TCP:5037.
+# The forward lands on the container's own 127.0.0.1:5037 — adb's default
+# endpoint — so the container needs NO `ADB_SERVER_SOCKET` override: a plain
+# `adb devices` in here talks to the host server.
+#
+# One-time host setup is the stock default — nothing but:
+#   adb start-server   # idempotent; listens on 127.0.0.1:5037
+# Do NOT export `ADB_SERVER_SOCKET` on the host any more: that moves the
+# server onto a Unix socket and leaves nothing on :5037 for the forward to
+# reach, so the container gets a connection that opens and then dies.
 #
 # Pair the phone once on the host (`adb pair`, `adb connect`); the
 # container inherits the running server with no extra steps.
 #
-# IMPORTANT: the socket file must exist on host before `jailbee new` /
-# `jailbee start` (Incus binds files at container start). If you ever see a mount
-# error, just run `adb start-server` on host and retry.
+# CAVEAT — if you ever run an Android emulator INSIDE this container, its
+# adb-server must use a different port (5038 is the convention across these
+# repos): the Incus proxy device occupies 127.0.0.1:5037 in the container, so
+# a container-local adb-server cannot bind the default port, and a client left
+# on the default would silently talk to the host server instead.
 
 # Repo-specific host bind-mounts.
 #
 # Android SDK is bind-mounted RO so Gradle can find platforms/build-tools
-# without reinstalling them in every container. The host adb-server's
-# Unix socket is bind-mounted as a single file at /home/dev/.adb.sock —
-# no need to expose ~/.android (adb-client doesn't read adbkey; that's
-# only used server-side for authenticating with the phone).
+# without reinstalling them in every container.
 # Personal mounts (~/.gnupg, ~/.gitconfig, JetBrains/Toolbox) belong in
 # ~/.config/jailbee/global.yaml.
 host_mounts:
   - { host: ~/Android/Sdk,       container: /home/dev/Android/Sdk, readonly: true  }
-  - { host: ~/.android/adb.sock, container: /home/dev/.adb.sock,   readonly: false }
-  # Socket must live OUTSIDE /run because container-init mounts tmpfs on
-  # top of /run after Incus's disk devices are wired, burying any disk
-  # mount under /run/*. /home/dev (ext4 rootfs, no overlay) is safe.
-  # - { host: ~/.android/adb.sock, container: /home/dev/.adb.sock,   readonly: false }
   # Sibling git repos that are gitignored in the main repo but live
   # under the working tree (ai-local, wiki, readthedocs). All three are
   # mounted RW so edits/commits made inside the container are reflected
@@ -63,6 +60,12 @@ host_mounts:
   - { host: ai-local,    container: /home/dev/and-bible/ai-local,    readonly: false }
   - { host: wiki,        container: /home/dev/and-bible/wiki,        readonly: false }
   - { host: readthedocs, container: /home/dev/and-bible/readthedocs, readonly: false }
+
+# Forward the host adb-server into the container (see the adb model above).
+# Container 127.0.0.1:5037 -> host 127.0.0.1:5037. Attached by `jailbee new`
+# and kept in sync by `jailbee apply` — no image rebuild, no restart.
+host_ports:
+  - { name: adb, port: 5037 }
 
 # Persistent shared caches (bind-mounted from <shared_dir>/<host_subpath>).
 # The ai-local ostickethelper / playwright tools install Chromium (~150 MB)
@@ -142,12 +145,13 @@ golden:
 #       network: loose
 # Container-wide env vars injected via the Incus base profile — visible
 # in every process Incus spawns (jailbee shell, jailbee tmux, autostart steps,
-# the IDE). ADB_SERVER_SOCKET points at the host adb-server's Unix
-# socket bind-mounted under ~/.android. ANDROID_HOME / ANDROID_SDK_ROOT
-# let the Android SDK be discovered from the RO-mounted host SDK.
+# the IDE). There is deliberately NO ADB_SERVER_SOCKET here — the
+# `host_ports` forward puts the host adb-server on adb's default
+# 127.0.0.1:5037, so the stock default is already correct. ANDROID_HOME /
+# ANDROID_SDK_ROOT let the Android SDK be discovered from the RO-mounted
+# host SDK.
 container:
   env:
-    ADB_SERVER_SOCKET: "localfilesystem:/home/dev/.adb.sock"
     ANDROID_HOME: /home/dev/Android/Sdk
     ANDROID_SDK_ROOT: /home/dev/Android/Sdk
 
