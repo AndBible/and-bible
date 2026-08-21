@@ -40,19 +40,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-/**
- * A generic, portable multiselect chooser: a titled [AlertDialog] with one checkbox row per option
- * (label = [labelOf]), pre-checked from [selectedIds]. Confirm reports the currently-checked ids via
- * [onConfirm]; Cancel/dismiss reports nothing. Self-contained (commonMain, no Android APIs).
- *
- * @param options the selectable items.
- * @param idOf     stable identity for an option (also the value reported to [onConfirm]).
- * @param labelOf  the human-readable row label.
- * @param selectAllText  when non-null, shows a neutral "select all / select none" toggle above the
- *   option list (opt-in; existing callers passing nothing get no toggle, unchanged behavior).
- * @param selectNoneText label shown instead of [selectAllText] once everything is already selected;
- *   falls back to [selectAllText] itself when not given.
- */
+/** Owns the working checked set; [onCheckedChange] reports it on every toggle (the select-all/none
+ *  toggle included). The content never commits anything itself — committing is the caller's
+ *  confirm button's job. */
 @Composable
 fun <T> AbMultiSelectContent(
     options: List<T>,
@@ -68,7 +58,7 @@ fun <T> AbMultiSelectContent(
     val checked = remember(options, selectedIds) {
         mutableStateListOf<String>().apply { addAll(selectedIds) }
     }
-    LazyColumn(modifier.heightIn(max = 400.dp)) {
+    LazyColumn(Modifier.heightIn(max = 400.dp).then(modifier)) {
         if (selectAllText != null) {
             item {
                 val allSelected = options.isNotEmpty() && checked.size == options.size
@@ -98,6 +88,19 @@ fun <T> AbMultiSelectContent(
     }
 }
 
+/**
+ * A generic, portable multiselect chooser: a titled [AlertDialog] with one checkbox row per option
+ * (label = [labelOf]), pre-checked from [selectedIds]. Confirm reports the currently-checked ids via
+ * [onConfirm]; Cancel/dismiss reports nothing. Self-contained (commonMain, no Android APIs).
+ *
+ * @param options the selectable items.
+ * @param idOf     stable identity for an option (also the value reported to [onConfirm]).
+ * @param labelOf  the human-readable row label.
+ * @param selectAllText  when non-null, shows a neutral "select all / select none" toggle above the
+ *   option list (opt-in; existing callers passing nothing get no toggle, unchanged behavior).
+ * @param selectNoneText label shown instead of [selectAllText] once everything is already selected;
+ *   falls back to [selectAllText] itself when not given.
+ */
 @Composable
 fun <T> AbMultiSelectDialog(
     title: String,

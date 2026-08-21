@@ -39,13 +39,10 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.strings.LocalStrings
 
-/**
- * A single-choice list dialog: an M3 [AlertDialog] presenting [choices] as a scrollable column of
- * radio-button rows. Selecting a row invokes [onSelect] with the choice's stable value and then
- * dismisses. Theme-aware (uses the ambient M3 colour scheme). Renders gracefully with no choices —
- * an empty dialog with only the cancel button (the settings framework never sends an empty list in
- * practice, since consuming screens intercept such rows, but this must not crash).
- */
+/** Renders [choices] as a scrollable column of radio-button rows (theme-aware, uses the ambient
+ *  M3 colour scheme). Selecting a row invokes [onSelect] with the choice's stable value; the
+ *  content itself never dismisses anything — that is the caller's job. Renders gracefully with
+ *  no choices (an empty column). */
 @Composable
 fun AbListChoiceContent(
     choices: List<SettingsItem.Choice>,
@@ -79,6 +76,13 @@ fun AbListChoiceContent(
     }
 }
 
+/**
+ * A single-choice list dialog: an M3 [AlertDialog] presenting [choices] as a scrollable column of
+ * radio-button rows. Selecting a row invokes [onSelect] with the choice's stable value and then
+ * dismisses. Theme-aware (uses the ambient M3 colour scheme). Renders gracefully with no choices —
+ * an empty dialog with only the cancel button (the settings framework never sends an empty list in
+ * practice, since consuming screens intercept such rows, but this must not crash).
+ */
 @Composable
 fun AbListChoiceDialog(
     title: String,

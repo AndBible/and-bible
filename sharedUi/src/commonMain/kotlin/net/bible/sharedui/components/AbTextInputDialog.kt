@@ -35,15 +35,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 
-/**
- * A titled AlertDialog wrapping a single-line text field, returning the current value on confirm.
- * The initial value is pre-selected (parity with the classic EditText.selectAll() name dialogs), so
- * typing replaces it. [extraContent] lets a caller add a control below the field (e.g. a type picker).
- * Set [numeric] to surface a number keyboard (used by the settings framework for numeric TextInputRows).
- * Set [masked] to obscure the entered characters (password field) via [PasswordVisualTransformation] and
- * a password keyboard (used by the settings framework for masked TextInputRows).
- * Shared component (promoted from MyDocuments); reused by WorkspaceSelector new/rename/clone.
- */
+/** Owns the working text; [onValueChange] reports every keystroke so a sheet host can enable its
+ *  own confirm affordance. The initial value arrives pre-selected, as classic's EditText.selectAll().
+ *
+ *  Its working `TextFieldValue` MUST be `remember(initial)`, never a bare `remember`: the dialog
+ *  could use a bare one safely because every dialog was a fresh composition, but one bottom sheet is
+ *  reused across pages, so a bare `remember` would show the previous row's text in the next row's
+ *  editor. */
 @Composable
 fun AbTextInputContent(
     initial: String,
@@ -79,6 +77,15 @@ fun AbTextInputContent(
     }
 }
 
+/**
+ * A titled AlertDialog wrapping a single-line text field, returning the current value on confirm.
+ * The initial value is pre-selected (parity with the classic EditText.selectAll() name dialogs), so
+ * typing replaces it. [extraContent] lets a caller add a control below the field (e.g. a type picker).
+ * Set [numeric] to surface a number keyboard (used by the settings framework for numeric TextInputRows).
+ * Set [masked] to obscure the entered characters (password field) via [PasswordVisualTransformation] and
+ * a password keyboard (used by the settings framework for masked TextInputRows).
+ * Shared component (promoted from MyDocuments); reused by WorkspaceSelector new/rename/clone.
+ */
 @Composable
 fun AbTextInputDialog(
     title: String,
