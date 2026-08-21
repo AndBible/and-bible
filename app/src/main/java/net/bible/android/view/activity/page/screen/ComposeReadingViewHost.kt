@@ -701,6 +701,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     onRequestDeleteBackgroundImage = colorController::onRequestDeleteBackgroundImage,
                     onConfirmDeleteBackgroundImage = colorController::onConfirmDeleteBackgroundImage,
                     onDismissDeleteConfirm = colorController::onDismissDeleteConfirm,
+                    // Final fix wave, Fix 4: reuses the SAME textSettingsScreenLabels resolved
+                    // strings the Row-page branch above already passes to TextSettingRowEditorSheet
+                    // -- no new string, no new label bundle.
+                    onReset = { colorController.onReset(); textSettingsOnReady() },
+                    resetConfirmMessage = textSettingsScreenLabels.resetConfirmMessage,
+                    confirmLabel = textSettingsScreenLabels.okLabel,
+                    cancelLabel = textSettingsScreenLabels.cancelLabel,
                     onPush = { textSettingsEditor.push(it) },
                     onPop = { textSettingsEditor.pop() },
                     onClose = { textSettingsEditor.close() },

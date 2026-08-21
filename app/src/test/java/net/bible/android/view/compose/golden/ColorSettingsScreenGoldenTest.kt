@@ -64,7 +64,23 @@ class ColorSettingsScreenGoldenTest {
     )
 
     private fun screen(s: ColorSettingsUiState): @Composable () -> Unit = {
-        ColorSettingsScreen(s, ColorSettingsLabels.forTest(), {}, {}, { _, _ -> }, { _, _ -> }, {}, { _, _ -> }, {})
+        // Named, not positional: final fix wave, Fix 4 added three String params (the reset
+        // confirm's message/confirm/cancel text) between onReset and onColorChange -- named args
+        // survive that insertion; the old positional call would have silently mismatched types.
+        ColorSettingsScreen(
+            state = s,
+            labels = ColorSettingsLabels.forTest(),
+            onUp = {},
+            onReset = {},
+            resetConfirmMessage = "Reset colours?",
+            confirmLabel = "OK",
+            cancelLabel = "Cancel",
+            onColorChange = { _, _ -> },
+            onNoiseChange = { _, _ -> },
+            onWorkspaceColorChange = {},
+            onOpacityChange = { _, _ -> },
+            onChangeBackgroundImage = {},
+        )
     }
 
     @Test fun workspace_matrix() = captureMatrix("ColorSettings", "workspace", heightDp = 1600, content = screen(uiState()))

@@ -51,6 +51,7 @@ import net.bible.sharedcore.settings.ColorSettingsUiState
 import net.bible.sharedcore.settings.colorFor
 import net.bible.sharedui.components.AbColor
 import net.bible.sharedui.components.AbColorPickerDialog
+import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSliderRow
 
@@ -75,6 +76,15 @@ fun ColorSettingsScreen(
     labels: ColorSettingsLabels,
     onUp: () -> Unit,
     onReset: () -> Unit,
+    // Final fix wave, Fix 4: classic (`ColorSettings.kt`'s AlertDialog + reset_are_you_sure) and
+    // TextDisplaySettingsScreen both confirm a colours/settings reset before firing it; this
+    // screen's own reset never did (a pre-existing port-fidelity gap, not a deliberate choice --
+    // see the final fix report). These three strings are the SAME resolved values
+    // TextDisplaySettingsScreen already passes its own AbConfirmDialog, reused rather than
+    // duplicated -- both hosts already build a TextDisplaySettingsScreenLabels for that screen.
+    resetConfirmMessage: String,
+    confirmLabel: String,
+    cancelLabel: String,
     onColorChange: (ColorField, Int) -> Unit,
     onNoiseChange: (night: Boolean, value: Int) -> Unit,
     onWorkspaceColorChange: (Int) -> Unit,
@@ -84,12 +94,13 @@ fun ColorSettingsScreen(
     val colors = state.colors
     var colorFieldDialog by remember { mutableStateOf<ColorField?>(null) }
     var workspaceDialogOpen by remember { mutableStateOf(false) }
+    var showResetConfirm by remember { mutableStateOf(false) }
 
     AbScaffold(
         title = colors.title,
         onNavigateUp = onUp,
         actions = {
-            IconButton(onClick = onReset) {
+            IconButton(onClick = { showResetConfirm = true }) {
                 Icon(Icons.Filled.Refresh, contentDescription = labels.reset)
             }
         },
@@ -124,6 +135,17 @@ fun ColorSettingsScreen(
             initialColor = colors.workspaceColor,
             onConfirm = { onWorkspaceColorChange(it); workspaceDialogOpen = false },
             onDismiss = { workspaceDialogOpen = false },
+        )
+    }
+
+    if (showResetConfirm) {
+        AbConfirmDialog(
+            title = null,
+            message = resetConfirmMessage,
+            confirmText = confirmLabel,
+            dismissText = cancelLabel,
+            onConfirm = { onReset(); showResetConfirm = false },
+            onDismiss = { showResetConfirm = false },
         )
     }
 }

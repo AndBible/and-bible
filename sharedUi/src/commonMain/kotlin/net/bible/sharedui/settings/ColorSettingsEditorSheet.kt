@@ -17,8 +17,16 @@
 
 package net.bible.sharedui.settings
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -93,12 +101,25 @@ fun ColorSettingsEditorSheet(
     onRequestDeleteBackgroundImage: (BackgroundImageOption) -> Unit,
     onConfirmDeleteBackgroundImage: () -> Unit,
     onDismissDeleteConfirm: () -> Unit,
+    // Final fix wave, Fix 4: "Reset colours" was reachable from the reading view before this
+    // branch (COLORS routed to ColorSettingsScreen, whose scaffold carries a reset action) and is
+    // NOT reachable through this sheet's Colors page -- an oversight, not a decision (nothing in
+    // the spec/plan/reviews named the loss). Wired ONLY to the `Colors` page, mirroring the
+    // full-screen scaffold: ColorPick and BackgroundImage never had a reset either. The three
+    // String params are the SAME resolved values ColorSettingsScreen's own new reset confirm
+    // passes (both ultimately from a host's TextDisplaySettingsScreenLabels), reused rather than
+    // duplicated into a second string.
+    onReset: () -> Unit,
+    resetConfirmMessage: String,
+    confirmLabel: String,
+    cancelLabel: String,
     onPush: (SettingsEditorPage) -> Unit,
     onPop: () -> Unit,
     onClose: () -> Unit,
 ) {
     val strings = LocalStrings.current
     val page = pages.lastOrNull() ?: return
+    var showResetConfirm by remember { mutableStateOf(false) }
     val title = when (page) {
         is SettingsEditorPage.Colors -> state.colors.title
         is SettingsEditorPage.ColorPick -> strings.colorPickerTitle
@@ -114,7 +135,20 @@ fun ColorSettingsEditorSheet(
         onClose = onClose,
     ) {
         when (page) {
-            is SettingsEditorPage.Colors ->
+            is SettingsEditorPage.Colors -> {
+                // Page chrome, not ColorSettingsContent: the full-screen route puts its reset in
+                // the AbScaffold's actions, outside ColorSettingsContent's own scrolling body, so
+                // this sheet page mirrors that split rather than growing the shared content
+                // composable a host-specific action. Right-aligned, same icon + contentDescription
+                // (labels.reset) as ColorSettingsScreen's own reset action.
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    IconButton(onClick = { showResetConfirm = true }) {
+                        Icon(Icons.Filled.Refresh, contentDescription = labels.reset)
+                    }
+                }
                 // 480.dp: taller than the 400.dp list-choice bound (GenericSettingsEditorSheet /
                 // SettingsEditorSheetGoldenTest) on purpose -- this form is two full day/night
                 // sections plus an optional workspace row, not one flat list, and there is no
@@ -131,6 +165,7 @@ fun ColorSettingsEditorSheet(
                         onChangeBackgroundImage = { onPush(SettingsEditorPage.BackgroundImage(it)) },
                     )
                 }
+            }
             is SettingsEditorPage.ColorPick -> {
                 val initial = colorForPage(state, page.field)
                 var working by remember(initial) { mutableStateOf(initial or (0xFF shl 24)) }
@@ -196,6 +231,17 @@ fun ColorSettingsEditorSheet(
             dismissText = chooserLabels.cancel,
             onConfirm = onConfirmDeleteBackgroundImage,
             onDismiss = onDismissDeleteConfirm,
+        )
+    }
+
+    if (showResetConfirm) {
+        AbConfirmDialog(
+            title = null,
+            message = resetConfirmMessage,
+            confirmText = confirmLabel,
+            dismissText = cancelLabel,
+            onConfirm = { onReset(); showResetConfirm = false },
+            onDismiss = { showResetConfirm = false },
         )
     }
 }

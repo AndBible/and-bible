@@ -197,6 +197,13 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
                                 labels = colorSettingsLabels,
                                 onUp = { pop() },
                                 onReset = colorController::onReset,
+                                // Final fix wave, Fix 4: restores the confirm classic always had
+                                // (ColorSettings.kt's AlertDialog) but this Compose port never did --
+                                // reuses screenLabels verbatim, the SAME resolved strings
+                                // TextDisplaySettingsScreen's own reset confirm passes below.
+                                resetConfirmMessage = screenLabels.resetConfirmMessage,
+                                confirmLabel = screenLabels.okLabel,
+                                cancelLabel = screenLabels.cancelLabel,
                                 onColorChange = colorController::onColorChange,
                                 onNoiseChange = colorController::onNoiseChange,
                                 onWorkspaceColorChange = colorController::onWorkspaceColorChange,
