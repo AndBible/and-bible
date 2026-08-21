@@ -43,6 +43,16 @@ import org.robolectric.annotation.Config
  * rendered except reflection on the compiled `colorsScope$delegate` field (a `MutableState`,
  * since the property is `private var colorsScope by mutableStateOf<SettingsScope?>(null)`) --
  * the same private-field-reflection pattern already used by e.g. `ClientPageObjectsTest`.
+ *
+ * Honest limit: this assertion is a tautology with respect to the behaviour T12 deleted -- a
+ * 2-arg `intentFor(context, scope)` already produced `colorsScope == null` BEFORE this task too,
+ * since the old `onCreate` block only fired when the extra was literally `"colors"`, which a
+ * 2-arg call never sent; this test would have passed against the pre-T12 code unmodified. The
+ * real guard against `startDestination = "colors"` reappearing is that the parameter no longer
+ * exists and a call site trying to pass it again would not compile -- the type system, not this
+ * runtime check. What this test documents is the resulting runtime behaviour (so a reader can see
+ * what a plain launch does without re-deriving it from `onCreate`), not a regression guard for
+ * the deletion itself.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
