@@ -20,6 +20,8 @@ import android.widget.FrameLayout
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.test.core.app.ApplicationProvider
@@ -37,6 +39,7 @@ import net.bible.sharedcore.ai.reading.AgentLogSnapshot
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.AgentStopReasonVd
 import net.bible.sharedcore.ai.reading.ReadingModelVd
+import net.bible.sharedcore.ai.reading.agentPanelHeight
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import org.junit.Test
@@ -124,12 +127,23 @@ class AgentLogHostTest {
             pane = { },
             // Mirrors exactly what ComposeReadingViewHost.install builds for the real `agentLog`
             // controller field.
-            agentLogSlot = {
+            agentLogSlot = { _, maxHeightDp, onCollapsedHeightMeasured ->
                 val agentLogUiState by controller.state.collectAsState()
+                var collapsedDp by remember { mutableStateOf(0f) }
                 AgentLogPanel(
                     agentLogUiState,
                     animateStatus = false,
                     statusIcon = painterResource(R.drawable.icon_robot),
+                    // Round 12b §4: mirrors install()'s wiring — the height and the drag both go
+                    // through the pure `:sharedCore` helpers, nothing is re-derived here.
+                    panelHeightDp = if (agentLogUiState.expanded) {
+                        agentPanelHeight(agentLogUiState, collapsedDp, maxHeightDp)
+                    } else null,
+                    onHeightDrag = { dragUpDp -> controller.onHeightDrag(dragUpDp, collapsedDp, maxHeightDp) },
+                    onCollapsedHeightMeasured = { measured ->
+                        collapsedDp = measured
+                        onCollapsedHeightMeasured(measured)
+                    },
                     onToggleExpanded = controller::toggleExpanded,
                     onStop = controller::stop,
                     onClose = controller::hide,

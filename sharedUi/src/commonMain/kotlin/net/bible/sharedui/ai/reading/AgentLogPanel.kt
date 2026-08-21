@@ -25,12 +25,16 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
@@ -66,6 +70,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.reading.AgentLogEntryVd
@@ -76,10 +82,6 @@ import net.bible.sharedcore.ai.reading.LogEntryStatus
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.strings.LocalStrings
-
-/** Bounded height for the expanded entry list, matching classic `AgentLogWidget`'s fixed-height
- *  RecyclerView (200dp) — the log scrolls inside the panel rather than growing it off-screen. */
-private val maxBodyHeight = 240.dp
 
 /**
  * The live, collapsible bottom agent-log panel (mirrors classic `AgentLogWidget` +
@@ -92,9 +94,10 @@ private val maxBodyHeight = 240.dp
  * message (or the idle label), an optional cumulative session cost, an expand/collapse toggle,
  * and a trailing stop-while-running / close-while-idle button.
  *
- * **Body** (only while [state]`.expanded`): a height-bounded, scrollable list — a model-selector
- * row first, then one row per log entry (leading kind icon, message/details/cost, trailing status
- * icon, an optional "view raw" link).
+ * **Body** (only while [state]`.expanded`): a scrollable list filling whatever height is left below
+ * the handle and header (round 12b §4 replaced its own 240dp cap with [panelHeightDp]) — a
+ * model-selector row first, then one row per log entry (leading kind icon, message/details/cost,
+ * trailing status icon, an optional "view raw" link).
  *
  * **Model picker**: when [state]`.modelPicker` is non-null, an [AbListChoiceDialog] radio list of
  * the configured models is shown on top (a plain `AlertDialog` under the hood — safe for Roborazzi,
@@ -117,6 +120,24 @@ fun AgentLogPanel(
      * documented on `SpeakTransportBar.applyNavBarInset`.
      */
     applyNavBarInset: Boolean = false,
+    /**
+     * The panel's rendered height in dp, or `null` to lay out intrinsically (which is what a
+     * collapsed panel does, exactly as before round 12b). The caller computes it with
+     * `agentPanelHeight(state, collapsedDp, maxDp)`.
+     */
+    panelHeightDp: Float?,
+    /** One drag step on the handle, positive upward. Wired to `AgentLogController.onHeightDrag`. */
+    onHeightDrag: (dragUpDp: Float) -> Unit,
+    /**
+     * Reports this panel's height, in dp, WHILE COLLAPSED. The host reserves exactly that much
+     * in-flow space so the collapsed panel covers nothing, and keeps reserving it while the panel is
+     * expanded so the expanded panel overlays instead of reflowing the panes (round 12b §4).
+     *
+     * Measured rather than assumed: the header is `heightIn(min = 48.dp)` and its status text can
+     * wrap, so 48dp is a floor and not the height, and a hard-coded reservation would either clip a
+     * two-line status or let the collapsed panel cover content.
+     */
+    onCollapsedHeightMeasured: (Float) -> Unit,
     onToggleExpanded: () -> Unit,
     onStop: () -> Unit,
     onClose: () -> Unit,
@@ -128,8 +149,16 @@ fun AgentLogPanel(
     if (!state.visible) return
     val strings = LocalStrings.current
 
+    val density = LocalDensity.current
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+            .then(if (panelHeightDp != null) Modifier.height(panelHeightDp.dp) else Modifier)
+            .onSizeChanged { size ->
+                // Only while collapsed: an expanded panel's height is the dragged value, and
+                // reporting it would make the in-flow reservation grow with the drag -- reflowing
+                // the panes, which is the whole thing the overlay exists to avoid.
+                if (!state.expanded) onCollapsedHeightMeasured(with(density) { size.height.toDp() }.value)
+            },
         // Rounded top corners + a shadow read as an M3 bottom surface rising over the panes.
         // Classic's equivalents are a 1dp top divider plus android:elevation="8dp" on the root
         // (agent_log_widget.xml:25-32); the divider is redundant next to corners and a shadow and
@@ -148,7 +177,7 @@ fun AgentLogPanel(
                 )
         ) {
             if (state.expanded) {
-                AgentLogDragHandle(onClick = onToggleExpanded)
+                AgentLogDragHandle(onClick = onToggleExpanded, onDrag = onHeightDrag)
             }
             AgentLogHeader(
                 snapshot = state.snapshot,
@@ -165,6 +194,9 @@ fun AgentLogPanel(
                     statusIcon = statusIcon,
                     onModelSelectorClick = onModelSelectorClick,
                     onRawLogClick = onRawLogClick,
+                    // The panel's height is now the user's, so the log takes what is left after the
+                    // handle and header rather than capping itself at a fixed 240dp.
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -282,14 +314,20 @@ private fun AgentLogHeader(
 
 /**
  * An M3-spec drag handle (32x4dp, `onSurfaceVariant` at 40%), shown ONLY while the panel is
- * expanded: collapsed, the header is already `heightIn(min = 48.dp)` (Task 5) and a handle would
- * add its own ~20dp (4dp pill + 8dp top/bottom padding) for no gain, while expanded that same
- * ~20dp is what makes the surface read as a sheet.
+ * expanded: collapsed, the header is already `heightIn(min = 48.dp)` and a handle would add its own
+ * ~20dp (4dp pill + 8dp top/bottom padding) for no gain, while expanded that same ~20dp is what
+ * makes the surface read as a sheet.
  *
- * It is TAPPABLE (collapsing the panel), because a handle that can neither be dragged nor tapped
- * lies about its affordance. There is no drag gesture: M3 offers no non-modal sheet able to coexist
- * with the reading view's existing search `BottomSheetScaffold` (round 6 spec section 4.4), and a
- * hand-rolled gesture was explicitly not in scope.
+ * It is **draggable** (resizing the panel, [onDrag], positive upward) and **tappable** (collapsing
+ * it, [onClick]). Round 12b §4 added the drag: round 6 had decided against it, and the maintainer's
+ * objection is exactly right — a handle that renders the universal drag affordance and cannot be
+ * dragged lies about the surface.
+ *
+ * The panel is still NOT an M3 bottom sheet, and every reason round 6 gave still holds: the reading
+ * view's one `BottomSheetScaffold` is taken by the F6 search results, a second sheet would have to
+ * be a `ModalBottomSheet` (a `Popup`, invisible to Roborazzi -- this repo's only UI regression
+ * gate), modality would drop an unrequested scrim every time the panel auto-shows on a run start,
+ * and it would nest the model-picker dialog inside a sheet. A hand-rolled gesture avoids all four.
  *
  * Drawn by hand rather than with `BottomSheetDefaults.DragHandle` so this file opts into no
  * experimental Material 3 API. Labelled via `clickable`'s own `onClickLabel` (whole-branch review,
@@ -301,11 +339,20 @@ private fun AgentLogHeader(
  * description) is correct either way: same action, same label.
  */
 @Composable
-private fun AgentLogDragHandle(onClick: () -> Unit) {
+private fun AgentLogDragHandle(onClick: () -> Unit, onDrag: (dragUpDp: Float) -> Unit) {
     val strings = LocalStrings.current
+    val density = LocalDensity.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .draggable(
+                state = rememberDraggableState { deltaPx ->
+                    // Compose's vertical delta is positive DOWNWARD; the reducer reads positive as
+                    // "grow", so the sign is flipped once, here, at the boundary.
+                    onDrag(-with(density) { deltaPx.toDp() }.value)
+                },
+                orientation = Orientation.Vertical,
+            )
             .clickable(onClickLabel = strings.agentLogExpand, onClick = onClick)
             .padding(vertical = 8.dp),
         contentAlignment = Alignment.Center,
@@ -327,9 +374,10 @@ private fun AgentLogBody(
     statusIcon: Painter,
     onModelSelectorClick: () -> Unit,
     onRawLogClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
-    LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = maxBodyHeight)) {
+    LazyColumn(modifier = modifier.fillMaxWidth()) {
         item {
             Row(
                 modifier = Modifier

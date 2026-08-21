@@ -132,6 +132,7 @@ import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ai.AgentPermissionRequest
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
+import net.bible.sharedcore.ai.reading.agentPanelHeight
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.ai.reading.ReadingLlmService
@@ -1724,13 +1725,24 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // Batch 12e-B Task 6: the agent-log panel, pre-built here (closing over the live
             // `agentLog` controller) since `install` already owns it — mirrors how `pane` above is
             // threaded straight through `mountComposeView` rather than rebuilt from raw state.
-            agentLogSlot = { applyNavBarInset ->
+            agentLogSlot = { applyNavBarInset, maxHeightDp, onCollapsedHeightMeasured ->
                 val agentLogUiState by agentLog.state.collectAsState()
+                var collapsedDp by remember { mutableStateOf(0f) }
                 AgentLogPanel(
                     agentLogUiState,
                     animateStatus = !CommonUtils.settings.disableAnimations,
                     statusIcon = painterResource(R.drawable.icon_robot),
                     applyNavBarInset = applyNavBarInset,
+                    panelHeightDp = if (agentLogUiState.expanded) {
+                        agentPanelHeight(agentLogUiState, collapsedDp, maxHeightDp)
+                    } else null,   // collapsed lays out intrinsically, exactly as before round 12b
+                    onHeightDrag = { dragUpDp ->
+                        agentLog.onHeightDrag(dragUpDp, collapsedDp, maxHeightDp)
+                    },
+                    onCollapsedHeightMeasured = { measured ->
+                        collapsedDp = measured
+                        onCollapsedHeightMeasured(measured)
+                    },
                     onToggleExpanded = agentLog::toggleExpanded,
                     onStop = agentLog::stop,
                     onClose = agentLog::hide,
@@ -2497,7 +2509,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // closes over it directly when building this, the same pass-through shape as [pane].
             // Defaulted to an inert no-op composable so `ComposeReadingViewHostTest`/
             // `ReadingLlmHostTest` (which never render an agent-log panel) are unaffected.
-            agentLogSlot: (@Composable (applyNavBarInset: Boolean) -> Unit)? = { },
+            agentLogSlot: (@Composable (
+                applyNavBarInset: Boolean,
+                maxHeightDp: Float,
+                onCollapsedHeightMeasured: (Float) -> Unit,
+            ) -> Unit)? = { _, _, _ -> },
             // Batch 12f Task 6 additions: the reading-view Speak transport bar. `speakBarSlot` is a
             // pre-built `@Composable` lambda (same pass-through shape as `agentLogSlot` right
             // above — [ComposeReadingViewHost.install] already owns the live `speakTransport`

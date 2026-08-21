@@ -31,6 +31,7 @@ import net.bible.android.activity.R
 import net.bible.sharedcore.ai.reading.AgentLogEntryVd
 import net.bible.sharedcore.ai.reading.AgentLogSnapshot
 import net.bible.sharedcore.ai.reading.AgentLogUiState
+import net.bible.sharedcore.ai.reading.agentPanelHeight
 import net.bible.sharedcore.ai.reading.LogEntryKind
 import net.bible.sharedcore.ai.reading.LogEntryStatus
 import net.bible.sharedcore.reading.ToolbarState
@@ -121,7 +122,11 @@ class ReadingViewScreenGoldenTest {
     private fun screen(
         fullScreen: Boolean,
         tabBar: (@Composable () -> Unit)? = null,
-        agentLog: (@Composable (applyNavBarInset: Boolean) -> Unit)? = null,
+        agentLog: (@Composable (
+            applyNavBarInset: Boolean,
+            maxHeightDp: Float,
+            onCollapsedHeightMeasured: (Float) -> Unit,
+        ) -> Unit)? = null,
         speakBar: (@Composable (applyNavBarInset: Boolean) -> Unit)? = null,
     ): @Composable () -> Unit = {
         ReadingViewScreen(
@@ -141,8 +146,9 @@ class ReadingViewScreenGoldenTest {
         )
     }
 
-    // Covers the agentLog slot (Batch 12e-B Task 5): rendered between SplitContent and tabBar
-    // only when non-null. Uses the real AgentLogPanel (already golden-covered on its own in
+    // Covers the agentLog slot (Batch 12e-B Task 5; a bottom-anchored OVERLAY since round 12b §4,
+    // which is what this capture proves -- the panes keep their un-expanded size). Uses the real
+    // AgentLogPanel (already golden-covered on its own in
     // AgentLogPanelGoldenTest) with a fixed running+expanded state, animateStatus = false for a
     // deterministic capture.
     private val agentLogEntries = listOf(
@@ -163,10 +169,14 @@ class ReadingViewScreenGoldenTest {
         "ReadingViewScreen", "withAgentLog", EDGE_MODE,
         content = screen(
             fullScreen = false,
-            agentLog = { _ ->
+            agentLog = { _, maxHeightDp, onCollapsedHeightMeasured ->
                 AgentLogPanel(
                     agentLogRunningExpanded, animateStatus = false,
                     statusIcon = painterResource(R.drawable.icon_robot),
+                    applyNavBarInset = false,
+                    panelHeightDp = agentPanelHeight(agentLogRunningExpanded, collapsedDp = 48f, maxDp = maxHeightDp),
+                    onHeightDrag = {},
+                    onCollapsedHeightMeasured = onCollapsedHeightMeasured,
                     onToggleExpanded = {}, onStop = {},
                     onClose = {}, onModelSelectorClick = {}, onModelChosen = {}, onModelPickerDismiss = {},
                     onRawLogClick = {},
