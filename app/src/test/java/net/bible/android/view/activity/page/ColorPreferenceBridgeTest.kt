@@ -23,7 +23,6 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.ColorSettingsActivity
-import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.service.common.CommonUtils
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -35,13 +34,14 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 /**
- * Bridge B (Batch 12d-B T8): [ColorPreference.openDialog] must route to the new Compose colours
- * destination ([TextDisplaySettingsComposeActivity], `startDestination = "colors"`) when
- * `use_compose_ui` is ON, and to the classic [ColorSettingsActivity] (unchanged
- * `startActivityForResult`/`COLORS_CHANGED` round-trip) when OFF — mirroring how
- * [HideLabelsPreference] already routes via [net.bible.android.view.ScreenLauncher] in the same
- * file. See `ScreenLauncherTest.textDisplaySettings_routes_by_flag` for Plan A's routing of
- * [net.bible.android.view.Screen.TextDisplaySettings] itself.
+ * Settings editor sheets T12: [ColorPreference.openDialog] no longer branches on
+ * `use_compose_ui` at all -- it always launches the classic [ColorSettingsActivity] (unchanged
+ * `startActivityForResult`/`COLORS_CHANGED` round-trip), regardless of the flag. The Compose
+ * routing decision moved to `OptionsMenuStateBuilder.dispatch` (Settings editor sheets T11),
+ * which sends COLORS to the reading view's in-place editor sheet before `openDialog` is ever
+ * called; those tests own that contract. This test only guards that `openDialog` itself stayed
+ * a plain, flag-independent classic launch after the dead Compose branch (and the
+ * `startDestination = "colors"` extra it used to send) were deleted.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -67,7 +67,7 @@ class ColorPreferenceBridgeTest {
     private fun buildProbeActivity() = Robolectric.buildActivity(ProbeActivity::class.java).setup().get()
 
     @Test
-    fun colorPreferenceRoutesToComposeWhenFlagOn() {
+    fun colorPreferenceLaunchesClassicWhenFlagOn() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         val pref = ColorPreference(workspaceBundle())
         val activity = buildProbeActivity()
@@ -75,12 +75,13 @@ class ColorPreferenceBridgeTest {
         pref.openDialog(activity, null, null)
 
         val started = shadowOf(activity).nextStartedActivity
-        assertEquals(TextDisplaySettingsComposeActivity::class.java.name, started?.component?.className)
-        assertEquals("colors", started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_START_DESTINATION))
+        assertEquals(ColorSettingsActivity::class.java.name, started?.component?.className)
+        val forResult = shadowOf(activity).nextStartedActivityForResult
+        assertEquals(MainBibleActivity.COLORS_CHANGED, forResult?.requestCode)
     }
 
     @Test
-    fun colorPreferenceRoutesToClassicWhenFlagOff() {
+    fun colorPreferenceLaunchesClassicWhenFlagOff() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         val pref = ColorPreference(workspaceBundle())
         val activity = buildProbeActivity()

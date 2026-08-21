@@ -232,13 +232,6 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
                     }
             }
         }
-
-        // EXTRA_START_DESTINATION == "colors": jump straight into the internal colours destination
-        // (e.g. a caller that wants "edit colours for this scope" without showing the text-options
-        // list first) — same target scope, the list is still there underneath once colours close.
-        if (intent.getStringExtra(EXTRA_START_DESTINATION) == "colors") {
-            colorsScope = initialScope
-        }
     }
 
     // --- Internal drill-up nav stack ------------------------------------------------------------
@@ -350,14 +343,12 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
     }
 
     companion object {
-        const val EXTRA_START_DESTINATION = "startDestination"   // "text" | "colors"
         const val EXTRA_SCOPE_LEVEL = "scopeLevel"                // "window" | "workspace" | "global"
         const val EXTRA_WINDOW_ID = "windowId"
         const val EXTRA_WORKSPACE_ID = "workspaceId"
 
-        fun intentFor(context: Context, scope: SettingsScope, startDestination: String = "text"): Intent {
+        fun intentFor(context: Context, scope: SettingsScope): Intent {
             val intent = Intent(context, TextDisplaySettingsComposeActivity::class.java)
-            intent.putExtra(EXTRA_START_DESTINATION, startDestination)
             when (scope) {
                 is SettingsScope.Window -> {
                     intent.putExtra(EXTRA_SCOPE_LEVEL, "window")

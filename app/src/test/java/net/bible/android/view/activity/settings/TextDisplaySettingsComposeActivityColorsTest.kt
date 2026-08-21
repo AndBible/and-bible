@@ -16,10 +16,11 @@
  */
 package net.bible.android.view.activity.settings
 
+import androidx.compose.runtime.State
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.settings.SettingsScope
-import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -27,38 +28,46 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Smoke test for Batch 12d-B T7: the host must render the internal Compose `colors` destination
- * (instead of the retired interim [ColorSettingsActivity] bridge) without crashing.
+ * Settings editor sheets T12: [TextDisplaySettingsComposeActivity.intentFor] no longer takes a
+ * `startDestination` argument -- that extra, and the `onCreate` block that read it to jump
+ * straight into the internal `colors` destination, were deleted (the only caller that ever passed
+ * `"colors"`, [net.bible.android.view.activity.page.ColorPreference.openDialog], was itself
+ * deleted in the same task: `OptionsMenuStateBuilder.dispatch` now routes COLORS to the reading
+ * view's in-place editor sheet before `openDialog` is ever called -- Settings editor sheets T11).
+ * This pins the resulting behaviour: a plain `intentFor(context, scope)` launch always starts on
+ * the text-options LIST ([colorsScope] stays null), never on Colors.
  *
- * T9 retired this test's original assertion — that `onCreate` wired
- * `TextDisplaySettingsServiceImpl.imagePicker` — along with the property itself: the picker is now a
- * constructor parameter of [net.bible.sharedcore.settings.ColorSettingsController], supplied per
- * controller from this Activity's own `imagePicker` field, so there is no shared mutable seam left to
- * assert on here (nor a `serviceForTest` escape hatch to reach it, since asserting the picker wiring
- * was that property's only use). That behaviour is now covered, more precisely, by
- * `ColorSettingsControllerTest.importPassesTheHostsPickerToTheService` in `:sharedCore`. What remains
- * worth a Robolectric smoke test here is simply that this host still builds to RESUMED on the
- * `colors` start-destination without crashing.
+ * [colorsScope] is private, and this repo has no Compose UI-test harness (nothing uses
+ * `createComposeRule`, and `compose-ui-test` cannot be added under strict egress -- see
+ * `SettingsBadgeLayoutDriftTest`'s kdoc), so there is no way to observe which destination
+ * rendered except reflection on the compiled `colorsScope$delegate` field (a `MutableState`,
+ * since the property is `private var colorsScope by mutableStateOf<SettingsScope?>(null)`) --
+ * the same private-field-reflection pattern already used by e.g. `ClientPageObjectsTest`.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
 class TextDisplaySettingsComposeActivityColorsTest {
 
     @Test
-    fun `starts on the colors destination without crashing`() {
+    fun `plain intentFor launch starts at the text list, not colors`() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         val repo = CommonUtils.windowControl.windowRepository
         val intent = TextDisplaySettingsComposeActivity.intentFor(
             org.robolectric.RuntimeEnvironment.getApplication(),
             SettingsScope.Workspace(repo.id.toString()),
-            startDestination = "colors",
         )
         val controller = Robolectric.buildActivity(TextDisplaySettingsComposeActivity::class.java, intent).setup()
         val activity = controller.get()
 
-        assertFalse(
-            "Activity must not have finished/crashed while starting on the colors destination",
-            activity.isFinishing,
+        val delegateField = TextDisplaySettingsComposeActivity::class.java.getDeclaredField("colorsScope\$delegate")
+        delegateField.isAccessible = true
+        @Suppress("UNCHECKED_CAST")
+        val colorsScopeState = delegateField.get(activity) as State<SettingsScope?>
+
+        assertNull(
+            "A plain intentFor launch (no startDestination extra any more) must start on the " +
+                "text-options list, not jump straight into Colors",
+            colorsScopeState.value,
         )
     }
 }

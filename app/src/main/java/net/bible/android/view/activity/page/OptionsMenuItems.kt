@@ -42,7 +42,6 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.settings.ColorSettingsActivity
-import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.android.view.util.widget.FontFamilyWidget
 import net.bible.android.view.util.widget.MarginSizeWidget
@@ -553,16 +552,15 @@ internal fun SettingsBundle.toScope(): SettingsScope = when (level) {
 
 class ColorPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.COLORS) {
     override val visible = true
+    /**
+     * The compose path never reaches here: [OptionsMenuStateBuilder.dispatch] and
+     * `handleWindowTextOptionItem` route COLORS to the reading view's in-place editor sheet
+     * before openDialog is called (Settings editor sheets T11). This is the classic path only.
+     */
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        if (ScreenLauncher.useComposeFor(Screen.TextDisplaySettings)) {
-            // Live apply on the Compose side -- no COLORS_CHANGED result round-trip.
-            val intent = TextDisplaySettingsComposeActivity.intentFor(activity, settings.toScope(), startDestination = "colors")
-            activity.startActivity(intent)
-        } else {
-            val intent = Intent(activity, ColorSettingsActivity::class.java)
-            intent.putExtra("settingsBundle", settings.toJson())
-            activity.startActivityForResult(intent, COLORS_CHANGED)
-        }
+        val intent = Intent(activity, ColorSettingsActivity::class.java)
+        intent.putExtra("settingsBundle", settings.toJson())
+        activity.startActivityForResult(intent, COLORS_CHANGED)
         return true
     }
 }
