@@ -18,10 +18,15 @@
 package net.bible.android.view.compose.golden
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material3.Icon
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.theme.accentArgbFor
@@ -40,6 +45,10 @@ import org.robolectric.annotation.GraphicsMode
  * Captured across the full matrix because the monochrome substitutions (fixed greys for the
  * highlight, onSurface for the underline — the reader's own rules) are the part most likely to
  * break, and they only appear in the bw / eink modes.
+ *
+ * Each row now shows BOTH decoration axes side by side: partial (left, the selection axis) and full
+ * (right, the whole-verse axis). Reading the pair is what shows that "half" is what says
+ * "selection" -- and that MARKER/HIDDEN are unaffected, having nothing to decorate.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -49,12 +58,22 @@ class LabelStyleTagGoldenTest {
     @Test fun labelStyleTag_all() = captureMatrix("LabelStyleTag", "all", heightDp = 300) {
         Column {
             BookmarkDisplayStyle.entries.forEach { style ->
-                LabelStyleTag(style = style, colorArgb = AbColor.palette[1]) {
-                    // Stands in for the ROW's own glyph (ManageLabelsScreen.kt's `glyphTint`), not
-                    // for the style decoration -- accentArgbFor is exactly what's banned inside
-                    // bookmarkStyleDecoration, but here it is the correct precedent to follow.
-                    val glyphTint = Color(accentArgbFor(AbColor.palette[1], LocalDisplayColorMode.current))
-                    Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = glyphTint)
+                val glyphTint = Color(accentArgbFor(AbColor.palette[1], LocalDisplayColorMode.current))
+                // Left: the selection axis (partial). Right: the whole-verse axis (full). Read the
+                // pair to see that "half" is what says "selection" -- and that MARKER/HIDDEN are
+                // unaffected, having nothing to decorate.
+                Row {
+                    LabelStyleTag(style = style, colorArgb = AbColor.palette[1], decoratePartially = true) {
+                        // Stands in for the ROW's own glyph (ManageLabelsScreen.kt's `glyphTint`),
+                        // not for the style decoration -- accentArgbFor is exactly what's banned
+                        // inside bookmarkStyleDecoration, but here it is the correct precedent to
+                        // follow.
+                        Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = glyphTint)
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    LabelStyleTag(style = style, colorArgb = AbColor.palette[1]) {
+                        Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = glyphTint)
+                    }
                 }
             }
         }

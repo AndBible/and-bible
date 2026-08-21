@@ -17,46 +17,45 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class ManageLabelsControllerTest {
 
-    private fun label(id: String, name: String, favourite: Boolean = false, isUnlabeled: Boolean = false) = LabelItem(
+    private fun label(
+        id: String, name: String, favourite: Boolean = false, isUnlabeled: Boolean = false,
+        overrideStyle: BookmarkDisplayStyle? = null,
+    ) = LabelItem(
         id = id, name = name, color = 1, favourite = favourite, isUnlabeled = isUnlabeled,
-        isSpecial = false, customIcon = null, hasOverride = false,
+        isSpecial = false, customIcon = null, overrideStyle = overrideStyle,
     )
 
     private class FakeService(
         private val labels: List<LabelItem>,
         private val recent: List<String> = emptyList(),
-        private val overridden: Set<String> = emptySet(),
-        private val unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null, false),
+        private val overridden: Map<String, BookmarkDisplayStyle> = emptyMap(),
+        private val unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null),
         private val contentSearch: suspend (String) -> List<ManageLabelsRow.SearchResult> = { emptyList() },
-        var compact: Boolean = false,
     ) : ManageLabelsService {
         override fun assignableLabels() = labels
         override fun unlabeledLabel() = unlabeled
         override fun recentLabelIds() = recent
-        override fun overriddenLabelIds() = overridden
+        override fun overriddenLabelStyles() = overridden
         override fun randomColorArgb() = 0x11223344
         override suspend fun searchStudyPadsByContent(text: String): List<ManageLabelsRow.SearchResult> = contentSearch(text)
-        override fun compactLabelRows() = compact
-        override fun setCompactLabelRows(value: Boolean) { compact = value }
     }
 
     private fun controller(
         mode: ManageLabelsMode,
         labels: List<LabelItem>,
         recent: List<String> = emptyList(),
-        overridden: Set<String> = emptySet(),
+        overridden: Map<String, BookmarkDisplayStyle> = emptyMap(),
         initialSelected: Set<String> = emptySet(),
         initialAutoAssign: Set<String> = emptySet(),
         initialAutoAssignPrimary: String? = null,
         initialBookmarkPrimary: String? = null,
         highlightLabelId: String? = null,
-        unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null, false),
+        unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null),
         scope: CoroutineScope = CoroutineScope(Dispatchers.Unconfined),
         contentSearch: suspend (String) -> List<ManageLabelsRow.SearchResult> = { emptyList() },
-        compact: Boolean = false,
     ): ManageLabelsController = ManageLabelsController(
         mode = mode,
-        service = FakeService(labels, recent, overridden, unlabeled, contentSearch, compact),
+        service = FakeService(labels, recent, overridden, unlabeled, contentSearch),
         scope = scope,
         initialSelected = initialSelected,
         initialAutoAssign = initialAutoAssign,
@@ -506,29 +505,165 @@ class ManageLabelsControllerTest {
         assertEquals("", c.searchText.value)
     }
 
-    @Test fun compact_row_mode_is_seeded_from_the_service_and_written_back() {
-        val service = FakeService(labels = listOf(label("L1", "Study")), compact = true)
-        val c = ManageLabelsController(
+    @Test
+    fun overrideStyle_is_relinked_onto_every_rebuild() {
+        val c = controller(
             mode = ManageLabelsMode.ASSIGN,
-            service = service,
-            scope = CoroutineScope(Dispatchers.Unconfined),
-            initialSelected = emptySet(),
-            initialAutoAssign = emptySet(),
-            initialAutoAssignPrimary = null,
-            initialBookmarkPrimary = null,
-            highlightLabelId = null,
-            onEditLabel = {},
-            onSelectStudyPad = { _, _ -> },
-            onSave = {},
-            onReset = {},
+            labels = listOf(label("L1", "Study"), label("L2", "Notes")),
+            overridden = mapOf("L2" to BookmarkDisplayStyle.MARKER),
         )
 
-        // Seeded, not defaulted: the setting is global and survives across openings of the screen.
-        assertTrue(c.compact.value)
+        val items = c.rows.value.filterIsInstance<ManageLabelsRow.Item>()
+        assertNull(items.first { it.label.id == "L1" }.label.overrideStyle)
+        assertEquals(BookmarkDisplayStyle.MARKER, items.first { it.label.id == "L2" }.label.overrideStyle)
 
-        c.toggleCompact()
-        assertFalse(c.compact.value)
-        // Written through immediately -- there is no Save button for a view preference.
-        assertFalse(service.compact)
+        // The STICKY path (any toggle) must relink just as faithfully as the initial reorder=true
+        // rebuild above -- otherwise a future edit that moves the relink after the sticky/fresh
+        // branch would silently blank the ⚙ tag on every toggle, with no crash and no failing test.
+        c.toggleChecked("L2")
+        val afterToggle = c.rows.value.filterIsInstance<ManageLabelsRow.Item>()
+        assertEquals(BookmarkDisplayStyle.MARKER, afterToggle.first { it.label.id == "L2" }.label.overrideStyle)
     }
+
+    /** The Unlabeled pseudo-row is added raw, alongside every real label's relink -- classic's
+     *  adapter shows the ⚙ mark for any overridden id, Unlabeled included
+     *  (ManageLabelItemAdapter.kt:236), so this controller must not special-case it out. */
+    @Test
+    fun overrideStyle_reaches_the_unlabeled_row_too() {
+        val c = controller(
+            mode = ManageLabelsMode.WORKSPACE,
+            labels = listOf(label("L1", "Study")),
+            overridden = mapOf("UNL" to BookmarkDisplayStyle.HIGHLIGHT),
+        )
+
+        val items = c.rows.value.filterIsInstance<ManageLabelsRow.Item>()
+        assertEquals(BookmarkDisplayStyle.HIGHLIGHT, items.first { it.label.id == "UNL" }.label.overrideStyle)
+    }
+
+    private fun threeLabels() = listOf(label("L1", "Study"), label("L2", "Notes"), label("L3", "Prayer"))
+
+    /** The bug this round fixes: in WORKSPACE mode contextSelected() IS the auto-assign set, so a
+     *  re-sorting rebuild re-buckets the just-toggled row into ACTIVE and re-alphabetises it — the
+     *  row jumps out from under the finger and the ACTIVE header appears above it. Classic ends the
+     *  same handler with updateLabelList(rePopulate = false, reOrder = false)
+     *  (ManageLabels.kt:865), which skips its sortWith entirely. */
+    @Test
+    fun toggling_auto_assign_does_not_move_the_row_or_add_a_header() {
+        val c = controller(mode = ManageLabelsMode.WORKSPACE, labels = threeLabels())
+        val before = describe(c.rows.value)
+
+        c.toggleAutoAssign("L3")
+
+        assertEquals(before, describe(c.rows.value))
+        assertFalse(describe(c.rows.value).contains("H_ACTIVE"), "no ACTIVE header may appear")
+        val row = c.rows.value.filterIsInstance<ManageLabelsRow.Item>().first { it.label.id == "L3" }
+        assertTrue(row.isAutoAssign, "the toggle's own state must still change")
+    }
+
+    @Test
+    fun the_other_three_toggles_do_not_move_rows_either() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = threeLabels())
+        val before = describe(c.rows.value)
+        fun l3() = c.rows.value.filterIsInstance<ManageLabelsRow.Item>().first { it.label.id == "L3" }
+
+        // Each assertion below pins that the toggle's OWN field actually moved, not merely that the
+        // list order didn't -- otherwise these three checks would pass just as well against a toggle
+        // that silently did nothing.
+        c.toggleChecked("L3")
+        assertEquals(before, describe(c.rows.value))
+        assertTrue(l3().checked, "toggleChecked must actually flip checked")
+
+        c.setPrimary("L3")
+        assertEquals(before, describe(c.rows.value))
+        assertTrue(l3().isPrimary, "setPrimary must actually flip isPrimary")
+
+        c.toggleFavourite("L3")
+        assertEquals(before, describe(c.rows.value))
+        assertTrue(l3().label.favourite, "toggleFavourite must actually flip favourite")
+    }
+
+    /** Of the three host apply hooks, only a RENAME actually exercises `reorder = true`
+     *  (ManageLabelsController.kt:279): create/delete change the visible id set, so
+     *  [stickyOrder]'s own "set changed -> full sort" fallback would re-sort them anyway even with
+     *  reorder=false. A rename changes no id, so nothing else forces the re-sort -- if
+     *  applyLabelChanged ever stopped rebuilding with reorder=true, a rename that moves a label's
+     *  alphabetical position would silently stay parked in its old slot. */
+    @Test
+    fun a_rename_through_applyLabelChanged_re_alphabetises() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = threeLabels())
+        // threeLabels(): L1 "Study", L2 "Notes", L3 "Prayer", none selected/recent -> all three fall
+        // into OTHER, alpha order Notes, Prayer, Study. ASSIGN doesn't hide categories, so H_RECENT
+        // and H_OTHER are present even empty/single-bucket (see categorization_and_sort_order_ASSIGN).
+        assertEquals(listOf("H_RECENT", "H_OTHER", "L2", "L3", "L1"), describe(c.rows.value))
+
+        c.applyLabelChanged(
+            item = label("L1", "Aardvark"),
+            selectedFlag = false,
+            autoAssignFlag = false,
+            bookmarkPrimaryFlag = false,
+            autoAssignPrimaryFlag = false,
+        )
+
+        assertEquals(listOf("H_RECENT", "H_OTHER", "L1", "L2", "L3"), describe(c.rows.value))
+    }
+
+    @Test
+    fun un_toggling_the_last_auto_assign_does_not_remove_the_header_either() {
+        val c = controller(
+            mode = ManageLabelsMode.WORKSPACE,
+            labels = threeLabels(),
+            initialAutoAssign = setOf("L3"),
+        )
+        val before = describe(c.rows.value)
+        assertTrue(before.contains("H_ACTIVE"), "precondition: the ACTIVE header is present")
+
+        c.toggleAutoAssign("L3")
+
+        assertEquals(before, describe(c.rows.value))
+    }
+
+    @Test
+    fun reOrder_regroups_what_the_toggles_left_in_place() {
+        val c = controller(mode = ManageLabelsMode.WORKSPACE, labels = threeLabels())
+        c.toggleAutoAssign("L3")
+        val stuck = describe(c.rows.value)
+
+        c.reOrder()
+
+        val regrouped = describe(c.rows.value)
+        assertTrue(regrouped.contains("H_ACTIVE"), "regrouping is what adds the header")
+        assertEquals("H_ACTIVE", regrouped.first())
+        assertEquals("L3", regrouped[1])
+        assertTrue(stuck != regrouped)
+    }
+
+    @Test
+    fun a_search_dispatch_reorders() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = threeLabels())
+        c.toggleChecked("L3")
+        val stuck = describe(c.rows.value)
+
+        c.setSearch("")   // the same (empty) query, but a search dispatch all the same
+
+        assertTrue(stuck != describe(c.rows.value))
+        assertTrue(describe(c.rows.value).contains("H_ACTIVE"))
+    }
+
+    /** The defensive fallback. `nameMatches` bypasses the filter for anything in `selected`
+     *  (classic ManageLabels.kt:847-850), so checking a label the query hides makes the visible set
+     *  GROW during a sticky rebuild. The old sequence has no place for it, so the rebuild must fall
+     *  back to a full sort rather than drop it or emit it twice. */
+    @Test
+    fun a_sticky_rebuild_whose_visible_set_grew_falls_back_to_a_full_sort() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = threeLabels())
+        c.setSearch("Stu")
+        assertEquals(listOf("L1"), describe(c.rows.value).filterNot { it.startsWith("H_") })
+
+        c.toggleChecked("L2")
+
+        val ids = describe(c.rows.value).filterNot { it.startsWith("H_") }
+        assertEquals(setOf("L1", "L2"), ids.toSet())
+        assertEquals(ids.size, ids.toSet().size, "no row may be emitted twice")
+    }
+
 }

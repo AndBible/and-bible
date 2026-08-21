@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
@@ -43,6 +44,11 @@ import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
  *
  * [iconSlot] is a slot rather than a parameter because the label's icon is an Android drawable that
  * only the host can resolve.
+ *
+ * [decoratePartially] decorates only the first half of [sampleText] (via [splitSelectionSample]),
+ * for the selection axis — a text-selection bookmark covers part of a verse, a whole-verse one
+ * covers all of it, and a fully decorated sample cannot show that difference. MARKER's glyph is
+ * drawn as a superscript by [SuperscriptMarker], matching how the reader actually draws it.
  */
 @Composable
 fun BookmarkStylePreview(
@@ -50,9 +56,11 @@ fun BookmarkStylePreview(
     colorArgb: Int,
     sampleText: String,
     modifier: Modifier = Modifier,
+    decoratePartially: Boolean = false,
     iconSlot: @Composable () -> Unit,
 ) {
     val decoration = bookmarkStyleDecoration(style, colorArgb)
+    val textStyle = MaterialTheme.typography.bodyLarge
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -64,10 +72,19 @@ fun BookmarkStylePreview(
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(sampleText, style = MaterialTheme.typography.bodyLarge, modifier = decoration.textModifier)
+        // MARKER and HIDDEN decorate nothing, so a partial split would show as an invisible seam in
+        // the middle of the sentence -- skip it and keep one Text (same rule as LabelStyleTag).
+        val split = decoratePartially && style != BookmarkDisplayStyle.MARKER && style != BookmarkDisplayStyle.HIDDEN
+        if (split) {
+            val (decorated, rest) = splitSelectionSample(sampleText)
+            Text(decorated, style = textStyle, modifier = decoration.textModifier)
+            Text(rest, style = textStyle)
+        } else {
+            Text(sampleText, style = textStyle, modifier = decoration.textModifier)
+        }
         if (decoration.showsMarkerIcon) {
-            Spacer(Modifier.width(6.dp))
-            iconSlot()
+            Spacer(Modifier.width(1.dp))
+            SuperscriptMarker(with(LocalDensity.current) { textStyle.fontSize.toDp() }, iconSlot)
         }
     }
 }

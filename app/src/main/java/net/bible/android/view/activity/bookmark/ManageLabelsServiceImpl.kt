@@ -23,17 +23,14 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.StudyPadSearchResult
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
+import net.bible.sharedcore.bookmark.displayStyle
 import kotlin.random.Random.Default.nextInt
-
-/** Default false: the two-line row is the default, because the feedback this round answers was that
- *  the list showed too little, not too much. */
-private const val COMPACT_LABEL_ROWS_KEY = "manage_labels_compact_rows"
 
 /** Android-side impl of the [ManageLabelsService] seam, backed by [BookmarkControl]/[WindowControl]. */
 class ManageLabelsServiceImpl(
@@ -49,13 +46,14 @@ class ManageLabelsServiceImpl(
     override fun recentLabelIds(): List<String> =
         windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId.toString() }
 
-    override fun overriddenLabelIds(): Set<String> {
+    override fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle> {
         val workspaceId = windowControl.windowRepository.id
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
         return workspaceDao.labelOverrides(workspaceId)
-            .filter { it.hasOverride }
-            .map { it.labelId.toString() }
-            .toSet()
+            .mapNotNull { override ->
+                overrideDisplayStyle(override.overrideMode)?.let { override.labelId.toString() to it }
+            }
+            .toMap()
     }
 
     // Matches classic ManageLabels.randomColor() (ManageLabels.kt:526) exactly, including the
@@ -69,13 +67,6 @@ class ManageLabelsServiceImpl(
         withContext(Dispatchers.IO) {
             bookmarkControl.searchStudyPadsByContent(text).map { it.toSearchResultRow() }
         }
-
-    override fun compactLabelRows(): Boolean =
-        CommonUtils.settings.getBoolean(COMPACT_LABEL_ROWS_KEY, false)
-
-    override fun setCompactLabelRows(value: Boolean) {
-        CommonUtils.settings.setBoolean(COMPACT_LABEL_ROWS_KEY, value)
-    }
 }
 
 /** [ManageLabelsRow.SearchResult] view of a classic [StudyPadSearchResult] — takes only the FIRST
@@ -96,8 +87,8 @@ fun StudyPadSearchResult.toSearchResultRow(): ManageLabelsRow.SearchResult {
     )
 }
 
-/** [LabelItem] view of a Room [BookmarkEntities.Label]. `hasOverride` is always `false` here — the
- *  controller relinks it from [ManageLabelsService.overriddenLabelIds] on every rebuild. */
+/** [LabelItem] view of a Room [BookmarkEntities.Label]. `overrideStyle` is always `null` here — the
+ *  controller relinks it from [ManageLabelsService.overriddenLabelStyles] on every rebuild. */
 fun BookmarkEntities.Label.toLabelItem(): LabelItem = LabelItem(
     id = id.toString(),
     name = displayName,
@@ -106,7 +97,18 @@ fun BookmarkEntities.Label.toLabelItem(): LabelItem = LabelItem(
     isUnlabeled = isUnlabeledLabel,
     isSpecial = isSpecialLabel,
     customIcon = customIcon,
-    hasOverride = false,
     selectionStyle = displayStyle,
     wholeVerseStyle = displayStyleWholeVerse,
 )
+
+/** The display style a `WorkspaceLabelOverride.overrideMode` int imposes, or `null` for no override.
+ *  Must agree with [BookmarkEntities.Label.withStyleOverrides], which is what the reader obeys —
+ *  `OverrideDisplayStyleTest` pins the two together.
+ *
+ *  Expressed via [LabelEditMapper.overrideModeFromInt] + [displayStyle] rather than re-listing the
+ *  same four `WorkspaceLabelOverride.MODE_*` constants a second time — that mapper function is the
+ *  editor's own int↔[net.bible.sharedcore.bookmark.OverrideMode] conversion, already tested by
+ *  `LabelEditMapperTest`, and its own `else -> OverrideMode.NONE` fallback is exactly this
+ *  function's `null` fallback ([OverrideMode.NONE]'s `displayStyle` is `null`). */
+internal fun overrideDisplayStyle(overrideMode: Int?): BookmarkDisplayStyle? =
+    LabelEditMapper.overrideModeFromInt(overrideMode).displayStyle

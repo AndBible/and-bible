@@ -495,8 +495,6 @@
     <!-- Bookmark / note labels -->
     <string name="labels">Labels</string>
     <string name="manage_labels">Manage Labels</string>
-    <!-- Overflow menu item in Manage labels: switches the list to one-line rows. -->
-    <string name="compact_list">Compact list</string>
     <string name="assign_labels">Assign labels</string>
     <string name="new_item">New</string>
     <string name="label_name_prompt">Name</string>

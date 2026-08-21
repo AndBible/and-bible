@@ -86,7 +86,10 @@ object LabelEditMapper {
         return data
     }
 
-    private fun overrideModeFromInt(mode: Int?): OverrideMode = when (mode) {
+    /** internal, not private: [ManageLabelsServiceImpl.overrideDisplayStyle] expresses itself in
+     *  terms of this + [net.bible.sharedcore.bookmark.displayStyle] rather than re-deriving the
+     *  same four `WorkspaceLabelOverride.MODE_*` constants a second time. */
+    internal fun overrideModeFromInt(mode: Int?): OverrideMode = when (mode) {
         null -> OverrideMode.NONE
         WorkspaceEntities.WorkspaceLabelOverride.MODE_HIGHLIGHT -> OverrideMode.HIGHLIGHT
         WorkspaceEntities.WorkspaceLabelOverride.MODE_UNDERLINE -> OverrideMode.UNDERLINE

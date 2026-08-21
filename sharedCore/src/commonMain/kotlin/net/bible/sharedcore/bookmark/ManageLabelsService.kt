@@ -5,7 +5,9 @@ interface ManageLabelsService {
     fun assignableLabels(): List<LabelItem>          // excludes the Unlabeled special (classic: filter !isUnlabeledLabel)
     fun unlabeledLabel(): LabelItem                  // bookmarkControl.labelUnlabelled as a LabelItem
     fun recentLabelIds(): List<String>               // workspaceSettings.recentLabels ids, in order
-    fun overriddenLabelIds(): Set<String>            // workspace overrides with hasOverride
+    /** The style each workspace-overridden label is forced to, keyed by label id. Empty when the
+     *  workspace overrides nothing. */
+    fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle>
     fun randomColorArgb(): Int                       // for a new label (host: Color.argb(255,rnd,rnd,rnd))
 
     /**
@@ -15,10 +17,4 @@ interface ManageLabelsService {
      * applies the results (or falls back to the categorized list on error/empty/short text).
      */
     suspend fun searchStudyPadsByContent(text: String): List<ManageLabelsRow.SearchResult>
-
-    /** Whether the label list draws one-line rows. A global view preference, not per-workspace:
-     *  persisted host-side, seeded into the controller at construction and written through on every
-     *  toggle (there is no Save step for a view preference). */
-    fun compactLabelRows(): Boolean
-    fun setCompactLabelRows(value: Boolean)
 }

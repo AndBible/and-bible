@@ -4,6 +4,24 @@ package net.bible.sharedcore.bookmark
 enum class OverrideMode { NONE, HIGHLIGHT, UNDERLINE, MARKER, HIDDEN }
 
 /**
+ * The display style this override imposes, or `null` for [OverrideMode.NONE].
+ *
+ * The four non-NONE values are deliberately the same vocabulary as [BookmarkDisplayStyle]; this is
+ * the conversion the editor needs to show the override as a style tag and a preview instead of as
+ * an abstract "settings are set" mark. Note that an override applies to BOTH bookmark kinds
+ * (`BookmarkEntities.Label.withStyleOverrides` sets the whole-verse column to inherit), so one
+ * style is the whole answer.
+ */
+val OverrideMode.displayStyle: BookmarkDisplayStyle?
+    get() = when (this) {
+        OverrideMode.NONE -> null
+        OverrideMode.HIGHLIGHT -> BookmarkDisplayStyle.HIGHLIGHT
+        OverrideMode.UNDERLINE -> BookmarkDisplayStyle.UNDERLINE
+        OverrideMode.MARKER -> BookmarkDisplayStyle.MARKER
+        OverrideMode.HIDDEN -> BookmarkDisplayStyle.HIDDEN
+    }
+
+/**
  * The effective look of a bookmark carrying this label, for ONE of the two bookmark kinds
  * (text-selection or whole-verse). The `Label` row stores two enum columns now, but the
  * renderer is a strict if/else chain (`bibleview-js/src/composables/bookmarks.ts:585-602`) under
