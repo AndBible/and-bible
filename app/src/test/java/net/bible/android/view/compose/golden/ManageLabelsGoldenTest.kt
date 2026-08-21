@@ -133,10 +133,20 @@ class ManageLabelsGoldenTest {
             label = label("S4", "Old notes", color = AbColor.palette[3], selectionStyle = BookmarkDisplayStyle.HIDDEN),
             checked = false, isAutoAssign = false, isPrimary = false, highlighted = false,
         ),
+        ManageLabelsRow.Item(
+            label = label(
+                "S5", "Overridden", color = AbColor.palette[4],
+                selectionStyle = BookmarkDisplayStyle.HIGHLIGHT,
+                wholeVerseStyle = BookmarkDisplayStyle.UNDERLINE,
+                overrideStyle = BookmarkDisplayStyle.MARKER,
+            ),
+            checked = false, isAutoAssign = false, isPrimary = false, highlighted = false,
+        ),
     )
 
     /** A representative row list spanning ACTIVE/RECENT/OTHER, with a checked+primary row, a
-     *  favourite, an override dot, an auto-assign row and a highlighted (StudyPad current) row.
+     *  favourite, an overridden tag (⚙ on the tag line), an auto-assign row and a highlighted
+     *  (StudyPad current) row.
      *  Headers are omitted for [ManageLabelsMode.STUDYPAD] (mode.hideCategories); the Unlabeled
      *  pseudo-label is appended only for modes that show it (mode.showUnassigned), exercising the
      *  Task-3 parity fix (plain icon, no auto-assign toggle). */
@@ -281,13 +291,47 @@ class ManageLabelsGoldenTest {
         captureRtl("ManageLabels", "assign", heightDp = 800, content = screen(ManageLabelsMode.ASSIGN))
 
     /** Every style on one page, two-line (default) mode: the tag column is the thing under test.
-     *  Row S2's whole-verse axis differs so its second tag appears; the other three inherit, so
-     *  they show one tag each. */
+     *  Row S2's whole-verse axis differs so its second tag appears; S4 and the rest inherit, so
+     *  they show one tag each; S5 carries all three tags at once (selection, whole-verse AND a
+     *  workspace override), the ⚙-marked tag the row's second line ends with now that the ⚙ has
+     *  moved out of the trailing grid. heightDp raised 500 -> 700 for the extra row plus room for
+     *  any tag-line wrap. */
     @Test fun manageLabels_styles() =
-        captureMatrix("ManageLabels", "styles", heightDp = 500, content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()))
+        captureMatrix("ManageLabels", "styles", heightDp = 700, content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()))
 
-    /** WORKSPACE: auto-assign circle icons, favourite hearts, override dot, and the Unlabeled row
-     *  (mode.showUnassigned) rendered with a plain (non-clickable) icon -- the Task-3 parity fix. */
+    /**
+     * Task 6 addendum, answering the question Task 5's review left open: `LabelStyleTag`'s
+     * `decoratePartially` path renders two adjacent `Text`s (the decorated half + an
+     * ellipsis-able tail) inside a `Row` the caller bounds with `widthIn(max = 110.dp)`
+     * (`ManageLabelsScreen.kt`'s `tagMaxWidth`) -- and no Compose Foundation sources were
+     * available locally to confirm from the layout algorithm alone whether that cap constrains
+     * the PAIR's combined width or only the first child, letting the second spill past it. This
+     * capture answers it with a real translation instead of a guess: Vietnamese's
+     * "Đánh dấu nổi bật" is the longest `display_mode_highlight` string in the whole `res`
+     * tree (16 chars incl. 3 spaces, checked with a one-off scan of every locale's strings.xml),
+     * loaded the same way `manageLabels_assign_rtl` already loads Arabic -- a real `@Config`
+     * locale qualifier, not a fixture-only string override (there is no such override point; see
+     * [screen]/[label], which take no `Strings` parameter). It renders [styleRows] (S1-S5, so
+     * every tag position -- selection/partial, whole-verse/full, override/full -- gets the long
+     * localised name at once) under that locale, at the real 110dp cap.
+     *
+     * Read this image for: does S1's undecorated tail ellipsise right at (or inside) 110dp from
+     * the tag's start, matching where the shorter S3/S4 tags in [manageLabels_styles] end -- or
+     * does the row visibly widen past that column, meaning the pair's width escaped the cap?
+     * (Comparing against [manageLabels_styles]'s own layout, same rows, English names, is the
+     * width reference; there is no ruler baked into the image itself.)
+     */
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "vi")
+    fun manageLabels_styles_longName() =
+        captureGolden(
+            "ManageLabels", "styles_longname", EDGE_MODE, heightDp = 700,
+            content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()),
+        )
+
+    /** WORKSPACE: the trailing grid's ⚡/♥/🔖 columns, an override tag (⚙) on the tag line, and
+     *  the Unlabeled row (mode.showUnassigned) rendered with a plain (non-clickable) icon and its
+     *  two workspace columns reserved empty -- the Task-3 parity fix. */
     @Test fun manageLabels_workspace() =
         captureGolden("ManageLabels", "workspace", EDGE_MODE, heightDp = 800, content = screen(ManageLabelsMode.WORKSPACE))
 
@@ -368,4 +412,40 @@ class ManageLabelsGoldenTest {
             modeMenuRows(ManageLabelsMode.ASSIGN)
         }
     }
+
+    /** Deliberately covers every combination the grid has to line up: on/off × on/off × primary,
+     *  not-primary-but-selected, and not-selected (the inert 🔖) -- plus the Unlabeled row. */
+    private fun iconGridRows(): List<ManageLabelsRow> = listOf(
+        ManageLabelsRow.Item(
+            label = label("G1", "All on", favourite = true),
+            checked = true, isAutoAssign = true, isPrimary = true, highlighted = false,
+        ),
+        ManageLabelsRow.Item(
+            label = label("G2", "Selected, not primary", color = AbColor.palette[1], favourite = true),
+            checked = true, isAutoAssign = false, isPrimary = false, highlighted = false,
+        ),
+        ManageLabelsRow.Item(
+            label = label("G3", "Nothing set", color = AbColor.palette[2]),
+            checked = false, isAutoAssign = false, isPrimary = false, highlighted = false,
+        ),
+        ManageLabelsRow.Item(
+            label = label("G4", "Auto-assign only", color = AbColor.palette[3]),
+            checked = false, isAutoAssign = true, isPrimary = false, highlighted = false,
+        ),
+        ManageLabelsRow.Item(
+            label = label("unlabeled", "Unlabeled", isUnlabeled = true),
+            checked = false, isAutoAssign = false, isPrimary = false, highlighted = false,
+        ),
+    )
+
+    /** The trailing grid, which is what round 12a is about: every row shows ⚡, ♥ and 🔖 in the same
+     *  three columns, each in its true or false state -- a HOLLOW bolt when auto-assign is off (not
+     *  Material's outlined bolt, which is the same solid shape), a hollow heart, and a muted inert
+     *  🔖 on the rows that are not selected. The Unlabeled row reserves the two workspace slots
+     *  empty rather than shifting its 🔖 left. Read the columns, not the icons. */
+    @Test fun manageLabels_iconGrid() =
+        captureMatrix(
+            "ManageLabels", "iconGrid", heightDp = 800,
+            content = screen(ManageLabelsMode.ASSIGN, rows = iconGridRows()),
+        )
 }

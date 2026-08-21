@@ -23,6 +23,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -46,7 +48,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
@@ -65,6 +66,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.LabelCategory
+import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.SearchMode
@@ -73,6 +75,7 @@ import net.bible.sharedcore.search.StyledText
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbColor
+import net.bible.sharedui.components.AbIcons
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchImeRequest
@@ -101,8 +104,13 @@ import net.bible.sharedui.theme.LocalDisplayColorMode
  * [net.bible.sharedcore.bookmark.LabelItem.customIcon] is `null`), tinted with the label's own
  * colour via [net.bible.sharedcore.theme.accentArgbFor] -- the same call the editor's avatar
  * already makes -- never a solid dot standing in for the icon. Auto-assign membership is no longer
- * expressed by replacing this glyph; it has its own explicit ⚡ toggle in the trailing run, in the
- * same visual grammar as the favourite heart beside it (filled + tinted on, outlined + muted off).
+ * expressed by replacing this glyph; it has its own explicit ⚡ toggle in the trailing grid, in the
+ * same visual grammar as the favourite heart beside it (filled + tinted on, HOLLOW + muted off --
+ * a real hollow bolt, not Material's "outlined" one, which is the same solid silhouette). The
+ * trailing controls are now a fixed grid of same-width columns rather than a run of independently
+ * gated icons, so ⚡/♥/🔖 line up down the whole list whether or not a given row's control is on;
+ * the ⚙ override indicator no longer squats in that run at all -- it moved to the row's tag line,
+ * where it marks which of up to three style tags is imposed by this workspace's override.
  *
  * [searchActions] is a second host action slot, rendered in the *search* bar (alongside this
  * screen's own [SearchModeMenu]) rather than the normal one [actions] occupies. The host puts its
@@ -335,13 +343,6 @@ private fun LabelItemRow(
         // overflow casualty, and a clipped IconButton stays tappable and can steal its neighbour's
         // tap -- so the name absorbs any shortage and the tag and controls keep intrinsic width.
         Column(modifier = Modifier.weight(1f)) {
-            // The style tag is bounded on BOTH branches: without a cap, an intrinsic-width tag
-            // ("Marker only") can win the space contest against the weighted name and make it
-            // vanish entirely (round-1 fix -- Finding 1). 110dp comfortably fits any single
-            // translated style name (Roborazzi caught "Highlig/ht" wrapping before Finding 2's
-            // maxLines fix; 110dp plus that fix means it now ellipsizes instead of wrapping, in
-            // the case a translation is unusually long).
-            val tagMaxWidth = Modifier.widthIn(max = 110.dp)
             Text(
                 text = label.name,
                 style = MaterialTheme.typography.bodyLarge,
@@ -349,91 +350,169 @@ private fun LabelItemRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                LabelStyleTag(label.selectionStyle, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
-                // Only when the whole-verse axis is really DIFFERENT from the selection axis:
-                // null means it inherits, and an explicitly-set-but-equal value reads the same way
-                // for display -- one tag already says everything, so a second identical tag is
-                // noise, not information. Task 4's save path normalises the equal case to null
-                // going forward, so an explicitly-equal stored value can only survive here as
-                // legacy data; treating it the same as null keeps that legacy case honest too.
-                val wholeVerse = label.wholeVerseStyle
-                if (wholeVerse != null && wholeVerse != label.selectionStyle) {
-                    Text(
-                        " · ",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+            StyleTagRow(label = label, markerGlyph = markerGlyph, strings = strings)
+        }
+
+        // A fixed grid, not a run of conditional icons. Every slot is exactly TrailingSlotSize wide
+        // whether or not it draws anything, because the feedback was about COLUMNS: with each
+        // control gated on its own condition, no two rows put the bolt, the heart and the bookmark
+        // in the same place. `mode` is constant for the whole list, so a mode without a given
+        // control has no column at all and nothing to align; the only per-row variance that needs
+        // reserving is the Unlabeled pseudo-label, which has no workspace toggles.
+        if (mode.showCheckboxes) {
+            TrailingSlot { Checkbox(checked = row.checked, onCheckedChange = { onToggleChecked(label.id) }) }
+        }
+
+        if (mode.workspaceEdits) {
+            if (label.isUnlabeled) {
+                Spacer(Modifier.width(TrailingSlotSize * 2))
+            } else {
+                // Filled vs HOLLOW, not filled vs Material's "outlined" bolt -- Icons.Outlined.Bolt
+                // is the same solid silhouette, so the off state was a tint change and read as no
+                // state at all (AbIcons.BoltOutline exists for exactly this).
+                IconButton(onClick = { onToggleAutoAssign(label.id) }, modifier = Modifier.size(TrailingSlotSize)) {
+                    Icon(
+                        if (row.isAutoAssign) Icons.Filled.Bolt else AbIcons.BoltOutline,
+                        contentDescription = strings.autoAssignLabelSwitchLabel,
+                        tint = if (row.isAutoAssign) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.size(TrailingIconSize),
                     )
-                    // Bounded the same way as the selection tag above: two unbounded tags plus
-                    // the " · " separator can together overflow the name column's width just
-                    // as one unbounded tag could crowd out the name (round-1 fix -- Finding 1's
-                    // failure mode applies here too, one level up).
-                    LabelStyleTag(wholeVerse, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
+                }
+                IconButton(onClick = { onToggleFavourite(label.id) }, modifier = Modifier.size(TrailingSlotSize)) {
+                    Icon(
+                        if (label.favourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = strings.favouriteLabelSwitchLabel,
+                        tint = if (label.favourite) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.size(TrailingIconSize),
+                    )
                 }
             }
         }
 
-        if (label.hasOverride) {
-            Icon(
-                Icons.Filled.Tune,
-                contentDescription = strings.overrideIndicatorDescription,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(16.dp).padding(start = 4.dp),
-            )
-        }
-
-        if (mode.showCheckboxes) {
-            Checkbox(checked = row.checked, onCheckedChange = { onToggleChecked(label.id) })
-        }
-
-        // Auto-assign + favourite: same guard (`workspaceEdits && !label.isUnlabeled`), so they are
-        // one decision, not two -- both are workspace-scoped toggles, in the same visual grammar as
-        // the primary bookmark below: filled + primary tint on, outlined + muted off, tap toggles.
-        // Visible in BOTH states, so the setting is discoverable at all -- classic's plain tag glyph
-        // gave no hint that tapping it did anything, which is the confusion this replaces. Bolt, not
-        // AutoAwesome: the sparkle now reads as "AI".
-        if (mode.workspaceEdits && !label.isUnlabeled) {
-            IconButton(onClick = { onToggleAutoAssign(label.id) }) {
-                Icon(
-                    if (row.isAutoAssign) Icons.Filled.Bolt else Icons.Outlined.Bolt,
-                    contentDescription = strings.autoAssignLabelSwitchLabel,
-                    tint = if (row.isAutoAssign) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    modifier = Modifier.size(20.dp),
-                )
-            }
-            IconButton(onClick = { onToggleFavourite(label.id) }) {
-                Icon(
-                    if (label.favourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = strings.favouriteLabelSwitchLabel,
-                    tint = if (label.favourite) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    modifier = Modifier.size(20.dp),
-                )
-            }
-        }
-
-        if (mode.primaryShown && row.checked) {
-            IconButton(onClick = { onSetPrimary(label.id) }) {
-                Icon(
-                    if (row.isPrimary) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
-                    contentDescription = strings.primaryLabelSwitchLabel,
-                    tint = if (row.isPrimary) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    modifier = Modifier.size(20.dp),
-                )
+        if (mode.primaryShown) {
+            if (row.checked) {
+                IconButton(onClick = { onSetPrimary(label.id) }, modifier = Modifier.size(TrailingSlotSize)) {
+                    Icon(
+                        if (row.isPrimary) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
+                        contentDescription = strings.primaryLabelSwitchLabel,
+                        tint = if (row.isPrimary) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.size(TrailingIconSize),
+                    )
+                }
+            } else {
+                // Shown but inert: the column has to exist on every row, and the false state has to
+                // be visible the way the heart's is -- but a tap here would both select the label
+                // AND promote it, two things from one gesture, so it is an indicator only.
+                TrailingSlot {
+                    Icon(
+                        Icons.Filled.BookmarkBorder,
+                        contentDescription = strings.primaryLabelSwitchLabel,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = InertIndicatorAlpha),
+                        modifier = Modifier.size(TrailingIconSize),
+                    )
+                }
             }
         }
     }
+}
+
+/** One trailing-grid cell. 48dp is the Material minimum touch target and the width every slot
+ *  reserves, drawn or not, so the controls form columns down the list. */
+private val TrailingSlotSize = 48.dp
+private val TrailingIconSize = 20.dp
+
+/** The inert primary indicator: visible enough to show the column and its off state, muted enough
+ *  not to invite a tap that would do nothing. */
+private const val InertIndicatorAlpha = 0.38f
+
+/** One cell of the row's trailing grid. Fixed width whether it draws a control, an indicator or
+ *  nothing: an `IconButton`'s intrinsic size is not something to align columns on. */
+@Composable
+private fun TrailingSlot(content: @Composable () -> Unit) {
+    Box(modifier = Modifier.size(TrailingSlotSize), contentAlignment = Alignment.Center) { content() }
+}
+
+/**
+ * The row's second line: what this label draws, in up to three tags.
+ *
+ * 1. the label's own selection style, decorated **partially** — a text-selection bookmark covers
+ *    part of a verse, and that is what the half tag says;
+ * 2. its whole-verse style, decorated fully, only when it is really set to something of its own;
+ * 3. the style this workspace's override imposes, decorated fully and marked with a ⚙.
+ *
+ * The ⚙ is the one place that symbol survives this round. In the editor the same tag sits under the
+ * "This workspace" heading, which supplies its meaning, so the indicator there is redundant; a list
+ * row has no heading, so the tag needs one mark to say where it comes from — and ⚙ is already this
+ * codebase's override symbol, with `workspace_override_indicator` available as its description. An
+ * override takes BOTH axes (`Label.withStyleOverrides`), which is why it is decorated in full: it is
+ * what the reader draws here, on either kind of bookmark. The label's own two tags stay, because
+ * they are the label's identity and travel with it to every other workspace.
+ *
+ * A `FlowRow` rather than a `Row`: three tags do not fit one 320dp line, and the third wrapping is
+ * better than the third being clipped away.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun StyleTagRow(label: LabelItem, markerGlyph: @Composable () -> Unit, strings: Strings) {
+    // Bounded on every branch: an intrinsic-width tag can win the space contest against the
+    // weighted name and make it vanish entirely (round-1 fix -- Finding 1). 110dp comfortably fits
+    // any single translated style name.
+    val tagMaxWidth = Modifier.widthIn(max = 110.dp)
+    FlowRow(modifier = Modifier.fillMaxWidth()) {
+        LabelStyleTag(
+            label.selectionStyle,
+            label.color,
+            modifier = tagMaxWidth,
+            decoratePartially = true,
+            iconSlot = markerGlyph,
+        )
+        // Only when the whole-verse axis is really DIFFERENT: null means it inherits, and an
+        // explicitly-set-but-equal value reads the same way, so a second identical tag is noise.
+        val wholeVerse = label.wholeVerseStyle
+        if (wholeVerse != null && wholeVerse != label.selectionStyle) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TagSeparator()
+                LabelStyleTag(wholeVerse, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
+            }
+        }
+        val override = label.overrideStyle
+        if (override != null) {
+            // Separator, mark and tag in ONE Row so a wrap can never leave the ⚙ stranded at the
+            // end of a line with its tag on the next.
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TagSeparator()
+                Icon(
+                    Icons.Filled.Tune,
+                    contentDescription = strings.overrideIndicatorDescription,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(12.dp),
+                )
+                Spacer(Modifier.width(2.dp))
+                LabelStyleTag(override, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TagSeparator() {
+    Text(
+        " · ",
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 /**
