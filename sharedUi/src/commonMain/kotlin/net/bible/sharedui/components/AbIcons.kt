@@ -54,12 +54,30 @@ private const val HollowStrokeWidth = 2f
  * [VectorGroup]. A nested group carries its own `rotate`/`translate`/`scale`/`pivot`/`clip`
  * (`VectorGroup`'s own transform fields), which a flattening recursion would silently drop rather
  * than reproduce, producing a geometrically wrong "hollow variant" with nothing to say so. A
- * grouped source is refused outright instead. Per path, what IS carried over: `pathData`,
- * `pathFillType`, `name`, `fillAlpha`, `strokeAlpha`, `strokeLineCap`, `strokeLineJoin`,
- * `strokeLineMiter` and the three `trimPath*` fields. What is deliberately overridden, not
- * carried: `fill` (forced to `null`) and `strokeLineWidth` (forced to [HollowStrokeWidth]) — those
- * two are the whole point of the transform. `Icons.Filled.Bolt` is a single ungrouped path, so
- * nothing in current use is affected by the refusal.
+ * grouped source is refused outright instead.
+ *
+ * Per path, what IS carried over: `pathData`, `pathFillType`, `name`, `fillAlpha`, `strokeAlpha`
+ * and the three `trimPath*` fields — genuine geometry of the source path, meaningful regardless of
+ * whether it ends up filled or stroked.
+ *
+ * What is deliberately NOT carried, even though [VectorPath] has the fields: `strokeLineCap`,
+ * `strokeLineJoin`, `strokeLineMiter`. These are STROKE-appearance parameters, and [source] is a
+ * fill-only path (`stroke == null`) whose own values for them were never exercised when it was
+ * drawn — they are incidental leftovers from however the source vector's builder happened to
+ * default them, not a considered choice about how a stroke should look. Copying them here found
+ * this out the hard way: `Icons.Filled.Bolt`'s path carries `strokeLineJoin = Bevel` and
+ * `strokeLineMiter = 1f` (Compose Material's own `materialPath` DSL default for a filled path),
+ * which — once actually used to stroke [BoltOutline] — visibly squared off the bolt's sharp tips
+ * compared to the sensible `Miter`/`4f` stroke default, changing `AbIcons_boltPair_dark`'s
+ * rasterised pixels with no change in silhouette. `strokeLineCap`/`strokeLineJoin`/`strokeLineMiter`
+ * are left at `addPath`'s own defaults (`Butt`/`Miter`/`4f`) instead — this transform's own explicit
+ * choice for how ITS stroke should join, independent of what the never-stroked source happened to
+ * carry.
+ *
+ * What is deliberately OVERRIDDEN outright, not carried at all: `fill` (forced to `null`) and
+ * `strokeLineWidth` (forced to [HollowStrokeWidth]) — those two are the whole point of the
+ * transform. `Icons.Filled.Bolt` is a single ungrouped path, so nothing in current use is affected
+ * by the group refusal.
  */
 private fun hollowVariantOf(source: ImageVector, name: String): ImageVector {
     val builder = ImageVector.Builder(
@@ -84,9 +102,8 @@ private fun hollowVariantOf(source: ImageVector, name: String): ImageVector {
             stroke = SolidColor(Color.Black),
             strokeAlpha = path.strokeAlpha,
             strokeLineWidth = HollowStrokeWidth,
-            strokeLineCap = path.strokeLineCap,
-            strokeLineJoin = path.strokeLineJoin,
-            strokeLineMiter = path.strokeLineMiter,
+            // strokeLineCap/strokeLineJoin/strokeLineMiter intentionally NOT copied from `path` --
+            // see the KDoc above. Left at addPath's own defaults (Butt/Miter/4f).
             trimPathStart = path.trimPathStart,
             trimPathEnd = path.trimPathEnd,
             trimPathOffset = path.trimPathOffset,
