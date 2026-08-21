@@ -26,6 +26,9 @@ class MyDocumentsController(
     val onImport: () -> Unit,
     val onExport: (id: Long) -> Unit,
     val onCreate: (name: String) -> Unit,
+    /** Batch export. The `= {}` default is TEMPORARY: it keeps MyDocumentsComposeActivity compiling
+     *  until Task 11 wires this seam, which removes the default in the same commit. */
+    val onExportSelected: (ids: List<Long>) -> Unit = {},
     val onSave: (orderedIds: List<Long>, changed: Set<Long>, deleted: Set<Long>) -> Unit,
 ) {
     /** The full, unfiltered order. [documents] publishes a filtered view of this. */
@@ -52,12 +55,16 @@ class MyDocumentsController(
     private val changed = mutableSetOf<Long>()
     private val toDelete = mutableSetOf<Long>()
 
+    private val _selection = MutableStateFlow<Set<Long>>(emptySet())
+    val selection: StateFlow<Set<Long>> = _selection.asStateFlow()
+
     fun setDocuments(items: List<MyDocItem>) {
         working.clear(); working.addAll(items)
         changed.clear(); toDelete.clear()
         _dirty.value = false
         _query.value = ""
         searchMode.reset()
+        _selection.value = emptySet()
         publish()
     }
 
@@ -72,7 +79,7 @@ class MyDocumentsController(
             }
     }
 
-    fun setQuery(q: String) { _query.value = q; publish() }
+    fun setQuery(q: String) { _query.value = q; _selection.value = emptySet(); publish() }
     fun openSearch() = searchMode.open()
 
     /** Classic parity (RecyclerViewSearchHelper:110-114): collapsing search clears the filter. */
@@ -115,8 +122,43 @@ class MyDocumentsController(
         working.removeAll { it.id == id }
         toDelete.add(id)
         changed.remove(id)
+        _selection.value = _selection.value - id
         _dirty.value = true
         publish()
+    }
+
+    fun toggleSelect(id: Long) {
+        val s = _selection.value
+        _selection.value = if (id in s) s - id else s + id
+    }
+
+    fun clearSelection() { _selection.value = emptySet() }
+
+    /**
+     * Deletes every selected document EXCEPT those whose [MyDocItem.canDelete] is false (AI-generated
+     * documents), which are left in the list. The screen tells the user about the skipped ones; it can
+     * count them from its own rows because a selection can only exist over the currently published
+     * rows — [setQuery] clears the selection.
+     */
+    fun deleteSelected() {
+        val ids = _selection.value
+        _selection.value = emptySet()
+        if (ids.isEmpty()) return
+        val deletable = working.filter { it.id in ids && it.canDelete }.map { it.id }
+        if (deletable.isEmpty()) return
+        working.removeAll { it.id in deletable }
+        toDelete.addAll(deletable)
+        changed.removeAll(deletable.toSet())
+        _dirty.value = true
+        publish()
+    }
+
+    /** Hands the selected ids to the host (which owns SAF) and leaves selection mode. */
+    fun exportSelected() {
+        val ids = _selection.value.toList()
+        if (ids.isEmpty()) return
+        _selection.value = emptySet()
+        onExportSelected(ids)
     }
 
     fun open(id: Long) = onOpen(id)

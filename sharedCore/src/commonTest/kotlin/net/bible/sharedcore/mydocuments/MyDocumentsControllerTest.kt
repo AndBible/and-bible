@@ -12,9 +12,11 @@ class MyDocumentsControllerTest {
     private var savedOrder: List<Long>? = null
     private var savedChanged: Set<Long>? = null
     private var savedDeleted: Set<Long>? = null
+    private var exportedIds: List<Long>? = null
 
     private fun controller() = MyDocumentsController(
         onOpen = {}, onImport = {}, onExport = {}, onCreate = {},
+        onExportSelected = { ids -> exportedIds = ids },
         onSave = { order, changed, deleted -> savedOrder = order; savedChanged = changed; savedDeleted = deleted },
     )
 
@@ -186,5 +188,89 @@ class MyDocumentsControllerTest {
         c.setDocuments(listOf(item(0, "aaa", "weekly outlines"), item(1, "bbb", "")))
         c.setQuery("outlines")
         assertEquals(listOf(0L), c.documents.value.map { it.id })
+    }
+
+    @Test fun toggleSelect_adds_then_removes() {
+        val c = controller()
+        c.setDocuments(listOf(item(0), item(1)))
+        c.toggleSelect(1)
+        assertEquals(setOf(1L), c.selection.value)
+        c.toggleSelect(1)
+        assertTrue(c.selection.value.isEmpty())
+    }
+
+    @Test fun setQuery_clears_the_selection() {
+        // A selected row hidden by the filter would still be counted and still be deleted.
+        val c = controller()
+        c.setDocuments(listOf(item(0, "aaa"), item(1, "bbb")))
+        c.toggleSelect(0)
+        c.setQuery("bbb")
+        assertTrue(c.selection.value.isEmpty())
+    }
+
+    @Test fun closeSearch_clears_the_selection_too() {
+        val c = controller()
+        c.setDocuments(listOf(item(0), item(1)))
+        c.openSearch()
+        c.toggleSelect(0)
+        c.closeSearch()
+        assertTrue(c.selection.value.isEmpty())
+    }
+
+    @Test fun setDocuments_clears_the_selection() {
+        val c = controller()
+        c.setDocuments(listOf(item(0)))
+        c.toggleSelect(0)
+        c.setDocuments(listOf(item(0), item(1)))
+        assertTrue(c.selection.value.isEmpty())
+    }
+
+    @Test fun deleteSelected_deletes_the_deletable_and_keeps_the_undeletable() {
+        val c = controller()
+        c.setDocuments(listOf(
+            item(0, "a"), item(1, "b", canDelete = false), item(2, "c"),
+        ))
+        c.toggleSelect(0); c.toggleSelect(1); c.toggleSelect(2)
+        c.deleteSelected()
+        assertEquals(listOf(1L), c.documents.value.map { it.id })   // the AI document survives
+        assertTrue(c.selection.value.isEmpty())
+        assertTrue(c.dirty.value)
+        c.save()
+        assertEquals(setOf(0L, 2L), savedDeleted)
+        assertEquals(listOf(1L), savedOrder)
+    }
+
+    @Test fun deleteSelected_with_only_undeletable_selected_changes_nothing() {
+        val c = controller()
+        c.setDocuments(listOf(item(0, "a", canDelete = false), item(1, "b")))
+        c.toggleSelect(0)
+        c.deleteSelected()
+        assertEquals(listOf(0L, 1L), c.documents.value.map { it.id })
+        assertFalse(c.dirty.value)
+        assertTrue(c.selection.value.isEmpty())
+    }
+
+    @Test fun exportSelected_reports_the_ids_then_leaves_selection_mode() {
+        val c = controller()
+        c.setDocuments(listOf(item(0), item(1), item(2)))
+        c.toggleSelect(2); c.toggleSelect(0)
+        c.exportSelected()
+        assertEquals(setOf(0L, 2L), exportedIds?.toSet())
+        assertTrue(c.selection.value.isEmpty())
+    }
+
+    @Test fun exportSelected_with_an_empty_selection_does_nothing() {
+        val c = controller()
+        c.setDocuments(listOf(item(0)))
+        c.exportSelected()
+        assertEquals(null, exportedIds)
+    }
+
+    @Test fun single_delete_drops_the_id_from_the_selection() {
+        val c = controller()
+        c.setDocuments(listOf(item(0), item(1)))
+        c.toggleSelect(0); c.toggleSelect(1)
+        c.delete(0)
+        assertEquals(setOf(1L), c.selection.value)
     }
 }
