@@ -21,9 +21,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -33,6 +35,7 @@ import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,8 +57,11 @@ import net.bible.sharedui.components.AbCreateItemSheet
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbReorderableColumn
+import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbSelectionScaffold
 import net.bible.sharedui.components.AbTextInputDialog
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -68,6 +74,16 @@ fun MyDocumentsScreen(
     title: String,
     documents: List<MyDocItem>,
     dirty: Boolean,
+    // Defaulted (rather than required) so the not-yet-updated host call site (wired in Task 11)
+    // keeps compiling unchanged: no search ever active, totalCount tracking the full list, exactly
+    // today's behaviour.
+    query: String = "",
+    filtering: Boolean = false,
+    searchModeActive: Boolean = false,
+    totalCount: Int = documents.size,
+    onOpenSearch: () -> Unit = {},
+    onCloseSearch: () -> Unit = {},
+    onQueryChange: (String) -> Unit = {},
     onMove: (from: Int, to: Int) -> Unit,
     onOpen: (id: Long) -> Unit,
     onRename: (id: Long, name: String) -> Unit,
@@ -101,8 +117,21 @@ fun MyDocumentsScreen(
         onNavigateUp = onNavigateUp,
         onExitSelection = {},
         actions = {
-            AbActionIcon(Icons.Filled.AddCircleOutline, s.newItem) { createOpen = true }
+            if (!searchModeActive) {
+                AbActionIcon(Icons.Filled.Search, s.search, onOpenSearch)
+                AbActionIcon(Icons.Filled.AddCircleOutline, s.newItem) { createOpen = true }
+            }
         },
+        search = if (searchModeActive) {
+            AbTopBarSearchState(query = query, imeRequest = AbSearchImeRequest.Focus)
+        } else null,
+        searchCallbacks = if (searchModeActive) {
+            AbTopBarSearchCallbacks(
+                onQueryChange = onQueryChange,
+                onClose = onCloseSearch,
+                onImeRequestHandled = {},
+            )
+        } else null,
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -118,10 +147,14 @@ fun MyDocumentsScreen(
                             modifier = Modifier.fillMaxWidth().clickable { onOpen(item.id) }.padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(
-                                Icons.Filled.DragHandle, contentDescription = null,
-                                modifier = handle.padding(horizontal = 12.dp),
-                            )
+                            if (!filtering) {
+                                Icon(
+                                    Icons.Filled.DragHandle, contentDescription = null,
+                                    modifier = handle.padding(horizontal = 12.dp),
+                                )
+                            } else {
+                                Spacer(Modifier.size(48.dp))
+                            }
                             if (item.isAiGenerated) {
                                 Icon(
                                     Icons.Filled.AutoAwesome, contentDescription = null,
@@ -156,7 +189,7 @@ fun MyDocumentsScreen(
     if (createOpen) {
         AbCreateItemSheet(
             title = s.createTitle,
-            initialName = s.newDocumentName(documents.size + 1),
+            initialName = s.newDocumentName(totalCount + 1),
             confirmText = s.okay,
             importText = s.importDocument,
             onCreate = { createOpen = false; if (it.isNotBlank()) onCreate(it.trim()) },

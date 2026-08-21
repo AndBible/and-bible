@@ -22,8 +22,17 @@ class MyDocumentsGoldenTest {
     )
 
     @Composable
-    private fun screen(items: List<MyDocItem> = docs, dirty: Boolean = false) = MyDocumentsScreen(
+    private fun screen(
+        items: List<MyDocItem> = docs,
+        dirty: Boolean = false,
+        query: String = "",
+        filtering: Boolean = false,
+        searchModeActive: Boolean = false,
+    ) = MyDocumentsScreen(
         title = "My documents", documents = items, dirty = dirty,
+        query = query, filtering = filtering, searchModeActive = searchModeActive,
+        totalCount = docs.size,
+        onOpenSearch = {}, onCloseSearch = {}, onQueryChange = {},
         onMove = { _, _ -> }, onOpen = {}, onRename = { _, _ -> }, onEditDescription = { _, _ -> },
         onDelete = {}, onExport = {}, onCreate = {}, onImport = {}, onSave = {}, onCancel = {},
         onNavigateUp = {},
@@ -50,6 +59,20 @@ class MyDocumentsGoldenTest {
                 confirmText = "OK", importText = "Import document",
                 onCreate = {}, onImport = {},
             )
+        }
+    }
+
+    @Test fun myDocuments_searchMode() {
+        captureMatrix("MyDocuments", "searchMode") {
+            screen(items = docs.take(2), query = "rom", filtering = true, searchModeActive = true)
+        }
+    }
+
+    @Test fun myDocuments_filtering() {
+        // Search mode closed but a filter still applied is impossible in production (closing search
+        // clears the query); this state exists to pin the drag handles being GONE while filtering.
+        captureGolden("MyDocuments", "filtering", EDGE_MODE) {
+            screen(items = docs.take(1), query = "rom", filtering = true, searchModeActive = false)
         }
     }
 }
