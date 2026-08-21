@@ -87,6 +87,11 @@ interface Strings {
     fun moduleSizeMb(mb: Double): String
     val cancel: String
 
+    // Settings editor sheets T5 — SettingsEditorSheet header
+    val settingsEditorBack: String            // R.string.settings_editor_back
+    val settingsEditorClose: String           // R.string.settings_editor_close
+    val settingsEditorApply: String           // R.string.settings_editor_apply
+
     // Batch 5 — search
     val search: String
     val emptyList: String

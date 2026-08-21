@@ -36,6 +36,7 @@ class SettingsRowBadgeGoldenTest {
             AbSettingsContent(
                 state = state(),
                 onSwitch = { _, _ -> }, onListChoice = { _, _ -> }, onTextInput = { _, _ -> }, onNavigate = {},
+                onOpenEditor = {},
             )
         }
     }

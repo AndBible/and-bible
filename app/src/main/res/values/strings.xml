@@ -792,6 +792,10 @@
     <!-- General -->
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
+    <!-- Settings editor sheets T5 — SettingsEditorSheet header -->
+    <string name="settings_editor_back">Back</string>
+    <string name="settings_editor_close">Close</string>
+    <string name="settings_editor_apply">Apply</string>
     <string name="discard_changes_confirmation">Discard unsaved changes?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>

@@ -21,7 +21,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import net.bible.sharedcore.settings.SettingsEditorPage
+import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SyncDialog
 import net.bible.sharedcore.settings.SyncSettingsUiState
 import net.bible.sharedui.components.AbConfirmDialog
@@ -31,11 +36,14 @@ import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
 
 /**
- * The cloud-sync settings screen. Renders the declarative settings list via [AbSettingsContent]
- * (which owns its own list-choice/text-input editor dialogs), overlaid with an [AbLoadingOverlay]
- * while a blocking flow runs, plus the screen's confirm/error modals ([AbConfirmDialog] for the
- * document-enable + reset confirmations, [AbErrorDialog] for an invalid server URL). All state comes
- * from [uiState]; every user action flows up through the callbacks to the [SyncSettingsController].
+ * The cloud-sync settings screen. Renders the declarative settings list via [AbSettingsContent],
+ * whose list-choice/text-input rows now open as [SettingsEditorSheet] pages (via
+ * [GenericSettingsEditorSheet]) rather than the dialogs this screen used to render inline — this
+ * screen owns the [SettingsEditorStack] driving that sheet, the same way [AbSettingsScreen] does.
+ * Overlaid with an [AbLoadingOverlay] while a blocking flow runs, plus the screen's confirm/error
+ * modals ([AbConfirmDialog] for the document-enable + reset confirmations, [AbErrorDialog] for an
+ * invalid server URL). All state comes from [uiState]; every user action flows up through the
+ * callbacks to the [SyncSettingsController].
  */
 @Composable
 fun SyncSettingsScreen(
@@ -50,6 +58,8 @@ fun SyncSettingsScreen(
     onDismissDialog: () -> Unit,
 ) {
     val strings = LocalStrings.current
+    val editor = remember { SettingsEditorStack() }
+    val editorPages by editor.pages.collectAsState()
     AbScaffold(title = uiState.screen.title, onNavigateUp = onUp) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             AbSettingsContent(
@@ -58,10 +68,20 @@ fun SyncSettingsScreen(
                 onListChoice = onListChoice,
                 onTextInput = onTextInput,
                 onNavigate = onNavigate,
+                onOpenEditor = { key -> editor.open(SettingsEditorPage.Row(key)) },
             )
             if (uiState.loading) AbLoadingOverlay()
         }
     }
+    GenericSettingsEditorSheet(
+        state = uiState.screen,
+        editor = editor,
+        page = editorPages.lastOrNull(),
+        depth = editor.depth,
+        onListChoice = onListChoice,
+        onTextInput = onTextInput,
+        onMultiSelectChange = { _, _ -> },
+    )
 
     when (val d = uiState.dialog) {
         is SyncDialog.EnableDocuments -> AbConfirmDialog(

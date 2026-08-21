@@ -44,6 +44,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +63,8 @@ import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.ai.agentPermissionModeChoices
+import net.bible.sharedcore.settings.SettingsEditorPage
+import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.components.AbActionIconSize
@@ -71,6 +74,7 @@ import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.settings.AbSettingsContent
+import net.bible.sharedui.settings.GenericSettingsEditorSheet
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -134,7 +138,10 @@ import net.bible.sharedui.strings.Strings
  * Uses [AbSettingsContent] (the scaffold-less counterpart of [AbSettingsScreen], extracted in a
  * Batch 9c fix) rather than [AbSettingsScreen] itself: the tab body already sits under this screen's
  * own (title + tabs) top bar, so wrapping it in another [AbScaffold] would draw a second, redundant
- * M3 app bar. [AbSettingsContent] renders the identical settings list/dialog logic with no top bar.
+ * M3 app bar. [AbSettingsContent] renders the identical settings list with no top bar; the model-
+ * override/max-iterations rows now open as [net.bible.sharedui.settings.SettingsEditorSheet] pages
+ * (Settings editor sheets T5), so this tab owns its own `SettingsEditorStack` and renders
+ * [GenericSettingsEditorSheet] as a sibling, the same pattern [AbSettingsScreen] uses.
  *
  * **Top bar.** Title: [PromptEditData.id] `== null` (a new, unsaved prompt) → the generic "New
  * prompt" string (matches classic, which never distinguishes a title further for a new prompt);
@@ -606,11 +613,28 @@ private fun AdvancedTabContent(
         ),
     )
 
+    val onListChoice: (String, String) -> Unit =
+        { key, value -> if (key == "model_override") onSetModelOverride(value.ifEmpty { null }) }
+    val onTextInput: (String, String) -> Unit =
+        { key, value -> if (key == "max_iterations") onSetMaxIterations(value.trim().toIntOrNull()) }
+    val editor = remember { SettingsEditorStack() }
+    val editorPages by editor.pages.collectAsState()
+
     AbSettingsContent(
         state = settingsState,
         onSwitch = onSetSwitch,
-        onListChoice = { key, value -> if (key == "model_override") onSetModelOverride(value.ifEmpty { null }) },
-        onTextInput = { key, value -> if (key == "max_iterations") onSetMaxIterations(value.trim().toIntOrNull()) },
+        onListChoice = onListChoice,
+        onTextInput = onTextInput,
         onNavigate = {},
+        onOpenEditor = { key -> editor.open(SettingsEditorPage.Row(key)) },
+    )
+    GenericSettingsEditorSheet(
+        state = settingsState,
+        editor = editor,
+        page = editorPages.lastOrNull(),
+        depth = editor.depth,
+        onListChoice = onListChoice,
+        onTextInput = onTextInput,
+        onMultiSelectChange = { _, _ -> },
     )
 }

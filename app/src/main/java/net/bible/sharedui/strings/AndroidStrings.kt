@@ -77,6 +77,11 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun moduleSizeMb(mb: Double): String = context.getString(R.string.module_size_megabytes, mb)
     override val cancel: String get() = context.getString(R.string.cancel)
 
+    // Settings editor sheets T5 — SettingsEditorSheet header
+    override val settingsEditorBack: String get() = context.getString(R.string.settings_editor_back)
+    override val settingsEditorClose: String get() = context.getString(R.string.settings_editor_close)
+    override val settingsEditorApply: String get() = context.getString(R.string.settings_editor_apply)
+
     // Batch 5 — search
     override val search: String get() = context.getString(R.string.search)
     override val emptyList: String get() = context.getString(R.string.empty_list)

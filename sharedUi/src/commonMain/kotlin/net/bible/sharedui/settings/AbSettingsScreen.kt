@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,6 +41,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,17 +52,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.settings.SettingsEditorPage
+import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedcore.settings.filterSettingsItems
 import net.bible.sharedui.components.AbActionIcon
-import net.bible.sharedui.components.AbListChoiceDialog
-import net.bible.sharedui.components.AbMultiSelectDialog
+import net.bible.sharedui.components.AbListChoiceContent
+import net.bible.sharedui.components.AbMultiSelectContent
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.AbSwitchRow
-import net.bible.sharedui.components.AbTextInputDialog
+import net.bible.sharedui.components.AbTextInputContent
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.components.SettingsRowBadgeChip
@@ -68,10 +72,15 @@ import net.bible.sharedui.strings.LocalStrings
 
 /**
  * Reusable declarative settings screen. Renders a [SettingsScreenState] (a flat list of
- * [SettingsItem]s) as Material3 settings rows inside an [AbScaffold], and owns the screen-local
- * dialog state for the two editors it manages ([SettingsItem.ListChoiceRow] → [AbListChoiceDialog],
- * [SettingsItem.TextInputRow] → [AbTextInputDialog]). Every callback is fired with the item's stable
- * `key`, so the consuming host maps a change back to its domain without positional coupling.
+ * [SettingsItem]s) as Material3 settings rows inside an [AbScaffold]. Every callback is fired with
+ * the item's stable `key`, so the consuming host maps a change back to its domain without
+ * positional coupling.
+ *
+ * Owns a [SettingsEditorStack] and renders the one [SettingsEditorSheet] it drives (via
+ * [GenericSettingsEditorSheet]) as a sibling of the [AbScaffold] block, in both the searchable and
+ * non-searchable branches: [SettingsItem.ListChoiceRow], [SettingsItem.TextInputRow] and
+ * [SettingsItem.MultiSelectRow] all open as sheet pages now, replacing the three dialogs this
+ * screen used to own directly.
  *
  * The framework is deliberately lean: it renders only the generic item types. Screen-specific editors
  * (multiline prompt, retention-with-disable, language pickers, …) are intercepted by the consuming
@@ -101,6 +110,11 @@ fun AbSettingsScreen(
     onCloseSearch: () -> Unit = {},
     onLongPress: ((String) -> Unit)? = null,
 ) {
+    val editor = remember { SettingsEditorStack() }
+    val editorPages by editor.pages.collectAsState()
+    val editorPage = editorPages.lastOrNull()
+    val onOpenEditor: (String) -> Unit = { key -> editor.open(SettingsEditorPage.Row(key)) }
+
     if (!searchable) {
         // Unchanged legacy path: pixel-identical to the pre-search behaviour (every non-searchable
         // screen — Sync, AI, ReadingProgress — stays exactly as before).
@@ -111,12 +125,22 @@ fun AbSettingsScreen(
                 onListChoice = onListChoice,
                 onTextInput = onTextInput,
                 onNavigate = onNavigate,
+                onOpenEditor = onOpenEditor,
                 onSliderChange = onSliderChange,
                 onMultiSelectChange = onMultiSelectChange,
                 modifier = Modifier.padding(padding),
                 onLongPress = onLongPress,
             )
         }
+        GenericSettingsEditorSheet(
+            state = state,
+            editor = editor,
+            page = editorPage,
+            depth = editor.depth,
+            onListChoice = onListChoice,
+            onTextInput = onTextInput,
+            onMultiSelectChange = onMultiSelectChange,
+        )
         return
     }
 
@@ -152,6 +176,7 @@ fun AbSettingsScreen(
                 onListChoice = onListChoice,
                 onTextInput = onTextInput,
                 onNavigate = onNavigate,
+                onOpenEditor = onOpenEditor,
                 onSliderChange = onSliderChange,
                 onMultiSelectChange = onMultiSelectChange,
                 modifier = Modifier.weight(1f),   // ColumnScope: list fills the space below the field
@@ -159,15 +184,123 @@ fun AbSettingsScreen(
             )
         }
     }
+    GenericSettingsEditorSheet(
+        state = filteredState,
+        editor = editor,
+        page = editorPage,
+        depth = editor.depth,
+        onListChoice = onListChoice,
+        onTextInput = onTextInput,
+        onMultiSelectChange = onMultiSelectChange,
+    )
+}
+
+/**
+ * The generic settings editor sheet: the three item kinds `AbSettingsContent` used to open dialogs
+ * for. Re-resolves the row from [state] on every recomposition and closes the sheet if the key has
+ * vanished — the same discipline the three dialogs had, now expressed through
+ * [SettingsEditorStack.closeIf].
+ *
+ * `internal`, not `private`: [AbSettingsScreen] is not [AbSettingsContent]'s only direct caller —
+ * [net.bible.sharedui.settings.SyncSettingsScreen] and [net.bible.sharedui.ai.PromptEditScreen]'s
+ * Advanced tab also render it standalone (a host with its own top bar, per [AbSettingsContent]'s
+ * kdoc), so they reuse this composable rather than duplicating its `when` block. Kotlin `internal`
+ * is module-scoped, which covers both — they live in `:sharedUi` alongside this file.
+ */
+@Composable
+internal fun GenericSettingsEditorSheet(
+    state: SettingsScreenState,
+    editor: SettingsEditorStack,
+    page: SettingsEditorPage?,
+    depth: Int,
+    onListChoice: (String, String) -> Unit,
+    onTextInput: (String, String) -> Unit,
+    onMultiSelectChange: (String, Set<String>) -> Unit,
+) {
+    val rowPage = page as? SettingsEditorPage.Row ?: return
+    val row = state.visibleItems.firstOrNull { it.key == rowPage.key }
+    LaunchedEffect(rowPage, row) {
+        if (row == null) editor.closeIf { it is SettingsEditorPage.Row && it.key == rowPage.key }
+    }
+    if (row == null) return
+    val strings = LocalStrings.current
+    val title = when (row) {
+        is SettingsItem.ListChoiceRow -> row.title
+        is SettingsItem.TextInputRow -> row.title
+        is SettingsItem.MultiSelectRow -> row.title
+        else -> return
+    }
+    SettingsEditorSheet(
+        page = page,
+        title = title,
+        showBack = depth > 1,
+        onDismiss = { editor.pop() },
+        onClose = { editor.close() },
+    ) {
+        when (row) {
+            is SettingsItem.ListChoiceRow -> AbListChoiceContent(
+                choices = row.entries,
+                selectedValue = row.selectedValue,
+                // A single-choice pick commits and closes, exactly as the dialog's row onClick did.
+                onSelect = { onListChoice(row.key, it); editor.pop() },
+                // AbListChoiceContent's verticalScroll has no maximum height of its own (fine inside
+                // AlertDialog, which bounded it) — bound it here so a long list (e.g. font families)
+                // cannot grow the sheet to full bleed or push a confirm row out of reach. Matches
+                // AbMultiSelectContent's own heightIn(max = 400.dp).
+                modifier = Modifier.heightIn(max = 400.dp),
+            )
+            is SettingsItem.TextInputRow -> {
+                var current by remember(row.key, row.value) { mutableStateOf(row.value) }
+                AbTextInputContent(
+                    initial = row.value,
+                    onValueChange = { current = it },
+                    numeric = row.numeric,
+                    masked = row.masked,
+                )
+                SheetConfirmRow(
+                    confirmLabel = strings.settingsEditorApply,
+                    cancelLabel = strings.cancel,
+                    onConfirm = { onTextInput(row.key, current); editor.pop() },
+                    onCancel = { editor.pop() },
+                )
+            }
+            is SettingsItem.MultiSelectRow -> {
+                var current by remember(row.key, row.selectedValues) {
+                    mutableStateOf(row.selectedValues.toList())
+                }
+                AbMultiSelectContent(
+                    options = row.options,
+                    selectedIds = row.selectedValues.toList(),
+                    idOf = { it.value },
+                    labelOf = { it.label },
+                    onCheckedChange = { current = it },
+                    selectAllText = strings.selectAll,
+                    selectNoneText = strings.selectNone,
+                )
+                SheetConfirmRow(
+                    confirmLabel = strings.settingsEditorApply,
+                    cancelLabel = strings.cancel,
+                    onConfirm = { onMultiSelectChange(row.key, current.toSet()); editor.pop() },
+                    onCancel = { editor.pop() },
+                )
+            }
+            else -> Unit
+        }
+    }
 }
 
 /**
  * Scaffold-less counterpart of [AbSettingsScreen]: renders the same [SettingsScreenState] settings
- * list (and owns the same screen-local list-choice/text-input dialog state) WITHOUT wrapping it in
- * an [AbScaffold] — i.e. no top app bar. Intended for hosts that already render their own top bar
- * (e.g. a screen with tabs, where this is one tab's body) and would otherwise get a redundant, near
- * empty second app bar from [AbSettingsScreen]. [AbSettingsScreen] itself now delegates to this
- * composable, so the two stay behaviourally identical for the shared rendering logic.
+ * list WITHOUT wrapping it in an [AbScaffold] — i.e. no top app bar. [onOpenEditor] is called with
+ * the row's key for all three of [SettingsItem.ListChoiceRow], [SettingsItem.TextInputRow] and
+ * [SettingsItem.MultiSelectRow]; the caller (now [AbSettingsScreen], which owns the
+ * [SettingsEditorStack]) opens a [SettingsEditorSheet] page for it and later commits the edit via
+ * [onListChoice]/[onTextInput]/[onMultiSelectChange], which remain in this signature for that reason
+ * even though this composable no longer calls them itself. Intended for hosts that already render
+ * their own top bar (e.g. a screen with tabs, where this is one tab's body) and would otherwise get
+ * a redundant, near empty second app bar from [AbSettingsScreen]. [AbSettingsScreen] itself now
+ * delegates to this composable, so the two stay behaviourally identical for the shared rendering
+ * logic.
  */
 @Composable
 fun AbSettingsContent(
@@ -176,20 +309,12 @@ fun AbSettingsContent(
     onListChoice: (String, String) -> Unit,
     onTextInput: (String, String) -> Unit,
     onNavigate: (String) -> Unit,
+    onOpenEditor: (String) -> Unit,
     onSliderChange: (String, Int) -> Unit = { _, _ -> },
     onMultiSelectChange: (String, Set<String>) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
     onLongPress: ((String) -> Unit)? = null,
 ) {
-    // Screen-local dialog state: the STABLE KEY of the editor row (if any) currently open, not a
-    // captured item snapshot. The item itself is re-resolved from state.visibleItems on every
-    // recomposition below, so if the async SettingsScreenState changes while the dialog is open
-    // (entries/selectedValue/value updated, or the row removed) the dialog always renders the
-    // fresh item — and closes itself if the key is no longer present.
-    var listChoiceDialogKey by remember { mutableStateOf<String?>(null) }
-    var textInputDialogKey by remember { mutableStateOf<String?>(null) }
-    var multiSelectDialogKey by remember { mutableStateOf<String?>(null) }
-
     // fillMaxSize() FIRST, caller's modifier (e.g. AbSettingsScreen's scaffold padding) applied
     // after — matches the original inline `Modifier.fillMaxSize().padding(padding)` chain exactly,
     // so AbSettingsScreen's delegation below is behaviour-preserving (order matters for layout).
@@ -205,83 +330,11 @@ fun AbSettingsContent(
                 onNavigate = onNavigate,
                 onSliderChange = onSliderChange,
                 onLongPress = onLongPress,
-                openListChoice = { listChoiceDialogKey = it },
-                openTextInput = { textInputDialogKey = it },
-                openMultiSelect = { multiSelectDialogKey = it },
+                openListChoice = onOpenEditor,
+                openTextInput = onOpenEditor,
+                openMultiSelect = onOpenEditor,
             )
         }
-    }
-
-    // Re-resolve against the CURRENT state.visibleItems on every recomposition (never render from
-    // the click-time snapshot): if the key has disappeared (item removed/hidden), the dialog closes
-    // itself; otherwise it renders from the fresh item, so an async state update that changes
-    // entries/selectedValue/value while the dialog is open is reflected immediately.
-    val listChoiceRow = listChoiceDialogKey?.let { key ->
-        state.visibleItems.firstOrNull { it.key == key } as? SettingsItem.ListChoiceRow
-    }
-    LaunchedEffect(listChoiceDialogKey, listChoiceRow) {
-        if (listChoiceDialogKey != null && listChoiceRow == null) {
-            listChoiceDialogKey = null
-        }
-    }
-    listChoiceRow?.let { row ->
-        AbListChoiceDialog(
-            title = row.title,
-            choices = row.entries,
-            selectedValue = row.selectedValue,
-            onSelect = { onListChoice(row.key, it) },
-            onDismiss = { listChoiceDialogKey = null },
-        )
-    }
-
-    val textInputRow = textInputDialogKey?.let { key ->
-        state.visibleItems.firstOrNull { it.key == key } as? SettingsItem.TextInputRow
-    }
-    LaunchedEffect(textInputDialogKey, textInputRow) {
-        if (textInputDialogKey != null && textInputRow == null) {
-            textInputDialogKey = null
-        }
-    }
-    textInputRow?.let { row ->
-        val strings = LocalStrings.current
-        AbTextInputDialog(
-            title = row.title,
-            initial = row.value,
-            confirmText = strings.okay,
-            dismissText = strings.cancel,
-            numeric = row.numeric,
-            masked = row.masked,
-            onConfirm = {
-                onTextInput(row.key, it)
-                textInputDialogKey = null
-            },
-            onDismiss = { textInputDialogKey = null },
-        )
-    }
-
-    val multiSelectRow = multiSelectDialogKey?.let { key ->
-        state.visibleItems.firstOrNull { it.key == key } as? SettingsItem.MultiSelectRow
-    }
-    LaunchedEffect(multiSelectDialogKey, multiSelectRow) {
-        if (multiSelectDialogKey != null && multiSelectRow == null) {
-            multiSelectDialogKey = null
-        }
-    }
-    multiSelectRow?.let { row ->
-        val strings = LocalStrings.current
-        AbMultiSelectDialog(
-            title = row.title,
-            options = row.options,
-            selectedIds = row.selectedValues.toList(),
-            idOf = { it.value },
-            labelOf = { it.label },
-            confirmText = strings.okay,
-            dismissText = strings.cancel,
-            onConfirm = { onMultiSelectChange(row.key, it.toSet()); multiSelectDialogKey = null },
-            onDismiss = { multiSelectDialogKey = null },
-            selectAllText = strings.selectAll,
-            selectNoneText = strings.selectNone,
-        )
     }
 }
 
