@@ -188,6 +188,11 @@ class AndroidStrings(private val context: Context) : Strings {
     override val speakAdvancedSettings: String get() = context.getString(R.string.speak_advanced_settings)
     override val systemSpeakSettings: String get() = context.getString(R.string.system_speak_settings)
     override val helpLabel: String get() = context.getString(R.string.help)
+    override fun speakSleepTimerMinutes(minutes: Int): String =
+        context.getString(R.string.speak_sleep_timer_minutes, minutes)
+    override val speakSleepTimerCustom: String get() = context.getString(R.string.speak_sleep_timer_custom)
+    override val speakSleepTimerOff: String get() = context.getString(R.string.speak_sleep_timer_off)
+    override val speakOtherSettings: String get() = context.getString(R.string.speak_other_settings)
 
     override val speakSettingsTitle: String get() = context.getString(R.string.speak_settings_title)
     override val confSpeakSynchronize: String get() = context.getString(R.string.conf_speak_synchronize)

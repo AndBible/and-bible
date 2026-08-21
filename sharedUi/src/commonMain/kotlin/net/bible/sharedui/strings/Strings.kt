@@ -227,6 +227,10 @@ interface Strings {
     val speakAdvancedSettings: String
     val systemSpeakSettings: String
     val helpLabel: String
+    fun speakSleepTimerMinutes(minutes: Int): String
+    val speakSleepTimerCustom: String
+    val speakSleepTimerOff: String
+    val speakOtherSettings: String
 
     // Advanced Speak settings (Batch 6b)
     val speakSettingsTitle: String
