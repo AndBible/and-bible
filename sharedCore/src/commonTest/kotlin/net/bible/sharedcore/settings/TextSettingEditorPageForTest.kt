@@ -19,6 +19,7 @@ package net.bible.sharedcore.settings
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class TextSettingEditorPageForTest {
@@ -60,37 +61,80 @@ class TextSettingEditorPageForTest {
         assertNull(textSettingEditorPageFor("NOT_A_TEXT_SETTING_TYPE"))
     }
 
+    /** The types whose row opens a sheet page — hand-maintained, deliberately duplicating
+     *  textSettingEditorPageFor's own table so the two can disagree and be caught. */
+    private val SHEET_PAGE_TYPES = setOf(
+        TextSettingType.COLORS,
+        TextSettingType.FONTSIZE,
+        TextSettingType.TOPMARGIN,
+        TextSettingType.LINE_SPACING,
+        TextSettingType.MARGINSIZE,
+        TextSettingType.FONTFAMILY,
+        TextSettingType.STRONGS,
+        TextSettingType.PAGE_SCROLL_AMOUNT,
+        TextSettingType.SCROLL_HELPER_LINE_STYLE,
+    )
+
+    /** Every type edited inline (a switch row) or by navigating away instead of in a sheet.
+     *  Hand-maintained and EXHAUSTIVE — list every one explicitly, never derive it by
+     *  subtracting SHEET_PAGE_TYPES, or a newly added type lands in both computed sets at
+     *  once and the guard below passes vacuously. */
+    private val NON_PAGE_TYPES = setOf(
+        TextSettingType.JUSTIFY,
+        TextSettingType.HYPHENATION,
+        TextSettingType.MORPH,
+        TextSettingType.FOOTNOTES,
+        TextSettingType.FOOTNOTES_INLINE,
+        TextSettingType.EXPAND_XREFS,
+        TextSettingType.XREFS,
+        TextSettingType.REDLETTERS,
+        TextSettingType.SECTIONTITLES,
+        TextSettingType.VERSENUMBERS,
+        TextSettingType.VERSEPERLINE,
+        TextSettingType.BOOKMARKS_SHOW,
+        TextSettingType.BOOKMARKS_HIDELABELS,
+        TextSettingType.MYNOTES,
+        TextSettingType.PAGENUMBER,
+        TextSettingType.INFINITE_SCROLL,
+        TextSettingType.NON_STRONGS_WORD_ITALIC,
+        TextSettingType.MARK_AS_READ_BUTTON,
+        TextSettingType.TITLE_SCROLL_BUTTON,
+        TextSettingType.MEMORIZATION_INDICATORS,
+        TextSettingType.AUTO_TRACK_READING,
+        TextSettingType.AI_DOC_MARKERS,
+        TextSettingType.SCROLL_HELPER_LINES,
+        TextSettingType.PAGE_BUTTONS,
+        TextSettingType.ORDINALS,
+        TextSettingType.SHOW_READING_PROGRESS,
+    )
+
     /**
-     * The guard that matters most: a NEW TextSettingType must not silently default to "no editor".
-     * Every type is either a sheet page or listed here as a deliberate non-page. Adding a type
-     * without deciding fails this test.
+     * The guard that matters most: a NEW TextSettingType must not silently default to "no
+     * editor". Every type belongs to exactly one of the two lists above, so a type added to
+     * the enum and to neither list fails here until someone decides which it is.
      */
     @Test fun everyTextSettingTypeHasADecision() {
-        val deliberatelyNotAPage = setOf(TextSettingType.BOOKMARKS_HIDELABELS)
-        val undecided = TextSettingType.entries.filter { type ->
-            textSettingEditorPageFor(type.name) == null && type !in deliberatelyNotAPage
-        }
-        // Boolean switch rows are edited inline in the list, never in a sheet — they belong in the
-        // expected-null set too, so assert against the CURRENT known set rather than emptiness.
         assertEquals(
-            expectedNonPageTypes(),
-            undecided.toSet() + deliberatelyNotAPage,
-            "A TextSettingType changed its editor classification — update expectedNonPageTypes() " +
-                "and textSettingEditorPageFor() together, deliberately.",
+            emptySet(),
+            TextSettingType.entries.toSet() - SHEET_PAGE_TYPES - NON_PAGE_TYPES,
+            "A TextSettingType is in neither list. Add it to SHEET_PAGE_TYPES or to " +
+                "NON_PAGE_TYPES — deliberately — and give textSettingEditorPageFor a branch " +
+                "to match if it is a page.",
+        )
+        assertEquals(
+            emptySet(),
+            SHEET_PAGE_TYPES intersect NON_PAGE_TYPES,
+            "A TextSettingType is in both lists.",
         )
     }
 
-    /** Every type that is edited inline (a switch) or by navigating away, not in a sheet. */
-    private fun expectedNonPageTypes(): Set<TextSettingType> =
-        TextSettingType.entries.toSet() - setOf(
-            TextSettingType.COLORS,
-            TextSettingType.FONTSIZE,
-            TextSettingType.TOPMARGIN,
-            TextSettingType.LINE_SPACING,
-            TextSettingType.MARGINSIZE,
-            TextSettingType.FONTFAMILY,
-            TextSettingType.STRONGS,
-            TextSettingType.PAGE_SCROLL_AMOUNT,
-            TextSettingType.SCROLL_HELPER_LINE_STYLE,
-        )
+    /** The routing table must agree with the two hand-maintained lists above. */
+    @Test fun theRoutingTableAgreesWithTheHandMaintainedLists() {
+        SHEET_PAGE_TYPES.forEach {
+            assertNotNull(textSettingEditorPageFor(it.name), "expected a page for $it")
+        }
+        NON_PAGE_TYPES.forEach {
+            assertNull(textSettingEditorPageFor(it.name), "expected no page for $it")
+        }
+    }
 }
