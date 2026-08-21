@@ -150,6 +150,8 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun newPageName(n: Int): String = context.getString(R.string.my_document_new_page_name, n)
     override fun deleteDocumentConfirmation(name: String): String = context.getString(R.string.my_document_delete_confirmation, name)
     override fun deletePageConfirmation(name: String): String = context.getString(R.string.my_document_page_delete_confirmation, name)
+    override val deleteDocumentsConfirmation: String get() = context.getString(R.string.delete_docs_confirm)
+    override val deletePagesConfirmation: String get() = context.getString(R.string.my_document_pages_delete_confirmation)
 
     // Batch 4 remainder — cloud documents management
     override val cloudStatusSynced: String get() = context.getString(R.string.cloud_doc_status_synced)
