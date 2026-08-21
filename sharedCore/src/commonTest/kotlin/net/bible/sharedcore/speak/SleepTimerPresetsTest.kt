@@ -33,6 +33,9 @@ class SleepTimerPresetsTest {
         }
     }
 
+    @Test fun the_preset_list_is_exactly_the_expected_set() =
+        assertEquals(listOf(5, 10, 15, 30, 45, 60), SLEEP_TIMER_PRESETS)
+
     @Test fun a_non_preset_value_is_custom_and_keeps_its_minutes() =
         assertEquals(SleepTimerSelection.Custom(37), sleepTimerSelectionFor(37))
 

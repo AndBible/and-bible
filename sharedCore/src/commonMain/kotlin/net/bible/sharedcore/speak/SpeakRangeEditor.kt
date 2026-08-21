@@ -62,7 +62,7 @@ class SpeakRangeEditor {
         val s = _start.value
         val e = _end.value
         val both = s != null && e != null
-        val ordered = both && e!!.ordinal > s!!.ordinal
+        val ordered = s != null && e != null && e.ordinal > s.ordinal
         _canCommit.value = ordered
         _showOrderError.value = both && !ordered
     }
