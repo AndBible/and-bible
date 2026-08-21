@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -79,6 +80,17 @@ class BackgroundImageChooserActivity : ActivityBase() {
         }
         refresh()
     }
+
+    /**
+     * Up must simply cancel the chooser. Left to AppCompat it would instead navigate to the
+     * manifest `parentActivityName`, i.e. re-launch ColorSettingsActivity with a synthesized
+     * Intent carrying no `settingsBundle` extra - which used to crash it (#3867).
+     */
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        if(item.itemId == android.R.id.home) {
+            onBackPressed()
+            true
+        } else super.onOptionsItemSelected(item)
 
     private fun refresh() {
         val images = AndBibleAddons.providedBackgroundImages.map { (initials, p) ->

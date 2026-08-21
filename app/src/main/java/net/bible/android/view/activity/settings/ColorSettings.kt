@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -21,6 +21,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
@@ -117,7 +118,17 @@ class ColorSettingsActivity: ActivityBase() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
+        val settingsBundleJson = intent.extras?.getString("settingsBundle")
+        if(settingsBundleJson == null) {
+            // There is nothing to edit: this screen only means anything for the workspace or
+            // window it was opened for. Reached when something launches it with a bare Intent,
+            // e.g. a synthesized up-navigation Intent from a child activity (#3867).
+            Log.e(TAG, "No settingsBundle in intent, finishing")
+            super.onCreate(savedInstanceState)
+            finish()
+            return
+        }
+        settingsBundle = SettingsBundle.fromJson(settingsBundleJson)
         colors = settingsBundle.actualSettings.colors!!
         colors.workspaceColor = settingsBundle.workspaceSettings.colors?.workspaceColor
 

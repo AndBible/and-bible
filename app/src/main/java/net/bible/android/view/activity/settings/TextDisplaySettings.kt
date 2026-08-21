@@ -25,6 +25,7 @@ import android.text.SpannableString
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.text.style.ImageSpan
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
@@ -509,7 +510,16 @@ class TextDisplaySettingsActivity: ActivityBase() {
     @Inject lateinit var windowControl: WindowControl
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
+        val settingsBundleJson = intent.extras?.getString("settingsBundle")
+        if(settingsBundleJson == null) {
+            // Same as in ColorSettingsActivity: without a bundle there is nothing to edit, so
+            // finish rather than throwing out of onCreate (#3867).
+            Log.e(TAG, "No settingsBundle in intent, finishing")
+            super.onCreate(savedInstanceState)
+            finish()
+            return
+        }
+        settingsBundle = SettingsBundle.fromJson(settingsBundleJson)
         super.onCreate(savedInstanceState)
 
         binding = SettingsDialogBinding.inflate(layoutInflater)
