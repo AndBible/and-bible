@@ -65,7 +65,6 @@ class ManageLabelsModelTest {
         isUnlabeled = false,
         isSpecial = false,
         customIcon = null,
-        hasOverride = false,
     )
 
     @Test fun labelItem_is_a_plain_value_holder() {

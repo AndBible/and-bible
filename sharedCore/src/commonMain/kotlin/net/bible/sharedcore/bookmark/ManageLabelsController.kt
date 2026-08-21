@@ -134,10 +134,11 @@ class ManageLabelsController(
 
     private fun rebuild() {
         val recent = service.recentLabelIds().toSet()
-        val overridden = service.overriddenLabelIds()
+        val overrides = service.overriddenLabelStyles()
         val ctx = contextSelected()
-        // relink override flag onto labels
-        val shown = labels.filter { nameMatches(it.id, it.name) }.map { it.copy(hasOverride = overridden.contains(it.id)) }.toMutableList<Any>()
+        // relink override style onto labels
+        val shown = labels.filter { nameMatches(it.id, it.name) }
+            .map { it.copy(overrideStyle = overrides[it.id]) }.toMutableList<Any>()
         if (mode.showUnassigned) {
             val unl = service.unlabeledLabel()
             if (nameMatches(unl.id, unl.name) && !changed.contains(unl.id)) shown.add(unl)

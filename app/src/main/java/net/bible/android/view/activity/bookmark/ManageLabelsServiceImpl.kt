@@ -22,9 +22,11 @@ import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.StudyPadSearchResult
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.displayName
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
@@ -44,13 +46,14 @@ class ManageLabelsServiceImpl(
     override fun recentLabelIds(): List<String> =
         windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId.toString() }
 
-    override fun overriddenLabelIds(): Set<String> {
+    override fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle> {
         val workspaceId = windowControl.windowRepository.id
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
         return workspaceDao.labelOverrides(workspaceId)
-            .filter { it.hasOverride }
-            .map { it.labelId.toString() }
-            .toSet()
+            .mapNotNull { override ->
+                overrideDisplayStyle(override.overrideMode)?.let { override.labelId.toString() to it }
+            }
+            .toMap()
     }
 
     // Matches classic ManageLabels.randomColor() (ManageLabels.kt:526) exactly, including the
@@ -84,8 +87,8 @@ fun StudyPadSearchResult.toSearchResultRow(): ManageLabelsRow.SearchResult {
     )
 }
 
-/** [LabelItem] view of a Room [BookmarkEntities.Label]. `hasOverride` is always `false` here — the
- *  controller relinks it from [ManageLabelsService.overriddenLabelIds] on every rebuild. */
+/** [LabelItem] view of a Room [BookmarkEntities.Label]. `overrideStyle` is always `null` here — the
+ *  controller relinks it from [ManageLabelsService.overriddenLabelStyles] on every rebuild. */
 fun BookmarkEntities.Label.toLabelItem(): LabelItem = LabelItem(
     id = id.toString(),
     name = displayName,
@@ -94,7 +97,17 @@ fun BookmarkEntities.Label.toLabelItem(): LabelItem = LabelItem(
     isUnlabeled = isUnlabeledLabel,
     isSpecial = isSpecialLabel,
     customIcon = customIcon,
-    hasOverride = false,
     selectionStyle = displayStyle,
     wholeVerseStyle = displayStyleWholeVerse,
 )
+
+/** The display style a `WorkspaceLabelOverride.overrideMode` int imposes, or `null` for no override.
+ *  Must agree with [BookmarkEntities.Label.withStyleOverrides], which is what the reader obeys —
+ *  `OverrideDisplayStyleTest` pins the two together. */
+internal fun overrideDisplayStyle(overrideMode: Int?): BookmarkDisplayStyle? = when (overrideMode) {
+    WorkspaceEntities.WorkspaceLabelOverride.MODE_HIGHLIGHT -> BookmarkDisplayStyle.HIGHLIGHT
+    WorkspaceEntities.WorkspaceLabelOverride.MODE_UNDERLINE -> BookmarkDisplayStyle.UNDERLINE
+    WorkspaceEntities.WorkspaceLabelOverride.MODE_MARKER -> BookmarkDisplayStyle.MARKER
+    WorkspaceEntities.WorkspaceLabelOverride.MODE_HIDDEN -> BookmarkDisplayStyle.HIDDEN
+    else -> null
+}

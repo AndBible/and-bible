@@ -34,19 +34,24 @@ data class LabelItem(
     val isUnlabeled: Boolean,
     val isSpecial: Boolean,
     val customIcon: String?,
-    val hasOverride: Boolean,
-    // Appended, not inserted next to customIcon: ManageLabelsControllerTest constructs LabelItem
-    // POSITIONALLY in two places (`LabelItem("UNL", "Unlabeled", 0, false, true, true, null, false)`
-    // at roughly :29 and :50), so an inserted parameter would rebind hasOverride's argument. Append
-    // + default keeps every existing call site correct, which is the same append-only discipline
-    // the positional AppMessage keys taught this repo.
+    // Appended, not inserted: ManageLabelsControllerTest constructs LabelItem POSITIONALLY, so an
+    // inserted parameter would rebind its neighbour's argument. Same append-only discipline the
+    // positional AppMessage keys taught this repo.
     /** The label's own style for text-selection bookmarks. */
     val selectionStyle: BookmarkDisplayStyle = BookmarkDisplayStyle.HIGHLIGHT,
     /** The whole-verse axis; `null` means "inherit [selectionStyle]", which is a storage concept —
      *  the list shows the tag for this axis only when it is non-null, i.e. only when it is really
      *  set to something of its own. */
     val wholeVerseStyle: BookmarkDisplayStyle? = null,
-)
+    /** The style this workspace's override imposes, or `null` when there is no override. Relinked
+     *  by the controller on every rebuild from [ManageLabelsService.overriddenLabelStyles] — the
+     *  mapper cannot know it, since it is workspace state, not label state. An override takes BOTH
+     *  axes (`BookmarkEntities.Label.withStyleOverrides`), so this single value is what the reader
+     *  draws for this label here, whatever [selectionStyle] and [wholeVerseStyle] say. */
+    val overrideStyle: BookmarkDisplayStyle? = null,
+) {
+    val hasOverride: Boolean get() = overrideStyle != null
+}
 
 sealed interface ManageLabelsRow {
     data class Header(val category: LabelCategory) : ManageLabelsRow

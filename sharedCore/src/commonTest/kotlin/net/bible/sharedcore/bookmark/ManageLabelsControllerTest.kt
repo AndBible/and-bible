@@ -17,22 +17,25 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class ManageLabelsControllerTest {
 
-    private fun label(id: String, name: String, favourite: Boolean = false, isUnlabeled: Boolean = false) = LabelItem(
+    private fun label(
+        id: String, name: String, favourite: Boolean = false, isUnlabeled: Boolean = false,
+        overrideStyle: BookmarkDisplayStyle? = null,
+    ) = LabelItem(
         id = id, name = name, color = 1, favourite = favourite, isUnlabeled = isUnlabeled,
-        isSpecial = false, customIcon = null, hasOverride = false,
+        isSpecial = false, customIcon = null, overrideStyle = overrideStyle,
     )
 
     private class FakeService(
         private val labels: List<LabelItem>,
         private val recent: List<String> = emptyList(),
-        private val overridden: Set<String> = emptySet(),
-        private val unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null, false),
+        private val overridden: Map<String, BookmarkDisplayStyle> = emptyMap(),
+        private val unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null),
         private val contentSearch: suspend (String) -> List<ManageLabelsRow.SearchResult> = { emptyList() },
     ) : ManageLabelsService {
         override fun assignableLabels() = labels
         override fun unlabeledLabel() = unlabeled
         override fun recentLabelIds() = recent
-        override fun overriddenLabelIds() = overridden
+        override fun overriddenLabelStyles() = overridden
         override fun randomColorArgb() = 0x11223344
         override suspend fun searchStudyPadsByContent(text: String): List<ManageLabelsRow.SearchResult> = contentSearch(text)
     }
@@ -41,13 +44,13 @@ class ManageLabelsControllerTest {
         mode: ManageLabelsMode,
         labels: List<LabelItem>,
         recent: List<String> = emptyList(),
-        overridden: Set<String> = emptySet(),
+        overridden: Map<String, BookmarkDisplayStyle> = emptyMap(),
         initialSelected: Set<String> = emptySet(),
         initialAutoAssign: Set<String> = emptySet(),
         initialAutoAssignPrimary: String? = null,
         initialBookmarkPrimary: String? = null,
         highlightLabelId: String? = null,
-        unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null, false),
+        unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null),
         scope: CoroutineScope = CoroutineScope(Dispatchers.Unconfined),
         contentSearch: suspend (String) -> List<ManageLabelsRow.SearchResult> = { emptyList() },
     ): ManageLabelsController = ManageLabelsController(
@@ -500,6 +503,19 @@ class ManageLabelsControllerTest {
         c.closeSearch()
         assertFalse(c.searchModeActive.value)
         assertEquals("", c.searchText.value)
+    }
+
+    @Test
+    fun overrideStyle_is_relinked_onto_every_rebuild() {
+        val c = controller(
+            mode = ManageLabelsMode.ASSIGN,
+            labels = listOf(label("L1", "Study"), label("L2", "Notes")),
+            overridden = mapOf("L2" to BookmarkDisplayStyle.MARKER),
+        )
+
+        val items = c.rows.value.filterIsInstance<ManageLabelsRow.Item>()
+        assertNull(items.first { it.label.id == "L1" }.label.overrideStyle)
+        assertEquals(BookmarkDisplayStyle.MARKER, items.first { it.label.id == "L2" }.label.overrideStyle)
     }
 
 }

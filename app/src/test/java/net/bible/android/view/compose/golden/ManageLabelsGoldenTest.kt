@@ -89,7 +89,7 @@ class ManageLabelsGoldenTest {
         color: Int = AbColor.palette[0],
         favourite: Boolean = false,
         isUnlabeled: Boolean = false,
-        hasOverride: Boolean = false,
+        overrideStyle: BookmarkDisplayStyle? = null,
         selectionStyle: BookmarkDisplayStyle = BookmarkDisplayStyle.HIGHLIGHT,
         wholeVerseStyle: BookmarkDisplayStyle? = null,
     ) = LabelItem(
@@ -102,7 +102,7 @@ class ManageLabelsGoldenTest {
         customIcon = null,
         selectionStyle = selectionStyle,
         wholeVerseStyle = wholeVerseStyle,
-        hasOverride = hasOverride,
+        overrideStyle = overrideStyle,
     )
 
     /** One row per style, plus a row whose whole-verse axis really differs (so the second tag
@@ -148,7 +148,7 @@ class ManageLabelsGoldenTest {
             checked = true, isAutoAssign = false, isPrimary = true, highlighted = false,
         )
         out += ManageLabelsRow.Item(
-            label = label("L2", "Sermon notes", color = AbColor.palette[1], hasOverride = true),
+            label = label("L2", "Sermon notes", color = AbColor.palette[1], overrideStyle = BookmarkDisplayStyle.UNDERLINE),
             checked = false, isAutoAssign = true, isPrimary = false, highlighted = false,
         )
         if (!mode.hideCategories) out += ManageLabelsRow.Header(LabelCategory.RECENT)
