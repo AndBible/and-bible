@@ -89,9 +89,10 @@ class AgentLogHeaderStructureGuardTest {
         // drags. This is a SOURCE guard, and deliberately a cheap one — not the only guard possible
         // (whole-branch review, Blocker 2 corrected the claim that no Compose gesture harness is
         // available: `compose-ui-test` is in this module's test source set, `app/build.gradle.kts:508-509`,
-        // and `AbSearchableOptionSheetContentTest` drives `createComposeRule()`). A rendered gesture
-        // test over the handle would guard the wiring for real; until one exists this asserts that
-        // the modifier and the callback are at least still present.
+        // and `AbSearchableOptionSheetContentTest` drives `createComposeRule()`). The wiring itself
+        // IS guarded for real, by `AgentLogPanelDragGestureTest`, which drives the actual handle's
+        // drag and tap; this cheap source assertion survives alongside it because it names the exact
+        // modifier and callback and so fails with a pointed message if either is renamed away.
         assertThat(
             "the drag handle must carry a vertical draggable modifier",
             source.contains("orientation = Orientation.Vertical"),

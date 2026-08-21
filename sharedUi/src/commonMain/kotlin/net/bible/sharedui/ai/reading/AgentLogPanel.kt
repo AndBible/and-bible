@@ -72,6 +72,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.reading.AgentLogEntryVd
@@ -357,6 +358,12 @@ private fun AgentLogHeader(
  * labelled caret it was meant to defer to. Reusing [strings]`.agentLogExpand` (the caret's own
  * description) is correct either way: same action, same label.
  */
+/**
+ * [Modifier.testTag] on the panel's drag handle, so `AgentLogPanelDragGestureTest` (`:app`) can drive
+ * the REAL handle's gestures — the same idiom as [net.bible.sharedui.reading.SEARCH_FIELD_TAG].
+ */
+const val AGENT_LOG_DRAG_HANDLE_TAG = "agent-log-drag-handle"
+
 @Composable
 private fun AgentLogDragHandle(
     onClick: () -> Unit,
@@ -368,6 +375,7 @@ private fun AgentLogDragHandle(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .testTag(AGENT_LOG_DRAG_HANDLE_TAG)
             .draggable(
                 state = rememberDraggableState { deltaPx ->
                     // Compose's vertical delta is positive DOWNWARD; the reducer reads positive as

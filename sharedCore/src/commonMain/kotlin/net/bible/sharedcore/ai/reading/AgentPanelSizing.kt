@@ -28,8 +28,9 @@ package net.bible.sharedcore.ai.reading
  * It is NOT that nothing could drive the gesture (whole-branch review, Blocker 2 — the earlier
  * wording here claimed exactly that). `compose-ui-test` IS available in `:app`'s unit-test source set
  * (`app/build.gradle.kts:508-509`, added 2026-08-14) and `AbSearchableOptionSheetContentTest` already
- * uses `createComposeRule()` under Robolectric. A gesture test is a complement to these — it would
- * cover the WIRING, which arithmetic tests cannot see — not a substitute this file exists to replace.
+ * uses `createComposeRule()` under Robolectric. `AgentLogPanelDragGestureTest` (`:app`) now drives the
+ * real handle's drag and tap, and it is a COMPLEMENT to these functions — it covers the wiring, which
+ * arithmetic tests cannot see — not a substitute this file exists to replace.
  *
  * All values are dp as plain `Float` so this file stays free of Compose's `Dp` — `:sharedCore` has no
  * Compose dependency, and the UI converts at the boundary.
