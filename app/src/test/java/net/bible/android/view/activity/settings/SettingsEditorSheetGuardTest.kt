@@ -142,11 +142,27 @@ class SettingsEditorSheetGuardTest {
      * internally (both by calling `SettingsEditorSheet`), so a golden that opened either of those two
      * would hang Roborazzi exactly as one opening `SettingsEditorSheet` directly would. This guard
      * would fail the moment any golden test file's source contained a call to any of the three.
+     *
+     * **Widened (final fix wave, Fix 2):** this used to walk only
+     * `src/test/java/net/bible/android/view/compose/golden`, but golden tests are not confined to
+     * that one package -- `net.bible.android.view.activity.settings.TextDisplaySettingsGoldenTest`
+     * and `AppSettingsGoldenTest` (this very package, both `GoldenHarness`/`captureMatrix` users)
+     * are golden tests too, and `TextDisplaySettingsGoldenTest` is the likeliest future offender:
+     * it is exactly where `NumericSliderContent`/`MarginContent` get captured, one edit away from
+     * someone capturing `TextSettingRowEditorSheet` itself. A violation there would hang the whole
+     * `:app` suite while this guard, scoped to the other package, said nothing. Walking the whole
+     * `src/test/java` module tree (this test's working directory is the `:app` module root) closes
+     * that gap without having to enumerate every golden-test package by name.
      */
     @Test fun noGoldenTestCapturesSettingsEditorSheet() {
-        val goldenDir = File("src/test/java/net/bible/android/view/compose/golden")
+        val testSourceRoot = File("src/test/java")
         val sheetComposables = listOf("SettingsEditorSheet(", "ColorSettingsEditorSheet(", "TextSettingRowEditorSheet(")
-        val offenders = goldenDir.walkTopDown().filter { it.extension == "kt" }
+        val offenders = testSourceRoot.walkTopDown().filter { it.extension == "kt" }
+            // This guard's own file is excluded: widening the walk to the whole test tree means it
+            // now sees its own source, and `sheetComposables` above is a list of STRING LITERALS
+            // that are themselves exact substrings of "...Sheet(" -- so without this exclusion the
+            // guard would always report itself as an offender, self-defeating the whole check.
+            .filterNot { it.name == "SettingsEditorSheetGuardTest.kt" }
             .filter { file -> sheetComposables.any { file.readText().contains(it) } }
             .map { it.name }.toList()
         assertEquals(

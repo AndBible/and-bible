@@ -37,10 +37,15 @@ import org.robolectric.annotation.Config
  * This pins the resulting behaviour: a plain `intentFor(context, scope)` launch always starts on
  * the text-options LIST ([colorsScope] stays null), never on Colors.
  *
- * [colorsScope] is private, and this repo has no Compose UI-test harness (nothing uses
- * `createComposeRule`, and `compose-ui-test` cannot be added under strict egress -- see
- * `SettingsBadgeLayoutDriftTest`'s kdoc), so there is no way to observe which destination
- * rendered except reflection on the compiled `colorsScope$delegate` field (a `MutableState`,
+ * [colorsScope] is private, and no test here uses `createComposeRule` YET -- **correction (final
+ * fix wave, Fix 7):** an earlier version of this kdoc claimed this repo has no Compose UI-test
+ * harness at all; that is false. `androidx.compose.ui:ui-test-junit4`/`ui-test-manifest` ARE
+ * dependencies of `:app` (`app/build.gradle.kts:508-509`), and eleven `:app` test files already
+ * use `createComposeRule`/`createAndroidComposeRule` -- see `SettingsEditorSheetGuardTest`'s own
+ * corrected kdoc, which made the same fix to the same overclaim. So a render test COULD drive
+ * `TextDisplaySettingsComposeActivity` and observe which destination rendered directly; none
+ * does yet. Absent that, there is no way to observe which destination rendered here except
+ * reflection on the compiled `colorsScope$delegate` field (a `MutableState`,
  * since the property is `private var colorsScope by mutableStateOf<SettingsScope?>(null)`) --
  * the same private-field-reflection pattern already used by e.g. `ClientPageObjectsTest`.
  *

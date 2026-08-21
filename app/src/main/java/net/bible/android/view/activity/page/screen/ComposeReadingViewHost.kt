@@ -536,8 +536,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
 
     /** The scope the open editor edits, and what to run after a change lands. Set by
      *  [showTextSettingEditor]; the callback is the caller's own `onReady`, so a future workspace-
-     *  menu dispatch site can refresh every window while a pane-menu one refreshes just its own. */
-    private var textSettingsScope: SettingsScope? = null
+     *  menu dispatch site can refresh every window while a pane-menu one refreshes just its own.
+     *  `mutableStateOf`, not a plain `var`: [TextSettingsEditorSlot] reads it in composition via
+     *  `remember(scope)`, and a plain non-snapshot read is never recomposed for -- the same
+     *  "modifier runs before content" class of bug [searchResultsListState] elsewhere in this file
+     *  already paid for once, one property away from repeating it here. */
+    private var textSettingsScope: SettingsScope? by mutableStateOf(null)
     private var textSettingsOnReady: () -> Unit = {}
 
     /** One [TextDisplaySettingsController] per visited [SettingsScope] — cached like
@@ -563,8 +567,22 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         page: SettingsEditorPage,
         onReady: () -> Unit,
     ) {
+        // Close first: [SettingsEditorStack.open] assigns a `MutableStateFlow`, which conflates an
+        // equal value, so opening the SAME page for a DIFFERENT scope right after a previous open
+        // would emit nothing and [TextSettingsEditorSlot] would keep rendering the OLD scope's
+        // cached controller. Closing unconditionally first guarantees `open`'s value always differs
+        // from empty, so it always emits.
+        textSettingsEditor.close()
         textSettingsScope = scope
         textSettingsOnReady = onReady
+        // The cached controller for this scope (see [textSettingsControllerFor]) only reloads after
+        // its OWN writes, so an edit made through a different controller instance — the settings
+        // screen's, a second window's, sync, or a classic dialog — would otherwise leave this one
+        // showing a stale snapshot: the sheet's slider could start at an old value and, worse, WRITE
+        // it back on confirm, undoing the other edit. Mirrors
+        // `TextDisplaySettingsComposeActivity.pop()`'s `controllerFor(scope).refresh()` for exactly
+        // the same reason.
+        textSettingsControllerFor(scope).refresh()
         textSettingsEditor.open(page)
     }
 

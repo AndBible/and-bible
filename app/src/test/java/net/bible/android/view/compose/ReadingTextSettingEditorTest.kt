@@ -29,6 +29,10 @@ import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.settings.ColorField
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsScope
+import net.bible.sharedcore.settings.TextDisplaySettingsController
+import net.bible.sharedcore.settings.TextDisplaySettingsLabels
+import net.bible.sharedcore.settings.TextDisplaySettingsService
+import net.bible.sharedcore.settings.TextSettingRowValue
 import net.bible.sharedcore.settings.TextSettingType
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -45,10 +49,13 @@ import kotlin.test.assertEquals
  * Settings editor sheets T10 — the `:app` host wiring for the reading view's in-place
  * text-settings editor ([ComposeReadingViewHost.showTextSettingEditor]).
  *
- * `:app` has no `ComposeTestRule` and no golden covers `ComposeReadingViewHost` (same limit
- * `ReadingSearchHostTest` documents), so these tests drive the host API directly — the callable,
- * tested surface this task is required to leave behind, with nothing yet wired to call it (Task 11
- * owns the two menu dispatch sites).
+ * No test here uses `createComposeRule` yet (same limit `ReadingSearchHostTest` documents -- and
+ * the same correction `SettingsEditorSheetGuardTest`'s kdoc makes: `androidx.compose.ui:ui-test-
+ * junit4`/`ui-test-manifest` ARE dependencies of `:app`, `app/build.gradle.kts:508-509`, and eleven
+ * `:app` test files already use it, so unavailability is not the reason), and no golden covers
+ * `ComposeReadingViewHost`, so these tests drive the host API directly — the callable, tested
+ * surface this task is required to leave behind, with nothing yet wired to call it (Task 11 owns
+ * the two menu dispatch sites).
  *
  * Host construction/Koin setup is copied verbatim from `ReadingSearchHostTest.setUpRealHost`/
  * `tearDownRealHost` — a real [MainBibleActivity]/[WindowControl]/[WindowRepository] graph, the
@@ -112,6 +119,54 @@ class ReadingTextSettingEditorTest {
         assertEquals(SettingsEditorPage.Row("FONTSIZE"), host.textSettingsEditor.current)
     }
 
+    // ---- Final fix wave, Fix 1: showTextSettingEditor must refresh the cached controller ---------
+
+    /**
+     * [ComposeReadingViewHost.textSettingsControllerFor] caches one [TextDisplaySettingsController]
+     * per [SettingsScope] for the lifetime of the host, and that controller only reloads its
+     * [TextDisplaySettingsController.state] after one of its OWN writes. Nothing forced a reload
+     * when the editor merely re-opens: `showTextSettingEditor` used to just set the scope and open
+     * the stack. So an edit made through a DIFFERENT controller instance touching the same
+     * scope+service -- here standing in for the settings screen's own `controllerCache`, a second
+     * window, sync, or a classic dialog -- was invisible to the reading view's cached instance:
+     * the reopened sheet would show the OLD value and confirming would write it back, silently
+     * undoing the other edit. Reproduces the concrete repro in the review (font size 18 -> the
+     * settings screen sets it to 30 -> reopening the reading-view sheet must show 30, not 18).
+     */
+    @Test
+    fun showTextSettingEditorRefreshesTheCachedControllerBeforeReopening() {
+        val host = host()
+        val scope = SettingsScope.Workspace("ws")
+        val key = TextSettingType.FONTSIZE.name
+
+        // First open: getOrPut-constructs and caches the controller for this scope.
+        host.showTextSettingEditor(scope, SettingsEditorPage.Row(key)) { }
+        val initial = (host.textSettingsControllerFor(scope).state.value.rows
+            .getValue(TextSettingType.FONTSIZE).value as TextSettingRowValue.Numeric).value
+        host.textSettingsEditor.close()
+
+        // Mutate the SAME underlying setting through a second, independent controller instance
+        // wrapping the SAME injected service -- exactly what a controller the host never touches
+        // (settings screen, second window, sync, classic dialog) would do.
+        val service = GlobalContext.get().get<TextDisplaySettingsService>()
+        val other = TextDisplaySettingsController(
+            service = service,
+            settingsScope = scope,
+            labels = TextDisplaySettingsLabels.forTest(),
+            onNavigateCallback = { },
+        )
+        val changed = if (initial == 30) 18 else 30
+        other.onNumericChange(key, changed)
+
+        // Reopening must see the fresh value from the SAME cached controller instance, not the
+        // stale snapshot it captured on first open.
+        host.showTextSettingEditor(scope, SettingsEditorPage.Row(key)) { }
+        val reopened = (host.textSettingsControllerFor(scope).state.value.rows
+            .getValue(TextSettingType.FONTSIZE).value as TextSettingRowValue.Numeric).value
+
+        assertEquals(changed, reopened)
+    }
+
     // ---- Fix round 1, Finding 1: the pane subtree must survive this editor too ------------------
 
     /**
@@ -124,8 +179,10 @@ class ReadingTextSettingEditorTest {
      * inside the generation-key block, or if the editor's state were ever fed into whatever computes
      * the generation.
      *
-     * `:app` has no `ComposeTestRule`, so [ComposeReadingViewHost.TextSettingsEditorSlot] itself
-     * never composes here (same limit `ReadingSearchHostTest` documents) -- what CAN run is every
+     * No test here uses `createComposeRule` yet, so [ComposeReadingViewHost.TextSettingsEditorSlot]
+     * itself never composes in this file (same limit `ReadingSearchHostTest` documents, and the
+     * same correction this file's own class kdoc makes above -- `createComposeRule` is available
+     * in `:app`, just not exercised here) -- what CAN run is every
      * plain-function step the slot's composition would otherwise trigger: [ComposeReadingViewHost
      * .showTextSettingEditor]/[net.bible.sharedcore.settings.SettingsEditorStack.close] themselves,
      * plus the two controller constructions the slot resolves via `remember(scope) { ... }`

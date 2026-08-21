@@ -82,7 +82,15 @@ fun TextSettingRowEditorSheet(
             onClose = onClose,
         ) {
             if (pageType == TextSettingType.MARGINSIZE) {
-                val margins = pageRow.value as TextSettingRowValue.Margins
+                // Safe cast, not a hard assertion -- matches GenericSettingsEditorSheet's documented
+                // "safe no-op" discipline (SettingsEditorSheet.kt:216,232). `pageType == MARGINSIZE`
+                // guarantees `pageRow.value` is a `Margins` for every key the CURRENT routing tables
+                // (`textSettingEditorPageFor`, `ComposeReadingViewHost.listChoiceTextSettingKeys`) hand
+                // this composable, but nothing in THIS file enforces that invariant, and this file is
+                // shared by two hosts. Adding a ninth sheet-editable type and forgetting one host's
+                // table would otherwise crash mid-compose of the reading view on an unchecked cast --
+                // render nothing instead.
+                val margins = pageRow.value as? TextSettingRowValue.Margins ?: return@SettingsEditorSheet
                 var left by remember(margins) { mutableIntStateOf(margins.left) }
                 var right by remember(margins) { mutableIntStateOf(margins.right) }
                 var maxWidth by remember(margins) { mutableIntStateOf(margins.maxWidth) }
@@ -102,7 +110,11 @@ fun TextSettingRowEditorSheet(
                     onCancel = onClose,
                 )
             } else {
-                val numeric = pageRow.value as TextSettingRowValue.Numeric
+                // Same safe-cast reasoning as the Margins branch above -- the "safe no-op" discipline
+                // matters here specifically because [pageRow] came from the RECOMPOSITION-time state,
+                // not a click-time snapshot, so a shape mismatch surfaces mid-compose, not on a button
+                // press.
+                val numeric = pageRow.value as? TextSettingRowValue.Numeric ?: return@SettingsEditorSheet
                 var current by remember(numeric) { mutableIntStateOf(numeric.value) }
                 NumericSliderContent(numeric = numeric, onValueChange = { current = it })
                 SheetResetConfirmRow(

@@ -362,6 +362,44 @@ class OptionsMenuStateBuilderTest {
     }
 
     /**
+     * Final fix wave, Fix 6: [windowPaneSheetEditableTextOptionGoesToTheHostWhenComposeIsOn]'s
+     * flag-off twin, missing before this fix round. `MainBibleActivity.handleWindowTextOptionItem`
+     * and `OptionsMenuStateBuilder.dispatch`'s `else` branch are HAND-DUPLICATED code, not a shared
+     * helper, so the overflow menu's own on/off pair (
+     * [aSheetEditableTextOptionGoesToTheHostWhenComposeIsOn] /
+     * [aSheetEditableTextOptionStillOpensTheClassicDialogWhenComposeIsOff]) proves nothing about
+     * this second, independently maintained copy.
+     *
+     * Can't reuse [RecordingPreference] here the way the overflow twin does: unlike
+     * `OptionsMenuStateBuilder.dispatch`, `handleWindowTextOptionItem` has no injectable
+     * `getItemOptions` -- it always builds the real `Preference` via the module-level `getPrefItem`.
+     * So this asserts the same thing the overflow twin asserts, by the same "assert the routing
+     * decision, not the UI" convention this file's class kdoc states, just via the one seam that
+     * IS available: with the flag off, [ComposeReadingViewHost.showTextSettingEditor] must never be
+     * reached, so the host's stack stays untouched. That is airtight together with `assertFalse`:
+     * `handleWindowTextOptionItem`'s only `false`-returning paths are the sheet takeover (gated on
+     * the flag, so unreachable here) and the classic `itemOptions.openDialog(...); false` tail -- so
+     * a `false` result with an untouched stack can only mean the classic dialog path ran, exactly as
+     * before T11 (proven not to crash under Robolectric with a non-`.create()`d activity, matching
+     * the ON twin's own house style of driving the real [MainBibleActivity.handleWindowPaneMenuItem]
+     * bridge rather than a fixture).
+     */
+    @Test
+    fun windowPaneSheetEditableTextOptionStillOpensTheClassicDialogWhenComposeIsOff() {
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        val host = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = host
+        CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
+        val window = windowRepository.activeWindow
+
+        val stayOpen = activity.handleWindowPaneMenuItem(
+            window.id.toString(), WindowPaneMenuStateBuilder.idForTextOptionItem(0))
+
+        assertFalse(stayOpen, "flag off must still reach the classic dialog tail, which returns false")
+        assertNull(host.textSettingsEditor.current, "flag off must not route to the sheet")
+    }
+
+    /**
      * Settles spec §6.7's open item: does the sheet's edit path (`TextDisplaySettingsController`'s
      * mutators -> `TextDisplaySettingsServiceImpl.setValue`) keep
      * [CommonUtils.lastDisplaySettingsSorted] -- the very list [build] reads its dynamic rows from

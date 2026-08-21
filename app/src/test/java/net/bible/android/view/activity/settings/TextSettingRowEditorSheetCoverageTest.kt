@@ -160,4 +160,77 @@ class TextSettingRowEditorSheetCoverageTest {
         // would report a confusing "expected 4, got 0" rather than the real problem.
         assertThat(actualSheetEditedKeys().isNotEmpty(), equalTo(true))
     }
+
+    // ---- Final fix wave, Fix 3: the HOST's list-choice routing table needs the same guard --------
+
+    /**
+     * `ComposeReadingViewHost.listChoiceTextSettingKeys` is the reading view's counterpart of
+     * `SHEET_EDITED_TEXT_SETTING_KEYS` above -- together the two tables decide, for every
+     * [TextSettingType] that [textSettingEditorPageFor] resolves to a [SettingsEditorPage.Row], which
+     * of the two page bodies [ComposeReadingViewHost.TextSettingsEditorSlot] renders:
+     * `GenericSettingsEditorSheet` (list-choice keys) or [net.bible.sharedui.settings
+     * .TextSettingRowEditorSheet] (everything else -- FONTSIZE/TOPMARGIN/LINE_SPACING/MARGINSIZE).
+     * `TextSettingRowEditorSheet.kt`'s two unsafe casts (`as TextSettingRowValue.Numeric`/`Margins`)
+     * were made SAFE no-ops (final fix wave, Fix 3) precisely because nothing previously checked that
+     * the host's table stays the exact complement of the screen's -- add a ninth sheet-editable type,
+     * list it only in `textSettingEditorPageFor`, and forget the host's `listChoiceTextSettingKeys`,
+     * and it falls into `TextSettingRowEditorSheet`'s `else` branch, where it is not a `Numeric` and
+     * would have thrown `ClassCastException` mid-compose of the reading view before that fix -- now it
+     * safe-no-ops (renders nothing), which is a silent dead row, not a crash, but still exactly the
+     * "forgot one of the two tables" bug class this file otherwise polices via
+     * [sheetEditedKeysExactlyCoverTheNavigationRowTypesThatResolveToARowPage].
+     *
+     * This test proves the two tables PARTITION the full eight-member Row-page set: their union is
+     * every [TextSettingType] `textSettingEditorPageFor` resolves to a `Row` page, and they are
+     * disjoint (a key claimed by both would non-deterministically pick a page body depending on which
+     * `when` branch in `TextSettingsEditorSlot` runs first).
+     */
+    private val hostSource = java.io.File(
+        "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt"
+    ).readText()
+
+    private fun actualListChoiceKeys(): Set<String> {
+        val block = Regex(
+            "listChoiceTextSettingKeys = setOf\\(([^)]*)\\)",
+            RegexOption.DOT_MATCHES_ALL,
+        ).find(hostSource)?.groupValues?.get(1)
+            ?: error("listChoiceTextSettingKeys = setOf(...) not found in ComposeReadingViewHost.kt")
+        return Regex("TextSettingType\\.([A-Z_]+)\\.name").findAll(block).map { it.groupValues[1] }.toSet()
+    }
+
+    /** Every [TextSettingType] [textSettingEditorPageFor] resolves to a [SettingsEditorPage.Row] --
+     *  the full set the two routing tables must, between them, cover exactly once each. */
+    private fun allRowPageTypes(): Set<String> =
+        TextSettingType.entries
+            .filter { textSettingEditorPageFor(it.name) is SettingsEditorPage.Row }
+            .map { it.name }
+            .toSet()
+
+    @Test
+    fun listChoiceKeysAndSheetEditedKeysPartitionTheEightRowPageTypesWithNothingMissingFromEither() {
+        val listChoice = actualListChoiceKeys()
+        val sheetEdited = actualSheetEditedKeys()
+
+        assertThat(
+            "listChoiceTextSettingKeys (ComposeReadingViewHost.kt) and SHEET_EDITED_TEXT_SETTING_KEYS " +
+                "(TextDisplaySettingsScreen.kt) must be disjoint -- a key claimed by both would " +
+                "non-deterministically pick a page body in TextSettingsEditorSlot's `when`",
+            listChoice.intersect(sheetEdited),
+            equalTo(emptySet()),
+        )
+        assertThat(
+            "listChoiceTextSettingKeys + SHEET_EDITED_TEXT_SETTING_KEYS together must cover every " +
+                "TextSettingType textSettingEditorPageFor resolves to a Row page, or a new sheet-" +
+                "editable type falls into TextSettingRowEditorSheet's safe-no-op else branch and " +
+                "silently renders nothing in the reading view",
+            listChoice + sheetEdited,
+            equalTo(allRowPageTypes()),
+        )
+    }
+
+    @Test
+    fun sanityTheParsedListChoiceSetIsNonEmpty() {
+        // Guards the guard, same reason as sanityTheParsedSetIsNonEmpty above.
+        assertThat(actualListChoiceKeys().isNotEmpty(), equalTo(true))
+    }
 }
