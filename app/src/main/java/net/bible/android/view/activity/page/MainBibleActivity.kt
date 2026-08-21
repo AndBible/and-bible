@@ -190,6 +190,7 @@ import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.QuickDocPicker
 import net.bible.sharedcore.reading.QuickDocRow
 import net.bible.sharedcore.settings.SettingsScope
+import net.bible.sharedcore.settings.textSettingEditorPageFor
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedui.docCategoryOf
 import org.crosswire.jsword.book.Book
@@ -1977,6 +1978,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * bits (`item.isChecked`, `invalidateOptionsMenu()`): there is no `MenuItem` on this path, and
      * the host rebuilds the whole item list instead (mirrors
      * [OptionsMenuStateBuilder.dispatch]'s identical carve-out).
+     *
+     * Settings editor sheets T11: the non-boolean branch carries the SAME sheet-vs-dialog
+     * interception as [OptionsMenuStateBuilder.dispatch] -- a sheet-editable
+     * [Preference.type] opens IN PLACE over the reading view via
+     * `composeReadingViewHost.showTextSettingEditor` when the host is installed and
+     * `use_compose_ui` is on, reusing the same `onReady` closure `openDialog` would otherwise have
+     * received; everything else still calls `openDialog` unchanged. The scope passed is
+     * `settingsBundle.toScope()` at WINDOW level, so the sheet edits THIS pane's own setting,
+     * matching what the ☰ pane menu means (as opposed to the workspace-level scope
+     * [OptionsMenuStateBuilder.dispatch] passes for the 3-dot overflow menu).
      */
     private fun handleWindowTextOptionItem(window: Window, order: Int): Boolean {
         val settingsBundle = SettingsBundle(
@@ -1995,6 +2006,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             true
         } else {
             val onReady: () -> Unit = { window.bibleView?.updateTextDisplaySettings() }
+            val host = composeReadingViewHost
+            val page = (itemOptions as? Preference)?.let { textSettingEditorPageFor(it.type.name) }
+            if (page != null && host != null &&
+                CommonUtils.settings.getBoolean("use_compose_ui", false)
+            ) {
+                // WINDOW-scoped: settingsBundle.toScope() carries level=WINDOW, so the sheet edits
+                // this pane's own setting — which is what the pane menu means.
+                host.showTextSettingEditor(settingsBundle.toScope(), page, onReady)
+                return false
+            }
             itemOptions.openDialog(this, { onReady() }, onReady)
             false
         }

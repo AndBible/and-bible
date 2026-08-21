@@ -537,11 +537,15 @@ class LineSpacingPreference(settings: SettingsBundle): Preference(settings, Text
 }
 
 /**
- * [SettingsBundle] -> [SettingsScope] (the reverse of `TextDisplaySettingsServiceImpl.bundleFor`),
- * used only by [ColorPreference.openDialog] to hand the Compose colours destination the scope it
- * needs (Bridge B, Batch 12d-B T8).
+ * [SettingsBundle] -> [SettingsScope] (the reverse of `TextDisplaySettingsServiceImpl.bundleFor`).
+ * Originally private and used only by [ColorPreference.openDialog] to hand the Compose colours
+ * destination the scope it needs (Bridge B, Batch 12d-B T8); widened to `internal` for Settings
+ * editor sheets T11, which needs it from `OptionsMenuStateBuilder.dispatch` and
+ * `MainBibleActivity.handleWindowTextOptionItem` — both in this package but different files, and
+ * Kotlin's top-level `private` is FILE-private, not package-private, so a same-package caller in
+ * another file could not see it at `private`.
  */
-private fun SettingsBundle.toScope(): SettingsScope = when (level) {
+internal fun SettingsBundle.toScope(): SettingsScope = when (level) {
     SettingsLevel.WINDOW -> SettingsScope.Window(windowId!!.toString(), workspaceId.toString())
     SettingsLevel.WORKSPACE -> SettingsScope.Workspace(workspaceId.toString())
     SettingsLevel.GLOBAL -> SettingsScope.Global

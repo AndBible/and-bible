@@ -23,11 +23,19 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
+import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmProviderConfig
+import net.bible.sharedcore.settings.SettingsEditorPage
+import net.bible.sharedcore.settings.SettingsScope
+import net.bible.sharedcore.settings.TextSettingType
+import net.bible.sharedcore.settings.TextSettingValue
 import net.bible.sharedui.textOptionDrawableRes
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -82,6 +90,8 @@ class OptionsMenuStateBuilderTest {
 
     @After
     fun tearDown() {
+        CommonUtils.settings.removeBoolean("use_compose_ui")
+        CommonUtils.settings.setString("lastDisplaySettings", null)
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
@@ -227,5 +237,161 @@ class OptionsMenuStateBuilderTest {
             it !in ComposeReadingViewHost.menuIconResIds && textOptionDrawableRes(it) == null
         }
         assertTrue(missing.isEmpty(), "no table resolves: $missing")
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // Settings editor sheets T11: both reading-view menus route to the in-place sheet.
+    //
+    // dispatch's `else` branch (where the boolean-toggle check has already failed) now checks
+    // `textSettingEditorPageFor(itemOptions.type.name)` before falling through to
+    // `itemOptions.openDialog`. The four tests below pin, in order: the interception firing for a
+    // sheet-editable type with the flag on; the classic dialog still firing for that SAME type
+    // with the flag off (so nothing about the type itself changed, only the flag); and the two
+    // negatives that matter most -- a boolean row (never reaches the `else` branch at all) and
+    // BOOKMARKS_HIDELABELS (reaches the `else` branch but `textSettingEditorPageFor` returns null
+    // for it) must both still behave exactly as before, flag or no flag.
+    // ------------------------------------------------------------------------------------------
+
+    private fun workspaceSettingsBundle() = SettingsBundle(
+        level = SettingsLevel.WORKSPACE,
+        workspaceId = windowRepository.id,
+        workspaceName = windowRepository.name,
+        workspaceSettings = windowRepository.textDisplaySettings,
+        globalSettings = CommonUtils.globalTextDisplaySettings,
+    )
+
+    /**
+     * A [Preference] whose `openDialog` only records that it was called, standing in for the real
+     * dialog/activity launch it would otherwise perform (a real `AlertDialog` for most types, or
+     * -- for [WorkspaceEntities.TextDisplaySettings.Types.BOOKMARKS_HIDELABELS] --
+     * `HideLabelsPreference`'s `ManageLabels` intent round-trip via `activity.lifecycleScope` +
+     * `awaitIntent`, which needs a resumed activity this file deliberately does not build). The
+     * negative-routing tests below only need to know WHETHER dispatch reached `openDialog`, not
+     * what it draws, so this keeps them fast and independent of that machinery -- the same
+     * "assert the routing decision, not the UI" instruction the positive test follows by reading
+     * [ComposeReadingViewHost.textSettingsEditor] instead of rendering anything.
+     */
+    private class RecordingPreference(
+        settings: SettingsBundle,
+        type: WorkspaceEntities.TextDisplaySettings.Types,
+    ) : Preference(settings, type) {
+        var openDialogCalled = false
+        override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+            openDialogCalled = true
+            return true
+        }
+    }
+
+    @Test
+    fun aSheetEditableTextOptionGoesToTheHostWhenComposeIsOn() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        val host = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = host
+        val pref = FontSizePreference(workspaceSettingsBundle())
+
+        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
+
+        assertFalse(stayOpen, "a sheet takeover returns false, exactly like a classic dialog launch")
+        assertEquals(SettingsEditorPage.Row("FONTSIZE"), host.textSettingsEditor.current)
+    }
+
+    @Test
+    fun aSheetEditableTextOptionStillOpensTheClassicDialogWhenComposeIsOff() {
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
+        val pref = RecordingPreference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
+
+        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
+
+        assertFalse(stayOpen)
+        assertTrue(pref.openDialogCalled, "flag off must still reach openDialog, unchanged from before T11")
+    }
+
+    /** Negative #1: a boolean row never reaches the `else` branch at all (the `isBoolean` check
+     *  above it returns first) -- pins that the sheet interception did not somehow widen to catch
+     *  toggles too. [WorkspaceEntities.TextDisplaySettings.Types.SECTIONTITLES] is not one of the
+     *  eight sheet-editable types either, so this also independently confirms it wasn't reached
+     *  via that route. */
+    @Test
+    fun aBooleanTextOptionStillTogglesAndKeepsTheMenuOpen() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        val pref = Preference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.SECTIONTITLES)
+        val before = pref.value as Boolean
+
+        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
+
+        assertTrue(stayOpen, "a boolean toggle must stay open, never divert to the sheet")
+        assertEquals(!before, pref.value, "the toggle itself must still have flipped")
+    }
+
+    /** Negative #2: BOOKMARKS_HIDELABELS DOES reach the `else` branch (it is not boolean) but
+     *  `textSettingEditorPageFor` returns `null` for it (it bridges to ManageLabels, not a sheet
+     *  row) -- pins that the interception did not widen to catch it too. */
+    @Test
+    fun hideLabelsStillLaunchesManageLabelsRatherThanASheet() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        val pref = RecordingPreference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.BOOKMARKS_HIDELABELS)
+
+        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
+
+        assertFalse(stayOpen)
+        assertTrue(pref.openDialogCalled, "HIDELABELS is not sheet-editable, so it must still reach openDialog")
+    }
+
+    /**
+     * The second menu -- the pane (☰) menu's `MainBibleActivity.handleWindowTextOptionItem`, which
+     * has no injectable `getItemOptions` (it builds the real [Preference] itself from
+     * [CommonUtils.lastDisplaySettingsSorted]), so this drives it end to end through the public
+     * [MainBibleActivity.handleWindowPaneMenuItem] bridge rather than constructing a fixture
+     * directly. Confirms the WINDOW-level branch added in the same task step: the scope handed to
+     * the host is `settingsBundle.toScope()` at WINDOW level, not the workspace-level one the
+     * overflow-menu tests above exercise.
+     */
+    @Test
+    fun windowPaneSheetEditableTextOptionGoesToTheHostWhenComposeIsOn() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        val host = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = host
+        CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
+        val window = windowRepository.activeWindow
+
+        val stayOpen = activity.handleWindowPaneMenuItem(
+            window.id.toString(), WindowPaneMenuStateBuilder.idForTextOptionItem(0))
+
+        assertFalse(stayOpen)
+        assertEquals(SettingsEditorPage.Row("FONTSIZE"), host.textSettingsEditor.current)
+    }
+
+    /**
+     * Settles spec §6.7's open item: does the sheet's edit path (`TextDisplaySettingsController`'s
+     * mutators -> `TextDisplaySettingsServiceImpl.setValue`) keep
+     * [CommonUtils.lastDisplaySettingsSorted] -- the very list [build] reads its dynamic rows from
+     * -- fresh, the way the classic `Preference.value` setter always has
+     * (`OptionsMenuItems.kt:183`)? `setValue` (`TextDisplaySettingsServiceImpl.kt:173`) writes via
+     * `getPrefItem(bundle, classic).value = ...`, i.e. THE SAME classic [Preference.value] setter,
+     * so it already reaches [CommonUtils.displaySettingChanged] -- ALREADY WIRED, not something
+     * this task needed to add. (`lastDisplaySettingsSorted` sorts by enum name for a stable menu
+     * render order, not by recency -- `ColorSettingsRecentActionTest` established the same
+     * "recorded at all" contract for COLORS's own, separate mutators; this test is that same
+     * contract for the eight `Row` types' shared `setValue` path.)
+     */
+    @Test
+    fun editingThroughTheSheetsControllerKeepsTheRecentSettingsListFresh() {
+        CommonUtils.settings.setString("lastDisplaySettings", null)
+        assertFalse(
+            CommonUtils.lastDisplaySettingsSorted.contains(WorkspaceEntities.TextDisplaySettings.Types.MARGINSIZE),
+            "sanity: a fresh recent list has no MARGINSIZE entry"
+        )
+
+        val impl = TextDisplaySettingsServiceImpl()
+        impl.setValue(
+            SettingsScope.Workspace(windowRepository.id.toString()),
+            TextSettingType.MARGINSIZE,
+            TextSettingValue.MarginsValue(5, 5, 180),
+        )
+
+        assertTrue(
+            CommonUtils.lastDisplaySettingsSorted.contains(WorkspaceEntities.TextDisplaySettings.Types.MARGINSIZE),
+            "editing through the sheet's controller/service must record MARGINSIZE as recently used, same as the classic Preference.value setter"
+        )
     }
 }
