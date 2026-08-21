@@ -49,6 +49,17 @@ private const val HollowStrokeWidth = 2f
  * Copies [source]'s geometry with every path stroked rather than filled. The stroke colour is black
  * on purpose: `Icon` tints the whole painter through a `ColorFilter`, so the caller's tint wins —
  * exactly as it does for a Material vector.
+ *
+ * Contract: [source] must be a single flat group of plain [VectorPath] children — no nested
+ * [VectorGroup]. A nested group carries its own `rotate`/`translate`/`scale`/`pivot`/`clip`
+ * (`VectorGroup`'s own transform fields), which a flattening recursion would silently drop rather
+ * than reproduce, producing a geometrically wrong "hollow variant" with nothing to say so. A
+ * grouped source is refused outright instead. Per path, what IS carried over: `pathData`,
+ * `pathFillType`, `name`, `fillAlpha`, `strokeAlpha`, `strokeLineCap`, `strokeLineJoin`,
+ * `strokeLineMiter` and the three `trimPath*` fields. What is deliberately overridden, not
+ * carried: `fill` (forced to `null`) and `strokeLineWidth` (forced to [HollowStrokeWidth]) — those
+ * two are the whole point of the transform. `Icons.Filled.Bolt` is a single ungrouped path, so
+ * nothing in current use is affected by the refusal.
  */
 private fun hollowVariantOf(source: ImageVector, name: String): ImageVector {
     val builder = ImageVector.Builder(
@@ -58,21 +69,28 @@ private fun hollowVariantOf(source: ImageVector, name: String): ImageVector {
         viewportWidth = source.viewportWidth,
         viewportHeight = source.viewportHeight,
     )
-    fun emit(group: VectorGroup) {
-        group.forEach { node ->
-            when (node) {
-                is VectorPath -> builder.addPath(
-                    pathData = node.pathData,
-                    pathFillType = node.pathFillType,
-                    name = node.name,
-                    fill = null,
-                    stroke = SolidColor(Color.Black),
-                    strokeLineWidth = HollowStrokeWidth,
-                )
-                is VectorGroup -> emit(node)
-            }
-        }
+    source.root.forEach { node ->
+        val path = node as? VectorPath
+            ?: error(
+                "hollowVariantOf($name): '${source.name}' contains a nested VectorGroup; only " +
+                    "flat, ungrouped vectors are supported (see hollowVariantOf's KDoc)"
+            )
+        builder.addPath(
+            pathData = path.pathData,
+            pathFillType = path.pathFillType,
+            name = path.name,
+            fill = null,
+            fillAlpha = path.fillAlpha,
+            stroke = SolidColor(Color.Black),
+            strokeAlpha = path.strokeAlpha,
+            strokeLineWidth = HollowStrokeWidth,
+            strokeLineCap = path.strokeLineCap,
+            strokeLineJoin = path.strokeLineJoin,
+            strokeLineMiter = path.strokeLineMiter,
+            trimPathStart = path.trimPathStart,
+            trimPathEnd = path.trimPathEnd,
+            trimPathOffset = path.trimPathOffset,
+        )
     }
-    emit(source.root)
     return builder.build()
 }
