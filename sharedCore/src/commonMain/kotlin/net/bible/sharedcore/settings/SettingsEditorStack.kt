@@ -17,9 +17,7 @@
 
 package net.bible.sharedcore.settings
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import net.bible.sharedcore.ui.SheetPageStack
 
 /**
  * One page of the settings editor sheet. A page names **what** is being edited, never a snapshot of
@@ -49,34 +47,11 @@ sealed interface SettingsEditorPage {
  * be told apart by Compose Material3, and `BackHandler` cannot live in commonMain, so dismiss steps
  * back one page and closes the sheet only from the first page. That is a deliberate trade-off
  * recorded in the spec; the sheet header carries an explicit close affordance for the other case.
+ *
+ * The mechanics live in [net.bible.sharedcore.ui.SheetPageStack] (round 13a), shared with the Speak
+ * sheet; this subclass exists so 12c's call sites and tests keep their concrete type.
  */
-class SettingsEditorStack {
-    private val _pages = MutableStateFlow<List<SettingsEditorPage>>(emptyList())
-    val pages: StateFlow<List<SettingsEditorPage>> = _pages.asStateFlow()
-
-    val current: SettingsEditorPage? get() = _pages.value.lastOrNull()
-    val depth: Int get() = _pages.value.size
-
-    /** Open the sheet at [page], discarding any stack a previous open left behind. */
-    fun open(page: SettingsEditorPage) { _pages.value = listOf(page) }
-
-    fun push(page: SettingsEditorPage) { _pages.value = _pages.value + page }
-
-    /** Remove the top page; at depth 1 this closes the sheet. A no-op when already closed. */
-    fun pop() { _pages.value = _pages.value.dropLast(1) }
-
-    fun close() { _pages.value = emptyList() }
-
-    /**
-     * Close the WHOLE sheet if any page satisfies [predicate] — the vanished-row guard. Closing
-     * everything rather than just the offending page is deliberate: a page below the vanished one
-     * was reached *through* it, so leaving it open would strand the user on a page whose parent no
-     * longer exists.
-     */
-    fun closeIf(predicate: (SettingsEditorPage) -> Boolean) {
-        if (_pages.value.any(predicate)) close()
-    }
-}
+class SettingsEditorStack : SheetPageStack<SettingsEditorPage>()
 
 /**
  * Which editor page a text-display-settings row opens; `null` = the key navigates rather than
