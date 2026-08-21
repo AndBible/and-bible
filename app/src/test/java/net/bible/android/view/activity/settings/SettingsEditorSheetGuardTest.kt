@@ -156,7 +156,9 @@ class SettingsEditorSheetGuardTest {
      */
     @Test fun noGoldenTestCapturesSettingsEditorSheet() {
         val testSourceRoot = File("src/test/java")
-        val sheetComposables = listOf("SettingsEditorSheet(", "ColorSettingsEditorSheet(", "TextSettingRowEditorSheet(")
+        val sheetComposables = listOf(
+            "SettingsEditorSheet(", "ColorSettingsEditorSheet(", "TextSettingRowEditorSheet(", "SpeakSettingsSheet(",
+        )
         val offenders = testSourceRoot.walkTopDown().filter { it.extension == "kt" }
             // This guard's own file is excluded: widening the walk to the whole test tree means it
             // now sees its own source, and `sheetComposables` above is a list of STRING LITERALS
@@ -170,5 +172,27 @@ class SettingsEditorSheetGuardTest {
                 "ModalBottomSheet hangs Roborazzi and takes the whole suite with it",
             emptyList<String>(), offenders,
         )
+    }
+
+    /**
+     * The Speak sheet analogue of [noSettingsScreenConstructsItsOwnModalBottomSheet]: every Speak
+     * page body must reach the sheet through `SpeakSettingsSheet`, never build its own
+     * `ModalBottomSheet`. Paths are relative to this test's working directory, the `:app` module
+     * root, same convention as the two settings-screen paths above.
+     */
+    @Test fun noSpeakPageBodyConstructsItsOwnModalBottomSheet() {
+        val bodies = listOf(
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/speak/BibleSpeakScreen.kt",
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/speak/AdvancedSpeakSettingsScreen.kt",
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/speak/SpeakRangeContent.kt",
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/speak/SleepTimerContent.kt",
+        )
+        bodies.forEach { path ->
+            val src = strippedSource(path)
+            assertEquals(
+                "$path must reach the sheet through SpeakSettingsSheet, not build its own",
+                0, Regex("""\bModalBottomSheet\s*\(""").findAll(src).count(),
+            )
+        }
     }
 }
