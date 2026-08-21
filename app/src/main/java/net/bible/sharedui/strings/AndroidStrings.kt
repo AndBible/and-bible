@@ -195,6 +195,11 @@ class AndroidStrings(private val context: Context) : Strings {
     override val speakOtherSettings: String get() = context.getString(R.string.speak_other_settings)
     override val speakVerseRangeToRepeat: String get() = context.getString(R.string.speak_verse_range_to_repeat)
 
+    override val speakBeginningOfPassage: String get() = context.getString(R.string.speak_beginning_of_passage)
+    override val speakEndingOfPassage: String get() = context.getString(R.string.speak_ending_of_passage)
+    override val speakEndingVerseMustBeLater: String get() = context.getString(R.string.speak_ending_verse_must_be_later)
+    override val sleepTimerTitle: String get() = context.getString(R.string.sleep_timer_title)
+
     override val speakSettingsTitle: String get() = context.getString(R.string.speak_settings_title)
     override val confSpeakSynchronize: String get() = context.getString(R.string.conf_speak_synchronize)
     override val confReplaceDivinename: String get() = context.getString(R.string.conf_replace_divinename)

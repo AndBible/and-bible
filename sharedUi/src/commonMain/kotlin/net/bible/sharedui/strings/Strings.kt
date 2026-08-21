@@ -233,6 +233,12 @@ interface Strings {
     val speakOtherSettings: String
     val speakVerseRangeToRepeat: String
 
+    // Speak sheet verse-range + sleep-timer pages (round 13a Task 9)
+    val speakBeginningOfPassage: String  // R.string.speak_beginning_of_passage
+    val speakEndingOfPassage: String     // R.string.speak_ending_of_passage
+    val speakEndingVerseMustBeLater: String  // R.string.speak_ending_verse_must_be_later
+    val sleepTimerTitle: String           // R.string.sleep_timer_title
+
     // Advanced Speak settings (Batch 6b)
     val speakSettingsTitle: String
     val confSpeakSynchronize: String
