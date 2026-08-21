@@ -37,6 +37,7 @@ import net.bible.sharedcore.ai.reading.AgentLogSnapshot
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.AgentStopReasonVd
 import net.bible.sharedcore.ai.reading.ReadingModelVd
+import net.bible.sharedcore.ai.reading.agentPanelHeight
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import org.junit.Test
@@ -89,7 +90,9 @@ private class FakeAgentSessionService(
 
 /**
  * Probe test (Batch 12e-B Task 6): `ComposeReadingViewHost.mountComposeView` must accept a new
- * `agentLogSlot` param — a pre-built `@Composable () -> Unit`, mirroring exactly how
+ * `agentLogSlot` param — a pre-built `@Composable` lambda (`(applyNavBarInset, maxHeightDp,
+ * collapsedHeightDp, onCollapsedHeightMeasured) -> Unit` since round 12b §4 made the panel a
+ * draggable overlay; it was `() -> Unit` when this probe was written), mirroring exactly how
  * `ComposeReadingViewHost.install` closes over the live `AgentLogController` to build
  * `AgentLogPanel` — and mount without crashing. Mirrors `ReadingLlmHostTest`'s minimal-mount
  * `installAccepts*` style: this repo's `:app` JVM unit tests have no `ComposeTestRule`, so
@@ -124,12 +127,20 @@ class AgentLogHostTest {
             pane = { },
             // Mirrors exactly what ComposeReadingViewHost.install builds for the real `agentLog`
             // controller field.
-            agentLogSlot = {
+            agentLogSlot = { _, maxHeightDp, collapsedDp, onCollapsedHeightMeasured ->
                 val agentLogUiState by controller.state.collectAsState()
                 AgentLogPanel(
                     agentLogUiState,
                     animateStatus = false,
                     statusIcon = painterResource(R.drawable.icon_robot),
+                    // Round 12b §4: mirrors install()'s wiring — the height and the drag both go
+                    // through the pure `:sharedCore` helpers, nothing is re-derived here.
+                    panelHeightDp = if (agentLogUiState.expanded) {
+                        agentPanelHeight(agentLogUiState, collapsedDp, maxHeightDp)
+                    } else null,
+                    onHeightDragStarted = controller::onHeightDragStarted,
+                    onHeightDrag = { dragUpDp -> controller.onHeightDrag(dragUpDp, collapsedDp, maxHeightDp) },
+                    onCollapsedHeightMeasured = onCollapsedHeightMeasured,
                     onToggleExpanded = controller::toggleExpanded,
                     onStop = controller::stop,
                     onClose = controller::hide,

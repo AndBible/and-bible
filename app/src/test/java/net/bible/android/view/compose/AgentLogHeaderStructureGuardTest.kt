@@ -32,10 +32,14 @@ import org.junit.Test
  * The tap-to-toggle guard asserts the caret's and the status band's wiring as two INDEPENDENT
  * exact-shape checks (`theCaretIconButtonTogglesExpansion` / `theStatusBandClickableTogglesExpansion`),
  * not a combined occurrence count. A count of `onClick = onToggleExpanded` (the original form of
- * this guard) can't distinguish a real toggle wiring from `AgentLogDragHandle(onClick =
- * onToggleExpanded)` -- the drag handle's *call site*, which passes the argument through but wires
- * no toggle of its own -- so deleting the band's `.clickable` left the count at exactly the
+ * this guard) can't distinguish a real toggle wiring from the drag handle's *call site*, which
+ * passes the argument through -- so deleting the band's `.clickable` left the count at exactly the
  * threshold and the regression it exists to catch went undetected (whole-branch review, round 6).
+ *
+ * Round 12b §4 changed the handle itself: it is now DRAGGABLE as well as tappable, reversing the
+ * round-6 decision (which rejected an M3 sheet -- still rejected -- and with it a hand-rolled
+ * gesture, which is what this is). `theDragHandleIsDraggable` guards that, because the whole defect
+ * being fixed was a handle that rendered the universal drag affordance and did nothing when dragged.
  */
 class AgentLogHeaderStructureGuardTest {
     private val source =
@@ -75,6 +79,33 @@ class AgentLogHeaderStructureGuardTest {
         assertThat(
             "the robot/status-text band must wire onToggleExpanded via .clickable(onClick = onToggleExpanded)",
             source.contains(".clickable(onClick = onToggleExpanded)"),
+            equalTo(true),
+        )
+    }
+
+    @Test
+    fun theDragHandleIsDraggable() {
+        // Round 12b §4: the reported defect was a handle that drew the drag affordance and ignored
+        // drags. This is a SOURCE guard, and deliberately a cheap one — not the only guard possible
+        // (whole-branch review, Blocker 2 corrected the claim that no Compose gesture harness is
+        // available: `compose-ui-test` is in this module's test source set, `app/build.gradle.kts:508-509`,
+        // and `AbSearchableOptionSheetContentTest` drives `createComposeRule()`). The wiring itself
+        // IS guarded for real, by `AgentLogPanelDragGestureTest`, which drives the actual handle's
+        // drag and tap; this cheap source assertion survives alongside it because it names the exact
+        // modifier and callback and so fails with a pointed message if either is renamed away.
+        assertThat(
+            "the drag handle must carry a vertical draggable modifier",
+            source.contains("orientation = Orientation.Vertical"),
+            equalTo(true),
+        )
+        assertThat(
+            "the handle's drag must be wired to the panel's onHeightDrag parameter",
+            source.contains("onDrag = onHeightDrag"),
+            equalTo(true),
+        )
+        assertThat(
+            "the draggable state must actually call onDrag, not just declare the parameter",
+            source.contains("onDrag(-with(density)"),
             equalTo(true),
         )
     }

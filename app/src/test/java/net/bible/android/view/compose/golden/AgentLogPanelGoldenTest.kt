@@ -28,8 +28,11 @@ class AgentLogPanelGoldenTest {
         ReadingModelVd("m1", "gpt-4o", "OpenAI", isDefault = true, supported = true),
         ReadingModelVd("m2", "claude-3", "Anthropic", isDefault = false, supported = true),
     )
-    private fun panel(s: AgentLogUiState) = @Composable {
+    private fun panel(s: AgentLogUiState, maxHeightDp: Float = 520f) = @Composable {
         AgentLogPanel(s, animateStatus = false, statusIcon = painterResource(R.drawable.icon_robot),
+            applyNavBarInset = false,
+            panelHeightDp = if (s.expanded) agentPanelHeight(s, collapsedDp = 48f, maxDp = maxHeightDp) else null,
+            onHeightDragStarted = {}, onHeightDrag = {}, onCollapsedHeightMeasured = {},
             onToggleExpanded = {}, onStop = {}, onClose = {},
             onModelSelectorClick = {}, onModelChosen = {}, onModelPickerDismiss = {}, onRawLogClick = {})
     }
@@ -46,5 +49,14 @@ class AgentLogPanelGoldenTest {
     @Test fun idle_light() = captureGolden("AgentLogPanel", "idle", EDGE_MODE) { panel(idle)() }
     @Test fun modelPicker_light() = captureGolden("AgentLogPanel", "modelPicker", EDGE_MODE) {
         panel(runningExpanded.copy(modelPicker = models))()
+    }
+
+    /**
+     * Round 12b §4: a panel dragged taller than the pre-round fixed 308dp. No other golden can reach
+     * this state, and it is the one that proves the body fills the dragged height instead of
+     * stopping at the old 240dp cap.
+     */
+    @Test fun draggedTall_light() = captureGolden("AgentLogPanel", "draggedTall", EDGE_MODE) {
+        panel(runningExpanded.copy(heightDp = 460f))()
     }
 }

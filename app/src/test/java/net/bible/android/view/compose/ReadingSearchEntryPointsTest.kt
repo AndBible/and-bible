@@ -603,6 +603,32 @@ class ReadingSearchEntryPointsTest {
     }
 
     /**
+     * Round 12b §1: the drawer's Search row closes the drawer and opens search in one click, so the
+     * drawer-close focus restore lands AFTER the search field has taken focus. Restoring pane focus
+     * then dismisses the keyboard — the "flashes and vanishes" report. Guarded here rather than
+     * only in `DrawerPaneFocusTest` because the defect was the unconditional CALL SITE, not the rule.
+     */
+    @Test fun drawerCloseDoesNotStealFocusFromAnOpenSearchBar() {
+        activity.composeReadingViewHost = host()
+        MenuCommandHandler(activity).handleMenuRequest(R.id.searchButton)
+        assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value, "sanity")
+
+        assertFalse(
+            activity.drawerShouldRestorePaneFocus(),
+            "with search open the drawer close must not restore pane focus",
+        )
+    }
+
+    @Test fun drawerCloseStillRestoresPaneFocusWithNoSearchOpen() {
+        activity.composeReadingViewHost = host()
+
+        assertTrue(
+            activity.drawerShouldRestorePaneFocus(),
+            "the classic onDrawerClosed parity must survive for every non-search row",
+        )
+    }
+
+    /**
      * Review Important 2: classic gated the WHOLE action on `isSearchable` — false for My Notes,
      * dictionary, map and non-EPUB general-book pages — but the retarget originally called
      * `composeSearchIfHosted()` BEFORE that check, and (pre-F43-Task-6) `searchOpensInReadingView`

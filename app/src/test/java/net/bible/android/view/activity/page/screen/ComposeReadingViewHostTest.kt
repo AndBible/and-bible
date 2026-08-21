@@ -808,22 +808,6 @@ class SpeakBarVisibilityTest {
 }
 
 /**
- * A/B round 6: [bottomInsetReserved] decides whether `ReadingViewScreen` must reserve the bottom
- * navigation-bar inset — true iff at least one of the agent-log/speak-bar slots is on screen. A
- * pure function, mirroring [SpeakBarVisibilityTest] above, so the decision is unit-testable without
- * a `ComposeTestRule`.
- */
-class BottomInsetReservedTest {
-    @Test
-    fun bottomInsetIsReservedWheneverEitherBottomBarIsVisible() {
-        assertFalse(bottomInsetReserved(agentLogVisible = false, speakBarVisible = false))
-        assertTrue(bottomInsetReserved(agentLogVisible = true, speakBarVisible = false))
-        assertTrue(bottomInsetReserved(agentLogVisible = false, speakBarVisible = true))
-        assertTrue(bottomInsetReserved(agentLogVisible = true, speakBarVisible = true))
-    }
-}
-
-/**
  * A/B batch 3 F5b fix-round: [menuWindowIdFor] is the pure gate `mountComposeView`'s pane-overlay
  * and rail sites each call inline (`paneMenuWindowId = menuWindowIdFor(PaneMenuAnchor.Pane, ...)` /
  * `menuWindowId = menuWindowIdFor(PaneMenuAnchor.Rail, ...)`) — extracted so the actual "only one

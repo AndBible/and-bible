@@ -171,4 +171,153 @@ class AgentLogControllerTest {
         val h = HostCalls(); val c = controller(Fake(), h)
         c.onRawLogClick(); assertEquals(1, h.rawLog)
     }
+
+    // Named for the arithmetic it checks, not for a user path (whole-branch review, Minor 5): the
+    // state it starts from — visible, NOT expanded — is one the handle cannot be dragged from at all,
+    // since `AgentLogPanel` renders the handle only `if (state.expanded)`. What is asserted is the
+    // reducer's baseline: with no remembered height, an upward step grows from `collapsedDp`.
+    @Test fun drag_upComputesFromTheCollapsedBaselineHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDragStarted()
+        c.onHeightDrag(dragUpDp = 120f, collapsedDp = 48f, maxDp = 600f)
+
+        assertTrue(c.state.value.expanded)
+        assertEquals(168f, c.state.value.heightDp)
+    }
+
+    @Test fun drag_upIsClampedByTheMaximum() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDrag(dragUpDp = 5000f, collapsedDp = 48f, maxDp = 300f)
+
+        assertEquals(300f, c.state.value.heightDp)
+    }
+
+    /**
+     * A single-event fling, driven WITHOUT the gesture boundary — which is also the reducer's
+     * documented fallback: with no [AgentLogController.onHeightDragStarted] to stash a pre-gesture
+     * height, the collapse branch keeps whatever height the last step computed. That is exactly right
+     * for a one-step gesture, and it is why this case looked correct while the multi-step one below
+     * was ratcheting the remembered height down to a sliver.
+     */
+    @Test fun drag_downIntoTheSnapZoneCollapsesButKeepsTheHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDrag(dragUpDp = 300f, collapsedDp = 48f, maxDp = 600f)
+        val dragged = c.state.value.heightDp
+
+        c.onHeightDrag(dragUpDp = -1000f, collapsedDp = 48f, maxDp = 600f)
+
+        assertFalse(c.state.value.expanded)
+        assertEquals(dragged, c.state.value.heightDp, "collapsing is not closing: the height survives")
+    }
+
+    /**
+     * The whole-branch review's Blocker 1. `onHeightDrag` is called once per POINTER-MOVE event, so a
+     * deliberate slow drag down walks the remembered height through every intermediate value before
+     * one of them lands in the snap zone. Without a gesture-start stash the collapse branch left the
+     * last walked value behind (here 80dp — handle 20 + header 48, so a 4-20dp log body), and tapping
+     * the caret to re-expand gave a sliver instead of the 400dp the user had chosen.
+     */
+    @Test fun drag_downInManyStepsCollapsesAndRestoresThePreGestureHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDragStarted()
+        c.onHeightDrag(dragUpDp = 352f, collapsedDp = 48f, maxDp = 600f)
+        assertEquals(400f, c.state.value.heightDp, "sanity: the user dragged the panel to 400dp")
+
+        // ~40dp per pointer-move event: 360, 320, 280, 240, 200, 160, 120, 80, then 40 -> snap zone.
+        c.onHeightDragStarted()
+        repeat(9) { c.onHeightDrag(dragUpDp = -40f, collapsedDp = 48f, maxDp = 600f) }
+
+        assertFalse(c.state.value.expanded, "the last step landed inside the snap zone")
+        assertEquals(
+            400f, c.state.value.heightDp,
+            "collapsing by drag must remember the height the GESTURE started at, not the last walked step",
+        )
+    }
+
+    /** The other half of the same gesture boundary: a multi-step drag that stops short still commits. */
+    @Test fun drag_downInManyStepsShortOfTheSnapZoneCommitsTheFinalHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDragStarted()
+        c.onHeightDrag(dragUpDp = 352f, collapsedDp = 48f, maxDp = 600f)
+
+        c.onHeightDragStarted()
+        repeat(4) { c.onHeightDrag(dragUpDp = -40f, collapsedDp = 48f, maxDp = 600f) }
+
+        assertTrue(c.state.value.expanded, "240dp is nowhere near the snap zone")
+        assertEquals(240f, c.state.value.heightDp, "a shrink that stops short is the user's new height")
+    }
+
+    /**
+     * No stale stash across gestures: gesture 3's collapse must restore what gesture 3 started at,
+     * not the height some earlier gesture began with.
+     */
+    @Test fun drag_aLaterGestureRestoresItsOwnStartHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDragStarted()
+        c.onHeightDrag(dragUpDp = 452f, collapsedDp = 48f, maxDp = 600f)   // 500dp
+
+        c.onHeightDragStarted()
+        repeat(3) { c.onHeightDrag(dragUpDp = -100f, collapsedDp = 48f, maxDp = 600f) }   // 400, 300, 200
+        assertEquals(200f, c.state.value.heightDp, "sanity: gesture 2 committed 200dp")
+
+        c.onHeightDragStarted()
+        repeat(3) { c.onHeightDrag(dragUpDp = -50f, collapsedDp = 48f, maxDp = 600f) }   // 150, 100, 50 -> snap
+
+        assertFalse(c.state.value.expanded)
+        assertEquals(200f, c.state.value.heightDp, "gesture 3 started at 200dp, not at gesture 1's 500dp")
+    }
+
+    /**
+     * A close forgets the height (the product rule), so it must also forget an in-flight gesture's
+     * stash — otherwise the tail of a gesture interrupted by a close could restore a height the panel
+     * is documented to have discarded.
+     */
+    @Test fun hide_alsoForgetsAnInterruptedGesturesStartHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDragStarted()
+        c.onHeightDrag(dragUpDp = 352f, collapsedDp = 48f, maxDp = 600f)
+
+        c.onHeightDragStarted()   // a second gesture begins, stashing 400dp...
+        c.hide()                  // ...and the panel closes under it
+        c.show()
+        c.onHeightDrag(dragUpDp = -1000f, collapsedDp = 48f, maxDp = 600f)
+
+        assertNull(
+            c.state.value.heightDp,
+            "a closed panel forgets its height; a stale stash must not resurrect it",
+        )
+    }
+
+    @Test fun toggleExpanded_keepsTheDraggedHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDrag(dragUpDp = 200f, collapsedDp = 48f, maxDp = 600f)
+        val dragged = c.state.value.heightDp
+
+        c.toggleExpanded()
+        c.toggleExpanded()
+
+        assertEquals(dragged, c.state.value.heightDp)
+    }
+
+    @Test fun hide_forgetsTheDraggedHeight() = runTest {
+        val c = controller(Fake(visiblePref = true))
+        c.onHeightDrag(dragUpDp = 200f, collapsedDp = 48f, maxDp = 600f)
+
+        c.hide()
+
+        assertNull(c.state.value.heightDp, "a reopened panel must start at the default height")
+    }
+
+    @Test fun autoHide_forgetsTheDraggedHeight() = runTest {
+        val f = Fake(visiblePref = false, autoHide = true)
+        val c = controller(f)
+        f.snap.value = AgentLogSnapshot(running = true)
+        c.onHeightDrag(dragUpDp = 200f, collapsedDp = 48f, maxDp = 600f)
+        assertEquals(248f, c.state.value.heightDp, "sanity")
+
+        f.snap.value = AgentLogSnapshot(running = false, lastStopReason = AgentStopReasonVd.COMPLETED)
+
+        assertFalse(c.state.value.visible)
+        assertNull(c.state.value.heightDp, "an auto-hide is a close too")
+    }
 }

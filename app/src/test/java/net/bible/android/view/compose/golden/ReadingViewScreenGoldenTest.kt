@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -31,6 +32,7 @@ import net.bible.android.activity.R
 import net.bible.sharedcore.ai.reading.AgentLogEntryVd
 import net.bible.sharedcore.ai.reading.AgentLogSnapshot
 import net.bible.sharedcore.ai.reading.AgentLogUiState
+import net.bible.sharedcore.ai.reading.agentPanelHeight
 import net.bible.sharedcore.ai.reading.LogEntryKind
 import net.bible.sharedcore.ai.reading.LogEntryStatus
 import net.bible.sharedcore.reading.ToolbarState
@@ -121,8 +123,13 @@ class ReadingViewScreenGoldenTest {
     private fun screen(
         fullScreen: Boolean,
         tabBar: (@Composable () -> Unit)? = null,
-        agentLog: (@Composable () -> Unit)? = null,
-        speakBar: (@Composable () -> Unit)? = null,
+        agentLog: (@Composable (
+            applyNavBarInset: Boolean,
+            maxHeightDp: Float,
+            collapsedHeightDp: Float,
+            onCollapsedHeightMeasured: (Float) -> Unit,
+        ) -> Unit)? = null,
+        speakBar: (@Composable (applyNavBarInset: Boolean) -> Unit)? = null,
     ): @Composable () -> Unit = {
         ReadingViewScreen(
             layout = layout,
@@ -136,13 +143,14 @@ class ReadingViewScreenGoldenTest {
             tabBar = tabBar,
             agentLog = agentLog,
             speakBar = speakBar,
+            agentLogVisible = agentLog != null,
+            speakBarVisible = speakBar != null,
         )
     }
 
-    // Covers the agentLog slot (Batch 12e-B Task 5): rendered between SplitContent and tabBar
-    // only when non-null. Uses the real AgentLogPanel (already golden-covered on its own in
-    // AgentLogPanelGoldenTest) with a fixed running+expanded state, animateStatus = false for a
-    // deterministic capture.
+    // Covers the agentLog slot (Batch 12e-B Task 5; a bottom-anchored OVERLAY since round 12b §4).
+    // Uses the real AgentLogPanel (already golden-covered on its own in AgentLogPanelGoldenTest)
+    // with a fixed running state, animateStatus = false for a deterministic capture.
     private val agentLogEntries = listOf(
         AgentLogEntryVd("1", LogEntryKind.INFO, LogEntryStatus.COMPLETED, "Iteration 1"),
         AgentLogEntryVd("2", LogEntryKind.ACTION, LogEntryStatus.PENDING, "Reading John 3", details = "book=John"),
@@ -154,22 +162,92 @@ class ReadingViewScreenGoldenTest {
             headerCost = "$0.03", defaultModelText = "gpt-4o",
         ),
     )
+    private val agentLogRunningCollapsed = agentLogRunningExpanded.copy(expanded = false)
 
+    /**
+     * The `agentLog` slot wired the way `ComposeReadingViewHost` wires it, minus the live
+     * controller: the height comes from the same pure `agentPanelHeight`, and the screen's own
+     * measured collapsed height ([collapsedHeightDp]) is what feeds it.
+     *
+     * [seedCollapsedHeight] exists because of how the reservation is populated (fix round 1,
+     * Important 3). A COLLAPSED panel lays out intrinsically and reports its height, so the screen's
+     * reservation is measured for real and needs no seed. An EXPANDED panel never reports one (the
+     * measurement is guarded on `!expanded`, deliberately — reporting while expanded would make the
+     * reservation track the drag), so a fixture that starts expanded would render with a 0dp
+     * reservation and could not be compared against the collapsed capture at all. Seeding it with the
+     * header's own `heightIn(min = 48.dp)` reproduces the state production is in for the whole common
+     * case: shown collapsed, measured, then expanded. `SideEffect` rather than `LaunchedEffect` so it
+     * does not depend on a coroutine dispatch inside the capture.
+     *
+     * `applyNavBarInset` is deliberately passed as `false` everywhere here, as it was before this
+     * round: system insets are zero in a Roborazzi capture, so threading the real flag through would
+     * change no pixel while suggesting the inset-ownership flip is covered. It is not — that stays a
+     * device-pass check.
+     */
+    private fun agentLogSlot(
+        state: AgentLogUiState,
+        seedCollapsedHeight: Float? = null,
+    ): @Composable (Boolean, Float, Float, (Float) -> Unit) -> Unit =
+        { _, maxHeightDp, collapsedHeightDp, onCollapsedHeightMeasured ->
+            if (seedCollapsedHeight != null) {
+                SideEffect { onCollapsedHeightMeasured(seedCollapsedHeight) }
+            }
+            AgentLogPanel(
+                state, animateStatus = false,
+                statusIcon = painterResource(R.drawable.icon_robot),
+                applyNavBarInset = false,
+                panelHeightDp = if (state.expanded) {
+                    agentPanelHeight(state, collapsedHeightDp, maxHeightDp)
+                } else null,
+                onHeightDragStarted = {},
+                onHeightDrag = {},
+                onCollapsedHeightMeasured = onCollapsedHeightMeasured,
+                onToggleExpanded = {}, onStop = {},
+                onClose = {}, onModelSelectorClick = {}, onModelChosen = {}, onModelPickerDismiss = {},
+                onRawLogClick = {},
+            )
+        }
+
+    /**
+     * The reading view with an EXPANDED agent panel. Read together with [withAgentLogCollapsed],
+     * which is captured at the same canvas and qualifiers ON PURPOSE: the pane is one flat colour
+     * with its window id centred in it, so the label's vertical position is a direct read-out of the
+     * pane's height. If the label sits at the same height in both captures, the expanded panel did
+     * not reflow the pane — which is the whole invariant of round 12b §4, and nothing else in the
+     * suite covers it.
+     *
+     * What this capture on its own does NOT prove: an expanded overlay above a reserved band and an
+     * in-flow panel of the same height are pixel-identical everywhere except the pane's own extent,
+     * so a single capture cannot tell them apart (fix round 1, Important 2 — the previous comment
+     * here claimed it could). Two further caveats worth stating rather than glossing: the pair is
+     * only comparable while [agentLogSlot]'s 48dp seed matches what the collapsed capture actually
+     * measures, and the seed reaches the screen through a `SideEffect` + recomposition, so a
+     * recorded PNG whose pane label sits BELOW the panel's top edge means the seed never landed and
+     * the comparison is void.
+     */
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun withAgentLog() = captureGolden(
-        "ReadingViewScreen", "withAgentLog", EDGE_MODE,
+        "ReadingViewScreen", "withAgentLog", EDGE_MODE, heightDp = AGENT_OVERLAY_CANVAS_DP,
         content = screen(
             fullScreen = false,
-            agentLog = {
-                AgentLogPanel(
-                    agentLogRunningExpanded, animateStatus = false,
-                    statusIcon = painterResource(R.drawable.icon_robot),
-                    onToggleExpanded = {}, onStop = {},
-                    onClose = {}, onModelSelectorClick = {}, onModelChosen = {}, onModelPickerDismiss = {},
-                    onRawLogClick = {},
-                )
-            },
+            agentLog = agentLogSlot(agentLogRunningExpanded, seedCollapsedHeight = 48f),
+        ),
+    )
+
+    /**
+     * The other half of the pair above — and the only capture anywhere of a COLLAPSED panel in the
+     * reading view, i.e. of the in-flow `Spacer` reservation, of the `!expanded` measurement guard
+     * that fills it, and of the invariant that a collapsed panel covers nothing (fix round 1,
+     * Important 3). Same canvas and qualifiers as [withAgentLog] so the two are directly comparable.
+     */
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withAgentLogCollapsed() = captureGolden(
+        "ReadingViewScreen", "withAgentLogCollapsed", EDGE_MODE, heightDp = AGENT_OVERLAY_CANVAS_DP,
+        content = screen(
+            fullScreen = false,
+            agentLog = agentLogSlot(agentLogRunningCollapsed),
         ),
     )
 
@@ -244,7 +322,34 @@ class ReadingViewScreenGoldenTest {
         "ReadingViewScreen", "withSpeakBar", heightDp = 640,
         content = screen(
             fullScreen = false,
-            speakBar = {
+            speakBar = { _ ->
+                SpeakTransportBar(
+                    speakTransportPlaying,
+                    onPlayPause = {}, onStop = {}, onRewind = {}, onForward = {},
+                    onPrev = {}, onNext = {}, onBookmark = {}, onConfig = {},
+                )
+            },
+        ),
+    )
+
+    /**
+     * Both bottom surfaces at once (fix round 1, Important 3): [withAgentLog]/[withAgentLogCollapsed]
+     * have no speak bar and [withSpeakBar] has no panel, so the overlay's bottom anchor —
+     * `padding(bottom = <measured speak-bar height>)`, the one thing that keeps the panel ON TOP of
+     * the bar instead of over it — was unexercised. The panel is collapsed here because that is the
+     * case where a wrong anchor is unmistakable: a collapsed panel is the same height as its
+     * reservation, so any anchoring error shows up as the bar being covered or as a gap between the
+     * two surfaces. The inset-ownership flip that also happens in this configuration is NOT covered —
+     * see [agentLogSlot]'s kdoc.
+     */
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withAgentLogAndSpeakBar() = captureGolden(
+        "ReadingViewScreen", "withAgentLogAndSpeakBar", EDGE_MODE, heightDp = 640,
+        content = screen(
+            fullScreen = false,
+            agentLog = agentLogSlot(agentLogRunningCollapsed),
+            speakBar = { _ ->
                 SpeakTransportBar(
                     speakTransportPlaying,
                     onPlayPause = {}, onStop = {}, onRewind = {}, onForward = {},
@@ -254,3 +359,17 @@ class ReadingViewScreenGoldenTest {
         ),
     )
 }
+
+/**
+ * The canvas height the agent-overlay pair is captured at. Tall enough that the pane's centred
+ * window-id label — the read-out the pair compares — stays clear of a default-height expanded panel
+ * (308dp) instead of being hidden behind it: 800 - 56dp toolbar - 48dp reservation leaves a 696dp
+ * pane whose centre line sits ~90dp above the panel's top edge. `withSpeakBar`'s 640 is the
+ * precedent for overriding the height at all.
+ *
+ * The `48dp` in that arithmetic is [agentLogSlot]'s seed, which is in turn the panel header's own
+ * `heightIn(min = 48.dp)` — one of the five unconnected places the number 48 now appears (whole-branch
+ * review; the status doc's round-12b entry lists all five). Change the seed and this comment's
+ * arithmetic goes stale with it.
+ */
+private const val AGENT_OVERLAY_CANVAS_DP = 800

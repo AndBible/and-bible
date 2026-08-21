@@ -70,12 +70,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
@@ -189,6 +191,7 @@ import net.bible.sharedcore.reading.QuickDocAction
 import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.QuickDocPicker
 import net.bible.sharedcore.reading.QuickDocRow
+import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.textSettingEditorPageFor
 import net.bible.sharedcore.window.ReadingViewController
@@ -1213,8 +1216,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (isFullScreen) hideSystemUI() else showSystemUI()
     }
 
+    /**
+     * Compose-drawer parity for classic `onDrawerClosed` — see
+     * [net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose] for why it is conditional.
+     * Exposed separately from [drawerRestorePaneFocus] so the decision is assertable as a plain
+     * function call, rather than only by rendering the drawer and the search bar together. (Not for
+     * want of a Compose UI test harness — the earlier wording here claimed the repo has none and can
+     * get none, which is false: `compose-ui-test` is in `:app`'s test source set and
+     * `AbSearchableOptionSheetContentTest` uses `createComposeRule()`. Whole-branch review, Blocker 2.)
+     */
+    internal fun drawerShouldRestorePaneFocus(): Boolean =
+        shouldRestorePaneFocusOnDrawerClose(searchBarOpen = composeSearchModeActive)
+
     /** Compose-drawer parity for classic `onDrawerClosed`. */
     internal fun drawerRestorePaneFocus() {
+        if (!drawerShouldRestorePaneFocus()) return
         windowRepository.activeWindow.bibleView?.requestFocus()
     }
 
@@ -2422,8 +2438,23 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     // `#444444` toolbar) — exactly wrong for the Compose not-set path, whose
                     // container is the light M3 surface. So the STATUS_BARS bit is left out of the
                     // mask entirely when Compose owns the bar, same seam-is-single-writer rule as
-                    // the sibling `statusBarColor` skip a few lines below. The NAVIGATION-bar
-                    // appearance bit is unconditional either way — the seam never touches it.
+                    // the sibling `statusBarColor` skip a few lines below.
+                    //
+                    // Two corrections to what used to stand here, "the NAVIGATION-bar appearance bit
+                    // is unconditional either way — the seam never touches it" (whole-branch review,
+                    // Minor 4). (1) The seam CAN touch it now: since round 12b §3,
+                    // `SystemBarSync.applySystemBarColor` writes `isAppearanceLightNavigationBars`
+                    // whenever `fillWindowBackground = true` (`SystemBarSync.kt:103-107`). It stays
+                    // untouched in THIS window only because the two composables that sync are
+                    // `ReadingToolbar` (which passes `false`, `ReadingToolbar.kt:351`) and
+                    // `AbScaffold`/`AbTopAppBar` (which pass `true` but are never composed inside this
+                    // activity — the reading search sheet deliberately avoids `AbTopAppBar` for
+                    // exactly this reason, `SearchSheetContent.kt:50-56`). Compose an `AbScaffold`
+                    // into the reading view and this mask stops being the only writer.
+                    // (2) "Unconditional" also misreads the end state: the bit set here is
+                    // OVERWRITTEN a few dozen lines below, from the pane background, whenever there is
+                    // any visible window — so this write is the value that survives only in the
+                    // no-visible-windows path.
                     val statusBarAppearanceMask =
                         if (composeUiEnabled) 0 else WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                     setSystemBarsAppearance(
@@ -2507,6 +2538,32 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                         if (!composeUiEnabled) statusBarColor = toolbarColor
                         navigationBarColor = color
+                    }
+                }
+
+                // Round 12b §3: the navigation bar's ICON contrast, on ALL API levels — the colour
+                // write above is deprecated and platform-ignored from API 35, so on 35/36 nothing
+                // told the system whether it is drawing 3-button icons on a light or a dark
+                // surface, and the home/back glyphs could come out unreadable. `color` is the right
+                // source for the DOMINANT case: with no bottom bar the WebView extends under the
+                // navigation bar and `color` IS the pane background.
+                //
+                // KNOWN GAP, not a claim of correctness (whole-branch review, Important 3). The
+                // earlier comment here said that when a bottom bar covers the strip it is "a theme
+                // surface following the same day/night state, so the same value still holds". That is
+                // the very premise this round's root cause disproves: a user's Bible background can
+                // be LIGHT in dark mode. Night mode + `setNavBarColor` + a light night background +
+                // a visible bar therefore asks for dark glyphs over the bar's dark-scheme
+                // `surfaceColorAtElevation(3.dp)`, and day mode mirrors it. Not a regression (night
+                // mode previously kept whatever the last day-mode pass set, also wrong) and fine for
+                // default backgrounds. The fix is to sync from the OWNING BAR's container when a bar
+                // owns the inset — `agentLogOwnsNavBarInset` already says which — with this
+                // pane-derived value as the no-bar fallback; that hand-off is a later round.
+                // Device sub-item under checklist item 3.
+                WindowInsetsControllerCompat(window, window.decorView).let { controller ->
+                    val navBarBackgroundIsLight = ColorUtils.calculateLuminance(color) >= 0.45
+                    if (controller.isAppearanceLightNavigationBars != navBarBackgroundIsLight) {
+                        controller.isAppearanceLightNavigationBars = navBarBackgroundIsLight
                     }
                 }
 
