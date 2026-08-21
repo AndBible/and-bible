@@ -295,32 +295,6 @@ internal fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Bo
     !fullScreen && transportVisible
 
 /**
- * Whether the agent-log panel is the bottom-most visible bar and must therefore consume the bottom
- * navigation-bar inset inside its own painted surface.
- *
- * Round 12b §3 replaces the old `bottomInsetReserved` + unpainted `Spacer` arrangement. The whole
- * Compose reading tree is edge-to-edge: the toolbar consumes `statusBars` itself and the floating
- * window rail consumes `navigationBars` itself, so the bottom-most in-flow child has to consume the
- * bottom inset. Reserving it with a bare `Spacer` after the bars did reserve the right amount of
- * SPACE but painted nothing there, so the strip showed `BottomSheetScaffold`'s default `surface`
- * while the panel right above it is `surfaceColorAtElevation(3.dp)` — a visible seam, which is the
- * reported defect. Padding inside the owning bar's surface makes the colour and the panel's rounded
- * top corners come out right for free.
- *
- * Neither bar can decide this alone — both hide themselves, so neither knows whether it is the
- * bottom-most one, and padding both would leave dead space between them whenever both are visible.
- * The speak bar sits below the panel in `ReadingViewScreen`'s `Column`, so it wins whenever visible.
- *
- * With neither bar visible nobody pads, and the WebView pane keeps extending under the navigation
- * bar, which is what classic does (`mainBibleView` is bottom-padded only while the IME is open,
- * `MainBibleActivity.kt:642-648`).
- *
- * A pure function, mirroring [speakBarVisible] above, so the decision is unit-testable.
- */
-internal fun agentLogOwnsNavBarInset(agentLogVisible: Boolean, speakBarVisible: Boolean): Boolean =
-    agentLogVisible && !speakBarVisible
-
-/**
  * Whether the classic native bottom chrome — [net.bible.android.view.util.widget.AgentLogWidget]
  * and `MainBibleActivity`'s classic `speakTransport` bar — is allowed to make itself visible.
  * `false` on the Compose path, where `ReadingViewScreen`'s `agentLog`/`speakBar` slots (see

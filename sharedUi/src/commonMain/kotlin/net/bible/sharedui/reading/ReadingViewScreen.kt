@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import net.bible.sharedcore.reading.agentLogOwnsNavBarInset
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.ToolbarState
@@ -162,7 +163,7 @@ fun ReadingViewScreen(
         )
         // Round 12b §3: the bottom-most VISIBLE bar consumes the bottom navigation-bar inset inside
         // its own painted surface. The speak bar is below the panel, so it wins whenever it is up.
-        agentLog?.invoke(agentLogVisible && !speakBarVisible)
+        agentLog?.invoke(agentLogOwnsNavBarInset(agentLogVisible, speakBarVisible))
         speakBar?.invoke(speakBarVisible)
     }
 }
