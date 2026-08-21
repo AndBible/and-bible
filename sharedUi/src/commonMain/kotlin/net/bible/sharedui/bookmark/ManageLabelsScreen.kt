@@ -425,7 +425,17 @@ private fun LabelItemRow(
                 // muted glyph, rather than either a phantom control (a description with no onClick
                 // behind it) or silence (a state that vanishes for this input mode alone).
                 TrailingSlot(
-                    modifier = Modifier.semantics {
+                    // mergeDescendants = true: this slot must be its OWN merge boundary, not fold
+                    // into the row's merged node. The row is a combinedClickable, and
+                    // AbstractClickableNode.shouldMergeDescendantSemantics returns true
+                    // unconditionally -- so without this, disabled() (which has no custom merge
+                    // policy; the default is parentValue ?: childValue) bubbles straight up and the
+                    // WHOLE ROW announces as disabled, while staying fully clickable. A merging
+                    // descendant is not folded into an ancestor's merge scope -- the same reason the
+                    // sibling IconButtons above (clickable themselves) escape this. Verified by
+                    // ManageLabelsInertPrimaryA11yTest. Do not drop this parameter: it is the fix,
+                    // not decoration.
+                    modifier = Modifier.semantics(mergeDescendants = true) {
                         contentDescription = strings.primaryLabelSwitchLabel
                         disabled()
                     },
