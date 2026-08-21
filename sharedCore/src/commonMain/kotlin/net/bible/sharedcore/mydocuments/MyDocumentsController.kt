@@ -26,9 +26,8 @@ class MyDocumentsController(
     val onImport: () -> Unit,
     val onExport: (id: Long) -> Unit,
     val onCreate: (name: String) -> Unit,
-    /** Batch export. The `= {}` default is TEMPORARY: it keeps MyDocumentsComposeActivity compiling
-     *  until Task 11 wires this seam, which removes the default in the same commit. */
-    val onExportSelected: (ids: List<Long>) -> Unit = {},
+    /** Batch export: hands the selected ids to the host, which owns SAF. */
+    val onExportSelected: (ids: List<Long>) -> Unit,
     val onSave: (orderedIds: List<Long>, changed: Set<Long>, deleted: Set<Long>) -> Unit,
 ) {
     /** The full, unfiltered order. [documents] publishes a filtered view of this. */

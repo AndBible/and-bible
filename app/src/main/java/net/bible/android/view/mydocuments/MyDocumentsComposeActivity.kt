@@ -70,6 +70,7 @@ class MyDocumentsComposeActivity : ActivityBase() {
     private lateinit var resultIntent: Intent
     private var finished = false
     private var pendingExportId: Long? = null
+    private var pendingExportIds: List<Long> = emptyList()
 
     /** SAF-picked URIs awaiting a user-entered name; the import name dialog is shown while non-null. */
     private var pendingImportUris: List<Uri>? = null
@@ -83,6 +84,7 @@ class MyDocumentsComposeActivity : ActivityBase() {
             onImport = { importFilesLauncher.launch(arrayOf("text/*")) },
             onExport = { id -> pendingExportId = id; exportTreeLauncher.launch(null) },
             onCreate = ::createDocument,
+            onExportSelected = { ids -> pendingExportIds = ids; exportBatchTreeLauncher.launch(null) },
             onSave = ::applyChanges,
         )
     }
@@ -96,10 +98,22 @@ class MyDocumentsComposeActivity : ActivityBase() {
             AbAppTheme {
                     val documents by controller.documents.collectAsState()
                     val dirty by controller.dirty.collectAsState()
+                    val query by controller.query.collectAsState()
+                    val filtering by controller.filtering.collectAsState()
+                    val searchModeActive by controller.searchModeActive.collectAsState()
+                    val selection by controller.selection.collectAsState()
+                    val totalCount by controller.totalCount.collectAsState()
                     MyDocumentsScreen(
                         title = title,
                         documents = documents,
                         dirty = dirty,
+                        query = query,
+                        filtering = filtering,
+                        searchModeActive = searchModeActive,
+                        totalCount = totalCount,
+                        onOpenSearch = controller::openSearch,
+                        onCloseSearch = controller::closeSearch,
+                        onQueryChange = controller::setQuery,
                         onMove = controller::moveItem,
                         onOpen = controller::open,
                         onRename = controller::rename,
@@ -114,6 +128,11 @@ class MyDocumentsComposeActivity : ActivityBase() {
                         importNamePrompt = importNamePrompt,
                         onConfirmImport = ::confirmImport,
                         onDismissImport = ::dismissImport,
+                        selection = selection,
+                        onToggleSelected = controller::toggleSelect,
+                        onClearSelection = controller::clearSelection,
+                        onDeleteSelected = controller::deleteSelected,
+                        onExportSelected = controller::exportSelected,
                     )
             }
         }
@@ -235,6 +254,66 @@ class MyDocumentsComposeActivity : ActivityBase() {
         if (uri != null && id != null) entityByLong[id]?.let { exportDocumentToFolder(it, uri) }
     }
 
+    private val exportBatchTreeLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        val ids = pendingExportIds; pendingExportIds = emptyList()
+        if (uri != null && ids.isNotEmpty()) exportDocumentsToFolder(ids, uri)
+    }
+
+    /**
+     * Export several documents into one chosen folder, each into its OWN subdirectory — two documents
+     * can hold same-named pages, and a flat batch export would collide. Single-document export
+     * ([exportDocumentToFolder]) deliberately keeps writing flat into the picked folder, so nothing
+     * about the existing per-row action changes.
+     */
+    private fun exportDocumentsToFolder(ids: List<Long>, treeUri: Uri) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val treeDoc = DocumentFile.fromTreeUri(this@MyDocumentsComposeActivity, treeUri) ?: return@launch
+                for (id in ids) {
+                    val document = entityByLong[id] ?: continue
+                    val folderName = document.name
+                        .replace(Regex("[^a-zA-Z0-9._\\- ]"), "")
+                        .take(50)
+                        .ifEmpty { document.initials }
+                    val subDir = treeDoc.createDirectory(folderName) ?: continue
+                    writePagesInto(subDir, document)
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@MyDocumentsComposeActivity,
+                        R.string.my_document_export_success,
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to export documents", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MyDocumentsComposeActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    /** The per-page write loop, lifted verbatim out of [exportDocumentToFolder] so the batch path
+     *  reuses it. Runs on the caller's (IO) dispatcher. */
+    private fun writePagesInto(dir: DocumentFile, document: MyDocument) {
+        val pages = dao.pagesWithContentForDocument(document.id)
+        for ((index, page) in pages.withIndex()) {
+            val ext = if (page.contentType == MyDocumentContentType.HTML) "html" else "md"
+            val mimeType = if (ext == "html") "text/html" else "text/markdown"
+            val orderPrefix = String.format("%02d", index + 1)
+            val sanitizedTitle = page.title
+                .replace(Regex("[^a-zA-Z0-9._\\- ]"), "")
+                .take(50)
+                .ifEmpty { getString(R.string.my_document_export_fallback_name) }
+            val entryName = "$orderPrefix-$sanitizedTitle.$ext"
+            val file = dir.createFile(mimeType, entryName) ?: continue
+            contentResolver.openOutputStream(file.uri)?.use { out ->
+                out.write((page.content ?: "").toByteArray(Charsets.UTF_8))
+            }
+        }
+    }
+
     /**
      * Import selected text files as a new document under the user-entered [documentName]. Ported from
      * classic [MyDocumentsActivity.importDocumentFromFiles] (Dispatchers.IO body); the name comes from the
@@ -314,31 +393,17 @@ class MyDocumentsComposeActivity : ActivityBase() {
     }
 
     /** Export one document's pages to a chosen tree folder. Ported verbatim from classic
-     * [MyDocumentsActivity.exportDocumentToFolder] (Dispatchers.IO body). */
+     * [MyDocumentsActivity.exportDocumentToFolder] (Dispatchers.IO body); the per-page write loop
+     * itself is shared with the batch path via [writePagesInto]. */
     private fun exportDocumentToFolder(document: MyDocument, treeUri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val pages = dao.pagesWithContentForDocument(document.id)
-                if (pages.isEmpty()) return@launch
+                if (dao.pagesWithContentForDocument(document.id).isEmpty()) return@launch
 
                 val treeDoc = DocumentFile.fromTreeUri(this@MyDocumentsComposeActivity, treeUri)
                     ?: return@launch
 
-                for ((index, page) in pages.withIndex()) {
-                    val ext = if (page.contentType == MyDocumentContentType.HTML) "html" else "md"
-                    val mimeType = if (ext == "html") "text/html" else "text/markdown"
-                    val orderPrefix = String.format("%02d", index + 1)
-                    val sanitizedTitle = page.title
-                        .replace(Regex("[^a-zA-Z0-9._\\- ]"), "")
-                        .take(50)
-                        .ifEmpty { getString(R.string.my_document_export_fallback_name) }
-                    val entryName = "$orderPrefix-$sanitizedTitle.$ext"
-
-                    val file = treeDoc.createFile(mimeType, entryName) ?: continue
-                    contentResolver.openOutputStream(file.uri)?.use { out ->
-                        out.write((page.content ?: "").toByteArray(Charsets.UTF_8))
-                    }
-                }
+                writePagesInto(treeDoc, document)
 
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
@@ -369,6 +434,16 @@ class MyDocumentsComposeActivity : ActivityBase() {
 
     private fun finishOk() { setResult(Activity.RESULT_OK, resultIntent); finished = true; finish() }
     private fun finishCanceled() { setResult(Activity.RESULT_CANCELED, resultIntent); finished = true; finish() }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        // Back dismisses what is visually on top: the selection bar covers the search bar
+        // (AbSelectionScaffold's precedence), so selection goes first. Closing search underneath a
+        // visible selection bar would clear the query and re-filter the list invisibly.
+        if (controller.selection.value.isNotEmpty()) { controller.clearSelection(); return }
+        if (controller.searchModeActive.value) { controller.closeSearch(); return }
+        super.onBackPressed()
+    }
 
     override fun onDetachedFromWindow() {
         if (!finished && controller.dirty.value) controller.save()   // classic auto-save-on-leave

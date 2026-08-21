@@ -46,7 +46,7 @@ private fun stripComments(text: String): String {
  * Task 7b -- a source guard verifying that every in-toolbar-search host routes hardware back.
  *
  * `AbTopBarSearch.kt` deliberately does NOT intercept hardware back (see its kdoc, lines 51-52):
- * each of the six activities that host it is individually responsible for routing back so that,
+ * each of the seven activities that host it is individually responsible for routing back so that,
  * while search mode is active, back closes search instead of leaving the screen. The realistic
  * failure mode is not a wrong branch -- each host's branch was reviewed individually -- it is a
  * host that silently has NO routing at all, which is exactly the shape of finding F43 in
@@ -81,7 +81,7 @@ private fun stripComments(text: String): String {
 class SearchHostBackRoutingGuardTest {
 
     companion object {
-        /** The six activities that host an in-toolbar search bar. Add a new host here. */
+        /** The seven activities that host an in-toolbar search bar. Add a new host here. */
         private val SEARCH_HOST_FILES = listOf(
             "src/main/java/net/bible/android/view/activity/download/DownloadComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/navigation/ChooseDocumentComposeActivity.kt",
@@ -89,6 +89,7 @@ class SearchHostBackRoutingGuardTest {
             "src/main/java/net/bible/android/view/activity/cloud/CloudDocumentsComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/settings/SettingsComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettingsComposeActivity.kt",
+            "src/main/java/net/bible/android/view/mydocuments/MyDocumentsComposeActivity.kt",
         )
 
         // Call-site patterns, not bare tokens: a bare "onBackPressed" also matches inside
