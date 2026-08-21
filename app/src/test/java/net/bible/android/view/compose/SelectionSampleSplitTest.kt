@@ -30,7 +30,10 @@ import org.junit.Test
 class SelectionSampleSplitTest {
 
     @Test
-    fun a_sentence_splits_on_the_space_nearest_before_the_middle() {
+    fun a_tied_distance_splits_on_the_earlier_space() {
+        // "For God so loved the world": the space before the middle and the space after it are
+        // EQUALLY far from it (3 chars each) -- the algorithm is symmetric and only breaks ties
+        // towards the earlier space, it does not search backward-first.
         assertEquals("For God so" to " loved the world", splitSelectionSample("For God so loved the world"))
     }
 
