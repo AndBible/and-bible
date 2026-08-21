@@ -231,6 +231,7 @@ interface Strings {
     val speakSleepTimerCustom: String
     val speakSleepTimerOff: String
     val speakOtherSettings: String
+    val speakVerseRangeToRepeat: String
 
     // Advanced Speak settings (Batch 6b)
     val speakSettingsTitle: String
