@@ -130,9 +130,10 @@ fun bookmarkStyleDecoration(style: BookmarkDisplayStyle, colorArgb: Int): Bookma
  * the two axes are precisely what the tag and the preview have to distinguish. The cut is the space
  * NEAREST the midpoint, searched in both directions (ties broken towards the earlier one) — a
  * sentence breaks at whichever nearby word boundary is closest to half ("For God so| loved the
- * world", where the space nine characters after the midpoint is exactly as close as the one three
- * before it, so the earlier one wins), while a single word — every translated style name — has no
- * space to find at all and falls through to the midpoint character ("High|light"), which is what
+ * world", length 26, midpoint index 13: the space three characters after the midpoint (index 16)
+ * is exactly as close as the one three characters before it (index 10), so the earlier one wins),
+ * while a single word — every translated style name — has no space to find at all and falls
+ * through to the midpoint character ("High|light"), which is what
  * makes a list tag read as partial. Scripts without word spaces take the same character-split
  * fallback, which is correct rather than merely tolerable: the decoration is illustrative, not
  * linguistic. A space sitting at index 0 is never used as the cut (that would decorate nothing at
@@ -231,9 +232,16 @@ fun LabelStyleTag(
         if (split) {
             val (decorated, rest) = splitSelectionSample(text)
             // The decorated half is never ellipsized -- it is the part that says "selection", so it
-            // must render whole or the demonstration is lost. The undecorated tail is expendable by
-            // comparison, so IT absorbs any width shortage against the 110dp cap the call site
-            // applies (ManageLabelsScreen.kt's `tagMaxWidth`).
+            // must render whole or the demonstration is lost. The undecorated tail is the one given
+            // TextOverflow.Ellipsis, so IT alone ellipsizes once ITS OWN width exceeds what remains.
+            // What's guaranteed: each Text is single-line and the tail can shrink to an ellipsis.
+            // What's NOT verified here: whether the pair's combined width is kept inside the call
+            // site's cap (ManageLabelsScreen.kt's `tagMaxWidth`, 110dp) rather than the tail simply
+            // overflowing past it unclipped -- no sources jar for Compose Foundation was available
+            // in this environment to confirm how a non-weighted Row child's max-width constraint is
+            // computed, so this is left unresolved in code rather than guessed at. Task 6's golden
+            // test with the real 110dp cap and a long translated style name is what actually settles
+            // it -- look at that image, not this comment, before relying on this behaviour.
             Text(decorated, style = textStyle, color = color, maxLines = 1, modifier = decoration.textModifier)
             Text(rest, style = textStyle, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
         } else {
