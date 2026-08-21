@@ -518,4 +518,96 @@ class ManageLabelsControllerTest {
         assertEquals(BookmarkDisplayStyle.MARKER, items.first { it.label.id == "L2" }.label.overrideStyle)
     }
 
+    private fun threeLabels() = listOf(label("L1", "Study"), label("L2", "Notes"), label("L3", "Prayer"))
+
+    /** The bug this round fixes: in WORKSPACE mode contextSelected() IS the auto-assign set, so a
+     *  re-sorting rebuild re-buckets the just-toggled row into ACTIVE and re-alphabetises it — the
+     *  row jumps out from under the finger and the ACTIVE header appears above it. Classic ends the
+     *  same handler with updateLabelList(rePopulate = false, reOrder = false)
+     *  (ManageLabels.kt:865), which skips its sortWith entirely. */
+    @Test
+    fun toggling_auto_assign_does_not_move_the_row_or_add_a_header() {
+        val c = controller(mode = ManageLabelsMode.WORKSPACE, labels = threeLabels())
+        val before = describe(c.rows.value)
+
+        c.toggleAutoAssign("L3")
+
+        assertEquals(before, describe(c.rows.value))
+        assertFalse(describe(c.rows.value).contains("H_ACTIVE"), "no ACTIVE header may appear")
+        val row = c.rows.value.filterIsInstance<ManageLabelsRow.Item>().first { it.label.id == "L3" }
+        assertTrue(row.isAutoAssign, "the toggle's own state must still change")
+    }
+
+    @Test
+    fun the_other_three_toggles_do_not_move_rows_either() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = threeLabels())
+        val before = describe(c.rows.value)
+
+        c.toggleChecked("L3")
+        assertEquals(before, describe(c.rows.value))
+        c.setPrimary("L3")
+        assertEquals(before, describe(c.rows.value))
+        c.toggleFavourite("L3")
+        assertEquals(before, describe(c.rows.value))
+    }
+
+    @Test
+    fun un_toggling_the_last_auto_assign_does_not_remove_the_header_either() {
+        val c = controller(
+            mode = ManageLabelsMode.WORKSPACE,
+            labels = threeLabels(),
+            initialAutoAssign = setOf("L3"),
+        )
+        val before = describe(c.rows.value)
+        assertTrue(before.contains("H_ACTIVE"), "precondition: the ACTIVE header is present")
+
+        c.toggleAutoAssign("L3")
+
+        assertEquals(before, describe(c.rows.value))
+    }
+
+    @Test
+    fun reOrder_regroups_what_the_toggles_left_in_place() {
+        val c = controller(mode = ManageLabelsMode.WORKSPACE, labels = threeLabels())
+        c.toggleAutoAssign("L3")
+        val stuck = describe(c.rows.value)
+
+        c.reOrder()
+
+        val regrouped = describe(c.rows.value)
+        assertTrue(regrouped.contains("H_ACTIVE"), "regrouping is what adds the header")
+        assertEquals("H_ACTIVE", regrouped.first())
+        assertEquals("L3", regrouped[1])
+        assertTrue(stuck != regrouped)
+    }
+
+    @Test
+    fun a_search_dispatch_reorders() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = threeLabels())
+        c.toggleChecked("L3")
+        val stuck = describe(c.rows.value)
+
+        c.setSearch("")   // the same (empty) query, but a search dispatch all the same
+
+        assertTrue(stuck != describe(c.rows.value))
+        assertTrue(describe(c.rows.value).contains("H_ACTIVE"))
+    }
+
+    /** The defensive fallback. `nameMatches` bypasses the filter for anything in `selected`
+     *  (classic ManageLabels.kt:847-850), so checking a label the query hides makes the visible set
+     *  GROW during a sticky rebuild. The old sequence has no place for it, so the rebuild must fall
+     *  back to a full sort rather than drop it or emit it twice. */
+    @Test
+    fun a_sticky_rebuild_whose_visible_set_grew_falls_back_to_a_full_sort() {
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = threeLabels())
+        c.setSearch("Stu")
+        assertEquals(listOf("L1"), describe(c.rows.value).filterNot { it.startsWith("H_") })
+
+        c.toggleChecked("L2")
+
+        val ids = describe(c.rows.value).filterNot { it.startsWith("H_") }
+        assertEquals(setOf("L1", "L2"), ids.toSet())
+        assertEquals(ids.size, ids.toSet().size, "no row may be emitted twice")
+    }
+
 }

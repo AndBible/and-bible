@@ -63,7 +63,15 @@ class ManageLabelsController(
     // alongside job cancellation, in case a slow service call doesn't observe cancellation promptly.
     private var searchGeneration: Long = 0L
 
-    init { rebuild() }
+    // The last emitted row sequence, as order keys. Classic's list is deliberately STICKY: its
+    // toggle handlers end in updateLabelList(rePopulate = false, reOrder = false)
+    // (ManageLabels.kt:865), which skips the sortWith block entirely, so a row never moves under
+    // the user's finger and the ACTIVE header only ever materialises during a repopulate
+    // (ManageLabels.kt:789-801). Re-sorting on every mutation is what made a ⚡ tap look like the
+    // label had vanished into another section.
+    private var lastOrder: List<String>? = null
+
+    init { rebuild(reorder = true) }
 
     private fun dispatchSearchOrRebuild() {
         contentSearchJob?.cancel()
@@ -80,12 +88,12 @@ class ManageLabelsController(
                 // Stale-guard: only the most recent dispatch may publish (defense in depth on top of
                 // the cancel() above).
                 if (generation == searchGeneration) {
-                    if (results.isEmpty()) rebuild() else _rows.value = results
+                    if (results.isEmpty()) rebuild(reorder = true) else _rows.value = results
                 }
             }
         } else {
             searchGeneration++ // invalidate any still-in-flight content search
-            rebuild()
+            rebuild(reorder = true)
         }
     }
 
@@ -132,7 +140,7 @@ class ManageLabelsController(
         }
     }
 
-    private fun rebuild() {
+    private fun rebuild(reorder: Boolean = false) {
         val recent = service.recentLabelIds().toSet()
         val overrides = service.overriddenLabelStyles()
         val ctx = contextSelected()
@@ -143,15 +151,25 @@ class ManageLabelsController(
             val unl = service.unlabeledLabel()
             if (nameMatches(unl.id, unl.name) && !changed.contains(unl.id)) shown.add(unl)
         }
-        val headers = mutableListOf<LabelCategory>()
-        if (mode.showActiveCategory && ctx.isNotEmpty()) headers.add(LabelCategory.ACTIVE)
-        if (!mode.hideCategories) { headers.add(LabelCategory.RECENT); headers.add(LabelCategory.OTHER) }
-        val mixed: MutableList<Any> = (shown + headers).toMutableList()
-        mixed.sortWith(compareBy(
-            { any -> bucket(any, ctx, recent) },
-            { any -> if (any is LabelCategory) 1 else 2 },
-            { any -> if (any is LabelItem) any.name.lowercase() else "" },
-        ))
+        // Sticky path: reuse the previous sequence, headers INCLUDED. The header set has to be
+        // frozen too, not recomputed -- classic inserts headers only during a repopulate
+        // (ManageLabels.kt:789-801), so the ACTIVE header neither materialises when the first label
+        // is auto-assigned nor vanishes when the last one is un-assigned. Recomputing it would also
+        // change the row-key set and so defeat the freeze on the very toggle this fixes.
+        val previous = if (reorder) null else lastOrder
+        val sticky = previous?.let { prev -> stickyOrder(prev, shown + prev.mapNotNull(::headerForKey)) }
+        val mixed: MutableList<Any> = if (sticky != null) {
+            sticky.toMutableList()
+        } else {
+            val fresh: MutableList<Any> = (shown + currentHeaders(ctx)).toMutableList()
+            fresh.sortWith(compareBy(
+                { any -> bucket(any, ctx, recent) },
+                { any -> if (any is LabelCategory) 1 else 2 },
+                { any -> if (any is LabelItem) any.name.lowercase() else "" },
+            ))
+            lastOrder = fresh.map(::orderKey)
+            fresh
+        }
         _rows.value = mixed.map { any ->
             when (any) {
                 is LabelCategory -> ManageLabelsRow.Header(any)
@@ -172,12 +190,46 @@ class ManageLabelsController(
         return if (active) 1 else if (rec) 2 else 3
     }
 
+    private fun orderKey(any: Any): String = when (any) {
+        is LabelCategory -> "H:$any"
+        is LabelItem -> "L:${any.id}"
+        else -> error("unreachable")
+    }
+
+    /** The headers a fresh sort would show, from the current context. */
+    private fun currentHeaders(ctx: Set<String>): List<LabelCategory> {
+        val headers = mutableListOf<LabelCategory>()
+        if (mode.showActiveCategory && ctx.isNotEmpty()) headers.add(LabelCategory.ACTIVE)
+        if (!mode.hideCategories) { headers.add(LabelCategory.RECENT); headers.add(LabelCategory.OTHER) }
+        return headers
+    }
+
+    /** The category a remembered order key names, or `null` if the key is a label's. */
+    private fun headerForKey(key: String): LabelCategory? =
+        LabelCategory.entries.firstOrNull { orderKey(it) == key }
+
+    /**
+     * [previous]'s sequence refilled with the fresh values — or `null` when it cannot be reused and
+     * a full sort is required.
+     *
+     * Reuse needs the row-key set to be UNCHANGED. That is the honest condition: a label that
+     * appeared (the already-selected search bypass in [nameMatches]) or vanished (a delete) has no
+     * place in the old sequence, and inventing one would be worse than regrouping.
+     */
+    private fun stickyOrder(previous: List<String>, mixed: List<Any>): List<Any>? {
+        val byKey = mixed.associateBy(::orderKey)
+        if (byKey.size != mixed.size) return null              // duplicate key: never reuse
+        if (byKey.keys != previous.toSet()) return null         // set changed: full sort
+        return previous.map { byKey.getValue(it) }
+    }
+
     // ---- actions ----
     fun setSearch(t: String) { _searchText.value = t; dispatchSearchOrRebuild() }
     fun setSearchMode(mode: SearchMode) { _searchMode.value = mode; dispatchSearchOrRebuild() }
     fun openSearch() = searchBarMode.open()
     fun closeSearch() = searchBarMode.close()
-    fun reOrder() = rebuild()
+    /** The ⋮ Re-order action: the user asking for the regrouping the toggles deliberately skip. */
+    fun reOrder() = rebuild(reorder = true)
     fun toggleChecked(id: String) {
         val ctx = contextSelected()
         if (ctx.contains(id)) { ctx.remove(id); ensureNotContextPrimary(id) }
@@ -224,7 +276,7 @@ class ManageLabelsController(
         if (autoAssignFlag) autoAssign.add(item.id) else autoAssign.remove(item.id)
         if (bookmarkPrimaryFlag) bookmarkPrimary = item.id else ensureNotBookmarkPrimary(item.id)
         if (autoAssignPrimaryFlag) autoAssignPrimary = item.id else ensureNotAutoAssignPrimary(item.id)
-        rebuild()
+        rebuild(reorder = true)
     }
     // Mirrors classic ManageLabels.deleteLabel (ManageLabels.kt:537-550): remove from every set +
     // `changed`, then ensureNot* both primaries so a deleted primary is reassigned, never left dangling.
@@ -234,9 +286,9 @@ class ManageLabelsController(
         selected.remove(id); autoAssign.remove(id); changed.remove(id)
         ensureNotBookmarkPrimary(id)
         ensureNotAutoAssignPrimary(id)
-        rebuild()
+        rebuild(reorder = true)
     }
-    fun refresh() = rebuild()
+    fun refresh() = rebuild(reorder = true)
 
     // ---- current in-memory label items (host save-time favourite sourcing) ----
     // The list's quick favourite-toggle (toggleFavourite) only flips this controller's own LabelItem
