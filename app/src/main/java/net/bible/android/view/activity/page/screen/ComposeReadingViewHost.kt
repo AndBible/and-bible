@@ -1649,6 +1649,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             monochromeState = monochrome,
             onDrawerInMotion = { activity.drawerShowSystemUiTransient() },
             onDrawerIdleClosed = { activity.drawerApplyIdleSystemUi() },
+            // Round 12b §1: the guard against stealing focus from an open search bar lives INSIDE
+            // drawerRestorePaneFocus (see drawerShouldRestorePaneFocus), not here — the drawer's
+            // own Search row goes through this same callback.
             onDrawerClosed = { activity.drawerRestorePaneFocus() },
             pane = { windowId ->
                 val window = activity.windowRepository.getWindow(IdType(windowId))

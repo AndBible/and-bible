@@ -187,6 +187,7 @@ import net.bible.sharedcore.reading.QuickDocAction
 import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.QuickDocPicker
 import net.bible.sharedcore.reading.QuickDocRow
+import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedui.docCategoryOf
@@ -1185,8 +1186,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (isFullScreen) hideSystemUI() else showSystemUI()
     }
 
+    /**
+     * Compose-drawer parity for classic `onDrawerClosed` — see
+     * [net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose] for why it is conditional.
+     * Exposed separately from [drawerRestorePaneFocus] so the decision is assertable without a
+     * Compose UI test harness (this repo has none and cannot get one under strict egress).
+     */
+    internal fun drawerShouldRestorePaneFocus(): Boolean =
+        shouldRestorePaneFocusOnDrawerClose(
+            searchBarOpen = composeReadingViewHost?.searchController?.searchModeActive?.value == true
+        )
+
     /** Compose-drawer parity for classic `onDrawerClosed`. */
     internal fun drawerRestorePaneFocus() {
+        if (!drawerShouldRestorePaneFocus()) return
         windowRepository.activeWindow.bibleView?.requestFocus()
     }
 
