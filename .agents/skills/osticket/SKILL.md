@@ -39,9 +39,20 @@ Always go through the wrapper. Prefer `--no-pdf` on read (agent uses `ticket.jso
 
 - `/osticket` with no id → `list` (open).
 - `/osticket 3321` or “read id=3321” → `read <id> --no-pdf`.
-- List output uses `[id=NNNN]` — that NNNN is the CLI id.
+- List output uses `[id=NNNN]` — that NNNN is the CLI id. List is grouped by sender.
 
 After `read`, open `ticket.json` and downloaded files from the CLI output (inbox is whatever the helper YAML set). Then apply the **support** skill to that content as if it were pasted. Pass `id=<staff id>` through so support URLs are correct.
+
+## Same user — read the set before deciding
+
+Do **not** draft, recommend send/close, or treat a ticket as standalone while that sender still has other **open** tickets on the list.
+
+1. From the list group (or `list --user "Name"`), collect **every open id** for that person.
+2. `read` them **all** (`--no-pdf`) before any recommendation. Closed tickets from the same user only if the open set is still ambiguous.
+3. Then decide **one plan for the person**, not per id in isolation:
+   - Same issue → **one reply**. Post on the newest id that has the best user text; close the rest as the same (same message or a one-liner pointing at that reply).
+   - Different issues → separate replies, **or** one combined reply if that is kinder (one inbox, one person).
+4. Show the operator the set (ids, dates, one-line each) and the proposed split/combine **before** they send.
 
 ## Resolve (destructive)
 
