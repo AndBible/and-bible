@@ -561,6 +561,10 @@
     <string name="speak_bookmarks_menu_title">Speak from bookmark</string>
     <string name="speak_advanced_settings">Advanced settings</string>
     <string name="speak_sleep_timer_title">Sleep timer</string>
+    <string name="speak_sleep_timer_minutes">%d min</string>
+    <string name="speak_sleep_timer_custom">Custom…</string>
+    <string name="speak_sleep_timer_off">Off</string>
+    <string name="speak_other_settings">Other</string>
 
     <string name="speak_no_books_available">No books available to speak</string>
     <string name="speak_general_error">Speak could not be started for this book</string>

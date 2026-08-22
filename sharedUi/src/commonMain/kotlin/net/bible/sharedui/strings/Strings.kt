@@ -216,7 +216,6 @@ interface Strings {
     // Speak (Batch 6a)
     val speakTitle: String
     val playbackSettingsTitle: String
-    val speakAndPlayEarconsTitle: String
     val confChangeChapter: String
     val confChangeTitle: String
     val confSpeakFootnotes: String
@@ -225,10 +224,20 @@ interface Strings {
     val setRepeatPassageRange: String
     val speakSleepTimerTitle: String
     val confSpeakSleepTimer: String
-    fun sleepTimerSet(minutes: Int): String
     val speakAdvancedSettings: String
     val systemSpeakSettings: String
     val helpLabel: String
+    fun speakSleepTimerMinutes(minutes: Int): String
+    val speakSleepTimerCustom: String
+    val speakSleepTimerOff: String
+    val speakOtherSettings: String
+    val speakVerseRangeToRepeat: String
+
+    // Speak sheet verse-range + sleep-timer pages (round 13a Task 9)
+    val speakBeginningOfPassage: String  // R.string.speak_beginning_of_passage
+    val speakEndingOfPassage: String     // R.string.speak_ending_of_passage
+    val speakEndingVerseMustBeLater: String  // R.string.speak_ending_verse_must_be_later
+    val sleepTimerTitle: String           // R.string.sleep_timer_title
 
     // Advanced Speak settings (Batch 6b)
     val speakSettingsTitle: String

@@ -124,8 +124,8 @@ fun AbMenuItem(
  * The leading icon every "Help" row in this app uses. A single shared value so the icon can't
  * drift screen to screen — before this it was hand-copied, verbatim, at five call sites
  * ([net.bible.sharedui.reading.ReadingToolbar], [net.bible.sharedui.search.EpubSearchScreen],
- * [net.bible.sharedui.progress.ReadingProgressScreen], [net.bible.sharedui.speak.BibleSpeakScreen],
- * [net.bible.sharedui.speak.AdvancedSpeakSettingsScreen]) — a sixth screen would have made it six.
+ * [net.bible.sharedui.progress.ReadingProgressScreen], [net.bible.sharedui.speak.SpeakSettingsContent],
+ * [net.bible.sharedui.speak.AdvancedSpeakSettingsContent]) — a sixth screen would have made it six.
  */
 val AbHelpMenuIcon: @Composable () -> Unit = {
     Icon(Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null)

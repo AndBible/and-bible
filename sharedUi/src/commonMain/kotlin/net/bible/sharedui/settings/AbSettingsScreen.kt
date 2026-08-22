@@ -17,15 +17,12 @@
 
 package net.bible.sharedui.settings
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,8 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
@@ -57,11 +52,12 @@ import net.bible.sharedcore.settings.filterSettingsItems
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchImeRequest
+import net.bible.sharedui.components.AbSettingsCategoryHeader
+import net.bible.sharedui.components.AbSettingsRow
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
-import net.bible.sharedui.components.SettingsRowBadgeChip
 
 /**
  * Reusable declarative settings screen. Renders a [SettingsScreenState] (a flat list of
@@ -277,7 +273,7 @@ private fun RenderSettingsItem(
     openMultiSelect: (String) -> Unit,
 ) {
     when (item) {
-        is SettingsItem.Category -> CategoryHeader(item.title)
+        is SettingsItem.Category -> AbSettingsCategoryHeader(item.title)
 
         is SettingsItem.SwitchRow -> AbSwitchRow(
             label = item.title,
@@ -292,7 +288,7 @@ private fun RenderSettingsItem(
 
         is SettingsItem.ListChoiceRow -> {
             val selectedLabel = item.entries.firstOrNull { it.value == item.selectedValue }?.label
-            SettingsRow(
+            AbSettingsRow(
                 title = item.title,
                 summary = selectedLabel ?: item.summary,
                 enabled = item.enabled,
@@ -303,7 +299,7 @@ private fun RenderSettingsItem(
             )
         }
 
-        is SettingsItem.TextInputRow -> SettingsRow(
+        is SettingsItem.TextInputRow -> AbSettingsRow(
             title = item.title,
             summary = item.summary ?: item.value,
             enabled = item.enabled,
@@ -325,7 +321,7 @@ private fun RenderSettingsItem(
             },
         )
 
-        is SettingsItem.MultiSelectRow -> SettingsRow(
+        is SettingsItem.MultiSelectRow -> AbSettingsRow(
             title = item.title,
             summary = item.summary,
             enabled = item.enabled,
@@ -335,7 +331,7 @@ private fun RenderSettingsItem(
             badge = badge,
         )
 
-        is SettingsItem.NavigationRow -> SettingsRow(
+        is SettingsItem.NavigationRow -> AbSettingsRow(
             title = item.title,
             summary = item.summary,
             enabled = item.enabled,
@@ -393,101 +389,3 @@ private fun RenderSettingsItem(
         }
     }
 }
-
-/** M3 settings section label: small, coloured with the primary accent. */
-@Composable
-private fun CategoryHeader(title: String) = Text(
-    text = title,
-    style = MaterialTheme.typography.labelLarge,
-    color = MaterialTheme.colorScheme.primary,
-    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
-)
-
-/**
- * A generic clickable settings row (title + optional summary + optional leading icon + optional
- * trailing content), used for the list-choice, text-input and navigation item types. Disabled rows
- * dim and stop responding to clicks. [TwoLineListItem] isn't reused here because these rows may have
- * a single line (no summary) and an optional trailing slot.
- *
- * [iconKey] defaults to `null` (no icon): [SettingsItem.NavigationRow], [SettingsItem.ListChoiceRow] and
- * [SettingsItem.TextInputRow] all carry an optional `iconKey`, resolved here via [LocalSettingsIcon].
- * [SettingsItem.SwitchRow] also has an `iconKey` field; it is now passed straight through to
- * [net.bible.sharedui.components.AbSwitchRow]'s own (A/B batch 3 F4b) `iconKey` parameter, which
- * resolves it via the same [LocalSettingsIcon] seam and only ever emits the icon `Composable` when
- * non-null — so every OTHER caller of that shared component (`AppSettings`, the AI/backup/speak/
- * bookmark screens, …), none of which passes `iconKey`, keeps its original icon-less layout.
- *
- * [onLongClick] defaults to `null` (Batch 12d-A Task 3's long-press-revert seam): when null the row
- * keeps its original plain [clickable] modifier (byte-identical); when non-null it switches to
- * [combinedClickable] to add the long-press gesture alongside the existing click.
- *
- * [badge] defaults to `null` (A/B batch 4a F2): an optional inheritance badge (e.g. "Workspace"/
- * "Global", see [LocalSettingsRowBadge]), rendered via
- * [net.bible.sharedui.components.SettingsRowBadgeChip] INSIDE the title/summary [Column] — never as
- * a `Box` overlay on top of the row (that previously covered the summary and any trailing content).
- * Same `if (badge != null)` conditional-emission shape as [iconKey] above.
- */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun SettingsRow(
-    title: String,
-    summary: String?,
-    enabled: Boolean,
-    onClick: () -> Unit,
-    iconKey: String? = null,
-    trailing: @Composable (() -> Unit)? = null,
-    onLongClick: (() -> Unit)? = null,
-    badge: String? = null,
-) {
-    val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (onLongClick != null) {
-                    Modifier.combinedClickable(enabled = enabled, onClick = onClick, onLongClick = onLongClick)
-                } else {
-                    Modifier.clickable(enabled = enabled, onClick = onClick)
-                },
-            )
-            .rowEnabled(enabled)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (iconPainter != null) {
-            Icon(
-                painter = iconPainter,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-            )
-            Spacer(Modifier.width(16.dp))
-        }
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
-            // A/B batch 4a F2: in the text column, NOT an overlay — the badge participates in
-            // measurement, so it can never cover the summary or any trailing content.
-            if (badge != null) {
-                Spacer(Modifier.height(2.dp))
-                SettingsRowBadgeChip(badge)
-            }
-            if (summary != null) {
-                Text(
-                    summary,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-        if (trailing != null) {
-            trailing()
-        }
-    }
-}
-
-/** Dim a row when disabled (matches the classic preference-screen greyed-out affordance). */
-private fun Modifier.rowEnabled(enabled: Boolean): Modifier =
-    if (enabled) this else this.then(Modifier.alpha(DISABLED_ALPHA))
-
-private const val DISABLED_ALPHA = 0.38f

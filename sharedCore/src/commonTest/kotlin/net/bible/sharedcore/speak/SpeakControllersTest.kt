@@ -6,19 +6,24 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlin.test.*
 
 class SpeakControllersTest {
-    private class FakeService : SpeakSettingsService {
+    private class FakeSpeakSettingsService : SpeakSettingsService {
         val _pb = MutableStateFlow(SpeakPlaybackVd(100, true, true, false, 0, null))
         val _adv = MutableStateFlow(AdvancedSpeakVd(true, false, false, false))
         override val playback: StateFlow<SpeakPlaybackVd> = _pb.asStateFlow()
         override val advanced: StateFlow<AdvancedSpeakVd> = _adv.asStateFlow()
         var speed: Int? = null; var chapter: Boolean? = null; var titles: Boolean? = null
-        var footnotes: Boolean? = null; var clearedRepeat = 0
+        var footnotes: Boolean? = null
         var sync: Boolean? = null; var divine: Boolean? = null; var autoBm: Boolean? = null; var restore: Boolean? = null
+        val sleepTimerWrites: MutableList<Int> = mutableListOf()
+        val rangeWrites: MutableList<Pair<String, String>> = mutableListOf()
+        var clearCount: Int = 0
         override fun setSpeed(percent: Int) { speed = percent }
         override fun setSpeakChapterChanges(on: Boolean) { chapter = on }
         override fun setSpeakTitles(on: Boolean) { titles = on }
         override fun setSpeakFootnotes(on: Boolean) { footnotes = on }
-        override fun clearRepeatRange() { clearedRepeat++ }
+        override fun clearRepeatRange() { clearCount++ }
+        override fun setSleepTimerMinutes(minutes: Int) { sleepTimerWrites.add(minutes) }
+        override fun setRepeatRange(startOsisId: String, endOsisId: String) { rangeWrites.add(startOsisId to endOsisId) }
         override fun setSynchronize(on: Boolean) { sync = on }
         override fun setReplaceDivineName(on: Boolean) { divine = on }
         override fun setAutoBookmark(on: Boolean) { autoBm = on }
@@ -26,33 +31,38 @@ class SpeakControllersTest {
     }
 
     @Test fun playback_setters_pass_through() {
-        val fake = FakeService()
-        val c = BibleSpeakSettingsController(fake, onSleepTimerToggle = {}, onChooseRepeatRange = {})
+        val fake = FakeSpeakSettingsService()
+        val c = BibleSpeakSettingsController(fake)
         c.setSpeed(175); c.setSpeakChapterChanges(false); c.setSpeakTitles(false); c.setSpeakFootnotes(true)
         assertEquals(175, fake.speed)
         assertEquals(false, fake.chapter); assertEquals(false, fake.titles); assertEquals(true, fake.footnotes)
         assertSame(fake.playback, c.playback)
     }
 
-    @Test fun sleep_timer_toggle_forwards_to_host() {
-        val fake = FakeService(); var toggled: Boolean? = null
-        val c = BibleSpeakSettingsController(fake, onSleepTimerToggle = { toggled = it }, onChooseRepeatRange = {})
-        c.setSleepTimerEnabled(true); assertEquals(true, toggled)
-        c.setSleepTimerEnabled(false); assertEquals(false, toggled)
+    @Test fun sleep_timer_minutes_go_straight_to_the_service() {
+        val service = FakeSpeakSettingsService()
+        val c = BibleSpeakSettingsController(service)
+        c.setSleepTimerMinutes(30)
+        assertEquals(listOf(30), service.sleepTimerWrites)
+        c.setSleepTimerMinutes(0)
+        assertEquals(listOf(30, 0), service.sleepTimerWrites)
     }
 
-    @Test fun toggle_repeat_range_clears_when_set_else_chooses() {
-        val fake = FakeService(); var chose = 0
-        val c = BibleSpeakSettingsController(fake, onSleepTimerToggle = {}, onChooseRepeatRange = { chose++ })
-        // No range set -> host chooses, service NOT cleared.
-        c.toggleRepeatRange(); assertEquals(1, chose); assertEquals(0, fake.clearedRepeat)
-        // Range set -> service cleared, host NOT invoked.
-        fake._pb.value = fake._pb.value.copy(repeatRangeName = "Gen 1:1-5")
-        c.toggleRepeatRange(); assertEquals(1, chose); assertEquals(1, fake.clearedRepeat)
+    @Test fun repeat_range_is_written_as_a_pair_of_osis_ids() {
+        val service = FakeSpeakSettingsService()
+        val c = BibleSpeakSettingsController(service)
+        c.setRepeatRange("Ps.23.1", "Ps.23.6")
+        assertEquals(listOf("Ps.23.1" to "Ps.23.6"), service.rangeWrites)
+    }
+
+    @Test fun clearing_the_range_uses_the_existing_clear_seam() {
+        val service = FakeSpeakSettingsService()
+        BibleSpeakSettingsController(service).clearRepeatRange()
+        assertEquals(1, service.clearCount)
     }
 
     @Test fun advanced_setters_pass_through() {
-        val fake = FakeService()
+        val fake = FakeSpeakSettingsService()
         val c = AdvancedSpeakSettingsController(fake)
         c.setSynchronize(false); c.setReplaceDivineName(true); c.setAutoBookmark(true); c.setRestoreSettingsFromBookmarks(true)
         assertEquals(false, fake.sync); assertEquals(true, fake.divine); assertEquals(true, fake.autoBm); assertEquals(true, fake.restore)

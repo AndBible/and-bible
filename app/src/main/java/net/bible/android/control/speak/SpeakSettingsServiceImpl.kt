@@ -21,11 +21,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
+import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.sharedcore.speak.AdvancedSpeakVd
+import net.bible.sharedcore.speak.PickedVerse
 import net.bible.sharedcore.speak.SpeakPlaybackVd
 import net.bible.sharedcore.speak.SpeakSettingsService
+import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.passage.VerseRange
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * Android impl of [SpeakSettingsService]. Reads/writes the classic DB-backed [SpeakSettings] and the
@@ -34,7 +40,9 @@ import net.bible.sharedcore.speak.SpeakSettingsService
  * unchanged, and re-emits [playback] when that event fires. Advanced settings don't broadcast, so
  * their setters refresh [advanced] directly. Registered as a Koin single (lives for the process).
  */
-class SpeakSettingsServiceImpl : SpeakSettingsService {
+class SpeakSettingsServiceImpl : SpeakSettingsService, KoinComponent {
+    private val navigationControl: NavigationControl by inject()
+
     private val _playback = MutableStateFlow(readPlayback())
     override val playback: StateFlow<SpeakPlaybackVd> = _playback.asStateFlow()
 
@@ -50,13 +58,17 @@ class SpeakSettingsServiceImpl : SpeakSettingsService {
     private fun readPlayback(): SpeakPlaybackVd {
         val s = SpeakSettings.load()
         val p = s.playbackSettings
+        val range = p.verseRange
         return SpeakPlaybackVd(
             speedPercent = p.speed,
             speakChapterChanges = p.speakChapterChanges,
             speakTitles = p.speakTitles,
             speakFootnotes = p.speakFootnotes,
             sleepTimerMinutes = s.sleepTimer,
-            repeatRangeName = p.verseRange?.name,
+            repeatRangeName = range?.name,
+            lastSleepTimerMinutes = s.lastSleepTimer,
+            repeatRangeStart = range?.start?.let { PickedVerse(it.osisID, it.name, it.ordinal) },
+            repeatRangeEnd = range?.end?.let { PickedVerse(it.osisID, it.name, it.ordinal) },
         )
     }
 
@@ -79,6 +91,21 @@ class SpeakSettingsServiceImpl : SpeakSettingsService {
     override fun setSpeakTitles(on: Boolean) = mutatePlayback { it.playbackSettings = it.playbackSettings.copy(speakTitles = on) }
     override fun setSpeakFootnotes(on: Boolean) = mutatePlayback { it.playbackSettings = it.playbackSettings.copy(speakFootnotes = on) }
     override fun clearRepeatRange() = mutatePlayback { it.playbackSettings = it.playbackSettings.copy(verseRange = null) }
+
+    override fun setSleepTimerMinutes(minutes: Int) = mutatePlayback {
+        it.sleepTimer = minutes
+        if (minutes > 0) it.lastSleepTimer = minutes
+    }
+
+    override fun setRepeatRange(startOsisId: String, endOsisId: String) {
+        // Ruling R2 (pre-flight): the versification comes from navigationControl unconditionally —
+        // verbatim what the deleted BibleSpeakComposeActivity.onActivityResult did. Preferring an
+        // existing range's own versification would make the write depend on what it overwrites.
+        val v11n = navigationControl.versification
+        val start = VerseFactory.fromString(v11n, startOsisId)
+        val end = VerseFactory.fromString(v11n, endOsisId)
+        mutatePlayback { it.playbackSettings = it.playbackSettings.copy(verseRange = VerseRange(v11n, start, end)) }
+    }
 
     override fun setSynchronize(on: Boolean) { AdvancedSpeakSettings.synchronize = on; _advanced.value = readAdvanced() }
     override fun setReplaceDivineName(on: Boolean) { AdvancedSpeakSettings.replaceDivineName = on; _advanced.value = readAdvanced() }

@@ -107,7 +107,6 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivi
 import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
-import net.bible.android.view.activity.speak.BibleSpeakComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import net.bible.service.common.CommonUtils
@@ -304,9 +303,11 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun bibleSpeak_routes_by_flag() {
+    fun bibleSpeak_routes_to_classic_in_both_flag_states() {
+        // Round 13a: there is no Compose Speak activity any more (the Compose path opens a sheet
+        // over the reading view instead), so Screen.BibleSpeak always means the classic screen.
         CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(BibleSpeakComposeActivity::class.java, ScreenLauncher.targetFor(Screen.BibleSpeak))
+        assertEquals(BibleSpeakActivity::class.java, ScreenLauncher.targetFor(Screen.BibleSpeak))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(BibleSpeakActivity::class.java, ScreenLauncher.targetFor(Screen.BibleSpeak))
     }

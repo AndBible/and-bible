@@ -206,8 +206,20 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.MyDocuments)
                 }
                 R.id.speakButton -> {
+                    // Round 13a: retarget into the reading view's Speak settings sheet when a
+                    // Compose host is mounted; classic behaviour unchanged otherwise. `isSpeakable`
+                    // still gates BOTH branches — the sheet is the same settings surface, not a
+                    // laxer one — and `handlerIntent` stays null on the sheet branch so the shared
+                    // dispatch below does not also start an activity (mirrors the `searchButton`
+                    // case right above).
                     if(currentPage.isSpeakable) {
-                        handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.BibleSpeak)
+                        val host = mainBibleActivity.composeReadingViewHost
+                        if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+                            host.showSpeakSettings()
+                            isHandled = true
+                        } else {
+                            handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.BibleSpeak)
+                        }
                     }
                 }
                 R.id.dailyReadingPlanButton -> {

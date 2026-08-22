@@ -18,69 +18,76 @@
 package net.bible.sharedui.speak
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkAdded
+import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.speak.AdvancedSpeakVd
 import net.bible.sharedui.components.AbHelpMenuIcon
-import net.bible.sharedui.components.AbMenuItem
-import net.bible.sharedui.components.AbOverflowMenu
-import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbSettingsCategoryHeader
+import net.bible.sharedui.components.AbSettingsRow
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.strings.LocalStrings
 
-/** Advanced (rarely-changed) Speak settings — classic SpeakSettingsActivity. Kept a separate screen
- *  from the main Speak screen so the common playback controls aren't cluttered by these. The
- *  transport bar is hosted in the `bottomBar` slot, mirroring classic's `speak_settings.xml:132`
- *  `alignParentBottom` transport widget; the caller supplies it (A/B batch 2 F4). */
+/**
+ * Advanced (rarely-changed) Speak settings — the `Advanced` page of the Speak bottom sheet.
+ *
+ * The page's TITLE is "Advanced settings" (`speakAdvancedSettings`), supplied by the sheet shell.
+ * `speakSettingsTitle` ("General Speak Settings") appears here exactly once, as the first section
+ * header — before round 13a it was rendered BOTH as the screen title and as this header, which is
+ * what made the window look mis-titled.
+ *
+ * The last row is Help ([onHelp]), which shows the auto-bookmarking help dialog the deleted
+ * `SpeakSettingsComposeActivity.showHelp()` owned (`speak_help_auto_bookmark` +
+ * `speak_help_playback_settings*` and the tutorial-video link). Spec §5 keeps that dialog a platform
+ * `AlertDialog` — it carries an HTML hyperlink — and moves its ownership to the reading-view host, so
+ * this row is a seam, not a dialog. It explains the two least self-evident switches on this page, and
+ * without it that text would only be reachable from the classic screen Batch Z deletes.
+ */
 @Composable
-fun AdvancedSpeakSettingsScreen(
+fun AdvancedSpeakSettingsContent(
     advanced: AdvancedSpeakVd,
     onSynchronize: (Boolean) -> Unit,
     onReplaceDivineName: (Boolean) -> Unit,
     onAutoBookmark: (Boolean) -> Unit,
     onRestoreSettingsFromBookmarks: (Boolean) -> Unit,
     onHelp: () -> Unit,
-    transportBar: (@Composable () -> Unit)? = null,
-    onNavigateUp: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
-    AbScaffold(
-        title = strings.speakSettingsTitle,
-        onNavigateUp = onNavigateUp,
-        actions = {
-            AbOverflowMenu(contentDescription = null) { close ->
-                AbMenuItem(
-                    text = strings.helpLabel,
-                    onClick = { close(); onHelp() },
-                    icon = AbHelpMenuIcon,
-                )
-            }
-        },
-        bottomBar = { transportBar?.invoke() },
-    ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())) {
-            Text(
-                strings.speakSettingsTitle,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
-            )
-            AbSwitchRow(strings.confSpeakSynchronize, advanced.synchronize, onSynchronize)
-            AbSwitchRow(strings.confReplaceDivinename, advanced.replaceDivineName, onReplaceDivineName)
+    Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+        AbSettingsCategoryHeader(strings.speakSettingsTitle)
+        AbSwitchRow(
+            strings.confSpeakSynchronize, advanced.synchronize, onSynchronize,
+            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = null) },
+        )
+        AbSwitchRow(
+            strings.confReplaceDivinename, advanced.replaceDivineName, onReplaceDivineName,
+            leadingIcon = { Icon(Icons.Filled.Translate, contentDescription = null) },
+        )
 
-            Text(
-                strings.speakBookmarkingSettingsTitle,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 4.dp),
-            )
-            AbSwitchRow(strings.confSpeakAutoBookmark, advanced.autoBookmark, onAutoBookmark)
-            AbSwitchRow(strings.confSavePlaybackSettingsToBookmarks, advanced.restoreSettingsFromBookmarks, onRestoreSettingsFromBookmarks)
-        }
+        AbSettingsCategoryHeader(strings.speakBookmarkingSettingsTitle)
+        AbSwitchRow(
+            strings.confSpeakAutoBookmark, advanced.autoBookmark, onAutoBookmark,
+            leadingIcon = { Icon(Icons.Filled.Bookmark, contentDescription = null) },
+        )
+        AbSwitchRow(
+            strings.confSavePlaybackSettingsToBookmarks, advanced.restoreSettingsFromBookmarks,
+            onRestoreSettingsFromBookmarks,
+            leadingIcon = { Icon(Icons.Filled.BookmarkAdded, contentDescription = null) },
+        )
+
+        AbSettingsRow(
+            title = strings.helpLabel, summary = null, enabled = true,
+            onClick = onHelp,
+            leadingIcon = AbHelpMenuIcon,
+        )
     }
 }

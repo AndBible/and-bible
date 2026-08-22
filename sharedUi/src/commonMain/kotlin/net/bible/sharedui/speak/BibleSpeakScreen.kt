@@ -17,132 +17,119 @@
 
 package net.bible.sharedui.speak
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.Notes
+import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.RecordVoiceOver
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Title
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.speak.SpeakPlaybackVd
 import net.bible.sharedui.components.AbHelpMenuIcon
-import net.bible.sharedui.components.AbMenuItem
-import net.bible.sharedui.components.AbOverflowMenu
-import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbSettingsCategoryHeader
+import net.bible.sharedui.components.AbSettingsRow
 import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.strings.LocalStrings
 
 /**
- * Main Speak settings screen (classic BibleSpeakActivity). Playback earcons + speed + sleep-timer +
- * repeat-passage; an "Advanced settings" footer row navigates to the advanced screen (that entry was
- * an overflow item in classic — surfaced here for discoverability while keeping the two screens
- * separate). System-TTS + help stay in the overflow. The transport bar is hosted in the `bottomBar`
- * slot, mirroring classic's `speak_bible.xml:175` `alignParentBottom` transport widget; the caller
- * supplies it (A/B batch 2 F4).
+ * The Speak settings list — the first page of the Speak bottom sheet (round 13a). Settings-shaped:
+ * the same row primitives, 16/12dp geometry and section headers as every other settings surface,
+ * with an icon on every row.
+ *
+ * A `*Content` composable, not a screen: it carries no scaffold and no sheet, so a Roborazzi golden
+ * can capture it in a plain `Column` (an open `ModalBottomSheet` hangs the capture). Its host bounds
+ * the height; this composable scrolls inside whatever it is given.
  */
 @Composable
-fun BibleSpeakScreen(
+fun SpeakSettingsContent(
     playback: SpeakPlaybackVd,
     onSpeedChange: (Int) -> Unit,
     onSpeakChapterChanges: (Boolean) -> Unit,
     onSpeakTitles: (Boolean) -> Unit,
     onSpeakFootnotes: (Boolean) -> Unit,
-    onSleepTimerToggle: (Boolean) -> Unit,
-    onToggleRepeatRange: () -> Unit,
+    onOpenRepeatRange: () -> Unit,
+    onOpenSleepTimer: () -> Unit,
     onOpenAdvanced: () -> Unit,
     onSystemTtsSettings: () -> Unit,
     onHelp: () -> Unit,
-    transportBar: (@Composable () -> Unit)? = null,
-    onNavigateUp: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
-    AbScaffold(
-        title = strings.speakTitle,
-        onNavigateUp = onNavigateUp,
-        actions = {
-            AbOverflowMenu(contentDescription = null) { close ->
-                AbMenuItem(
-                    text = strings.systemSpeakSettings,
-                    onClick = { close(); onSystemTtsSettings() },
-                    icon = { Icon(Icons.Filled.RecordVoiceOver, contentDescription = null) },
-                )
-                AbMenuItem(
-                    text = strings.helpLabel,
-                    onClick = { close(); onHelp() },
-                    icon = AbHelpMenuIcon,
-                )
-            }
-        },
-        bottomBar = { transportBar?.invoke() },
-    ) { padding ->
-        Column(
-            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()),
-        ) {
-            SectionHeader(strings.playbackSettingsTitle)
-            Text(
-                strings.speakAndPlayEarconsTitle,
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-            )
-            AbSwitchRow(strings.confChangeChapter, playback.speakChapterChanges, onSpeakChapterChanges)
-            AbSwitchRow(strings.confChangeTitle, playback.speakTitles, onSpeakTitles)
-            AbSwitchRow(strings.confSpeakFootnotes, playback.speakFootnotes, onSpeakFootnotes)
+    Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+        AbSettingsCategoryHeader(strings.playbackSettingsTitle)
+        AbSliderRow(
+            label = strings.speakSpeedTitle,
+            value = playback.speedPercent,
+            onValueChange = onSpeedChange,
+            valueRange = 0f..300f,   // mirrors classic SeekBar android:max="300"
+            valueLabel = "${playback.speedPercent} %",
+            // The whole point of this argument: without it AbSliderRow falls back to the static
+            // valueLabel and the readout freezes mid-drag until the release round-trips.
+            valueLabelFor = { "$it %" },
+            leadingIcon = { Icon(Icons.Filled.Speed, contentDescription = null) },
+        )
+        AbSwitchRow(
+            strings.confChangeChapter, playback.speakChapterChanges, onSpeakChapterChanges,
+            leadingIcon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null) },
+        )
+        AbSwitchRow(
+            strings.confChangeTitle, playback.speakTitles, onSpeakTitles,
+            leadingIcon = { Icon(Icons.Filled.Title, contentDescription = null) },
+        )
+        AbSwitchRow(
+            strings.confSpeakFootnotes, playback.speakFootnotes, onSpeakFootnotes,
+            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null) },
+        )
 
-            AbSliderRow(
-                label = strings.speakSpeedTitle,
-                value = playback.speedPercent,
-                onValueChange = onSpeedChange,
-                valueRange = 0f..300f,   // mirrors classic SeekBar android:max="300"
-                valueLabel = "${playback.speedPercent} %",
-            )
+        AbSettingsCategoryHeader(strings.repeatPassage)
+        AbSettingsRow(
+            title = strings.setRepeatPassageRange,
+            summary = playback.repeatRangeName ?: strings.speakVerseRangeToRepeat,
+            enabled = true,
+            onClick = onOpenRepeatRange,
+            leadingIcon = { Icon(Icons.Filled.Repeat, contentDescription = null) },
+            trailing = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+        )
 
-            SectionHeader(strings.repeatPassage)
-            AbSwitchRow(
-                label = playback.repeatRangeName ?: strings.setRepeatPassageRange,
-                checked = playback.repeatRangeName != null,
-                onCheckedChange = { onToggleRepeatRange() },
-            )
+        AbSettingsCategoryHeader(strings.speakSleepTimerTitle)
+        AbSettingsRow(
+            title = strings.confSpeakSleepTimer,
+            summary = playback.sleepTimerMinutes
+                .takeIf { it > 0 }
+                ?.let { strings.speakSleepTimerMinutes(it) },
+            enabled = true,
+            onClick = onOpenSleepTimer,
+            leadingIcon = { Icon(Icons.Filled.Bedtime, contentDescription = null) },
+            trailing = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+        )
 
-            SectionHeader(strings.speakSleepTimerTitle)
-            AbSwitchRow(
-                label = if (playback.sleepTimerMinutes > 0) strings.sleepTimerSet(playback.sleepTimerMinutes)
-                        else strings.confSpeakSleepTimer,
-                checked = playback.sleepTimerMinutes > 0,
-                onCheckedChange = onSleepTimerToggle,
-            )
-
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth().clickable(onClick = onOpenAdvanced).padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = strings.speakAdvancedSettings,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f),
-                )
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
-            }
-        }
+        AbSettingsCategoryHeader(strings.speakOtherSettings)
+        AbSettingsRow(
+            title = strings.speakAdvancedSettings, summary = null, enabled = true,
+            onClick = onOpenAdvanced,
+            leadingIcon = { Icon(Icons.Filled.Tune, contentDescription = null) },
+            trailing = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+        )
+        AbSettingsRow(
+            title = strings.systemSpeakSettings, summary = null, enabled = true,
+            onClick = onSystemTtsSettings,
+            leadingIcon = { Icon(Icons.Filled.RecordVoiceOver, contentDescription = null) },
+        )
+        AbSettingsRow(
+            title = strings.helpLabel, summary = null, enabled = true,
+            onClick = onHelp,
+            leadingIcon = AbHelpMenuIcon,
+        )
     }
 }
-
-@Composable
-private fun SectionHeader(text: String) = Text(
-    text = text,
-    style = MaterialTheme.typography.titleMedium,
-    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
-)
