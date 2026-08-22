@@ -768,9 +768,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * screen and every Compose-path call site must come here instead.
      */
     internal fun showSpeakSettings() {
-        // Close first, for the exact reason [showTextSettingEditor] does: `open` assigns a
-        // `MutableStateFlow`, which conflates an equal value, so re-opening the same first page
-        // after a deeper page was left behind would emit nothing.
+        // `open` assigns `listOf(page)`, so this always lands on the Settings page whatever depth
+        // the sheet was left at — reopening never resumes a half-finished range edit. The `close()`
+        // is kept for symmetry with [showTextSettingEditor] (and because an explicit empty state
+        // before the open is the cheapest way to keep that guarantee obvious); unlike there, no
+        // conflation hazard applies here, since the only value `open` could conflate with is
+        // `[Settings]` itself, which is already what this method wants.
         speakSheet.close()
         speakSheet.open(SpeakSheetPage.Settings)
     }
@@ -860,9 +863,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                         onConfirm = {
                             // Read the flows, not the collected values: `onConfirm` can fire in the
                             // same frame a pick landed, before this composition has recomposed.
+                            // The binding rule is `SpeakRangeEditor.canCommit` — both endpoints set
+                            // AND end.ordinal > start.ordinal — and it is read from the same
+                            // snapshot as the endpoints. The host must not restate a laxer version
+                            // of it: the ordering rule lives in :sharedCore, once.
                             val s = speakRangeEditor.start.value
                             val e = speakRangeEditor.end.value
-                            if (s != null && e != null) speakSettingsController.setRepeatRange(s.osisId, e.osisId)
+                            if (speakRangeEditor.canCommit.value && s != null && e != null) {
+                                speakSettingsController.setRepeatRange(s.osisId, e.osisId)
+                            }
                             speakSheet.pop()
                         },
                         onCancel = { speakSheet.pop() },

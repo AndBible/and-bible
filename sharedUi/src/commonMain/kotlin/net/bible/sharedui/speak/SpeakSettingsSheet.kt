@@ -36,6 +36,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -75,6 +76,16 @@ fun SpeakSettingsSheet(
         SpeakSheetPage.SleepTimer -> strings.speakSleepTimerTitle
     }
     val sheetState = rememberModalBottomSheetState()
+    // A dismiss gesture hides the sheet BEFORE onDismissRequest runs, and the Speak sheet has one
+    // branch (the grid page unwinding its own back-stack) that deliberately does not change `page`.
+    // Without this, that gesture would leave the sheet composed and invisible with no reachable ✕.
+    //
+    // Keyed on `sheetState.isVisible`, NOT on `page`: the grid's BOOK/CHAPTER/VERSE step lives
+    // inside the PickVerse page, so a grid-internal pop leaves `page` identical and a `page` key
+    // would never re-run for exactly the case this effect exists to cover. Visibility is the one
+    // signal that always changes, and a genuine close pops to a null `page`, which returns above
+    // before this effect can re-show anything.
+    LaunchedEffect(sheetState.isVisible) { if (!sheetState.isVisible) sheetState.show() }
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
             Row(
