@@ -137,6 +137,7 @@ import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
 import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
+import net.bible.service.common.automaticSpeakBookmarkingVideo
 import net.bible.service.common.speakHelpVideo
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.FakeBookFactory
@@ -199,7 +200,6 @@ import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedcore.speak.AdvancedSpeakSettingsController
 import net.bible.sharedcore.speak.BibleSpeakSettingsController
 import net.bible.sharedcore.speak.PickedVerse
-import net.bible.sharedcore.speak.SLEEP_TIMER_PRESETS
 import net.bible.sharedcore.speak.SpeakRangeEditor
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.sharedcore.speak.SpeakSheetPage
@@ -797,6 +797,30 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     }
 
     /**
+     * The ADVANCED Speak help dialog — the auto-bookmarking / playback-settings explanations, moved
+     * here verbatim from the deleted `SpeakSettingsComposeActivity`'s `showHelp()`. A second seam
+     * next to [showSpeakHelp] because it is a different dialog with different content: this one
+     * explains the two least self-evident switches on the Advanced page (`conf_speak_auto_bookmark`
+     * and `conf_save_playback_settings_to_bookmarks`). Spec §5 keeps both as platform dialogs — they
+     * carry HTML tutorial-video hyperlinks — with ownership moved to this host when the activities
+     * were deleted.
+     */
+    private fun showAdvancedSpeakHelp() {
+        val html = (
+            "<b>${activity.getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
+                + "<b><a href=\"$automaticSpeakBookmarkingVideo\">${activity.getString(R.string.watch_tutorial_video)}</a></b><br><br>"
+                + activity.getString(R.string.speak_help_auto_bookmark)
+                + "<br><br><b>${activity.getString(R.string.conf_save_playback_settings_to_bookmarks)}</b><br><br>"
+                + activity.getString(R.string.speak_help_playback_settings)
+                + "<br><br>" + activity.getString(R.string.speak_help_playback_settings_example)
+            )
+        val d = AlertDialog.Builder(activity).setMessage(htmlToSpan(html))
+            .setPositiveButton(android.R.string.ok) { _, _ -> }.create()
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    /**
      * The Speak settings sheet — mounted as the SIXTH sibling overlay next to [TextSettingsEditorSlot]
      * (see its own mounting comment at the [mountComposeView] call site). [SpeakSettingsSheet]
      * self-hides on a null page, so the host renders this unconditionally.
@@ -841,6 +865,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                         onReplaceDivineName = advancedSpeakController::setReplaceDivineName,
                         onAutoBookmark = advancedSpeakController::setAutoBookmark,
                         onRestoreSettingsFromBookmarks = advancedSpeakController::setRestoreSettingsFromBookmarks,
+                        onHelp = { showAdvancedSpeakHelp() },
                     )
                 }
                 SpeakSheetPage.RepeatRange -> {
@@ -884,11 +909,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     // back to the last one the user chose (`lastSleepTimer`, classic's own memory).
                     customMinutes = playback.sleepTimerMinutes.takeIf { it > 0 }
                         ?: playback.lastSleepTimerMinutes,
-                    onPick = { minutes ->
+                    onPick = { minutes, closeAfter ->
                         speakSettingsController.setSleepTimerMinutes(minutes)
-                        // Off and the presets commit outright; a custom drag stays on the page so
-                        // the slider can be adjusted again without re-opening it.
-                        if (minutes == 0 || minutes in SLEEP_TIMER_PRESETS) speakSheet.pop()
+                        // `closeAfter` comes from the CHIP, not from the value: a custom slider
+                        // released on exactly 30 is a preset NUMBER but not a chip tap, and popping
+                        // on the number closed the page in the middle of an adjustment. Off and the
+                        // presets commit outright; a custom drag stays on the page.
+                        if (closeAfter) speakSheet.pop()
                     },
                 )
             }

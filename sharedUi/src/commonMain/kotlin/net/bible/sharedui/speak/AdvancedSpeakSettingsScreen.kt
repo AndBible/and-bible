@@ -30,7 +30,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import net.bible.sharedcore.speak.AdvancedSpeakVd
+import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbSettingsCategoryHeader
+import net.bible.sharedui.components.AbSettingsRow
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.strings.LocalStrings
 
@@ -41,6 +43,13 @@ import net.bible.sharedui.strings.LocalStrings
  * `speakSettingsTitle` ("General Speak Settings") appears here exactly once, as the first section
  * header — before round 13a it was rendered BOTH as the screen title and as this header, which is
  * what made the window look mis-titled.
+ *
+ * The last row is Help ([onHelp]), which shows the auto-bookmarking help dialog the deleted
+ * `SpeakSettingsComposeActivity.showHelp()` owned (`speak_help_auto_bookmark` +
+ * `speak_help_playback_settings*` and the tutorial-video link). Spec §5 keeps that dialog a platform
+ * `AlertDialog` — it carries an HTML hyperlink — and moves its ownership to the reading-view host, so
+ * this row is a seam, not a dialog. It explains the two least self-evident switches on this page, and
+ * without it that text would only be reachable from the classic screen Batch Z deletes.
  */
 @Composable
 fun AdvancedSpeakSettingsContent(
@@ -49,6 +58,7 @@ fun AdvancedSpeakSettingsContent(
     onReplaceDivineName: (Boolean) -> Unit,
     onAutoBookmark: (Boolean) -> Unit,
     onRestoreSettingsFromBookmarks: (Boolean) -> Unit,
+    onHelp: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
@@ -72,6 +82,12 @@ fun AdvancedSpeakSettingsContent(
             strings.confSavePlaybackSettingsToBookmarks, advanced.restoreSettingsFromBookmarks,
             onRestoreSettingsFromBookmarks,
             leadingIcon = { Icon(Icons.Filled.BookmarkAdded, contentDescription = null) },
+        )
+
+        AbSettingsRow(
+            title = strings.helpLabel, summary = null, enabled = true,
+            onClick = onHelp,
+            leadingIcon = AbHelpMenuIcon,
         )
     }
 }

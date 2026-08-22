@@ -50,7 +50,9 @@ import net.bible.sharedui.strings.LocalStrings
  *
  * [onDismiss] is wired to `onDismissRequest`; a host maps it to `SpeakSheetStack.pop()`, which steps
  * back one page and closes at depth 1 (Material3 cannot tell back/scrim/swipe apart, and
- * `BackHandler` cannot live in commonMain). [onClose] is the header ✕, which always closes outright.
+ * `BackHandler` cannot live in commonMain). That is deliberate: DO NOT "fix" it into a whole-sheet
+ * dismiss, or the page stack becomes unreachable by back. [onClose] is the header ✕, which always
+ * closes outright.
  *
  * ROBORAZZI: never capture this composable with a non-null [page] — an open `ModalBottomSheet` hangs
  * the capture and takes the whole `:app` suite with it. Golden each page's `*Content` composable in

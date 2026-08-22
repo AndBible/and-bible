@@ -36,6 +36,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.speak.SLEEP_TIMER_MAX
 import net.bible.sharedcore.speak.SLEEP_TIMER_MIN
@@ -50,13 +52,19 @@ import net.bible.sharedui.strings.LocalStrings
  *
  * A stored value matching no preset selects Custom… and opens the slider on it, so a timer
  * previously set to an odd number is visible and editable rather than silently absent.
+ *
+ * [onPick] carries `closeAfter`, which is what tells the host a CHIP was tapped (spec §6.7: a chip
+ * commits and closes the page, Custom… stays open so the value can be adjusted). The host cannot
+ * infer it from the minute value: a custom slider released on exactly 30 is indistinguishable from
+ * the 30 chip by number alone, and treating it as a chip both collapsed the slider and closed the
+ * page mid-adjustment.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SleepTimerContent(
     selection: SleepTimerSelection,
     customMinutes: Int,
-    onPick: (Int) -> Unit,
+    onPick: (minutes: Int, closeAfter: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
@@ -74,15 +82,27 @@ fun SleepTimerContent(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             FilterChip(
-                selected = selection is SleepTimerSelection.Off,
-                onClick = { customOpen = false; onPick(0) },
+                // `&& !customOpen`: from an off timer, tapping Custom… leaves `selection` at Off
+                // until the first release writes a value, so without this both chips read as checked.
+                selected = selection is SleepTimerSelection.Off && !customOpen,
+                onClick = { customOpen = false; onPick(0, true) },
                 label = { Text(strings.speakSleepTimerOff) },
             )
             SLEEP_TIMER_PRESETS.forEach { minutes ->
                 FilterChip(
                     selected = selection == SleepTimerSelection.Preset(minutes),
-                    onClick = { customOpen = false; onPick(minutes) },
-                    label = { Text(minutes.toString()) },
+                    onClick = { customOpen = false; onPick(minutes, true) },
+                    // The unit lives in the caption above, so the chip label is a bare number by
+                    // design — which TalkBack would read as just "30". The semantics label restores
+                    // it without changing a pixel.
+                    label = {
+                        Text(
+                            minutes.toString(),
+                            modifier = Modifier.semantics {
+                                contentDescription = strings.speakSleepTimerMinutes(minutes)
+                            },
+                        )
+                    },
                 )
             }
             FilterChip(
@@ -95,7 +115,9 @@ fun SleepTimerContent(
             AbSliderRow(
                 label = strings.speakSleepTimerTitle,
                 value = sliderMinutes,
-                onValueChange = { sliderMinutes = it; onPick(it) },
+                // AbSliderRow fires this once per gesture, on release — so this IS the commit, and
+                // `closeAfter = false` keeps the page open for another adjustment.
+                onValueChange = { sliderMinutes = it; onPick(it, false) },
                 valueRange = SLEEP_TIMER_MIN.toFloat()..SLEEP_TIMER_MAX.toFloat(),
                 valueLabel = strings.speakSleepTimerMinutes(sliderMinutes),
                 valueLabelFor = { strings.speakSleepTimerMinutes(it) },

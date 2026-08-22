@@ -167,9 +167,11 @@ fun AbSwitchRow(
  * dim and stop responding to clicks. [TwoLineListItem] isn't reused here because these rows may have
  * a single line (no summary) and an optional trailing slot.
  *
- * [iconKey] defaults to `null` (no icon): [SettingsItem.NavigationRow], [SettingsItem.ListChoiceRow] and
- * [SettingsItem.TextInputRow] all carry an optional `iconKey`, resolved here via [LocalSettingsIcon].
- * [SettingsItem.SwitchRow] also has an `iconKey` field; it is now passed straight through to
+ * [iconKey] defaults to `null` (no icon): `SettingsItem.NavigationRow`, `SettingsItem.ListChoiceRow`
+ * and `SettingsItem.TextInputRow` all carry an optional `iconKey`, resolved here via
+ * [LocalSettingsIcon]. (Those three are named in prose, not as kdoc links: `SettingsItem` lives in
+ * `:sharedCore` and is not imported here, so a `[…]` link would not resolve.)
+ * `SettingsItem.SwitchRow` also has an `iconKey` field; it is now passed straight through to
  * [net.bible.sharedui.components.AbSwitchRow]'s own (A/B batch 3 F4b) `iconKey` parameter, which
  * resolves it via the same [LocalSettingsIcon] seam and only ever emits the icon `Composable` when
  * non-null — so every OTHER caller of that shared component (`AppSettings`, the AI/backup/speak/
@@ -180,10 +182,19 @@ fun AbSwitchRow(
  * [combinedClickable] to add the long-press gesture alongside the existing click.
  *
  * [badge] defaults to `null` (A/B batch 4a F2): an optional inheritance badge (e.g. "Workspace"/
- * "Global", see [LocalSettingsRowBadge]), rendered via
+ * "Global", see [net.bible.sharedui.settings.LocalSettingsRowBadge]), rendered via
  * [net.bible.sharedui.components.SettingsRowBadgeChip] INSIDE the title/summary [Column] — never as
  * a `Box` overlay on top of the row (that previously covered the summary and any trailing content).
  * Same `if (badge != null)` conditional-emission shape as [iconKey] above.
+ *
+ * [leadingIcon] defaults to `null` (round 13a): a caller-supplied leading [Composable], drawn before
+ * [iconKey]'s icon in the same 24dp box + 16dp [Spacer] position. It exists because a Material
+ * `ImageVector` living in `:sharedUi` cannot go through [iconKey], which resolves HOST drawables by
+ * key via [LocalSettingsIcon] — and round 13a's Speak sheet, whose every row carries such an
+ * `ImageVector`, is why this component was promoted out of `AbSettingsScreen` in the first place.
+ * Same `if (leadingIcon != null)` conditional-emission shape as [iconKey] and [badge] above, and for
+ * the same reason: no slot is emitted for a row without one, so every pre-13a caller renders
+ * byte-identical to before.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -227,6 +238,8 @@ fun AbSettingsRow(
         }
         Column(Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.bodyLarge)
+            // A/B batch 4a F2: in the text column, NOT an overlay — the badge participates in
+            // measurement, so it can never cover the summary or any trailing content.
             if (badge != null) {
                 Spacer(Modifier.height(2.dp))
                 SettingsRowBadgeChip(badge)

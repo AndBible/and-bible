@@ -38,7 +38,7 @@ class SpeakSheetPagesGoldenTest {
 
     private fun timer(sel: SleepTimerSelection, custom: Int) = @Composable {
         Column {
-            SleepTimerContent(selection = sel, customMinutes = custom, onPick = {})
+            SleepTimerContent(selection = sel, customMinutes = custom, onPick = { _, _ -> })
         }
     }
     @Test fun timer_off() = captureGolden("SleepTimer", "off", EDGE_MODE, heightDp = 400,

@@ -19,6 +19,7 @@ class AdvancedSpeakGoldenTest {
                 advanced = a,
                 onSynchronize = {}, onReplaceDivineName = {},
                 onAutoBookmark = {}, onRestoreSettingsFromBookmarks = {},
+                onHelp = {},
             )
         }
     }

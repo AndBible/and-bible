@@ -82,6 +82,55 @@ class SpeakEntryPointGuardTest {
         )
     }
 
+    /**
+     * Round 13a whole-branch review, F9: [callSites] names three files, so a FOURTH Compose-path
+     * launcher — a new file, or an old one that grows a Speak entry point — would be unpoliced by
+     * every test above. This walks all of `src/main` instead of a list, so no new file can escape it.
+     *
+     * Two files are excluded by name, and both are CLASSIC-path code that legitimately has no
+     * `showSpeakSettings()` branch:
+     *  - `ScreenLauncher.kt` — the classic router itself; `Screen.BibleSpeak` is the mapping it
+     *    exists to declare.
+     *  - `SpeakTransportWidget.kt` — the classic transport widget, explicitly untouched by round 13a
+     *    (spec §5). `ComposeReadingViewHost` hides it (`binding.speakTransport.visibility = GONE`)
+     *    and renders `SpeakTransportBar` instead, whose `onConfig` DOES go to the sheet — so this
+     *    widget's config button is unreachable on the Compose path.
+     * [excludedClassicLaunchers] is asserted to exist for the same anti-vacuity reason as
+     * [everyScannedCallSiteExists]: a renamed exclusion must resurface as a failure, not a silence.
+     */
+    private val excludedClassicLaunchers = listOf(
+        "src/main/java/net/bible/android/view/ScreenLauncher.kt",
+        "src/main/java/net/bible/android/view/util/widget/SpeakTransportWidget.kt",
+    )
+
+    @Test fun everyExcludedClassicLauncherStillExists() {
+        val missing = excludedClassicLaunchers.filterNot { File(it).isFile }
+        assertEquals("excluded paths that no longer exist (the exclusion is now a blind spot)", emptyList<String>(), missing)
+    }
+
+    @Test fun noUnscannedSourceFileLaunchesBibleSpeakWithoutBranchingToTheSheet() {
+        val excludedNames = excludedClassicLaunchers.map { File(it).name }.toSet()
+        val candidates = File("src/main").walkTopDown()
+            .filter { it.isFile && it.extension == "kt" && it.name !in excludedNames }
+            .filter { codeLinesOf(it.path).contains("Screen.BibleSpeak") }
+            .toList()
+        val offenders = candidates
+            .filterNot { codeLinesOf(it.path).contains("showSpeakSettings(") }
+            .map { it.path.replace('\\', '/') }
+            .sorted()
+        assertEquals(
+            "these files launch Screen.BibleSpeak but never call showSpeakSettings() — on the " +
+                "Compose path they would open the CLASSIC Speak activity. Either add the " +
+                "`host.showSpeakSettings()` branch, or, if the file is classic-only, add it to " +
+                "excludedClassicLaunchers WITH the reason.",
+            emptyList<String>(),
+            offenders,
+        )
+        // Anti-vacuity: the walk must actually be finding the known Compose-path launchers. If this
+        // ever drops to zero the scan has stopped seeing source at all and proves nothing.
+        assertTrue("the src/main walk found no Screen.BibleSpeak site at all", candidates.isNotEmpty())
+    }
+
     /** Non-prose lines only: an `import` line or a comment mentioning either name must not count. */
     private fun codeLinesOf(path: String): String =
         File(path).readLines().filterNot { line ->
