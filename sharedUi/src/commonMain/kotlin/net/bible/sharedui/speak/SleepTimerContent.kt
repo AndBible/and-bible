@@ -51,7 +51,9 @@ import net.bible.sharedui.strings.LocalStrings
  * "Custom…" reveals the 1..120 slider, which commits once per drag gesture on release.
  *
  * A stored value matching no preset selects Custom… and opens the slider on it, so a timer
- * previously set to an odd number is visible and editable rather than silently absent.
+ * previously set to an odd number is visible and editable rather than silently absent. Once open the
+ * slider is STICKY for the life of the page — committing a value that happens to be a preset must not
+ * make it vanish mid-adjustment; only a chip tap closes it.
  *
  * [onPick] carries `closeAfter`, which is what tells the host a CHIP was tapped (spec §6.7: a chip
  * commits and closes the page, Custom… stays open so the value can be adjusted). The host cannot
@@ -68,7 +70,14 @@ fun SleepTimerContent(
     modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
-    var customOpen by remember(selection) { mutableStateOf(selection is SleepTimerSelection.Custom) }
+    // UNKEYED on purpose (sticky): a `remember(selection)` re-derived this from the freshly
+    // committed value, so a slider release landing on exactly 30 or 45 turned `selection` into
+    // Preset(n) and collapsed the slider out from under the finger — the two values a user is most
+    // likely to drag toward, and a direct contradiction of §6.7's "leaves the page open so the value
+    // can be adjusted". Nothing is lost by dropping the key: every chip handler below closes it
+    // explicitly, and leaving the page disposes this composable entirely, so a re-entered page
+    // re-initialises from the persisted selection.
+    var customOpen by remember { mutableStateOf(selection is SleepTimerSelection.Custom) }
     var sliderMinutes by remember(customMinutes) { mutableIntStateOf(customMinutes) }
     Column(modifier.fillMaxWidth()) {
         Text(
@@ -90,7 +99,12 @@ fun SleepTimerContent(
             )
             SLEEP_TIMER_PRESETS.forEach { minutes ->
                 FilterChip(
-                    selected = selection == SleepTimerSelection.Preset(minutes),
+                    // `&& !customOpen`, same rule as the Off chip: while the slider is open it is
+                    // the authority, so a release landing on exactly this preset must not check TWO
+                    // chips (Custom… stays checked because the slider is still what the user is
+                    // adjusting). Without this, making the slider sticky just moved the
+                    // double-selection defect from Off/Custom… onto 30/Custom… and 45/Custom….
+                    selected = selection == SleepTimerSelection.Preset(minutes) && !customOpen,
                     onClick = { customOpen = false; onPick(minutes, true) },
                     // The unit lives in the caption above, so the chip label is a bare number by
                     // design — which TalkBack would read as just "30". The semantics label restores
