@@ -143,13 +143,11 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
         try {
             val currentPageControl = windowControl.activeWindowPageManager
             if (!navigateToVerse && !currentPageControl.currentPage.isSingleKey) {
-                val verse = Verse(navigationControl.versification, mBibleBook, chapter, 1)
+                val verse = Verse(navigationControl.versification, mBibleBook, chapter, 0)
                 val resultIntent = Intent(this, GridChoosePassageBook::class.java)
                 resultIntent.putExtra("verse", verse.osisID)
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
-
-
                 onSave(null)
             } else {
                 // select verse

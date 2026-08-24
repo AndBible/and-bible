@@ -264,7 +264,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
             // if there is only 1 chapter then no need to select chapter, but may need to select verse still
             if (!navigationControl.hasChapters(book)) {
                 if (!navigateToVerse) {
-                    val verse = Verse(v11n, book, 1, 1)
+                    val verse = Verse(v11n, book, 1, 0)
 
                     val resultIntent = Intent(this, GridChoosePassageBook::class.java)
                     resultIntent.putExtra("verse", verse.osisID)

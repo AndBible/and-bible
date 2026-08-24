@@ -113,7 +113,14 @@ class CurrentBiblePage(
                     nextVer = bibleTraverser.getPrevChapter(currentPassageBook, nextVer)
                 }
             }
-            nextVer
+            // Needed for swiping left or right
+            if (nextVer.verse == 1) {
+                Verse(nextVer.versification,nextVer.book,nextVer.chapter,0
+                )
+            } else {
+                nextVer
+            }
+
         } catch (nsve: Exception) {
             Log.e(TAG, "Incorrect verse", nsve)
             currVer
