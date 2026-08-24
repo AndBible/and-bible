@@ -681,6 +681,7 @@
     <string name="backup_application_info">Application file (.APK)</string>
     <string name="backup_database_info">Bookmarks, labels, notes, study pads, reading plans, workspaces etc.</string>
     <string name="backup_document_info">Bibles, commentaries, dictionaries, maps etc.</string>
+    <string name="backup">Backup</string>
     <string name="backup_to">Backup to…</string>
     <string name="backup_restore_from">Restore from…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
