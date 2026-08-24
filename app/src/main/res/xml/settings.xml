@@ -135,6 +135,13 @@
             android:defaultValue="false"
             android:icon="@drawable/ic_click_24dp"
             />
+        <SwitchPreferenceCompat
+            android:key="highlight_strongs_word"
+            android:title="@string/prefs_highlight_strongs_word_title"
+            android:summary="@string/prefs_highlight_strongs_word_summary"
+            android:defaultValue="false"
+            android:icon="@drawable/ic_strongs_greek"
+            />
         <ListPreference android:key="notes_content_type"
             android:title="@string/prefs_notes_content_type_title"
             android:summary="@string/prefs_notes_content_type_summary"
