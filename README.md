@@ -1,31 +1,26 @@
-<img align="right" width="250" height="250" src="https://raw.githubusercontent.com/AndBible/and-bible/develop/svg/logo.svg?sanitized=true">
+<img align="right" width="150" height="150" src="https://raw.githubusercontent.com/AndBible/and-bible/develop/svg/logo.svg?sanitized=true" alt="AndBible logo">
+
+## AndBible: Bible Study
+A powerful, yet easy to use, offline Bible study application for Android.
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/andbible/and-bible/run-tests.yml?branch=develop&label=Android%20CI)
 ![GitHub License](https://img.shields.io/github/license/andbible/and-bible)
 <a href="https://matrix.to/#/#andbible:matrix.org">![Matrix](https://img.shields.io/matrix/andbible%3Amatrix.org?logo=Matrix&logoColor=green&logoSize=auto&label=Matrix%20Chat)</a>
 <a href="https://shop.andbible.org">![Static Badge](https://img.shields.io/badge/%E2%9D%A4%EF%B8%8F%20Sponsor%20AndBible%20-%20blue)</a>
 
-# AndBible: Bible Study
+---
 
-A powerful, yet easy to use, offline Bible study application for Android.
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=net.bible.android.activity"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="60"></a>
+  <a href="https://f-droid.org/packages/net.bible.android.activity"><img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="60"></a>
+  <a href="https://accrescent.app/app/org.andbible.andbible"><img src="https://accrescent.app/badges/get-it-on.png" alt="Get it on Accrescent" height="60"></a>
+</p>
 
-[<img src="https://gitlab.com/fdroid/artwork/-/raw/45dae7c9f9b8762f4dc22e979f78542dcfd0ef8f/badge/get-it-on.svg"
-     alt="Get it on F-Droid"
-     height="80">](https://f-droid.org/packages/net.bible.android.activity)
-[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
-     alt="Get it on Google Play"
-     height="80">](https://play.google.com/store/apps/details?id=net.bible.android.activity)
-[<img src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-appstore-badge-english-black.png"
-     alt="Get it on Amazon Appstore"
-     height="55"
-     style="border: 13px solid transparent;">](https://www.amazon.com/Martin-Denham-And-Bible/dp/B004Z2KKYK)
-[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/refs/heads/main/assets/graphics/badge_obtainium.png"
-     alt="Get it on Github"
-     height="55"
-     style="border: 13px solid transparent;">](https://github.com/AndBible/and-bible/releases)
-[<img src="https://accrescent.app/badges/get-it-on.png"
-     alt="Get it on Accrescent"
-     height="80">](https://accrescent.app/app/org.andbible.andbible)
+<p align="center">
+  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22net.bible.android.activity%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FAndBible%2Fand-bible%22%2C%22author%22%3A%22AndBible%22%2C%22name%22%3A%22Bible%20Study%22%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22andbible-production%5C%22%2C%5C%22about%5C%22%3A%5C%22A%20powerful%2C%20yet%20easy%20to%20use%2C%20offline%20Bible%20study%20application%20for%20Android.%5C%22%7D%22%7D"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/refs/heads/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" style="border: 10px solid transparent;" height="40"></a>
+  &nbsp;&nbsp;
+  <a href="https://www.amazon.com/Martin-Denham-And-Bible/dp/B004Z2KKYK"><img src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-appstore-badge-english-black.png" alt="Get it on Amazon Appstore" style="border: 10px solid transparent;" height="40"></a>
+</p>
 
 ## 🎬 Promo Video
 
