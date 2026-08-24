@@ -38,7 +38,6 @@ import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
@@ -402,19 +401,7 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
             true
         }
-        R.id.import_reading_plan -> {
-            importPlanLauncher.launch("application/zip")
-            true
-        }
         else -> super.onOptionsItemSelected(item)
-    }
-
-    private val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uriResult ->
-        Log.i(TAG, "Importing plan. Result uri is${if (uriResult != null) " not" else ""} null")
-        val uri = uriResult ?: return@registerForActivityResult
-
-        val intent = Intent(Intent.ACTION_VIEW, uri, this, InstallZip::class.java)
-        installZipLauncher.launch(intent)
     }
 
     val selectReadingPlan = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -439,11 +426,6 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
 
             loadDailyReading(planCodeLoaded, planDay)
         }
-    }
-
-    val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        // TODO load imported plan if result is OK
-        //  still need to set up "InstallZip" to return reading plan fileName (code)
     }
 
     companion object {
