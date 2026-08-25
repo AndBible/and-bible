@@ -46,7 +46,23 @@ enum class ColorThemePreset(
         0xFFF8F8F2.toInt(), 0xFF282A36.toInt(), 0xFF8BE9FD.toInt(), 0xFF6272A4.toInt(), 0xFFBD93F9.toInt()),
     SEPIA("sepia", R.string.color_theme_sepia,
         0xFF5B4636.toInt(), 0xFFF4ECD8.toInt(), 0xFF8B5A2B.toInt(), 0xFFA1887F.toInt(), 0xFF7B4F2C.toInt(),
-        0xFFD8C8B0.toInt(), 0xFF2B2622.toInt(), 0xFFC9A066.toInt(), 0xFF8A7A68.toInt(), 0xFFD9B382.toInt());
+        0xFFD8C8B0.toInt(), 0xFF2B2622.toInt(), 0xFFC9A066.toInt(), 0xFF8A7A68.toInt(), 0xFFD9B382.toInt()),
+    // Catppuccin: Latte (day) + Mocha (night)
+    CATPPUCCIN("catppuccin", R.string.color_theme_catppuccin,
+        0xFF4C4F69.toInt(), 0xFFEFF1F5.toInt(), 0xFF1E66F5.toInt(), 0xFF6C6F85.toInt(), 0xFF8839EF.toInt(),
+        0xFFCDD6F4.toInt(), 0xFF1E1E2E.toInt(), 0xFF89B4FA.toInt(), 0xFFA6ADC8.toInt(), 0xFFCBA6F7.toInt()),
+    // Tokyo Night: Day + Night
+    TOKYO_NIGHT("tokyo_night", R.string.color_theme_tokyo_night,
+        0xFF3760BF.toInt(), 0xFFE1E2E7.toInt(), 0xFF2E7DE9.toInt(), 0xFF848CB5.toInt(), 0xFF9854F1.toInt(),
+        0xFFC0CAF5.toInt(), 0xFF1A1B26.toInt(), 0xFF7AA2F7.toInt(), 0xFF565F89.toInt(), 0xFFBB9AF7.toInt()),
+    // One Dark / One Light (Atom)
+    ONE_DARK("one_dark", R.string.color_theme_one_dark,
+        0xFF383A42.toInt(), 0xFFFAFAFA.toInt(), 0xFF4078F2.toInt(), 0xFFA0A1A7.toInt(), 0xFFA626A4.toInt(),
+        0xFFABB2BF.toInt(), 0xFF282C34.toInt(), 0xFF61AFEF.toInt(), 0xFF5C6370.toInt(), 0xFFC678DD.toInt()),
+    // Monokai: classic (night) + synthesized light (day)
+    MONOKAI("monokai", R.string.color_theme_monokai,
+        0xFF49483E.toInt(), 0xFFFAFAFA.toInt(), 0xFF0089BD.toInt(), 0xFFA59F85.toInt(), 0xFFE0007F.toInt(),
+        0xFFF8F8F2.toInt(), 0xFF272822.toInt(), 0xFF66D9EF.toInt(), 0xFF75715E.toInt(), 0xFFF92672.toInt());
 
     fun applyTo(c: WorkspaceEntities.Colors) {
         c.dayTextColor = dayText
