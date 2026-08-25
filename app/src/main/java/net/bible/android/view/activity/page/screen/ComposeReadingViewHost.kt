@@ -162,6 +162,8 @@ import net.bible.sharedcore.reading.DrawerCloseLatch
 import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
+import net.bible.sharedcore.reading.ReadingOverlay
+import net.bible.sharedcore.reading.ReadingOverlayExclusion
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
@@ -457,14 +459,48 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val hostScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     /**
-     * State machine driving the reading-view LLM dialogs (Batch 12e-A Task 6): prompt selector,
+     * State machine driving the reading-view LLM surfaces (Batch 12e-A Task 6): prompt selector,
      * specify-before-run, model selection, regenerate-confirm. Not `private` so
      * `ComposeReadingViewHostTest`-style tests can assert against it directly, mirroring
      * [controller]'s visibility below. Rendered by [mountComposeView] (see [install]) as a sibling
      * of `ReadingViewScreen`; its `onExecute`/`onRegenerate` callbacks are wired by
      * [showPromptSelector]/[showRegenerate].
+     *
+     * **Round 14a: two of those four arms are `ModalBottomSheet`s now, so opening one has to close
+     * whatever other modal overlay is up.** Sheet-over-sheet is banned port-wide, and the three
+     * modal overlays of this host are gated by three INDEPENDENT states, so nothing structural
+     * prevented two being open — this round is what made it reachable (spec §5).
+     * [ReadingOverlayExclusion] holds the rule (pure, unit-tested in `:sharedCore`, no Compose); this
+     * is the only place that applies it. The `when` is exhaustive on purpose: a fourth modal overlay
+     * must be given a closer here or the build fails.
+     *
+     * `speakSheet` and `textSettingsEditor` are declared BELOW this property. Reading them from
+     * inside this lambda is safe because the lambda runs on a user action, long after the constructor
+     * — do not hoist either read out of it.
      */
-    val readingLlmDialogs = ReadingLlmDialogController(readingLlmService, hostScope)
+    val readingLlmDialogs = ReadingLlmDialogController(
+        readingLlmService,
+        hostScope,
+        onSheetOpening = {
+            ReadingOverlayExclusion.closedBy(ReadingOverlay.Llm).forEach { overlay ->
+                when (overlay) {
+                    ReadingOverlay.SpeakSheet -> speakSheet.close()
+                    ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
+                    ReadingOverlay.Llm -> Unit
+                }
+            }
+        },
+    )
+
+    // The REVERSE directions of the same rule -- `showSpeakSettings()` (:770) and
+    // `showTextSettingEditor()` (:587) each calling
+    // `ReadingOverlayExclusion.closedBy(...)`.forEach { ... readingLlmDialogs.dismiss() } -- are
+    // ONE LINE each and are deliberately not written here: both methods sit inside the edit region
+    // that container `compose-14b` owns this round (spec §12.2), and manufacturing a hunk there is
+    // the one thing the two-container fork exists to avoid. Neither direction is reachable by touch
+    // today (an open sheet's scrim covers the toolbar, the speak bar's cog and the menu, which are
+    // the only ways in), so the gap is a completeness gap, not a live defect. Apply both at the
+    // 14a/14b merge; `ReadingOverlayExclusion` already models them and its test already pins them.
 
     /**
      * State holder for the reading-view agent-log panel (Batch 12e-B Task 6) — the compose-path
@@ -3467,8 +3503,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             }
                             // Sibling of `ReadingViewScreen` (not nested inside `key(gen)`, which
                             // only needs to scope the panes' `AndroidView` factories) — an
-                            // `AlertDialog` overlays regardless of where in the tree it's composed,
-                            // and there is at most one non-`None` dialog at a time.
+                            // `AlertDialog` AND a `ModalBottomSheet` each overlay regardless of
+                            // where in the tree they are composed, and there is at most one
+                            // non-`None` arm at a time. Round 14a made two of the four arms sheets,
+                            // so this is now one of the reading view's modal-sheet overlays and is
+                            // subject to `ReadingOverlayExclusion` — applied where
+                            // `readingLlmDialogs` is constructed, not here.
                             val llmDialog by llmDialogState.collectAsState()
                             ReadingLlmDialogs(
                                 dialog = llmDialog.dialog,
