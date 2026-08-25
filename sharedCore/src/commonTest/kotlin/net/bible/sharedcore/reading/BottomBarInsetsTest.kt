@@ -31,4 +31,26 @@ class BottomBarInsetsTest {
         assertFalse(agentLogOwnsNavBarInset(agentLogVisible = false, speakBarVisible = false))
         assertFalse(agentLogOwnsNavBarInset(agentLogVisible = false, speakBarVisible = true))
     }
+
+    @Test fun theSpeakBarDrawsItsOwnTopEdgeOnlyWhenNothingSitsOnTopOfIt() {
+        assertTrue(
+            speakBarOwnsTopEdge(agentLogVisible = false),
+            "alone at the bottom, the bar is the topmost bottom surface and keeps its corners and shadow",
+        )
+        assertFalse(
+            speakBarOwnsTopEdge(agentLogVisible = true),
+            "the agent panel sits directly on the bar, so the panel owns the edge and the bar goes square",
+        )
+    }
+
+    /**
+     * The two rules are about the OPPOSITE ends of the same pair and must not be conflated: the
+     * navigation-bar inset belongs to the BOTTOM-most surface, the corners and shadow to the
+     * TOP-most one. With both bars visible the speak bar owns the inset and does NOT own the top
+     * edge — the one configuration in which a copy-pasted predicate would be silently wrong.
+     */
+    @Test fun theInsetOwnerAndTheEdgeOwnerAreDifferentSurfacesWhenBothBarsAreUp() {
+        assertFalse(agentLogOwnsNavBarInset(agentLogVisible = true, speakBarVisible = true))
+        assertFalse(speakBarOwnsTopEdge(agentLogVisible = true))
+    }
 }

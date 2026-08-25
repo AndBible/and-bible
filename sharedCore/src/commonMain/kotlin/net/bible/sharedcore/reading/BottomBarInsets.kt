@@ -49,3 +49,29 @@ package net.bible.sharedcore.reading
  */
 fun agentLogOwnsNavBarInset(agentLogVisible: Boolean, speakBarVisible: Boolean): Boolean =
     agentLogVisible && !speakBarVisible
+
+/**
+ * Whether the Speak transport bar draws its own top edge — the rounded top corners and the 8dp
+ * shadow — or hands that edge to the surface stacked on top of it.
+ *
+ * Round 14b §6, from device feedback: "the Speak transport bar looks bad when the AI widget is above
+ * it; colour-wise it should run smoothly underneath it." The two surfaces already resolve to the
+ * SAME colour — both are `Surface(tonalElevation = 3.dp)`, measured as RGB 242,233,248 on both in
+ * `ReadingViewScreen_withAgentLogAndSpeakBar_light.png` — so the visible defect was never the
+ * colour. It was the lower surface drawing its corners and its shadow AGAINST the upper one.
+ *
+ * So the fix is edge ownership, not a colour change, and it is the mirror image of
+ * [agentLogOwnsNavBarInset] one line above: the navigation-bar inset belongs to the BOTTOM-most
+ * visible bar, the corners and the shadow to the TOP-most one. Read the two together — with both
+ * bars up, the speak bar owns the inset and the agent panel owns the edge, so a predicate
+ * copy-pasted from one to the other is wrong in exactly the configuration this exists for.
+ *
+ * Only [agentLogVisible] is needed: this function answers a question the speak bar only asks while
+ * it is itself being rendered, so its own visibility is a precondition, not an argument. Rejected
+ * alternatives (spec D2): a 1dp divider between the pair — classic had one, round 13a dropped it
+ * deliberately — and a tonal step between them, which would either vanish or turn coarse in the
+ * black-and-white and e-ink display modes.
+ *
+ * A pure function so the decision is unit-testable, like its neighbour — see `BottomBarInsetsTest`.
+ */
+fun speakBarOwnsTopEdge(agentLogVisible: Boolean): Boolean = !agentLogVisible
