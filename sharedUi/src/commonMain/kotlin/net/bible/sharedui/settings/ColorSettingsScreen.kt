@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.settings
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -177,12 +178,21 @@ fun ColorSettingsContent(
     onOpacityChange: (night: Boolean, value: Int) -> Unit,
     onChangeBackgroundImage: (night: Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    /**
+     * Hoistable scroll state (round 14b §7.b). Defaulted for a concrete reason recorded in the
+     * spec: this composable has THREE callers — the full-screen `ColorSettingsScreen` above,
+     * `ColorSettingsEditorSheet`'s `Colors` page, and `ColorSettingsScreenGoldenTest` — and only the
+     * sheet needs the state, to read `canScrollForward` for `Modifier.abBottomFade`. Hoisting the
+     * scroll out of this composable would have broken the full-screen use; a defaulted parameter
+     * leaves both the screen and its golden byte-identical.
+     */
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     val colors = state.colors
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(horizontal = 16.dp),
     ) {
         if (colors.workspaceColorVisible) {

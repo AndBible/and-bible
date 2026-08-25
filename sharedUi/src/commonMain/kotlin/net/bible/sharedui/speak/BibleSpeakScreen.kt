@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.speak
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
@@ -64,9 +65,17 @@ fun SpeakSettingsContent(
     onSystemTtsSettings: () -> Unit,
     onHelp: () -> Unit,
     modifier: Modifier = Modifier,
+    /**
+     * Hoistable scroll state (round 14b §7.b). Defaulted, and that default is load-bearing: this
+     * composable is captured standalone by `BibleSpeakGoldenTest` and rendered by the Speak sheet,
+     * and only the sheet needs the state — it reads `canScrollForward` to drive
+     * `Modifier.abBottomFade`, the affordance that tells the user there is more below the clip.
+     * Making the parameter required would have changed every caller for the benefit of one.
+     */
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     val strings = LocalStrings.current
-    Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+    Column(modifier.fillMaxWidth().verticalScroll(scrollState)) {
         AbSettingsCategoryHeader(strings.playbackSettingsTitle)
         AbSliderRow(
             label = strings.speakSpeedTitle,

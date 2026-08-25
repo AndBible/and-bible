@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.speak
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
@@ -60,9 +61,12 @@ fun AdvancedSpeakSettingsContent(
     onRestoreSettingsFromBookmarks: (Boolean) -> Unit,
     onHelp: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Hoistable scroll state (round 14b §7.b) — see [SpeakSettingsContent]'s own parameter for why
+     *  it is defaulted. The Speak sheet passes its per-page state; the golden does not. */
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     val strings = LocalStrings.current
-    Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+    Column(modifier.fillMaxWidth().verticalScroll(scrollState)) {
         AbSettingsCategoryHeader(strings.speakSettingsTitle)
         AbSwitchRow(
             strings.confSpeakSynchronize, advanced.synchronize, onSynchronize,
