@@ -1,11 +1,17 @@
 package net.bible.android.view.compose.golden
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedui.components.AbActionSheetContent
+import net.bible.sharedui.components.AbActionSheetRow
 import net.bible.sharedui.components.AbChoiceSheetContent
 import net.bible.sharedui.components.AbMultiSelectSheetContent
 import org.junit.Test
@@ -73,6 +79,30 @@ class AbSheetWrappersGoldenTest {
                 onCancel = {},
                 onClose = {},
             )
+        }
+    }
+
+    /** The export-destination chooser of G2.9/G2.10 — the new action-sheet shape. One mode: the
+     *  dialog it replaces had no goldens at all, and this capture exists to pin the shape (title,
+     *  message, iconed rows, no confirm row) rather than to re-prove the theme matrix. */
+    @Test fun action_light() = captureGolden("AbSheetWrappers", "action", EDGE_MODE, heightDp = 340) {
+        SheetSurface {
+            AbActionSheetContent(
+                title = "Export to",
+                message = "Share the file, or save it to this phone?",
+                onClose = {},
+            ) {
+                AbActionSheetRow(
+                    label = "Share",
+                    onClick = {},
+                    icon = { Icon(Icons.Filled.Share, contentDescription = null) },
+                )
+                AbActionSheetRow(
+                    label = "Phone storage",
+                    onClick = {},
+                    icon = { Icon(Icons.Filled.Save, contentDescription = null) },
+                )
+            }
         }
     }
 }
