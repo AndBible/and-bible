@@ -685,11 +685,10 @@ $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 }
 
 a {
-  color: blue;
-
-  .night & {
-    color: #7b7bff;
-  }
+  // Route all in-content links (incl. OSIS cross-references) through --link-color so color-theme
+  // presets reach them. common.scss defines --link-color per day/night/monochrome, so the default
+  // and e-ink behaviour is preserved when no preset overrides it.
+  color: var(--link-color);
 }
 
 .bookmark-marker {

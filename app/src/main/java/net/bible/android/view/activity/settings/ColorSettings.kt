@@ -59,9 +59,10 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
         // Editing one of the palette colors a preset stamps means the colors no longer match a
         // built-in preset, so switch the selector to "Custom". Only these keys are part of the
         // preset palette; noise, background-image opacity and workspace_color are not, so editing
-        // them leaves the selected theme intact.
-        if (key in presetPaletteKeys && colors.themeName != null) {
-            colors.themeName = null
+        // them leaves the selected theme intact. We store the explicit CUSTOM_ID sentinel (not
+        // null) so the Custom choice survives inheritance merging with a parent preset.
+        if (key != null && key in presetPaletteKeys && colors.themeName != ColorThemePreset.CUSTOM_ID) {
+            colors.themeName = ColorThemePreset.CUSTOM_ID
             // Flip the theme selector to "Custom" right away, rather than leaving it showing
             // the stale preset name until the screen is reopened.
             activity.refreshColorPreferences()
@@ -85,16 +86,24 @@ class ColorSettingsDataStore(val activity: ColorSettingsActivity): PreferenceDat
     }
 
     override fun putString(key: String?, value: String?) {
-        if (key == "color_theme") {
-            val preset = ColorThemePreset.byId(value)
-            if (preset != null) preset.applyTo(colors) else colors.themeName = null
-            activity.setDirty()
-            activity.refreshColorPreferences()
-        }
+        if (key != "color_theme") return
+        // Normalize both sides to a concrete id so no-op changes are detected. A ListPreference
+        // persists its current value when it is attached, so this runs during inflation too; only
+        // act when the requested theme actually differs, otherwise merely opening the screen would
+        // mark it dirty and flatten inherited settings into a local override.
+        val requested = ColorThemePreset.byId(value)?.id ?: ColorThemePreset.CUSTOM_ID
+        val current = colors.themeName ?: ColorThemePreset.CUSTOM_ID
+        if (requested == current) return
+
+        val preset = ColorThemePreset.byId(requested)
+        if (preset != null) preset.applyTo(colors) else colors.themeName = ColorThemePreset.CUSTOM_ID
+        activity.setDirty()
+        activity.refreshColorPreferences()
     }
 
     override fun getString(key: String?, defValue: String?): String? {
-        return if (key == "color_theme") colors.themeName ?: "" else defValue
+        // null themeName (inherited, never explicitly set) displays as Custom.
+        return if (key == "color_theme") colors.themeName ?: ColorThemePreset.CUSTOM_ID else defValue
     }
 }
 

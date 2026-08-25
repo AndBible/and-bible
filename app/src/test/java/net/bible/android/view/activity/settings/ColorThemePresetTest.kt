@@ -36,6 +36,8 @@ class ColorThemePresetTest {
         assertNull(ColorThemePreset.byId(null))
         assertNull(ColorThemePreset.byId(""))
         assertNull(ColorThemePreset.byId("nonexistent"))
+        // The Custom sentinel is not a preset — it must not resolve to one.
+        assertNull(ColorThemePreset.byId(ColorThemePreset.CUSTOM_ID))
     }
 
     @Test

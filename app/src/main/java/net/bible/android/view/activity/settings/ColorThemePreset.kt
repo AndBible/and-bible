@@ -79,6 +79,12 @@ enum class ColorThemePreset(
     }
 
     companion object {
+        /** Explicit "no preset" sentinel. Stored in [WorkspaceEntities.Colors.themeName] when the
+         * user picks Custom or hand-edits a palette color. Unlike `null` (which means "inherit from
+         * a parent level"), this non-null value survives [WorkspaceEntities.Colors.merge] so an
+         * explicit Custom choice at a window/workspace is not overridden by a parent's preset. */
+        const val CUSTOM_ID = "custom"
+
         fun byId(id: String?): ColorThemePreset? =
             if (id.isNullOrEmpty()) null else entries.find { it.id == id }
     }

@@ -30,7 +30,7 @@
         <item>@string/color_theme_monokai</item>
     </string-array>
     <string-array name="color_theme_values" translatable="false">
-        <item></item>
+        <item>custom</item>
         <item>gruvbox</item>
         <item>nord</item>
         <item>solarized</item>
