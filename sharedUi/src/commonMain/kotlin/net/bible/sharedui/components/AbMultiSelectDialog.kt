@@ -25,7 +25,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
@@ -53,12 +55,16 @@ fun <T> AbMultiSelectContent(
     selectAllText: String? = null,
     selectNoneText: String? = null,
     modifier: Modifier = Modifier,
+    // Round 14a: hoistable so a sheet shell can drive `Modifier.abBottomFade` from the same state
+    // this list scrolls (spec §7.b). Defaulted, so the dialog below and both existing golden call
+    // sites are untouched.
+    listState: LazyListState = rememberLazyListState(),
 ) {
     // Local working copy of the checked set; reported to the host on every mutation.
     val checked = remember(options, selectedIds) {
         mutableStateListOf<String>().apply { addAll(selectedIds) }
     }
-    LazyColumn(Modifier.heightIn(max = 400.dp).then(modifier)) {
+    LazyColumn(state = listState, modifier = Modifier.heightIn(max = 400.dp).then(modifier)) {
         if (selectAllText != null) {
             item {
                 val allSelected = options.isNotEmpty() && checked.size == options.size

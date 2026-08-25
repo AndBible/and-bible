@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbChoiceSheetContent
+import net.bible.sharedui.components.AbMultiSelectSheetContent
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -46,6 +47,30 @@ class AbSheetWrappersGoldenTest {
                 choices = categories,
                 selectedValue = "cat-summary",
                 onSelect = {},
+                onClose = {},
+            )
+        }
+    }
+
+    /** Replaces `CloudDocuments_syncnow_light.png`: the same three two-line sync rows, the same
+     *  pre-checked pattern, now as the sheet body — one mode, because the dialog it replaces had
+     *  exactly one. */
+    @Test fun multiSelect_light() = captureGolden("AbSheetWrappers", "multiSelect", EDGE_MODE, heightDp = 460) {
+        SheetSurface {
+            AbMultiSelectSheetContent(
+                title = "Sync now",
+                options = listOf(
+                    "dl" to "Download\n2 documents (8.0 MB)",
+                    "ul" to "Upload\n1 document (4.2 MB)",
+                    "rm" to "Delete\nnothing to transfer",
+                ),
+                selectedIds = listOf("dl", "ul"),
+                idOf = { it.first },
+                labelOf = { it.second },
+                confirmText = "OK",
+                dismissText = "Cancel",
+                onConfirm = {},
+                onCancel = {},
                 onClose = {},
             )
         }
