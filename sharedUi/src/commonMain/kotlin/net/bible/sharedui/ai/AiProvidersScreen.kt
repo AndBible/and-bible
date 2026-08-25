@@ -58,8 +58,8 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDropdownField
+import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.components.AbInfoDialog
-import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.TwoLineListItem
 import net.bible.sharedui.strings.LocalStrings
@@ -78,7 +78,7 @@ private val API_FORMATS = listOf("OPENAI", "ANTHROPIC")
  * set" API key), an add action in the top bar, and a two-step dialog driven entirely by
  * [editState] (`null` = no dialog open):
  *
- * - [ProviderEditState.Step.PICK_TYPE]: a single-choice picker over [providerTypes] (the host
+ * - [ProviderEditState.Step.PICK_TYPE]: a single-choice picker sheet over [providerTypes] (the host
  *   supplies the filtered/ordered list, e.g. excluding already-configured builtin providers).
  *   Selecting a type calls [onPickType] with its id, which the controller resolves into the FORM
  *   step's prefilled state.
@@ -150,7 +150,8 @@ fun AiProvidersScreen(
 
     if (editState != null) {
         when (editState.step) {
-            ProviderEditState.Step.PICK_TYPE -> AbListChoiceDialog(
+            ProviderEditState.Step.PICK_TYPE -> AbChoiceSheet(
+                open = true,
                 title = strings.providerSelectType,
                 choices = providerTypes.map { SettingsItem.Choice(it.id, it.displayName) },
                 selectedValue = editState.typeId,

@@ -24,7 +24,6 @@ class AiPromptsGoldenTest {
         categories: List<PromptCategoryVd> = emptyList(),
         initiallyHelpDialogOpen: Boolean = false,
         initiallyOverflowMenuOpen: Boolean = false,
-        initiallyMoveToCategoryPromptId: String? = null,
     ) =
         @androidx.compose.runtime.Composable {
             AiPromptsScreen(
@@ -55,7 +54,6 @@ class AiPromptsGoldenTest {
                 helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                 initiallyHelpDialogOpen = initiallyHelpDialogOpen,
                 initiallyOverflowMenuOpen = initiallyOverflowMenuOpen,
-                initiallyMoveToCategoryPromptId = initiallyMoveToCategoryPromptId,
             )
         }
 
@@ -158,7 +156,7 @@ class AiPromptsGoldenTest {
     // AiPromptsControllerTest (hasHiddenPrompts), and its 48dp leading-slot alignment by code
     // review; the AbOverflowMenu itself is proven elsewhere. Re-introduce a popup-open golden only
     // after a Roborazzi/Robolectric upgrade (or a per-test JVM fork, forkEvery=1) resolves the
-    // multi-window-capture hang. Dialog-open goldens (AbInfoDialog/AbConfirmDialog/AbListChoiceDialog)
+    // multi-window-capture hang. Dialog-open goldens (AbInfoDialog/AbConfirmDialog)
     // are NOT affected and remain covered below.
 
     // F40: NOTE — a golden that force-opens a PER-ROW PromptRowOverflow (the DropdownMenu nested
@@ -177,18 +175,4 @@ class AiPromptsGoldenTest {
     // LazyColumn) is verified below and captures reliably. Re-attempt a per-row-popup golden only
     // after a Roborazzi/Robolectric upgrade, and consider rendering the row in isolation rather than
     // inside the full scrollable list.
-
-    // F40: the "Move to category…" picker (AbListChoiceDialog) opened for a user prompt already in
-    // "Summarization" — single-choice list of "(uncategorized)" + all categories, pre-selecting the
-    // prompt's current category.
-    @Test fun configured_moveToCategoryDialog_matrix() =
-        captureMatrix(
-            "AiPrompts", "move_to_category_dialog",
-            heightDp = 900,
-            content = screen(
-                configured = true, groups = configuredGroups(), showHidden = true,
-                hasHiddenPrompts = true, categories = listOf(summaryCat),
-                initiallyMoveToCategoryPromptId = "p-crossref",
-            ),
-        )
 }
