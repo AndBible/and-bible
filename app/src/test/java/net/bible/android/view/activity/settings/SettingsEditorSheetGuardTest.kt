@@ -180,6 +180,38 @@ class SettingsEditorSheetGuardTest {
     }
 
     /**
+     * The INDIRECT form of the same hazard, which [noGoldenTestCapturesSettingsEditorSheet]'s
+     * name list structurally cannot see. Round 14a converted TWO of `ReadingLlmDialogs`' four arms
+     * -- the prompt selector and the model chooser -- from `AlertDialog` to `ModalBottomSheet`. A
+     * golden that captures `ReadingLlmDialogs(...)` with one of those arms as its state opens a real
+     * sheet without the literal string "PromptSelectorSheet(" ever appearing in the test source, so
+     * it would sail past `sheetComposables` and hang the whole `:app` suite. Forbidding
+     * `ReadingLlmDialogs(` outright is NOT an option: its other two arms (`SpecifyBeforeRun`,
+     * `Regenerate`) are still dialogs and are legitimately captured through the dispatcher.
+     *
+     * Scoped to files that actually CAPTURE, not to the whole test tree, because
+     * `net.bible.android.view.compose.ReadingLlmHostTest` legitimately builds a
+     * `PromptSelector` state: it is a mount probe whose container is never attached to a window, so
+     * composition never runs and no sheet is ever opened. Keying on the harness's own capture
+     * helpers is what tells the two apart.
+     */
+    @Test fun noGoldenTestCapturesTheLlmSheetArmsThroughTheDispatcher() {
+        val captureHelpers = listOf("captureMatrix(", "captureGolden(", "captureRtl(", "captureRoboImage(")
+        val sheetArms = listOf("ReadingLlmDialog.PromptSelector(", "ReadingLlmDialog.ModelSelection(")
+        val offenders = File("src/test/java").walkTopDown().filter { it.extension == "kt" }
+            .filterNot { it.name == "SettingsEditorSheetGuardTest.kt" }
+            .map { it to it.readText() }
+            .filter { (_, text) -> captureHelpers.any { text.contains(it) } }
+            .filter { (_, text) -> sheetArms.any { text.contains(it) } }
+            .map { (file, _) -> file.name }.toList()
+        assertEquals(
+            "Those two arms are ModalBottomSheets since round 14a -- capture " +
+                "PromptSelectorSheetContent / ModelSelectionSheetContent in a plain Surface instead",
+            emptyList<String>(), offenders,
+        )
+    }
+
+    /**
      * The Speak sheet analogue of [noSettingsScreenConstructsItsOwnModalBottomSheet]: every Speak
      * page body must reach the sheet through `SpeakSettingsSheet`, never build its own
      * `ModalBottomSheet`. Paths are relative to this test's working directory, the `:app` module
