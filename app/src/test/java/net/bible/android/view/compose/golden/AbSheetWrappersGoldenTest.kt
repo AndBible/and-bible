@@ -1,0 +1,60 @@
+package net.bible.android.view.compose.golden
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import net.bible.android.TEST_SDK
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedui.components.AbChoiceSheetContent
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+
+/**
+ * `…Content` goldens for round 14a's three shared sheet wrappers (spec §4).
+ *
+ * The WRAPPERS themselves are never captured here: an open `ModalBottomSheet` hangs Roborazzi and
+ * takes the whole `:app` suite with it, which `SettingsEditorSheetGuardTest` machine-enforces by
+ * name. So these captures prove the bodies — header, bounded scroll region, bottom fade, rows — and
+ * NOT the sheet around them; the chrome of an actually-open sheet is device-pass-only coverage
+ * (spec §9.1).
+ *
+ * Every body is wrapped in [SheetSurface] rather than captured on the harness's bare theme
+ * background, because `Modifier.abBottomFade` ramps from the SURFACE colour to itself: on any other
+ * background the fade would either be invisible or read as a coloured band, and the golden would
+ * prove nothing about what the sheet really looks like.
+ */
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [TEST_SDK], application = android.app.Application::class)
+class AbSheetWrappersGoldenTest {
+
+    /** The same choice list the deleted `AiPrompts_move_to_category_dialog_*` goldens showed:
+     *  "(uncategorized)" first, then the one real category, pre-selecting the current one. */
+    private val categories = listOf(
+        SettingsItem.Choice(value = "", label = "(uncategorized)"),
+        SettingsItem.Choice(value = "cat-summary", label = "Summarization"),
+    )
+
+    @Test fun choice_matrix() = captureMatrix("AbSheetWrappers", "choice", heightDp = 420) {
+        SheetSurface {
+            AbChoiceSheetContent(
+                title = "Move to category…",
+                choices = categories,
+                selectedValue = "cat-summary",
+                onSelect = {},
+                onClose = {},
+            )
+        }
+    }
+}
+
+/** What `ModalBottomSheet` paints behind its content: `BottomSheetDefaults.ContainerColor`, which is
+ *  `surfaceContainerLow`. Named here rather than inlined so all three wrappers' captures share it. */
+@Composable
+internal fun SheetSurface(content: @Composable () -> Unit) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) { Column { content() } }
+}

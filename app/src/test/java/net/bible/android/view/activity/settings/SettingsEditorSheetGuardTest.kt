@@ -158,6 +158,11 @@ class SettingsEditorSheetGuardTest {
         val testSourceRoot = File("src/test/java")
         val sheetComposables = listOf(
             "SettingsEditorSheet(", "ColorSettingsEditorSheet(", "TextSettingRowEditorSheet(", "SpeakSettingsSheet(",
+            // Round 14a's ten dialog->sheet conversions (spec §3 group 2). Each name is the WRAPPER;
+            // its `…Content` sibling is what goldens capture and is deliberately NOT listed, since
+            // e.g. "AbChoiceSheetContent(" does not contain the literal "AbChoiceSheet(".
+            "AbChoiceSheet(", "AbMultiSelectSheet(", "AbActionSheet(",
+            "PromptSelectorSheet(", "ModelSelectionSheet(", "AbReadHistorySheet(",
         )
         val offenders = testSourceRoot.walkTopDown().filter { it.extension == "kt" }
             // This guard's own file is excluded: widening the walk to the whole test tree means it
