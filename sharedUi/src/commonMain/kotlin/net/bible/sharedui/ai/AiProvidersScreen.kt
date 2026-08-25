@@ -56,9 +56,9 @@ import net.bible.sharedcore.ai.ProviderTypeVd
 import net.bible.sharedcore.ai.ProviderVd
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDropdownField
-import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.TwoLineListItem

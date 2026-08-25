@@ -171,8 +171,9 @@ class AiPromptsGoldenTest {
     // PromptRowOverflow code itself (Copy + Move to category… items, gating) is unchanged in
     // structure from the already-proven CategoryRowOverflow/AbOverflowMenu pattern and is verified
     // by the AiPromptsControllerTest unit tests (onCopyPrompt/onMovePromptToCategory) plus code
-    // review; the "Move to category…" DIALOG itself (a plain top-level AlertDialog, NOT nested in a
-    // LazyColumn) is verified below and captures reliably. Re-attempt a per-row-popup golden only
+    // review; the "Move to category…" picker itself is now a `ModalBottomSheet` (round 14a, G2.3),
+    // so it can no longer be captured through this screen at all — same D6 prohibition, same hang.
+    // Its body is covered instead by AbSheetWrappersGoldenTest.choice_matrix. Re-attempt a per-row-popup golden only
     // after a Roborazzi/Robolectric upgrade, and consider rendering the row in isolation rather than
     // inside the full scrollable list.
 }
