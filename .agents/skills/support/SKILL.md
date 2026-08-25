@@ -120,7 +120,7 @@ Pick one primary action (and optional secondary):
 | Action | When |
 |--------|------|
 | **Just close** | No repro info, ancient version, noise, or already fixed long ago and user left nothing useful |
-| **Close + short reply** | Same, but worth a polite one-liner (upgrade / report again with steps) |
+| **Close + short reply** | Same, but worth a polite one-liner (e.g. this was fixed / how to do X). Do not ask them to write back. |
 | **Link existing issue** | Clear dupe; close ticket/issue as dupe or reply with link |
 | **Ask for steps** | Recent version, real crash dump but zero user story; need 1–2 questions |
 | **Create GitHub issue** | Recent/current version, actionable signal in log/screenshot description, not a known dupe. File on **and-bible** or **and-bible-ios** per Platforms |
@@ -183,9 +183,9 @@ Put the optional paste-ready text in a fenced code block **after** the triage (s
 - Prefer **link dupe** over new issue when search finds a solid match.
 - Version matters, but **ticket age matters too**:
   - Fresh ticket + outdated version + empty report → lean close/upgrade.
-  - **Old ticket** + outdated version → don’t treat “update” as the main story; they may already be current. Lean “still happening?” / close if no signal, or ask current version + whether it persists.
+  - **Old ticket** + outdated version → don’t treat “update” as the main story; they may already be current. Close if no signal. If we know a later version fixed it, say that in the optional acknowledgment — don’t ask them to confirm.
   - Brand-new version + empty report → ask steps or hold for logcat, don’t spam GitHub.
-- Optional user acknowledgments on old tickets: avoid “your version is old, please update” as if they never left that build; ask if the problem still occurs (and on which version) instead.
+- Optional user acknowledgments on old tickets: avoid “your version is old, please update” as if they never left that build. If a later version likely fixed it, say so. Don’t ask them to write back unless a missing fact actually blocks a useful answer (see **Don’t solicit a reply**).
 
 ---
 
@@ -225,7 +225,7 @@ Optional: if something is unclear and you must ask the operator one clarifying q
 We often answer tickets **long after** they were opened. App version (and sometimes OS version) in the paste is what they had **then**, not necessarily now.
 
 - **Do not** open with “you’re on an old version, please update” when the report looks stale relative to today’s latest (e.g. they reported ~910 and current is past ~1100). They may already have updated months ago.
-- If an upgrade might have fixed it: ask whether the issue **still happens**, and only then gently suggest checking they’re on the latest for their platform (Play/F-Droid/GitHub on Android; TestFlight/App Store on iOS)—or ask which version they use now.
+- If an upgrade likely fixed it: say it was a bug in that era and later versions have the fix. Don’t ask them to confirm it still happens or to report back.
 - If the problem is unrelated to version (how-to, backup, downloads, etc.): answer the question; skip version nags unless the operator notes say they’re still on that build.
 - Operator notes like “old ticket”, “late reply”, “from months ago”, or an obviously aged thread → apply this section strictly.
 - Put version-gap context for the operator in `OPERATOR:` (e.g. reported 910 vs latest 11xx; draft assumes they may have moved on), not as a scolding user-facing upgrade pitch.
@@ -237,7 +237,21 @@ We often answer tickets **long after** they were opened. App version (and someti
 3. If needed, quickly check project docs/code/wiki for accurate steps (Backup & Restore, downloads, speak, etc.). Prefer current docs links over outdated wiki-only pages when both exist. For **iOS-native** behavior (search index, libsword, SwiftUI screens, iOS downloads/unlock), check `../and-bible-ios` when that checkout exists.
 4. Give the **shortest useful** answer: what to try, or where to look next. Respect **Old tickets / delayed replies** when version looks historical.
 5. Include links only when they help. Prefer one primary link.
-6. If it’s a bug with a known GitHub issue, you may mention/link it in the reply when that helps the user; still keep the reply short. Put deeper triage in `OPERATOR:` if useful.
+6. If it’s a bug with a known GitHub issue, you may mention/link it in the reply when that helps the user (so they can follow it). Put deeper triage in `OPERATOR:` if useful. See **Don’t solicit a reply**.
+
+### Don’t solicit a reply
+
+Default: close the loop. The user should not need to write back.
+
+Ask a question in the user-facing reply **only** when you cannot give a useful answer without a specific missing fact (which module, a screenshot of the exact screen, steps we don’t have, which version they use **now** if that actually changes the answer). One concrete question.
+
+Do **not** add closing lines like:
+- “if this still happens, reply here”
+- “a short note on that GitHub issue (or a reply here) helps”
+- “let us know how it goes”
+- asking them to comment on an already-tracked or already-fixed GitHub issue
+
+Linking a GitHub issue is for their information, not a request that they post there.
 
 ### Useful links (use when relevant)
 
