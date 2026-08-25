@@ -38,47 +38,51 @@ class SyncSettingsController(
     private fun build(s: SyncSettingsSnapshot): SettingsScreenState {
         val items = buildList {
             // ---- General ----
+            // Round 14b: iconKey is the row's own classic preference key; :app's settingsDrawableRes
+            // maps it to the matching drawable (pinned by SettingsIconParityTest). :sharedCore stays
+            // Android-free — it only ever carries the string key, never the art.
             add(SettingsItem.Category(key = "sync_general", title = labels.generalCat))
             add(SettingsItem.ListChoiceRow(
                 key = "sync_adapter", title = labels.adapterTitle, summary = s.adapterSummary,
                 entries = s.adapterChoices.map { SettingsItem.Choice(it.value, it.label) },
-                selectedValue = s.adapter, enabled = s.adapterEnabled,
+                selectedValue = s.adapter, enabled = s.adapterEnabled, iconKey = "sync_adapter",
             ))
             add(SettingsItem.NavigationRow(
                 key = "cloud_sync_reset", title = labels.resetTitle, summary = labels.resetSummary,
-                visible = s.resetVisible,
+                visible = s.resetVisible, iconKey = "cloud_sync_reset",
             ))
             add(SettingsItem.InfoRow(
                 key = "cloud_sync_info", title = labels.cloudInfoTitle, summary = s.cloudInfoSummary,
-                visible = s.cloudInfoVisible,
+                visible = s.cloudInfoVisible, iconKey = "cloud_sync_info",
             ))
             add(SettingsItem.TextInputRow(
                 key = "cloud_sync_server_url", title = labels.serverUrlTitle, value = s.serverUrl,
-                visible = s.credsVisible, enabled = s.credsEnabled,
+                visible = s.credsVisible, enabled = s.credsEnabled, iconKey = "cloud_sync_server_url",
             ))
             add(SettingsItem.TextInputRow(
                 key = "cloud_sync_username", title = labels.usernameTitle, value = s.username,
-                visible = s.credsVisible, enabled = s.credsEnabled,
+                visible = s.credsVisible, enabled = s.credsEnabled, iconKey = "cloud_sync_username",
             ))
             add(SettingsItem.TextInputRow(
                 key = "cloud_sync_password", title = labels.passwordTitle, value = s.password, masked = true,
-                visible = s.credsVisible, enabled = s.credsEnabled,
+                visible = s.credsVisible, enabled = s.credsEnabled, iconKey = "cloud_sync_password",
             ))
             add(SettingsItem.TextInputRow(
                 key = "cloud_sync_folder_path", title = labels.folderPathTitle, summary = labels.folderPathSummary,
                 value = s.folderPath, visible = s.credsVisible, enabled = s.credsEnabled,
+                iconKey = "cloud_sync_folder_path",
             ))
             // ---- Synchronization categories ----
             add(SettingsItem.Category(key = "sync_category", title = labels.syncCat))
             SyncCategoryKeys.DISPLAY.forEach { key ->
                 add(SettingsItem.SwitchRow(
                     key = key, title = categoryTitle(key), summary = s.categorySummary[key],
-                    checked = s.categoryEnabled[key] ?: false,
+                    checked = s.categoryEnabled[key] ?: false, iconKey = key,
                 ))
             }
             add(SettingsItem.SwitchRow(
                 key = "sync_enable_documents", title = labels.documentsTitle, summary = labels.documentsSummary,
-                checked = s.documentsEnabled,
+                checked = s.documentsEnabled, iconKey = "sync_enable_documents",
             ))
             // ---- Document sync ----
             add(SettingsItem.Category(
@@ -86,23 +90,23 @@ class SyncSettingsController(
             ))
             add(SettingsItem.SwitchRow(
                 key = "sync_documents_auto_download", title = labels.autoDownloadTitle, summary = labels.autoDownloadSummary,
-                checked = s.autoDownload, visible = s.autoTogglesVisible,
+                checked = s.autoDownload, visible = s.autoTogglesVisible, iconKey = "sync_documents_auto_download",
             ))
             add(SettingsItem.SwitchRow(
                 key = "sync_documents_auto_upload", title = labels.autoUploadTitle, summary = labels.autoUploadSummary,
-                checked = s.autoUpload, visible = s.autoTogglesVisible,
+                checked = s.autoUpload, visible = s.autoTogglesVisible, iconKey = "sync_documents_auto_upload",
             ))
             add(SettingsItem.SwitchRow(
                 key = "sync_documents_auto_delete", title = labels.autoDeleteTitle, summary = labels.autoDeleteSummary,
-                checked = s.autoDelete, visible = s.autoTogglesVisible,
+                checked = s.autoDelete, visible = s.autoTogglesVisible, iconKey = "sync_documents_auto_delete",
             ))
             add(SettingsItem.SwitchRow(
                 key = "sync_documents_wifi_only", title = labels.wifiOnlyTitle, summary = labels.wifiOnlySummary,
-                checked = s.wifiOnly, visible = s.wifiOnlyVisible,
+                checked = s.wifiOnly, visible = s.wifiOnlyVisible, iconKey = "sync_documents_wifi_only",
             ))
             add(SettingsItem.NavigationRow(
                 key = "document_sync_manage", title = labels.manageTitle, summary = labels.manageSummary,
-                visible = s.documentCategoryVisible,
+                visible = s.documentCategoryVisible, iconKey = "document_sync_manage",
             ))
         }
         return SettingsScreenState(title = labels.screenTitle, items = items)

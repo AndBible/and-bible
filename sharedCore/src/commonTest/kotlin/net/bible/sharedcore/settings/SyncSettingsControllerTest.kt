@@ -194,4 +194,32 @@ class SyncSettingsControllerTest {
         controller(svc) { opened = true }.onNavigate("document_sync_manage")
         assertTrue(opened)
     }
+
+    /**
+     * Round 14b: every sync row takes its own preference key as its icon key; `:app`'s
+     * `settingsDrawableRes` maps that key to classic's drawable (pinned by `SettingsIconParityTest`).
+     * Category headers stay iconless, exactly as in `res/xml/sync_settings.xml`.
+     */
+    @Test fun everyRowCarriesItsOwnKeyAsIconKey() {
+        val items = controller(FakeSyncSettingsService(syncSnap())).state.value.screen.items
+        val rows = items.filter { it !is SettingsItem.Category }
+        assertEquals(emptyList(), rows.filter { it.iconKeyOrNull() != it.key }.map { it.key })
+        assertEquals(emptyList(), items.filterIsInstance<SettingsItem.Category>().filter { it.iconKeyOrNull() != null }.map { it.key })
+    }
+
+    @Test fun theEighteenPortedSyncRowsAreAllPresent() {
+        val rows = controller(FakeSyncSettingsService(syncSnap())).state.value.screen.items
+            .filter { it !is SettingsItem.Category }.map { it.key }
+        assertEquals(
+            listOf(
+                "sync_adapter", "cloud_sync_reset", "cloud_sync_info", "cloud_sync_server_url",
+                "cloud_sync_username", "cloud_sync_password", "cloud_sync_folder_path",
+                "sync_enable_bookmarks", "sync_enable_workspaces", "sync_enable_mydocuments",
+                "sync_enable_ai_settings", "sync_enable_progress", "sync_enable_documents",
+                "sync_documents_auto_download", "sync_documents_auto_upload",
+                "sync_documents_auto_delete", "sync_documents_wifi_only", "document_sync_manage",
+            ),
+            rows,
+        )
+    }
 }
