@@ -215,4 +215,30 @@ class ReadingLlmDialogControllerTest {
         assertEquals(1, opened)
         assertIs<ReadingLlmDialog.SpecifyBeforeRun>(c.state.value.dialog)
     }
+
+    @Test fun emptyGroupsSelectorAnnouncesNothing() = runTest {
+        var opened = 0
+        val f = Fake().apply { groups = emptyList() }
+        val c = controller(f) { opened++ }
+        c.openPromptSelector("VERSE_SELECTION", null) { _, _, _ -> }
+        assertEquals(0, opened)
+        assertEquals(ReadingLlmDialog.None, c.state.value.dialog)
+    }
+
+    @Test fun toggleFavoriteAndCategoryExpandedAnnounceNothing() = runTest {
+        var opened = 0
+        val f = Fake().apply {
+            groups = listOf(ReadingPromptGroupVd("Uncategorized", null, false, false, listOf(prompt("p1"))))
+        }
+        val c = controller(f) { opened++ }
+        c.openPromptSelector("VERSE_SELECTION", null) { _, _, _ -> }
+        assertEquals(1, opened)
+        // Re-publishing PromptSelector for an already-open sheet must not re-announce.
+        c.onToggleFavorite("p1")
+        assertEquals(1, opened)
+        assertIs<ReadingLlmDialog.PromptSelector>(c.state.value.dialog)
+        c.onCategoryExpandedChanged(null, expanded = false)
+        assertEquals(1, opened)
+        assertIs<ReadingLlmDialog.PromptSelector>(c.state.value.dialog)
+    }
 }

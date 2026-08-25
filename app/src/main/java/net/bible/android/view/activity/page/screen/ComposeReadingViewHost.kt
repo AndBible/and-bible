@@ -492,8 +492,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         },
     )
 
-    // The REVERSE directions of the same rule -- `showSpeakSettings()` (:770) and
-    // `showTextSettingEditor()` (:587) each calling
+    // The REVERSE directions of the same rule -- `showSpeakSettings()` (:806) and
+    // `showTextSettingEditor()` (:623) each calling
     // `ReadingOverlayExclusion.closedBy(...)`.forEach { ... readingLlmDialogs.dismiss() } -- are
     // ONE LINE each and are deliberately not written here: both methods sit inside the edit region
     // that container `compose-14b` owns this round (spec §12.2), and manufacturing a hunk there is
