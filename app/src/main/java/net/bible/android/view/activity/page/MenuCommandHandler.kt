@@ -206,16 +206,23 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.MyDocuments)
                 }
                 R.id.speakButton -> {
-                    // Round 13a: retarget into the reading view's Speak settings sheet when a
-                    // Compose host is mounted; classic behaviour unchanged otherwise. `isSpeakable`
-                    // still gates BOTH branches — the sheet is the same settings surface, not a
-                    // laxer one — and `handlerIntent` stays null on the sheet branch so the shared
-                    // dispatch below does not also start an activity (mirrors the `searchButton`
-                    // case right above).
+                    // Round 13a retargeted this into the reading view; round 14b §8 changed WHAT it
+                    // opens: the transport BAR, not the settings sheet. From a menu row the settings
+                    // sheet was a dead end — it carries no play control, and bar visibility is a
+                    // separate state this path never touched, so the user reached the settings with
+                    // no idea how to start playback. Idempotent by design (spec D3): a menu row is a
+                    // one-way action and must never hide the bar again.
+                    //
+                    // Classic behaviour unchanged: the `else` branch still launches
+                    // `Screen.BibleSpeak`, whose layout EMBEDS the transport widget
+                    // (speak_bible.xml:175-176), which is why the classic path never had this
+                    // problem. `isSpeakable` still gates BOTH branches, and `handlerIntent` stays
+                    // null on the Compose branch so the shared dispatch below does not also start an
+                    // activity (mirrors the `searchButton` case right above).
                     if(currentPage.isSpeakable) {
                         val host = mainBibleActivity.composeReadingViewHost
                         if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
-                            host.showSpeakSettings()
+                            host.showSpeakTransport()
                             isHandled = true
                         } else {
                             handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.BibleSpeak)

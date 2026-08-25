@@ -61,14 +61,33 @@ class SpeakEntryPointGuardTest {
         assertEquals("scanned paths that no longer exist (guard would pass vacuously)", emptyList<String>(), missing)
     }
 
+    /**
+     * The Compose-path Speak entry points a `Screen.BibleSpeak` site may branch to.
+     *
+     * Round 14b §8 widened this from the single `showSpeakSettings(` round 13a required. The
+     * main-menu Speak item now calls `showSpeakTransport()` instead: reaching the SETTINGS from a
+     * menu row left the user with no visible way to start playback (the settings sheet has no play
+     * control, and transport-bar visibility is a separate state that path never touched), which is
+     * the reported defect. `MenuCommandHandler` still MENTIONS `Screen.BibleSpeak` in its classic
+     * branch, so it is still scanned — it just satisfies the guard through the other call now.
+     *
+     * Both names are accepted rather than one being swapped for the other, because the two entry
+     * points are both live and both correct: the toolbar's long-press and the transport bar's cog
+     * still open the settings sheet.
+     */
+    private val composeSpeakEntryPoints = listOf("showSpeakSettings(", "showSpeakTransport(")
+
+    private fun branchesToCompose(code: String): Boolean =
+        composeSpeakEntryPoints.any { code.contains(it) }
+
     @Test fun everyBibleSpeakIntentSiteAlsoBranchesToTheSheet() {
         callSites.forEach { path ->
             val code = codeLinesOf(path)
             if (code.contains("Screen.BibleSpeak")) {
                 assertTrue(
-                    "$path launches Screen.BibleSpeak but never calls showSpeakSettings() — " +
-                        "the Compose path would open the CLASSIC Speak activity",
-                    code.contains("showSpeakSettings("),
+                    "$path launches Screen.BibleSpeak but calls neither showSpeakSettings() nor " +
+                        "showSpeakTransport() — the Compose path would open the CLASSIC Speak activity",
+                    branchesToCompose(code),
                 )
             }
         }
@@ -77,8 +96,23 @@ class SpeakEntryPointGuardTest {
     /** At least one site must actually branch, or the `if` above could be satisfied by nothing. */
     @Test fun atLeastOneCallSiteBranchesToTheSheet() {
         assertTrue(
-            "no call site calls showSpeakSettings() at all — the Compose Speak entry point is gone",
-            callSites.any { codeLinesOf(it).contains("showSpeakSettings(") },
+            "no call site reaches a Compose Speak entry point at all — the Compose Speak path is gone",
+            callSites.any { branchesToCompose(codeLinesOf(it)) },
+        )
+    }
+
+    /** Round 14b §8: the main-menu route specifically must show the TRANSPORT, not the settings. */
+    @Test fun theMainMenuSpeakItemShowsTheTransportBar() {
+        val code = codeLinesOf("src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt")
+        assertTrue(
+            "MenuCommandHandler must call showSpeakTransport() — from a menu row the settings sheet " +
+                "leaves the user with no way to start playback (round 14b §8)",
+            code.contains("showSpeakTransport("),
+        )
+        assertFalse(
+            "MenuCommandHandler must NOT also call showSpeakSettings() — spec D3: the menu row is " +
+                "the transport, nothing else",
+            code.contains("showSpeakSettings("),
         )
     }
 
@@ -115,14 +149,14 @@ class SpeakEntryPointGuardTest {
             .filter { codeLinesOf(it.path).contains("Screen.BibleSpeak") }
             .toList()
         val offenders = candidates
-            .filterNot { codeLinesOf(it.path).contains("showSpeakSettings(") }
+            .filterNot { branchesToCompose(codeLinesOf(it.path)) }
             .map { it.path.replace('\\', '/') }
             .sorted()
         assertEquals(
-            "these files launch Screen.BibleSpeak but never call showSpeakSettings() — on the " +
-                "Compose path they would open the CLASSIC Speak activity. Either add the " +
-                "`host.showSpeakSettings()` branch, or, if the file is classic-only, add it to " +
-                "excludedClassicLaunchers WITH the reason.",
+            "these files launch Screen.BibleSpeak but reach no Compose Speak entry point — on the " +
+                "Compose path they would open the CLASSIC Speak activity. Either add a " +
+                "`host.showSpeakSettings()` / `host.showSpeakTransport()` branch, or, if the file " +
+                "is classic-only, add it to excludedClassicLaunchers WITH the reason.",
             emptyList<String>(),
             offenders,
         )

@@ -1372,6 +1372,23 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     /**
+     * Round 14b §8: show the transport bar, idempotently — the main-menu Speak item's whole
+     * behaviour. Deliberately NOT [composeToggleSpeak]: a menu row is a one-way action, so "Speak"
+     * must never HIDE the bar (spec D3), and a user who picks it twice must not be worse off than a
+     * user who picked it once.
+     *
+     * Lives here rather than in `ComposeReadingViewHost` because [transportBarVisible] is this
+     * activity's private field and the single source of truth for bar visibility — the Compose side
+     * only ever OBSERVES it, through the `SpeakTransportVisibilityChanged` the setter posts. The
+     * setter's own `if (field == value) return` is what makes this idempotent: a second call posts
+     * no event and triggers no recomposition.
+     */
+    internal fun composeShowSpeakTransport() {
+        transportBarVisible = true
+        updateBottomBars()
+    }
+
+    /**
      * The Compose toolbar's Speak long-press. Round 13a: opens the Speak settings SHEET over the
      * reading view. The Intent route survives only for the classic case (no host / flag off), which
      * this method cannot actually be reached in — it is kept so the flag-OFF behaviour of this body

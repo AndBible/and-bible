@@ -778,6 +778,29 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         speakSheet.open(SpeakSheetPage.Settings)
     }
 
+    /**
+     * Round 14b §8: show the Speak transport bar and nothing else — no playback, no sheet, no
+     * toggle. The main-menu Speak item's target.
+     *
+     * Why this exists at all: the menu used to call [showSpeakSettings], which opens the settings
+     * sheet, and the settings sheet has NO play control. Transport-bar visibility is a separate
+     * state that path never touched, so the menu was the one entry point that could reach the Speak
+     * settings with no way back to playback. This corrects round 13a's design D2, which reasoned
+     * that the cog needs no transport bar inside it because "the widget is already visible
+     * underneath" — true for the cog and for a long-press taken while the bar is up, false for the
+     * menu.
+     *
+     * The other three entry points are unchanged: the toolbar's short press still TOGGLES the bar
+     * ([MainBibleActivity.composeToggleSpeak]), its long press and the bar's own cog still open the
+     * settings sheet.
+     *
+     * Delegates rather than owning a flag: `MainBibleActivity.transportBarVisible` is the single
+     * source of truth and the Compose side only observes it — see [speakTransport]'s kdoc.
+     */
+    internal fun showSpeakTransport() {
+        activity.composeShowSpeakTransport()
+    }
+
     /** Moved here verbatim from the deleted `BibleSpeakComposeActivity`, which owned it until 13a
      *  (its `onSystemTtsSettings` lambda — an implicit intent, no extras, no result handling). */
     private fun openSystemTtsSettings() {
