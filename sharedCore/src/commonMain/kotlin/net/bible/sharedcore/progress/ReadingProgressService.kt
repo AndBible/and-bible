@@ -34,7 +34,7 @@ interface ReadingProgressService {
     /** Per-local-day read counts for the last 52 weeks, keyed by local-midnight ms. */
     suspend fun dailyReadCounts(cycle: Int): Map<Long, Int>
 
-    // --- read history (for AbReadHistoryDialog) ---
+    // --- read history (for AbReadHistorySheet) ---
     suspend fun readHistoryForBook(bookId: String, cycle: Int): List<ReadHistoryEntry>
     suspend fun readHistoryForChapter(bookId: String, chapter: Int, cycle: Int): List<ReadHistoryEntry>
     suspend fun readHistoryForDay(dayTimestamp: Long, cycle: Int): List<ReadHistoryEntry>
