@@ -33,17 +33,22 @@ class SpeakTransportBarGoldenTest {
     @Test fun stopped_noBookmark_light() = captureGolden("SpeakTransportBar", "stopped", EDGE_MODE) { bar(stopped)() }
 
     /**
-     * Round 14b §6: the bar as it renders with the agent panel stacked on top of it — square top,
-     * no shadow, SAME tonal elevation. All four modes, not just light: a dropped shadow and a lost
-     * corner radius are exactly the kind of difference that reads worst in the black-and-white and
-     * e-ink palettes, where there is no hue left to carry the separation.
+     * Round 14b §6, corrected in fix round 1: this matrix proves the squared top corner and the
+     * unchanged tonal elevation in all four modes. It does NOT prove the shadow half: this renderer
+     * draws no Compose elevation shadow in any mode, so the capture would look the same whether
+     * `shadowElevation` were 8.dp or 0.dp. All four modes still earn their place on their own —
+     * measured per-mode pixel differences are light 450, dark 223, bw 439, eink 439, all confined to
+     * the top band (rows 0-81), so BW and e-ink are not redundant with light. (The earlier
+     * justification, "a dropped shadow reads worst in BW", does not hold once no shadow renders at
+     * all — the corner and elevation differences alone are what these numbers measure.)
      *
      * This proves the BAR's half of the change in isolation. The pair — this bar directly beneath a
      * real `AgentLogPanel` — is `ReadingViewScreenGoldenTest.withAgentLogAndSpeakBar`, and per spec
      * §9 that one stays light-only: both surfaces are `tonalElevation = 3.dp` and the display-mode
      * mapping (`AbColorScheme.grayed`) is applied to both identically, so a second mode of the pair
      * would re-prove what this matrix already covers. How the pair reads against a LIVE navigation
-     * bar is device-pass-only and is named in the round's checklist.
+     * bar, and whether the shadow is actually gone, is device-pass-only and is named in the round's
+     * checklist.
      */
     @Test fun underAgentPanel_matrix() =
         captureMatrix("SpeakTransportBar", "underAgentPanel") { bar(playing, ownsTopEdge = false)() }

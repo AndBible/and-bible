@@ -342,10 +342,15 @@ class ReadingViewScreenGoldenTest {
      * two surfaces. The inset-ownership flip that also happens in this configuration is NOT covered —
      * see [agentLogSlot]'s kdoc.
      *
-     * Round 14b §6 is what this capture now proves: with the panel above it the bar draws NO
-     * corners and NO shadow while keeping `tonalElevation = 3.dp`, so the two surfaces must read as
-     * one continuous slab with no seam and no shadow band between them. Still light-only per spec
-     * §9 — the bar's own four-mode matrix is `SpeakTransportBarGoldenTest.underAgentPanel_matrix`.
+     * Round 14b §6, corrected in fix round 1: measurement shows this capture proves only half of
+     * §6. The boundary loses its 15px rounded-corner notch at both edges (rows 568-583, x 0-14 and
+     * x 455-469) and gains no colour step, since both surfaces are `tonalElevation = 3.dp` — and the
+     * CENTRE of the boundary was already byte-identical to the panel-alone capture before this
+     * change. It does NOT prove the shadow half: this renderer draws no Compose elevation shadow in
+     * either version, so the capture would look the same whether `shadowElevation` were 8.dp or
+     * 0.dp. The shadow half is device-pass-only; the round's device checklist is its only coverage.
+     * Still light-only per spec §9 — the bar's own four-mode matrix is
+     * `SpeakTransportBarGoldenTest.underAgentPanel_matrix`.
      */
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
