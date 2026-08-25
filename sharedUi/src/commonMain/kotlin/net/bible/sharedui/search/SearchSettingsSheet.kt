@@ -40,7 +40,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SearchSettingsSheet(open: Boolean, onDismiss: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
     if (!open) return
-    val sheetState = rememberModalBottomSheetState()
+    // skipPartiallyExpanded (round 14b §7.a / spec D4) — uniform with every other sheet.
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) { content() }
     }

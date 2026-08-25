@@ -82,7 +82,10 @@ fun SettingsEditorSheet(
 ) {
     if (page == null) return
     val strings = LocalStrings.current
-    val sheetState = rememberModalBottomSheetState()
+    // skipPartiallyExpanded (round 14b §7.a / spec D4): every sheet in the port opens at content
+    // height. Setting it HERE covers ColorSettingsEditorSheet, TextSettingRowEditorSheet and
+    // GenericSettingsEditorSheet at once — all three reach Material3's sheet only through this shell.
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
             Row(

@@ -77,7 +77,11 @@ fun SpeakSettingsSheet(
             if (page.end) strings.speakEndingOfPassage else strings.speakBeginningOfPassage
         SpeakSheetPage.SleepTimer -> strings.speakSleepTimerTitle
     }
-    val sheetState = rememberModalBottomSheetState()
+    // skipPartiallyExpanded (round 14b §7.a): the sheet opens directly at its content height. The
+    // 400dp inner cap below plus a partially-expanded sheet demanded two different gestures — drag
+    // the sheet, then scroll the content — and signalled neither, which is exactly the reported
+    // "you cannot tell there is more below".
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     // A dismiss gesture hides the sheet BEFORE onDismissRequest runs, and the Speak sheet has one
     // branch (the grid page unwinding its own back-stack) that deliberately does not change `page`.
     // Without this, that gesture would leave the sheet composed and invisible with no reachable ✕.
@@ -87,6 +91,10 @@ fun SpeakSettingsSheet(
     // would never re-run for exactly the case this effect exists to cover. Visibility is the one
     // signal that always changes, and a genuine close pops to a null `page`, which returns above
     // before this effect can re-show anything.
+    //
+    // Re-verified under round 14b's `skipPartiallyExpanded = true` (§7.a): this effect keys on
+    // VISIBILITY, which the expansion mode does not touch, and `show()` now animates to Expanded —
+    // the state the sheet already opens in. Still device-pass-only; it has no automated coverage.
     LaunchedEffect(sheetState.isVisible) { if (!sheetState.isVisible) sheetState.show() }
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {

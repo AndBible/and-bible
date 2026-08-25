@@ -79,7 +79,8 @@ fun AbSettingsSummarySheet(
     }
 
     if (open) {
-        val sheetState = rememberModalBottomSheetState()
+        // skipPartiallyExpanded (round 14b §7.a / spec D4) — uniform with every other sheet.
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         val close = { open = false }
         ModalBottomSheet(onDismissRequest = close, sheetState = sheetState) {
             Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
