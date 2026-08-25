@@ -117,6 +117,30 @@ class SpeakEntryPointGuardTest {
     }
 
     /**
+     * Round 14b whole-branch review, minor: [composeSpeakEntryPoints] widened to accept EITHER name
+     * at any call site, so on its own [everyBibleSpeakIntentSiteAlsoBranchesToTheSheet] would let a
+     * retarget of the toolbar long-press / transport-bar cog from `showSpeakSettings(` to
+     * `showSpeakTransport(` pass every gate here — even though spec §8's entry-point table says both
+     * of those are SETTINGS routes and must stay so (only the main-menu row is the transport). This
+     * is the symmetric assertion [theMainMenuSpeakItemShowsTheTransportBar] already makes for the
+     * menu, applied to `MainBibleActivity.kt`: it must still call `showSpeakSettings(`, and must NOT
+     * call `showSpeakTransport(` — that call belongs to `MenuCommandHandler` alone.
+     */
+    @Test fun mainBibleActivityStillShowsSettingsNotTheTransportBar() {
+        val code = codeLinesOf("src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt")
+        assertTrue(
+            "MainBibleActivity.kt must call showSpeakSettings() — the toolbar long-press and the " +
+                "transport bar's cog are settings routes (spec §8) and must stay so",
+            code.contains("showSpeakSettings("),
+        )
+        assertFalse(
+            "MainBibleActivity.kt must NOT call showSpeakTransport() — that entry point belongs to " +
+                "the main-menu row only (spec §8 / MenuCommandHandler)",
+            code.contains("showSpeakTransport("),
+        )
+    }
+
+    /**
      * Round 13a whole-branch review, F9: [callSites] names three files, so a FOURTH Compose-path
      * launcher — a new file, or an old one that grows a Speak entry point — would be unpoliced by
      * every test above. This walks all of `src/main` instead of a list, so no new file can escape it.

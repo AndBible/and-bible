@@ -48,6 +48,14 @@ class SpeakBarTopEdgeGuardTest {
         File(barSource).readLines().filterNot { line ->
             val t = line.trimStart()
             t.startsWith("import ") || t.startsWith("//") || t.startsWith("*") || t.startsWith("/*")
+        }.map { line ->
+            // Strip a TRAILING `//` comment too, not just a line that starts with one: without this,
+            // a regex below could be satisfied by text quoted inside a comment rather than by real
+            // code (e.g. real code deleted and left behind as `foo() // shadowElevation = if
+            // (ownsTopEdge) 8.dp else 0.dp`). This is a plain substring split, not a tokenizer — a
+            // `//` inside a string literal would be mis-split — but this file has none (checked), so
+            // it is safe here; a future addition of a URL string literal would need a real lexer.
+            line.substringBefore("//")
         }.joinToString("\n")
 
     @Test fun theTonalElevationIsNotConditionalOnOwnsTopEdge() {
@@ -76,6 +84,32 @@ class SpeakBarTopEdgeGuardTest {
         assertTrue(
             "the squared-off branch must use RectangleShape, not RoundedCornerShape(0.dp)",
             src.contains("RectangleShape"),
+        )
+    }
+
+    /**
+     * The two tests above only prove EACH property is conditional on `ownsTopEdge` — they do not
+     * prove which branch gets which value. Swap the shadow branches to
+     * `shadowElevation = if (ownsTopEdge) 0.dp else 8.dp` and both tests above still pass (the
+     * `if (ownsTopEdge)` regex matches regardless of which literal follows), every golden still
+     * passes too (this renderer draws no elevation shadow at all, which round 14b proved), and the
+     * reported defect — the seam showing between the two stacked surfaces — is fully restored with
+     * no automated signal anywhere. This test pins the actual branch VALUES so that regression is
+     * a hard failure here, the one place that can see it.
+     */
+    @Test fun theShapeAndShadowBranchValuesArePinned() {
+        val src = code()
+        assertTrue(
+            "the ownsTopEdge branch must be a 16dp rounded top shape, and the non-owning branch " +
+                "must be RectangleShape — not swapped and not some other radius",
+            Regex(
+                """shape\s*=\s*if\s*\(ownsTopEdge\)\s*RoundedCornerShape\(topStart\s*=\s*16\.dp,\s*""" +
+                    """topEnd\s*=\s*16\.dp\)\s*else\s*RectangleShape"""
+            ).containsMatchIn(src),
+        )
+        assertTrue(
+            "the ownsTopEdge branch must be 8.dp and the non-owning branch 0.dp — not swapped",
+            Regex("""shadowElevation\s*=\s*if\s*\(ownsTopEdge\)\s*8\.dp\s*else\s*0\.dp""").containsMatchIn(src),
         )
     }
 }
