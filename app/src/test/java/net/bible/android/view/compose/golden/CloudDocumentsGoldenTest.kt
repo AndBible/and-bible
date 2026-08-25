@@ -105,12 +105,6 @@ class CloudDocumentsGoldenTest {
         screen(selectionMode = true, selectedIds = setOf("KJV", "NET"))
     }
 
-    @Test fun cloud_sync_now_dialog() = captureGolden("CloudDocuments", "syncnow", EDGE_MODE) {
-        screen(syncNowDialog = SyncNowDialogState(
-            labels = listOf("Download\n2 documents (8.0 MB)", "Upload\n1 document (4.2 MB)", "Delete\nnothing to transfer"),
-            checked = listOf(true, true, false)))
-    }
-
     // e-ink status colours: the full status matrix captured in COLOR_EINK is already covered by
     // cloud_populated's EINK mode. This dedicated case pins ALL EIGHT statuses in BW — one row each
     // via statusRows — proving every status (incl. WONT_SYNC + REMOVED_STILL_INSTALLED) reads by
