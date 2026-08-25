@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.settings
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -43,6 +45,7 @@ import net.bible.sharedcore.settings.colorForPage
 import net.bible.sharedui.components.AbColorPickerContent
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbLoadingOverlay
+import net.bible.sharedui.components.abBottomFade
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -153,7 +156,19 @@ fun ColorSettingsEditorSheet(
                 // SettingsEditorSheetGoldenTest) on purpose -- this form is two full day/night
                 // sections plus an optional workspace row, not one flat list, and there is no
                 // confirm row below it to leave room for.
-                Box(Modifier.heightIn(max = 480.dp)) {
+                //
+                // Round 14b §7.b: and THAT is why this page in particular gets the fade. §1.1 of the
+                // spec identified the reset button above plus the confirm row below as what made
+                // this sheet's scroll region read as a bounded viewport -- on the `Colors` page there
+                // is no confirm row, so the bottom frame is the fade. `remember(page)` keys the state
+                // to the page so pushing ColorPick and coming back does not restore a stale offset.
+                val colorsScroll = remember(page) { ScrollState(initial = 0) }
+                Box(
+                    Modifier.heightIn(max = 480.dp)
+                        .abBottomFade(color = BottomSheetDefaults.ContainerColor) {
+                            colorsScroll.canScrollForward
+                        }
+                ) {
                     ColorSettingsContent(
                         state = state,
                         labels = labels,
@@ -163,6 +178,7 @@ fun ColorSettingsEditorSheet(
                         onNoiseChange = onNoiseChange,
                         onOpacityChange = onOpacityChange,
                         onChangeBackgroundImage = { onPush(SettingsEditorPage.BackgroundImage(it)) },
+                        scrollState = colorsScroll,
                     )
                 }
             }

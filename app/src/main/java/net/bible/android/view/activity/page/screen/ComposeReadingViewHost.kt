@@ -863,7 +863,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 if (gridBack == null || !gridBack()) speakSheet.pop()
             },
             onClose = { speakSheet.close() },
-        ) { current ->
+        ) { current, scroll ->
             when (current) {
                 SpeakSheetPage.Settings -> SpeakSettingsContent(
                     playback = playback,
@@ -879,6 +879,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     onOpenAdvanced = { speakSheet.push(SpeakSheetPage.Advanced) },
                     onSystemTtsSettings = { openSystemTtsSettings() },
                     onHelp = { showSpeakHelp() },
+                    // Round 14b §7.b: the sheet shell owns this state so it can fade the clip.
+                    scrollState = scroll,
                 )
                 SpeakSheetPage.Advanced -> {
                     val advanced by advancedSpeakController.advanced.collectAsState()
@@ -889,6 +891,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                         onAutoBookmark = advancedSpeakController::setAutoBookmark,
                         onRestoreSettingsFromBookmarks = advancedSpeakController::setRestoreSettingsFromBookmarks,
                         onHelp = { showAdvancedSpeakHelp() },
+                        scrollState = scroll,
                     )
                 }
                 SpeakSheetPage.RepeatRange -> {

@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.speak
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,11 +39,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.speak.SpeakSheetPage
+import net.bible.sharedui.components.abBottomFade
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -57,6 +61,11 @@ import net.bible.sharedui.strings.LocalStrings
  * ROBORAZZI: never capture this composable with a non-null [page] — an open `ModalBottomSheet` hangs
  * the capture and takes the whole `:app` suite with it. Golden each page's `*Content` composable in
  * a plain `Column` instead.
+ *
+ * Round 14b §7.b: this shell owns the bounded scroll region's state and hands it to [content] as a
+ * second parameter, so it can read `canScrollForward` itself and fade the bottom edge while content
+ * remains below the clip. A page whose body does not scroll simply ignores the parameter — its
+ * `maxValue` stays 0, `canScrollForward` stays false, and the fade paints nothing.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +74,7 @@ fun SpeakSettingsSheet(
     depth: Int,
     onDismiss: () -> Unit,
     onClose: () -> Unit,
-    content: @Composable ColumnScope.(SpeakSheetPage) -> Unit,
+    content: @Composable ColumnScope.(SpeakSheetPage, ScrollState) -> Unit,
 ) {
     if (page == null) return
     val strings = LocalStrings.current
@@ -127,8 +136,25 @@ fun SpeakSettingsSheet(
             // evidence behind it — and the book grid lands on the same 40dp cell floor at 400dp as
             // at 440dp, so nothing about the grid changes. A larger cap would overflow the sheet in
             // landscape (window height ~360dp) and clip a scrolling list's bottom out of reach.
-            Box(Modifier.fillMaxWidth().heightIn(max = 400.dp)) {
-                Column { content(page) }
+            //
+            // Round 14b §7.b: the clip is exactly what made a half-cut row read as the end of the
+            // list, so the clip is where the fade goes. `remember(page)`, not `rememberScrollState()`
+            // — this shell survives a page change (only `page` changes, the composition does not
+            // leave), so ONE state would carry the Settings page's scroll offset into the Advanced
+            // page and open it part-way down. A key per page resets it.
+            //
+            // `visible` is a LAMBDA and that is load-bearing: it is read in the draw phase, so the
+            // fade is right on the very first frame. A Boolean would be evaluated during composition
+            // while `maxValue` is still 0 — see `abBottomFade`'s kdoc.
+            val scrollState = remember(page) { ScrollState(initial = 0) }
+            Box(
+                Modifier.fillMaxWidth()
+                    .heightIn(max = 400.dp)
+                    .abBottomFade(color = BottomSheetDefaults.ContainerColor) {
+                        scrollState.canScrollForward
+                    }
+            ) {
+                Column { content(page, scrollState) }
             }
         }
     }
