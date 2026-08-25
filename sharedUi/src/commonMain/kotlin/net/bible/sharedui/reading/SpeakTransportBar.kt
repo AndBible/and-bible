@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.settings.SettingsItem
@@ -42,6 +43,10 @@ import net.bible.sharedui.strings.LocalStrings
  * decision). Hosted by the reading view **only** (round 13a T4 deleted the two Compose speak
  * screens, so this bar's only host always wants the settings cog); button callbacks are all
  * host-owned seams driven by `SpeakTransportController`.
+ *
+ * Round 14b §6: [ownsTopEdge] decides whether this bar draws the rounded top corners and the
+ * shadow, or hands that edge to the surface stacked on top of it — see
+ * [net.bible.sharedcore.reading.speakBarOwnsTopEdge].
  */
 @Composable
 fun SpeakTransportBar(
@@ -59,6 +64,15 @@ fun SpeakTransportBar(
      * it.
      */
     applyNavBarInset: Boolean = false,
+    /**
+     * Round 14b §6: whether this bar draws its own top edge. `false` when another bottom surface —
+     * today only the agent-log panel — is stacked directly on top of it, in which case THAT surface
+     * owns the corners and the shadow and this one goes square and flat so the pair reads as one
+     * continuous slab. Decided by [net.bible.sharedcore.reading.speakBarOwnsTopEdge].
+     *
+     * Defaults to `true`, which is the bar-alone case and every existing caller and golden.
+     */
+    ownsTopEdge: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
@@ -67,11 +81,19 @@ fun SpeakTransportBar(
     // No explicit `color`: Surface resolves surface + surfaceColorAtElevation(3.dp), a ROLE and not
     // a hue, so it greys correctly in the BW/e-ink modes. No border: corners plus shadow already
     // separate the bar from the text, which is why the agent panel dropped classic's 1dp divider.
+    //
+    // Round 14b §6 extends that comment rather than replacing it: the container IDIOM is still
+    // shared with the panel, but the EDGE is not — only whichever surface is on top draws it.
+    // `tonalElevation` is deliberately NOT part of the conditional, and that is the load-bearing
+    // half: the tonal elevation is what makes this bar resolve to the panel's exact colour, so
+    // dropping only the corners and the shadow turns two abutting surfaces into one slab with no
+    // seam, while dropping the tonal elevation too would put a colour step back where the seam was.
+    // `SpeakBarTopEdgeGuardTest` exists to keep that split from being "simplified" away.
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        shape = if (ownsTopEdge) RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) else RectangleShape,
         tonalElevation = 3.dp,
-        shadowElevation = 8.dp,
+        shadowElevation = if (ownsTopEdge) 8.dp else 0.dp,
     ) {
         // The nav-bar inset goes on the INNER Column, not the Surface: the tinted surface and its
         // corners then bleed into the nav-bar strip while the content clears it. `ime` is excluded
