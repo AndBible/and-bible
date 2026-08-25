@@ -189,6 +189,35 @@ class SettingsEditorSheetGuardTest {
      * `ReadingLlmDialogs(` outright is NOT an option: its other two arms (`SpecifyBeforeRun`,
      * `Regenerate`) are still dialogs and are legitimately captured through the dispatcher.
      *
+     * **Widened (final-review fix wave, I1):** the same *screen + state* shape opens a sheet
+     * indirectly in FOUR more places this round converted, none of which mention a wrapper name
+     * either. [sheetArms] now also matches the literal a test would actually write to reach each:
+     * - `SyncNowDialogState(` -- constructing this data class (`CloudDocumentsController.kt:10`) is
+     *   how `CloudDocumentsScreen(syncNowDialog = ...)` opens the sync-now `AbChoiceSheet`. A bare
+     *   type reference like `syncNowDialog: SyncNowDialogState? = null` does NOT match (no trailing
+     *   `(`), so a parameter declaration alone doesn't false-positive the guard -- only an actual
+     *   construction does, exactly as `ReadingLlmDialog.PromptSelector(` above only matches a call.
+     * - `Step.PICK_TYPE` -- `AiProvidersScreen`'s `editState = ProviderEditState(step =
+     *   ProviderEditState.Step.PICK_TYPE, ...)` opens its type-picker `AbChoiceSheet`
+     *   (`AiProvidersScreen.kt:153`). Existing goldens only ever use `Step.FORM`
+     *   (`AiProvidersGoldenTest.kt:56/71`), so this is untested territory today, same as the other
+     *   three.
+     * - `Step.PICK_PROVIDER` -- `AiModelsScreen`'s `editState = ModelEditState(step =
+     *   ModelEditState.Step.PICK_PROVIDER, ...)` opens its provider-picker `AbChoiceSheet`
+     *   (`AiModelsController.kt:46` declares the enum; existing goldens use `PICK_MODEL`).
+     * - `EasySetupStep.PICK` -- `EasySetupWizard`'s `state = EasySetupState(step =
+     *   EasySetupStep.PICK, ...)` opens its setup-picker `AbChoiceSheet`
+     *   (`EasySetupWizard.kt:47/111`; existing goldens use `ENTER_KEY`).
+     *
+     * Each literal is a SUBSTRING of how the real call site spells it (verified by reading
+     * `CloudDocumentsController.kt`, `AiProvidersController.kt`, `AiModelsController.kt` and
+     * `EasySetupWizard.kt` directly, not assumed), so a golden test that constructs the sheet-arm
+     * state -- however it names its local variable -- still contains the matched text, the same
+     * "match the state literal, not the wrapper name" idiom the two `ReadingLlmDialog.*` entries
+     * already use. `AiPromptsScreen`'s fifth candidate from the same table (T5's
+     * `initiallyMoveToCategoryPromptId`) needs no entry here: T5 deleted that seam outright rather
+     * than leaving a state shape that could re-open it.
+     *
      * Scoped to files that actually CAPTURE, not to the whole test tree, because
      * `net.bible.android.view.compose.ReadingLlmHostTest` legitimately builds a
      * `PromptSelector` state: it is a mount probe whose container is never attached to a window, so
@@ -197,7 +226,10 @@ class SettingsEditorSheetGuardTest {
      */
     @Test fun noGoldenTestCapturesTheLlmSheetArmsThroughTheDispatcher() {
         val captureHelpers = listOf("captureMatrix(", "captureGolden(", "captureRtl(", "captureRoboImage(")
-        val sheetArms = listOf("ReadingLlmDialog.PromptSelector(", "ReadingLlmDialog.ModelSelection(")
+        val sheetArms = listOf(
+            "ReadingLlmDialog.PromptSelector(", "ReadingLlmDialog.ModelSelection(",
+            "SyncNowDialogState(", "Step.PICK_TYPE", "Step.PICK_PROVIDER", "EasySetupStep.PICK",
+        )
         val offenders = File("src/test/java").walkTopDown().filter { it.extension == "kt" }
             .filterNot { it.name == "SettingsEditorSheetGuardTest.kt" }
             .map { it to it.readText() }
@@ -205,8 +237,8 @@ class SettingsEditorSheetGuardTest {
             .filter { (_, text) -> sheetArms.any { text.contains(it) } }
             .map { (file, _) -> file.name }.toList()
         assertEquals(
-            "Those two arms are ModalBottomSheets since round 14a -- capture " +
-                "PromptSelectorSheetContent / ModelSelectionSheetContent in a plain Surface instead",
+            "This state opens a ModalBottomSheet indirectly (no wrapper name in sight) -- capture " +
+                "the sheet's own …Content composable in a plain Surface instead, or a non-sheet step",
             emptyList<String>(), offenders,
         )
     }

@@ -32,6 +32,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
 /**
@@ -99,7 +100,14 @@ fun AbActionSheetContent(
     }
 }
 
-/** One action row: optional leading icon, then the label. The whole row is the target. */
+/**
+ * One action row: optional leading icon, then the label. The whole row is the target.
+ * `role = Role.Button` on the clickable so TalkBack announces it as a button, matching the
+ * `TextButton`s these rows replaced (final-review fix wave, M1) -- same idiom as
+ * `AbExpandableSection.kt`'s toggle row and `AbListChoiceDialog.kt`'s choice row (there
+ * `Role.RadioButton`, since that one carries selection state; this row performs an action with no
+ * selection, so `Role.Button` is correct here, not `Role.RadioButton`).
+ */
 @Composable
 fun AbActionSheetRow(
     label: String,
@@ -110,7 +118,7 @@ fun AbActionSheetRow(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 48.dp)
-            .clickable(onClick = onClick)
+            .clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

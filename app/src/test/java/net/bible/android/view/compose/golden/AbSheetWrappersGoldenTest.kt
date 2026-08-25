@@ -58,6 +58,45 @@ class AbSheetWrappersGoldenTest {
         }
     }
 
+    /** Enough choices that the list overflows [net.bible.sharedui.components.AbSheetContentMaxHeight]
+     *  (400dp) — [choice_matrix]'s two rows never do, so no existing golden proves the bottom fade
+     *  actually renders inside a sheet body (final-review fix wave, M4/M5). */
+    private val overflowChoices = (1..20).map { SettingsItem.Choice(value = "c$it", label = "Choice $it") }
+
+    /**
+     * Proves the fade is genuinely WIRED to the hoisted scroll state, not merely present in the
+     * modifier chain: with 20 rows the content overflows the 400dp bound, `scrollState.canScrollForward`
+     * is true at rest, and `Modifier.abBottomFade` (read in the draw phase off that same lambda) must
+     * paint. `choice_matrix`/`multiSelect_light`/`action_light` above and every other `…Content`
+     * golden in this port fit inside their bound, so `canScrollForward` is false in all of them and
+     * the fade never renders anywhere else in the suite — a refactor that let
+     * `AbListChoiceContent` default its own `rememberScrollState()` instead of receiving the one
+     * `AbChoiceSheetContent` hoists would silently disconnect the fade from real scroll position
+     * (`canScrollForward` permanently false, the affordance gone) with every existing golden still
+     * byte-identical. This capture is the one that would catch it: the fade would vanish here.
+     *
+     * One mode only ([EDGE_MODE]) — the four-mode matrix is already proven by [choice_matrix]; what
+     * this test adds is the overflow case, not new theme coverage. `heightDp = 480` is header
+     * (`AbSheetHeader`, `heightIn(min = 48.dp)`) + the 400dp bound + the body's own
+     * `padding(bottom = 16.dp)`, plus headroom so the capture shows the fade sitting INSIDE the
+     * bound with background visible below it, proving the bound (and the fade with it) does not
+     * silently grow past its cap.
+     *
+     * Deliberately NOT [AbChoiceSheet] itself — an open `ModalBottomSheet` hangs Roborazzi and the
+     * whole `:app` suite with it (`SettingsEditorSheetGuardTest`).
+     */
+    @Test fun choiceOverflow() = captureGolden("AbSheetWrappers", "choiceOverflow", EDGE_MODE, heightDp = 480) {
+        SheetSurface {
+            AbChoiceSheetContent(
+                title = "Move to category…",
+                choices = overflowChoices,
+                selectedValue = "c1",
+                onSelect = {},
+                onClose = {},
+            )
+        }
+    }
+
     /** Replaces `CloudDocuments_syncnow_light.png`: the same three two-line sync rows, the same
      *  pre-checked pattern, now as the sheet body — one mode, because the dialog it replaces had
      *  exactly one. */
