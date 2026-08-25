@@ -341,6 +341,11 @@ class ReadingViewScreenGoldenTest {
      * reservation, so any anchoring error shows up as the bar being covered or as a gap between the
      * two surfaces. The inset-ownership flip that also happens in this configuration is NOT covered —
      * see [agentLogSlot]'s kdoc.
+     *
+     * Round 14b §6 is what this capture now proves: with the panel above it the bar draws NO
+     * corners and NO shadow while keeping `tonalElevation = 3.dp`, so the two surfaces must read as
+     * one continuous slab with no seam and no shadow band between them. Still light-only per spec
+     * §9 — the bar's own four-mode matrix is `SpeakTransportBarGoldenTest.underAgentPanel_matrix`.
      */
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
@@ -354,6 +359,14 @@ class ReadingViewScreenGoldenTest {
                     speakTransportPlaying,
                     onPlayPause = {}, onStop = {}, onRewind = {}, onForward = {},
                     onPrev = {}, onNext = {}, onBookmark = {}, onConfig = {},
+                    // Round 14b §6: the panel above owns the corners and the shadow, so the bar
+                    // goes square and flat. Hardcoded rather than routed through
+                    // `speakBarOwnsTopEdge` on purpose: this capture states the CONFIGURATION it is
+                    // a picture of, and the rule that derives the flag from `agentLogVisible` is
+                    // unit-tested in `BottomBarInsetsTest` and applied by `ComposeReadingViewHost`.
+                    // Deriving it here would make the golden agree with the host by construction
+                    // and stop being independent evidence.
+                    ownsTopEdge = false,
                 )
             },
         ),
