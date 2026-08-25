@@ -18,7 +18,7 @@ class SettingsRowsGoldenTest {
         Column {
             AbSwitchRow(label = "Speak titles", checked = true, onCheckedChange = {})
             AbSwitchRow(label = "Auto-bookmark", checked = false, onCheckedChange = {}, summary = "Create a bookmark automatically")
-            AbSliderRow(label = "Speed", value = 150, onValueChange = {}, valueRange = 0f..300f, valueLabel = "150 %")
+            AbSliderRow(label = "Speed", value = 150, onValueChange = {}, valueRange = 0f..300f, valueLabel = "150 %", iconKey = "font_size_multiplier")
         }
     }
 
