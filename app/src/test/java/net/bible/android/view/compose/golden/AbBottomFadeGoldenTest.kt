@@ -57,8 +57,9 @@ class AbBottomFadeGoldenTest {
  * A bounded scroll region of the shape every sheet page has: a fixed-height box whose content
  * overflows. The scroll state is created OUTSIDE the modifier and read INSIDE the draw phase
  * (`abBottomFade` takes a lambda), which is what keeps the fade correct on the very first frame --
- * a `Boolean` argument would be evaluated before the content had measured, so `canScrollForward`
- * would still be false and the fade would be missing from exactly the capture that must show it.
+ * a `Boolean` argument would be evaluated before the content had measured, and an unmeasured
+ * `ScrollState` reports `canScrollForward == true` (its `maxValue` starts at `Int.MAX_VALUE`, not 0),
+ * so the fade would wrongly APPEAR on the very first frame rather than being missing from it.
  */
 @Composable
 private fun FadeProbe(initialScroll: Int, viewportDp: Int) {

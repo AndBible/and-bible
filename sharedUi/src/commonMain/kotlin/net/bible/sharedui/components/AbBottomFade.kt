@@ -23,11 +23,15 @@ val AbBottomFadeHeight: Dp = 24.dp
  * that a reset button above and a confirm row below give the colour-settings sheet is exactly what
  * the Speak settings page lacked; this is that framing, reduced to one modifier any sheet can apply.
  *
- * **`visible` is a lambda on purpose, and this is load-bearing.** It is read in the DRAW phase, so
- * the fade is correct on the very first frame. A plain `Boolean` argument would be evaluated during
- * composition, before the content had measured — `ScrollState.maxValue` would still be 0, so
- * `canScrollForward` would be false and the fade would be absent from precisely the frame that has
- * to show it. Pass `{ scrollState.canScrollForward }` or the `LazyListState` equivalent.
+ * **`visible` is a lambda on purpose, and this is load-bearing.** It is read in the DRAW phase, after
+ * layout, so the fade reflects a real, measured `maxValue` on the very first frame. A plain `Boolean`
+ * argument would be evaluated during COMPOSITION, before the content had measured —
+ * `ScrollState`'s constructor sets `maxValue = Int.MAX_VALUE` (not 0) while `value` starts at 0, so an
+ * unmeasured state reports `canScrollForward == TRUE`. A `Boolean` would therefore make the fade
+ * appear when it should not, rather than the reverse, and — for a caller whose content never scrolls
+ * at all, so the state is never attached to a scroll modifier — it would stay wrongly visible forever.
+ * Pass `{ scrollState.canScrollForward }` (guarded by `scrollState.maxValue != Int.MAX_VALUE` if the
+ * caller cannot guarantee the state is always attached) or the `LazyListState` equivalent.
  *
  * **The gradient runs from `color` at alpha 0 to `color`, never from [Color.Transparent].**
  * `Color.Transparent` is black with alpha 0, and interpolating towards it drags the gradient through

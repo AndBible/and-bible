@@ -64,8 +64,12 @@ import net.bible.sharedui.strings.LocalStrings
  *
  * Round 14b §7.b: this shell owns the bounded scroll region's state and hands it to [content] as a
  * second parameter, so it can read `canScrollForward` itself and fade the bottom edge while content
- * remains below the clip. A page whose body does not scroll simply ignores the parameter — its
- * `maxValue` stays 0, `canScrollForward` stays false, and the fade paints nothing.
+ * remains below the clip. A page whose body does not scroll simply never attaches the state to a
+ * scroll modifier — and an UNATTACHED `ScrollState` is NOT "at rest": its constructor sets
+ * `maxValue = Int.MAX_VALUE` while `value` starts at 0, so `canScrollForward` reads **true forever**
+ * on such a page. The fade is therefore gated on `maxValue != Int.MAX_VALUE` as well — that is the
+ * documented "not yet measured" sentinel — so a page that never scrolls shows no fade, and a page
+ * that does gets a real `maxValue` the first time its content is laid out.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,15 +147,21 @@ fun SpeakSettingsSheet(
             // leave), so ONE state would carry the Settings page's scroll offset into the Advanced
             // page and open it part-way down. A key per page resets it.
             //
-            // `visible` is a LAMBDA and that is load-bearing: it is read in the draw phase, so the
-            // fade is right on the very first frame. A Boolean would be evaluated during composition
-            // while `maxValue` is still 0 — see `abBottomFade`'s kdoc.
+            // `visible` is a LAMBDA and that is load-bearing: it is read in the draw phase, after
+            // layout, so the fade reflects the real `maxValue` on the very first frame. A Boolean
+            // would be evaluated during COMPOSITION, before anything is measured — at that point an
+            // unattached-or-not-yet-laid-out `ScrollState` reports `canScrollForward == true` (its
+            // `maxValue` starts at `Int.MAX_VALUE`, not 0), so a Boolean would make the fade appear
+            // when it should not, rather than the reverse. See `abBottomFade`'s kdoc, and the
+            // `maxValue != Int.MAX_VALUE` guard below, which covers the pages that never scroll at
+            // all (their state is never attached to a scroll modifier, so it never leaves that
+            // initial unmeasured value).
             val scrollState = remember(page) { ScrollState(initial = 0) }
             Box(
                 Modifier.fillMaxWidth()
                     .heightIn(max = 400.dp)
                     .abBottomFade(color = BottomSheetDefaults.ContainerColor) {
-                        scrollState.canScrollForward
+                        scrollState.maxValue != Int.MAX_VALUE && scrollState.canScrollForward
                     }
             ) {
                 Column { content(page, scrollState) }
