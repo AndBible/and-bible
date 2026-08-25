@@ -36,6 +36,10 @@ import net.bible.android.activity.R
  *
  * Round 14b: three more groups (sync settings, application preferences, reading progress) mirror
  * their classic preference XML `android:icon` values verbatim, pinned by `SettingsIconParityTest`.
+ * These rows also render at the plain Material 24.dp leading-icon size, deliberately not
+ * reproducing classic `SettingsActivity`'s `CommonUtils.makeLarger(icon, 1.5f)` enlargement, which
+ * classic itself applies only on the Application-preferences screen (Sync and Reading progress use
+ * classic's plain size too).
  */
 @DrawableRes
 fun settingsDrawableRes(key: String): Int? = when (key) {

@@ -32,13 +32,6 @@ import org.xmlpull.v1.XmlPullParser
 private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
 
 /**
- * Keys classic builds but the Compose port deliberately does not, so parity cannot be required for
- * them. `sync_enable_readingplans` is hidden at runtime by classic itself (`SyncSettings.kt`) and is
- * absent from `SyncCategoryKeys.DISPLAY`.
- */
-private val NOT_PORTED = setOf("sync_enable_readingplans")
-
-/**
  * Pins [settingsDrawableRes] to the classic preference XML by READING that XML at test time, rather
  * than to a hand-copied table (which is what `TextDisplaySettingsIconsTest` must do, its classic
  * source being Kotlin). A future edit to `settings.xml` — a new preference, a changed icon — fails
@@ -70,11 +63,14 @@ class SettingsIconParityTest {
     /**
      * @param expectedIconRows how many ported rows this screen has an icon for. Asserted exactly, so
      * a parser that silently yields nothing fails loudly instead of passing vacuously.
+     * @param notPorted keys classic builds but the Compose port deliberately does not for THIS
+     * screen, so parity cannot be required for them. Per-screen (not a shared global set) so an
+     * exclusion added for one screen can never silently exempt another.
      */
-    private fun assertParity(xmlRes: Int, expectedIconRows: Int) {
+    private fun assertParity(xmlRes: Int, expectedIconRows: Int, notPorted: Set<String> = emptySet()) {
         val res = RuntimeEnvironment.getApplication().resources
         val name = { id: Int -> if (id == 0) "none" else res.getResourceEntryName(id) }
-        val rows = classicRows(xmlRes).filterNot { it.key in NOT_PORTED }
+        val rows = classicRows(xmlRes).filterNot { it.key in notPorted }
         val withIcon = rows.filter { it.iconResId != 0 }
         assertEquals("icon-bearing row count in ${res.getResourceEntryName(xmlRes)}", expectedIconRows, withIcon.size)
 
@@ -89,7 +85,11 @@ class SettingsIconParityTest {
         assertTrue("rows classic leaves iconless must stay iconless: $extra", extra.isEmpty())
     }
 
-    @Test fun syncSettingsIconsMatchClassic() = assertParity(R.xml.sync_settings, expectedIconRows = 18)
+    // sync_enable_readingplans is hidden at runtime by classic itself (`SyncSettings.kt`) and is
+    // absent from `SyncCategoryKeys.DISPLAY`, so it cannot have parity here.
+    @Test fun syncSettingsIconsMatchClassic() = assertParity(
+        R.xml.sync_settings, expectedIconRows = 18, notPorted = setOf("sync_enable_readingplans"),
+    )
 
     @Test fun appSettingsIconsMatchClassic() = assertParity(R.xml.settings, expectedIconRows = 41)
 
