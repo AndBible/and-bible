@@ -121,4 +121,36 @@ class AppSettingsControllerTest {
         val row = c.state.value.visibleItems.single { it.key == "font_size_multiplier" } as SettingsItem.SliderRow
         assertEquals("100 %", row.valueLabel)
     }
+
+    /**
+     * Round 14b: the 41 rows classic gives an `android:icon` in `res/xml/settings.xml` take their own
+     * key as `iconKey`; the two rows classic leaves bare stay bare, as do all category headers. The
+     * key→drawable half of the parity claim is pinned separately by `SettingsIconParityTest` in `:app`.
+     */
+    @Test fun iconKeysMatchClassicSettingsXml() {
+        val iconless = setOf("request_sdcard_permission_pref", "use_compose_ui")
+        val items = controller(
+            FakeAppSettingsService(
+                snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
+            ),
+        ).state.value.items
+        val wrong = items.mapNotNull { item ->
+            val expected = when {
+                item is SettingsItem.Category -> null
+                item.key in iconless -> null
+                else -> item.key
+            }
+            if (item.iconKeyOrNull() == expected) null else "${item.key}: expected $expected, got ${item.iconKeyOrNull()}"
+        }
+        assertEquals(emptyList(), wrong)
+    }
+
+    @Test fun fortyOneRowsCarryAnIconKey() {
+        val items = controller(
+            FakeAppSettingsService(
+                snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
+            ),
+        ).state.value.items
+        assertEquals(41, items.count { it.iconKeyOrNull() != null })
+    }
 }
