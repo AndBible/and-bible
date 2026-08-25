@@ -2262,6 +2262,14 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // `mountComposeView` rather than rebuilt from raw state.
             speakBarSlot = { applyNavBarInset ->
                 val speakState by speakTransport.state.collectAsState()
+                // Round 14b §6: the agent panel's visibility, narrowed to a boolean through
+                // `derivedStateOf` — the SAME idiom as `agentLogVisibleState` a few lines below, and
+                // for the same reason: collecting `agentLog.state` raw here would resubscribe this
+                // slot to every log line, status change and cost update of a running agent, when all
+                // it needs is the one flip. Reading `.value` inside this restartable lambda means
+                // the bar recomposes only when the panel appears or disappears.
+                val agentLogState = agentLog.state.collectAsState()
+                val agentLogVisible = remember { derivedStateOf { agentLogState.value.visible } }
                 // `fullScreen` is the host's own MutableState (fed by FullScreenEvent), read here
                 // so the bar recomposes away when fullscreen is entered — see [speakBarVisible].
                 if (speakBarVisible(fullScreen = fullScreen.value, transportVisible = speakState.visible)) {
@@ -2276,6 +2284,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                         onBookmark = { speakTransport.onBookmarkButton() },
                         onConfig = { speakTransport.onConfig() },
                         applyNavBarInset = applyNavBarInset,
+                        // Fully qualified, and NOT imported, on purpose: the import block of this
+                        // file is the one region round 14a's sibling container also appends to (its
+                        // new sheet wrappers), and the 14a/14b fork's whole premise is that no two
+                        // hunks in this file meet. One qualified call site costs less than a merge
+                        // conflict in a 290-line import block.
+                        ownsTopEdge = net.bible.sharedcore.reading.speakBarOwnsTopEdge(agentLogVisible.value),
                     )
                 }
             },
