@@ -31,12 +31,14 @@ class ReadingProgressSettingsController(
                 title = labels.autoMarkMemorizedTitle,
                 summary = labels.autoMarkMemorizedSummary,
                 checked = s.autoMarkMemorized,
+                iconKey = "auto_mark_memorized",
             ),
             SettingsItem.SwitchRow(
                 key = "memorize_type_full_words",
                 title = labels.memorizeTypeFullWordsTitle,
                 summary = labels.memorizeTypeFullWordsSummary,
                 checked = s.memorizeTypeFullWords,
+                iconKey = "memorize_type_full_words",
             ),
             SettingsItem.ListChoiceRow(
                 key = "memorize_word_visibility",
@@ -44,24 +46,28 @@ class ReadingProgressSettingsController(
                 summary = labels.memorizeWordVisibilitySummary,
                 entries = s.memorizeWordVisibilityChoices.map { SettingsItem.Choice(it.value, it.label) },
                 selectedValue = s.memorizeWordVisibility,
+                iconKey = "memorize_word_visibility",
             ),
             SettingsItem.SwitchRow(
                 key = "memorize_error_heatmap",
                 title = labels.memorizeErrorHeatmapTitle,
                 summary = labels.memorizeErrorHeatmapSummary,
                 checked = s.memorizeErrorHeatmap,
+                iconKey = "memorize_error_heatmap",
             ),
             SettingsItem.SwitchRow(
                 key = "memorize_scramble_hide_used",
                 title = labels.memorizeScrambleHideUsedTitle,
                 summary = labels.memorizeScrambleHideUsedSummary,
                 checked = s.memorizeScrambleHideUsed,
+                iconKey = "memorize_scramble_hide_used",
             ),
             SettingsItem.SwitchRow(
                 key = "memorize_include_reference",
                 title = labels.memorizeIncludeReferenceTitle,
                 summary = labels.memorizeIncludeReferenceSummary,
                 checked = s.memorizeIncludeReference,
+                iconKey = "memorize_include_reference",
             ),
         )
         return SettingsScreenState(title = labels.screenTitle, items = items)

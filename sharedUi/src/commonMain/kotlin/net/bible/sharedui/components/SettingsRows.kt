@@ -302,7 +302,10 @@ internal fun SettingsRowBadgeChip(text: String, modifier: Modifier = Modifier) {
  *
  *  While dragging, the readout updates live from the local value using [valueLabelFor] if provided;
  *  callers without a formatter keep showing the static [valueLabel] (which refreshes once the
- *  persisted [value] comes back). */
+ *  persisted [value] comes back).
+ *
+ *  [iconKey] resolves a host drawable through [LocalSettingsIcon] exactly as `AbSwitchRow`/
+ *  `AbSettingsRow` do, and [leadingIcon] remains for `ImageVector`s that cannot go through the seam. */
 @Composable
 fun AbSliderRow(
     label: String,
@@ -313,8 +316,10 @@ fun AbSliderRow(
     valueLabel: String,
     onValueChangeFinished: (() -> Unit)? = null,
     valueLabelFor: ((Int) -> String)? = null,
+    iconKey: String? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
 ) {
+    val iconPainter = iconKey?.let { LocalSettingsIcon.current(it) }
     // Re-seed the local drag position whenever the persisted [value] changes (e.g. after a release
     // persist round-trips a fresh snapshot, or an external reset).
     var dragValue by remember(value) { mutableFloatStateOf(value.toFloat()) }
@@ -325,6 +330,10 @@ fun AbSliderRow(
             // byte-identically to before this parameter existed.
             if (leadingIcon != null) {
                 Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) { leadingIcon() }
+                Spacer(Modifier.width(16.dp))
+            }
+            if (iconPainter != null) {
+                Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.size(24.dp))
                 Spacer(Modifier.width(16.dp))
             }
             Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))

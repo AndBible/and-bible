@@ -121,4 +121,108 @@ class AppSettingsControllerTest {
         val row = c.state.value.visibleItems.single { it.key == "font_size_multiplier" } as SettingsItem.SliderRow
         assertEquals("100 %", row.valueLabel)
     }
+
+    /**
+     * Round 14b: the 41 rows classic gives an `android:icon` in `res/xml/settings.xml` take their own
+     * key as `iconKey`; the two rows classic leaves bare stay bare, as do all category headers. The
+     * key→drawable half of the parity claim is pinned separately by `SettingsIconParityTest` in `:app`.
+     */
+    @Test fun iconKeysMatchClassicSettingsXml() {
+        val iconless = setOf("request_sdcard_permission_pref", "use_compose_ui")
+        val items = controller(
+            FakeAppSettingsService(
+                snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
+            ),
+        ).state.value.items
+        val wrong = items.mapNotNull { item ->
+            val expected = when {
+                item is SettingsItem.Category -> null
+                item.key in iconless -> null
+                else -> item.key
+            }
+            if (item.iconKeyOrNull() == expected) null else "${item.key}: expected $expected, got ${item.iconKeyOrNull()}"
+        }
+        assertEquals(emptyList(), wrong)
+    }
+
+    @Test fun fortyOneRowsCarryAnIconKey() {
+        val items = controller(
+            FakeAppSettingsService(
+                snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
+            ),
+        ).state.value.items
+        assertEquals(41, items.count { it.iconKeyOrNull() != null })
+    }
+
+    /**
+     * Round 14b fix wave: [iconKeysMatchClassicSettingsXml] only checks that `iconKey == item.key` —
+     * it says nothing about what `key` itself should BE. Sync and Reading progress pin their full key
+     * lists ([SyncSettingsControllerTest.theEighteenPortedSyncRowsAreAllPresent],
+     * [ReadingProgressSettingsControllerTest.buildsSixRowsInOrder]), but this 41-row screen did not,
+     * so a typo in a row's own `key` (e.g. `screen_keep_on_pref` misspelled) would propagate into its
+     * `iconKey`, both the sharedCore test above and `:app`'s `SettingsIconParityTest` would stay
+     * green, and the row would render with no icon on the device. Pinning the full ordered key list
+     * (categories included) is what makes that mistake fail here instead of shipping silently.
+     */
+    @Test fun fullItemKeyOrderMatchesClassicSettingsScreen() {
+        val expected = listOf(
+            "dictionaries_category",
+            "strongs_greek_dictionary",
+            "strongs_hebrew_dictionary",
+            "robinson_greek_morphology",
+            "disabled_word_lookup_dictionaries",
+            "behavior_category",
+            "navigate_to_verse_pref",
+            "open_links_in_special_window_pref",
+            "screen_keep_on_pref",
+            "double_tap_to_fullscreen",
+            "auto_fullscreen_pref",
+            "toolbar_button_actions",
+            "bible_view_swipe_mode",
+            "disable_two_step_bookmarking",
+            "volume_keys_scroll",
+            "night_mode_pref3",
+            "display_category",
+            "global_text_display_settings",
+            "locale_pref",
+            "disable_click_to_edit",
+            "notes_content_type",
+            "font_size_multiplier",
+            "hide_status_bar",
+            "full_screen_hide_buttons_pref",
+            "hide_window_buttons",
+            "hide_bible_reference_overlay",
+            "show_active_window_indicator",
+            "disable_bible_bookmark_modal_buttons",
+            "disable_gen_bookmark_modal_buttons",
+            "prefs_eink_settings_cat",
+            "display_color_mode",
+            "eink_mode",
+            "disable_animations",
+            "prefs_persecution_cat",
+            "discrete_help",
+            "discrete_mode",
+            "show_calculator",
+            "calculator_pin",
+            "prefs_features_cat",
+            "sync_settings_shortcut",
+            "ai_settings_shortcut",
+            "reading_progress_settings_shortcut",
+            "prefs_advanced_settings_cat",
+            "experimental_features",
+            "enable_bluetooth_pref",
+            "request_sdcard_permission_pref",
+            "show_errorbox",
+            "open_links",
+            "crash_app",
+            "prefs_category_developer",
+            "use_compose_ui",
+        )
+        val c = controller(
+            FakeAppSettingsService(
+                snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
+            ),
+        )
+        assertEquals(expected, c.state.value.items.map { it.key })
+    }
 }

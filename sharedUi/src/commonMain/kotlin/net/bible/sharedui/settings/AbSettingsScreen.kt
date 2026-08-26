@@ -319,6 +319,7 @@ private fun RenderSettingsItem(
             valueLabelFor = item.valueFormat?.let { fmt ->
                 { v -> fmt.replace("%d", v.toString()).replace("%%", "%") }
             },
+            iconKey = item.iconKey,
         )
 
         is SettingsItem.MultiSelectRow -> AbSettingsRow(

@@ -69,4 +69,11 @@ class ReadingProgressSettingsControllerTest {
         controller(svc).onListChoice("memorize_word_visibility", "full")
         assertEquals("memorize_word_visibility" to "full", svc.stringWrites.single())
     }
+
+    /** Round 14b: all six rows take their own key as `iconKey` (see `res/xml/reading_progress_settings.xml`). */
+    @Test fun everyRowCarriesItsOwnKeyAsIconKey() {
+        val items = controller(FakeReadingProgressSettingsService(snap())).state.value.items
+        assertEquals(6, items.size)
+        assertEquals(emptyList(), items.filter { it.iconKeyOrNull() != it.key }.map { it.key })
+    }
 }
