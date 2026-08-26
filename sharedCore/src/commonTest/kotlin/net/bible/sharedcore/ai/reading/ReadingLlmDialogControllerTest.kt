@@ -38,7 +38,8 @@ class ReadingLlmDialogControllerTest {
         var regen: List<Any?>? = null
     }
 
-    private fun controller(fake: Fake) = ReadingLlmDialogController(fake, CoroutineScope(UnconfinedTestDispatcher()))
+    private fun controller(fake: Fake, onSheetOpening: () -> Unit = {}) =
+        ReadingLlmDialogController(fake, CoroutineScope(UnconfinedTestDispatcher()), onSheetOpening)
 
     private fun ExecCalls.openSelector(c: ReadingLlmDialogController) =
         c.openPromptSelector("VERSE_SELECTION", null) { id, spec, model -> exec = Triple(id, spec, model) }
@@ -166,5 +167,78 @@ class ReadingLlmDialogControllerTest {
         val c = controller(f); ExecCalls().openSelector(c)
         c.dismiss()
         assertEquals(ReadingLlmDialog.None, c.state.value.dialog)
+    }
+
+    // --- Round 14a: the two SHEET arms announce themselves so the host can close rival overlays ---
+
+    @Test fun openingThePromptSelectorAnnouncesASheetOpening() = runTest {
+        var opened = 0
+        val f = Fake().apply {
+            groups = listOf(ReadingPromptGroupVd("Uncategorized", null, false, false, listOf(prompt("p1"))))
+        }
+        val c = controller(f) { opened++ }
+        c.openPromptSelector("VERSE_SELECTION", null) { _, _, _ -> }
+        assertEquals(1, opened)
+        assertIs<ReadingLlmDialog.PromptSelector>(c.state.value.dialog)
+    }
+
+    @Test fun openingTheModelChooserAnnouncesASheetOpening() = runTest {
+        var opened = 0
+        val f = Fake().apply {
+            groups = listOf(ReadingPromptGroupVd("Uncategorized", null, false, false, listOf(prompt("p1"))))
+            promptNeedsModel = true
+            models = listOf(ReadingModelVd("m1", "gpt-4o", "OpenAI", isDefault = true, supported = true))
+        }
+        val c = controller(f) { opened++ }
+        c.openPromptSelector("VERSE_SELECTION", null) { _, _, _ -> }
+        assertEquals(1, opened)          // the selector
+        c.onPromptChosen("p1")
+        assertEquals(2, opened)          // and the model chooser
+        assertIs<ReadingLlmDialog.ModelSelection>(c.state.value.dialog)
+    }
+
+    @Test fun theDialogArmsAnnounceNothing() = runTest {
+        var opened = 0
+        val f = Fake().apply {
+            groups = listOf(ReadingPromptGroupVd("Uncategorized", null, false, false, listOf(prompt("p1", specify = true))))
+        }
+        val c = controller(f) { opened++ }
+        // Regenerate is an AlertDialog: opening it must announce nothing at all.
+        c.openRegenerate("page1") { _, _, _, _, _ -> }
+        assertEquals(0, opened)
+        assertIs<ReadingLlmDialog.Regenerate>(c.state.value.dialog)
+        // The selector announces once; stepping from it to SpecifyBeforeRun (also an AlertDialog)
+        // must not announce again.
+        c.openPromptSelector("VERSE_SELECTION", null) { _, _, _ -> }
+        assertEquals(1, opened)
+        c.onPromptChosen("p1")
+        assertEquals(1, opened)
+        assertIs<ReadingLlmDialog.SpecifyBeforeRun>(c.state.value.dialog)
+    }
+
+    @Test fun emptyGroupsSelectorAnnouncesNothing() = runTest {
+        var opened = 0
+        val f = Fake().apply { groups = emptyList() }
+        val c = controller(f) { opened++ }
+        c.openPromptSelector("VERSE_SELECTION", null) { _, _, _ -> }
+        assertEquals(0, opened)
+        assertEquals(ReadingLlmDialog.None, c.state.value.dialog)
+    }
+
+    @Test fun toggleFavoriteAndCategoryExpandedAnnounceNothing() = runTest {
+        var opened = 0
+        val f = Fake().apply {
+            groups = listOf(ReadingPromptGroupVd("Uncategorized", null, false, false, listOf(prompt("p1"))))
+        }
+        val c = controller(f) { opened++ }
+        c.openPromptSelector("VERSE_SELECTION", null) { _, _, _ -> }
+        assertEquals(1, opened)
+        // Re-publishing PromptSelector for an already-open sheet must not re-announce.
+        c.onToggleFavorite("p1")
+        assertEquals(1, opened)
+        assertIs<ReadingLlmDialog.PromptSelector>(c.state.value.dialog)
+        c.onCategoryExpandedChanged(null, expanded = false)
+        assertEquals(1, opened)
+        assertIs<ReadingLlmDialog.PromptSelector>(c.state.value.dialog)
     }
 }

@@ -25,14 +25,11 @@ import android.text.style.ImageSpan
 import android.util.Log
 import android.widget.TextView
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.AlertDialog as ComposeAlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -79,6 +76,8 @@ import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.bookmark.ManageLabelsScreen
 import net.bible.sharedui.components.AbActionIconSize
+import net.bible.sharedui.components.AbActionSheet
+import net.bible.sharedui.components.AbActionSheetRow
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectDialog
 import net.bible.sharedui.components.AbOverflowMenu
@@ -245,20 +244,30 @@ class ManageLabelsComposeActivity : ActivityBase() {
                     }
 
                     destinationRequest?.let { req ->
-                        ComposeAlertDialog(
-                            onDismissRequest = { req.complete(null) },
-                            title = { Text(getString(R.string.export_destination_title)) },
-                            text = { Text(getString(R.string.export_destination_message)) },
-                            confirmButton = {
-                                TextButton(onClick = { req.complete(SaveOrShare.SHARE) }) { Text(getString(R.string.share)) }
-                            },
-                            dismissButton = {
-                                Row {
-                                    TextButton(onClick = { req.complete(SaveOrShare.SAVE) }) { Text(getString(R.string.backup_phone_storage)) }
-                                    TextButton(onClick = { req.complete(null) }) { Text(getString(R.string.cancel)) }
-                                }
-                            },
-                        )
+                        // Round 14a G2.10: the export-destination chooser is an ACTION list, not a
+                        // question with buttons — three `TextButton`s in two slots was the dialog
+                        // shape fighting the content. Completing the deferred clears
+                        // `destinationRequest` (see `askDestination`'s `finally`), which is what
+                        // closes the sheet — so no row needs to dismiss it, and there is no Cancel
+                        // row: `onDismiss` (swipe / scrim / back / ✕) is the "chose nothing" path,
+                        // completing with null exactly as the dialog's `onDismissRequest` did.
+                        AbActionSheet(
+                            open = true,
+                            title = getString(R.string.export_destination_title),
+                            message = getString(R.string.export_destination_message),
+                            onDismiss = { req.complete(null) },
+                        ) {
+                            AbActionSheetRow(
+                                label = getString(R.string.share),
+                                onClick = { req.complete(SaveOrShare.SHARE) },
+                                icon = { Icon(painterResource(R.drawable.ic_baseline_share_24), contentDescription = null) },
+                            )
+                            AbActionSheetRow(
+                                label = getString(R.string.backup_phone_storage),
+                                onClick = { req.complete(SaveOrShare.SAVE) },
+                                icon = { Icon(painterResource(R.drawable.ic_save_24dp), contentDescription = null) },
+                            )
+                        }
                     }
             }
         }

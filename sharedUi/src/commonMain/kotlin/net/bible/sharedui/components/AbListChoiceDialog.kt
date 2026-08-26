@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -59,9 +60,14 @@ fun AbListChoiceContent(
     selectedValue: String,
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
+    // Round 14a: hoistable so a sheet shell can drive `Modifier.abBottomFade` from the SAME state
+    // this scrolls (spec §7.b). Defaulted, so all five existing call sites — the dialog below,
+    // `SettingsEditorSheet`, `AiConnectionSettingsScreen` and two golden tests — are untouched and
+    // their goldens stay byte-identical.
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     Column(
-        modifier = Modifier.verticalScroll(rememberScrollState()).then(modifier),
+        modifier = Modifier.verticalScroll(scrollState).then(modifier),
     ) {
         choices.forEach { choice ->
             val selected = choice.value == selectedValue

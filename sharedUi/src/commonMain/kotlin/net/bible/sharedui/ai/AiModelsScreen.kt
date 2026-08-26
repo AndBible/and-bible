@@ -59,10 +59,10 @@ import net.bible.sharedcore.ai.ModelVd
 import net.bible.sharedcore.ai.ProviderVd
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbInfoDialog
-import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchablePicker
 import net.bible.sharedui.components.AbSwitchRow
@@ -79,6 +79,11 @@ import net.bible.sharedui.strings.LocalStrings
  *   null) — a single-choice picker over [ModelEditState.providerChoices]. Selecting a provider
  *   calls [onPickProvider], which the controller resolves into the PICK_MODEL step (kicking off an
  *   async available-models fetch).
+ *   (Round 14a: a sheet, not a dialog. `AbChoiceSheet` keeps `AbListChoiceDialog`'s
+ *   fire-onSelect-then-onDismiss contract, which is what `AiModelsComposeActivity`'s
+ *   `swallowNextDismiss` flag depends on — see that class's kdoc. The NEXT step, PICK_MODEL, is a
+ *   `ModelFormDialog` that itself opens `AbSearchableOptionSheet`; the two steps are arms of one
+ *   `when`, so a sheet and a sheet-opening dialog can never be composed together.)
  * - [ModelEditState.Step.PICK_MODEL]: the detail form. For the **add** flow ([ModelEditState.id] ==
  *   null) this is a full picker — an optional category filter (shown only when any available model
  *   id contains "/", e.g. OpenRouter-style ids), an [AbSearchablePicker] over the (category- and
@@ -161,7 +166,8 @@ fun AiModelsScreen(
 
     if (editState != null) {
         when (editState.step) {
-            ModelEditState.Step.PICK_PROVIDER -> AbListChoiceDialog(
+            ModelEditState.Step.PICK_PROVIDER -> AbChoiceSheet(
+                open = true,
                 title = strings.modelSelectProviderLabel,
                 choices = editState.providerChoices.map { SettingsItem.Choice(it.id, it.displayName) },
                 selectedValue = editState.providerId,

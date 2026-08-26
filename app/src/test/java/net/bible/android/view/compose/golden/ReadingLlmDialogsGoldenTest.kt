@@ -3,6 +3,8 @@ package net.bible.android.view.compose.golden
 import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.reading.*
+import net.bible.sharedui.ai.reading.ModelSelectionSheetContent
+import net.bible.sharedui.ai.reading.PromptSelectorSheetContent
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,13 +36,48 @@ class ReadingLlmDialogsGoldenTest {
             onSpecifySubmitted = {}, onModelChosen = { _, _ -> }, onRegenerateConfirmed = { _, _, _ -> }, onDismiss = {})
     }
 
-    @Test fun promptSelector_matrix() = captureMatrix("ReadingLlmDialogs", "promptSelector") { dialogs(ReadingLlmDialog.PromptSelector(groups))() }
-    @Test @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
-    fun promptSelector_rtl() = captureRtl("ReadingLlmDialogs", "promptSelector") { dialogs(ReadingLlmDialog.PromptSelector(groups))() }
+    // The two DIALOG arms still capture through the dispatcher — that is legitimate and unchanged.
     @Test fun specify_matrix() = captureMatrix("ReadingLlmDialogs", "specify") { dialogs(ReadingLlmDialog.SpecifyBeforeRun("p2", "Custom question"))() }
-    @Test fun modelSelection_matrix() = captureMatrix("ReadingLlmDialogs", "modelSelection") { dialogs(ReadingLlmDialog.ModelSelection(models, allowSetDefault = true))() }
     @Test fun regenerate_matrix() = captureMatrix("ReadingLlmDialogs", "regenerate") { dialogs(ReadingLlmDialog.Regenerate("page1"))() }
-    @Test fun promptSelector_empty() = captureGolden("ReadingLlmDialogs", "promptSelectorEmpty", EDGE_MODE) {
-        dialogs(ReadingLlmDialog.PromptSelector(listOf(ReadingPromptGroupVd("Uncategorized", null, false, false, emptyList()))))()
+
+    // The two SHEET arms (round 14a) capture their BODIES instead, in a Surface painted the colour a
+    // ModalBottomSheet paints — `Modifier.abBottomFade` ramps from that colour to itself, so on the
+    // harness's bare background the fade would prove nothing. Going through `ReadingLlmDialogs` for
+    // these would open a real sheet and hang the whole `:app` suite; `SettingsEditorSheetGuardTest`
+    // forbids it, by wrapper name AND by arm construction inside a capturing file.
+    @Test fun promptSelectorSheet_matrix() = captureMatrix("ReadingLlmDialogs", "promptSelectorSheet", heightDp = 620) {
+        SheetSurface { promptSelectorBody(groups) }
     }
+
+    @Test @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
+    fun promptSelectorSheet_rtl() = captureRtl("ReadingLlmDialogs", "promptSelectorSheet", heightDp = 620) {
+        SheetSurface { promptSelectorBody(groups) }
+    }
+
+    @Test fun promptSelectorSheet_empty() = captureGolden("ReadingLlmDialogs", "promptSelectorSheetEmpty", EDGE_MODE) {
+        SheetSurface {
+            promptSelectorBody(listOf(ReadingPromptGroupVd("Uncategorized", null, false, false, emptyList())))
+        }
+    }
+
+    @Test fun modelSelectionSheet_matrix() = captureMatrix("ReadingLlmDialogs", "modelSelectionSheet", heightDp = 420) {
+        SheetSurface {
+            ModelSelectionSheetContent(
+                models = models,
+                allowSetDefault = true,
+                onModelChosen = { _, _ -> },
+                onClose = {},
+            )
+        }
+    }
+
+    @Composable
+    private fun promptSelectorBody(groups: List<ReadingPromptGroupVd>) =
+        PromptSelectorSheetContent(
+            groups = groups,
+            onPromptChosen = {},
+            onToggleFavorite = {},
+            onCategoryExpandedChanged = { _, _ -> },
+            onClose = {},
+        )
 }

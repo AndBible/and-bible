@@ -44,17 +44,14 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.SyncDisabled
 import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -80,6 +77,7 @@ import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.AbMultiSelectSheet
 import net.bible.sharedui.components.AbPullToRefresh
 import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbSelectionScaffold
@@ -196,29 +194,30 @@ fun CloudDocumentsScreen(
     }
 
     if (syncNowDialog != null) {
-        val checked = remember(syncNowDialog) { mutableStateListOf(*syncNowDialog.checked.toTypedArray()) }
-        AlertDialog(
-            onDismissRequest = onSyncNowDismiss,
-            confirmButton = { TextButton(onClick = { onSyncNowConfirm(checked.toList()) }) { Text(strings.okay) } },
-            dismissButton = { TextButton(onClick = onSyncNowDismiss) { Text(strings.cancel) } },
-            text = {
-                Column {
-                    syncNowDialog.labels.forEachIndexed { i, label ->
-                        Row(verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth().clickableRow { checked[i] = !checked[i] }.padding(vertical = 4.dp)) {
-                            Checkbox(checked = checked.getOrElse(i) { false }, onCheckedChange = { checked[i] = it })
-                            Spacer(Modifier.width(8.dp))
-                            Text(label)
-                        }
-                    }
-                }
-            },
+        // The host's contract is POSITIONAL — `onSyncNowConfirm(List<Boolean>)` feeds
+        // `CloudDocumentsController.confirmSyncNow`, which reads index 0/1/2 as download/upload/
+        // delete — while `AbMultiSelectSheet` speaks ids. The index IS the id here, so the two map
+        // onto each other exactly and the controller (and its test) stay untouched.
+        val rows = remember(syncNowDialog) {
+            syncNowDialog.labels.mapIndexed { i, label -> i.toString() to label }
+        }
+        val preChecked = remember(syncNowDialog) {
+            syncNowDialog.checked.mapIndexedNotNull { i, on -> if (on) i.toString() else null }
+        }
+        AbMultiSelectSheet(
+            open = true,
+            title = strings.cloudDocSyncNow,
+            options = rows,
+            selectedIds = preChecked,
+            idOf = { it.first },
+            labelOf = { it.second },
+            confirmText = strings.okay,
+            dismissText = strings.cancel,
+            onConfirm = { ids -> onSyncNowConfirm(rows.indices.map { it.toString() in ids }) },
+            onDismiss = onSyncNowDismiss,
         )
     }
 }
-
-@OptIn(ExperimentalFoundationApi::class)
-private fun Modifier.clickableRow(onClick: () -> Unit): Modifier = combinedClickable(onClick = onClick)
 
 private fun bulkIcon(action: CloudDocAction): ImageVector = when (action) {
     CloudDocAction.DOWNLOAD -> Icons.Filled.Download

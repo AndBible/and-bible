@@ -666,6 +666,9 @@ interface Strings {
     val bookmarkStyleSelectionHeading: String        // R.string.bookmark_style_selection
     val bookmarkStyleWholeVerseHeading: String       // R.string.bookmark_style_whole_verse
     val bookmarkStyleWholeVerseCustom: String       // R.string.bookmark_style_whole_verse_custom
+
+    // Round 14a — dialog-to-sheet conversions
+    val cloudDocSyncNow: String                      // R.string.cloud_doc_sync_now
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

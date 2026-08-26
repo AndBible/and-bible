@@ -45,7 +45,7 @@ import net.bible.sharedcore.progress.ReadingTab
 import net.bible.sharedcore.progress.TargetRow
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.AbConfirmDialog
-import net.bible.sharedui.progress.AbReadHistoryDialog
+import net.bible.sharedui.progress.AbReadHistorySheet
 import net.bible.sharedui.progress.MemorizeTabBody
 import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.progress.ReadingProgressScreen
@@ -169,7 +169,7 @@ class ReadingProgressComposeActivity : ActivityBase() {
                     }
 
                     historyDialog?.let { req ->
-                        AbReadHistoryDialog(
+                        AbReadHistorySheet(
                             title = req.title,
                             rows = req.rows,
                             onApplyDeletes = { ids ->

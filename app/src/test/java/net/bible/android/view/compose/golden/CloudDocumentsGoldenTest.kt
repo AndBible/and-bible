@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.cloud.CloudDocFilter
 import net.bible.sharedcore.cloud.CloudDocItem
-import net.bible.sharedcore.cloud.SyncNowDialogState
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedui.cloud.CloudDocumentsScreen
 import org.junit.Test
@@ -67,7 +66,6 @@ class CloudDocumentsGoldenTest {
         loading: Boolean = false,
         selectionMode: Boolean = false,
         selectedIds: Set<String> = emptySet(),
-        syncNowDialog: SyncNowDialogState? = null,
         query: String = "",
         searchModeActive: Boolean = false,
     ) = CloudDocumentsScreen(
@@ -77,7 +75,12 @@ class CloudDocumentsGoldenTest {
         statusFilters = statusFilters, selectedStatusFilter = CloudDocFilter.ALL,
         categoryFilters = categoryFilters, selectedCategoryFilter = null,
         query = query, selectionMode = selectionMode, selectedIds = selectedIds, syncEnabled = false,
-        syncNowDialog = syncNowDialog,
+        // Deliberately always null: no golden here may open a real ModalBottomSheet (final review
+        // I1) -- that hangs Roborazzi and the whole :app suite with it. A non-null value used to be
+        // reachable through this helper's own syncNowDialog parameter with nothing calling it since
+        // the sync-now golden was deleted (T6); the parameter was deleted for that reason, so this
+        // capture path structurally cannot open the sheet again.
+        syncNowDialog = null,
         topBarActions = {}, onQueryChange = {},
         searchModeActive = searchModeActive, onOpenSearch = {}, onCloseSearch = {},
         onStatusFilterChange = {}, onCategoryFilterChange = {},
@@ -103,12 +106,6 @@ class CloudDocumentsGoldenTest {
 
     @Test fun cloud_selection() = captureGolden("CloudDocuments", "selection", EDGE_MODE) {
         screen(selectionMode = true, selectedIds = setOf("KJV", "NET"))
-    }
-
-    @Test fun cloud_sync_now_dialog() = captureGolden("CloudDocuments", "syncnow", EDGE_MODE) {
-        screen(syncNowDialog = SyncNowDialogState(
-            labels = listOf("Download\n2 documents (8.0 MB)", "Upload\n1 document (4.2 MB)", "Delete\nnothing to transfer"),
-            checked = listOf(true, true, false)))
     }
 
     // e-ink status colours: the full status matrix captured in COLOR_EINK is already covered by

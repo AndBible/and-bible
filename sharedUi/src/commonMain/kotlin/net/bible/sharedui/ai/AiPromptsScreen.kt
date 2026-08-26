@@ -65,9 +65,9 @@ import net.bible.sharedcore.ai.PromptGroupVd
 import net.bible.sharedcore.ai.PromptVd
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbInfoDialog
-import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTextInputDialog
@@ -112,7 +112,7 @@ import net.bible.sharedui.strings.Strings
  * is available for every prompt (built-in/add-on/user, mirrors classic `showPromptContextMenu`), so
  * every prompt row's overflow is now always shown (previously a read-only, non-built-in add-on
  * prompt — no hide/move/delete — omitted the button entirely; Copy means there's always something).
- * Move-to-category (opens an [net.bible.sharedui.components.AbListChoiceDialog] picker, mirrors
+ * Move-to-category (opens an [net.bible.sharedui.components.AbChoiceSheet] picker, mirrors
  * classic `showMoveToCategoryDialog`) and reorder/delete stay gated to non-read-only (user) prompts.
  *
  * **String reuse (no new resource strings, per task brief):** the show/hide-hidden overflow toggle
@@ -176,12 +176,6 @@ fun AiPromptsScreen(
     categoriesProvider: () -> List<PromptCategoryVd> = { emptyList() },
     initiallyHelpDialogOpen: Boolean = false,
     initiallyOverflowMenuOpen: Boolean = false,
-    // Test-only seam (goldens): forces the "Move to category…" picker open for a given prompt.
-    // NOTE: there is deliberately NO equivalent seam to force a PER-ROW PromptRowOverflow open — that
-    // was attempted and reproducibly hung the Robolectric/Roborazzi Compose capture (a Popup anchored
-    // to a LazyColumn item never converges in ShadowPausedLooper.idle(); confirmed via jstack on two
-    // separate target rows). See the kdoc note in AiPromptsGoldenTest for the full story.
-    initiallyMoveToCategoryPromptId: String? = null,
 ) {
     val strings = LocalStrings.current
 
@@ -189,9 +183,7 @@ fun AiPromptsScreen(
     var renameCategoryTarget by remember { mutableStateOf<PromptCategoryVd?>(null) }
     var deleteCategoryTarget by remember { mutableStateOf<PromptCategoryVd?>(null) }
     var deletePromptTarget by remember { mutableStateOf<PromptVd?>(null) }
-    var moveToCategoryTarget by remember {
-        mutableStateOf(groups.flatMap { it.prompts }.firstOrNull { it.id == initiallyMoveToCategoryPromptId })
-    }
+    var moveToCategoryTarget by remember { mutableStateOf<PromptVd?>(null) }
     var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
 
     AbScaffold(
@@ -348,7 +340,10 @@ fun AiPromptsScreen(
         val freshCategories = remember(prompt.id) { categoriesProvider() }
         val choices = listOf(SettingsItem.Choice(value = "", label = strings.categoryNoneLabel)) +
             freshCategories.map { SettingsItem.Choice(value = it.id, label = it.name) }
-        AbListChoiceDialog(
+        AbChoiceSheet(
+            // The `moveToCategoryTarget?.let` above IS the gate; `open` exists for the call sites
+            // whose state is a plain Boolean.
+            open = true,
             title = strings.moveToCategoryLabel,
             choices = choices,
             selectedValue = prompt.categoryId ?: "",

@@ -40,7 +40,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.RecommendedSetupVd
 import net.bible.sharedcore.settings.SettingsItem
-import net.bible.sharedui.components.AbListChoiceDialog
+import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.strings.LocalStrings
 
 /** The 3 steps of the easy-setup wizard, in order. */
@@ -56,7 +56,7 @@ sealed class EasySetupTestResult {
  * UI-flow state for [EasySetupWizard]. Owned by the host (Task 10's controller) — a plain,
  * immutable snapshot the composable renders from; no logic lives here beyond the tiny derived
  * helpers below. [setups] (`LlmProviderService.recommendedSetups()`) is threaded through unchanged
- * across all steps so the [EasySetupStep.PICK] step's [AbListChoiceDialog] has something to show.
+ * across all steps so the [EasySetupStep.PICK] step's [AbChoiceSheet] has something to show.
  */
 data class EasySetupState(
     val step: EasySetupStep,
@@ -83,7 +83,7 @@ data class EasySetupState(
  * this composable holds no state of its own). Mirrors the classic `EasySetupDialogs.kt` flow (the
  * disclaimer gate itself is enforced by the host BEFORE this wizard is shown, per the task brief):
  *
- * - [EasySetupStep.PICK]: an [AbListChoiceDialog] listing [EasySetupState.setups] by label; picking
+ * - [EasySetupStep.PICK]: an [AbChoiceSheet] listing [EasySetupState.setups] by label; picking
  *   one invokes [onPick] with its id — the host resolves the transition to [EasySetupStep.ENTER_KEY].
  * - [EasySetupStep.ENTER_KEY]: an API-key field + a "Test connection" action (shows a small spinner
  *   while [EasySetupState.testing], then the success/failure message from
@@ -108,7 +108,8 @@ fun EasySetupWizard(
 ) {
     val strings = LocalStrings.current
     when (state.step) {
-        EasySetupStep.PICK -> AbListChoiceDialog(
+        EasySetupStep.PICK -> AbChoiceSheet(
+            open = true,
             title = strings.easySetupTitle,
             choices = state.setups.map { SettingsItem.Choice(it.id, it.label) },
             selectedValue = state.selectedSetupId ?: "",

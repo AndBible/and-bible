@@ -17,6 +17,21 @@ import kotlinx.coroutines.launch
 class ReadingLlmDialogController(
     private val service: ReadingLlmService,
     private val scope: CoroutineScope,
+    /**
+     * Fired immediately BEFORE this controller publishes a state whose arm is a `ModalBottomSheet` —
+     * `PromptSelector` or `ModelSelection` (round 14a, spec §5). The two `AlertDialog` arms
+     * (`SpecifyBeforeRun`, `Regenerate`) do NOT fire it: a dialog over a sheet is fine and is not
+     * what the exclusion rule is about.
+     *
+     * BEFORE, not after, and that ordering is deliberate: the host uses this to close whatever rival
+     * modal overlay is open, and closing one after publishing the new state would leave a frame in
+     * which two sheets are composed.
+     *
+     * Defaulted to a no-op so every existing construction — and every test that does not care —
+     * is unaffected. Pure-Kotlin callback, no Compose and no host types: the controller names the
+     * event, `ReadingOverlayExclusion` holds the rule, and the host applies it.
+     */
+    private val onSheetOpening: () -> Unit = {},
 ) {
     private val _state = MutableStateFlow(ReadingLlmDialogState())
     val state: StateFlow<ReadingLlmDialogState> = _state.asStateFlow()
@@ -49,6 +64,7 @@ class ReadingLlmDialogController(
         scope.launch {
             val groups = service.promptGroupsFor(contextId, docCategoryId)
             if (groups.all { it.prompts.isEmpty() }) return@launch
+            onSheetOpening()
             _state.value = ReadingLlmDialogState(ReadingLlmDialog.PromptSelector(groups))
         }
     }
@@ -85,6 +101,7 @@ class ReadingLlmDialogController(
                 pendingPromptId = promptId
                 pendingUserSpec = userSpec
                 forRegenerate = false
+                onSheetOpening()
                 _state.value = ReadingLlmDialogState(ReadingLlmDialog.ModelSelection(service.configuredModels(), allowSetDefault = true))
             } else {
                 onExecute?.invoke(promptId, userSpec, null)
@@ -115,6 +132,7 @@ class ReadingLlmDialogController(
             val pageId = pendingPageId ?: return@launch
             if (service.regenerateRequiresModelChoice(pageId)) {
                 forRegenerate = true
+                onSheetOpening()
                 _state.value = ReadingLlmDialogState(ReadingLlmDialog.ModelSelection(service.configuredModels(), allowSetDefault = false))
             } else {
                 onRegenerate?.invoke(pageId, instructions, keepPrevious, freshRun, null)

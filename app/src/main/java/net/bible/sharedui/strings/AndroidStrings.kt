@@ -610,4 +610,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val bookmarkStyleSelectionHeading: String get() = context.getString(R.string.bookmark_style_selection)
     override val bookmarkStyleWholeVerseHeading: String get() = context.getString(R.string.bookmark_style_whole_verse)
     override val bookmarkStyleWholeVerseCustom: String get() = context.getString(R.string.bookmark_style_whole_verse_custom)
+
+    // Round 14a — dialog-to-sheet conversions
+    override val cloudDocSyncNow: String get() = context.getString(R.string.cloud_doc_sync_now)
 }
