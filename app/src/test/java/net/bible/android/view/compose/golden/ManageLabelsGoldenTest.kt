@@ -145,8 +145,8 @@ class ManageLabelsGoldenTest {
     )
 
     /** A representative row list spanning ACTIVE/RECENT/OTHER, with a checked+primary row, a
-     *  favourite, an overridden tag (⚙ on the tag line), an auto-assign row and a highlighted
-     *  (StudyPad current) row.
+     *  favourite, an overridden tag (carrying the override mark on the tag line), an auto-assign
+     *  row and a highlighted (StudyPad current) row.
      *  Headers are omitted for [ManageLabelsMode.STUDYPAD] (mode.hideCategories); the Unlabeled
      *  pseudo-label is appended only for modes that show it (mode.showUnassigned), exercising the
      *  Task-3 parity fix (plain icon, no auto-assign toggle). */
@@ -389,7 +389,7 @@ class ManageLabelsGoldenTest {
             content = screen(ManageLabelsMode.WORKSPACE, styleTagsVisible = false, rows = styleRows()),
         )
 
-    /** WORKSPACE: the trailing grid's ⚡/♥/🔖 columns, an override tag (⚙) on the tag line, and
+    /** WORKSPACE: the trailing grid's ⚡/♥/🔖 columns, a tag carrying the override mark on the tag line, and
      *  the Unlabeled row (mode.showUnassigned) rendered with a plain (non-clickable) icon and its
      *  two workspace columns reserved empty -- the Task-3 parity fix. */
     @Test fun manageLabels_workspace() =
