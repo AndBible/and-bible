@@ -1076,6 +1076,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             Log.i(TAG, "Back Long")
             // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
             // been performed on the long press, so will set the cancelled flag for the following up event.
+            // Round 15b T4: on the Compose reading view, History opens as a quick sheet over the
+            // reading view instead of the classic full-screen Activity. Null host = classic path,
+            // unchanged below.
+            val host = composeReadingViewHost
+            if (host != null) {
+                host.showHistorySheet()
+                return true
+            }
             val intent = ScreenLauncher.intentFor(this, Screen.History)
             startActivityForResult(intent, STD_REQUEST_CODE)
             return true

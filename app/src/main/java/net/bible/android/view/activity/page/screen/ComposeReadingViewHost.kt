@@ -17,6 +17,7 @@
 package net.bible.android.view.activity.page.screen
 
 import android.content.Intent
+import android.text.format.DateFormat.format
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
@@ -39,6 +40,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -141,6 +143,8 @@ import net.bible.service.common.automaticSpeakBookmarkingVideo
 import net.bible.service.common.speakHelpVideo
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.history.HistoryItem
+import net.bible.service.history.HistoryManager
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.AgentForegroundService
 import net.bible.service.sword.BookAndKey
@@ -157,6 +161,8 @@ import net.bible.sharedcore.ai.reading.agentPanelHeight
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.ai.reading.ReadingLlmService
+import net.bible.sharedcore.history.HistoryController
+import net.bible.sharedcore.history.HistoryEntry
 import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.reading.DrawerCloseLatch
 import net.bible.sharedcore.reading.DrawerMenuState
@@ -223,6 +229,9 @@ import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.AgentPermissionDialog
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
+import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbQuickSheet
+import net.bible.sharedui.history.HistoryListContent
 import net.bible.sharedui.reading.BibleReferenceOverlay
 import net.bible.sharedui.navigation.GridChoosePassageContent
 import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
@@ -515,6 +524,35 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     }
 
     internal fun closeQuickSheet() { quickSheet.value = null }
+
+    /** Round 15b: the reading view's History list as a quick sheet (spec §4.3). */
+    internal fun showHistorySheet() = showQuickSheet(ReadingQuickSheet.History)
+
+    private val historyManager: HistoryManager by inject()
+
+    /**
+     * The [HistoryEntry] list, mirroring `HistoryComposeActivity`'s `controller` verbatim
+     * (`historyManager.getHistory(activeWindow.id)` + the `"h:mm a, E d MMM "` timestamp format
+     * both the classic screen and the goldens depend on). [historyItems] is stashed alongside so
+     * [revertToHistoryItem] can resolve an entry's `id` (its list index, not a stable key) back to
+     * the [HistoryItem] to revert.
+     */
+    private var historyItems: List<HistoryItem> = emptyList()
+
+    private fun historyEntriesForActiveWindow(): List<HistoryEntry> {
+        historyItems = historyManager.getHistory(windowControl.activeWindow.id)
+        return historyItems.mapIndexed { index, item ->
+            HistoryEntry(
+                id = index,
+                title = item.description.toString(),
+                timestamp = format("h:mm a, E d MMM ", item.createdAt).toString(),
+            )
+        }
+    }
+
+    private fun revertToHistoryItem(id: Int) {
+        historyItems[id].revertTo()
+    }
 
     // The REVERSE directions of the same rule live at the two other opening sites --
     // [showTextSettingEditor] and [showSpeakSettings] -- and were APPLIED AT THE 14a/14a-2 MERGE,
@@ -1044,7 +1082,41 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private fun QuickSheetSlot() {
         when (val sheet = quickSheet.value) {
             null -> Unit
-            ReadingQuickSheet.History -> Unit          // Task 4
+            ReadingQuickSheet.History -> {
+                // Built per opening, exactly as HistoryComposeActivity.kt:46-64 builds it: the
+                // controller reads the history once at construction, so a stale instance would show
+                // a stale list.
+                val controller = remember(sheet) {
+                    HistoryController(
+                        loadEntries = { historyEntriesForActiveWindow() },
+                        onRevert = { id -> revertToHistoryItem(id); closeQuickSheet() },
+                    )
+                }
+                val entries by controller.entries.collectAsState()
+                val error by controller.error.collectAsState()
+                val listState = rememberLazyListState()
+                AbQuickSheet(
+                    open = true,
+                    // Exactly HistoryComposeActivity.kt:68's arguments — the format string is
+                    // "History (%1$s: Window %2$d)" and the goldens depend on both.
+                    title = activity.getString(
+                        R.string.history_for,
+                        SharedActivityState.currentWorkspaceName,
+                        windowControl.activeWindowPosition + 1,
+                    ),
+                    onDismiss = { closeQuickSheet() },
+                    canScrollForward = { listState.canScrollForward },
+                ) {
+                    HistoryListContent(entries = entries, onSelect = { controller.onSelect(it) }, listState = listState)
+                }
+                if (error != null) {
+                    AbErrorDialog(
+                        message = activity.getString(R.string.error_occurred),
+                        confirmText = activity.getString(R.string.okay),
+                        onDismiss = { controller.dismissError() },
+                    )
+                }
+            }
             ReadingQuickSheet.Workspaces -> Unit       // Task 6
             ReadingQuickSheet.Documents -> Unit        // Plan B
             is ReadingQuickSheet.KeyChooser -> Unit    // Plan B
