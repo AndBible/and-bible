@@ -71,7 +71,7 @@ fun BookmarkStylePreview(
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
             .padding(horizontal = 12.dp, vertical = 10.dp),
         decoratePartially = decoratePartially,
-        ellipsizeTail = false,
+        ellipsizeTail = true,
         iconSlot = iconSlot,
     )
 }

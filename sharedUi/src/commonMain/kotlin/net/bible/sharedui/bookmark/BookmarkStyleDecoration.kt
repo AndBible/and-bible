@@ -205,16 +205,19 @@ fun SuperscriptMarker(textSizeDp: Dp, iconSlot: @Composable () -> Unit) {
  * HIDDEN still never splits: it decorates nothing, so the seam would be invisible AND meaningless,
  * and splitting one Text into two only risks a different line break.
  *
- * [ellipsizeTail] belongs to the tag, not the preview: only the undecorated tail may ellipsize —
- * the decorated half is the part that says "selection", so it must render whole or the
- * demonstration is lost. The decorated half is never ellipsized for the same reason in
- * [LabelStyleTag]: the pair's combined width is kept inside the call site's cap
- * (`ManageLabelsScreen.kt`'s `tagMaxWidth`, 110dp), not left to overflow past it unclipped.
+ * Every branch caps at `maxLines = 1`, on both surfaces: [BookmarkStylePreview] documents itself
+ * as "a one-line illustration", and [LabelStyleTag] is a short label in a fixed-height row — on
+ * neither surface may a sample wrap to a second line.
+ *
+ * The decorated half never ellipsizes — it is the part that demonstrates "selection", so it must
+ * render whole or the demonstration is lost. [ellipsizeTail] instead governs the UNdecorated tail
+ * and the whole-text (non-split) branch, on both surfaces: one line ending in `…` is legible, a
+ * mid-glyph clip is not, so both call sites pass `true`. The 110dp call-site cap
+ * (`ManageLabelsScreen.kt`'s `tagMaxWidth`) is why [LabelStyleTag] needs the ellipsis at all —
  * `ManageLabels_styles_longname_light.png` (STUDYPAD, qualifiers = "fr", whose
  * `display_mode_marker` "Marqueur uniquement" is the widest style string in the tree) shows the
- * split tag ellipsising inside its own bound rather than spilling past it — that golden is the
- * evidence this composition does the right thing under the real 110dp cap and the longest
- * real-world label.
+ * split tag ellipsising inside its own bound rather than spilling past it, which is the evidence
+ * this composition does the right thing under that cap and the longest real-world label.
  */
 @Composable
 fun BookmarkStyleSample(
