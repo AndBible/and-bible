@@ -487,6 +487,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     ReadingOverlay.SpeakSheet -> speakSheet.close()
                     ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
                     ReadingOverlay.Llm -> Unit
+                    // Round 15b: no quick sheet exists yet to close — Task 3 replaces this with
+                    // closeQuickSheet() once the state and the opener exist.
+                    ReadingOverlay.QuickSheet -> Unit
                 }
             }
         },
@@ -636,6 +639,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
                 ReadingOverlay.SpeakSheet -> speakSheet.close()
                 ReadingOverlay.TextSettingsEditor -> Unit
+                // Round 15b: no quick sheet exists yet to close — Task 3 replaces this with
+                // closeQuickSheet() once the state and the opener exist.
+                ReadingOverlay.QuickSheet -> Unit
             }
         }
         // Close first: [SettingsEditorStack.open] assigns a `MutableStateFlow`, which conflates an
@@ -825,6 +831,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
                 ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
                 ReadingOverlay.SpeakSheet -> Unit
+                // Round 15b: no quick sheet exists yet to close — Task 3 replaces this with
+                // closeQuickSheet() once the state and the opener exist.
+                ReadingOverlay.QuickSheet -> Unit
             }
         }
         // `open` assigns `listOf(page)`, so this always lands on the Settings page whatever depth

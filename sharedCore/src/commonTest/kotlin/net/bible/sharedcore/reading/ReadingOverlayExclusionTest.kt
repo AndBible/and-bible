@@ -9,15 +9,15 @@ class ReadingOverlayExclusionTest {
 
     @Test fun openingAnOverlayClosesEveryOtherModalOverlay() {
         assertEquals(
-            setOf(ReadingOverlay.SpeakSheet, ReadingOverlay.TextSettingsEditor),
+            setOf(ReadingOverlay.SpeakSheet, ReadingOverlay.TextSettingsEditor, ReadingOverlay.QuickSheet),
             ReadingOverlayExclusion.closedBy(ReadingOverlay.Llm),
         )
         assertEquals(
-            setOf(ReadingOverlay.Llm, ReadingOverlay.TextSettingsEditor),
+            setOf(ReadingOverlay.Llm, ReadingOverlay.TextSettingsEditor, ReadingOverlay.QuickSheet),
             ReadingOverlayExclusion.closedBy(ReadingOverlay.SpeakSheet),
         )
         assertEquals(
-            setOf(ReadingOverlay.Llm, ReadingOverlay.SpeakSheet),
+            setOf(ReadingOverlay.Llm, ReadingOverlay.SpeakSheet, ReadingOverlay.QuickSheet),
             ReadingOverlayExclusion.closedBy(ReadingOverlay.TextSettingsEditor),
         )
     }
@@ -40,5 +40,12 @@ class ReadingOverlayExclusionTest {
             )
         }
         assertTrue(ReadingOverlay.entries.size >= 3)
+    }
+
+    @Test fun openingTheQuickSheetClosesTheThreeExistingOverlays() {
+        assertEquals(
+            setOf(ReadingOverlay.Llm, ReadingOverlay.SpeakSheet, ReadingOverlay.TextSettingsEditor),
+            ReadingOverlayExclusion.closedBy(ReadingOverlay.QuickSheet),
+        )
     }
 }
