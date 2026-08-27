@@ -12,7 +12,9 @@ enum class ManageLabelsMode {
     val primaryShown: Boolean get() = this == WORKSPACE || this == ASSIGN
     val showActiveCategory: Boolean get() = this == WORKSPACE || this == ASSIGN || this == HIDELABELS
     val hideCategories: Boolean get() = this == STUDYPAD
-    /** Whether a row shows its style example line. See ManageLabelsModeTest for the reasoning. */
+    /** Whether a row shows its style example line: only ASSIGN and WORKSPACE, because those are
+     *  the two modes where what the label will look like on the page is the thing the user is
+     *  choosing. See ManageLabelsModeTest for the fuller reasoning. */
     val styleTagsShown: Boolean get() = this == WORKSPACE || this == ASSIGN
 }
 
