@@ -18,18 +18,13 @@
 package net.bible.sharedui.bookmark
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
@@ -48,7 +43,9 @@ import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
  * [decoratePartially] decorates only the first half of [sampleText] (via [splitSelectionSample]),
  * for the selection axis — a text-selection bookmark covers part of a verse, a whole-verse one
  * covers all of it, and a fully decorated sample cannot show that difference. MARKER's glyph is
- * drawn as a superscript by [SuperscriptMarker], matching how the reader actually draws it.
+ * drawn as a superscript by [SuperscriptMarker], matching how the reader actually draws it, and
+ * when [decoratePartially] is set the glyph's position follows the selection — right after the
+ * decorated half, not after the whole sample.
  */
 @Composable
 fun BookmarkStylePreview(
@@ -59,9 +56,12 @@ fun BookmarkStylePreview(
     decoratePartially: Boolean = false,
     iconSlot: @Composable () -> Unit,
 ) {
-    val decoration = bookmarkStyleDecoration(style, colorArgb)
-    val textStyle = MaterialTheme.typography.bodyLarge
-    Row(
+    BookmarkStyleSample(
+        style = style,
+        colorArgb = colorArgb,
+        text = sampleText,
+        textStyle = MaterialTheme.typography.bodyLarge,
+        color = LocalContentColor.current,
         modifier = modifier
             .fillMaxWidth()
             // `surface`, not `surfaceVariant`: the BW highlight fill is a fixed light/dark grey
@@ -70,21 +70,8 @@ fun BookmarkStylePreview(
             // whole-branch review M4).
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
             .padding(horizontal = 12.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        // MARKER and HIDDEN decorate nothing, so a partial split would show as an invisible seam in
-        // the middle of the sentence -- skip it and keep one Text (same rule as LabelStyleTag).
-        val split = decoratePartially && style != BookmarkDisplayStyle.MARKER && style != BookmarkDisplayStyle.HIDDEN
-        if (split) {
-            val (decorated, rest) = splitSelectionSample(sampleText)
-            Text(decorated, style = textStyle, modifier = decoration.textModifier)
-            Text(rest, style = textStyle)
-        } else {
-            Text(sampleText, style = textStyle, modifier = decoration.textModifier)
-        }
-        if (decoration.showsMarkerIcon) {
-            Spacer(Modifier.width(1.dp))
-            SuperscriptMarker(with(LocalDensity.current) { textStyle.fontSize.toDp() }, iconSlot)
-        }
-    }
+        decoratePartially = decoratePartially,
+        ellipsizeTail = false,
+        iconSlot = iconSlot,
+    )
 }

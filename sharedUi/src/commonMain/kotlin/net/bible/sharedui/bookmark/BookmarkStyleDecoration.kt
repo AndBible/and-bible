@@ -38,6 +38,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -190,6 +191,77 @@ fun SuperscriptMarker(textSizeDp: Dp, iconSlot: @Composable () -> Unit) {
 }
 
 /**
+ * The ONE renderer for a style sample: the text (whole, or split into a decorated selection half
+ * and an undecorated tail) plus MARKER's superscript glyph in the right place. Both surfaces that
+ * show a sample — [LabelStyleTag] in the list row and [BookmarkStylePreview] in the editor — go
+ * through this, and neither may re-implement any part of it.
+ *
+ * This exists because they DID re-implement it: each carried its own copy of the split condition,
+ * both copies excluded MARKER from the split, and so the glyph was appended after the WHOLE sample
+ * on both surfaces. The reader puts it after the last element of the selection for a partial range
+ * (`bibleview-js/src/composables/bookmarks.ts:768`) and after the last verse element for a whole
+ * one (`:735`), which is exactly what "split, glyph at the cut" reproduces.
+ *
+ * HIDDEN still never splits: it decorates nothing, so the seam would be invisible AND meaningless,
+ * and splitting one Text into two only risks a different line break.
+ *
+ * [ellipsizeTail] belongs to the tag, not the preview: only the undecorated tail may ellipsize —
+ * the decorated half is the part that says "selection", so it must render whole or the
+ * demonstration is lost. The decorated half is never ellipsized for the same reason in
+ * [LabelStyleTag]: the pair's combined width is kept inside the call site's cap
+ * (`ManageLabelsScreen.kt`'s `tagMaxWidth`, 110dp), not left to overflow past it unclipped.
+ * `ManageLabels_styles_longname_light.png` (STUDYPAD, qualifiers = "fr", whose
+ * `display_mode_marker` "Marqueur uniquement" is the widest style string in the tree) shows the
+ * split tag ellipsising inside its own bound rather than spilling past it — that golden is the
+ * evidence this composition does the right thing under the real 110dp cap and the longest
+ * real-world label.
+ */
+@Composable
+fun BookmarkStyleSample(
+    style: BookmarkDisplayStyle,
+    colorArgb: Int,
+    text: String,
+    textStyle: TextStyle,
+    color: Color,
+    modifier: Modifier = Modifier,
+    decoratePartially: Boolean = false,
+    ellipsizeTail: Boolean = false,
+    iconSlot: @Composable () -> Unit,
+) {
+    val decoration = bookmarkStyleDecoration(style, colorArgb)
+    val marker: @Composable () -> Unit = {
+        if (decoration.showsMarkerIcon) {
+            Spacer(Modifier.width(1.dp))
+            SuperscriptMarker(with(LocalDensity.current) { textStyle.fontSize.toDp() }, iconSlot)
+        }
+    }
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        if (decoratePartially && style != BookmarkDisplayStyle.HIDDEN) {
+            val (decorated, rest) = splitSelectionSample(text)
+            Text(decorated, style = textStyle, color = color, maxLines = 1, modifier = decoration.textModifier)
+            marker()
+            Text(
+                rest,
+                style = textStyle,
+                color = color,
+                maxLines = 1,
+                overflow = if (ellipsizeTail) TextOverflow.Ellipsis else TextOverflow.Clip,
+            )
+        } else {
+            Text(
+                text,
+                style = textStyle,
+                color = color,
+                maxLines = 1,
+                overflow = if (ellipsizeTail) TextOverflow.Ellipsis else TextOverflow.Clip,
+                modifier = decoration.textModifier,
+            )
+            marker()
+        }
+    }
+}
+
+/**
  * A label's style, small enough to sit on a list row: **the style's own localised name, drawn with
  * that style**, in the label's colour.
  *
@@ -212,7 +284,6 @@ fun LabelStyleTag(
     iconSlot: @Composable () -> Unit,
 ) {
     val strings = LocalStrings.current
-    val decoration = bookmarkStyleDecoration(style, colorArgb)
     val text = when (style) {
         BookmarkDisplayStyle.HIGHLIGHT -> strings.displayModeHighlight
         BookmarkDisplayStyle.UNDERLINE -> strings.displayModeUnderline
@@ -225,39 +296,15 @@ fun LabelStyleTag(
     } else {
         MaterialTheme.colorScheme.onSurface
     }
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        // MARKER and HIDDEN decorate nothing, so a partial split would show as an invisible seam in
-        // the middle of a word -- skip it and keep one Text.
-        val split = decoratePartially && style != BookmarkDisplayStyle.MARKER && style != BookmarkDisplayStyle.HIDDEN
-        if (split) {
-            val (decorated, rest) = splitSelectionSample(text)
-            // The decorated half is never ellipsized -- it is the part that says "selection", so it
-            // must render whole or the demonstration is lost. The undecorated tail is the one given
-            // TextOverflow.Ellipsis, so IT alone ellipsizes once ITS OWN width exceeds what remains.
-            // Confirmed: the pair's combined width IS kept inside the call site's cap
-            // (ManageLabelsScreen.kt's `tagMaxWidth`, 110dp), not left to overflow past it unclipped.
-            // ManageLabels_styles_longname_light.png (STUDYPAD, qualifiers = "fr", whose
-            // display_mode_marker "Marqueur uniquement" is the widest style string in the tree)
-            // shows the split tag ellipsising inside its own bound rather than spilling past it --
-            // that golden is the evidence this Row-with-Ellipsis composition does the right thing
-            // under the real 110dp cap and the longest real-world label.
-            Text(decorated, style = textStyle, color = color, maxLines = 1, modifier = decoration.textModifier)
-            Text(rest, style = textStyle, color = color, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        } else {
-            Text(
-                text,
-                style = textStyle,
-                color = color,
-                // A tag is a short label, not a paragraph -- it must never wrap. Wrapping also
-                // silently inflates the row past its 48dp target.
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = decoration.textModifier,
-            )
-        }
-        if (decoration.showsMarkerIcon) {
-            Spacer(Modifier.width(1.dp))
-            SuperscriptMarker(with(LocalDensity.current) { textStyle.fontSize.toDp() }, iconSlot)
-        }
-    }
+    BookmarkStyleSample(
+        style = style,
+        colorArgb = colorArgb,
+        text = text,
+        textStyle = textStyle,
+        color = color,
+        modifier = modifier,
+        decoratePartially = decoratePartially,
+        ellipsizeTail = true,
+        iconSlot = iconSlot,
+    )
 }
