@@ -337,6 +337,16 @@ private fun LabelItemRow(
             .padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Leading, not trailing: this is a SELECTION control, not a property of the label like the
+        // three trailing toggles. Material puts a list item's selection checkbox at the leading
+        // edge. Same slot width as the trailing grid so the two columns stay dimensionally
+        // consistent. 4dp, not 12dp: Checkbox carries its own internal padding inside the 40dp
+        // slot, so the visual gap already reads wider than the number.
+        if (mode.showCheckboxes) {
+            TrailingSlot { Checkbox(checked = row.checked, onCheckedChange = { onToggleChecked(label.id) }) }
+            Spacer(Modifier.width(4.dp))
+        }
+
         Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) { markerGlyph() }
 
         Spacer(Modifier.width(12.dp))
@@ -357,16 +367,13 @@ private fun LabelItemRow(
             }
         }
 
-        // A fixed grid, not a run of conditional icons. Every slot is exactly TrailingSlotSize wide
-        // whether or not it draws anything, because the feedback was about COLUMNS: with each
+        // A fixed grid, not a run of conditional icons -- and no longer where the checkbox lives;
+        // that moved to the row's leading edge (see above). Every slot is exactly TrailingSlotSize
+        // wide whether or not it draws anything, because the feedback was about COLUMNS: with each
         // control gated on its own condition, no two rows put the bolt, the heart and the bookmark
         // in the same place. `mode` is constant for the whole list, so a mode without a given
         // control has no column at all and nothing to align; the only per-row variance that needs
         // reserving is the Unlabeled pseudo-label, which has no workspace toggles.
-        if (mode.showCheckboxes) {
-            TrailingSlot { Checkbox(checked = row.checked, onCheckedChange = { onToggleChecked(label.id) }) }
-        }
-
         if (mode.workspaceEdits) {
             if (label.isUnlabeled) {
                 Spacer(Modifier.width(TrailingSlotSize * 2))
