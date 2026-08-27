@@ -126,6 +126,7 @@ fun ManageLabelsScreen(
     title: String,
     rows: List<ManageLabelsRow>,
     mode: ManageLabelsMode,
+    styleTagsVisible: Boolean,
     searchText: String,
     searchMode: SearchMode,
     onSearch: (String) -> Unit,
@@ -185,6 +186,7 @@ fun ManageLabelsScreen(
                         is ManageLabelsRow.Item -> LabelItemRow(
                             row = row,
                             mode = mode,
+                            styleTagsVisible = styleTagsVisible,
                             onRowClick = onRowClick,
                             onRowLongClick = onRowLongClick,
                             onToggleChecked = onToggleChecked,
@@ -307,6 +309,7 @@ private fun CategoryHeaderRow(category: LabelCategory, strings: Strings) {
 private fun LabelItemRow(
     row: ManageLabelsRow.Item,
     mode: ManageLabelsMode,
+    styleTagsVisible: Boolean,
     onRowClick: (String) -> Unit,
     onRowLongClick: (String) -> Unit,
     onToggleChecked: (String) -> Unit,
@@ -362,7 +365,7 @@ private fun LabelItemRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (mode.styleTagsShown) {
+            if (mode.styleTagsShown && styleTagsVisible) {
                 StyleTagRow(label = label, markerGlyph = markerGlyph, strings = strings)
             }
         }

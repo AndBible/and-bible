@@ -87,6 +87,7 @@ class ManageLabelsInertPrimaryA11yTest {
                         title = "Manage labels",
                         rows = listOf(row),
                         mode = ManageLabelsMode.ASSIGN,
+                        styleTagsVisible = true,
                         searchText = "",
                         searchMode = SearchMode.NAME_START,
                         onSearch = {},

@@ -56,6 +56,9 @@ class ManageLabelsController(
     private val _rows = MutableStateFlow<List<ManageLabelsRow>>(emptyList())
     val rows: StateFlow<List<ManageLabelsRow>> = _rows.asStateFlow()
 
+    private val _styleTagsVisible = MutableStateFlow(service.styleTagsVisible())
+    val styleTagsVisible: StateFlow<Boolean> = _styleTagsVisible.asStateFlow()
+
     // ---- StudyPad content-search debounce (verbatim classic ManageLabels.kt:804-842) ----
     private var contentSearchJob: Job? = null
     // Bumped on every dispatch (whether or not a job is actually launched) so a completed job can
@@ -235,6 +238,14 @@ class ManageLabelsController(
     fun closeSearch() = searchBarMode.close()
     /** The ⋮ Re-order action: the user asking for the regrouping the toggles deliberately skip. */
     fun reOrder() = rebuild(reorder = true)
+    /** The ⋮ "Show style examples" toggle. Presentation only — deliberately does NOT rebuild(),
+     *  because the row content is unchanged and a rebuild would drag the sticky-order machinery in
+     *  for nothing. */
+    fun toggleStyleTags() {
+        val next = !_styleTagsVisible.value
+        _styleTagsVisible.value = next
+        service.setStyleTagsVisible(next)
+    }
     fun toggleChecked(id: String) {
         val ctx = contextSelected()
         if (ctx.contains(id)) { ctx.remove(id); ensureNotContextPrimary(id) }

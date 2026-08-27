@@ -12,6 +12,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -31,6 +32,7 @@ class ManageLabelsControllerTest {
         private val overridden: Map<String, BookmarkDisplayStyle> = emptyMap(),
         private val unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null),
         private val contentSearch: suspend (String) -> List<ManageLabelsRow.SearchResult> = { emptyList() },
+        var styleTags: Boolean = true,
     ) : ManageLabelsService {
         override fun assignableLabels() = labels
         override fun unlabeledLabel() = unlabeled
@@ -38,11 +40,13 @@ class ManageLabelsControllerTest {
         override fun overriddenLabelStyles() = overridden
         override fun randomColorArgb() = 0x11223344
         override suspend fun searchStudyPadsByContent(text: String): List<ManageLabelsRow.SearchResult> = contentSearch(text)
+        override fun styleTagsVisible() = styleTags
+        override fun setStyleTagsVisible(visible: Boolean) { styleTags = visible }
     }
 
     private fun controller(
         mode: ManageLabelsMode,
-        labels: List<LabelItem>,
+        labels: List<LabelItem> = emptyList(),
         recent: List<String> = emptyList(),
         overridden: Map<String, BookmarkDisplayStyle> = emptyMap(),
         initialSelected: Set<String> = emptySet(),
@@ -53,9 +57,13 @@ class ManageLabelsControllerTest {
         unlabeled: LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null),
         scope: CoroutineScope = CoroutineScope(Dispatchers.Unconfined),
         contentSearch: suspend (String) -> List<ManageLabelsRow.SearchResult> = { emptyList() },
+        // Override to hand in a FakeService instance the test still holds a reference to (e.g. to
+        // assert the write-through of a persisted preference); defaults to a fresh one built from
+        // the params above, exactly as before this parameter existed.
+        service: ManageLabelsService = FakeService(labels, recent, overridden, unlabeled, contentSearch),
     ): ManageLabelsController = ManageLabelsController(
         mode = mode,
-        service = FakeService(labels, recent, overridden, unlabeled, contentSearch),
+        service = service,
         scope = scope,
         initialSelected = initialSelected,
         initialAutoAssign = initialAutoAssign,
@@ -580,6 +588,30 @@ class ManageLabelsControllerTest {
         c.toggleFavourite("L3")
         assertEquals(before, describe(c.rows.value))
         assertTrue(l3().label.favourite, "toggleFavourite must actually flip favourite")
+    }
+
+    @Test fun toggleStyleTags_flips_and_writes_through() {
+        val service = FakeService(labels = threeLabels())
+        val c = controller(mode = ManageLabelsMode.WORKSPACE, service = service)
+        assertTrue(c.styleTagsVisible.value)
+        c.toggleStyleTags()
+        assertFalse(c.styleTagsVisible.value)
+        assertFalse(service.styleTags)
+        c.toggleStyleTags()
+        assertTrue(c.styleTagsVisible.value)
+        assertTrue(service.styleTags)
+    }
+
+    @Test fun toggleStyleTags_seeds_from_the_service() {
+        val c = controller(mode = ManageLabelsMode.WORKSPACE, service = FakeService(labels = threeLabels(), styleTags = false))
+        assertFalse(c.styleTagsVisible.value)
+    }
+
+    @Test fun toggleStyleTags_does_not_rebuild_the_rows() {
+        val c = controller(mode = ManageLabelsMode.WORKSPACE, service = FakeService(labels = threeLabels()))
+        val before = c.rows.value
+        c.toggleStyleTags()
+        assertSame(before, c.rows.value)
     }
 
     /** Of the three host apply hooks, only a RENAME actually exercises `reorder = true`

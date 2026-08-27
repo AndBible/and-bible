@@ -188,6 +188,7 @@ class ManageLabelsGoldenTest {
         actions: @Composable RowScope.() -> Unit = {},
         searchActions: @Composable RowScope.() -> Unit = {},
         rows: List<ManageLabelsRow>? = null,
+        styleTagsVisible: Boolean = true,
     ) = @androidx.compose.runtime.Composable {
         ManageLabelsScreen(
             title = "Manage labels",
@@ -195,6 +196,7 @@ class ManageLabelsGoldenTest {
             // shadows the `rows(mode)` MEMBER FUNCTION by simple name inside this scope.
             rows = rows ?: this.rows(mode),
             mode = mode,
+            styleTagsVisible = styleTagsVisible,
             searchText = searchText,
             searchMode = searchMode,
             onSearch = {},
@@ -256,6 +258,7 @@ class ManageLabelsGoldenTest {
             title = "Manage labels",
             rows = searchResultRows(),
             mode = ManageLabelsMode.STUDYPAD,
+            styleTagsVisible = true,
             searchText = "god",
             searchMode = SearchMode.CONTENT,
             onSearch = {},

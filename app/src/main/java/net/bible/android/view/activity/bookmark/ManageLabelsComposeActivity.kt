@@ -165,12 +165,14 @@ class ManageLabelsComposeActivity : ActivityBase() {
                     val searchText by controller.searchText.collectAsState()
                     val searchMode by controller.searchMode.collectAsState()
                     val searchModeActive by controller.searchModeActive.collectAsState()
+                    val styleTagsVisible by controller.styleTagsVisible.collectAsState()
                     var showExportDialog by remember { mutableStateOf(false) }
 
                     ManageLabelsScreen(
                         title = getString(data.titleId),
                         rows = rows,
                         mode = controller.mode,
+                        styleTagsVisible = styleTagsVisible,
                         searchText = searchText,
                         searchMode = searchMode,
                         onSearch = controller::setSearch,
@@ -332,6 +334,10 @@ class ManageLabelsComposeActivity : ActivityBase() {
             )
         }
         NewLabelIcon(onClick = { controller.newLabel() })
+        // Read locally rather than threaded in as a parameter: this composable is defined outside
+        // setContent's scope (it's a plain member function, not a lambda nested in it), so the
+        // `styleTagsVisible by collectAsState()` collected there isn't in scope here.
+        val styleTagsVisible by controller.styleTagsVisible.collectAsState()
         AbOverflowMenu(contentDescription = null) { close ->
             AbMenuItem(
                 text = getString(R.string.help),
@@ -343,6 +349,26 @@ class ManageLabelsComposeActivity : ActivityBase() {
                     text = getString(R.string.reorder),
                     onClick = { close(); controller.reOrder() },
                     icon = { Icon(painterResource(R.drawable.ic_baseline_refresh_24), contentDescription = null) },
+                )
+            }
+            // Round 15a. NOT a reversal of round 12a's "compact list" deletion: that toggle was
+            // removed because both of its row bodies measured identically inside the same
+            // heightIn(min = 48.dp), so it moved no pixel. This one removes a whole line from the
+            // row. Shown only where the examples can appear at all — elsewhere it would be a
+            // control that changes nothing.
+            if (controller.mode.styleTagsShown) {
+                AbMenuItem(
+                    text = getString(R.string.show_style_examples),
+                    onClick = { close(); controller.toggleStyleTags() },
+                    checkable = true,
+                    checked = styleTagsVisible,
+                    // AbMenu.kt:107-112 puts a `checkable` row's tick in the TRAILING slot, so this
+                    // row has nothing in the leading one while every other row in this menu has an
+                    // icon — without a reserved slot its label would sit 24dp left of its
+                    // neighbours'. An icon is not an option here: `:app/src/main` has no Material
+                    // ImageVectors on purpose (material-icons-extended is testImplementation-only,
+                    // app/build.gradle.kts:507), and no drawable in the tree means "style example".
+                    reserveIconSlot = true,
                 )
             }
             if (controller.mode.hasResetButton) {

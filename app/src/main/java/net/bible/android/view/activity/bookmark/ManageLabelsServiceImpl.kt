@@ -23,6 +23,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.StudyPadSearchResult
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
@@ -67,7 +68,15 @@ class ManageLabelsServiceImpl(
         withContext(Dispatchers.IO) {
             bookmarkControl.searchStudyPadsByContent(text).map { it.toSearchResultRow() }
         }
+
+    override fun styleTagsVisible(): Boolean =
+        CommonUtils.settings.getBoolean(STYLE_TAGS_PREF, true)
+
+    override fun setStyleTagsVisible(visible: Boolean) =
+        CommonUtils.settings.setBoolean(STYLE_TAGS_PREF, visible)
 }
+
+private const val STYLE_TAGS_PREF = "manage_labels_style_tags"
 
 /** [ManageLabelsRow.SearchResult] view of a classic [StudyPadSearchResult] — takes only the FIRST
  *  match's snippet/span/entry id (mirrors classic `ManageLabelItemAdapter`'s `VIEW_TYPE_SEARCH_RESULT`,

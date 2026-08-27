@@ -671,6 +671,7 @@ interface Strings {
     val bookmarkStyleTagSelection: String             // R.string.bookmark_style_tag_selection
     val bookmarkStyleTagWholeVerse: String            // R.string.bookmark_style_tag_whole_verse
     val bookmarkStyleTagWorkspace: String             // R.string.bookmark_style_tag_workspace
+    val showStyleExamples: String                     // R.string.show_style_examples
 
     // Round 14a — dialog-to-sheet conversions
     val cloudDocSyncNow: String                      // R.string.cloud_doc_sync_now
