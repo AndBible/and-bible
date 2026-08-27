@@ -25,10 +25,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -87,7 +87,12 @@ fun ManageLabelsHelpDialog(
                     // reused intro already says what ticking a label does, so a checkbox row would
                     // repeat the intro rather than add information.
                     if (mode == ManageLabelsMode.ASSIGN) {
-                        HelpRow({ Icon(Icons.Filled.CheckBox, null) }, strings.manageLabelsHelpCheckbox)
+                        // The only legend row whose screen counterpart is an interactive control
+                        // (ManageLabelsScreen.kt's Checkbox), not a static Icon -- drawing the real,
+                        // read-only Checkbox here (onCheckedChange = null, so it carries no click
+                        // target or toggleable semantics) is what keeps "it IS the glyph" true for
+                        // this row too, matching all five icon rows below it.
+                        HelpRow({ Checkbox(checked = true, onCheckedChange = null) }, strings.manageLabelsHelpCheckbox)
                     }
                     if (mode.primaryShown) {
                         HelpRow({ Icon(Icons.Filled.Bookmark, null) }, strings.manageLabelsHelpPrimary)

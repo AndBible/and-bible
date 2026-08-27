@@ -682,10 +682,10 @@ interface Strings {
     val manageLabelsHelpReorder: String               // R.string.manage_labels_help_reorder
     // Reused, already translated — see the spec §4.6: these paragraphs did NOT go stale.
     val assignLabelsHelpIntro: String                 // R.string.assing_labels_help1
-    val autoAssignLabelsHelpIntro: String              // R.string.auto_assing_labels_help1
-    val hideLabelsHelpIntro: String                    // R.string.bookmark_settings_hide_labels_summary
-    val studyPadsHelpText: String                      // R.string.help_studypads_text
-    val watchTutorialVideo: String                     // R.string.watch_tutorial_video
+    val autoAssignLabelsHelpIntro: String             // R.string.auto_assing_labels_help1
+    val hideLabelsHelpIntro: String                   // R.string.bookmark_settings_hide_labels_summary
+    val studyPadsHelpText: String                     // R.string.help_studypads_text
+    val watchTutorialVideo: String                    // R.string.watch_tutorial_video
 
     // Round 14a — dialog-to-sheet conversions
     val cloudDocSyncNow: String                      // R.string.cloud_doc_sync_now
