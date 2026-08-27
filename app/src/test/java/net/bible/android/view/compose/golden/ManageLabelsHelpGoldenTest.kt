@@ -36,6 +36,19 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class ManageLabelsHelpGoldenTest {
 
+    /**
+     * ASSIGN, six legend rows -- of which this image shows FIVE. The sixth (re-order, the ⋮ glyph)
+     * sits below the scroll fold, and no viewport height fixes that: [AbInfoDialog] caps its content
+     * at its own max height and scrolls inside it, deliberately (round 15a Task 6 moved that bound
+     * from the body Text to the whole Column precisely so a long legend cannot push the buttons off
+     * screen). Raising heightDp to 1000 was tried and only re-centred the same-size dialog in more
+     * grey.
+     *
+     * That is product behaviour, not a defect, and the legend is still fully covered by the four
+     * captures together: the ⋮ row is the ONLY legend row in [help_hide], where it is plainly
+     * visible. Whether a real user can reach it by scrolling is a device-pass item, not something a
+     * static capture can answer.
+     */
     @Test fun help_assign() = captureMatrix("ManageLabelsHelp", "assign", heightDp = 700) {
         ManageLabelsHelpDialog(
             mode = ManageLabelsMode.ASSIGN,
@@ -46,6 +59,10 @@ class ManageLabelsHelpGoldenTest {
         )
     }
 
+    /** WORKSPACE: the reused `auto_assing_labels_help1` intro plus the scope sentence, then five
+     *  legend rows -- the last of which is below the scroll fold for the same designed reason as in
+     *  [help_assign]. Read this image for the intro and scope sentence being the ORIGINAL translated
+     *  strings rather than new English, which is the ≈54-translation saving §4.6 is about. */
     @Test fun help_workspace() = captureMatrix("ManageLabelsHelp", "workspace", heightDp = 700) {
         ManageLabelsHelpDialog(
             mode = ManageLabelsMode.WORKSPACE,

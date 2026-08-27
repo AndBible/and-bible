@@ -302,48 +302,81 @@ class ManageLabelsGoldenTest {
     @Test fun manageLabels_styles() =
         captureMatrix("ManageLabels", "styles", heightDp = 700, content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()))
 
+    /** [styleRows] with S2's NAME made long, for [manageLabels_styles_longName]. S2 is the row
+     *  that carries TWO tags (its whole-verse axis really differs), so it is where a long name and
+     *  a full tag line compete for the same 108dp column. */
+    private fun longNameStyleRows(): List<ManageLabelsRow> = styleRows().map { row ->
+        if (row is ManageLabelsRow.Item && row.label.id == "S2") {
+            row.copy(label = row.label.copy(name = "Notes de sermon du dimanche matin"))
+        } else {
+            row
+        }
+    }
+
     /**
-     * Fix round 1: whether `LabelStyleTag`'s `tagMaxWidth` (`widthIn(max = 110.dp)`,
-     * `ManageLabelsScreen.kt`) actually binds a tag's width at all -- checked with the widest real
-     * translated tag string, in a mode where the surrounding column is wide enough that the CAP,
-     * not the column, is what a reader is looking at.
+     * Width pressure on the row's name+tag column, in the widest mode that still SHOWS tags.
      *
-     * The column is NOT a constant 110dp+ everywhere: at the goldens' 320dp width the content box
-     * is 288dp (320 - 2x16 padding), minus the 24dp glyph and 12dp spacer = 252dp, minus whatever
-     * the trailing grid reserves for the mode. ASSIGN reserves 4x48=192dp (checkbox + bolt + heart
-     * + primary) -> a 60dp name/tag column; WORKSPACE reserves 3x48=144dp -> 108dp. Both are
-     * narrower than the 110dp cap, so in [manageLabels_styles] (ASSIGN) the COLUMN truncates the
-     * tag long before the cap could -- that capture cannot show whether the cap itself works.
-     * STUDYPAD reserves nothing (`showCheckboxes`/`workspaceEdits`/`primaryShown` all false) -> a
-     * 252dp column, comfortably wider than the 110dp cap, which is why this capture uses it: here
-     * the cap is the binding constraint, not the column.
+     * Round 15a changed what this capture can prove, twice over, and the honest statement of what
+     * is left is the point of this KDoc.
      *
-     * The pressing string is French's `display_mode_marker`, "Marqueur uniquement" (19 chars) --
-     * the widest of any of the four display-mode strings in the whole `res` tree (checked with a
-     * one-off scan of every locale's strings.xml; Vietnamese's 16-char `display_mode_highlight`,
-     * used in an earlier draft of this test, presses less hard). It lands on row S2's WHOLE-VERSE
-     * tag ([styleRows]'s `wholeVerseStyle = BookmarkDisplayStyle.MARKER`) and additionally appends
-     * the superscript marker glyph ([net.bible.sharedui.bookmark.SuperscriptMarker]), so this is the single hardest-pressing
-     * real tag this codebase can render. Loaded via `@Config(qualifiers = "fr")`, the same real
-     * `@Config` locale mechanism `manageLabels_assign_rtl` already uses for Arabic -- there is no
-     * separate fixture-only string override point (see [screen]/[label], which take no `Strings`
-     * parameter).
+     * It began as the evidence that `LabelStyleTag`'s `tagMaxWidth` (`widthIn(max = 110.dp)`,
+     * `ManageLabelsScreen.kt`) binds a tag's width at all. That needed a mode whose column is
+     * WIDER than the 110dp cap, so the cap rather than the column is the binding constraint, and
+     * STUDYPAD was the only one: at the goldens' 320dp width the content box is 288dp
+     * (320 - 2x16 padding), minus the 24dp glyph and 12dp spacer = 252dp, minus whatever the
+     * trailing grid reserves. STUDYPAD reserved nothing -> 252dp. The pressing string was French's
+     * `display_mode_marker`, "Marqueur uniquement" (19 chars), the widest display-mode string in
+     * the whole `res` tree, landing on S2's whole-verse tag plus its superscript glyph.
      *
-     * Read this image for: measure S2's second tag -- the one after the " · " separator, carrying
-     * "Marqueur uniquement" plus its superscript dot -- from its own left edge (right after the
-     * separator) to its own right edge (the last visible glyph or the ellipsis, whichever is
-     * later). At this capture's density (1.0), 1px = 1dp. If that measured span is at or under
-     * 110px, the cap is binding as intended (the string may also simply be short of 110dp and
-     * render whole with no ellipsis at all -- either is a pass). If it measures MEANINGFULLY MORE
-     * than 110px -- visibly reaching toward the rest of the 252dp column rather than stopping near
-     * its own 110dp box -- the cap has failed to bind and `tagMaxWidth` needs a real fix.
+     * Both halves of that are gone:
+     *  - §4.2 replaced the tag text with the AXIS word, so no `display_mode_*` string is rendered
+     *    here any more and "Marqueur uniquement" cannot appear at all.
+     *  - §4.3 gated the tags to ASSIGN and WORKSPACE, so STUDYPAD now draws NO tag line. Captured
+     *    in STUDYPAD this test would show a plain one-line list and prove nothing whatsoever.
+     *
+     * So the capture moves to WORKSPACE, the widest mode that still shows tags: it reserves
+     * 3x48=144dp for the trailing grid -> a 108dp column. **The 110dp tag cap is therefore no
+     * longer exercisable in ANY mode** -- ASSIGN's column is ~64dp after §4.4 moved the checkbox
+     * to the leading edge (288 - 40 checkbox - 4 - 24 glyph - 12 - 144 trailing) and WORKSPACE's is
+     * 108dp; both bind before the cap does. That proof is simply unavailable until a tag string
+     * long enough to reach 110dp inside a 108dp column exists, which is a contradiction, or until
+     * the goldens can be captured wider than 320dp, which the harness does not allow.
+     *
+     * What it proves NOW: that the name column ellipsises under a long name WITH the tag line
+     * present, and that the two-tag line and the trailing grid still lay out around it. The long
+     * name is the fixture's own ([longNameStyleRows]), not a translation, because the three new
+     * `bookmark_style_tag_*` keys ship English-first -- under `qualifiers = "fr"` they fall back to
+     * English, which is exactly why the French run no longer presses the tags.
+     *
+     * `qualifiers = "fr"` is kept deliberately: it is the only place in this file that renders the
+     * screen under a non-default locale with real translated chrome around the fixture, and the
+     * round-15a English fallback is itself worth seeing in an image.
+     *
+     * TODO(post-Transifex): re-point this at the longest translation of bookmark_style_tag_* -- until
+     * they are translated, the French run falls back to English and this golden no longer proves the
+     * 110dp tag cap the way "Marqueur uniquement" did.
      */
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "fr")
     fun manageLabels_styles_longName() =
         captureGolden(
             "ManageLabels", "styles_longname", EDGE_MODE, heightDp = 700,
-            content = screen(ManageLabelsMode.STUDYPAD, rows = styleRows()),
+            content = screen(ManageLabelsMode.WORKSPACE, rows = longNameStyleRows()),
+        )
+
+    /**
+     * The ⋮ "Show style examples" toggle, OFF (§4.5), in WORKSPACE -- the mode where the examples
+     * are relevant, so the toggle is the only thing suppressing them.
+     *
+     * Read this image for two things: every row falls to ONE line, and the trailing ⚡/♥/🔖 grid
+     * has not moved a pixel. `heightIn(min = 48.dp)` is what guarantees the second, so a row that
+     * lost its tag line must still be 48dp tall -- if the rows visibly tightened, the gate was put
+     * somewhere that changes the row's measured height rather than only its content.
+     */
+    @Test fun manageLabels_workspace_noTags() =
+        captureGolden(
+            "ManageLabels", "noTags", EDGE_MODE, heightDp = 400,
+            content = screen(ManageLabelsMode.WORKSPACE, styleTagsVisible = false, rows = styleRows()),
         )
 
     /** WORKSPACE: the trailing grid's ⚡/♥/🔖 columns, an override tag (⚙) on the tag line, and
