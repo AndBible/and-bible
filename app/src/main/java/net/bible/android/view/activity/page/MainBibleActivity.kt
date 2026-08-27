@@ -1411,15 +1411,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         startActivityForResult(ScreenLauncher.intentFor(this, Screen.BibleSpeak), STD_REQUEST_CODE)
     }
 
-    internal fun composeWorkspace() {
-        val host = composeReadingViewHost
-        if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
-            host.showWorkspaceSheet()
-            return
-        }
-        startActivityForResult(ScreenLauncher.intentFor(this, Screen.WorkspaceSelector), WORKSPACE_CHANGED)
-    }
-
     /**
      * Switch to a workspace by id. Extracted from the WORKSPACE_CHANGED result arm so round 15b's
      * quick sheet and the full selector's activity result cannot drift apart.
