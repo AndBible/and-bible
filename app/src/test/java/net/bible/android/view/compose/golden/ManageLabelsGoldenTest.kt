@@ -296,9 +296,9 @@ class ManageLabelsGoldenTest {
     /** Every style on one page, two-line (default) mode: the tag column is the thing under test.
      *  Row S2's whole-verse axis differs so its second tag appears; S4 and the rest inherit, so
      *  they show one tag each; S5 carries all three tags at once (selection, whole-verse AND a
-     *  workspace override), the ⚙-marked tag the row's second line ends with now that the ⚙ has
-     *  moved out of the trailing grid. heightDp raised 500 -> 700 for the extra row plus room for
-     *  any tag-line wrap. */
+     *  workspace override), the tag carrying the override mark that the row's second line ends
+     *  with now that the override mark has moved out of the trailing grid. heightDp raised
+     *  500 -> 700 for the extra row plus room for any tag-line wrap. */
     @Test fun manageLabels_styles() =
         captureMatrix("ManageLabels", "styles", heightDp = 700, content = screen(ManageLabelsMode.ASSIGN, rows = styleRows()))
 
