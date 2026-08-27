@@ -673,6 +673,20 @@ interface Strings {
     val bookmarkStyleTagWorkspace: String             // R.string.bookmark_style_tag_workspace
     val showStyleExamples: String                     // R.string.show_style_examples
 
+    // Round 15a — the labels help legend
+    val manageLabelsHelpCheckbox: String              // R.string.manage_labels_help_checkbox
+    val manageLabelsHelpPrimary: String               // R.string.manage_labels_help_primary
+    val manageLabelsHelpAutoAssign: String            // R.string.manage_labels_help_autoassign
+    val manageLabelsHelpFavourite: String             // R.string.manage_labels_help_favourite
+    val manageLabelsHelpStyles: String                // R.string.manage_labels_help_styles
+    val manageLabelsHelpReorder: String               // R.string.manage_labels_help_reorder
+    // Reused, already translated — see the spec §4.6: these paragraphs did NOT go stale.
+    val assignLabelsHelpIntro: String                 // R.string.assing_labels_help1
+    val autoAssignLabelsHelpIntro: String              // R.string.auto_assing_labels_help1
+    val hideLabelsHelpIntro: String                    // R.string.bookmark_settings_hide_labels_summary
+    val studyPadsHelpText: String                      // R.string.help_studypads_text
+    val watchTutorialVideo: String                     // R.string.watch_tutorial_video
+
     // Round 14a — dialog-to-sheet conversions
     val cloudDocSyncNow: String                      // R.string.cloud_doc_sync_now
 }

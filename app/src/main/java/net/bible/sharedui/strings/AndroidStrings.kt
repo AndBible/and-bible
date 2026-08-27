@@ -617,6 +617,20 @@ class AndroidStrings(private val context: Context) : Strings {
     override val bookmarkStyleTagWorkspace: String get() = context.getString(R.string.bookmark_style_tag_workspace)
     override val showStyleExamples: String get() = context.getString(R.string.show_style_examples)
 
+    // Round 15a — the labels help legend
+    override val manageLabelsHelpCheckbox: String get() = context.getString(R.string.manage_labels_help_checkbox)
+    override val manageLabelsHelpPrimary: String get() = context.getString(R.string.manage_labels_help_primary)
+    override val manageLabelsHelpAutoAssign: String get() = context.getString(R.string.manage_labels_help_autoassign)
+    override val manageLabelsHelpFavourite: String get() = context.getString(R.string.manage_labels_help_favourite)
+    override val manageLabelsHelpStyles: String get() = context.getString(R.string.manage_labels_help_styles)
+    override val manageLabelsHelpReorder: String get() = context.getString(R.string.manage_labels_help_reorder)
+    // Reused, already translated — see the spec §4.6: these paragraphs did NOT go stale.
+    override val assignLabelsHelpIntro: String get() = context.getString(R.string.assing_labels_help1)
+    override val autoAssignLabelsHelpIntro: String get() = context.getString(R.string.auto_assing_labels_help1)
+    override val hideLabelsHelpIntro: String get() = context.getString(R.string.bookmark_settings_hide_labels_summary)
+    override val studyPadsHelpText: String get() = context.getString(R.string.help_studypads_text)
+    override val watchTutorialVideo: String get() = context.getString(R.string.watch_tutorial_video)
+
     // Round 14a — dialog-to-sheet conversions
     override val cloudDocSyncNow: String get() = context.getString(R.string.cloud_doc_sync_now)
 }

@@ -18,12 +18,7 @@ package net.bible.android.view.activity.bookmark
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.TextUtils.concat
-import android.text.method.LinkMovementMethod
-import android.text.style.ImageSpan
 import android.util.Log
-import android.widget.TextView
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
@@ -60,9 +55,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.displayName
-import net.bible.service.common.htmlToSpan
 import net.bible.service.common.labelsAndBookmarksPlaylist
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.exportStudyPads
@@ -74,6 +67,7 @@ import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.AbAppTheme
+import net.bible.sharedui.bookmark.ManageLabelsHelpDialog
 import net.bible.sharedui.bookmark.ManageLabelsScreen
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbActionSheet
@@ -167,6 +161,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
                     val searchModeActive by controller.searchModeActive.collectAsState()
                     val styleTagsVisible by controller.styleTagsVisible.collectAsState()
                     var showExportDialog by remember { mutableStateOf(false) }
+                    var showHelp by remember { mutableStateOf(false) }
 
                     ManageLabelsScreen(
                         title = getString(data.titleId),
@@ -204,6 +199,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
                                 onOpenSearch = controller::openSearch,
                                 onExportStudyPads = { showExportDialog = true },
                                 onImportStudyPads = ::importStudyPads,
+                                onOpenHelp = { showHelp = true },
                             )
                         },
                         // The New icon lives here too, not just in `actions`: a search that finds
@@ -242,6 +238,25 @@ class ManageLabelsComposeActivity : ActivityBase() {
                             onDismiss = { showExportDialog = false },
                             selectAllText = getString(R.string.select_all),
                             selectNoneText = getString(R.string.select_none),
+                        )
+                    }
+
+                    if (showHelp) {
+                        ManageLabelsHelpDialog(
+                            mode = controller.mode,
+                            title = getString(data.titleId),
+                            // Classic showed this only for WORKSPACE and HIDE (ManageLabels.kt's
+                            // h11), because those are the two scoped settings.
+                            scopeSentence = if (controller.mode == ManageLabelsMode.WORKSPACE ||
+                                controller.mode == ManageLabelsMode.HIDELABELS
+                            ) {
+                                getString(
+                                    R.string.setting_scope,
+                                    getString(if (data.isWindow) R.string.setting_scope_window else R.string.setting_scope_workspace),
+                                )
+                            } else null,
+                            readMoreUrl = labelsAndBookmarksPlaylist,
+                            onDismiss = { showHelp = false },
                         )
                     }
 
@@ -319,6 +334,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
         onOpenSearch: () -> Unit,
         onExportStudyPads: () -> Unit,
         onImportStudyPads: () -> Unit,
+        onOpenHelp: () -> Unit,
     ) {
         // Search + New as visible icons, matching WorkspaceSelectorScreen.kt:136-142 so the two
         // list screens read as one family. Everything mode-gated or rare stays in the overflow.
@@ -341,7 +357,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
         AbOverflowMenu(contentDescription = null) { close ->
             AbMenuItem(
                 text = getString(R.string.help),
-                onClick = { close(); help() },
+                onClick = { close(); onOpenHelp() },
                 icon = { Icon(painterResource(R.drawable.ic_help_white_24dp), contentDescription = null) },
             )
             if (controller.mode.hasReOrderButton) {
@@ -609,87 +625,6 @@ class ManageLabelsComposeActivity : ActivityBase() {
             .setPositiveButton(R.string.yes) { _, _ -> cont.resume(true) }
             .setNegativeButton(R.string.cancel) { _, _ -> cont.resume(false) }
             .show()
-    }
-
-    // --- help (mirrors classic ManageLabels.help, ManageLabels.kt:424-499) ---
-
-    private fun help() {
-        when (data.mode) {
-            ManageLabels.Mode.STUDYPAD -> CommonUtils.showHelp(this, listOf(R.string.studypads))
-            ManageLabels.Mode.ASSIGN -> help(HelpMode.ASSIGN)
-            ManageLabels.Mode.WORKSPACE -> help(HelpMode.WORKSPACE)
-            ManageLabels.Mode.HIDELABELS -> help(HelpMode.HIDE)
-        }
-    }
-
-    private enum class HelpMode { WORKSPACE, ASSIGN, HIDE }
-
-    private fun getIconString(id: Int, iconId: Int): SpannableString {
-        val s = getString(id, "__ICON__")
-        val start = s.indexOf("__ICON__")
-        val length = 8
-        val icon = ImageSpan(getTintedDrawable(iconId))
-        val span = SpannableString(s)
-        span.setSpan(icon, start, start + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-        return span
-    }
-
-    private fun help(helpMode: HelpMode) {
-        val length = 9
-
-        val videoLink = "<i><a href=\"$labelsAndBookmarksPlaylist\">${getString(R.string.watch_tutorial_video)}</a></i><br><br>"
-        val v = htmlToSpan(videoLink)
-
-        val h1 = when (helpMode) {
-            HelpMode.WORKSPACE -> getString(R.string.auto_assing_labels_help1)
-            HelpMode.ASSIGN -> getString(R.string.assing_labels_help1)
-            HelpMode.HIDE -> getString(R.string.bookmark_settings_hide_labels_summary)
-        }
-
-        val h11 = "\n\n" + getString(
-            R.string.setting_scope,
-            getString(if (data.isWindow) R.string.setting_scope_window else R.string.setting_scope_workspace),
-        )
-
-        val h2 = concat("\n\n", getIconString(R.string.assing_labels_help2, R.drawable.ic_baseline_bookmark_24))
-        val text = getString(R.string.assing_labels_help3, "__ICON2__ __ICON3__")
-
-        val start2 = text.indexOf("__ICON2__")
-        val start3 = text.indexOf("__ICON3__")
-        val h3 = concat("\n\n", SpannableString(text).apply {
-            val icon2 = ImageSpan(getTintedDrawable(R.drawable.ic_label_24dp))
-            val icon3 = ImageSpan(getTintedDrawable(R.drawable.ic_label_circle))
-            setSpan(icon2, start2, start2 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            setSpan(icon3, start3, start3 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-        })
-
-        val h4 = concat("\n\n", getIconString(R.string.assing_labels_help4, R.drawable.ic_baseline_favorite_24))
-        val h5 = concat("\n\n", getIconString(R.string.assing_labels_help5, R.drawable.ic_baseline_refresh_24))
-        val span = concat(
-            v,
-            h1,
-            if (listOf(HelpMode.HIDE, HelpMode.WORKSPACE).contains(helpMode)) h11 else "",
-            *if (helpMode != HelpMode.HIDE) arrayOf(h2, h3, h4) else arrayOf(""),
-            h5,
-        )
-
-        val title = getString(
-            when (helpMode) {
-                HelpMode.ASSIGN -> R.string.assign_labels
-                HelpMode.WORKSPACE -> R.string.labels
-                HelpMode.HIDE -> R.string.bookmark_settings_hide_labels_title
-            },
-        )
-
-        val d = android.app.AlertDialog.Builder(this)
-            .setPositiveButton(R.string.okay, null)
-            .setTitle(title)
-            .setIcon(R.drawable.ic_logo)
-            .setMessage(span)
-            .create()
-
-        d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 }
 
