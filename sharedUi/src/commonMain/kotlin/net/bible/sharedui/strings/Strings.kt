@@ -266,6 +266,9 @@ interface Strings {
     fun copyOfWorkspace(name: String): String // R.string.copy_of_workspace (clone default name)
     fun workspaceListingWithCurrent(name: String): String  // R.string.workspace_listing_with_current
 
+    // Round 15b — the workspace quick sheet's footer row
+    val manageWorkspaces: String             // R.string.workspace_manage_workspaces
+
     // Batch 9a — AiConnectionSettingsScreen custom editors
     val resetToDefault: String                // R.string.reset_to_default
     val rawLogRetentionDisabledLabel: String   // R.string.raw_log_retention_summary_disabled (also the disable checkbox label)

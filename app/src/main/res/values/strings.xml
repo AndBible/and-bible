@@ -846,6 +846,7 @@
     <string name="search_settings">Search settings</string>
     <string name="dismiss">Dismiss</string>
     <string name="workspace_listing_with_current">%s (current)</string>
+    <string name="workspace_manage_workspaces">Manage workspaces…</string>
 
     <!-- Beta notice -->
     <string name="beta_notice_title">This is beta version!</string>
