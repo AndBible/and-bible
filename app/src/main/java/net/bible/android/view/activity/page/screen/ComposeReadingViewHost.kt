@@ -164,6 +164,7 @@ import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ReadingOverlay
 import net.bible.sharedcore.reading.ReadingOverlayExclusion
+import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
@@ -487,13 +488,33 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     ReadingOverlay.SpeakSheet -> speakSheet.close()
                     ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
                     ReadingOverlay.Llm -> Unit
-                    // Round 15b: no quick sheet exists yet to close — Task 3 replaces this with
-                    // closeQuickSheet() once the state and the opener exist.
-                    ReadingOverlay.QuickSheet -> Unit
+                    ReadingOverlay.QuickSheet -> closeQuickSheet()
                 }
             }
         },
     )
+
+    /**
+     * Round 15b: which quick sheet is open over the reading view, if any. ONE state for all four
+     * (see [ReadingQuickSheet]) — which is why the exclusion rule needs one member and this file
+     * one slot.
+     */
+    internal val quickSheet = mutableStateOf<ReadingQuickSheet?>(null)
+
+    /** Open a quick sheet, closing every other modal overlay first (spec §4.1). */
+    internal fun showQuickSheet(sheet: ReadingQuickSheet) {
+        ReadingOverlayExclusion.closedBy(ReadingOverlay.QuickSheet).forEach { overlay ->
+            when (overlay) {
+                ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
+                ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
+                ReadingOverlay.SpeakSheet -> speakSheet.close()
+                ReadingOverlay.QuickSheet -> Unit
+            }
+        }
+        quickSheet.value = sheet
+    }
+
+    internal fun closeQuickSheet() { quickSheet.value = null }
 
     // The REVERSE directions of the same rule live at the two other opening sites --
     // [showTextSettingEditor] and [showSpeakSettings] -- and were APPLIED AT THE 14a/14a-2 MERGE,
@@ -639,9 +660,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
                 ReadingOverlay.SpeakSheet -> speakSheet.close()
                 ReadingOverlay.TextSettingsEditor -> Unit
-                // Round 15b: no quick sheet exists yet to close — Task 3 replaces this with
-                // closeQuickSheet() once the state and the opener exist.
-                ReadingOverlay.QuickSheet -> Unit
+                ReadingOverlay.QuickSheet -> closeQuickSheet()
             }
         }
         // Close first: [SettingsEditorStack.open] assigns a `MutableStateFlow`, which conflates an
@@ -831,9 +850,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
                 ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
                 ReadingOverlay.SpeakSheet -> Unit
-                // Round 15b: no quick sheet exists yet to close — Task 3 replaces this with
-                // closeQuickSheet() once the state and the opener exist.
-                ReadingOverlay.QuickSheet -> Unit
+                ReadingOverlay.QuickSheet -> closeQuickSheet()
             }
         }
         // `open` assigns `listOf(page)`, so this always lands on the Settings page whatever depth
@@ -1013,6 +1030,24 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     },
                 )
             }
+        }
+    }
+
+    /**
+     * Round 15b's quick sheets — a SEVENTH sibling overlay, for the same reason as the six above: a
+     * `ModalBottomSheet` renders in its own window regardless of where it is composed, so opening
+     * one can never re-key the pane subtree and destroy the panes' BibleView WebViews.
+     *
+     * All four quick sheets mount HERE and nowhere else; `QuickSheetMountGuardTest` enforces it.
+     */
+    @Composable
+    private fun QuickSheetSlot() {
+        when (val sheet = quickSheet.value) {
+            null -> Unit
+            ReadingQuickSheet.History -> Unit          // Task 4
+            ReadingQuickSheet.Workspaces -> Unit       // Task 6
+            ReadingQuickSheet.Documents -> Unit        // Plan B
+            is ReadingQuickSheet.KeyChooser -> Unit    // Plan B
         }
     }
 
@@ -2461,6 +2496,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             textSettingsEditorSlot = { TextSettingsEditorSlot() },
             // Round 13a: the Speak settings sheet.
             speakSettingsSlot = { SpeakSettingsSlot() },
+            quickSheetSlot = { QuickSheetSlot() },
             // Task 8b Step 3: feeds MainBibleActivity.bottomOffsetForWebView's fourth term.
             onSearchSheetOffsetsChanged = { visible, heightPx -> activity.updateSearchSheetOffsets(visible, heightPx) },
             // Task 10: the "<document> cannot be searched" snackbar.
@@ -3186,6 +3222,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // is composed, so opening it can never re-key the pane subtree and destroy the panes'
             // BibleView WebViews. It self-hides when closed, so this stays unconditional too.
             speakSettingsSlot: @Composable () -> Unit = { },
+            // Round 15b: the quick sheets — a seventh sibling overlay. Defaulted to a no-op so every
+            // existing `mountComposeView` caller/test keeps compiling unchanged.
+            quickSheetSlot: @Composable () -> Unit = { },
             // Task 8b Step 3: reports the search sheet's live (visible, measured-height-in-px) pair
             // so [ComposeReadingViewHost.install] can feed `MainBibleActivity.bottomOffsetForWebView`
             // — see [MainBibleActivity.updateSearchSheetOffsets]'s kdoc for why the height must be
@@ -3635,6 +3674,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             // Round 13a: the Speak settings sheet — a sixth sibling overlay, same
                             // reason as the five above, and self-hiding when closed.
                             speakSettingsSlot()
+                            // Round 15b: the quick sheets — a seventh sibling overlay, same reason
+                            // as the six above, and self-hiding when closed.
+                            quickSheetSlot()
                     }
                 }
             }
