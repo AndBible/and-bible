@@ -30,6 +30,20 @@ class AbQuickSheetGoldenTest {
         }
     }
 
+    /**
+     * Fix round 3: [quickSheet_scrolling]'s OWN fixture, deliberately not a change to [rows] — the
+     * other four captures are byte-identical against controller-recorded goldens and must stay that
+     * way. `AbBottomFade.kt:47-52`'s 24dp fade window is only visible where it lands on drawn
+     * content, not bare surface, so a sparse fixture can pass this test while proving nothing about
+     * the fade wiring (round 3 fix report has the arithmetic for both fixtures).
+     */
+    @Composable
+    private fun denseRows(n: Int) {
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+            repeat(n) { Text("Row ${it + 1}", Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) }
+        }
+    }
+
     @Test fun quickSheet_plain() = captureMatrix("AbQuickSheet", "plain") {
         SheetSurface {
             AbQuickSheetContent(title = "Plain", onClose = {}) { rows(4) }
@@ -80,10 +94,16 @@ class AbQuickSheetGoldenTest {
      * rows to overflow the bound, plus an explicit `canScrollForward = { true }`, proves the fade is
      * genuinely wired, not merely present in the modifier chain — the same idiom
      * `AbSheetWrappersGoldenTest.choiceOverflow` uses for the 14a wrappers.
+     *
+     * Fix round 3: [rows]' ~48dp pitch (12dp top padding + ~24dp text + 12dp bottom padding) let the
+     * fade's 24dp window fall entirely into the gap below the last drawn row, over bare surface,
+     * where `abBottomFade` paints nothing — the golden passed while proving nothing. [denseRows]'
+     * 32dp pitch (4dp + ~24dp text + 4dp) guarantees the window straddles text; see the round-3 fix
+     * report for the arithmetic.
      */
     @Test fun quickSheet_scrolling() = captureGolden("AbQuickSheet", "scrolling", GoldenMode.LIGHT) {
         SheetSurface {
-            AbQuickSheetContent(title = "Scrolling", onClose = {}, canScrollForward = { true }) { rows(30) }
+            AbQuickSheetContent(title = "Scrolling", onClose = {}, canScrollForward = { true }) { denseRows(30) }
         }
     }
 }
