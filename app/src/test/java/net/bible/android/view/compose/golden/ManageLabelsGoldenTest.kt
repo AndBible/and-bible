@@ -304,7 +304,7 @@ class ManageLabelsGoldenTest {
 
     /** [styleRows] with S2's NAME made long, for [manageLabels_styles_longName]. S2 is the row
      *  that carries TWO tags (its whole-verse axis really differs), so it is where a long name and
-     *  a full tag line compete for the same 108dp column. */
+     *  a full tag line compete for the same 132dp column (WORKSPACE; see that test's own KDoc). */
     private fun longNameStyleRows(): List<ManageLabelsRow> = styleRows().map { row ->
         if (row is ManageLabelsRow.Item && row.label.id == "S2") {
             row.copy(label = row.label.copy(name = "Notes de sermon du dimanche matin"))
@@ -334,13 +334,23 @@ class ManageLabelsGoldenTest {
      *  - §4.3 gated the tags to ASSIGN and WORKSPACE, so STUDYPAD now draws NO tag line. Captured
      *    in STUDYPAD this test would show a plain one-line list and prove nothing whatsoever.
      *
-     * So the capture moves to WORKSPACE, the widest mode that still shows tags: it reserves
-     * 3x48=144dp for the trailing grid -> a 108dp column. **The 110dp tag cap is therefore no
-     * longer exercisable in ANY mode** -- ASSIGN's column is ~64dp after §4.4 moved the checkbox
-     * to the leading edge (288 - 40 checkbox - 4 - 24 glyph - 12 - 144 trailing) and WORKSPACE's is
-     * 108dp; both bind before the cap does. That proof is simply unavailable until a tag string
-     * long enough to reach 110dp inside a 108dp column exists, which is a contradiction, or until
-     * the goldens can be captured wider than 320dp, which the harness does not allow.
+     * So the capture moves to WORKSPACE, the widest mode that still shows tags. Its trailing grid
+     * reserves 3 slots at `TrailingSlotSize` = 40dp (not 48 -- `ManageLabelsScreen.kt`), for a
+     * 132dp name+tag column; ASSIGN reserves those same 3 slots plus a fourth for the leading
+     * checkbox (and its 4dp spacer), for an 88dp column. **Both figures are measured directly off
+     * the recorded goldens** (`ManageLabels_workspace_light.png` / `ManageLabels_assign_light.png`:
+     * the three trailing glyphs sit centred at x=204/244/284, i.e. 40dp slots whose column starts
+     * at x=184, and the name+tag column runs 52->184 in WORKSPACE and 96->184 in ASSIGN) rather
+     * than re-derived here -- a reader who doubts them should measure the PNG, not recompute from
+     * this comment. So **the 110dp tag cap IS still exercisable** -- in WORKSPACE, whose 132dp
+     * column is wider than the cap, the cap rather than the column is what stops an intrinsic-width
+     * tag from winning the space contest; ASSIGN's 88dp column is narrower than the cap and binds
+     * first, same as before.
+     *
+     * What this capture nonetheless does NOT exercise the cap with: the tag text now comes from
+     * `Strings` (the axis words), and the golden harness has no fixture-only string override point,
+     * so no long tag string can be injected until the `bookmark_style_tag_*` keys are translated --
+     * see the `TODO(post-Transifex)` below.
      *
      * What it proves NOW: that the name column ellipsises under a long name WITH the tag line
      * present, and that the two-tag line and the trailing grid still lay out around it. The long
@@ -375,7 +385,7 @@ class ManageLabelsGoldenTest {
      */
     @Test fun manageLabels_workspace_noTags() =
         captureGolden(
-            "ManageLabels", "noTags", EDGE_MODE, heightDp = 400,
+            "ManageLabels", "workspace_noTags", EDGE_MODE, heightDp = 400,
             content = screen(ManageLabelsMode.WORKSPACE, styleTagsVisible = false, rows = styleRows()),
         )
 

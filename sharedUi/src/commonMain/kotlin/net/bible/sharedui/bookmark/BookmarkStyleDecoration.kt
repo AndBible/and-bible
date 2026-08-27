@@ -213,10 +213,12 @@ fun SuperscriptMarker(textSizeDp: Dp, iconSlot: @Composable () -> Unit) {
  * and the whole-text (non-split) branch, on both surfaces: one line ending in `…` is legible, a
  * mid-glyph clip is not, so both call sites pass `true`. The 110dp call-site cap
  * (`ManageLabelsScreen.kt`'s `tagMaxWidth`) is why [LabelStyleTag] needs the ellipsis at all —
- * `ManageLabels_styles_longname_light.png` (STUDYPAD, qualifiers = "fr", whose
- * `display_mode_marker` "Marqueur uniquement" is the widest style string in the tree) shows the
- * split tag ellipsising inside its own bound rather than spilling past it, which is the evidence
- * this composition does the right thing under that cap and the longest real-world label.
+ * `ManageLabels_styles_longname_light.png` (WORKSPACE, qualifiers = "fr", whose tag text is the
+ * axis word and falls back to English because `bookmark_style_tag_*` isn't translated yet) shows
+ * the row's NAME ellipsising with a two-tag line still present, not a tag itself ellipsising —
+ * no tag string reaches 110dp until those keys are translated (see
+ * `ManageLabelsGoldenTest.manageLabels_styles_longName`'s own KDoc for the current column
+ * arithmetic). The cap and this ellipsis path stay in place against the day one does.
  */
 @Composable
 fun BookmarkStyleSample(

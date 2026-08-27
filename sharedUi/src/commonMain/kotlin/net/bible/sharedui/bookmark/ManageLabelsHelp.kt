@@ -47,7 +47,7 @@ import net.bible.sharedui.strings.LocalStrings
  * It replaced a platform AlertDialog built from SpannableString + ImageSpan, whose text named
  * widgets the Compose screen no longer has: it told the user to tap the `ic_label_24dp` /
  * `ic_label_circle` pair for auto-assign (that is the ⚡ bolt now) and a refresh BUTTON to re-order
- * (that is an overflow row now), and it said nothing about the style tags, the ⚙ override mark or
+ * (that is an overflow row now), and it said nothing about the style tags, the Tune override mark or
  * the bolt's hollow off-state. Drawing the legend from the SAME icons the screen draws is the point:
  * the help cannot name a glyph that is not on screen, because it is the glyph.
  *

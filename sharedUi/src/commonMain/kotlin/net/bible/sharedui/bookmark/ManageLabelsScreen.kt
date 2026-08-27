@@ -111,7 +111,7 @@ import net.bible.sharedui.theme.LocalDisplayColorMode
  * a real hollow bolt, not Material's "outlined" one, which is the same solid silhouette). The
  * trailing controls are now a fixed grid of same-width columns rather than a run of independently
  * gated icons, so ⚡/♥/🔖 line up down the whole list whether or not a given row's control is on;
- * the ⚙ override indicator no longer squats in that run at all -- it moved to the row's tag line,
+ * the override indicator (the Tune mark) no longer squats in that run at all -- it moved to the row's tag line,
  * where it marks which of up to three style tags is imposed by this workspace's override.
  *
  * [searchActions] is a second host action slot, rendered in the *search* bar (alongside this
@@ -493,11 +493,11 @@ private fun TrailingSlot(modifier: Modifier = Modifier, content: @Composable () 
  * 1. the label's own selection style, decorated **partially** — a text-selection bookmark covers
  *    part of a verse, and that is what the half tag says;
  * 2. its whole-verse style, decorated fully, only when it is really set to something of its own;
- * 3. the style this workspace's override imposes, decorated fully and marked with a ⚙.
+ * 3. the style this workspace's override imposes, decorated fully and marked with the Tune override mark.
  *
- * The ⚙ is the one place that symbol survives this round. In the editor the same tag sits under the
+ * The Tune mark is the one place that indicator survives this round. In the editor the same tag sits under the
  * "This workspace" heading, which supplies its meaning, so the indicator there is redundant; a list
- * row has no heading, so the tag needs one mark to say where it comes from — and ⚙ is already this
+ * row has no heading, so the tag needs one mark to say where it comes from — and the Tune icon is already this
  * codebase's override symbol, with `workspace_override_indicator` available as its description. An
  * override takes BOTH axes (`Label.withStyleOverrides`), which is why it is decorated in full: it is
  * what the reader draws here, on either kind of bookmark. The label's own two tags stay, because
@@ -510,13 +510,14 @@ private fun TrailingSlot(modifier: Modifier = Modifier, content: @Composable () 
 private fun StyleTagRow(label: LabelItem, markerGlyph: @Composable () -> Unit, strings: Strings) {
     // Bounded on every branch: an intrinsic-width tag can win the space contest against the
     // weighted name and make it vanish entirely (round-1 fix -- Finding 1). 110dp is a CEILING,
-    // not what actually binds a tag's width in every mode -- with 40dp trailing slots (round 12a)
-    // the name/tag column at the goldens' 320dp width is: ASSIGN ~92dp (checkbox + 3 slots =
-    // 160dp reserved), WORKSPACE ~132dp (3 slots = 120dp), HIDELABELS ~212dp (checkbox only =
-    // 40dp), STUDYPAD ~252dp (no slots). So only ASSIGN's column is narrower than the 110dp cap
-    // and is the real constraint there; the cap binds in WORKSPACE, HIDELABELS and STUDYPAD.
-    // Either way this stops an intrinsic-width tag from winning the space contest against the
-    // weighted name.
+    // not what actually binds a tag's width in every mode -- style tags are drawn ONLY in WORKSPACE
+    // and ASSIGN (styleTagsShown); HIDELABELS and STUDYPAD draw no tags at all, so they don't enter
+    // into this. With 40dp trailing slots (TrailingSlotSize, above) the name+tag column at the
+    // goldens' 320dp width is: WORKSPACE 132dp (3 trailing slots reserved, no leading checkbox) and
+    // ASSIGN 88dp (the leading checkbox slot plus its 4dp spacer, on top of the same 3 trailing
+    // slots). So ASSIGN's column is narrower than the 110dp cap and is the real constraint there;
+    // the cap binds in WORKSPACE, where the column itself has more headroom than 110dp and the cap
+    // is what stops an intrinsic-width tag from winning the space contest against the weighted name.
     val tagMaxWidth = Modifier.widthIn(max = 110.dp)
     // itemVerticalAlignment explicit rather than FlowRow's default Top: every tag here is one
     // line tall today, but a centred baseline is the right call if a taller tag (e.g. a larger
@@ -548,8 +549,8 @@ private fun StyleTagRow(label: LabelItem, markerGlyph: @Composable () -> Unit, s
         }
         val override = label.overrideStyle
         if (override != null) {
-            // Separator, mark and tag in ONE Row so a wrap can never leave the ⚙ stranded at the
-            // end of a line with its tag on the next.
+            // Separator, mark and tag in ONE Row so a wrap can never leave the Tune mark stranded
+            // at the end of a line with its tag on the next.
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TagSeparator()
                 Icon(

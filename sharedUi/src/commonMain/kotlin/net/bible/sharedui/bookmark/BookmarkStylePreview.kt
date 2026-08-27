@@ -32,7 +32,10 @@ import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
  * A one-line illustration of what a bookmark carrying this label looks like in the reading view.
  *
  * The decoration rules (which style paints what, and the monochrome substitutions) live in
- * [bookmarkStyleDecoration] — shared with [LabelStyleTag] so the two cannot drift apart.
+ * [bookmarkStyleDecoration] — shared with [LabelStyleTag] so the two cannot drift apart. The actual
+ * rendering goes through [BookmarkStyleSample], the ONE renderer for a style sample that this
+ * composable and [LabelStyleTag] both call rather than re-implementing any part of it themselves —
+ * see [BookmarkStyleSample]'s own KDoc for why that rule exists.
  *
  * HIDDEN draws plain text and nothing else, because that is what a hidden bookmark looks like. It
  * is told apart from MARKER by MARKER drawing [iconSlot], and by the option label next to it.
@@ -46,6 +49,10 @@ import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
  * drawn as a superscript by [SuperscriptMarker], matching how the reader actually draws it, and
  * when [decoratePartially] is set the glyph's position follows the selection — right after the
  * decorated half, not after the whole sample.
+ *
+ * Every sample here is `maxLines = 1` with `ellipsizeTail = true`: a long name or style text
+ * ellipsises rather than wrapping to a second line, which is what keeps this a one-line
+ * illustration under any label name or column width.
  */
 @Composable
 fun BookmarkStylePreview(

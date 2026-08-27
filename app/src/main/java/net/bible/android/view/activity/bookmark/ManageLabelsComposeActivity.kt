@@ -57,6 +57,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.common.labelsAndBookmarksPlaylist
+import net.bible.service.common.studyPadsVideo
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.exportStudyPads
 import net.bible.service.download.FakeBookFactory
@@ -255,7 +256,14 @@ class ManageLabelsComposeActivity : ActivityBase() {
                                     getString(if (data.isWindow) R.string.setting_scope_window else R.string.setting_scope_workspace),
                                 )
                             } else null,
-                            readMoreUrl = labelsAndBookmarksPlaylist,
+                            // STUDYPAD keeps classic's own playlist (CommonUtils.kt's HelpItem for
+                            // R.string.studypads uses studyPadsVideo); the other three modes use
+                            // the Labels & Bookmarks playlist. Don't collapse this to one URL.
+                            readMoreUrl = if (controller.mode == ManageLabelsMode.STUDYPAD) {
+                                studyPadsVideo
+                            } else {
+                                labelsAndBookmarksPlaylist
+                            },
                             onDismiss = { showHelp = false },
                         )
                     }

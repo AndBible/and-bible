@@ -278,10 +278,12 @@ fun LabelEditScreen(
                     onToggle = { workspaceExpanded = !workspaceExpanded },
                     indicators = {
                         // Marks plus one miniature example, not a sentence: a collapsed section says
-                        // whether anything inside it is set, and -- for the override -- WHICH style
-                        // it imposes, which is strictly more than the ⚙ "something is set" glyph this
-                        // replaces. No new translated string, and the marks are exactly the symbols
-                        // the list row teaches.
+                        // whether anything inside it is set, and -- for the override -- the AXIS word
+                        // ("Workspace", the same LabelStyleTag the list row draws), which is strictly
+                        // more than the override mark's "something is set" glyph this replaces. That
+                        // costs one string, bookmark_style_tag_workspace -- not the name of the style
+                        // itself, and not free of a new translated string either -- and the marks are
+                        // exactly the symbols the list row teaches.
                         //
                         // Set-only, deliberately: a header's job is "there is something inside".
                         // Drawing every off state here would say nothing; the hollow states belong
