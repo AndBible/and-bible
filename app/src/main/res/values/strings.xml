@@ -1197,6 +1197,10 @@
     <string name="bookmark_style_whole_verse">Whole verse bookmarks</string>
     <!-- Switch in the label editor: reveals a separate style picker for whole-verse bookmarks. -->
     <string name="bookmark_style_whole_verse_custom">Use a different style for whole-verse bookmarks</string>
+    <!-- Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style. -->
+    <string name="bookmark_style_tag_selection">Selection</string>
+    <string name="bookmark_style_tag_whole_verse">Whole verse</string>
+    <string name="bookmark_style_tag_workspace">Workspace</string>
     <string name="added_to_bookmark">Assigned to this bookmark</string>
     <string name="strongs_links">Links</string>
     <string name="strongs_text_and_links">Text and Links</string>

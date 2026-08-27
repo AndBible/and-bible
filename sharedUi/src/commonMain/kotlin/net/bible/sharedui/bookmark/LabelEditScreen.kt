@@ -304,8 +304,9 @@ fun LabelEditScreen(
                         }
                         state.overrideMode.displayStyle?.let { overrideStyle ->
                             LabelStyleTag(
-                                overrideStyle,
-                                state.color,
+                                text = strings.bookmarkStyleTagWorkspace,
+                                style = overrideStyle,
+                                colorArgb = state.color,
                                 modifier = Modifier.widthIn(max = 90.dp),
                                 iconSlot = { iconSlot(state.customIcon, glyphTint) },
                             )

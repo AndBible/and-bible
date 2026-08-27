@@ -512,8 +512,9 @@ private fun StyleTagRow(label: LabelItem, markerGlyph: @Composable () -> Unit, s
     // per-tag Rows below already use for their own separator+icon+text groups.
     FlowRow(modifier = Modifier.fillMaxWidth(), itemVerticalAlignment = Alignment.CenterVertically) {
         LabelStyleTag(
-            label.selectionStyle,
-            label.color,
+            text = strings.bookmarkStyleTagSelection,
+            style = label.selectionStyle,
+            colorArgb = label.color,
             modifier = tagMaxWidth,
             decoratePartially = true,
             iconSlot = markerGlyph,
@@ -524,7 +525,13 @@ private fun StyleTagRow(label: LabelItem, markerGlyph: @Composable () -> Unit, s
         if (wholeVerse != null && wholeVerse != label.selectionStyle) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TagSeparator()
-                LabelStyleTag(wholeVerse, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
+                LabelStyleTag(
+                    text = strings.bookmarkStyleTagWholeVerse,
+                    style = wholeVerse,
+                    colorArgb = label.color,
+                    modifier = tagMaxWidth,
+                    iconSlot = markerGlyph,
+                )
             }
         }
         val override = label.overrideStyle
@@ -540,7 +547,13 @@ private fun StyleTagRow(label: LabelItem, markerGlyph: @Composable () -> Unit, s
                     modifier = Modifier.size(12.dp),
                 )
                 Spacer(Modifier.width(2.dp))
-                LabelStyleTag(override, label.color, modifier = tagMaxWidth, iconSlot = markerGlyph)
+                LabelStyleTag(
+                    text = strings.bookmarkStyleTagWorkspace,
+                    style = override,
+                    colorArgb = label.color,
+                    modifier = tagMaxWidth,
+                    iconSlot = markerGlyph,
+                )
             }
         }
     }

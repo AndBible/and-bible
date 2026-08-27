@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
-import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.sharedui.theme.LocalIsDarkTheme
 
@@ -265,34 +264,30 @@ fun BookmarkStyleSample(
 }
 
 /**
- * A label's style, small enough to sit on a list row: **the style's own localised name, drawn with
- * that style**, in the label's colour.
+ * One style tag on a label row: [text] drawn with [style]'s decoration in the label's colour, at
+ * `labelSmall`.
  *
- * The name is the sample. That is what makes it work in a list — the text differs per row so the
- * column stays scannable (a repeated verse sample would be identical noise on every row), it is
- * self-documenting so there is no shape convention to learn, it is short enough for two axes side
- * by side on a narrow screen, and the four names are already translated in 50 locales
- * (`displayModeHighlight` … `displayModeHidden`), so this needs no new string.
+ * The text names the AXIS ("Selection", "Whole verse", "Workspace"), not the style — the decoration
+ * is what says which style, and repeating it in words next to a live example was the redundant half
+ * of the pair (round-15a device feedback). Round 10a chose the style's own name for the good reason
+ * that it differs per row and was already translated; the axis word costs three new strings and
+ * makes each tag say something the decoration cannot.
  *
- * HIDDEN is additionally muted to `onSurfaceVariant` — here, unlike in [BookmarkStylePreview],
- * that is right: the preview shows what the reader draws (plain text), while this tag is a label
- * *about* the style, and "not drawn" is the thing it has to say.
+ * The caller supplies the text so this composable has no opinion about which axis it is drawing.
+ *
+ * HIDDEN is muted to `onSurfaceVariant` and carries no decoration, so the muting is the ONLY signal
+ * that the style is "not drawn". That is a deliberate, accepted cost of the axis wording; the style
+ * vocabulary is taught by the editor's radio options and by the help dialog's style row.
  */
 @Composable
 fun LabelStyleTag(
+    text: String,
     style: BookmarkDisplayStyle,
     colorArgb: Int,
     modifier: Modifier = Modifier,
     decoratePartially: Boolean = false,
     iconSlot: @Composable () -> Unit,
 ) {
-    val strings = LocalStrings.current
-    val text = when (style) {
-        BookmarkDisplayStyle.HIGHLIGHT -> strings.displayModeHighlight
-        BookmarkDisplayStyle.UNDERLINE -> strings.displayModeUnderline
-        BookmarkDisplayStyle.MARKER -> strings.displayModeMarker
-        BookmarkDisplayStyle.HIDDEN -> strings.displayModeHidden
-    }
     val textStyle = MaterialTheme.typography.labelSmall
     val color = if (style == BookmarkDisplayStyle.HIDDEN) {
         MaterialTheme.colorScheme.onSurfaceVariant

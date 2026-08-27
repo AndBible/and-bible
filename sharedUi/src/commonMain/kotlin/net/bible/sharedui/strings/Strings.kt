@@ -667,6 +667,11 @@ interface Strings {
     val bookmarkStyleWholeVerseHeading: String       // R.string.bookmark_style_whole_verse
     val bookmarkStyleWholeVerseCustom: String       // R.string.bookmark_style_whole_verse_custom
 
+    // Round 15a — the list's style tags name the axis, not the style
+    val bookmarkStyleTagSelection: String             // R.string.bookmark_style_tag_selection
+    val bookmarkStyleTagWholeVerse: String            // R.string.bookmark_style_tag_whole_verse
+    val bookmarkStyleTagWorkspace: String             // R.string.bookmark_style_tag_workspace
+
     // Round 14a — dialog-to-sheet conversions
     val cloudDocSyncNow: String                      // R.string.cloud_doc_sync_now
 }

@@ -40,11 +40,12 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
- * The list row's style tag, all four styles at once. The tag's TEXT is the style's own localised
- * name drawn with that style, so this one image is both the rendering check and the wording check.
- * Captured across the full matrix because the monochrome substitutions (fixed greys for the
- * highlight, onSurface for the underline — the reader's own rules) are the part most likely to
- * break, and they only appear in the bw / eink modes.
+ * The list row's style tag, all four styles at once. Since round 15a the tag's TEXT names the AXIS
+ * ("Selection" / "Whole verse"), not the style, so this image is the rendering check only — the
+ * wording is fixture English, not a translated string under test. Captured across the full matrix
+ * because the monochrome substitutions (fixed greys for the highlight, onSurface for the underline —
+ * the reader's own rules) are the part most likely to break, and they only appear in the bw / eink
+ * modes.
  *
  * Each row now shows BOTH decoration axes side by side: partial (left, the selection axis) and full
  * (right, the whole-verse axis). Reading the pair is what shows that "half" is what says
@@ -63,7 +64,12 @@ class LabelStyleTagGoldenTest {
                 // pair to see that "half" is what says "selection" -- and that MARKER/HIDDEN are
                 // unaffected, having nothing to decorate.
                 Row {
-                    LabelStyleTag(style = style, colorArgb = AbColor.palette[1], decoratePartially = true) {
+                    LabelStyleTag(
+                        text = "Selection",
+                        style = style,
+                        colorArgb = AbColor.palette[1],
+                        decoratePartially = true,
+                    ) {
                         // Stands in for the ROW's own glyph (ManageLabelsScreen.kt's `glyphTint`),
                         // not for the style decoration -- accentArgbFor is exactly what's banned
                         // inside bookmarkStyleDecoration, but here it is the correct precedent to
@@ -71,7 +77,11 @@ class LabelStyleTagGoldenTest {
                         Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = glyphTint)
                     }
                     Spacer(Modifier.width(12.dp))
-                    LabelStyleTag(style = style, colorArgb = AbColor.palette[1]) {
+                    LabelStyleTag(
+                        text = "Whole verse",
+                        style = style,
+                        colorArgb = AbColor.palette[1],
+                    ) {
                         Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = glyphTint)
                     }
                 }

@@ -611,6 +611,11 @@ class AndroidStrings(private val context: Context) : Strings {
     override val bookmarkStyleWholeVerseHeading: String get() = context.getString(R.string.bookmark_style_whole_verse)
     override val bookmarkStyleWholeVerseCustom: String get() = context.getString(R.string.bookmark_style_whole_verse_custom)
 
+    // Round 15a — the list's style tags name the axis, not the style
+    override val bookmarkStyleTagSelection: String get() = context.getString(R.string.bookmark_style_tag_selection)
+    override val bookmarkStyleTagWholeVerse: String get() = context.getString(R.string.bookmark_style_tag_whole_verse)
+    override val bookmarkStyleTagWorkspace: String get() = context.getString(R.string.bookmark_style_tag_workspace)
+
     // Round 14a — dialog-to-sheet conversions
     override val cloudDocSyncNow: String get() = context.getString(R.string.cloud_doc_sync_now)
 }
