@@ -883,8 +883,13 @@ class BibleJavascriptInterface(
                 "AltKeyO" -> mainBibleActivity.showOptionsMenu()
                 "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
                 "CtrlKeyW" -> {
-                    val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.WorkspaceSelector)
-                    mainBibleActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
+                    val host = mainBibleActivity.composeReadingViewHost
+                    if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+                        host.showWorkspaceSheet()
+                    } else {
+                        val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.WorkspaceSelector)
+                        mainBibleActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
+                    }
                 }
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()
                 "CtrlKeyF" -> {

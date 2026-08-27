@@ -225,12 +225,15 @@ import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowTabBarModel
 import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedcore.window.shouldShowPinIndicator
+import net.bible.sharedcore.workspaces.WorkspaceQuickController
+import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.AgentPermissionDialog
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbQuickSheet
+import net.bible.sharedui.components.AbQuickSheetFooterRow
 import net.bible.sharedui.history.HistoryListContent
 import net.bible.sharedui.reading.BibleReferenceOverlay
 import net.bible.sharedui.navigation.GridChoosePassageContent
@@ -266,6 +269,7 @@ import net.bible.sharedui.speak.SpeakSettingsSheet
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.textOptionDrawableRes
+import net.bible.sharedui.workspaces.WorkspaceQuickContent
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
@@ -527,6 +531,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
 
     /** Round 15b: the reading view's History list as a quick sheet (spec §4.3). */
     internal fun showHistorySheet() = showQuickSheet(ReadingQuickSheet.History)
+
+    private val workspaceService: WorkspaceService by inject()
+
+    /** Round 15b: the workspace QUICK switch (spec §4.4). The full selector is the footer row. */
+    internal fun showWorkspaceSheet() = showQuickSheet(ReadingQuickSheet.Workspaces)
 
     private val historyManager: HistoryManager by inject()
 
@@ -1117,7 +1126,33 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     )
                 }
             }
-            ReadingQuickSheet.Workspaces -> Unit       // Task 6
+            ReadingQuickSheet.Workspaces -> {
+                val controller = remember(sheet) {
+                    WorkspaceQuickController(workspaceService) { id ->
+                        closeQuickSheet()
+                        activity.switchToWorkspace(id)
+                    }
+                }
+                val rows by controller.rows.collectAsState()
+                val listState = rememberLazyListState()
+                AbQuickSheet(
+                    open = true,
+                    title = activity.getString(R.string.switch_to_workspace),
+                    onDismiss = { closeQuickSheet() },
+                    canScrollForward = { listState.canScrollForward },
+                    footer = {
+                        AbQuickSheetFooterRow(text = LocalStrings.current.manageWorkspaces) {
+                            closeQuickSheet()
+                            activity.startActivityForResult(
+                                ScreenLauncher.intentFor(activity, Screen.WorkspaceSelector),
+                                MainBibleActivity.WORKSPACE_CHANGED,
+                            )
+                        }
+                    },
+                ) {
+                    WorkspaceQuickContent(rows = rows, onSelect = { controller.select(it) }, listState = listState)
+                }
+            }
             ReadingQuickSheet.Documents -> Unit        // Plan B
             is ReadingQuickSheet.KeyChooser -> Unit    // Plan B
         }
@@ -2240,7 +2275,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onHome = { activity.composeToggleDrawer() },
                 onTitleTap = { activity.composeStartKeyChooser() },
                 onTitleLongPress = { activity.composeChooseDocument() },
-                onTitleFlingVertical = { activity.composeWorkspace() },
+                onTitleFlingVertical = { showWorkspaceSheet() },
                 onTitleFlingHorizontal = { forward -> activity.composeCycleWorkspace(forward) },
                 // Batch 12g Task 8: the non-swap short-press branch now drives the real Compose
                 // quick-doc menu (`bibleQuickDoc`/`commentaryQuickDoc` below) instead of bridging to
@@ -2284,7 +2319,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onSearch = { activity.composeSearch() },
                 onSpeak = { activity.composeToggleSpeak() },
                 onSpeakLong = { activity.composeSpeakLong() },
-                onWorkspace = { activity.composeWorkspace() },
+                onWorkspace = { showWorkspaceSheet() },
                 onOverflow = {
                     overflowItems.value = activity.buildOptionsMenuItems()
                     overflowExpanded.value = true

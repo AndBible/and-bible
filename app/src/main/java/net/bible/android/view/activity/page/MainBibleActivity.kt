@@ -1412,7 +1412,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     internal fun composeWorkspace() {
+        val host = composeReadingViewHost
+        if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+            host.showWorkspaceSheet()
+            return
+        }
         startActivityForResult(ScreenLauncher.intentFor(this, Screen.WorkspaceSelector), WORKSPACE_CHANGED)
+    }
+
+    /**
+     * Switch to a workspace by id. Extracted from the WORKSPACE_CHANGED result arm so round 15b's
+     * quick sheet and the full selector's activity result cannot drift apart.
+     */
+    internal fun switchToWorkspace(workspaceId: String) {
+        currentWorkspaceId = IdType(workspaceId)
     }
 
     internal fun composeCycleWorkspace(forward: Boolean) = cycleWorkspace(forward)
@@ -1644,8 +1657,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 fullScreen = true
             })
             R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
-                val intent = ScreenLauncher.intentFor(this, Screen.WorkspaceSelector)
-                startActivityForResult(intent, WORKSPACE_CHANGED)
+                val host = composeReadingViewHost
+                if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+                    host.showWorkspaceSheet()
+                } else {
+                    val intent = ScreenLauncher.intentFor(this, Screen.WorkspaceSelector)
+                    startActivityForResult(intent, WORKSPACE_CHANGED)
+                }
             }, opensDialog = true)
             R.id.llmActionsSubMenu -> CommandPreference(
                 launch = { _, _, _ ->
@@ -2937,7 +2955,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
                     if (resultCode == Activity.RESULT_OK) {
                         if (workspaceId != null && IdType(workspaceId) != currentWorkspaceId) {
-                            currentWorkspaceId = IdType(workspaceId)
+                            switchToWorkspace(workspaceId)
                         } else if (changed) {
                             currentWorkspaceId = currentWorkspaceId
                         }
