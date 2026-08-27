@@ -352,7 +352,9 @@ private fun LabelItemRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            StyleTagRow(label = label, markerGlyph = markerGlyph, strings = strings)
+            if (mode.styleTagsShown) {
+                StyleTagRow(label = label, markerGlyph = markerGlyph, strings = strings)
+            }
         }
 
         // A fixed grid, not a run of conditional icons. Every slot is exactly TrailingSlotSize wide

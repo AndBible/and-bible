@@ -12,6 +12,8 @@ enum class ManageLabelsMode {
     val primaryShown: Boolean get() = this == WORKSPACE || this == ASSIGN
     val showActiveCategory: Boolean get() = this == WORKSPACE || this == ASSIGN || this == HIDELABELS
     val hideCategories: Boolean get() = this == STUDYPAD
+    /** Whether a row shows its style example line. See ManageLabelsModeTest for the reasoning. */
+    val styleTagsShown: Boolean get() = this == WORKSPACE || this == ASSIGN
 }
 
 /** Grouping of labels in the list: currently active, recently used, or everything else. */
