@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,17 +50,24 @@ import net.bible.sharedui.theme.LocalDisplayColorMode
  * No reorder handle, no row overflow, no create — the full selector owns all of that and is one
  * footer row away ([net.bible.sharedui.components.AbQuickSheetFooterRow]).
  *
- * Row vertical padding is 6dp, not the shell's usual 12-14dp, and this is load-bearing rather than
- * cosmetic: the host (Task 7) wraps this list's [listState] in
- * [net.bible.sharedui.components.AbSheetScrollBound] / `Modifier.abBottomFade`, whose 24dp fade
- * window is only visible where it lands on drawn content (`AbBottomFade.kt:47-52`). A single-line
- * `bodyLarge` row's visible glyph run is shorter than its 24dp line box (~6dp of leading split above
- * and below), so the blank run between two rows' text is approximately `2 * verticalPadding + 6dp`.
- * At the brief's original 14dp that is ~34dp — wider than the 24dp window, so the affordance could
- * land entirely on bare surface and disappear at some scroll positions (the same mistake Task 2's
- * `AbQuickSheetGoldenTest.rows()` made with its 12dp padding, fixed there by a denser fixture). At
- * 6dp the blank run is ~18dp, safely under 24dp, so the fade is guaranteed to straddle text at every
- * scroll offset.
+ * Row height is governed by `Modifier.heightIn(min = 48.dp)`, a hard floor for the Material touch
+ * target — NOT by tightening the 12dp vertical padding to fit under
+ * [net.bible.sharedui.components.AbBottomFade]'s 24dp fade window. An earlier version of this row
+ * shrank the padding to 6dp for exactly that reason and was corrected in fix round 1: a 32dp tap
+ * target is an accessibility defect, and an occasionally-invisible scroll fade is a missing nicety
+ * — those two do not trade off against each other.
+ *
+ * Consequently, the gap between two rows' visible text (~28dp: 12dp padding either side of the
+ * ~24dp `bodyLarge` line box, minus the ~6dp of leading the glyphs don't fill) is WIDER than the
+ * fade's 24dp window, so once this list is wrapped in `AbSheetScrollBound` /
+ * `Modifier.abBottomFade` (the host, Task 7), the fade can land entirely on bare surface and go
+ * invisible at some scroll positions. That is the documented behaviour of `abBottomFade`
+ * (`AbBottomFade.kt:47-52` — "over bare surface it paints nothing at all... a caller whose content
+ * has taller gaps than that must pass a larger height, or the fade will be invisible at some
+ * scroll positions"), and it is deliberately accepted here rather than deforming the row — the
+ * same call already made for History's `TwoLineListItem`. If the affordance is ever wanted for
+ * these single-line lists, thread an optional `fadeHeight: Dp = AbBottomFadeHeight` through
+ * `AbSheetScrollBound` into `abBottomFade` and pass ~32dp; do not shrink rows to chase it.
  */
 @Composable
 fun WorkspaceQuickContent(
@@ -75,7 +83,8 @@ fun WorkspaceQuickContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .then(if (row.isCurrent) Modifier else Modifier.clickable { onSelect(row.id) })
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                    .heightIn(min = 48.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 // The per-workspace color is a decorative-but-meaningful identifier, not a scheme
