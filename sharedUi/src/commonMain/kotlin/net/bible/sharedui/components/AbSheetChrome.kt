@@ -19,11 +19,13 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,22 +53,45 @@ import net.bible.sharedui.strings.LocalStrings
 val AbSheetContentMaxHeight: Dp = 400.dp
 
 /**
- * A sheet page's header: the title, and a ✕ as the explicit close affordance (round 13a's idiom —
- * swipe, scrim tap and back all reach `onDismissRequest`, and a sheet has no dialog button row to
- * put a "Cancel" in).
+ * A sheet page's header: an optional leading back arrow, the title, optional trailing [actions], and
+ * a ✕ as the explicit close affordance (round 13a's idiom — swipe, scrim tap and back all reach
+ * `onDismissRequest`, and a sheet has no dialog button row to put a "Cancel" in).
  *
  * Shaped after `SpeakSettingsSheet.kt:93-115` and `SettingsEditorSheet.kt:93-110`, both of which
  * hand-roll this Row. Unifying those two onto this function is deliberately NOT done here: both
  * files belong to the sibling container `compose-14b` this round (spec §12), so touching them would
  * manufacture the one merge conflict the fork exists to avoid. Fold them in after the merge.
+ *
+ * [canGoBack]/[onBack]/[actions] were added in round 15b (fix round 2 of `AbQuickSheet`'s task) to
+ * absorb what used to be a private `QuickSheetHeader` copy of this exact Row in `AbQuickSheet.kt` —
+ * two insertions (a leading back arrow, a trailing actions slot) were the entire diff between the
+ * two, so the copy was folded back into this function instead of kept alongside it. All defaults
+ * reproduce the original two-argument call exactly: [canGoBack] defaulting to `{ false }` never
+ * renders the back arrow and [actions] defaulting to `null` never renders anything extra, so every
+ * existing call site (`AbChoiceSheet.kt`, `AbMultiSelectSheet.kt`, `AbActionSheet.kt`,
+ * `AbReadHistorySheet.kt`, `ReadingLlmDialogs.kt`, both still calling `AbSheetHeader(title =
+ * ..., onClose = ...)` with nothing else) renders byte-identically to before.
  */
 @Composable
-fun AbSheetHeader(title: String, onClose: () -> Unit) {
+fun AbSheetHeader(
+    title: String,
+    onClose: () -> Unit,
+    canGoBack: () -> Boolean = { false },
+    onBack: () -> Unit = {},
+    actions: (@Composable RowScope.() -> Unit)? = null,
+) {
     val strings = LocalStrings.current
     Row(
         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (canGoBack()) {
+            IconButton(onClick = onBack) {
+                // contentDescription = null matches AbScaffold.kt:151-157 and AbTopAppBar's own
+                // back arrow; do not invent a string for it here.
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+            }
+        }
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
@@ -75,6 +100,7 @@ fun AbSheetHeader(title: String, onClose: () -> Unit) {
             modifier = Modifier.padding(horizontal = 8.dp),
         )
         Spacer(Modifier.weight(1f))
+        if (actions != null) actions()
         IconButton(onClick = onClose) {
             Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)
         }

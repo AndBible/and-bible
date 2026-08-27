@@ -70,4 +70,20 @@ class AbQuickSheetGoldenTest {
             ) { rows(4) }
         }
     }
+
+    /**
+     * Fix round 2, Finding 3: every capture above uses `rows(4)`, well under
+     * [net.bible.sharedui.components.AbSheetContentMaxHeight] (400dp), and none overrides
+     * `canScrollForward` from its default `{ false }` — so `Modifier.abBottomFade` never renders in
+     * any of them, and a regression that silently disconnected `AbQuickSheetContent`'s
+     * `canScrollForward` parameter from `AbSheetScrollBound` would pass every existing test. Enough
+     * rows to overflow the bound, plus an explicit `canScrollForward = { true }`, proves the fade is
+     * genuinely wired, not merely present in the modifier chain — the same idiom
+     * `AbSheetWrappersGoldenTest.choiceOverflow` uses for the 14a wrappers.
+     */
+    @Test fun quickSheet_scrolling() = captureGolden("AbQuickSheet", "scrolling", GoldenMode.LIGHT) {
+        SheetSurface {
+            AbQuickSheetContent(title = "Scrolling", onClose = {}, canScrollForward = { true }) { rows(30) }
+        }
+    }
 }

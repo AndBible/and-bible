@@ -19,19 +19,11 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Tab
@@ -39,11 +31,11 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import net.bible.sharedui.strings.LocalStrings
+import kotlinx.coroutines.launch
 
 /**
  * The reading view's quick-sheet shell: header, optional tabs, a bounded+faded scroll region and an
@@ -53,13 +45,27 @@ import net.bible.sharedui.strings.LocalStrings
  * dialog-shaped — a title, a list, a dismiss. None supports a back affordance, header actions, tabs
  * or a footer, and all four of round 15b's surfaces need some of those.
  *
- * THE BACK CONTRACT, which is this shell's reason to exist. Material3 runs `hide()` BEFORE it
- * invokes `onDismissRequest`, so a sheet with an internal page stack cannot distinguish "pop a page"
- * from "close me" at the M3 level. `SpeakSettingsSheet.kt:111` resolves that by re-showing a sheet
- * that M3 has already hidden, which is the most fragile part of that file and has no automated
- * coverage. Here the decision is made BEFORE M3 hides anything: a dismiss request with
- * [canGoBack] == true is routed to [onBack] and the sheet is never hidden. Consequently there is no
- * `LaunchedEffect(sheetState.isVisible)` in this file and none must be added.
+ * THE BACK CONTRACT, and why the hide-then-reshow is unavoidable here (fix round 2 correction: an
+ * earlier version of this kdoc claimed the shell could decide "before M3 hides anything" — that is
+ * false, and the claim below replaces it). Disassembling this project's own `material3` jar shows
+ * every M3 dismiss path — `animateToDismiss` for swipe/scrim/back, `settleToDismiss` for a flung
+ * swipe — runs `sheetState.hide()` **to completion** and only THEN calls [onDismiss]'s
+ * `onDismissRequest`. M3 does carry its own internal effect that re-shows a sheet after such a hide,
+ * but it is keyed on the `sheetState` OBJECT IDENTITY, so it never re-fires for a state this
+ * composable keeps alive across recompositions — which is exactly why `SpeakSettingsSheet.kt:111`
+ * has to re-show by hand, and why this shell must too. A `BackHandler` intercepting back BEFORE M3
+ * ever saw it would avoid the blip, but it cannot live in commonMain — this port already records
+ * that twice, at `SettingsEditorSheet.kt:64` and `SpeakSettingsSheet.kt:57` — and closing the whole
+ * sheet on any gesture dismiss (the alternative considered and rejected) would make a swipe or
+ * system back on a back-able page skip past the header's own back arrow and exit the sheet entirely,
+ * which is worse.
+ *
+ * So: a dismiss request with [canGoBack] == true calls [onBack] **and** re-shows the sheet via
+ * `sheetState.show()`, both from this ONE explicit place, keyed on the caller's own [canGoBack] —
+ * not a per-sheet `LaunchedEffect(sheetState.isVisible)` keyed on visibility, which would also fire
+ * on every REAL close and have nothing to distinguish the two. That is this shell's actual
+ * contribution: one hide/show blip, decided in one place, instead of the visibility-keyed workaround
+ * duplicated per sheet.
  *
  * ROBORAZZI: never capture this composable — an open `ModalBottomSheet` hangs the capture and takes
  * the whole `:app` suite with it. Capture [AbQuickSheetContent] instead.
@@ -82,10 +88,25 @@ fun AbQuickSheet(
 ) {
     if (!open) return
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
     ModalBottomSheet(
         // Swipe, scrim tap and back all arrive here, and M3 cannot tell them apart. When the body
         // has somewhere to go back to, that is what a dismiss means; only an empty stack closes.
-        onDismissRequest = { if (canGoBack()) onBack() else onDismiss() },
+        onDismissRequest = {
+            if (canGoBack()) {
+                onBack()
+                // M3 has ALREADY completed hide() by the time it calls us (verified against this
+                // project's material3 bytecode), and its own re-show effect is keyed on the
+                // sheetState identity, so it will not re-fire. Re-showing here is therefore not a
+                // workaround we could design away — it is the only way a page-stack pop can keep the
+                // sheet on screen. A BackHandler that intercepted back BEFORE M3 saw it would avoid
+                // the hide/show blip, but it cannot live in commonMain (SettingsEditorSheet.kt:64,
+                // SpeakSettingsSheet.kt:57).
+                scope.launch { sheetState.show() }
+            } else {
+                onDismiss()
+            }
+        },
         sheetState = sheetState,
     ) {
         AbQuickSheetContent(
@@ -123,7 +144,7 @@ fun AbQuickSheetContent(
     body: @Composable () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-        QuickSheetHeader(title, canGoBack, onBack, actions, onClose)
+        AbSheetHeader(title = title, onClose = onClose, canGoBack = canGoBack, onBack = onBack, actions = actions)
         if (tabs.isNotEmpty()) {
             // Tap only, deliberately: a HorizontalPager would add a third gesture competing with
             // the sheet's vertical drag and the list's vertical scroll (spec §4.2).
@@ -141,41 +162,6 @@ fun AbQuickSheetContent(
         if (footer != null) {
             HorizontalDivider()
             footer()
-        }
-    }
-}
-
-@Composable
-private fun QuickSheetHeader(
-    title: String,
-    canGoBack: () -> Boolean,
-    onBack: () -> Unit,
-    actions: (@Composable RowScope.() -> Unit)?,
-    onClose: () -> Unit,
-) {
-    val strings = LocalStrings.current
-    Row(
-        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (canGoBack()) {
-            IconButton(onClick = onBack) {
-                // contentDescription = null matches AbScaffold.kt:151-157 and AbTopAppBar's own
-                // back arrow; do not invent a string for it here.
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-            }
-        }
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 8.dp),
-        )
-        Spacer(Modifier.weight(1f))
-        if (actions != null) actions()
-        IconButton(onClick = onClose) {
-            Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)
         }
     }
 }
