@@ -16,8 +16,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class AbQuickSheetGoldenTest {
 
@@ -29,35 +31,43 @@ class AbQuickSheetGoldenTest {
     }
 
     @Test fun quickSheet_plain() = captureMatrix("AbQuickSheet", "plain") {
-        AbQuickSheetContent(title = "Plain", onClose = {}) { rows(4) }
+        SheetSurface {
+            AbQuickSheetContent(title = "Plain", onClose = {}) { rows(4) }
+        }
     }
 
     @Test fun quickSheet_withFooter() = captureGolden("AbQuickSheet", "withFooter", GoldenMode.LIGHT) {
-        AbQuickSheetContent(
-            title = "With footer",
-            onClose = {},
-            footer = { AbQuickSheetFooterRow(text = "Manage workspaces…", onClick = {}) },
-        ) { rows(4) }
+        SheetSurface {
+            AbQuickSheetContent(
+                title = "With footer",
+                onClose = {},
+                footer = { AbQuickSheetFooterRow(text = "Manage workspaces…", onClick = {}) },
+            ) { rows(4) }
+        }
     }
 
     @Test fun quickSheet_withTabs() = captureGolden("AbQuickSheet", "withTabs", GoldenMode.LIGHT) {
-        AbQuickSheetContent(
-            title = "With tabs",
-            onClose = {},
-            tabs = listOf("Recent", "For this verse", "Last filter"),
-            selectedTab = 1,
-            onTabSelected = {},
-            footer = { AbQuickSheetFooterRow(text = "All documents…", onClick = {}) },
-        ) { rows(4) }
+        SheetSurface {
+            AbQuickSheetContent(
+                title = "With tabs",
+                onClose = {},
+                tabs = listOf("Recent", "For this verse", "Last filter"),
+                selectedTab = 1,
+                onTabSelected = {},
+                footer = { AbQuickSheetFooterRow(text = "All documents…", onClick = {}) },
+            ) { rows(4) }
+        }
     }
 
     @Test fun quickSheet_withBackAndActions() = captureGolden("AbQuickSheet", "withBackAndActions", GoldenMode.LIGHT) {
-        AbQuickSheetContent(
-            title = "Genesis 1",
-            onClose = {},
-            canGoBack = { true },
-            onBack = {},
-            actions = { androidx.compose.material3.Text("⋮", Modifier.padding(end = 16.dp)) },
-        ) { rows(4) }
+        SheetSurface {
+            AbQuickSheetContent(
+                title = "Genesis 1",
+                onClose = {},
+                canGoBack = { true },
+                onBack = {},
+                actions = { androidx.compose.material3.Text("⋮", Modifier.padding(end = 16.dp)) },
+            ) { rows(4) }
+        }
     }
 }
