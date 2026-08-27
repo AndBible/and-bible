@@ -19,6 +19,7 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
@@ -46,7 +47,16 @@ import net.bible.sharedui.strings.LocalStrings
  * link is rendered below the (still height-bounded/scrollable) body; tapping it opens [readMoreUrl]
  * via [LocalUriHandler] (Compose Multiplatform's built-in, iOS-clean URL opener — see
  * `AiProvidersScreen`/`EasySetupWizard` for prior usage). Underlining (not just a tinted color) keeps
- * the affordance legible in monochrome/e-ink theme modes.
+ * the affordance legible in monochrome/e-ink theme modes. Since round 15a the scroll/height bound
+ * sits on the whole [Column] (body + [content] + the "read more" link) rather than on the body
+ * [Text] alone, so the "read more" link now scrolls WITH the content instead of staying pinned below
+ * it — with a slot below the body, bounding only the body would let a long legend push the buttons
+ * off screen.
+ *
+ * [content] is an optional slot rendered between the body and the "read more" link, for a dialog
+ * whose content is not plain prose — round 15a's labels help is an icon legend, where each row is
+ * the real Compose icon the screen draws next to one short sentence. A blank [body] is allowed so
+ * such a dialog can be all slot.
  */
 @Composable
 fun AbInfoDialog(
@@ -56,19 +66,22 @@ fun AbInfoDialog(
     confirmLabel: String = LocalStrings.current.okay,
     readMoreLabel: String? = null,
     readMoreUrl: String? = null,
+    content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val uriHandler = LocalUriHandler.current
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            Column {
-                Text(
-                    text = body,
-                    modifier = Modifier
-                        .heightIn(max = maxBodyHeight)
-                        .verticalScroll(rememberScrollState()),
-                )
+            Column(
+                modifier = Modifier
+                    .heightIn(max = maxBodyHeight)
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                // A blank body is legitimate: a dialog whose whole content is [content] (an icon
+                // legend, say) has nothing to put here, and an empty Text would still take a line.
+                if (body.isNotBlank()) Text(text = body)
+                content?.invoke(this)
                 if (readMoreLabel != null && readMoreUrl != null) {
                     Spacer(Modifier.height(8.dp))
                     Text(
