@@ -106,4 +106,26 @@ class AbQuickSheetGoldenTest {
             AbQuickSheetContent(title = "Scrolling", onClose = {}, canScrollForward = { true }) { denseRows(30) }
         }
     }
+
+    /**
+     * I3 (whole-branch review fix wave): a title long enough to overflow at the harness's 320dp
+     * width, combined with BOTH a back arrow and an actions slot — the shape round 15b's key-chooser
+     * header (a tracked step title plus the six grid options) and History's
+     * "History (%1$s: Window %2$d)" (a user-chosen workspace name) actually produce. Before the
+     * fix, `AbSheetHeader`'s unweighted title measured first and could starve the trailing
+     * actions/✕ IconButton to zero width while still consuming hit-test area. With `weight(1f)` on
+     * the title, the ✕ (and the actions text before it) must stay visible and tappable-sized here.
+     */
+    @Test fun quickSheet_longTitleWithBackAndActions() =
+        captureGolden("AbQuickSheet", "longTitleWithBackAndActions", GoldenMode.LIGHT) {
+            SheetSurface {
+                AbQuickSheetContent(
+                    title = "Genesis 1:1-3 — a very long passage title that should not be able to hide the close button",
+                    onClose = {},
+                    canGoBack = { true },
+                    onBack = {},
+                    actions = { androidx.compose.material3.Text("⋮", Modifier.padding(end = 16.dp)) },
+                ) { rows(4) }
+            }
+        }
 }

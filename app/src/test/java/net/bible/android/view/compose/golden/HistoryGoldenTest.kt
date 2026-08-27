@@ -76,11 +76,16 @@ class HistoryGoldenTest {
         }
     }
 
+    // I2 (whole-branch review fix wave): wrapped in SheetSurface, the same helper
+    // AbQuickSheetGoldenTest uses, so the body's real (now content-sized, not 400dp-pinned) extent
+    // is visible against a painted surface instead of invisible on the harness's bare background.
     @Test fun history_sheetBody() = captureGolden("History", "sheetBody", GoldenMode.LIGHT) {
-        androidx.compose.foundation.layout.Box(
-            androidx.compose.ui.Modifier.heightIn(max = net.bible.sharedui.components.AbSheetContentMaxHeight)
-        ) {
-            net.bible.sharedui.history.HistoryListContent(entries = sampleEntries(), onSelect = {})
+        SheetSurface {
+            androidx.compose.foundation.layout.Box(
+                androidx.compose.ui.Modifier.heightIn(max = net.bible.sharedui.components.AbSheetContentMaxHeight)
+            ) {
+                net.bible.sharedui.history.HistoryListContent(entries = sampleEntries(), onSelect = {})
+            }
         }
     }
 }

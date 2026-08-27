@@ -20,7 +20,6 @@ package net.bible.sharedui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -97,9 +96,16 @@ fun AbSheetHeader(
             style = MaterialTheme.typography.titleMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 8.dp),
+            // I3 (whole-branch review fix wave): weight(1f) on the TITLE, not a trailing Spacer.
+            // In a Row, unweighted children measure first against the remaining space -- so
+            // without this, a long title (round 15b's grid-step title, or History's
+            // "History (%1$s: Window %2$d)" with a user-chosen workspace name) starves the
+            // trailing actions/close IconButton down to zero width. A clipped IconButton still
+            // takes hit-test area (this port has been bitten by exactly this shape before). Short
+            // titles render identically: the text is left-aligned in its (now weighted) slot and
+            // the icons stay pinned right, so every pre-existing caller stays byte-identical.
+            modifier = Modifier.padding(horizontal = 8.dp).weight(1f),
         )
-        Spacer(Modifier.weight(1f))
         if (actions != null) actions()
         IconButton(onClick = onClose) {
             Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)

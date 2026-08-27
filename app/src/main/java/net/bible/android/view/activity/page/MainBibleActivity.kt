@@ -1419,6 +1419,28 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         currentWorkspaceId = IdType(workspaceId)
     }
 
+    /**
+     * Whole-branch review fix C1: the quick sheet's own route to [switchToWorkspace].
+     *
+     * Every OTHER route to `currentWorkspaceId`'s setter saves the outgoing workspace first:
+     * [cycleWorkspace] calls `windowRepository.saveIntoDb()` immediately before switching; the
+     * classic `WorkspaceSelectorActivity` path calls it too and additionally gets an `onPause`; the
+     * Compose selector calls `service.saveCurrentIntoDb()`. The quick sheet never pauses the
+     * activity, so without this it is the only path that reaches `windowRepository.loadFromDb`
+     * (whose first act is `clear()`) with the outgoing workspace's windows, page managers and
+     * `HistoryManager` entries never written to `dao` -- silently discarding unsaved layout/history
+     * changes on a quick switch. Mirrors [cycleWorkspace]'s save call exactly.
+     *
+     * Deliberately NOT folded into [switchToWorkspace] itself: that function is also the
+     * `WORKSPACE_CHANGED` result arm's body, which runs AFTER the full selector has already renamed
+     * the outgoing workspace in the DB. Saving there would recompute `contentText` from the STALE
+     * in-memory `name` and push it back over a rename the user just made in the selector.
+     */
+    internal fun quickSwitchToWorkspace(workspaceId: String) {
+        windowRepository.saveIntoDb()
+        switchToWorkspace(workspaceId)
+    }
+
     internal fun composeCycleWorkspace(forward: Boolean) = cycleWorkspace(forward)
 
     internal fun composeStartKeyChooser() {
@@ -1648,8 +1670,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 fullScreen = true
             })
             R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
+                // M1 (whole-branch review fix wave): guard on the MOUNTED HOST, not the live
+                // `use_compose_ui` flag -- toggling the setting does not recreate the activity, and
+                // History (MenuCommandHandler.kt / this file's long-press-back) already guards this
+                // way. Guarding on the flag here would let the toolbar icon (host-only) open the
+                // sheet while this item opened the Activity, in that window.
                 val host = composeReadingViewHost
-                if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+                if (host != null) {
                     host.showWorkspaceSheet()
                 } else {
                     val intent = ScreenLauncher.intentFor(this, Screen.WorkspaceSelector)

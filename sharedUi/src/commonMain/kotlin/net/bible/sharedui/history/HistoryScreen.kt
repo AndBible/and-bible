@@ -47,7 +47,10 @@ fun HistoryListContent(
     listState: LazyListState = rememberLazyListState(),
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(state = listState, modifier = modifier.fillMaxSize()) {
+    // I2 (whole-branch review fix wave): fillMaxWidth, not fillMaxSize -- see WorkspaceQuickContent
+    // for the full rationale. The one caller that needs to fill (the full-screen HistoryScreen)
+    // passes fillMaxSize() explicitly in its own modifier below.
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth()) {
         items(entries, key = { it.id }) { entry ->
             TwoLineListItem(
                 title = entry.title,
@@ -74,7 +77,11 @@ fun HistoryScreen(
     // inner LazyColumn (which then fills the card's content region and scrolls within it).
     Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.5f)) {
         AbScaffold(title = title) { padding ->
-            HistoryListContent(entries = entries, onSelect = onSelect, modifier = Modifier.padding(padding))
+            HistoryListContent(
+                entries = entries,
+                onSelect = onSelect,
+                modifier = Modifier.fillMaxSize().padding(padding),
+            )
         }
     }
     if (error != null) {

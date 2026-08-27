@@ -883,8 +883,11 @@ class BibleJavascriptInterface(
                 "AltKeyO" -> mainBibleActivity.showOptionsMenu()
                 "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
                 "CtrlKeyW" -> {
+                    // M1 (whole-branch review fix wave): guard on the MOUNTED HOST, not the live
+                    // `use_compose_ui` flag -- see MainBibleActivity's R.id.switchToWorkspace for
+                    // the full rationale (toggling the setting doesn't recreate the activity).
                     val host = mainBibleActivity.composeReadingViewHost
-                    if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+                    if (host != null) {
                         host.showWorkspaceSheet()
                     } else {
                         val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.WorkspaceSelector)

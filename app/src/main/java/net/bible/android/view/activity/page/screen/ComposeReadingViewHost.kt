@@ -1130,7 +1130,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 val controller = remember(sheet) {
                     WorkspaceQuickController(workspaceService) { id ->
                         closeQuickSheet()
-                        activity.switchToWorkspace(id)
+                        // C1: the quick sheet never pauses the activity, so nothing else flushes the
+                        // outgoing workspace's windows/page-managers/history before switching. Use
+                        // the save-then-switch entry point, never plain switchToWorkspace here.
+                        activity.quickSwitchToWorkspace(id)
                     }
                 }
                 val rows by controller.rows.collectAsState()

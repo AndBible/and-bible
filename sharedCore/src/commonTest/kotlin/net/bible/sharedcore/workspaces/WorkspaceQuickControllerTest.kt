@@ -47,6 +47,15 @@ class WorkspaceQuickControllerTest {
         assertEquals(null, switched, "the current workspace row is inert, as QuickDocPicker's is")
     }
 
+    /**
+     * NOTE (whole-branch review fix C1): this deliberately does NOT mean the outgoing workspace's
+     * unsaved state is dropped on a quick switch. `MainBibleActivity.quickSwitchToWorkspace` -- the
+     * host's `onSwitch` handler passed into this controller -- calls `windowRepository.saveIntoDb()`
+     * BEFORE `switchToWorkspace`, exactly mirroring `cycleWorkspace`'s save call. That save is the
+     * HOST's job on purpose: this controller stays read-only over [WorkspaceService], and the save
+     * happens one layer up, outside anything this test can see. Do not read this test as forbidding
+     * a pre-switch save anywhere in the app -- only as pinning that THIS class never triggers one.
+     */
     @Test fun itNeverMutatesTheWorkspaceService() {
         val svc = SpyWorkspaceService(rows)
         val c = WorkspaceQuickController(svc) {}

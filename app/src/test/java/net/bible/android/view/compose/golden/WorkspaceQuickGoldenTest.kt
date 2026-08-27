@@ -27,9 +27,14 @@ class WorkspaceQuickGoldenTest {
         WorkspaceRowVd("c", "Greek work", null, 0xFF6A1B9A.toInt(), isCurrent = false),
     )
 
+    // I2 (whole-branch review fix wave): wrapped in SheetSurface, the same helper
+    // AbQuickSheetGoldenTest uses, so the body's real (now content-sized, not 400dp-pinned) extent
+    // is visible against a painted surface instead of invisible on the harness's bare background.
     @Test fun workspaceQuick_populated() = captureMatrix("WorkspaceQuick", "populated") {
-        Box(Modifier.heightIn(max = AbSheetContentMaxHeight)) {
-            WorkspaceQuickContent(rows = rows(), onSelect = {})
+        SheetSurface {
+            Box(Modifier.heightIn(max = AbSheetContentMaxHeight)) {
+                WorkspaceQuickContent(rows = rows(), onSelect = {})
+            }
         }
     }
 }

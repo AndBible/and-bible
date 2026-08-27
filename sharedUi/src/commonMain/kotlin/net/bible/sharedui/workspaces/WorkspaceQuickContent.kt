@@ -20,7 +20,6 @@ package net.bible.sharedui.workspaces
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -38,11 +37,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
+import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
 
 /**
@@ -77,14 +78,28 @@ fun WorkspaceQuickContent(
     modifier: Modifier = Modifier,
 ) {
     val colorMode = LocalDisplayColorMode.current
-    LazyColumn(state = listState, modifier = modifier.fillMaxSize()) {
+    val strings = LocalStrings.current
+    // I2 (whole-branch review fix wave): fillMaxWidth, not fillMaxSize. Under the host's bounded
+    // `heightIn(max = AbSheetContentMaxHeight)`, fillMaxSize sets minHeight = maxHeight, pinning the
+    // list at 400dp for three rows exactly as for thirty. Every other body under the same wrapper
+    // sizes to content; this one must too.
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth()) {
         items(rows, key = { it.id }) { row ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .then(if (row.isCurrent) Modifier else Modifier.clickable { onSelect(row.id) })
+                    // I4: real disabled semantics via `clickable(enabled = ...)`, not a conditionally
+                    // omitted modifier -- the QuickDocPicker idiom (Material's disabled colours AND
+                    // accessibility semantics), so TalkBack announces "disabled" instead of plain
+                    // inert text with no click action.
+                    .clickable(enabled = !row.isCurrent) { onSelect(row.id) }
                     .heightIn(min = 48.dp)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    // mergeDescendants = true: this port has been bitten before by a non-merging
+                    // disabled() bubbling into a whole clickable row (ManageLabelsScreen's
+                    // TrailingSlot) -- here it is the opposite direction, making sure the dot + name
+                    // announce as ONE row rather than two separate nodes.
+                    .semantics(mergeDescendants = true) {},
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 // The per-workspace color is a decorative-but-meaningful identifier, not a scheme
@@ -98,7 +113,9 @@ fun WorkspaceQuickContent(
                 ) {}
                 Spacer(Modifier.width(16.dp))
                 Text(
-                    text = row.name,
+                    // I4: the existing `workspaceListingWithCurrent` string -- what the full
+                    // selector already uses (`WorkspaceSelectorScreen.kt:190`) -- no new string.
+                    text = if (row.isCurrent) strings.workspaceListingWithCurrent(row.name) else row.name,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = if (row.isCurrent) FontWeight.Bold else FontWeight.Normal,
                     color = if (row.isCurrent) {

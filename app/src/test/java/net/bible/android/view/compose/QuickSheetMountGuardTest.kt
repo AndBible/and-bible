@@ -42,7 +42,13 @@ class QuickSheetMountGuardTest {
         val slotStart = src.indexOf("private fun QuickSheetSlot()")
         val abQuickSheetUses = Regex("""\bAbQuickSheet\(""").findAll(src).map { it.range.first }.toList()
         abQuickSheetUses.forEach { at ->
-            assertTrue("AbQuickSheet( at $at is outside QuickSheetSlot", at > slotStart)
+            // NOTE: do not spell the shell composable's name directly followed by an open paren
+            // anywhere in this file, comments included -- SettingsEditorSheetGuardTest's
+            // noGoldenTestCapturesSettingsEditorSheet (whole-branch review fix M3) scans this whole
+            // package by raw text (not comment-stripped) for exactly that substring, and it would
+            // self-report as a false positive the same way that guard's own kdoc already explains
+            // for its own source.
+            assertTrue("an AbQuickSheet call at $at is outside QuickSheetSlot", at > slotStart)
         }
     }
 }
