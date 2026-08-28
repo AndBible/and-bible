@@ -171,7 +171,6 @@ import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.ai.reading.ReadingLlmService
 import net.bible.sharedcore.history.HistoryController
 import net.bible.sharedcore.history.HistoryEntry
-import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentQuickTab
 import net.bible.sharedcore.navigation.DocumentQuickTabs
@@ -591,20 +590,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             CommonUtils.settings.getInt("selected_document_filter_no", 0),
         ) { DocTypeFilter.ALL }
         return buildDocumentQuickTabs(
-            // A QUICK SHEET MAY ONLY OFFER ROWS IT CAN ACTION (spec §2, which lists unlocking among
-            // the things that must not appear in a sheet). Two kinds cannot be actioned here and are
-            // dropped rather than shown and ignored:
-            //   * LOCKED modules — the full screen answers a tap with `CommonUtils.unlockDocument`;
-            //     the sheet has no such affordance, so a tap would switch the reading view to an
-            //     undecryptable document with no route back to unlocking it.
-            //   * AND_BIBLE pseudo-documents — `changeDocument` no-ops on them, exactly as
-            //     `ChooseDocumentComposeActivity.handleDocumentSelection` returns early for them.
-            // Only LAST_FILTER needs this: `forVerse` comes from `biblesForVerse`/
-            // `commentariesForVerse`, which already exclude locked books, and the MRU only ever
-            // holds documents that were successfully opened. `DocTypeFilter.ALL` already hides
-            // AND_BIBLE, but a persisted ADDON filter would surface it. Do not "restore" the full
-            // list here.
-            installed = rows.filterNot { it.locked || it.category == DocCategory.AND_BIBLE },
+            // Every mapped row, unfiltered: dropping the ones a sheet cannot action (locked modules,
+            // AND_BIBLE pseudo-documents) is [buildDocumentQuickTabs]' own job — see its kdoc, and
+            // `DocumentQuickTabsTest` for the guard. Note `lastLanguage` above is deliberately
+            // resolved against this FULL list, so a language whose only document is locked does not
+            // silently lose the user's saved filter.
+            installed = rows,
             recentInitials = RecentDocumentsStore.read(),
             forVerseIds = forVerseIds,
             lastLanguage = lastLanguage,

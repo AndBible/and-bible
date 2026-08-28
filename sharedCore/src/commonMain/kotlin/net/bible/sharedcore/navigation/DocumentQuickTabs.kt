@@ -32,7 +32,25 @@ data class DocumentQuickTabs(
  * where there is no MRU yet and "For this verse" has to carry it — and it is the property most
  * likely to be lost in a later edit, so [DocumentQuickTabsTest] asserts it directly.
  *
- * @param installed every installed document, as the host already models them
+ * A QUICK SHEET MAY ONLY OFFER ROWS IT CAN ACTION, so this function DROPS two kinds of document from
+ * [installed] before building any tab (spec §2, which lists unlocking among the things that must not
+ * appear in a sheet):
+ *
+ *  * LOCKED modules — the full ChooseDocument screen answers a tap with an unlock prompt; a sheet
+ *    has no such affordance, so offering one would switch the reading view to an undecryptable
+ *    document with no route back to unlocking it.
+ *  * [DocCategory.AND_BIBLE] pseudo-documents — selecting one is a no-op, which is why the full
+ *    screen returns early for them too.
+ *
+ * "Which documents a quick sheet may offer" is a CONTENT RULE OF THE SHEET, not a fact about any one
+ * host's book list, which is why it lives here beside the visibility rule rather than in the caller
+ * that happens to assemble the rows — and why it is applied to every tab's source, not only to the
+ * filter-derived one. The MRU and `forVerseIds` cannot carry such a row today, but a safety rule
+ * must not depend on its callers' guarantees. Visibility is unchanged by this: a tab whose only rows
+ * were dropped simply has no rows, and so is hidden.
+ *
+ * @param installed every installed document, as the host already models them; rows the sheet cannot
+ *   action (locked, [DocCategory.AND_BIBLE]) are dropped here rather than by the caller
  * @param recentInitials the MRU, most-recent-first; entries no longer installed are dropped
  * @param forVerseIds documents that contain the current verse (the host's `biblesForVerse` +
  *   `commentariesForVerse`, which the toolbar's quick pickers already compute)
@@ -45,10 +63,11 @@ fun buildDocumentQuickTabs(
     lastLanguage: LangOption?,
     lastTypeFilter: DocTypeFilter,
 ): DocumentQuickTabs {
-    val byId = installed.associateBy { it.docId }
+    val offerable = installed.filterNot { it.locked || it.category == DocCategory.AND_BIBLE }
+    val byId = offerable.associateBy { it.docId }
     val recent = recentInitials.mapNotNull { byId[it] }
-    val forVerse = installed.filter { it.docId in forVerseIds }
-    val lastFilter = computeDisplayedDocuments(installed, lastLanguage, lastTypeFilter, searchIds = null)
+    val forVerse = offerable.filter { it.docId in forVerseIds }
+    val lastFilter = computeDisplayedDocuments(offerable, lastLanguage, lastTypeFilter, searchIds = null)
     val rows = mapOf(
         DocumentQuickTab.RECENT to recent,
         DocumentQuickTab.FOR_VERSE to forVerse,
