@@ -1480,6 +1480,29 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         updateActions()
     }
 
+    /**
+     * Apply a chosen verse to the active window.
+     *
+     * Extracted from the `onActivityResult` `in classes` arm so that round 15b's grid quick sheet —
+     * which returns no Intent and therefore cannot use that arm — and the existing activity result
+     * cannot drift apart. The `NoSuchVerseException` branch is the reason: it only fires on a
+     * malformed OSIS id, so a second copy could lose it and nothing would notice.
+     */
+    internal fun applyChosenVerse(verseStr: String, isFromBookmark: Boolean = false) {
+        val verse = try {
+            VerseFactory.fromString(navigationControl.versification, verseStr)
+        } catch (e: NoSuchVerseException) {
+            ABEventBus.post(ToastEvent(getString(R.string.verse_not_found)))
+            return
+        }
+        val pageManager = windowControl.activeWindowPageManager
+        if (isFromBookmark && !pageManager.isBibleShown) {
+            pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
+        } else {
+            pageManager.currentPage.setKey(verse, !isFromBookmark)
+        }
+    }
+
     internal fun composeCycleStrongs() {
         val prefOptions = dummyStrongsPrefOption
         prefOptions.value = (prefOptions.value as Int + 1) % 3
@@ -3127,17 +3150,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             val keyStr = extras.getString("key")
                             val bookStr = extras.getString("book")
                             if(verseStr != null) {
-                                val verse = try {
-                                    VerseFactory.fromString(navigationControl.versification, verseStr)
-                                } catch (e: NoSuchVerseException) {
-                                    ABEventBus.post(ToastEvent(getString(R.string.verse_not_found)))
-                                    return
-                                }
-                                val pageManager = windowControl.activeWindowPageManager
-                                if (isFromBookmark && !pageManager.isBibleShown) {
-                                    pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
-                                } else
-                                    pageManager.currentPage.setKey(verse, !isFromBookmark)
+                                applyChosenVerse(verseStr, isFromBookmark)
                             } else if (keyStr != null && bookStr != null) {
                                 val book =
                                     Books.installed().getBook(bookStr) ?: FakeBookFactory.giveDoesNotExist(bookStr)
