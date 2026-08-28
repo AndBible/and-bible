@@ -31,8 +31,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -144,12 +146,19 @@ fun GridOptionsOverflow(ui: GridUi, options: GridOptions, onToggle: (GridOption)
  * [modifier] MUST supply a bounded height when this is hosted in a sheet: the cell size is
  * `maxHeight / rowCount` (with a 40dp floor, below which the grid scrolls), and a bottom sheet's
  * content column is height-unbounded, where a `LazyVerticalGrid` crashes outright.
+ *
+ * [state] is a parameter, not a private `remember`, for the sheet's sake -- same reason as
+ * `KeyListBody`'s `listState`: the quick-sheet shell draws its bottom fade from a
+ * `canScrollForward` lambda it is handed, so the host has to read the grid's OWN scroll state or
+ * the fade can never appear. The full screen passes nothing, which is behaviour-identical to the
+ * `LazyVerticalGrid` creating its own state internally (the previous default).
  */
 @Composable
 fun GridChoosePassageContent(
     ui: GridUi,
     onPick: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    state: LazyGridState = rememberLazyGridState(),
 ) {
     val sections = ui.sections
     val cols = ui.columns.coerceAtLeast(1)
@@ -171,6 +180,7 @@ fun GridChoosePassageContent(
         LazyVerticalGrid(
             columns = GridCells.Fixed(cols),
             modifier = Modifier.fillMaxSize(),
+            state = state,
             contentPadding = PaddingValues(4.dp),
         ) {
             if (sections != null) {

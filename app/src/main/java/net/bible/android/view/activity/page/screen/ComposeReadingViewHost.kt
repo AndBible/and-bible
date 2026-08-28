@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -1419,8 +1420,16 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 // there is nothing to offer" below: routing away on a not-yet-loaded list would send
                 // the user to the full screen every time the sheet opened faster than the books.
                 val tabs = tabsState
-                // rememberSaveable, not remember: the tab is the one piece of this sheet's state the
-                // user chose, and it must survive a configuration change while the sheet is open.
+                // D1 (whole-branch review fix wave): rememberSaveable, not remember, so the pick
+                // survives this composable being torn down and rebuilt when the user closes and
+                // reopens the Documents sheet within the same session (`remember` would not -- a
+                // fresh slot means a fresh `null`). It does NOT survive a device rotation, contrary
+                // to what an earlier version of this comment claimed: MainBibleActivity's manifest
+                // omits `orientation` from `configChanges`, so rotation recreates the Activity and
+                // this whole host, `quickSheet` (a plain field, never itself saved) resets to null,
+                // and every quick sheet -- this one included -- simply closes. What restores the
+                // tab after THAT is the persisted `document_quick_tab` setting
+                // (`persistQuickDocTab`/`restoreQuickDocTab` below), not this state holder.
                 // Null until the user taps a tab; the persisted key supplies the initial selection
                 // once `visible` is known (it cannot be known at remember time — the load is async).
                 var pickedTabId by rememberSaveable(sheet) { mutableStateOf<String?>(null) }
@@ -1498,6 +1507,13 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     }
                     val ui by controller.ui.collectAsState()
                     val options by controller.options.collectAsState()
+                    // I2 (whole-branch review fix wave): the grid is the one sheet that ALWAYS
+                    // overflows its 400dp bound (its own golden's arithmetic puts the content at
+                    // ~492dp), so it is the one sheet that most needs the bottom fade -- but with no
+                    // `canScrollForward` passed here, `AbQuickSheet` defaulted to `{ false }` and the
+                    // fade never rendered. The grid's own `LazyGridState` (not `listState`, which this
+                    // branch never populates) is what the fade must read.
+                    val gridState = rememberLazyGridState()
                     AbQuickSheet(
                         open = true,
                         // Tracks the step: Genesis -> Genesis 1. The Speak sheet discards ui.title;
@@ -1507,6 +1523,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                         // Still the header's back arrow: it pops a grid step until the stack is empty.
                         canGoBack = { ui.step != GridStep.BOOK },
                         onBack = { if (!controller.back()) closeQuickSheet() },
+                        canScrollForward = { gridState.canScrollForward },
                         // Amendment D3: swipe-down and scrim-tap must CLOSE this sheet, as they do
                         // every other sheet in the app -- with the shell's default routing they
                         // would pop a grid step instead and leave the X as the only way out from a
@@ -1541,7 +1558,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                         // constructor ran. Verified against this project's material3 /
                         // androidx.activity / androidx.navigationevent bytecode (Task 8 report).
                         BackHandler(enabled = ui.step != GridStep.BOOK) { controller.back() }
-                        GridChoosePassageContent(ui, controller::pick, Modifier.fillMaxSize())
+                        GridChoosePassageContent(ui, controller::pick, Modifier.fillMaxSize(), state = gridState)
                     }
                 }
                 // Both are flat single-level lists with no page stack, so they take the shell's

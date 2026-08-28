@@ -20,7 +20,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -57,7 +56,11 @@ fun DocumentQuickContent(
     modifier: Modifier = Modifier,
 ) {
     val categoryIcon = LocalCategoryIcon.current
-    LazyColumn(state = listState, modifier = modifier.fillMaxSize()) {
+    // I1 (whole-branch review fix wave): fillMaxWidth, not fillMaxSize -- see WorkspaceQuickContent
+    // for the full rationale. Under the host's bounded `heightIn(max = AbSheetContentMaxHeight)`,
+    // fillMaxSize sets minHeight = maxHeight, pinning the sheet at 400dp for the Recent tab's two or
+    // three rows exactly as for a full document list.
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth()) {
         items(rows, key = { it.docId }) { row ->
             val isCurrent = row.docId == currentDocId
             Row(

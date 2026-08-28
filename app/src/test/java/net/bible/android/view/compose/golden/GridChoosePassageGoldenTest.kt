@@ -1,6 +1,7 @@
 package net.bible.android.view.compose.golden
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.ui.Modifier
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.navigation.GridButton
@@ -186,8 +187,15 @@ class GridChoosePassageGoldenTest {
      * pitch, plus the grid's own 4dp contentPadding a side = 11 * 44 + 8 = 492dp of content against
      * a 400dp bound. Nine rows fit (the ninth ends at y=446dp, 2dp inside the bound's 448dp bottom
      * edge) and rows TEN and ELEVEN — 2Tim..1Pet and 2Pet..Rev — are clipped away entirely. The
-     * bottom fade washes the ninth row out over its last ~24dp, which is `canScrollForward` being
-     * genuinely wired through `AbSheetScrollBound` rather than merely present in a modifier chain.
+     * bottom fade washes the ninth row out over its last ~24dp.
+     *
+     * `canScrollForward` reads the REAL `LazyGridState` handed to [GridChoosePassageContent] below
+     * (whole-branch review fix wave, I2) — not a hardcoded `true`. An earlier version of this test
+     * hardcoded it, which proved the fade paints when told to without proving anything ever tells
+     * it to in production; the production host (`ComposeReadingViewHost`'s `KeyChooserKind.Grid`
+     * branch) was passing no `canScrollForward` at all and silently getting `AbQuickSheet`'s
+     * `{ false }` default, so the fade never rendered there. Both are fixed together: the host now
+     * holds its own `rememberLazyGridState()` and wires it through, exactly as this golden does.
      *
      * With `bookUi`'s twelve buttons (two laid-out rows, ~96dp) nothing overflows: the capture would
      * then be identical for ANY bound between 0 and ~448dp, so it could not detect a misapplied one.
@@ -202,13 +210,17 @@ class GridChoosePassageGoldenTest {
     @Test fun grid_sheet_book() = captureGolden("GridChoosePassage", "sheetBook", GoldenMode.LIGHT) {
         val ui = allBooksUi()
         SheetSurface {
+            val gridState = rememberLazyGridState()
             AbQuickSheetContent(
                 title = ui.title,
                 onClose = {},
                 actions = { GridOptionsOverflow(ui, opts) {} },
-                canScrollForward = { true },
+                // I2 (whole-branch review fix wave): read the REAL grid scroll state, the same
+                // `LazyGridState` handed to `GridChoosePassageContent` below, rather than a
+                // hardcoded `true` that proved the fade paints without proving anything wires it.
+                canScrollForward = { gridState.canScrollForward },
             ) {
-                GridChoosePassageContent(ui = ui, onPick = {}, modifier = Modifier.fillMaxSize())
+                GridChoosePassageContent(ui = ui, onPick = {}, modifier = Modifier.fillMaxSize(), state = gridState)
             }
         }
     }
