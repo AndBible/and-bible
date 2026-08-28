@@ -34,10 +34,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.document.DocumentControl
-import net.bible.android.control.document.canDelete
-import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.download.LanguageGrouping
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.DocumentSearch
 import net.bible.android.view.activity.base.ActivityBase
@@ -53,16 +50,13 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.SwordDocumentFacade
-import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
-import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
-import net.bible.sharedui.docCategoryOf
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.strings.LocalStrings
 import org.crosswire.jsword.book.Book
@@ -215,18 +209,12 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                 SwordDocumentFacade.documents + FakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
             }
             val rows = withContext(Dispatchers.Default) {
-                // Reuse the classic language grouping so dedup + representative displayName match classic.
-                val grouping = LanguageGrouping(books.mapNotNull { it.language })
-                // Build ONE canonical LangOption per grouping key from classic's representatives
-                // (most-canonical member: 2-letter code, no script, no country). Every DocRow in a
-                // group shares this exact option, so the deduped dropdown entry shows the same
-                // displayName/code classic's spinner would — regardless of which row the controller
-                // keeps when deduping by groupingKey.
-                val langByKey: Map<String, LangOption> = grouping.representatives.mapNotNull { lang ->
-                    val key = grouping.key(lang) ?: return@mapNotNull null
-                    key to LangOption(lang.code ?: "", lang.name, key)
-                }.toMap()
+                // Round 15b Task 5: the Book -> DocRow mapping (language grouping included) now lives
+                // in DocRowMapper, shared with the reading view's document quick sheet so the two
+                // cannot drift. One mapper per book list — see its kdoc.
+                val mapper = DocRowMapper(downloadControl, books)
                 // Seed the FTS DAO once (mirror classic populateMasterDocumentList dao.clear()/insertDocuments).
+                // Stays HERE, not in the mapper: it feeds this screen's search field only.
                 runCatching {
                     dao.clear()
                     dao.insertDocuments(books.map {
@@ -236,7 +224,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                         )
                     })
                 }
-                books.map { it.toDocRow(grouping, langByKey) }
+                books.map { mapper.toDocRow(it) }
             }
             booksById = books.associateBy { it.initials }
             controller.setDocuments(rows, searchIds = null)
@@ -244,33 +232,6 @@ class ChooseDocumentComposeActivity : ActivityBase() {
             Log.e(TAG, "Error loading documents", e)
             controller.showError()
         }
-    }
-
-    private fun Book.toDocRow(grouping: LanguageGrouping, langByKey: Map<String, LangOption>): DocRow {
-        val status = downloadControl.getDocumentStatus(this)
-        val key = grouping.key(language) ?: (language.code ?: "")
-        // ChooseDocument never loads the recommended/bad-document configs (only DownloadActivity does),
-        // so classic isRecommended(null)/isBadDocument(null,…) are always false here.
-        return DocRow(
-            docId = initials,
-            osisId = osisID,
-            abbreviation = abbreviation,
-            name = name,
-            language = langByKey[key]
-                ?: LangOption(language.code ?: "", language.name, key),
-            repository = getProperty(DownloadManager.REPOSITORY_KEY) ?: "",
-            category = docCategoryOf(bookCategory),
-            installStatus = status.documentInstallStatus.toDocInstallStatus(),
-            percentDone = status.percentDone,
-            recommended = false,
-            badWarn = false,
-            locked = isLocked,
-            enciphered = isEnciphered,
-            // From the INSTALLED copy, so both document screens derive this flag from the same
-            // object handleDelete acts on (here they are the same Book, so the value is unchanged).
-            canDelete = runCatching { installedDocument?.canDelete ?: false }.getOrDefault(false),
-            installSizeMb = null, // ChooseDocument does not show install size (download-only)
-        )
     }
 
     // --- Controller seams (JSword side effects) ---------------------------------------------
@@ -455,15 +416,6 @@ class ChooseDocumentComposeActivity : ActivityBase() {
         DocTypeFilter.MAPS to strings.docTypeMaps,
         DocTypeFilter.ADDON to strings.docTypeAddon,
     )
-
-    private fun DocumentInstallStatus.toDocInstallStatus(): DocInstallStatus = when (this) {
-        DocumentInstallStatus.INSTALLED -> DocInstallStatus.INSTALLED
-        DocumentInstallStatus.NOT_INSTALLED -> DocInstallStatus.NOT_INSTALLED
-        DocumentInstallStatus.BEING_INSTALLED -> DocInstallStatus.BEING_INSTALLED
-        DocumentInstallStatus.UPGRADE_AVAILABLE -> DocInstallStatus.UPGRADE_AVAILABLE
-        DocumentInstallStatus.ERROR_DOWNLOADING -> DocInstallStatus.ERROR_DOWNLOADING
-        DocumentInstallStatus.INSTALL_CANCELLED -> DocInstallStatus.INSTALL_CANCELLED
-    }
 
     companion object {
         private const val TAG = "ChooseDocumentCompose"

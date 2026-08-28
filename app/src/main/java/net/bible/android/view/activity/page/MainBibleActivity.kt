@@ -1447,8 +1447,37 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         pageControl.currentPageManager.currentPage.startKeyChooser(this)
     }
 
+    /**
+     * The Compose toolbar title's long-press. Round 15b Task 5: with a Compose host mounted this now
+     * opens the document QUICK sheet over the reading view (spec §4.5) instead of starting the full
+     * `ChooseDocument` screen — which the sheet's own footer row still reaches. Null host = classic
+     * path (`use_compose_ui` off), unchanged below.
+     *
+     * The reroute lives HERE rather than at the toolbar callback so there is exactly ONE conditional
+     * and one classic fall-through for this entry point, and so any later caller of this internal
+     * entry point gets the sheet too.
+     */
     internal fun composeChooseDocument() {
+        val host = composeReadingViewHost
+        if (host != null) {
+            host.showDocumentSheet()
+            return
+        }
         startActivityForResult(ScreenLauncher.intentFor(this, Screen.ChooseDocument), STD_REQUEST_CODE)
+    }
+
+    /**
+     * Apply a document chosen by the user to the active window.
+     *
+     * Extracted from the `ChooseDocument` `onActivityResult` arm so that round 15b's document quick
+     * sheet — which returns no Intent and therefore cannot use that arm — and the existing activity
+     * result cannot drift apart. The `FakeBookFactory` fallback is the reason: it only matters for
+     * pseudo-documents, so a second copy could lose it and nothing would notice.
+     */
+    internal fun applyChosenDocument(bookStr: String?) {
+        val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
+        documentControl.changeDocument(book)
+        updateActions()
     }
 
     internal fun composeCycleStrongs() {
@@ -3051,10 +3080,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     when(val className = data.component?.className) {
                         null -> {}
                         ChooseDocument::class.java.name -> {
-                            val bookStr = extras.getString("book")
-                            val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
-                            documentControl.changeDocument(book)
-                            updateActions()
+                            applyChosenDocument(extras.getString("book"))
                             return
                         }
                         MyDocumentPagesActivity::class.java.name -> {
