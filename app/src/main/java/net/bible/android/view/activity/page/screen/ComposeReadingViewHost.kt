@@ -171,6 +171,7 @@ import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.ai.reading.ReadingLlmService
 import net.bible.sharedcore.history.HistoryController
 import net.bible.sharedcore.history.HistoryEntry
+import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentQuickTab
 import net.bible.sharedcore.navigation.DocumentQuickTabs
@@ -580,13 +581,30 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             activity.documentControl.commentariesForVerse).map { it.initials }.toSet()
         // The two keys ChooseDocument itself persists (its sticky-language seam and its type-filter
         // spinner), read here so the "Last filter" tab reproduces what the user last looked at.
+        // KNOWN: `selected_document_filter_no` is written by `DownloadComposeActivity` too
+        // (`:300`), so "Last filter" can reflect a filter the user last set on the DOWNLOAD screen.
+        // That is the classic key's existing behaviour, shared by both document screens — not a bug
+        // to fix here, and not a second key to invent.
         val lastLanguageCode = CommonUtils.settings.getString("selected_language_code", null)
         val lastLanguage = lastLanguageCode?.let { code -> rows.firstOrNull { it.language.code == code }?.language }
         val lastTypeFilter = DocTypeFilter.entries.getOrElse(
             CommonUtils.settings.getInt("selected_document_filter_no", 0),
         ) { DocTypeFilter.ALL }
         return buildDocumentQuickTabs(
-            installed = rows,
+            // A QUICK SHEET MAY ONLY OFFER ROWS IT CAN ACTION (spec §2, which lists unlocking among
+            // the things that must not appear in a sheet). Two kinds cannot be actioned here and are
+            // dropped rather than shown and ignored:
+            //   * LOCKED modules — the full screen answers a tap with `CommonUtils.unlockDocument`;
+            //     the sheet has no such affordance, so a tap would switch the reading view to an
+            //     undecryptable document with no route back to unlocking it.
+            //   * AND_BIBLE pseudo-documents — `changeDocument` no-ops on them, exactly as
+            //     `ChooseDocumentComposeActivity.handleDocumentSelection` returns early for them.
+            // Only LAST_FILTER needs this: `forVerse` comes from `biblesForVerse`/
+            // `commentariesForVerse`, which already exclude locked books, and the MRU only ever
+            // holds documents that were successfully opened. `DocTypeFilter.ALL` already hides
+            // AND_BIBLE, but a persisted ADDON filter would surface it. Do not "restore" the full
+            // list here.
+            installed = rows.filterNot { it.locked || it.category == DocCategory.AND_BIBLE },
             recentInitials = RecentDocumentsStore.read(),
             forVerseIds = forVerseIds,
             lastLanguage = lastLanguage,
@@ -1267,14 +1285,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 // once `visible` is known (it cannot be known at remember time — the load is async).
                 var pickedTabId by rememberSaveable(sheet) { mutableStateOf<String?>(null) }
                 val listState = rememberLazyListState()
+                // Memoised on `tabs`, not recomputed inline: `restoreQuickDocTab` is a synchronous
+                // settings (Room) read, and computing it in the composition body would run it on the
+                // main thread on EVERY recomposition of this branch until the user taps a tab —
+                // the same objection that moved the tab build itself off the composition pass.
+                val restoredTabId = remember(tabs) { tabs?.let { restoreQuickDocTab(it.visible) } }
                 if (tabs != null && tabs.visible.isEmpty()) {
                     // Nothing to offer — go straight to the full screen rather than showing an
                     // empty sheet with only a footer row.
                     LaunchedEffect(Unit) { closeQuickSheet(); openChooseDocument() }
                 } else {
                     val selectedTabId = tabs?.let { loaded ->
-                        pickedTabId?.takeIf { id -> loaded.visible.any { it.name == id } }
-                            ?: restoreQuickDocTab(loaded.visible)
+                        pickedTabId?.takeIf { id -> loaded.visible.any { it.name == id } } ?: restoredTabId
                     }
                     AbQuickSheet(
                         open = true,
