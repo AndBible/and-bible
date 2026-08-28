@@ -19,7 +19,10 @@ import org.robolectric.annotation.GraphicsMode
 // real BibleApplication and dies on an excluded requery-sqlite class.
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class KeyChooserSheetGoldenTest {
-    private fun rows(n: Int) = (1..n).map { KeyRow(it.toString(), "Entry $it") }
+    // 0-BASED, as production is: a `KeyRow.keyId` is the INDEX of the key in the resolved key list,
+    // as a decimal string (`KeyChooserKeys.kt`). A 1-based fixture would read like the contract and
+    // is not, so the row named "Entry 8" is the one whose id is "8".
+    private fun rows(n: Int) = (0 until n).map { KeyRow(it.toString(), "Entry $it") }
 
     /**
      * Round 15b Task 9: the map / general-book key list as it renders INSIDE the reading view's
@@ -35,7 +38,7 @@ class KeyChooserSheetGoldenTest {
      * 14dp of padding a side ≈ 52dp, so the 400dp bound holds about seven and a half of them.
      * Twenty-four rows (≈1248dp) therefore overflow it by a wide margin, and the current row is
      * placed at index 8 — deep enough that `KeyListBody`'s initial `scrollToItem` is VISIBLE in the
-     * capture: the list opens on "Entry 9", not on "Entry 1", and the rows above it are scrolled
+     * capture: the list opens on "Entry 8", not on "Entry 0", and the rows above it are scrolled
      * out of the bound. That makes three separate properties falsifiable in one image —
      * current-row highlight, initial scroll, and clipping at the bound rather than compression —
      * where a fixture short enough to fit would render identically whether any of them worked.
@@ -55,7 +58,7 @@ class KeyChooserSheetGoldenTest {
                 onClose = {},
                 canScrollForward = { listState.canScrollForward },
             ) {
-                KeyListBody(rows = rows(24), currentKeyId = "9", onSelect = {}, listState = listState)
+                KeyListBody(rows = rows(24), currentKeyId = "8", onSelect = {}, listState = listState)
             }
         }
     }
@@ -79,7 +82,7 @@ class KeyChooserSheetGoldenTest {
                 onClose = {},
                 canScrollForward = { listState.canScrollForward },
             ) {
-                KeyListBody(rows = rows(5), currentKeyId = "2", onSelect = {}, listState = listState)
+                KeyListBody(rows = rows(5), currentKeyId = "1", onSelect = {}, listState = listState)
             }
         }
     }

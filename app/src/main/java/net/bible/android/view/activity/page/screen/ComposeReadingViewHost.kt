@@ -655,10 +655,35 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     }
 
     /**
+     * The key list the CURRENTLY OPEN key-chooser sheet is showing, handed in by
+     * [showKeyChooserSheet] and never resolved by the sheet itself. See that function for why.
+     *
+     * A plain `var` rather than snapshot state on purpose: it is written BEFORE the [quickSheet]
+     * state that triggers the composition which reads it, so no recomposition ever has to observe
+     * it changing.
+     */
+    private var keyChooserKeys: List<Key> = emptyList()
+
+    /**
      * Round 15b: the key chooser for the three page shapes simple enough for a sheet (spec §4.6).
      * Which shapes those are is `KeyChooserRoute`'s decision, never this function's.
+     *
+     * **[keys] IS PASSED IN, NOT RE-RESOLVED, AND THAT IS A PERFORMANCE CONTRACT — do not
+     * "simplify" this back to a resolve inside the sheet.** The caller has already resolved the list
+     * to decide whether to open a sheet at all ([keyChooserSheetHasRows]), and resolving a second
+     * time is not free: `CurrentPageBase.cachedGlobalKeyList` is memoised, but a COLD cache walks the
+     * whole `globalKeyList` — work this repo already treats as too heavy for the main thread
+     * (`ChooseDictionaryWordComposeActivity` wraps exactly it in `Dispatchers.IO`) — and
+     * `EpubBackendState.tocKeys` is **not cached at all**: every access re-runs two XPath passes and
+     * rebuilds every `Key`. So an EPUB would pay the full cost TWICE, both times on the UI thread,
+     * blocking a reading-view frame on a title tap. The classic path paid it once, behind an activity
+     * transition. One resolution also means the emptiness decision and the rows on screen can never
+     * disagree — the `keyId`-is-an-index contract depends on exactly that.
      */
-    internal fun showKeyChooserSheet(kind: KeyChooserKind) = showQuickSheet(ReadingQuickSheet.KeyChooser(kind))
+    internal fun showKeyChooserSheet(kind: KeyChooserKind, keys: List<Key>) {
+        keyChooserKeys = keys
+        showQuickSheet(ReadingQuickSheet.KeyChooser(kind))
+    }
 
     private val mapPage: CurrentMapPage get() = windowControl.activeWindowPageManager.currentMap
     private val generalBookPage: CurrentGeneralBookPage get() = windowControl.activeWindowPageManager.currentGeneralBook
@@ -703,15 +728,16 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * [KeyChooserKind.Grid] has no key list at all — it is driven by `GridChoosePassageController` —
      * so it resolves to empty and is excluded from [keyChooserSheetHasRows]'s emptiness rule.
      */
-    private fun resolveKeyChooserKeys(kind: KeyChooserKind): List<Key> = when (kind) {
+    internal fun resolveKeyChooserKeys(kind: KeyChooserKind): List<Key> = when (kind) {
         KeyChooserKind.Map -> mapPage.keyChooserKeys()
         KeyChooserKind.GeneralBook -> generalBookPage.keyChooserKeys()
         KeyChooserKind.Grid -> emptyList()
     }
 
     /**
-     * Whether [kind] has anything to put in a sheet — the routing precondition, deliberately NOT a
-     * guard inside the sheet body (Task 9 amendment E3).
+     * Whether [kind] has anything to put in a sheet, given the list [resolveKeyChooserKeys] already
+     * returned — the routing precondition, deliberately NOT a guard inside the sheet body (Task 9
+     * amendment E3).
      *
      * An EMPTY key list is real behaviour, not a degenerate case: both chooser activities answer it
      * by returning their fallback selection and finishing without ever drawing a list
@@ -719,11 +745,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * general book that fallback is `globalKeyList.first()`). A sheet cannot reproduce that, and an
      * empty sheet with only a ✕ is strictly worse than what exists today — so an empty list falls
      * through to the Activity exactly as an unrecognised page or a null host does.
+     *
+     * Takes the resolved list rather than resolving it, so the caller resolves ONCE and the Grid
+     * exemption — it has no key list at all — stays here rather than leaking into the caller.
      */
-    internal fun keyChooserSheetHasRows(kind: KeyChooserKind): Boolean = when (kind) {
-        KeyChooserKind.Grid -> true
-        else -> resolveKeyChooserKeys(kind).isNotEmpty()
-    }
+    internal fun keyChooserSheetHasRows(kind: KeyChooserKind, keys: List<Key>): Boolean =
+        kind == KeyChooserKind.Grid || keys.isNotEmpty()
 
     /**
      * The current row's id for [kind]: the INDEX of the page's key in [keys], or null when the page
@@ -1538,17 +1565,20 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * The map / general-book key chooser as a quick sheet — one host composable for both, since the
      * two differ only in their title and in which page they read (spec §4.6).
      *
-     * The key list is resolved ONCE per opening and held for the life of the sheet, because a
-     * [KeyRow]'s id is the INDEX into it (`KeyChooserKeys.kt`): re-resolving between building the
-     * rows and handling the selection would silently re-number them. `remember(sheet)` is the same
-     * per-opening keying the History branch uses, and for the same reason.
+     * The key list is resolved ONCE per opening — by `MainBibleActivity.composeStartKeyChooser`,
+     * which needed it to decide whether to open a sheet at all — and held for the life of the sheet,
+     * because a [KeyRow]'s id is the INDEX into it (`KeyChooserKeys.kt`): re-resolving between
+     * building the rows and handling the selection would silently re-number them, and for an EPUB it
+     * would also rebuild every `Key` on the UI thread ([showKeyChooserSheet]). `remember(sheet)` is
+     * the same per-opening keying the History branch uses, and for the same reason.
      *
      * The body's own [LazyListState] is passed to the shell's `canScrollForward`, which is what the
      * bottom fade is drawn from — a state the body did not scroll would never report anything.
      */
     @Composable
     private fun KeyChooserSheet(sheet: ReadingQuickSheet, kind: KeyChooserKind, title: String) {
-        val keys = remember(sheet) { resolveKeyChooserKeys(kind) }
+        // The list [showKeyChooserSheet] was handed, NOT a fresh resolution -- see its kdoc.
+        val keys = remember(sheet) { keyChooserKeys }
         val rows = remember(keys) { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.name) } }
         val currentKeyId = remember(keys) { currentKeyChooserRowId(kind, keys) }
         val listState = rememberLazyListState()
