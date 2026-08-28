@@ -179,8 +179,8 @@ import net.bible.sharedcore.navigation.buildDocumentQuickTabs
 import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.reading.DrawerCloseLatch
-import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.DrawerMenuState
+import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ReadingOverlay

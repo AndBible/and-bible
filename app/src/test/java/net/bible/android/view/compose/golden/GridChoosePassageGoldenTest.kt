@@ -1,17 +1,16 @@
 package net.bible.android.view.compose.golden
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.Modifier
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.navigation.GridButton
 import net.bible.sharedcore.navigation.GridOptions
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.GridUi
-import net.bible.sharedui.components.AbSheetContentMaxHeight
+import net.bible.sharedui.components.AbQuickSheetContent
 import net.bible.sharedui.navigation.GridChoosePassageContent
 import net.bible.sharedui.navigation.GridChoosePassageScreen
+import net.bible.sharedui.navigation.GridOptionsOverflow
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -129,20 +128,88 @@ class GridChoosePassageGoldenTest {
     }
 
     /**
-     * Round 15b Task 8: the SAME book step as [grid_book_flat], rendered inside the quick sheet's
-     * 400dp bound instead of the full-screen scaffold — the shape the reading view's grid quick
-     * sheet actually produces, which had no golden at all despite shipping in the Speak sheet since
-     * round 13a.
+     * A full 66-book grid — the fixture [grid_sheet_book] needs and [bookUi] deliberately is not.
      *
-     * The fixture is deliberately [bookUi], not a second one, so this capture and the full-screen
-     * one differ ONLY by the height bound. Eleven rows at the 40dp cell floor is 440dp against a
-     * 400dp bound, so the grid must SCROLL (clipped at the bottom) rather than squash: cells here
-     * must be the same size as in `GridChoosePassage_book_flat_light.png`. Smaller cells would mean
-     * the bound had been applied to the wrong node.
+     * SECOND fixture on purpose: [bookUi] is what twelve existing goldens are recorded against and
+     * must stay byte-identical, so it cannot grow. Sixty-six buttons over six columns is eleven laid
+     * out rows, which is what makes the sheet capture OVERFLOW its bound instead of merely fitting
+     * inside it (arithmetic in [grid_sheet_book]'s kdoc).
+     *
+     * `colorGroup` follows the same coarse OT/NT categories the 12-book fixture samples, so the
+     * palette in the capture is representative rather than a rainbow: Pentateuch, History, Wisdom,
+     * Major/Minor prophets, Gospels, Acts, Pauline, General epistles, Revelation.
+     */
+    private val allBooks: List<GridButton> = listOf(
+        "Gen", "Exod", "Lev", "Num", "Deut",
+        "Josh", "Judg", "Ruth", "1Sam", "2Sam", "1Kgs", "2Kgs", "1Chr", "2Chr", "Ezra", "Neh", "Esth",
+        "Job", "Ps", "Prov", "Eccl", "Song",
+        "Isa", "Jer", "Lam", "Ezek", "Dan",
+        "Hos", "Joel", "Amos", "Obad", "Jonah", "Mic", "Nah", "Hab", "Zeph", "Hag", "Zech", "Mal",
+        "Matt", "Mark", "Luke", "John",
+        "Acts",
+        "Rom", "1Cor", "2Cor", "Gal", "Eph", "Phil", "Col", "1Thess", "2Thess", "1Tim", "2Tim", "Titus", "Phlm",
+        "Heb", "Jas", "1Pet", "2Pet", "1John", "2John", "3John", "Jude",
+        "Rev",
+    ).mapIndexed { i, abbr ->
+        GridButton(
+            id = i,
+            label = abbr,
+            colorGroup = when (i) {
+                in 0..4 -> 0; in 5..16 -> 1; in 17..21 -> 2; in 22..26 -> 3; in 27..38 -> 4
+                in 39..42 -> 5; 43 -> 6; in 44..56 -> 7; in 57..64 -> 8; else -> 9
+            },
+            isCurrent = i == 18, // Psalms, as in the 12-book fixture
+            readProgress = if (i < 2) 1f else 0f,
+            memProgress = if (i == 18) 0.3f else 0f,
+        )
+    }
+
+    private fun allBooksUi() = GridUi(
+        GridStep.BOOK, "Choose Book (Workspace 1)", 6, showLongNames = false, showProgress = true,
+        showDeutToggle = true, buttons = allBooks, minRows = 11,
+    )
+
+    /**
+     * Round 15b Task 8: the passage grid as it renders INSIDE the reading view's quick sheet.
+     *
+     * Captured through the REAL shell — `AbQuickSheetContent` (header + `AbSheetScrollBound`'s
+     * 400dp bound + bottom fade) inside `SheetSurface` — not a hand-rolled `Box(heightIn(...))`
+     * stand-in, so what is under test is the production chrome the host branch actually composes.
+     * `AbQuickSheet` itself is never captured: an open `ModalBottomSheet` hangs the Roborazzi run
+     * and takes the whole `:app` suite with it. The overflow menu is passed to the header's actions
+     * slot COLLAPSED (a `DropdownMenu` only opens a `Popup` when expanded), which is what this task
+     * added and what had no golden anywhere.
+     *
+     * The fixture is [allBooksUi], not [bookUi], because the bound has to be VISIBLE to be proven.
+     * 66 buttons / 6 columns = 11 laid-out rows; `cellHeight` is `max(40dp, (400 - 8) / 11)` =
+     * `max(40, 35.6)` = 40dp, i.e. pinned on the floor, plus 2dp of padding a side = a 44dp row
+     * pitch, plus the grid's own 4dp contentPadding a side = 11 * 44 + 8 = 492dp of content against
+     * a 400dp bound. Nine rows fit (the ninth ends at y=446dp, 2dp inside the bound's 448dp bottom
+     * edge) and rows TEN and ELEVEN — 2Tim..1Pet and 2Pet..Rev — are clipped away entirely. The
+     * bottom fade washes the ninth row out over its last ~24dp, which is `canScrollForward` being
+     * genuinely wired through `AbSheetScrollBound` rather than merely present in a modifier chain.
+     *
+     * With `bookUi`'s twelve buttons (two laid-out rows, ~96dp) nothing overflows: the capture would
+     * then be identical for ANY bound between 0 and ~448dp, so it could not detect a misapplied one.
+     * The `minRows = 11` floor feeds only the cell-size arithmetic, never the number of rows the
+     * `LazyVerticalGrid` emits — and since the floor pins `cellHeight` at 40dp both here and in the
+     * full-screen `book_flat` capture, cell SIZE is not a signal in this golden. Clipping is.
+     *
+     * Height: header 48dp + bound 400dp + `AbQuickSheetContent`'s 16dp bottom padding = 464dp,
+     * inside the harness's 470dp default viewport, so no `heightDp` override is needed (Task 4
+     * needed one; this stack is 6dp short of the default).
      */
     @Test fun grid_sheet_book() = captureGolden("GridChoosePassage", "sheetBook", GoldenMode.LIGHT) {
-        Box(Modifier.heightIn(max = AbSheetContentMaxHeight)) {
-            GridChoosePassageContent(ui = bookUi(), onPick = {}, modifier = Modifier.fillMaxSize())
+        val ui = allBooksUi()
+        SheetSurface {
+            AbQuickSheetContent(
+                title = ui.title,
+                onClose = {},
+                actions = { GridOptionsOverflow(ui, opts) {} },
+                canScrollForward = { true },
+            ) {
+                GridChoosePassageContent(ui = ui, onPick = {}, modifier = Modifier.fillMaxSize())
+            }
         }
     }
 }
