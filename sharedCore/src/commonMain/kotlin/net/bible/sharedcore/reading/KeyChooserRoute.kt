@@ -20,6 +20,15 @@ package net.bible.sharedcore.reading
  * The shapes `CurrentPage.startKeyChooser` can dispatch to. The four `GENERAL_BOOK_*` cases mirror
  * the branch inside `CurrentGeneralBookPage.startKeyChooser` (`:79-109`); the host maps its JSword
  * page onto one of these so no JSword type crosses into `:sharedCore`.
+ *
+ * **IMPORTANT: Subtype-check ordering.** `CurrentMyNotePage` extends `CurrentCommentaryPage`
+ * and does not override `startKeyChooser`, so a host that checks `is CurrentCommentaryPage -> COMMENTARY`
+ * before `is CurrentMyNotePage -> MY_NOTE` will silently misclassify every MyNote page as a commentary.
+ * The host's `is` chain **must test `MY_NOTE` first**. This mistake is currently harmless because both
+ * route to the same Grid sheet, but if they ever diverge, the mis-ordered check would break silently with
+ * no compiler error and no failing test in `:sharedCore` — the boundary does not know about the
+ * class hierarchy at all. Therefore, a reader who discovers both route identically must not conclude the
+ * ordering does not matter: the protection against future breakage depends on it.
  */
 enum class KeyChooserPage {
     BIBLE, COMMENTARY, MY_NOTE,
