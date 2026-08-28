@@ -672,6 +672,12 @@ interface Strings {
 
     // Round 14a — dialog-to-sheet conversions
     val cloudDocSyncNow: String                      // R.string.cloud_doc_sync_now
+
+    // Round 15b — the document quick sheet
+    val allDocuments: String                 // R.string.document_quick_all_documents (footer row)
+    val documentTabRecent: String            // R.string.document_quick_tab_recent
+    val documentTabForVerse: String          // R.string.document_quick_tab_for_verse
+    val documentTabLastFilter: String        // R.string.document_quick_tab_last_filter
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

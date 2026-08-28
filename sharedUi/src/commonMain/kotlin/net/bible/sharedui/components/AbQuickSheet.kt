@@ -79,9 +79,9 @@ fun AbQuickSheet(
     canGoBack: () -> Boolean = { false },
     onBack: () -> Unit = {},
     actions: (@Composable RowScope.() -> Unit)? = null,
-    tabs: List<String> = emptyList(),
-    selectedTab: Int = 0,
-    onTabSelected: (Int) -> Unit = {},
+    tabs: List<AbQuickSheetTab> = emptyList(),
+    selectedTabId: String? = null,
+    onTabSelected: (String) -> Unit = {},
     footer: (@Composable () -> Unit)? = null,
     canScrollForward: () -> Boolean = { false },
     body: @Composable () -> Unit,
@@ -116,7 +116,7 @@ fun AbQuickSheet(
             onBack = onBack,
             actions = actions,
             tabs = tabs,
-            selectedTab = selectedTab,
+            selectedTabId = selectedTabId,
             onTabSelected = onTabSelected,
             footer = footer,
             canScrollForward = canScrollForward,
@@ -124,6 +124,15 @@ fun AbQuickSheet(
         )
     }
 }
+
+/**
+ * One tab of [AbQuickSheet], carrying a stable [id] alongside its display [label].
+ *
+ * Identity-keyed rather than index-keyed on purpose: a caller that hides a tab (or has its tab list
+ * arrive asynchronously) can persist and restore a SELECTION, where an index would silently restore
+ * a different tab the first time the list's shape changed.
+ */
+data class AbQuickSheetTab(val id: String, val label: String)
 
 /**
  * [AbQuickSheet]'s body. Stateless and free of any sheet container, which is what makes it
@@ -136,9 +145,9 @@ fun AbQuickSheetContent(
     canGoBack: () -> Boolean = { false },
     onBack: () -> Unit = {},
     actions: (@Composable RowScope.() -> Unit)? = null,
-    tabs: List<String> = emptyList(),
-    selectedTab: Int = 0,
-    onTabSelected: (Int) -> Unit = {},
+    tabs: List<AbQuickSheetTab> = emptyList(),
+    selectedTabId: String? = null,
+    onTabSelected: (String) -> Unit = {},
     footer: (@Composable () -> Unit)? = null,
     canScrollForward: () -> Boolean = { false },
     body: @Composable () -> Unit,
@@ -148,12 +157,15 @@ fun AbQuickSheetContent(
         if (tabs.isNotEmpty()) {
             // Tap only, deliberately: a HorizontalPager would add a third gesture competing with
             // the sheet's vertical drag and the list's vertical scroll (spec §4.2).
-            TabRow(selectedTabIndex = selectedTab) {
-                tabs.forEachIndexed { index, label ->
+            // An unknown or null id falls back to the first tab, so a caller restoring a tab that
+            // is not visible this time lands somewhere sane instead of on nothing.
+            val selectedIndex = tabs.indexOfFirst { it.id == selectedTabId }.coerceAtLeast(0)
+            TabRow(selectedTabIndex = selectedIndex) {
+                tabs.forEachIndexed { index, tab ->
                     Tab(
-                        selected = index == selectedTab,
-                        onClick = { onTabSelected(index) },
-                        text = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        selected = index == selectedIndex,
+                        onClick = { onTabSelected(tab.id) },
+                        text = { Text(tab.label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                     )
                 }
             }

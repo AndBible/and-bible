@@ -616,4 +616,10 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Round 14a — dialog-to-sheet conversions
     override val cloudDocSyncNow: String get() = context.getString(R.string.cloud_doc_sync_now)
+
+    // Round 15b — the document quick sheet
+    override val allDocuments: String get() = context.getString(R.string.document_quick_all_documents)
+    override val documentTabRecent: String get() = context.getString(R.string.document_quick_tab_recent)
+    override val documentTabForVerse: String get() = context.getString(R.string.document_quick_tab_for_verse)
+    override val documentTabLastFilter: String get() = context.getString(R.string.document_quick_tab_last_filter)
 }

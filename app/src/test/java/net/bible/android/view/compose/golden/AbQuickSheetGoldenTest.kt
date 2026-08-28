@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.android.TEST_SDK
 import net.bible.sharedui.components.AbQuickSheetContent
 import net.bible.sharedui.components.AbQuickSheetFooterRow
+import net.bible.sharedui.components.AbQuickSheetTab
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -65,8 +66,12 @@ class AbQuickSheetGoldenTest {
             AbQuickSheetContent(
                 title = "With tabs",
                 onClose = {},
-                tabs = listOf("Recent", "For this verse", "Last filter"),
-                selectedTab = 1,
+                tabs = listOf(
+                    AbQuickSheetTab("recent", "Recent"),
+                    AbQuickSheetTab("forVerse", "For this verse"),
+                    AbQuickSheetTab("lastFilter", "Last filter"),
+                ),
+                selectedTabId = "forVerse",
                 onTabSelected = {},
                 footer = { AbQuickSheetFooterRow(text = "All documents…", onClick = {}) },
             ) { rows(4) }

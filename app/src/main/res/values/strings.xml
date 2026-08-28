@@ -2048,4 +2048,8 @@
     <string name="bookmark_expand_row">Show full text</string>
     <string name="bookmark_collapse_row">Show less</string>
     <string name="bookmark_label_filter">Filter by label</string>
+    <string name="document_quick_all_documents">All documents…</string>
+    <string name="document_quick_tab_recent">Recent</string>
+    <string name="document_quick_tab_for_verse">This verse</string>
+    <string name="document_quick_tab_last_filter">Last filter</string>
 </resources>
