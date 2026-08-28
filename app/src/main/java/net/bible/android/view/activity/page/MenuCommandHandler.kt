@@ -187,7 +187,18 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                 R.id.managePrompts -> {
                     handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.AiPrompts)
                 }
-                R.id.historyButton -> handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.History)
+                R.id.historyButton -> {
+                    // Round 15b T4: on the Compose reading view, History opens as a quick sheet
+                    // over the reading view instead of the classic full-screen Activity. Null host
+                    // = classic path, unchanged below.
+                    val host = mainBibleActivity.composeReadingViewHost
+                    if (host != null) {
+                        host.showHistorySheet()
+                        isHandled = true
+                    } else {
+                        handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.History)
+                    }
+                }
                 R.id.bookmarksButton -> handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.Bookmarks)
                 R.id.studyPadsButton -> {
                     val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ManageLabels)

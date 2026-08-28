@@ -17,11 +17,13 @@
 package net.bible.android.view.activity.page.screen
 
 import android.content.Intent
+import android.text.format.DateFormat.format
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.activity.compose.BackHandler
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -39,6 +41,8 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
@@ -66,7 +70,9 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -95,14 +101,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.CurrentBibleVerseChanged
+import net.bible.android.control.page.CurrentBiblePage
+import net.bible.android.control.page.CurrentCommentaryPage
+import net.bible.android.control.page.CurrentDictionaryPage
+import net.bible.android.control.page.CurrentGeneralBookPage
+import net.bible.android.control.page.CurrentMapPage
+import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
@@ -113,8 +127,11 @@ import net.bible.android.database.IdType
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.RawLlmLogActivity
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
+import net.bible.android.view.activity.navigation.DocRowMapper
 import net.bible.android.view.activity.navigation.buildGridStep
+import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
 import net.bible.android.view.activity.navigation.initialGridOptions
 import net.bible.android.view.activity.navigation.persistGridOptions
 import net.bible.android.view.activity.navigation.pickGridBook
@@ -136,11 +153,15 @@ import net.bible.android.view.activity.settings.buildColorSettingsLabels
 import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
 import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.automaticSpeakBookmarkingVideo
 import net.bible.service.common.speakHelpVideo
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.hideFromSelector
+import net.bible.service.history.HistoryItem
+import net.bible.service.history.HistoryManager
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.AgentForegroundService
 import net.bible.service.sword.BookAndKey
@@ -148,6 +169,7 @@ import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ai.AgentPermissionRequest
@@ -157,13 +179,24 @@ import net.bible.sharedcore.ai.reading.agentPanelHeight
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.ai.reading.ReadingLlmService
+import net.bible.sharedcore.history.HistoryController
+import net.bible.sharedcore.history.HistoryEntry
+import net.bible.sharedcore.navigation.DocTypeFilter
+import net.bible.sharedcore.navigation.DocumentQuickTab
+import net.bible.sharedcore.navigation.DocumentQuickTabs
+import net.bible.sharedcore.navigation.buildDocumentQuickTabs
 import net.bible.sharedcore.navigation.GridChoosePassageController
+import net.bible.sharedcore.navigation.GridStep
+import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedcore.reading.DrawerCloseLatch
 import net.bible.sharedcore.reading.DrawerMenuState
+import net.bible.sharedcore.reading.KeyChooserKind
+import net.bible.sharedcore.reading.KeyChooserPage
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ReadingOverlay
 import net.bible.sharedcore.reading.ReadingOverlayExclusion
+import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
@@ -218,12 +251,22 @@ import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowTabBarModel
 import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedcore.window.shouldShowPinIndicator
+import net.bible.sharedcore.workspaces.WorkspaceQuickController
+import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.AgentPermissionDialog
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
+import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbQuickSheet
+import net.bible.sharedui.components.AbQuickSheetFooterRow
+import net.bible.sharedui.components.AbQuickSheetTab
+import net.bible.sharedui.history.HistoryListContent
 import net.bible.sharedui.reading.BibleReferenceOverlay
+import net.bible.sharedui.navigation.DocumentQuickContent
 import net.bible.sharedui.navigation.GridChoosePassageContent
+import net.bible.sharedui.navigation.GridOptionsOverflow
+import net.bible.sharedui.navigation.KeyListBody
 import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
 import net.bible.sharedui.reading.QuickDocMenuState
 import net.bible.sharedui.reading.ReadingDrawerContent
@@ -256,6 +299,7 @@ import net.bible.sharedui.speak.SpeakSettingsSheet
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.textOptionDrawableRes
+import net.bible.sharedui.workspaces.WorkspaceQuickContent
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
@@ -264,6 +308,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BibleBook
@@ -487,10 +532,287 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     ReadingOverlay.SpeakSheet -> speakSheet.close()
                     ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
                     ReadingOverlay.Llm -> Unit
+                    ReadingOverlay.QuickSheet -> closeQuickSheet()
                 }
             }
         },
     )
+
+    /**
+     * Round 15b: which quick sheet is open over the reading view, if any. ONE state for all four
+     * (see [ReadingQuickSheet]) — which is why the exclusion rule needs one member and this file
+     * one slot.
+     */
+    internal val quickSheet = mutableStateOf<ReadingQuickSheet?>(null)
+
+    /** Open a quick sheet, closing every other modal overlay first (spec §4.1). */
+    internal fun showQuickSheet(sheet: ReadingQuickSheet) {
+        ReadingOverlayExclusion.closedBy(ReadingOverlay.QuickSheet).forEach { overlay ->
+            when (overlay) {
+                ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
+                ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
+                ReadingOverlay.SpeakSheet -> speakSheet.close()
+                ReadingOverlay.QuickSheet -> Unit
+            }
+        }
+        quickSheet.value = sheet
+    }
+
+    internal fun closeQuickSheet() { quickSheet.value = null }
+
+    /** Round 15b: the reading view's History list as a quick sheet (spec §4.3). */
+    internal fun showHistorySheet() = showQuickSheet(ReadingQuickSheet.History)
+
+    private val workspaceService: WorkspaceService by inject()
+
+    /** Round 15b: the workspace QUICK switch (spec §4.4). The full selector is the footer row. */
+    internal fun showWorkspaceSheet() = showQuickSheet(ReadingQuickSheet.Workspaces)
+
+    private val downloadControl: DownloadControl by inject()
+
+    /** Round 15b: the document QUICK switch (spec §4.5). ChooseDocument is the footer row. */
+    internal fun showDocumentSheet() = showQuickSheet(ReadingQuickSheet.Documents)
+
+    /**
+     * The document quick sheet's three tabs, built from the same inputs the full ChooseDocument
+     * screen uses (spec §4.5).
+     *
+     * BLOCKING AND EXPENSIVE — enumerating every installed book and asking `downloadControl` for
+     * each one's status is fine on a background dispatcher and is emphatically not fine inside a
+     * composition pass. The only caller runs it under `withContext(Dispatchers.Default)`.
+     *
+     * The book list is `ChooseDocumentComposeActivity.loadDocuments`' verbatim, and the mapping goes
+     * through the shared [DocRowMapper], so a document's language grouping and category are
+     * identical in the sheet and in the full screen.
+     */
+    private fun buildDocumentQuickTabsForHost(): DocumentQuickTabs {
+        val books = SwordDocumentFacade.documents +
+            FakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
+        val mapper = DocRowMapper(downloadControl, books)
+        val rows = books.map { mapper.toDocRow(it) }
+        // `initials`, NOT `osisID`: DocRow.docId is the book's initials and so is the MRU's key —
+        // only the document SEARCH path keys on osisId. The two collapse to the same value for most
+        // real modules, so getting this wrong would show up only for the modules where they differ.
+        val forVerseIds = (activity.documentControl.biblesForVerse +
+            activity.documentControl.commentariesForVerse).map { it.initials }.toSet()
+        // The two keys ChooseDocument itself persists (its sticky-language seam and its type-filter
+        // spinner), read here so the "Last filter" tab reproduces what the user last looked at.
+        // KNOWN: `selected_document_filter_no` is written by `DownloadComposeActivity` too
+        // (`:300`), so "Last filter" can reflect a filter the user last set on the DOWNLOAD screen.
+        // That is the classic key's existing behaviour, shared by both document screens — not a bug
+        // to fix here, and not a second key to invent.
+        val lastLanguageCode = CommonUtils.settings.getString("selected_language_code", null)
+        val lastLanguage = lastLanguageCode?.let { code -> rows.firstOrNull { it.language.code == code }?.language }
+        val lastTypeFilter = DocTypeFilter.entries.getOrElse(
+            CommonUtils.settings.getInt("selected_document_filter_no", 0),
+        ) { DocTypeFilter.ALL }
+        return buildDocumentQuickTabs(
+            // Every mapped row, unfiltered: dropping the ones a sheet cannot action (locked modules,
+            // AND_BIBLE pseudo-documents) is [buildDocumentQuickTabs]' own job — see its kdoc, and
+            // `DocumentQuickTabsTest` for the guard. Note `lastLanguage` above is deliberately
+            // resolved against this FULL list, so a language whose only document is locked does not
+            // silently lose the user's saved filter.
+            installed = rows,
+            recentInitials = RecentDocumentsStore.read(),
+            forVerseIds = forVerseIds,
+            lastLanguage = lastLanguage,
+            lastTypeFilter = lastTypeFilter,
+        )
+    }
+
+    @Composable
+    private fun quickDocTabLabel(tab: DocumentQuickTab): String = when (tab) {
+        DocumentQuickTab.RECENT -> LocalStrings.current.documentTabRecent
+        DocumentQuickTab.FOR_VERSE -> LocalStrings.current.documentTabForVerse
+        DocumentQuickTab.LAST_FILTER -> LocalStrings.current.documentTabLastFilter
+    }
+
+    /**
+     * The last tab the user picked, as a tab ID — never an index. An empty tab is HIDDEN, so
+     * `visible`'s shape differs between openings (no MRU yet, no commentary for this verse, …) and a
+     * stored index would restore a different tab the first time that happened. A stored id that
+     * names no currently-visible tab simply falls back to the first visible one.
+     */
+    private fun restoreQuickDocTab(visible: List<DocumentQuickTab>): String? {
+        val saved = CommonUtils.settings.getString(QUICK_DOC_TAB_KEY, null)
+        return visible.firstOrNull { it.name == saved }?.name ?: visible.firstOrNull()?.name
+    }
+
+    private fun persistQuickDocTab(tabId: String) = CommonUtils.settings.setString(QUICK_DOC_TAB_KEY, tabId)
+
+    /** The document shown in the active window — the row the sheet draws bold and inert. */
+    private fun currentDocumentInitials(): String? = activity.documentControl.currentDocument?.initials
+
+    /**
+     * The full ChooseDocument screen — `MainBibleActivity.composeChooseDocument`'s classic body,
+     * repeated rather than delegated because that method now routes BACK here (it is the title
+     * long-press's reroute point), so calling it would recurse.
+     */
+    private fun openChooseDocument() {
+        activity.startActivityForResult(
+            ScreenLauncher.intentFor(activity, Screen.ChooseDocument),
+            ActivityBase.STD_REQUEST_CODE,
+        )
+    }
+
+    /**
+     * The key list the CURRENTLY OPEN key-chooser sheet is showing, handed in by
+     * [showKeyChooserSheet] and never resolved by the sheet itself. See that function for why.
+     *
+     * A plain `var` rather than snapshot state on purpose: it is written BEFORE the [quickSheet]
+     * state that triggers the composition which reads it, so no recomposition ever has to observe
+     * it changing.
+     */
+    private var keyChooserKeys: List<Key> = emptyList()
+
+    /**
+     * Round 15b: the key chooser for the three page shapes simple enough for a sheet (spec §4.6).
+     * Which shapes those are is `KeyChooserRoute`'s decision, never this function's.
+     *
+     * **[keys] IS PASSED IN, NOT RE-RESOLVED, AND THAT IS A PERFORMANCE CONTRACT — do not
+     * "simplify" this back to a resolve inside the sheet.** The caller has already resolved the list
+     * to decide whether to open a sheet at all ([keyChooserSheetHasRows]), and resolving a second
+     * time is not free: `CurrentPageBase.cachedGlobalKeyList` is memoised, but a COLD cache walks the
+     * whole `globalKeyList` — work this repo already treats as too heavy for the main thread
+     * (`ChooseDictionaryWordComposeActivity` wraps exactly it in `Dispatchers.IO`) — and
+     * `EpubBackendState.tocKeys` is **not cached at all**: every access re-runs two XPath passes and
+     * rebuilds every `Key`. So an EPUB would pay the full cost TWICE, both times on the UI thread,
+     * blocking a reading-view frame on a title tap. The classic path paid it once, behind an activity
+     * transition. One resolution also means the emptiness decision and the rows on screen can never
+     * disagree — the `keyId`-is-an-index contract depends on exactly that.
+     */
+    internal fun showKeyChooserSheet(kind: KeyChooserKind, keys: List<Key>) {
+        keyChooserKeys = keys
+        showQuickSheet(ReadingQuickSheet.KeyChooser(kind))
+    }
+
+    private val mapPage: CurrentMapPage get() = windowControl.activeWindowPageManager.currentMap
+    private val generalBookPage: CurrentGeneralBookPage get() = windowControl.activeWindowPageManager.currentGeneralBook
+
+    /**
+     * Maps the active page onto [KeyChooserPage]; null when nothing here recognises it.
+     *
+     * Mirrors `CurrentPage.startKeyChooser`'s own dispatch, including its ORDER.
+     * [CurrentMyNotePage] extends [CurrentCommentaryPage] and does not override `startKeyChooser`,
+     * so the my-note check must come FIRST — see [KeyChooserPage]'s kdoc, and
+     * `KeyChooserDispatchGuardTest`, which fails if these two lines are ever swapped back.
+     * The general-book four-way test is `CurrentGeneralBookPage.startKeyChooser`'s own, in its own
+     * order (journal → multi-document → my-document → plain).
+     */
+    internal fun currentKeyChooserPage(): KeyChooserPage? {
+        val page = windowControl.activeWindowPageManager.currentPage
+        return when (page) {
+            is CurrentBiblePage -> KeyChooserPage.BIBLE
+            is CurrentMyNotePage -> KeyChooserPage.MY_NOTE
+            is CurrentCommentaryPage -> KeyChooserPage.COMMENTARY
+            is CurrentDictionaryPage -> KeyChooserPage.DICTIONARY
+            is CurrentMapPage -> KeyChooserPage.MAP
+            is CurrentGeneralBookPage -> when (val doc = page.currentDocument) {
+                FakeBookFactory.journalDocument -> KeyChooserPage.GENERAL_BOOK_STUDY_PAD
+                FakeBookFactory.multiDocument -> KeyChooserPage.GENERAL_BOOK_MULTI_DOCUMENT
+                else -> if (doc?.isMyDocument == true) {
+                    KeyChooserPage.GENERAL_BOOK_MY_DOCUMENT
+                } else {
+                    KeyChooserPage.GENERAL_BOOK
+                }
+            }
+            else -> null
+        }
+    }
+
+    /**
+     * The keys behind a key-chooser sheet, resolved from the extension the full-screen chooser
+     * activities use (`KeyChooserKeys.kt`), so the sheet and the screen can never offer different
+     * lists. A row's id is the INDEX into the returned list, which is why every caller must resolve
+     * ONCE and hold the result for as long as its rows are on screen.
+     *
+     * [KeyChooserKind.Grid] has no key list at all — it is driven by `GridChoosePassageController` —
+     * so it resolves to empty and is excluded from [keyChooserSheetHasRows]'s emptiness rule.
+     */
+    internal fun resolveKeyChooserKeys(kind: KeyChooserKind): List<Key> = when (kind) {
+        KeyChooserKind.Map -> mapPage.keyChooserKeys()
+        KeyChooserKind.GeneralBook -> generalBookPage.keyChooserKeys()
+        KeyChooserKind.Grid -> emptyList()
+    }
+
+    /**
+     * Whether [kind] has anything to put in a sheet, given the list [resolveKeyChooserKeys] already
+     * returned — the routing precondition, deliberately NOT a guard inside the sheet body (Task 9
+     * amendment E3).
+     *
+     * An EMPTY key list is real behaviour, not a degenerate case: both chooser activities answer it
+     * by returning their fallback selection and finishing without ever drawing a list
+     * (`ChooseMapKeyComposeActivity`/`ChooseGeneralBookKeyComposeActivity` `onCreate`, and for a
+     * general book that fallback is `globalKeyList.first()`). A sheet cannot reproduce that, and an
+     * empty sheet with only a ✕ is strictly worse than what exists today — so an empty list falls
+     * through to the Activity exactly as an unrecognised page or a null host does.
+     *
+     * Takes the resolved list rather than resolving it, so the caller resolves ONCE and the Grid
+     * exemption — it has no key list at all — stays here rather than leaking into the caller.
+     */
+    internal fun keyChooserSheetHasRows(kind: KeyChooserKind, keys: List<Key>): Boolean =
+        kind == KeyChooserKind.Grid || keys.isNotEmpty()
+
+    /**
+     * The current row's id for [kind]: the INDEX of the page's key in [keys], or null when the page
+     * has no key or its key is not in the list. `ChooseMapKeyComposeActivity`'s `currentRow`
+     * verbatim, and identical in the general-book twin.
+     */
+    private fun currentKeyChooserRowId(kind: KeyChooserKind, keys: List<Key>): String? {
+        val current = when (kind) {
+            KeyChooserKind.Map -> mapPage.key
+            KeyChooserKind.GeneralBook -> generalBookPage.key
+            KeyChooserKind.Grid -> null
+        } ?: return null
+        return keys.indexOf(current).takeIf { it >= 0 }?.toString()
+    }
+
+    /**
+     * Apply a key picked in a key-chooser sheet, through the SAME `MainBibleActivity` function the
+     * `in genBookClasses ->` activity-result arm calls (Task 9 amendment E4).
+     *
+     * The `Key` goes across as itself, never serialized into extras and parsed back: the sheet is
+     * holding the real object, and a round trip through an Intent would be a second code path
+     * pretending to be one. Which book it belongs to follows each activity's own `buildResult`: an
+     * EPUB table-of-contents entry is a [BookAndKey] carrying its own document, everything else
+     * belongs to the page's current document.
+     */
+    private fun applyKeyChooserKey(kind: KeyChooserKind, key: Key) = when (kind) {
+        KeyChooserKind.Map -> activity.applyChosenGenBookKey(mapPage.currentDocument, key)
+        KeyChooserKind.GeneralBook ->
+            if (key is BookAndKey) {
+                activity.applyChosenGenBookKey(key.document, key)
+            } else {
+                activity.applyChosenGenBookKey(generalBookPage.currentDocument, key)
+            }
+        KeyChooserKind.Grid -> Unit
+    }
+
+    private val historyManager: HistoryManager by inject()
+
+    /**
+     * The [HistoryEntry] list, mirroring `HistoryComposeActivity`'s `controller` verbatim
+     * (`historyManager.getHistory(activeWindow.id)` + the `"h:mm a, E d MMM "` timestamp format
+     * both the classic screen and the goldens depend on). [historyItems] is stashed alongside so
+     * [revertToHistoryItem] can resolve an entry's `id` (its list index, not a stable key) back to
+     * the [HistoryItem] to revert.
+     */
+    private var historyItems: List<HistoryItem> = emptyList()
+
+    private fun historyEntriesForActiveWindow(): List<HistoryEntry> {
+        historyItems = historyManager.getHistory(windowControl.activeWindow.id)
+        return historyItems.mapIndexed { index, item ->
+            HistoryEntry(
+                id = index,
+                title = item.description.toString(),
+                timestamp = format("h:mm a, E d MMM ", item.createdAt).toString(),
+            )
+        }
+    }
+
+    private fun revertToHistoryItem(id: Int) {
+        historyItems[id].revertTo()
+    }
 
     // The REVERSE directions of the same rule live at the two other opening sites --
     // [showTextSettingEditor] and [showSpeakSettings] -- and were APPLIED AT THE 14a/14a-2 MERGE,
@@ -636,6 +958,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
                 ReadingOverlay.SpeakSheet -> speakSheet.close()
                 ReadingOverlay.TextSettingsEditor -> Unit
+                ReadingOverlay.QuickSheet -> closeQuickSheet()
             }
         }
         // Close first: [SettingsEditorStack.open] assigns a `MutableStateFlow`, which conflates an
@@ -825,6 +1148,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
                 ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
                 ReadingOverlay.SpeakSheet -> Unit
+                ReadingOverlay.QuickSheet -> closeQuickSheet()
             }
         }
         // `open` assigns `listOf(page)`, so this always lands on the Settings page whatever depth
@@ -1004,6 +1328,293 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     },
                 )
             }
+        }
+    }
+
+    /**
+     * Round 15b's quick sheets — a SEVENTH sibling overlay, for the same reason as the six above: a
+     * `ModalBottomSheet` renders in its own window regardless of where it is composed, so opening
+     * one can never re-key the pane subtree and destroy the panes' BibleView WebViews.
+     *
+     * All four quick sheets mount HERE and nowhere else; `QuickSheetMountGuardTest` enforces it.
+     */
+    @Composable
+    private fun QuickSheetSlot() {
+        when (val sheet = quickSheet.value) {
+            null -> Unit
+            ReadingQuickSheet.History -> {
+                // Built per opening, exactly as HistoryComposeActivity.kt:46-64 builds it: the
+                // controller reads the history once at construction, so a stale instance would show
+                // a stale list.
+                val controller = remember(sheet) {
+                    HistoryController(
+                        loadEntries = { historyEntriesForActiveWindow() },
+                        onRevert = { id -> revertToHistoryItem(id); closeQuickSheet() },
+                    )
+                }
+                val entries by controller.entries.collectAsState()
+                val error by controller.error.collectAsState()
+                val listState = rememberLazyListState()
+                AbQuickSheet(
+                    open = true,
+                    // Exactly HistoryComposeActivity.kt:68's arguments — the format string is
+                    // "History (%1$s: Window %2$d)" and the goldens depend on both.
+                    title = activity.getString(
+                        R.string.history_for,
+                        SharedActivityState.currentWorkspaceName,
+                        windowControl.activeWindowPosition + 1,
+                    ),
+                    onDismiss = { closeQuickSheet() },
+                    canScrollForward = { listState.canScrollForward },
+                ) {
+                    HistoryListContent(entries = entries, onSelect = { controller.onSelect(it) }, listState = listState)
+                }
+                if (error != null) {
+                    AbErrorDialog(
+                        message = activity.getString(R.string.error_occurred),
+                        confirmText = activity.getString(R.string.okay),
+                        onDismiss = { controller.dismissError() },
+                    )
+                }
+            }
+            ReadingQuickSheet.Workspaces -> {
+                val controller = remember(sheet) {
+                    WorkspaceQuickController(workspaceService) { id ->
+                        closeQuickSheet()
+                        // C1: the quick sheet never pauses the activity, so nothing else flushes the
+                        // outgoing workspace's windows/page-managers/history before switching. Use
+                        // the save-then-switch entry point, never plain switchToWorkspace here.
+                        activity.quickSwitchToWorkspace(id)
+                    }
+                }
+                val rows by controller.rows.collectAsState()
+                val listState = rememberLazyListState()
+                AbQuickSheet(
+                    open = true,
+                    title = activity.getString(R.string.switch_to_workspace),
+                    onDismiss = { closeQuickSheet() },
+                    canScrollForward = { listState.canScrollForward },
+                    footer = {
+                        AbQuickSheetFooterRow(text = LocalStrings.current.manageWorkspaces) {
+                            closeQuickSheet()
+                            activity.startActivityForResult(
+                                ScreenLauncher.intentFor(activity, Screen.WorkspaceSelector),
+                                MainBibleActivity.WORKSPACE_CHANGED,
+                            )
+                        }
+                    },
+                ) {
+                    WorkspaceQuickContent(rows = rows, onSelect = { controller.select(it) }, listState = listState)
+                }
+            }
+            ReadingQuickSheet.Documents -> {
+                // Built OFF the composition pass, unlike History and Workspaces above: enumerating
+                // every installed book, asking `downloadControl` for each one's status and sorting
+                // the result is a hundreds-of-rows job, and doing it synchronously in composition
+                // would stall the first frame of the sheet (Plan A's whole-branch review flagged
+                // exactly this for this task).
+                val tabsState by produceState<DocumentQuickTabs?>(initialValue = null, sheet) {
+                    value = withContext(Dispatchers.Default) { buildDocumentQuickTabsForHost() }
+                }
+                // `null` means STILL LOADING, and is deliberately distinguished from "loaded, and
+                // there is nothing to offer" below: routing away on a not-yet-loaded list would send
+                // the user to the full screen every time the sheet opened faster than the books.
+                val tabs = tabsState
+                // D1 (whole-branch review fix wave): rememberSaveable, not remember, so the pick
+                // survives this composable being torn down and rebuilt when the user closes and
+                // reopens the Documents sheet within the same session (`remember` would not -- a
+                // fresh slot means a fresh `null`). It does NOT survive a device rotation, contrary
+                // to what an earlier version of this comment claimed: MainBibleActivity's manifest
+                // omits `orientation` from `configChanges`, so rotation recreates the Activity and
+                // this whole host, `quickSheet` (a plain field, never itself saved) resets to null,
+                // and every quick sheet -- this one included -- simply closes. What restores the
+                // tab after THAT is the persisted `document_quick_tab` setting
+                // (`persistQuickDocTab`/`restoreQuickDocTab` below), not this state holder.
+                // Null until the user taps a tab; the persisted key supplies the initial selection
+                // once `visible` is known (it cannot be known at remember time — the load is async).
+                var pickedTabId by rememberSaveable(sheet) { mutableStateOf<String?>(null) }
+                val listState = rememberLazyListState()
+                // Memoised on `tabs`, not recomputed inline: `restoreQuickDocTab` is a synchronous
+                // settings (Room) read, and computing it in the composition body would run it on the
+                // main thread on EVERY recomposition of this branch until the user taps a tab —
+                // the same objection that moved the tab build itself off the composition pass.
+                val restoredTabId = remember(tabs) { tabs?.let { restoreQuickDocTab(it.visible) } }
+                if (tabs != null && tabs.visible.isEmpty()) {
+                    // Nothing to offer — go straight to the full screen rather than showing an
+                    // empty sheet with only a footer row.
+                    LaunchedEffect(Unit) { closeQuickSheet(); openChooseDocument() }
+                } else {
+                    val selectedTabId = tabs?.let { loaded ->
+                        pickedTabId?.takeIf { id -> loaded.visible.any { it.name == id } } ?: restoredTabId
+                    }
+                    AbQuickSheet(
+                        open = true,
+                        title = activity.getString(R.string.chooseBook),
+                        onDismiss = { closeQuickSheet() },
+                        // Identity-keyed tabs: the enum's own `name` is the stable id, which is what
+                        // lets a hidden tab and an async tab list coexist with a persisted selection.
+                        tabs = tabs?.visible.orEmpty().map { AbQuickSheetTab(it.name, quickDocTabLabel(it)) },
+                        selectedTabId = selectedTabId,
+                        onTabSelected = { id -> pickedTabId = id; persistQuickDocTab(id) },
+                        canScrollForward = { listState.canScrollForward },
+                        footer = {
+                            AbQuickSheetFooterRow(text = LocalStrings.current.allDocuments) {
+                                closeQuickSheet()
+                                openChooseDocument()
+                            }
+                        },
+                    ) {
+                        // While the load is in flight the shell renders header + footer with an
+                        // empty body; the rows appear (and the sheet grows) when it completes.
+                        if (tabs != null && selectedTabId != null) {
+                            DocumentQuickContent(
+                                rows = tabs.rowsByTab.getValue(DocumentQuickTab.valueOf(selectedTabId)),
+                                currentDocId = currentDocumentInitials(),
+                                onSelect = { docId ->
+                                    closeQuickSheet()
+                                    // The SAME body the `ChooseDocument` activity-result arm runs —
+                                    // the sheet returns no Intent, so it cannot use that arm itself.
+                                    activity.applyChosenDocument(docId)
+                                },
+                                listState = listState,
+                            )
+                        }
+                    }
+                }
+            }
+            is ReadingQuickSheet.KeyChooser -> when (sheet.kind) {
+                KeyChooserKind.Grid -> {
+                    val controller = remember(sheet) {
+                        newGridPassageController(
+                            // The full-screen twin's own default title (GridChoosePassageComposeActivity
+                            // reads the same string when no "title" intent extra overrides it) --
+                            // NOT R.string.chooseBook, which is the DOCUMENT chooser's caption.
+                            baseTitle = activity.getString(R.string.choosePassageBookName),
+                            // The Bible/commentary key choosers that route here both pass
+                            // isScripture=true (CurrentBiblePage.kt:55, CurrentCommentaryPage.kt:66).
+                            isScripture = true,
+                            // The same source the activity falls back to when no intent extra
+                            // overrides it (GridChoosePassageComposeActivity.kt:55) -- never a
+                            // hard-coded true, which would force a verse step the user turned off.
+                            navigateToVerse = CommonUtils.settings.getBoolean("navigate_to_verse_pref", false),
+                            onFinish = { osisId ->
+                                closeQuickSheet()
+                                // Task 7's ONE parse-and-apply path, shared with the
+                                // onActivityResult arm. Never re-parse the verse here.
+                                activity.applyChosenVerse(osisId)
+                            },
+                        )
+                    }
+                    val ui by controller.ui.collectAsState()
+                    val options by controller.options.collectAsState()
+                    // I2 (whole-branch review fix wave): the grid is the one sheet that ALWAYS
+                    // overflows its 400dp bound (its own golden's arithmetic puts the content at
+                    // ~492dp), so it is the one sheet that most needs the bottom fade -- but with no
+                    // `canScrollForward` passed here, `AbQuickSheet` defaulted to `{ false }` and the
+                    // fade never rendered. The grid's own `LazyGridState` (not `listState`, which this
+                    // branch never populates) is what the fade must read.
+                    val gridState = rememberLazyGridState()
+                    AbQuickSheet(
+                        open = true,
+                        // Tracks the step: Genesis -> Genesis 1. The Speak sheet discards ui.title;
+                        // that is right for "pick a range endpoint" and wrong for a general chooser.
+                        title = ui.title,
+                        onDismiss = { closeQuickSheet() },
+                        // Still the header's back arrow: it pops a grid step until the stack is empty.
+                        canGoBack = { ui.step != GridStep.BOOK },
+                        onBack = { if (!controller.back()) closeQuickSheet() },
+                        canScrollForward = { gridState.canScrollForward },
+                        // Amendment D3: swipe-down and scrim-tap must CLOSE this sheet, as they do
+                        // every other sheet in the app -- with the shell's default routing they
+                        // would pop a grid step instead and leave the X as the only way out from a
+                        // deep step. System back is separated out by the BackHandler below, which
+                        // is why this can only be done from :app. DEVICE PASS: "system back inside
+                        // the grid pops a step" / "swipe-down and scrim-tap close the grid sheet
+                        // from a deep step" -- if the BackHandler loses the race to M3's own
+                        // handler, deleting this ONE argument restores the shell's default
+                        // (back/swipe/scrim all close; the header's back arrow still pops steps).
+                        dismissRoutesToBack = false,
+                        actions = if (ui.step == GridStep.BOOK) {
+                            {
+                                // The six options are not decoration: GridOption.DEUTEROCANONICAL
+                                // rebuilds the book list, so dropping them here would be a
+                                // functional regression. AbOverflowMenu is a DropdownMenu, i.e. a
+                                // Popup, which stacks over a sheet without difficulty -- the port's
+                                // ban is on sheet-over-sheet, not popup-over-sheet.
+                                GridOptionsOverflow(ui, options) { controller.toggle(it) }
+                            }
+                        } else null,
+                    ) {
+                        // System back pops a grid step; swipe-down and scrim-tap close the sheet
+                        // outright, as they do on every other sheet in the app. M3 cannot tell the
+                        // three apart, so the only way to separate them is to intercept back BEFORE
+                        // M3 sees it -- which needs a BackHandler, which is why this lives in :app
+                        // and why `dismissRoutesToBack = false` is passed above. This wins over M3's
+                        // own handler because both land on the ModalBottomSheet DIALOG's dispatcher
+                        // (ComponentDialog is the OnBackPressedDispatcherOwner / NavigationEvent-
+                        // DispatcherOwner of its own view tree) and androidx's processor stores
+                        // handlers with addFirst + resolves the FIRST enabled one, i.e. the most
+                        // recently added -- and the sheet's content composes after the dialog's own
+                        // constructor ran. Verified against this project's material3 /
+                        // androidx.activity / androidx.navigationevent bytecode (Task 8 report).
+                        BackHandler(enabled = ui.step != GridStep.BOOK) { controller.back() }
+                        GridChoosePassageContent(ui, controller::pick, Modifier.fillMaxSize(), state = gridState)
+                    }
+                }
+                // Both are flat single-level lists with no page stack, so they take the shell's
+                // DEFAULT dismiss contract -- swipe, scrim and back all simply close. The grid
+                // branch above is the only sheet in this file that needs `dismissRoutesToBack`.
+                KeyChooserKind.Map -> KeyChooserSheet(
+                    sheet = sheet,
+                    kind = KeyChooserKind.Map,
+                    title = activity.getString(R.string.doc_type_map),
+                )
+                KeyChooserKind.GeneralBook -> KeyChooserSheet(
+                    sheet = sheet,
+                    kind = KeyChooserKind.GeneralBook,
+                    title = activity.getString(R.string.general_book),
+                )
+            }
+        }
+    }
+
+    /**
+     * The map / general-book key chooser as a quick sheet — one host composable for both, since the
+     * two differ only in their title and in which page they read (spec §4.6).
+     *
+     * The key list is resolved ONCE per opening — by `MainBibleActivity.composeStartKeyChooser`,
+     * which needed it to decide whether to open a sheet at all — and held for the life of the sheet,
+     * because a [KeyRow]'s id is the INDEX into it (`KeyChooserKeys.kt`): re-resolving between
+     * building the rows and handling the selection would silently re-number them, and for an EPUB it
+     * would also rebuild every `Key` on the UI thread ([showKeyChooserSheet]). `remember(sheet)` is
+     * the same per-opening keying the History branch uses, and for the same reason.
+     *
+     * The body's own [LazyListState] is passed to the shell's `canScrollForward`, which is what the
+     * bottom fade is drawn from — a state the body did not scroll would never report anything.
+     */
+    @Composable
+    private fun KeyChooserSheet(sheet: ReadingQuickSheet, kind: KeyChooserKind, title: String) {
+        // The list [showKeyChooserSheet] was handed, NOT a fresh resolution -- see its kdoc.
+        val keys = remember(sheet) { keyChooserKeys }
+        val rows = remember(keys) { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.name) } }
+        val currentKeyId = remember(keys) { currentKeyChooserRowId(kind, keys) }
+        val listState = rememberLazyListState()
+        AbQuickSheet(
+            open = true,
+            title = title,
+            onDismiss = { closeQuickSheet() },
+            canScrollForward = { listState.canScrollForward },
+        ) {
+            KeyListBody(
+                rows = rows,
+                currentKeyId = currentKeyId,
+                onSelect = { keyId ->
+                    val key = keys.getOrNull(keyId.toIntOrNull() ?: -1)
+                    closeQuickSheet()
+                    if (key != null) applyKeyChooserKey(kind, key)
+                },
+                listState = listState,
+            )
         }
     }
 
@@ -2124,7 +2735,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onHome = { activity.composeToggleDrawer() },
                 onTitleTap = { activity.composeStartKeyChooser() },
                 onTitleLongPress = { activity.composeChooseDocument() },
-                onTitleFlingVertical = { activity.composeWorkspace() },
+                onTitleFlingVertical = { showWorkspaceSheet() },
                 onTitleFlingHorizontal = { forward -> activity.composeCycleWorkspace(forward) },
                 // Batch 12g Task 8: the non-swap short-press branch now drives the real Compose
                 // quick-doc menu (`bibleQuickDoc`/`commentaryQuickDoc` below) instead of bridging to
@@ -2168,7 +2779,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onSearch = { activity.composeSearch() },
                 onSpeak = { activity.composeToggleSpeak() },
                 onSpeakLong = { activity.composeSpeakLong() },
-                onWorkspace = { activity.composeWorkspace() },
+                onWorkspace = { showWorkspaceSheet() },
                 onOverflow = {
                     overflowItems.value = activity.buildOptionsMenuItems()
                     overflowExpanded.value = true
@@ -2452,6 +3063,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             textSettingsEditorSlot = { TextSettingsEditorSlot() },
             // Round 13a: the Speak settings sheet.
             speakSettingsSlot = { SpeakSettingsSlot() },
+            quickSheetSlot = { QuickSheetSlot() },
             // Task 8b Step 3: feeds MainBibleActivity.bottomOffsetForWebView's fourth term.
             onSearchSheetOffsetsChanged = { visible, heightPx -> activity.updateSearchSheetOffsets(visible, heightPx) },
             // Task 10: the "<document> cannot be searched" snackbar.
@@ -2733,6 +3345,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         internal fun buildTabBarModel(layout: WindowLayoutState): WindowTabBarModel = buildWindowTabBar(layout)
 
         private const val TAG = "ComposeReadingViewHost"
+
+        /** Round 15b: the document quick sheet's last-used TAB ID (never an index — see [restoreQuickDocTab]). */
+        private const val QUICK_DOC_TAB_KEY = "document_quick_tab"
 
         /** Settings keys shared with the search Activities — see [searchQueries]/[setSearchTranslations]. */
         private const val SEARCH_TRANSLATIONS_KEY = "search_selected_translations"
@@ -3177,6 +3792,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // is composed, so opening it can never re-key the pane subtree and destroy the panes'
             // BibleView WebViews. It self-hides when closed, so this stays unconditional too.
             speakSettingsSlot: @Composable () -> Unit = { },
+            // Round 15b: the quick sheets — a seventh sibling overlay. Defaulted to a no-op so every
+            // existing `mountComposeView` caller/test keeps compiling unchanged.
+            quickSheetSlot: @Composable () -> Unit = { },
             // Task 8b Step 3: reports the search sheet's live (visible, measured-height-in-px) pair
             // so [ComposeReadingViewHost.install] can feed `MainBibleActivity.bottomOffsetForWebView`
             // — see [MainBibleActivity.updateSearchSheetOffsets]'s kdoc for why the height must be
@@ -3626,6 +4244,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             // Round 13a: the Speak settings sheet — a sixth sibling overlay, same
                             // reason as the five above, and self-hiding when closed.
                             speakSettingsSlot()
+                            // Round 15b: the quick sheets — a seventh sibling overlay, same reason
+                            // as the six above, and self-hiding when closed.
+                            quickSheetSlot()
                     }
                 }
             }

@@ -23,7 +23,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import net.bible.sharedcore.history.HistoryEntry
@@ -32,6 +34,32 @@ import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.TwoLineListItem
 import net.bible.sharedui.strings.LocalStrings
+
+/**
+ * The History list without chrome, so the full-screen [HistoryScreen] and round 15b's quick sheet
+ * render the same rows. [listState] is hoisted so a sheet host can expose `canScrollForward` to
+ * `AbQuickSheet`'s bottom fade.
+ */
+@Composable
+fun HistoryListContent(
+    entries: List<HistoryEntry>,
+    onSelect: (Int) -> Unit,
+    listState: LazyListState = rememberLazyListState(),
+    modifier: Modifier = Modifier,
+) {
+    // I2 (whole-branch review fix wave): fillMaxWidth, not fillMaxSize -- see WorkspaceQuickContent
+    // for the full rationale. The one caller that needs to fill (the full-screen HistoryScreen)
+    // passes fillMaxSize() explicitly in its own modifier below.
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth()) {
+        items(entries, key = { it.id }) { entry ->
+            TwoLineListItem(
+                title = entry.title,
+                subtitle = entry.timestamp,
+                onClick = { onSelect(entry.id) },
+            )
+        }
+    }
+}
 
 @Composable
 fun HistoryScreen(
@@ -49,15 +77,11 @@ fun HistoryScreen(
     // inner LazyColumn (which then fills the card's content region and scrolls within it).
     Box(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.5f)) {
         AbScaffold(title = title) { padding ->
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
-                items(entries, key = { it.id }) { entry ->
-                    TwoLineListItem(
-                        title = entry.title,
-                        subtitle = entry.timestamp,
-                        onClick = { onSelect(entry.id) },
-                    )
-                }
-            }
+            HistoryListContent(
+                entries = entries,
+                onSelect = onSelect,
+                modifier = Modifier.fillMaxSize().padding(padding),
+            )
         }
     }
     if (error != null) {

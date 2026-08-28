@@ -42,6 +42,12 @@ enum class ReadingOverlay {
 
     /** Round 12c's in-place text-settings editor sheet (driven by `SettingsEditorStack`). */
     TextSettingsEditor,
+
+    /**
+     * Round 15b's quick sheets — History, workspace switch, document switch, key chooser — which
+     * share ONE state ([ReadingQuickSheet]) and therefore one member here. See that type's kdoc.
+     */
+    QuickSheet,
 }
 
 /**

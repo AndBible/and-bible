@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
@@ -37,20 +38,35 @@ import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
 
-/** A single-line key list with current-item highlight + initial scroll. Reused shape for the key choosers. */
+/**
+ * A single-line key list with current-item highlight + initial scroll. Reused shape for the key
+ * choosers — by the two full screens in this file and in `MapKeyScreen.kt` and, since round 15b, by
+ * their quick-sheet form in `ComposeReadingViewHost` (spec §4.6). Public rather than internal for
+ * that third caller and for its golden.
+ *
+ * [listState] is a parameter, not a private `remember`, for the sheet's sake: the quick-sheet shell
+ * draws its bottom fade from a `canScrollForward` lambda it is handed, so the host has to pass the
+ * body's OWN state or the fade can never appear (`AbSheetChrome.kt` — `canScrollForward` is read in
+ * the draw phase). The two full screens keep the default and are unaffected.
+ *
+ * The `LazyColumn` sizes to CONTENT, not to `fillMaxSize` — under the sheet's
+ * `heightIn(max = AbSheetContentMaxHeight)` a `fillMaxSize` here would set minHeight = maxHeight and
+ * pin a five-row map list at 400dp (`WorkspaceQuickContent`'s I2 review fix records the same trap).
+ * The two full screens pass `fillMaxSize` themselves, so their layout is unchanged.
+ */
 @Composable
-internal fun KeyListBody(
+fun KeyListBody(
     rows: List<KeyRow>,
     currentKeyId: String?,
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
+    listState: LazyListState = rememberLazyListState(),
 ) {
-    val listState = rememberLazyListState()
     LaunchedEffect(currentKeyId, rows) {
         val idx = rows.indexOfFirst { it.keyId == currentKeyId }
         if (idx >= 0) listState.scrollToItem(idx)
     }
-    LazyColumn(state = listState, modifier = modifier.fillMaxSize()) {
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth()) {
         items(rows, key = { it.keyId }) { row ->
             val highlight = if (row.keyId == currentKeyId) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
             Text(
@@ -78,7 +94,7 @@ fun ChooseGeneralBookKeyScreen(
 ) {
     val strings = LocalStrings.current
     AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
-        KeyListBody(rows, currentKeyId, onSelect, Modifier.padding(padding))
+        KeyListBody(rows, currentKeyId, onSelect, Modifier.padding(padding).fillMaxSize())
     }
     if (error != null) {
         AbErrorDialog(message = strings.errorOccurred, confirmText = strings.okay, onDismiss = onDismissError)

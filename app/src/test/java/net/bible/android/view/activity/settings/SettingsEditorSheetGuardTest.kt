@@ -163,6 +163,11 @@ class SettingsEditorSheetGuardTest {
             // e.g. "AbChoiceSheetContent(" does not contain the literal "AbChoiceSheet(".
             "AbChoiceSheet(", "AbMultiSelectSheet(", "AbActionSheet(",
             "PromptSelectorSheet(", "ModelSelectionSheet(", "AbReadHistorySheet(",
+            // Round 15b's shared quick-sheet shell (whole-branch review finding M3). Same rule:
+            // "AbQuickSheetContent(" does not contain the literal "AbQuickSheet(", so the …Content
+            // captures throughout AbQuickSheetGoldenTest/WorkspaceQuickGoldenTest/HistoryGoldenTest
+            // do not false-positive here.
+            "AbQuickSheet(",
         )
         val offenders = testSourceRoot.walkTopDown().filter { it.extension == "kt" }
             // This guard's own file is excluded: widening the walk to the whole test tree means it
@@ -260,6 +265,30 @@ class SettingsEditorSheetGuardTest {
             val src = strippedSource(path)
             assertEquals(
                 "$path must reach the sheet through SpeakSettingsSheet, not build its own",
+                0, Regex("""\bModalBottomSheet\s*\(""").findAll(src).count(),
+            )
+        }
+    }
+
+    /**
+     * Round 15b's analogue of [noSpeakPageBodyConstructsItsOwnModalBottomSheet]: every quick-sheet
+     * BODY must reach the sheet through `AbQuickSheet`, never build its own `ModalBottomSheet`.
+     * `AbQuickSheet.kt` itself is deliberately NOT in this list -- it is the shell, exactly as
+     * `SpeakSettingsSheet.kt`/`SettingsEditorSheet.kt` are for their families, and legitimately
+     * constructs the one `ModalBottomSheet` its bodies share.
+     *
+     * Spec §5.2 rule 2 says this guard "will be extended to the new one" (whole-branch review
+     * finding M3).
+     */
+    @Test fun noQuickSheetBodyConstructsItsOwnModalBottomSheet() {
+        val bodies = listOf(
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/workspaces/WorkspaceQuickContent.kt",
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/history/HistoryScreen.kt",
+        )
+        bodies.forEach { path ->
+            val src = strippedSource(path)
+            assertEquals(
+                "$path must reach the sheet through AbQuickSheet, not build its own",
                 0, Regex("""\bModalBottomSheet\s*\(""").findAll(src).count(),
             )
         }

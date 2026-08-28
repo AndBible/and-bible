@@ -1,5 +1,6 @@
 package net.bible.android.view.compose.golden
 
+import androidx.compose.foundation.layout.heightIn
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.history.HistoryEntry
 import net.bible.sharedcore.history.HistoryError
@@ -15,7 +16,7 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class HistoryGoldenTest {
 
-    private val sampleEntries = listOf(
+    private fun sampleEntries() = listOf(
         HistoryEntry(0, "Genesis 1:1", "9:15 am, Tue 8 Jul"),
         HistoryEntry(1, "John 3:16", "9:14 am, Tue 8 Jul"),
         HistoryEntry(2, "Psalms 23:1", "9:10 am, Tue 8 Jul"),
@@ -26,7 +27,7 @@ class HistoryGoldenTest {
         captureMatrix("History", "primary") {
             HistoryScreen(
                 title = "History",
-                entries = sampleEntries,
+                entries = sampleEntries(),
                 error = null,
                 onSelect = {},
                 onDismissError = {},
@@ -41,7 +42,7 @@ class HistoryGoldenTest {
         captureRtl("History", "primary") {
             HistoryScreen(
                 title = context.getString(net.bible.android.activity.R.string.history_for, "Workspace", 1),
-                entries = sampleEntries,
+                entries = sampleEntries(),
                 error = null,
                 onSelect = {},
                 onDismissError = {},
@@ -67,11 +68,24 @@ class HistoryGoldenTest {
         captureGolden("History", "error", EDGE_MODE) {
             HistoryScreen(
                 title = "History",
-                entries = sampleEntries,
+                entries = sampleEntries(),
                 error = HistoryError.REVERT_FAILED,
                 onSelect = {},
                 onDismissError = {},
             )
+        }
+    }
+
+    // I2 (whole-branch review fix wave): wrapped in SheetSurface, the same helper
+    // AbQuickSheetGoldenTest uses, so the body's real (now content-sized, not 400dp-pinned) extent
+    // is visible against a painted surface instead of invisible on the harness's bare background.
+    @Test fun history_sheetBody() = captureGolden("History", "sheetBody", GoldenMode.LIGHT) {
+        SheetSurface {
+            androidx.compose.foundation.layout.Box(
+                androidx.compose.ui.Modifier.heightIn(max = net.bible.sharedui.components.AbSheetContentMaxHeight)
+            ) {
+                net.bible.sharedui.history.HistoryListContent(entries = sampleEntries(), onSelect = {})
+            }
         }
     }
 }

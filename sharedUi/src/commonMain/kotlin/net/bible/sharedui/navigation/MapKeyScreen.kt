@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -37,7 +38,7 @@ fun ChooseMapKeyScreen(
 ) {
     val strings = LocalStrings.current
     AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
-        KeyListBody(rows, currentKeyId, onSelect, Modifier.padding(padding))
+        KeyListBody(rows, currentKeyId, onSelect, Modifier.padding(padding).fillMaxSize())
     }
     if (error != null) {
         AbErrorDialog(message = strings.errorOccurred, confirmText = strings.okay, onDismiss = onDismissError)

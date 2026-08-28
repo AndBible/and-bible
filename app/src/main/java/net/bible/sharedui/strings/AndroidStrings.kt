@@ -226,6 +226,9 @@ class AndroidStrings(private val context: Context) : Strings {
     override fun copyOfWorkspace(name: String) = context.getString(R.string.copy_of_workspace, name)
     override fun workspaceListingWithCurrent(name: String) = context.getString(R.string.workspace_listing_with_current, name)
 
+    // Round 15b — the workspace quick sheet's footer row
+    override val manageWorkspaces: String get() = context.getString(R.string.workspace_manage_workspaces)
+
     // Batch 9a — AiConnectionSettingsScreen custom editors
     override val resetToDefault: String get() = context.getString(R.string.reset_to_default)
     override val rawLogRetentionDisabledLabel: String get() = context.getString(R.string.raw_log_retention_summary_disabled)
@@ -633,4 +636,10 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Round 14a — dialog-to-sheet conversions
     override val cloudDocSyncNow: String get() = context.getString(R.string.cloud_doc_sync_now)
+
+    // Round 15b — the document quick sheet
+    override val allDocuments: String get() = context.getString(R.string.document_quick_all_documents)
+    override val documentTabRecent: String get() = context.getString(R.string.document_quick_tab_recent)
+    override val documentTabForVerse: String get() = context.getString(R.string.document_quick_tab_for_verse)
+    override val documentTabLastFilter: String get() = context.getString(R.string.document_quick_tab_last_filter)
 }

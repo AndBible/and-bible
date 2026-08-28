@@ -137,8 +137,10 @@ class LabelEditGoldenTest {
      *  on by `sample(ws = true)` -- and a miniature style tag for the override (pinned to
      *  OverrideMode.MARKER), but the switches and override picker underneath are not rendered at
      *  all. Proves ⚡, 🔖 and the tag. There is no ⚙ mark on this screen any more (round-12a): the
-     *  override is now shown as WHICH style it imposes, not as an abstract "something is set"
-     *  glyph. The expanded counterpart is labelEdit_override_expanded. */
+     *  override is now shown as the AXIS word ("Workspace", the same LabelStyleTag the list row
+     *  draws) rather than as an abstract "something is set" glyph -- and NOT as the name of the
+     *  style it imposes (round-15a §4.2 corrected that overclaim). The expanded counterpart is
+     *  labelEdit_override_expanded. */
     @Test fun labelEdit_override() =
         captureGolden("LabelEdit", "override", EDGE_MODE, heightDp = 1400, content = screen(sample(ws = true)))
 

@@ -31,8 +31,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -88,34 +90,52 @@ fun GridChoosePassageScreen(
     onToggle: (GridOption) -> Unit,
     onNavigateUp: () -> Unit,
 ) {
-    val strings = LocalStrings.current
     AbScaffold(
         topBar = {
             AbTopAppBar(
                 title = { AbTopBarTitle(ui.title) },
                 onNavigateUp = onNavigateUp,
                 actions = {
-                    if (ui.step == GridStep.BOOK) {
-                        AbOverflowMenu(contentDescription = null) { close ->
-                            if (ui.showDeutToggle) {
-                                AbMenuItem(
-                                    text = if (options.showScripture) strings.deuterocanonical else strings.bible,
-                                    onClick = { close(); onToggle(GridOption.DEUTEROCANONICAL) },
-                                    icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null) },
-                                )
-                            }
-                            CheckItem(strings.menuAlphabetical, options.alphabetical, { Icon(Icons.Filled.SortByAlpha, contentDescription = null) }) { close(); onToggle(GridOption.ALPHABETICAL) }
-                            CheckItem(strings.menuRowOrder, options.ltr, { Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = null) }) { close(); onToggle(GridOption.LTR) }
-                            CheckItem(strings.menuGroupByCategory, options.groupByCategory, { Icon(Icons.Filled.Category, contentDescription = null) }) { close(); onToggle(GridOption.GROUP_BY_CATEGORY) }
-                            CheckItem(strings.menuShowLongName, options.longNames, { Icon(Icons.Filled.TextFields, contentDescription = null) }) { close(); onToggle(GridOption.LONG_NAMES) }
-                            CheckItem(strings.menuShowProgressBars, options.showProgress, { Icon(Icons.Filled.BarChart, contentDescription = null) }) { close(); onToggle(GridOption.SHOW_PROGRESS) }
-                        }
-                    }
+                    // The step guard stays at the CALL SITE, in both hosts, so the quick sheet can
+                    // make the same decision independently (round 15b Task 8, amendment D2).
+                    if (ui.step == GridStep.BOOK) { GridOptionsOverflow(ui, options, onToggle) }
                 },
             )
         },
     ) { padding ->
         GridChoosePassageContent(ui, onPick, Modifier.fillMaxSize().padding(padding))
+    }
+}
+
+/**
+ * The passage grid's six options, as an overflow menu.
+ *
+ * Public and standalone because round 15b's grid QUICK SHEET puts the same six items in
+ * `AbQuickSheet`'s header actions slot (spec §4.6). Dropping them there would be a functional
+ * regression, not a cosmetic one — [GridOption.DEUTEROCANONICAL] rebuilds the book list — and a
+ * second copy in `:app` would have to duplicate this file's private `CheckItem` as well.
+ * `AbOverflowMenu` is a `DropdownMenu`, i.e. a `Popup`, which renders above a sheet without
+ * difficulty: the port's ban is on sheet-over-sheet, not popup-over-sheet.
+ *
+ * The "only at the BOOK step" guard is deliberately NOT here: it belongs to each host's own header,
+ * so the sheet and the full screen decide independently.
+ */
+@Composable
+fun GridOptionsOverflow(ui: GridUi, options: GridOptions, onToggle: (GridOption) -> Unit) {
+    val strings = LocalStrings.current
+    AbOverflowMenu(contentDescription = null) { close ->
+        if (ui.showDeutToggle) {
+            AbMenuItem(
+                text = if (options.showScripture) strings.deuterocanonical else strings.bible,
+                onClick = { close(); onToggle(GridOption.DEUTEROCANONICAL) },
+                icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null) },
+            )
+        }
+        CheckItem(strings.menuAlphabetical, options.alphabetical, { Icon(Icons.Filled.SortByAlpha, contentDescription = null) }) { close(); onToggle(GridOption.ALPHABETICAL) }
+        CheckItem(strings.menuRowOrder, options.ltr, { Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = null) }) { close(); onToggle(GridOption.LTR) }
+        CheckItem(strings.menuGroupByCategory, options.groupByCategory, { Icon(Icons.Filled.Category, contentDescription = null) }) { close(); onToggle(GridOption.GROUP_BY_CATEGORY) }
+        CheckItem(strings.menuShowLongName, options.longNames, { Icon(Icons.Filled.TextFields, contentDescription = null) }) { close(); onToggle(GridOption.LONG_NAMES) }
+        CheckItem(strings.menuShowProgressBars, options.showProgress, { Icon(Icons.Filled.BarChart, contentDescription = null) }) { close(); onToggle(GridOption.SHOW_PROGRESS) }
     }
 }
 
@@ -126,12 +146,19 @@ fun GridChoosePassageScreen(
  * [modifier] MUST supply a bounded height when this is hosted in a sheet: the cell size is
  * `maxHeight / rowCount` (with a 40dp floor, below which the grid scrolls), and a bottom sheet's
  * content column is height-unbounded, where a `LazyVerticalGrid` crashes outright.
+ *
+ * [state] is a parameter, not a private `remember`, for the sheet's sake -- same reason as
+ * `KeyListBody`'s `listState`: the quick-sheet shell draws its bottom fade from a
+ * `canScrollForward` lambda it is handed, so the host has to read the grid's OWN scroll state or
+ * the fade can never appear. The full screen passes nothing, which is behaviour-identical to the
+ * `LazyVerticalGrid` creating its own state internally (the previous default).
  */
 @Composable
 fun GridChoosePassageContent(
     ui: GridUi,
     onPick: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    state: LazyGridState = rememberLazyGridState(),
 ) {
     val sections = ui.sections
     val cols = ui.columns.coerceAtLeast(1)
@@ -153,6 +180,7 @@ fun GridChoosePassageContent(
         LazyVerticalGrid(
             columns = GridCells.Fixed(cols),
             modifier = Modifier.fillMaxSize(),
+            state = state,
             contentPadding = PaddingValues(4.dp),
         ) {
             if (sections != null) {

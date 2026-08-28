@@ -186,6 +186,7 @@ import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.sharedcore.reading.KeyChooserRoute
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.QuickDocAction
 import net.bible.sharedcore.reading.QuickDocMenuItem
@@ -200,6 +201,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -1076,6 +1078,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             Log.i(TAG, "Back Long")
             // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
             // been performed on the long press, so will set the cancelled flag for the following up event.
+            // Round 15b T4: on the Compose reading view, History opens as a quick sheet over the
+            // reading view instead of the classic full-screen Activity. Null host = classic path,
+            // unchanged below.
+            val host = composeReadingViewHost
+            if (host != null) {
+                host.showHistorySheet()
+                return true
+            }
             val intent = ScreenLauncher.intentFor(this, Screen.History)
             startActivityForResult(intent, STD_REQUEST_CODE)
             return true
@@ -1403,18 +1413,139 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         startActivityForResult(ScreenLauncher.intentFor(this, Screen.BibleSpeak), STD_REQUEST_CODE)
     }
 
-    internal fun composeWorkspace() {
-        startActivityForResult(ScreenLauncher.intentFor(this, Screen.WorkspaceSelector), WORKSPACE_CHANGED)
+    /**
+     * Switch to a workspace by id. Extracted from the WORKSPACE_CHANGED result arm so round 15b's
+     * quick sheet and the full selector's activity result cannot drift apart.
+     */
+    internal fun switchToWorkspace(workspaceId: String) {
+        currentWorkspaceId = IdType(workspaceId)
+    }
+
+    /**
+     * Whole-branch review fix C1: the quick sheet's own route to [switchToWorkspace].
+     *
+     * Every OTHER route to `currentWorkspaceId`'s setter saves the outgoing workspace first:
+     * [cycleWorkspace] calls `windowRepository.saveIntoDb()` immediately before switching; the
+     * classic `WorkspaceSelectorActivity` path calls it too and additionally gets an `onPause`; the
+     * Compose selector calls `service.saveCurrentIntoDb()`. The quick sheet never pauses the
+     * activity, so without this it is the only path that reaches `windowRepository.loadFromDb`
+     * (whose first act is `clear()`) with the outgoing workspace's windows, page managers and
+     * `HistoryManager` entries never written to `dao` -- silently discarding unsaved layout/history
+     * changes on a quick switch. Mirrors [cycleWorkspace]'s save call exactly.
+     *
+     * Deliberately NOT folded into [switchToWorkspace] itself: that function is also the
+     * `WORKSPACE_CHANGED` result arm's body, which runs AFTER the full selector has already renamed
+     * the outgoing workspace in the DB. Saving there would recompute `contentText` from the STALE
+     * in-memory `name` and push it back over a rename the user just made in the selector.
+     */
+    internal fun quickSwitchToWorkspace(workspaceId: String) {
+        windowRepository.saveIntoDb()
+        switchToWorkspace(workspaceId)
     }
 
     internal fun composeCycleWorkspace(forward: Boolean) = cycleWorkspace(forward)
 
+    /**
+     * The Compose toolbar title's TAP. Round 15b Task 9: with a Compose host mounted, the three key
+     * choosers simple enough for a sheet (`KeyChooserRoute`, spec §4.6) now open over the reading
+     * view instead of starting their full screen; everything else takes the classic path below,
+     * unchanged.
+     *
+     * Three separate conditions fall through to the classic path, and each is a real case, not
+     * belt-and-braces: no host at all (`use_compose_ui` off), a page shape `KeyChooserRoute`
+     * deliberately keeps on its own screen (dictionary, StudyPad, my-document, multi-document), and
+     * a chosen kind whose key list is EMPTY — where both chooser activities apply a fallback
+     * selection and finish without drawing anything, which a sheet cannot reproduce (E3).
+     *
+     * `CurrentPage.startKeyChooser` itself is deliberately NOT touched, so `CurrentPageManager`'s
+     * auto-open and `BibleJavascriptInterface.refChooserDialog` — which needs a real Intent result —
+     * behave exactly as today.
+     */
     internal fun composeStartKeyChooser() {
+        val host = composeReadingViewHost
+        val sheet = host?.currentKeyChooserPage()?.let { KeyChooserRoute.sheetFor(it) }
+        if (host != null && sheet != null) {
+            // Resolved HERE, once, and handed to the sheet — never resolved again inside it. The
+            // emptiness decision below and the sheet's rows must come from the same list (a
+            // `KeyRow`'s id is an INDEX into it), and a second resolution is expensive on the UI
+            // thread: `EpubBackendState.tocKeys` is not cached at all and rebuilds every `Key` on
+            // each access. `ComposeReadingViewHost.showKeyChooserSheet`'s kdoc has the full note.
+            val keys = host.resolveKeyChooserKeys(sheet.kind)
+            if (host.keyChooserSheetHasRows(sheet.kind, keys)) {
+                host.showKeyChooserSheet(sheet.kind, keys)
+                return
+            }
+        }
         pageControl.currentPageManager.currentPage.startKeyChooser(this)
     }
 
+    /**
+     * The Compose toolbar title's long-press. Round 15b Task 5: with a Compose host mounted this now
+     * opens the document QUICK sheet over the reading view (spec §4.5) instead of starting the full
+     * `ChooseDocument` screen — which the sheet's own footer row still reaches. Null host = classic
+     * path (`use_compose_ui` off), unchanged below.
+     *
+     * The reroute lives HERE rather than at the toolbar callback so there is exactly ONE conditional
+     * and one classic fall-through for this entry point, and so any later caller of this internal
+     * entry point gets the sheet too.
+     */
     internal fun composeChooseDocument() {
+        val host = composeReadingViewHost
+        if (host != null) {
+            host.showDocumentSheet()
+            return
+        }
         startActivityForResult(ScreenLauncher.intentFor(this, Screen.ChooseDocument), STD_REQUEST_CODE)
+    }
+
+    /**
+     * Apply a document chosen by the user to the active window.
+     *
+     * Extracted from the `ChooseDocument` `onActivityResult` arm so that round 15b's document quick
+     * sheet — which returns no Intent and therefore cannot use that arm — and the existing activity
+     * result cannot drift apart. The `FakeBookFactory` fallback is the reason: it only matters for
+     * pseudo-documents, so a second copy could lose it and nothing would notice.
+     */
+    internal fun applyChosenDocument(bookStr: String?) {
+        val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
+        documentControl.changeDocument(book)
+        updateActions()
+    }
+
+    /**
+     * Apply a chosen verse to the active window.
+     *
+     * Extracted from the `onActivityResult` `in classes` arm so that round 15b's grid quick sheet —
+     * which returns no Intent and therefore cannot use that arm — and the existing activity result
+     * cannot drift apart. The `NoSuchVerseException` branch is the reason: it only fires on a
+     * malformed OSIS id, so a second copy could lose it and nothing would notice.
+     */
+    internal fun applyChosenVerse(verseStr: String, isFromBookmark: Boolean = false) {
+        val verse = try {
+            VerseFactory.fromString(navigationControl.versification, verseStr)
+        } catch (e: NoSuchVerseException) {
+            ABEventBus.post(ToastEvent(getString(R.string.verse_not_found)))
+            return
+        }
+        val pageManager = windowControl.activeWindowPageManager
+        if (isFromBookmark && !pageManager.isBibleShown) {
+            pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
+        } else {
+            pageManager.currentPage.setKey(verse, !isFromBookmark)
+        }
+    }
+
+    /**
+     * Apply a general-book / map / dictionary key chosen by the user to the active window.
+     *
+     * Extracted from the `in genBookClasses` `onActivityResult` arm so that round 15b's key-chooser
+     * quick sheets — which return no Intent and therefore cannot use that arm — and the existing
+     * activity result cannot drift apart. [book] is passed explicitly rather than derived from
+     * [key] because it cannot be: an EPUB table-of-contents entry is a `BookAndKey` carrying its
+     * OWN document, which is not the page's current document, while every other key carries none.
+     */
+    internal fun applyChosenGenBookKey(book: Book?, key: Key) {
+        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
     }
 
     internal fun composeCycleStrongs() {
@@ -1636,8 +1767,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 fullScreen = true
             })
             R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
-                val intent = ScreenLauncher.intentFor(this, Screen.WorkspaceSelector)
-                startActivityForResult(intent, WORKSPACE_CHANGED)
+                // M1 (whole-branch review fix wave): guard on the MOUNTED HOST, not the live
+                // `use_compose_ui` flag -- toggling the setting does not recreate the activity, and
+                // History (MenuCommandHandler.kt / this file's long-press-back) already guards this
+                // way. Guarding on the flag here would let the toolbar icon (host-only) open the
+                // sheet while this item opened the Activity, in that window.
+                val host = composeReadingViewHost
+                if (host != null) {
+                    host.showWorkspaceSheet()
+                } else {
+                    val intent = ScreenLauncher.intentFor(this, Screen.WorkspaceSelector)
+                    startActivityForResult(intent, WORKSPACE_CHANGED)
+                }
             }, opensDialog = true)
             R.id.llmActionsSubMenu -> CommandPreference(
                 launch = { _, _, _ ->
@@ -2929,7 +3070,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
                     if (resultCode == Activity.RESULT_OK) {
                         if (workspaceId != null && IdType(workspaceId) != currentWorkspaceId) {
-                            currentWorkspaceId = IdType(workspaceId)
+                            switchToWorkspace(workspaceId)
                         } else if (changed) {
                             currentWorkspaceId = currentWorkspaceId
                         }
@@ -3007,10 +3148,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     when(val className = data.component?.className) {
                         null -> {}
                         ChooseDocument::class.java.name -> {
-                            val bookStr = extras.getString("book")
-                            val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
-                            documentControl.changeDocument(book)
-                            updateActions()
+                            applyChosenDocument(extras.getString("book"))
                             return
                         }
                         MyDocumentPagesActivity::class.java.name -> {
@@ -3057,17 +3195,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             val keyStr = extras.getString("key")
                             val bookStr = extras.getString("book")
                             if(verseStr != null) {
-                                val verse = try {
-                                    VerseFactory.fromString(navigationControl.versification, verseStr)
-                                } catch (e: NoSuchVerseException) {
-                                    ABEventBus.post(ToastEvent(getString(R.string.verse_not_found)))
-                                    return
-                                }
-                                val pageManager = windowControl.activeWindowPageManager
-                                if (isFromBookmark && !pageManager.isBibleShown) {
-                                    pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
-                                } else
-                                    pageManager.currentPage.setKey(verse, !isFromBookmark)
+                                applyChosenVerse(verseStr, isFromBookmark)
                             } else if (keyStr != null && bookStr != null) {
                                 val book =
                                     Books.installed().getBook(bookStr) ?: FakeBookFactory.giveDoesNotExist(bookStr)
@@ -3084,14 +3212,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             val bookAndKeyStr = extras.getString("bookAndKey")
                             if(bookAndKeyStr != null) {
                                 val bookAndKey = BookAndKeySerialized.fromJSON(bookAndKeyStr).bookAndKey
-                                val pageManager = windowControl.activeWindowPageManager
-                                pageManager.setCurrentDocumentAndKey(bookAndKey.document, bookAndKey)
+                                applyChosenGenBookKey(bookAndKey.document, bookAndKey)
                             } else {
                                 val book =
                                     Books.installed().getBook(bookStr) ?: FakeBookFactory.giveDoesNotExist(bookStr!!)
 
-                                val key = book.getKey(keyStr)
-                                windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                                applyChosenGenBookKey(book, book.getKey(keyStr))
                             }
                             return
                         }

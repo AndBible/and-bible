@@ -27,13 +27,10 @@ import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.sword.BookAndKey
-import net.bible.service.sword.epub.EpubBackend
-import net.bible.service.sword.epub.isEpub
 import net.bible.sharedcore.navigation.ChooseGeneralBookKeyController
 import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.navigation.ChooseGeneralBookKeyScreen
-import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.Key
 import org.koin.android.ext.android.inject
 
@@ -46,15 +43,6 @@ class ChooseGeneralBookKeyComposeActivity : ActivityBase() {
 
     /** Resolved once per load; index into this list is the [KeyRow.keyId]. */
     private var keys: List<Key> = emptyList()
-
-    private fun resolveKeys(): List<Key> {
-        val doc = page.currentDocument!!
-        return if (doc.isEpub) {
-            ((doc as SwordGenBook).backend as EpubBackend).tocKeys
-        } else {
-            page.cachedGlobalKeyList ?: emptyList()
-        }
-    }
 
     /** Reproduce classic [ChooseGeneralBookKey.itemSelected] result Intent (className = classic class). */
     private fun buildResult(key: Key?): Intent {
@@ -83,7 +71,7 @@ class ChooseGeneralBookKeyComposeActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        keys = resolveKeys()
+        keys = page.keyChooserKeys()
         // Parity with ChooseKeyBase: empty list → return the fallback selection immediately.
         if (keys.isEmpty()) {
             setResult(Activity.RESULT_OK, buildResult(null))

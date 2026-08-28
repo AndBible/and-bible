@@ -881,10 +881,25 @@ class BibleJavascriptInterface(
                     mainBibleActivity.binding.drawerLayout.requestFocus()
                 }
                 "AltKeyO" -> mainBibleActivity.showOptionsMenu()
+                // Round 15b Task 9: deliberately NOT rerouted to the quick sheet, unlike the
+                // toolbar title's tap. `startKeyChooser` is left untouched precisely so its
+                // non-reading-view callers keep working, and this is one of them: the shortcut acts
+                // on `bibleView.window`, which is not necessarily the ACTIVE window the host's sheet
+                // would read -- and the same file's `refChooserDialog` needs a real Intent result
+                // that a sheet cannot produce. Rerouting either would be a behaviour change, not a
+                // consistency fix.
                 "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
                 "CtrlKeyW" -> {
-                    val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.WorkspaceSelector)
-                    mainBibleActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
+                    // M1 (whole-branch review fix wave): guard on the MOUNTED HOST, not the live
+                    // `use_compose_ui` flag -- see MainBibleActivity's R.id.switchToWorkspace for
+                    // the full rationale (toggling the setting doesn't recreate the activity).
+                    val host = mainBibleActivity.composeReadingViewHost
+                    if (host != null) {
+                        host.showWorkspaceSheet()
+                    } else {
+                        val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.WorkspaceSelector)
+                        mainBibleActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
+                    }
                 }
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()
                 "CtrlKeyF" -> {
