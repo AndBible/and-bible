@@ -110,6 +110,12 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.CurrentBibleVerseChanged
+import net.bible.android.control.page.CurrentBiblePage
+import net.bible.android.control.page.CurrentCommentaryPage
+import net.bible.android.control.page.CurrentDictionaryPage
+import net.bible.android.control.page.CurrentGeneralBookPage
+import net.bible.android.control.page.CurrentMapPage
+import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
@@ -124,6 +130,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.DocRowMapper
 import net.bible.android.view.activity.navigation.buildGridStep
+import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
 import net.bible.android.view.activity.navigation.initialGridOptions
 import net.bible.android.view.activity.navigation.persistGridOptions
 import net.bible.android.view.activity.navigation.pickGridBook
@@ -161,6 +168,7 @@ import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ai.AgentPermissionRequest
@@ -178,9 +186,11 @@ import net.bible.sharedcore.navigation.DocumentQuickTabs
 import net.bible.sharedcore.navigation.buildDocumentQuickTabs
 import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.GridStep
+import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedcore.reading.DrawerCloseLatch
 import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.KeyChooserKind
+import net.bible.sharedcore.reading.KeyChooserPage
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ReadingOverlay
@@ -255,6 +265,7 @@ import net.bible.sharedui.reading.BibleReferenceOverlay
 import net.bible.sharedui.navigation.DocumentQuickContent
 import net.bible.sharedui.navigation.GridChoosePassageContent
 import net.bible.sharedui.navigation.GridOptionsOverflow
+import net.bible.sharedui.navigation.KeyListBody
 import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
 import net.bible.sharedui.reading.QuickDocMenuState
 import net.bible.sharedui.reading.ReadingDrawerContent
@@ -296,6 +307,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BibleBook
@@ -640,6 +652,112 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             ScreenLauncher.intentFor(activity, Screen.ChooseDocument),
             ActivityBase.STD_REQUEST_CODE,
         )
+    }
+
+    /**
+     * Round 15b: the key chooser for the three page shapes simple enough for a sheet (spec §4.6).
+     * Which shapes those are is `KeyChooserRoute`'s decision, never this function's.
+     */
+    internal fun showKeyChooserSheet(kind: KeyChooserKind) = showQuickSheet(ReadingQuickSheet.KeyChooser(kind))
+
+    private val mapPage: CurrentMapPage get() = windowControl.activeWindowPageManager.currentMap
+    private val generalBookPage: CurrentGeneralBookPage get() = windowControl.activeWindowPageManager.currentGeneralBook
+
+    /**
+     * Maps the active page onto [KeyChooserPage]; null when nothing here recognises it.
+     *
+     * Mirrors `CurrentPage.startKeyChooser`'s own dispatch, including its ORDER.
+     * [CurrentMyNotePage] extends [CurrentCommentaryPage] and does not override `startKeyChooser`,
+     * so the my-note check must come FIRST — see [KeyChooserPage]'s kdoc, and
+     * `KeyChooserDispatchGuardTest`, which fails if these two lines are ever swapped back.
+     * The general-book four-way test is `CurrentGeneralBookPage.startKeyChooser`'s own, in its own
+     * order (journal → multi-document → my-document → plain).
+     */
+    internal fun currentKeyChooserPage(): KeyChooserPage? {
+        val page = windowControl.activeWindowPageManager.currentPage
+        return when (page) {
+            is CurrentBiblePage -> KeyChooserPage.BIBLE
+            is CurrentMyNotePage -> KeyChooserPage.MY_NOTE
+            is CurrentCommentaryPage -> KeyChooserPage.COMMENTARY
+            is CurrentDictionaryPage -> KeyChooserPage.DICTIONARY
+            is CurrentMapPage -> KeyChooserPage.MAP
+            is CurrentGeneralBookPage -> when (val doc = page.currentDocument) {
+                FakeBookFactory.journalDocument -> KeyChooserPage.GENERAL_BOOK_STUDY_PAD
+                FakeBookFactory.multiDocument -> KeyChooserPage.GENERAL_BOOK_MULTI_DOCUMENT
+                else -> if (doc?.isMyDocument == true) {
+                    KeyChooserPage.GENERAL_BOOK_MY_DOCUMENT
+                } else {
+                    KeyChooserPage.GENERAL_BOOK
+                }
+            }
+            else -> null
+        }
+    }
+
+    /**
+     * The keys behind a key-chooser sheet, resolved from the extension the full-screen chooser
+     * activities use (`KeyChooserKeys.kt`), so the sheet and the screen can never offer different
+     * lists. A row's id is the INDEX into the returned list, which is why every caller must resolve
+     * ONCE and hold the result for as long as its rows are on screen.
+     *
+     * [KeyChooserKind.Grid] has no key list at all — it is driven by `GridChoosePassageController` —
+     * so it resolves to empty and is excluded from [keyChooserSheetHasRows]'s emptiness rule.
+     */
+    private fun resolveKeyChooserKeys(kind: KeyChooserKind): List<Key> = when (kind) {
+        KeyChooserKind.Map -> mapPage.keyChooserKeys()
+        KeyChooserKind.GeneralBook -> generalBookPage.keyChooserKeys()
+        KeyChooserKind.Grid -> emptyList()
+    }
+
+    /**
+     * Whether [kind] has anything to put in a sheet — the routing precondition, deliberately NOT a
+     * guard inside the sheet body (Task 9 amendment E3).
+     *
+     * An EMPTY key list is real behaviour, not a degenerate case: both chooser activities answer it
+     * by returning their fallback selection and finishing without ever drawing a list
+     * (`ChooseMapKeyComposeActivity`/`ChooseGeneralBookKeyComposeActivity` `onCreate`, and for a
+     * general book that fallback is `globalKeyList.first()`). A sheet cannot reproduce that, and an
+     * empty sheet with only a ✕ is strictly worse than what exists today — so an empty list falls
+     * through to the Activity exactly as an unrecognised page or a null host does.
+     */
+    internal fun keyChooserSheetHasRows(kind: KeyChooserKind): Boolean = when (kind) {
+        KeyChooserKind.Grid -> true
+        else -> resolveKeyChooserKeys(kind).isNotEmpty()
+    }
+
+    /**
+     * The current row's id for [kind]: the INDEX of the page's key in [keys], or null when the page
+     * has no key or its key is not in the list. `ChooseMapKeyComposeActivity`'s `currentRow`
+     * verbatim, and identical in the general-book twin.
+     */
+    private fun currentKeyChooserRowId(kind: KeyChooserKind, keys: List<Key>): String? {
+        val current = when (kind) {
+            KeyChooserKind.Map -> mapPage.key
+            KeyChooserKind.GeneralBook -> generalBookPage.key
+            KeyChooserKind.Grid -> null
+        } ?: return null
+        return keys.indexOf(current).takeIf { it >= 0 }?.toString()
+    }
+
+    /**
+     * Apply a key picked in a key-chooser sheet, through the SAME `MainBibleActivity` function the
+     * `in genBookClasses ->` activity-result arm calls (Task 9 amendment E4).
+     *
+     * The `Key` goes across as itself, never serialized into extras and parsed back: the sheet is
+     * holding the real object, and a round trip through an Intent would be a second code path
+     * pretending to be one. Which book it belongs to follows each activity's own `buildResult`: an
+     * EPUB table-of-contents entry is a [BookAndKey] carrying its own document, everything else
+     * belongs to the page's current document.
+     */
+    private fun applyKeyChooserKey(kind: KeyChooserKind, key: Key) = when (kind) {
+        KeyChooserKind.Map -> activity.applyChosenGenBookKey(mapPage.currentDocument, key)
+        KeyChooserKind.GeneralBook ->
+            if (key is BookAndKey) {
+                activity.applyChosenGenBookKey(key.document, key)
+            } else {
+                activity.applyChosenGenBookKey(generalBookPage.currentDocument, key)
+            }
+        KeyChooserKind.Grid -> Unit
     }
 
     private val historyManager: HistoryManager by inject()
@@ -1399,9 +1517,57 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                         GridChoosePassageContent(ui, controller::pick, Modifier.fillMaxSize())
                     }
                 }
-                KeyChooserKind.Map -> Unit          // Task 9
-                KeyChooserKind.GeneralBook -> Unit  // Task 9
+                // Both are flat single-level lists with no page stack, so they take the shell's
+                // DEFAULT dismiss contract -- swipe, scrim and back all simply close. The grid
+                // branch above is the only sheet in this file that needs `dismissRoutesToBack`.
+                KeyChooserKind.Map -> KeyChooserSheet(
+                    sheet = sheet,
+                    kind = KeyChooserKind.Map,
+                    title = activity.getString(R.string.doc_type_map),
+                )
+                KeyChooserKind.GeneralBook -> KeyChooserSheet(
+                    sheet = sheet,
+                    kind = KeyChooserKind.GeneralBook,
+                    title = activity.getString(R.string.general_book),
+                )
             }
+        }
+    }
+
+    /**
+     * The map / general-book key chooser as a quick sheet — one host composable for both, since the
+     * two differ only in their title and in which page they read (spec §4.6).
+     *
+     * The key list is resolved ONCE per opening and held for the life of the sheet, because a
+     * [KeyRow]'s id is the INDEX into it (`KeyChooserKeys.kt`): re-resolving between building the
+     * rows and handling the selection would silently re-number them. `remember(sheet)` is the same
+     * per-opening keying the History branch uses, and for the same reason.
+     *
+     * The body's own [LazyListState] is passed to the shell's `canScrollForward`, which is what the
+     * bottom fade is drawn from — a state the body did not scroll would never report anything.
+     */
+    @Composable
+    private fun KeyChooserSheet(sheet: ReadingQuickSheet, kind: KeyChooserKind, title: String) {
+        val keys = remember(sheet) { resolveKeyChooserKeys(kind) }
+        val rows = remember(keys) { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.name) } }
+        val currentKeyId = remember(keys) { currentKeyChooserRowId(kind, keys) }
+        val listState = rememberLazyListState()
+        AbQuickSheet(
+            open = true,
+            title = title,
+            onDismiss = { closeQuickSheet() },
+            canScrollForward = { listState.canScrollForward },
+        ) {
+            KeyListBody(
+                rows = rows,
+                currentKeyId = currentKeyId,
+                onSelect = { keyId ->
+                    val key = keys.getOrNull(keyId.toIntOrNull() ?: -1)
+                    closeQuickSheet()
+                    if (key != null) applyKeyChooserKey(kind, key)
+                },
+                listState = listState,
+            )
         }
     }
 

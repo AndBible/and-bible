@@ -63,7 +63,7 @@ class ChooseMapKeyComposeActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        keys = page.cachedGlobalKeyList ?: emptyList()
+        keys = page.keyChooserKeys()
         if (keys.isEmpty()) {
             setResult(Activity.RESULT_OK, buildResult(null))
             finish()

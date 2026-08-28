@@ -186,6 +186,7 @@ import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.sharedcore.reading.KeyChooserRoute
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.QuickDocAction
 import net.bible.sharedcore.reading.QuickDocMenuItem
@@ -200,6 +201,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -1443,7 +1445,29 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     internal fun composeCycleWorkspace(forward: Boolean) = cycleWorkspace(forward)
 
+    /**
+     * The Compose toolbar title's TAP. Round 15b Task 9: with a Compose host mounted, the three key
+     * choosers simple enough for a sheet (`KeyChooserRoute`, spec §4.6) now open over the reading
+     * view instead of starting their full screen; everything else takes the classic path below,
+     * unchanged.
+     *
+     * Three separate conditions fall through to the classic path, and each is a real case, not
+     * belt-and-braces: no host at all (`use_compose_ui` off), a page shape `KeyChooserRoute`
+     * deliberately keeps on its own screen (dictionary, StudyPad, my-document, multi-document), and
+     * a chosen kind whose key list is EMPTY — where both chooser activities apply a fallback
+     * selection and finish without drawing anything, which a sheet cannot reproduce (E3).
+     *
+     * `CurrentPage.startKeyChooser` itself is deliberately NOT touched, so `CurrentPageManager`'s
+     * auto-open and `BibleJavascriptInterface.refChooserDialog` — which needs a real Intent result —
+     * behave exactly as today.
+     */
     internal fun composeStartKeyChooser() {
+        val host = composeReadingViewHost
+        val sheet = host?.currentKeyChooserPage()?.let { KeyChooserRoute.sheetFor(it) }
+        if (host != null && sheet != null && host.keyChooserSheetHasRows(sheet.kind)) {
+            host.showKeyChooserSheet(sheet.kind)
+            return
+        }
         pageControl.currentPageManager.currentPage.startKeyChooser(this)
     }
 
@@ -1501,6 +1525,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         } else {
             pageManager.currentPage.setKey(verse, !isFromBookmark)
         }
+    }
+
+    /**
+     * Apply a general-book / map / dictionary key chosen by the user to the active window.
+     *
+     * Extracted from the `in genBookClasses` `onActivityResult` arm so that round 15b's key-chooser
+     * quick sheets — which return no Intent and therefore cannot use that arm — and the existing
+     * activity result cannot drift apart. [book] is passed explicitly rather than derived from
+     * [key] because it cannot be: an EPUB table-of-contents entry is a `BookAndKey` carrying its
+     * OWN document, which is not the page's current document, while every other key carries none.
+     */
+    internal fun applyChosenGenBookKey(book: Book?, key: Key) {
+        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
     }
 
     internal fun composeCycleStrongs() {
@@ -3167,14 +3204,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             val bookAndKeyStr = extras.getString("bookAndKey")
                             if(bookAndKeyStr != null) {
                                 val bookAndKey = BookAndKeySerialized.fromJSON(bookAndKeyStr).bookAndKey
-                                val pageManager = windowControl.activeWindowPageManager
-                                pageManager.setCurrentDocumentAndKey(bookAndKey.document, bookAndKey)
+                                applyChosenGenBookKey(bookAndKey.document, bookAndKey)
                             } else {
                                 val book =
                                     Books.installed().getBook(bookStr) ?: FakeBookFactory.giveDoesNotExist(bookStr!!)
 
-                                val key = book.getKey(keyStr)
-                                windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                                applyChosenGenBookKey(book, book.getKey(keyStr))
                             }
                             return
                         }
