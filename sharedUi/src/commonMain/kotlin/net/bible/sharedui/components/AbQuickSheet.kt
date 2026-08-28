@@ -67,6 +67,16 @@ import kotlinx.coroutines.launch
  * contribution: one hide/show blip, decided in one place, instead of the visibility-keyed workaround
  * duplicated per sheet.
  *
+ * [dismissRoutesToBack] is the ONE escape hatch from that routing, and it exists because the routing
+ * has a real cost: with it on, a swipe-down or a scrim tap on a back-able page CANNOT close the
+ * sheet at all — both pop one page and the sheet re-shows, leaving ✕ as the only way out, where a
+ * scrim tap means "close this" everywhere else in this app. Setting it to `false` sends every M3
+ * dismiss straight to [onDismiss] (swipe, scrim AND back), which is only correct for a host that
+ * separates system back out for itself with its own `BackHandler` — and a `BackHandler` cannot live
+ * in commonMain, so by construction only an `:app`-side host may pass `false`. Round 15b's grid
+ * quick sheet (`ComposeReadingViewHost`, spec §4.6) is the one such caller today; every other quick
+ * sheet keeps the default, so their contract is exactly as described above.
+ *
  * ROBORAZZI: never capture this composable — an open `ModalBottomSheet` hangs the capture and takes
  * the whole `:app` suite with it. Capture [AbQuickSheetContent] instead.
  */
@@ -78,6 +88,7 @@ fun AbQuickSheet(
     onDismiss: () -> Unit,
     canGoBack: () -> Boolean = { false },
     onBack: () -> Unit = {},
+    dismissRoutesToBack: Boolean = true,
     actions: (@Composable RowScope.() -> Unit)? = null,
     tabs: List<AbQuickSheetTab> = emptyList(),
     selectedTabId: String? = null,
@@ -91,9 +102,11 @@ fun AbQuickSheet(
     val scope = rememberCoroutineScope()
     ModalBottomSheet(
         // Swipe, scrim tap and back all arrive here, and M3 cannot tell them apart. When the body
-        // has somewhere to go back to, that is what a dismiss means; only an empty stack closes.
+        // has somewhere to go back to, that is what a dismiss means; only an empty stack closes —
+        // unless the caller has its own BackHandler and opted out with `dismissRoutesToBack = false`,
+        // in which case everything arriving here really is a swipe or a scrim tap and means "close".
         onDismissRequest = {
-            if (canGoBack()) {
+            if (dismissRoutesToBack && canGoBack()) {
                 onBack()
                 // M3 has ALREADY completed hide() by the time it calls us (verified against this
                 // project's material3 bytecode), and its own re-show effect is keyed on the

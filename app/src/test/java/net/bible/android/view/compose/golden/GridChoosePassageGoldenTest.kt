@@ -1,10 +1,16 @@
 package net.bible.android.view.compose.golden
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.Modifier
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.navigation.GridButton
 import net.bible.sharedcore.navigation.GridOptions
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.GridUi
+import net.bible.sharedui.components.AbSheetContentMaxHeight
+import net.bible.sharedui.navigation.GridChoosePassageContent
 import net.bible.sharedui.navigation.GridChoosePassageScreen
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -119,6 +125,24 @@ class GridChoosePassageGoldenTest {
                 GridUi(GridStep.VERSE, "Psalms 3", 5, showLongNames = false, showProgress = true, showDeutToggle = false, buttons = verses, minRows = 10),
                 opts, {}, {}, {},
             )
+        }
+    }
+
+    /**
+     * Round 15b Task 8: the SAME book step as [grid_book_flat], rendered inside the quick sheet's
+     * 400dp bound instead of the full-screen scaffold — the shape the reading view's grid quick
+     * sheet actually produces, which had no golden at all despite shipping in the Speak sheet since
+     * round 13a.
+     *
+     * The fixture is deliberately [bookUi], not a second one, so this capture and the full-screen
+     * one differ ONLY by the height bound. Eleven rows at the 40dp cell floor is 440dp against a
+     * 400dp bound, so the grid must SCROLL (clipped at the bottom) rather than squash: cells here
+     * must be the same size as in `GridChoosePassage_book_flat_light.png`. Smaller cells would mean
+     * the bound had been applied to the wrong node.
+     */
+    @Test fun grid_sheet_book() = captureGolden("GridChoosePassage", "sheetBook", GoldenMode.LIGHT) {
+        Box(Modifier.heightIn(max = AbSheetContentMaxHeight)) {
+            GridChoosePassageContent(ui = bookUi(), onPick = {}, modifier = Modifier.fillMaxSize())
         }
     }
 }

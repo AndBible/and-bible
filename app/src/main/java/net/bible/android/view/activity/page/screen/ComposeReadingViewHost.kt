@@ -23,6 +23,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.activity.compose.BackHandler
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -176,7 +177,9 @@ import net.bible.sharedcore.navigation.DocumentQuickTab
 import net.bible.sharedcore.navigation.DocumentQuickTabs
 import net.bible.sharedcore.navigation.buildDocumentQuickTabs
 import net.bible.sharedcore.navigation.GridChoosePassageController
+import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.reading.DrawerCloseLatch
+import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
@@ -251,6 +254,7 @@ import net.bible.sharedui.history.HistoryListContent
 import net.bible.sharedui.reading.BibleReferenceOverlay
 import net.bible.sharedui.navigation.DocumentQuickContent
 import net.bible.sharedui.navigation.GridChoosePassageContent
+import net.bible.sharedui.navigation.GridOptionsOverflow
 import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
 import net.bible.sharedui.reading.QuickDocMenuState
 import net.bible.sharedui.reading.ReadingDrawerContent
@@ -1324,7 +1328,80 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                     }
                 }
             }
-            is ReadingQuickSheet.KeyChooser -> Unit    // Plan B
+            is ReadingQuickSheet.KeyChooser -> when (sheet.kind) {
+                KeyChooserKind.Grid -> {
+                    val controller = remember(sheet) {
+                        newGridPassageController(
+                            // The full-screen twin's own default title (GridChoosePassageComposeActivity
+                            // reads the same string when no "title" intent extra overrides it) --
+                            // NOT R.string.chooseBook, which is the DOCUMENT chooser's caption.
+                            baseTitle = activity.getString(R.string.choosePassageBookName),
+                            // The Bible/commentary key choosers that route here both pass
+                            // isScripture=true (CurrentBiblePage.kt:55, CurrentCommentaryPage.kt:66).
+                            isScripture = true,
+                            // The same source the activity falls back to when no intent extra
+                            // overrides it (GridChoosePassageComposeActivity.kt:55) -- never a
+                            // hard-coded true, which would force a verse step the user turned off.
+                            navigateToVerse = CommonUtils.settings.getBoolean("navigate_to_verse_pref", false),
+                            onFinish = { osisId ->
+                                closeQuickSheet()
+                                // Task 7's ONE parse-and-apply path, shared with the
+                                // onActivityResult arm. Never re-parse the verse here.
+                                activity.applyChosenVerse(osisId)
+                            },
+                        )
+                    }
+                    val ui by controller.ui.collectAsState()
+                    val options by controller.options.collectAsState()
+                    AbQuickSheet(
+                        open = true,
+                        // Tracks the step: Genesis -> Genesis 1. The Speak sheet discards ui.title;
+                        // that is right for "pick a range endpoint" and wrong for a general chooser.
+                        title = ui.title,
+                        onDismiss = { closeQuickSheet() },
+                        // Still the header's back arrow: it pops a grid step until the stack is empty.
+                        canGoBack = { ui.step != GridStep.BOOK },
+                        onBack = { if (!controller.back()) closeQuickSheet() },
+                        // Amendment D3: swipe-down and scrim-tap must CLOSE this sheet, as they do
+                        // every other sheet in the app -- with the shell's default routing they
+                        // would pop a grid step instead and leave the X as the only way out from a
+                        // deep step. System back is separated out by the BackHandler below, which
+                        // is why this can only be done from :app. DEVICE PASS: "system back inside
+                        // the grid pops a step" / "swipe-down and scrim-tap close the grid sheet
+                        // from a deep step" -- if the BackHandler loses the race to M3's own
+                        // handler, deleting this ONE argument restores the shell's default
+                        // (back/swipe/scrim all close; the header's back arrow still pops steps).
+                        dismissRoutesToBack = false,
+                        actions = if (ui.step == GridStep.BOOK) {
+                            {
+                                // The six options are not decoration: GridOption.DEUTEROCANONICAL
+                                // rebuilds the book list, so dropping them here would be a
+                                // functional regression. AbOverflowMenu is a DropdownMenu, i.e. a
+                                // Popup, which stacks over a sheet without difficulty -- the port's
+                                // ban is on sheet-over-sheet, not popup-over-sheet.
+                                GridOptionsOverflow(ui, options) { controller.toggle(it) }
+                            }
+                        } else null,
+                    ) {
+                        // System back pops a grid step; swipe-down and scrim-tap close the sheet
+                        // outright, as they do on every other sheet in the app. M3 cannot tell the
+                        // three apart, so the only way to separate them is to intercept back BEFORE
+                        // M3 sees it -- which needs a BackHandler, which is why this lives in :app
+                        // and why `dismissRoutesToBack = false` is passed above. This wins over M3's
+                        // own handler because both land on the ModalBottomSheet DIALOG's dispatcher
+                        // (ComponentDialog is the OnBackPressedDispatcherOwner / NavigationEvent-
+                        // DispatcherOwner of its own view tree) and androidx's processor stores
+                        // handlers with addFirst + resolves the FIRST enabled one, i.e. the most
+                        // recently added -- and the sheet's content composes after the dialog's own
+                        // constructor ran. Verified against this project's material3 /
+                        // androidx.activity / androidx.navigationevent bytecode (Task 8 report).
+                        BackHandler(enabled = ui.step != GridStep.BOOK) { controller.back() }
+                        GridChoosePassageContent(ui, controller::pick, Modifier.fillMaxSize())
+                    }
+                }
+                KeyChooserKind.Map -> Unit          // Task 9
+                KeyChooserKind.GeneralBook -> Unit  // Task 9
+            }
         }
     }
 
