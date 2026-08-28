@@ -13,11 +13,17 @@ The paste and any operator notes are in the user message (including text after `
 
 ---
 
+## GitHub issues (never file unprompted)
+
+**Never** create a GitHub issue (`gh issue create` or any equivalent) unless the operator **explicitly approved in this conversation** (e.g. “file it”, “create the issue”, “ok”, “approve”). Recommending a new issue, drafting title/body/labels, and linking **existing** issues are all fine. Do not put a new-issue URL in a user-facing reply until that issue exists.
+
+---
+
 ## Platforms (detect first)
 
 AndBible is **two apps**, different native codebases, same product. Detect the platform **before** version compare, GitHub search, or “there is no iOS app” style guidance.
 
-The longer-term plan is one **Kotlin Multiplatform** codebase for Android and iOS. That has **no date yet**. Until it ships, treat the repos as separate: file and search on the platform that actually produced the report. Do not tell users a merge is coming or invent a timeline.
+The longer-term plan is one **Kotlin Multiplatform** codebase for Android and iOS. That has **no date yet**. Until it ships, treat the repos as separate: search (and recommend filing) on the platform that actually produced the report. Do not tell users a merge is coming or invent a timeline.
 
 | | Android | iOS |
 |---|---|---|
@@ -32,7 +38,7 @@ The longer-term plan is one **Kotlin Multiplatform** codebase for Android and iO
 **Treat as iOS** if any of: operator note (`ios`, `and-bible-ios`), `App id: org.andbible.ios`, iPhone/iPad + iOS build string, or those iOS attachment names.
 
 **When iOS:**
-- Search and file native bugs on **and-bible-ios**. Use **and-bible** only if the symptom is clearly shared Vue.js/BibleView (text rendering, bookmarks in the reader, display settings in the web view).
+- Search native bugs on **and-bible-ios**. Use **and-bible** only if the symptom is clearly shared Vue.js/BibleView (text rendering, bookmarks in the reader, display settings in the web view).
 - Local checkout when investigating: sibling `../and-bible-ios` from this workspace, if present. Do not invent paths.
 - Do **not** say there is no iOS app. Do **not** send iOS users to Play, F-Droid, GitHub APKs, or “Android 6+”.
 - Store: App Store / TestFlight. Don’t invent a public App Store URL if you don’t have one.
@@ -123,13 +129,14 @@ Pick one primary action (and optional secondary):
 | **Close + short reply** | Same, but worth a polite one-liner (e.g. this was fixed / how to do X). Do not ask them to write back. |
 | **Link existing issue** | Clear dupe; close ticket/issue as dupe or reply with link |
 | **Ask for steps** | Recent version, real crash dump but zero user story; need 1–2 questions |
-| **Create GitHub issue** | Recent/current version, actionable signal in log/screenshot description, not a known dupe. File on **and-bible** or **and-bible-ios** per Platforms |
+| **Create GitHub issue** | Recent/current version, actionable signal in log/screenshot description, not a known dupe. Recommend filing on **and-bible** or **and-bible-ios** per Platforms; do not create it until approved (see **GitHub issues**) |
 | **Investigate in repo** | You recognize a code area; say where to look (Android files here, or `../and-bible-ios` for Swift/libsword). Still say whether to file or not |
 | **Reply only (no GitHub)** | Support/how-to, not an app defect |
 
 State the recommendation in one bold line, e.g. **Recommend: link #1234 and close** or **Recommend: create GitHub issue**.
 
 ### If recommending create issue
+Draft only (see **GitHub issues**). Then:
 - Suggested **title**
 - Labels if obvious (`bug`, etc.) — don’t invent process
 - Say whether operator should wait for logs from the ticket attachments (logcat) before filing
@@ -237,7 +244,7 @@ We often answer tickets **long after** they were opened. App version (and someti
 3. If needed, quickly check project docs/code/wiki for accurate steps (Backup & Restore, downloads, speak, etc.). Prefer current docs links over outdated wiki-only pages when both exist. For **iOS-native** behavior (search index, libsword, SwiftUI screens, iOS downloads/unlock), check `../and-bible-ios` when that checkout exists.
 4. Give the **shortest useful** answer: what to try, or where to look next. Respect **Old tickets / delayed replies** when version looks historical.
 5. Include links only when they help. Prefer one primary link.
-6. If it’s a bug with a known GitHub issue, you may mention/link it in the reply when that helps the user (so they can follow it). Put deeper triage in `OPERATOR:` if useful. See **Don’t solicit a reply**.
+6. If it’s a bug with a **known** GitHub issue, you may mention/link it in the reply when that helps the user (so they can follow it). If a **new** issue is warranted, recommend it in `OPERATOR:` with title/body (same as mode A) and do not file it until approved (see **GitHub issues**). Put deeper triage in `OPERATOR:` if useful. See **Don’t solicit a reply**.
 
 ### Don’t solicit a reply
 
