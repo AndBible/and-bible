@@ -21,6 +21,32 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.sharedcore.search.SearchModeController
 
+fun computeDisplayedDocuments(all: List<DocRow>, lang: LangOption?, type: DocTypeFilter, searchIds: Set<String>?): List<DocRow> =
+    all.filter { row ->
+        type.test(row) &&
+            (lang == null || row.language.groupingKey == lang.groupingKey || row.category == DocCategory.AND_BIBLE) &&
+            (searchIds == null || searchIds.contains(row.osisId))
+    }.sortedWith(
+        compareBy<DocRow>(
+            {
+                when (it.installStatus) {
+                    DocInstallStatus.BEING_INSTALLED -> 0
+                    DocInstallStatus.UPGRADE_AVAILABLE -> 1
+                    else -> 2
+                }
+            },
+            { it.installStatus == DocInstallStatus.NOT_INSTALLED }, // not-installed after installed (false<true)
+            { if (lang != null) !it.recommended else false },
+            {
+                when (it.category) {
+                    DocCategory.BIBLE -> 0; DocCategory.COMMENTARY -> 1; DocCategory.DICTIONARY -> 2
+                    DocCategory.GENERAL_BOOK -> 4; DocCategory.MAPS -> 5; DocCategory.AND_BIBLE -> 6; DocCategory.OTHER -> 7
+                }
+            },
+            { it.abbreviation.lowercase() },
+        )
+    )
+
 /**
  * Framework-free controller ported from DocumentSelectionBase's filter/sort/multi-select surface.
  * The host loads the Book list off-main, flattens to DocRow, and pushes via [setDocuments]; the
@@ -127,30 +153,7 @@ class DocumentSelectionController(
     }
 
     fun computeDisplayed(all: List<DocRow>, lang: LangOption?, type: DocTypeFilter, searchIds: Set<String>?): List<DocRow> =
-        all.filter { row ->
-            type.test(row) &&
-                (lang == null || row.language.groupingKey == lang.groupingKey || row.category == DocCategory.AND_BIBLE) &&
-                (searchIds == null || searchIds.contains(row.osisId))
-        }.sortedWith(
-            compareBy<DocRow>(
-                {
-                    when (it.installStatus) {
-                        DocInstallStatus.BEING_INSTALLED -> 0
-                        DocInstallStatus.UPGRADE_AVAILABLE -> 1
-                        else -> 2
-                    }
-                },
-                { it.installStatus == DocInstallStatus.NOT_INSTALLED }, // not-installed after installed (false<true)
-                { if (lang != null) !it.recommended else false },
-                {
-                    when (it.category) {
-                        DocCategory.BIBLE -> 0; DocCategory.COMMENTARY -> 1; DocCategory.DICTIONARY -> 2
-                        DocCategory.GENERAL_BOOK -> 4; DocCategory.MAPS -> 5; DocCategory.AND_BIBLE -> 6; DocCategory.OTHER -> 7
-                    }
-                },
-                { it.abbreviation.lowercase() },
-            )
-        )
+        computeDisplayedDocuments(all, lang, type, searchIds)
 
     fun enterSelection() { _selectionMode.value = true }
     fun toggle(id: String) {
