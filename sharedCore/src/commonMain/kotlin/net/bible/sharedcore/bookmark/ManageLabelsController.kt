@@ -296,6 +296,22 @@ class ManageLabelsController(
     fun save() = onSave()
     fun reset() = onReset()
 
+    /**
+     * The WORKSPACE ⋮ "Clear auto-assign labels" action (round 17b). Empties the auto-assign set
+     * and its primary IN PLACE and leaves the user on the list — the ⚡ column goes hollow down the
+     * whole list, which is what "see what happened" means here.
+     *
+     * Deliberately NOT [reset]: that one sets a result flag and finishes the activity, which
+     * HIDELABELS still needs because ITS reset means "revert to the inherited value"
+     * (`setNonSpecific`/`onRevert`), something an empty selection cannot express. WORKSPACE's can:
+     * `WorkspaceSettings.updateFrom` assigns both fields straight from the result.
+     */
+    fun clearAutoAssign() {
+        autoAssign.clear()
+        autoAssignPrimary = null
+        rebuild(reorder = true)
+    }
+
     // ---- host apply hooks (after a LabelEdit round-trip) ----
     // Mirrors classic ManageLabels.editLabel's result handling (ManageLabels.kt:614-634): autoAssign,
     // autoAssignPrimary and bookmarkPrimary are each applied UNCONDITIONALLY (not mode-gated) — every

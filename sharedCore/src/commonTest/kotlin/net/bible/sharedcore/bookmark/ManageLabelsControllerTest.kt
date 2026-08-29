@@ -770,4 +770,40 @@ class ManageLabelsControllerTest {
         assertEquals(listOf("A", "B", "UNL"), describe(c.rows.value).filter { !it.startsWith("H_") }.sorted())
     }
 
+    /**
+     * WORKSPACE "Clear auto-assign labels": empties the set and the primary IN PLACE and stays on
+     * the list. No result flag is involved — `WorkspaceSettings.updateFrom` (ManageLabels.kt:93-98)
+     * assigns autoAssignLabels and autoAssignPrimaryLabel straight from the result, so an ordinary
+     * save carries the empty set verbatim.
+     */
+    @Test fun clearAutoAssign_emptiesTheSetAndThePrimary() {
+        val c = controller(
+            ManageLabelsMode.WORKSPACE,
+            labels = listOf(A, B),
+            initialAutoAssign = setOf("A", "B"),
+            initialAutoAssignPrimary = "A",
+        )
+        c.clearAutoAssign()
+        assertEquals(emptySet<String>(), c.resultAutoAssign())
+        assertNull(c.resultAutoAssignPrimary())
+        // 3, not 2: WORKSPACE has showUnassigned == true, so the Unlabeled pseudo-label is a row
+        // here as well. Nothing is filtered in this test, so every row is present.
+        val items = c.rows.value.filterIsInstance<ManageLabelsRow.Item>()
+        assertEquals(3, items.size)
+        assertTrue(items.none { it.isAutoAssign })
+    }
+
+    /** It does NOT touch the bookmark-side selection, which is a different set entirely. */
+    @Test fun clearAutoAssign_leavesSelectedAlone() {
+        val c = controller(
+            ManageLabelsMode.ASSIGN,
+            labels = listOf(A, B),
+            initialSelected = setOf("A"),
+            initialAutoAssign = setOf("B"),
+        )
+        c.clearAutoAssign()
+        assertEquals(setOf("A"), c.resultSelected())
+        assertEquals(emptySet<String>(), c.resultAutoAssign())
+    }
+
 }
