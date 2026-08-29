@@ -261,7 +261,7 @@ fun LabelEditScreen(
                         }
                     },
                 ) {
-                    Column(Modifier.padding(start = 16.dp)) {
+                    Column(Modifier.padding(horizontal = 16.dp)) {
                         AbSwitchRow(strings.addedToBookmarkLabel, state.thisBookmarkSelected, { onToggleSelected() })
                         AbSwitchRow(
                             strings.primaryLabelSwitchLabel,
@@ -324,7 +324,7 @@ fun LabelEditScreen(
                         }
                     },
                 ) {
-                    Column(Modifier.padding(start = 16.dp)) {
+                    Column(Modifier.padding(horizontal = 16.dp)) {
                         AbSwitchRow(
                             strings.autoAssignLabelSwitchLabel,
                             state.autoAssign,
