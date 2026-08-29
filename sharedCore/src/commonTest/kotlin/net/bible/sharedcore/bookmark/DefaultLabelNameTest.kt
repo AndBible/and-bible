@@ -42,4 +42,9 @@ class DefaultLabelNameTest {
     @Test fun honoursAnyPositionInTheFormat() {
         assertEquals("2. Etiketti", defaultLabelName(setOf("1. Etiketti"), "%d. Etiketti"))
     }
+
+    /** A format that lost its `%d` in translation must not spin forever — return it as-is. */
+    @Test fun formatWithNoPlaceholderReturnsAsIs() {
+        assertEquals("Label", defaultLabelName(setOf("Label"), "Label"))
+    }
 }

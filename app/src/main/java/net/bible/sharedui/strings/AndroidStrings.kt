@@ -633,6 +633,7 @@ class AndroidStrings(private val context: Context) : Strings {
     // Reused, already translated — see the spec §4.6: these paragraphs did NOT go stale.
     override val assignLabelsHelpIntro: String get() = context.getString(R.string.assing_labels_help1)
     override val autoAssignLabelsHelpIntro: String get() = context.getString(R.string.auto_assing_labels_help1)
+    override val autoAssignLabelsHelpIntroWorkspace: String get() = context.getString(R.string.auto_assign_labels_help_intro_workspace)
     override val hideLabelsHelpIntro: String get() = context.getString(R.string.bookmark_settings_hide_labels_summary)
     override val studyPadsHelpText: String get() = context.getString(R.string.help_studypads_text)
     override val watchTutorialVideo: String get() = context.getString(R.string.watch_tutorial_video)

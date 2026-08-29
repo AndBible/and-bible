@@ -29,8 +29,13 @@ package net.bible.sharedcore.bookmark
  * the same name. This is a courtesy for the GENERATED default only — nothing stops a user from
  * typing a duplicate afterwards, exactly as before, and uniqueness is not an invariant of the
  * label table.
+ *
+ * If [format] does not contain `%d` at all -- e.g. a translation lost the placeholder -- every
+ * candidate would be the same constant string, and a caller whose set already contains it would
+ * spin forever; guard by returning [format] unchanged in that case instead of looping.
  */
 fun defaultLabelName(existing: Set<String>, format: String): String {
+    if (!format.contains("%d")) return format
     val taken = existing.mapTo(mutableSetOf()) { it.trim().lowercase() }
     var n = 1
     while (true) {

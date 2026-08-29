@@ -62,9 +62,10 @@ import net.bible.sharedui.theme.LocalDisableAnimations
  * disclosure control in the current expand/collapsed state, entirely in the platform's own
  * announcement language -- unlike a `stateDescription`, this needs no new app string.
  *
- * Header padding matches [AbSwitchRow]'s own `horizontal = 16.dp` (fix round 1, Finding 2), so the
- * header's left edge lines up with a nested [AbSwitchRow]'s left edge instead of sitting flush
- * against the container while the switch row it discloses sits indented under it.
+ * Header padding matches `LabelEditScreen`'s other top-level headings at 16dp (round 17b, replacing
+ * the earlier "matches AbSwitchRow" rule from fix round 1 Finding 2) -- the header sits OUTSIDE the
+ * indent of the [AbSwitchRow]s it discloses, at 32dp, so the nesting reads as nesting instead of the
+ * header looking like just another row in the list.
  *
  * The chevron is at the TRAILING edge (round 17b): a disclosure control belongs where the eye
  * finishes the title, and the leading edge is where `LabelEditScreen`'s other headings start, which

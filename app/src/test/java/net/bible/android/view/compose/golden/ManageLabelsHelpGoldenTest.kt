@@ -28,7 +28,7 @@ import org.robolectric.annotation.GraphicsMode
 
 /**
  * The labels help dialog, one capture per [ManageLabelsMode]. The legend rows differ by mode
- * (ASSIGN gets all six rows per round 15a ruling R6; WORKSPACE five; HIDELABELS just the re-order
+ * (ASSIGN gets all six rows per round 15a ruling R6; WORKSPACE four; HIDELABELS just the re-order
  * row; STUDYPAD has no legend at all), so each mode is its own state rather than one shared golden.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -59,10 +59,19 @@ class ManageLabelsHelpGoldenTest {
         )
     }
 
-    /** WORKSPACE: the reused `auto_assing_labels_help1` intro plus the scope sentence, then five
-     *  legend rows -- the last of which is below the scroll fold for the same designed reason as in
-     *  [help_assign]. Read this image for the intro and scope sentence being the ORIGINAL translated
-     *  strings rather than new English, which is the ≈54-translation saving §4.6 is about. */
+    /** WORKSPACE: the new `auto_assign_labels_help_intro_workspace` intro plus the scope sentence,
+     *  then four legend rows -- of which this image shows only THREE (primary, auto-assign,
+     *  favourite). The fourth (style examples, the TextFormat glyph) sits below the scroll fold,
+     *  for the same designed reason as the re-order row in [help_assign]: [AbInfoDialog] caps its
+     *  content at a fixed height and scrolls inside it, so the legend growing by one intro
+     *  paragraph is enough to push a row that used to be reachable in an unrelated capture below
+     *  the fold here too.
+     *
+     *  The intro is a NEW English string (round 17b) rather than the reused
+     *  `auto_assing_labels_help1` it replaced: that shared string had gone stale for WORKSPACE (it
+     *  still described the "Selected labels" section this round removed), so it had to change, and
+     *  the ≈54-translation saving §4.6 describes now applies only to the SCOPE SENTENCE
+     *  (`setting_scope`), which is still the ORIGINAL translated string here. */
     @Test fun help_workspace() = captureMatrix("ManageLabelsHelp", "workspace", heightDp = 700) {
         ManageLabelsHelpDialog(
             mode = ManageLabelsMode.WORKSPACE,

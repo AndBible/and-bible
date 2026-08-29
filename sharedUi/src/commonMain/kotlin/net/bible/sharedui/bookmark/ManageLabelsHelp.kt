@@ -68,7 +68,7 @@ fun ManageLabelsHelpDialog(
     val strings = LocalStrings.current
     val intro = when (mode) {
         ManageLabelsMode.ASSIGN -> strings.assignLabelsHelpIntro
-        ManageLabelsMode.WORKSPACE -> strings.autoAssignLabelsHelpIntro
+        ManageLabelsMode.WORKSPACE -> strings.autoAssignLabelsHelpIntroWorkspace
         ManageLabelsMode.HIDELABELS -> strings.hideLabelsHelpIntro
         ManageLabelsMode.STUDYPAD -> strings.studyPadsHelpText
     }

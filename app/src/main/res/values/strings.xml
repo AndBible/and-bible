@@ -600,6 +600,11 @@
     <string name="system_speak_settings">Open system TTS settings</string>
 
     <string name="auto_assing_labels_help1">Here you can adjust which labels are assigned automatically to bookmarks that you create. </string>
+    <!-- Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact. -->
+    <string name="auto_assign_labels_help_intro_workspace">Here you can add, edit and remove labels, and adjust which are assigned automatically to bookmarks that you create.\n\nRecent labels: recently used labels.\nOther labels: all other labels.\n\nUse the search bar\'s filter options to see only auto-assigned or favourite labels.</string>
 
     <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
     <string name="setting_scope">This setting applies to %s.</string>
