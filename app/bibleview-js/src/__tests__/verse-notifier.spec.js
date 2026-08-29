@@ -50,17 +50,12 @@ function mountNotifier() {
     const calculatedConfig = ref({topOffset: 0, marginLeft: 0, marginRight: 0});
     const lineHeight = computed(() => LINE_HEIGHT);
     const isScrolling = ref(false);
-    const mounted = ref(true);
-    const topElement = ref(null);
 
     const TestComponent = defineComponent({
         setup() {
             exposed = useVerseNotifier(
-                /* config */ {},
                 calculatedConfig,
-                mounted,
                 {scrolledToOrdinal},
-                topElement,
                 {isScrolling},
                 lineHeight,
             );

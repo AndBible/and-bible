@@ -14,20 +14,17 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-import {ComputedRef, ref, Ref, watch} from "vue";
+import {ComputedRef, ref, watch} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {throttle} from "lodash";
-import {CalculatedConfig, Config} from "@/composables/config";
+import {CalculatedConfig} from "@/composables/config";
 import {UseAndroid} from "@/composables/android";
 import {useScroll} from "@/composables/scroll";
 import {Nullable} from "@/types/common";
 
 export function useVerseNotifier(
-    config: Config,
     calculatedConfig: CalculatedConfig,
-    mounted: Ref<boolean>,
     {scrolledToOrdinal}: UseAndroid,
-    topElement: Ref<HTMLElement | null>,
     {isScrolling}: ReturnType<typeof useScroll>,
     lineHeight: ComputedRef<number>,
 ) {
