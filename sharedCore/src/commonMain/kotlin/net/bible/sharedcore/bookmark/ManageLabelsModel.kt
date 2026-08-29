@@ -7,10 +7,17 @@ enum class ManageLabelsMode {
     val showUnassigned: Boolean get() = this == HIDELABELS || this == WORKSPACE
     val showCheckboxes: Boolean get() = this == HIDELABELS || this == ASSIGN
     val hasResetButton: Boolean get() = this == WORKSPACE || this == HIDELABELS
-    val hasReOrderButton: Boolean get() = this == HIDELABELS || this == ASSIGN || this == WORKSPACE
+    /** Re-order regroups rows into the ACTIVE bucket and does nothing else (RECENT is constant for
+     *  the session), so it is offered exactly where [showActiveCategory] is true. Keep the two
+     *  in step — `ManageLabelsModeTest` asserts they are equal for every mode. */
+    val hasReOrderButton: Boolean get() = this == ASSIGN || this == HIDELABELS
     val workspaceEdits: Boolean get() = this == WORKSPACE || this == ASSIGN
     val primaryShown: Boolean get() = this == WORKSPACE || this == ASSIGN
-    val showActiveCategory: Boolean get() = this == WORKSPACE || this == ASSIGN || this == HIDELABELS
+    /** Round 17b: ASSIGN and HIDELABELS only. WORKSPACE draws no leading selection control, so a
+     *  "Selected labels" heading named a selection the user could not see themselves making; its
+     *  auto-assign membership is visible per row in the ⚡ column and reachable as a search filter
+     *  ([LabelFilter.AUTO_ADD]) instead. Must stay equal to [hasReOrderButton]. */
+    val showActiveCategory: Boolean get() = this == ASSIGN || this == HIDELABELS
     val hideCategories: Boolean get() = this == STUDYPAD
     /** Whether a row shows its style example line: only ASSIGN and WORKSPACE, because those are
      *  the two modes where what the label will look like on the page is the thing the user is

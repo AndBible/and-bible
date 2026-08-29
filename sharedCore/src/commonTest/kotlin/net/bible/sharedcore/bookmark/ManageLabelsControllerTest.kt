@@ -642,22 +642,22 @@ class ManageLabelsControllerTest {
     @Test
     fun un_toggling_the_last_auto_assign_does_not_remove_the_header_either() {
         val c = controller(
-            mode = ManageLabelsMode.WORKSPACE,
+            mode = ManageLabelsMode.ASSIGN,
             labels = threeLabels(),
-            initialAutoAssign = setOf("L3"),
+            initialSelected = setOf("L3"),
         )
         val before = describe(c.rows.value)
         assertTrue(before.contains("H_ACTIVE"), "precondition: the ACTIVE header is present")
 
-        c.toggleAutoAssign("L3")
+        c.toggleChecked("L3")
 
         assertEquals(before, describe(c.rows.value))
     }
 
     @Test
     fun reOrder_regroups_what_the_toggles_left_in_place() {
-        val c = controller(mode = ManageLabelsMode.WORKSPACE, labels = threeLabels())
-        c.toggleAutoAssign("L3")
+        val c = controller(mode = ManageLabelsMode.ASSIGN, labels = threeLabels())
+        c.toggleChecked("L3")
         val stuck = describe(c.rows.value)
 
         c.reOrder()
@@ -696,6 +696,16 @@ class ManageLabelsControllerTest {
         val ids = describe(c.rows.value).filterNot { it.startsWith("H_") }
         assertEquals(setOf("L1", "L2"), ids.toSet())
         assertEquals(ids.size, ids.toSet().size, "no row may be emitted twice")
+    }
+
+    /** Round 17b: no ACTIVE header in WORKSPACE even with auto-assigned labels present. */
+    @Test fun workspace_emitsNoActiveHeader() {
+        val c = controller(
+            ManageLabelsMode.WORKSPACE,
+            labels = listOf(A, B),
+            initialAutoAssign = setOf("A"),
+        )
+        assertFalse(describe(c.rows.value).contains("H_ACTIVE"))
     }
 
 }
