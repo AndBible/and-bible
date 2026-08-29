@@ -170,4 +170,19 @@ class LabelEditMapperTest {
         val state = LabelEditMapper.toState(data).copy(wholeVerseStyle = null)
         assertNull(LabelEditMapper.applyToData(data, state).label.displayStyleWholeVerse)
     }
+
+    /** The generated default reaches the editor as a real name, not the grey hint: `toState` uses
+     *  `suggestedName` whenever the label's own name is empty. */
+    @Test
+    fun `suggestedName seeds a new label's name`() {
+        val data = buildData(name = "", suggestedName = "Label 3")
+        assertEquals("Label 3", LabelEditMapper.toState(data).name)
+    }
+
+    /** An existing label's own name always wins — `suggestedName` is a NEW-label seed only. */
+    @Test
+    fun `suggestedName does not override an existing name`() {
+        val data = buildData(name = "Study", suggestedName = "Label 3")
+        assertEquals("Study", LabelEditMapper.toState(data).name)
+    }
 }

@@ -498,6 +498,7 @@
     <string name="assign_labels">Assign labels</string>
     <string name="new_item">New</string>
     <string name="label_name_prompt">Name</string>
+    <string name="new_label_default_name">Label %d</string>
     <string name="label_unlabelled">Unlabelled</string>
     <string name="add_bookmark1">Bookmark</string>
     <string name="add_bookmark3">Selection</string>

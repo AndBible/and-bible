@@ -67,6 +67,7 @@ import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.bookmark.SearchMode
+import net.bible.sharedcore.bookmark.defaultLabelName
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.bookmark.ManageLabelsHelpDialog
 import net.bible.sharedui.bookmark.ManageLabelsScreen
@@ -442,7 +443,21 @@ class ManageLabelsComposeActivity : ActivityBase() {
         } else {
             BookmarkEntities.Label(new = true).apply { color = service.randomColorArgb() }
         }
-        val suggestedName = if (isNew) controller.searchText.value.takeIf { it.isNotBlank() } else null
+        // Round 17b: a new label opened from the toolbar ⊕ with no live query used to arrive with an
+        // EMPTY name, and the return path below (`if (newLabelData.label.name.isEmpty() && isNew)`)
+        // then discarded it silently — the dead Save button in the feedback. A generated default is
+        // a real, editable, unique name, so Save does what it looks like it does. The guard below
+        // stays: a name the user deliberately clears is still not a label.
+        val suggestedName = if (isNew) {
+            controller.searchText.value.trim().ifBlank {
+                defaultLabelName(
+                    existing = labelsById.values.mapTo(mutableSetOf()) { it.displayName },
+                    format = getString(R.string.new_label_default_name),
+                )
+            }
+        } else {
+            null
+        }
 
         val workspaceId = windowControl.windowRepository.id
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
