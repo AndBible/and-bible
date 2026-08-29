@@ -392,6 +392,50 @@ describe("WordType.vue", () => {
         expect(words[2].classes()).toContain("heatmap-2");
     });
 
+    it("treats a word with a straight apostrophe as a single token in type-everything mode", async () => {
+        const wrapper = createWrapper({
+            textItems: [{ key: "verse1", text: "Lord's prayer" }],
+        });
+
+        // Enable type everything
+        await wrapper.find('.settings-trigger').trigger('click');
+        const checkbox = wrapper.find('input[type="checkbox"]');
+        await checkbox.setValue(true);
+
+        const input = wrapper.find(".type-hidden-input");
+        for (const ch of "Lord's") {
+            await input.setValue(ch);
+            await input.trigger('input');
+        }
+
+        const words = wrapper.findAll(".type-word:not(.punctuation)");
+        expect(words[0].text()).toBe("Lord's");
+        expect(words[0].classes()).toContain("type-correct");
+        expect(words[0].classes()).not.toContain("type-incorrect");
+        expect(words[1].classes()).toContain("type-current");
+    });
+
+    it("accepts a straight apostrophe typed against a curly apostrophe in the source text", async () => {
+        const wrapper = createWrapper({
+            textItems: [{ key: "verse1", text: "Lord’s prayer" }],
+        });
+
+        await wrapper.find('.settings-trigger').trigger('click');
+        const checkbox = wrapper.find('input[type="checkbox"]');
+        await checkbox.setValue(true);
+
+        const input = wrapper.find(".type-hidden-input");
+        for (const ch of "Lord's") {
+            await input.setValue(ch);
+            await input.trigger('input');
+        }
+
+        const words = wrapper.findAll(".type-word:not(.punctuation)");
+        expect(words[0].classes()).toContain("type-correct");
+        expect(words[0].classes()).not.toContain("type-incorrect");
+        expect(words[1].classes()).toContain("type-current");
+    });
+
     it("saves wordVisibility in config", async () => {
         const wrapper = createWrapper();
         // Open settings popup
