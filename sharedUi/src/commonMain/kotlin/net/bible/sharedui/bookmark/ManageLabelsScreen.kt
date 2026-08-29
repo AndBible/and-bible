@@ -107,8 +107,9 @@ import net.bible.sharedui.theme.LocalDisplayColorMode
  * a real hollow bolt, not Material's "outlined" one, which is the same solid silhouette). The
  * trailing controls are now a fixed grid of same-width columns rather than a run of independently
  * gated icons, so ⚡/♥/🔖 line up down the whole list whether or not a given row's control is on;
- * the override indicator (the Tune mark) no longer squats in that run at all -- it moved to the row's tag line,
- * where it marks which of up to three style tags is imposed by this workspace's override.
+ * the override indicator (the Tune mark) is gone from this screen altogether -- round 17b removed
+ * it from the row's tag line too, so no icon marks an override anywhere; the "Workspace" tag's own
+ * text is now the only signal that a style tag is imposed by this workspace's override.
  *
  * [searchActions] is a second host action slot, rendered in the *search* bar (alongside this
  * screen's own [SearchOptionsButton]) rather than the normal one [actions] occupies. The host puts its
