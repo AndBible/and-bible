@@ -151,6 +151,7 @@ import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
 import {black, useConfig, white} from "@/composables/config";
+import {resolveThemeAccentColors} from "@/composables/theme-colors";
 import {calcHelperLinePositions, calcMaxScrollY, calcPageScrollDistance, calcRelativePageNumbers} from "@/composables/page-scroll";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {useModal} from "@/composables/modal";
@@ -414,6 +415,15 @@ const topStyle = computed(() => {
             textColor.fade(0.5).hsl().string();
     }
 
+    const accent = resolveThemeAccentColors(config.colors, {
+        nightMode: appSettings.nightMode,
+        monochromeMode: appSettings.monochromeMode,
+    });
+    // Theme verse-number color overrides the derived fade when present.
+    const finalVerseNumberColor = accent.verseNumberColor ?? verseNumberColor;
+    const linkVar = accent.linkColor ? `--link-color: ${accent.linkColor};` : "";
+    const headingVar = accent.headingColor ? `--heading-color: ${accent.headingColor};` : "";
+
     return `
           --bottom-offset: ${appSettings.bottomOffset}px;
           --top-offset: ${appSettings.topOffset}px;
@@ -423,8 +433,10 @@ const topStyle = computed(() => {
           --text-color-h: ${textColor.hsl().array()[0]};
           --text-color-s: ${textColor.hsl().array()[1]}%;
           --text-color-l: ${textColor.hsl().array()[2]}%;
-          --verse-number-color: ${verseNumberColor};
+          --verse-number-color: ${finalVerseNumberColor};
           --background-color: ${backgroundColor.hsl().string()};
+          ${linkVar}
+          ${headingVar}
           `;
 });
 
@@ -673,11 +685,10 @@ $colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 }
 
 a {
-  color: blue;
-
-  .night & {
-    color: #7b7bff;
-  }
+  // Route all in-content links (incl. OSIS cross-references) through --link-color so color-theme
+  // presets reach them. common.scss defines --link-color per day/night/monochrome, so the default
+  // and e-ink behaviour is preserved when no preset overrides it.
+  color: var(--link-color);
 }
 
 .bookmark-marker {
