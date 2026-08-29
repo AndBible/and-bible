@@ -29,7 +29,7 @@ class GenericRemoteOperation(
 ) : RemoteOperation<List<RemoteFile>>() {
 
     override fun run(client: OwnCloudClient): RemoteOperationResult<List<RemoteFile>> {
-        val result: RemoteOperationResult<List<RemoteFile>>
+        var result: RemoteOperationResult<List<RemoteFile>>
         try {
             val status = client.executeMethod(davMethod)
 
