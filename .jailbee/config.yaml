@@ -121,8 +121,9 @@ defaults:
   network: strict
   storage_pool: default
 
-# Golden image config. Node 20 matches the repo's documented requirement
-# (CLAUDE.md). Java: default JDK is 25 (latest LTS), but AndBible's
+# Golden image config. Node is bumped to 24 (repo docs still say 20.x, but
+# 24 gets the built-in WebSocket global that ai-local/tools/webview-cdp
+# originally needed). Java: default JDK is 25 (latest LTS), but AndBible's
 # build.gradle.kts pins Gradle's toolchain to `jvmToolchain(17)` — Gradle's
 # toolchain resolution needs an *exact* major-version match and won't accept
 # a newer JDK in its place (unlike a plain `javac --release 17` compile,
@@ -143,7 +144,7 @@ golden:
   ubuntu_version: "26.04"
   stacks:
     java: "openjdk-25"
-    node: 20
+    node: 24
   # android-tools-adb gives the container an adb-client; the actual
   # adb-server runs on the host (see adb model comment above).
   # openjdk-17-jdk: satisfies AndBible's jvmToolchain(17) — see note above.
