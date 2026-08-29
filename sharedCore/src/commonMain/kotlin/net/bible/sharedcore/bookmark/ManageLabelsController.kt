@@ -47,10 +47,15 @@ class ManageLabelsController(
     private val _searchMode = MutableStateFlow(SearchMode.NAME_START)
     val searchMode: StateFlow<SearchMode> = _searchMode.asStateFlow()
 
-    // Whether the top bar is showing its inline search field. Owns the MODE only; the query stays
-    // in _searchText because setSearch also drives the debounced StudyPad content search, so
-    // clearing has to go through it. Same shape as WorkspaceSelectorController.kt:35,42,68-71.
-    private val searchBarMode = SearchModeController(onClearQuery = { setSearch("") })
+    private val _filters = MutableStateFlow<Set<LabelFilter>>(emptySet())
+    val filters: StateFlow<Set<LabelFilter>> = _filters.asStateFlow()
+
+    // Owns the MODE only; the query stays in _searchText because setSearch also drives the debounced
+    // StudyPad content search. The clear callback also drops the row FILTERS: they are offered only
+    // inside this bar, so one surviving its dismissal would leave the list filtered with nothing on
+    // screen saying so. Filters first, then the query — setSearch rebuilds, and it must already see
+    // the cleared set.
+    private val searchBarMode = SearchModeController(onClearQuery = { _filters.value = emptySet(); setSearch("") })
     val searchModeActive: StateFlow<Boolean> = searchBarMode.active
 
     private val _rows = MutableStateFlow<List<ManageLabelsRow>>(emptyList())
@@ -134,16 +139,31 @@ class ManageLabelsController(
     // populates selectedLabels (only autoAssignLabels, via applyFrom), so this bypass is a no-op in
     // WORKSPACE mode. Mirror that with the raw `selected` field here, NOT contextSelected() (which
     // would wrongly resolve to `autoAssign` in WORKSPACE and bypass auto-assigned labels).
-    private fun nameMatches(id: String, name: String): Boolean {
-        if (selected.contains(id)) return true
+    //
+    // The bypass also outranks the round-17b FILTERS, deliberately: its whole job is that a label
+    // the user has already ticked never disappears from under them, and a filter is exactly the
+    // kind of narrowing that would otherwise do it.
+    private fun matches(item: LabelItem): Boolean {
+        if (selected.contains(item.id)) return true
+        if (!passesFilters(item)) return false
         val t = _searchText.value
         if (t.isBlank()) return true
         return when (_searchMode.value) {
-            SearchMode.NAME_START -> name.startsWith(t, ignoreCase = true)
+            SearchMode.NAME_START -> item.name.startsWith(t, ignoreCase = true)
             // CONTENT's name-branch is unused once content search (Task 2) is active; as a
             // name-filter fallback it behaves like NAME_CONTAINS.
-            SearchMode.NAME_CONTAINS, SearchMode.CONTENT -> name.contains(t, ignoreCase = true)
+            SearchMode.NAME_CONTAINS, SearchMode.CONTENT -> item.name.contains(t, ignoreCase = true)
         }
+    }
+
+    /** ANDed, and each reads the same source its row control draws from: `autoAssign` for the ⚡
+     *  column, the label's own `favourite` for the ♥ one. The Unlabeled pseudo-label is neither, so
+     *  any active filter excludes it — which is correct: it has no workspace toggles at all. */
+    private fun passesFilters(item: LabelItem): Boolean {
+        val active = _filters.value
+        if (active.contains(LabelFilter.AUTO_ADD) && !autoAssign.contains(item.id)) return false
+        if (active.contains(LabelFilter.FAVOURITE) && !item.favourite) return false
+        return true
     }
 
     private fun rebuild(reorder: Boolean = false) {
@@ -151,13 +171,13 @@ class ManageLabelsController(
         val overrides = service.overriddenLabelStyles()
         val ctx = contextSelected()
         // relink override style onto labels
-        val shown = labels.filter { nameMatches(it.id, it.name) }
+        val shown = labels.filter { matches(it) }
             .map { it.copy(overrideStyle = overrides[it.id]) }.toMutableList<Any>()
         if (mode.showUnassigned) {
             val unl = service.unlabeledLabel()
             // Same relink as every real label above (:148-149) -- classic's adapter marks the ⚙
             // override tag for ANY overridden id, Unlabeled included (ManageLabelItemAdapter.kt:236).
-            if (nameMatches(unl.id, unl.name) && !changed.contains(unl.id)) shown.add(unl.copy(overrideStyle = overrides[unl.id]))
+            if (matches(unl) && !changed.contains(unl.id)) shown.add(unl.copy(overrideStyle = overrides[unl.id]))
         }
         // Sticky path: reuse the previous sequence, headers INCLUDED. The header set has to be
         // frozen too, not recomputed -- classic inserts headers only during a repopulate
@@ -221,7 +241,7 @@ class ManageLabelsController(
      * a full sort is required.
      *
      * Reuse needs the row-key set to be UNCHANGED. That is the honest condition: a label that
-     * appeared (the already-selected search bypass in [nameMatches]) or vanished (a delete) has no
+     * appeared (the already-selected search bypass in [matches]) or vanished (a delete) has no
      * place in the old sequence, and inventing one would be worse than regrouping.
      */
     private fun stickyOrder(previous: List<String>, fresh: List<Any>): List<Any>? {
@@ -234,6 +254,14 @@ class ManageLabelsController(
     // ---- actions ----
     fun setSearch(t: String) { _searchText.value = t; dispatchSearchOrRebuild() }
     fun setSearchMode(mode: SearchMode) { _searchMode.value = mode; dispatchSearchOrRebuild() }
+    /** The search-options sheet's filter toggles. A filter changes the row-key SET, so this always
+     *  re-sorts: `stickyOrder` would refuse to reuse the old sequence anyway, and saying so here is
+     *  clearer than relying on that. */
+    fun toggleFilter(filter: LabelFilter) {
+        val current = _filters.value
+        _filters.value = if (current.contains(filter)) current - filter else current + filter
+        rebuild(reorder = true)
+    }
     fun openSearch() = searchBarMode.open()
     fun closeSearch() = searchBarMode.close()
     /** The ⋮ Re-order action: the user asking for the regrouping the toggles deliberately skip. */

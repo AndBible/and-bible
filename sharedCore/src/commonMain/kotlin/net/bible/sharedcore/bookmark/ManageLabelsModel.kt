@@ -36,6 +36,14 @@ enum class LabelCategory { ACTIVE, RECENT, OTHER }
  */
 enum class SearchMode { NAME_START, NAME_CONTAINS, CONTENT }
 
+/**
+ * The row filters the search-options sheet offers (round 17b). Multiple active filters are ANDed.
+ * They are offered only where the matching row control is drawn (`ManageLabelsMode.workspaceEdits`),
+ * because a filter for a state the list does not display would have no visible referent — and they
+ * are cleared when the search bar closes, so the list is never silently filtered.
+ */
+enum class LabelFilter { AUTO_ADD, FAVOURITE }
+
 /** One plain, portable label as shown in the list. [id] = IdType.toString(); [color] = ARGB. */
 data class LabelItem(
     val id: String,

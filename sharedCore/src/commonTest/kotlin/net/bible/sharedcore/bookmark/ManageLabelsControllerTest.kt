@@ -681,7 +681,7 @@ class ManageLabelsControllerTest {
         assertTrue(describe(c.rows.value).contains("H_ACTIVE"))
     }
 
-    /** The defensive fallback. `nameMatches` bypasses the filter for anything in `selected`
+    /** The defensive fallback. `matches` bypasses the filter for anything in `selected`
      *  (classic ManageLabels.kt:847-850), so checking a label the query hides makes the visible set
      *  GROW during a sticky rebuild. The old sequence has no place for it, so the rebuild must fall
      *  back to a full sort rather than drop it or emit it twice. */
@@ -706,6 +706,68 @@ class ManageLabelsControllerTest {
             initialAutoAssign = setOf("A"),
         )
         assertFalse(describe(c.rows.value).contains("H_ACTIVE"))
+    }
+
+    /** AUTO_ADD keeps only auto-assigned rows. */
+    @Test fun filter_autoAdd_keepsOnlyAutoAssigned() {
+        val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(A, B, C), initialAutoAssign = setOf("B"))
+        c.toggleFilter(LabelFilter.AUTO_ADD)
+        assertEquals(listOf("B"), describe(c.rows.value).filter { !it.startsWith("H_") })
+    }
+
+    /** FAVOURITE reads the label's own flag, and the two filters AND. */
+    @Test fun filter_favourite_andsWithAutoAdd() {
+        val fav = label("F1", "Favourite only", favourite = true)
+        val both = label("F2", "Both", favourite = true)
+        val c = controller(
+            ManageLabelsMode.WORKSPACE,
+            labels = listOf(A, fav, both),
+            initialAutoAssign = setOf("F2"),
+        )
+        c.toggleFilter(LabelFilter.FAVOURITE)
+        assertEquals(listOf("F1", "F2"), describe(c.rows.value).filter { !it.startsWith("H_") }.sorted())
+        c.toggleFilter(LabelFilter.AUTO_ADD)
+        assertEquals(listOf("F2"), describe(c.rows.value).filter { !it.startsWith("H_") })
+    }
+
+    /** A filter narrows what the name filter already matched, not the other way round. */
+    @Test fun filter_combinesWithNameSearch() {
+        val c = controller(
+            ManageLabelsMode.WORKSPACE,
+            labels = listOf(label("A1", "Apple"), label("A2", "Apricot"), B),
+            initialAutoAssign = setOf("A2", "B"),
+        )
+        c.setSearch("Ap")
+        c.toggleFilter(LabelFilter.AUTO_ADD)
+        assertEquals(listOf("A2"), describe(c.rows.value).filter { !it.startsWith("H_") })
+    }
+
+    /** Toggling a filter off restores the excluded rows. */
+    @Test fun filter_togglesOffAgain() {
+        val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(A, B), initialAutoAssign = setOf("A"))
+        c.toggleFilter(LabelFilter.AUTO_ADD)
+        c.toggleFilter(LabelFilter.AUTO_ADD)
+        assertEquals(setOf<LabelFilter>(), c.filters.value)
+        // "UNL" is the Unlabeled pseudo-label: WORKSPACE has showUnassigned == true, so the
+        // unfiltered list always carries it. With a filter active it is excluded (it is neither
+        // auto-assigned nor favourite), which is what makes its RETURN here the assertion.
+        assertEquals(listOf("A", "B", "UNL"), describe(c.rows.value).filter { !it.startsWith("H_") }.sorted())
+    }
+
+    /**
+     * Filters are SEARCH state: the filter UI lives inside the search bar, so a filter surviving
+     * the bar's dismissal would leave the list silently filtered with nothing on screen saying so.
+     */
+    @Test fun closingSearch_clearsFilters() {
+        val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(A, B), initialAutoAssign = setOf("A"))
+        c.openSearch()
+        c.setSearch("A")
+        c.toggleFilter(LabelFilter.AUTO_ADD)
+        c.closeSearch()
+        assertEquals(setOf<LabelFilter>(), c.filters.value)
+        assertEquals("", c.searchText.value)
+        // Unlabeled ("UNL") is back too — see filter_togglesOffAgain for why it is in this list.
+        assertEquals(listOf("A", "B", "UNL"), describe(c.rows.value).filter { !it.startsWith("H_") }.sorted())
     }
 
 }
