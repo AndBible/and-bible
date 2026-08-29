@@ -127,7 +127,7 @@ class OsisFragment(
             serializer(),
             if(key is VerseRange) listOf(key.start.ordinal, key.end.ordinal) else null
         )
-        val isNewTestament = key is VerseRange && key.start.ordinal >= BibleBook.MATT.ordinal
+        val isNewTestament = key is VerseRange && key.start.book.ordinal >= BibleBook.MATT.ordinal
 
         return mapOf(
             "xml" to wrapString(xmlStr),
