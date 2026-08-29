@@ -135,11 +135,16 @@ fun LabelEditScreen(
                 .fillMaxWidth()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                // Round 17b: VERTICAL only. AbExpandableSection carries its own horizontal 16dp
+                // (so its header lines up with the AbSwitchRows it discloses), and adding an outer
+                // 16dp on top put the two section headers at 32dp while SectionTitle sat at 16dp.
+                // Every other direct child below takes the 16dp itself.
+                .padding(vertical = 16.dp),
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
                     .clickable(onClickLabel = strings.editLabelTitle) { identitySheetOpen = true }
                     .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -187,6 +192,7 @@ fun LabelEditScreen(
                 selected = state.selectionStyle,
                 optionLabel = { it.label(strings) },
                 onSelect = onSelectionStyle,
+                modifier = Modifier.padding(horizontal = 16.dp),
                 preview = {
                     // The label's own colour, even for the default glyph: the reader tints a MARKER
                     // with the label colour unconditionally (bookmarks.ts:825), and the grey default
@@ -221,6 +227,7 @@ fun LabelEditScreen(
                     selected = wholeVerseStyle,
                     optionLabel = { it.label(strings) },
                     onSelect = { onWholeVerseStyle(it) },
+                    modifier = Modifier.padding(horizontal = 16.dp),
                     preview = {
                         // Full decoration on purpose: this axis covers the whole verse, and the contrast
                         // with the half-decorated selection preview above is what tells the two apart.
@@ -254,19 +261,21 @@ fun LabelEditScreen(
                         }
                     },
                 ) {
-                    AbSwitchRow(strings.addedToBookmarkLabel, state.thisBookmarkSelected, { onToggleSelected() })
-                    AbSwitchRow(
-                        strings.primaryLabelSwitchLabel,
-                        state.thisBookmarkPrimary,
-                        { onTogglePrimary() },
-                        enabled = state.thisBookmarkPrimaryEnabled,
-                        leadingIcon = {
-                            Icon(
-                                if (state.thisBookmarkPrimary) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
-                                contentDescription = null,
-                            )
-                        },
-                    )
+                    Column(Modifier.padding(start = 16.dp)) {
+                        AbSwitchRow(strings.addedToBookmarkLabel, state.thisBookmarkSelected, { onToggleSelected() })
+                        AbSwitchRow(
+                            strings.primaryLabelSwitchLabel,
+                            state.thisBookmarkPrimary,
+                            { onTogglePrimary() },
+                            enabled = state.thisBookmarkPrimaryEnabled,
+                            leadingIcon = {
+                                Icon(
+                                    if (state.thisBookmarkPrimary) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
+                                    contentDescription = null,
+                                )
+                            },
+                        )
+                    }
                 }
             }
 
@@ -315,61 +324,63 @@ fun LabelEditScreen(
                         }
                     },
                 ) {
-                    AbSwitchRow(
-                        strings.autoAssignLabelSwitchLabel,
-                        state.autoAssign,
-                        { onToggleAutoAssign() },
-                        // The same bolt the list row's toggle uses, in the same two states: filled
-                        // on, hollow off. Seeing the pair here is what teaches the pair there.
-                        leadingIcon = {
-                            Icon(
-                                if (state.autoAssign) Icons.Filled.Bolt else AbIcons.BoltOutline,
-                                contentDescription = null,
-                            )
-                        },
-                    )
-                    AbSwitchRow(
-                        strings.autoAssignPrimaryLabelSwitchLabel,
-                        state.autoAssignPrimary,
-                        { onToggleAutoAssignPrimary() },
-                        enabled = state.autoAssignPrimaryEnabled,
-                        // 🔖 is the list row's primary column; wearing it here is what connects
-                        // "add automatically as primary" to the mark the list draws.
-                        leadingIcon = {
-                            Icon(
-                                if (state.autoAssignPrimary) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
-                                contentDescription = null,
-                            )
-                        },
-                    )
-                    AbChoiceGroup(
-                        heading = strings.overrideStyleFieldLabel,
-                        options = OverrideMode.entries,
-                        selected = state.overrideMode,
-                        optionLabel = { it.label(strings) },
-                        onSelect = onOverrideMode,
-                        // Always present, including for NONE, where it shows the label's own style:
-                        // the group then answers "what will this workspace draw" either way, and
-                        // nothing appears or disappears as the radio moves. Same convention as the
-                        // "Bookmark style" group above -- one preview, plain radio labels.
-                        //
-                        // decoratePartially differs by case, not by oversight: an actual override
-                        // takes both axes (selection AND whole-verse), so it is decorated in full,
-                        // same as the whole-verse preview above. NONE falls back to the label's own
-                        // SELECTION style, so it must speak the same half-decorated vocabulary as
-                        // that group's own preview two sections up -- otherwise this preview would
-                        // show the selection style decorated differently depending on which group
-                        // last drew it.
-                        preview = {
-                            BookmarkStylePreview(
-                                style = state.overrideMode.displayStyle ?: state.selectionStyle,
-                                colorArgb = state.color,
-                                sampleText = strings.bookmarkStylePreviewSample,
-                                decoratePartially = state.overrideMode == OverrideMode.NONE,
-                                iconSlot = { iconSlot(state.customIcon, glyphTint) },
-                            )
-                        },
-                    )
+                    Column(Modifier.padding(start = 16.dp)) {
+                        AbSwitchRow(
+                            strings.autoAssignLabelSwitchLabel,
+                            state.autoAssign,
+                            { onToggleAutoAssign() },
+                            // The same bolt the list row's toggle uses, in the same two states: filled
+                            // on, hollow off. Seeing the pair here is what teaches the pair there.
+                            leadingIcon = {
+                                Icon(
+                                    if (state.autoAssign) Icons.Filled.Bolt else AbIcons.BoltOutline,
+                                    contentDescription = null,
+                                )
+                            },
+                        )
+                        AbSwitchRow(
+                            strings.autoAssignPrimaryLabelSwitchLabel,
+                            state.autoAssignPrimary,
+                            { onToggleAutoAssignPrimary() },
+                            enabled = state.autoAssignPrimaryEnabled,
+                            // 🔖 is the list row's primary column; wearing it here is what connects
+                            // "add automatically as primary" to the mark the list draws.
+                            leadingIcon = {
+                                Icon(
+                                    if (state.autoAssignPrimary) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
+                                    contentDescription = null,
+                                )
+                            },
+                        )
+                        AbChoiceGroup(
+                            heading = strings.overrideStyleFieldLabel,
+                            options = OverrideMode.entries,
+                            selected = state.overrideMode,
+                            optionLabel = { it.label(strings) },
+                            onSelect = onOverrideMode,
+                            // Always present, including for NONE, where it shows the label's own style:
+                            // the group then answers "what will this workspace draw" either way, and
+                            // nothing appears or disappears as the radio moves. Same convention as the
+                            // "Bookmark style" group above -- one preview, plain radio labels.
+                            //
+                            // decoratePartially differs by case, not by oversight: an actual override
+                            // takes both axes (selection AND whole-verse), so it is decorated in full,
+                            // same as the whole-verse preview above. NONE falls back to the label's own
+                            // SELECTION style, so it must speak the same half-decorated vocabulary as
+                            // that group's own preview two sections up -- otherwise this preview would
+                            // show the selection style decorated differently depending on which group
+                            // last drew it.
+                            preview = {
+                                BookmarkStylePreview(
+                                    style = state.overrideMode.displayStyle ?: state.selectionStyle,
+                                    colorArgb = state.color,
+                                    sampleText = strings.bookmarkStylePreviewSample,
+                                    decoratePartially = state.overrideMode == OverrideMode.NONE,
+                                    iconSlot = { iconSlot(state.customIcon, glyphTint) },
+                                )
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -396,7 +407,7 @@ private fun SectionTitle(title: String) {
     Text(
         title,
         style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
     )
 }
 

@@ -66,6 +66,10 @@ import net.bible.sharedui.theme.LocalDisableAnimations
  * header's left edge lines up with a nested [AbSwitchRow]'s left edge instead of sitting flush
  * against the container while the switch row it discloses sits indented under it.
  *
+ * The chevron is at the TRAILING edge (round 17b): a disclosure control belongs where the eye
+ * finishes the title, and the leading edge is where `LabelEditScreen`'s other headings start, which
+ * is what made a leading chevron read as an extra indent.
+ *
  * The reveal reads [LocalDisableAnimations] (fix round 1, Finding 1), the same local
  * [net.bible.sharedui.reading.BibleReferenceOverlay] reads, and collapses to a 0ms transition when
  * the user has turned animations off, instead of the normal 220ms -- same duration family as that
@@ -93,21 +97,24 @@ fun AbExpandableSection(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.width(12.dp))
+            indicators()
+            // Round 17b: the chevron sits at the TRAILING edge. Weight on this spacer, not on any
+            // child: an unweighted child measures first, so the title and the indicators keep their
+            // intrinsic widths and the chevron stays pinned right. It is not the last child by
+            // accident either — a weighted TRAILING child would make the chevron the overflow
+            // casualty, and a clipped icon still takes hit-test area.
+            Spacer(Modifier.weight(1f))
             Icon(
                 if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 // 20dp: both production call sites (LabelEditScreen.kt) pass 16dp [indicators]
-                // icons, so the chevron is actually the LARGER icon on this header row -- the
-                // 24dp icons AbSwitchRow draws live one row down, inside the expanded content, not
-                // here. 20dp reads clearly as a disclosure affordance without visually competing
-                // with the smaller indicator marks beside it -- a size choice, not an oversight.
+                // icons, so the chevron is the larger icon on this row. It reads as a disclosure
+                // affordance without competing with the smaller marks beside it.
                 modifier = Modifier.size(20.dp),
             )
-            Spacer(Modifier.width(8.dp))
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.width(12.dp))
-            indicators()
         }
         AnimatedVisibility(
             visible = expanded,
