@@ -123,10 +123,18 @@ defaults:
 
 # Golden image config. Versions match the repo's documented requirements
 # (CLAUDE.md): Java 17, Node 20.
+#
+# NOTE: use `golden.stacks`, not bare `golden.java`/`golden.node` — the bare
+# keys only pin a version, they don't stage the install.d.available/ snippet
+# that actually installs the runtime. A config with only the bare keys builds
+# a golden image with neither Java nor Node present (found 2026-08-29).
+# `stacks` pins the version AND stages the snippet in one field, plus adds
+# the matching gradle/m2/npm/pnpm-store shared caches.
 golden:
   ubuntu_version: "26.04"
-  java: amazon-corretto-17
-  node: 20
+  stacks:
+    java: corretto-17
+    node: 20
   # android-tools-adb gives the container an adb-client; the actual
   # adb-server runs on the host (see adb model comment above).
   extra_apt_packages:
