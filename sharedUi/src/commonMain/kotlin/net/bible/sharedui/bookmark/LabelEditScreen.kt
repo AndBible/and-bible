@@ -115,7 +115,7 @@ fun LabelEditScreen(
     actions: @Composable RowScope.() -> Unit,
     /** Test seams so a golden can photograph the expanded state — the sections are collapsed by
      *  default in production, and a golden cannot press a header. Same justification as
-     *  [ManageLabelsSearchModeMenuRows] being public. */
+     *  [ManageLabelsSearchOptionsSheetContent] being public. */
     initialThisBookmarkExpanded: Boolean = false,
     initialWorkspaceExpanded: Boolean = false,
 ) {

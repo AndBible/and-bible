@@ -161,6 +161,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
                     val searchMode by controller.searchMode.collectAsState()
                     val searchModeActive by controller.searchModeActive.collectAsState()
                     val styleTagsVisible by controller.styleTagsVisible.collectAsState()
+                    val filters by controller.filters.collectAsState()
                     var showExportDialog by remember { mutableStateOf(false) }
                     var showHelp by remember { mutableStateOf(false) }
 
@@ -173,6 +174,8 @@ class ManageLabelsComposeActivity : ActivityBase() {
                         searchMode = searchMode,
                         onSearch = controller::setSearch,
                         onSetSearchMode = controller::setSearchMode,
+                        filters = filters,
+                        onToggleFilter = controller::toggleFilter,
                         searchModeActive = searchModeActive,
                         onCloseSearch = controller::closeSearch,
                         onRowClick = { id ->

@@ -30,14 +30,14 @@ import androidx.compose.ui.graphics.Color
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedcore.bookmark.LabelCategory
+import net.bible.sharedcore.bookmark.LabelFilter
 import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedui.bookmark.ManageLabelsScreen
-import net.bible.sharedui.bookmark.ManageLabelsSearchModeMenuRows
+import net.bible.sharedui.bookmark.ManageLabelsSearchOptionsSheetContent
 import net.bible.sharedui.components.AbColor
-import net.bible.sharedui.strings.LocalStrings
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -152,7 +152,7 @@ class ManageLabelsGoldenTest {
      *  Task-3 parity fix (plain icon, no auto-assign toggle). */
     private fun rows(mode: ManageLabelsMode): List<ManageLabelsRow> {
         val out = mutableListOf<ManageLabelsRow>()
-        if (!mode.hideCategories) out += ManageLabelsRow.Header(LabelCategory.ACTIVE)
+        if (!mode.hideCategories && mode.showActiveCategory) out += ManageLabelsRow.Header(LabelCategory.ACTIVE)
         out += ManageLabelsRow.Item(
             label = label("L1", "Study", favourite = true),
             checked = true, isAutoAssign = false, isPrimary = true, highlighted = false,
@@ -189,6 +189,7 @@ class ManageLabelsGoldenTest {
         searchActions: @Composable RowScope.() -> Unit = {},
         rows: List<ManageLabelsRow>? = null,
         styleTagsVisible: Boolean = true,
+        filters: Set<LabelFilter> = emptySet(),
     ) = @androidx.compose.runtime.Composable {
         ManageLabelsScreen(
             title = "Manage labels",
@@ -201,6 +202,8 @@ class ManageLabelsGoldenTest {
             searchMode = searchMode,
             onSearch = {},
             onSetSearchMode = {},
+            filters = filters,
+            onToggleFilter = {},
             onRowClick = {},
             onRowLongClick = {},
             onToggleChecked = {},
@@ -263,6 +266,8 @@ class ManageLabelsGoldenTest {
             searchMode = SearchMode.CONTENT,
             onSearch = {},
             onSetSearchMode = {},
+            filters = emptySet(),
+            onToggleFilter = {},
             onRowClick = {},
             onRowLongClick = {},
             onToggleChecked = {},
@@ -395,6 +400,22 @@ class ManageLabelsGoldenTest {
     @Test fun manageLabels_workspace() =
         captureGolden("ManageLabels", "workspace", EDGE_MODE, heightDp = 800, content = screen(ManageLabelsMode.WORKSPACE))
 
+    /** WORKSPACE with the auto-add filter active. The fixture deliberately contains rows the
+     *  filter EXCLUDES (only L2 is auto-assigned in `rows(WORKSPACE)`), so this image differs from
+     *  [manageLabels_workspace]; a fixture where every row passed would make the golden unable to
+     *  fail. Note also what is absent: no "Selected labels" header, round 17b's other half. */
+    @Test fun manageLabels_workspace_filtered() =
+        captureGolden(
+            "ManageLabels", "workspaceFiltered", EDGE_MODE, heightDp = 600,
+            content = screen(
+                ManageLabelsMode.WORKSPACE,
+                rows = rows(ManageLabelsMode.WORKSPACE).filter {
+                    it !is ManageLabelsRow.Item || it.isAutoAssign
+                },
+                filters = setOf(LabelFilter.AUTO_ADD),
+            ),
+        )
+
     /** STUDYPAD: no category headers (mode.hideCategories), plain list -- no checkboxes, favourite,
      *  primary or auto-assign controls. */
     @Test fun manageLabels_studypad() =
@@ -440,36 +461,42 @@ class ManageLabelsGoldenTest {
         )
 
     /**
-     * The mode menu's ITEM SET, golden directly rather than via the real popup: an expanded
-     * `DropdownMenu` hangs Roborazzi (see the two-popups finding), so this follows
-     * `WorkspaceSelectorGoldenTest.workspaceRowMenu_root`'s pattern of rendering
-     * [net.bible.sharedui.bookmark.ManageLabelsSearchModeMenuRows] inside a plain `Column` instead
-     * of opening the real `DropdownMenu`. This is the coverage that would have caught the labels
-     * reading "Ab*" / "*ab*" instead of "Name (from start)" / "Name (contains)" (I2) -- a wording
-     * bug the earlier text-button widget never exposed and no prior golden rendered.
+     * The options sheet's BODY, captured directly: an open `ModalBottomSheet` hangs Roborazzi and
+     * takes the whole `:app` suite with it, so this follows the `AbChoiceSheetContent` pattern and
+     * renders [net.bible.sharedui.bookmark.ManageLabelsSearchOptionsSheetContent] in a plain
+     * `Column`. This is the coverage that would have caught the labels reading "Ab*" / "*ab*"
+     * instead of "Name (from start)" / "Name (contains)" (round 15a I2).
      */
     @Composable
-    private fun modeMenuRows(mode: ManageLabelsMode, searchMode: SearchMode = SearchMode.NAME_START) = Column {
-        ManageLabelsSearchModeMenuRows(
+    private fun searchOptionsContent(
+        mode: ManageLabelsMode,
+        searchMode: SearchMode = SearchMode.NAME_START,
+        filters: Set<LabelFilter> = emptySet(),
+    ) = Column {
+        ManageLabelsSearchOptionsSheetContent(
             mode = mode,
             searchMode = searchMode,
+            filters = filters,
             onSetSearchMode = {},
-            strings = LocalStrings.current,
+            onToggleFilter = {},
+            onClose = {},
         )
     }
 
-    /** STUDYPAD: three rows (name-start, name-contains, content), the content row checked. */
-    @Test fun manageLabelsSearchModeMenu_studypad() {
-        captureGolden("ManageLabelsSearchModeMenu", "studypad", EDGE_MODE, heightDp = 400) {
-            modeMenuRows(ManageLabelsMode.STUDYPAD, searchMode = SearchMode.CONTENT)
+    /** STUDYPAD: three match-mode rows (the content row selected) and NO filter section -- STUDYPAD
+     *  is not `workspaceEdits`, so it draws neither a ⚡ nor a ♥ column to filter on. */
+    @Test fun manageLabelsSearchOptions_studypad() {
+        captureGolden("ManageLabelsSearchOptions", "studypad", EDGE_MODE, heightDp = 500) {
+            searchOptionsContent(ManageLabelsMode.STUDYPAD, searchMode = SearchMode.CONTENT)
         }
     }
 
-    /** A non-StudyPad mode: only the two name-match rows -- no content option, since only
-     *  StudyPads have searchable content. */
-    @Test fun manageLabelsSearchModeMenu_assign() {
-        captureGolden("ManageLabelsSearchModeMenu", "assign", EDGE_MODE, heightDp = 400) {
-            modeMenuRows(ManageLabelsMode.ASSIGN)
+    /** ASSIGN: two match-mode rows (no content option) plus the filter section, with the auto-add
+     *  filter ON and the favourite one OFF -- so the image shows both switch states and both icon
+     *  states (filled bolt, hollow heart) in one capture. */
+    @Test fun manageLabelsSearchOptions_assign() {
+        captureGolden("ManageLabelsSearchOptions", "assign", EDGE_MODE, heightDp = 500) {
+            searchOptionsContent(ManageLabelsMode.ASSIGN, filters = setOf(LabelFilter.AUTO_ADD))
         }
     }
 

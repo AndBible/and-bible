@@ -1203,6 +1203,10 @@
     <string name="bookmark_style_tag_whole_verse">Whole verse</string>
     <string name="bookmark_style_tag_workspace">Workspace</string>
     <string name="show_style_examples">Show style examples</string>
+    <string name="labels_search_section">Search</string>
+    <string name="labels_filter_section">Show</string>
+    <string name="labels_filter_auto_assign">Auto-assign labels only</string>
+    <string name="labels_filter_favourite">Favourite labels only</string>
     <!-- Round 15a: the labels help legend. No %s placeholders — the icon is its own column. -->
     <string name="manage_labels_help_checkbox">Tick a label to assign it to this bookmark.</string>
     <string name="manage_labels_help_primary">The primary label. Its colour and style are what the bookmark shows.</string>

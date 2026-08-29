@@ -92,6 +92,8 @@ class ManageLabelsInertPrimaryA11yTest {
                         searchMode = SearchMode.NAME_START,
                         onSearch = {},
                         onSetSearchMode = {},
+                        filters = emptySet(),
+                        onToggleFilter = {},
                         searchModeActive = false,
                         onCloseSearch = {},
                         onRowClick = {},

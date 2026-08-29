@@ -497,6 +497,10 @@ interface Strings {
     // Batch 7a — LabelEditScreen
     val editLabelTitle: String                    // R.string.edit_label (top-bar title)
     val labelNameHint: String                     // R.string.label_name_prompt (name field hint)
+    val labelsSearchSection: String                 // R.string.labels_search_section
+    val labelsFilterSection: String                 // R.string.labels_filter_section
+    val labelsFilterAutoAssign: String              // R.string.labels_filter_auto_assign
+    val labelsFilterFavourite: String               // R.string.labels_filter_favourite
     val selectCustomIconLabel: String              // R.string.select_custom_icon
     val favouriteLabelSwitchLabel: String          // R.string.favourite_label
     val thisBookmarkSectionTitle: String            // R.string.this_bookmark

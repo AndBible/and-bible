@@ -168,6 +168,9 @@ class SettingsEditorSheetGuardTest {
             // captures throughout AbQuickSheetGoldenTest/WorkspaceQuickGoldenTest/HistoryGoldenTest
             // do not false-positive here.
             "AbQuickSheet(",
+            // Round 17b's labels search-options sheet. Same rule: goldens capture
+            // "ManageLabelsSearchOptionsSheetContent(", which does not contain this literal.
+            "ManageLabelsSearchOptionsSheet(",
         )
         val offenders = testSourceRoot.walkTopDown().filter { it.extension == "kt" }
             // This guard's own file is excluded: widening the walk to the whole test tree means it

@@ -38,17 +38,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Article
-import androidx.compose.material.icons.filled.Abc
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -68,6 +64,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.LabelCategory
+import net.bible.sharedcore.bookmark.LabelFilter
 import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
@@ -78,7 +75,6 @@ import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbColor
 import net.bible.sharedui.components.AbIcons
-import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
@@ -115,7 +111,7 @@ import net.bible.sharedui.theme.LocalDisplayColorMode
  * where it marks which of up to three style tags is imposed by this workspace's override.
  *
  * [searchActions] is a second host action slot, rendered in the *search* bar (alongside this
- * screen's own [SearchModeMenu]) rather than the normal one [actions] occupies. The host puts its
+ * screen's own [SearchOptionsButton]) rather than the normal one [actions] occupies. The host puts its
  * New (⊕) icon there: without it, a search that finds nothing had no way to become a label seeded
  * with the query, because the only path to that was the ⊕ in [actions], which the screen never
  * draws while search is active.
@@ -131,6 +127,8 @@ fun ManageLabelsScreen(
     searchMode: SearchMode,
     onSearch: (String) -> Unit,
     onSetSearchMode: (SearchMode) -> Unit,
+    filters: Set<LabelFilter>,
+    onToggleFilter: (LabelFilter) -> Unit,
     searchModeActive: Boolean,
     onCloseSearch: () -> Unit,
     onRowClick: (labelId: String) -> Unit,
@@ -174,7 +172,14 @@ fun ManageLabelsScreen(
                 // screen's own mode menu, so the bar reads [back | query | host actions | mode | ✕]
                 // and the built-in Clear button stays the edge-most control.
                 searchActions()
-                SearchModeMenu(mode = mode, searchMode = searchMode, onSetSearchMode = onSetSearchMode, strings = strings)
+                SearchOptionsButton(
+                    mode = mode,
+                    searchMode = searchMode,
+                    filters = filters,
+                    onSetSearchMode = onSetSearchMode,
+                    onToggleFilter = onToggleFilter,
+                    strings = strings,
+                )
             }
         },
     ) { padding: PaddingValues ->
@@ -209,78 +214,34 @@ fun ManageLabelsScreen(
 }
 
 /**
- * The search bar's mode picker: one icon + menu replacing the two widgets this screen used to draw
- * side by side (a 3-way dropdown in STUDYPAD, a 2-state text button everywhere else). The item set
- * is derived from [mode], so behaviour per mode is unchanged — only one widget now expresses it.
- * The content option is StudyPad-only because only StudyPads have searchable content.
+ * The search bar's options trigger. The icon and its description are unchanged from the dropdown
+ * this replaces: [Strings.searchOptions] ("Search settings"), not [Strings.search] ("Find") — the
+ * bar it sits in is already a search field, so "Find, button" for the control that opens the
+ * options would mislead a TalkBack user.
  *
- * The icon's contentDescription is [Strings.searchOptions] ("Search settings"), not
- * [Strings.search] ("Find") — the bar it sits in is already a search field, so a TalkBack user
- * hearing "Find, button" for the control that opens the *match-mode* menu would be misled.
+ * Open state is local, exactly as the dropdown's `expanded` was: nothing outside this bar needs to
+ * know whether the sheet is showing.
  */
 @Composable
-private fun SearchModeMenu(
+private fun SearchOptionsButton(
     mode: ManageLabelsMode,
     searchMode: SearchMode,
+    filters: Set<LabelFilter>,
     onSetSearchMode: (SearchMode) -> Unit,
+    onToggleFilter: (LabelFilter) -> Unit,
     strings: Strings,
 ) {
     var expanded by remember { mutableStateOf(false) }
     AbActionIcon(Icons.Filled.Tune, strings.searchOptions) { expanded = true }
-    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-        ManageLabelsSearchModeMenuRows(
-            mode = mode,
-            searchMode = searchMode,
-            onSetSearchMode = { expanded = false; onSetSearchMode(it) },
-            strings = strings,
-        )
-    }
-}
-
-/**
- * The mode menu's item set, factored out of [SearchModeMenu] for the same reason
- * `WorkspaceRowMenuRows` is (see `WorkspaceSelectorScreen.kt`): an expanded `DropdownMenu` cannot be
- * photographed — it hangs Roborazzi, and two open popups on one page hang the whole `:app` suite —
- * so the golden renders this composable directly, inside a plain `Column`, instead of opening the
- * real popup.
- *
- * The two name-match rows use [Strings.searchModeNameStart] / [Strings.searchModeNameContains]
- * ("Name (from start)" / "Name (contains)"), translated in 50 locales — NOT the strings behind
- * `R.string.match_start_of_text` / `R.string.match_any_text` ("Ab*" / "*ab*", removed from
- * [Strings] as unused once this menu stopped referencing them), which were the label of
- * classic's 40dp toggle *button* and have zero locale translations, so using them here made this
- * menu read as "Ab*" / "*ab*" / "Content" in every language.
- */
-@Composable
-fun ManageLabelsSearchModeMenuRows(
-    mode: ManageLabelsMode,
-    searchMode: SearchMode,
-    onSetSearchMode: (SearchMode) -> Unit,
-    strings: Strings,
-) {
-    AbMenuItem(
-        text = strings.searchModeNameStart,
-        onClick = { onSetSearchMode(SearchMode.NAME_START) },
-        icon = { Icon(Icons.Filled.TextFields, contentDescription = null) },
-        checkable = true,
-        checked = searchMode == SearchMode.NAME_START,
+    ManageLabelsSearchOptionsSheet(
+        open = expanded,
+        mode = mode,
+        searchMode = searchMode,
+        filters = filters,
+        onSetSearchMode = onSetSearchMode,
+        onToggleFilter = onToggleFilter,
+        onDismiss = { expanded = false },
     )
-    AbMenuItem(
-        text = strings.searchModeNameContains,
-        onClick = { onSetSearchMode(SearchMode.NAME_CONTAINS) },
-        icon = { Icon(Icons.Filled.Abc, contentDescription = null) },
-        checkable = true,
-        checked = searchMode == SearchMode.NAME_CONTAINS,
-    )
-    if (mode == ManageLabelsMode.STUDYPAD) {
-        AbMenuItem(
-            text = strings.searchModeContent,
-            onClick = { onSetSearchMode(SearchMode.CONTENT) },
-            icon = { Icon(Icons.AutoMirrored.Filled.Article, contentDescription = null) },
-            checkable = true,
-            checked = searchMode == SearchMode.CONTENT,
-        )
-    }
 }
 
 private fun rowKey(row: ManageLabelsRow): String = when (row) {

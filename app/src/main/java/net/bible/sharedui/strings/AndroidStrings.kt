@@ -443,6 +443,10 @@ class AndroidStrings(private val context: Context) : Strings {
     // Batch 7a — LabelEditScreen
     override val editLabelTitle: String get() = context.getString(R.string.edit_label)
     override val labelNameHint: String get() = context.getString(R.string.label_name_prompt)
+    override val labelsSearchSection: String get() = context.getString(R.string.labels_search_section)
+    override val labelsFilterSection: String get() = context.getString(R.string.labels_filter_section)
+    override val labelsFilterAutoAssign: String get() = context.getString(R.string.labels_filter_auto_assign)
+    override val labelsFilterFavourite: String get() = context.getString(R.string.labels_filter_favourite)
     override val selectCustomIconLabel: String get() = context.getString(R.string.select_custom_icon)
     override val favouriteLabelSwitchLabel: String get() = context.getString(R.string.favourite_label)
     override val thisBookmarkSectionTitle: String get() = context.getString(R.string.this_bookmark)
