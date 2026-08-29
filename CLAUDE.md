@@ -30,8 +30,8 @@ AndBible is a powerful offline Bible study app for Android built with Kotlin, fe
 
 ### Prerequisites
 - Java 17 (OpenJDK 17.0.16+8 or higher)
-- Node.js 20.x (tested with v20.19.4)
-- npm 10.x (tested with v10.8.2)
+- Node.js 24.x (tested with v24.20.0)
+- npm 11.x (tested with v11.19.0)
 - Android SDK 23+ (API levels 23-36)
 
 ### Build Flavors
@@ -273,7 +273,7 @@ cd app/bibleview-js && npm run lint-fix  # Auto-fix some issues
 # Verify Java version (must be Java 17)
 java --version
 
-# Verify Node.js version (must be 20.x)
+# Verify Node.js version (must be 24.x)
 node --version
 
 # Verify Android SDK
