@@ -522,7 +522,6 @@ interface Strings {
     val activeLabelsHeader: String                  // R.string.active_labels
     val recentLabelsHeader: String                  // R.string.recent_labels
     val otherLabelsHeader: String                   // R.string.other_labels
-    val overrideIndicatorDescription: String        // R.string.workspace_override_indicator
 
     // Batch 7b-2 — ManageLabelsScreen StudyPad content-search + export/import
     val searchModeNameStart: String                 // R.string.search_mode_name_start

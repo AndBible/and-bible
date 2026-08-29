@@ -1212,7 +1212,7 @@
     <string name="manage_labels_help_primary">The primary label. Its colour and style are what the bookmark shows.</string>
     <string name="manage_labels_help_autoassign">Assign this label automatically to every new bookmark. A hollow bolt means off.</string>
     <string name="manage_labels_help_favourite">Keep the label in your favourites for quick access.</string>
-    <string name="manage_labels_help_styles">Under the name a small example shows the label\'s look: Selection for a text-selection bookmark, Whole verse for a whole-verse one, and a Workspace tag carrying the override mark for a style this workspace overrides. A greyed example with no decoration means the label\'s bookmarks are not drawn. Hide the examples from the ⋮ menu.</string>
+    <string name="manage_labels_help_styles">Under the name a small example shows the label\'s look: Selection for a text-selection bookmark, Whole verse for a whole-verse one, and a Workspace tag for a style this workspace overrides. A greyed example with no decoration means the label\'s bookmarks are not drawn. Hide the examples from the ⋮ menu.</string>
     <string name="manage_labels_help_reorder">Re-order the list from the ⋮ menu.</string>
     <string name="added_to_bookmark">Assigned to this bookmark</string>
     <string name="strongs_links">Links</string>

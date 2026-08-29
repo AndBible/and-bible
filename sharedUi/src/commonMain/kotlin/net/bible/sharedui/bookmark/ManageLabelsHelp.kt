@@ -27,7 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.TextFormat
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -102,7 +102,10 @@ fun ManageLabelsHelpDialog(
                         HelpRow({ Icon(Icons.Filled.Favorite, null) }, strings.manageLabelsHelpFavourite)
                     }
                     if (mode.styleTagsShown) {
-                        HelpRow({ Icon(Icons.Filled.Tune, null) }, strings.manageLabelsHelpStyles)
+                        // TextFormat, not Tune: this row is about the style EXAMPLES, and after
+                        // round 17b Tune is only the search bar's options icon. The same glyph
+                        // leads the ⋮ "Show style examples" row (as R.drawable.ic_text_format_white_24dp).
+                        HelpRow({ Icon(Icons.Filled.TextFormat, null) }, strings.manageLabelsHelpStyles)
                     }
                     if (mode.hasReOrderButton) {
                         HelpRow({ Icon(Icons.Filled.MoreVert, null) }, strings.manageLabelsHelpReorder)

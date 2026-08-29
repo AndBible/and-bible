@@ -454,13 +454,12 @@ private fun TrailingSlot(modifier: Modifier = Modifier, content: @Composable () 
  * 1. the label's own selection style, decorated **partially** — a text-selection bookmark covers
  *    part of a verse, and that is what the half tag says;
  * 2. its whole-verse style, decorated fully, only when it is really set to something of its own;
- * 3. the style this workspace's override imposes, decorated fully and marked with the Tune override mark.
+ * 3. the style this workspace's override imposes, decorated fully and tagged with the axis word "Workspace".
  *
- * The Tune mark is the one place that indicator survives this round. In the editor the same tag sits under the
- * "This workspace" heading, which supplies its meaning, so the indicator there is redundant; a list
- * row has no heading, so the tag needs one mark to say where it comes from — and the Tune icon is already this
- * codebase's override symbol, with `workspace_override_indicator` available as its description. An
- * override takes BOTH axes (`Label.withStyleOverrides`), which is why it is decorated in full: it is
+ * Round 17b removed the Tune mark that used to lead the third tag. The tag's text is the axis word
+ * "Workspace", which is what the mark was there to say; and Tune now means exactly one thing on
+ * this screen, the search bar's options sheet.
+ * An override takes BOTH axes (`Label.withStyleOverrides`), which is why it is decorated in full: it is
  * what the reader draws here, on either kind of bookmark. The label's own two tags stay, because
  * they are the label's identity and travel with it to every other workspace.
  *
@@ -510,17 +509,15 @@ private fun StyleTagRow(label: LabelItem, markerGlyph: @Composable () -> Unit, s
         }
         val override = label.overrideStyle
         if (override != null) {
-            // Separator, mark and tag in ONE Row so a wrap can never leave the Tune mark stranded
-            // at the end of a line with its tag on the next.
+            // Separator and tag in ONE Row so a wrap can never split them across lines.
+            //
+            // Round 17b: the Tune override mark that used to lead this tag is GONE. Round 15a kept
+            // it here (having removed it from the editor's collapsed header) on the argument that a
+            // list row has no heading to supply the meaning — but the tag's own text IS the axis
+            // word "Workspace", which supplies it just as the heading did. Removing it also frees
+            // Tune to mean one thing on this screen: the search-bar options.
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TagSeparator()
-                Icon(
-                    Icons.Filled.Tune,
-                    contentDescription = strings.overrideIndicatorDescription,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(12.dp),
-                )
-                Spacer(Modifier.width(2.dp))
                 LabelStyleTag(
                     text = strings.bookmarkStyleTagWorkspace,
                     style = override,

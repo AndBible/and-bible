@@ -468,7 +468,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val activeLabelsHeader: String get() = context.getString(R.string.active_labels)
     override val recentLabelsHeader: String get() = context.getString(R.string.recent_labels)
     override val otherLabelsHeader: String get() = context.getString(R.string.other_labels)
-    override val overrideIndicatorDescription: String get() = context.getString(R.string.workspace_override_indicator)
 
     // Batch 7b-2 — ManageLabelsScreen StudyPad content-search + export/import
     override val searchModeNameStart: String get() = context.getString(R.string.search_mode_name_start)
