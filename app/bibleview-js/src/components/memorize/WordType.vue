@@ -188,9 +188,12 @@ function setWordRef(globalIndex: number, el: any) {
 
 // An apostrophe (straight or curly) sitting between two word characters is part of a
 // contraction/possessive (e.g. "Lord's", "don't") and must not split the word into
-// separate tokens - otherwise typing the word normally is reported as an error.
+// separate tokens - otherwise typing the word normally is reported as an error. A bare
+// trailing apostrophe is also kept attached when the word ends in "s" (e.g. "Jesus'",
+// "years'") since that is the standard classical/plural possessive form; a trailing
+// apostrophe after any other letter is treated as a closing quote instead.
 function getWordsFromText(text: string) {
-    const tokens = text.match(/(["".,;:!?…"'«»„‚–—\-()[\]{}]+)|([^\s"".,;:!?…"'«»„‚–—\-()[\]{}]+(?:['’‘][^\s"".,;:!?…"'«»„‚–—\-()[\]{}]+)*)/g) || [];
+    const tokens = text.match(/(["".,;:!?…"'«»„‚–—\-()[\]{}]+)|([^\s"".,;:!?…"'«»„‚–—\-()[\]{}]+(?:['’‘][^\s"".,;:!?…"'«»„‚–—\-()[\]{}]+)*(?:(?<=[sS])['’‘])?)/g) || [];
     return tokens.filter(token => token.length > 0);
 }
 
