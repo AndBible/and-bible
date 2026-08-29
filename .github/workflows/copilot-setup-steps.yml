@@ -40,11 +40,11 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
       
-      # Node.js 20 setup for Vue.js development
-      - name: Set up Node.js 20
+      # Node.js 24 setup for Vue.js development
+      - name: Set up Node.js 24
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '24'
       
       # Upgrade npm to latest version
       - name: Upgrade npm
