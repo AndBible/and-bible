@@ -26,9 +26,9 @@ class ManageLabelsModelTest {
         assertFalse(ManageLabelsMode.ASSIGN.hasResetButton)
         assertTrue(ManageLabelsMode.HIDELABELS.hasResetButton)
 
-        // hasReOrderButton: HIDELABELS, ASSIGN, WORKSPACE
+        // hasReOrderButton: HIDELABELS, ASSIGN
         assertFalse(ManageLabelsMode.STUDYPAD.hasReOrderButton)
-        assertTrue(ManageLabelsMode.WORKSPACE.hasReOrderButton)
+        assertFalse(ManageLabelsMode.WORKSPACE.hasReOrderButton)
         assertTrue(ManageLabelsMode.ASSIGN.hasReOrderButton)
         assertTrue(ManageLabelsMode.HIDELABELS.hasReOrderButton)
 
@@ -44,9 +44,9 @@ class ManageLabelsModelTest {
         assertTrue(ManageLabelsMode.ASSIGN.primaryShown)
         assertFalse(ManageLabelsMode.HIDELABELS.primaryShown)
 
-        // showActiveCategory: WORKSPACE, ASSIGN, HIDELABELS
+        // showActiveCategory: ASSIGN, HIDELABELS
         assertFalse(ManageLabelsMode.STUDYPAD.showActiveCategory)
-        assertTrue(ManageLabelsMode.WORKSPACE.showActiveCategory)
+        assertFalse(ManageLabelsMode.WORKSPACE.showActiveCategory)
         assertTrue(ManageLabelsMode.ASSIGN.showActiveCategory)
         assertTrue(ManageLabelsMode.HIDELABELS.showActiveCategory)
 
