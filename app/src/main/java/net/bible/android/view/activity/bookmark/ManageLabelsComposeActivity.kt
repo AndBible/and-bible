@@ -74,7 +74,7 @@ import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbActionSheet
 import net.bible.sharedui.components.AbActionSheetRow
 import net.bible.sharedui.components.AbMenuItem
-import net.bible.sharedui.components.AbMultiSelectDialog
+import net.bible.sharedui.components.AbMultiSelectSheet
 import net.bible.sharedui.components.AbOverflowMenu
 import org.koin.android.ext.android.inject
 
@@ -218,7 +218,8 @@ class ManageLabelsComposeActivity : ActivityBase() {
                     // multiselect over every assignable label, then exportStudyPads for the chosen ones.
                     if (showExportDialog) {
                         val exportableLabels = remember(showExportDialog) { bookmarkControl.assignableLabels }
-                        AbMultiSelectDialog(
+                        AbMultiSelectSheet(
+                            open = true,
                             title = getString(R.string.export_something, getString(R.string.studypads)),
                             options = exportableLabels,
                             selectedIds = emptyList(),
@@ -389,18 +390,27 @@ class ManageLabelsComposeActivity : ActivityBase() {
                     onClick = { close(); controller.toggleStyleTags() },
                     checkable = true,
                     checked = styleTagsVisible,
-                    // AbMenu.kt:107-112 puts a `checkable` row's tick in the TRAILING slot, so this
-                    // row has nothing in the leading one while every other row in this menu has an
-                    // icon — without a reserved slot its label would sit 24dp left of its
-                    // neighbours'. An icon is not an option here: `:app/src/main` has no Material
-                    // ImageVectors on purpose (material-icons-extended is testImplementation-only,
-                    // app/build.gradle.kts:507), and no drawable in the tree means "style example".
-                    reserveIconSlot = true,
+                    // Round 17b: `reserveIconSlot` is gone because there is a real icon now.
+                    // AbMenu.kt:107-112 puts a checkable row's tick in the TRAILING slot, so the
+                    // leading one was empty while every other row in this menu had an icon. The
+                    // earlier comment said no drawable meant "style example"; ic_text_format_white_24dp
+                    // does, and the help dialog's own styles row wears the same glyph as
+                    // Icons.Filled.TextFormat.
+                    icon = { Icon(painterResource(R.drawable.ic_text_format_white_24dp), contentDescription = null) },
                 )
             }
             if (controller.mode.hasResetButton) {
                 AbMenuItem(
-                    text = getString(R.string.reset_generic),
+                    // Two different actions, two different labels (round 17b). WORKSPACE clears the
+                    // auto-assign set in place and stays here; HIDELABELS reverts the setting to its
+                    // inherited value and leaves. Sharing "Reset" made them look like one action.
+                    text = getString(
+                        if (controller.mode == ManageLabelsMode.WORKSPACE) {
+                            R.string.clear_auto_assign_labels
+                        } else {
+                            R.string.reset_generic
+                        },
+                    ),
                     onClick = { close(); controller.reset() },
                     icon = { Icon(painterResource(R.drawable.ic_baseline_undo_24), contentDescription = null) },
                 )
@@ -613,17 +623,37 @@ class ManageLabelsComposeActivity : ActivityBase() {
 
     // --- reset (mirrors classic ManageLabels.reset, ManageLabels.kt:745-763) ---
 
+    /**
+     * The ⋮ reset row, which is two different actions (round 17b, spec §4.4).
+     *
+     * **WORKSPACE** clears the auto-assign set IN PLACE and stays on the list, so the user can see
+     * the ⚡ column go hollow. No `reset` flag and no `finish()` are needed: `WorkspaceSettings.updateFrom`
+     * (ManageLabels.kt:93-98) assigns `autoAssignLabels` and `autoAssignPrimaryLabel` straight from
+     * the ordinary result, so an empty set travels the normal save path verbatim. Its confirmation
+     * uses `reset_workspace_auto_assign_labels`, NOT `reset_workspace_labels` — the latter promises
+     * to reset "favorite" settings, which no reset path has ever touched (`favourite` is a column on
+     * `BookmarkEntities.Label`, global to the app, not workspace state).
+     *
+     * **HIDELABELS** keeps the flag-and-finish path unchanged, because its reset means "revert to
+     * the inherited value" (`HideLabelsPreference`'s `setNonSpecific()`, `TextDisplaySettings`'
+     * `onRevert`) and an empty `selectedLabels` cannot express that.
+     */
     private fun reset() {
         lifecycleScope.launch(Dispatchers.Main) {
-            val msgId = when (data.mode) {
-                ManageLabels.Mode.WORKSPACE -> R.string.reset_workspace_labels
-                ManageLabels.Mode.HIDELABELS -> R.string.reset_hide_labels
+            when (data.mode) {
+                ManageLabels.Mode.WORKSPACE -> {
+                    if (askConfirmation(getString(R.string.reset_workspace_auto_assign_labels))) {
+                        controller.clearAutoAssign()
+                    }
+                }
+                ManageLabels.Mode.HIDELABELS -> {
+                    if (askConfirmation(getString(R.string.reset_hide_labels))) {
+                        ManageLabelsMapper.applyReset(data)
+                        setResult(RESULT_OK, Intent().apply { putExtra("data", this@ManageLabelsComposeActivity.data.toJSON()) })
+                        finish()
+                    }
+                }
                 else -> throw RuntimeException("Illegal value")
-            }
-            if (askConfirmation(getString(msgId))) {
-                ManageLabelsMapper.applyReset(data)
-                setResult(RESULT_OK, Intent().apply { putExtra("data", this@ManageLabelsComposeActivity.data.toJSON()) })
-                finish()
             }
         }
     }
