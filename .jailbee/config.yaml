@@ -121,16 +121,35 @@ defaults:
   network: strict
   storage_pool: default
 
-# Golden image config. Versions match the repo's documented requirements
-# (CLAUDE.md): Java 17. Node is bumped to 24 (repo docs still say 20.x, but
-# 24 gets the built-in WebSocket global that ai-local/tools/webview-cdp needs).
+# Golden image config. Node is bumped to 24 (repo docs still say 20.x, but
+# 24 gets the built-in WebSocket global that ai-local/tools/webview-cdp
+# originally needed). Java: default JDK is 25 (latest LTS), but AndBible's
+# build.gradle.kts pins Gradle's toolchain to `jvmToolchain(17)` — Gradle's
+# toolchain resolution needs an *exact* major-version match and won't accept
+# a newer JDK in its place (unlike a plain `javac --release 17` compile,
+# which a newer JDK could do fine). Without a real JDK 17 installed, Gradle
+# would try to auto-download one from foojay/adoptium, which is blocked by
+# this container's egress rules. So openjdk-17-jdk is installed alongside
+# as an extra package purely to satisfy that toolchain lookup (Gradle
+# auto-detects JDKs under /usr/lib/jvm) — openjdk-25-jdk (via stacks) stays
+# the default `java` on PATH/JAVA_HOME for everything else (IDE, general use).
+#
+# NOTE: use `golden.stacks`, not bare `golden.java`/`golden.node` — the bare
+# keys only pin a version, they don't stage the install.d.available/ snippet
+# that actually installs the runtime. A config with only the bare keys builds
+# a golden image with neither Java nor Node present (found 2026-08-29).
+# `stacks` pins the version AND stages the snippet in one field, plus adds
+# the matching gradle/m2/npm/pnpm-store shared caches.
 golden:
   ubuntu_version: "26.04"
-  java: amazon-corretto-17
-  node: 24
+  stacks:
+    java: "openjdk-25"
+    node: 24
   # android-tools-adb gives the container an adb-client; the actual
   # adb-server runs on the host (see adb model comment above).
+  # openjdk-17-jdk: satisfies AndBible's jvmToolchain(17) — see note above.
   extra_apt_packages:
+    - openjdk-17-jdk
     - android-tools-adb
     # typst is NOT in apt — it's installed from a GitHub release binary by
     # .jailbee/install.d/95-typst.sh (PDF receipt generation for ostickethelper).
