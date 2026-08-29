@@ -122,11 +122,12 @@ defaults:
   storage_pool: default
 
 # Golden image config. Versions match the repo's documented requirements
-# (CLAUDE.md): Java 17, Node 20.
+# (CLAUDE.md): Java 17. Node is bumped to 24 (repo docs still say 20.x, but
+# 24 gets the built-in WebSocket global that ai-local/tools/webview-cdp needs).
 golden:
   ubuntu_version: "26.04"
   java: amazon-corretto-17
-  node: 20
+  node: 24
   # android-tools-adb gives the container an adb-client; the actual
   # adb-server runs on the host (see adb model comment above).
   extra_apt_packages:
