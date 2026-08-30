@@ -75,7 +75,25 @@ data class DocRow(
     val enciphered: Boolean,
     val canDelete: Boolean,
     val installSizeMb: Double?,
-)
+) : DocSortable {
+    // The row renders "<abbreviation> <name>", so sorting by "name" must lead with the
+    // abbreviation or the visible order would not match the chosen criterion.
+    override val sortName: String get() = abbreviation
+    override val sortSecondaryName: String get() = name
+    override val sortCategory: DocCategory? get() = category
+    override val sortLanguage: String? get() = language.displayName
+    override val sortRepository: String? get() = repository.ifEmpty { null }
+    // installSizeMb is MiB (the repo manifest's unit); null means unknown, and must stay null
+    // rather than collapsing to 0 — a document of unknown size is not the smallest document.
+    override val sortSizeBytes: Long? get() = installSizeMb?.let { (it * 1024 * 1024).toLong() }
+    override val sortStatusRank: Int get() = when (installStatus) {
+        DocInstallStatus.BEING_INSTALLED -> 0
+        DocInstallStatus.UPGRADE_AVAILABLE -> 1
+        DocInstallStatus.INSTALLED, DocInstallStatus.ERROR_DOWNLOADING, DocInstallStatus.INSTALL_CANCELLED -> 2
+        DocInstallStatus.NOT_INSTALLED -> 3
+    }
+    override val sortRecommended: Boolean get() = recommended
+}
 
 /**
  * Whether the current selection contains at least one deletable document — the rule behind the
