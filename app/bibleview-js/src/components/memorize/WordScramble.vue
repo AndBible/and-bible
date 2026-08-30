@@ -363,13 +363,10 @@ function resetWords() {
   
   &.preview {
     border: 1px dashed var(--primary-color);
-    background-color: rgba(0, 0, 0, 0.03);
+    background-color: rgba(var(--accent-rgb), 0.03);
     .monochrome & {
       background-color: transparent;
       border-color: black;
-    }
-    .night & {
-      background-color: rgba(255, 255, 255, 0.03);
     }
     .monochrome.night & {
       background-color: transparent;

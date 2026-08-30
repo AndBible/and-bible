@@ -111,6 +111,33 @@ const EXPECTED_TINTS = {
         // .pell-actionbar .night &
         {token: "--accent-rgb", alpha: "0.5"},
     ],
+    "../components/memorize/WordScramble.vue": [
+        // .preview — the wash behind an unsolved scramble. Day and night were the same alpha over
+        // opposite neutrals, which is exactly what the token carries, so the .night & branch is gone.
+        {token: "--accent-rgb", alpha: "0.03"},
+    ],
+    "../components/memorize/WordOrder.vue": [
+        // the slot preview's wash — same story as WordScramble's .preview
+        {token: "--accent-rgb", alpha: "0.03"},
+    ],
+};
+
+// Round 17c. Which files may consume which token. The tint map above already covers --accent-rgb's
+// alphas; this is what catches a token being used somewhere it was never designed for — an opaque
+// --accent-mark on a text label, say, which rule 1 of the spec (§3) forbids.
+// NOTE (deviation from the task-7 brief, flagged for review): common.scss only DEFINES
+// --memorize-mask (`--memorize-mask: var(--ab-secondary-container, ...)`) — it never
+// consumes it via `var(--memorize-mask)` (unlike --accent-mark, which it both defines
+// and consumes at its `color: var(--accent-mark);` icon-button rule). common.scss's own
+// unscoped `.memorize-word.blurred` rule (still `rgba(0,0,0,0.2)`) is dead CSS: WordBlur.vue
+// is the only place "blurred" is ever combined with "memorize-word", and its scoped style
+// always outranks the unscoped one, so that block never paints. The brief listed "common.scss"
+// as an allowed --memorize-mask consumer, mirroring --accent-mark's entry, but that doesn't
+// hold under the registry test's literal var()-usage definition. Left out here rather than
+// silently forcing a match.
+const TOKEN_CONSUMERS = {
+    "--accent-mark": ["common.scss"],
+    "--memorize-mask": ["components/memorize/WordBlur.vue"],
 };
 
 function extractTints(source) {
@@ -255,6 +282,20 @@ describe("theme tokens", () => {
             .sort();
         expect(definers).toEqual(["common.scss"]);
     });
+
+    it.each(Object.entries(TOKEN_CONSUMERS))(
+        "uses %s only in the files the registry lists",
+        (token, expected) => {
+            const srcDir = join(__dirname, "..");
+            const actual = readdirSync(srcDir, {recursive: true, encoding: "utf8"})
+                .filter(p => /\.(scss|vue|ts|js)$/.test(p))
+                .map(p => p.split(sep).join("/"))
+                .filter(p => p !== "__tests__/themeColors.spec.js")
+                .filter(p => new RegExp(`var\\(\\s*${token}\\s*\\)`).test(readFileSync(join(srcDir, p), "utf8")))
+                .sort();
+            expect(actual).toEqual([...expected].sort());
+        }
+    );
 });
 
 describe("alpha-composited tints", () => {
