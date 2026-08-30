@@ -63,4 +63,111 @@ class DocumentArrangementTest {
                 DocCategory.OTHER, null).map { docCategoryRank(it) },
         )
     }
+
+    private val fi = LangOption("fi", "Finnish", "fi")
+
+    @Test fun default_arrangement_is_the_canonical_key_order_filtered_to_the_applicable_set() {
+        val all = defaultArrangement(DocSortKey.entries.toSet())
+        assertEquals(
+            listOf(DocSortKey.STATUS, DocSortKey.RECOMMENDED, DocSortKey.TYPE, DocSortKey.NAME,
+                DocSortKey.LANGUAGE, DocSortKey.REPOSITORY, DocSortKey.SIZE),
+            all.sort.map { it.key },
+        )
+        assertEquals(false, all.sort.any { it.descending })
+        assertEquals(DocGroupBy.NONE, all.groupBy)
+        assertEquals(null, all.repository)
+
+        val picker = defaultArrangement(setOf(DocSortKey.STATUS, DocSortKey.TYPE, DocSortKey.NAME))
+        assertEquals(listOf(DocSortKey.STATUS, DocSortKey.TYPE, DocSortKey.NAME), picker.sort.map { it.key })
+    }
+
+    /**
+     * THE anchor test of this refactor: the default arrangement must reproduce, row for row, the
+     * order the pre-17e comparator produced. The fixture deliberately covers every status bucket,
+     * both recommended values, several categories and an abbreviation tie, so a reordering of any
+     * single comparator key shows up here.
+     */
+    @Test fun default_arrangement_reproduces_the_pre17e_order() {
+        val rows = listOf(
+            row("zeta", DocCategory.COMMENTARY, DocInstallStatus.NOT_INSTALLED),
+            row("alpha", DocCategory.BIBLE, DocInstallStatus.NOT_INSTALLED),
+            row("beta", DocCategory.BIBLE, DocInstallStatus.INSTALLED),
+            row("gamma", DocCategory.BIBLE, DocInstallStatus.UPGRADE_AVAILABLE),
+            row("delta", DocCategory.BIBLE, DocInstallStatus.BEING_INSTALLED),
+            row("epsi", DocCategory.MAPS, DocInstallStatus.NOT_INSTALLED),
+        )
+        val legacy = rows.sortedWith(
+            compareBy<DocRow>(
+                { when (it.installStatus) {
+                    DocInstallStatus.BEING_INSTALLED -> 0
+                    DocInstallStatus.UPGRADE_AVAILABLE -> 1
+                    else -> 2
+                } },
+                { it.installStatus == DocInstallStatus.NOT_INSTALLED },
+                { false },
+                { docCategoryRank(it.category) },
+                { it.abbreviation.lowercase() },
+            )
+        )
+        assertEquals(
+            legacy.map { it.docId },
+            sortDocuments(rows, defaultArrangement(DocSortKey.entries.toSet())).map { it.docId },
+        )
+    }
+
+    @Test fun recommended_first_applies_unconditionally() {
+        val rows = listOf(row("b"), row("a", recommended = true))
+        val arranged = sortDocuments(rows, DocArrangement(listOf(DocSortCriterion(DocSortKey.RECOMMENDED))))
+        assertEquals(listOf("a", "b"), arranged.map { it.docId })
+    }
+
+    @Test fun priority_follows_criterion_order() {
+        val rows = listOf(
+            row("b", DocCategory.BIBLE), row("a", DocCategory.MAPS),
+        )
+        val byType = sortDocuments(rows, DocArrangement(
+            listOf(DocSortCriterion(DocSortKey.TYPE), DocSortCriterion(DocSortKey.NAME))))
+        assertEquals(listOf("b", "a"), byType.map { it.docId })
+        val byName = sortDocuments(rows, DocArrangement(
+            listOf(DocSortCriterion(DocSortKey.NAME), DocSortCriterion(DocSortKey.TYPE))))
+        assertEquals(listOf("a", "b"), byName.map { it.docId })
+    }
+
+    @Test fun descending_reverses_a_single_criterion() {
+        val rows = listOf(row("a"), row("c"), row("b"))
+        assertEquals(
+            listOf("c", "b", "a"),
+            sortDocuments(rows, DocArrangement(listOf(DocSortCriterion(DocSortKey.NAME, descending = true))))
+                .map { it.docId },
+        )
+    }
+
+    @Test fun missing_values_sort_last_in_BOTH_directions() {
+        val rows = listOf(row("known", sizeMb = 1.0), row("unknown", sizeMb = null), row("big", sizeMb = 9.0))
+        assertEquals(
+            listOf("known", "big", "unknown"),
+            sortDocuments(rows, DocArrangement(listOf(DocSortCriterion(DocSortKey.SIZE)))).map { it.docId },
+        )
+        assertEquals(
+            listOf("big", "known", "unknown"),
+            sortDocuments(rows, DocArrangement(listOf(DocSortCriterion(DocSortKey.SIZE, descending = true))))
+                .map { it.docId },
+        )
+    }
+
+    @Test fun secondary_name_is_the_implicit_final_tiebreak_so_input_order_never_shows() {
+        val a = row("same").copy(docId = "a", name = "aaa")
+        val b = row("same").copy(docId = "b", name = "bbb")
+        val arrangement = DocArrangement(listOf(DocSortCriterion(DocSortKey.NAME)))
+        assertEquals(listOf("a", "b"), sortDocuments(listOf(b, a), arrangement).map { it.docId })
+        assertEquals(listOf("a", "b"), sortDocuments(listOf(a, b), arrangement).map { it.docId })
+    }
+
+    @Test fun language_and_repository_sort_case_insensitively() {
+        val rows = listOf(row("x", lang = fi), row("y", lang = en))
+        assertEquals(
+            listOf("y", "x"),
+            sortDocuments(rows, DocArrangement(listOf(DocSortCriterion(DocSortKey.LANGUAGE)))).map { it.docId },
+        )
+    }
 }
