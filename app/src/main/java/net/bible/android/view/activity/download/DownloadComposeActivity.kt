@@ -81,8 +81,10 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.RepoFactory
 import net.bible.service.download.isPseudoBook
+import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
@@ -106,6 +108,14 @@ import java.io.File
 import java.util.Date
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
+/**
+ * Per-SCREEN preference keys, not shared with ChooseDocument: sorting a download list by size is a
+ * different intent from ordering the reading view's document picker, and changing one must not
+ * silently reorder the other.
+ */
+private const val ARRANGEMENT_KEY = "download.arrangement"
+private const val ARRANGEMENT_REMEMBER_KEY = "download.arrangement.remember"
 
 /**
  * Compose host for the Download screen — the new-path twin of classic [DownloadActivity]. It reuses
@@ -198,6 +208,17 @@ open class DownloadComposeActivity : ActivityBase() {
             onAbout = ::handleAbout,
             onUnlock = ::handleUnlock,
             onStickyLanguage = { lang -> CommonUtils.settings.setString("selected_language_code", lang?.code) },
+            // Every key applies here: this list is the only one with an install size, and the only
+            // one that loads the recommended-documents config.
+            applicableSortKeys = DocSortKey.entries.toSet(),
+            applicableGroupKeys = listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.LANGUAGE, DocGroupBy.REPOSITORY),
+            storedArrangement = if (CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true))
+                CommonUtils.settings.getString(ARRANGEMENT_KEY, null) else null,
+            rememberArrangementInitially = CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true),
+            onArrangementChange = { encoded, remember ->
+                CommonUtils.settings.setBoolean(ARRANGEMENT_REMEMBER_KEY, remember)
+                CommonUtils.settings.setString(ARRANGEMENT_KEY, encoded)
+            },
         )
     }
 
@@ -259,6 +280,11 @@ open class DownloadComposeActivity : ActivityBase() {
                     val error by controller.error.collectAsState()
                     val isRefreshing by refreshing.collectAsState()
                     val searchModeActive by controller.searchModeActive.collectAsState()
+                    val grouped by controller.grouped.collectAsState()
+                    val arrangement by controller.arrangement.collectAsState()
+                    val repositories by controller.repositories.collectAsState()
+                    val rememberArrangement by controller.rememberArrangement.collectAsState()
+                    val arrangementIsDefault by controller.arrangementIsDefault.collectAsState()
 
                     val firstSelected = displayed.firstOrNull { it.docId in selectedIds }
                     val bibleInstalled by hasBible.collectAsState()
@@ -282,7 +308,7 @@ open class DownloadComposeActivity : ActivityBase() {
                                 }
                             }
                         },
-                        displayed = displayed,
+                        grouped = grouped,
                         languages = languages,
                         selectedLanguage = selectedLanguage,
                         typeFilters = typeFilterLabels(strings),
@@ -302,6 +328,17 @@ open class DownloadComposeActivity : ActivityBase() {
                             CommonUtils.settings.setInt("selected_document_filter_no", it.ordinal)
                             controller.setTypeFilter(it)
                         },
+                        arrangement = arrangement,
+                        groupKeys = controller.groupKeys,
+                        repositories = repositories,
+                        rememberArrangement = rememberArrangement,
+                        arrangementIsDefault = arrangementIsDefault,
+                        onMoveSort = controller::moveSortCriterion,
+                        onToggleSortDirection = controller::toggleSortDirection,
+                        onGroupByChange = controller::setGroupBy,
+                        onRepositoryChange = controller::setRepositoryFilter,
+                        onRememberChange = controller::setRememberArrangement,
+                        onResetArrangement = controller::resetArrangement,
                         onRowClick = { row ->
                             if (selectionMode) controller.toggle(row.docId) else controller.select(row.docId)
                         },

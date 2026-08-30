@@ -50,7 +50,9 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocRow
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.anySelectedDeletable
@@ -63,6 +65,14 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.koin.android.ext.android.inject
+
+/**
+ * Per-SCREEN preference keys, not shared with Download: sorting a download list by size is a
+ * different intent from ordering the reading view's document picker, and changing one must not
+ * silently reorder the other.
+ */
+private const val ARRANGEMENT_KEY = "chooseDoc.arrangement"
+private const val ARRANGEMENT_REMEMBER_KEY = "chooseDoc.arrangement.remember"
 
 /**
  * Compose host for the document (bible/commentary/…) chooser — the new-path twin of classic
@@ -97,6 +107,19 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                 // starts with no language filter (classic setDefaultLanguage = -1), so this is not
                 // read back on launch here; stored for parity / potential reuse.
                 CommonUtils.settings.setString("selected_language_code", lang?.code)
+            },
+            // No SIZE (DocRowMapper sets installSizeMb = null here — it is a download-only field)
+            // and no RECOMMENDED (this screen never loads the recommended-documents config, so the
+            // flag is always false). A criterion with no data is a lie, so it is not offered.
+            applicableSortKeys = setOf(DocSortKey.STATUS, DocSortKey.TYPE, DocSortKey.NAME,
+                DocSortKey.LANGUAGE, DocSortKey.REPOSITORY),
+            applicableGroupKeys = listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.LANGUAGE, DocGroupBy.REPOSITORY),
+            storedArrangement = if (CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true))
+                CommonUtils.settings.getString(ARRANGEMENT_KEY, null) else null,
+            rememberArrangementInitially = CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true),
+            onArrangementChange = { encoded, remember ->
+                CommonUtils.settings.setBoolean(ARRANGEMENT_REMEMBER_KEY, remember)
+                CommonUtils.settings.setString(ARRANGEMENT_KEY, encoded)
             },
         )
     }
@@ -137,6 +160,11 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                     val selectedIds by controller.selectedIds.collectAsState()
                     val error by controller.error.collectAsState()
                     val searchModeActive by controller.searchModeActive.collectAsState()
+                    val grouped by controller.grouped.collectAsState()
+                    val arrangement by controller.arrangement.collectAsState()
+                    val repositories by controller.repositories.collectAsState()
+                    val rememberArrangement by controller.rememberArrangement.collectAsState()
+                    val arrangementIsDefault by controller.arrangementIsDefault.collectAsState()
 
                     val firstSelected = displayed.firstOrNull { it.docId in selectedIds }
 
@@ -146,7 +174,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                         loading = loading,
                         isRefreshing = false,
                         onRefresh = null,
-                        displayed = displayed,
+                        grouped = grouped,
                         languages = languages,
                         selectedLanguage = selectedLanguage,
                         typeFilters = typeFilterLabels(strings),
@@ -167,6 +195,17 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                             CommonUtils.settings.setInt("selected_document_filter_no", it.ordinal)
                             controller.setTypeFilter(it)
                         },
+                        arrangement = arrangement,
+                        groupKeys = controller.groupKeys,
+                        repositories = repositories,
+                        rememberArrangement = rememberArrangement,
+                        arrangementIsDefault = arrangementIsDefault,
+                        onMoveSort = controller::moveSortCriterion,
+                        onToggleSortDirection = controller::toggleSortDirection,
+                        onGroupByChange = controller::setGroupBy,
+                        onRepositoryChange = controller::setRepositoryFilter,
+                        onRememberChange = controller::setRememberArrangement,
+                        onResetArrangement = controller::resetArrangement,
                         onRowClick = { row ->
                             if (selectionMode) controller.toggle(row.docId) else controller.select(row.docId)
                         },
