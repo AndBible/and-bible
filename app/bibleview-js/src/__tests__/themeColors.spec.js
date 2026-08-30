@@ -101,6 +101,12 @@ const EXPECTED_TINTS = {
         // .isHighlighted .night &
         {token: "--accent-rgb", alpha: "0.3"},
     ],
+    "../editor-common.scss": [
+        // .pell-actionbar — the toolbar's icon colour, which .pell-button inherits
+        {token: "--accent-rgb", alpha: "0.6"},
+        // .pell-actionbar .night &
+        {token: "--accent-rgb", alpha: "0.5"},
+    ],
 };
 
 function extractTints(source) {
