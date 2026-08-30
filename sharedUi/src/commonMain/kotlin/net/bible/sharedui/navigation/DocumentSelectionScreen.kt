@@ -16,15 +16,7 @@
  */
 package net.bible.sharedui.navigation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
@@ -33,11 +25,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.navigation.ChooserError
 import net.bible.sharedcore.navigation.DocArrangement
 import net.bible.sharedcore.navigation.DocCategory
@@ -49,11 +37,9 @@ import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbDocumentListScaffold
 import net.bible.sharedui.components.AbErrorDialog
-import net.bible.sharedui.components.AbLoadingIndicator
-import net.bible.sharedui.components.AbPullToRefresh
 import net.bible.sharedui.components.AbSearchImeRequest
-import net.bible.sharedui.components.AbSelectionScaffold
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
@@ -115,7 +101,7 @@ fun DocumentSelectionScreen(
 ) {
     val strings = LocalStrings.current
 
-    AbSelectionScaffold(
+    AbDocumentListScaffold(
         title = title,
         selectionMode = selectionMode,
         selectedCount = selectedIds.size,
@@ -155,8 +141,7 @@ fun DocumentSelectionScreen(
                 }
             }
         },
-    ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+        filterBar = {
             // Search lives in the top bar (round 7). DocumentFilterBar carries the language and type
             // filters as chips that show their current value and open one bottom sheet at a time —
             // which is why the controls are not hosted in a summary sheet: nesting bottom sheets is
@@ -181,71 +166,29 @@ fun DocumentSelectionScreen(
                 onRememberChange = onRememberChange,
                 onResetArrangement = onResetArrangement,
             )
-            if (loading) {
-                AbLoadingIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
-            }
-            if (onRefresh != null) {
-                AbPullToRefresh(isRefreshing = isRefreshing, onRefresh = onRefresh) {
-                    DocumentList(grouped, downloadMode, selectionMode, selectedIds,
-                        onRowClick, onRowLongClick, onDownload, onCancel)
-                }
-            } else {
-                DocumentList(grouped, downloadMode, selectionMode, selectedIds,
-                    onRowClick, onRowLongClick, onDownload, onCancel)
-            }
-        }
+        },
+        loading = loading,
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        groups = grouped,
+        groupHeaderLabel = { key -> documentGroupHeaderLabel(key, strings) },
+        itemKey = { it.docId },
+        emptyText = null,
+    ) { row ->
+        DocumentRow(
+            row = row,
+            downloadMode = downloadMode,
+            selectionMode = selectionMode,
+            selected = row.docId in selectedIds,
+            onClick = { onRowClick(row) },
+            onLongClick = { onRowLongClick(row) },
+            onDownload = { onDownload(row) },
+            onCancel = { onCancel(row) },
+        )
     }
 
     if (error != null) {
         AbErrorDialog(message = strings.errorOccurred, confirmText = strings.okay, onDismiss = onDismissError)
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun DocumentList(
-    grouped: List<DocGroup<DocRow>>,
-    downloadMode: Boolean,
-    selectionMode: Boolean,
-    selectedIds: Set<String>,
-    onRowClick: (DocRow) -> Unit,
-    onRowLongClick: (DocRow) -> Unit,
-    onDownload: (DocRow) -> Unit,
-    onCancel: (DocRow) -> Unit,
-) {
-    val strings = LocalStrings.current
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        grouped.forEach { group ->
-            // DocGroupKey.None is the ungrouped case and gets NO header — a single header reading
-            // "No grouping" over the whole list would be chrome that says nothing.
-            if (group.key != DocGroupKey.None) {
-                stickyHeader(key = "header-${group.key}") {
-                    Text(
-                        text = documentGroupHeaderLabel(group.key, strings),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            // Opaque: a sticky header scrolls OVER the rows beneath it, so a
-                            // transparent one renders the list text through the label.
-                            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                    )
-                }
-            }
-            items(group.rows, key = { it.docId }) { row ->
-                DocumentRow(
-                    row = row,
-                    downloadMode = downloadMode,
-                    selectionMode = selectionMode,
-                    selected = row.docId in selectedIds,
-                    onClick = { onRowClick(row) },
-                    onLongClick = { onRowLongClick(row) },
-                    onDownload = { onDownload(row) },
-                    onCancel = { onCancel(row) },
-                )
-            }
-        }
     }
 }
 
