@@ -87,9 +87,9 @@ const NON_CONSUMER_FILES = ["composables/config.ts", "__tests__/themeColors.spec
 // the literal string "var(--seed,0,0,0)". A "resolves to…" assertion here could not fail, so the
 // resolved behaviour is verified on the device over CDP instead, and this file guards the text.
 const EXPECTED_TOKENS = {
-    "--accent-rgb": {day: "var(--ab-primary-rgb, 0, 0, 0)", night: "var(--ab-primary-rgb, 255, 255, 255)"},
-    "--accent-mark": {day: "var(--ab-primary, #666)", night: "var(--ab-primary, #999)"},
-    "--memorize-mask": {day: "var(--ab-secondary-container, #ccc)", night: "var(--ab-secondary-container, #555)"},
+    "--accent-rgb": {day: "var(--ab-primary-rgb, 0, 0, 0)", night: "var(--ab-primary-rgb, 255, 255, 255)", monochrome: "0, 0, 0", monochromeNight: "255, 255, 255"},
+    "--accent-mark": {day: "var(--ab-primary, #666)", night: "var(--ab-primary, #999)", monochrome: "black", monochromeNight: "white"},
+    "--memorize-mask": {day: "var(--ab-secondary-container, #ccc)", night: "var(--ab-secondary-container, #555)", monochrome: "white", monochromeNight: "black"},
 };
 
 // Round 17c. Every `rgba(var(--accent-rgb), <alpha>)` site, per file, in source order, with the
@@ -297,9 +297,11 @@ describe("theme tokens", () => {
     const commonScss = () => readFileSync(join(__dirname, "../common.scss"), "utf8");
 
     it.each(Object.entries(EXPECTED_TOKENS))(
-        "declares %s exactly once for day and once for night, with the pre-round literal as the fallback",
+        "declares %s exactly once for day, night, monochrome and monochrome+night, with the pre-round literal as the fallback",
         (token, expected) => {
-            expect(tokenDeclarations(commonScss(), token)).toEqual([expected.day, expected.night]);
+            expect(tokenDeclarations(commonScss(), token)).toEqual(
+                [expected.day, expected.night, expected.monochrome, expected.monochromeNight]
+            );
         }
     );
 

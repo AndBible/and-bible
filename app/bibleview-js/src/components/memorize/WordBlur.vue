@@ -208,6 +208,10 @@ function revealWord(textKey: string, wordIndex: number) {
     -moz-user-select: none;
     -ms-user-select: none;
 
+    .night & {
+      background-color: var(--memorize-mask);
+    }
+
     .monochrome & {
       background-color: white;
       border-color: black;

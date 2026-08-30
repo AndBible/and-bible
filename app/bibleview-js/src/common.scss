@@ -158,9 +158,16 @@ $icon-grey: var(--icon-grey);
   }
   .monochrome {
     --link-color: black;
+    --primary-color: #bdbdbd;
+    --accent-rgb: 0, 0, 0;
+    --accent-mark: black;
+    --memorize-mask: white;
   }
   .monochrome.night {
     --link-color: white;
+    --accent-rgb: 255, 255, 255;
+    --accent-mark: white;
+    --memorize-mask: black;
   }
 }
 
@@ -226,6 +233,7 @@ $icon-grey: var(--icon-grey);
     color: var(--ab-on-secondary-container, black);
     .monochrome & {
       background-color: white;
+      color: black;
     }
     .night & {
       background-color: var(--ab-secondary-container, #616161);
