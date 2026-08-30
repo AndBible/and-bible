@@ -642,4 +642,22 @@ class AndroidStrings(private val context: Context) : Strings {
     override val documentTabRecent: String get() = context.getString(R.string.document_quick_tab_recent)
     override val documentTabForVerse: String get() = context.getString(R.string.document_quick_tab_for_verse)
     override val documentTabLastFilter: String get() = context.getString(R.string.document_quick_tab_last_filter)
+
+    // Round 17e — document list arrangement
+    override val docArrangeTitle: String get() = context.getString(R.string.doc_arrange_title)
+    override val docArrangeRepository: String get() = context.getString(R.string.doc_arrange_repository)
+    override val docArrangeAllRepositories: String get() = context.getString(R.string.doc_arrange_all_repositories)
+    override val docArrangeSort: String get() = context.getString(R.string.doc_arrange_sort)
+    override val docArrangeGroupBy: String get() = context.getString(R.string.doc_arrange_group_by)
+    override val docArrangeRemember: String get() = context.getString(R.string.doc_arrange_remember)
+    override val docArrangeReset: String get() = context.getString(R.string.doc_arrange_reset)
+    override val docArrangeMoreFilters: String get() = context.getString(R.string.doc_arrange_more_filters)
+    override val docArrangeReorder: String get() = context.getString(R.string.doc_arrange_reorder)
+    override val docSortAscending: String get() = context.getString(R.string.doc_sort_ascending)
+    override val docSortDescending: String get() = context.getString(R.string.doc_sort_descending)
+    override val docSortStatus: String get() = context.getString(R.string.doc_sort_status)
+    override val docSortRecommended: String get() = context.getString(R.string.doc_sort_recommended)
+    override val docSortName: String get() = context.getString(R.string.doc_sort_name)
+    override val docSortSize: String get() = context.getString(R.string.doc_sort_size)
+    override val docGroupNone: String get() = context.getString(R.string.doc_group_none)
 }

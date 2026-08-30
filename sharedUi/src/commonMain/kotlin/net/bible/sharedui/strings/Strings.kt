@@ -698,6 +698,24 @@ interface Strings {
     val documentTabRecent: String            // R.string.document_quick_tab_recent
     val documentTabForVerse: String          // R.string.document_quick_tab_for_verse
     val documentTabLastFilter: String        // R.string.document_quick_tab_last_filter
+
+    // Round 17e — document list arrangement (filter / sort / group sheet)
+    val docArrangeTitle: String                      // R.string.doc_arrange_title
+    val docArrangeRepository: String                 // R.string.doc_arrange_repository
+    val docArrangeAllRepositories: String            // R.string.doc_arrange_all_repositories
+    val docArrangeSort: String                       // R.string.doc_arrange_sort
+    val docArrangeGroupBy: String                    // R.string.doc_arrange_group_by
+    val docArrangeRemember: String                   // R.string.doc_arrange_remember
+    val docArrangeReset: String                      // R.string.doc_arrange_reset
+    val docArrangeMoreFilters: String                // R.string.doc_arrange_more_filters
+    val docArrangeReorder: String                    // R.string.doc_arrange_reorder
+    val docSortAscending: String                     // R.string.doc_sort_ascending
+    val docSortDescending: String                    // R.string.doc_sort_descending
+    val docSortStatus: String                        // R.string.doc_sort_status
+    val docSortRecommended: String                   // R.string.doc_sort_recommended
+    val docSortName: String                          // R.string.doc_sort_name
+    val docSortSize: String                          // R.string.doc_sort_size
+    val docGroupNone: String                         // R.string.doc_group_none
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

@@ -2064,4 +2064,21 @@
     <string name="document_quick_tab_recent">Recent</string>
     <string name="document_quick_tab_for_verse">This verse</string>
     <string name="document_quick_tab_last_filter">Last filter</string>
+    <!-- Round 17e: document list filter/sort/group sheet -->
+    <string name="doc_arrange_title">Filter and sort</string>
+    <string name="doc_arrange_repository">Repository</string>
+    <string name="doc_arrange_all_repositories">All repositories</string>
+    <string name="doc_arrange_sort">Sort order</string>
+    <string name="doc_arrange_group_by">Group by</string>
+    <string name="doc_arrange_remember">Remember these settings</string>
+    <string name="doc_arrange_reset">Reset to defaults</string>
+    <string name="doc_arrange_more_filters">More filters</string>
+    <string name="doc_arrange_reorder">Reorder</string>
+    <string name="doc_sort_ascending">Ascending</string>
+    <string name="doc_sort_descending">Descending</string>
+    <string name="doc_sort_status">Status</string>
+    <string name="doc_sort_recommended">Recommended first</string>
+    <string name="doc_sort_name">Name</string>
+    <string name="doc_sort_size">Size</string>
+    <string name="doc_group_none">No grouping</string>
 </resources>
