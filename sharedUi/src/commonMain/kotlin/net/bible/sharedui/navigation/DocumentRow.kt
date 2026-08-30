@@ -17,15 +17,18 @@
 package net.bible.sharedui.navigation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Check
@@ -97,7 +100,18 @@ fun DocumentRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // Leading: checkbox in selection mode, else the classic per-category icon (via the host
-        // seam).
+        // seam) with the "recommended" star as a BADGE in its bottom-right corner.
+        //
+        // The badge position was tried once before (4f7b8774f) and reverted for two reasons, both
+        // answered here. It dimmed the star against the icon it overlapped -- so the star now sits
+        // on a background-coloured halo (a filled circle one third larger than the glyph), which
+        // separates it from whatever it covers in every theme. And in selection mode it landed on
+        // top of the checkbox -- so, as before, the star is simply not drawn there: it is
+        // decoration, and selection mode has no room for it.
+        //
+        // Why a badge at all: as an inline marker it pushed the whole text column 22dp to the
+        // right on recommended rows only, so the list's text edge jittered down the page. A badge
+        // costs no horizontal space, so the text column starts at the same x on every row.
         Box(contentAlignment = Alignment.Center) {
             if (selectionMode) {
                 Checkbox(checked = selected, onCheckedChange = null)
@@ -107,26 +121,26 @@ fun DocumentRow(
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
                 )
+                if (row.recommended) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .offset(x = 3.dp, y = 3.dp)
+                            .size(14.dp)
+                            .background(MaterialTheme.colorScheme.background, CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            Icons.Filled.Star,
+                            contentDescription = strings.recommendedDocument,
+                            // accentArgbFor keeps classic's amber in the normal and COLOR_EINK
+                            // modes and greys it on BW/monochrome, like the download arrow below.
+                            tint = Color(accentArgbFor(RECOMMENDED_STAR_ARGB, LocalDisplayColorMode.current)),
+                            modifier = Modifier.size(11.dp),
+                        )
+                    }
+                }
             }
-        }
-        // Markers BESIDE the leading icon, as classic did (document_list_item.xml constrains both
-        // start_toEndOf the type icon) -- not as a badge ON it. The badge position, added in
-        // 4f7b8774f, both dimmed the star against the icon it overlapped and, in selection mode,
-        // put it on top of the checkbox.
-        //
-        // The star is decoration and is dropped in selection mode; the bad-document warning is
-        // safety information and stays, because selection mode is exactly when the user is about
-        // to act on the document.
-        if (row.recommended && !selectionMode) {
-            Spacer(Modifier.width(6.dp))
-            Icon(
-                Icons.Filled.Star,
-                contentDescription = strings.recommendedDocument,
-                // accentArgbFor keeps classic's amber in the normal and COLOR_EINK modes and
-                // greys it on BW/monochrome, exactly like the download arrow below.
-                tint = Color(accentArgbFor(RECOMMENDED_STAR_ARGB, LocalDisplayColorMode.current)),
-                modifier = Modifier.size(16.dp),
-            )
         }
         if (row.badWarn) {
             Spacer(Modifier.width(6.dp))
