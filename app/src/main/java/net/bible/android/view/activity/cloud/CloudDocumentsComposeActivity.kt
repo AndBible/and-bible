@@ -112,7 +112,7 @@ class CloudDocumentsComposeActivity : ActivityBase() {
         }
         setContent {
             AbAppTheme {
-                    val displayed by controller.displayed.collectAsState()
+                    val grouped by controller.grouped.collectAsState()
                     val statusFilter by controller.statusFilter.collectAsState()
                     val categoryFilter by controller.categoryFilter.collectAsState()
                     val query by controller.query.collectAsState()
@@ -129,7 +129,7 @@ class CloudDocumentsComposeActivity : ActivityBase() {
                         loading = busy || transferRunning,
                         isRefreshing = false,
                         onRefresh = { refresh() },
-                        displayed = displayed,
+                        grouped = grouped,
                         statusFilters = statusFilterLabels(showRemoved),
                         selectedStatusFilter = statusFilter,
                         categoryFilters = categoryFilterLabels(),

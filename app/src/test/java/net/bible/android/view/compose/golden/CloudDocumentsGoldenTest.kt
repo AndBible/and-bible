@@ -5,6 +5,8 @@ import net.bible.android.TEST_SDK
 import net.bible.sharedcore.cloud.CloudDocFilter
 import net.bible.sharedcore.cloud.CloudDocItem
 import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocGroup
+import net.bible.sharedcore.navigation.DocGroupKey
 import net.bible.sharedui.cloud.CloudDocumentsScreen
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -71,7 +73,7 @@ class CloudDocumentsGoldenTest {
     ) = CloudDocumentsScreen(
         title = "Manage cloud documents",
         loading = loading, isRefreshing = false, onRefresh = {},
-        displayed = displayed,
+        grouped = listOf(DocGroup(DocGroupKey.None, displayed)),
         statusFilters = statusFilters, selectedStatusFilter = CloudDocFilter.ALL,
         categoryFilters = categoryFilters, selectedCategoryFilter = null,
         query = query, selectionMode = selectionMode, selectedIds = selectedIds, syncEnabled = false,
