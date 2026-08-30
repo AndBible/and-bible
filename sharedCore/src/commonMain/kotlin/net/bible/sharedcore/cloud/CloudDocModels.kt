@@ -1,6 +1,7 @@
 package net.bible.sharedcore.cloud
 
 import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocSortable
 
 /** Per-item action that can be triggered from a row's overflow menu (moved from the classic adapter). */
 enum class CloudDocAction { DOWNLOAD, PUSH, REMOVE_CLOUD, BLOCK, UNBLOCK, RESTORE, PURGE }
@@ -29,7 +30,29 @@ data class CloudDocItem(
     val cloudDeleted: Boolean,
     /** Pre-formatted install/cloud size (host uses Android's Formatter); null when unknown/zero. */
     val sizeLabel: String?,
-)
+    /**
+     * The raw size behind [sizeLabel]. Both are carried because they answer different questions:
+     * the label is what the row prints, and only the number can be SORTED — ordering "1.2 MB" and
+     * "900 kB" as text puts the smaller file first. `DocumentSync.DocumentStatusItem.sizeBytes`
+     * has always had this value; it was simply discarded into the label.
+     */
+    val sizeBytes: Long? = null,
+) : DocSortable {
+    // The cloud row's headline is the NAME alone (unlike the download row, which leads with the
+    // abbreviation), so "sort by name" must lead with the name here or the visible order would
+    // not match the chosen criterion.
+    override val sortName: String get() = name
+    override val sortSecondaryName: String get() = initials
+    override val sortCategory: DocCategory? get() = category
+    // A cloud listing carries neither: DocumentSync knows a document's sync state, not the
+    // repository it once came from. The screen therefore does not offer these criteria at all.
+    override val sortLanguage: String? get() = null
+    override val sortRepository: String? get() = null
+    override val sortSizeBytes: Long? get() = sizeBytes
+    override val sortStatusRank: Int get() = cloudDocStatusRank(this)
+    // "Recommended" is a download-repository concept; nothing marks a synced document as such.
+    override val sortRecommended: Boolean get() = false
+}
 
 /** The displayed status of a row (icon + label). Pure port of the classic `statusText` when-order. */
 enum class CloudDocStatus { SYNCED, LOCAL_ONLY, CLOUD_ONLY, UPDATE, BLOCKED, WONT_SYNC, REMOVED, REMOVED_STILL_INSTALLED }
@@ -55,3 +78,10 @@ fun actionLabelKind(action: CloudDocAction, localOnly: Boolean, syncEnabled: Boo
     CloudDocAction.RESTORE -> CloudDocActionLabel.RESTORE
     CloudDocAction.PURGE -> CloudDocActionLabel.PURGE
 }
+
+/**
+ * The sync-status rank used for sorting and for status grouping. It is [CloudDocStatus]'s own
+ * declaration order, which already reads worst-news-first (synced, local only, cloud only, update,
+ * blocked, won't sync, removed) — the same order the status filter offers.
+ */
+fun cloudDocStatusRank(item: CloudDocItem): Int = cloudDocStatus(item).ordinal

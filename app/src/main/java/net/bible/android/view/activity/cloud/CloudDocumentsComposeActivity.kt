@@ -358,6 +358,7 @@ class CloudDocumentsComposeActivity : ActivityBase() {
         cloudOnly = cloudOnly, localOnly = localOnly, updateAvailable = updateAvailable, localNewer = localNewer,
         blocked = blocked, canDeleteLocal = canDeleteLocal, cloudDeleted = cloudDeleted,
         sizeLabel = if (sizeBytes > 0) Formatter.formatShortFileSize(this@CloudDocumentsComposeActivity, sizeBytes) else null,
+        sizeBytes = sizeBytes.takeIf { it > 0 },
     )
 
     private fun statusFilterLabels(showRemoved: Boolean): List<Pair<CloudDocFilter, String>> = buildList {
