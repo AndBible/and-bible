@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -832,15 +834,14 @@ open class DownloadComposeActivity : ActivityBase() {
                     icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
                 )
             }
-            // Same drawable as "Install zip" above — deliberate classic parity, not a copy-paste
-            // artefact: classic's own `download_documents.xml` reuses ic_unarchive_white_24dp for
-            // both rows too. Contrast ManageLabelsComposeActivity.kt's undo-glyph rows, where the
-            // identical classic reuse WAS judged a mistake and given distinct icons instead — the
-            // two cases were decided independently and this one intentionally kept the duplicate.
             AbMenuItem(
                 text = getString(R.string.custom_repositories),
                 onClick = { close(); onCustomRepositories() },
-                icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
+                // Icons.Filled.Dns (a stack of servers) rather than the "Install zip" unarchive
+                // glyph this row used to share: the two rows do unrelated things, and the shared
+                // glyph made the menu unreadable at a glance. Distinct from the cloud-sync row's
+                // ic_syncdb_24dp below and from the per-row download arrows in the list.
+                icon = { Icon(Icons.Filled.Dns, contentDescription = null) },
             )
             if (DocumentSyncSettings.enabled) {
                 AbMenuItem(

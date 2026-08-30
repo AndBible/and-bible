@@ -43,7 +43,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.install.InstallManager
 
-const val customRepositoriesWikiUrl = "https://github.com/AndBible/and-bible/wiki/Custom-repositories"
+const val customRepositoriesHelpUrl = "https://docs.andbible.org/en/latest/custom_repositories.html"
 
 class CustomRepositories : ListActivityBase() {
     private lateinit var binding: CustomRepositoriesBinding
@@ -133,8 +133,8 @@ class CustomRepositories : ListActivityBase() {
 
     private fun help() {
         val s0 = getString(R.string.custom_repositories_help0)
-        val s3 = getString(R.string.wiki_page)
-        val urlLink = """<a href="$customRepositoriesWikiUrl">$s3</a>"""
+        val s3 = getString(R.string.help_read_more_link)
+        val urlLink = """<a href="$customRepositoriesHelpUrl">$s3</a>"""
         val s2 = htmlToSpan(getString(R.string.custom_repositories_help2, urlLink))
         val s  = concat(
             s0, "\n\n", s2
