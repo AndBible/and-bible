@@ -52,13 +52,17 @@ class SyncSettingsGoldenTest {
     private fun snap(
         signedIn: Boolean = false,
         documentsEnabled: Boolean = false,
+        serverUrl: String = "https://cloud.example.com",
+        username: String = "alice",
+        password: String = "secret",
+        folderPath: String = "AndBible",
     ) = SyncSettingsSnapshot(
         adapter = "NEXT_CLOUD",
         adapterChoices = listOf(Choice2("GOOGLE_DRIVE", "Google Drive"), Choice2("NEXT_CLOUD", "Nextcloud")),
         adapterSummary = "Sync keeps your data across devices. Provider: Nextcloud",
         adapterEnabled = !signedIn,
         cloudInfoSummary = if (signedIn) "Using 12.34 MB in the cloud" else null,
-        serverUrl = "https://cloud.example.com", username = "alice", password = "secret", folderPath = "AndBible",
+        serverUrl = serverUrl, username = username, password = password, folderPath = folderPath,
         credsVisible = true, credsEnabled = !signedIn,
         resetVisible = signedIn, cloudInfoVisible = signedIn,
         categoryEnabled = SyncCategoryKeys.DISPLAY.associateWith { signedIn },
@@ -122,4 +126,18 @@ class SyncSettingsGoldenTest {
                     ),
                 ),
             ))
+
+    /**
+     * The credentials block with values filled in. Ask what this would look like if the code were
+     * wrong: the password row would read "hunter2" instead of bullets. That is exactly the defect
+     * this pins, so the fixture MUST carry a non-empty password.
+     */
+    @Test fun credentialsFilled() =
+        captureGolden("SyncSettings", "credentialsFilled", EDGE_MODE, heightDp = 2400,
+            content = screen(uiStateFor(snap(
+                serverUrl = "https://cloud.example.org",
+                username = "tuomas",
+                password = "hunter2",
+                folderPath = "/AndBible",
+            ))))
 }
