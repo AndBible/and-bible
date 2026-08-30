@@ -111,6 +111,41 @@ describe("applyThemeColors", () => {
         expect(document.documentElement.style.getPropertyValue("--ab-primary")).toBe("");
         expect(document.documentElement.style.getPropertyValue("--ab-primary-container")).toBe("");
     });
+
+    it("publishes the accent's channels as --ab-primary-rgb, so CSS can tint with an alpha", () => {
+        applyThemeColors({
+            primary: "#FF8000", onPrimary: "#FFFFFF",
+            primaryContainer: "#FFDCC0", onPrimaryContainer: "#2A1800",
+            secondaryContainer: "#F3DFD0", onSecondaryContainer: "#271A10",
+        });
+        expect(document.documentElement.style.getPropertyValue("--ab-primary-rgb")).toBe("255, 128, 0");
+    });
+
+    it("removes --ab-primary-rgb with the rest when the payload is null", () => {
+        applyThemeColors({
+            primary: "#FF8000", onPrimary: "#FFFFFF",
+            primaryContainer: "#FFDCC0", onPrimaryContainer: "#2A1800",
+            secondaryContainer: "#F3DFD0", onSecondaryContainer: "#271A10",
+        });
+        applyThemeColors(null);
+        expect(document.documentElement.style.getPropertyValue("--ab-primary-rgb")).toBe("");
+    });
+
+    // An invalid custom-property value does NOT fall back to the var() fallback — it makes the whole
+    // declaration invalid at computed-value time, which would leave every tinted mark unpainted
+    // rather than grey. So a primary the colour library cannot parse must leave the channels unset
+    // while the six hex roles are still applied.
+    it("leaves --ab-primary-rgb unset when primary cannot be parsed, and still applies the roles", () => {
+        applyThemeColors({
+            primary: "not-a-colour", onPrimary: "#FFFFFF",
+            primaryContainer: "#FFDCC0", onPrimaryContainer: "#2A1800",
+            secondaryContainer: "#F3DFD0", onSecondaryContainer: "#271A10",
+        });
+        const style = document.documentElement.style;
+        expect(style.getPropertyValue("--ab-primary-rgb")).toBe("");
+        expect(style.getPropertyValue("--ab-primary")).toBe("not-a-colour");
+        expect(style.getPropertyValue("--ab-primary-container")).toBe("#FFDCC0");
+    });
 });
 
 describe("var() fallbacks in the themed chrome", () => {

@@ -22,6 +22,7 @@ import {isEqual} from "lodash";
 import {Deferred, setupWindowEventListener} from "@/utils";
 import {BibleViewDocumentType} from "@/types/documents";
 import {TextContentType} from "@/types/client-objects";
+import Color from "color";
 
 export type StrongsMode = 0 | 1 | 2
 export const strongsModes: Record<string, StrongsMode> = {hidden: 0, inline: 1, links: 2}
@@ -132,6 +133,25 @@ const THEME_COLOR_PROPERTIES: [keyof ThemeColors, string][] = [
 ];
 
 /**
+ * The accent's channels, published alongside the hex roles so that a rule which needs a TINTED
+ * TRANSLUCENT value can write `rgba(var(--accent-rgb), <the alpha that rule already had>)` — see
+ * common.scss's token block. `color-mix()` would be the modern way to do this and is unavailable:
+ * StartupActivity enforces a Chromium 83 floor and `color-mix()` needs 111.
+ */
+const ACCENT_CHANNELS_PROPERTY = "--ab-primary-rgb";
+
+function accentChannels(primary: string): string | null {
+    try {
+        return Color(primary).rgb().round().array().join(", ");
+    } catch {
+        // An unparseable value must leave the property UNSET rather than set to junk: an invalid
+        // custom property makes every declaration substituting it invalid at computed-value time,
+        // which paints nothing at all instead of falling back to the grey.
+        return null;
+    }
+}
+
+/**
  * Applies the workspace theme (A/B batch 4b) as CSS custom properties on the document root.
  * Removing them — which is what a null payload does — restores today's appearance, because every
  * consumer declares `var(--ab-…, <the previous literal>)`.
@@ -142,6 +162,9 @@ export function applyThemeColors(colors: ThemeColors | null): void {
         if (colors) style.setProperty(property, colors[key]);
         else style.removeProperty(property);
     }
+    const channels = colors && accentChannels(colors.primary);
+    if (channels) style.setProperty(ACCENT_CHANNELS_PROPERTY, channels);
+    else style.removeProperty(ACCENT_CHANNELS_PROPERTY);
 }
 
 export type AppSettings = {
