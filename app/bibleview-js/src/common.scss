@@ -222,14 +222,14 @@ $icon-grey: var(--icon-grey);
     }
   }
   &.light {
-    background-color: #bdbdbd;
-    color: black;
+    background-color: var(--ab-secondary-container, #bdbdbd);
+    color: var(--ab-on-secondary-container, black);
     .monochrome & {
       background-color: white;
     }
     .night & {
-      background-color: #616161;
-      color: #bdbdbd;
+      background-color: var(--ab-secondary-container, #616161);
+      color: var(--ab-on-secondary-container, #bdbdbd);
     }
     .night.monochrome & {
       background-color: black;
@@ -265,14 +265,11 @@ $icon-grey: var(--icon-grey);
   height: 40px;
   border-radius: $button-border-radius;
   border: none;
-  color: #666;
+  color: var(--accent-mark);
   font-size: 1.2em;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
-  .night & {
-    color: #999;
-  }
   .monochrome & {
     color: black;
   }

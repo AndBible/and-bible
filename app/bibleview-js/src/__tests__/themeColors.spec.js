@@ -27,6 +27,12 @@ const EXPECTED_FALLBACKS = {
         {property: "--ab-primary-rgb", fallback: "255, 255, 255"},
         {property: "--ab-primary", fallback: "#999"},
         {property: "--ab-secondary-container", fallback: "#555"},
+        // Round 17c — .button.light: the container IS the background, the on- role is its text
+        {property: "--ab-secondary-container", fallback: "#bdbdbd"},
+        {property: "--ab-on-secondary-container", fallback: "black"},
+        // Round 17c — .button.light .night &
+        {property: "--ab-secondary-container", fallback: "#616161"},
+        {property: "--ab-on-secondary-container", fallback: "#bdbdbd"},
         // --modal-grey — BACKGROUND of the modal header / .button
         {property: "--ab-primary-container", fallback: "rgb(172,172,172)"},
         // --modal-grey-text — TEXT drawn on --modal-grey
