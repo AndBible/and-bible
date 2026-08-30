@@ -218,4 +218,46 @@ class DocumentArrangementTest {
             groupDocuments(rows, DocGroupBy.STATUS).map { it.key },
         )
     }
+
+    private val allKeys = DocSortKey.entries.toSet()
+
+    @Test fun encode_uses_a_leading_minus_for_descending_and_pipes_between_sections() {
+        val a = DocArrangement(
+            sort = listOf(DocSortCriterion(DocSortKey.STATUS), DocSortCriterion(DocSortKey.SIZE, descending = true)),
+            groupBy = DocGroupBy.TYPE,
+            repository = "CrossWire",
+        )
+        assertEquals("STATUS,-SIZE|TYPE|CrossWire", encodeArrangement(a))
+    }
+
+    @Test fun decode_round_trips_and_fills_in_applicable_keys_the_stored_string_lacks() {
+        val stored = "SIZE,-NAME|LANGUAGE|"
+        val decoded = decodeArrangement(stored, allKeys)
+        assertEquals(DocSortKey.SIZE, decoded.sort[0].key)
+        assertEquals(DocSortCriterion(DocSortKey.NAME, descending = true), decoded.sort[1])
+        // every applicable key is present exactly once, missing ones appended in canonical order
+        assertEquals(allKeys, decoded.sort.map { it.key }.toSet())
+        assertEquals(allKeys.size, decoded.sort.size)
+        assertEquals(DocGroupBy.LANGUAGE, decoded.groupBy)
+        assertEquals(null, decoded.repository)
+    }
+
+    @Test fun decode_drops_keys_this_screen_does_not_declare_applicable() {
+        val picker = setOf(DocSortKey.STATUS, DocSortKey.TYPE, DocSortKey.NAME)
+        val decoded = decodeArrangement("SIZE,NAME,STATUS,TYPE||", picker)
+        assertEquals(listOf(DocSortKey.NAME, DocSortKey.STATUS, DocSortKey.TYPE), decoded.sort.map { it.key })
+    }
+
+    @Test fun decode_of_junk_is_total_and_returns_the_default() {
+        val default = defaultArrangement(allKeys)
+        assertEquals(default, decodeArrangement(null, allKeys))
+        assertEquals(default, decodeArrangement("", allKeys))
+        assertEquals(default, decodeArrangement("nonsense", allKeys))
+        assertEquals(default, decodeArrangement("STATUS", allKeys))          // too few sections
+        assertEquals(default, decodeArrangement("STATUS|NOT_A_GROUP|", allKeys))
+    }
+
+    @Test fun decode_keeps_a_repository_name_containing_a_pipe() {
+        assertEquals("odd|name", decodeArrangement("STATUS|NONE|odd|name", allKeys).repository)
+    }
 }

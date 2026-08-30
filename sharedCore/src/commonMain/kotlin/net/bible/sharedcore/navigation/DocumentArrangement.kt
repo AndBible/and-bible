@@ -196,3 +196,55 @@ private fun compareNullsLast(x: String?, y: String?): Int = when {
     y == null -> -1
     else -> x.lowercase().compareTo(y.lowercase())
 }
+
+/**
+ * The persisted form: `<criteria>|<groupBy>|<repository>`, criteria comma-separated with a leading
+ * `-` for descending. Example: `STATUS,RECOMMENDED,TYPE,NAME,-SIZE|TYPE|CrossWire`.
+ *
+ * A hand-rolled string rather than JSON because this is one preference value per screen, and a
+ * serialization dependency in `:sharedCore` for three fields would not pay for itself.
+ */
+fun encodeArrangement(a: DocArrangement): String {
+    val criteria = a.sort.joinToString(",") { (if (it.descending) "-" else "") + it.key.name }
+    return "$criteria|${a.groupBy.name}|${a.repository ?: ""}"
+}
+
+/**
+ * Read a stored arrangement back. TOTAL by construction: the input is a preference string that a
+ * downgrade, a hand edit or a schema change can corrupt, so anything unrecognised yields
+ * [defaultArrangement] rather than an exception in a screen's constructor.
+ *
+ * The returned sort list is always a full permutation of [applicable]: stored keys the screen no
+ * longer declares are dropped, and applicable keys the string lacks are appended in
+ * [DOC_SORT_KEY_ORDER]. That is what lets a screen gain a sort key without invalidating every
+ * user's saved preference.
+ *
+ * Split with `limit = 3` so a repository name containing `|` survives — the repository is the last
+ * field precisely so it can absorb the rest of the line.
+ */
+fun decodeArrangement(stored: String?, applicable: Set<DocSortKey>): DocArrangement {
+    val default = defaultArrangement(applicable)
+    if (stored.isNullOrBlank()) return default
+    val parts = stored.split("|", limit = 3)
+    if (parts.size != 3) return default
+
+    val criteria = mutableListOf<DocSortCriterion>()
+    for (token in parts[0].split(",")) {
+        if (token.isBlank()) continue
+        val descending = token.startsWith("-")
+        val name = if (descending) token.substring(1) else token
+        val key = DocSortKey.entries.firstOrNull { it.name == name } ?: return default
+        if (key !in applicable) continue
+        if (criteria.none { it.key == key }) criteria.add(DocSortCriterion(key, descending))
+    }
+    DOC_SORT_KEY_ORDER.filter { it in applicable && criteria.none { c -> c.key == it } }
+        .forEach { criteria.add(DocSortCriterion(it)) }
+    if (criteria.isEmpty()) return default
+
+    // Blank is treated like the analogous repository field below (no value stored -> the "unset"
+    // default, DocGroupBy.NONE), not as corruption; only a non-blank, unrecognised name invalidates
+    // the whole record.
+    val groupBy = if (parts[1].isBlank()) DocGroupBy.NONE
+        else DocGroupBy.entries.firstOrNull { it.name == parts[1] } ?: return default
+    return DocArrangement(sort = criteria, groupBy = groupBy, repository = parts[2].ifBlank { null })
+}
