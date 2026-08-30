@@ -50,6 +50,11 @@ import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.docCategoryOf
 
+// Round 17e-2: own key prefix, distinct from the download list's `download.*` keys — changing the
+// sync list's order must never reorder the download list.
+private const val ARRANGEMENT_KEY = "cloudDocs.arrangement"
+private const val ARRANGEMENT_REMEMBER_KEY = "cloudDocs.arrangement.remember"
+
 /**
  * Compose host for the cloud documents management view — the new-path twin of classic
  * [CloudDocumentsActivity]. Wires the shared [CloudDocumentsController] seams to the real
@@ -80,6 +85,13 @@ class CloudDocumentsComposeActivity : ActivityBase() {
             onSyncNow = ::handleSyncNowConfirm,
             onRescan = { runSyncAction { DocumentSync.resetListingCache() } },
             onShowRemovedChange = ::handleShowRemovedChange,
+            storedArrangement = if (CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true))
+                CommonUtils.settings.getString(ARRANGEMENT_KEY, null) else null,
+            rememberArrangementInitially = CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true),
+            onArrangementChange = { encoded, remember ->
+                CommonUtils.settings.setBoolean(ARRANGEMENT_REMEMBER_KEY, remember)
+                CommonUtils.settings.setString(ARRANGEMENT_KEY, encoded)
+            },
         )
     }
 

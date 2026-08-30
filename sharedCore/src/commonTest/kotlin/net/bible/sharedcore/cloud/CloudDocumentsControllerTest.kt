@@ -1,6 +1,8 @@
 package net.bible.sharedcore.cloud
 
 import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocGroupBy
+import net.bible.sharedcore.navigation.DocSortKey
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -25,6 +27,24 @@ class CloudDocumentsControllerTest {
         onSyncNow: (Boolean, Boolean, Boolean) -> Unit = { _, _, _ -> },
         onShowRemovedChange: (Boolean) -> Unit = {},
     ) = CloudDocumentsController({ syncEnabled }, onAction, onBulkAction, onSyncNow, {}, onShowRemovedChange)
+
+    /** A minimal [CloudDocItem] for arrangement tests, where status/sync flags don't matter. */
+    private fun itemOf(i: String, name: String = "name-$i", category: DocCategory = DocCategory.BIBLE) =
+        CloudDocItem(i, name, category, "1.0", "1.0", false, false, false, false, false, true, false, "4.2 MB")
+
+    /** Mirrors `DocumentSelectionControllerTest`'s own `arrangingController()` helper. */
+    private fun arrangingController(
+        stored: String? = null,
+        remember: Boolean = true,
+        onArrangement: (String?, Boolean) -> Unit = { _, _ -> },
+    ) = CloudDocumentsController(
+        syncEnabled = { false },
+        onAction = { _, _ -> }, onBulkAction = { _, _ -> }, onSyncNow = { _, _, _ -> },
+        onRescan = {}, onShowRemovedChange = {},
+        storedArrangement = stored,
+        rememberArrangementInitially = remember,
+        onArrangementChange = onArrangement,
+    )
 
     @Test fun setItems_populates_displayed_via_filter() {
         val c = controller()
@@ -194,5 +214,31 @@ class CloudDocumentsControllerTest {
         )
         // Selection mode exited on the flip, like the other filter-changing setters.
         assertFalse(c.selectionMode.value); assertTrue(c.selectedIds.value.isEmpty())
+    }
+
+    @Test fun search_matches_the_abbreviation_not_only_the_name() {
+        // The reported defect: "Synkronoidut dokumentit" searched item.name alone, so a document
+        // could not be found by the abbreviation its row does not even print.
+        val c = arrangingController()
+        c.setItems(listOf(itemOf("KJV", name = "King James Version"), itemOf("FinPR", name = "Finnish 1938")))
+        c.setQuery("kjv")
+        assertEquals(listOf("KJV"), c.displayed.value.map { it.initials })
+    }
+
+    @Test fun search_still_matches_a_name_from_one_character() {
+        val c = arrangingController()
+        c.setItems(listOf(itemOf("KJV", name = "King James Version"), itemOf("FinPR", name = "Finnish 1938")))
+        c.setQuery("f")
+        assertEquals(listOf("FinPR"), c.displayed.value.map { it.initials })
+    }
+
+    @Test fun the_arrangement_orders_and_groups_the_displayed_list() {
+        val c = arrangingController()
+        c.setItems(listOf(itemOf("b", name = "Beta"), itemOf("a", name = "Alpha")))
+        assertEquals(listOf("a", "b"), c.displayed.value.map { it.initials })
+        c.toggleSortDirection(DocSortKey.NAME)
+        assertEquals(listOf("b", "a"), c.displayed.value.map { it.initials })
+        c.setGroupBy(DocGroupBy.STATUS)
+        assertEquals(c.displayed.value.map { it.initials }, c.grouped.value.flatMap { g -> g.rows.map { it.initials } })
     }
 }
