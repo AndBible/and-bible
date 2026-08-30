@@ -23,8 +23,11 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
+import net.bible.sharedcore.navigation.DocGroupBy
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
+import net.bible.sharedcore.navigation.defaultArrangement
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.navigation.DocumentFilterBar
 import net.bible.sharedui.theme.AbTheme
@@ -77,6 +80,17 @@ class DocumentFilterBarTest {
         selectedTypeFilter = selectedType,
         onTypeFilterChange = onType,
         resultCount = "12 documents",
+        arrangement = defaultArrangement(DocSortKey.entries.toSet()),
+        groupKeys = DocGroupBy.entries.toList(),
+        repositories = emptyList(),
+        rememberArrangement = false,
+        arrangementIsDefault = true,
+        onMoveSort = { _, _ -> },
+        onToggleSortDirection = {},
+        onGroupByChange = {},
+        onRepositoryChange = {},
+        onRememberChange = {},
+        onResetArrangement = {},
     )
 
     @Test fun both_chips_show_the_current_value_and_the_count_is_visible() {

@@ -16,39 +16,33 @@
  */
 package net.bible.sharedui.navigation
 
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.navigation.DocArrangement
+import net.bible.sharedcore.navigation.DocGroupBy
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedcore.navigation.iconCategory
-import net.bible.sharedcore.navigation.shrinkToFitPair
+import net.bible.sharedui.components.AbArrangementLabels
+import net.bible.sharedui.components.AbArrangementSheet
+import net.bible.sharedui.components.AbFilterChip
+import net.bible.sharedui.components.AbFilterChipBar
 import net.bible.sharedui.components.AbSearchableOptionSheet
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.Strings
 
 /**
  * The document-selection filter row: two chips that each open their own bottom sheet, plus the
@@ -70,6 +64,17 @@ fun DocumentFilterBar(
     selectedTypeFilter: DocTypeFilter,
     onTypeFilterChange: (DocTypeFilter) -> Unit,
     resultCount: String,
+    arrangement: DocArrangement,
+    groupKeys: List<DocGroupBy>,
+    repositories: List<String>,
+    rememberArrangement: Boolean,
+    arrangementIsDefault: Boolean,
+    onMoveSort: (from: Int, to: Int) -> Unit,
+    onToggleSortDirection: (DocSortKey) -> Unit,
+    onGroupByChange: (DocGroupBy) -> Unit,
+    onRepositoryChange: (String?) -> Unit,
+    onRememberChange: (Boolean) -> Unit,
+    onResetArrangement: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val strings = LocalStrings.current
@@ -79,85 +84,38 @@ fun DocumentFilterBar(
     val selectedTypePair = typeFilters.firstOrNull { it.first == selectedTypeFilter }
         ?: (selectedTypeFilter to selectedTypeFilter.name)
 
-    Row(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        // The chips live in their own shrink-to-fit pair so THEY absorb the overflow. A trailing
-        // weighted Spacer would instead make the LAST child — the result count — the casualty.
-        //
-        // Round-1 review history worth keeping: a plain `Modifier.weight` split was tried twice
-        // here and rejected both times. A single weighted language chip (unweighted type) let an
-        // unconditionally-full-width type chip starve the language chip to LITERAL ZERO width
-        // under a long language name — its label vanished, not even an ellipsis. Weighting BOTH
-        // chips fixed that, but a flat weight ratio (tried 2:1, then 1:1) caps each chip's max
-        // width to a FIXED proportion of the row regardless of what its sibling actually needs —
-        // so on an ordinary "All" + "All types" row, `Modifier.weight` truncated "All types" to
-        // "All ty…" even though "All" left visible slack unused (Row weight never redistributes
-        // a sibling's unused share). [ShrinkingChipPair] instead measures both chips at their
-        // natural (intrinsic) width first and only imposes a tighter constraint — splitting the
-        // shortfall, not the whole row — when the combined natural width would not fit.
-        ShrinkingChipPair(
-            modifier = Modifier.weight(1f),
-            language = {
-                AssistChip(
-                    onClick = { openSheet = FilterSheet.Language },
-                    label = {
-                        Text(
-                            selectedLanguage?.displayName ?: strings.all,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Filled.Language,
-                            contentDescription = strings.languageLabel,
-                            modifier = Modifier.size(AssistChipDefaults.IconSize),
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(Icons.Filled.ArrowDropDown, contentDescription = null, modifier = Modifier.size(AssistChipDefaults.IconSize))
-                    },
-                )
-            },
-            type = {
-                AssistChip(
-                    onClick = { openSheet = FilterSheet.Type },
-                    // The content description lives on the chip itself, not on the leading icon
-                    // slot: that slot disappears entirely when the filter is ALL (no reserved-slot
-                    // spacer here, unlike the sheet's list), so a description hung off it went
-                    // silent in the chip's default state -- the type chip announced only its value,
-                    // never that it WAS a type filter. Attaching it here means the chip's
-                    // accessible label doesn't depend on which of its slots happen to be present.
-                    modifier = Modifier.semantics { contentDescription = strings.documentTypeLabel },
-                    label = { Text(selectedTypePair.second, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                    leadingIcon = if (selectedTypeFilter.iconCategory == null) {
-                        // No reserved-slot spacer here: that's only needed in the sheet's LIST, to
-                        // keep every row's label aligned. A single chip has nothing to align
-                        // against, so dropping the slot entirely reclaims real width for the label.
-                        null
-                    } else {
-                        // Chip-sized icon (AssistChipDefaults.IconSize), NOT TypeFilterIconSize:
-                        // that larger size is only right for the sheet's ListItem leading slot.
-                        // contentDescription = null: the chip-level semantics above already carries
-                        // the label, so the icon doesn't need (and shouldn't duplicate) its own.
-                        { TypeFilterIcon(selectedTypeFilter, contentDescription = null, size = AssistChipDefaults.IconSize) }
-                    },
-                    trailingIcon = {
-                        Icon(Icons.Filled.ArrowDropDown, contentDescription = null, modifier = Modifier.size(AssistChipDefaults.IconSize))
-                    },
-                )
-            },
-        )
-        Text(
-            text = resultCount,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            modifier = Modifier.padding(start = 8.dp),
-        )
-    }
+    AbFilterChipBar(
+        chips = listOf(
+            AbFilterChip(
+                label = selectedLanguage?.displayName ?: strings.all,
+                contentDescription = strings.languageLabel,
+                leadingIcon = {
+                    Icon(Icons.Filled.Language, contentDescription = null,
+                        modifier = Modifier.size(AssistChipDefaults.IconSize))
+                },
+                // Language names are the long, variable labels; the type set is short and
+                // bounded — the same 2/3 : 1/3 split ShrinkingChipPair was tuned to.
+                shortfallWeight = 2f / 3f,
+                onClick = { openSheet = FilterSheet.Language },
+            ),
+            AbFilterChip(
+                label = selectedTypePair.second,
+                // On the chip itself, not on the leading icon slot: that slot disappears
+                // entirely when the filter is ALL, and a description hung off it went silent
+                // in the chip's default state.
+                contentDescription = strings.documentTypeLabel,
+                leadingIcon = if (selectedTypeFilter.iconCategory == null) null else {
+                    { TypeFilterIcon(selectedTypeFilter, contentDescription = null, size = AssistChipDefaults.IconSize) }
+                },
+                shortfallWeight = 1f / 3f,
+                onClick = { openSheet = FilterSheet.Type },
+            ),
+        ),
+        resultCount = resultCount,
+        onMoreFilters = { openSheet = FilterSheet.Arrangement },
+        moreFiltersActive = !arrangementIsDefault,
+        modifier = modifier,
+    )
 
     when (openSheet) {
         FilterSheet.None -> Unit
@@ -178,70 +136,40 @@ fun DocumentFilterBar(
             searchPlaceholder = null, // seven items; a search field would be noise
             leadingIcon = { TypeFilterIcon(it.first, contentDescription = null) },
         )
+        FilterSheet.Arrangement -> AbArrangementSheet(
+            labels = AbArrangementLabels(
+                title = strings.docArrangeTitle,
+                repositoryLabel = strings.docArrangeRepository,
+                allRepositories = strings.docArrangeAllRepositories,
+                sortLabel = strings.docArrangeSort,
+                groupLabel = strings.docArrangeGroupBy,
+                rememberLabel = strings.docArrangeRemember,
+                resetLabel = strings.docArrangeReset,
+                reorderLabel = strings.docArrangeReorder,
+                ascending = strings.docSortAscending,
+                descending = strings.docSortDescending,
+                sortKeyLabel = { documentSortKeyLabel(it, strings) },
+                groupKeyLabel = { documentGroupKeyLabel(it, strings) },
+            ),
+            sort = arrangement.sort,
+            groupBy = arrangement.groupBy,
+            groupKeys = groupKeys,
+            repositories = repositories,
+            selectedRepository = arrangement.repository,
+            rememberSettings = rememberArrangement,
+            resultCount = resultCount,
+            onMoveSort = onMoveSort,
+            onToggleDirection = onToggleSortDirection,
+            onGroupByChange = onGroupByChange,
+            onRepositoryChange = onRepositoryChange,
+            onRememberChange = onRememberChange,
+            onReset = onResetArrangement,
+            onDismiss = { openSheet = FilterSheet.None },
+        )
     }
 }
 
-private enum class FilterSheet { None, Language, Type }
-
-/**
- * Lays [language] and [type] out side by side at their natural (intrinsic) width whenever both
- * fit; only when the combined natural width exceeds the available width does either shrink —
- * and then only by its share of the SHORTFALL, not of the whole row. This is deliberately not a
- * plain `Row` with `Modifier.weight` on each child: weight caps every weighted child's width to a
- * fixed proportion of the row regardless of what its sibling needs, so it either lets one child's
- * full, unconditional width starve the other to nothing (a single weighted child) or truncates a
- * child that would otherwise fit with room to spare (both weighted equally) — see the call site's
- * kdoc for the two rejected attempts this replaced.
- *
- * The actual sizing decision is [shrinkToFitPair], a pure function with no Compose types — this
- * composable does nothing but measure the two children at their natural width, call it, then
- * measure and place them at the widths (and gap) it returns. Keeping the arithmetic out of the
- * `Layout` block is what makes it host-testable at all: a golden image renders exactly one state,
- * not the branch/clamp logic behind it.
- *
- * [minWidth] is [shrinkToFitPair]'s per-chip floor, converted to px here since that function is
- * pure Compose-free arithmetic. Without it, a long language name can shrink the type chip down to
- * a single ambiguous character ("A…" for both "All types" and "Add-ons") — a filter that hides its
- * own state.
- */
-@Composable
-private fun ShrinkingChipPair(
-    language: @Composable () -> Unit,
-    type: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    gap: Dp = 8.dp,
-    languageShareOfShortfall: Float = 2f / 3f,
-    minWidth: Dp = ChipMinWidth,
-) {
-    Layout(modifier = modifier, content = {
-        language()
-        type()
-    }) { measurables, constraints ->
-        val (languageMeasurable, typeMeasurable) = measurables
-        val languageNatural = languageMeasurable.maxIntrinsicWidth(constraints.maxHeight)
-        val typeNatural = typeMeasurable.maxIntrinsicWidth(constraints.maxHeight)
-        val widths = shrinkToFitPair(
-            available = constraints.maxWidth,
-            gap = gap.roundToPx(),
-            languageNatural = languageNatural,
-            typeNatural = typeNatural,
-            languageShareOfShortfall = languageShareOfShortfall,
-            minWidth = minWidth.roundToPx(),
-        )
-
-        val languagePlaceable = languageMeasurable.measure(
-            Constraints(maxWidth = widths.languageWidth, maxHeight = constraints.maxHeight),
-        )
-        val typePlaceable = typeMeasurable.measure(
-            Constraints(maxWidth = widths.typeWidth, maxHeight = constraints.maxHeight),
-        )
-        val height = maxOf(languagePlaceable.height, typePlaceable.height)
-        layout(constraints.maxWidth, height) {
-            languagePlaceable.placeRelative(0, (height - languagePlaceable.height) / 2)
-            typePlaceable.placeRelative(languagePlaceable.width + widths.gap, (height - typePlaceable.height) / 2)
-        }
-    }
-}
+private enum class FilterSheet { None, Language, Type, Arrangement }
 
 /**
  * The leading icon for a document-type filter. [DocTypeFilter.ALL] spans every category and so
@@ -276,19 +204,23 @@ fun TypeFilterIcon(filter: DocTypeFilter, contentDescription: String?, size: Dp 
 private val TypeFilterIconSize = 24.dp
 
 /**
- * Floor passed to [shrinkToFitPair] via [ShrinkingChipPair]: chip chrome (leading icon, trailing
- * arrow, their gaps to the label, and the chip's own horizontal content padding) plus roughly four
- * characters of label at [AssistChip]'s default text style. Prevents the type chip in particular
- * from shrinking to a single ambiguous character ("A…" reads as both "All types" and "Add-ons") —
- * see finding Important-3 in the round-6 fix wave.
- *
- * 80dp, not a larger "safe" number: measured against `Download_filtersLongLanguageName`'s actual
- * inputs (a 320dp-wide device, "Portuguese (Brazil)" selected), the two chips only have ~195px of
- * combined budget once the result count and screen padding are subtracted. A floor much above 80dp
- * would make `2 * minWidth` exceed that budget, and [shrinkToFitPair] relaxes the floor back to
- * floor-free behaviour entirely rather than violate the stronger "never claim more than available"
- * invariant — so an over-generous floor constant would silently stop protecting the exact golden
- * this fix exists for. At 80dp the type chip still lands with ~4-5 characters of legible label
- * ("All t…"/"Add-…") instead of one.
+ * Criterion labels. Type, language and repository deliberately reuse strings that already exist
+ * and are already translated, rather than adding near-duplicates for the same concepts.
  */
-private val ChipMinWidth = 80.dp
+fun documentSortKeyLabel(key: DocSortKey, strings: Strings): String = when (key) {
+    DocSortKey.STATUS -> strings.docSortStatus
+    DocSortKey.RECOMMENDED -> strings.docSortRecommended
+    DocSortKey.TYPE -> strings.documentTypeLabel
+    DocSortKey.NAME -> strings.docSortName
+    DocSortKey.LANGUAGE -> strings.languageLabel
+    DocSortKey.REPOSITORY -> strings.docArrangeRepository
+    DocSortKey.SIZE -> strings.docSortSize
+}
+
+fun documentGroupKeyLabel(key: DocGroupBy, strings: Strings): String = when (key) {
+    DocGroupBy.NONE -> strings.docGroupNone
+    DocGroupBy.TYPE -> strings.documentTypeLabel
+    DocGroupBy.LANGUAGE -> strings.languageLabel
+    DocGroupBy.REPOSITORY -> strings.docArrangeRepository
+    DocGroupBy.STATUS -> strings.docSortStatus
+}

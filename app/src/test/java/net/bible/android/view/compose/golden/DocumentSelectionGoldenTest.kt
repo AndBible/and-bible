@@ -2,11 +2,17 @@ package net.bible.android.view.compose.golden
 
 import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
+import net.bible.sharedcore.navigation.DocArrangement
 import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocGroup
+import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
+import net.bible.sharedcore.navigation.defaultArrangement
+import net.bible.sharedcore.navigation.groupDocuments
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -154,6 +160,7 @@ class DocumentSelectionGoldenTest {
     private fun screen(
         loading: Boolean = false,
         displayed: List<DocRow> = rows,
+        groupBy: DocGroupBy = DocGroupBy.NONE,
         count: String = resultCount,
         selectionMode: Boolean = false,
         selectedIds: Set<String> = emptySet(),
@@ -171,7 +178,7 @@ class DocumentSelectionGoldenTest {
         loading = loading,
         isRefreshing = isRefreshing,
         onRefresh = if (downloadMode) ({}) else null,
-        displayed = displayed,
+        grouped = groupDocuments(displayed, groupBy),
         languages = languages,
         selectedLanguage = selectedLanguage,
         typeFilters = typeFilters,
@@ -188,6 +195,17 @@ class DocumentSelectionGoldenTest {
         onCloseSearch = {},
         onLanguageChange = {},
         onTypeFilterChange = {},
+        arrangement = defaultArrangement(DocSortKey.entries.toSet()).copy(groupBy = groupBy),
+        groupKeys = DocGroupBy.entries.toList(),
+        repositories = emptyList(),
+        rememberArrangement = false,
+        arrangementIsDefault = groupBy == DocGroupBy.NONE,
+        onMoveSort = { _, _ -> },
+        onToggleSortDirection = {},
+        onGroupByChange = {},
+        onRepositoryChange = {},
+        onRememberChange = {},
+        onResetArrangement = {},
         onRowClick = {},
         onRowLongClick = {},
         onDownload = {},
@@ -246,6 +264,23 @@ class DocumentSelectionGoldenTest {
     @Test fun chooseDocument_loading() {
         captureGolden("ChooseDocument", "loading", EDGE_MODE) {
             screen(loading = true, displayed = emptyList())
+        }
+    }
+
+    /**
+     * Grouped by TYPE over a fixture holding two categories (BIBLE, COMMENTARY): guards the sticky
+     * header rendering added in round 17e-1 — two distinct headers, rows filed under the right one,
+     * and (the thing this golden exists to catch) an opaque header background rather than one that
+     * lets scrolled-under row text show through. `heightDp = 900` keeps both headers and their rows
+     * in frame at once.
+     */
+    @Test fun chooseDocument_grouped() {
+        captureGolden("ChooseDocument", "grouped", EDGE_MODE, heightDp = 900) {
+            screen(
+                displayed = rows.filter { it.category == DocCategory.BIBLE || it.category == DocCategory.COMMENTARY },
+                groupBy = DocGroupBy.TYPE,
+                count = "4 documents",
+            )
         }
     }
 

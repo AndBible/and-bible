@@ -16,6 +16,8 @@
  */
 package net.bible.sharedui.navigation
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,11 +33,19 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.navigation.ChooserError
+import net.bible.sharedcore.navigation.DocArrangement
+import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocGroup
+import net.bible.sharedcore.navigation.DocGroupBy
+import net.bible.sharedcore.navigation.DocGroupKey
 import net.bible.sharedcore.navigation.DocRow
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedui.components.AbActionIcon
@@ -47,6 +57,7 @@ import net.bible.sharedui.components.AbSelectionScaffold
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.Strings
 
 /**
  * Shared, stateless document-selection screen. Used by both ChooseDocument (Plan A,
@@ -60,7 +71,7 @@ fun DocumentSelectionScreen(
     loading: Boolean,
     isRefreshing: Boolean,
     onRefresh: (() -> Unit)?,
-    displayed: List<DocRow>,
+    grouped: List<DocGroup<DocRow>>,
     languages: List<LangOption>,
     selectedLanguage: LangOption?,
     typeFilters: List<Pair<DocTypeFilter, String>>,
@@ -77,6 +88,17 @@ fun DocumentSelectionScreen(
     onCloseSearch: () -> Unit,
     onLanguageChange: (LangOption?) -> Unit,
     onTypeFilterChange: (DocTypeFilter) -> Unit,
+    arrangement: DocArrangement,
+    groupKeys: List<DocGroupBy>,
+    repositories: List<String>,
+    rememberArrangement: Boolean,
+    arrangementIsDefault: Boolean,
+    onMoveSort: (from: Int, to: Int) -> Unit,
+    onToggleSortDirection: (DocSortKey) -> Unit,
+    onGroupByChange: (DocGroupBy) -> Unit,
+    onRepositoryChange: (String?) -> Unit,
+    onRememberChange: (Boolean) -> Unit,
+    onResetArrangement: () -> Unit,
     onRowClick: (DocRow) -> Unit,
     onRowLongClick: (DocRow) -> Unit,
     onDownload: (DocRow) -> Unit,
@@ -147,17 +169,28 @@ fun DocumentSelectionScreen(
                 selectedTypeFilter = selectedTypeFilter,
                 onTypeFilterChange = onTypeFilterChange,
                 resultCount = resultCount,
+                arrangement = arrangement,
+                groupKeys = groupKeys,
+                repositories = repositories,
+                rememberArrangement = rememberArrangement,
+                arrangementIsDefault = arrangementIsDefault,
+                onMoveSort = onMoveSort,
+                onToggleSortDirection = onToggleSortDirection,
+                onGroupByChange = onGroupByChange,
+                onRepositoryChange = onRepositoryChange,
+                onRememberChange = onRememberChange,
+                onResetArrangement = onResetArrangement,
             )
             if (loading) {
                 AbLoadingIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
             }
             if (onRefresh != null) {
                 AbPullToRefresh(isRefreshing = isRefreshing, onRefresh = onRefresh) {
-                    DocumentList(displayed, downloadMode, selectionMode, selectedIds,
+                    DocumentList(grouped, downloadMode, selectionMode, selectedIds,
                         onRowClick, onRowLongClick, onDownload, onCancel)
                 }
             } else {
-                DocumentList(displayed, downloadMode, selectionMode, selectedIds,
+                DocumentList(grouped, downloadMode, selectionMode, selectedIds,
                     onRowClick, onRowLongClick, onDownload, onCancel)
             }
         }
@@ -168,9 +201,10 @@ fun DocumentSelectionScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DocumentList(
-    displayed: List<DocRow>,
+    grouped: List<DocGroup<DocRow>>,
     downloadMode: Boolean,
     selectionMode: Boolean,
     selectedIds: Set<String>,
@@ -179,18 +213,59 @@ private fun DocumentList(
     onDownload: (DocRow) -> Unit,
     onCancel: (DocRow) -> Unit,
 ) {
+    val strings = LocalStrings.current
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(displayed, key = { it.docId }) { row ->
-            DocumentRow(
-                row = row,
-                downloadMode = downloadMode,
-                selectionMode = selectionMode,
-                selected = row.docId in selectedIds,
-                onClick = { onRowClick(row) },
-                onLongClick = { onRowLongClick(row) },
-                onDownload = { onDownload(row) },
-                onCancel = { onCancel(row) },
-            )
+        grouped.forEach { group ->
+            // DocGroupKey.None is the ungrouped case and gets NO header — a single header reading
+            // "No grouping" over the whole list would be chrome that says nothing.
+            if (group.key != DocGroupKey.None) {
+                stickyHeader(key = "header-${group.key}") {
+                    Text(
+                        text = documentGroupHeaderLabel(group.key, strings),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            // Opaque: a sticky header scrolls OVER the rows beneath it, so a
+                            // transparent one renders the list text through the label.
+                            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                    )
+                }
+            }
+            items(group.rows, key = { it.docId }) { row ->
+                DocumentRow(
+                    row = row,
+                    downloadMode = downloadMode,
+                    selectionMode = selectionMode,
+                    selected = row.docId in selectedIds,
+                    onClick = { onRowClick(row) },
+                    onLongClick = { onRowLongClick(row) },
+                    onDownload = { onDownload(row) },
+                    onCancel = { onCancel(row) },
+                )
+            }
         }
     }
+}
+
+/**
+ * A group header's text. The category headers reuse the SAME strings the type filter's sheet
+ * shows, so "Bible" means one thing on this screen; a missing value renders the `all`
+ * placeholder rather than an empty header.
+ */
+private fun documentGroupHeaderLabel(key: DocGroupKey, strings: Strings): String = when (key) {
+    is DocGroupKey.Category -> when (key.category) {
+        DocCategory.BIBLE -> strings.docTypeBible
+        DocCategory.COMMENTARY -> strings.docTypeCommentary
+        DocCategory.DICTIONARY -> strings.docTypeDictionary
+        DocCategory.GENERAL_BOOK -> strings.docTypeGeneralBook
+        DocCategory.MAPS -> strings.docTypeMaps
+        DocCategory.AND_BIBLE -> strings.docTypeAddon
+        DocCategory.OTHER, null -> strings.all
+    }
+    is DocGroupKey.Language -> key.language ?: strings.all
+    is DocGroupKey.Repository -> key.repository ?: strings.all
+    is DocGroupKey.Status -> strings.docSortStatus
+    DocGroupKey.None -> ""
 }
