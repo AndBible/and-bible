@@ -666,4 +666,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val docGroupStatusUpdateAvailable: String get() = context.getString(R.string.doc_group_status_update_available)
     override val docGroupStatusInstalled: String get() = context.getString(R.string.doc_group_status_installed)
     override val docGroupStatusNotInstalled: String get() = context.getString(R.string.doc_group_status_not_installed)
+
+    // Round 17e-2 — moved from the cloud list's overflow menu into its arrangement sheet
+    override val cloudDocShowRemoved: String get() = context.getString(R.string.cloud_doc_show_removed)
 }

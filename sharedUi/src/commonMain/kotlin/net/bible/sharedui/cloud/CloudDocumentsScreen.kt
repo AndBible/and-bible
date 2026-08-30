@@ -58,9 +58,12 @@ import net.bible.sharedcore.cloud.actionLabelKind
 import net.bible.sharedcore.cloud.bulkMenuActions
 import net.bible.sharedcore.cloud.cloudDocStatus
 import net.bible.sharedcore.cloud.documentMenuActions
+import net.bible.sharedcore.navigation.DocArrangement
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocGroup
+import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocGroupKey
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbDocumentListRow
@@ -98,6 +101,17 @@ fun CloudDocumentsScreen(
     onCloseSearch: () -> Unit,
     onStatusFilterChange: (CloudDocFilter) -> Unit,
     onCategoryFilterChange: (DocCategory?) -> Unit,
+    arrangement: DocArrangement,
+    groupKeys: List<DocGroupBy>,
+    rememberArrangement: Boolean,
+    arrangementIsDefault: Boolean,
+    onMoveSort: (from: Int, to: Int) -> Unit,
+    onToggleSortDirection: (DocSortKey) -> Unit,
+    onGroupByChange: (DocGroupBy) -> Unit,
+    onRememberChange: (Boolean) -> Unit,
+    onResetArrangement: () -> Unit,
+    showRemoved: Boolean,
+    onShowRemovedChange: (Boolean) -> Unit,
     onRowClick: (CloudDocItem) -> Unit,
     onRowLongClick: (CloudDocItem) -> Unit,
     onRowAction: (CloudDocItem, CloudDocAction) -> Unit,
@@ -108,9 +122,11 @@ fun CloudDocumentsScreen(
     onExitSelection: () -> Unit,
 ) {
     val strings = LocalStrings.current
+    val allRows = grouped.flatMap { it.rows }
     val bulkActions = if (selectionMode) {
-        bulkMenuActions(grouped.flatMap { it.rows }.filter { it.initials in selectedIds }, syncEnabled)
+        bulkMenuActions(allRows.filter { it.initials in selectedIds }, syncEnabled)
     } else emptyList()
+    val resultCount = strings.docFilterResults(allRows.size)
 
     AbDocumentListScaffold(
         title = title,
@@ -126,7 +142,28 @@ fun CloudDocumentsScreen(
         searchCallbacks = if (searchModeActive) AbTopBarSearchCallbacks(
             onQueryChange = onQueryChange, onClose = onCloseSearch, onImeRequestHandled = {},
         ) else null,
-        filterBar = { /* CloudDocFilterBar(...) — Task 10 */ },
+        filterBar = {
+            CloudDocFilterBar(
+                statusFilters = statusFilters,
+                selectedStatusFilter = selectedStatusFilter,
+                onStatusFilterChange = onStatusFilterChange,
+                categoryFilters = categoryFilters,
+                selectedCategoryFilter = selectedCategoryFilter,
+                onCategoryFilterChange = onCategoryFilterChange,
+                resultCount = resultCount,
+                arrangement = arrangement,
+                groupKeys = groupKeys,
+                rememberArrangement = rememberArrangement,
+                arrangementIsDefault = arrangementIsDefault,
+                onMoveSort = onMoveSort,
+                onToggleSortDirection = onToggleSortDirection,
+                onGroupByChange = onGroupByChange,
+                onRememberChange = onRememberChange,
+                onResetArrangement = onResetArrangement,
+                showRemoved = showRemoved,
+                onShowRemovedChange = onShowRemovedChange,
+            )
+        },
         loading = loading, isRefreshing = isRefreshing, onRefresh = onRefresh,
         groups = grouped,
         groupHeaderLabel = { cloudGroupHeaderLabel(it, strings) },

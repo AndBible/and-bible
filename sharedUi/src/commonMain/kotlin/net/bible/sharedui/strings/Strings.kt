@@ -725,6 +725,9 @@ interface Strings {
     val docGroupStatusUpdateAvailable: String        // R.string.doc_group_status_update_available
     val docGroupStatusInstalled: String               // R.string.doc_group_status_installed
     val docGroupStatusNotInstalled: String            // R.string.doc_group_status_not_installed
+
+    // Round 17e-2 — moved from the cloud list's overflow menu into its arrangement sheet
+    val cloudDocShowRemoved: String                  // R.string.cloud_doc_show_removed
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

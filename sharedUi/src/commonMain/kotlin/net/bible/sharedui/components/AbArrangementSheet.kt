@@ -92,6 +92,7 @@ fun AbArrangementSheet(
     onRememberChange: (Boolean) -> Unit,
     onReset: () -> Unit,
     onDismiss: () -> Unit,
+    extraContent: (@Composable () -> Unit)? = null,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
@@ -102,7 +103,7 @@ fun AbArrangementSheet(
             onMoveSort = onMoveSort, onToggleDirection = onToggleDirection,
             onGroupByChange = onGroupByChange, onRepositoryChange = onRepositoryChange,
             onRememberChange = onRememberChange, onReset = onReset,
-            onClose = onDismiss,
+            onClose = onDismiss, extraContent = extraContent,
         )
     }
 }
@@ -141,6 +142,12 @@ fun AbArrangementSheetContent(
     onReset: () -> Unit,
     onClose: () -> Unit = {},
     modifier: Modifier = Modifier,
+    /**
+     * An optional extra control rendered above the "remember" switch. The cloud list puts its
+     * "show removed documents" toggle here so the setting has ONE home; a screen with no extra
+     * control passes null and the sheet is unchanged.
+     */
+    extraContent: (@Composable () -> Unit)? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
         AbSheetHeader(title = labels.title, onClose = onClose)
@@ -195,6 +202,8 @@ fun AbArrangementSheetContent(
                 RadioRow(labels.groupKeyLabel(key), groupBy == key) { onGroupByChange(key) }
             }
         }
+
+        extraContent?.invoke()
 
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
