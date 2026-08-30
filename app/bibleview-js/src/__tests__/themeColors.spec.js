@@ -74,9 +74,10 @@ const EXPECTED_FALLBACKS = {
 };
 
 // The files above are the ONLY place a `var(--ab-…)` may appear. Everything else in the themed
-// chrome reaches the roles through common.scss's three tokens (--modal-grey / --modal-grey-text /
-// --icon-grey), which is what keeps the role-of-use decision in one reviewable place — and what
-// keeps the `.monochrome` overrides of those tokens effective for every consumer.
+// chrome reaches the roles through common.scss's tokens — --modal-grey / --modal-grey-text /
+// --icon-grey from batch 4b, and --accent-rgb / --accent-mark / --memorize-mask from round 17c —
+// which is what keeps the role-of-use decision in one reviewable place, and what keeps the
+// `.monochrome` overrides of those tokens effective for every consumer.
 // `config.ts` is exempt: it is the writer of the properties, not a consumer.
 const NON_CONSUMER_FILES = ["composables/config.ts", "__tests__/themeColors.spec.js"];
 
