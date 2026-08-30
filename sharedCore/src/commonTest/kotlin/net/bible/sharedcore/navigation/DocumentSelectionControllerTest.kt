@@ -366,4 +366,96 @@ class DocumentSelectionControllerTest {
         assertFalse(c.searchModeActive.value)
         assertEquals("", c.query.value)
     }
+
+    private fun arrangingController(
+        applicable: Set<DocSortKey> = DocSortKey.entries.toSet(),
+        stored: String? = null,
+        remember: Boolean = true,
+        onArrangement: (String?, Boolean) -> Unit = { _, _ -> },
+    ) = DocumentSelectionController(
+        langComparator = compareBy { it.displayName },
+        onSelect = {}, onDelete = {}, onDeleteIndex = {}, onAbout = {}, onUnlock = {}, onStickyLanguage = {},
+        applicableSortKeys = applicable,
+        applicableGroupKeys = listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.LANGUAGE, DocGroupBy.REPOSITORY),
+        storedArrangement = stored,
+        rememberArrangementInitially = remember,
+        onArrangementChange = onArrangement,
+    )
+
+    @Test fun repository_list_is_deduped_sorted_and_drops_blanks() {
+        val c = arrangingController()
+        c.setDocuments(listOf(
+            row("a", DocCategory.BIBLE).copy(repository = "Zeta"),
+            row("b", DocCategory.BIBLE).copy(repository = "Alpha"),
+            row("c", DocCategory.BIBLE).copy(repository = "Alpha"),
+            row("d", DocCategory.BIBLE).copy(repository = ""),
+        ), null)
+        assertEquals(listOf("Alpha", "Zeta"), c.repositories.value)
+    }
+
+    @Test fun repository_filter_narrows_the_displayed_list_and_the_result_count() {
+        val c = arrangingController()
+        c.setDocuments(listOf(
+            row("a", DocCategory.BIBLE).copy(repository = "Alpha"),
+            row("b", DocCategory.BIBLE).copy(repository = "Zeta"),
+        ), null)
+        c.setRepositoryFilter("Alpha")
+        assertEquals(listOf("a"), c.displayed.value.map { it.docId })
+        assertEquals(1, c.resultCount.value)
+        c.setRepositoryFilter(null)
+        assertEquals(2, c.displayed.value.size)
+    }
+
+    @Test fun moving_a_criterion_reorders_the_displayed_list() {
+        val c = arrangingController()
+        c.setDocuments(listOf(
+            row("m", DocCategory.MAPS), row("b", DocCategory.BIBLE),
+        ), null)
+        assertEquals(listOf("b", "m"), c.displayed.value.map { it.docId })  // TYPE outranks NAME
+        val nameIndex = c.arrangement.value.sort.indexOfFirst { it.key == DocSortKey.NAME }
+        c.moveSortCriterion(nameIndex, 0)
+        assertEquals(listOf("b", "m"), c.displayed.value.map { it.docId })  // "b" < "m" alphabetically too
+        c.toggleSortDirection(DocSortKey.NAME)
+        assertEquals(listOf("m", "b"), c.displayed.value.map { it.docId })
+    }
+
+    @Test fun grouping_produces_groups_and_a_flat_displayed_list_that_agree() {
+        val c = arrangingController()
+        c.setDocuments(listOf(row("m", DocCategory.MAPS), row("b", DocCategory.BIBLE)), null)
+        c.setGroupBy(DocGroupBy.TYPE)
+        assertEquals(2, c.grouped.value.size)
+        assertEquals(c.displayed.value.map { it.docId }, c.grouped.value.flatMap { g -> g.rows.map { it.docId } })
+    }
+
+    @Test fun arrangement_changes_are_persisted_only_while_remember_is_on() {
+        val saved = mutableListOf<Pair<String?, Boolean>>()
+        val c = arrangingController(onArrangement = { s, r -> saved.add(s to r) })
+        c.setGroupBy(DocGroupBy.TYPE)
+        assertTrue(saved.last().first!!.contains("|TYPE|"))
+        assertEquals(true, saved.last().second)
+
+        // Turning remember OFF clears the stored value once, then stops writing.
+        c.setRememberArrangement(false)
+        assertEquals(null, saved.last().first)
+        val countAfterOff = saved.size
+        c.setGroupBy(DocGroupBy.LANGUAGE)
+        assertEquals(countAfterOff, saved.size)
+        // ...but the live arrangement still changed, so the screen still obeys it.
+        assertEquals(DocGroupBy.LANGUAGE, c.arrangement.value.groupBy)
+    }
+
+    @Test fun a_stored_arrangement_is_applied_at_construction() {
+        val c = arrangingController(stored = "NAME|TYPE|Alpha")
+        assertEquals(DocSortKey.NAME, c.arrangement.value.sort.first().key)
+        assertEquals(DocGroupBy.TYPE, c.arrangement.value.groupBy)
+        assertEquals("Alpha", c.arrangement.value.repository)
+        assertFalse(c.arrangementIsDefault.value)
+    }
+
+    @Test fun reset_restores_the_default_and_reports_it_as_default() {
+        val c = arrangingController(stored = "NAME|TYPE|Alpha")
+        c.resetArrangement()
+        assertEquals(defaultArrangement(DocSortKey.entries.toSet()), c.arrangement.value)
+        assertTrue(c.arrangementIsDefault.value)
+    }
 }

@@ -21,30 +21,26 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.sharedcore.search.SearchModeController
 
-fun computeDisplayedDocuments(all: List<DocRow>, lang: LangOption?, type: DocTypeFilter, searchIds: Set<String>?): List<DocRow> =
-    all.filter { row ->
-        type.test(row) &&
-            (lang == null || row.language.groupingKey == lang.groupingKey || row.category == DocCategory.AND_BIBLE) &&
-            (searchIds == null || searchIds.contains(row.osisId))
-    }.sortedWith(
-        compareBy<DocRow>(
-            {
-                when (it.installStatus) {
-                    DocInstallStatus.BEING_INSTALLED -> 0
-                    DocInstallStatus.UPGRADE_AVAILABLE -> 1
-                    else -> 2
-                }
-            },
-            { it.installStatus == DocInstallStatus.NOT_INSTALLED }, // not-installed after installed (false<true)
-            { if (lang != null) !it.recommended else false },
-            {
-                when (it.category) {
-                    DocCategory.BIBLE -> 0; DocCategory.COMMENTARY -> 1; DocCategory.DICTIONARY -> 2
-                    DocCategory.GENERAL_BOOK -> 4; DocCategory.MAPS -> 5; DocCategory.AND_BIBLE -> 6; DocCategory.OTHER -> 7
-                }
-            },
-            { it.abbreviation.lowercase() },
-        )
+/**
+ * Filter, then arrange. Filtering (type / language / search / repository) is separate from
+ * ordering because ordering is now user-controlled and lives in [sortDocuments]; before round 17e
+ * this function hard-coded a single composite comparator, which [defaultArrangement] reproduces.
+ */
+fun computeDisplayedDocuments(
+    all: List<DocRow>,
+    lang: LangOption?,
+    type: DocTypeFilter,
+    searchIds: Set<String>?,
+    arrangement: DocArrangement = defaultArrangement(DocSortKey.entries.toSet()),
+): List<DocRow> =
+    sortDocuments(
+        all.filter { row ->
+            type.test(row) &&
+                (lang == null || row.language.groupingKey == lang.groupingKey || row.category == DocCategory.AND_BIBLE) &&
+                (searchIds == null || searchIds.contains(row.osisId)) &&
+                (arrangement.repository == null || row.repository == arrangement.repository)
+        },
+        arrangement,
     )
 
 /**
@@ -61,6 +57,11 @@ class DocumentSelectionController(
     private val onAbout: (String) -> Unit,
     private val onUnlock: (String) -> Unit,
     private val onStickyLanguage: (LangOption?) -> Unit,
+    private val applicableSortKeys: Set<DocSortKey> = DocSortKey.entries.toSet(),
+    private val applicableGroupKeys: List<DocGroupBy> = listOf(DocGroupBy.NONE),
+    storedArrangement: String? = null,
+    rememberArrangementInitially: Boolean = true,
+    private val onArrangementChange: (encoded: String?, remember: Boolean) -> Unit = { _, _ -> },
 ) {
     private var all: List<DocRow> = emptyList()
     private var searchIds: Set<String>? = null
@@ -90,6 +91,57 @@ class DocumentSelectionController(
     private val _error = MutableStateFlow<ChooserError?>(null)
     val error: StateFlow<ChooserError?> = _error.asStateFlow()
 
+    private val _arrangement = MutableStateFlow(decodeArrangement(storedArrangement, applicableSortKeys))
+    val arrangement: StateFlow<DocArrangement> = _arrangement.asStateFlow()
+    private val _rememberArrangement = MutableStateFlow(rememberArrangementInitially)
+    val rememberArrangement: StateFlow<Boolean> = _rememberArrangement.asStateFlow()
+    private val _repositories = MutableStateFlow<List<String>>(emptyList())
+    val repositories: StateFlow<List<String>> = _repositories.asStateFlow()
+    private val _grouped = MutableStateFlow<List<DocGroup<DocRow>>>(emptyList())
+    val grouped: StateFlow<List<DocGroup<DocRow>>> = _grouped.asStateFlow()
+    private val _arrangementIsDefault = MutableStateFlow(
+        decodeArrangement(storedArrangement, applicableSortKeys) == defaultArrangement(applicableSortKeys)
+    )
+    val arrangementIsDefault: StateFlow<Boolean> = _arrangementIsDefault.asStateFlow()
+
+    /** The group keys this screen offers, for the arrangement sheet's radio row. */
+    val groupKeys: List<DocGroupBy> get() = applicableGroupKeys
+
+    fun moveSortCriterion(from: Int, to: Int) {
+        val list = _arrangement.value.sort.toMutableList()
+        if (from !in list.indices || to !in list.indices) return
+        list.add(to, list.removeAt(from))
+        applyArrangement(_arrangement.value.copy(sort = list))
+    }
+
+    fun toggleSortDirection(key: DocSortKey) {
+        applyArrangement(_arrangement.value.copy(
+            sort = _arrangement.value.sort.map { if (it.key == key) it.copy(descending = !it.descending) else it },
+        ))
+    }
+
+    fun setGroupBy(groupBy: DocGroupBy) = applyArrangement(_arrangement.value.copy(groupBy = groupBy))
+    fun setRepositoryFilter(repository: String?) = applyArrangement(_arrangement.value.copy(repository = repository))
+    fun resetArrangement() = applyArrangement(defaultArrangement(applicableSortKeys))
+
+    /**
+     * The user's "remember these settings" switch. Turning it OFF clears the stored value ONCE
+     * (so the next launch really does start from the default) and then stops writing; the live
+     * arrangement is untouched, because the switch is about persistence, not about this session.
+     */
+    fun setRememberArrangement(on: Boolean) {
+        _rememberArrangement.value = on
+        if (on) onArrangementChange(encodeArrangement(_arrangement.value), true)
+        else onArrangementChange(null, false)
+    }
+
+    private fun applyArrangement(next: DocArrangement) {
+        _arrangement.value = next
+        _arrangementIsDefault.value = next == defaultArrangement(applicableSortKeys)
+        if (_rememberArrangement.value) onArrangementChange(encodeArrangement(next), true)
+        refilter()
+    }
+
     fun setDocuments(all: List<DocRow>, searchIds: Set<String>?) {
         this.all = all
         this.searchIds = searchIds
@@ -99,6 +151,7 @@ class DocumentSelectionController(
         _languages.value = all.map { it.language }
             .associateBy { it.groupingKey }.values
             .sortedWith(langComparator)
+        _repositories.value = all.map { it.repository }.filter { it.isNotEmpty() }.distinct().sortedBy { it.lowercase() }
         refilter()
     }
 
@@ -134,6 +187,14 @@ class DocumentSelectionController(
         if (shownIdx >= 0) {
             _displayed.value = shown.toMutableList().apply { this[shownIdx] = updated }
         }
+        // Mirror the in-place replacement into the grouped view. Deliberately NOT a regroup: a
+        // status change can move a row between STATUS groups, and doing that mid-download is the
+        // same "the row jumped away from where the user left it" defect the no-re-sort rule exists
+        // to prevent. The next real refilter regroups.
+        _grouped.value = _grouped.value.map { g ->
+            val i = g.rows.indexOfFirst { it.docId == docId }
+            if (i < 0) g else g.copy(rows = g.rows.toMutableList().apply { this[i] = updated })
+        }
         // resultCount is deliberately NOT recomputed: no predicate in computeDisplayed reads
         // installStatus, so a status change can never add or remove a row from the displayed set.
     }
@@ -149,11 +210,12 @@ class DocumentSelectionController(
         clearSelection()
         val out = computeDisplayed(all, _selectedLanguage.value, _selectedTypeFilter.value, searchIds)
         _displayed.value = out
+        _grouped.value = groupDocuments(out, _arrangement.value.groupBy)
         _resultCount.value = out.size
     }
 
     fun computeDisplayed(all: List<DocRow>, lang: LangOption?, type: DocTypeFilter, searchIds: Set<String>?): List<DocRow> =
-        computeDisplayedDocuments(all, lang, type, searchIds)
+        computeDisplayedDocuments(all, lang, type, searchIds, _arrangement.value)
 
     fun enterSelection() { _selectionMode.value = true }
     fun toggle(id: String) {
