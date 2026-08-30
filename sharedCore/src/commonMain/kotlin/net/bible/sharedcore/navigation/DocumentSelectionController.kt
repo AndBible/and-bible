@@ -41,14 +41,14 @@ fun computeDisplayedDocuments(
     all: List<DocRow>,
     lang: LangOption?,
     type: DocTypeFilter,
-    searchIds: Set<String>?,
+    query: String,
     arrangement: DocArrangement = defaultArrangement(DocSortKey.entries.toSet()),
 ): List<DocRow> =
     sortDocuments(
         all.filter { row ->
             type.test(row) &&
                 (lang == null || row.language.groupingKey == lang.groupingKey || row.category == DocCategory.AND_BIBLE) &&
-                (searchIds == null || searchIds.contains(row.osisId)) &&
+                matchesDocumentQuery(query, listOf(row.abbreviation, row.name, row.language.displayName, row.repository)) &&
                 (arrangement.repository == null || row.repository == arrangement.repository)
         },
         arrangement,
@@ -56,9 +56,8 @@ fun computeDisplayedDocuments(
 
 /**
  * Framework-free controller ported from DocumentSelectionBase's filter/sort/multi-select surface.
- * The host loads the Book list off-main, flattens to DocRow, and pushes via [setDocuments]; the
- * host also owns the Room FTS search (calls [setSearchResults] with matching osisIds). All JSword
- * side effects (open/delete/about/unlock) happen behind the injected seams.
+ * The host loads the Book list off-main, flattens to DocRow, and pushes via [setDocuments]. All
+ * JSword side effects (open/delete/about/unlock) happen behind the injected seams.
  */
 class DocumentSelectionController(
     private val langComparator: Comparator<LangOption>,
@@ -79,7 +78,6 @@ class DocumentSelectionController(
     private val scope: CoroutineScope? = null,
 ) {
     private var all: List<DocRow> = emptyList()
-    private var searchIds: Set<String>? = null
     private var sortReorderCommitJob: Job? = null
 
     private val _loading = MutableStateFlow(true)
@@ -187,9 +185,8 @@ class DocumentSelectionController(
         refilter()
     }
 
-    fun setDocuments(all: List<DocRow>, searchIds: Set<String>?) {
+    fun setDocuments(all: List<DocRow>) {
         this.all = all
-        this.searchIds = searchIds
         _documents.value = all
         _loading.value = false
         // dedupe languages by groupingKey (representative = first seen), sort by host comparator
@@ -210,7 +207,7 @@ class DocumentSelectionController(
      * top the instant it entered BEING_INSTALLED — that is computeDisplayed's first sort key —
      * which reads as the row disappearing from where the user left it. The sort keys are correct
      * and unchanged; they apply at the next re-sort (setDocuments / setLanguage / setTypeFilter /
-     * setSearchResults), exactly as in classic.
+     * setQuery), exactly as in classic.
      *
      * [canDelete] travels with the status because a finished install CHANGES it: the flag is
      * derived from the installed copy of the document, which does not exist until the download
@@ -244,8 +241,14 @@ class DocumentSelectionController(
         // installStatus, so a status change can never add or remove a row from the displayed set.
     }
 
-    fun setSearchResults(osisIds: Set<String>?) { searchIds = osisIds; refilter() }
-    fun setQuery(q: String) { _query.value = q } // host observes query, runs FTS when >=3, calls setSearchResults
+    /**
+     * Round 17e-2: the query filters HERE, over the loaded rows, instead of the host running a
+     * Room FTS query and pushing osisIds back. The FTS table indexed only these same four short
+     * fields, so nothing is lost — and the three-character minimum and the per-keystroke IO hop
+     * go with it. `matchesDocumentQuery` is shared with the cloud list, which is what makes the
+     * two screens' search behave the same.
+     */
+    fun setQuery(q: String) { _query.value = q; refilter() }
     fun openSearch() = searchMode.open()
     fun closeSearch() = searchMode.close()
     fun setLanguage(lang: LangOption?) { _selectedLanguage.value = lang; onStickyLanguage(lang); refilter() }
@@ -253,14 +256,14 @@ class DocumentSelectionController(
 
     private fun refilter() {
         clearSelection()
-        val out = computeDisplayed(all, _selectedLanguage.value, _selectedTypeFilter.value, searchIds)
+        val out = computeDisplayed(all, _selectedLanguage.value, _selectedTypeFilter.value, _query.value)
         _displayed.value = out
         _grouped.value = groupDocuments(out, _arrangement.value.groupBy)
         _resultCount.value = out.size
     }
 
-    fun computeDisplayed(all: List<DocRow>, lang: LangOption?, type: DocTypeFilter, searchIds: Set<String>?): List<DocRow> =
-        computeDisplayedDocuments(all, lang, type, searchIds, _arrangement.value)
+    fun computeDisplayed(all: List<DocRow>, lang: LangOption?, type: DocTypeFilter, query: String): List<DocRow> =
+        computeDisplayedDocuments(all, lang, type, query, _arrangement.value)
 
     fun enterSelection() { _selectionMode.value = true }
     fun toggle(id: String) {

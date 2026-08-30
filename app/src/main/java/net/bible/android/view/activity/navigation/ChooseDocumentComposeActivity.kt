@@ -28,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -36,7 +35,6 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.database.DocumentSearch
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.installedDocument
@@ -44,11 +42,9 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
-import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocRow
@@ -87,8 +83,6 @@ private const val ARRANGEMENT_REMEMBER_KEY = "chooseDoc.arrangement.remember"
 class ChooseDocumentComposeActivity : ActivityBase() {
     private val downloadControl: DownloadControl by inject()
     private val documentControl: DocumentControl by inject()
-
-    private val dao get() = DatabaseContainer.instance.chooseDocumentsDb.documentSearchDao()
 
     /** docId (Book.initials) -> Book, rebuilt on every (re)load. */
     private var booksById: Map<String, Book> = emptyMap()
@@ -139,14 +133,6 @@ class ChooseDocumentComposeActivity : ActivityBase() {
 
         lifecycleScope.launch {
             loadDocuments()
-            // Observe the query: run the Room FTS off-main when long enough, else clear the filter.
-            // collectLatest replays the current (possibly pre-seeded) value against the seeded DAO.
-            controller.query.collectLatest { q ->
-                val ids = if (q.length >= 3) {
-                    withContext(Dispatchers.IO) { runCatching { dao.search("$q*").toSet() }.getOrNull() }
-                } else null
-                controller.setSearchResults(ids)
-            }
         }
 
         setContent {
@@ -255,21 +241,14 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                 // in DocRowMapper, shared with the reading view's document quick sheet so the two
                 // cannot drift. One mapper per book list — see its kdoc.
                 val mapper = DocRowMapper(downloadControl, books)
-                // Seed the FTS DAO once (mirror classic populateMasterDocumentList dao.clear()/insertDocuments).
-                // Stays HERE, not in the mapper: it feeds this screen's search field only.
-                runCatching {
-                    dao.clear()
-                    dao.insertDocuments(books.map {
-                        DocumentSearch(
-                            it.osisID, it.abbreviation, if (it.isPseudoBook) "" else it.name,
-                            it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "",
-                        )
-                    })
-                }
+                // Round 17e-2: no FTS seeding here any more. The search runs in the controller over
+                // the loaded rows (matchesDocumentQuery), which indexes the same four fields the
+                // FTS table did. DocumentSearch / TemporaryDatabase stay in the tree because
+                // classic DocumentSelectionBase still uses them; Batch Z deletes them whole.
                 books.map { mapper.toDocRow(it) }
             }
             booksById = books.associateBy { it.initials }
-            controller.setDocuments(rows, searchIds = null)
+            controller.setDocuments(rows)
         } catch (e: Exception) {
             Log.e(TAG, "Error loading documents", e)
             controller.showError()

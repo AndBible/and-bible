@@ -46,7 +46,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
@@ -61,7 +60,6 @@ import net.bible.android.control.download.LanguageGrouping
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
-import net.bible.android.database.DocumentSearch
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.DocumentConfiguration
@@ -135,7 +133,6 @@ open class DownloadComposeActivity : ActivityBase() {
     private val downloadControl: DownloadControl by inject()
     private val documentControl: DocumentControl by inject()
 
-    private val dao get() = DatabaseContainer.instance.downloadDocumentsDb.documentSearchDao()
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
     private val bookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
@@ -157,8 +154,6 @@ open class DownloadComposeActivity : ActivityBase() {
     private var allBooks: List<Book> = emptyList()
     /** Current DocRows host-side so progress updates can rebuild only the affected rows. */
     private var currentRows: List<DocRow> = emptyList()
-    /** Current FTS search result set (osisIds) to preserve across progress/refresh pushes. */
-    private var currentSearchIds: Set<String>? = null
     /** groupingKey -> sort rank from downloadControl.sortLanguages (RelevantLanguageSorter). */
     private var langRank: Map<String, Int> = emptyMap()
 
@@ -249,15 +244,6 @@ open class DownloadComposeActivity : ActivityBase() {
             if (refresh) updateLastRepoRefreshDate()
 
             handleAutoDownloadExtras()
-
-            // Observe the query and run the Room FTS off-main (same as ChooseDocument host).
-            controller.query.collectLatest { q ->
-                val ids = if (q.length >= 3) {
-                    withContext(Dispatchers.IO) { runCatching { dao.search("$q*").toSet() }.getOrNull() }
-                } else null
-                currentSearchIds = ids
-                controller.setSearchResults(ids)
-            }
         }
 
         // Live per-row download progress: push each row's live status into the controller, which
@@ -515,16 +501,10 @@ open class DownloadComposeActivity : ActivityBase() {
                 langRank = downloadControl.sortLanguages(grouping.representatives)
                     .mapIndexedNotNull { i, lang -> grouping.key(lang)?.let { it to i } }
                     .toMap()
-                // Seed the FTS DAO (mirror classic populateMasterDocumentList dao.clear()/insertDocuments).
-                runCatching {
-                    dao.clear()
-                    dao.insertDocuments(books.map {
-                        DocumentSearch(
-                            it.osisID, it.abbreviation, if (it.isPseudoBook) "" else it.name,
-                            it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "",
-                        )
-                    })
-                }
+                // Round 17e-2: no FTS seeding here any more. The search runs in the controller over
+                // the loaded rows (matchesDocumentQuery), which indexes the same four fields the
+                // FTS table did. DocumentSearch / TemporaryDatabase stay in the tree because
+                // classic DocumentSelectionBase still uses them; Batch Z deletes them whole.
                 // Bad documents flagged HIDE are excluded (classic filterDocuments); WARN → badWarn.
                 books.filterNot { it.isBadDocument(badDocuments, BadDocumentAction.HIDE) }
                     .map { it.toDocRow(grouping, langByKey) }
@@ -537,7 +517,7 @@ open class DownloadComposeActivity : ActivityBase() {
             // so the bridge's repoIdentity -> docId map is the identity.
             bridge.setRepoIdentityMap(books.associate { it.repoIdentity to it.repoIdentity })
             currentRows = rows
-            controller.setDocuments(rows, currentSearchIds)
+            controller.setDocuments(rows)
         } catch (e: Exception) {
             Log.e(TAG, "Error loading download documents", e)
             controller.showError()
