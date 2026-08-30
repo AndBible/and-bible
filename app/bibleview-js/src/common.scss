@@ -131,10 +131,30 @@ $button-grey-text: var(--modal-grey-text);
 $icon-grey: var(--icon-grey);
 
 :root {
-  --primary-color: #bdbdbd;
+  // Round 17c: an accent used as a FOREGROUND mark (memorize punctuation, the dashed preview
+  // borders, the type buffer). Consumed only by the four memorize components.
+  --primary-color: var(--ab-primary, #bdbdbd);
   --link-color: #1a73e8;
+
+  // Round 17c. Three tokens carry the theme to the files that are NOT allowed to name an --ab-*
+  // role directly (see __tests__/themeColors.spec.js). Each keeps its consumers' pre-round literal
+  // as the fallback, so an unthemed page is unchanged.
+  //
+  // Accent CHANNELS, for values that are alpha-composited rather than opaque: a consumer writes
+  // `rgba(var(--accent-rgb), <the alpha that site already had>)`. `color-mix()` would be the modern
+  // way and is unavailable — StartupActivity enforces a Chromium 83 floor, `color-mix()` needs 111.
+  --accent-rgb: var(--ab-primary-rgb, 0, 0, 0);
+  // The opaque accent an interactive ICON is drawn in: .icon-button, and the gear/⋯ triggers that
+  // are styled in place rather than through that class.
+  --accent-mark: var(--ab-primary, #666);
+  // The opaque tone a memorize mask is painted in (WordBlur's covered word).
+  --memorize-mask: var(--ab-secondary-container, #ccc);
+
   .night {
     --link-color: #8ab4f8;
+    --accent-rgb: var(--ab-primary-rgb, 255, 255, 255);
+    --accent-mark: var(--ab-primary, #999);
+    --memorize-mask: var(--ab-secondary-container, #555);
   }
   .monochrome {
     --link-color: black;

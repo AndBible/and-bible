@@ -17,6 +17,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // because a container role is a background tone and would be nearly invisible drawn as a mark.
 const EXPECTED_FALLBACKS = {
     "../common.scss": [
+        // Round 17c — --primary-color: a FOREGROUND accent used by the memorize components
+        {property: "--ab-primary", fallback: "#bdbdbd"},
+        // Round 17c — the three tokens, day
+        {property: "--ab-primary-rgb", fallback: "0, 0, 0"},
+        {property: "--ab-primary", fallback: "#666"},
+        {property: "--ab-secondary-container", fallback: "#ccc"},
+        // Round 17c — the three tokens, .night
+        {property: "--ab-primary-rgb", fallback: "255, 255, 255"},
+        {property: "--ab-primary", fallback: "#999"},
+        {property: "--ab-secondary-container", fallback: "#555"},
         // --modal-grey — BACKGROUND of the modal header / .button
         {property: "--ab-primary-container", fallback: "rgb(172,172,172)"},
         // --modal-grey-text — TEXT drawn on --modal-grey
@@ -59,6 +69,25 @@ const EXPECTED_FALLBACKS = {
 // keeps the `.monochrome` overrides of those tokens effective for every consumer.
 // `config.ts` is exempt: it is the writer of the properties, not a consumer.
 const NON_CONSUMER_FILES = ["composables/config.ts", "__tests__/themeColors.spec.js"];
+
+// Round 17c. The three tokens through which every file OUTSIDE the EXPECTED_FALLBACKS map reaches a
+// theme role. Recorded here as exact text because jsdom performs no var() substitution — verified:
+// `getComputedStyle(root).getPropertyValue("--a")` on `:root { --a: var(--seed, 0, 0, 0) }` returns
+// the literal string "var(--seed,0,0,0)". A "resolves to…" assertion here could not fail, so the
+// resolved behaviour is verified on the device over CDP instead, and this file guards the text.
+const EXPECTED_TOKENS = {
+    "--accent-rgb": {day: "var(--ab-primary-rgb, 0, 0, 0)", night: "var(--ab-primary-rgb, 255, 255, 255)"},
+    "--accent-mark": {day: "var(--ab-primary, #666)", night: "var(--ab-primary, #999)"},
+    "--memorize-mask": {day: "var(--ab-secondary-container, #ccc)", night: "var(--ab-secondary-container, #555)"},
+};
+
+function tokenDeclarations(source, token) {
+    const re = new RegExp(`^\\s*${token}:\\s*(.+?);`, "gm");
+    const values = [];
+    let match;
+    while ((match = re.exec(source)) !== null) values.push(match[1].trim());
+    return values;
+}
 
 function sourceFilesUsingAbRoles() {
     const srcDir = join(__dirname, "..");
@@ -162,5 +191,28 @@ describe("var() fallbacks in the themed chrome", () => {
             .map(p => p.replace(/^\.\.\//, ""))
             .sort();
         expect(sourceFilesUsingAbRoles()).toEqual(covered);
+    });
+});
+
+describe("theme tokens", () => {
+    const commonScss = () => readFileSync(join(__dirname, "../common.scss"), "utf8");
+
+    it.each(Object.entries(EXPECTED_TOKENS))(
+        "declares %s exactly once for day and once for night, with the pre-round literal as the fallback",
+        (token, expected) => {
+            expect(tokenDeclarations(commonScss(), token)).toEqual([expected.day, expected.night]);
+        }
+    );
+
+    it("declares the tokens only in common.scss", () => {
+        const srcDir = join(__dirname, "..");
+        const definers = readdirSync(srcDir, {recursive: true, encoding: "utf8"})
+            .filter(p => /\.(scss|vue|ts|js)$/.test(p))
+            .map(p => p.split(sep).join("/"))
+            .filter(p => p !== "__tests__/themeColors.spec.js")
+            .filter(p => Object.keys(EXPECTED_TOKENS)
+                .some(t => new RegExp(`^\\s*${t}:`, "m").test(readFileSync(join(srcDir, p), "utf8"))))
+            .sort();
+        expect(definers).toEqual(["common.scss"]);
     });
 });
