@@ -16,20 +16,20 @@ package net.bible.sharedcore.navigation
  * or a Greek letter no longer silently under-matches.
  *
  * Tokens are maximal runs of letters and digits, which is how the FTS4 simple tokenizer split
- * text too, so "ESV2011" is one token and "Version (Anglicised)" is two.
+ * text too, so "ESV2011" is one token and "Version (Anglicised)" is two. The QUERY is tokenized
+ * the same way, not just split on whitespace, so punctuation splits it into terms exactly like it
+ * splits a field — a hyphenated or apostrophed document name (e.g. "Reina-Valera", "Luther's
+ * Bible", "St. Athanasius") is searchable by either half, not just the whole punctuated string.
  *
  * `null` fields are skipped: a screen passes a fixed field list, and a row missing a language or a
  * repository must neither match on it nor blow up.
  */
 fun matchesDocumentQuery(query: String, fields: List<String?>): Boolean {
-    val terms = query.trim().split(' ', '\t', '\n').filter { it.isNotEmpty() }
+    val terms = tokenizeForSearch(query)
     if (terms.isEmpty()) return true
     val tokens = fields.filterNotNull().flatMap { tokenizeForSearch(it) }
     if (tokens.isEmpty()) return false
-    return terms.all { term ->
-        val needle = term.lowercase()
-        tokens.any { it.startsWith(needle) }
-    }
+    return terms.all { term -> tokens.any { it.startsWith(term) } }
 }
 
 /** Maximal runs of letters and digits, lowercased. Mirrors FTS4's simple tokenizer. */

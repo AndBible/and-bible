@@ -92,6 +92,10 @@ class CloudDocumentsComposeActivity : ActivityBase() {
                 CommonUtils.settings.setBoolean(ARRANGEMENT_REMEMBER_KEY, remember)
                 CommonUtils.settings.setString(ARRANGEMENT_KEY, encoded)
             },
+            // Final-review fix wave (round 17e-2): debounces the drag-reorder commit (persist +
+            // refilter) so it fires once per settled gesture, not once per item swap — same as
+            // DocumentSelectionController's own scope wiring in DownloadComposeActivity.
+            scope = lifecycleScope,
         )
     }
 

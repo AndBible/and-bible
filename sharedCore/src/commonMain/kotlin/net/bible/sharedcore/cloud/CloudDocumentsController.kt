@@ -11,12 +11,24 @@ import net.bible.sharedcore.navigation.encodeArrangement
 import net.bible.sharedcore.navigation.groupDocuments
 import net.bible.sharedcore.navigation.sortDocuments
 import net.bible.sharedcore.search.SearchModeController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 /** The multi-choice "Sync now" dialog's per-direction labels + pre-checked state (host-built). */
 data class SyncNowDialogState(val labels: List<String>, val checked: List<Boolean>)
+
+/**
+ * How long [CloudDocumentsController.moveSortCriterion] waits after the LAST swap of a drag
+ * gesture before committing (persisting + refiltering) the reordered criteria — mirrors
+ * [net.bible.sharedcore.navigation.DocumentSelectionController]'s own debounce (round 17e-1
+ * final-review fix I3); see that function's KDoc there, and this one's below.
+ */
+private const val SORT_REORDER_COMMIT_DELAY_MS = 300L
 
 /**
  * Framework-free controller for the cloud documents management view. The host flattens
@@ -34,6 +46,10 @@ class CloudDocumentsController(
     storedArrangement: String? = null,
     rememberArrangementInitially: Boolean = true,
     private val onArrangementChange: (encoded: String?, remember: Boolean) -> Unit = { _, _ -> },
+    // Round 17e-2 final-review fix wave. Null (the default, and every existing test's choice) makes
+    // moveSortCriterion commit synchronously, same as before this fix — a host that cares about the
+    // debounced behavior (i.e. the real cloud-documents screen) supplies its lifecycleScope.
+    private val scope: CoroutineScope? = null,
 ) {
     // No LANGUAGE or REPOSITORY: a cloud listing has neither. No RECOMMENDED: nothing marks a
     // synced document as recommended.
@@ -41,6 +57,7 @@ class CloudDocumentsController(
         setOf(DocSortKey.STATUS, DocSortKey.TYPE, DocSortKey.NAME, DocSortKey.SIZE)
     private val applicableGroupKeys: List<DocGroupBy> =
         listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.STATUS)
+    private var sortReorderCommitJob: Job? = null
     private val _items = MutableStateFlow<List<CloudDocItem>>(emptyList())
     val items: StateFlow<List<CloudDocItem>> = _items.asStateFlow()
     private val _displayed = MutableStateFlow<List<CloudDocItem>>(emptyList())
@@ -89,11 +106,37 @@ class CloudDocumentsController(
     /** The group keys this screen offers, for the arrangement sheet's radio row. */
     val groupKeys: List<DocGroupBy> get() = applicableGroupKeys
 
+    /**
+     * Reorder one sort criterion. [AbReorderableColumn] (in `:sharedUi`) calls this once PER ITEM
+     * SWAP during an active drag inside the cloud arrangement sheet — a modal with no visible
+     * document list behind it. Doing a full [applyArrangement] (a synchronous persistence write
+     * plus a re-sort/re-group of the whole, potentially large, document list) on every swap would
+     * be wasted main-thread work for a reorder the user cannot even see yet.
+     *
+     * [_arrangement] is still updated on every call, immediately, so the sheet's OWN UI (which
+     * reads the live order) reflects each swap right away. Only the expensive commit is deferred:
+     * with a [scope] supplied, it is debounced — cancelling any pending commit and rescheduling —
+     * so it fires once, [SORT_REORDER_COMMIT_DELAY_MS] after the LAST swap, i.e. once the drag
+     * settles. Without a [scope] it commits synchronously, matching the pre-fix behavior (the
+     * choice every test that does not itself exercise this debounce makes).
+     */
     fun moveSortCriterion(from: Int, to: Int) {
         val list = _arrangement.value.sort.toMutableList()
         if (from !in list.indices || to !in list.indices) return
         list.add(to, list.removeAt(from))
-        applyArrangement(_arrangement.value.copy(sort = list))
+        val next = _arrangement.value.copy(sort = list)
+        _arrangement.value = next
+        _arrangementIsDefault.value = next == defaultArrangement(applicableSortKeys)
+        val liveScope = scope
+        if (liveScope == null) {
+            applyArrangement(next)
+            return
+        }
+        sortReorderCommitJob?.cancel()
+        sortReorderCommitJob = liveScope.launch {
+            delay(SORT_REORDER_COMMIT_DELAY_MS)
+            applyArrangement(_arrangement.value)
+        }
     }
 
     fun toggleSortDirection(key: DocSortKey) {

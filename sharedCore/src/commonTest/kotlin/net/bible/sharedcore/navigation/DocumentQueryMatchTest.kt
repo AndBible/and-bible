@@ -48,4 +48,10 @@ class DocumentQueryMatchTest {
         assertTrue(matchesDocumentQuery("kjv", listOf(null, "KJV")))
         assertFalse(matchesDocumentQuery("kjv", listOf(null, null)))
     }
+
+    @Test fun a_hyphenated_or_punctuated_query_term_matches_by_its_word_parts() {
+        assertTrue(matchesDocumentQuery("reina-valera", listOf("Reina-Valera 1960")))
+        assertTrue(matchesDocumentQuery("luther's", listOf("Luther's Bible")))
+        assertTrue(matchesDocumentQuery("st.", listOf("St. Athanasius")))
+    }
 }

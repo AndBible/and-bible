@@ -3,7 +3,11 @@ package net.bible.sharedcore.cloud
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.matchesDocumentQuery
 
-/** Keeps items matching the status, a case-insensitive name substring, and (when non-null) category. */
+/**
+ * Keeps items matching the status, (when non-null) category, and [nameQuery] — matched as a
+ * token-prefix query (via [matchesDocumentQuery], case-insensitive, Unicode-aware) over BOTH
+ * [CloudDocItem.initials] and [CloudDocItem.name], not a plain name substring.
+ */
 fun filterCloudDocuments(
     items: List<CloudDocItem>,
     status: CloudDocFilter,

@@ -91,10 +91,12 @@ class DocumentSelectionControllerTest {
         val c = arrangingController()
         c.setDocuments(listOf(
             row("KJV", DocCategory.BIBLE).copy(name = "King James Version", repository = "CrossWire"),
-            row("FinPR", DocCategory.BIBLE, lang = fi).copy(name = "Finnish 1938", repository = "eBible"),
+            row("FinPR", DocCategory.BIBLE, lang = fi).copy(name = "Raamattu 1938", repository = "eBible"),
         ))
         c.setQuery("kj")
         assertEquals(listOf("KJV"), c.displayed.value.map { it.docId })
+        // "Raamattu 1938" shares no word with "Finnish" — this can only match via the language
+        // field (fi's displayName), genuinely isolating that language IS a searched field.
         c.setQuery("finnish")
         assertEquals(listOf("FinPR"), c.displayed.value.map { it.docId })
         c.setQuery("ebible")

@@ -3,6 +3,7 @@ package net.bible.sharedcore.cloud
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocArrangement
 import net.bible.sharedcore.navigation.DocGroupBy
+import net.bible.sharedcore.navigation.DocGroupKey
 import net.bible.sharedcore.navigation.DocSortCriterion
 import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.groupDocuments
@@ -50,6 +51,9 @@ class CloudDocArrangementTest {
 
     @Test fun cloud_items_group_by_status() {
         val rows = listOf(item("u", updateAvailable = true), item("s"))
-        assertEquals(2, groupDocuments(rows, DocGroupBy.STATUS).size)
+        val groups = groupDocuments(rows, DocGroupBy.STATUS)
+        assertEquals(2, groups.size)
+        val ranks = groups.map { (it.key as DocGroupKey.Status).rank }
+        assertEquals(listOf(cloudDocStatus(item("s")).ordinal, CloudDocStatus.UPDATE.ordinal).sorted(), ranks.sorted())
     }
 }

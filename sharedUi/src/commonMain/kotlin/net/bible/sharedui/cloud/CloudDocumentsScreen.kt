@@ -207,7 +207,10 @@ fun CloudDocumentsScreen(
 /**
  * Header label for a cloud-list group, reusing the SAME words the screen's own filters/status show
  * — a group called "Update available" must not be a third spelling of a state the status chip and
- * the row subtitle already name.
+ * the row subtitle already name. [DocCategory.OTHER]/null is NOT the same as "no value" — it's a
+ * real, meaningful category (documents that aren't Bible/commentary/dictionary/general
+ * book/maps/add-on), so it gets its own [Strings.docTypeOther] label rather than the `all`
+ * placeholder, matching [net.bible.sharedui.navigation.documentGroupHeaderLabel]'s sibling case.
  */
 private fun cloudGroupHeaderLabel(key: DocGroupKey, strings: Strings): String = when (key) {
     is DocGroupKey.Status -> statusLabel(CloudDocStatus.entries[key.rank], strings)
@@ -218,7 +221,7 @@ private fun cloudGroupHeaderLabel(key: DocGroupKey, strings: Strings): String = 
         DocCategory.GENERAL_BOOK -> strings.docTypeGeneralBook
         DocCategory.MAPS -> strings.docTypeMaps
         DocCategory.AND_BIBLE -> strings.docTypeAddon
-        DocCategory.OTHER, null -> strings.all
+        DocCategory.OTHER, null -> strings.docTypeOther
     }
     // The cloud screen offers neither, so these are unreachable — but the `when` must stay
     // exhaustive so a future group key fails the build rather than rendering an empty header.
