@@ -170,4 +170,52 @@ class DocumentArrangementTest {
             sortDocuments(rows, DocArrangement(listOf(DocSortCriterion(DocSortKey.LANGUAGE)))).map { it.docId },
         )
     }
+
+    @Test fun grouping_none_yields_one_group_holding_everything_in_order() {
+        val rows = listOf(row("a"), row("b"))
+        val groups = groupDocuments(rows, DocGroupBy.NONE)
+        assertEquals(1, groups.size)
+        assertEquals(DocGroupKey.None, groups[0].key)
+        assertEquals(listOf("a", "b"), groups[0].rows.map { it.docId })
+    }
+
+    @Test fun grouping_by_type_orders_groups_by_category_rank_not_by_first_appearance() {
+        // deliberately fed MAPS-first so "first appearance" would give the wrong answer
+        val rows = listOf(row("m", DocCategory.MAPS), row("b", DocCategory.BIBLE))
+        val groups = groupDocuments(rows, DocGroupBy.TYPE)
+        assertEquals(
+            listOf(DocGroupKey.Category(DocCategory.BIBLE), DocGroupKey.Category(DocCategory.MAPS)),
+            groups.map { it.key },
+        )
+    }
+
+    @Test fun grouping_preserves_the_incoming_row_order_within_each_group() {
+        val rows = listOf(row("b2", DocCategory.BIBLE), row("m", DocCategory.MAPS), row("b1", DocCategory.BIBLE))
+        val groups = groupDocuments(rows, DocGroupBy.TYPE)
+        assertEquals(listOf("b2", "b1"), groups.first().rows.map { it.docId })
+    }
+
+    @Test fun grouping_by_language_and_repository_is_alphabetical_with_missing_last() {
+        val rows = listOf(row("x", lang = fi), row("y", lang = en))
+        assertEquals(
+            listOf(DocGroupKey.Language("English"), DocGroupKey.Language("Finnish")),
+            groupDocuments(rows, DocGroupBy.LANGUAGE).map { it.key },
+        )
+        val repos = listOf(row("p", repo = "Zeta"), row("q", repo = ""), row("r", repo = "Alpha"))
+        assertEquals(
+            listOf(DocGroupKey.Repository("Alpha"), DocGroupKey.Repository("Zeta"), DocGroupKey.Repository(null)),
+            groupDocuments(repos, DocGroupBy.REPOSITORY).map { it.key },
+        )
+    }
+
+    @Test fun grouping_by_status_orders_by_rank() {
+        val rows = listOf(
+            row("n", status = DocInstallStatus.NOT_INSTALLED),
+            row("d", status = DocInstallStatus.BEING_INSTALLED),
+        )
+        assertEquals(
+            listOf(DocGroupKey.Status(0), DocGroupKey.Status(3)),
+            groupDocuments(rows, DocGroupBy.STATUS).map { it.key },
+        )
+    }
 }

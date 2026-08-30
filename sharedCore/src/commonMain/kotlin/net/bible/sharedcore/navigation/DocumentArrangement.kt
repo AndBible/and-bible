@@ -139,3 +139,60 @@ fun <T : DocSortable> sortDocuments(rows: List<T>, arrangement: DocArrangement):
     }
     return rows.sortedWith(combined)
 }
+
+/**
+ * The identity of one group. It carries DATA, never a label: labels are localized and belong to
+ * `:sharedUi`, which maps a key to a string through `LocalStrings`. Keeping the label out of here
+ * is what lets `:sharedCore` stay Android-free and lets two screens label the same key differently.
+ */
+sealed interface DocGroupKey {
+    data object None : DocGroupKey
+    data class Category(val category: DocCategory?) : DocGroupKey
+    data class Language(val language: String?) : DocGroupKey
+    data class Repository(val repository: String?) : DocGroupKey
+    data class Status(val rank: Int) : DocGroupKey
+}
+
+data class DocGroup<T>(val key: DocGroupKey, val rows: List<T>)
+
+/**
+ * Split an ALREADY SORTED list into groups.
+ *
+ * Grouping is the outermost key: the groups appear in their key's own natural order (category
+ * rank, alphabetical language/repository with missing last, status rank), and the rows keep the
+ * incoming order inside each group. That is why this takes a sorted list rather than sorting
+ * itself — the sort criteria order rows WITHIN a group, and the group order is not theirs to set.
+ */
+fun <T : DocSortable> groupDocuments(sorted: List<T>, groupBy: DocGroupBy): List<DocGroup<T>> {
+    if (groupBy == DocGroupBy.NONE) return listOf(DocGroup(DocGroupKey.None, sorted))
+    val keyed: Map<DocGroupKey, List<T>> = sorted.groupBy { row ->
+        when (groupBy) {
+            DocGroupBy.NONE -> DocGroupKey.None
+            DocGroupBy.TYPE -> DocGroupKey.Category(row.sortCategory)
+            DocGroupBy.LANGUAGE -> DocGroupKey.Language(row.sortLanguage)
+            DocGroupBy.REPOSITORY -> DocGroupKey.Repository(row.sortRepository)
+            DocGroupBy.STATUS -> DocGroupKey.Status(row.sortStatusRank)
+        }
+    }
+    val ordered = keyed.entries.sortedWith(
+        Comparator { a, b -> compareGroupKeys(a.key, b.key) },
+    )
+    return ordered.map { DocGroup(it.key, it.value) }
+}
+
+/** Missing (null) group values sort last, like missing sort values do. */
+private fun compareGroupKeys(a: DocGroupKey, b: DocGroupKey): Int = when {
+    a is DocGroupKey.Category && b is DocGroupKey.Category ->
+        docCategoryRank(a.category).compareTo(docCategoryRank(b.category))
+    a is DocGroupKey.Status && b is DocGroupKey.Status -> a.rank.compareTo(b.rank)
+    a is DocGroupKey.Language && b is DocGroupKey.Language -> compareNullsLast(a.language, b.language)
+    a is DocGroupKey.Repository && b is DocGroupKey.Repository -> compareNullsLast(a.repository, b.repository)
+    else -> 0
+}
+
+private fun compareNullsLast(x: String?, y: String?): Int = when {
+    x == null && y == null -> 0
+    x == null -> 1
+    y == null -> -1
+    else -> x.lowercase().compareTo(y.lowercase())
+}
