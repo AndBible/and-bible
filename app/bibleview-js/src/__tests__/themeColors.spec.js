@@ -87,6 +87,30 @@ const EXPECTED_TOKENS = {
     "--memorize-mask": {day: "var(--ab-secondary-container, #ccc)", night: "var(--ab-secondary-container, #555)"},
 };
 
+// Round 17c. Every `rgba(var(--accent-rgb), <alpha>)` site, per file, in source order, with the
+// alpha the site had BEFORE this round. The token supplies the tone; this map is what stops the
+// tone change from also becoming an opacity change. Add a site → add its entry here.
+const EXPECTED_TINTS = {
+    "../common.scss": [
+        // .journal-button — the study pad's ⋯ menu, add-entry, edit-notes, indent, delete, drag
+        {token: "--accent-rgb", alpha: "0.5"},
+        // .journal-button .night &
+        {token: "--accent-rgb", alpha: "0.6"},
+        // .isHighlighted — one or more selected verses (Reference.vue @extends this)
+        {token: "--accent-rgb", alpha: "0.1"},
+        // .isHighlighted .night &
+        {token: "--accent-rgb", alpha: "0.3"},
+    ],
+};
+
+function extractTints(source) {
+    const re = /rgba\(\s*var\(\s*(--accent-rgb)\s*\)\s*,\s*([0-9.]+)\s*\)/g;
+    const matches = [];
+    let match;
+    while ((match = re.exec(source)) !== null) matches.push({token: match[1], alpha: match[2]});
+    return matches;
+}
+
 function tokenDeclarations(source, token) {
     const re = new RegExp(`^\\s*${token}:\\s*(.+?);`, "gm");
     const values = [];
@@ -220,5 +244,27 @@ describe("theme tokens", () => {
                 .some(t => new RegExp(`^\\s*${t}:`, "m").test(readFileSync(join(srcDir, p), "utf8"))))
             .sort();
         expect(definers).toEqual(["common.scss"]);
+    });
+});
+
+describe("alpha-composited tints", () => {
+    it.each(Object.entries(EXPECTED_TINTS))(
+        "keeps the pre-round alpha at every tinted site in %s",
+        (relativePath, expected) => {
+            const source = readFileSync(join(__dirname, relativePath), "utf8");
+            expect(extractTints(source)).toEqual(expected);
+        }
+    );
+
+    it("tints only in the files this map covers", () => {
+        const srcDir = join(__dirname, "..");
+        const covered = Object.keys(EXPECTED_TINTS).map(p => p.replace(/^\.\.\//, "")).sort();
+        const actual = readdirSync(srcDir, {recursive: true, encoding: "utf8"})
+            .filter(p => /\.(scss|vue|ts|js)$/.test(p))
+            .map(p => p.split(sep).join("/"))
+            .filter(p => p !== "__tests__/themeColors.spec.js")
+            .filter(p => /rgba\(\s*var\(\s*--accent-rgb/.test(readFileSync(join(srcDir, p), "utf8")))
+            .sort();
+        expect(actual).toEqual(covered);
     });
 });

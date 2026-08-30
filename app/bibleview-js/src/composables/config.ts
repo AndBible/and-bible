@@ -133,8 +133,9 @@ const THEME_COLOR_PROPERTIES: [keyof ThemeColors, string][] = [
 ];
 
 /**
- * The accent's channels, published alongside the hex roles so that a rule which needs a TINTED
- * TRANSLUCENT value can write `rgba(var(--accent-rgb), <the alpha that rule already had>)` — see
+ * The accent's channels, published as `--ab-primary-rgb` alongside the hex roles so that
+ * common.scss's `--accent-rgb` token can forward them to any rule that needs a TINTED TRANSLUCENT
+ * value — such a rule wraps the token in an `rgba(…)` call with the alpha it already had. See
  * common.scss's token block. `color-mix()` would be the modern way to do this and is unavailable:
  * StartupActivity enforces a Chromium 83 floor and `color-mix()` needs 111.
  */

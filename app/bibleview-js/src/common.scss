@@ -38,12 +38,12 @@
 .journal-button {
   cursor: pointer;
   z-index: 1;
-  color: rgba(0, 0, 0, 0.5);
+  color: rgba(var(--accent-rgb), 0.5);
   .monochrome & {
     color: black;
   }
   .night & {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(var(--accent-rgb), 0.6);
   }
   .night.monochrome & {
     color: white;
@@ -376,14 +376,14 @@ $modal-content-background-color-night: rgb(33, 33, 33);
 }
 
 .isHighlighted {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(var(--accent-rgb), 0.1);
   .monochrome & {
     background-color: transparent;
     outline: 2px solid black;
     outline-offset: 1px;
   }
   .night & {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(var(--accent-rgb), 0.3);
   }
 }
 
