@@ -54,6 +54,10 @@ const EXPECTED_FALLBACKS = {
         {property: "--ab-on-secondary-container", fallback: "#bdbdbd"},
     ],
     "../components/tabs/TabNavigation.vue": [
+        // Round 17c — .tab-navigation's bottom rule: a hairline SURFACE under the strip, not a mark
+        {property: "--ab-secondary-container", fallback: "#eee"},
+        // Round 17c — .tab-navigation .night &
+        {property: "--ab-secondary-container", fallback: "#444"},
         // .tab-button:hover:not(:disabled) — day: the container IS the background, on- is its text
         {property: "--ab-on-secondary-container", fallback: "#007bff"},
         {property: "--ab-secondary-container", fallback: "#f8f9fa"},

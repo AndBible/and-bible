@@ -126,13 +126,13 @@ function handleTabClick(tabId: string) {
   display: flex;
   overflow-x: auto;
   &::-webkit-scrollbar { display: none; }
-  border-bottom: 2px solid #eee;
+  border-bottom: 2px solid var(--ab-secondary-container, #eee);
 
   .monochrome & {
     border-bottom-color: black;
   }
   .night & {
-    border-bottom-color: #444;
+    border-bottom-color: var(--ab-secondary-container, #444);
   }
   .monochrome.night & {
     border-bottom-color: white;
