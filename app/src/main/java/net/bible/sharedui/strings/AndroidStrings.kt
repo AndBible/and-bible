@@ -62,6 +62,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val docTypeGeneralBook: String get() = context.getString(R.string.doc_type_book)
     override val docTypeMaps: String get() = context.getString(R.string.doc_type_map)
     override val docTypeAddon: String get() = context.getString(R.string.doc_type_addons)
+    override val docTypeOther: String get() = context.getString(R.string.doc_type_other)
     override val languageLabel: String get() = context.getString(R.string.chooce_language_hint)
     override val documentTypeLabel: String get() = context.getString(R.string.document_type_label)
     override val aboutDoc: String get() = context.getString(R.string.about)
@@ -556,7 +557,6 @@ class AndroidStrings(private val context: Context) : Strings {
     override val customRepositoriesHelp0: String get() = context.getString(R.string.custom_repositories_help0)
     override val customRepositoriesHelp1: String get() = context.getString(R.string.custom_repositories_help1)
     override fun customRepositoriesHelp2(link: String): String = context.getString(R.string.custom_repositories_help2, link)
-    override val wikiPage: String get() = context.getString(R.string.wiki_page)
     override fun deleteCustomRepository(name: String): String = context.getString(R.string.delete_custom_repository, name)
     override fun duplicateCustomRepository(name: String): String = context.getString(R.string.duplicate_custom_repository, name)
     override val repositorySpecification: String get() = context.getString(R.string.repository_specification)
@@ -660,4 +660,10 @@ class AndroidStrings(private val context: Context) : Strings {
     override val docSortName: String get() = context.getString(R.string.doc_sort_name)
     override val docSortSize: String get() = context.getString(R.string.doc_sort_size)
     override val docGroupNone: String get() = context.getString(R.string.doc_group_none)
+
+    // Round 17e-1 (final-review fix) — status group-header labels (I2a)
+    override val docGroupStatusDownloading: String get() = context.getString(R.string.doc_group_status_downloading)
+    override val docGroupStatusUpdateAvailable: String get() = context.getString(R.string.doc_group_status_update_available)
+    override val docGroupStatusInstalled: String get() = context.getString(R.string.doc_group_status_installed)
+    override val docGroupStatusNotInstalled: String get() = context.getString(R.string.doc_group_status_not_installed)
 }

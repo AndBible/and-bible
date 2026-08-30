@@ -49,10 +49,12 @@ import net.bible.sharedui.strings.LocalStrings
  * `ExposedDropdownMenuBox`, documented as being for short option lists only — a user's label set is
  * not bounded, and it offered no way to search).
  *
- * This deliberately does not reuse `DocumentFilterBar`: that composable's substance is
- * `ShrinkingChipPair`, a custom `Layout` that splits a width shortfall between exactly TWO chips.
- * A lone chip has nothing to shrink against, so the reusable half — [AbSearchableOptionSheet] — is
- * what is shared instead.
+ * This deliberately does not reuse `DocumentFilterBar` directly: that composable is built for
+ * `DocumentSelectionScreen`'s two-chip-plus-count-plus-Tune layout specifically. `DocumentFilterBar`'s
+ * own chip row is now [net.bible.sharedui.components.AbFilterChipBar] (round 17e-1, replacing the old
+ * two-chip-only `ShrinkingChipPair`), which IS N-ary and shrinks a single chip sensibly — so a future
+ * consolidation onto it for this one-chip case is plausible. For now the reusable half shared here is
+ * just [AbSearchableOptionSheet].
  */
 @Composable
 fun BookmarkFilterBar(

@@ -121,6 +121,9 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                 CommonUtils.settings.setBoolean(ARRANGEMENT_REMEMBER_KEY, remember)
                 CommonUtils.settings.setString(ARRANGEMENT_KEY, encoded)
             },
+            // Round 17e-1 final-review fix (I3): debounces the drag-reorder commit (persist +
+            // refilter) so it fires once per settled gesture, not once per item swap.
+            scope = lifecycleScope,
         )
     }
 

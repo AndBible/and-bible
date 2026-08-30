@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
@@ -44,6 +45,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocSortCriterion
@@ -151,9 +153,11 @@ fun AbArrangementSheetContent(
 
         if (repositories.isNotEmpty()) {
             SectionLabel(labels.repositoryLabel)
-            RadioRow(labels.allRepositories, selectedRepository == null) { onRepositoryChange(null) }
-            repositories.forEach { repo ->
-                RadioRow(repo, selectedRepository == repo) { onRepositoryChange(repo) }
+            Column(Modifier.selectableGroup()) {
+                RadioRow(labels.allRepositories, selectedRepository == null) { onRepositoryChange(null) }
+                repositories.forEach { repo ->
+                    RadioRow(repo, selectedRepository == repo) { onRepositoryChange(repo) }
+                }
             }
         }
 
@@ -186,8 +190,10 @@ fun AbArrangementSheetContent(
         }
 
         SectionLabel(labels.groupLabel)
-        groupKeys.forEach { key ->
-            RadioRow(labels.groupKeyLabel(key), groupBy == key) { onGroupByChange(key) }
+        Column(Modifier.selectableGroup()) {
+            groupKeys.forEach { key ->
+                RadioRow(labels.groupKeyLabel(key), groupBy == key) { onGroupByChange(key) }
+            }
         }
 
         Row(
@@ -217,7 +223,8 @@ private fun SectionLabel(text: String) {
 @Composable
 private fun RadioRow(label: String, selected: Boolean, onClick: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().selectable(selected = selected, onClick = onClick)
+        modifier = Modifier.fillMaxWidth()
+            .selectable(selected = selected, onClick = onClick, role = Role.RadioButton)
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

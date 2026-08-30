@@ -252,7 +252,9 @@ private fun DocumentList(
 /**
  * A group header's text. The category headers reuse the SAME strings the type filter's sheet
  * shows, so "Bible" means one thing on this screen; a missing value renders the `all`
- * placeholder rather than an empty header.
+ * placeholder rather than an empty header. [DocCategory.OTHER]/null is NOT the same as "no
+ * value" — CrossWire ships real documents (daily devotions, glossaries, essays, images, …) that
+ * map to OTHER, so it gets its own [Strings.docTypeOther] label rather than the `all` placeholder.
  */
 private fun documentGroupHeaderLabel(key: DocGroupKey, strings: Strings): String = when (key) {
     is DocGroupKey.Category -> when (key.category) {
@@ -262,10 +264,23 @@ private fun documentGroupHeaderLabel(key: DocGroupKey, strings: Strings): String
         DocCategory.GENERAL_BOOK -> strings.docTypeGeneralBook
         DocCategory.MAPS -> strings.docTypeMaps
         DocCategory.AND_BIBLE -> strings.docTypeAddon
-        DocCategory.OTHER, null -> strings.all
+        DocCategory.OTHER, null -> strings.docTypeOther
     }
     is DocGroupKey.Language -> key.language ?: strings.all
     is DocGroupKey.Repository -> key.repository ?: strings.all
-    is DocGroupKey.Status -> strings.docSortStatus
+    is DocGroupKey.Status -> documentGroupStatusLabel(key.rank, strings)
     DocGroupKey.None -> ""
+}
+
+/**
+ * Per-status-VALUE label for a STATUS-grouped list's header, keyed by [DocRow.sortStatusRank]
+ * (see that property's KDoc). The engine deliberately stays ignorant of the status vocabulary —
+ * a rank, not an enum, because different screens rank different things — so the label mapping
+ * lives here, on the host side, specific to THIS screen's four DocInstallStatus-derived ranks.
+ */
+private fun documentGroupStatusLabel(rank: Int, strings: Strings): String = when (rank) {
+    0 -> strings.docGroupStatusDownloading      // DocInstallStatus.BEING_INSTALLED
+    1 -> strings.docGroupStatusUpdateAvailable  // DocInstallStatus.UPGRADE_AVAILABLE
+    2 -> strings.docGroupStatusInstalled        // INSTALLED / ERROR_DOWNLOADING / INSTALL_CANCELLED
+    else -> strings.docGroupStatusNotInstalled  // 3: DocInstallStatus.NOT_INSTALLED
 }

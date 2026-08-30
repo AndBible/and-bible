@@ -219,10 +219,19 @@ fun encodeArrangement(a: DocArrangement): String {
  * [DOC_SORT_KEY_ORDER]. That is what lets a screen gain a sort key without invalidating every
  * user's saved preference.
  *
+ * [applicableGroupKeys] validates the stored `groupBy` the same way [applicable] validates each
+ * sort criterion: a `groupBy` this screen's sheet has no row for (a hand-edited, downgraded, or
+ * cross-screen-copied preference string) is NOT corruption of the whole record — only that one
+ * field clamps to [DocGroupBy.NONE], the sort criteria the string DID validly specify still apply.
+ *
  * Split with `limit = 3` so a repository name containing `|` survives — the repository is the last
  * field precisely so it can absorb the rest of the line.
  */
-fun decodeArrangement(stored: String?, applicable: Set<DocSortKey>): DocArrangement {
+fun decodeArrangement(
+    stored: String?,
+    applicable: Set<DocSortKey>,
+    applicableGroupKeys: Set<DocGroupBy> = DocGroupBy.entries.toSet(),
+): DocArrangement {
     val default = defaultArrangement(applicable)
     if (stored.isNullOrBlank()) return default
     val parts = stored.split("|", limit = 3)
@@ -246,5 +255,6 @@ fun decodeArrangement(stored: String?, applicable: Set<DocSortKey>): DocArrangem
     // the whole record.
     val groupBy = if (parts[1].isBlank()) DocGroupBy.NONE
         else DocGroupBy.entries.firstOrNull { it.name == parts[1] } ?: return default
-    return DocArrangement(sort = criteria, groupBy = groupBy, repository = parts[2].ifBlank { null })
+    val clampedGroupBy = if (groupBy in applicableGroupKeys) groupBy else DocGroupBy.NONE
+    return DocArrangement(sort = criteria, groupBy = clampedGroupBy, repository = parts[2].ifBlank { null })
 }

@@ -60,6 +60,19 @@ class DocumentSelectionGoldenTest {
         ),
     )
 
+    /**
+     * Round 17e-1 final-review fix (I1): a DocCategory.OTHER row, so [chooseDocument_grouped]
+     * actually exercises the "uncategorized" header branch. Real-world equivalents are CrossWire's
+     * DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES documents, which DocCategoryMapping maps
+     * to OTHER — grouping by TYPE on a real download list shows this header for that whole bucket.
+     */
+    private val otherCategoryRow = DocRow(
+        docId = "DailyDevo", osisId = "DailyDevo", abbreviation = "Devo", name = "Daily Devotions",
+        language = english, repository = "CrossWire", category = DocCategory.OTHER,
+        installStatus = DocInstallStatus.NOT_INSTALLED, percentDone = 0, recommended = false,
+        badWarn = false, locked = false, enciphered = false, canDelete = false, installSizeMb = 0.5,
+    )
+
     private val languages = listOf(english, greek)
 
     private val typeFilters = listOf(
@@ -268,18 +281,19 @@ class DocumentSelectionGoldenTest {
     }
 
     /**
-     * Grouped by TYPE over a fixture holding two categories (BIBLE, COMMENTARY): guards the sticky
-     * header rendering added in round 17e-1 — two distinct headers, rows filed under the right one,
-     * and (the thing this golden exists to catch) an opaque header background rather than one that
-     * lets scrolled-under row text show through. `heightDp = 900` keeps both headers and their rows
-     * in frame at once.
+     * Grouped by TYPE over a fixture holding three categories (BIBLE, COMMENTARY, OTHER): guards
+     * the sticky header rendering added in round 17e-1 — three distinct headers, rows filed under
+     * the right one, an opaque header background rather than one that lets scrolled-under row text
+     * show through, and (final-review fix I1) the OTHER category's header reading "Other" rather
+     * than the misleading "All". `heightDp = 1024` keeps all three headers and their rows in frame.
      */
     @Test fun chooseDocument_grouped() {
-        captureGolden("ChooseDocument", "grouped", EDGE_MODE, heightDp = 900) {
+        captureGolden("ChooseDocument", "grouped", EDGE_MODE, heightDp = 1024) {
             screen(
-                displayed = rows.filter { it.category == DocCategory.BIBLE || it.category == DocCategory.COMMENTARY },
+                displayed = rows.filter { it.category == DocCategory.BIBLE || it.category == DocCategory.COMMENTARY } +
+                    otherCategoryRow,
                 groupBy = DocGroupBy.TYPE,
-                count = "4 documents",
+                count = "5 documents",
             )
         }
     }

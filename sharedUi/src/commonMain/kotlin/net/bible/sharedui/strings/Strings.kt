@@ -72,6 +72,9 @@ interface Strings {
     val docTypeGeneralBook: String
     val docTypeMaps: String
     val docTypeAddon: String
+    // Round 17e-1 — the TYPE-grouped list's header for DocCategory.OTHER (distinct from `all`,
+    // which means "no specific value" in a filter context, not "an uncategorized document").
+    val docTypeOther: String
     val languageLabel: String
     val documentTypeLabel: String
     val aboutDoc: String
@@ -615,7 +618,6 @@ interface Strings {
     val customRepositoriesHelp0: String              // R.string.custom_repositories_help0 (both help dialogs)
     val customRepositoriesHelp1: String               // R.string.custom_repositories_help1 (editor help dialog only)
     fun customRepositoriesHelp2(link: String): String // R.string.custom_repositories_help2 (%s — the wiki-page link label)
-    val wikiPage: String                              // R.string.wiki_page (help dialog "read more" link label)
     fun deleteCustomRepository(name: String): String   // R.string.delete_custom_repository (%s — delete confirmation)
     fun duplicateCustomRepository(name: String): String // R.string.duplicate_custom_repository (%s — host-layer duplicate-name toast, Task 3)
     val repositorySpecification: String                // R.string.repository_specification (manifest-URL field label)
@@ -716,6 +718,13 @@ interface Strings {
     val docSortName: String                          // R.string.doc_sort_name
     val docSortSize: String                          // R.string.doc_sort_size
     val docGroupNone: String                         // R.string.doc_group_none
+    // Round 17e-1 (final-review fix) — per-status-VALUE labels for a STATUS-grouped list's headers.
+    // Host-supplied because the engine's sortStatusRank is a rank, not an enum (see its KDoc); this
+    // screen's own vocabulary lives here, distinct from docSortStatus (the DIMENSION name "Status").
+    val docGroupStatusDownloading: String            // R.string.doc_group_status_downloading
+    val docGroupStatusUpdateAvailable: String        // R.string.doc_group_status_update_available
+    val docGroupStatusInstalled: String               // R.string.doc_group_status_installed
+    val docGroupStatusNotInstalled: String            // R.string.doc_group_status_not_installed
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

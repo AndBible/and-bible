@@ -260,4 +260,27 @@ class DocumentArrangementTest {
     @Test fun decode_keeps_a_repository_name_containing_a_pipe() {
         assertEquals("odd|name", decodeArrangement("STATUS|NONE|odd|name", allKeys).repository)
     }
+
+    // Final-review fix I2b: a stored groupBy this screen's sheet has no radio row for must not be
+    // accepted silently — it clamps to NONE, while the sort criteria the string DID validly specify
+    // (here: a full permutation, since `allKeys` is applicable) still apply undisturbed.
+    @Test fun decode_clamps_a_groupBy_the_screen_does_not_declare_applicable_to_none() {
+        val restrictedGroupKeys = setOf(DocGroupBy.NONE, DocGroupBy.TYPE)
+        val stored = "SIZE,-NAME|STATUS|CrossWire"
+        val decoded = decodeArrangement(stored, allKeys, restrictedGroupKeys)
+        assertEquals(DocGroupBy.NONE, decoded.groupBy)
+        // the sort criteria and repository from the same string are preserved, unaffected by the clamp
+        assertEquals(DocSortKey.SIZE, decoded.sort[0].key)
+        assertEquals(DocSortCriterion(DocSortKey.NAME, descending = true), decoded.sort[1])
+        assertEquals(allKeys, decoded.sort.map { it.key }.toSet())
+        assertEquals("CrossWire", decoded.repository)
+    }
+
+    @Test fun decode_accepts_a_groupBy_the_screen_does_declare_applicable() {
+        val restrictedGroupKeys = setOf(DocGroupBy.NONE, DocGroupBy.TYPE)
+        val decoded = decodeArrangement("STATUS||", allKeys, restrictedGroupKeys)
+        assertEquals(DocGroupBy.NONE, decoded.groupBy) // blank groupBy field, not the case under test
+        val decodedType = decodeArrangement("STATUS|TYPE|", allKeys, restrictedGroupKeys)
+        assertEquals(DocGroupBy.TYPE, decodedType.groupBy)
+    }
 }

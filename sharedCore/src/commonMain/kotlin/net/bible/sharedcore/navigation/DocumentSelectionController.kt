@@ -16,10 +16,21 @@
  */
 package net.bible.sharedcore.navigation
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import net.bible.sharedcore.search.SearchModeController
+
+/**
+ * How long [DocumentSelectionController.moveSortCriterion] waits after the LAST swap of a drag
+ * gesture before committing (persisting + refiltering) the reordered criteria — see that
+ * function's KDoc (round 17e-1 final-review fix I3).
+ */
+private const val SORT_REORDER_COMMIT_DELAY_MS = 300L
 
 /**
  * Filter, then arrange. Filtering (type / language / search / repository) is separate from
@@ -62,9 +73,14 @@ class DocumentSelectionController(
     storedArrangement: String? = null,
     rememberArrangementInitially: Boolean = true,
     private val onArrangementChange: (encoded: String?, remember: Boolean) -> Unit = { _, _ -> },
+    // Round 17e-1 final-review fix (I3). Null (the default, and every existing test's choice) makes
+    // moveSortCriterion commit synchronously, same as before this fix — a host that cares about the
+    // debounced behavior (i.e. every real screen) supplies its lifecycleScope.
+    private val scope: CoroutineScope? = null,
 ) {
     private var all: List<DocRow> = emptyList()
     private var searchIds: Set<String>? = null
+    private var sortReorderCommitJob: Job? = null
 
     private val _loading = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
@@ -91,7 +107,9 @@ class DocumentSelectionController(
     private val _error = MutableStateFlow<ChooserError?>(null)
     val error: StateFlow<ChooserError?> = _error.asStateFlow()
 
-    private val _arrangement = MutableStateFlow(decodeArrangement(storedArrangement, applicableSortKeys))
+    private val _arrangement = MutableStateFlow(
+        decodeArrangement(storedArrangement, applicableSortKeys, applicableGroupKeys.toSet())
+    )
     val arrangement: StateFlow<DocArrangement> = _arrangement.asStateFlow()
     private val _rememberArrangement = MutableStateFlow(rememberArrangementInitially)
     val rememberArrangement: StateFlow<Boolean> = _rememberArrangement.asStateFlow()
@@ -100,18 +118,45 @@ class DocumentSelectionController(
     private val _grouped = MutableStateFlow<List<DocGroup<DocRow>>>(emptyList())
     val grouped: StateFlow<List<DocGroup<DocRow>>> = _grouped.asStateFlow()
     private val _arrangementIsDefault = MutableStateFlow(
-        decodeArrangement(storedArrangement, applicableSortKeys) == defaultArrangement(applicableSortKeys)
+        decodeArrangement(storedArrangement, applicableSortKeys, applicableGroupKeys.toSet()) ==
+            defaultArrangement(applicableSortKeys)
     )
     val arrangementIsDefault: StateFlow<Boolean> = _arrangementIsDefault.asStateFlow()
 
     /** The group keys this screen offers, for the arrangement sheet's radio row. */
     val groupKeys: List<DocGroupBy> get() = applicableGroupKeys
 
+    /**
+     * Reorder one sort criterion. [AbReorderableColumn] (in `:sharedUi`) calls this once PER ITEM
+     * SWAP during an active drag inside the arrangement sheet — a modal with no visible document
+     * list behind it. Doing a full [applyArrangement] (a synchronous persistence write plus a
+     * re-sort/re-group of the whole, potentially large, document list) on every swap would be
+     * wasted main-thread work for a reorder the user cannot even see yet.
+     *
+     * [_arrangement] is still updated on every call, immediately, so the sheet's OWN UI (which
+     * reads the live order) reflects each swap right away. Only the expensive commit is deferred:
+     * with a [scope] supplied, it is debounced — cancelling any pending commit and rescheduling —
+     * so it fires once, [SORT_REORDER_COMMIT_DELAY_MS] after the LAST swap, i.e. once the drag
+     * settles. Without a [scope] it commits synchronously, matching the pre-fix behavior (the
+     * choice every test that does not itself exercise this debounce makes).
+     */
     fun moveSortCriterion(from: Int, to: Int) {
         val list = _arrangement.value.sort.toMutableList()
         if (from !in list.indices || to !in list.indices) return
         list.add(to, list.removeAt(from))
-        applyArrangement(_arrangement.value.copy(sort = list))
+        val next = _arrangement.value.copy(sort = list)
+        _arrangement.value = next
+        _arrangementIsDefault.value = next == defaultArrangement(applicableSortKeys)
+        val liveScope = scope
+        if (liveScope == null) {
+            applyArrangement(next)
+            return
+        }
+        sortReorderCommitJob?.cancel()
+        sortReorderCommitJob = liveScope.launch {
+            delay(SORT_REORDER_COMMIT_DELAY_MS)
+            applyArrangement(_arrangement.value)
+        }
     }
 
     fun toggleSortDirection(key: DocSortKey) {

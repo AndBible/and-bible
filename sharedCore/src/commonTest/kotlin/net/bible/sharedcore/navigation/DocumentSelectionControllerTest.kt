@@ -16,6 +16,8 @@
  */
 package net.bible.sharedcore.navigation
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -372,6 +374,9 @@ class DocumentSelectionControllerTest {
         stored: String? = null,
         remember: Boolean = true,
         onArrangement: (String?, Boolean) -> Unit = { _, _ -> },
+        // Round 17e-1 final-review fix (I3): null (every pre-existing test's choice) keeps
+        // moveSortCriterion's commit synchronous, unchanged from before the fix.
+        scope: CoroutineScope? = null,
     ) = DocumentSelectionController(
         langComparator = compareBy { it.displayName },
         onSelect = {}, onDelete = {}, onDeleteIndex = {}, onAbout = {}, onUnlock = {}, onStickyLanguage = {},
@@ -380,6 +385,7 @@ class DocumentSelectionControllerTest {
         storedArrangement = stored,
         rememberArrangementInitially = remember,
         onArrangementChange = onArrangement,
+        scope = scope,
     )
 
     @Test fun repository_list_is_deduped_sorted_and_drops_blanks() {
@@ -417,6 +423,63 @@ class DocumentSelectionControllerTest {
         assertEquals(listOf("b", "m"), c.displayed.value.map { it.docId })  // "b" < "m" alphabetically too
         c.toggleSortDirection(DocSortKey.NAME)
         assertEquals(listOf("m", "b"), c.displayed.value.map { it.docId })
+    }
+
+    // Round 17e-1 final-review fix (I3): without a [CoroutineScope], moveSortCriterion still
+    // commits (persists + refilters) synchronously on every call -- the pre-fix behavior, and the
+    // choice every OTHER test in this file (including moving_a_criterion_reorders_the_displayed_list
+    // above) implicitly relies on by never passing a scope.
+    @Test fun moving_a_criterion_without_a_scope_commits_synchronously() {
+        val persisted = mutableListOf<String?>()
+        val c = arrangingController(onArrangement = { s, _ -> persisted.add(s) })
+        c.setDocuments(listOf(row("zbook", DocCategory.BIBLE), row("amap", DocCategory.MAPS)), null)
+        assertEquals(listOf("zbook", "amap"), c.displayed.value.map { it.docId }) // TYPE outranks NAME
+        val nameIndex = c.arrangement.value.sort.indexOfFirst { it.key == DocSortKey.NAME }
+        c.moveSortCriterion(nameIndex, 0)
+        assertEquals(1, persisted.size) // committed immediately -- no scope to debounce through
+        assertEquals(listOf("amap", "zbook"), c.displayed.value.map { it.docId }) // NAME now leads
+    }
+
+    // With a scope, a single swap's commit (persistence write + refilter) is deferred rather than
+    // synchronous -- the fix's actual point: AbReorderableColumn calls moveSortCriterion once per
+    // item swap, and none of that work should happen while the gesture is still live.
+    @Test fun moving_a_criterion_with_a_scope_defers_the_commit_until_settled() = runTest {
+        val persisted = mutableListOf<String?>()
+        val c = arrangingController(onArrangement = { s, _ -> persisted.add(s) }, scope = this)
+        c.setDocuments(listOf(row("zbook", DocCategory.BIBLE), row("amap", DocCategory.MAPS)), null)
+        val nameIndex = c.arrangement.value.sort.indexOfFirst { it.key == DocSortKey.NAME }
+
+        c.moveSortCriterion(nameIndex, 0)
+        // The sheet's OWN live order updates immediately (it reads `arrangement`, not `displayed`).
+        assertEquals(DocSortKey.NAME, c.arrangement.value.sort[0].key)
+        // But the expensive part -- the persistence write and the document list re-sort/re-group --
+        // has not run yet.
+        assertTrue(persisted.isEmpty())
+        assertEquals(listOf("zbook", "amap"), c.displayed.value.map { it.docId })
+
+        testScheduler.advanceUntilIdle()
+        assertEquals(1, persisted.size)
+        assertEquals(listOf("amap", "zbook"), c.displayed.value.map { it.docId }) // now applied
+    }
+
+    // AbReorderableColumn fires onMove once per item SWAP, so a single drag gesture can call
+    // moveSortCriterion several times in quick succession. All of them must coalesce into ONE
+    // commit -- proving the debounce actually debounces, not just defers a single call.
+    @Test fun rapid_successive_swaps_within_one_drag_commit_only_once() = runTest {
+        val persisted = mutableListOf<String?>()
+        val c = arrangingController(onArrangement = { s, _ -> persisted.add(s) }, scope = this)
+        c.setDocuments(listOf(row("zbook", DocCategory.BIBLE), row("amap", DocCategory.MAPS)), null)
+        val nameIndex = c.arrangement.value.sort.indexOfFirst { it.key == DocSortKey.NAME }
+
+        c.moveSortCriterion(nameIndex, 0) // swap 1: NAME -> front
+        c.moveSortCriterion(0, 1)         // swap 2: NAME -> back one slot
+        c.moveSortCriterion(1, 0)         // swap 3: NAME -> front again, same drag settling there
+        assertTrue(persisted.isEmpty()) // nothing committed mid-gesture
+
+        testScheduler.advanceUntilIdle()
+        assertEquals(1, persisted.size) // exactly one commit for the whole gesture
+        assertEquals(DocSortKey.NAME, c.arrangement.value.sort[0].key)
+        assertEquals(listOf("amap", "zbook"), c.displayed.value.map { it.docId }) // the settled order
     }
 
     @Test fun grouping_produces_groups_and_a_flat_displayed_list_that_agree() {
