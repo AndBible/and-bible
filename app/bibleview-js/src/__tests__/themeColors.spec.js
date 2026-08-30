@@ -115,10 +115,36 @@ const EXPECTED_TINTS = {
         // .preview — the wash behind an unsolved scramble. Day and night were the same alpha over
         // opposite neutrals, which is exactly what the token carries, so the .night & branch is gone.
         {token: "--accent-rgb", alpha: "0.03"},
+        // .settings-popup border
+        {token: "--accent-rgb", alpha: "0.2"},
+        // .settings-popup .night &
+        {token: "--accent-rgb", alpha: "0.3"},
     ],
     "../components/memorize/WordOrder.vue": [
         // the slot preview's wash — same story as WordScramble's .preview
         {token: "--accent-rgb", alpha: "0.03"},
+    ],
+    "../components/memorize/WordType.vue": [
+        // .tap-hint — same alpha in both modes, so the .night & branch is gone
+        {token: "--accent-rgb", alpha: "0.3"},
+        // .visibility-light — upcoming words, faint (night branch gone, same reason)
+        {token: "--accent-rgb", alpha: "0.2"},
+        // .visibility-dim — upcoming words, fainter (night branch gone)
+        {token: "--accent-rgb", alpha: "0.08"},
+        // .settings-popup border — the alphas DIFFER, so this one keeps its night branch
+        {token: "--accent-rgb", alpha: "0.2"},
+        // .settings-popup .night &
+        {token: "--accent-rgb", alpha: "0.3"},
+    ],
+    "../components/documents/MemorizeDocument.vue": [
+        // .dropdown-menu border
+        {token: "--accent-rgb", alpha: "0.2"},
+        // .dropdown-menu .night &
+        {token: "--accent-rgb", alpha: "0.3"},
+        // .menu-item:hover
+        {token: "--accent-rgb", alpha: "0.05"},
+        // .night &:hover
+        {token: "--accent-rgb", alpha: "0.1"},
     ],
 };
 
@@ -136,7 +162,12 @@ const EXPECTED_TINTS = {
 // hold under the registry test's literal var()-usage definition. Left out here rather than
 // silently forcing a match.
 const TOKEN_CONSUMERS = {
-    "--accent-mark": ["common.scss"],
+    "--accent-mark": [
+        "common.scss",
+        "components/documents/MemorizeDocument.vue",
+        "components/memorize/WordScramble.vue",
+        "components/memorize/WordType.vue",
+    ],
     "--memorize-mask": ["components/memorize/WordBlur.vue"],
 };
 

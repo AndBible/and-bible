@@ -382,12 +382,9 @@ h2 {
 .menu-trigger {
   cursor: pointer;
   padding: 8px 12px;
-  color: #666;
+  color: var(--accent-mark);
   font-size: 18px;
 
-  .night & {
-    color: #999;
-  }
   .monochrome & {
     color: black;
   }
@@ -401,7 +398,7 @@ h2 {
   right: 0;
   top: 100%;
   background: var(--background-color);
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 100;
@@ -410,7 +407,7 @@ h2 {
   animation: dropdown-fade 0.15s ease;
 
   .night & {
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(var(--accent-rgb), 0.3);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
   .monochrome & {
@@ -451,10 +448,10 @@ h2 {
   }
 
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(var(--accent-rgb), 0.05);
   }
   .night &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(var(--accent-rgb), 0.1);
   }
   .monochrome &:hover {
     background: rgba(0, 0, 0, 0.1);
