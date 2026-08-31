@@ -170,6 +170,7 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.isMyDocument
+import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ai.AgentPermissionRequest
@@ -1596,7 +1597,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private fun KeyChooserSheet(sheet: ReadingQuickSheet, kind: KeyChooserKind, title: String) {
         // The list [showKeyChooserSheet] was handed, NOT a fresh resolution -- see its kdoc.
         val keys = remember(sheet) { keyChooserKeys }
-        val rows = remember(keys) { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.name) } }
+        val rows = remember(keys) { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) } }
         val currentKeyId = remember(keys) { currentKeyChooserRowId(kind, keys) }
         val listState = rememberLazyListState()
         AbQuickSheet(
