@@ -106,6 +106,12 @@ interface Strings {
 
     /** The scope dropdown's label ("Search Where") — classic's own `RadioGroup` prompt for this. */
     val searchWhere: String
+
+    /**
+     * The EPUB word-mode dropdown's label. NOT `search_words_group_prompt` ("Find verses"), which is
+     * classic's Bible-only wording and says the wrong thing about a book with no verses.
+     */
+    val searchTypePrompt: String
     val chooseTranslations: String
     val recentSearches: String
     val create: String
