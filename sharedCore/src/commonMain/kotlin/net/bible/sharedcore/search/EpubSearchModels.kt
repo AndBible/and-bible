@@ -58,6 +58,43 @@ fun parseHighlightHtml(html: String): StyledText {
         }
     }
     flush()
-    if (runs.isEmpty()) runs.add(StyledRun(""))
-    return StyledText(runs)
+    return normalizeWhitespace(runs)
+}
+
+/**
+ * HTML whitespace semantics, applied after parsing: any run of ASCII whitespace becomes ONE space,
+ * across styled-run boundaries as well as inside a run, and the whole text is trimmed at both ends.
+ *
+ * The indexed text is the source XHTML's character data (`EpubBackendState.buildSearchIndex` indexes
+ * JDOM's `Element.text`), so it carries that file's line breaks and indentation — which a browser
+ * collapses and a `Text` composable does not. Doing it here rather than at index time is deliberate:
+ * it fixes EXISTING indexes, and the FTS5 tokenizer never cared about the whitespace anyway.
+ *
+ * Non-breaking space is left alone — it is content. `Char.isWhitespace()` is avoided for exactly
+ * that reason: its answer for U+00A0 is platform-dependent, and this module compiles for iOS too.
+ */
+private fun normalizeWhitespace(runs: List<StyledRun>): StyledText {
+    fun isCollapsible(c: Char) = c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\u000B' || c == '\u000C'
+    val out = mutableListOf<StyledRun>()
+    var lastWasSpace = true // true at the start, so leading whitespace is dropped
+    for (run in runs) {
+        val sb = StringBuilder()
+        for (c in run.text) {
+            if (isCollapsible(c)) {
+                if (!lastWasSpace) { sb.append(' '); lastWasSpace = true }
+            } else {
+                sb.append(c); lastWasSpace = false
+            }
+        }
+        if (sb.isNotEmpty()) out.add(StyledRun(sb.toString(), bold = run.bold, highlight = run.highlight))
+    }
+    // A single trailing space can only be the last run's last character, by construction above.
+    val last = out.lastOrNull()
+    if (last != null && last.text.endsWith(' ')) {
+        val trimmed = last.text.dropLast(1)
+        out[out.size - 1] = last.copy(text = trimmed)
+        if (trimmed.isEmpty()) out.removeAt(out.size - 1)
+    }
+    if (out.isEmpty()) out.add(StyledRun(""))
+    return StyledText(out)
 }
