@@ -80,7 +80,7 @@ fun EpubSearchSettings(
  * The label for one EPUB word mode. A plain function, not a composable, so a summary line can call
  * it too — the same shape as [searchSectionLabel] in `BibleSearchSettings.kt`.
  */
-fun epubSearchModeLabel(strings: Strings, mode: EpubSearchMode): String = when (mode) {
+internal fun epubSearchModeLabel(strings: Strings, mode: EpubSearchMode): String = when (mode) {
     EpubSearchMode.ALL_WORDS -> strings.allWords
     EpubSearchMode.ANY_WORD -> strings.anyWord
     EpubSearchMode.PHRASE -> strings.phrase
