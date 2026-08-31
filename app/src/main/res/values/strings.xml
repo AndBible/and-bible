@@ -910,6 +910,8 @@
     <string name="help_search_title">Search</string>
     <!-- TODO: to be removed -->
     <string name="help_search_text2">Search text can include special characters like *, AND, OR, NOT</string>
+    <string name="help_search_bible">Choose how the words are matched: All words finds verses containing every word, Any word finds verses containing at least one, and Phrase finds the words next to each other in that order.\n\nWithin a search you can also use * and ? as wildcards (for example bless* matches blessed and blessing), combine terms with AND, OR and NOT, and search Strong\'s numbers directly (for example H0430).</string>
+    <string name="help_search_epub">Choose how the words are matched: All words finds passages containing every word, Any word finds passages containing at least one, and Phrase finds the words next to each other in that order.\n\nRaw query syntax passes your text to the search engine unchanged, so you can write your own query: grace AND faith, grace OR faith, grace NOT faith, "hope of glory" for an exact phrase, bless* to match any word starting with bless, and grace NEAR faith to find them close together.</string>
     <string name="help_search_details">Please see %s for more details.</string>
     <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
     <string name="help_fts5">FTS5 Full-text Query Syntax</string>

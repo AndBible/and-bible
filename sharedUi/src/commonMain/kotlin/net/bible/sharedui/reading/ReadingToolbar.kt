@@ -201,6 +201,9 @@ private val ToolbarButtonWidth = 48.dp
 /** Classic's own help link (`Search.kt:283`), kept verbatim so the help says the same thing. */
 private const val LUCENE_QUERY_SYNTAX_URL = "https://lucene.apache.org/core/2_9_4/queryparsersyntax.html"
 
+/** The EPUB search engine's own syntax reference (`EpubSearchComposeActivity.help`'s link). */
+private const val FTS5_QUERY_SYNTAX_URL = "https://www.sqlite.org/fts5.html#full_text_query_syntax"
+
 /**
  * Stateless port of the classic `MainBibleActivity` toolbar (`main_bible_view.xml`'s
  * `toolbarLayout`): a home (drawer) button, a tappable title block (page title + document title +
@@ -505,16 +508,18 @@ fun ReadingToolbar(
             }
         }
         if (searchHelpOpen) {
-            // A faithful conversion of classic `Search.help()` (`Search.kt:282-298`): the same two
-            // sentences, and the Lucene link as AbInfoDialog's read-more. Inlining the link label
-            // into the body AND repeating it as readMoreLabel is the established pattern here —
-            // `CustomRepositoriesScreen.kt:110-116` does exactly this.
+            // Round 17d: EPUB search is SQLite FTS5, not Lucene, and this dialog is where an EPUB
+            // search is actually helped — the toolbar IS the EPUB search form. Showing the Lucene
+            // body here documented an engine this session is not using.
+            val forEpub = searchBar.forEpub
+            val linkLabel = if (forEpub) strings.helpFts5 else strings.helpApacheLucene
             AbInfoDialog(
                 title = strings.help,
-                body = "${strings.helpSearchText2}\n\n${strings.helpSearchDetails(strings.helpApacheLucene)}",
+                body = "${if (forEpub) strings.helpSearchEpub else strings.helpSearchBible}" +
+                    "\n\n${strings.helpSearchDetails(linkLabel)}",
                 onDismiss = { searchHelpOpen = false },
-                readMoreLabel = strings.helpApacheLucene,
-                readMoreUrl = LUCENE_QUERY_SYNTAX_URL,
+                readMoreLabel = linkLabel,
+                readMoreUrl = if (forEpub) FTS5_QUERY_SYNTAX_URL else LUCENE_QUERY_SYNTAX_URL,
             )
         }
         return

@@ -143,6 +143,16 @@ interface Strings {
      * [helpSearchDetails] takes the link label, matching `custom_repositories_help2`'s shape.
      */
     val helpSearchText2: String
+
+    /**
+     * The Bible-search help body (round 17d). Replaces [helpSearchText2] at the toolbar's help
+     * dialog; that string stays for the callers and translations that still reference it.
+     */
+    val helpSearchBible: String
+
+    /** The EPUB-search help body — the four word modes plus FTS5 syntax, NOT Lucene's (round 17d). */
+    val helpSearchEpub: String
+
     fun helpSearchDetails(link: String): String
     val helpApacheLucene: String
 
