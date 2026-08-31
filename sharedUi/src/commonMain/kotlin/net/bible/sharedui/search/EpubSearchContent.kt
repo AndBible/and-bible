@@ -52,6 +52,9 @@ fun LazyListScope.epubResultRows(
             title = row.keyName,
             subtitle = styledTextToAnnotatedString(row.text),
             onClick = { onSelect(row.keyId, row.ordinal) },
+            // C4: `snippet()` bounds the snippet in TOKENS, which does not bound it in LINES. Three
+            // lines keeps a result list scannable whatever the token lengths turn out to be.
+            subtitleMaxLines = 3,
         )
     }
 }
