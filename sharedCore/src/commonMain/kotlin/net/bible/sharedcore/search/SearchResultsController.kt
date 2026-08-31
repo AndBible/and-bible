@@ -99,4 +99,12 @@ class SearchResultsController(
 
     fun toggleScripture() { _scriptureShown.value = !_scriptureShown.value }
     fun dismissError() { _error.value = null }
+
+    /** Drop the rows: the search session has ended (spec D7). The persisted translation selection
+     *  and the candidate list are NOT session state and stay. */
+    fun clear() {
+        _results.value = MultiSearchResults.EMPTY
+        _error.value = null
+        _loading.value = false
+    }
 }

@@ -1956,6 +1956,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         searchSelectorPendingIds = null
         searchRecentMenuOpen.value = false
         searchSettingsOpen.value = false
+        // D7: the rows belong to the session that just ended. The query is cleared by the controller.
+        searchResults.clear()
+        epubSearchResults.clear()
         // Every exit from search mode routes through here, which is why the field's focus flag is reset
         // HERE and not at the call sites: `closeSearchIfOpen()` (the live back-button path, and the
         // ordinary way out of an empty form) would otherwise leave it true with no field on screen, and

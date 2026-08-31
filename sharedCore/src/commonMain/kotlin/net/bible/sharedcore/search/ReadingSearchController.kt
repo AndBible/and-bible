@@ -342,12 +342,21 @@ class ReadingSearchController(
         return true
     }
 
-    /** Second back press. Returns true if it consumed the press. */
+    /**
+     * Second back press. Returns true if it consumed the press.
+     *
+     * Leaving search mode RESETS the session (spec D7): the query goes with the phase, so re-entering
+     * always starts at an empty form rather than re-running whatever was last searched. What survives
+     * is what is persisted and belongs to the user rather than to this session — the recent-terms MRU
+     * and the search settings. The ROWS are cleared by the host, which owns the two results
+     * controllers (`ComposeReadingViewHost.onSearchModeClosed`).
+     */
     fun closeSearchMode(): Boolean {
         if (!_searchModeActive.value) return false
         _searchModeActive.value = false
         _phase.value = ReadingSearchPhase.Closed
         lastResults = null
+        queries.setQuery("")
         _imeRequest.value = null
         indexPromptIsExplicit = false
         return true
