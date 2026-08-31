@@ -51,6 +51,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.History
@@ -103,6 +104,7 @@ import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.SearchFieldImeRequest
+import net.bible.sharedcore.reading.SearchFieldLeadingAction
 import net.bible.sharedcore.reading.ToolbarButton
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.fitToolbarButtons
@@ -186,6 +188,8 @@ data class ReadingSearchBarCallbacks(
     val onFieldFocusChanged: (Boolean) -> Unit,
     /** The overflow's "Rebuild index" — see `ReadingSearchController.requestRebuildIndex`. */
     val onRebuildIndex: () -> Unit,
+    /** The leading results button — see `ReadingSearchController.showResults`. */
+    val onShowResults: () -> Unit,
 )
 
 /** Height of the toolbar row — matches the classic `@dimen/toolbar_height` (56dp). */
@@ -425,12 +429,18 @@ fun ReadingToolbar(
                             .onFocusChanged { searchBarCallbacks.onFieldFocusChanged(it.isFocused) },
                         decorationBox = { innerTextField ->
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                if (searchBar.recentTerms.isNotEmpty()) {
-                                    ToolbarVectorButton(
+                                when (searchBar.leadingAction) {
+                                    SearchFieldLeadingAction.ShowResults -> ToolbarVectorButton(
+                                        Icons.AutoMirrored.Filled.FormatListBulleted,
+                                        strings.searchShowResults,
+                                        searchBarCallbacks.onShowResults,
+                                    )
+                                    SearchFieldLeadingAction.RecentTerms -> ToolbarVectorButton(
                                         Icons.Filled.History,
                                         strings.recentSearches,
                                         searchBarCallbacks.onRecentTermsOpen,
                                     )
+                                    SearchFieldLeadingAction.None -> Unit
                                 }
                                 Box(Modifier.weight(1f)) {
                                     if (searchBar.query.isEmpty()) {

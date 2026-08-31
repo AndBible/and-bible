@@ -57,7 +57,7 @@ class ReadingToolbarSearchGoldenTest {
             icons = goldenToolbarIcons(),
             callbacks = goldenToolbarCallbacks(),
             searchBar = searchBar,
-            searchBarCallbacks = ReadingSearchBarCallbacks({}, {}, {}, {}, {}, {}, {}, {}, {}, {}),
+            searchBarCallbacks = ReadingSearchBarCallbacks({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}),
         )
     }
 
@@ -73,6 +73,15 @@ class ReadingToolbarSearchGoldenTest {
         captureGolden(
             "ReadingToolbar", "searchEmpty", EDGE_MODE, heightDp = 56,
             content = toolbar(searchBar = bar(query = "", recentTerms = emptyList())),
+        )
+
+    // C5: with results loaded and a query in the field, the leading icon becomes the back-to-results
+    // button instead of the history button. If the branch were inverted this golden would show a
+    // clock face.
+    @Test fun searchWithResults() =
+        captureGolden(
+            "ReadingToolbar", "searchWithResults", EDGE_MODE, heightDp = 56,
+            content = toolbar(searchBar = bar().copy(resultsAvailable = true)),
         )
 
     // The field, its icons and its placeholder must inherit the toolbar's derived content colour

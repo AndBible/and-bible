@@ -189,6 +189,32 @@ class ReadingSearchControllerTest {
         assertEquals(1, r.searchesRun.size, "reopening must serve the existing results, not re-run")
     }
 
+    // ---- 17d C5 / spec §7, D6: the toolbar's back-to-results button ------------------------------
+
+    @Test
+    fun showResultsRaisesTheSheetWithoutRerunningTheSearch() {
+        val (r, c) = controller()
+        c.open(seedQuery = "light")
+        c.closeSheet()
+        assertFalse(c.sheetVisible.value)
+        r.searchesRun.clear()
+        assertTrue(c.showResults())
+        assertTrue(c.sheetVisible.value)
+        assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), c.phase.value)
+        assertEquals(emptyList<Triple<String, String, Boolean>>(), r.searchesRun)
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+    }
+
+    @Test
+    fun showResultsDoesNothingWithoutResults() {
+        val (_, c) = controller()
+        c.open()
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
+        assertFalse(c.showResults())
+        assertFalse(c.sheetVisible.value)
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
+    }
+
     // ---- F6-C6 / spec D7: leaving search mode resets the session ---------------------------------
 
     @Test

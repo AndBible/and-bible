@@ -133,6 +133,9 @@ interface Strings {
      */
     val searchClear: String
 
+    /** Content description for the toolbar field's back-to-results button. */
+    val searchShowResults: String
+
     /**
      * F6-B5. The Bible-search help dialog, restored to the Compose path: classic offered it from the
      * search screen's action bar (`R.menu.search_actionbar_menu`) and the Compose form dropped it

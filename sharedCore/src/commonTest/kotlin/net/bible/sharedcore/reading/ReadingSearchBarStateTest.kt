@@ -18,6 +18,7 @@
 package net.bible.sharedcore.reading
 
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -37,5 +38,50 @@ class ReadingSearchBarStateTest {
     @Test
     fun theImeRequestDefaultsToNull() {
         assertNull(ReadingSearchBarState(query = "light").imeRequest)
+    }
+
+    // ---- 17d C5: which affordance the field's leading icon offers -------------------------------
+
+    @Test
+    fun withoutResultsOrHistoryThereIsNoLeadingAction() =
+        assertEquals(
+            SearchFieldLeadingAction.None,
+            ReadingSearchBarState(query = "light").leadingAction,
+        )
+
+    @Test
+    fun historyIsOfferedWhileThereAreNoResultsToGoBackTo() =
+        assertEquals(
+            SearchFieldLeadingAction.RecentTerms,
+            ReadingSearchBarState(query = "light", recentTerms = listOf("light")).leadingAction,
+        )
+
+    // Results win over history — the reason the two are one slot rather than two (spec D6).
+    @Test
+    fun resultsWinOverHistoryOnceASearchHasRun() =
+        assertEquals(
+            SearchFieldLeadingAction.ShowResults,
+            ReadingSearchBarState(
+                query = "light", recentTerms = listOf("light"), resultsAvailable = true,
+            ).leadingAction,
+        )
+
+    // Clearing the field must not leave a button offering results for a query that is no longer
+    // there: the user is starting a new search, and history is what helps with that.
+    @Test
+    fun clearingTheQueryFallsBackToHistoryEvenWithResultsLoaded() =
+        assertEquals(
+            SearchFieldLeadingAction.RecentTerms,
+            ReadingSearchBarState(
+                query = "  ", recentTerms = listOf("light"), resultsAvailable = true,
+            ).leadingAction,
+        )
+
+    // Both new fields default off, so every existing construction site keeps the history branch.
+    @Test
+    fun theNewFieldsDefaultOff() {
+        val s = ReadingSearchBarState(query = "light")
+        assertFalse(s.resultsAvailable)
+        assertFalse(s.forEpub)
     }
 }

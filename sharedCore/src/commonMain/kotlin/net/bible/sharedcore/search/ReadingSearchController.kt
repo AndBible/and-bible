@@ -15,6 +15,23 @@ sealed interface ReadingSearchPhase {
 }
 
 /**
+ * Whether the phase addresses an EPUB, or `null` for [ReadingSearchPhase.Closed], which addresses
+ * nothing. Every non-Closed phase carries the flag, but on four separate data classes, so reading it
+ * takes a `when` — hence one accessor rather than that `when` repeated at each call site.
+ *
+ * Top-level and public for the same reason [searchKindFor] is: the reading host in `:app` needs it
+ * too (it derives the toolbar search bar's `forEpub` from the phase), and `internal` does not cross
+ * a Gradle module boundary. It is pure and depends on nothing but [ReadingSearchPhase] itself.
+ */
+fun forEpubOf(p: ReadingSearchPhase): Boolean? = when (p) {
+    is ReadingSearchPhase.Form -> p.forEpub
+    is ReadingSearchPhase.NeedsIndex -> p.forEpub
+    is ReadingSearchPhase.Indexing -> p.forEpub
+    is ReadingSearchPhase.Results -> p.forEpub
+    ReadingSearchPhase.Closed -> null
+}
+
+/**
  * The reading-view search session. This replaces the old state model, which was the Intent extras
  * bundle carried across a chain of Activities that each `startActivity(...); finish()`ed. A panel is not
  * an `ActivityBase`, so it loses `HistoryTraversal`/`IntentHistoryItem` — and with it back navigation,
@@ -335,6 +352,23 @@ class ReadingSearchController(
         }
     }
 
+    /**
+     * Re-open the sheet on the results that are already loaded — the toolbar's back-to-results
+     * button (spec §7). Returns false and changes nothing unless the phase is [ReadingSearchPhase.Results].
+     *
+     * It deliberately does NOT re-run the search. The rows are still in the host's results controller
+     * and the list state is still hoisted, so the sheet returns exactly as it was left, scroll
+     * position included — which is the whole point of the affordance. Re-running would also retarget
+     * to whatever document the active window shows NOW, silently replacing the results the user is
+     * asking to see again.
+     */
+    fun showResults(): Boolean {
+        if (_phase.value !is ReadingSearchPhase.Results) return false
+        _sheetVisible.value = true
+        requestFieldRelease()
+        return true
+    }
+
     /** First back press. Returns true if it consumed the press. */
     fun closeSheet(): Boolean {
         if (!_sheetVisible.value) return false
@@ -367,14 +401,6 @@ class ReadingSearchController(
         is ReadingSearchPhase.NeedsIndex -> p.docId
         is ReadingSearchPhase.Indexing -> p.docId
         is ReadingSearchPhase.Results -> p.docId
-        ReadingSearchPhase.Closed -> null
-    }
-
-    private fun forEpubOf(p: ReadingSearchPhase): Boolean? = when (p) {
-        is ReadingSearchPhase.Form -> p.forEpub
-        is ReadingSearchPhase.NeedsIndex -> p.forEpub
-        is ReadingSearchPhase.Indexing -> p.forEpub
-        is ReadingSearchPhase.Results -> p.forEpub
         ReadingSearchPhase.Closed -> null
     }
 }
