@@ -8,6 +8,7 @@ import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedui.ai.MaxIterationsSheetContent
 import net.bible.sharedui.ai.PromptEditScreen
 import net.bible.sharedui.ai.PromptPermissionSheetContent
 import net.bible.sharedui.strings.LocalStrings
@@ -95,6 +96,7 @@ class PromptEditGoldenTest {
             toolsByCategory = toolsByCategory,
             modelChoices = modelChoices,
             globalToolPermission = globalToolPermission,
+            globalMaxIterationsLabel = "20",
             onSelectTab = {},
             onSetName = {},
             onSetDescription = {},
@@ -252,6 +254,27 @@ class PromptEditGoldenTest {
                 onClose = {},
                 strings = LocalStrings.current,
             )
+        }
+    }
+
+    /**
+     * 17f: [MaxIterationsSheetContent] replaces the old bare numeric editor for `max_iterations` --
+     * a switch for "use the global setting" plus a number field enabled only when the switch is
+     * off. Captured directly (never the open [androidx.compose.material3.ModalBottomSheet], which
+     * hangs Roborazzi -- `SettingsEditorSheetGuardTest` polices this), wrapped in [SheetSurface] for
+     * background-colour consistency with every other sheet-content capture in this package. Two
+     * states, since a single capture wouldn't prove the switch's greying behavior: `current = null`
+     * (switch on, field greyed) and `current = 15` (switch off, field showing the override).
+     */
+    @Test fun maxIterationsSheet_matrix() = captureMatrix("PromptEdit", "max_iterations_sheet") {
+        SheetSurface {
+            MaxIterationsSheetContent(current = null, globalLabel = "20", onApply = {}, onClose = {})
+        }
+    }
+
+    @Test fun maxIterationsSheetOverridden_matrix() = captureMatrix("PromptEdit", "max_iterations_sheet_overridden") {
+        SheetSurface {
+            MaxIterationsSheetContent(current = 15, globalLabel = "20", onApply = {}, onClose = {})
         }
     }
 }

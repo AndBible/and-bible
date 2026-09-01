@@ -411,6 +411,7 @@ interface Strings {
     val promptModelOverrideLabel: String         // R.string.prompt_model_override
     val promptMaxIterationsLabel: String         // R.string.prompt_max_iterations
     val promptMaxIterationsHint: String          // R.string.prompt_max_iterations_hint
+    fun promptMaxIterationsUseGlobal(value: String): String  // R.string.prompt_max_iterations_use_global
     val promptStrictContextMatchingLabel: String        // R.string.prompt_strict_context_matching
     val promptStrictContextMatchingDescription: String  // R.string.prompt_strict_context_matching_description
     val promptSpecifyBeforeRunLabel: String             // R.string.prompt_edit_before_run

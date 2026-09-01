@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -49,6 +50,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -63,6 +65,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.PromptAdvancedSwitchKeys
@@ -90,6 +93,7 @@ import net.bible.sharedui.components.AbSheetHeader
 import net.bible.sharedui.components.AbSheetScrollBound
 import net.bible.sharedui.settings.AbSettingsContent
 import net.bible.sharedui.settings.GenericSettingsEditorSheet
+import net.bible.sharedui.settings.SheetConfirmRow
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -144,11 +148,11 @@ import net.bible.sharedui.strings.Strings
  * documented as a known gap rather than reaching into Task 4's shared component from this task.
  *
  * **Advanced tab.** Builds a [SettingsScreenState] straight from [state] (model override
- * [SettingsItem.ListChoiceRow] fed [modelChoices]; `max_iterations` numeric [SettingsItem.TextInputRow];
- * the 5 [PromptAdvancedSwitchKeys] as [SettingsItem.SwitchRow]s) and hands it to [AbSettingsContent]
- * (Task/Batch 9a's generic renderer, scaffold-less variant — see below) with its callbacks routed
- * straight back to [onSetModelOverride]/[onSetMaxIterations]/[onSetSwitch]. Rows named in
- * [hiddenAdvancedKeys] get `visible = false` (still built, just filtered by
+ * [SettingsItem.ListChoiceRow] fed [modelChoices]; `max_iterations` a [SettingsItem.NavigationRow]
+ * (17f — see below); the 5 [PromptAdvancedSwitchKeys] as [SettingsItem.SwitchRow]s) and hands it to
+ * [AbSettingsContent] (Task/Batch 9a's generic renderer, scaffold-less variant — see below) with its
+ * callbacks routed straight back to [onSetModelOverride]/[onSetMaxIterations]/[onSetSwitch]. Rows
+ * named in [hiddenAdvancedKeys] get `visible = false` (still built, just filtered by
  * [SettingsScreenState.visibleItems]) — mirrors classic's `setTextTransformationMode` hiding
  * `max_iterations`/`no_document_creation`/`auto_include_documents`/`auto_include_commentaries`, but
  * NOT `strict_context_matching`/`specify_before_run` (never hidden, per the controller's constant).
@@ -156,11 +160,20 @@ import net.bible.sharedui.strings.Strings
  * override exception); every other Advanced row is enabled only when `!isReadOnly` (matches classic's
  * `setReadOnly(keepModelEditable = isBuiltIn)`, which locks everything else regardless of `isBuiltIn`).
  *
+ * `max_iterations` (17f): the old numeric [SettingsItem.TextInputRow] said "leave empty for the
+ * global default", which a bare number field cannot communicate — rewritten to a
+ * [SettingsItem.NavigationRow] (same key/position/icon, summary now the EFFECTIVE value) whose click
+ * is intercepted, following the interception pattern [AiConnectionSettingsScreen] documents at
+ * length: [AbSettingsContent]'s `onNavigate` opens a dedicated [ModalBottomSheet] whose body,
+ * [MaxIterationsSheetContent], holds a "use the global setting" switch plus a number field enabled
+ * only when the switch is off. `model_override` is untouched and still opens the generic
+ * [net.bible.sharedui.settings.SettingsEditorSheet] editor via `onOpenEditor`.
+ *
  * Uses [AbSettingsContent] (the scaffold-less counterpart of [AbSettingsScreen], extracted in a
  * Batch 9c fix) rather than [AbSettingsScreen] itself: the tab body already sits under this screen's
  * own (title + tabs) top bar, so wrapping it in another [AbScaffold] would draw a second, redundant
- * M3 app bar. [AbSettingsContent] renders the identical settings list with no top bar; the model-
- * override/max-iterations rows now open as [net.bible.sharedui.settings.SettingsEditorSheet] pages
+ * M3 app bar. [AbSettingsContent] renders the identical settings list with no top bar; the
+ * model-override row still opens as a [net.bible.sharedui.settings.SettingsEditorSheet] page
  * (Settings editor sheets T5), so this tab owns its own `SettingsEditorStack` and renders
  * [GenericSettingsEditorSheet] as a sibling, the same pattern [AbSettingsScreen] uses.
  *
@@ -204,6 +217,8 @@ import net.bible.sharedui.strings.Strings
  * @param modelChoices Model-override choices for the Advanced tab (`PromptService.modelChoices()`).
  * @param globalToolPermission Resolves a tool's current global default, for the Permissions tab's
  *   "Default (X)" option (`PromptService.globalToolPermission`).
+ * @param globalMaxIterationsLabel Host-formatted label for the global max-iterations default, fed
+ *   to the Advanced tab's [MaxIterationsSheetContent] (`CommonUtils.aiSettings.maxIterations`).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -245,6 +260,10 @@ fun PromptEditScreen(
     onBack: () -> Unit,
     helpBody: String,
     helpReadMoreUrl: String,
+    /** Host-formatted label for the global max-iterations default (e.g. "Unlimited" or "10") —
+     *  pre-formatted because "0" means *unlimited* on the host side and the "Unlimited" string is
+     *  an Android resource `:sharedUi` cannot read; see [MaxIterationsSheetContent]. */
+    globalMaxIterationsLabel: String,
     initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
@@ -321,6 +340,7 @@ fun PromptEditScreen(
                         isReadOnly = isReadOnly,
                         isBuiltIn = isBuiltIn,
                         modelChoices = modelChoices,
+                        globalMaxIterationsLabel = globalMaxIterationsLabel,
                         onSetModelOverride = onSetModelOverride,
                         onSetMaxIterations = onSetMaxIterations,
                         onSetSwitch = onSetSwitch,
@@ -659,6 +679,7 @@ fun PromptPermissionSheetContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AdvancedTabContent(
     state: PromptEditData,
@@ -666,6 +687,7 @@ private fun AdvancedTabContent(
     isReadOnly: Boolean,
     isBuiltIn: Boolean,
     modelChoices: List<SettingsItem.Choice>,
+    globalMaxIterationsLabel: String,
     onSetModelOverride: (String?) -> Unit,
     onSetMaxIterations: (Int?) -> Unit,
     onSetSwitch: (String, Boolean) -> Unit,
@@ -673,6 +695,12 @@ private fun AdvancedTabContent(
     val strings = LocalStrings.current
     val modelEnabled = !isReadOnly || isBuiltIn
     val otherEnabled = !isReadOnly
+    var maxIterationsSheetOpen by remember { mutableStateOf(false) }
+
+    // 17f: states the EFFECTIVE value, never the old "leave empty" instruction — a NavigationRow's
+    // summary has to make sense on its own, without the field beside it that used to carry the hint.
+    val maxIterationsSummary = state.maxIterations?.toString()
+        ?: strings.promptMaxIterationsUseGlobal(globalMaxIterationsLabel)
 
     val settingsState = SettingsScreenState(
         title = "",
@@ -685,12 +713,12 @@ private fun AdvancedTabContent(
                 enabled = modelEnabled,
                 iconKey = "model_override",
             ),
-            SettingsItem.TextInputRow(
+            // 17f: a NavigationRow, not a numeric TextInputRow — see the class-level kdoc's
+            // "max_iterations (17f)" paragraph. Its click is intercepted below via onNavigate.
+            SettingsItem.NavigationRow(
                 key = "max_iterations",
                 title = strings.promptMaxIterationsLabel,
-                summary = state.maxIterations?.toString() ?: strings.promptMaxIterationsHint,
-                value = state.maxIterations?.toString() ?: "",
-                numeric = true,
+                summary = maxIterationsSummary,
                 visible = "max_iterations" !in hiddenAdvancedKeys,
                 enabled = otherEnabled,
                 iconKey = "max_iterations",
@@ -743,8 +771,9 @@ private fun AdvancedTabContent(
 
     val onListChoice: (String, String) -> Unit =
         { key, value -> if (key == "model_override") onSetModelOverride(value.ifEmpty { null }) }
-    val onTextInput: (String, String) -> Unit =
-        { key, value -> if (key == "max_iterations") onSetMaxIterations(value.trim().toIntOrNull()) }
+    // "max_iterations" is a NavigationRow now (17f), so AbSettingsContent never routes it here —
+    // this stays a no-op / GenericSettingsEditorSheet stub for the other row types it still handles.
+    val onTextInput: (String, String) -> Unit = { _, _ -> }
     val editor = remember { SettingsEditorStack() }
     val editorPages by editor.pages.collectAsState()
 
@@ -753,7 +782,7 @@ private fun AdvancedTabContent(
         onSwitch = onSetSwitch,
         onListChoice = onListChoice,
         onTextInput = onTextInput,
-        onNavigate = {},
+        onNavigate = { key -> if (key == "max_iterations") maxIterationsSheetOpen = true },
         onOpenEditor = { key -> editor.open(SettingsEditorPage.Row(key)) },
     )
     GenericSettingsEditorSheet(
@@ -765,4 +794,66 @@ private fun AdvancedTabContent(
         onTextInput = onTextInput,
         onMultiSelectChange = { _, _ -> },
     )
+
+    if (maxIterationsSheetOpen) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(onDismissRequest = { maxIterationsSheetOpen = false }, sheetState = sheetState) {
+            MaxIterationsSheetContent(
+                current = state.maxIterations,
+                globalLabel = globalMaxIterationsLabel,
+                onApply = { value -> onSetMaxIterations(value); maxIterationsSheetOpen = false },
+                onClose = { maxIterationsSheetOpen = false },
+            )
+        }
+    }
+}
+
+/**
+ * The per-prompt max-iterations override (17f). The old generic numeric editor said "leave empty
+ * for the default", which is not a thing a number field can communicate — so the default is a
+ * SWITCH, and the number field only exists when the switch is off.
+ *
+ * PUBLIC so `:app`'s golden tests can capture it directly (see `AbChoiceSheetContent`).
+ */
+@Composable
+fun MaxIterationsSheetContent(
+    current: Int?,
+    globalLabel: String,
+    onApply: (Int?) -> Unit,
+    onClose: () -> Unit,
+) {
+    val strings = LocalStrings.current
+    var useGlobal by remember(current) { mutableStateOf(current == null) }
+    var text by remember(current) { mutableStateOf(current?.toString() ?: "") }
+    Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        AbSheetHeader(title = strings.promptMaxIterationsLabel, onClose = onClose)
+        Column(Modifier.padding(horizontal = 16.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(value = useGlobal, onValueChange = { useGlobal = it }, role = Role.Switch),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(strings.promptMaxIterationsUseGlobal(globalLabel), modifier = Modifier.weight(1f))
+                Switch(checked = useGlobal, onCheckedChange = { useGlobal = it })
+            }
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                enabled = !useGlobal,
+                singleLine = true,
+                label = { Text(strings.promptMaxIterationsLabel) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        SheetConfirmRow(
+            confirmLabel = strings.okay,
+            cancelLabel = strings.cancel,
+            // Switch on -> null (inherit). Switch off with unparseable text -> also null rather
+            // than a silently wrong number; the field is the only way to say anything else.
+            onConfirm = { onApply(if (useGlobal) null else text.trim().toIntOrNull()) },
+            onCancel = onClose,
+        )
+    }
 }
