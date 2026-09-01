@@ -3,8 +3,11 @@ package net.bible.android.view.compose.golden
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptGroupVd
+import net.bible.sharedcore.ai.PromptListFilter
+import net.bible.sharedcore.ai.PromptType
 import net.bible.sharedcore.ai.PromptVd
 import net.bible.sharedui.ai.AiPromptsScreen
+import net.bible.sharedui.ai.PromptFilterSheetContent
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -24,6 +27,7 @@ class AiPromptsGoldenTest {
         categories: List<PromptCategoryVd> = emptyList(),
         initiallyHelpDialogOpen: Boolean = false,
         initiallyOverflowMenuOpen: Boolean = false,
+        initiallySearchOpen: Boolean = false,
     ) =
         @androidx.compose.runtime.Composable {
             AiPromptsScreen(
@@ -54,6 +58,7 @@ class AiPromptsGoldenTest {
                 helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                 initiallyHelpDialogOpen = initiallyHelpDialogOpen,
                 initiallyOverflowMenuOpen = initiallyOverflowMenuOpen,
+                initiallySearchOpen = initiallySearchOpen,
             )
         }
 
@@ -188,4 +193,35 @@ class AiPromptsGoldenTest {
     // Its body is covered instead by AbSheetWrappersGoldenTest.choice_matrix. Re-attempt a per-row-popup golden only
     // after a Roborazzi/Robolectric upgrade, and consider rendering the row in isolation rather than
     // inside the full scrollable list.
+
+    // 17f/B5: the search bar's inline search mode (icon -> text field + filter action), captured via
+    // the initiallySearchOpen test seam rather than by driving the icon click -- same pattern as every
+    // other initiallyXxx seam in this file. Never captures the filter sheet itself (an open
+    // ModalBottomSheet hangs Roborazzi, see the F38/F40 notes above); that is PromptFilterSheetContent
+    // below.
+    @Test fun configured_searchOpen_matrix() =
+        captureMatrix(
+            "AiPrompts", "search_open",
+            heightDp = 900,
+            content = screen(
+                configured = true, groups = configuredGroups(), showHidden = true,
+                hasHiddenPrompts = true, initiallySearchOpen = true,
+            ),
+        )
+
+    /** [PromptFilterSheetContent] with favoritesOnly AND the built-in type dimension pre-selected,
+     *  everything else left off: both a selected AND an unselected chip render in every one of the
+     *  four dimension rows, so a selection-highlight bug (e.g. the wrong dimension wired to the wrong
+     *  chip's `selected`) would visibly fail this capture -- an all-unselected sheet could not. Wrapped
+     *  in [SheetSurface] (defined in AbSheetWrappersGoldenTest.kt), never in an open ModalBottomSheet. */
+    @Test fun filterSheetContent() = captureGolden("AiPrompts", "filter_sheet", EDGE_MODE, heightDp = 520) {
+        SheetSurface {
+            PromptFilterSheetContent(
+                filter = PromptListFilter(favoritesOnly = true, types = setOf(PromptType.BUILT_IN)),
+                categories = listOf(summaryCat),
+                onApply = {},
+                onClose = {},
+            )
+        }
+    }
 }

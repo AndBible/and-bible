@@ -651,4 +651,11 @@ class AndroidStrings(private val context: Context) : Strings {
     override val builtInPrompt: String get() = context.getString(R.string.built_in_prompt)
     override fun addonPromptBadge(module: String): String =
         context.getString(R.string.addon_prompt_badge, module)
+
+    // 17f — prompt manager search + filter sheet
+    override val promptFilterTitle: String get() = context.getString(R.string.prompt_filter_title)
+    override val promptFilterType: String get() = context.getString(R.string.prompt_filter_type)
+    override val promptTypeAddon: String get() = context.getString(R.string.prompt_type_addon)
+    override val promptTypeUser: String get() = context.getString(R.string.prompt_type_user)
+    override val promptFilterClear: String get() = context.getString(R.string.prompt_filter_clear)
 }

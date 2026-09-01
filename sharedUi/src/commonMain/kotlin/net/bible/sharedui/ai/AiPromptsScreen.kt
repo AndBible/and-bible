@@ -34,7 +34,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
@@ -63,17 +66,23 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptContextIds
 import net.bible.sharedcore.ai.PromptGroupVd
+import net.bible.sharedcore.ai.PromptListFilter
 import net.bible.sharedcore.ai.PromptType
 import net.bible.sharedcore.ai.PromptVd
+import net.bible.sharedcore.ai.filterPromptGroups
 import net.bible.sharedcore.ai.promptTypeOf
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbTextInputDialog
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -179,6 +188,8 @@ fun AiPromptsScreen(
     categoriesProvider: () -> List<PromptCategoryVd> = { emptyList() },
     initiallyHelpDialogOpen: Boolean = false,
     initiallyOverflowMenuOpen: Boolean = false,
+    initiallySearchOpen: Boolean = false,
+    initiallyFilter: PromptListFilter = PromptListFilter(),
 ) {
     val strings = LocalStrings.current
 
@@ -188,12 +199,23 @@ fun AiPromptsScreen(
     var deletePromptTarget by remember { mutableStateOf<PromptVd?>(null) }
     var moveToCategoryTarget by remember { mutableStateOf<PromptVd?>(null) }
     var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
+    // 17f: search + filter are SCREEN-LOCAL — filtering is pure over the already-resolved [groups],
+    // so hoisting to the host (as MyDocumentsScreen does for its DB-backed query) would add wiring
+    // that buys nothing here.
+    var searchOpen by remember { mutableStateOf(initiallySearchOpen) }
+    var query by remember { mutableStateOf("") }
+    var filter by remember { mutableStateOf(initiallyFilter) }
+    var filterSheetOpen by remember { mutableStateOf(false) }
+    val visibleGroups = remember(groups, query, filter) { filterPromptGroups(groups, query, filter) }
 
     AbScaffold(
         title = strings.aiPromptsTitle,
         onNavigateUp = onUp,
         actions = {
             if (configured) {
+                if (!searchOpen) {
+                    AbActionIcon(Icons.Filled.Search, contentDescription = strings.search) { searchOpen = true }
+                }
                 AbActionIcon(Icons.Filled.Add, contentDescription = strings.newPrompt, onClick = onNewPrompt)
                 // F41: Connection settings holds important settings — surfaced as a top-bar action
                 // (Android showAsAction="ifRoom" parity) instead of being buried in the overflow.
@@ -238,6 +260,21 @@ fun AiPromptsScreen(
                 }
             }
         },
+        search = if (searchOpen) AbTopBarSearchState(query = query, imeRequest = AbSearchImeRequest.Focus) else null,
+        searchCallbacks = if (searchOpen) {
+            AbTopBarSearchCallbacks(
+                onQueryChange = { query = it },
+                // Leaving search mode clears BOTH the query and the filters: a constraint the user
+                // can no longer see is indistinguishable from missing data.
+                onClose = { searchOpen = false; query = ""; filter = PromptListFilter() },
+                onImeRequestHandled = {},
+            )
+        } else null,
+        searchActions = {
+            if (searchOpen) {
+                FilterAction(filter.isActive, strings.promptFilterTitle) { filterSheetOpen = true }
+            }
+        },
     ) { padding ->
         if (!configured) {
             AiSetupCta(
@@ -246,7 +283,9 @@ fun AiPromptsScreen(
                 modifier = Modifier.padding(padding),
             )
         } else {
-            val totalPrompts = groups.sumOf { it.prompts.size }
+            // Based on visibleGroups (not groups): an over-narrow search/filter combination must
+            // show the empty-state message rather than a blank list.
+            val totalPrompts = visibleGroups.sumOf { it.prompts.size }
             if (totalPrompts == 0) {
                 Box(modifier = Modifier.padding(padding).fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
@@ -257,7 +296,7 @@ fun AiPromptsScreen(
                 }
             } else {
                 PromptGroupsList(
-                    groups = groups,
+                    groups = visibleGroups,
                     strings = strings,
                     onOpenPrompt = onOpenPrompt,
                     onToggleFavorite = onToggleFavorite,
@@ -361,6 +400,26 @@ fun AiPromptsScreen(
             onDismiss = { showHelp = false },
             readMoreLabel = strings.helpReadMoreLink,
             readMoreUrl = helpReadMoreUrl,
+        )
+    }
+    PromptFilterSheet(
+        open = filterSheetOpen,
+        filter = filter,
+        categories = remember(filterSheetOpen) { categoriesProvider() },
+        onApply = { filter = it },
+        onDismiss = { filterSheetOpen = false },
+    )
+}
+
+/** The filter affordance in the search bar's action slot. The icon differs when a filter is active:
+ *  a constraint the user cannot see is indistinguishable from missing data. */
+@Composable
+private fun FilterAction(active: Boolean, contentDescription: String, onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(
+            if (active) Icons.Filled.FilterAlt else Icons.Filled.FilterAltOff,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(AbActionIconSize),
         )
     }
 }

@@ -710,6 +710,13 @@ interface Strings {
     val builtInPrompt: String                    // R.string.built_in_prompt
     /** Classic's add-on badge, `"Add-on: %s"` with the module name. */
     fun addonPromptBadge(module: String): String // R.string.addon_prompt_badge
+
+    // 17f — prompt manager search + filter sheet
+    val promptFilterTitle: String                // R.string.prompt_filter_title
+    val promptFilterType: String                 // R.string.prompt_filter_type
+    val promptTypeAddon: String                  // R.string.prompt_type_addon
+    val promptTypeUser: String                   // R.string.prompt_type_user
+    val promptFilterClear: String                // R.string.prompt_filter_clear
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

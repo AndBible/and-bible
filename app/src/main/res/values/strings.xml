@@ -2065,4 +2065,9 @@
     <string name="document_quick_tab_recent">Recent</string>
     <string name="document_quick_tab_for_verse">This verse</string>
     <string name="document_quick_tab_last_filter">Last filter</string>
+    <string name="prompt_filter_title">Filter prompts</string>
+    <string name="prompt_filter_type">Type</string>
+    <string name="prompt_type_addon">Add-on</string>
+    <string name="prompt_type_user">Custom</string>
+    <string name="prompt_filter_clear">Clear filters</string>
 </resources>
