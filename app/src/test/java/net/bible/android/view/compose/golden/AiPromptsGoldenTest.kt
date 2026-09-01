@@ -27,6 +27,7 @@ class AiPromptsGoldenTest {
         initiallyHelpDialogOpen: Boolean = false,
         initiallyOverflowMenuOpen: Boolean = false,
         initiallySearchOpen: Boolean = false,
+        initiallyFilter: PromptListFilter = PromptListFilter(),
     ) =
         @androidx.compose.runtime.Composable {
             AiPromptsScreen(
@@ -58,6 +59,7 @@ class AiPromptsGoldenTest {
                 initiallyHelpDialogOpen = initiallyHelpDialogOpen,
                 initiallyOverflowMenuOpen = initiallyOverflowMenuOpen,
                 initiallySearchOpen = initiallySearchOpen,
+                initiallyFilter = initiallyFilter,
             )
         }
 
@@ -198,6 +200,12 @@ class AiPromptsGoldenTest {
     // other initiallyXxx seam in this file. Never captures the filter sheet itself (an open
     // ModalBottomSheet hangs Roborazzi, see the F38/F40 notes above); that is PromptFilterSheetContent
     // below.
+    //
+    // Final-review fix M2: also seeds initiallyFilter = favoritesOnly, so this one golden exercises
+    // BOTH the filter-active indicator (FilterAlt, not FilterAltOff -- see FilterAction) and an
+    // actually-narrowed list (configuredGroups() has two favorited prompts out of four total; a wrong
+    // filter wiring, e.g. the icon flipping without the list actually narrowing, would visibly fail
+    // this capture where an unfiltered "search open" golden could not).
     @Test fun configured_searchOpen_matrix() =
         captureMatrix(
             "AiPrompts", "search_open",
@@ -205,6 +213,7 @@ class AiPromptsGoldenTest {
             content = screen(
                 configured = true, groups = configuredGroups(), showHidden = true,
                 hasHiddenPrompts = true, initiallySearchOpen = true,
+                initiallyFilter = PromptListFilter(favoritesOnly = true),
             ),
         )
 
@@ -216,8 +225,13 @@ class AiPromptsGoldenTest {
      *  four unselected siblings ("Text selection"/"Window menu"/"Workspace menu"/"Note editor"),
      *  proving a selection-highlight bug (e.g. the wrong dimension wired to the wrong chip's
      *  `selected`) would visibly fail this capture -- an all-unselected sheet could not. Wrapped in
-     *  [SheetSurface] (defined in AbSheetWrappersGoldenTest.kt), never in an open ModalBottomSheet. */
-    @Test fun filterSheetContent() = captureGolden("AiPrompts", "filter_sheet", EDGE_MODE, heightDp = 520) {
+     *  [SheetSurface] (defined in AbSheetWrappersGoldenTest.kt), never in an open ModalBottomSheet.
+     *
+     *  **Widened to a matrix (final-review fix I3b):** was `captureGolden(..., EDGE_MODE, ...)`, light
+     *  theme only -- the chip check-icon added by I3a is exactly the kind of selection cue that needs
+     *  checking in monochrome/e-ink too (CLAUDE.md's "Theme and Display Modes"), so this now captures
+     *  bw/dark/eink/light like every other `_matrix` test in this file. */
+    @Test fun filterSheetContent_matrix() = captureMatrix("AiPrompts", "filter_sheet", heightDp = 520) {
         SheetSurface {
             PromptFilterSheetContent(
                 filter = PromptListFilter(favoritesOnly = true, contexts = setOf("VERSE_SELECTION")),

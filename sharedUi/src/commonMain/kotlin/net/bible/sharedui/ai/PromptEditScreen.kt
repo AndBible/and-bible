@@ -475,10 +475,14 @@ private fun PromptTabContent(
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             PromptContextIds.ordered.forEach { contextId ->
                 val chipEnabled = editable && contextId !in disabledContexts
+                val chipSelected = contextId in state.contexts
                 FilterChip(
-                    selected = contextId in state.contexts,
+                    selected = chipSelected,
                     onClick = { onToggleContext(contextId) },
                     enabled = chipEnabled,
+                    leadingIcon = {
+                        if (chipSelected) Icon(Icons.Filled.Check, contentDescription = null) else null
+                    },
                     label = { Text(promptContextLabel(contextId, strings)) },
                 )
             }
@@ -490,19 +494,19 @@ private fun PromptTabContent(
             enabled = editable,
             onCheckedChange = onSetBibleOnly,
         )
+        // 16dp gap, apart from the "Show in" chips above — this is a different axis, and classic
+        // likewise set it off with a 16dp gap. (The chip's own label carries the heading text, so
+        // there is no separate heading here — see final-review fix I1.)
         Spacer(Modifier.height(16.dp))
-        // Its own heading, apart from the "Show in" chips above — this is a different axis, and
-        // classic likewise set it off with a 16dp gap.
-        Text(
-            strings.promptIsTextTransformationLabel,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Spacer(Modifier.height(4.dp))
         FilterChip(
             selected = state.isTextTransformation,
             onClick = { onSetTextTransformation(!state.isTextTransformation) },
             enabled = editable,
+            leadingIcon = {
+                if (state.isTextTransformation) {
+                    Icon(Icons.Filled.Check, contentDescription = null)
+                } else null
+            },
             label = { Text(strings.promptIsTextTransformationLabel) },
         )
         Text(
@@ -868,7 +872,10 @@ fun MaxIterationsSheetContent(
             cancelLabel = strings.cancel,
             // Switch on -> null (inherit). Switch off with unparseable text -> also null rather
             // than a silently wrong number; the field is the only way to say anything else.
-            onConfirm = { onApply(if (useGlobal) null else text.trim().toIntOrNull()) },
+            // A negative override is clamped to 0 (this flow's own "unlimited" convention, see
+            // globalMaxIterationsLabel / AgentExecutor.kt) rather than being stored as-is, which
+            // would silently mean unlimited too but for the wrong reason (final-review fix: I3/bug).
+            onConfirm = { onApply(if (useGlobal) null else text.trim().toIntOrNull()?.coerceAtLeast(0)) },
             onCancel = onClose,
         )
     }

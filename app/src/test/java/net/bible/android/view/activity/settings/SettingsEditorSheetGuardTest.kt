@@ -179,6 +179,10 @@ class SettingsEditorSheetGuardTest {
             // captures throughout AbQuickSheetGoldenTest/WorkspaceQuickGoldenTest/HistoryGoldenTest
             // do not false-positive here.
             "AbQuickSheet(",
+            // Final-review fix I2: two sheets the guard never picked up. "RetentionSheet(" (from
+            // AiConnectionSettingsScreen.kt) predates this diff -- an earlier round's gap closed here
+            // rather than in a separate edit. "PromptFilterSheet(" is this plan's own new sheet.
+            "RetentionSheet(", "PromptFilterSheet(",
         )
         val offenders = testSourceRoot.walkTopDown().filter { it.extension == "kt" }
             // This guard's own file is excluded: widening the walk to the whole test tree means it

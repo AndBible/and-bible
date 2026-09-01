@@ -26,8 +26,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -103,6 +106,9 @@ fun PromptFilterSheetContent(
                     FilterChip(
                         selected = working.favoritesOnly,
                         onClick = { working = working.copy(favoritesOnly = !working.favoritesOnly) },
+                        leadingIcon = {
+                            if (working.favoritesOnly) Icon(Icons.Filled.Check, contentDescription = null) else null
+                        },
                         label = { Text(strings.promptCategoryFavorites) },
                     )
                 }
@@ -110,9 +116,13 @@ fun PromptFilterSheetContent(
                 FilterGroupLabel(strings.promptShowInLabel)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     PromptContextIds.ordered.forEach { id ->
+                        val selected = id in working.contexts
                         FilterChip(
-                            selected = id in working.contexts,
+                            selected = selected,
                             onClick = { working = working.copy(contexts = working.contexts.toggle(id)) },
+                            leadingIcon = {
+                                if (selected) Icon(Icons.Filled.Check, contentDescription = null) else null
+                            },
                             label = { Text(promptContextLabel(id, strings)) },
                         )
                     }
@@ -122,15 +132,23 @@ fun PromptFilterSheetContent(
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     // "" is the uncategorized bucket, the same sentinel the move-to-category
                     // picker uses.
+                    val uncategorizedSelected = "" in working.categoryIds
                     FilterChip(
-                        selected = "" in working.categoryIds,
+                        selected = uncategorizedSelected,
                         onClick = { working = working.copy(categoryIds = working.categoryIds.toggle("")) },
+                        leadingIcon = {
+                            if (uncategorizedSelected) Icon(Icons.Filled.Check, contentDescription = null) else null
+                        },
                         label = { Text(strings.promptCategoryUncategorized) },
                     )
                     categories.forEach { category ->
+                        val categorySelected = category.id in working.categoryIds
                         FilterChip(
-                            selected = category.id in working.categoryIds,
+                            selected = categorySelected,
                             onClick = { working = working.copy(categoryIds = working.categoryIds.toggle(category.id)) },
+                            leadingIcon = {
+                                if (categorySelected) Icon(Icons.Filled.Check, contentDescription = null) else null
+                            },
                             label = { Text(category.name) },
                         )
                     }
@@ -143,9 +161,13 @@ fun PromptFilterSheetContent(
                         PromptType.ADDON to strings.promptTypeAddon,
                         PromptType.USER to strings.promptTypeUser,
                     ).forEach { (type, label) ->
+                        val typeSelected = type in working.types
                         FilterChip(
-                            selected = type in working.types,
+                            selected = typeSelected,
                             onClick = { working = working.copy(types = working.types.toggle(type)) },
+                            leadingIcon = {
+                                if (typeSelected) Icon(Icons.Filled.Check, contentDescription = null) else null
+                            },
                             label = { Text(label) },
                         )
                     }

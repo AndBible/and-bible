@@ -131,12 +131,20 @@ import net.bible.sharedui.strings.Strings
  * **Per-row actions** live in a per-row overflow (3-dot `IconButton` + `DropdownMenu`, the same
  * pattern as `MyDocumentsScreen`'s `RowOverflow` — not [AbOverflowMenu], which is sized for the top
  * bar) rather than a long-press menu: it's discoverable without a hidden gesture and composes
- * cleanly with the row's own click (open) and the trailing favorite-star tap target. **F40:** Copy
+ * cleanly with the row's own click (open) and the leading favorite-star tap target. **F40:** Copy
  * is available for every prompt (built-in/add-on/user, mirrors classic `showPromptContextMenu`), so
  * every prompt row's overflow is now always shown (previously a read-only, non-built-in add-on
  * prompt — no hide/move/delete — omitted the button entirely; Copy means there's always something).
  * Move-to-category (opens an [net.bible.sharedui.components.AbChoiceSheet] picker, mirrors
  * classic `showMoveToCategoryDialog`) and reorder/delete stay gated to non-read-only (user) prompts.
+ *
+ * **Search + filter (17f).** The top bar's search icon opens an inline search field
+ * ([net.bible.sharedui.components.AbTopBarSearchState]) plus a filter action ([FilterAction], its icon
+ * swapping between [androidx.compose.material.icons.filled.FilterAlt]/[androidx.compose.material.icons.filled.FilterAltOff]
+ * to show whether any filter is active) that opens [PromptFilterSheet]. Both the query and the
+ * [net.bible.sharedcore.ai.PromptListFilter] are SCREEN-LOCAL state (`query`/`filter` below), not
+ * hoisted to the host — filtering is a pure function over the already-resolved [groups]
+ * ([net.bible.sharedcore.ai.filterPromptGroups]), so there is nothing for a host controller to own.
  *
  * **String reuse (no new resource strings, per task brief):** the show/hide-hidden overflow toggle
  * reuses `R.string.ai_restore_hidden_prompts` ("Restore hidden prompts") as a *checkable*
