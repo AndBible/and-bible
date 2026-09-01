@@ -267,17 +267,12 @@ class AiConnectionSettingsController(
                 iconKey = "agent_max_iterations",
                 visible = hasProviders,
             ),
-            // NOTE (F29 concern; corrected — A/B batch 3 F4 added the slot this comment used to say
-            // was missing): ask_model_before_run / auto_hide_agent_log deliberately have NO iconKey.
-            // AbSwitchRow (the shared switch row component, used beyond settings screens) DOES have
-            // a leading-icon slot now — these two rows simply never set an `iconKey`, so they render
-            // with no icon. A classic drawable is still mapped in SettingsIcons.kt for completeness,
-            // ready to use if these rows ever want one.
             SettingsItem.SwitchRow(
                 key = "ask_model_before_run",
                 title = labels.askModelBeforeRunTitle,
                 summary = labels.askModelBeforeRunSummary,
                 checked = s.askModelBeforeRun,
+                iconKey = "ask_model_before_run",
                 visible = hasProviders,
             ),
             SettingsItem.SwitchRow(
@@ -285,6 +280,9 @@ class AiConnectionSettingsController(
                 title = labels.autoHideAgentLogTitle,
                 summary = labels.autoHideAgentLogSummary,
                 checked = s.autoHideAgentLogOnCompletion,
+                // Classic's preference key, which is what SettingsIcons.kt maps — this row's own
+                // key is the shorter `auto_hide_agent_log`.
+                iconKey = "auto_hide_agent_log_on_completion",
                 visible = hasProviders,
             ),
             SettingsItem.Category(

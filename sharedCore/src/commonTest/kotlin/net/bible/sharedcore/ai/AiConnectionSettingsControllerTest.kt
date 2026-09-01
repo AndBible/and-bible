@@ -112,4 +112,30 @@ class AiConnectionSettingsControllerTest {
         f.flow.value = snap(providers = 1)
         assertFalse(AiConnectionNav.EASY_SETUP in c.state.value.visibleItems.map { it.key })
     }
+
+    @Test fun everyNonCategoryRowCarriesAnIconKey() = runTest {
+        val c = controller(Fake(snap(providers = 1, models = 1)))
+        val missing = c.state.value.items
+            .filterNot { it is SettingsItem.Category }
+            .filter { item ->
+                when (item) {
+                    is SettingsItem.SwitchRow -> item.iconKey == null
+                    is SettingsItem.ListChoiceRow -> item.iconKey == null
+                    is SettingsItem.TextInputRow -> item.iconKey == null
+                    is SettingsItem.NavigationRow -> item.iconKey == null
+                    is SettingsItem.InfoRow -> item.iconKey == null
+                    else -> false
+                }
+            }
+            .map { it.key }
+        assertEquals(emptyList(), missing, "17f: no AI connection row may render without an icon")
+    }
+
+    @Test fun autoHideSwitchUsesTheClassicIconKey_notItsOwnRowKey() = runTest {
+        val c = controller(Fake(snap(providers = 1, models = 1)))
+        val row = c.state.value.items.first { it.key == "auto_hide_agent_log" } as SettingsItem.SwitchRow
+        // The Compose row key and the classic preference key differ; SettingsIcons.kt is keyed by
+        // the CLASSIC one (res/xml/ai_connection_settings.xml:97).
+        assertEquals("auto_hide_agent_log_on_completion", row.iconKey)
+    }
 }
