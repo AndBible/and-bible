@@ -32,8 +32,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.CreateNewFolder
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DriveFileMove
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.MoreVert
@@ -41,11 +50,11 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -76,7 +85,9 @@ import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchImeRequest
@@ -128,34 +139,24 @@ import net.bible.sharedui.strings.Strings
  * classic `showMoveToCategoryDialog`) and reorder/delete stay gated to non-read-only (user) prompts.
  *
  * **String reuse (no new resource strings, per task brief):** the show/hide-hidden overflow toggle
- * reuses `R.string.ai_restore_hidden_prompts` ("Restore hidden prompts") as a *checkable* menu item
- * (leading [Checkbox] reflecting [showHidden], same pattern as `GridPassageScreen`'s `CheckItem`)
- * rather than a one-shot action — classic's "restore ALL hidden prompts at once" no longer exists as
- * a controller action ([net.bible.sharedcore.ai.AiPromptsController] only has [onSetShowHidden]), so
+ * reuses `R.string.ai_restore_hidden_prompts` ("Restore hidden prompts") as a *checkable*
+ * [net.bible.sharedui.components.AbMenuItem] (a trailing check reflecting [showHidden]) rather than
+ * a one-shot action — classic's "restore ALL hidden prompts at once" no longer exists as a
+ * controller action ([net.bible.sharedcore.ai.AiPromptsController] only has [onSetShowHidden]), so
  * the closest-meaning existing string is repurposed. The un-hide action on an individual hidden
  * built-in prompt reuses the generic `R.string.restore` ("Restore"). A future strings-only pass could
  * add a precise "Show hidden" string; noted as a follow-up, not blocking here.
  *
- * **F38 fix — toggle gating + label alignment.** [hasHiddenPrompts] gates the toggle item's very
- * presence (mirrors classic `AiSettingsActivity.onPrepareOptionsMenu`'s
+ * **F38 fix — toggle gating.** [hasHiddenPrompts] gates the toggle item's very presence (mirrors
+ * classic `AiSettingsActivity.onPrepareOptionsMenu`'s
  * `restore_hidden_prompts.isVisible = hiddenBuiltInPrompts.isNotEmpty()`; the controller derives it
  * from [net.bible.sharedcore.ai.AiPromptsController.hasHiddenPrompts], independent of [showHidden]
  * since [groups] itself only filters hidden items in/out — it can't tell you whether any exist once
- * they're filtered out). Putting the [Checkbox] in `leadingIcon` alone does NOT align its label with
- * the other items: Material3's `DropdownMenuItem` only reserves the icon-box + spacing inset when
- * `leadingIcon` is non-null, so a lone leading-icon item's text starts further right than sibling
- * plain-text items. To make every item's label start at the SAME x, every item in this overflow
- * (not just the toggle) reserves an equal-width `leadingIcon` slot ([OVERFLOW_LEADING_SLOT], sized to
- * [Checkbox]'s own default touch-target width) — an invisible [Spacer] for the plain items, the real
- * [Checkbox] for the toggle.
+ * they're filtered out). **17f-B6:** every item in this overflow now goes through
+ * [net.bible.sharedui.components.AbMenuItem] and carries a real leading icon, so the old hand-rolled
+ * equal-width leading-icon slot (`OVERFLOW_LEADING_SLOT`) is gone — `AbMenuItem` reserves that box
+ * itself, and the toggle's trailing check replaces its old leading [androidx.compose.material3.Checkbox].
  */
-/**
- * Leading-icon slot width shared by every item in the AiPrompts overflow menu (see the F38 kdoc
- * note above) — matches Material3 [Checkbox]'s own default minimum touch-target size, so the real
- * [Checkbox] and the plain items' invisible [Spacer]s measure to the same width and every label
- * starts at the same x.
- */
-private val OVERFLOW_LEADING_SLOT = 48.dp
 
 @Composable
 fun AiPromptsScreen(
@@ -225,38 +226,31 @@ fun AiPromptsScreen(
                     onClick = onOpenConnectionSettings,
                 )
                 AbOverflowMenu(contentDescription = null, initiallyExpanded = initiallyOverflowMenuOpen) { close ->
-                    // Every item reserves the SAME leadingIcon slot width (an invisible spacer for
-                    // the plain items, the real Checkbox for the toggle below) so all labels start
-                    // at the same x — see the F38 kdoc note above.
-                    DropdownMenuItem(
-                        text = { Text(strings.newCategory) },
+                    AbMenuItem(
+                        text = strings.newCategory,
                         onClick = { close(); showNewCategoryDialog = true },
-                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
+                        icon = { Icon(Icons.Filled.CreateNewFolder, contentDescription = null) },
                     )
                     if (hasHiddenPrompts) {
-                        DropdownMenuItem(
-                            text = { Text(strings.restoreHiddenPromptsLabel) },
+                        AbMenuItem(
+                            text = strings.restoreHiddenPromptsLabel,
                             onClick = { close(); onSetShowHidden(!showHidden) },
-                            leadingIcon = {
-                                Checkbox(checked = showHidden, onCheckedChange = { close(); onSetShowHidden(it) })
-                            },
+                            icon = { Icon(Icons.Filled.VisibilityOff, contentDescription = null) },
+                            checkable = true,
+                            checked = showHidden,
                         )
                     }
-                    DropdownMenuItem(
-                        text = { Text(strings.exportPromptsCsv) },
+                    AbMenuItem(
+                        text = strings.exportPromptsCsv,
                         onClick = { close(); onExportCsv() },
-                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
+                        icon = { Icon(Icons.Filled.FileUpload, contentDescription = null) },
                     )
-                    DropdownMenuItem(
-                        text = { Text(strings.importPromptsCsv) },
+                    AbMenuItem(
+                        text = strings.importPromptsCsv,
                         onClick = { close(); onImportCsv() },
-                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
+                        icon = { Icon(Icons.Filled.FileDownload, contentDescription = null) },
                     )
-                    DropdownMenuItem(
-                        text = { Text(strings.helpLabel) },
-                        onClick = { close(); showHelp = true },
-                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
-                    )
+                    AbMenuItem(text = strings.helpLabel, onClick = { close(); showHelp = true }, icon = AbHelpMenuIcon)
                 }
             }
         },
@@ -597,19 +591,41 @@ private fun CategoryRowOverflow(
     Box {
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(
-                text = { Text(if (category.isHidden) strings.showCategoryLabel else strings.hideCategoryLabel) },
+            AbMenuItem(
+                text = if (category.isHidden) strings.showCategoryLabel else strings.hideCategoryLabel,
                 onClick = { expanded = false; onSetHidden(!category.isHidden) },
+                icon = {
+                    Icon(
+                        if (category.isHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = null,
+                    )
+                },
             )
             if (!category.isBuiltIn) {
                 if (canMoveUp) {
-                    DropdownMenuItem(text = { Text(strings.moveUpLabel) }, onClick = { expanded = false; onMove(true) })
+                    AbMenuItem(
+                        text = strings.moveUpLabel,
+                        onClick = { expanded = false; onMove(true) },
+                        icon = { Icon(Icons.Filled.ArrowUpward, contentDescription = null) },
+                    )
                 }
                 if (canMoveDown) {
-                    DropdownMenuItem(text = { Text(strings.moveDownLabel) }, onClick = { expanded = false; onMove(false) })
+                    AbMenuItem(
+                        text = strings.moveDownLabel,
+                        onClick = { expanded = false; onMove(false) },
+                        icon = { Icon(Icons.Filled.ArrowDownward, contentDescription = null) },
+                    )
                 }
-                DropdownMenuItem(text = { Text(strings.rename) }, onClick = { expanded = false; onRenameRequest() })
-                DropdownMenuItem(text = { Text(strings.deleteCategoryLabel) }, onClick = { expanded = false; onDeleteRequest() })
+                AbMenuItem(
+                    text = strings.rename,
+                    onClick = { expanded = false; onRenameRequest() },
+                    icon = { Icon(Icons.Filled.Edit, contentDescription = null) },
+                )
+                AbMenuItem(
+                    text = strings.deleteCategoryLabel,
+                    onClick = { expanded = false; onDeleteRequest() },
+                    icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+                )
             }
         }
     }
@@ -712,26 +728,49 @@ private fun PromptRowOverflow(
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             if (prompt.isBuiltIn) {
-                DropdownMenuItem(
-                    text = { Text(if (prompt.isHidden) strings.restoreLabel else strings.hidePromptLabel) },
+                AbMenuItem(
+                    text = if (prompt.isHidden) strings.restoreLabel else strings.hidePromptLabel,
                     onClick = { expanded = false; onSetHidden(!prompt.isHidden) },
+                    icon = {
+                        Icon(
+                            if (prompt.isHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                            contentDescription = null,
+                        )
+                    },
                 )
             }
             // F40: Copy mirrors classic showPromptContextMenu — available for ALL prompts
             // (built-in/add-on/user), unlike the reorder/move-to-category/delete actions below.
-            DropdownMenuItem(text = { Text(strings.copyLabel) }, onClick = { expanded = false; onCopy() })
+            AbMenuItem(
+                text = strings.copyLabel,
+                onClick = { expanded = false; onCopy() },
+                icon = { Icon(Icons.Filled.ContentCopy, contentDescription = null) },
+            )
             if (!prompt.isReadOnly) {
                 if (canMoveUp) {
-                    DropdownMenuItem(text = { Text(strings.moveUpLabel) }, onClick = { expanded = false; onMove(true) })
+                    AbMenuItem(
+                        text = strings.moveUpLabel,
+                        onClick = { expanded = false; onMove(true) },
+                        icon = { Icon(Icons.Filled.ArrowUpward, contentDescription = null) },
+                    )
                 }
                 if (canMoveDown) {
-                    DropdownMenuItem(text = { Text(strings.moveDownLabel) }, onClick = { expanded = false; onMove(false) })
+                    AbMenuItem(
+                        text = strings.moveDownLabel,
+                        onClick = { expanded = false; onMove(false) },
+                        icon = { Icon(Icons.Filled.ArrowDownward, contentDescription = null) },
+                    )
                 }
-                DropdownMenuItem(
-                    text = { Text(strings.moveToCategoryLabel) },
+                AbMenuItem(
+                    text = strings.moveToCategoryLabel,
                     onClick = { expanded = false; onMoveToCategoryRequest() },
+                    icon = { Icon(Icons.Filled.DriveFileMove, contentDescription = null) },
                 )
-                DropdownMenuItem(text = { Text(strings.deleteLabel) }, onClick = { expanded = false; onDeleteRequest() })
+                AbMenuItem(
+                    text = strings.deleteLabel,
+                    onClick = { expanded = false; onDeleteRequest() },
+                    icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+                )
             }
         }
     }

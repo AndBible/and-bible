@@ -35,8 +35,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,7 +50,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.ai.AiModelsController
 import net.bible.sharedcore.ai.ModelEditState
 import net.bible.sharedcore.ai.ModelVd
@@ -62,7 +59,10 @@ import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDropdownField
+import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchablePicker
 import net.bible.sharedui.components.AbSwitchRow
@@ -137,7 +137,6 @@ fun AiModelsScreen(
     initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
-    var showHelpMenu by remember { mutableStateOf(false) }
     var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
 
     AbScaffold(
@@ -145,11 +144,8 @@ fun AiModelsScreen(
         onNavigateUp = onUp,
         actions = {
             AbActionIcon(Icons.Filled.Add, contentDescription = strings.addModel, onClick = onAdd)
-            IconButton(onClick = { showHelpMenu = true }) {
-                Text("⋮", fontSize = 24.sp) // vertical ellipsis; Material icons aren't on the app-module classpath
-            }
-            DropdownMenu(expanded = showHelpMenu, onDismissRequest = { showHelpMenu = false }) {
-                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { showHelpMenu = false; showHelp = true })
+            AbOverflowMenu(contentDescription = null) { close ->
+                AbMenuItem(text = strings.helpLabel, onClick = { close(); showHelp = true }, icon = AbHelpMenuIcon)
             }
         },
     ) { padding ->
