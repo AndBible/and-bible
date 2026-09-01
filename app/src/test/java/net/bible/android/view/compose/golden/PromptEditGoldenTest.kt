@@ -132,8 +132,9 @@ class PromptEditGoldenTest {
         isReadOnly = false, isBuiltIn = false, bibleOnly = false,
     )
 
-    // heightDp=1200: name/description/template(minLines=5)/category dropdown/5 context checkboxes/
-    // 2 more checkboxes -- the default viewport clips well before the last checkbox.
+    // heightDp=1200: name/description/template(minLines=5)/category dropdown/5 context chips
+    // (17f)/bibleOnly checkbox/text-transformation chip -- the default viewport clips well before
+    // the last row.
     @Test fun prompt_matrix() =
         captureMatrix("PromptEdit", "prompt", heightDp = 1200, content = screen(promptState, PromptEditTab.PROMPT))
 
@@ -142,12 +143,15 @@ class PromptEditGoldenTest {
     fun prompt_rtl() =
         captureRtl("PromptEdit", "prompt", heightDp = 1200, content = screen(promptState, PromptEditTab.PROMPT))
 
-    /** textTransformation=true -> availableTabs drops PERMISSIONS; disabledContexts/hiddenAdvancedKeys
-     *  no longer apply here (bibleOnly=false), but this exercises the tab-availability branch. */
+    /** textTransformation=true -> availableTabs drops PERMISSIONS; bibleOnly=true also exercises
+     *  disabledContexts (17f: WORKSPACE_MENU/NOTE_EDITOR render as disabled [FilterChip]s alongside
+     *  the enabled ones -- this is the only fixture in this file where a chip is genuinely
+     *  disabled-but-editable, as opposed to [readonly_builtin_prompt] where every control is
+     *  disabled by `editable = false` regardless). */
     @Test fun prompt_texttransform() =
         captureGolden(
             "PromptEdit", "prompt_texttransform", EDGE_MODE, heightDp = 1200,
-            content = screen(promptState.copy(isTextTransformation = true), PromptEditTab.PROMPT),
+            content = screen(promptState.copy(isTextTransformation = true, bibleOnly = true), PromptEditTab.PROMPT),
         )
 
     /** Permissions tab reachable (textTransformation=false). Some tools overridden away from the

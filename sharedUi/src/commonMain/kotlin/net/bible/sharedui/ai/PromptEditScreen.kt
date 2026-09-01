@@ -19,8 +19,11 @@ package net.bible.sharedui.ai
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +41,7 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -109,11 +113,13 @@ import net.bible.sharedui.strings.Strings
  *
  * **Prompt tab.** Name/description (single-line) + template (multiline, `minLines = 5`)
  * [OutlinedTextField]s, a category [AbDropdownField] (`""` sentinel = no category, matching the
- * `modelChoices`/`permissionMode` convention below), the context checkboxes ([PromptContextIds.ordered],
- * greyed out per [disabledContexts] — i.e. `WORKSPACE_MENU`/`NOTE_EDITOR` while `state.bibleOnly`),
- * a "Bible documents only" checkbox, and a "Text transformation" checkbox (drives
- * `state.isTextTransformation`, which is what makes the Permissions tab disappear and hides four
- * Advanced-tab rows — mirrors classic's `checkTextTransformation`, which sits on this same tab).
+ * `modelChoices`/`permissionMode` convention below), the context chips (17f: a wrapping row of
+ * [FilterChip]s, one per [PromptContextIds.ordered], greyed out per [disabledContexts] — i.e.
+ * `WORKSPACE_MENU`/`NOTE_EDITOR` while `state.bibleOnly`), a "Bible documents only" checkbox, and,
+ * under its own heading (17f: separated from the "Show in" chips above, a different axis), a "Text
+ * transformation" chip (drives `state.isTextTransformation`, which is what makes the Permissions tab
+ * disappear and hides four Advanced-tab rows — mirrors classic's `checkTextTransformation`, which
+ * sits on this same tab).
  * Every control is disabled together via one `editable = !isReadOnly` flag — a built-in prompt's
  * *only* editable field is the Advanced tab's model override, so Prompt-tab fields stay locked even
  * for `isBuiltIn` (matches `PromptEditController`'s doc: only [net.bible.sharedcore.ai.PromptEditController.setModelOverride]
@@ -361,6 +367,7 @@ private fun tabLabel(tab: PromptEditTab, strings: Strings): String = when (tab) 
     PromptEditTab.ADVANCED -> strings.promptTabAdvanced
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PromptTabContent(
     state: PromptEditData,
@@ -426,13 +433,19 @@ private fun PromptTabContent(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
         )
-        PromptContextIds.ordered.forEach { contextId ->
-            LabeledCheckboxRow(
-                label = promptContextLabel(contextId, strings),
-                checked = contextId in state.contexts,
-                enabled = editable && contextId !in disabledContexts,
-                onCheckedChange = { onToggleContext(contextId) },
-            )
+        Spacer(Modifier.height(4.dp))
+        // 17f: five wrapping FilterChips, not five checkbox rows — five stacked rows dominated the
+        // tab, and a MultiChoiceSegmentedButtonRow cannot fit five text labels on a narrow screen.
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            PromptContextIds.ordered.forEach { contextId ->
+                val chipEnabled = editable && contextId !in disabledContexts
+                FilterChip(
+                    selected = contextId in state.contexts,
+                    onClick = { onToggleContext(contextId) },
+                    enabled = chipEnabled,
+                    label = { Text(promptContextLabel(contextId, strings)) },
+                )
+            }
         }
         Spacer(Modifier.height(8.dp))
         LabeledCheckboxRow(
@@ -441,12 +454,26 @@ private fun PromptTabContent(
             enabled = editable,
             onCheckedChange = onSetBibleOnly,
         )
-        LabeledCheckboxRow(
-            label = strings.promptIsTextTransformationLabel,
-            summary = strings.promptIsTextTransformationDescription,
-            checked = state.isTextTransformation,
+        Spacer(Modifier.height(16.dp))
+        // Its own heading, apart from the "Show in" chips above — this is a different axis, and
+        // classic likewise set it off with a 16dp gap.
+        Text(
+            strings.promptIsTextTransformationLabel,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Spacer(Modifier.height(4.dp))
+        FilterChip(
+            selected = state.isTextTransformation,
+            onClick = { onSetTextTransformation(!state.isTextTransformation) },
             enabled = editable,
-            onCheckedChange = onSetTextTransformation,
+            label = { Text(strings.promptIsTextTransformationLabel) },
+        )
+        Text(
+            strings.promptIsTextTransformationDescription,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp),
         )
     }
 }
