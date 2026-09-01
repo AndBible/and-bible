@@ -644,4 +644,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val documentTabLastFilter: String get() = context.getString(R.string.document_quick_tab_last_filter)
 
     override val toolPermissionMixed: String get() = context.getString(R.string.tool_permission_mixed)
+
+    override val promptPermissionModeDescription: String
+        get() = context.getString(R.string.prompt_permission_mode_description)
 }

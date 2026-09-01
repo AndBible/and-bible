@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.ai
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,17 +34,21 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.PromptAdvancedSwitchKeys
 import net.bible.sharedcore.ai.PromptCategoryVd
@@ -71,8 +78,11 @@ import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbListChoiceContent
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbSheetHeader
+import net.bible.sharedui.components.AbSheetScrollBound
 import net.bible.sharedui.settings.AbSettingsContent
 import net.bible.sharedui.settings.GenericSettingsEditorSheet
 import net.bible.sharedui.strings.LocalStrings
@@ -108,13 +118,17 @@ import net.bible.sharedui.strings.Strings
  * for `isBuiltIn` (matches `PromptEditController`'s doc: only [net.bible.sharedcore.ai.PromptEditController.setModelOverride]
  * bypasses the read-only guard).
  *
- * **Permissions tab** (only reachable while in [availableTabs]). A permission-mode [AbDropdownField]
- * built from [net.bible.sharedcore.ai.agentPermissionModeChoices] (reused as-is from `AiEnums.kt`)
- * plus a leading `""` = "use default" entry, then [ToolPermissionList] fed [toolsByCategory] /
- * [globalToolPermission] (always PROMPT mode — `globalDefaultLabelFor` always returns the resolved
- * global-default TOKEN, never `null`), then a "Reset all" [TextButton] (hidden, not merely disabled,
- * while read-only — matches classic's `btnResetToolPermissions.visibility = GONE`). [toolPermissionFor]
- * derives each tool's current [ToolPermission] from `state.allowedTools`/`deniedTools` membership,
+ * **Permissions tab** (only reachable while in [availableTabs]). A slim ~40dp status strip shows
+ * the current permission mode's label and opens a [ModalBottomSheet] (17f) whose body,
+ * [PromptPermissionSheetContent], holds the mode choice list (built from
+ * [net.bible.sharedcore.ai.agentPermissionModeChoices], reused as-is from `AiEnums.kt`, plus a
+ * leading `""` = "use default" entry), the explanation classic showed under its spinner
+ * (`promptPermissionModeDescription`), and the "Reset to default" action (hidden, not merely
+ * disabled, while read-only — matches classic's `btnResetToolPermissions.visibility = GONE`).
+ * Below the strip, [ToolPermissionList] is fed [toolsByCategory] / [globalToolPermission] (always
+ * PROMPT mode — `globalDefaultLabelFor` always returns the resolved global-default TOKEN, never
+ * `null`). [toolPermissionFor] derives each tool's current [ToolPermission] from
+ * `state.allowedTools`/`deniedTools` membership,
  * mapped to ALLOW/ENABLED or DENY/DISABLED by [ToolVd.requiresPermission] (see its kdoc). NOTE:
  * unlike the other controls here, [ToolPermissionList] (Task 4) has no `enabled`/read-only concept —
  * its segmented buttons stay visually tappable even in read-only mode. This is safe (the controller's
@@ -211,8 +225,8 @@ fun PromptEditScreen(
     onSetTextTransformation: (Boolean) -> Unit,
     onSetPermissionMode: (String?) -> Unit,
     onSetToolPermission: (toolId: String, ToolPermission) -> Unit,
-    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
-    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
+    onSetCategoryRead: (categoryId: String, ToolPermission) -> Unit,
+    onSetCategoryWrite: (categoryId: String, ToolPermission) -> Unit,
     onResetToolPermissions: () -> Unit,
     onSetModelOverride: (String?) -> Unit,
     onSetMaxIterations: (Int?) -> Unit,
@@ -485,6 +499,7 @@ private fun toolPermissionFor(state: PromptEditData, tool: ToolVd): ToolPermissi
     else -> ToolPermission.DEFAULT
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PermissionsTabContent(
     state: PromptEditData,
@@ -493,10 +508,11 @@ private fun PermissionsTabContent(
     editable: Boolean,
     onSetPermissionMode: (String?) -> Unit,
     onSetToolPermission: (toolId: String, ToolPermission) -> Unit,
-    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
-    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
+    onSetCategoryRead: (categoryId: String, ToolPermission) -> Unit,
+    onSetCategoryWrite: (categoryId: String, ToolPermission) -> Unit,
     onResetToolPermissions: () -> Unit,
     strings: Strings,
+    initiallySheetOpen: Boolean = false,
 ) {
     val toolsById = remember(toolsByCategory) { toolsByCategory.flatMap { it.second }.associateBy { it.id } }
     val permissionModeChoices = remember(strings) {
@@ -510,16 +526,34 @@ private fun PermissionsTabContent(
                 ),
             )
     }
+    val selectedMode = state.permissionMode ?: ""
+    val modeLabel = permissionModeChoices.firstOrNull { it.value == selectedMode }?.label ?: selectedMode
+    var sheetOpen by remember { mutableStateOf(initiallySheetOpen) }
 
     Column(Modifier.fillMaxSize()) {
-        AbDropdownField(
-            label = strings.promptPermissionModeLabel,
-            selected = state.permissionMode ?: "",
-            options = permissionModeChoices.map { it.value },
-            optionLabel = { v -> permissionModeChoices.firstOrNull { it.value == v }?.label ?: v },
-            onSelect = { v -> onSetPermissionMode(v.ifEmpty { null }) },
-            enabled = editable,
-        )
+        // 17f: a ~40dp strip replaces a full AbDropdownField (~60dp) AND the full-width "Reset all"
+        // TextButton (~48dp) that used to sit at the bottom of this tab. It shows the current mode
+        // (which the closed dropdown did too) and opens the sheet that owns both of them.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { sheetOpen = true }
+                .padding(start = 16.dp, end = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modeLabel,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f).padding(vertical = 8.dp),
+            )
+            IconButton(onClick = { sheetOpen = true }) {
+                Icon(Icons.Filled.Tune, contentDescription = strings.promptPermissionModeLabel)
+            }
+        }
+        HorizontalDivider()
         ToolPermissionList(
             categories = toolsByCategory,
             permissionFor = { toolId -> toolsById[toolId]?.let { toolPermissionFor(state, it) } ?: ToolPermission.DEFAULT },
@@ -529,11 +563,68 @@ private fun PermissionsTabContent(
             onSetCategoryWrite = onSetCategoryWrite,
             modifier = Modifier.weight(1f),
         )
-        if (editable) {
-            TextButton(
-                onClick = onResetToolPermissions,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-            ) { Text(strings.resetToolPermissionsLabel) }
+    }
+
+    if (sheetOpen) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(onDismissRequest = { sheetOpen = false }, sheetState = sheetState) {
+            PromptPermissionSheetContent(
+                choices = permissionModeChoices,
+                selectedValue = selectedMode,
+                editable = editable,
+                onSelect = { value -> onSetPermissionMode(value.ifEmpty { null }) },
+                onResetToolPermissions = { onResetToolPermissions(); sheetOpen = false },
+                onClose = { sheetOpen = false },
+                strings = strings,
+            )
+        }
+    }
+}
+
+/**
+ * The permission sheet's body: mode choice, the explanation classic showed under its spinner, and
+ * "Reset to default". Stateless and free of any `ModalBottomSheet`, so a golden test can capture
+ * it — an OPEN sheet hangs Roborazzi. PUBLIC for exactly that reason, following
+ * `AbChoiceSheetContent`'s precedent: `:app`'s golden tests are a different module and cannot see
+ * an `internal` or `private` composable.
+ *
+ * Read-only prompts keep the mode visible (it is information) with the choice list disabled, and
+ * lose the reset action entirely — mirrors classic's `btnResetToolPermissions.visibility = GONE`.
+ */
+@Composable
+fun PromptPermissionSheetContent(
+    choices: List<SettingsItem.Choice>,
+    selectedValue: String,
+    editable: Boolean,
+    onSelect: (String) -> Unit,
+    onResetToolPermissions: () -> Unit,
+    onClose: () -> Unit,
+    strings: Strings,
+    scrollState: ScrollState = rememberScrollState(),
+) {
+    Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        AbSheetHeader(title = strings.promptPermissionModeLabel, onClose = onClose)
+        AbSheetScrollBound(canScrollForward = { scrollState.canScrollForward }) {
+            Column(Modifier.verticalScroll(scrollState)) {
+                AbListChoiceContent(
+                    choices = choices,
+                    selectedValue = selectedValue,
+                    onSelect = { if (editable) onSelect(it) },
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
+                Text(
+                    strings.promptPermissionModeDescription,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                )
+                if (editable) {
+                    TextButton(
+                        onClick = onResetToolPermissions,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    ) { Text(strings.resetToDefault) }
+                }
+            }
         }
     }
 }

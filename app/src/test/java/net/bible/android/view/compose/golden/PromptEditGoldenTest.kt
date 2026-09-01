@@ -9,6 +9,8 @@ import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.ai.PromptEditScreen
+import net.bible.sharedui.ai.PromptPermissionSheetContent
+import net.bible.sharedui.strings.LocalStrings
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -211,4 +213,41 @@ class PromptEditGoldenTest {
             "PromptEdit", "help", heightDp = 1200,
             content = screen(promptState, PromptEditTab.PROMPT, initiallyHelpDialogOpen = true),
         )
+
+    /** Same shape as the Permissions tab's own `permissionModeChoices` construction: a leading
+     *  "use default" entry plus the four [net.bible.sharedcore.ai.agentPermissionModeChoices]. */
+    private val permissionSheetChoices = listOf(
+        SettingsItem.Choice("", "Use default"),
+        SettingsItem.Choice("ALWAYS_ASK", "Always ask"),
+        SettingsItem.Choice("ASK_ONCE_PER_RUN", "Ask once per run"),
+        SettingsItem.Choice("ALLOW_ALL", "Allow all"),
+        SettingsItem.Choice("DENY_ALL", "Deny all"),
+    )
+
+    /**
+     * 17f: [PromptPermissionSheetContent] is the permission tab's new bottom-sheet body (a status
+     * strip replaces the old full-width dropdown + "Reset all" button, both now inside this sheet).
+     * Captured directly (never the open [androidx.compose.material3.ModalBottomSheet] itself, which
+     * hangs Roborazzi -- `SettingsEditorSheetGuardTest` polices this), wrapped in [SheetSurface] for
+     * background-colour consistency with every other sheet-content capture in this package.
+     *
+     * `editable = true` so BOTH things this task adds are visible in one capture: the explanation
+     * text under the choice list, and the "Reset to default" button -- a capture of the radio list
+     * alone would prove nothing about what changed here (the list itself is unmoved from Task 4).
+     * heightDp=500: header + 5 choice rows + explanation text + reset button all fit with margin
+     * (the 400dp `AbSheetContentMaxHeight` bound never engages for this short a list).
+     */
+    @Test fun permission_sheet_matrix() = captureMatrix("PromptEdit", "permission_sheet", heightDp = 500) {
+        SheetSurface {
+            PromptPermissionSheetContent(
+                choices = permissionSheetChoices,
+                selectedValue = "ALWAYS_ASK",
+                editable = true,
+                onSelect = {},
+                onResetToolPermissions = {},
+                onClose = {},
+                strings = LocalStrings.current,
+            )
+        }
+    }
 }

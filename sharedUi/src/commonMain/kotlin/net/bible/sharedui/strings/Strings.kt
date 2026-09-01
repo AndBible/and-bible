@@ -701,6 +701,10 @@ interface Strings {
 
     /** Category-header control state when the category's tools do not all share a permission (17f). */
     val toolPermissionMixed: String              // R.string.tool_permission_mixed
+
+    /** Classic's explanation under the permission-mode spinner (`prompt_edit.xml:213-217`), lost in
+     *  the port and restored by 17f inside the permission sheet. */
+    val promptPermissionModeDescription: String  // R.string.prompt_permission_mode_description
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
