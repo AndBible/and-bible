@@ -647,4 +647,8 @@ class AndroidStrings(private val context: Context) : Strings {
 
     override val promptPermissionModeDescription: String
         get() = context.getString(R.string.prompt_permission_mode_description)
+
+    override val builtInPrompt: String get() = context.getString(R.string.built_in_prompt)
+    override fun addonPromptBadge(module: String): String =
+        context.getString(R.string.addon_prompt_badge, module)
 }

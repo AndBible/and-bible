@@ -70,6 +70,7 @@ import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.ai.agentPermissionModeChoices
+import net.bible.sharedui.ai.promptContextLabel
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsItem
@@ -360,15 +361,6 @@ private fun tabLabel(tab: PromptEditTab, strings: Strings): String = when (tab) 
     PromptEditTab.ADVANCED -> strings.promptTabAdvanced
 }
 
-private fun contextLabel(contextId: String, strings: Strings): String = when (contextId) {
-    "VERSE_SELECTION" -> strings.promptContextVerseSelection
-    "TEXT_SELECTION" -> strings.promptContextTextSelection
-    "WINDOW_MENU" -> strings.promptContextWindowMenu
-    "WORKSPACE_MENU" -> strings.promptContextWorkspaceMenu
-    "NOTE_EDITOR" -> strings.promptContextNoteEditor
-    else -> contextId
-}
-
 @Composable
 private fun PromptTabContent(
     state: PromptEditData,
@@ -436,7 +428,7 @@ private fun PromptTabContent(
         )
         PromptContextIds.ordered.forEach { contextId ->
             LabeledCheckboxRow(
-                label = contextLabel(contextId, strings),
+                label = promptContextLabel(contextId, strings),
                 checked = contextId in state.contexts,
                 enabled = editable && contextId !in disabledContexts,
                 onCheckedChange = { onToggleContext(contextId) },

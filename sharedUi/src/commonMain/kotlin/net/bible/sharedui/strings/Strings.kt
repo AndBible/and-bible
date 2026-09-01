@@ -705,6 +705,11 @@ interface Strings {
     /** Classic's explanation under the permission-mode spinner (`prompt_edit.xml:213-217`), lost in
      *  the port and restored by 17f inside the permission sheet. */
     val promptPermissionModeDescription: String  // R.string.prompt_permission_mode_description
+
+    /** Classic's built-in badge on a manager row (`R.string.built_in_prompt`), restored by 17f. */
+    val builtInPrompt: String                    // R.string.built_in_prompt
+    /** Classic's add-on badge, `"Add-on: %s"` with the module name. */
+    fun addonPromptBadge(module: String): String // R.string.addon_prompt_badge
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
