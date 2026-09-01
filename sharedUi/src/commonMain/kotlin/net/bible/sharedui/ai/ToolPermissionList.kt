@@ -27,14 +27,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -59,6 +57,7 @@ import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.ai.categoryToggleState
 import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -294,18 +293,20 @@ private fun ToolPermissionRow(
     val options = toolOptions(tool, defaultToken, strings)
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
     ) {
+        // 17f: the choosing affordance sits on the LEADING edge, like a checkbox, and the info
+        // button is alone on the trailing edge instead of crowded against the control.
+        if (tool.requiresPermission) {
+            WriteToolPermissionControl(options = options, current = current, onSet = onSet)
+        } else {
+            ReadToolPermissionToggle(options = options, current = current, onSet = onSet)
+        }
         Text(tool.displayName, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         if (tool.description.isNotBlank()) {
             IconButton(onClick = onShowInfo) {
                 Icon(Icons.Outlined.Info, contentDescription = strings.toolDescriptionInfoContentDescription)
             }
-        }
-        if (tool.requiresPermission) {
-            WriteToolPermissionControl(options = options, current = current, onSet = onSet)
-        } else {
-            ReadToolPermissionToggle(options = options, current = current, onSet = onSet)
         }
     }
 }
@@ -353,13 +354,12 @@ private fun WriteToolPermissionControl(
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option.label) },
-                    leadingIcon = { Icon(permissionIcon(option.permission), contentDescription = null) },
-                    onClick = {
-                        onSet(option.permission)
-                        expanded = false
-                    },
+                AbMenuItem(
+                    text = option.label,
+                    onClick = { onSet(option.permission); expanded = false },
+                    icon = { Icon(permissionIcon(option.permission), contentDescription = null) },
+                    checkable = true,
+                    checked = option.permission == current,
                 )
             }
         }
@@ -370,16 +370,16 @@ private fun WriteToolPermissionControl(
  * Maps a [ToolPermission] to a shape/fill distinguishable icon (F39) -- never color alone, so it
  * stays legible in BW/e-ink monochrome: [ToolPermission.ENABLED]/[ToolPermission.ALLOW] = filled
  * check circle (the two "on" states -- read vs. write tools never share an option list, so reusing
- * one icon for both is unambiguous); [ToolPermission.DISABLED] = a blocked/no-entry circle (distinct
- * outline from the "off"/"deny" icon below); [ToolPermission.DENY] = a cancel/X circle;
+ * one icon for both is unambiguous); [ToolPermission.DISABLED] and [ToolPermission.DENY] both map
+ * to a blocked/no-entry circle (17f: these are the same user-facing concept — "always block" — on
+ * two kinds of tool, and read/write tools never share an option list, so one icon is unambiguous);
  * [ToolPermission.ASK] = a question mark (GLOBAL mode's neutral "ask every time" write default);
  * [ToolPermission.DEFAULT] = a globe ("inherits the global default" -- its specific resolved value
  * is carried in the option's text label, not the icon, per [globalDefaultLabelFor]).
  */
 private fun permissionIcon(permission: ToolPermission): ImageVector = when (permission) {
     ToolPermission.ENABLED, ToolPermission.ALLOW -> Icons.Filled.CheckCircle
-    ToolPermission.DISABLED -> Icons.Filled.Block
-    ToolPermission.DENY -> Icons.Filled.Cancel
+    ToolPermission.DISABLED, ToolPermission.DENY -> Icons.Filled.Block
     ToolPermission.ASK -> Icons.AutoMirrored.Filled.HelpOutline
     ToolPermission.DEFAULT -> Icons.Filled.Public
 }
