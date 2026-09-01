@@ -24,15 +24,19 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -52,6 +56,7 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbListChoiceContent
+import net.bible.sharedui.components.AbSheetHeader
 import net.bible.sharedui.components.AbTextInputContent
 import net.bible.sharedui.settings.AbSettingsScreen
 import net.bible.sharedui.settings.SettingsEditorSheet
@@ -88,7 +93,8 @@ private val SPECIAL_KEYS = setOf(
  *   action, prefilled from [customPromptTextFor]. Save → [onCustomPromptSave] with the typed text
  *   (blank = reset to default); Reset → [onCustomPromptSave] with `null`.
  * - [KEY_RAW_LOG_RETENTION] (a numeric `TextInputRow`): a numeric editor with a "disable" checkbox
- *   that greys the field. Save → `onTextInputInt("raw_log_retention", days)`, `-1` when disabled.
+ *   that greys the field, rendered as a modal bottom sheet ([RetentionSheet], 17f — was an
+ *   `AlertDialog`). Save → `onTextInputInt("raw_log_retention", days)`, `-1` when disabled.
  * - [KEY_AI_LANGUAGE] (a `ListChoiceRow` with an empty `entries` list — the real locale list is
  *   Android-resource data that can't live in :sharedUi): rendered as a plain clickable summary
  *   row; the click opens a [SettingsEditorSheet] picker page, populated from the host-supplied
@@ -148,7 +154,7 @@ fun AiConnectionSettingsScreen(
     var customPromptDialogKey by remember {
         mutableStateOf(if (initiallyCustomPromptDialogOpen) KEY_CUSTOM_AGENT_PROMPT else null)
     }
-    var retentionDialogOpen by remember { mutableStateOf(false) }
+    var retentionSheetOpen by remember { mutableStateOf(false) }
     var disclaimerDialogOpen by remember { mutableStateOf(initiallyDisclaimerDialogOpen) }
 
     // The AI-language picker + its "Custom…" second step (Task 7): a two-page SettingsEditorStack
@@ -167,9 +173,9 @@ fun AiConnectionSettingsScreen(
             customPromptDialogKey = null
         }
     }
-    LaunchedEffect(retentionDialogOpen, state) {
-        if (retentionDialogOpen && state.visibleItems.none { it.key == KEY_RAW_LOG_RETENTION }) {
-            retentionDialogOpen = false
+    LaunchedEffect(retentionSheetOpen, state) {
+        if (retentionSheetOpen && state.visibleItems.none { it.key == KEY_RAW_LOG_RETENTION }) {
+            retentionSheetOpen = false
         }
     }
     // Same discipline, expressed via SettingsEditorStack.closeIf: if the ai_language row vanishes
@@ -193,7 +199,7 @@ fun AiConnectionSettingsScreen(
             when (key) {
                 KEY_DISCLAIMER -> disclaimerDialogOpen = true
                 KEY_CUSTOM_AGENT_PROMPT, KEY_CUSTOM_TEXT_TRANSFORM_PROMPT -> customPromptDialogKey = key
-                KEY_RAW_LOG_RETENTION -> retentionDialogOpen = true
+                KEY_RAW_LOG_RETENTION -> retentionSheetOpen = true
                 KEY_AI_LANGUAGE -> editor.open(SettingsEditorPage.Row(KEY_AI_LANGUAGE))
                 else -> onNavigate(key)
             }
@@ -218,16 +224,16 @@ fun AiConnectionSettingsScreen(
         )
     }
 
-    if (retentionDialogOpen) {
+    if (retentionSheetOpen) {
         val row = state.visibleItems.firstOrNull { it.key == KEY_RAW_LOG_RETENTION } as? SettingsItem.TextInputRow
-        RetentionDialog(
+        RetentionSheet(
             title = row?.title ?: "",
             currentDays = row?.value?.toIntOrNull() ?: -1,
             onSave = {
                 onTextInputInt(KEY_RAW_LOG_RETENTION, it)
-                retentionDialogOpen = false
+                retentionSheetOpen = false
             },
-            onDismiss = { retentionDialogOpen = false },
+            onDismiss = { retentionSheetOpen = false },
         )
     }
 
@@ -261,6 +267,11 @@ fun AiConnectionSettingsScreen(
     // renderer. So the two sheets can never both be open at once. A future row able to feed both
     // stacks from one tap (e.g. a special key AbSettingsScreen's generic renderer ALSO treats as
     // list-choice/text-input) would break this invariant and would need an explicit guard.
+    //
+    // The retention sheet added in 17f is a THIRD sheet in this subtree and does not weaken the
+    // invariant: it keeps its own independent `Boolean` visibility state, never enters either
+    // `SettingsEditorStack`, and its key is rewritten to a `NavigationRow` before `AbSettingsScreen`
+    // ever sees it — so no single tap can open it together with either editor sheet.
     val page = editorPages.lastOrNull() as? SettingsEditorPage.Row
     if (page != null) {
         SettingsEditorSheet(
@@ -377,52 +388,64 @@ private fun CustomPromptDialog(
 }
 
 /**
- * Raw-log retention editor: a numeric field plus a "disable" checkbox that greys the field out.
- * Checked → Save sends `-1` (disabled/keep forever); unchecked → Save sends the typed day count
- * (invalid/blank input falls back to 30, matching the classic
- * `AiConnectionSettingsActivity.setupRawLogRetention` dialog).
+ * Raw-log retention editor (17f: a modal bottom sheet, was an `AlertDialog`). Semantics unchanged
+ * from the classic `AiConnectionSettingsActivity.setupRawLogRetention` dialog: the checkbox greys
+ * the field; checked → Save sends `-1` (keep forever); unchecked → the typed day count, an
+ * invalid/blank entry falling back to 30 and every value coerced to at least 1.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RetentionDialog(
+private fun RetentionSheet(
     title: String,
     currentDays: Int,
     onSave: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        RetentionSheetContent(title = title, currentDays = currentDays, onSave = onSave, onClose = onDismiss)
+    }
+}
+
+/** [RetentionSheet]'s body — stateless w.r.t. the sheet itself, so a golden test can capture it.
+ *  PUBLIC for that reason (see `AbChoiceSheetContent`): `:app`'s goldens are a different module. */
+@Composable
+fun RetentionSheetContent(
+    title: String,
+    currentDays: Int,
+    onSave: (Int) -> Unit,
+    onClose: () -> Unit,
+) {
     val strings = LocalStrings.current
     var disabled by remember(currentDays) { mutableStateOf(currentDays <= 0) }
     var text by remember(currentDays) { mutableStateOf(if (currentDays > 0) currentDays.toString() else "") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    enabled = !disabled,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .toggleable(value = disabled, onValueChange = { disabled = it }, role = Role.Checkbox),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(checked = disabled, onCheckedChange = { disabled = it })
-                    Spacer(Modifier.width(8.dp))
-                    Text(strings.rawLogRetentionDisabledLabel)
-                }
+    Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        AbSheetHeader(title = title, onClose = onClose)
+        Column(Modifier.padding(horizontal = 16.dp)) {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                enabled = !disabled,
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(value = disabled, onValueChange = { disabled = it }, role = Role.Checkbox),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(checked = disabled, onCheckedChange = { disabled = it })
+                Spacer(Modifier.width(8.dp))
+                Text(strings.rawLogRetentionDisabledLabel)
             }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                val days = if (disabled) -1 else (text.toIntOrNull()?.coerceAtLeast(1) ?: 30)
-                onSave(days)
-            }) { Text(strings.okay) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(strings.cancel) } },
-    )
+        }
+        SheetConfirmRow(
+            confirmLabel = strings.okay,
+            cancelLabel = strings.cancel,
+            onConfirm = { onSave(if (disabled) -1 else (text.toIntOrNull()?.coerceAtLeast(1) ?: 30)) },
+            onCancel = onClose,
+        )
+    }
 }

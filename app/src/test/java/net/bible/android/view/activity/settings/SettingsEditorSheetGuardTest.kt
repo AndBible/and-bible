@@ -100,17 +100,28 @@ class SettingsEditorSheetGuardTest {
      * routed one -- recreate the "two open sheets" M3 violation and Roborazzi hazard the design
      * avoided by construction. This guard would fail the moment either screen source gained a literal
      * `ModalBottomSheet(` call.
+     *
+     * **One deliberate exception (17f-A9):** `AiConnectionSettingsScreen.kt` now legitimately holds
+     * exactly ONE direct `ModalBottomSheet(` call, `RetentionSheet` (the log-retention editor). Its
+     * state is a single independent `Boolean` toggled by this screen's own `onNavigate` override, not
+     * a `SettingsEditorPage`/`SettingsEditorStack` entry -- it does not fit the generic page-routing
+     * shape `SettingsEditorSheet` exists to share, so wrapping a plain confirm/cancel body in that
+     * machinery would add indirection without removing any duplicated chrome. The class-level kdoc's
+     * "two/three sheets" invariant paragraph already proves this can never coincide with the routed
+     * sheet or the screen's own `editor` stack. The expected count is therefore per-file, not a
+     * blanket zero -- and still fails the moment a SECOND raw call sneaks into any of the three files.
      */
     @Test fun noSettingsScreenConstructsItsOwnModalBottomSheet() {
-        listOf(
-            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/settings/AbSettingsScreen.kt",
-            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/settings/TextDisplaySettingsScreen.kt",
-            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/ai/AiConnectionSettingsScreen.kt",
-        ).forEach { path ->
+        mapOf(
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/settings/AbSettingsScreen.kt" to 0,
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/settings/TextDisplaySettingsScreen.kt" to 0,
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/ai/AiConnectionSettingsScreen.kt" to 1,
+        ).forEach { (path, expected) ->
             val src = strippedSource(path)
             assertEquals(
-                "$path must reach the sheet through SettingsEditorSheet, not construct its own",
-                0, Regex("""\bModalBottomSheet\s*\(""").findAll(src).count(),
+                "$path must reach the sheet through SettingsEditorSheet, not construct its own " +
+                    "(the sole exception is AiConnectionSettingsScreen's own RetentionSheet, 17f-A9)",
+                expected, Regex("""\bModalBottomSheet\s*\(""").findAll(src).count(),
             )
         }
     }

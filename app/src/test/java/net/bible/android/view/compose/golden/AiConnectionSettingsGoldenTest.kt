@@ -12,6 +12,7 @@ import net.bible.sharedcore.ai.agentPermissionModeChoices
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.ai.AiConnectionSettingsScreen
+import net.bible.sharedui.ai.RetentionSheetContent
 import net.bible.sharedui.components.AbListChoiceContent
 import net.bible.sharedui.components.AbTextInputContent
 import net.bible.sharedui.settings.SheetConfirmRow
@@ -346,4 +347,25 @@ class AiConnectionSettingsGoldenTest {
                 customPromptTextFor = { LONG_AGENT_PROMPT },
             ),
         )
+
+    // 17f: RetentionSheetContent (log retention moves from an AlertDialog to a modal bottom
+    // sheet). Captured directly, wrapped in SheetSurface (background-colour consistency with every
+    // other sheet-content capture in this package -- see AbSheetWrappersGoldenTest), never the
+    // open ModalBottomSheet itself (SettingsEditorSheetGuardTest polices this by name). Two states,
+    // since a single capture wouldn't prove the "disable" checkbox's greying behavior: a typed day
+    // count (checkbox off, field enabled) and the checkbox on with the field greyed
+    // (currentDays <= 0 seeds `disabled = true` in RetentionSheetContent).
+    @Test fun retentionSheet_matrix() =
+        captureMatrix("AiConnectionSettings", "retention_sheet") {
+            SheetSurface {
+                RetentionSheetContent(title = "Raw log retention", currentDays = 45, onSave = {}, onClose = {})
+            }
+        }
+
+    @Test fun retentionSheetDisabled_matrix() =
+        captureMatrix("AiConnectionSettings", "retention_sheet_disabled") {
+            SheetSurface {
+                RetentionSheetContent(title = "Raw log retention", currentDays = -1, onSave = {}, onClose = {})
+            }
+        }
 }
