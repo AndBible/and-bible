@@ -604,27 +604,36 @@ fun PromptPermissionSheetContent(
 ) {
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
         AbSheetHeader(title = strings.promptPermissionModeLabel, onClose = onClose)
+        // 17f fix (discovered by Roborazzi's record pass, not the plain test task -- see
+        // AiConnectionSettingsGoldenTest sibling notes): AbListChoiceContent already applies its own
+        // Modifier.verticalScroll internally, so wrapping it in a SECOND Column(Modifier.verticalScroll(...))
+        // nests two same-axis scrollables and Compose's runtime check throws
+        // "measured with an infinity maximum height constraints" the moment this is actually rendered.
+        // Fix follows this codebase's own established pattern (AbMultiSelectSheetContent,
+        // AbChoiceSheet.kt): AbListChoiceContent is the ONE scrollable, driven by the shared
+        // [scrollState] passed straight through; the explanation text and reset button sit BELOW and
+        // OUTSIDE the scroll-bound region, same as AbMultiSelectSheetContent's SheetConfirmRow --
+        // which also means they stay reachable without scrolling past a long tool-permission list.
         AbSheetScrollBound(canScrollForward = { scrollState.canScrollForward }) {
-            Column(Modifier.verticalScroll(scrollState)) {
-                AbListChoiceContent(
-                    choices = choices,
-                    selectedValue = selectedValue,
-                    onSelect = { if (editable) onSelect(it) },
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-                Text(
-                    strings.promptPermissionModeDescription,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                )
-                if (editable) {
-                    TextButton(
-                        onClick = onResetToolPermissions,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    ) { Text(strings.resetToDefault) }
-                }
-            }
+            AbListChoiceContent(
+                choices = choices,
+                selectedValue = selectedValue,
+                onSelect = { if (editable) onSelect(it) },
+                modifier = Modifier.padding(horizontal = 16.dp),
+                scrollState = scrollState,
+            )
+        }
+        Text(
+            strings.promptPermissionModeDescription,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+        if (editable) {
+            TextButton(
+                onClick = onResetToolPermissions,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            ) { Text(strings.resetToDefault) }
         }
     }
 }
