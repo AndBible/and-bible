@@ -61,8 +61,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.PromptCategoryVd
+import net.bible.sharedcore.ai.PromptContextIds
 import net.bible.sharedcore.ai.PromptGroupVd
+import net.bible.sharedcore.ai.PromptType
 import net.bible.sharedcore.ai.PromptVd
+import net.bible.sharedcore.ai.promptTypeOf
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbChoiceSheet
@@ -71,7 +74,6 @@ import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTextInputDialog
-import net.bible.sharedui.components.TwoLineListItem
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -83,9 +85,10 @@ import net.bible.sharedui.strings.Strings
  * - **configured**: a collapsible grouped list — virtual Favorites group first (only when non-empty),
  *   then categories in [groups] order (already resolved by the controller/service, including
  *   respecting [showHidden] — hidden prompts/categories are simply absent from [groups] when
- *   [showHidden] is false), then the uncategorized bucket. Each row is a [TwoLineListItem]
- *   (name + description) with a leading-free trailing ★ favorite toggle and a click that opens the
- *   prompt ([onOpenPrompt]).
+ *   [showHidden] is false), then the uncategorized bucket. Each row leads with a ★ favorite toggle
+ *   (17f: moved from trailing to leading), then name + description + an optional third meta line
+ *   (type marking and/or target contexts), and a click on that body opens the prompt
+ *   ([onOpenPrompt]).
  *
  * **Reorder — up/down actions, not drag-and-drop.** [AbReorderableColumn][net.bible.sharedui.components.AbReorderableColumn]
  * wraps its own `LazyColumn`, so nesting one per collapsible group inside this screen's outer list
@@ -567,13 +570,22 @@ private fun PromptRow(
     onMoveToCategoryRequest: () -> Unit,
     onDeleteRequest: () -> Unit,
 ) {
+    // 17f: the star LEADS the row (the maintainer's ask — the choosing affordance on the leading
+    // edge), leaving the ⋮ alone on the trailing edge.
+    val meta = remember(prompt, strings) {
+        val type = when (promptTypeOf(prompt)) {
+            PromptType.BUILT_IN -> strings.builtInPrompt
+            PromptType.ADDON -> strings.addonPromptBadge(prompt.sourceModule.orEmpty())
+            PromptType.USER -> null
+        }
+        val targets = prompt.contexts
+            .filter { it in PromptContextIds.ordered }
+            .sortedBy { PromptContextIds.ordered.indexOf(it) }
+            .joinToString(", ") { promptContextLabel(it, strings) }
+            .ifBlank { null }
+        listOfNotNull(type, targets).joinToString(" · ")
+    }
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        TwoLineListItem(
-            title = if (prompt.isHidden) "${prompt.name} (${strings.hiddenSuffix})" else prompt.name,
-            subtitle = prompt.description,
-            onClick = onOpenPrompt,
-            modifier = Modifier.weight(1f).alpha(if (prompt.isHidden) 0.5f else 1f),
-        )
         IconButton(onClick = onToggleFavorite) {
             Icon(
                 if (prompt.isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
@@ -584,6 +596,29 @@ private fun PromptRow(
                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 },
             )
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .alpha(if (prompt.isHidden) 0.5f else 1f)
+                .clickable(onClick = onOpenPrompt)
+                .padding(vertical = 12.dp, horizontal = 4.dp),
+        ) {
+            Text(
+                if (prompt.isHidden) "${prompt.name} (${strings.hiddenSuffix})" else prompt.name,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            if (prompt.description.isNotBlank()) {
+                Text(prompt.description, style = MaterialTheme.typography.bodySmall)
+            }
+            // The third line classic had and the port dropped: the type marking and the targets.
+            if (meta.isNotBlank()) {
+                Text(
+                    meta,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         // F40: Copy is available for EVERY prompt (built-in, add-on, user), so the overflow
         // affordance is now always shown — there is no longer a "no available action" prompt.

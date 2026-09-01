@@ -61,7 +61,16 @@ class AiPromptsGoldenTest {
 
     /** Favorites (virtual group, non-empty) + one real category (with a hidden built-in prompt,
      *  shown because showHidden=true) + the uncategorized bucket. A favorited prompt legitimately
-     *  appears in both the Favorites group and its own category group (independent listings). */
+     *  appears in both the Favorites group and its own category group (independent listings).
+     *
+     *  17f/B4: three prompts carry the row's new third meta line, one marking each of the
+     *  ways it can render — a wrong meta-line implementation would visibly change this capture:
+     *  - `p-explain`: `isBuiltIn=true`, no `sourceModule` -> renders the "Built-in" type badge alone.
+     *  - `p-summarize`: `sourceModule` set (`sourceModule` wins over `isBuiltIn` in `promptTypeOf`)
+     *    -> renders "Add-on: <module>" instead of "Built-in", alongside its existing hidden dimming.
+     *  - `p-crossref`: a plain user prompt (no type marking) with `contexts` set -> renders only the
+     *    target list ("Verse selection, Note editor"), proving the targets render independently of
+     *    any type badge. */
     private fun configuredGroups(): List<PromptGroupVd> = listOf(
         PromptGroupVd(
             category = null,
@@ -75,6 +84,7 @@ class AiPromptsGoldenTest {
                 PromptVd(
                     id = "p-crossref", name = "Cross references", description = "Finds related cross references",
                     categoryId = summaryCat.id, isBuiltIn = false, isReadOnly = false, isFavorite = true, isHidden = false,
+                    contexts = setOf("VERSE_SELECTION", "NOTE_EDITOR"),
                 ),
             ),
         ),
@@ -85,10 +95,12 @@ class AiPromptsGoldenTest {
                 PromptVd(
                     id = "p-summarize", name = "Summarize chapter", description = "Summarizes the current chapter",
                     categoryId = summaryCat.id, isBuiltIn = true, isReadOnly = true, isFavorite = false, isHidden = true,
+                    sourceModule = "Commentary Pack",
                 ),
                 PromptVd(
                     id = "p-crossref", name = "Cross references", description = "Finds related cross references",
                     categoryId = summaryCat.id, isBuiltIn = false, isReadOnly = false, isFavorite = true, isHidden = false,
+                    contexts = setOf("VERSE_SELECTION", "NOTE_EDITOR"),
                 ),
             ),
         ),
