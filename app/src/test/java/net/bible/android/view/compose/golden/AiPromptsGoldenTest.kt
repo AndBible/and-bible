@@ -4,7 +4,6 @@ import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptGroupVd
 import net.bible.sharedcore.ai.PromptListFilter
-import net.bible.sharedcore.ai.PromptType
 import net.bible.sharedcore.ai.PromptVd
 import net.bible.sharedui.ai.AiPromptsScreen
 import net.bible.sharedui.ai.PromptFilterSheetContent
@@ -209,15 +208,19 @@ class AiPromptsGoldenTest {
             ),
         )
 
-    /** [PromptFilterSheetContent] with favoritesOnly AND the built-in type dimension pre-selected,
-     *  everything else left off: both a selected AND an unselected chip render in every one of the
-     *  four dimension rows, so a selection-highlight bug (e.g. the wrong dimension wired to the wrong
-     *  chip's `selected`) would visibly fail this capture -- an all-unselected sheet could not. Wrapped
-     *  in [SheetSurface] (defined in AbSheetWrappersGoldenTest.kt), never in an open ModalBottomSheet. */
+    /** [PromptFilterSheetContent] with favoritesOnly AND one "Show in" context pre-selected: both
+     *  land in rows that render ABOVE `AbSheetScrollBound`'s 400dp fold at the default (top) scroll
+     *  position, unlike the `types` dimension (fix round 1) which sits below the fold in this
+     *  fixture's content and is therefore invisible in the recorded PNG no matter how tall the
+     *  capture's own canvas is made. `contexts = {VERSE_SELECTION}` selects "Verse selection" among
+     *  four unselected siblings ("Text selection"/"Window menu"/"Workspace menu"/"Note editor"),
+     *  proving a selection-highlight bug (e.g. the wrong dimension wired to the wrong chip's
+     *  `selected`) would visibly fail this capture -- an all-unselected sheet could not. Wrapped in
+     *  [SheetSurface] (defined in AbSheetWrappersGoldenTest.kt), never in an open ModalBottomSheet. */
     @Test fun filterSheetContent() = captureGolden("AiPrompts", "filter_sheet", EDGE_MODE, heightDp = 520) {
         SheetSurface {
             PromptFilterSheetContent(
-                filter = PromptListFilter(favoritesOnly = true, types = setOf(PromptType.BUILT_IN)),
+                filter = PromptListFilter(favoritesOnly = true, contexts = setOf("VERSE_SELECTION")),
                 categories = listOf(summaryCat),
                 onApply = {},
                 onClose = {},
