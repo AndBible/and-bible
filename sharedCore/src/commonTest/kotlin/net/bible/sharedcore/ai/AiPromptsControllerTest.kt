@@ -263,4 +263,18 @@ class AiPromptsControllerTest {
         c.onOpenConnectionSettings()
         assertEquals(1, nav.openedConnectionSettingsCount)
     }
+
+    @Test fun promptVdCarriesContextsAndSourceModule() = runTest {
+        val vd = PromptVd(
+            id = "1", name = "n", description = "", categoryId = null,
+            isBuiltIn = false, isReadOnly = false, isFavorite = false, isHidden = false,
+            contexts = setOf("VERSE_SELECTION", "NOTE_EDITOR"), sourceModule = "SomeModule",
+        )
+        assertEquals(setOf("VERSE_SELECTION", "NOTE_EDITOR"), vd.contexts)
+        assertEquals("SomeModule", vd.sourceModule)
+        // The defaults keep every pre-17f fixture valid.
+        val bare = PromptVd("2", "n", "", null, false, false, false, false)
+        assertEquals(emptySet(), bare.contexts)
+        assertNull(bare.sourceModule)
+    }
 }
