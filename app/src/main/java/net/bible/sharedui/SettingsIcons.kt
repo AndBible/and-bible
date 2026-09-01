@@ -135,6 +135,17 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "memorize_scramble_hide_used" -> R.drawable.ic_baseline_visibility_off_24
     "memorize_include_reference" -> R.drawable.ic_baseline_menu_book_gray_24
 
+    // 17f: the prompt editor's Advanced tab, mirroring res/xml/prompt_advanced_settings.xml.
+    // NOTE "max_iterations" here is the PROMPT row; the AI connection screen's own iteration row
+    // is "agent_max_iterations" above and classic gives the two different icons.
+    "model_override" -> R.drawable.ic_baseline_cloud_24
+    "strict_context_matching" -> R.drawable.ic_baseline_description_gray_24
+    "max_iterations" -> R.drawable.ic_baseline_refresh_gray_24
+    "specify_before_run" -> R.drawable.ic_baseline_keyboard_24
+    "no_document_creation" -> R.drawable.ic_baseline_visibility_off_24
+    "auto_include_documents" -> R.drawable.ic_baseline_menu_book_gray_24
+    "auto_include_commentaries" -> R.drawable.ic_baseline_chat_bubble_outline_gray_24
+
     // A/B batch 3 F4: the Text-options screen's rows carry a classic drawable NAME as their
     // iconKey (not a settings key like the entries above), so fall through to that table.
     else -> textOptionDrawableRes(key)

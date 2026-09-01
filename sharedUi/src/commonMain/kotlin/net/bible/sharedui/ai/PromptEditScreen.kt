@@ -653,6 +653,7 @@ private fun AdvancedTabContent(
                 entries = modelChoices,
                 selectedValue = state.modelOverrideId ?: "",
                 enabled = modelEnabled,
+                iconKey = "model_override",
             ),
             SettingsItem.TextInputRow(
                 key = "max_iterations",
@@ -662,6 +663,7 @@ private fun AdvancedTabContent(
                 numeric = true,
                 visible = "max_iterations" !in hiddenAdvancedKeys,
                 enabled = otherEnabled,
+                iconKey = "max_iterations",
             ),
             SettingsItem.SwitchRow(
                 key = PromptAdvancedSwitchKeys.STRICT_CONTEXT_MATCHING,
@@ -669,6 +671,7 @@ private fun AdvancedTabContent(
                 summary = strings.promptStrictContextMatchingDescription,
                 checked = state.strictContextMatching,
                 enabled = otherEnabled,
+                iconKey = "strict_context_matching",
             ),
             SettingsItem.SwitchRow(
                 key = PromptAdvancedSwitchKeys.SPECIFY_BEFORE_RUN,
@@ -676,6 +679,7 @@ private fun AdvancedTabContent(
                 summary = strings.promptSpecifyBeforeRunDescription,
                 checked = state.specifyBeforeRun,
                 enabled = otherEnabled,
+                iconKey = "specify_before_run",
             ),
             SettingsItem.SwitchRow(
                 key = PromptAdvancedSwitchKeys.NO_DOCUMENT_CREATION,
@@ -684,6 +688,7 @@ private fun AdvancedTabContent(
                 checked = state.noDocumentCreation,
                 visible = PromptAdvancedSwitchKeys.NO_DOCUMENT_CREATION !in hiddenAdvancedKeys,
                 enabled = otherEnabled,
+                iconKey = "no_document_creation",
             ),
             SettingsItem.SwitchRow(
                 key = PromptAdvancedSwitchKeys.AUTO_INCLUDE_DOCUMENTS,
@@ -692,6 +697,7 @@ private fun AdvancedTabContent(
                 checked = state.autoIncludeDocuments,
                 visible = PromptAdvancedSwitchKeys.AUTO_INCLUDE_DOCUMENTS !in hiddenAdvancedKeys,
                 enabled = otherEnabled,
+                iconKey = "auto_include_documents",
             ),
             SettingsItem.SwitchRow(
                 key = PromptAdvancedSwitchKeys.AUTO_INCLUDE_COMMENTARIES,
@@ -700,6 +706,7 @@ private fun AdvancedTabContent(
                 checked = state.autoIncludeCommentaries,
                 visible = PromptAdvancedSwitchKeys.AUTO_INCLUDE_COMMENTARIES !in hiddenAdvancedKeys,
                 enabled = otherEnabled,
+                iconKey = "auto_include_commentaries",
             ),
         ),
     )
