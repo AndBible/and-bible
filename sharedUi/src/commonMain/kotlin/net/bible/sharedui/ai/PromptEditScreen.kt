@@ -37,10 +37,12 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -85,8 +87,10 @@ import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDropdownField
+import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbListChoiceContent
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSheetHeader
@@ -288,13 +292,25 @@ fun PromptEditScreen(
             }
             AbOverflowMenu(contentDescription = null) { close ->
                 if (!isReadOnly && !isNew) {
-                    DropdownMenuItem(text = { Text(strings.deleteLabel) }, onClick = { close(); showDeleteConfirm = true })
+                    AbMenuItem(
+                        text = strings.deleteLabel,
+                        onClick = { close(); showDeleteConfirm = true },
+                        icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+                    )
                 }
                 if (isReadOnly || !isNew) {
-                    DropdownMenuItem(text = { Text(strings.copyToCustomizeLabel) }, onClick = { close(); onCopyToCustomize() })
+                    AbMenuItem(
+                        text = strings.copyToCustomizeLabel,
+                        onClick = { close(); onCopyToCustomize() },
+                        icon = { Icon(Icons.Filled.ContentCopy, contentDescription = null) },
+                    )
                 }
-                DropdownMenuItem(text = { Text(strings.viewToolsMenuLabel) }, onClick = { close(); onViewTools() })
-                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); showHelp = true })
+                AbMenuItem(
+                    text = strings.viewToolsMenuLabel,
+                    onClick = { close(); onViewTools() },
+                    icon = { Icon(Icons.Filled.Build, contentDescription = null) },
+                )
+                AbMenuItem(text = strings.helpLabel, onClick = { close(); showHelp = true }, icon = AbHelpMenuIcon)
             }
         },
     ) { padding ->
