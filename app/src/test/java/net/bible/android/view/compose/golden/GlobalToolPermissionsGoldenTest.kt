@@ -107,12 +107,13 @@ class GlobalToolPermissionsGoldenTest {
             )
         }
 
-    // E2/F35/F37: dedicated capture of the category header's bulk read/write toggles, exercising all
-    // three CategoryToggleState values distinctly across BIBLE's own read+write pair (BIBLE has both
-    // 2 read + 2 write tools, so both controls render side-by-side on the SAME header):
-    // BIBLE read=ALL_ON (get_passage+search_bible both ENABLED -> checked), BIBLE write=MIXED
-    // (create_bookmark=ASK "on", delete_note=DENY "off" -> indeterminate dash); NOTES read=ALL_OFF
-    // (read_notes=DISABLED -> unchecked), NOTES write=ALL_ON (edit_note=ALLOW -> checked).
+    // E2/F35/F37: dedicated capture of the category header's bulk read/write controls, exercising
+    // both CategoryPermissionState.Uniform and CategoryPermissionState.Mixed distinctly across
+    // BIBLE's own read+write pair (BIBLE has both 2 read + 2 write tools, so both controls render
+    // side-by-side on the SAME header): BIBLE read=Uniform(ENABLED) (get_passage+search_bible both
+    // ENABLED -> the ENABLED/ALLOW icon), BIBLE write=Mixed (create_bookmark=ASK, delete_note=DENY
+    // -> the neutral "mixed" dash icon); NOTES read=Uniform(DISABLED) (read_notes=DISABLED -> the
+    // DISABLED/DENY icon), NOTES write=Uniform(ALLOW) (edit_note=ALLOW -> the ENABLED/ALLOW icon).
     @Test fun category_bulk_toggles_matrix() =
         captureMatrix("GlobalToolPermissions", "bulk_toggles", heightDp = 1100) {
             val bulkPermissions = mapOf(

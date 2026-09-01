@@ -274,6 +274,13 @@ private fun CategoryHeader(
  *
  * [CategoryPermissionState.Mixed] shows a dash — the same "indeterminate" reading the old
  * `TriStateCheckbox` had — and matches no option, so no menu row is checked.
+ *
+ * The [kindLabel] ("Read"/"Write") is shown as a small text label leading the icon, not just buried
+ * in `contentDescription` (which a sighted user never sees) — restoring the affordance the old
+ * `CategoryBulkToggle` had. This matters because two adjacent controls can render the SAME icon
+ * (task 17f-A1 merged DISABLED+DENY onto one icon and ENABLED+ALLOW onto another), so a category
+ * whose reads are all enabled and writes are all allowed would otherwise show two identical icons
+ * with nothing distinguishing which is which.
  */
 @Composable
 private fun CategoryPermissionControl(
@@ -287,19 +294,26 @@ private fun CategoryPermissionControl(
     val current = (state as? CategoryPermissionState.Uniform)?.permission
     val icon = current?.let { permissionIcon(it) } ?: Icons.Filled.Remove
     val label = current?.let { p -> options.firstOrNull { it.permission == p }?.label } ?: strings.toolPermissionMixed
-    Box {
-        IconButton(onClick = { expanded = true }) {
-            Icon(icon, contentDescription = "$kindLabel: $label")
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { option ->
-                AbMenuItem(
-                    text = option.label,
-                    onClick = { onSet(option.permission); expanded = false },
-                    icon = { Icon(permissionIcon(option.permission), contentDescription = null) },
-                    checkable = true,
-                    checked = option.permission == current,
-                )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            kindLabel,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Box {
+            IconButton(onClick = { expanded = true }) {
+                Icon(icon, contentDescription = "$kindLabel: $label")
+            }
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                options.forEach { option ->
+                    AbMenuItem(
+                        text = option.label,
+                        onClick = { onSet(option.permission); expanded = false },
+                        icon = { Icon(permissionIcon(option.permission), contentDescription = null) },
+                        checkable = true,
+                        checked = option.permission == current,
+                    )
+                }
             }
         }
     }

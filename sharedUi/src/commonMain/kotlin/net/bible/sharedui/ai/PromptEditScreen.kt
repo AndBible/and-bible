@@ -512,7 +512,6 @@ private fun PermissionsTabContent(
     onSetCategoryWrite: (categoryId: String, ToolPermission) -> Unit,
     onResetToolPermissions: () -> Unit,
     strings: Strings,
-    initiallySheetOpen: Boolean = false,
 ) {
     val toolsById = remember(toolsByCategory) { toolsByCategory.flatMap { it.second }.associateBy { it.id } }
     val permissionModeChoices = remember(strings) {
@@ -528,7 +527,7 @@ private fun PermissionsTabContent(
     }
     val selectedMode = state.permissionMode ?: ""
     val modeLabel = permissionModeChoices.firstOrNull { it.value == selectedMode }?.label ?: selectedMode
-    var sheetOpen by remember { mutableStateOf(initiallySheetOpen) }
+    var sheetOpen by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize()) {
         // 17f: a ~40dp strip replaces a full AbDropdownField (~60dp) AND the full-width "Reset all"
@@ -588,8 +587,11 @@ private fun PermissionsTabContent(
  * `AbChoiceSheetContent`'s precedent: `:app`'s golden tests are a different module and cannot see
  * an `internal` or `private` composable.
  *
- * Read-only prompts keep the mode visible (it is information) with the choice list disabled, and
- * lose the reset action entirely — mirrors classic's `btnResetToolPermissions.visibility = GONE`.
+ * Read-only prompts keep the mode visible (it is information) with the choice list left INERT —
+ * `onSelect = { if (editable) onSelect(it) }` means the radio rows still look tappable (not
+ * visually disabled) but a tap does nothing while read-only — and lose the reset action entirely —
+ * mirrors classic's `btnResetToolPermissions.visibility = GONE`. Same pre-existing, already-
+ * documented gap as [ToolPermissionList]'s own read-only handling (see its kdoc).
  */
 @Composable
 fun PromptPermissionSheetContent(

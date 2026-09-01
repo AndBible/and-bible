@@ -150,6 +150,13 @@ fun AiConnectionSettingsScreen(
     customLanguageValue: String,
     onNavigate: (String) -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
+    /** Host-supplied slot invoking the platform's system-back interception with [onBack] as the
+     *  handler, so [CustomPromptEditor] can be guarded against the system back gesture/button, not
+     *  just its up-arrow. `commonMain` targets iOS too, so it cannot import
+     *  `androidx.activity.compose.BackHandler` itself (same constraint documented on
+     *  [net.bible.sharedui.settings.SettingsEditorSheet]'s kdoc) — the Android host passes
+     *  `{ onBack -> BackHandler(onBack = onBack) }`; other hosts/tests may leave the default no-op. */
+    backHandler: @Composable (onBack: () -> Unit) -> Unit = {},
     /** Test-only seam (matches `initiallyXxxOpen` elsewhere, e.g. `SearchScreen`'s
      *  `initiallySettingsOpen`): lets golden tests capture the disclaimer [AbInfoDialog] open
      *  without a click-simulation harness (this module has no Compose UI-test dependency). */
@@ -207,6 +214,7 @@ fun AiConnectionSettingsScreen(
             onSave = { onCustomPromptSave(key, it.ifBlank { null }); customPromptDialogKey = null },
             onReset = { onCustomPromptSave(key, null); customPromptDialogKey = null },
             onDismiss = { customPromptDialogKey = null },
+            backHandler = backHandler,
         )
         return
     }
@@ -356,7 +364,10 @@ private fun SettingsItem.asNavigationRow(): SettingsItem.NavigationRow = when (t
  *
  * Back/up is guarded by the port's usual discard confirmation whenever the text differs from what
  * was opened — a full-screen editor's back gesture is far easier to hit by accident than a dialog's
- * Cancel button was.
+ * Cancel button was. This covers BOTH the up-arrow (`AbScaffold(onNavigateUp = requestBack)`) AND
+ * the system back gesture/button, wired via the host-supplied [backHandler] slot (see its kdoc on
+ * [AiConnectionSettingsScreen]) — both drive the same `requestBack` lambda, so there is no
+ * duplicated dirty-check logic.
  */
 @Composable
 private fun CustomPromptEditor(
@@ -365,11 +376,13 @@ private fun CustomPromptEditor(
     onSave: (String) -> Unit,
     onReset: () -> Unit,
     onDismiss: () -> Unit,
+    backHandler: @Composable (onBack: () -> Unit) -> Unit = {},
 ) {
     val strings = LocalStrings.current
     var text by remember(initialText) { mutableStateOf(initialText) }
     var showDiscardConfirm by remember { mutableStateOf(false) }
     val requestBack: () -> Unit = { if (text != initialText) showDiscardConfirm = true else onDismiss() }
+    backHandler(requestBack)
 
     AbScaffold(
         title = title,

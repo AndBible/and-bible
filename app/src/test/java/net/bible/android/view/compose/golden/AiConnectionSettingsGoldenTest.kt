@@ -220,9 +220,13 @@ class AiConnectionSettingsGoldenTest {
         SettingsItem.Choice(CUSTOM_LANGUAGE_VALUE, "Custom…"),
     )
 
-    /** F36 regression fixture: a long multi-paragraph default prompt. Before the fix, an
-     *  unbounded `OutlinedTextField` stretched `CustomPromptDialog` to full screen height for a
-     *  prompt like this; the golden proves it now stays bounded (`heightIn(max = 320.dp)`). */
+    /** F36 regression fixture, kept relevant post-17f: a long multi-paragraph default prompt.
+     *  Before the F36 fix, an unbounded `OutlinedTextField` stretched the old dialog-shaped
+     *  `CustomPromptDialog` to full screen height for a prompt like this. That dialog was replaced
+     *  in this branch's own Task 10 by the full-screen `CustomPromptEditor` (see
+     *  `AiConnectionSettingsScreen.kt`), which has no height bound to prove at all — a full-screen
+     *  editor is SUPPOSED to fill the viewport — so this golden now just exercises the editor with a
+     *  long prompt rather than proving any particular bound. */
     private val LONG_AGENT_PROMPT = buildString {
         append("You are a careful, well-read Bible study assistant. ")
         append("Answer questions using the documents and tools made available to you, ")
@@ -333,10 +337,13 @@ class AiConnectionSettingsGoldenTest {
             }
         }
 
-    // F36: CustomPromptDialog (agent system prompt) seeded with a long multi-paragraph prompt must
-    // stay height-bounded (heightIn(max = 320.dp) on the text field), not stretch the dialog to
-    // fill the whole viewport. heightDp=1400 (same as "configured") so the dialog renders over the
-    // full list rather than a clipped viewport.
+    // F36, updated post-17f: the full-screen CustomPromptEditor (agent system prompt) seeded with a
+    // long multi-paragraph prompt. This used to prove the old dialog-shaped CustomPromptDialog's
+    // text field stayed height-bounded (heightIn(max = 320.dp)) instead of stretching the dialog to
+    // fill the viewport; that dialog was replaced by the full-screen editor in this branch's own
+    // Task 10, so there is no longer a bound to prove — this golden now just captures the editor
+    // rendering correctly with a long prompt. heightDp=1400 (same as "configured") so the editor
+    // renders over the full list rather than a clipped viewport.
     @Test fun configured_custompromptlong_matrix() =
         captureMatrix(
             "AiConnectionSettings", "custompromptlong",
