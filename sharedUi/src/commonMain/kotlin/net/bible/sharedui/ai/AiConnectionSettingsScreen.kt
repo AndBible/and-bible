@@ -22,20 +22,25 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,8 +59,13 @@ import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
+import net.bible.sharedui.components.AbActionIconSize
+import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbListChoiceContent
+import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.AbOverflowMenu
+import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSheetHeader
 import net.bible.sharedui.components.AbTextInputContent
 import net.bible.sharedui.settings.AbSettingsScreen
@@ -89,9 +99,10 @@ private val SPECIAL_KEYS = setOf(
  * Task 5) and intercepts four keys that need bespoke editors it does not know how to render:
  *
  * - [KEY_CUSTOM_AGENT_PROMPT] / [KEY_CUSTOM_TEXT_TRANSFORM_PROMPT] (controller emits these as
- *   `TextInputRow`s with `numeric = false`): a multiline prompt editor with a "Reset to default"
- *   action, prefilled from [customPromptTextFor]. Save → [onCustomPromptSave] with the typed text
- *   (blank = reset to default); Reset → [onCustomPromptSave] with `null`.
+ *   `TextInputRow`s with `numeric = false`): a full-screen multiline prompt editor ([CustomPromptEditor],
+ *   17f — was an `AlertDialog`) with a "Reset to default" action, prefilled from [customPromptTextFor].
+ *   Save → [onCustomPromptSave] with the typed text (blank = reset to default); Reset →
+ *   [onCustomPromptSave] with `null`.
  * - [KEY_RAW_LOG_RETENTION] (a numeric `TextInputRow`): a numeric editor with a "disable" checkbox
  *   that greys the field, rendered as a modal bottom sheet ([RetentionSheet], 17f — was an
  *   `AlertDialog`). Save → `onTextInputInt("raw_log_retention", days)`, `-1` when disabled.
@@ -143,8 +154,10 @@ fun AiConnectionSettingsScreen(
      *  `initiallySettingsOpen`): lets golden tests capture the disclaimer [AbInfoDialog] open
      *  without a click-simulation harness (this module has no Compose UI-test dependency). */
     initiallyDisclaimerDialogOpen: Boolean = false,
-    /** Test-only seam: capture the [CustomPromptDialog] (agent system prompt) open, e.g. with a
-     *  long [customPromptTextFor] result, to verify its height stays bounded (F36). */
+    /** Test-only seam: capture the [CustomPromptEditor] (agent system prompt) open, e.g. with a
+     *  long [customPromptTextFor] result. Pre-17f this verified the dialog's bounded height (F36);
+     *  the editor is now full-screen, so that concern no longer applies — it now just seeds the
+     *  editor open for golden capture. */
     initiallyCustomPromptDialogOpen: Boolean = false,
 ) {
     val displayState = remember(state) {
@@ -186,6 +199,18 @@ fun AiConnectionSettingsScreen(
         editor.closeIf { state.visibleItems.none { item -> item.key == KEY_AI_LANGUAGE } }
     }
 
+    customPromptDialogKey?.let { key ->
+        val title = (state.visibleItems.firstOrNull { it.key == key } as? SettingsItem.TextInputRow)?.title ?: ""
+        CustomPromptEditor(
+            title = title,
+            initialText = customPromptTextFor(key),
+            onSave = { onCustomPromptSave(key, it.ifBlank { null }); customPromptDialogKey = null },
+            onReset = { onCustomPromptSave(key, null); customPromptDialogKey = null },
+            onDismiss = { customPromptDialogKey = null },
+        )
+        return
+    }
+
     AbSettingsScreen(
         state = displayState,
         onUp = onUp,
@@ -206,23 +231,6 @@ fun AiConnectionSettingsScreen(
         },
         actions = actions,
     )
-
-    customPromptDialogKey?.let { key ->
-        val title = (state.visibleItems.firstOrNull { it.key == key } as? SettingsItem.TextInputRow)?.title ?: ""
-        CustomPromptDialog(
-            title = title,
-            initialText = customPromptTextFor(key),
-            onSave = {
-                onCustomPromptSave(key, it.ifBlank { null })
-                customPromptDialogKey = null
-            },
-            onReset = {
-                onCustomPromptSave(key, null)
-                customPromptDialogKey = null
-            },
-            onDismiss = { customPromptDialogKey = null },
-        )
-    }
 
     if (retentionSheetOpen) {
         val row = state.visibleItems.firstOrNull { it.key == KEY_RAW_LOG_RETENTION } as? SettingsItem.TextInputRow
@@ -342,19 +350,16 @@ private fun SettingsItem.asNavigationRow(): SettingsItem.NavigationRow = when (t
 }
 
 /**
- * Multiline system-prompt editor: an [OutlinedTextField] prefilled with [initialText] (the host
- * supplies the current custom value, or the built-in default text when unset — see
- * `customPromptTextFor`), a "Reset to default" action, and Save/Cancel. Mirrors the classic
- * `AiConnectionSettingsActivity.showCustomSystemPromptEditor` dialog.
+ * Full-screen system-prompt editor (17f; was an `AlertDialog` whose field was capped at 320dp).
+ * A page of prompt text is not dialog-shaped, so the editor takes the whole screen: the row's own
+ * title in the app bar, a save ✓, and "Reset to default" in the overflow.
  *
- * F36: the text field is height-bounded (`heightIn(max = 320.dp)`) rather than growing without
- * limit — a long default/custom prompt was stretching the whole dialog to full screen height.
- * `OutlinedTextField`/`BasicTextField` scrolls its own content internally once its constrained
- * height is smaller than the text needs, so a long prompt scrolls within the field instead of
- * growing the dialog further.
+ * Back/up is guarded by the port's usual discard confirmation whenever the text differs from what
+ * was opened — a full-screen editor's back gesture is far easier to hit by accident than a dialog's
+ * Cancel button was.
  */
 @Composable
-private fun CustomPromptDialog(
+private fun CustomPromptEditor(
     title: String,
     initialText: String,
     onSave: (String) -> Unit,
@@ -363,28 +368,43 @@ private fun CustomPromptDialog(
 ) {
     val strings = LocalStrings.current
     var text by remember(initialText) { mutableStateOf(initialText) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                singleLine = false,
-                minLines = 8,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 320.dp),
-            )
-        },
-        confirmButton = { TextButton(onClick = { onSave(text) }) { Text(strings.okay) } },
-        dismissButton = {
-            Row {
-                TextButton(onClick = onReset) { Text(strings.resetToDefault) }
-                TextButton(onClick = onDismiss) { Text(strings.cancel) }
+    var showDiscardConfirm by remember { mutableStateOf(false) }
+    val requestBack: () -> Unit = { if (text != initialText) showDiscardConfirm = true else onDismiss() }
+
+    AbScaffold(
+        title = title,
+        onNavigateUp = requestBack,
+        actions = {
+            IconButton(onClick = { onSave(text) }) {
+                Icon(Icons.Filled.Check, contentDescription = strings.okay, modifier = Modifier.size(AbActionIconSize))
+            }
+            AbOverflowMenu(contentDescription = null) { close ->
+                AbMenuItem(
+                    text = strings.resetToDefault,
+                    onClick = { close(); onReset() },
+                    icon = { Icon(Icons.Filled.RestartAlt, contentDescription = null) },
+                )
             }
         },
-    )
+    ) { padding ->
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            singleLine = false,
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+        )
+    }
+
+    if (showDiscardConfirm) {
+        AbConfirmDialog(
+            title = null,
+            message = strings.discardChangesConfirmation,
+            confirmText = strings.yes,
+            dismissText = strings.no,
+            onConfirm = { showDiscardConfirm = false; onDismiss() },
+            onDismiss = { showDiscardConfirm = false },
+        )
+    }
 }
 
 /**
