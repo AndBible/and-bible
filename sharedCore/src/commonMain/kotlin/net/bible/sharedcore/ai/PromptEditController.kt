@@ -149,46 +149,21 @@ class PromptEditController(
     private fun writeToolsFor(categoryId: String): List<ToolVd> = toolsFor(categoryId).filter { it.requiresPermission }
 
     /**
-     * Bulk read-tool toggle for the category header (E2/F35), mirroring classic
-     * `ToolPermissionListBuilder.setAllRows` for `readRows` in PROMPT mode: ON sets every read tool
-     * in the category to [ToolPermission.DEFAULT] (PROMPT mode's neutral/first option -- clears any
-     * per-tool override back to the global default), OFF to [ToolPermission.DISABLED]. A no-op if
-     * the category has no read tools, or the prompt is read-only (same guard as [setToolPermission]).
+     * Bulk read-tool setter for the category header (17f-A2): sets EVERY read tool in the category
+     * to [permission]. A no-op if the category has no read tools, or the prompt is read-only (the
+     * guard lives in [update], same as [setToolPermission]).
      */
-    fun setCategoryRead(categoryId: String, enabled: Boolean) {
-        val value = if (enabled) ToolPermission.DEFAULT else ToolPermission.DISABLED
+    fun setCategoryRead(categoryId: String, permission: ToolPermission) {
         val toolIds = readToolsFor(categoryId).map { it.id }
         if (toolIds.isEmpty()) return
-        update { data -> toolIds.fold(data) { acc, toolId -> applyToolPermission(acc, toolId, value) } }
+        update { data -> toolIds.fold(data) { acc, toolId -> applyToolPermission(acc, toolId, permission) } }
     }
 
-    /**
-     * Bulk write-tool toggle for the category header (E2/F37), mirroring classic `setAllRows` for
-     * `writeRows` in PROMPT mode: ON sets every write tool in the category to [ToolPermission.DEFAULT],
-     * OFF to [ToolPermission.DENY]. A no-op if the category has no write tools, or the prompt is
-     * read-only.
-     */
-    fun setCategoryWrite(categoryId: String, enabled: Boolean) {
-        val value = if (enabled) ToolPermission.DEFAULT else ToolPermission.DENY
+    /** Bulk write-tool setter; see [setCategoryRead]. */
+    fun setCategoryWrite(categoryId: String, permission: ToolPermission) {
         val toolIds = writeToolsFor(categoryId).map { it.id }
         if (toolIds.isEmpty()) return
-        update { data -> toolIds.fold(data) { acc, toolId -> applyToolPermission(acc, toolId, value) } }
-    }
-
-    /** Aggregate state of the category's read-tool bulk toggle (`null` = no read tools, hide it). */
-    fun categoryReadState(categoryId: String): CategoryToggleState? =
-        categoryToggleState(readToolsFor(categoryId)) { toolId -> toolPermissionFor(toolId) }
-
-    /** Aggregate state of the category's write-tool bulk toggle (`null` = no write tools, hide it). */
-    fun categoryWriteState(categoryId: String): CategoryToggleState? =
-        categoryToggleState(writeToolsFor(categoryId)) { toolId -> toolPermissionFor(toolId) }
-
-    /** Mirrors `PromptEditScreen`'s own private `toolPermissionFor` -- kept here too so the aggregate
-     *  queries above don't need a `ToolVd` (only the id + set membership). */
-    private fun toolPermissionFor(toolId: String): ToolPermission = when (toolId) {
-        in _state.value.allowedTools -> ToolPermission.ALLOW
-        in _state.value.deniedTools -> ToolPermission.DENY
-        else -> ToolPermission.DEFAULT
+        update { data -> toolIds.fold(data) { acc, toolId -> applyToolPermission(acc, toolId, permission) } }
     }
 
     /**
