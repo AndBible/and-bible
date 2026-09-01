@@ -31,7 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
@@ -140,7 +140,7 @@ fun WorkspaceSelectorScreen(
         actions = {
             if (!searchModeActive) {
                 AbActionIcon(Icons.Filled.Search, s.search, onOpenSearch)
-                AbActionIcon(Icons.Filled.AddCircleOutline, s.newItem, { createOpen = true })
+                AbActionIcon(Icons.Filled.Add, s.newItem, { createOpen = true })
                 AbActionIcon(Icons.AutoMirrored.Filled.HelpOutline, s.helpLabel, onHelp)
             }
         },

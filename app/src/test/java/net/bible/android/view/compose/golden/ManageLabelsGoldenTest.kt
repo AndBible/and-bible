@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Label
-import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -72,7 +72,7 @@ class ManageLabelsGoldenTest {
      *  them. */
     private val standInActions: @Composable RowScope.() -> Unit = {
         Icon(Icons.Filled.Search, contentDescription = null)
-        Icon(Icons.Filled.AddCircleOutline, contentDescription = null)
+        Icon(Icons.Filled.Add, contentDescription = null)
         Icon(Icons.Filled.MoreVert, contentDescription = null)
     }
 
@@ -80,7 +80,7 @@ class ManageLabelsGoldenTest {
      *  the search golden shows at a glance which icons came from `searchActions` (present) and which
      *  from `actions` (absent -- the bar discards those under `search != null`). */
     private val standInSearchActions: @Composable RowScope.() -> Unit = {
-        Icon(Icons.Filled.AddCircleOutline, contentDescription = null)
+        Icon(Icons.Filled.Add, contentDescription = null)
     }
 
     private fun label(
