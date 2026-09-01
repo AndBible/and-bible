@@ -698,6 +698,9 @@ interface Strings {
     val documentTabRecent: String            // R.string.document_quick_tab_recent
     val documentTabForVerse: String          // R.string.document_quick_tab_for_verse
     val documentTabLastFilter: String        // R.string.document_quick_tab_last_filter
+
+    /** Category-header control state when the category's tools do not all share a permission (17f). */
+    val toolPermissionMixed: String              // R.string.tool_permission_mixed
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

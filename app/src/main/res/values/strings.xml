@@ -1870,6 +1870,7 @@
     <string name="tool_option_default_allowed">Default (allowed)</string>
     <string name="tool_option_default_denied">Default (denied)</string>
     <string name="tool_description_info">Show tool description</string>
+    <string name="tool_permission_mixed">Mixed</string>
 
     <!-- Per-Prompt Model Override -->
     <string name="prompt_model_override">Model</string>
