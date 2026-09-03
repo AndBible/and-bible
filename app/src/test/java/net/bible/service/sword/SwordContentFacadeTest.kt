@@ -378,7 +378,8 @@ class TestShare {
         showVersion: Boolean = true,
         showEllipsis: Boolean = true,
         showQuotes: Boolean = true,
-        separateVersesWithNewlines: Boolean = false
+        separateVersesWithNewlines: Boolean = false,
+        useSuperscriptVerseNumbers: Boolean = false
     ) {
 
         val book = Books.installed().getBook(initials) as SwordBook
@@ -408,6 +409,7 @@ class TestShare {
             showVersion = showVersion,
             showEllipsis = showEllipsis,
             separateVersesWithNewlines = separateVersesWithNewlines,
+            useSuperscriptVerseNumbers = useSuperscriptVerseNumbers
         )
 
         assertThat(text, equalTo(compareText))
@@ -722,5 +724,24 @@ Psa 83:1, ESV2011"""
             showReference = false,
             separateVersesWithNewlines = true,
             compareText = """“O God, do not keep silence; do not hold your peace or be still, O God!”"""
+        )
+
+    @Test
+    fun testShareUsingSuperscriptVerseNumbers() =
+        testShare(
+            initials = "KJV",
+            verseRangeStr = "Ps.43.1-2",
+            offsetRange = 0..100,
+            showWholeVerse = true,
+            compareText = "“¹\u200AJudge me, O God, and plead my cause against an ungodly nation: O deliver me from the deceitful and unjust man. ²\u200AFor thou art the God of my strength: why dost thou cast me off? why go I mourning because of the oppression of the enemy?” (Psa 43:1-2, KJV)",
+            advertiseApp = false,
+            showReference = true,
+            abbreviateReference = true,
+            showVersion = true,
+            showReferenceAtFront = false,
+            showVerseNumbers = true,
+            showQuotes = true,
+            showNotes = false,
+            useSuperscriptVerseNumbers = true
         )
 }

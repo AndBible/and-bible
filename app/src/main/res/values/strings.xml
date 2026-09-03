@@ -996,6 +996,7 @@
     <string name="web_search">Web search</string>
     <string name="share_verse_menu_title">Share / copy…</string>
     <string name="show_versenumbers">Show verse numbers</string>
+    <string name="use_superscript_versenumbers">Use superscript verse numbers</string>
     <string name="show_full_verses">Show full verses</string>
     <string name="show_selection_only">Show selected text only</string>
     <string name="advertise_app">Advertise app</string>
