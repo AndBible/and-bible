@@ -71,6 +71,7 @@ export type BibleJavascriptInterface = {
     shareBookmarkVerse: (bookmarkId: IdType) => void,
     shareVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     copyVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    copyText: (text: string) => void,
     addBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addParagraphBreakBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
@@ -406,6 +407,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.copyVerse(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
+    function copyText(text: string) {
+        window.android.copyText(text);
+    }
+
     function addBookmark(bookInitials: string, startOrdinal: number, endOrdinal?: number, addNote: boolean = false) {
         window.android.addBookmark(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1, addNote);
     }
@@ -708,6 +713,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         refChooserDialog,
         shareVerse,
         copyVerse,
+        copyText,
         addBookmark,
         addGenericBookmark,
         addParagraphBreakBookmark,

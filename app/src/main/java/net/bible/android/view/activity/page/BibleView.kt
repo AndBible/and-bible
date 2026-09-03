@@ -376,8 +376,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             R.id.share_verses -> {
-                val sel = currentSelection ?: return true
-                ShareWidget.dialog(mainBibleActivity, sel)
+                handleCopyShare()
                 return true
             }
             R.id.open_ref -> {
@@ -386,8 +385,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             R.id.copy -> {
-                val clip = ClipData.newPlainText(application.getString(R.string.add_bookmark3), currentSelectionText)
-                CommonUtils.copyToClipboard(clip)
+                handleCopyShare()
                 return true
             }
             R.id.web_search -> {
@@ -436,6 +434,21 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             else -> false
+        }
+    }
+
+    fun handleCopyShare() {
+        val sel = currentSelection
+        if (sel != null && isBible) {
+            ShareWidget.dialog(mainBibleActivity, sel)
+            return
+        }
+
+        val text = sel?.text ?: currentSelectionText
+        if (!text.isNullOrBlank()) {
+            CommonUtils.copyToClipboard(
+                ClipData.newPlainText(application.getString(R.string.app_name), text)
+            )
         }
     }
 

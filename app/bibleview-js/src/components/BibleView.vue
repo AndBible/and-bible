@@ -157,6 +157,7 @@ import {useModal} from "@/composables/modal";
 import {useCustomCss} from "@/composables/custom-css";
 import {useCustomFeatures} from "@/composables/features";
 import {useSharing} from "@/composables/sharing";
+import {useCopy} from "@/composables/copy";
 import {AnyDocument, BibleViewDocumentType} from "@/types/documents";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import ChapterNavigationButtons from "@/components/ChapterNavigationButtons.vue";
@@ -206,6 +207,8 @@ const modal = useModal(android);
 provide(modalKey, modal);
 const keyboard = useKeyboard(android, scroll, lineHeight);
 provide(keyboardKey, keyboard);
+
+useCopy({android, keyboard, documentType});
 
 let footNoteCount = 0;
 
