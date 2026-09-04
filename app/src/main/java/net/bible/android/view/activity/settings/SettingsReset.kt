@@ -26,7 +26,7 @@ import net.bible.service.common.CommonUtils
  */
 object SettingsReset {
     /**
-     * The hardcoded key list cleared by [reset] (classic) and
+     * The hardcoded key list cleared by `SettingsActivity.reset` (classic) and
      * `net.bible.android.view.activity.settings.SettingsComposeActivity.resetSettings` (Compose
      * host) — kept in ONE place so the two reset paths cannot drift apart. Does not include the
      * `realSharedPreferences`-routed keys (`locale_pref`/`calculator_pin`/`show_calculator`/
