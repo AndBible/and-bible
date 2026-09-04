@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.bookmark
 
+import net.bible.android.activity.R
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.service.common.CommonUtils
@@ -51,3 +52,55 @@ object LabelEditContract {
         }
     }
 }
+
+// Left top-level (not nested in `LabelEditContract`) unlike `LabelData` above: `customIconMap` is
+// neither a generic name at risk of colliding in this package nor a serialized payload at risk of
+// the `json`-shadowing trap `LabelEditContract`'s KDoc describes, so nesting it would only force
+// every call site to spell `LabelEditContract.customIconMap` for no corresponding safety gain.
+// Moved verbatim from the about-to-be-deleted `LabelEditActivity` (Batch Z-late phase 1); it is
+// read by `LabelEditComposeActivity`, `ManageLabelsComposeActivity` and the classic
+// `ManageLabelItemAdapter`.
+// Reordered customIconMap with logical categories
+val customIconMap = mapOf(
+    // Religious / Spiritual
+    "book" to R.drawable.icon_book,
+    "book-bible" to R.drawable.icon_book_bible,
+    "cross" to R.drawable.icon_cross,
+    "church" to R.drawable.icon_church,
+    "star-of-david" to R.drawable.icon_star_of_david,
+    "person-praying" to R.drawable.icon_person_praying,
+
+    // Informational / Symbolic
+    "info" to R.drawable.icon_circle_info,
+    "question" to R.drawable.icon_circle_question,
+    "exclamation" to R.drawable.icon_circle_exclamation,
+    "lightbulb" to R.drawable.icon_lightbulb,
+    "bell" to R.drawable.icon_bell,
+    "flag" to R.drawable.icon_flag,
+    "star" to R.drawable.icon_star,
+    "tag" to R.drawable.icon_tag,
+
+    // Communication / Social
+    "envelope" to R.drawable.icon_envelope,
+    "comment" to R.drawable.icon_comment,
+    "share-nodes" to R.drawable.icon_share_nodes,
+    "link" to R.drawable.icon_link,
+    "handshake" to R.drawable.icon_handshake,
+
+    // Time & Location
+    "clock" to R.drawable.icon_clock,
+    "map-marker" to R.drawable.icon_location_dot,
+    "globe" to R.drawable.icon_globe,
+    "landmark" to R.drawable.icon_landmark,
+    "calendar" to R.drawable.icon_calendar,
+
+    // People & Media / Miscellaneous
+    "user" to R.drawable.icon_user,
+    "music" to R.drawable.icon_music,
+    "microphone" to R.drawable.icon_microphone,
+    "key" to R.drawable.icon_key,
+    "crown" to R.drawable.icon_crown,
+    "heart" to R.drawable.icon_heart,
+    "heart-crack" to R.drawable.icon_heart_crack,
+    "robot" to R.drawable.icon_robot
+)

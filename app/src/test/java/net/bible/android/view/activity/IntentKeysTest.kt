@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity
 
+import net.bible.android.view.activity.ai.PromptEditComposeActivity
 import net.bible.android.view.activity.download.DownloadKeys
 import net.bible.android.view.activity.ai.RawLlmLogKeys
 import net.bible.android.view.activity.progress.ReadingProgressKeys
@@ -48,5 +49,14 @@ class IntentKeysTest {
         // new file's package, or every reading-plan intent breaks.
         assertEquals("net.bible.android.view.activity.readingplan.Plan", ReadingPlanKeys.PLAN)
         assertEquals("net.bible.android.view.activity.readingplan.Day", ReadingPlanKeys.DAY)
+    }
+
+    @Test fun promptIdExtraStaysEqualAcrossBothPromptEditScreens() {
+        // PromptEditActivity.EXTRA_PROMPT_ID was borrowed WITHOUT a new *Keys holder: its two
+        // consumers were repointed onto PromptEditComposeActivity's own pre-existing duplicate
+        // constant instead. So there are two independent "prompt_id" string literals (classic's
+        // and the Compose activity's own) that must keep the same value while both screens exist;
+        // nothing else pins that.
+        assertEquals("prompt_id", PromptEditComposeActivity.EXTRA_PROMPT_ID)
     }
 }

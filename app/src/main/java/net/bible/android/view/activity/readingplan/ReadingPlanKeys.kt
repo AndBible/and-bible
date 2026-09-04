@@ -33,10 +33,12 @@ object ReadingPlanKeys {
  * of `DailyReading`'s companion.
  *
  * Still an eagerly-initialised `val` calling `app.getString(...)`, deliberately: that resolves the
- * localized strings when the holder is first touched. The timing is unchanged by the move —
- * previously the first touch initialised `DailyReading`'s companion, now it initialises this object,
- * and both happen at the same call site in `ReadingPlanTextFileDao`. Turning it into a `by lazy` or
- * a function would change when the locale is read, which is a behaviour change.
+ * localized strings when the holder is first touched. Strictly, the TRIGGER SET narrowed by the
+ * move: previously any touch of `DailyReading`'s companion initialised this catalogue; now only
+ * `ReadingPlanTextFileDao`'s first touch does. What is unchanged is that the touch happens
+ * later-or-equal to before, and it resolves the same strings once per process — both at the same
+ * call site in `ReadingPlanTextFileDao`. Turning it into a `by lazy` or a function would change when
+ * the locale is read, which is a behaviour change.
  */
 object ReadingPlanCatalog {
     private val app = BibleApplication.application

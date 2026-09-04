@@ -52,7 +52,7 @@ import org.koin.android.ext.android.inject
  * via [PromptService.prompt]/[PromptService.newPromptData] (constructed once, in the `by lazy`
  * controller, reading `intent` at first access).
  *
- * **Result-className parity.** [saveAndMaybeFinish] mirrors classic `validateAndSave`'s tail exactly:
+ * **RESULT_PROMPT_ID parity.** [saveAndMaybeFinish] mirrors classic `validateAndSave`'s tail exactly:
  * `controller.save()` returns the saved id (or null if [net.bible.sharedcore.ai.PromptEditController.canSave]
  * was false — defensive, the Save icon is already disabled in that case) and, ONLY when
  * [EXTRA_EXECUTE_AFTER_SAVE] is true, `setResult(RESULT_OK, Intent().putExtra(RESULT_PROMPT_ID, savedId))`
@@ -170,7 +170,7 @@ class PromptEditComposeActivity : ActivityBase() {
         }
     }
 
-    /** Mirrors classic `validateAndSave`'s tail — see class kdoc "Result-className parity". */
+    /** Mirrors classic `validateAndSave`'s tail — see class kdoc "RESULT_PROMPT_ID parity". */
     private fun saveAndMaybeFinish() {
         val savedId = controller.save() ?: return
         if (intent.getBooleanExtra(EXTRA_EXECUTE_AFTER_SAVE, false)) {

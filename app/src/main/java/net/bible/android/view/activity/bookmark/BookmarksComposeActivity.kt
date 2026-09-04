@@ -60,7 +60,7 @@ private const val TAG = "BookmarksCompose"
  * [onSelectBookmark] builds the exact same result [Intent] classic `Bookmarks.bookmarkSelected`
  * does (Bookmarks.kt:295-323) — verse/key/book/ordinal + description + labelNo + listPosition,
  * plus `ActivityResultKind.Bookmarks`, which `MainBibleActivity.onActivityResult`
- * (MainBibleActivity.kt:1922-2012) dispatches on regardless of which host produced the result.
+ * dispatches on regardless of which host produced the result.
  */
 class BookmarksComposeActivity : ActivityBase() {
     private val service: BookmarksServiceImpl by inject()

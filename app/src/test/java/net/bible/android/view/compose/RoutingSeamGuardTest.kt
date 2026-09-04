@@ -84,8 +84,13 @@ class RoutingSeamGuardTest {
     /**
      * Spec §4 P5. `WorkspaceSelectorComposeActivity` is the ONE Compose file allowed to name the
      * classic text-display settings activity: it needs that screen's activity result
-     * (`settingsBundle` + `reset`), which the Compose screen does not produce (spec §11.4). Every
-     * other Compose caller must route through ScreenLauncher.
+     * (`settingsBundle` + `reset`), which the Compose screen does not produce (spec §11.4).
+     *
+     * The scan below is FILENAME-scoped (`it.name.contains("Compose")`), not scoped to actual
+     * Compose code — so it only catches Compose *hosts*, whose file names carry "Compose" by
+     * convention. A Compose caller living in a file without "Compose" in its name (e.g. a
+     * `:sharedUi` screen, controller or composable helper) is invisible to this guard. Do not widen
+     * the scan to close that gap late in this branch; it is a known, accepted blind spot.
      */
     @Test fun onlyTheWorkspaceSelectorNamesTheClassicTextDisplaySettings() {
         val allowed = "WorkspaceSelectorComposeActivity.kt"
