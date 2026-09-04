@@ -55,8 +55,8 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
+import net.bible.android.view.activity.download.DownloadKeys
 import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.BuildVariant
@@ -304,7 +304,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                         if (books != null) {
                             val intent = ScreenLauncher.intentFor(this@StartupActivity, Screen.FirstDownload)
                                 .apply { putExtra(DownloadComposeActivity.EXTRA_FIRST_DOWNLOAD, true) }
-                            intent.putExtra(DownloadActivity.DOCUMENT_IDS_EXTRA, json.encodeToString(serializer(), books))
+                            intent.putExtra(DownloadKeys.DOCUMENT_IDS_EXTRA, json.encodeToString(serializer(), books))
                             lifecycleScope.launch {
                                 awaitIntent(intent)
                                 afterDownload()

@@ -43,7 +43,7 @@ import net.bible.android.view.activity.page.screen.classicBottomChromeAllowed
 import net.bible.service.device.ScreenSettings
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
-import net.bible.android.view.activity.ai.RawLlmLogActivity
+import net.bible.android.view.activity.ai.RawLlmLogKeys
 import net.bible.service.common.AiSettings
 import net.bible.service.common.DefaultModelChangedEvent
 import net.bible.service.db.DatabaseContainer
@@ -465,7 +465,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     private fun openRawLog() {
         val intent = ScreenLauncher.intentFor(context, Screen.RawLlmLog).apply {
-            putExtra(RawLlmLogActivity.EXTRA_WORKSPACE_ID, workspaceId.toString())
+            putExtra(RawLlmLogKeys.EXTRA_WORKSPACE_ID, workspaceId.toString())
         }
         context.startActivity(intent)
     }

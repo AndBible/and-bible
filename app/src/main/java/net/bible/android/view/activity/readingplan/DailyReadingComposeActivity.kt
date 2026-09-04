@@ -60,8 +60,8 @@ class DailyReadingComposeActivity : ActivityBase() {
 
     /** allow activity to enhance intent to correctly restore state  */
     override val intentForHistoryList: Intent get() = intent.apply {
-        putExtra(DailyReading.PLAN, readingsDto.readingPlanInfo.planCode)
-        putExtra(DailyReading.DAY, readingsDto.day)
+        putExtra(ReadingPlanKeys.PLAN, readingsDto.readingPlanInfo.planCode)
+        putExtra(ReadingPlanKeys.DAY, readingsDto.day)
     }
 
     private val controller: DailyReadingController by lazy {
@@ -166,9 +166,9 @@ class DailyReadingComposeActivity : ActivityBase() {
                     readingPlanControl.setReadingPlan(planToLoad)
                     dayToLoad ?: readingPlanControl.currentPlanDay
                 }
-                extras != null && (extras.containsKey(DailyReading.PLAN) || extras.containsKey(DailyReading.DAY)) -> {
-                    extras.getString(DailyReading.PLAN)?.let { readingPlanControl.setReadingPlan(it) }
-                    if (extras.containsKey(DailyReading.DAY)) extras.getInt(DailyReading.DAY)
+                extras != null && (extras.containsKey(ReadingPlanKeys.PLAN) || extras.containsKey(ReadingPlanKeys.DAY)) -> {
+                    extras.getString(ReadingPlanKeys.PLAN)?.let { readingPlanControl.setReadingPlan(it) }
+                    if (extras.containsKey(ReadingPlanKeys.DAY)) extras.getInt(ReadingPlanKeys.DAY)
                     else readingPlanControl.currentPlanDay
                 }
                 else -> readingPlanControl.currentPlanDay

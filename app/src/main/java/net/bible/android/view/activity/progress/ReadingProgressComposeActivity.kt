@@ -75,7 +75,7 @@ class ReadingProgressComposeActivity : ActivityBase() {
 
     private val initialTab: ReadingTab by lazy {
         val tab = intent.getIntExtra(
-            ReadingProgressActivity.EXTRA_TAB,
+            ReadingProgressKeys.EXTRA_TAB,
             CommonUtils.settings.getInt(PREF_LAST_TAB, 0),
         )
         if (tab == 1) ReadingTab.MEMORIZE else ReadingTab.READING

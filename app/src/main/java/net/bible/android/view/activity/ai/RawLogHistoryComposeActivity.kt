@@ -42,7 +42,7 @@ import org.koin.android.ext.android.inject
  *
  * **Opening a log.** [RawLogHistoryController.onOpenLog] routes through [ScreenLauncher]
  * ([Screen.RawLlmLog], old/new per `use_compose_ui` — Batch 9d task 11), passing the classic
- * [RawLlmLogActivity.EXTRA_LOG_RECORD_ID] extra name (reused verbatim so the extra key matches
+ * [RawLlmLogKeys.EXTRA_LOG_RECORD_ID] extra name (reused verbatim so the extra key matches
  * classic) regardless of which host it resolves to.
  */
 class RawLogHistoryComposeActivity : ActivityBase() {
@@ -55,7 +55,7 @@ class RawLogHistoryComposeActivity : ActivityBase() {
             onOpenLog = { id ->
                 startActivity(
                     ScreenLauncher.intentFor(this, Screen.RawLlmLog)
-                        .putExtra(RawLlmLogActivity.EXTRA_LOG_RECORD_ID, id),
+                        .putExtra(RawLlmLogKeys.EXTRA_LOG_RECORD_ID, id),
                 )
             },
         )

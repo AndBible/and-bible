@@ -87,7 +87,7 @@ class AiPromptsComposeActivity : ActivityBase() {
             scope = lifecycleScope,
             onOpenPrompt = { promptId ->
                 startActivity(ScreenLauncher.intentFor(this, Screen.PromptEdit)
-                    .putExtra(PromptEditActivity.EXTRA_PROMPT_ID, promptId))
+                    .putExtra(PromptEditComposeActivity.EXTRA_PROMPT_ID, promptId))
             },
             onNewPrompt = { startActivity(ScreenLauncher.intentFor(this, Screen.PromptEdit)) },
             onOpenConnectionSettings = { ScreenLauncher.open(this, Screen.AiConnectionSettings) },

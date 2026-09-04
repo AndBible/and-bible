@@ -369,7 +369,7 @@ open class DownloadComposeActivity : ActivityBase() {
 
     /** Classic FirstDownload.onOkay: return DOWNLOAD_FINISH so StartupActivity advances to the main app. */
     private fun onOkay() {
-        setResult(DownloadActivity.DOWNLOAD_FINISH)
+        setResult(DownloadKeys.DOWNLOAD_FINISH)
         finish()
     }
 
@@ -756,7 +756,7 @@ open class DownloadComposeActivity : ActivityBase() {
     // --- Auto-download extras (ported from classic onCreate) --------------------------------
 
     private suspend fun handleAutoDownloadExtras() = withContext(Dispatchers.Main) {
-        val bookStr = intent.extras?.getString(DownloadActivity.DOCUMENT_IDS_EXTRA)
+        val bookStr = intent.extras?.getString(DownloadKeys.DOCUMENT_IDS_EXTRA)
         if (bookStr != null) {
             val booksToDownload: List<SwordDocumentInfo> = json.decodeFromString(serializer(), bookStr)
             downloadRequestedBooks(booksToDownload)

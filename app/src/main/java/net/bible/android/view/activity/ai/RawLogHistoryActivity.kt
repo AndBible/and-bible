@@ -95,7 +95,7 @@ class RawLogHistoryActivity : ActivityBase() {
 
     private fun openLog(logId: IdType) {
         val intent = ScreenLauncher.intentFor(this, Screen.RawLlmLog).apply {
-            putExtra(RawLlmLogActivity.EXTRA_LOG_RECORD_ID, logId.toString())
+            putExtra(RawLlmLogKeys.EXTRA_LOG_RECORD_ID, logId.toString())
         }
         startActivity(intent)
     }

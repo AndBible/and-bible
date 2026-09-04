@@ -100,7 +100,7 @@ class ReadingProgressActivity : ActivityBase() {
         setupReadingTab()
         setupMemorizeToggle()
 
-        val initialTab = intent.getIntExtra(EXTRA_TAB,
+        val initialTab = intent.getIntExtra(ReadingProgressKeys.EXTRA_TAB,
             CommonUtils.settings.getInt(PREF_LAST_TAB, 0)
         )
         if (initialTab == 1) {
@@ -975,7 +975,5 @@ class ReadingProgressActivity : ActivityBase() {
 
         private const val PREF_LAST_TAB = "reading_progress_last_tab"
         private const val PREF_MEM_OVERVIEW = "reading_progress_mem_overview"
-
-        const val EXTRA_TAB = "tab"
     }
 }

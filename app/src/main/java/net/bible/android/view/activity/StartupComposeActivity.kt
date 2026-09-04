@@ -40,8 +40,8 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
+import net.bible.android.view.activity.download.DownloadKeys
 import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
@@ -200,7 +200,7 @@ class StartupComposeActivity : ActivityBase() {
 
     private fun launchRedownload(books: List<SwordDocumentInfo>) {
         val intent = firstDownloadIntent()
-            .apply { putExtra(DownloadActivity.DOCUMENT_IDS_EXTRA, json.encodeToString(serializer(), books)) }
+            .apply { putExtra(DownloadKeys.DOCUMENT_IDS_EXTRA, json.encodeToString(serializer(), books)) }
         lifecycleScope.launch {
             awaitIntent(intent)
             afterFlow()

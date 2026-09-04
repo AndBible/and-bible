@@ -28,7 +28,6 @@ import android.view.View
 import android.widget.TableLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuCompat
-import net.bible.android.BibleApplication
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ReadingPlanOneDayBinding
@@ -121,9 +120,9 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
                     dayToLoad ?: readingPlanControl.currentPlanDay
                 }
                 extras != null -> {
-                    val plan = extras.getString(PLAN)
+                    val plan = extras.getString(ReadingPlanKeys.PLAN)
                     if(plan != null) readingPlanControl.setReadingPlan(plan)
-                    extras.getInt(DAY, dayLoaded)
+                    extras.getInt(ReadingPlanKeys.DAY, dayLoaded)
                 }
                 else -> {
                     readingPlanControl.currentPlanDay
@@ -305,8 +304,8 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     override val intentForHistoryList: Intent get() {
         val intent = intent
 
-        intent.putExtra(PLAN, readingsDto.readingPlanInfo.planCode)
-        intent.putExtra(DAY, readingsDto.day)
+        intent.putExtra(ReadingPlanKeys.PLAN, readingsDto.readingPlanInfo.planCode)
+        intent.putExtra(ReadingPlanKeys.DAY, readingsDto.day)
 
         return intent
     }
@@ -451,53 +450,5 @@ class DailyReading : CustomTitlebarActivityBase(R.menu.reading_plan) {
     companion object {
 
         private const val TAG = "DailyReading"
-        private val app = BibleApplication.application
-
-        // Link AB distributed reading plan file names with plan name/description resource strings
-        val ABDistributedPlanDetailArray = arrayOf(
-            PlanDetails(
-                "y1ntpspr",
-                app.getString(R.string.plan_name_y1ntpspr),
-                app.getString(R.string.plan_description_y1ntpspr)
-            ),
-            PlanDetails (
-                "y1ot1nt1_chronological",
-                app.getString(R.string.plan_name_y1ot1nt1_chronological),
-                app.getString(R.string.plan_description_y1ot1nt1_chronological)
-            ),
-            PlanDetails(
-                "y1ot1nt1_OTandNT",
-                app.getString(R.string.plan_name_y1ot1nt1_OTandNT),
-                app.getString(R.string.plan_description_y1ot1nt1_OTandNT)
-            ),
-            PlanDetails(
-                "y1ot1nt1_OTthenNT",
-                app.getString(R.string.plan_name_y1ot1nt1_OTthenNT),
-                app.getString(R.string.plan_description_y1ot1nt1_OTthenNT)
-            ),
-            PlanDetails(
-                "y1ot1nt2_mcheyne",
-                app.getString(R.string.plan_name_y1ot1nt2_mcheyne),
-                app.getString(R.string.plan_description_y1ot1nt2_mcheyne)
-            ),
-            PlanDetails(
-                "y1ot6nt4_profHorner",
-                app.getString(R.string.plan_name_y1ot6nt4_profHorner),
-                app.getString(R.string.plan_description_y1ot6nt4_profHorner)
-            ),
-            PlanDetails(
-                "y2ot1ntps2",
-                app.getString(R.string.plan_name_y2ot1ntps2),
-                app.getString(R.string.plan_description_y2ot1ntps2)
-            )
-        )
-        class PlanDetails(
-            val planCode: String,
-            val planName: String,
-            val planDescription: String
-        )
-
-        val PLAN = "net.bible.android.view.activity.readingplan.Plan"
-        val DAY = "net.bible.android.view.activity.readingplan.Day"
     }
 }

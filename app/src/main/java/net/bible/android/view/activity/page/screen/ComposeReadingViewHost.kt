@@ -127,7 +127,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.database.IdType
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.ai.RawLlmLogActivity
+import net.bible.android.view.activity.ai.RawLlmLogKeys
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.DocRowMapper
@@ -843,7 +843,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         onCompletedToast = { ABEventBus.post(ToastEvent(R.string.ai_task_completed)) },
         onOpenRawLog = {
             val intent = ScreenLauncher.intentFor(activity, Screen.RawLlmLog).apply {
-                putExtra(RawLlmLogActivity.EXTRA_WORKSPACE_ID, agentSessionService.currentWorkspaceId())
+                putExtra(RawLlmLogKeys.EXTRA_WORKSPACE_ID, agentSessionService.currentWorkspaceId())
             }
             activity.startActivity(intent)
         },

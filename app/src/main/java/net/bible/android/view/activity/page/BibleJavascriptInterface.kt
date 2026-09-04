@@ -58,11 +58,11 @@ import net.bible.android.database.progress.ReadingSource
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.progress.ReadHistoryDialog
-import net.bible.android.view.activity.progress.ReadingProgressActivity
+import net.bible.android.view.activity.progress.ReadingProgressKeys
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.ai.PromptEditActivity
+import net.bible.android.view.activity.ai.PromptEditComposeActivity
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils
@@ -559,7 +559,7 @@ class BibleJavascriptInterface(
     fun openReadingProgress(tab: Int) {
         scope.launch(Dispatchers.Main) {
             val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ReadingProgress)
-            intent.putExtra(ReadingProgressActivity.EXTRA_TAB, tab)
+            intent.putExtra(ReadingProgressKeys.EXTRA_TAB, tab)
             mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
         }
     }
@@ -1072,7 +1072,7 @@ class BibleJavascriptInterface(
     fun openPromptEditor(promptId: String) {
         scope.launch(Dispatchers.Main) {
             val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.PromptEdit)
-            intent.putExtra(PromptEditActivity.EXTRA_PROMPT_ID, promptId)
+            intent.putExtra(PromptEditComposeActivity.EXTRA_PROMPT_ID, promptId)
             mainBibleActivity.startActivity(intent)
         }
     }

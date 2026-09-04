@@ -239,7 +239,7 @@ open class DownloadActivity : DocumentSelectionBase(
 
                 withContext(Dispatchers.Main) {
                     invalidateOptionsMenu()
-                    val bookStr = intent.extras?.getString(DOCUMENT_IDS_EXTRA)
+                    val bookStr = intent.extras?.getString(DownloadKeys.DOCUMENT_IDS_EXTRA)
                     if (bookStr != null) {
                         val booksToDownload: List<SwordDocumentInfo> = json.decodeFromString(serializer(), bookStr)
                         downloadRequestedBooks(booksToDownload)
@@ -442,7 +442,7 @@ open class DownloadActivity : DocumentSelectionBase(
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "onActivityResult:$resultCode")
-        if (resultCode == DOWNLOAD_FINISH) {
+        if (resultCode == DownloadKeys.DOWNLOAD_FINISH) {
             returnToPreviousScreen()
         } else {
             super.onActivityResult(requestCode, resultCode, data)
@@ -522,8 +522,6 @@ open class DownloadActivity : DocumentSelectionBase(
         private const val REPO_REFRESH_DATE = "repoRefreshDate"
         private const val REPO_LIST_STALE_AFTER_DAYS: Long = 1
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
-        const val DOCUMENT_IDS_EXTRA = "documentIds"
-        const val DOWNLOAD_FINISH = 1
         private const val TAG = "Download"
     }
 }

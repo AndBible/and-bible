@@ -55,8 +55,8 @@ import java.util.Locale
  * [RawLlmLogActivity]. Wires the shared [RawLlmLogController] over [RawLogService] and renders
  * [RawLlmLogScreen].
  *
- * **Two modes, same extras as classic.** Reads [RawLlmLogActivity.EXTRA_LOG_RECORD_ID] (DB mode) or
- * [RawLlmLogActivity.EXTRA_WORKSPACE_ID] (in-memory mode) — the classic constants are reused verbatim
+ * **Two modes, same extras as classic.** Reads [RawLlmLogKeys.EXTRA_LOG_RECORD_ID] (DB mode) or
+ * [RawLlmLogKeys.EXTRA_WORKSPACE_ID] (in-memory mode) — the classic constants are reused verbatim
  * so the extra keys match. DB mode calls [RawLlmLogController.loadRecord]; in-memory mode calls
  * [RawLlmLogController.loadSession].
  *
@@ -77,8 +77,8 @@ import java.util.Locale
 class RawLlmLogComposeActivity : ActivityBase() {
     private val service: RawLogService by inject()
 
-    private val recordId: String? by lazy { intent.getStringExtra(RawLlmLogActivity.EXTRA_LOG_RECORD_ID) }
-    private val workspaceId: String? by lazy { intent.getStringExtra(RawLlmLogActivity.EXTRA_WORKSPACE_ID) }
+    private val recordId: String? by lazy { intent.getStringExtra(RawLlmLogKeys.EXTRA_LOG_RECORD_ID) }
+    private val workspaceId: String? by lazy { intent.getStringExtra(RawLlmLogKeys.EXTRA_WORKSPACE_ID) }
 
     private val controller by lazy {
         RawLlmLogController(service = service, scope = lifecycleScope)

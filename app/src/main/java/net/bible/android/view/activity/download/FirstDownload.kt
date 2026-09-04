@@ -70,7 +70,7 @@ class FirstDownload : DownloadActivity() {
 
     fun onOkay() {
         val resultIntent = Intent(this, FirstDownload::class.java)
-        setResult(DOWNLOAD_FINISH, resultIntent)
+        setResult(DownloadKeys.DOWNLOAD_FINISH, resultIntent)
         finish()
     }
 

@@ -83,8 +83,8 @@ class RawLlmLogActivity : ActivityBase() {
         title = getString(R.string.raw_llm_log_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val logRecordIdStr = intent.getStringExtra(EXTRA_LOG_RECORD_ID)
-        val workspaceIdStr = intent.getStringExtra(EXTRA_WORKSPACE_ID)
+        val logRecordIdStr = intent.getStringExtra(RawLlmLogKeys.EXTRA_LOG_RECORD_ID)
+        val workspaceIdStr = intent.getStringExtra(RawLlmLogKeys.EXTRA_WORKSPACE_ID)
 
         if (logRecordIdStr != null) {
             setupDatabaseMode(IdType(logRecordIdStr))
@@ -276,8 +276,6 @@ class RawLlmLogActivity : ActivityBase() {
     private fun getLogText(): String = logRecordText ?: rawLog?.format() ?: ""
 
     companion object {
-        const val EXTRA_WORKSPACE_ID = "workspace_id"
-        const val EXTRA_LOG_RECORD_ID = "log_record_id"
         private const val MENU_COPY = 1
         private const val MENU_SHARE = 2
         private const val MENU_DELETE = 3
