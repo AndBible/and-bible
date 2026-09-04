@@ -47,15 +47,17 @@ class ClassicSearchRemovalGuardTest {
     )
 
     /**
-     * S1: the `ACTION_PROCESS_TEXT` resolver filter in `getSupportedActivities()` compared
-     * `ResolveInfo.activityInfo.name` against classic `SearchResults`. It had been unable to match
-     * since the `PROCESS_TEXT` `<activity-alias>` was removed in `837515385690` (2025-08-21), so it
-     * was deleted rather than retargeted at the Compose class — retargeting would have kept dead
-     * code while implying a live self-exclusion mechanism (spec §9.2, Appendix F.2).
+     * S1: confirm that `BibleView.kt` has been cleaned of references to the classic search
+     * package and any self-filtering of PROCESS_TEXT handlers.
      *
-     * If AndBible ever re-registers as a PROCESS_TEXT handler, a fresh alias AND a fresh,
-     * deliberately-written filter belong together in that change; this assertion should then be
-     * revisited rather than worked around.
+     * The `ACTION_PROCESS_TEXT` resolver list was filtered to strip AndBible's own PROCESS_TEXT
+     * alias (which lived in a `<activity-alias>` for SearchResults, removed in `837515385690`
+     * 2025-08-21). Reading `activityInfo.name` to COMPARE it against a class is the dead filter
+     * (and would be dead code if re-added at SearchResultsComposeActivity either). Reading it to
+     * TARGET an intent via `setClassName()` is the live "send selected verse to another app"
+     * menu, which is fine and must stay.
+     *
+     * See spec §9.2 and Appendix F.2.
      */
     @Test fun bibleViewDoesNotFilterTheProcessTextResolverByAnActivityName() {
         val path = "src/main/java/net/bible/android/view/activity/page/BibleView.kt"
@@ -66,13 +68,24 @@ class ClassicSearchRemovalGuardTest {
             code.contains("queryIntentActivities("),
         )
         assertEquals(
-            "$path filters the PROCESS_TEXT resolver list by an activity name again. The filter " +
-                "existed to strip AndBible's own PROCESS_TEXT alias, and that alias has been gone " +
-                "since 837515385690 (2025-08-21), so any such filter is dead code that reads as a " +
-                "live mechanism. See spec §9.2 and Appendix F.2.",
+            "$path compares an activity name against a class again. The PROCESS_TEXT resolver " +
+                "list was filtered to strip AndBible's own PROCESS_TEXT alias, and that alias " +
+                "has been gone since 837515385690 (2025-08-21), so any such comparison is dead " +
+                "code that reads as a live self-exclusion mechanism. Reading activityInfo.name " +
+                "to TARGET an intent (setClassName) is the live PROCESS_TEXT menu and is fine. " +
+                "See spec §9.2 and Appendix F.2.",
             emptyList<String>(),
             code.lines()
-                .filter { it.contains("activityInfo.name") }
+                .filter { it.contains("activityInfo.name") && (it.contains("!=") || it.contains("==")) }
+                .map { it.trim() },
+        )
+        assertEquals(
+            "$path references the classic search package, whose screens S1 deletes. A surviving " +
+                "file may not name them, and retargeting at the Compose class would be equally " +
+                "dead while implying a live mechanism (spec §9.2, Appendix F.2).",
+            emptyList<String>(),
+            File(path).readLines()
+                .filter { it.contains("net.bible.android.view.activity.search") }
                 .map { it.trim() },
         )
     }
