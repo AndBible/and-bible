@@ -410,7 +410,7 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
     // ---- Plan A BOOKMARKS_HIDELABELS bridge (host-only) ----
     // The current-scope [TextSettingRowValue.HideLabels] DTO carries only the display summary (Task
     // 4/5 didn't need the raw ids for rendering), so the host needs a separate read of the classic
-    // value to seed `ManageLabels.ManageLabelsData.selectedLabels` when opening the label picker
+    // value to seed `ManageLabelsContract.ManageLabelsData.selectedLabels` when opening the label picker
     // (reproducing classic `HideLabelsPreference.openDialog`'s initial selection).
     fun currentHideLabelsIds(scope: SettingsScope): List<IdType> {
         val bundle = bundleFor(scope)

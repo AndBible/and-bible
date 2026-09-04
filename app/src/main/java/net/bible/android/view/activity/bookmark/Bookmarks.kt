@@ -208,13 +208,13 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
 
         val intent = ScreenLauncher.intentFor(this@Bookmarks, Screen.ManageLabels)
-        intent.putExtra("data", ManageLabels.ManageLabelsData(
-            mode = ManageLabels.Mode.ASSIGN,
+        intent.putExtra("data", ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.ASSIGN,
             selectedLabels = labels
         ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
         val result = awaitIntent(intent)
         if(result.resultCode == RESULT_OK) {
-            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+            val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
             for (b in bookmarks) {
                 bookmarkControl.changeLabelsForBookmark(b, resultData.selectedLabels.toList())
             }
@@ -385,12 +385,12 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 isHandled = true
                 lifecycleScope.launch(Dispatchers.Main) {
                     val intent = ScreenLauncher.intentFor(this@Bookmarks, Screen.ManageLabels)
-                    intent.putExtra("data", ManageLabels.ManageLabelsData(
-                        mode = ManageLabels.Mode.WORKSPACE,
+                    intent.putExtra("data", ManageLabelsContract.ManageLabelsData(
+                        mode = ManageLabelsContract.Mode.WORKSPACE,
                     ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
                     val result = awaitIntent(intent)
                     if(result.resultCode == RESULT_OK) {
-                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+                        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                         windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         withContext(Dispatchers.Main) {
                             loadLabelList()

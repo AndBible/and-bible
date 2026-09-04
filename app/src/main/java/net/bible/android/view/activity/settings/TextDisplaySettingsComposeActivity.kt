@@ -40,7 +40,7 @@ import net.bible.android.activity.R
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.search.SearchModeController
@@ -329,8 +329,8 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
         val intent = ScreenLauncher.intentFor(this, Screen.ManageLabels)
         intent.putExtra(
             "data",
-            ManageLabels.ManageLabelsData(
-                mode = ManageLabels.Mode.HIDELABELS,
+            ManageLabelsContract.ManageLabelsData(
+                mode = ManageLabelsContract.Mode.HIDELABELS,
                 selectedLabels = service.currentHideLabelsIds(scope).toMutableSet(),
                 isWindow = scope is SettingsScope.Window,
             ).applyFrom(windowRepository.workspaceSettings).toJSON(),
@@ -338,7 +338,7 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
         lifecycleScope.launch(Dispatchers.Main) {
             val result = awaitIntent(intent)
             if (result.resultCode == Activity.RESULT_OK) {
-                val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+                val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                 if (resultData.reset) {
                     controller.onRevert(TextSettingType.BOOKMARKS_HIDELABELS.name)
                 } else {

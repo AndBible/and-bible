@@ -36,18 +36,18 @@ class ManageLabelsMapperTest {
 
     @Test
     fun `toMode maps all four classic modes`() {
-        assertEquals(ManageLabelsMode.STUDYPAD, ManageLabelsMapper.toMode(ManageLabels.Mode.STUDYPAD))
-        assertEquals(ManageLabelsMode.WORKSPACE, ManageLabelsMapper.toMode(ManageLabels.Mode.WORKSPACE))
-        assertEquals(ManageLabelsMode.ASSIGN, ManageLabelsMapper.toMode(ManageLabels.Mode.ASSIGN))
-        assertEquals(ManageLabelsMode.HIDELABELS, ManageLabelsMapper.toMode(ManageLabels.Mode.HIDELABELS))
+        assertEquals(ManageLabelsMode.STUDYPAD, ManageLabelsMapper.toMode(ManageLabelsContract.Mode.STUDYPAD))
+        assertEquals(ManageLabelsMode.WORKSPACE, ManageLabelsMapper.toMode(ManageLabelsContract.Mode.WORKSPACE))
+        assertEquals(ManageLabelsMode.ASSIGN, ManageLabelsMapper.toMode(ManageLabelsContract.Mode.ASSIGN))
+        assertEquals(ManageLabelsMode.HIDELABELS, ManageLabelsMapper.toMode(ManageLabelsContract.Mode.HIDELABELS))
     }
 
     @Test
     fun `seeds derive String sets from IdType sets`() {
         val a = IdType()
         val b = IdType()
-        val data = ManageLabels.ManageLabelsData(
-            mode = ManageLabels.Mode.ASSIGN,
+        val data = ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.ASSIGN,
             selectedLabels = mutableSetOf(a, b),
             autoAssignLabels = mutableSetOf(a),
             autoAssignPrimaryLabel = a,
@@ -62,7 +62,7 @@ class ManageLabelsMapperTest {
 
     @Test
     fun `seeds are empty-null when data has no labels`() {
-        val data = ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.WORKSPACE)
+        val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.WORKSPACE)
 
         assertTrue(ManageLabelsMapper.seedSelected(data).isEmpty())
         assertTrue(ManageLabelsMapper.seedAutoAssign(data).isEmpty())
@@ -74,7 +74,7 @@ class ManageLabelsMapperTest {
     fun `applyResult round-trips selected, autoAssign and primaries, preserving mode and isWindow`() {
         val a = IdType()
         val b = IdType()
-        val data = ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.ASSIGN, isWindow = true)
+        val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.ASSIGN, isWindow = true)
 
         val result = ManageLabelsMapper.applyResult(
             data = data,
@@ -95,7 +95,7 @@ class ManageLabelsMapperTest {
         assertEquals(b, result.autoAssignPrimaryLabel)
         assertEquals(a, result.bookmarkPrimaryLabel)
         // mode/isWindow untouched by applyResult
-        assertEquals(ManageLabels.Mode.ASSIGN, result.mode)
+        assertEquals(ManageLabelsContract.Mode.ASSIGN, result.mode)
         assertTrue(result.isWindow)
         assertFalse(result.reset)
     }
@@ -103,8 +103,8 @@ class ManageLabelsMapperTest {
     @Test
     fun `applyResult with null primaries clears them`() {
         val a = IdType()
-        val data = ManageLabels.ManageLabelsData(
-            mode = ManageLabels.Mode.WORKSPACE,
+        val data = ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.WORKSPACE,
             autoAssignPrimaryLabel = a,
             bookmarkPrimaryLabel = a,
         )
@@ -127,12 +127,12 @@ class ManageLabelsMapperTest {
     @Test
     fun `applyReset sets the reset flag and leaves other fields untouched`() {
         val a = IdType()
-        val data = ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.HIDELABELS, selectedLabels = mutableSetOf(a))
+        val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.HIDELABELS, selectedLabels = mutableSetOf(a))
 
         val result = ManageLabelsMapper.applyReset(data)
 
         assertTrue(result.reset)
         assertEquals(setOf(a), result.selectedLabels)
-        assertEquals(ManageLabels.Mode.HIDELABELS, result.mode)
+        assertEquals(ManageLabelsContract.Mode.HIDELABELS, result.mode)
     }
 }

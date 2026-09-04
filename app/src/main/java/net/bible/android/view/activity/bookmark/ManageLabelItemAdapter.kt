@@ -168,7 +168,7 @@ class ManageLabelItemAdapter(context: Context?,
                     } else {
                         checkbox.visibility = View.GONE
                     }
-                    if (data.mode == ManageLabels.Mode.STUDYPAD) {
+                    if (data.mode == ManageLabelsContract.Mode.STUDYPAD) {
                         labelIcon.setImageResource(R.drawable.ic_baseline_studypads_24)
                     }
 
@@ -237,7 +237,7 @@ class ManageLabelItemAdapter(context: Context?,
 
                     // TODO: implement otherwise
                     bookmarkStyleAdapterHelper.styleView(labelName, item, context, false, false)
-                    if (data.mode != ManageLabels.Mode.STUDYPAD) {
+                    if (data.mode != ManageLabelsContract.Mode.STUDYPAD) {
                         root.setOnClickListener {
                             Log.i(TAG, "Edit label clicked")
                             manageLabels.editLabel(item)

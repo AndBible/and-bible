@@ -83,7 +83,7 @@ private const val TAG = "ManageLabelsCompose"
 
 /**
  * Compose host for the label-management / selection / StudyPad-picker screen — the new-path twin
- * of classic [ManageLabels]. Reads the same `"data"`/[ManageLabels.ManageLabelsData] intent extra,
+ * of classic [ManageLabels]. Reads the same `"data"`/[ManageLabelsContract.ManageLabelsData] intent extra,
  * maps it to the shared [ManageLabelsController]'s seeds via [ManageLabelsMapper], and writes the
  * exact same `"data"` result extra + `RESULT_OK` contract, so both are interchangeable behind
  * [ScreenLauncher] for the 7 existing callers.
@@ -101,7 +101,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
     private val bookmarkControl: BookmarkControl by inject()
     private val windowControl: WindowControl by inject()
 
-    private lateinit var data: ManageLabels.ManageLabelsData
+    private lateinit var data: ManageLabelsContract.ManageLabelsData
 
     /** Host-side authoritative Label objects (style flags [net.bible.sharedcore.bookmark.LabelItem]
      *  doesn't carry), mirroring classic `allLabels`. Seeded broadly (includes the Unlabeled
@@ -112,7 +112,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
 
     private val controller: ManageLabelsController by lazy {
         val highlightId = (windowControl.activeWindowPageManager.currentPage.key as? StudyPadKey)
-            ?.takeIf { data.mode == ManageLabels.Mode.STUDYPAD }
+            ?.takeIf { data.mode == ManageLabelsContract.Mode.STUDYPAD }
             ?.label?.id?.toString()
         ManageLabelsController(
             mode = ManageLabelsMapper.toMode(data.mode),
@@ -145,12 +145,12 @@ class ManageLabelsComposeActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        data = ManageLabels.ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
+        data = ManageLabelsContract.ManageLabelsData.fromJSON(intent.getStringExtra("data")!!)
 
         // Restore the persisted STUDYPAD content-search mode (classic ManageLabels.kt:133-138
         // loadFilteringSettings, `labels_list_search_mode` — STUDYPAD only). Harmless to seed via
         // setSearchMode before the first collection: with no search text yet it's a no-op rebuild().
-        if (data.mode == ManageLabels.Mode.STUDYPAD) {
+        if (data.mode == ManageLabelsContract.Mode.STUDYPAD) {
             val modeOrdinal = CommonUtils.settings.getInt("labels_list_search_mode", SearchMode.NAME_START.ordinal)
             controller.setSearchMode(SearchMode.entries.getOrElse(modeOrdinal) { SearchMode.NAME_START })
         }
@@ -180,7 +180,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
                         searchModeActive = searchModeActive,
                         onCloseSearch = controller::closeSearch,
                         onRowClick = { id ->
-                            if (data.mode == ManageLabels.Mode.STUDYPAD) {
+                            if (data.mode == ManageLabelsContract.Mode.STUDYPAD) {
                                 // A content-search hit carries its own firstMatchEntryId; a plain
                                 // name-filtered Item row has none (navigates to the StudyPad start).
                                 val entryId = (rows.find { it is ManageLabelsRow.SearchResult && it.labelId == id }
@@ -469,7 +469,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
         )
 
         val labelData = LabelEditActivity.LabelData(
-            isAssigning = data.mode == ManageLabels.Mode.ASSIGN,
+            isAssigning = data.mode == ManageLabelsContract.Mode.ASSIGN,
             label = label,
             isAutoAssign = controller.resultAutoAssign().contains(label.id.toString()),
             isAutoAssignPrimary = controller.resultAutoAssignPrimary() == label.id.toString(),
@@ -481,11 +481,11 @@ class ManageLabelsComposeActivity : ActivityBase() {
         )
         if (isNew) {
             when (data.mode) {
-                ManageLabels.Mode.ASSIGN -> {
+                ManageLabelsContract.Mode.ASSIGN -> {
                     labelData.isThisBookmarkSelected = true
                     labelData.isThisBookmarkPrimary = true
                 }
-                ManageLabels.Mode.WORKSPACE -> {
+                ManageLabelsContract.Mode.WORKSPACE -> {
                     labelData.isAutoAssignPrimary = true
                     labelData.isAutoAssign = true
                 }
@@ -573,7 +573,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
     private fun saveAndExit() {
         // Persist the STUDYPAD content-search mode (classic ManageLabels.kt:141-145 saveFilteringSettings,
         // `labels_list_search_mode` — STUDYPAD only).
-        if (data.mode == ManageLabels.Mode.STUDYPAD) {
+        if (data.mode == ManageLabelsContract.Mode.STUDYPAD) {
             CommonUtils.settings.setInt("labels_list_search_mode", controller.searchMode.value.ordinal)
         }
 
@@ -656,12 +656,12 @@ class ManageLabelsComposeActivity : ActivityBase() {
     private fun reset() {
         lifecycleScope.launch(Dispatchers.Main) {
             when (data.mode) {
-                ManageLabels.Mode.WORKSPACE -> {
+                ManageLabelsContract.Mode.WORKSPACE -> {
                     if (askConfirmation(getString(R.string.reset_workspace_auto_assign_labels))) {
                         controller.clearAutoAssign()
                     }
                 }
-                ManageLabels.Mode.HIDELABELS -> {
+                ManageLabelsContract.Mode.HIDELABELS -> {
                     if (askConfirmation(getString(R.string.reset_hide_labels))) {
                         ManageLabelsMapper.applyReset(data)
                         setResult(RESULT_OK, Intent().apply { putExtra("data", this@ManageLabelsComposeActivity.data.toJSON()) })

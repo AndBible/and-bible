@@ -38,7 +38,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.settings.ColorSettingsActivity
@@ -571,15 +571,15 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
         @Suppress("UNCHECKED_CAST")
         val originalValues = value as? List<IdType> ?: emptyList()
 
-        intent.putExtra("data", ManageLabels.ManageLabelsData(
-            mode = ManageLabels.Mode.HIDELABELS,
+        intent.putExtra("data", ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.HIDELABELS,
             selectedLabels = originalValues.toMutableSet(),
             isWindow = settings.windowId != null
         ).applyFrom(windowRepository.workspaceSettings).toJSON())
         activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
             if(result.resultCode == Activity.RESULT_OK) {
-                val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+                val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                 if(resultData.reset) {
                     setNonSpecific()
                     onReset?.invoke()
@@ -600,13 +600,13 @@ class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSet
         val intent = ScreenLauncher.intentFor(activity, Screen.ManageLabels)
 
         intent.putExtra("data",
-            ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.WORKSPACE).applyFrom(workspaceSettings).toJSON()
+            ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.WORKSPACE).applyFrom(workspaceSettings).toJSON()
         )
 
         activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
             if(result.resultCode == Activity.RESULT_OK) {
-                val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+                val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                 if (resultData.reset) {
                     workspaceSettings.autoAssignLabels = mutableSetOf()
                     workspaceSettings.autoAssignPrimaryLabel = null

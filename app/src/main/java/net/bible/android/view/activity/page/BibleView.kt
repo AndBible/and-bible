@@ -125,7 +125,7 @@ import net.bible.android.misc.wrapString
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -604,15 +604,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.IO) {
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
         val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ManageLabels)
-        intent.putExtra("data", ManageLabels.ManageLabelsData(
-            mode = ManageLabels.Mode.ASSIGN,
+        intent.putExtra("data", ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.ASSIGN,
             selectedLabels = labels.toMutableSet(),
             bookmarkPrimaryLabel = bookmark.primaryLabelId
         ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
         val result = mainBibleActivity.awaitIntent(intent)
 
         if(result.resultCode == Activity.RESULT_OK) {
-            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+            val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
             bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
             bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels)
             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)

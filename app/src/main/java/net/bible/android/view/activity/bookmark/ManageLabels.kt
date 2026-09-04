@@ -55,6 +55,8 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.android.view.activity.bookmark.ManageLabelsContract.Mode
+import net.bible.android.view.activity.bookmark.ManageLabelsContract.ManageLabelsData
 import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -90,13 +92,6 @@ val json = Json {
     encodeDefaults = true
 }
 
-fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabels.ManageLabelsData) {
-    Log.i("ManageLabels", "WorkspaceEntities.updateRecentLabels")
-    autoAssignLabels = resultData.autoAssignLabels
-    autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
-    ABEventBus.post(AppSettingsUpdated())
-}
-
 @Serializable
 class SearchOption(
     val text: String,
@@ -119,7 +114,6 @@ class ManageLabels : ListActivityBase() {
     val bookmarkControl: BookmarkControl by inject()
     val windowControl: WindowControl by inject()
 
-    enum class Mode {STUDYPAD, WORKSPACE, ASSIGN, HIDELABELS}
     enum class SearchMode {NAME_START, NAME_CONTAINS, CONTENT}
 
     lateinit var data: ManageLabelsData
@@ -207,72 +201,6 @@ class ManageLabels : ListActivityBase() {
                 searchInsideTextButton.text = getString(R.string.match_start_of_text)
                 background.setColor(getResourceColor(R.color.transparent))
             }
-        }
-    }
-
-    @Serializable
-    data class ManageLabelsData(
-        val mode: Mode,
-        val selectedLabels: MutableSet<IdType> = mutableSetOf(),
-        val autoAssignLabels: MutableSet<IdType> = mutableSetOf(),
-        val deletedLabels: MutableSet<IdType> = mutableSetOf(),
-        val deletedLabelsWithOrphanedBookmarks: MutableSet<IdType> = mutableSetOf(),
-        val changedLabels: MutableSet<IdType> = mutableSetOf(),
-
-        var autoAssignPrimaryLabel: IdType? = null,
-        var bookmarkPrimaryLabel: IdType? = null,
-
-        val isWindow: Boolean = false,
-
-        var reset: Boolean = false,
-    ) {
-        val showUnassigned: Boolean get() = setOf(Mode.HIDELABELS, Mode.WORKSPACE).contains(mode)
-        val showCheckboxes: Boolean get() = setOf(Mode.HIDELABELS, Mode.ASSIGN).contains(mode)
-        val hasResetButton: Boolean get() = setOf(Mode.WORKSPACE, Mode.HIDELABELS).contains(mode)
-        val hasReOrderButton: Boolean get() = setOf(Mode.HIDELABELS, Mode.ASSIGN, Mode.WORKSPACE).contains(mode)
-        val workspaceEdits: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
-        val primaryShown: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN).contains(mode)
-        val showActiveCategory: Boolean get() = setOf(Mode.WORKSPACE, Mode.ASSIGN, Mode.HIDELABELS).contains(mode)
-        val hideCategories: Boolean get() = setOf(Mode.STUDYPAD).contains(mode)
-
-        val contextSelectedItems: MutableSet<IdType> get() =
-            when (mode) {
-                Mode.WORKSPACE -> autoAssignLabels
-                else -> selectedLabels
-            }
-
-        var contextPrimaryLabel: IdType? get() =
-            when (mode) {
-                Mode.WORKSPACE -> autoAssignPrimaryLabel
-                Mode.ASSIGN -> bookmarkPrimaryLabel
-                else -> null
-            }
-            set(value) =
-                when (mode) {
-                    Mode.WORKSPACE -> autoAssignPrimaryLabel = value
-                    Mode.ASSIGN -> bookmarkPrimaryLabel = value
-                    else -> {}
-                }
-
-        val titleId: Int get() {
-            return when(mode) {
-                Mode.ASSIGN -> R.string.assign_labels
-                Mode.STUDYPAD -> R.string.studypads
-                Mode.WORKSPACE -> R.string.labels
-                Mode.HIDELABELS -> R.string.bookmark_settings_hide_labels_title
-            }
-        }
-
-        fun toJSON(): String = json.encodeToString(serializer(), this)
-        fun applyFrom(workspaceSettings: WorkspaceEntities.WorkspaceSettings?): ManageLabelsData {
-            workspaceSettings?: return this
-            autoAssignLabels.addAll(workspaceSettings.autoAssignLabels)
-            autoAssignPrimaryLabel = workspaceSettings.autoAssignPrimaryLabel
-            return this
-        }
-
-        companion object {
-            fun fromJSON(str: String): ManageLabelsData = json.decodeFromString(serializer(), str)
         }
     }
 

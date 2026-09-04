@@ -24,40 +24,40 @@ import net.bible.sharedcore.bookmark.ManageLabelsMode
  * `IdType` sets meet the portable `String`-keyed seeds/results consumed by the shared
  * `ManageLabelsController`. Mirrors classic `ManageLabels`' `data` field semantics verbatim:
  * [seedSelected]/[seedAutoAssign]/[seedAutoAssignPrimary]/[seedBookmarkPrimary] build the
- * controller's initial state from a freshly-decoded [ManageLabels.ManageLabelsData]; [applyResult]
+ * controller's initial state from a freshly-decoded [ManageLabelsContract.ManageLabelsData]; [applyResult]
  * writes the controller's final result snapshot back in place (mode/isWindow untouched, same as
  * classic `saveAndExit`); [applyReset] sets the `reset` flag (classic `reset()`).
  */
 object ManageLabelsMapper {
 
-    /** [ManageLabels.Mode] -> the portable [ManageLabelsMode] the shared controller/screen use. */
-    fun toMode(mode: ManageLabels.Mode): ManageLabelsMode = when (mode) {
-        ManageLabels.Mode.STUDYPAD -> ManageLabelsMode.STUDYPAD
-        ManageLabels.Mode.WORKSPACE -> ManageLabelsMode.WORKSPACE
-        ManageLabels.Mode.ASSIGN -> ManageLabelsMode.ASSIGN
-        ManageLabels.Mode.HIDELABELS -> ManageLabelsMode.HIDELABELS
+    /** [ManageLabelsContract.Mode] -> the portable [ManageLabelsMode] the shared controller/screen use. */
+    fun toMode(mode: ManageLabelsContract.Mode): ManageLabelsMode = when (mode) {
+        ManageLabelsContract.Mode.STUDYPAD -> ManageLabelsMode.STUDYPAD
+        ManageLabelsContract.Mode.WORKSPACE -> ManageLabelsMode.WORKSPACE
+        ManageLabelsContract.Mode.ASSIGN -> ManageLabelsMode.ASSIGN
+        ManageLabelsContract.Mode.HIDELABELS -> ManageLabelsMode.HIDELABELS
     }
 
-    fun seedSelected(data: ManageLabels.ManageLabelsData): Set<String> =
+    fun seedSelected(data: ManageLabelsContract.ManageLabelsData): Set<String> =
         data.selectedLabels.map { it.toString() }.toSet()
 
-    fun seedAutoAssign(data: ManageLabels.ManageLabelsData): Set<String> =
+    fun seedAutoAssign(data: ManageLabelsContract.ManageLabelsData): Set<String> =
         data.autoAssignLabels.map { it.toString() }.toSet()
 
-    fun seedAutoAssignPrimary(data: ManageLabels.ManageLabelsData): String? =
+    fun seedAutoAssignPrimary(data: ManageLabelsContract.ManageLabelsData): String? =
         data.autoAssignPrimaryLabel?.toString()
 
-    fun seedBookmarkPrimary(data: ManageLabels.ManageLabelsData): String? =
+    fun seedBookmarkPrimary(data: ManageLabelsContract.ManageLabelsData): String? =
         data.bookmarkPrimaryLabel?.toString()
 
     /**
      * Writes the controller's final result snapshot back into [data] (mutating the mutable sets
-     * in place, same as classic `saveAndExit`/`editLabel` — [ManageLabels.ManageLabelsData.mode]
+     * in place, same as classic `saveAndExit`/`editLabel` — [ManageLabelsContract.ManageLabelsData.mode]
      * and `isWindow` are untouched) and returns [data] for chaining. Callers pass the (possibly
      * new-label-id-remapped) `controller.resultXxx()` snapshots.
      */
     fun applyResult(
-        data: ManageLabels.ManageLabelsData,
+        data: ManageLabelsContract.ManageLabelsData,
         selected: Set<String>,
         autoAssign: Set<String>,
         changed: Set<String>,
@@ -65,7 +65,7 @@ object ManageLabelsMapper {
         deletedWithOrphaned: Set<String>,
         autoAssignPrimary: String?,
         bookmarkPrimary: String?,
-    ): ManageLabels.ManageLabelsData {
+    ): ManageLabelsContract.ManageLabelsData {
         fun replace(target: MutableSet<IdType>, source: Set<String>) {
             target.clear()
             target.addAll(source.map { IdType(it) })
@@ -81,7 +81,7 @@ object ManageLabelsMapper {
     }
 
     /** Sets the reset flag (classic `reset()`: `data.reset = true`). */
-    fun applyReset(data: ManageLabels.ManageLabelsData): ManageLabels.ManageLabelsData {
+    fun applyReset(data: ManageLabelsContract.ManageLabelsData): ManageLabelsContract.ManageLabelsData {
         data.reset = true
         return data
     }

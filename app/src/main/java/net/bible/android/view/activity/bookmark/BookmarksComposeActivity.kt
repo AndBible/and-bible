@@ -206,14 +206,14 @@ class BookmarksComposeActivity : ActivityBase() {
         val intent = ScreenLauncher.intentFor(this@BookmarksComposeActivity, Screen.ManageLabels)
         intent.putExtra(
             "data",
-            ManageLabels.ManageLabelsData(
-                mode = ManageLabels.Mode.ASSIGN,
+            ManageLabelsContract.ManageLabelsData(
+                mode = ManageLabelsContract.Mode.ASSIGN,
                 selectedLabels = labels,
             ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON(),
         )
         val result = awaitIntent(intent)
         if (result.resultCode == RESULT_OK) {
-            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+            val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
             for (b in bookmarks) {
                 bookmarkControl.changeLabelsForBookmark(b, resultData.selectedLabels.toList())
             }
@@ -258,13 +258,13 @@ class BookmarksComposeActivity : ActivityBase() {
         val intent = ScreenLauncher.intentFor(this@BookmarksComposeActivity, Screen.ManageLabels)
         intent.putExtra(
             "data",
-            ManageLabels.ManageLabelsData(
-                mode = ManageLabels.Mode.WORKSPACE,
+            ManageLabelsContract.ManageLabelsData(
+                mode = ManageLabelsContract.Mode.WORKSPACE,
             ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON(),
         )
         val result = awaitIntent(intent)
         if (result.resultCode == RESULT_OK) {
-            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+            val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
             controller.refresh()
         }

@@ -29,7 +29,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
-import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -78,12 +78,12 @@ class CurrentGeneralBookPage internal constructor(
             when {
                 doc == FakeBookFactory.journalDocument -> {
                     val result = context.awaitIntent(ScreenLauncher.intentFor(context, Screen.ManageLabels)
-                        .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
+                        .putExtra("data", ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
                             .applyFrom(context.workspaceSettings)
                             .toJSON())
                     )
                     if(result.resultCode == Activity.RESULT_OK) {
-                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+                        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                         context.workspaceSettings.updateFrom(resultData)
                     }
                 }

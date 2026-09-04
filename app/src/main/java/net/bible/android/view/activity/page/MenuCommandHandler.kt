@@ -41,7 +41,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.base.IntentHelper
-import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.BuildVariant
@@ -202,13 +202,13 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                 R.id.bookmarksButton -> handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.Bookmarks)
                 R.id.studyPadsButton -> {
                     val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ManageLabels)
-                    intent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
+                    intent.putExtra("data", ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
                         .applyFrom(windowControl.windowRepository.workspaceSettings)
                         .toJSON())
                     mainBibleActivity.lifecycleScope.launch (Dispatchers.Main) {
                         val result = mainBibleActivity.awaitIntent(intent)
                         if(result.resultCode == Activity.RESULT_OK) {
-                            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+                            val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         }
                     }
