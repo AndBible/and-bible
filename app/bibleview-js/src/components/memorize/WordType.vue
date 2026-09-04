@@ -433,12 +433,9 @@ onBeforeUnmount(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: var(--noise-text-color, rgba(0, 0, 0, 0.3));
+  color: var(--noise-text-color, rgba(var(--accent-rgb), 0.3));
   font-style: italic;
   pointer-events: none;
-  .night & {
-    color: rgba(255, 255, 255, 0.3);
-  }
 }
 
 .type-word {
@@ -453,14 +450,12 @@ onBeforeUnmount(() => {
 
   &.type-unreached, &.type-current {
     &.visibility-light {
-      color: rgba(0, 0, 0, 0.2);
-      .night & { color: rgba(255, 255, 255, 0.2); }
+      color: rgba(var(--accent-rgb), 0.2);
       .monochrome & { color: rgba(0, 0, 0, 0.25); }
       .monochrome.night & { color: rgba(255, 255, 255, 0.25); }
     }
     &.visibility-dim {
-      color: rgba(0, 0, 0, 0.08);
-      .night & { color: rgba(255, 255, 255, 0.08); }
+      color: rgba(var(--accent-rgb), 0.08);
       .monochrome & { color: rgba(0, 0, 0, 0.1); }
       .monochrome.night & { color: rgba(255, 255, 255, 0.1); }
     }
@@ -542,9 +537,8 @@ onBeforeUnmount(() => {
 .settings-trigger {
   cursor: pointer;
   padding: 6px 10px;
-  color: #666;
+  color: var(--accent-mark);
   font-size: 16px;
-  .night & { color: #999; }
   .monochrome & { color: black; }
   .monochrome.night & { color: white; }
 }
@@ -554,7 +548,7 @@ onBeforeUnmount(() => {
   right: 0;
   top: 100%;
   background: var(--background-color);
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 100;
@@ -562,7 +556,7 @@ onBeforeUnmount(() => {
   padding: 8px 0;
   animation: settings-fade 0.15s ease;
   .night & {
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(var(--accent-rgb), 0.3);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
   .monochrome & {

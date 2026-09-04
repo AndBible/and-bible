@@ -21,10 +21,10 @@
 
 .pell-actionbar {
   background-color: var(--background-color);
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(var(--accent-rgb), 0.6);
 
   .night & {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(var(--accent-rgb), 0.5);
   }
 }
 

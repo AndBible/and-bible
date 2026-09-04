@@ -363,13 +363,10 @@ function resetWords() {
   
   &.preview {
     border: 1px dashed var(--primary-color);
-    background-color: rgba(0, 0, 0, 0.03);
+    background-color: rgba(var(--accent-rgb), 0.03);
     .monochrome & {
       background-color: transparent;
       border-color: black;
-    }
-    .night & {
-      background-color: rgba(255, 255, 255, 0.03);
     }
     .monochrome.night & {
       background-color: transparent;
@@ -492,9 +489,8 @@ function resetWords() {
 .settings-trigger {
   cursor: pointer;
   padding: 6px 10px;
-  color: #666;
+  color: var(--accent-mark);
   font-size: 16px;
-  .night & { color: #999; }
   .monochrome & { color: black; }
   .monochrome.night & { color: white; }
 }
@@ -504,7 +500,7 @@ function resetWords() {
   right: 0;
   top: 100%;
   background: var(--background-color);
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 100;
@@ -512,7 +508,7 @@ function resetWords() {
   padding: 8px 0;
   animation: settings-fade 0.15s ease;
   .night & {
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(var(--accent-rgb), 0.3);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
   .monochrome & {
