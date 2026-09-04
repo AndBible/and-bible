@@ -147,16 +147,19 @@ class ScreenLauncherTest {
 
     @Test
     fun readingPlanSelector_routes_to_compose() {
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ReadingPlanSelectorComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingPlanSelector))
     }
 
     @Test
     fun dailyReadingList_routes_to_compose() {
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(DailyReadingListComposeActivity::class.java, ScreenLauncher.targetFor(Screen.DailyReadingList))
     }
 
     @Test
     fun readingPlan_routes_to_compose() {
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(DailyReadingComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingPlan))
     }
 

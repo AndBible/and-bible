@@ -151,7 +151,7 @@ class ClassicSearchRemovalGuardTest {
      * the genuinely unrelated `net.bible.service.sword.epub.EpubSearch`.
      */
     @Test fun noSourceFileNamesAClassicSearchScreen() {
-        val sources = ClassicRemovalScan.mainSources()
+        val sources = ClassicRemovalScan.appSources()
         // Imports are the reference this sweep hunts, so they are KEPT here (unlike every other
         // scan in this file), and each name ([doomedClassRefs]) is matched with a trailing
         // non-identifier boundary. Both halves are load-bearing: with imports stripped there is
