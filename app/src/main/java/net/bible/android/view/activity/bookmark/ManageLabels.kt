@@ -491,7 +491,7 @@ class ManageLabels : ListActivityBase() {
             labelId = label.id,
         )
 
-        val labelData = LabelEditActivity.LabelData(
+        val labelData = LabelEditContract.LabelData(
             isAssigning = data.mode == Mode.ASSIGN,
             label = label,
             isAutoAssign = data.autoAssignLabels.contains(label.id),
@@ -520,7 +520,7 @@ class ManageLabels : ListActivityBase() {
 
             if (result.resultCode != Activity.RESULT_CANCELED) {
                 Log.i(TAG, "editLabel result NOT CANCELLED")
-                val newLabelData: LabelEditActivity.LabelData = json.decodeFromString(
+                val newLabelData: LabelEditContract.LabelData = json.decodeFromString(
                     serializer(), result.data?.getStringExtra("data")!!)
 
                 if(newLabelData.label.name.isEmpty() && label.new) {

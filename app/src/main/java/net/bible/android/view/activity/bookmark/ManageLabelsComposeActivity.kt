@@ -468,7 +468,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
             labelId = label.id,
         )
 
-        val labelData = LabelEditActivity.LabelData(
+        val labelData = LabelEditContract.LabelData(
             isAssigning = data.mode == ManageLabelsContract.Mode.ASSIGN,
             label = label,
             isAutoAssign = controller.resultAutoAssign().contains(label.id.toString()),
@@ -505,7 +505,7 @@ class ManageLabelsComposeActivity : ActivityBase() {
                 return@launch
             }
 
-            val newLabelData = LabelEditActivity.LabelData.fromJSON(result.data?.getStringExtra("data")!!)
+            val newLabelData = LabelEditContract.LabelData.fromJSON(result.data?.getStringExtra("data")!!)
 
             if (newLabelData.label.name.isEmpty() && isNew) {
                 Log.i(TAG, "editLabel name not specified or is new")

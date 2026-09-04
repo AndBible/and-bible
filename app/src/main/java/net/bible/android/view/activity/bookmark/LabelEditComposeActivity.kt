@@ -59,7 +59,7 @@ import org.koin.android.ext.android.inject
 
 /**
  * Compose host for the single-label editor — the new-path twin of classic [LabelEditActivity].
- * Reads the same `"data"`/[LabelEditActivity.LabelData] intent extra, maps it to a portable
+ * Reads the same `"data"`/[LabelEditContract.LabelData] intent extra, maps it to a portable
  * [net.bible.sharedcore.bookmark.LabelEditState] via [LabelEditMapper], drives the shared
  * [LabelEditController], and renders [LabelEditScreen]. Writes the exact same `"data"` result
  * extra + `RESULT_OK`/`RESULT_CANCELED` contract as the classic activity so both are
@@ -75,7 +75,7 @@ import org.koin.android.ext.android.inject
 class LabelEditComposeActivity : ActivityBase() {
     private val service: LabelEditService by inject()
 
-    private lateinit var data: LabelEditActivity.LabelData
+    private lateinit var data: LabelEditContract.LabelData
 
     private val controller: LabelEditController by lazy {
         LabelEditController(LabelEditMapper.toState(data), service, lifecycleScope, ::onFinish)
@@ -96,7 +96,7 @@ class LabelEditComposeActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        data = LabelEditActivity.LabelData.fromJSON(intent.getStringExtra("data")!!)
+        data = LabelEditContract.LabelData.fromJSON(intent.getStringExtra("data")!!)
 
         setContent {
             AbAppTheme {
@@ -246,7 +246,7 @@ class LabelEditComposeActivity : ActivityBase() {
         }
     }
 
-    private fun finishWithData(updated: LabelEditActivity.LabelData) {
+    private fun finishWithData(updated: LabelEditContract.LabelData) {
         val resultIntent = Intent()
         resultIntent.putExtra("data", updated.toJSON())
         setResult(RESULT_OK, resultIntent)

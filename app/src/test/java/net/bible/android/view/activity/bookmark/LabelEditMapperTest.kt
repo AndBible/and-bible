@@ -42,7 +42,7 @@ class LabelEditMapperTest {
         hasWorkspaceContext: Boolean = true,
         selectionStyle: BookmarkDisplayStyle = BookmarkDisplayStyle.HIGHLIGHT,
         wholeVerseStyle: BookmarkDisplayStyle? = BookmarkDisplayStyle.UNDERLINE,
-    ): LabelEditActivity.LabelData {
+    ): LabelEditContract.LabelData {
         val label = BookmarkEntities.Label(
             id = IdType(),
             name = name,
@@ -57,7 +57,7 @@ class LabelEditMapperTest {
             labelId = label.id,
             overrideMode = overrideMode,
         )
-        return LabelEditActivity.LabelData(
+        return LabelEditContract.LabelData(
             isAssigning = true,
             label = label,
             isAutoAssign = false,

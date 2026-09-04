@@ -30,8 +30,8 @@ import net.bible.sharedcore.bookmark.OverrideMode
  */
 object LabelEditMapper {
 
-    /** Builds the initial [LabelEditState] from a freshly-decoded [LabelEditActivity.LabelData]. */
-    fun toState(data: LabelEditActivity.LabelData): LabelEditState {
+    /** Builds the initial [LabelEditState] from a freshly-decoded [LabelEditContract.LabelData]. */
+    fun toState(data: LabelEditContract.LabelData): LabelEditState {
         val label = data.label
         val name = if (label.name.isEmpty() && data.suggestedName != null) {
             data.suggestedName
@@ -64,7 +64,7 @@ object LabelEditMapper {
      * when it's editable (a special label's name is never user-editable, so [state]'s
      * `nameEditable == false` there and the display-only name must not clobber the stored one).
      */
-    fun applyToData(data: LabelEditActivity.LabelData, state: LabelEditState): LabelEditActivity.LabelData {
+    fun applyToData(data: LabelEditContract.LabelData, state: LabelEditState): LabelEditContract.LabelData {
         val label = data.label
         if (state.nameEditable) {
             label.name = state.name

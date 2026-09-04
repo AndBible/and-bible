@@ -158,30 +158,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         return isHandled
     }
 
-    @Serializable
-    data class LabelData (
-        val isAssigning: Boolean,
-        var label: BookmarkEntities.Label,
-
-        var isAutoAssign: Boolean,
-
-        var isAutoAssignPrimary: Boolean,
-        var isThisBookmarkSelected: Boolean,
-        var isThisBookmarkPrimary: Boolean,
-        var delete: Boolean = false,
-        var deleteOrphanedBookmarks: Boolean = false,
-        val suggestedName: String? = null,
-        var workspaceOverride: WorkspaceEntities.WorkspaceLabelOverride? = null,
-        var hasWorkspaceContext: Boolean = false,
-    ) {
-        fun toJSON(): String = json.encodeToString(serializer(), this)
-
-        companion object {
-            fun fromJSON(str: String): LabelData = json.decodeFromString(serializer(), str)
-        }
-    }
-
-    private lateinit var data: LabelData
+    private lateinit var data: LabelEditContract.LabelData
 
     private fun updateData() = binding.apply {
         Log.i(TAG, "updateData")
@@ -424,7 +401,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         binding = BookmarkLabelEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        data = LabelData.fromJSON(intent.getStringExtra("data")!!)
+        data = LabelEditContract.LabelData.fromJSON(intent.getStringExtra("data")!!)
 
         binding.apply {
             addImage(favouriteLabelCheckBox, R.drawable.ic_baseline_favorite_24)
