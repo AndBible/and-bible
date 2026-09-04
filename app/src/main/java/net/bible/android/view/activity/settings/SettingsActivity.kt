@@ -135,69 +135,12 @@ class SettingsActivity: ActivityBase() {
             .setMessage(R.string.reset_app_prefs).setCancelable(true)
             .setPositiveButton(R.string.yes
             ) { _, _ ->
-                performReset()
+                SettingsReset.performReset()
                 recreate()
             }
             .setNegativeButton(R.string.cancel, null)
             .create()
             .show()
-    }
-
-    companion object {
-        /**
-         * The hardcoded key list cleared by [reset] (classic) and
-         * `net.bible.android.view.activity.settings.SettingsComposeActivity.resetSettings` (Compose
-         * host) — kept in ONE place so the two reset paths cannot drift apart. Does not include the
-         * `realSharedPreferences`-routed keys (`locale_pref`/`calculator_pin`/`show_calculator`/
-         * `discrete_mode`), which [performReset] clears separately, matching the classic split.
-         */
-        val RESET_KEYS = listOf(
-            "strongs_greek_dictionary",
-            "strongs_hebrew_dictionary",
-            "robinson_greek_morphology",
-            "disabled_word_lookup_dictionaries",
-            "navigate_to_verse_pref",
-            "open_links_in_special_window_pref",
-            "screen_keep_on_pref",
-            "auto_fullscreen_pref",
-            "full_screen_hide_buttons_pref",
-            "hide_window_buttons",
-            "hide_bible_reference_overlay",
-            "show_active_window_indicator",
-            "toolbar_button_actions",
-            "disable_two_step_bookmarking",
-            "double_tap_to_fullscreen",
-            "night_mode_pref3",
-            "request_sdcard_permission_pref",
-            "show_errorbox",
-            "show_calculator",
-            "calculator_pin",
-            "google_drive_sync",
-            "disable_bible_bookmark_modal_buttons",
-            "disable_gen_bookmark_modal_buttons",
-            "display_color_mode",
-            "disable_animations",
-            "disable_click_to_edit",
-            "font_size_multiplier",
-            "bible_view_swipe_mode",
-            "experimental_features",
-            "notes_content_type"
-        )
-
-        /** Clears [RESET_KEYS] from [CommonUtils.settings] plus the realShared-routed keys. Does NOT recreate — callers do that themselves. */
-        fun performReset() {
-            val editor = CommonUtils.settings
-            for(key in RESET_KEYS) {
-                editor.removeString(key)
-                editor.removeBoolean(key)
-                editor.removeLong(key)
-                editor.removeDouble(key)
-            }
-            CommonUtils.realSharedPreferences.edit().remove("locale_pref").apply()
-            CommonUtils.realSharedPreferences.edit().remove("calculator_pin").apply()
-            CommonUtils.realSharedPreferences.edit().remove("show_calculator").apply()
-            CommonUtils.realSharedPreferences.edit().remove("discrete_mode").apply()
-        }
     }
 }
 

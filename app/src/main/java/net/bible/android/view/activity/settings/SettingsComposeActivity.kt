@@ -249,14 +249,14 @@ class SettingsComposeActivity : ActivityBase() {
 
     /**
      * Clears the SAME hardcoded key list classic [SettingsActivity.reset] clears
-     * ([SettingsActivity.RESET_KEYS] + the four realShared-routed keys, via
-     * [SettingsActivity.performReset] — extracted there so the two reset paths cannot drift), then
+     * ([SettingsReset.RESET_KEYS] + the four realShared-routed keys, via
+     * [SettingsReset.performReset] — extracted there so the two reset paths cannot drift), then
      * refreshes the service snapshot and recreates (locale/night-mode/color-mode/discrete-mode are
      * all in the cleared set, so this recreate is also covered by [RECREATE_ON_CHANGE_KEYS]'s
      * rationale).
      */
     private fun resetSettings() {
-        SettingsActivity.performReset()
+        SettingsReset.performReset()
         service.refresh()
         recreate()
     }
