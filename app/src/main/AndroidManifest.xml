@@ -372,11 +372,6 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             />
         <activity
-            android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/dictionary"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -384,20 +379,10 @@
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
-            android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/general_book"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
             android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/general_book"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/doc_type_map"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity"

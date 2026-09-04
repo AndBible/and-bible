@@ -49,7 +49,6 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
-import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
 import net.bible.android.view.activity.download.CustomRepositories
 import net.bible.android.view.activity.download.CustomRepositoriesComposeActivity
@@ -66,11 +65,9 @@ import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.HistoryComposeActivity
-import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
-import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
@@ -164,27 +161,21 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun chooseGeneralBookKey_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun chooseGeneralBookKey_routes_to_compose() {
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ChooseGeneralBookKeyComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseGeneralBookKey))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(ChooseGeneralBookKey::class.java, ScreenLauncher.targetFor(Screen.ChooseGeneralBookKey))
     }
 
     @Test
-    fun chooseMapKey_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun chooseMapKey_routes_to_compose() {
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ChooseMapKeyComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseMapKey))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(ChooseMapKey::class.java, ScreenLauncher.targetFor(Screen.ChooseMapKey))
     }
 
     @Test
-    fun chooseDictionaryWord_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(ChooseDictionaryWordComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseDictionaryWord))
+    fun chooseDictionaryWord_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(ChooseDictionaryWord::class.java, ScreenLauncher.targetFor(Screen.ChooseDictionaryWord))
+        assertEquals(ChooseDictionaryWordComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseDictionaryWord))
     }
 
     @Test
