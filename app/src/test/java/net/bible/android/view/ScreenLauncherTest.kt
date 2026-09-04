@@ -67,8 +67,6 @@ import net.bible.android.view.activity.navigation.HistoryComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
-import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
-import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.mydocuments.MyDocumentsComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
@@ -232,19 +230,15 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun myDocuments_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(MyDocumentsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocuments))
+    fun myDocuments_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(MyDocumentsActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocuments))
+        assertEquals(MyDocumentsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocuments))
     }
 
     @Test
-    fun myDocumentPages_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(MyDocumentPagesComposeActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocumentPages))
+    fun myDocumentPages_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(MyDocumentPagesActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocumentPages))
+        assertEquals(MyDocumentPagesComposeActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocumentPages))
     }
 
     @Test

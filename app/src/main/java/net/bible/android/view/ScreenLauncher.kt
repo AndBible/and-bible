@@ -69,8 +69,6 @@ import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKe
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.HistoryComposeActivity
-import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
-import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.mydocuments.MyDocumentsComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
@@ -143,12 +141,8 @@ object ScreenLauncher {
         Screen.Search -> SearchComposeActivity::class.java
         Screen.EpubSearch -> EpubSearchComposeActivity::class.java
         Screen.EpubSearchResults -> EpubSearchResultsComposeActivity::class.java
-        Screen.MyDocuments ->
-            if (useComposeFor(screen)) MyDocumentsComposeActivity::class.java
-            else MyDocumentsActivity::class.java
-        Screen.MyDocumentPages ->
-            if (useComposeFor(screen)) MyDocumentPagesComposeActivity::class.java
-            else MyDocumentPagesActivity::class.java
+        Screen.MyDocuments -> MyDocumentsComposeActivity::class.java
+        Screen.MyDocumentPages -> MyDocumentPagesComposeActivity::class.java
         Screen.CloudDocuments -> CloudDocumentsComposeActivity::class.java
         // Round 13a: there is no Compose Speak ACTIVITY any more — the Compose path opens
         // `ComposeReadingViewHost.showSpeakSettings()` (a sheet over the reading view) instead, and
