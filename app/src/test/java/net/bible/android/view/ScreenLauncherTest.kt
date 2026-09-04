@@ -65,7 +65,6 @@ import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.HistoryComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
-import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
@@ -185,11 +184,9 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun gridChoosePassageBook_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(GridChoosePassageComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GridChoosePassageBook))
+    fun gridChoosePassageBook_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(GridChoosePassageBook::class.java, ScreenLauncher.targetFor(Screen.GridChoosePassageBook))
+        assertEquals(GridChoosePassageComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GridChoosePassageBook))
     }
 
     @Test

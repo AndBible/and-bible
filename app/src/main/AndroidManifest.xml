@@ -140,21 +140,6 @@
             android:label="@string/edit_label"
             />
         <activity
-            android:name="net.bible.android.view.activity.navigation.GridChoosePassageBook"
-            android:configChanges="keyboardHidden|locale"
-            android:label="@string/choosePassageBookName"
-            android:theme="@style/GridChoosePassageTheme" />
-        <activity
-            android:name="net.bible.android.view.activity.navigation.GridChoosePassageChapter"
-            android:configChanges="keyboardHidden|locale"
-            android:label="@string/choosePassageChapterName"
-            android:theme="@style/GridChoosePassageTheme" />
-        <activity
-            android:name="net.bible.android.view.activity.navigation.GridChoosePassageVerse"
-            android:configChanges="keyboardHidden|locale"
-            android:label="@string/choosePassageVerseName"
-            android:theme="@style/GridChoosePassageTheme" />
-        <activity
             android:name="net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity"
             android:configChanges="keyboardHidden|locale"
             android:theme="@style/Theme.AbCompose" />

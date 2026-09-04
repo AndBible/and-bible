@@ -64,7 +64,6 @@ import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
-import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
@@ -128,9 +127,7 @@ object ScreenLauncher {
         Screen.ChooseGeneralBookKey -> ChooseGeneralBookKeyComposeActivity::class.java
         Screen.ChooseMapKey -> ChooseMapKeyComposeActivity::class.java
         Screen.ChooseDictionaryWord -> ChooseDictionaryWordComposeActivity::class.java
-        Screen.GridChoosePassageBook ->
-            if (useComposeFor(screen)) GridChoosePassageComposeActivity::class.java
-            else GridChoosePassageBook::class.java
+        Screen.GridChoosePassageBook -> GridChoosePassageComposeActivity::class.java
         Screen.ChooseDocument ->
             if (useComposeFor(screen)) ChooseDocumentComposeActivity::class.java
             else ChooseDocument::class.java
