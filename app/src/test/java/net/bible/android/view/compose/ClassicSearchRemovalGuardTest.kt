@@ -59,8 +59,7 @@ class ClassicSearchRemovalGuardTest {
         "net.bible.android.view.activity.search.searchresultsactionbar.ScriptureToggleActionBarButton",
     )
 
-    /** [doomedClassNames] as word-boundary regexes: `…search.EpubSearch` must not match `…search.EpubSearchResultKey`. */
-    private val doomedClassRefs = doomedClassNames.map { Regex(Regex.escape(it) + "(?![A-Za-z0-9_])") }
+    private val doomedClassRefs = ClassicRemovalScan.refsFor(doomedClassNames)
 
     /**
      * S1: confirm that `BibleView.kt` has been cleaned of references to the classic search
@@ -78,7 +77,7 @@ class ClassicSearchRemovalGuardTest {
     @Test fun bibleViewDoesNotFilterTheProcessTextResolverByAnActivityName() {
         val path = "src/main/java/net/bible/android/view/activity/page/BibleView.kt"
         assertTrue("$path is missing — this guard would pass vacuously", File(path).isFile)
-        val code = codeLinesOf(path)
+        val code = ClassicRemovalScan.codeLinesOf(path)
         assertTrue(
             "$path must still enumerate PROCESS_TEXT handlers — the scan is pointless otherwise",
             code.contains("queryIntentActivities("),
@@ -152,9 +151,7 @@ class ClassicSearchRemovalGuardTest {
      * the genuinely unrelated `net.bible.service.sword.epub.EpubSearch`.
      */
     @Test fun noSourceFileNamesAClassicSearchScreen() {
-        val sources = File("src/main").walkTopDown()
-            .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }
-            .toList()
+        val sources = ClassicRemovalScan.mainSources()
         // Imports are the reference this sweep hunts, so they are KEPT here (unlike every other
         // scan in this file), and each name ([doomedClassRefs]) is matched with a trailing
         // non-identifier boundary. Both halves are load-bearing: with imports stripped there is
@@ -167,7 +164,7 @@ class ClassicSearchRemovalGuardTest {
         // `…search.EpubSearchResultKey` each carry a doomed name as a prefix.
         val offenders = sources
             .filter { file ->
-                val code = codeLinesOf(file.path, keepImports = true)
+                val code = ClassicRemovalScan.codeLinesOf(file.path, keepImports = true)
                 doomedClassRefs.any { it.containsMatchIn(code) }
             }
             .map { it.path.replace('\\', '/') }
@@ -184,7 +181,7 @@ class ClassicSearchRemovalGuardTest {
     @Test fun screenLauncherDoesNotBranchForSearch() {
         val path = "src/main/java/net/bible/android/view/ScreenLauncher.kt"
         assertTrue("$path is missing — this guard would pass vacuously", File(path).isFile)
-        val code = codeLinesOf(path)
+        val code = ClassicRemovalScan.codeLinesOf(path)
         assertTrue(
             "$path no longer reads use_compose_ui at all — the flag must survive S1 for the " +
                 "remaining slices (spec §3.4)",
@@ -210,17 +207,4 @@ class ClassicSearchRemovalGuardTest {
             offenders,
         )
     }
-
-    /**
-     * Non-prose lines only: a comment must not satisfy or defeat a scan. `import` lines are
-     * dropped too by default — for the `BibleView` scan an import is noise — but the
-     * fully-qualified-name sweep passes `keepImports = true`, because there an import IS the
-     * reference being hunted.
-     */
-    private fun codeLinesOf(path: String, keepImports: Boolean = false): String =
-        File(path).readLines().filterNot { line ->
-            val trimmed = line.trimStart()
-            (!keepImports && trimmed.startsWith("import ")) || trimmed.startsWith("//") ||
-                trimmed.startsWith("*") || trimmed.startsWith("/*")
-        }.joinToString("\n")
 }
