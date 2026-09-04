@@ -91,11 +91,116 @@ class ClassicSearchRemovalGuardTest {
         )
     }
 
-    /** Non-prose lines only: an `import` line or a comment must not satisfy or defeat a scan. */
-    private fun codeLinesOf(path: String): String =
+    private val doomedPaths = listOf(
+        "src/main/java/net/bible/android/view/activity/search/SearchIndexProgressStatus.kt",
+        "src/main/java/net/bible/android/view/activity/search/SearchIndex.kt",
+        "src/main/java/net/bible/android/view/activity/search/SearchResults.kt",
+        "src/main/java/net/bible/android/view/activity/search/Search.kt",
+        "src/main/java/net/bible/android/view/activity/search/EpubSearch.kt",
+        "src/main/java/net/bible/android/view/activity/search/EpubSearchResults.kt",
+        "src/main/java/net/bible/android/view/activity/search/EpubSearchItemAdapter.kt",
+    )
+
+    @Test fun theClassicSearchScreensAreGone() {
+        val survivors = doomedPaths.filter { File(it).exists() }
+        assertEquals("these classic search files should have been deleted in S1", emptyList<String>(), survivors)
+    }
+
+    /**
+     * Three files in the same directory SURVIVE despite classic-sounding names, and
+     * `EpubSearchResultKey.kt` is the trap — its name promises exactly what S1 deletes, but it holds
+     * the top-level `epubKeyFor` that `EpubSearchResultsComposeActivity` and `ComposeReadingViewHost`
+     * both read. Asserting they exist turns "deleted too much" into a failure instead of a silence.
+     */
+    @Test fun theSurvivingSearchCollaboratorsStillExist() {
+        val expected = listOf(
+            "src/main/java/net/bible/android/view/activity/search/EpubSearchResultKey.kt",
+            "src/main/java/net/bible/android/view/activity/search/AndroidEpubSearchService.kt",
+            "src/main/java/net/bible/android/view/activity/search/EpubSearchModeWire.kt",
+        )
+        val missing = expected.filterNot { File(it).isFile }
+        assertEquals("S1 deleted a file it was supposed to keep", emptyList<String>(), missing)
+    }
+
+    /**
+     * The reference proof of spec §3.3, expressed as a test so it survives this session. Walks all
+     * of `src/main` rather than a path list, so a new file naming a deleted class cannot escape.
+     *
+     * Matching on the FULLY-QUALIFIED name is deliberate: `Search`, `SearchIndex` and `SearchResults`
+     * are ordinary English words and a bare-name scan would drown in false positives — including
+     * the genuinely unrelated `net.bible.service.sword.epub.EpubSearch`.
+     */
+    @Test fun noSourceFileNamesAClassicSearchScreen() {
+        val sources = File("src/main").walkTopDown()
+            .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }
+            .toList()
+        // Imports are the reference this sweep hunts, so they are KEPT here (unlike every other
+        // scan in this file), and each name is matched with a trailing non-identifier boundary.
+        // Both halves are load-bearing: with imports stripped there is nothing left to find (every
+        // fully-qualified mention of a doomed class in `src/main` today is an import line in
+        // `ScreenLauncher.kt` or a KDoc line), and with a plain `contains` the sweep could never
+        // pass, because the SURVIVING `…search.SearchComposeActivity`,
+        // `…search.SearchIndexComposeActivity`, `…search.SearchIndexProgressComposeActivity`,
+        // `…search.SearchResultsComposeActivity`, `…search.EpubSearchComposeActivity`,
+        // `…search.EpubSearchResultsComposeActivity` and `…search.EpubSearchResultKey` each carry a
+        // doomed name as a prefix.
+        val doomedRefs = doomedClassNames.map { Regex(Regex.escape(it) + "(?![A-Za-z0-9_])") }
+        val offenders = sources
+            .filter { file ->
+                val code = codeLinesOf(file.path, keepImports = true)
+                doomedRefs.any { it.containsMatchIn(code) }
+            }
+            .map { it.path.replace('\\', '/') }
+            .sorted()
+        assertEquals(
+            "these files still name a classic search screen deleted in S1",
+            emptyList<String>(),
+            offenders,
+        )
+        assertTrue("the src/main walk found no Kotlin source at all", sources.size > 100)
+    }
+
+    /** The routing arms must be unconditional now: no `useComposeFor` branch may mention search. */
+    @Test fun screenLauncherDoesNotBranchForSearch() {
+        val path = "src/main/java/net/bible/android/view/ScreenLauncher.kt"
+        assertTrue("$path is missing — this guard would pass vacuously", File(path).isFile)
+        val code = codeLinesOf(path)
+        assertTrue(
+            "$path no longer reads use_compose_ui at all — the flag must survive S1 for the " +
+                "remaining slices (spec §3.4)",
+            code.contains("useComposeFor"),
+        )
+        val searchScreens = listOf(
+            "Screen.SearchIndexProgress", "Screen.SearchIndex", "Screen.SearchResults",
+            "Screen.Search", "Screen.EpubSearch", "Screen.EpubSearchResults",
+        )
+        // Each arm is `Screen.X -> XComposeActivity::class.java`. Take the text from the arm's
+        // `Screen.X ->` up to the next `Screen.` and assert no branch survives inside it.
+        val offenders = searchScreens.filter { screen ->
+            val start = code.indexOf("$screen ->")
+            if (start < 0) return@filter true
+            val next = code.indexOf("Screen.", start + screen.length + 3)
+            val arm = if (next < 0) code.substring(start) else code.substring(start, next)
+            arm.contains("useComposeFor") || arm.contains("else ")
+        }
+        assertEquals(
+            "these search arms still branch on the flag (or are missing entirely) — S1 collapses " +
+                "them to the Compose class unconditionally",
+            emptyList<String>(),
+            offenders,
+        )
+    }
+
+    /**
+     * Non-prose lines only: a comment must not satisfy or defeat a scan. `import` lines are
+     * dropped too by default — for the `BibleView` scan an import is noise — but the
+     * fully-qualified-name sweep passes `keepImports = true`, because there an import IS the
+     * reference being hunted.
+     */
+    private fun codeLinesOf(path: String, keepImports: Boolean = false): String =
         File(path).readLines().filterNot { line ->
             val trimmed = line.trimStart()
-            trimmed.startsWith("import ") || trimmed.startsWith("//") ||
+            (!keepImports && trimmed.startsWith("import ")) || trimmed.startsWith("//") ||
                 trimmed.startsWith("*") || trimmed.startsWith("/*")
         }.joinToString("\n")
 }

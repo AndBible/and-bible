@@ -86,17 +86,11 @@ import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
 import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.android.view.activity.settings.ReadingProgressSettingsComposeActivity
-import net.bible.android.view.activity.search.EpubSearch
 import net.bible.android.view.activity.search.EpubSearchComposeActivity
-import net.bible.android.view.activity.search.EpubSearchResults
 import net.bible.android.view.activity.search.EpubSearchResultsComposeActivity
-import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchComposeActivity
-import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchIndexComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
-import net.bible.android.view.activity.search.SearchIndexProgressStatus
-import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SettingsComposeActivity
@@ -150,11 +144,8 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun searchIndexProgress_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun searchIndexProgress_routes_to_compose() {
         assertEquals(SearchIndexProgressComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SearchIndexProgress))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(SearchIndexProgressStatus::class.java, ScreenLauncher.targetFor(Screen.SearchIndexProgress))
     }
 
     @Test
@@ -239,43 +230,28 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun search_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun search_routes_to_compose() {
         assertEquals(SearchComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Search))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(Search::class.java, ScreenLauncher.targetFor(Screen.Search))
     }
 
     @Test
-    fun searchIndex_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun searchIndex_routes_to_compose() {
         assertEquals(SearchIndexComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SearchIndex))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(SearchIndex::class.java, ScreenLauncher.targetFor(Screen.SearchIndex))
     }
 
     @Test
-    fun searchResults_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun searchResults_routes_to_compose() {
         assertEquals(SearchResultsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SearchResults))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(SearchResults::class.java, ScreenLauncher.targetFor(Screen.SearchResults))
     }
 
     @Test
-    fun epubSearch_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun epubSearch_routes_to_compose() {
         assertEquals(EpubSearchComposeActivity::class.java, ScreenLauncher.targetFor(Screen.EpubSearch))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(EpubSearch::class.java, ScreenLauncher.targetFor(Screen.EpubSearch))
     }
 
     @Test
-    fun epubSearchResults_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun epubSearchResults_routes_to_compose() {
         assertEquals(EpubSearchResultsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.EpubSearchResults))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(EpubSearchResults::class.java, ScreenLauncher.targetFor(Screen.EpubSearchResults))
     }
 
     @Test

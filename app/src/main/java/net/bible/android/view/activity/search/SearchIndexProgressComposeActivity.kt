@@ -47,7 +47,7 @@ import org.crosswire.common.progress.WorkListener
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.index.IndexStatus
 
-/** Compose host for the search-index progress screen — the new-path twin of [SearchIndexProgressStatus]. */
+/** Compose host for the search-index progress screen. */
 class SearchIndexProgressComposeActivity : ActivityBase() {
     private var documentBeingIndexed: Book? = null
     private var workListener: WorkListener? = null

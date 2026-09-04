@@ -96,17 +96,11 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.StartupComposeActivity
-import net.bible.android.view.activity.search.EpubSearch
 import net.bible.android.view.activity.search.EpubSearchComposeActivity
-import net.bible.android.view.activity.search.EpubSearchResults
 import net.bible.android.view.activity.search.EpubSearchResultsComposeActivity
-import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchComposeActivity
-import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchIndexComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
-import net.bible.android.view.activity.search.SearchIndexProgressStatus
-import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
@@ -133,15 +127,9 @@ object ScreenLauncher {
         Screen.History ->
             if (useComposeFor(screen)) HistoryComposeActivity::class.java
             else History::class.java
-        Screen.SearchIndexProgress ->
-            if (useComposeFor(screen)) SearchIndexProgressComposeActivity::class.java
-            else SearchIndexProgressStatus::class.java
-        Screen.SearchIndex ->
-            if (useComposeFor(screen)) SearchIndexComposeActivity::class.java
-            else SearchIndex::class.java
-        Screen.SearchResults ->
-            if (useComposeFor(screen)) SearchResultsComposeActivity::class.java
-            else SearchResults::class.java
+        Screen.SearchIndexProgress -> SearchIndexProgressComposeActivity::class.java
+        Screen.SearchIndex -> SearchIndexComposeActivity::class.java
+        Screen.SearchResults -> SearchResultsComposeActivity::class.java
         Screen.ReadingPlanSelector ->
             if (useComposeFor(screen)) ReadingPlanSelectorComposeActivity::class.java
             else ReadingPlanSelectorList::class.java
@@ -175,15 +163,9 @@ object ScreenLauncher {
             // DownloadComposeActivity.EXTRA_FIRST_DOWNLOAD themselves.
             if (useComposeFor(screen)) DownloadComposeActivity::class.java
             else FirstDownload::class.java
-        Screen.Search ->
-            if (useComposeFor(screen)) SearchComposeActivity::class.java
-            else Search::class.java
-        Screen.EpubSearch ->
-            if (useComposeFor(screen)) EpubSearchComposeActivity::class.java
-            else EpubSearch::class.java
-        Screen.EpubSearchResults ->
-            if (useComposeFor(screen)) EpubSearchResultsComposeActivity::class.java
-            else EpubSearchResults::class.java
+        Screen.Search -> SearchComposeActivity::class.java
+        Screen.EpubSearch -> EpubSearchComposeActivity::class.java
+        Screen.EpubSearchResults -> EpubSearchResultsComposeActivity::class.java
         Screen.MyDocuments ->
             if (useComposeFor(screen)) MyDocumentsComposeActivity::class.java
             else MyDocumentsActivity::class.java

@@ -159,20 +159,8 @@
             android:configChanges="keyboardHidden|locale"
             android:theme="@style/Theme.AbCompose" />
         <activity
-            android:name="net.bible.android.view.activity.search.Search"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity
             android:name="net.bible.android.view.activity.search.SearchComposeActivity"
             android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity
-            android:name="net.bible.android.view.activity.search.EpubSearch"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
@@ -185,18 +173,8 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             android:windowSoftInputMode="adjustResize"/>
         <activity
-            android:name="net.bible.android.view.activity.search.SearchResults"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search"
-            />
-        <activity
             android:name="net.bible.android.view.activity.search.SearchResultsComposeActivity"
             android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.search.EpubSearchResults"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
             />
@@ -207,18 +185,8 @@
             android:label="@string/search"
             />
         <activity
-            android:name="net.bible.android.view.activity.search.SearchIndex"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search_index"
-            />
-        <activity
             android:name="net.bible.android.view.activity.search.SearchIndexComposeActivity"
             android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search_index"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.search.SearchIndexProgressStatus"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search_index"
             />
