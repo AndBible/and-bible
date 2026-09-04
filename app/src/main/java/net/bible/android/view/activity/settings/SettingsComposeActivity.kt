@@ -159,9 +159,6 @@ class SettingsComposeActivity : ActivityBase() {
             // Batch 9's AI settings screen is already flag-routed.
             AppSettingsNav.AI -> ScreenLauncher.open(this, Screen.AiPrompts)
             AppSettingsNav.READING_PROGRESS -> ScreenLauncher.open(this, Screen.ReadingProgressSettings)
-            // Deferred to Batch 12 (BibleView reading-view) permanently for this batch: always the
-            // classic TextDisplaySettingsActivity, with the same GLOBAL SettingsBundle extra classic
-            // SettingsFragment builds.
             AppSettingsNav.TEXT_DISPLAY -> openGlobalTextDisplaySettings()
             AppSettingsNav.DISCRETE_HELP -> showDiscreteHelpDialog()
             AppSettingsNav.OPEN_LINKS -> openLinksSettings()
@@ -169,13 +166,20 @@ class SettingsComposeActivity : ActivityBase() {
         }
     }
 
-    /** Mirrors classic SettingsFragment's "global_text_display_settings" click listener exactly. */
+    /**
+     * Mirrors classic SettingsFragment's "global_text_display_settings" click listener. Routes
+     * through ScreenLauncher rather than naming the classic activity directly: this caller wants no
+     * activity result, so unlike the workspace selector (spec §11.4) it can use the Compose screen.
+     * The Compose screen derives GLOBAL scope from the ABSENT `EXTRA_SCOPE_LEVEL` extra (its
+     * `scopeFromIntent` fallthrough) — this caller relies on that fallthrough rather than setting an
+     * explicit scope extra.
+     */
     private fun openGlobalTextDisplaySettings() {
         val settingsBundle = SettingsBundle(
             level = SettingsLevel.GLOBAL,
             globalSettings = CommonUtils.globalTextDisplaySettings,
         )
-        val intent = Intent(this, TextDisplaySettingsActivity::class.java)
+        val intent = ScreenLauncher.intentFor(this, Screen.TextDisplaySettings)
         intent.putExtra("settingsBundle", settingsBundle.toJson())
         startActivity(intent)
     }

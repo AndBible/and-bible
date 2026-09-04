@@ -81,6 +81,41 @@ class RoutingSeamGuardTest {
         assertTrue(File("src/main/java").walkTopDown().count { it.extension == "kt" } > 100)
     }
 
+    /**
+     * Spec §4 P5. `WorkspaceSelectorComposeActivity` is the ONE Compose file allowed to name the
+     * classic text-display settings activity: it needs that screen's activity result
+     * (`settingsBundle` + `reset`), which the Compose screen does not produce (spec §11.4). Every
+     * other Compose caller must route through ScreenLauncher.
+     */
+    @Test fun onlyTheWorkspaceSelectorNamesTheClassicTextDisplaySettings() {
+        val allowed = "WorkspaceSelectorComposeActivity.kt"
+        val offenders = File("src/main/java").walkTopDown()
+            .filter { it.isFile && it.extension == "kt" && it.name.contains("Compose") }
+            .filter { it.name != allowed }
+            .filter { codeLinesOf(it).contains("TextDisplaySettingsActivity") }
+            .map { it.path.replace('\\', '/') }
+            .sorted()
+            .toList()
+        assertEquals(
+            "these Compose files launch the CLASSIC text-display settings; route through " +
+                "ScreenLauncher.intentFor(this, Screen.TextDisplaySettings) instead",
+            emptyList<String>(),
+            offenders,
+        )
+    }
+
+    @Test fun theWorkspaceSelectorStillNeedsTheClassicResult() {
+        // Anti-vacuity for the allowlist above: if this file stops naming the classic activity the
+        // exemption is stale and must be removed, not left as a blind spot.
+        val f = File("src/main/java/net/bible/android/view/activity/workspaces/WorkspaceSelectorComposeActivity.kt")
+        assertTrue("the allowlisted file no longer exists", f.isFile)
+        assertTrue(
+            "WorkspaceSelectorComposeActivity no longer names TextDisplaySettingsActivity — spec " +
+                "§11.4 may have been resolved, so drop this exemption and the one above",
+            codeLinesOf(f).contains("TextDisplaySettingsActivity"),
+        )
+    }
+
     private fun codeLinesOf(file: File): String =
         file.readLines().filterNot { line ->
             val trimmed = line.trimStart()
