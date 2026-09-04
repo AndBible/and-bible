@@ -77,7 +77,6 @@ import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
-import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
 import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.android.view.activity.settings.ReadingProgressSettingsComposeActivity
@@ -201,9 +200,7 @@ object ScreenLauncher {
         Screen.Bookmarks ->
             if (useComposeFor(screen)) BookmarksComposeActivity::class.java
             else Bookmarks::class.java
-        Screen.ReadingProgress ->
-            if (useComposeFor(screen)) ReadingProgressComposeActivity::class.java
-            else ReadingProgressActivity::class.java
+        Screen.ReadingProgress -> ReadingProgressComposeActivity::class.java
         Screen.Settings ->
             if (useComposeFor(screen)) SettingsComposeActivity::class.java
             else SettingsActivity::class.java

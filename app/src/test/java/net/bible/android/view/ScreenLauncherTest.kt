@@ -75,7 +75,6 @@ import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
-import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
 import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.android.view.activity.settings.ReadingProgressSettingsComposeActivity
@@ -380,11 +379,9 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun readingProgress_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(ReadingProgressComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgress))
+    fun readingProgress_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(ReadingProgressActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgress))
+        assertEquals(ReadingProgressComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgress))
     }
 
     @Test

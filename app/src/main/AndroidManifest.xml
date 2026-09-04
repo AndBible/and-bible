@@ -405,11 +405,6 @@
             android:label="@string/rdg_plan_title"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
-            android:name="net.bible.android.view.activity.progress.ReadingProgressActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/reading_progress_title"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
             android:name="net.bible.android.view.activity.progress.ReadingProgressComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
