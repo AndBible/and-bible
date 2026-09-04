@@ -75,8 +75,6 @@ import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanDictiona
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanPauseActionBarButton
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanStopActionBarButton
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanTitle
-import net.bible.android.view.activity.search.searchresultsactionbar.ScriptureToggleActionBarButton
-import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton
 import net.bible.service.db.readingplan.ReadingPlanRepository
@@ -152,8 +150,6 @@ val coreModule = module {
     singleOf(::ReadingPlanPauseActionBarButton)
     singleOf(::ReadingPlanStopActionBarButton)
     singleOf(::ReadingPlanTitle)
-    singleOf(::ScriptureToggleActionBarButton)
-    singleOf(::SearchResultsActionBarManager)
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
     singleOf(::TextToSpeechServiceManager)
