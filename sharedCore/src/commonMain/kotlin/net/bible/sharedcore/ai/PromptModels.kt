@@ -19,6 +19,13 @@ data class PromptVd(
     val isReadOnly: Boolean,
     val isFavorite: Boolean,
     val isHidden: Boolean,
+    /** Where this prompt is offered, as `PromptContext.name`s — the same encoding
+     *  [PromptEditData.contexts] uses. 17f: the manager row shows these, as classic's
+     *  `manage_prompts_list_item.xml` `promptContexts` did, and the filter sheet matches on them. */
+    val contexts: Set<String> = emptySet(),
+    /** Add-on module that supplied this prompt, or `null` for a built-in / user prompt
+     *  (`AgentPrompt.sourceModule`). 17f: drives the row's add-on marking and the type filter. */
+    val sourceModule: String? = null,
 )
 
 /**

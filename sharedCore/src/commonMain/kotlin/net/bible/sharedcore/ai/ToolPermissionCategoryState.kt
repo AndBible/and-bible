@@ -18,34 +18,31 @@
 package net.bible.sharedcore.ai
 
 /**
- * Aggregate state of a category's bulk read/write toggle in
- * [net.bible.sharedui.ai.ToolPermissionList]'s `CategoryHeader` (E2/F35/F37). Mirrors classic
- * `ToolPermissionListBuilder.updateToggleState` in spirit, but distinguishes [MIXED] from [ALL_OFF]
- * (classic's plain `CheckBox` collapses both cases to "unchecked" since `isAllEnabled` is the only
- * thing it reads) so the Compose control can render a genuine three-state affordance
- * (`TriStateCheckbox`) instead of losing the "some but not all" case.
+ * Aggregate state of one category's read (or write) tools in
+ * [net.bible.sharedui.ai.ToolPermissionList]'s category header.
+ *
+ * Batch 17f replaced the old three-value `CategoryToggleState` (ALL_ON / MIXED / ALL_OFF) with the
+ * actual shared [ToolPermission], because the header now renders the SAME control its rows do and
+ * therefore has to distinguish states the old enum collapsed: a write category that is uniformly
+ * ASK and one that is uniformly ALLOW were both "ALL_ON".
  */
-enum class CategoryToggleState { ALL_ON, MIXED, ALL_OFF }
+sealed interface CategoryPermissionState {
+    /** Every tool of this kind in the category carries [permission]. */
+    data class Uniform(val permission: ToolPermission) : CategoryPermissionState
 
-/** Permissions that count as "off" -- mirrors classic `isRowDisabled` (`checkedRadioButtonId ==
- *  R.id.radioDeny`), which is the trailing/rightmost radio option in every row layout regardless of
- *  GLOBAL vs PROMPT mode or read vs write tool kind. */
-private val OFF_PERMISSIONS: Set<ToolPermission> = setOf(ToolPermission.DENY, ToolPermission.DISABLED)
+    /** The tools disagree; the header's control shows its dedicated "mixed" affordance. */
+    data object Mixed : CategoryPermissionState
+}
 
 /**
- * Computes the bulk-toggle state for one category's read (or write) tools, mirroring classic
- * `isAllEnabled`/`isAllDisabled` but adding the [CategoryToggleState.MIXED] case.
- *
- * @return `null` when [tools] is empty -- the category has no tools of this read/write kind, so the
- *   caller should hide the bulk control entirely (mirrors classic's `View.GONE` visibility rule for
- *   an empty `readTools`/`writeTools` list).
+ * @return `null` when [tools] is empty — the category has no tools of this read/write kind, so the
+ *   caller hides that control entirely (mirrors classic `ToolPermissionListBuilder`'s `View.GONE`).
  */
-fun categoryToggleState(tools: List<ToolVd>, permissionFor: (toolId: String) -> ToolPermission): CategoryToggleState? {
+fun categoryPermissionState(
+    tools: List<ToolVd>,
+    permissionFor: (toolId: String) -> ToolPermission,
+): CategoryPermissionState? {
     if (tools.isEmpty()) return null
-    val on = tools.map { permissionFor(it.id) !in OFF_PERMISSIONS }
-    return when {
-        on.all { it } -> CategoryToggleState.ALL_ON
-        on.none { it } -> CategoryToggleState.ALL_OFF
-        else -> CategoryToggleState.MIXED
-    }
+    val distinct = tools.mapTo(mutableSetOf()) { permissionFor(it.id) }
+    return distinct.singleOrNull()?.let { CategoryPermissionState.Uniform(it) } ?: CategoryPermissionState.Mixed
 }

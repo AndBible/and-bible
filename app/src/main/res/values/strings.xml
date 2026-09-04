@@ -1533,6 +1533,7 @@
     <string name="prompt_max_iterations_unlimited">Unlimited</string>
     <string name="prompt_max_iterations_global_default">Global default (%d)</string>
     <string name="prompt_max_iterations_summary_with_value">Override the global max iterations for this prompt. 0 = unlimited.\nCurrent: %s</string>
+    <string name="prompt_max_iterations_use_global">Use the global setting (%s)</string>
 
     <!-- Prompt Manager -->
     <string name="manage_prompts">Manage AI Prompts</string>
@@ -1889,6 +1890,7 @@
     <string name="tool_option_default_allowed">Default (allowed)</string>
     <string name="tool_option_default_denied">Default (denied)</string>
     <string name="tool_description_info">Show tool description</string>
+    <string name="tool_permission_mixed">Mixed</string>
 
     <!-- Per-Prompt Model Override -->
     <string name="prompt_model_override">Model</string>
@@ -2107,4 +2109,9 @@
     <string name="doc_group_status_update_available">Update available</string>
     <string name="doc_group_status_installed">Installed</string>
     <string name="doc_group_status_not_installed">Not installed</string>
+    <string name="prompt_filter_title">Filter prompts</string>
+    <string name="prompt_filter_type">Type</string>
+    <string name="prompt_type_addon">Add-on</string>
+    <string name="prompt_type_user">Custom</string>
+    <string name="prompt_filter_clear">Clear filters</string>
 </resources>

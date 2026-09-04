@@ -95,4 +95,9 @@ class SettingsIconParityTest {
 
     @Test fun readingProgressSettingsIconsMatchClassic() =
         assertParity(R.xml.reading_progress_settings, expectedIconRows = 6)
+
+    // The prompt editor's Advanced tab (17f). Every row in this XML carries an icon, so the
+    // expected count is the row count: 7.
+    @Test fun promptAdvancedSettingsIconsMatchClassic() =
+        assertParity(R.xml.prompt_advanced_settings, expectedIconRows = 7)
 }

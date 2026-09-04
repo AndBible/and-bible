@@ -8,7 +8,10 @@ import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedui.ai.MaxIterationsSheetContent
 import net.bible.sharedui.ai.PromptEditScreen
+import net.bible.sharedui.ai.PromptPermissionSheetContent
+import net.bible.sharedui.strings.LocalStrings
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -93,6 +96,7 @@ class PromptEditGoldenTest {
             toolsByCategory = toolsByCategory,
             modelChoices = modelChoices,
             globalToolPermission = globalToolPermission,
+            globalMaxIterationsLabel = "20",
             onSelectTab = {},
             onSetName = {},
             onSetDescription = {},
@@ -130,8 +134,9 @@ class PromptEditGoldenTest {
         isReadOnly = false, isBuiltIn = false, bibleOnly = false,
     )
 
-    // heightDp=1200: name/description/template(minLines=5)/category dropdown/5 context checkboxes/
-    // 2 more checkboxes -- the default viewport clips well before the last checkbox.
+    // heightDp=1200: name/description/template(minLines=5)/category dropdown/5 context chips
+    // (17f)/bibleOnly checkbox/text-transformation chip -- the default viewport clips well before
+    // the last row.
     @Test fun prompt_matrix() =
         captureMatrix("PromptEdit", "prompt", heightDp = 1200, content = screen(promptState, PromptEditTab.PROMPT))
 
@@ -140,12 +145,15 @@ class PromptEditGoldenTest {
     fun prompt_rtl() =
         captureRtl("PromptEdit", "prompt", heightDp = 1200, content = screen(promptState, PromptEditTab.PROMPT))
 
-    /** textTransformation=true -> availableTabs drops PERMISSIONS; disabledContexts/hiddenAdvancedKeys
-     *  no longer apply here (bibleOnly=false), but this exercises the tab-availability branch. */
+    /** textTransformation=true -> availableTabs drops PERMISSIONS; bibleOnly=true also exercises
+     *  disabledContexts (17f: WORKSPACE_MENU/NOTE_EDITOR render as disabled [FilterChip]s alongside
+     *  the enabled ones -- this is the only fixture in this file where a chip is genuinely
+     *  disabled-but-editable, as opposed to [readonly_builtin_prompt] where every control is
+     *  disabled by `editable = false` regardless). */
     @Test fun prompt_texttransform() =
         captureGolden(
             "PromptEdit", "prompt_texttransform", EDGE_MODE, heightDp = 1200,
-            content = screen(promptState.copy(isTextTransformation = true), PromptEditTab.PROMPT),
+            content = screen(promptState.copy(isTextTransformation = true, bibleOnly = true), PromptEditTab.PROMPT),
         )
 
     /** Permissions tab reachable (textTransformation=false). Some tools overridden away from the
@@ -211,4 +219,62 @@ class PromptEditGoldenTest {
             "PromptEdit", "help", heightDp = 1200,
             content = screen(promptState, PromptEditTab.PROMPT, initiallyHelpDialogOpen = true),
         )
+
+    /** Same shape as the Permissions tab's own `permissionModeChoices` construction: a leading
+     *  "use default" entry plus the four [net.bible.sharedcore.ai.agentPermissionModeChoices]. */
+    private val permissionSheetChoices = listOf(
+        SettingsItem.Choice("", "Use default"),
+        SettingsItem.Choice("ALWAYS_ASK", "Always ask"),
+        SettingsItem.Choice("ASK_ONCE_PER_RUN", "Ask once per run"),
+        SettingsItem.Choice("ALLOW_ALL", "Allow all"),
+        SettingsItem.Choice("DENY_ALL", "Deny all"),
+    )
+
+    /**
+     * 17f: [PromptPermissionSheetContent] is the permission tab's new bottom-sheet body (a status
+     * strip replaces the old full-width dropdown + "Reset all" button, both now inside this sheet).
+     * Captured directly (never the open [androidx.compose.material3.ModalBottomSheet] itself, which
+     * hangs Roborazzi -- `SettingsEditorSheetGuardTest` polices this), wrapped in [SheetSurface] for
+     * background-colour consistency with every other sheet-content capture in this package.
+     *
+     * `editable = true` so BOTH things this task adds are visible in one capture: the explanation
+     * text under the choice list, and the "Reset to default" button -- a capture of the radio list
+     * alone would prove nothing about what changed here (the list itself is unmoved from Task 4).
+     * heightDp=500: header + 5 choice rows + explanation text + reset button all fit with margin
+     * (the 400dp `AbSheetContentMaxHeight` bound never engages for this short a list).
+     */
+    @Test fun permission_sheet_matrix() = captureMatrix("PromptEdit", "permission_sheet", heightDp = 500) {
+        SheetSurface {
+            PromptPermissionSheetContent(
+                choices = permissionSheetChoices,
+                selectedValue = "ALWAYS_ASK",
+                editable = true,
+                onSelect = {},
+                onResetToolPermissions = {},
+                onClose = {},
+                strings = LocalStrings.current,
+            )
+        }
+    }
+
+    /**
+     * 17f: [MaxIterationsSheetContent] replaces the old bare numeric editor for `max_iterations` --
+     * a switch for "use the global setting" plus a number field enabled only when the switch is
+     * off. Captured directly (never the open [androidx.compose.material3.ModalBottomSheet], which
+     * hangs Roborazzi -- `SettingsEditorSheetGuardTest` polices this), wrapped in [SheetSurface] for
+     * background-colour consistency with every other sheet-content capture in this package. Two
+     * states, since a single capture wouldn't prove the switch's greying behavior: `current = null`
+     * (switch on, field greyed) and `current = 15` (switch off, field showing the override).
+     */
+    @Test fun maxIterationsSheet_matrix() = captureMatrix("PromptEdit", "max_iterations_sheet") {
+        SheetSurface {
+            MaxIterationsSheetContent(current = null, globalLabel = "20", onApply = {}, onClose = {})
+        }
+    }
+
+    @Test fun maxIterationsSheetOverridden_matrix() = captureMatrix("PromptEdit", "max_iterations_sheet_overridden") {
+        SheetSurface {
+            MaxIterationsSheetContent(current = 15, globalLabel = "20", onApply = {}, onClose = {})
+        }
+    }
 }

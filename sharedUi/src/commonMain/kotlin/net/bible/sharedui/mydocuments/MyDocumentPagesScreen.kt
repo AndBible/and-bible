@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
@@ -118,7 +118,7 @@ fun MyDocumentPagesScreen(
         actions = {
             if (!searchModeActive) {
                 AbActionIcon(Icons.Filled.Search, s.search, onOpenSearch)
-                AbActionIcon(Icons.Filled.AddCircleOutline, s.newPageTitle) {
+                AbActionIcon(Icons.Filled.Add, s.newPageTitle) {
                     createType = ContentType.MARKDOWN
                     createOpen = true
                 }

@@ -377,6 +377,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val promptModelOverrideLabel: String get() = context.getString(R.string.prompt_model_override)
     override val promptMaxIterationsLabel: String get() = context.getString(R.string.prompt_max_iterations)
     override val promptMaxIterationsHint: String get() = context.getString(R.string.prompt_max_iterations_hint)
+    override fun promptMaxIterationsUseGlobal(value: String) = context.getString(R.string.prompt_max_iterations_use_global, value)
     override val promptStrictContextMatchingLabel: String get() = context.getString(R.string.prompt_strict_context_matching)
     override val promptStrictContextMatchingDescription: String get() = context.getString(R.string.prompt_strict_context_matching_description)
     override val promptSpecifyBeforeRunLabel: String get() = context.getString(R.string.prompt_edit_before_run)
@@ -677,4 +678,20 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Round 17e-2 — moved from the cloud list's overflow menu into its arrangement sheet
     override val cloudDocShowRemoved: String get() = context.getString(R.string.cloud_doc_show_removed)
+
+    override val toolPermissionMixed: String get() = context.getString(R.string.tool_permission_mixed)
+
+    override val promptPermissionModeDescription: String
+        get() = context.getString(R.string.prompt_permission_mode_description)
+
+    override val builtInPrompt: String get() = context.getString(R.string.built_in_prompt)
+    override fun addonPromptBadge(module: String): String =
+        context.getString(R.string.addon_prompt_badge, module)
+
+    // 17f — prompt manager search + filter sheet
+    override val promptFilterTitle: String get() = context.getString(R.string.prompt_filter_title)
+    override val promptFilterType: String get() = context.getString(R.string.prompt_filter_type)
+    override val promptTypeAddon: String get() = context.getString(R.string.prompt_type_addon)
+    override val promptTypeUser: String get() = context.getString(R.string.prompt_type_user)
+    override val promptFilterClear: String get() = context.getString(R.string.prompt_filter_clear)
 }

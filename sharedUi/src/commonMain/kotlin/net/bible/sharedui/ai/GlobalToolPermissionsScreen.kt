@@ -22,10 +22,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +35,9 @@ import net.bible.sharedcore.ai.ToolPermGroupVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
@@ -76,8 +77,8 @@ import net.bible.sharedui.strings.LocalStrings
  * @param isDirty Whether the working permissions map differs from the loaded baseline (`GlobalToolPermissionsController.isDirty`).
  * @param onUp Requested up-navigation, gated behind the discard-confirm dialog while [isDirty].
  * @param onSetPermission Forwarded 1:1 to `GlobalToolPermissionsController.setPermission`.
- * @param onSetCategoryRead E2/F35: forwarded 1:1 to `GlobalToolPermissionsController.setCategoryRead`.
- * @param onSetCategoryWrite E2/F35: forwarded 1:1 to `GlobalToolPermissionsController.setCategoryWrite`.
+ * @param onSetCategoryRead E2/F35/F37: forwarded 1:1 to `GlobalToolPermissionsController.setCategoryRead`.
+ * @param onSetCategoryWrite E2/F35/F37: forwarded 1:1 to `GlobalToolPermissionsController.setCategoryWrite`.
  * @param onResetAll Forwarded 1:1 to `GlobalToolPermissionsController.resetAll`.
  * @param onSave Forwarded 1:1 to `GlobalToolPermissionsController.save`.
  * @param helpBody Host-supplied (Android-resource-backed) help body text.
@@ -90,8 +91,8 @@ fun GlobalToolPermissionsScreen(
     isDirty: Boolean,
     onUp: () -> Unit,
     onSetPermission: (toolId: String, ToolPermission) -> Unit,
-    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
-    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
+    onSetCategoryRead: (categoryId: String, ToolPermission) -> Unit,
+    onSetCategoryWrite: (categoryId: String, ToolPermission) -> Unit,
     onResetAll: () -> Unit,
     onSave: () -> Unit,
     helpBody: String,
@@ -112,8 +113,12 @@ fun GlobalToolPermissionsScreen(
                 Icon(Icons.Filled.Check, contentDescription = strings.okay, modifier = Modifier.size(AbActionIconSize))
             }
             AbOverflowMenu(contentDescription = null) { close ->
-                DropdownMenuItem(text = { Text(strings.resetToolPermissionsLabel) }, onClick = { close(); onResetAll() })
-                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); showHelp = true })
+                AbMenuItem(
+                    text = strings.resetToDefault,
+                    onClick = { close(); onResetAll() },
+                    icon = { Icon(Icons.Filled.RestartAlt, contentDescription = null) },
+                )
+                AbMenuItem(text = strings.helpLabel, onClick = { close(); showHelp = true }, icon = AbHelpMenuIcon)
             }
         },
     ) { padding ->

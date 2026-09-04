@@ -19,6 +19,7 @@ package net.bible.android.view.activity.ai
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.DropdownMenu
@@ -114,6 +115,7 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
                         customLanguageValue = customLanguageTag,
                         onNavigate = controller::onNavigate,
                         actions = { HelpAction() },
+                        backHandler = { onBack -> BackHandler(onBack = onBack) },
                     )
             }
         }

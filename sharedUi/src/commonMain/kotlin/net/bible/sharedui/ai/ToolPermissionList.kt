@@ -27,21 +27,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -51,14 +49,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
-import net.bible.sharedcore.ai.CategoryToggleState
+import net.bible.sharedcore.ai.CategoryPermissionState
 import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
-import net.bible.sharedcore.ai.categoryToggleState
+import net.bible.sharedcore.ai.categoryPermissionState
 import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -129,12 +127,13 @@ private data class ToolPermissionOption(val permission: ToolPermission, val labe
  *   mode (no Default option) for that tool.
  * @param onSet Invoked with the tool id and the newly selected [ToolPermission] when the user picks
  *   an option.
- * @param onSetCategoryRead E2/F35/F37: bulk read-tool toggle for a category header, forwarded 1:1 to
- *   `GlobalToolPermissionsController.setCategoryRead`/`PromptEditController.setCategoryRead`. The
- *   control is hidden (mirrors classic's `View.GONE`) when the category has no read tools -- see
- *   [categoryToggleState].
- * @param onSetCategoryWrite E2/F35/F37: bulk write-tool toggle, same shape as [onSetCategoryRead] for
- *   write tools (`setCategoryWrite`).
+ * @param onSetCategoryRead E2/F35/F37, retyped 17f: bulk read-tool control for a category header,
+ *   invoked with the category id and the chosen [ToolPermission] (not an `enabled` flag), forwarded
+ *   1:1 to `GlobalToolPermissionsController.setCategoryRead`/`PromptEditController.setCategoryRead`.
+ *   The control is hidden (mirrors classic's `View.GONE`) when the category has no read tools -- see
+ *   [categoryPermissionState].
+ * @param onSetCategoryWrite E2/F35/F37, retyped 17f: bulk write-tool control, same shape as
+ *   [onSetCategoryRead] for write tools (`setCategoryWrite`).
  * @param initiallyShownToolInfo Test-only hook (mirrors `initiallyHelpDialogOpen` elsewhere in this
  *   package): seeds the info-dialog state so a golden test can capture it open without simulating a
  *   click. Not used by either production caller.
@@ -146,8 +145,8 @@ fun ToolPermissionList(
     permissionFor: (toolId: String) -> ToolPermission,
     globalDefaultLabelFor: (toolId: String) -> String?,
     onSet: (toolId: String, ToolPermission) -> Unit,
-    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
-    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
+    onSetCategoryRead: (categoryId: String, ToolPermission) -> Unit,
+    onSetCategoryWrite: (categoryId: String, ToolPermission) -> Unit,
     modifier: Modifier = Modifier,
     initiallyShownToolInfo: ToolVd? = null,
 ) {
@@ -171,6 +170,7 @@ fun ToolPermissionList(
                     expanded = !isCollapsed,
                     onToggle = { collapsed[category.id] = !isCollapsed },
                     permissionFor = permissionFor,
+                    globalDefaultLabelFor = globalDefaultLabelFor,
                     onSetCategoryRead = onSetCategoryRead,
                     onSetCategoryWrite = onSetCategoryWrite,
                     strings = strings,
@@ -201,12 +201,14 @@ fun ToolPermissionList(
 }
 
 /**
- * Category header row: name, then (E2/F35/F37) the bulk read/write toggles -- each hidden when the
- * category has no tools of that kind (mirrors classic `ToolPermissionListBuilder`'s `View.GONE` rule,
- * see [categoryToggleState]) -- then the expand/collapse chevron. [CategoryBulkToggle] renders its
- * own `Modifier.clickable`, which (like classic's separate `CheckBox` child views) consumes its own
- * taps before they reach this row's outer `clickable(onToggle)`, so tapping a bulk toggle does not
- * also expand/collapse the category.
+ * Category header row (17f): the expand/collapse caret LEADS (the trailing margin it used to sit in
+ * was too tight to aim at), then the name, then the bulk read/write controls — which are now the
+ * SAME controls the rows below use, offering the same option sets, instead of a two-state checkbox
+ * that could not express ASK vs ALLOW. A control is hidden when the category has no tools of that
+ * kind ([categoryPermissionState] returning `null`, mirroring classic's `View.GONE`).
+ *
+ * Each control renders its own [IconButton], which consumes its taps before they reach this row's
+ * outer `clickable(onToggle)` — so picking a bulk permission does not also collapse the category.
  */
 @Composable
 private fun CategoryHeader(
@@ -215,69 +217,105 @@ private fun CategoryHeader(
     expanded: Boolean,
     onToggle: () -> Unit,
     permissionFor: (toolId: String) -> ToolPermission,
-    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
-    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
+    globalDefaultLabelFor: (toolId: String) -> String?,
+    onSetCategoryRead: (categoryId: String, ToolPermission) -> Unit,
+    onSetCategoryWrite: (categoryId: String, ToolPermission) -> Unit,
     strings: Strings,
 ) {
     val readTools = remember(tools) { tools.filterNot { it.requiresPermission } }
     val writeTools = remember(tools) { tools.filter { it.requiresPermission } }
-    val readState = categoryToggleState(readTools, permissionFor)
-    val writeState = categoryToggleState(writeTools, permissionFor)
+    val readState = categoryPermissionState(readTools, permissionFor)
+    val writeState = categoryPermissionState(writeTools, permissionFor)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onToggle)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(start = 4.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(
+            imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+            contentDescription = null,
+            modifier = Modifier.padding(horizontal = 12.dp),
+        )
         Text(
             category.displayName,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.weight(1f),
         )
         if (readState != null) {
-            CategoryBulkToggle(
-                label = strings.toolCategoryReadLabel,
+            CategoryPermissionControl(
+                kindLabel = strings.toolCategoryReadLabel,
+                // Mode is decided per-tool by globalDefaultLabelFor; a screen is uniformly one
+                // mode, so the first tool of this kind speaks for the whole category.
+                options = toolOptions(readTools.first(), globalDefaultLabelFor(readTools.first().id), strings),
                 state = readState,
-                onToggle = { enabled -> onSetCategoryRead(category.id, enabled) },
+                onSet = { permission -> onSetCategoryRead(category.id, permission) },
+                strings = strings,
             )
         }
         if (writeState != null) {
-            CategoryBulkToggle(
-                label = strings.toolCategoryWriteLabel,
+            CategoryPermissionControl(
+                kindLabel = strings.toolCategoryWriteLabel,
+                options = toolOptions(writeTools.first(), globalDefaultLabelFor(writeTools.first().id), strings),
                 state = writeState,
-                onToggle = { enabled -> onSetCategoryWrite(category.id, enabled) },
+                onSet = { permission -> onSetCategoryWrite(category.id, permission) },
+                strings = strings,
             )
         }
-        Icon(
-            imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-            contentDescription = null,
-        )
     }
 }
 
 /**
- * One bulk read/write toggle: a [TriStateCheckbox] (so [CategoryToggleState.MIXED] renders as a
- * genuine indeterminate dash, not collapsed to "off" like classic's plain `CheckBox`) plus its label.
- * Tapping either the checkbox or the label toggles ALL rows of that kind: mirrors classic's checkbox
- * semantics -- [CategoryToggleState.ALL_ON] flips OFF, anything else ([CategoryToggleState.MIXED] or
- * [CategoryToggleState.ALL_OFF]) flips ON.
+ * One bulk control. Always a MENU, never the rows' tap-to-cycle read toggle: this control rewrites
+ * every tool of its kind in the category, and a control that silently walks through states on
+ * repeated taps is a trap at that blast radius.
+ *
+ * [CategoryPermissionState.Mixed] shows a dash — the same "indeterminate" reading the old
+ * `TriStateCheckbox` had — and matches no option, so no menu row is checked.
+ *
+ * The [kindLabel] ("Read"/"Write") is shown as a small text label leading the icon, not just buried
+ * in `contentDescription` (which a sighted user never sees) — restoring the affordance the old
+ * `CategoryBulkToggle` had. This matters because two adjacent controls can render the SAME icon
+ * (task 17f-A1 merged DISABLED+DENY onto one icon and ENABLED+ALLOW onto another), so a category
+ * whose reads are all enabled and writes are all allowed would otherwise show two identical icons
+ * with nothing distinguishing which is which.
  */
 @Composable
-private fun CategoryBulkToggle(label: String, state: CategoryToggleState, onToggle: (enabled: Boolean) -> Unit) {
-    val toggleableState = when (state) {
-        CategoryToggleState.ALL_ON -> ToggleableState.On
-        CategoryToggleState.MIXED -> ToggleableState.Indeterminate
-        CategoryToggleState.ALL_OFF -> ToggleableState.Off
-    }
-    val toggle = { onToggle(state != CategoryToggleState.ALL_ON) }
-    Row(
-        modifier = Modifier.clickable(onClick = toggle),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        TriStateCheckbox(state = toggleableState, onClick = toggle)
-        Text(label, style = MaterialTheme.typography.labelSmall)
+private fun CategoryPermissionControl(
+    kindLabel: String,
+    options: List<ToolPermissionOption>,
+    state: CategoryPermissionState,
+    onSet: (ToolPermission) -> Unit,
+    strings: Strings,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val current = (state as? CategoryPermissionState.Uniform)?.permission
+    val icon = current?.let { permissionIcon(it) } ?: Icons.Filled.Remove
+    val label = current?.let { p -> options.firstOrNull { it.permission == p }?.label } ?: strings.toolPermissionMixed
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            kindLabel,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Box {
+            IconButton(onClick = { expanded = true }) {
+                Icon(icon, contentDescription = "$kindLabel: $label")
+            }
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                options.forEach { option ->
+                    AbMenuItem(
+                        text = option.label,
+                        onClick = { onSet(option.permission); expanded = false },
+                        icon = { Icon(permissionIcon(option.permission), contentDescription = null) },
+                        checkable = true,
+                        checked = option.permission == current,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -294,18 +332,20 @@ private fun ToolPermissionRow(
     val options = toolOptions(tool, defaultToken, strings)
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
     ) {
+        // 17f: the choosing affordance sits on the LEADING edge, like a checkbox, and the info
+        // button is alone on the trailing edge instead of crowded against the control.
+        if (tool.requiresPermission) {
+            WriteToolPermissionControl(options = options, current = current, onSet = onSet)
+        } else {
+            ReadToolPermissionToggle(options = options, current = current, onSet = onSet)
+        }
         Text(tool.displayName, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         if (tool.description.isNotBlank()) {
             IconButton(onClick = onShowInfo) {
                 Icon(Icons.Outlined.Info, contentDescription = strings.toolDescriptionInfoContentDescription)
             }
-        }
-        if (tool.requiresPermission) {
-            WriteToolPermissionControl(options = options, current = current, onSet = onSet)
-        } else {
-            ReadToolPermissionToggle(options = options, current = current, onSet = onSet)
         }
     }
 }
@@ -353,13 +393,12 @@ private fun WriteToolPermissionControl(
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option.label) },
-                    leadingIcon = { Icon(permissionIcon(option.permission), contentDescription = null) },
-                    onClick = {
-                        onSet(option.permission)
-                        expanded = false
-                    },
+                AbMenuItem(
+                    text = option.label,
+                    onClick = { onSet(option.permission); expanded = false },
+                    icon = { Icon(permissionIcon(option.permission), contentDescription = null) },
+                    checkable = true,
+                    checked = option.permission == current,
                 )
             }
         }
@@ -370,16 +409,16 @@ private fun WriteToolPermissionControl(
  * Maps a [ToolPermission] to a shape/fill distinguishable icon (F39) -- never color alone, so it
  * stays legible in BW/e-ink monochrome: [ToolPermission.ENABLED]/[ToolPermission.ALLOW] = filled
  * check circle (the two "on" states -- read vs. write tools never share an option list, so reusing
- * one icon for both is unambiguous); [ToolPermission.DISABLED] = a blocked/no-entry circle (distinct
- * outline from the "off"/"deny" icon below); [ToolPermission.DENY] = a cancel/X circle;
+ * one icon for both is unambiguous); [ToolPermission.DISABLED] and [ToolPermission.DENY] both map
+ * to a blocked/no-entry circle (17f: these are the same user-facing concept — "always block" — on
+ * two kinds of tool, and read/write tools never share an option list, so one icon is unambiguous);
  * [ToolPermission.ASK] = a question mark (GLOBAL mode's neutral "ask every time" write default);
  * [ToolPermission.DEFAULT] = a globe ("inherits the global default" -- its specific resolved value
  * is carried in the option's text label, not the icon, per [globalDefaultLabelFor]).
  */
 private fun permissionIcon(permission: ToolPermission): ImageVector = when (permission) {
     ToolPermission.ENABLED, ToolPermission.ALLOW -> Icons.Filled.CheckCircle
-    ToolPermission.DISABLED -> Icons.Filled.Block
-    ToolPermission.DENY -> Icons.Filled.Cancel
+    ToolPermission.DISABLED, ToolPermission.DENY -> Icons.Filled.Block
     ToolPermission.ASK -> Icons.AutoMirrored.Filled.HelpOutline
     ToolPermission.DEFAULT -> Icons.Filled.Public
 }

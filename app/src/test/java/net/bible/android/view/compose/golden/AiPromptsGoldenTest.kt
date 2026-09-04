@@ -3,8 +3,10 @@ package net.bible.android.view.compose.golden
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptGroupVd
+import net.bible.sharedcore.ai.PromptListFilter
 import net.bible.sharedcore.ai.PromptVd
 import net.bible.sharedui.ai.AiPromptsScreen
+import net.bible.sharedui.ai.PromptFilterSheetContent
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -24,6 +26,8 @@ class AiPromptsGoldenTest {
         categories: List<PromptCategoryVd> = emptyList(),
         initiallyHelpDialogOpen: Boolean = false,
         initiallyOverflowMenuOpen: Boolean = false,
+        initiallySearchOpen: Boolean = false,
+        initiallyFilter: PromptListFilter = PromptListFilter(),
     ) =
         @androidx.compose.runtime.Composable {
             AiPromptsScreen(
@@ -54,6 +58,8 @@ class AiPromptsGoldenTest {
                 helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                 initiallyHelpDialogOpen = initiallyHelpDialogOpen,
                 initiallyOverflowMenuOpen = initiallyOverflowMenuOpen,
+                initiallySearchOpen = initiallySearchOpen,
+                initiallyFilter = initiallyFilter,
             )
         }
 
@@ -61,7 +67,16 @@ class AiPromptsGoldenTest {
 
     /** Favorites (virtual group, non-empty) + one real category (with a hidden built-in prompt,
      *  shown because showHidden=true) + the uncategorized bucket. A favorited prompt legitimately
-     *  appears in both the Favorites group and its own category group (independent listings). */
+     *  appears in both the Favorites group and its own category group (independent listings).
+     *
+     *  17f/B4: three prompts carry the row's new third meta line, one marking each of the
+     *  ways it can render — a wrong meta-line implementation would visibly change this capture:
+     *  - `p-explain`: `isBuiltIn=true`, no `sourceModule` -> renders the "Built-in" type badge alone.
+     *  - `p-summarize`: `sourceModule` set (`sourceModule` wins over `isBuiltIn` in `promptTypeOf`)
+     *    -> renders "Add-on: <module>" instead of "Built-in", alongside its existing hidden dimming.
+     *  - `p-crossref`: a plain user prompt (no type marking) with `contexts` set -> renders only the
+     *    target list ("Verse selection, Note editor"), proving the targets render independently of
+     *    any type badge. */
     private fun configuredGroups(): List<PromptGroupVd> = listOf(
         PromptGroupVd(
             category = null,
@@ -75,6 +90,7 @@ class AiPromptsGoldenTest {
                 PromptVd(
                     id = "p-crossref", name = "Cross references", description = "Finds related cross references",
                     categoryId = summaryCat.id, isBuiltIn = false, isReadOnly = false, isFavorite = true, isHidden = false,
+                    contexts = setOf("VERSE_SELECTION", "NOTE_EDITOR"),
                 ),
             ),
         ),
@@ -85,10 +101,12 @@ class AiPromptsGoldenTest {
                 PromptVd(
                     id = "p-summarize", name = "Summarize chapter", description = "Summarizes the current chapter",
                     categoryId = summaryCat.id, isBuiltIn = true, isReadOnly = true, isFavorite = false, isHidden = true,
+                    sourceModule = "Commentary Pack",
                 ),
                 PromptVd(
                     id = "p-crossref", name = "Cross references", description = "Finds related cross references",
                     categoryId = summaryCat.id, isBuiltIn = false, isReadOnly = false, isFavorite = true, isHidden = false,
+                    contexts = setOf("VERSE_SELECTION", "NOTE_EDITOR"),
                 ),
             ),
         ),
@@ -176,4 +194,51 @@ class AiPromptsGoldenTest {
     // Its body is covered instead by AbSheetWrappersGoldenTest.choice_matrix. Re-attempt a per-row-popup golden only
     // after a Roborazzi/Robolectric upgrade, and consider rendering the row in isolation rather than
     // inside the full scrollable list.
+
+    // 17f/B5: the search bar's inline search mode (icon -> text field + filter action), captured via
+    // the initiallySearchOpen test seam rather than by driving the icon click -- same pattern as every
+    // other initiallyXxx seam in this file. Never captures the filter sheet itself (an open
+    // ModalBottomSheet hangs Roborazzi, see the F38/F40 notes above); that is PromptFilterSheetContent
+    // below.
+    //
+    // Final-review fix M2: also seeds initiallyFilter = favoritesOnly, so this one golden exercises
+    // BOTH the filter-active indicator (FilterAlt, not FilterAltOff -- see FilterAction) and an
+    // actually-narrowed list (configuredGroups() has two favorited prompts out of four total; a wrong
+    // filter wiring, e.g. the icon flipping without the list actually narrowing, would visibly fail
+    // this capture where an unfiltered "search open" golden could not).
+    @Test fun configured_searchOpen_matrix() =
+        captureMatrix(
+            "AiPrompts", "search_open",
+            heightDp = 900,
+            content = screen(
+                configured = true, groups = configuredGroups(), showHidden = true,
+                hasHiddenPrompts = true, initiallySearchOpen = true,
+                initiallyFilter = PromptListFilter(favoritesOnly = true),
+            ),
+        )
+
+    /** [PromptFilterSheetContent] with favoritesOnly AND one "Show in" context pre-selected: both
+     *  land in rows that render ABOVE `AbSheetScrollBound`'s 400dp fold at the default (top) scroll
+     *  position, unlike the `types` dimension (fix round 1) which sits below the fold in this
+     *  fixture's content and is therefore invisible in the recorded PNG no matter how tall the
+     *  capture's own canvas is made. `contexts = {VERSE_SELECTION}` selects "Verse selection" among
+     *  four unselected siblings ("Text selection"/"Window menu"/"Workspace menu"/"Note editor"),
+     *  proving a selection-highlight bug (e.g. the wrong dimension wired to the wrong chip's
+     *  `selected`) would visibly fail this capture -- an all-unselected sheet could not. Wrapped in
+     *  [SheetSurface] (defined in AbSheetWrappersGoldenTest.kt), never in an open ModalBottomSheet.
+     *
+     *  **Widened to a matrix (final-review fix I3b):** was `captureGolden(..., EDGE_MODE, ...)`, light
+     *  theme only -- the chip check-icon added by I3a is exactly the kind of selection cue that needs
+     *  checking in monochrome/e-ink too (CLAUDE.md's "Theme and Display Modes"), so this now captures
+     *  bw/dark/eink/light like every other `_matrix` test in this file. */
+    @Test fun filterSheetContent_matrix() = captureMatrix("AiPrompts", "filter_sheet", heightDp = 520) {
+        SheetSurface {
+            PromptFilterSheetContent(
+                filter = PromptListFilter(favoritesOnly = true, contexts = setOf("VERSE_SELECTION")),
+                categories = listOf(summaryCat),
+                onApply = {},
+                onClose = {},
+            )
+        }
+    }
 }

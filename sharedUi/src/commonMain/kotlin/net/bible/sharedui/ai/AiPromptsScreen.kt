@@ -32,17 +32,29 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.CreateNewFolder
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DriveFileMove
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,17 +73,27 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.PromptCategoryVd
+import net.bible.sharedcore.ai.PromptContextIds
 import net.bible.sharedcore.ai.PromptGroupVd
+import net.bible.sharedcore.ai.PromptListFilter
+import net.bible.sharedcore.ai.PromptType
 import net.bible.sharedcore.ai.PromptVd
+import net.bible.sharedcore.ai.filterPromptGroups
+import net.bible.sharedcore.ai.promptTypeOf
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbTextInputDialog
-import net.bible.sharedui.components.TwoLineListItem
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -83,9 +105,10 @@ import net.bible.sharedui.strings.Strings
  * - **configured**: a collapsible grouped list — virtual Favorites group first (only when non-empty),
  *   then categories in [groups] order (already resolved by the controller/service, including
  *   respecting [showHidden] — hidden prompts/categories are simply absent from [groups] when
- *   [showHidden] is false), then the uncategorized bucket. Each row is a [TwoLineListItem]
- *   (name + description) with a leading-free trailing ★ favorite toggle and a click that opens the
- *   prompt ([onOpenPrompt]).
+ *   [showHidden] is false), then the uncategorized bucket. Each row leads with a ★ favorite toggle
+ *   (17f: moved from trailing to leading), then name + description + an optional third meta line
+ *   (type marking and/or target contexts), and a click on that body opens the prompt
+ *   ([onOpenPrompt]).
  *
  * **Reorder — up/down actions, not drag-and-drop.** [AbReorderableColumn][net.bible.sharedui.components.AbReorderableColumn]
  * wraps its own `LazyColumn`, so nesting one per collapsible group inside this screen's outer list
@@ -108,42 +131,40 @@ import net.bible.sharedui.strings.Strings
  * **Per-row actions** live in a per-row overflow (3-dot `IconButton` + `DropdownMenu`, the same
  * pattern as `MyDocumentsScreen`'s `RowOverflow` — not [AbOverflowMenu], which is sized for the top
  * bar) rather than a long-press menu: it's discoverable without a hidden gesture and composes
- * cleanly with the row's own click (open) and the trailing favorite-star tap target. **F40:** Copy
+ * cleanly with the row's own click (open) and the leading favorite-star tap target. **F40:** Copy
  * is available for every prompt (built-in/add-on/user, mirrors classic `showPromptContextMenu`), so
  * every prompt row's overflow is now always shown (previously a read-only, non-built-in add-on
  * prompt — no hide/move/delete — omitted the button entirely; Copy means there's always something).
  * Move-to-category (opens an [net.bible.sharedui.components.AbChoiceSheet] picker, mirrors
  * classic `showMoveToCategoryDialog`) and reorder/delete stay gated to non-read-only (user) prompts.
  *
+ * **Search + filter (17f).** The top bar's search icon opens an inline search field
+ * ([net.bible.sharedui.components.AbTopBarSearchState]) plus a filter action ([FilterAction], its icon
+ * swapping between [androidx.compose.material.icons.filled.FilterAlt]/[androidx.compose.material.icons.filled.FilterAltOff]
+ * to show whether any filter is active) that opens [PromptFilterSheet]. Both the query and the
+ * [net.bible.sharedcore.ai.PromptListFilter] are SCREEN-LOCAL state (`query`/`filter` below), not
+ * hoisted to the host — filtering is a pure function over the already-resolved [groups]
+ * ([net.bible.sharedcore.ai.filterPromptGroups]), so there is nothing for a host controller to own.
+ *
  * **String reuse (no new resource strings, per task brief):** the show/hide-hidden overflow toggle
- * reuses `R.string.ai_restore_hidden_prompts` ("Restore hidden prompts") as a *checkable* menu item
- * (leading [Checkbox] reflecting [showHidden], same pattern as `GridPassageScreen`'s `CheckItem`)
- * rather than a one-shot action — classic's "restore ALL hidden prompts at once" no longer exists as
- * a controller action ([net.bible.sharedcore.ai.AiPromptsController] only has [onSetShowHidden]), so
+ * reuses `R.string.ai_restore_hidden_prompts` ("Restore hidden prompts") as a *checkable*
+ * [net.bible.sharedui.components.AbMenuItem] (a trailing check reflecting [showHidden]) rather than
+ * a one-shot action — classic's "restore ALL hidden prompts at once" no longer exists as a
+ * controller action ([net.bible.sharedcore.ai.AiPromptsController] only has [onSetShowHidden]), so
  * the closest-meaning existing string is repurposed. The un-hide action on an individual hidden
  * built-in prompt reuses the generic `R.string.restore` ("Restore"). A future strings-only pass could
  * add a precise "Show hidden" string; noted as a follow-up, not blocking here.
  *
- * **F38 fix — toggle gating + label alignment.** [hasHiddenPrompts] gates the toggle item's very
- * presence (mirrors classic `AiSettingsActivity.onPrepareOptionsMenu`'s
+ * **F38 fix — toggle gating.** [hasHiddenPrompts] gates the toggle item's very presence (mirrors
+ * classic `AiSettingsActivity.onPrepareOptionsMenu`'s
  * `restore_hidden_prompts.isVisible = hiddenBuiltInPrompts.isNotEmpty()`; the controller derives it
  * from [net.bible.sharedcore.ai.AiPromptsController.hasHiddenPrompts], independent of [showHidden]
  * since [groups] itself only filters hidden items in/out — it can't tell you whether any exist once
- * they're filtered out). Putting the [Checkbox] in `leadingIcon` alone does NOT align its label with
- * the other items: Material3's `DropdownMenuItem` only reserves the icon-box + spacing inset when
- * `leadingIcon` is non-null, so a lone leading-icon item's text starts further right than sibling
- * plain-text items. To make every item's label start at the SAME x, every item in this overflow
- * (not just the toggle) reserves an equal-width `leadingIcon` slot ([OVERFLOW_LEADING_SLOT], sized to
- * [Checkbox]'s own default touch-target width) — an invisible [Spacer] for the plain items, the real
- * [Checkbox] for the toggle.
+ * they're filtered out). **17f-B6:** every item in this overflow now goes through
+ * [net.bible.sharedui.components.AbMenuItem] and carries a real leading icon, so the old hand-rolled
+ * equal-width leading-icon slot (`OVERFLOW_LEADING_SLOT`) is gone — `AbMenuItem` reserves that box
+ * itself, and the toggle's trailing check replaces its old leading [androidx.compose.material3.Checkbox].
  */
-/**
- * Leading-icon slot width shared by every item in the AiPrompts overflow menu (see the F38 kdoc
- * note above) — matches Material3 [Checkbox]'s own default minimum touch-target size, so the real
- * [Checkbox] and the plain items' invisible [Spacer]s measure to the same width and every label
- * starts at the same x.
- */
-private val OVERFLOW_LEADING_SLOT = 48.dp
 
 @Composable
 fun AiPromptsScreen(
@@ -176,6 +197,8 @@ fun AiPromptsScreen(
     categoriesProvider: () -> List<PromptCategoryVd> = { emptyList() },
     initiallyHelpDialogOpen: Boolean = false,
     initiallyOverflowMenuOpen: Boolean = false,
+    initiallySearchOpen: Boolean = false,
+    initiallyFilter: PromptListFilter = PromptListFilter(),
 ) {
     val strings = LocalStrings.current
 
@@ -185,12 +208,23 @@ fun AiPromptsScreen(
     var deletePromptTarget by remember { mutableStateOf<PromptVd?>(null) }
     var moveToCategoryTarget by remember { mutableStateOf<PromptVd?>(null) }
     var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
+    // 17f: search + filter are SCREEN-LOCAL — filtering is pure over the already-resolved [groups],
+    // so hoisting to the host (as MyDocumentsScreen does for its DB-backed query) would add wiring
+    // that buys nothing here.
+    var searchOpen by remember { mutableStateOf(initiallySearchOpen) }
+    var query by remember { mutableStateOf("") }
+    var filter by remember { mutableStateOf(initiallyFilter) }
+    var filterSheetOpen by remember { mutableStateOf(false) }
+    val visibleGroups = remember(groups, query, filter) { filterPromptGroups(groups, query, filter) }
 
     AbScaffold(
         title = strings.aiPromptsTitle,
         onNavigateUp = onUp,
         actions = {
             if (configured) {
+                if (!searchOpen) {
+                    AbActionIcon(Icons.Filled.Search, contentDescription = strings.search) { searchOpen = true }
+                }
                 AbActionIcon(Icons.Filled.Add, contentDescription = strings.newPrompt, onClick = onNewPrompt)
                 // F41: Connection settings holds important settings — surfaced as a top-bar action
                 // (Android showAsAction="ifRoom" parity) instead of being buried in the overflow.
@@ -200,39 +234,47 @@ fun AiPromptsScreen(
                     onClick = onOpenConnectionSettings,
                 )
                 AbOverflowMenu(contentDescription = null, initiallyExpanded = initiallyOverflowMenuOpen) { close ->
-                    // Every item reserves the SAME leadingIcon slot width (an invisible spacer for
-                    // the plain items, the real Checkbox for the toggle below) so all labels start
-                    // at the same x — see the F38 kdoc note above.
-                    DropdownMenuItem(
-                        text = { Text(strings.newCategory) },
+                    AbMenuItem(
+                        text = strings.newCategory,
                         onClick = { close(); showNewCategoryDialog = true },
-                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
+                        icon = { Icon(Icons.Filled.CreateNewFolder, contentDescription = null) },
                     )
                     if (hasHiddenPrompts) {
-                        DropdownMenuItem(
-                            text = { Text(strings.restoreHiddenPromptsLabel) },
+                        AbMenuItem(
+                            text = strings.restoreHiddenPromptsLabel,
                             onClick = { close(); onSetShowHidden(!showHidden) },
-                            leadingIcon = {
-                                Checkbox(checked = showHidden, onCheckedChange = { close(); onSetShowHidden(it) })
-                            },
+                            icon = { Icon(Icons.Filled.VisibilityOff, contentDescription = null) },
+                            checkable = true,
+                            checked = showHidden,
                         )
                     }
-                    DropdownMenuItem(
-                        text = { Text(strings.exportPromptsCsv) },
+                    AbMenuItem(
+                        text = strings.exportPromptsCsv,
                         onClick = { close(); onExportCsv() },
-                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
+                        icon = { Icon(Icons.Filled.FileUpload, contentDescription = null) },
                     )
-                    DropdownMenuItem(
-                        text = { Text(strings.importPromptsCsv) },
+                    AbMenuItem(
+                        text = strings.importPromptsCsv,
                         onClick = { close(); onImportCsv() },
-                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
+                        icon = { Icon(Icons.Filled.FileDownload, contentDescription = null) },
                     )
-                    DropdownMenuItem(
-                        text = { Text(strings.helpLabel) },
-                        onClick = { close(); showHelp = true },
-                        leadingIcon = { Spacer(Modifier.size(OVERFLOW_LEADING_SLOT)) },
-                    )
+                    AbMenuItem(text = strings.helpLabel, onClick = { close(); showHelp = true }, icon = AbHelpMenuIcon)
                 }
+            }
+        },
+        search = if (searchOpen) AbTopBarSearchState(query = query, imeRequest = AbSearchImeRequest.Focus) else null,
+        searchCallbacks = if (searchOpen) {
+            AbTopBarSearchCallbacks(
+                onQueryChange = { query = it },
+                // Leaving search mode clears BOTH the query and the filters: a constraint the user
+                // can no longer see is indistinguishable from missing data.
+                onClose = { searchOpen = false; query = ""; filter = PromptListFilter() },
+                onImeRequestHandled = {},
+            )
+        } else null,
+        searchActions = {
+            if (searchOpen) {
+                FilterAction(filter.isActive, strings.promptFilterTitle) { filterSheetOpen = true }
             }
         },
     ) { padding ->
@@ -243,7 +285,9 @@ fun AiPromptsScreen(
                 modifier = Modifier.padding(padding),
             )
         } else {
-            val totalPrompts = groups.sumOf { it.prompts.size }
+            // Based on visibleGroups (not groups): an over-narrow search/filter combination must
+            // show the empty-state message rather than a blank list.
+            val totalPrompts = visibleGroups.sumOf { it.prompts.size }
             if (totalPrompts == 0) {
                 Box(modifier = Modifier.padding(padding).fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
@@ -254,7 +298,7 @@ fun AiPromptsScreen(
                 }
             } else {
                 PromptGroupsList(
-                    groups = groups,
+                    groups = visibleGroups,
                     strings = strings,
                     onOpenPrompt = onOpenPrompt,
                     onToggleFavorite = onToggleFavorite,
@@ -358,6 +402,26 @@ fun AiPromptsScreen(
             onDismiss = { showHelp = false },
             readMoreLabel = strings.helpReadMoreLink,
             readMoreUrl = helpReadMoreUrl,
+        )
+    }
+    PromptFilterSheet(
+        open = filterSheetOpen,
+        filter = filter,
+        categories = remember(filterSheetOpen) { categoriesProvider() },
+        onApply = { filter = it },
+        onDismiss = { filterSheetOpen = false },
+    )
+}
+
+/** The filter affordance in the search bar's action slot. The icon differs when a filter is active:
+ *  a constraint the user cannot see is indistinguishable from missing data. */
+@Composable
+private fun FilterAction(active: Boolean, contentDescription: String, onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(
+            if (active) Icons.Filled.FilterAlt else Icons.Filled.FilterAltOff,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(AbActionIconSize),
         )
     }
 }
@@ -535,19 +599,41 @@ private fun CategoryRowOverflow(
     Box {
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(
-                text = { Text(if (category.isHidden) strings.showCategoryLabel else strings.hideCategoryLabel) },
+            AbMenuItem(
+                text = if (category.isHidden) strings.showCategoryLabel else strings.hideCategoryLabel,
                 onClick = { expanded = false; onSetHidden(!category.isHidden) },
+                icon = {
+                    Icon(
+                        if (category.isHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = null,
+                    )
+                },
             )
             if (!category.isBuiltIn) {
                 if (canMoveUp) {
-                    DropdownMenuItem(text = { Text(strings.moveUpLabel) }, onClick = { expanded = false; onMove(true) })
+                    AbMenuItem(
+                        text = strings.moveUpLabel,
+                        onClick = { expanded = false; onMove(true) },
+                        icon = { Icon(Icons.Filled.ArrowUpward, contentDescription = null) },
+                    )
                 }
                 if (canMoveDown) {
-                    DropdownMenuItem(text = { Text(strings.moveDownLabel) }, onClick = { expanded = false; onMove(false) })
+                    AbMenuItem(
+                        text = strings.moveDownLabel,
+                        onClick = { expanded = false; onMove(false) },
+                        icon = { Icon(Icons.Filled.ArrowDownward, contentDescription = null) },
+                    )
                 }
-                DropdownMenuItem(text = { Text(strings.rename) }, onClick = { expanded = false; onRenameRequest() })
-                DropdownMenuItem(text = { Text(strings.deleteCategoryLabel) }, onClick = { expanded = false; onDeleteRequest() })
+                AbMenuItem(
+                    text = strings.rename,
+                    onClick = { expanded = false; onRenameRequest() },
+                    icon = { Icon(Icons.Filled.Edit, contentDescription = null) },
+                )
+                AbMenuItem(
+                    text = strings.deleteCategoryLabel,
+                    onClick = { expanded = false; onDeleteRequest() },
+                    icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+                )
             }
         }
     }
@@ -567,13 +653,22 @@ private fun PromptRow(
     onMoveToCategoryRequest: () -> Unit,
     onDeleteRequest: () -> Unit,
 ) {
+    // 17f: the star LEADS the row (the maintainer's ask — the choosing affordance on the leading
+    // edge), leaving the ⋮ alone on the trailing edge.
+    val meta = remember(prompt, strings) {
+        val type = when (promptTypeOf(prompt)) {
+            PromptType.BUILT_IN -> strings.builtInPrompt
+            PromptType.ADDON -> strings.addonPromptBadge(prompt.sourceModule.orEmpty())
+            PromptType.USER -> null
+        }
+        val targets = prompt.contexts
+            .filter { it in PromptContextIds.ordered }
+            .sortedBy { PromptContextIds.ordered.indexOf(it) }
+            .joinToString(", ") { promptContextLabel(it, strings) }
+            .ifBlank { null }
+        listOfNotNull(type, targets).joinToString(" · ")
+    }
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        TwoLineListItem(
-            title = if (prompt.isHidden) "${prompt.name} (${strings.hiddenSuffix})" else prompt.name,
-            subtitle = prompt.description,
-            onClick = onOpenPrompt,
-            modifier = Modifier.weight(1f).alpha(if (prompt.isHidden) 0.5f else 1f),
-        )
         IconButton(onClick = onToggleFavorite) {
             Icon(
                 if (prompt.isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
@@ -584,6 +679,29 @@ private fun PromptRow(
                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 },
             )
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .alpha(if (prompt.isHidden) 0.5f else 1f)
+                .clickable(onClick = onOpenPrompt)
+                .padding(vertical = 12.dp, horizontal = 4.dp),
+        ) {
+            Text(
+                if (prompt.isHidden) "${prompt.name} (${strings.hiddenSuffix})" else prompt.name,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            if (prompt.description.isNotBlank()) {
+                Text(prompt.description, style = MaterialTheme.typography.bodySmall)
+            }
+            // The third line classic had and the port dropped: the type marking and the targets.
+            if (meta.isNotBlank()) {
+                Text(
+                    meta,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         // F40: Copy is available for EVERY prompt (built-in, add-on, user), so the overflow
         // affordance is now always shown — there is no longer a "no available action" prompt.
@@ -618,26 +736,49 @@ private fun PromptRowOverflow(
         IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             if (prompt.isBuiltIn) {
-                DropdownMenuItem(
-                    text = { Text(if (prompt.isHidden) strings.restoreLabel else strings.hidePromptLabel) },
+                AbMenuItem(
+                    text = if (prompt.isHidden) strings.restoreLabel else strings.hidePromptLabel,
                     onClick = { expanded = false; onSetHidden(!prompt.isHidden) },
+                    icon = {
+                        Icon(
+                            if (prompt.isHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                            contentDescription = null,
+                        )
+                    },
                 )
             }
             // F40: Copy mirrors classic showPromptContextMenu — available for ALL prompts
             // (built-in/add-on/user), unlike the reorder/move-to-category/delete actions below.
-            DropdownMenuItem(text = { Text(strings.copyLabel) }, onClick = { expanded = false; onCopy() })
+            AbMenuItem(
+                text = strings.copyLabel,
+                onClick = { expanded = false; onCopy() },
+                icon = { Icon(Icons.Filled.ContentCopy, contentDescription = null) },
+            )
             if (!prompt.isReadOnly) {
                 if (canMoveUp) {
-                    DropdownMenuItem(text = { Text(strings.moveUpLabel) }, onClick = { expanded = false; onMove(true) })
+                    AbMenuItem(
+                        text = strings.moveUpLabel,
+                        onClick = { expanded = false; onMove(true) },
+                        icon = { Icon(Icons.Filled.ArrowUpward, contentDescription = null) },
+                    )
                 }
                 if (canMoveDown) {
-                    DropdownMenuItem(text = { Text(strings.moveDownLabel) }, onClick = { expanded = false; onMove(false) })
+                    AbMenuItem(
+                        text = strings.moveDownLabel,
+                        onClick = { expanded = false; onMove(false) },
+                        icon = { Icon(Icons.Filled.ArrowDownward, contentDescription = null) },
+                    )
                 }
-                DropdownMenuItem(
-                    text = { Text(strings.moveToCategoryLabel) },
+                AbMenuItem(
+                    text = strings.moveToCategoryLabel,
                     onClick = { expanded = false; onMoveToCategoryRequest() },
+                    icon = { Icon(Icons.Filled.DriveFileMove, contentDescription = null) },
                 )
-                DropdownMenuItem(text = { Text(strings.deleteLabel) }, onClick = { expanded = false; onDeleteRequest() })
+                AbMenuItem(
+                    text = strings.deleteLabel,
+                    onClick = { expanded = false; onDeleteRequest() },
+                    icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+                )
             }
         }
     }

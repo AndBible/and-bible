@@ -22,17 +22,26 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,8 +59,14 @@ import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SettingsScreenState
+import net.bible.sharedui.components.AbActionIconSize
+import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbListChoiceContent
+import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.AbOverflowMenu
+import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbSheetHeader
 import net.bible.sharedui.components.AbTextInputContent
 import net.bible.sharedui.settings.AbSettingsScreen
 import net.bible.sharedui.settings.SettingsEditorSheet
@@ -84,11 +99,13 @@ private val SPECIAL_KEYS = setOf(
  * Task 5) and intercepts four keys that need bespoke editors it does not know how to render:
  *
  * - [KEY_CUSTOM_AGENT_PROMPT] / [KEY_CUSTOM_TEXT_TRANSFORM_PROMPT] (controller emits these as
- *   `TextInputRow`s with `numeric = false`): a multiline prompt editor with a "Reset to default"
- *   action, prefilled from [customPromptTextFor]. Save → [onCustomPromptSave] with the typed text
- *   (blank = reset to default); Reset → [onCustomPromptSave] with `null`.
+ *   `TextInputRow`s with `numeric = false`): a full-screen multiline prompt editor ([CustomPromptEditor],
+ *   17f — was an `AlertDialog`) with a "Reset to default" action, prefilled from [customPromptTextFor].
+ *   Save → [onCustomPromptSave] with the typed text (blank = reset to default); Reset →
+ *   [onCustomPromptSave] with `null`.
  * - [KEY_RAW_LOG_RETENTION] (a numeric `TextInputRow`): a numeric editor with a "disable" checkbox
- *   that greys the field. Save → `onTextInputInt("raw_log_retention", days)`, `-1` when disabled.
+ *   that greys the field, rendered as a modal bottom sheet ([RetentionSheet], 17f — was an
+ *   `AlertDialog`). Save → `onTextInputInt("raw_log_retention", days)`, `-1` when disabled.
  * - [KEY_AI_LANGUAGE] (a `ListChoiceRow` with an empty `entries` list — the real locale list is
  *   Android-resource data that can't live in :sharedUi): rendered as a plain clickable summary
  *   row; the click opens a [SettingsEditorSheet] picker page, populated from the host-supplied
@@ -133,12 +150,21 @@ fun AiConnectionSettingsScreen(
     customLanguageValue: String,
     onNavigate: (String) -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
+    /** Host-supplied slot invoking the platform's system-back interception with [onBack] as the
+     *  handler, so [CustomPromptEditor] can be guarded against the system back gesture/button, not
+     *  just its up-arrow. `commonMain` targets iOS too, so it cannot import
+     *  `androidx.activity.compose.BackHandler` itself (same constraint documented on
+     *  [net.bible.sharedui.settings.SettingsEditorSheet]'s kdoc) — the Android host passes
+     *  `{ onBack -> BackHandler(onBack = onBack) }`; other hosts/tests may leave the default no-op. */
+    backHandler: @Composable (onBack: () -> Unit) -> Unit = {},
     /** Test-only seam (matches `initiallyXxxOpen` elsewhere, e.g. `SearchScreen`'s
      *  `initiallySettingsOpen`): lets golden tests capture the disclaimer [AbInfoDialog] open
      *  without a click-simulation harness (this module has no Compose UI-test dependency). */
     initiallyDisclaimerDialogOpen: Boolean = false,
-    /** Test-only seam: capture the [CustomPromptDialog] (agent system prompt) open, e.g. with a
-     *  long [customPromptTextFor] result, to verify its height stays bounded (F36). */
+    /** Test-only seam: capture the [CustomPromptEditor] (agent system prompt) open, e.g. with a
+     *  long [customPromptTextFor] result. Pre-17f this verified the dialog's bounded height (F36);
+     *  the editor is now full-screen, so that concern no longer applies — it now just seeds the
+     *  editor open for golden capture. */
     initiallyCustomPromptDialogOpen: Boolean = false,
 ) {
     val displayState = remember(state) {
@@ -148,7 +174,7 @@ fun AiConnectionSettingsScreen(
     var customPromptDialogKey by remember {
         mutableStateOf(if (initiallyCustomPromptDialogOpen) KEY_CUSTOM_AGENT_PROMPT else null)
     }
-    var retentionDialogOpen by remember { mutableStateOf(false) }
+    var retentionSheetOpen by remember { mutableStateOf(false) }
     var disclaimerDialogOpen by remember { mutableStateOf(initiallyDisclaimerDialogOpen) }
 
     // The AI-language picker + its "Custom…" second step (Task 7): a two-page SettingsEditorStack
@@ -167,9 +193,9 @@ fun AiConnectionSettingsScreen(
             customPromptDialogKey = null
         }
     }
-    LaunchedEffect(retentionDialogOpen, state) {
-        if (retentionDialogOpen && state.visibleItems.none { it.key == KEY_RAW_LOG_RETENTION }) {
-            retentionDialogOpen = false
+    LaunchedEffect(retentionSheetOpen, state) {
+        if (retentionSheetOpen && state.visibleItems.none { it.key == KEY_RAW_LOG_RETENTION }) {
+            retentionSheetOpen = false
         }
     }
     // Same discipline, expressed via SettingsEditorStack.closeIf: if the ai_language row vanishes
@@ -178,6 +204,19 @@ fun AiConnectionSettingsScreen(
     // user on a page whose parent row no longer exists.
     LaunchedEffect(editorPages, state) {
         editor.closeIf { state.visibleItems.none { item -> item.key == KEY_AI_LANGUAGE } }
+    }
+
+    customPromptDialogKey?.let { key ->
+        val title = (state.visibleItems.firstOrNull { it.key == key } as? SettingsItem.TextInputRow)?.title ?: ""
+        CustomPromptEditor(
+            title = title,
+            initialText = customPromptTextFor(key),
+            onSave = { onCustomPromptSave(key, it.ifBlank { null }); customPromptDialogKey = null },
+            onReset = { onCustomPromptSave(key, null); customPromptDialogKey = null },
+            onDismiss = { customPromptDialogKey = null },
+            backHandler = backHandler,
+        )
+        return
     }
 
     AbSettingsScreen(
@@ -193,7 +232,7 @@ fun AiConnectionSettingsScreen(
             when (key) {
                 KEY_DISCLAIMER -> disclaimerDialogOpen = true
                 KEY_CUSTOM_AGENT_PROMPT, KEY_CUSTOM_TEXT_TRANSFORM_PROMPT -> customPromptDialogKey = key
-                KEY_RAW_LOG_RETENTION -> retentionDialogOpen = true
+                KEY_RAW_LOG_RETENTION -> retentionSheetOpen = true
                 KEY_AI_LANGUAGE -> editor.open(SettingsEditorPage.Row(KEY_AI_LANGUAGE))
                 else -> onNavigate(key)
             }
@@ -201,33 +240,16 @@ fun AiConnectionSettingsScreen(
         actions = actions,
     )
 
-    customPromptDialogKey?.let { key ->
-        val title = (state.visibleItems.firstOrNull { it.key == key } as? SettingsItem.TextInputRow)?.title ?: ""
-        CustomPromptDialog(
-            title = title,
-            initialText = customPromptTextFor(key),
-            onSave = {
-                onCustomPromptSave(key, it.ifBlank { null })
-                customPromptDialogKey = null
-            },
-            onReset = {
-                onCustomPromptSave(key, null)
-                customPromptDialogKey = null
-            },
-            onDismiss = { customPromptDialogKey = null },
-        )
-    }
-
-    if (retentionDialogOpen) {
+    if (retentionSheetOpen) {
         val row = state.visibleItems.firstOrNull { it.key == KEY_RAW_LOG_RETENTION } as? SettingsItem.TextInputRow
-        RetentionDialog(
+        RetentionSheet(
             title = row?.title ?: "",
             currentDays = row?.value?.toIntOrNull() ?: -1,
             onSave = {
                 onTextInputInt(KEY_RAW_LOG_RETENTION, it)
-                retentionDialogOpen = false
+                retentionSheetOpen = false
             },
-            onDismiss = { retentionDialogOpen = false },
+            onDismiss = { retentionSheetOpen = false },
         )
     }
 
@@ -261,6 +283,11 @@ fun AiConnectionSettingsScreen(
     // renderer. So the two sheets can never both be open at once. A future row able to feed both
     // stacks from one tap (e.g. a special key AbSettingsScreen's generic renderer ALSO treats as
     // list-choice/text-input) would break this invariant and would need an explicit guard.
+    //
+    // The retention sheet added in 17f is a THIRD sheet in this subtree and does not weaken the
+    // invariant: it keeps its own independent `Boolean` visibility state, never enters either
+    // `SettingsEditorStack`, and its key is rewritten to a `NavigationRow` before `AbSettingsScreen`
+    // ever sees it — so no single tap can open it together with either editor sheet.
     val page = editorPages.lastOrNull() as? SettingsEditorPage.Row
     if (page != null) {
         SettingsEditorSheet(
@@ -331,98 +358,127 @@ private fun SettingsItem.asNavigationRow(): SettingsItem.NavigationRow = when (t
 }
 
 /**
- * Multiline system-prompt editor: an [OutlinedTextField] prefilled with [initialText] (the host
- * supplies the current custom value, or the built-in default text when unset — see
- * `customPromptTextFor`), a "Reset to default" action, and Save/Cancel. Mirrors the classic
- * `AiConnectionSettingsActivity.showCustomSystemPromptEditor` dialog.
+ * Full-screen system-prompt editor (17f; was an `AlertDialog` whose field was capped at 320dp).
+ * A page of prompt text is not dialog-shaped, so the editor takes the whole screen: the row's own
+ * title in the app bar, a save ✓, and "Reset to default" in the overflow.
  *
- * F36: the text field is height-bounded (`heightIn(max = 320.dp)`) rather than growing without
- * limit — a long default/custom prompt was stretching the whole dialog to full screen height.
- * `OutlinedTextField`/`BasicTextField` scrolls its own content internally once its constrained
- * height is smaller than the text needs, so a long prompt scrolls within the field instead of
- * growing the dialog further.
+ * Back/up is guarded by the port's usual discard confirmation whenever the text differs from what
+ * was opened — a full-screen editor's back gesture is far easier to hit by accident than a dialog's
+ * Cancel button was. This covers BOTH the up-arrow (`AbScaffold(onNavigateUp = requestBack)`) AND
+ * the system back gesture/button, wired via the host-supplied [backHandler] slot (see its kdoc on
+ * [AiConnectionSettingsScreen]) — both drive the same `requestBack` lambda, so there is no
+ * duplicated dirty-check logic.
  */
 @Composable
-private fun CustomPromptDialog(
+private fun CustomPromptEditor(
     title: String,
     initialText: String,
     onSave: (String) -> Unit,
     onReset: () -> Unit,
     onDismiss: () -> Unit,
+    backHandler: @Composable (onBack: () -> Unit) -> Unit = {},
 ) {
     val strings = LocalStrings.current
     var text by remember(initialText) { mutableStateOf(initialText) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                singleLine = false,
-                minLines = 8,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 320.dp),
-            )
-        },
-        confirmButton = { TextButton(onClick = { onSave(text) }) { Text(strings.okay) } },
-        dismissButton = {
-            Row {
-                TextButton(onClick = onReset) { Text(strings.resetToDefault) }
-                TextButton(onClick = onDismiss) { Text(strings.cancel) }
+    var showDiscardConfirm by remember { mutableStateOf(false) }
+    val requestBack: () -> Unit = { if (text != initialText) showDiscardConfirm = true else onDismiss() }
+    backHandler(requestBack)
+
+    AbScaffold(
+        title = title,
+        onNavigateUp = requestBack,
+        actions = {
+            IconButton(onClick = { onSave(text) }) {
+                Icon(Icons.Filled.Check, contentDescription = strings.okay, modifier = Modifier.size(AbActionIconSize))
+            }
+            AbOverflowMenu(contentDescription = null) { close ->
+                AbMenuItem(
+                    text = strings.resetToDefault,
+                    onClick = { close(); onReset() },
+                    icon = { Icon(Icons.Filled.RestartAlt, contentDescription = null) },
+                )
             }
         },
-    )
+    ) { padding ->
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            singleLine = false,
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+        )
+    }
+
+    if (showDiscardConfirm) {
+        AbConfirmDialog(
+            title = null,
+            message = strings.discardChangesConfirmation,
+            confirmText = strings.yes,
+            dismissText = strings.no,
+            onConfirm = { showDiscardConfirm = false; onDismiss() },
+            onDismiss = { showDiscardConfirm = false },
+        )
+    }
 }
 
 /**
- * Raw-log retention editor: a numeric field plus a "disable" checkbox that greys the field out.
- * Checked → Save sends `-1` (disabled/keep forever); unchecked → Save sends the typed day count
- * (invalid/blank input falls back to 30, matching the classic
- * `AiConnectionSettingsActivity.setupRawLogRetention` dialog).
+ * Raw-log retention editor (17f: a modal bottom sheet, was an `AlertDialog`). Semantics unchanged
+ * from the classic `AiConnectionSettingsActivity.setupRawLogRetention` dialog: the checkbox greys
+ * the field; checked → Save sends `-1` (keep forever); unchecked → the typed day count, an
+ * invalid/blank entry falling back to 30 and every value coerced to at least 1.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RetentionDialog(
+private fun RetentionSheet(
     title: String,
     currentDays: Int,
     onSave: (Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        RetentionSheetContent(title = title, currentDays = currentDays, onSave = onSave, onClose = onDismiss)
+    }
+}
+
+/** [RetentionSheet]'s body — stateless w.r.t. the sheet itself, so a golden test can capture it.
+ *  PUBLIC for that reason (see `AbChoiceSheetContent`): `:app`'s goldens are a different module. */
+@Composable
+fun RetentionSheetContent(
+    title: String,
+    currentDays: Int,
+    onSave: (Int) -> Unit,
+    onClose: () -> Unit,
+) {
     val strings = LocalStrings.current
     var disabled by remember(currentDays) { mutableStateOf(currentDays <= 0) }
     var text by remember(currentDays) { mutableStateOf(if (currentDays > 0) currentDays.toString() else "") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    enabled = !disabled,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .toggleable(value = disabled, onValueChange = { disabled = it }, role = Role.Checkbox),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(checked = disabled, onCheckedChange = { disabled = it })
-                    Spacer(Modifier.width(8.dp))
-                    Text(strings.rawLogRetentionDisabledLabel)
-                }
+    Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        AbSheetHeader(title = title, onClose = onClose)
+        Column(Modifier.padding(horizontal = 16.dp)) {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                enabled = !disabled,
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(value = disabled, onValueChange = { disabled = it }, role = Role.Checkbox),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(checked = disabled, onCheckedChange = { disabled = it })
+                Spacer(Modifier.width(8.dp))
+                Text(strings.rawLogRetentionDisabledLabel)
             }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                val days = if (disabled) -1 else (text.toIntOrNull()?.coerceAtLeast(1) ?: 30)
-                onSave(days)
-            }) { Text(strings.okay) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(strings.cancel) } },
-    )
+        }
+        SheetConfirmRow(
+            confirmLabel = strings.okay,
+            cancelLabel = strings.cancel,
+            onConfirm = { onSave(if (disabled) -1 else (text.toIntOrNull()?.coerceAtLeast(1) ?: 30)) },
+            onCancel = onClose,
+        )
+    }
 }

@@ -17,8 +17,13 @@
 
 package net.bible.sharedui.ai
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,20 +34,29 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,6 +67,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.PromptAdvancedSwitchKeys
 import net.bible.sharedcore.ai.PromptCategoryVd
@@ -63,6 +79,7 @@ import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.ai.agentPermissionModeChoices
+import net.bible.sharedui.ai.promptContextLabel
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
 import net.bible.sharedcore.settings.SettingsItem
@@ -70,11 +87,17 @@ import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDropdownField
+import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbListChoiceContent
+import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.components.AbSheetHeader
+import net.bible.sharedui.components.AbSheetScrollBound
 import net.bible.sharedui.settings.AbSettingsContent
 import net.bible.sharedui.settings.GenericSettingsEditorSheet
+import net.bible.sharedui.settings.SheetConfirmRow
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 
@@ -98,23 +121,29 @@ import net.bible.sharedui.strings.Strings
  *
  * **Prompt tab.** Name/description (single-line) + template (multiline, `minLines = 5`)
  * [OutlinedTextField]s, a category [AbDropdownField] (`""` sentinel = no category, matching the
- * `modelChoices`/`permissionMode` convention below), the context checkboxes ([PromptContextIds.ordered],
- * greyed out per [disabledContexts] — i.e. `WORKSPACE_MENU`/`NOTE_EDITOR` while `state.bibleOnly`),
- * a "Bible documents only" checkbox, and a "Text transformation" checkbox (drives
- * `state.isTextTransformation`, which is what makes the Permissions tab disappear and hides four
- * Advanced-tab rows — mirrors classic's `checkTextTransformation`, which sits on this same tab).
+ * `modelChoices`/`permissionMode` convention below), the context chips (17f: a wrapping row of
+ * [FilterChip]s, one per [PromptContextIds.ordered], greyed out per [disabledContexts] — i.e.
+ * `WORKSPACE_MENU`/`NOTE_EDITOR` while `state.bibleOnly`), a "Bible documents only" checkbox, and,
+ * under its own heading (17f: separated from the "Show in" chips above, a different axis), a "Text
+ * transformation" chip (drives `state.isTextTransformation`, which is what makes the Permissions tab
+ * disappear and hides four Advanced-tab rows — mirrors classic's `checkTextTransformation`, which
+ * sits on this same tab).
  * Every control is disabled together via one `editable = !isReadOnly` flag — a built-in prompt's
  * *only* editable field is the Advanced tab's model override, so Prompt-tab fields stay locked even
  * for `isBuiltIn` (matches `PromptEditController`'s doc: only [net.bible.sharedcore.ai.PromptEditController.setModelOverride]
  * bypasses the read-only guard).
  *
- * **Permissions tab** (only reachable while in [availableTabs]). A permission-mode [AbDropdownField]
- * built from [net.bible.sharedcore.ai.agentPermissionModeChoices] (reused as-is from `AiEnums.kt`)
- * plus a leading `""` = "use default" entry, then [ToolPermissionList] fed [toolsByCategory] /
- * [globalToolPermission] (always PROMPT mode — `globalDefaultLabelFor` always returns the resolved
- * global-default TOKEN, never `null`), then a "Reset all" [TextButton] (hidden, not merely disabled,
- * while read-only — matches classic's `btnResetToolPermissions.visibility = GONE`). [toolPermissionFor]
- * derives each tool's current [ToolPermission] from `state.allowedTools`/`deniedTools` membership,
+ * **Permissions tab** (only reachable while in [availableTabs]). A slim ~40dp status strip shows
+ * the current permission mode's label and opens a [ModalBottomSheet] (17f) whose body,
+ * [PromptPermissionSheetContent], holds the mode choice list (built from
+ * [net.bible.sharedcore.ai.agentPermissionModeChoices], reused as-is from `AiEnums.kt`, plus a
+ * leading `""` = "use default" entry), the explanation classic showed under its spinner
+ * (`promptPermissionModeDescription`), and the "Reset to default" action (hidden, not merely
+ * disabled, while read-only — matches classic's `btnResetToolPermissions.visibility = GONE`).
+ * Below the strip, [ToolPermissionList] is fed [toolsByCategory] / [globalToolPermission] (always
+ * PROMPT mode — `globalDefaultLabelFor` always returns the resolved global-default TOKEN, never
+ * `null`). [toolPermissionFor] derives each tool's current [ToolPermission] from
+ * `state.allowedTools`/`deniedTools` membership,
  * mapped to ALLOW/ENABLED or DENY/DISABLED by [ToolVd.requiresPermission] (see its kdoc). NOTE:
  * unlike the other controls here, [ToolPermissionList] (Task 4) has no `enabled`/read-only concept —
  * its segmented buttons stay visually tappable even in read-only mode. This is safe (the controller's
@@ -123,11 +152,11 @@ import net.bible.sharedui.strings.Strings
  * documented as a known gap rather than reaching into Task 4's shared component from this task.
  *
  * **Advanced tab.** Builds a [SettingsScreenState] straight from [state] (model override
- * [SettingsItem.ListChoiceRow] fed [modelChoices]; `max_iterations` numeric [SettingsItem.TextInputRow];
- * the 5 [PromptAdvancedSwitchKeys] as [SettingsItem.SwitchRow]s) and hands it to [AbSettingsContent]
- * (Task/Batch 9a's generic renderer, scaffold-less variant — see below) with its callbacks routed
- * straight back to [onSetModelOverride]/[onSetMaxIterations]/[onSetSwitch]. Rows named in
- * [hiddenAdvancedKeys] get `visible = false` (still built, just filtered by
+ * [SettingsItem.ListChoiceRow] fed [modelChoices]; `max_iterations` a [SettingsItem.NavigationRow]
+ * (17f — see below); the 5 [PromptAdvancedSwitchKeys] as [SettingsItem.SwitchRow]s) and hands it to
+ * [AbSettingsContent] (Task/Batch 9a's generic renderer, scaffold-less variant — see below) with its
+ * callbacks routed straight back to [onSetModelOverride]/[onSetMaxIterations]/[onSetSwitch]. Rows
+ * named in [hiddenAdvancedKeys] get `visible = false` (still built, just filtered by
  * [SettingsScreenState.visibleItems]) — mirrors classic's `setTextTransformationMode` hiding
  * `max_iterations`/`no_document_creation`/`auto_include_documents`/`auto_include_commentaries`, but
  * NOT `strict_context_matching`/`specify_before_run` (never hidden, per the controller's constant).
@@ -135,11 +164,20 @@ import net.bible.sharedui.strings.Strings
  * override exception); every other Advanced row is enabled only when `!isReadOnly` (matches classic's
  * `setReadOnly(keepModelEditable = isBuiltIn)`, which locks everything else regardless of `isBuiltIn`).
  *
+ * `max_iterations` (17f): the old numeric [SettingsItem.TextInputRow] said "leave empty for the
+ * global default", which a bare number field cannot communicate — rewritten to a
+ * [SettingsItem.NavigationRow] (same key/position/icon, summary now the EFFECTIVE value) whose click
+ * is intercepted, following the interception pattern [AiConnectionSettingsScreen] documents at
+ * length: [AbSettingsContent]'s `onNavigate` opens a dedicated [ModalBottomSheet] whose body,
+ * [MaxIterationsSheetContent], holds a "use the global setting" switch plus a number field enabled
+ * only when the switch is off. `model_override` is untouched and still opens the generic
+ * [net.bible.sharedui.settings.SettingsEditorSheet] editor via `onOpenEditor`.
+ *
  * Uses [AbSettingsContent] (the scaffold-less counterpart of [AbSettingsScreen], extracted in a
  * Batch 9c fix) rather than [AbSettingsScreen] itself: the tab body already sits under this screen's
  * own (title + tabs) top bar, so wrapping it in another [AbScaffold] would draw a second, redundant
- * M3 app bar. [AbSettingsContent] renders the identical settings list with no top bar; the model-
- * override/max-iterations rows now open as [net.bible.sharedui.settings.SettingsEditorSheet] pages
+ * M3 app bar. [AbSettingsContent] renders the identical settings list with no top bar; the
+ * model-override row still opens as a [net.bible.sharedui.settings.SettingsEditorSheet] page
  * (Settings editor sheets T5), so this tab owns its own `SettingsEditorStack` and renders
  * [GenericSettingsEditorSheet] as a sibling, the same pattern [AbSettingsScreen] uses.
  *
@@ -183,6 +221,8 @@ import net.bible.sharedui.strings.Strings
  * @param modelChoices Model-override choices for the Advanced tab (`PromptService.modelChoices()`).
  * @param globalToolPermission Resolves a tool's current global default, for the Permissions tab's
  *   "Default (X)" option (`PromptService.globalToolPermission`).
+ * @param globalMaxIterationsLabel Host-formatted label for the global max-iterations default, fed
+ *   to the Advanced tab's [MaxIterationsSheetContent] (`CommonUtils.aiSettings.maxIterations`).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -211,8 +251,8 @@ fun PromptEditScreen(
     onSetTextTransformation: (Boolean) -> Unit,
     onSetPermissionMode: (String?) -> Unit,
     onSetToolPermission: (toolId: String, ToolPermission) -> Unit,
-    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
-    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
+    onSetCategoryRead: (categoryId: String, ToolPermission) -> Unit,
+    onSetCategoryWrite: (categoryId: String, ToolPermission) -> Unit,
     onResetToolPermissions: () -> Unit,
     onSetModelOverride: (String?) -> Unit,
     onSetMaxIterations: (Int?) -> Unit,
@@ -224,6 +264,10 @@ fun PromptEditScreen(
     onBack: () -> Unit,
     helpBody: String,
     helpReadMoreUrl: String,
+    /** Host-formatted label for the global max-iterations default (e.g. "Unlimited" or "10") —
+     *  pre-formatted because "0" means *unlimited* on the host side and the "Unlimited" string is
+     *  an Android resource `:sharedUi` cannot read; see [MaxIterationsSheetContent]. */
+    globalMaxIterationsLabel: String,
     initiallyHelpDialogOpen: Boolean = false,
 ) {
     val strings = LocalStrings.current
@@ -248,13 +292,25 @@ fun PromptEditScreen(
             }
             AbOverflowMenu(contentDescription = null) { close ->
                 if (!isReadOnly && !isNew) {
-                    DropdownMenuItem(text = { Text(strings.deleteLabel) }, onClick = { close(); showDeleteConfirm = true })
+                    AbMenuItem(
+                        text = strings.deleteLabel,
+                        onClick = { close(); showDeleteConfirm = true },
+                        icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+                    )
                 }
                 if (isReadOnly || !isNew) {
-                    DropdownMenuItem(text = { Text(strings.copyToCustomizeLabel) }, onClick = { close(); onCopyToCustomize() })
+                    AbMenuItem(
+                        text = strings.copyToCustomizeLabel,
+                        onClick = { close(); onCopyToCustomize() },
+                        icon = { Icon(Icons.Filled.ContentCopy, contentDescription = null) },
+                    )
                 }
-                DropdownMenuItem(text = { Text(strings.viewToolsMenuLabel) }, onClick = { close(); onViewTools() })
-                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); showHelp = true })
+                AbMenuItem(
+                    text = strings.viewToolsMenuLabel,
+                    onClick = { close(); onViewTools() },
+                    icon = { Icon(Icons.Filled.Build, contentDescription = null) },
+                )
+                AbMenuItem(text = strings.helpLabel, onClick = { close(); showHelp = true }, icon = AbHelpMenuIcon)
             }
         },
     ) { padding ->
@@ -300,6 +356,7 @@ fun PromptEditScreen(
                         isReadOnly = isReadOnly,
                         isBuiltIn = isBuiltIn,
                         modelChoices = modelChoices,
+                        globalMaxIterationsLabel = globalMaxIterationsLabel,
                         onSetModelOverride = onSetModelOverride,
                         onSetMaxIterations = onSetMaxIterations,
                         onSetSwitch = onSetSwitch,
@@ -346,15 +403,7 @@ private fun tabLabel(tab: PromptEditTab, strings: Strings): String = when (tab) 
     PromptEditTab.ADVANCED -> strings.promptTabAdvanced
 }
 
-private fun contextLabel(contextId: String, strings: Strings): String = when (contextId) {
-    "VERSE_SELECTION" -> strings.promptContextVerseSelection
-    "TEXT_SELECTION" -> strings.promptContextTextSelection
-    "WINDOW_MENU" -> strings.promptContextWindowMenu
-    "WORKSPACE_MENU" -> strings.promptContextWorkspaceMenu
-    "NOTE_EDITOR" -> strings.promptContextNoteEditor
-    else -> contextId
-}
-
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PromptTabContent(
     state: PromptEditData,
@@ -420,13 +469,23 @@ private fun PromptTabContent(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
         )
-        PromptContextIds.ordered.forEach { contextId ->
-            LabeledCheckboxRow(
-                label = contextLabel(contextId, strings),
-                checked = contextId in state.contexts,
-                enabled = editable && contextId !in disabledContexts,
-                onCheckedChange = { onToggleContext(contextId) },
-            )
+        Spacer(Modifier.height(4.dp))
+        // 17f: five wrapping FilterChips, not five checkbox rows — five stacked rows dominated the
+        // tab, and a MultiChoiceSegmentedButtonRow cannot fit five text labels on a narrow screen.
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            PromptContextIds.ordered.forEach { contextId ->
+                val chipEnabled = editable && contextId !in disabledContexts
+                val chipSelected = contextId in state.contexts
+                FilterChip(
+                    selected = chipSelected,
+                    onClick = { onToggleContext(contextId) },
+                    enabled = chipEnabled,
+                    leadingIcon = {
+                        if (chipSelected) Icon(Icons.Filled.Check, contentDescription = null) else null
+                    },
+                    label = { Text(promptContextLabel(contextId, strings)) },
+                )
+            }
         }
         Spacer(Modifier.height(8.dp))
         LabeledCheckboxRow(
@@ -435,12 +494,26 @@ private fun PromptTabContent(
             enabled = editable,
             onCheckedChange = onSetBibleOnly,
         )
-        LabeledCheckboxRow(
-            label = strings.promptIsTextTransformationLabel,
-            summary = strings.promptIsTextTransformationDescription,
-            checked = state.isTextTransformation,
+        // 16dp gap, apart from the "Show in" chips above — this is a different axis, and classic
+        // likewise set it off with a 16dp gap. (The chip's own label carries the heading text, so
+        // there is no separate heading here — see final-review fix I1.)
+        Spacer(Modifier.height(16.dp))
+        FilterChip(
+            selected = state.isTextTransformation,
+            onClick = { onSetTextTransformation(!state.isTextTransformation) },
             enabled = editable,
-            onCheckedChange = onSetTextTransformation,
+            leadingIcon = {
+                if (state.isTextTransformation) {
+                    Icon(Icons.Filled.Check, contentDescription = null)
+                } else null
+            },
+            label = { Text(strings.promptIsTextTransformationLabel) },
+        )
+        Text(
+            strings.promptIsTextTransformationDescription,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp),
         )
     }
 }
@@ -485,6 +558,7 @@ private fun toolPermissionFor(state: PromptEditData, tool: ToolVd): ToolPermissi
     else -> ToolPermission.DEFAULT
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PermissionsTabContent(
     state: PromptEditData,
@@ -493,8 +567,8 @@ private fun PermissionsTabContent(
     editable: Boolean,
     onSetPermissionMode: (String?) -> Unit,
     onSetToolPermission: (toolId: String, ToolPermission) -> Unit,
-    onSetCategoryRead: (categoryId: String, enabled: Boolean) -> Unit,
-    onSetCategoryWrite: (categoryId: String, enabled: Boolean) -> Unit,
+    onSetCategoryRead: (categoryId: String, ToolPermission) -> Unit,
+    onSetCategoryWrite: (categoryId: String, ToolPermission) -> Unit,
     onResetToolPermissions: () -> Unit,
     strings: Strings,
 ) {
@@ -510,16 +584,34 @@ private fun PermissionsTabContent(
                 ),
             )
     }
+    val selectedMode = state.permissionMode ?: ""
+    val modeLabel = permissionModeChoices.firstOrNull { it.value == selectedMode }?.label ?: selectedMode
+    var sheetOpen by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize()) {
-        AbDropdownField(
-            label = strings.promptPermissionModeLabel,
-            selected = state.permissionMode ?: "",
-            options = permissionModeChoices.map { it.value },
-            optionLabel = { v -> permissionModeChoices.firstOrNull { it.value == v }?.label ?: v },
-            onSelect = { v -> onSetPermissionMode(v.ifEmpty { null }) },
-            enabled = editable,
-        )
+        // 17f: a ~40dp strip replaces a full AbDropdownField (~60dp) AND the full-width "Reset all"
+        // TextButton (~48dp) that used to sit at the bottom of this tab. It shows the current mode
+        // (which the closed dropdown did too) and opens the sheet that owns both of them.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { sheetOpen = true }
+                .padding(start = 16.dp, end = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modeLabel,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f).padding(vertical = 8.dp),
+            )
+            IconButton(onClick = { sheetOpen = true }) {
+                Icon(Icons.Filled.Tune, contentDescription = strings.promptPermissionModeLabel)
+            }
+        }
+        HorizontalDivider()
         ToolPermissionList(
             categories = toolsByCategory,
             permissionFor = { toolId -> toolsById[toolId]?.let { toolPermissionFor(state, it) } ?: ToolPermission.DEFAULT },
@@ -529,15 +621,85 @@ private fun PermissionsTabContent(
             onSetCategoryWrite = onSetCategoryWrite,
             modifier = Modifier.weight(1f),
         )
-        if (editable) {
-            TextButton(
-                onClick = onResetToolPermissions,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-            ) { Text(strings.resetToolPermissionsLabel) }
+    }
+
+    if (sheetOpen) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(onDismissRequest = { sheetOpen = false }, sheetState = sheetState) {
+            PromptPermissionSheetContent(
+                choices = permissionModeChoices,
+                selectedValue = selectedMode,
+                editable = editable,
+                onSelect = { value -> onSetPermissionMode(value.ifEmpty { null }) },
+                onResetToolPermissions = { onResetToolPermissions(); sheetOpen = false },
+                onClose = { sheetOpen = false },
+                strings = strings,
+            )
         }
     }
 }
 
+/**
+ * The permission sheet's body: mode choice, the explanation classic showed under its spinner, and
+ * "Reset to default". Stateless and free of any `ModalBottomSheet`, so a golden test can capture
+ * it — an OPEN sheet hangs Roborazzi. PUBLIC for exactly that reason, following
+ * `AbChoiceSheetContent`'s precedent: `:app`'s golden tests are a different module and cannot see
+ * an `internal` or `private` composable.
+ *
+ * Read-only prompts keep the mode visible (it is information) with the choice list left INERT —
+ * `onSelect = { if (editable) onSelect(it) }` means the radio rows still look tappable (not
+ * visually disabled) but a tap does nothing while read-only — and lose the reset action entirely —
+ * mirrors classic's `btnResetToolPermissions.visibility = GONE`. Same pre-existing, already-
+ * documented gap as [ToolPermissionList]'s own read-only handling (see its kdoc).
+ */
+@Composable
+fun PromptPermissionSheetContent(
+    choices: List<SettingsItem.Choice>,
+    selectedValue: String,
+    editable: Boolean,
+    onSelect: (String) -> Unit,
+    onResetToolPermissions: () -> Unit,
+    onClose: () -> Unit,
+    strings: Strings,
+    scrollState: ScrollState = rememberScrollState(),
+) {
+    Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        AbSheetHeader(title = strings.promptPermissionModeLabel, onClose = onClose)
+        // 17f fix (discovered by Roborazzi's record pass, not the plain test task -- see
+        // AiConnectionSettingsGoldenTest sibling notes): AbListChoiceContent already applies its own
+        // Modifier.verticalScroll internally, so wrapping it in a SECOND Column(Modifier.verticalScroll(...))
+        // nests two same-axis scrollables and Compose's runtime check throws
+        // "measured with an infinity maximum height constraints" the moment this is actually rendered.
+        // Fix follows this codebase's own established pattern (AbMultiSelectSheetContent,
+        // AbChoiceSheet.kt): AbListChoiceContent is the ONE scrollable, driven by the shared
+        // [scrollState] passed straight through; the explanation text and reset button sit BELOW and
+        // OUTSIDE the scroll-bound region, same as AbMultiSelectSheetContent's SheetConfirmRow --
+        // which also means they stay reachable without scrolling past a long tool-permission list.
+        AbSheetScrollBound(canScrollForward = { scrollState.canScrollForward }) {
+            AbListChoiceContent(
+                choices = choices,
+                selectedValue = selectedValue,
+                onSelect = { if (editable) onSelect(it) },
+                modifier = Modifier.padding(horizontal = 16.dp),
+                scrollState = scrollState,
+            )
+        }
+        Text(
+            strings.promptPermissionModeDescription,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+        if (editable) {
+            TextButton(
+                onClick = onResetToolPermissions,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            ) { Text(strings.resetToDefault) }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AdvancedTabContent(
     state: PromptEditData,
@@ -545,6 +707,7 @@ private fun AdvancedTabContent(
     isReadOnly: Boolean,
     isBuiltIn: Boolean,
     modelChoices: List<SettingsItem.Choice>,
+    globalMaxIterationsLabel: String,
     onSetModelOverride: (String?) -> Unit,
     onSetMaxIterations: (Int?) -> Unit,
     onSetSwitch: (String, Boolean) -> Unit,
@@ -552,6 +715,12 @@ private fun AdvancedTabContent(
     val strings = LocalStrings.current
     val modelEnabled = !isReadOnly || isBuiltIn
     val otherEnabled = !isReadOnly
+    var maxIterationsSheetOpen by remember { mutableStateOf(false) }
+
+    // 17f: states the EFFECTIVE value, never the old "leave empty" instruction — a NavigationRow's
+    // summary has to make sense on its own, without the field beside it that used to carry the hint.
+    val maxIterationsSummary = state.maxIterations?.toString()
+        ?: strings.promptMaxIterationsUseGlobal(globalMaxIterationsLabel)
 
     val settingsState = SettingsScreenState(
         title = "",
@@ -562,15 +731,17 @@ private fun AdvancedTabContent(
                 entries = modelChoices,
                 selectedValue = state.modelOverrideId ?: "",
                 enabled = modelEnabled,
+                iconKey = "model_override",
             ),
-            SettingsItem.TextInputRow(
+            // 17f: a NavigationRow, not a numeric TextInputRow — see the class-level kdoc's
+            // "max_iterations (17f)" paragraph. Its click is intercepted below via onNavigate.
+            SettingsItem.NavigationRow(
                 key = "max_iterations",
                 title = strings.promptMaxIterationsLabel,
-                summary = state.maxIterations?.toString() ?: strings.promptMaxIterationsHint,
-                value = state.maxIterations?.toString() ?: "",
-                numeric = true,
+                summary = maxIterationsSummary,
                 visible = "max_iterations" !in hiddenAdvancedKeys,
                 enabled = otherEnabled,
+                iconKey = "max_iterations",
             ),
             SettingsItem.SwitchRow(
                 key = PromptAdvancedSwitchKeys.STRICT_CONTEXT_MATCHING,
@@ -578,6 +749,7 @@ private fun AdvancedTabContent(
                 summary = strings.promptStrictContextMatchingDescription,
                 checked = state.strictContextMatching,
                 enabled = otherEnabled,
+                iconKey = "strict_context_matching",
             ),
             SettingsItem.SwitchRow(
                 key = PromptAdvancedSwitchKeys.SPECIFY_BEFORE_RUN,
@@ -585,6 +757,7 @@ private fun AdvancedTabContent(
                 summary = strings.promptSpecifyBeforeRunDescription,
                 checked = state.specifyBeforeRun,
                 enabled = otherEnabled,
+                iconKey = "specify_before_run",
             ),
             SettingsItem.SwitchRow(
                 key = PromptAdvancedSwitchKeys.NO_DOCUMENT_CREATION,
@@ -593,6 +766,7 @@ private fun AdvancedTabContent(
                 checked = state.noDocumentCreation,
                 visible = PromptAdvancedSwitchKeys.NO_DOCUMENT_CREATION !in hiddenAdvancedKeys,
                 enabled = otherEnabled,
+                iconKey = "no_document_creation",
             ),
             SettingsItem.SwitchRow(
                 key = PromptAdvancedSwitchKeys.AUTO_INCLUDE_DOCUMENTS,
@@ -601,6 +775,7 @@ private fun AdvancedTabContent(
                 checked = state.autoIncludeDocuments,
                 visible = PromptAdvancedSwitchKeys.AUTO_INCLUDE_DOCUMENTS !in hiddenAdvancedKeys,
                 enabled = otherEnabled,
+                iconKey = "auto_include_documents",
             ),
             SettingsItem.SwitchRow(
                 key = PromptAdvancedSwitchKeys.AUTO_INCLUDE_COMMENTARIES,
@@ -609,14 +784,16 @@ private fun AdvancedTabContent(
                 checked = state.autoIncludeCommentaries,
                 visible = PromptAdvancedSwitchKeys.AUTO_INCLUDE_COMMENTARIES !in hiddenAdvancedKeys,
                 enabled = otherEnabled,
+                iconKey = "auto_include_commentaries",
             ),
         ),
     )
 
     val onListChoice: (String, String) -> Unit =
         { key, value -> if (key == "model_override") onSetModelOverride(value.ifEmpty { null }) }
-    val onTextInput: (String, String) -> Unit =
-        { key, value -> if (key == "max_iterations") onSetMaxIterations(value.trim().toIntOrNull()) }
+    // "max_iterations" is a NavigationRow now (17f), so AbSettingsContent never routes it here —
+    // this stays a no-op / GenericSettingsEditorSheet stub for the other row types it still handles.
+    val onTextInput: (String, String) -> Unit = { _, _ -> }
     val editor = remember { SettingsEditorStack() }
     val editorPages by editor.pages.collectAsState()
 
@@ -625,7 +802,7 @@ private fun AdvancedTabContent(
         onSwitch = onSetSwitch,
         onListChoice = onListChoice,
         onTextInput = onTextInput,
-        onNavigate = {},
+        onNavigate = { key -> if (key == "max_iterations") maxIterationsSheetOpen = true },
         onOpenEditor = { key -> editor.open(SettingsEditorPage.Row(key)) },
     )
     GenericSettingsEditorSheet(
@@ -637,4 +814,69 @@ private fun AdvancedTabContent(
         onTextInput = onTextInput,
         onMultiSelectChange = { _, _ -> },
     )
+
+    if (maxIterationsSheetOpen) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(onDismissRequest = { maxIterationsSheetOpen = false }, sheetState = sheetState) {
+            MaxIterationsSheetContent(
+                current = state.maxIterations,
+                globalLabel = globalMaxIterationsLabel,
+                onApply = { value -> onSetMaxIterations(value); maxIterationsSheetOpen = false },
+                onClose = { maxIterationsSheetOpen = false },
+            )
+        }
+    }
+}
+
+/**
+ * The per-prompt max-iterations override (17f). The old generic numeric editor said "leave empty
+ * for the default", which is not a thing a number field can communicate — so the default is a
+ * SWITCH, and the number field only exists when the switch is off.
+ *
+ * PUBLIC so `:app`'s golden tests can capture it directly (see `AbChoiceSheetContent`).
+ */
+@Composable
+fun MaxIterationsSheetContent(
+    current: Int?,
+    globalLabel: String,
+    onApply: (Int?) -> Unit,
+    onClose: () -> Unit,
+) {
+    val strings = LocalStrings.current
+    var useGlobal by remember(current) { mutableStateOf(current == null) }
+    var text by remember(current) { mutableStateOf(current?.toString() ?: "") }
+    Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        AbSheetHeader(title = strings.promptMaxIterationsLabel, onClose = onClose)
+        Column(Modifier.padding(horizontal = 16.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(value = useGlobal, onValueChange = { useGlobal = it }, role = Role.Switch),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(strings.promptMaxIterationsUseGlobal(globalLabel), modifier = Modifier.weight(1f))
+                Switch(checked = useGlobal, onCheckedChange = { useGlobal = it })
+            }
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                enabled = !useGlobal,
+                singleLine = true,
+                label = { Text(strings.promptMaxIterationsLabel) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        SheetConfirmRow(
+            confirmLabel = strings.okay,
+            cancelLabel = strings.cancel,
+            // Switch on -> null (inherit). Switch off with unparseable text -> also null rather
+            // than a silently wrong number; the field is the only way to say anything else.
+            // A negative override is clamped to 0 (this flow's own "unlimited" convention, see
+            // globalMaxIterationsLabel / AgentExecutor.kt) rather than being stored as-is, which
+            // would silently mean unlimited too but for the wrong reason (final-review fix: I3/bug).
+            onConfirm = { onApply(if (useGlobal) null else text.trim().toIntOrNull()?.coerceAtLeast(0)) },
+            onCancel = onClose,
+        )
+    }
 }

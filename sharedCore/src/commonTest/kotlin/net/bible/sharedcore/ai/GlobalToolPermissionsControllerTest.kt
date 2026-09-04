@@ -143,76 +143,38 @@ class GlobalToolPermissionsControllerTest {
     private val bulkCatalog: List<Pair<ToolCategoryVd, List<ToolVd>>> =
         listOf(bulkCategory to listOf(readA, readB, writeA, writeB))
 
-    @Test fun setCategoryRead_setsAllReadToolsOnly_toEnabledOrDisabled() = runTest {
-        val f = Fake(bulkCatalog, seed = mapOf("readA" to ToolPermission.DISABLED, "readB" to ToolPermission.DISABLED))
+    @Test fun setCategoryRead_setsEveryReadToolInTheCategory_andNothingElse() = runTest {
+        val f = Fake(bulkCatalog)
         val c = controller(f)
-
-        c.setCategoryRead("BULK", true)
-        assertEquals(ToolPermission.ENABLED, c.permissions.value["readA"])
-        assertEquals(ToolPermission.ENABLED, c.permissions.value["readB"])
-        // write tools untouched by the read toggle
-        assertEquals(ToolPermission.ASK, c.permissions.value["writeA"])
-        assertEquals(ToolPermission.ASK, c.permissions.value["writeB"])
-
-        c.setCategoryRead("BULK", false)
+        c.setCategoryRead("BULK", ToolPermission.DISABLED)
         assertEquals(ToolPermission.DISABLED, c.permissions.value["readA"])
         assertEquals(ToolPermission.DISABLED, c.permissions.value["readB"])
-    }
+        assertEquals(ToolPermission.ASK, c.permissions.value["writeA"], "write tools untouched")
 
-    @Test fun setCategoryWrite_setsAllWriteToolsOnly_toAskOrDeny_neverAllow() = runTest {
-        val f = Fake(bulkCatalog, seed = mapOf("writeA" to ToolPermission.ALLOW))
-        val c = controller(f)
-
-        // ON maps to the neutral ASK option (classic parity), NOT ALLOW.
-        c.setCategoryWrite("BULK", true)
-        assertEquals(ToolPermission.ASK, c.permissions.value["writeA"])
-        assertEquals(ToolPermission.ASK, c.permissions.value["writeB"])
-        // read tools untouched
+        c.setCategoryRead("BULK", ToolPermission.ENABLED)
         assertEquals(ToolPermission.ENABLED, c.permissions.value["readA"])
-        assertEquals(ToolPermission.ENABLED, c.permissions.value["readB"])
+    }
 
-        c.setCategoryWrite("BULK", false)
+    @Test fun setCategoryWrite_canSetAskAllowAndDeny_notJustOnOff() = runTest {
+        val f = Fake(bulkCatalog)
+        val c = controller(f)
+        c.setCategoryWrite("BULK", ToolPermission.ALLOW)
+        assertEquals(ToolPermission.ALLOW, c.permissions.value["writeA"])
+        c.setCategoryWrite("BULK", ToolPermission.DENY)
         assertEquals(ToolPermission.DENY, c.permissions.value["writeA"])
-        assertEquals(ToolPermission.DENY, c.permissions.value["writeB"])
+        c.setCategoryWrite("BULK", ToolPermission.ASK)
+        assertEquals(ToolPermission.ASK, c.permissions.value["writeA"])
+        assertEquals(ToolPermission.ENABLED, c.permissions.value["readA"], "read tools untouched")
     }
 
-    @Test fun categoryReadState_reflectsAllOn_mixed_allOff() = runTest {
-        val f = Fake(bulkCatalog)
-        val c = controller(f)
-
-        assertEquals(CategoryToggleState.ALL_ON, c.categoryReadState("BULK"))
-
-        c.setPermission("readA", ToolPermission.DISABLED)
-        assertEquals(CategoryToggleState.MIXED, c.categoryReadState("BULK"))
-
-        c.setPermission("readB", ToolPermission.DISABLED)
-        assertEquals(CategoryToggleState.ALL_OFF, c.categoryReadState("BULK"))
-    }
-
-    @Test fun categoryWriteState_reflectsAllOn_mixed_allOff() = runTest {
-        val f = Fake(bulkCatalog)
-        val c = controller(f)
-
-        assertEquals(CategoryToggleState.ALL_ON, c.categoryWriteState("BULK"))
-
-        c.setPermission("writeA", ToolPermission.DENY)
-        assertEquals(CategoryToggleState.MIXED, c.categoryWriteState("BULK"))
-
-        c.setPermission("writeB", ToolPermission.DENY)
-        assertEquals(CategoryToggleState.ALL_OFF, c.categoryWriteState("BULK"))
-    }
-
-    @Test fun categoryState_nullWhenCategoryHasNoToolsOfThatKind() = runTest {
+    @Test fun bulkSettersAreNoOpsForACategoryWithoutToolsOfThatKind() = runTest {
         val readOnlyCategory = ToolCategoryVd("READ_ONLY", "Read only")
         val readOnlyTool = ToolVd("readOnlyTool", "Read only tool", "d", requiresPermission = false, categoryId = "READ_ONLY")
         val f = Fake(listOf(readOnlyCategory to listOf(readOnlyTool)))
         val c = controller(f)
 
-        assertNotNull(c.categoryReadState("READ_ONLY"))
-        assertNull(c.categoryWriteState("READ_ONLY"))
-
-        // A bulk write op on a category with no write tools is a safe no-op.
-        c.setCategoryWrite("READ_ONLY", true)
-        assertEquals(ToolPermission.ENABLED, c.permissions.value["readOnlyTool"])
+        val before = c.permissions.value
+        c.setCategoryWrite("READ_ONLY", ToolPermission.DENY)
+        assertEquals(before, c.permissions.value)
     }
 }

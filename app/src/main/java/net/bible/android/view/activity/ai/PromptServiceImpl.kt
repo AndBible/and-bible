@@ -120,6 +120,8 @@ class PromptServiceImpl : PromptService {
             isReadOnly = PromptRepository.isReadOnly(p.id),
             isFavorite = p.id in favIds,
             isHidden = isPromptHidden(p, hiddenPromptIds),
+            contexts = p.showIn.mapTo(mutableSetOf()) { it.name },
+            sourceModule = p.sourceModule,
         )
 
         val grouped = visiblePrompts.groupBy { PromptRepository.getCategoryForPrompt(it) }

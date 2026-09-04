@@ -30,6 +30,7 @@ import net.bible.android.activity.R
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.ai.PromptEditController
 import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedui.AbAppTheme
@@ -104,6 +105,10 @@ class PromptEditComposeActivity : ActivityBase() {
                     val categories = remember { service.categories() }
                     val toolsByCategory = remember { service.toolsByCategory() }
                     val modelChoices = remember { service.modelChoices() }
+                    val globalMaxIterations = CommonUtils.aiSettings.maxIterations
+                    val globalMaxIterationsLabel =
+                        if (globalMaxIterations <= 0) getString(R.string.prompt_max_iterations_unlimited)
+                        else globalMaxIterations.toString()
 
                     var showDiscardConfirm by remember { mutableStateOf(false) }
                     BackHandler {
@@ -125,6 +130,7 @@ class PromptEditComposeActivity : ActivityBase() {
                         toolsByCategory = toolsByCategory,
                         modelChoices = modelChoices,
                         globalToolPermission = service::globalToolPermission,
+                        globalMaxIterationsLabel = globalMaxIterationsLabel,
                         onSelectTab = controller::selectTab,
                         onSetName = controller::setName,
                         onSetDescription = controller::setDescription,

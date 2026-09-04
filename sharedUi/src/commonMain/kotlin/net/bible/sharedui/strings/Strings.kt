@@ -433,6 +433,7 @@ interface Strings {
     val promptModelOverrideLabel: String         // R.string.prompt_model_override
     val promptMaxIterationsLabel: String         // R.string.prompt_max_iterations
     val promptMaxIterationsHint: String          // R.string.prompt_max_iterations_hint
+    fun promptMaxIterationsUseGlobal(value: String): String  // R.string.prompt_max_iterations_use_global
     val promptStrictContextMatchingLabel: String        // R.string.prompt_strict_context_matching
     val promptStrictContextMatchingDescription: String  // R.string.prompt_strict_context_matching_description
     val promptSpecifyBeforeRunLabel: String             // R.string.prompt_edit_before_run
@@ -753,6 +754,25 @@ interface Strings {
 
     // Round 17e-2 — moved from the cloud list's overflow menu into its arrangement sheet
     val cloudDocShowRemoved: String                  // R.string.cloud_doc_show_removed
+
+    /** Category-header control state when the category's tools do not all share a permission (17f). */
+    val toolPermissionMixed: String              // R.string.tool_permission_mixed
+
+    /** Classic's explanation under the permission-mode spinner (`prompt_edit.xml:213-217`), lost in
+     *  the port and restored by 17f inside the permission sheet. */
+    val promptPermissionModeDescription: String  // R.string.prompt_permission_mode_description
+
+    /** Classic's built-in badge on a manager row (`R.string.built_in_prompt`), restored by 17f. */
+    val builtInPrompt: String                    // R.string.built_in_prompt
+    /** Classic's add-on badge, `"Add-on: %s"` with the module name. */
+    fun addonPromptBadge(module: String): String // R.string.addon_prompt_badge
+
+    // 17f — prompt manager search + filter sheet
+    val promptFilterTitle: String                // R.string.prompt_filter_title
+    val promptFilterType: String                 // R.string.prompt_filter_type
+    val promptTypeAddon: String                  // R.string.prompt_type_addon
+    val promptTypeUser: String                   // R.string.prompt_type_user
+    val promptFilterClear: String                // R.string.prompt_filter_clear
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }
