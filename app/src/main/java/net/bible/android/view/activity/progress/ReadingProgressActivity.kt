@@ -50,6 +50,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.progress.ReadingProgressColors.COLOR_EMPTY
 import net.bible.android.view.activity.progress.ReadingProgressColors.COLOR_TARGET_DOT
 import net.bible.android.view.activity.progress.ReadingProgressColors.HEAT_MID_COUNT
@@ -459,6 +460,7 @@ class ReadingProgressActivity : ActivityBase() {
         val verse = Verse(kjva, book, chapter, 1)
         val resultIntent = Intent(this, GridChoosePassageBook::class.java)
         resultIntent.putExtra("verse", verse.osisID)
+        resultIntent.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
         setResult(RESULT_OK, resultIntent)
         finish()
     }
@@ -468,6 +470,7 @@ class ReadingProgressActivity : ActivityBase() {
         resultIntent.putExtra("action", "memorize")
         resultIntent.putExtra("startOrdinal", range.start.ordinal)
         resultIntent.putExtra("endOrdinal", range.end.ordinal)
+        resultIntent.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
         setResult(RESULT_OK, resultIntent)
         finish()
     }

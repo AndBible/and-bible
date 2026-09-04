@@ -21,6 +21,7 @@ import android.content.Intent
 import android.util.Log
 import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.view.activity.navigation.GridChoosePassageVerse
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
@@ -55,6 +56,7 @@ class ChooseGeneralBookKey : ChooseKeyBase() {
             myIntent.putExtra("key", key?.osisRef?: doc!!.globalKeyList.first().osisRef)
             myIntent.putExtra("book", doc?.initials)
         }
+        myIntent.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.GenBookKey.name)
 
         setResult(Activity.RESULT_OK, myIntent)
     }

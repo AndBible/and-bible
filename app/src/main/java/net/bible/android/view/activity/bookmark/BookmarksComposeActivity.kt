@@ -40,6 +40,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.sharedcore.bookmark.BookmarksController
@@ -56,11 +57,10 @@ private const val TAG = "BookmarksCompose"
  * the portable [net.bible.sharedcore.bookmark.BookmarksService] interface is needed here to
  * resolve a selected/assigned/deleted row back to its bookmark).
  *
- * **Result-className parity.** [onSelectBookmark] builds the exact same result [Intent] classic
- * `Bookmarks.bookmarkSelected` does (Bookmarks.kt:295-323) — verse/key/book/ordinal + description +
- * labelNo + listPosition — and, crucially, targets it at the CLASSIC `Bookmarks::class.java`, not
- * this activity, so `MainBibleActivity`'s `className == Bookmarks::class.java.name` dispatch
- * (MainBibleActivity.kt:1922-2012) matches regardless of which host produced the result.
+ * [onSelectBookmark] builds the exact same result [Intent] classic `Bookmarks.bookmarkSelected`
+ * does (Bookmarks.kt:295-323) — verse/key/book/ordinal + description + labelNo + listPosition,
+ * plus `ActivityResultKind.Bookmarks`, which `MainBibleActivity.onActivityResult`
+ * (MainBibleActivity.kt:1922-2012) dispatches on regardless of which host produced the result.
  */
 class BookmarksComposeActivity : ActivityBase() {
     private val service: BookmarksServiceImpl by inject()
@@ -169,9 +169,8 @@ class BookmarksComposeActivity : ActivityBase() {
             if (bookmark is BookmarkEntities.BibleBookmarkWithNotes && bookmarkControl.isSpeakBookmark(bookmark)) {
                 speakControl.speakFromBookmark(bookmark)
             }
-            // Target the CLASSIC activity so MainBibleActivity's className dispatch matches
-            // regardless of which host (classic/Compose) produced this result.
-            val resultIntent = Intent(this, Bookmarks::class.java)
+            val resultIntent = Intent()
+                .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.Bookmarks.name)
             when (bookmark) {
                 is BookmarkEntities.BibleBookmarkWithNotes -> {
                     resultIntent.putExtra("verse", bookmark.verseRange.start.osisID)

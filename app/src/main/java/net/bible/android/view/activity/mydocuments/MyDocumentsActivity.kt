@@ -53,6 +53,7 @@ import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.control.event.ABEventBus
 import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
@@ -268,6 +269,7 @@ class MyDocumentsActivity : ActivityBase() {
     }
 
     private fun finishOk() {
+        resultIntent.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.MyDocuments.name)
         setResult(Activity.RESULT_OK, resultIntent)
         finish()
         finished = true

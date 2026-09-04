@@ -119,10 +119,10 @@ class ProgressStatusComposeActivity : ActivityBase() {
         controller.setJobs(snapshot)
     }
 
-    /** className parity with classic [ProgressStatus.onOkay]: RESULT_OK + Intent(ProgressStatus) + finish. */
+    /** Mirrors classic [ProgressStatus.onOkay]: RESULT_OK + finish. */
     private fun onOkay() {
         Log.i(TAG, "CLICKED")
-        setResult(Activity.RESULT_OK, Intent(this, ProgressStatus::class.java))
+        setResult(Activity.RESULT_OK, Intent())
         finish()
     }
 

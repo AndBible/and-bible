@@ -30,7 +30,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import net.bible.sharedcore.navigation.ChooseDictionaryWordController
@@ -55,10 +55,11 @@ class ChooseDictionaryWordComposeActivity : ActivityBase() {
         ChooseDictionaryWordController(
             onSelect = { keyId ->
                 val key = keys.getOrNull(keyId.toIntOrNull() ?: -1) ?: return@ChooseDictionaryWordController
-                // Classic ChooseDictionaryWord.itemSelected: result routed through ChooseGeneralBookKey.
-                val intent = Intent(this, ChooseGeneralBookKey::class.java)
+                // Classic ChooseDictionaryWord.itemSelected: shares ChooseGeneralBookKey's GenBookKey result shape.
+                val intent = Intent()
                 intent.putExtra("key", key.osisRef)
                 intent.putExtra("book", page.currentDocument?.initials)
+                intent.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.GenBookKey.name)
                 setResult(Activity.RESULT_OK, intent)
                 finish()
             },

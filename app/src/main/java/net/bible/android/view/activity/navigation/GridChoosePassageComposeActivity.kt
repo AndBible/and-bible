@@ -28,6 +28,7 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedui.AbAppTheme
@@ -98,7 +99,9 @@ class GridChoosePassageComposeActivity : ActivityBase() {
     }
 
     private fun finishWithVerse(osisId: String) {
-        val resultIntent = Intent(this, GridChoosePassageBook::class.java).putExtra("verse", osisId)
+        val resultIntent = Intent()
+            .putExtra("verse", osisId)
+            .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.PassageGrid.name)
         setResult(Activity.RESULT_OK, resultIntent)
         finish()
     }

@@ -39,7 +39,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.mydocument.MyDocumentBookManager
@@ -58,9 +58,8 @@ import java.io.File
  * [MyDocumentPagesController]/[MyDocumentPagesScreen]. All Room/SWORD/SAF/EventBus side effects are
  * host-side.
  *
- * Result-className parity (correctness-critical): results are built as
- * `Intent(this, MyDocumentPagesActivity::class.java)` with `documentInitials`/`pageKey` extras, so
- * `MainBibleActivity.onActivityResult`'s className dispatch (~line 1943) is untouched.
+ * Results carry `documentInitials`/`pageKey` extras plus `ActivityResultKind.MyDocumentPages`,
+ * which `MainBibleActivity.onActivityResult` dispatches on.
  */
 class MyDocumentPagesComposeActivity : ActivityBase() {
     private val dao get() = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
@@ -95,7 +94,8 @@ class MyDocumentPagesComposeActivity : ActivityBase() {
         if (docIdStr == null) { finish(); return }
         documentId = IdType(docIdStr)
 
-        resultIntent = Intent(this, MyDocumentPagesActivity::class.java)
+        resultIntent = Intent()
+            .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.MyDocumentPages.name)
         val title = getString(R.string.my_document_pages_title, documentName)
         lifecycleScope.launch { reload() }
         setContent {

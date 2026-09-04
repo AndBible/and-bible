@@ -40,6 +40,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.DownloadManager
@@ -76,9 +77,8 @@ private const val ARRANGEMENT_REMEMBER_KEY = "chooseDoc.arrangement.remember"
  * shared [DocumentSelectionController]/[DocumentSelectionScreen]. All JSword side effects
  * (open/delete/about/unlock/search) run behind the controller's seams, host-side.
  *
- * Result contract parity: [onSelect] returns via an Intent whose className is [ChooseDocument]
- * (with the `book` initials extra) — `MainBibleActivity.onActivityResult` dispatches on that
- * className, so it MUST NOT change.
+ * [onSelect] returns the `book` initials extra plus `ActivityResultKind.ChooseDocument`, which
+ * `MainBibleActivity.onActivityResult` dispatches on.
  */
 class ChooseDocumentComposeActivity : ActivityBase() {
     private val downloadControl: DownloadControl by inject()
@@ -257,7 +257,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
 
     // --- Controller seams (JSword side effects) ---------------------------------------------
 
-    /** Classic ChooseDocument.handleDocumentSelection. Result className = [ChooseDocument]. */
+    /** Classic ChooseDocument.handleDocumentSelection. */
     private fun handleDocumentSelection(docId: String) {
         val book = booksById[docId] ?: return
         if (book.bookCategory == BookCategory.AND_BIBLE) return
@@ -267,8 +267,9 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                 return@launch
             }
             Log.i(TAG, "Book selected:" + book.initials)
-            val myIntent = Intent(this@ChooseDocumentComposeActivity, ChooseDocument::class.java)
+            val myIntent = Intent()
             myIntent.putExtra("book", book.initials)
+            myIntent.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ChooseDocument.name)
             setResult(Activity.RESULT_OK, myIntent)
             finish()
         }

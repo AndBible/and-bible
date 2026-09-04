@@ -36,7 +36,7 @@ import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.progress.PassageRow
 import net.bible.sharedcore.progress.ReadHistoryEntry
@@ -63,14 +63,12 @@ private data class HistoryReq(val title: String, val rows: List<ReadHistoryRow>)
  * [ReadingProgressServiceImpl.osisIdForChapter] plus the read-history/formatting helpers used here
  * go beyond the portable [net.bible.sharedcore.progress.ReadingProgressService] seam).
  *
- * **Result-className parity.** [navigateToChapter] builds the same `verse` extra classic
- * `ReadingProgressActivity.navigateToChapter` does, but targets it at the CLASSIC
- * `GridChoosePassageBook::class.java`, not this activity, so `MainBibleActivity`'s className
- * dispatch matches regardless of which host produced the result.
+ * [navigateToChapter] builds the same `verse` extra classic `ReadingProgressActivity.navigateToChapter`
+ * does, plus `ActivityResultKind.ReadingProgress`, which `MainBibleActivity`'s dispatch reads
+ * regardless of which host produced the result.
  *
  * **Memorize tab (Plan 8b).** [navigateToMemorize] mirrors classic
- * `ReadingProgressActivity.navigateToMemorize` — same result-className parity trick, targeting
- * the CLASSIC `ReadingProgressActivity::class.java`, not this activity.
+ * `ReadingProgressActivity.navigateToMemorize`, carrying the same `ActivityResultKind.ReadingProgress`.
  */
 class ReadingProgressComposeActivity : ActivityBase() {
     private val service: ReadingProgressServiceImpl by inject()
@@ -190,8 +188,9 @@ class ReadingProgressComposeActivity : ActivityBase() {
     // --- result parity (mirrors classic ReadingProgressActivity.navigateToChapter) ---
 
     private fun navigateToChapter(bookId: String, chapter: Int) {
-        val resultIntent = Intent(this, GridChoosePassageBook::class.java)
+        val resultIntent = Intent()
             .putExtra("verse", service.osisIdForChapter(bookId, chapter))
+            .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
         setResult(RESULT_OK, resultIntent)
         finish()
     }
@@ -199,10 +198,11 @@ class ReadingProgressComposeActivity : ActivityBase() {
     // --- result parity (mirrors classic ReadingProgressActivity.navigateToMemorize) ---
 
     private fun navigateToMemorize(start: Int, end: Int) {
-        val resultIntent = Intent(this, ReadingProgressActivity::class.java)
+        val resultIntent = Intent()
             .putExtra("action", "memorize")
             .putExtra("startOrdinal", start)
             .putExtra("endOrdinal", end)
+            .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
         setResult(RESULT_OK, resultIntent)
         finish()
     }

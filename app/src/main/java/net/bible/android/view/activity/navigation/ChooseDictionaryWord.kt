@@ -35,6 +35,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade.readOsisFragment
 import org.crosswire.jsword.book.Book
@@ -234,6 +235,7 @@ class ChooseDictionaryWord : ListActivityBase() {
     private fun itemSelected(selectedKey: Key) {
         val myIntent = Intent(this, ChooseGeneralBookKey::class.java)
         myIntent.putExtra("key", selectedKey.osisRef)
+        myIntent.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.GenBookKey.name)
         setResult(Activity.RESULT_OK, myIntent)
         val curDoc = windowControl.activeWindowPageManager.currentDictionary.currentDocument!!
         myIntent.putExtra("book", curDoc.initials)

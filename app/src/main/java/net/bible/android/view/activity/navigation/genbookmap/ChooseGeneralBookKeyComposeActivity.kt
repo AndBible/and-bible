@@ -26,6 +26,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.navigation.ChooseGeneralBookKeyController
@@ -45,9 +46,9 @@ class ChooseGeneralBookKeyComposeActivity : ActivityBase() {
     /** Resolved once per load; index into this list is the [KeyRow.keyId]. */
     private var keys: List<Key> = emptyList()
 
-    /** Reproduce classic [ChooseGeneralBookKey.itemSelected] result Intent (className = classic class). */
+    /** Reproduce classic [ChooseGeneralBookKey.itemSelected] result Intent. */
     private fun buildResult(key: Key?): Intent {
-        val intent = Intent(this, ChooseGeneralBookKey::class.java)
+        val intent = Intent()
         val doc = page.currentDocument
         if (key is BookAndKey) {
             intent.putExtra("bookAndKey", key.serialized)
@@ -55,6 +56,7 @@ class ChooseGeneralBookKeyComposeActivity : ActivityBase() {
             intent.putExtra("key", key?.osisRef ?: doc!!.globalKeyList.first().osisRef)
             intent.putExtra("book", doc?.initials)
         }
+        intent.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.GenBookKey.name)
         return intent
     }
 

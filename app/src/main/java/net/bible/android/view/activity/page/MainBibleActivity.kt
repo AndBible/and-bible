@@ -138,16 +138,7 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.ai.LlmDialogHelper
-import net.bible.android.view.activity.bookmark.Bookmarks
-import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
-import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.download.imageResource
-import net.bible.android.view.activity.navigation.ChooseDictionaryWord
-import net.bible.android.view.activity.navigation.ChooseDocument
-import net.bible.android.view.activity.navigation.GridChoosePassageBook
-import net.bible.android.view.activity.progress.ReadingProgressActivity
-import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
-import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.classicBottomChromeAllowed
@@ -3135,23 +3126,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
                 STD_REQUEST_CODE -> {
                     CurrentActivityHolder.activate(this) // needed because startKeyChooser is using this
-                    val classes = arrayOf(
-                        GridChoosePassageBook::class.java.name,
-                        Bookmarks::class.java.name,
-                        ReadingProgressActivity::class.java.name,
-                    )
-                    val genBookClasses = arrayOf(
-                        ChooseGeneralBookKey::class.java.name,
-                        ChooseDictionaryWord::class.java.name,
-                        ChooseMapKey::class.java.name,
-                    )
-                    when(val className = data.component?.className) {
+                    when (val kind = ActivityResultKind.fromExtra(extras.getString(ActivityResultKind.EXTRA))) {
                         null -> {}
-                        ChooseDocument::class.java.name -> {
+                        ActivityResultKind.ChooseDocument -> {
                             applyChosenDocument(extras.getString("book"))
                             return
                         }
-                        MyDocumentPagesActivity::class.java.name -> {
+                        ActivityResultKind.MyDocumentPages -> {
                             val bookInitials = extras.getString("documentInitials")
                             val pageKey = extras.getString("pageKey")
                             if (bookInitials != null && pageKey != null) {
@@ -3163,7 +3144,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             }
                             return
                         }
-                        MyDocumentsActivity::class.java.name -> {
+                        ActivityResultKind.MyDocuments -> {
                             val bookInitials = extras.getString("documentInitials")
                             val pageKey = extras.getString("pageKey")
                             if (bookInitials != null) {
@@ -3179,8 +3160,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             }
                             return
                         }
-                        in classes -> {
-                            if (className == ReadingProgressActivity::class.java.name
+                        ActivityResultKind.PassageGrid,
+                        ActivityResultKind.Bookmarks,
+                        ActivityResultKind.ReadingProgress -> {
+                            if (kind == ActivityResultKind.ReadingProgress
                                 && extras.getString("action") == "memorize") {
                                 val startOrd = extras.getInt("startOrdinal")
                                 val endOrd = extras.getInt("endOrdinal")
@@ -3190,7 +3173,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                                 linkControl.openMemorize(BookAndKey(verseRange, defaultBible))
                                 return
                             }
-                            val isFromBookmark = className == Bookmarks::class.java.name
+                            val isFromBookmark = kind == ActivityResultKind.Bookmarks
                             val verseStr = extras.getString("verse")
                             val keyStr = extras.getString("key")
                             val bookStr = extras.getString("book")
@@ -3206,7 +3189,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             }
                             return
                         }
-                        in genBookClasses -> {
+                        ActivityResultKind.GenBookKey -> {
                             val keyStr = extras.getString("key")
                             val bookStr = extras.getString("book")
                             val bookAndKeyStr = extras.getString("bookAndKey")

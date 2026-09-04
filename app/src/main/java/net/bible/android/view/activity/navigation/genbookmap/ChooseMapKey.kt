@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Intent
 import android.util.Log
 import net.bible.android.control.page.CurrentMapPage
+import net.bible.android.view.activity.page.ActivityResultKind
 import org.crosswire.jsword.passage.Key
 
 /** show a key list and allow to select item
@@ -37,6 +38,7 @@ class ChooseMapKey : ChooseKeyBase() {
         val myIntent = Intent(this, ChooseMapKey::class.java)
         myIntent.putExtra("key", key?.osisRef)
         myIntent.putExtra("book", currentMapPage.currentDocument?.initials)
+        myIntent.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.GenBookKey.name)
         setResult(Activity.RESULT_OK, myIntent)
     }
 

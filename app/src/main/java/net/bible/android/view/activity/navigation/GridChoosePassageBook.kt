@@ -33,6 +33,7 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
@@ -267,6 +268,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
 
                     val resultIntent = Intent(this, GridChoosePassageBook::class.java)
                     resultIntent.putExtra("verse", verse.osisID)
+                    resultIntent.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.PassageGrid.name)
                     setResult(Activity.RESULT_OK, resultIntent)
                     finish()
                     return
@@ -293,7 +295,12 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
     @SuppressLint("MissingSuperCall")
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
-            setResult(Activity.RESULT_OK, data)
+            // The child (GridChoosePassageChapter/Verse) builds this intent; stamp the kind here so
+            // neither child has to know about the dispatch.
+            setResult(
+                Activity.RESULT_OK,
+                data?.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.PassageGrid.name),
+            )
             finish()
         }
     }

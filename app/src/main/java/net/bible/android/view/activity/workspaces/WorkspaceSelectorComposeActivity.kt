@@ -75,7 +75,7 @@ class WorkspaceSelectorComposeActivity : ActivityBase() {
         )
     }
 
-    private fun resultIntent() = Intent(this, WorkspaceSelectorActivity::class.java)
+    private fun resultIntent() = Intent()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

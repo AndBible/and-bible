@@ -36,6 +36,7 @@ import net.bible.android.view.activity.base.DocumentSelectionBase
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -112,6 +113,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
 
             val myIntent = Intent(this@ChooseDocument, ChooseDocument::class.java)
             myIntent.putExtra("book", selectedDocument.initials)
+            myIntent.putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ChooseDocument.name)
             setResult(Activity.RESULT_OK, myIntent)
             finish()
         }

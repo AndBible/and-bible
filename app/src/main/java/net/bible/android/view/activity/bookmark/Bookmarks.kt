@@ -59,6 +59,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNot
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
@@ -299,6 +300,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 speakControl.speakFromBookmark(bookmark)
             }
             val resultIntent = Intent(this, Bookmarks::class.java)
+                .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.Bookmarks.name)
             when(bookmark) {
                 is BookmarkEntities.BibleBookmarkWithNotes -> {
                     resultIntent.putExtra("verse", bookmark.verseRange.start.osisID)

@@ -26,6 +26,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.page.CurrentMapPage
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.navigation.ChooseMapKeyController
 import net.bible.sharedcore.navigation.KeyRow
@@ -43,11 +44,12 @@ class ChooseMapKeyComposeActivity : ActivityBase() {
 
     private var keys: List<Key> = emptyList()
 
-    /** Reproduce classic [ChooseMapKey.itemSelected] result Intent (className = classic class). */
+    /** Reproduce classic [ChooseMapKey.itemSelected] result Intent. */
     private fun buildResult(key: Key?): Intent =
-        Intent(this, ChooseMapKey::class.java).apply {
+        Intent().apply {
             putExtra("key", key?.osisRef)
             putExtra("book", page.currentDocument?.initials)
+            putExtra(ActivityResultKind.EXTRA, ActivityResultKind.GenBookKey.name)
         }
 
     private val controller by lazy {
