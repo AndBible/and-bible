@@ -128,12 +128,12 @@ class ClassicKeyChooserRemovalGuardTest {
             }
             .map { it.path.replace('\\', '/') }
             .sorted()
+        assertTrue("the source-set walk found no Kotlin source at all", sources.size > 100)
         assertEquals(
             "these files still name a classic key-chooser class deleted in S3",
             emptyList<String>(),
             offenders,
         )
-        assertTrue("the source-set walk found no Kotlin source at all", sources.size > 100)
     }
 
     /** No manifest may declare, or point at, a class this slice deletes. */
@@ -172,8 +172,12 @@ class ClassicKeyChooserRemovalGuardTest {
         val chooserScreens = listOf(
             "Screen.ChooseGeneralBookKey", "Screen.ChooseMapKey", "Screen.ChooseDictionaryWord",
         )
-        // Each arm is `Screen.X -> XComposeActivity::class.java`. Take the text from the arm's
-        // `Screen.X ->` up to the next `Screen.` and assert no branch survives inside it. The
+        // Each arm is `Screen.X -> XComposeActivity::class.java`. This is a TOKEN bound, not a
+        // true `when`-arm bound: take the text from the arm's `Screen.X ->` up to the NEXT
+        // occurrence of the token `Screen.` (or the end of the file), and assert no branch
+        // survives inside that span. An arm whose own body happened to mention `Screen.` would be
+        // truncated early by this heuristic — every collapsed arm here is a one-liner, so that
+        // never happens in practice, but a future arm is not guaranteed to stay that way. The
         // literal " ->" in the search string keeps an arm from matching a longer-named sibling.
         // NOTE, deliberately different from S1's and S2's copies of this test: the branch detector
         // matches `else` as a WHOLE WORD rather than the literal `"else "`, so an `else` written at
