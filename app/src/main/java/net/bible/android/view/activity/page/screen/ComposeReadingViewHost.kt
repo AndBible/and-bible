@@ -99,6 +99,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -170,6 +171,7 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.isMyDocument
+import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ai.AgentPermissionRequest
@@ -223,6 +225,7 @@ import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
+import net.bible.sharedcore.search.forEpubOf
 import net.bible.sharedcore.search.searchTranslationIds
 import net.bible.sharedcore.settings.ColorSettingsController
 import net.bible.sharedcore.settings.SettingsEditorPage
@@ -1596,7 +1599,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private fun KeyChooserSheet(sheet: ReadingQuickSheet, kind: KeyChooserKind, title: String) {
         // The list [showKeyChooserSheet] was handed, NOT a fresh resolution -- see its kdoc.
         val keys = remember(sheet) { keyChooserKeys }
-        val rows = remember(keys) { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.name) } }
+        val rows = remember(keys) { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) } }
         val currentKeyId = remember(keys) { currentKeyChooserRowId(kind, keys) }
         val listState = rememberLazyListState()
         AbQuickSheet(
@@ -1812,13 +1815,25 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     )
 
     /**
-     * What the toolbar renders in search mode, or `null` when search mode is off (which is what
-     * makes `ReadingToolbar` draw its normal row). Assembled here rather than in `mountComposeView`
-     * because three of its four inputs are `StateFlow`s owned by [searchController]/[searchQueries]
-     * and one is host state; `mountComposeView` just collects the result, the same shape as its
-     * `toolbar: StateFlow<ToolbarState>` parameter.
+     * Phase-derived inputs for [searchBar], pre-combined so [searchBarCore] stays inside `combine`'s
+     * five-argument typed overload (it is already full).
      */
-    val searchBar: StateFlow<ReadingSearchBarState?> = combine(
+    private data class SearchBarPhaseInfo(val resultsAvailable: Boolean, val forEpub: Boolean)
+
+    private val searchBarPhaseInfo: StateFlow<SearchBarPhaseInfo> = searchController.phase
+        .map { p ->
+            SearchBarPhaseInfo(
+                // Deliberately not `&& !sheetVisible`: while the sheet is open the button merely
+                // re-raises an already-raised sheet, whereas gating on visibility would make the
+                // leading icon change identity every time the sheet is dragged.
+                resultsAvailable = p is ReadingSearchPhase.Results,
+                forEpub = forEpubOf(p) == true,
+            )
+        }
+        .stateIn(hostScope, SharingStarted.Eagerly, SearchBarPhaseInfo(false, false))
+
+    /** The query/history/IME half of [searchBar] — everything that is not derived from the phase. */
+    private val searchBarCore: StateFlow<ReadingSearchBarState?> = combine(
         searchController.searchModeActive,
         searchQueries.query,
         searchQueries.recentTerms,
@@ -1833,6 +1848,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             imeRequest = imeRequest,
         )
     }.stateIn(hostScope, SharingStarted.Eagerly, null)
+
+    /**
+     * What the toolbar renders in search mode, or `null` when search mode is off (which is what
+     * makes `ReadingToolbar` draw its normal row). Assembled here rather than in `mountComposeView`
+     * because most of its inputs are `StateFlow`s owned by [searchController]/[searchQueries] and one
+     * is host state; `mountComposeView` just collects the result, the same shape as its
+     * `toolbar: StateFlow<ToolbarState>` parameter.
+     */
+    val searchBar: StateFlow<ReadingSearchBarState?> =
+        combine(searchBarCore, searchBarPhaseInfo) { core, info ->
+            core?.copy(resultsAvailable = info.resultsAvailable, forEpub = info.forEpub)
+        }.stateIn(hostScope, SharingStarted.Eagerly, null)
 
     /** The JSword index-build feed (Step 5) — see [startSearchIndexing]. */
     private var searchIndexWorkListener: WorkListener? = null
@@ -1955,6 +1982,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         searchSelectorPendingIds = null
         searchRecentMenuOpen.value = false
         searchSettingsOpen.value = false
+        // D7: the rows belong to the session that just ended. The query is cleared by the controller.
+        searchResults.clear()
+        epubSearchResults.clear()
         // Every exit from search mode routes through here, which is why the field's focus flag is reset
         // HERE and not at the call sites: `closeSearchIfOpen()` (the live back-button path, and the
         // ordinary way out of an empty form) would otherwise leave it true with no field on screen, and
@@ -3054,6 +3084,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onImeRequestHandled = { searchController.imeRequestHandled() },
                 onFieldFocusChanged = { searchFieldFocused.value = it },
                 onRebuildIndex = { searchController.requestRebuildIndex() },
+                onShowResults = { searchController.showResults() },
             ),
             searchSheetVisibleState = searchController.sheetVisible,
             onSearchSheetDismissed = { searchController.closeSheet() },

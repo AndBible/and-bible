@@ -51,6 +51,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.History
@@ -103,6 +104,7 @@ import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.SearchFieldImeRequest
+import net.bible.sharedcore.reading.SearchFieldLeadingAction
 import net.bible.sharedcore.reading.ToolbarButton
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.fitToolbarButtons
@@ -186,6 +188,8 @@ data class ReadingSearchBarCallbacks(
     val onFieldFocusChanged: (Boolean) -> Unit,
     /** The overflow's "Rebuild index" — see `ReadingSearchController.requestRebuildIndex`. */
     val onRebuildIndex: () -> Unit,
+    /** The leading results button — see `ReadingSearchController.showResults`. */
+    val onShowResults: () -> Unit,
 )
 
 /** Height of the toolbar row — matches the classic `@dimen/toolbar_height` (56dp). */
@@ -196,6 +200,9 @@ private val ToolbarButtonWidth = 48.dp
 
 /** Classic's own help link (`Search.kt:283`), kept verbatim so the help says the same thing. */
 private const val LUCENE_QUERY_SYNTAX_URL = "https://lucene.apache.org/core/2_9_4/queryparsersyntax.html"
+
+/** The EPUB search engine's own syntax reference (`EpubSearchComposeActivity.help`'s link). */
+private const val FTS5_QUERY_SYNTAX_URL = "https://www.sqlite.org/fts5.html#full_text_query_syntax"
 
 /**
  * Stateless port of the classic `MainBibleActivity` toolbar (`main_bible_view.xml`'s
@@ -425,12 +432,18 @@ fun ReadingToolbar(
                             .onFocusChanged { searchBarCallbacks.onFieldFocusChanged(it.isFocused) },
                         decorationBox = { innerTextField ->
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                if (searchBar.recentTerms.isNotEmpty()) {
-                                    ToolbarVectorButton(
+                                when (searchBar.leadingAction) {
+                                    SearchFieldLeadingAction.ShowResults -> ToolbarVectorButton(
+                                        Icons.AutoMirrored.Filled.FormatListBulleted,
+                                        strings.searchShowResults,
+                                        searchBarCallbacks.onShowResults,
+                                    )
+                                    SearchFieldLeadingAction.RecentTerms -> ToolbarVectorButton(
                                         Icons.Filled.History,
                                         strings.recentSearches,
                                         searchBarCallbacks.onRecentTermsOpen,
                                     )
+                                    SearchFieldLeadingAction.None -> Unit
                                 }
                                 Box(Modifier.weight(1f)) {
                                     if (searchBar.query.isEmpty()) {
@@ -495,16 +508,18 @@ fun ReadingToolbar(
             }
         }
         if (searchHelpOpen) {
-            // A faithful conversion of classic `Search.help()` (`Search.kt:282-298`): the same two
-            // sentences, and the Lucene link as AbInfoDialog's read-more. Inlining the link label
-            // into the body AND repeating it as readMoreLabel is the established pattern here —
-            // `CustomRepositoriesScreen.kt:110-116` does exactly this.
+            // Round 17d: EPUB search is SQLite FTS5, not Lucene, and this dialog is where an EPUB
+            // search is actually helped — the toolbar IS the EPUB search form. Showing the Lucene
+            // body here documented an engine this session is not using.
+            val forEpub = searchBar.forEpub
+            val linkLabel = if (forEpub) strings.helpFts5 else strings.helpApacheLucene
             AbInfoDialog(
                 title = strings.help,
-                body = "${strings.helpSearchText2}\n\n${strings.helpSearchDetails(strings.helpApacheLucene)}",
+                body = "${if (forEpub) strings.helpSearchEpub else strings.helpSearchBible}" +
+                    "\n\n${strings.helpSearchDetails(linkLabel)}",
                 onDismiss = { searchHelpOpen = false },
-                readMoreLabel = strings.helpApacheLucene,
-                readMoreUrl = LUCENE_QUERY_SYNTAX_URL,
+                readMoreLabel = linkLabel,
+                readMoreUrl = if (forEpub) FTS5_QUERY_SYNTAX_URL else LUCENE_QUERY_SYNTAX_URL,
             )
         }
         return

@@ -46,10 +46,28 @@ data class ReadingSearchBarState(
     val recentTerms: List<String> = emptyList(),
     val recentMenuOpen: Boolean = false,
     val imeRequest: SearchFieldImeRequest? = null,
+    /** There are results to go back to — the toolbar's leading icon becomes the results button. */
+    val resultsAvailable: Boolean = false,
+    /** This session is searching an EPUB, which decides which help text the ⋮ menu shows. */
+    val forEpub: Boolean = false,
 ) {
     /**
      * A blank query must not reach Lucene: classic `SearchControl.validateQuery` rejects it, and an
      * empty search would clear the results the user is still looking at.
      */
     val submitEnabled: Boolean get() = query.isNotBlank()
+
+    /**
+     * Which affordance the field's leading icon offers. The two are wanted in disjoint situations —
+     * history when there is nothing to go back to, results once a query has been run (spec D6) — and
+     * the toolbar row has no slot for both.
+     */
+    val leadingAction: SearchFieldLeadingAction get() = when {
+        resultsAvailable && query.isNotBlank() -> SearchFieldLeadingAction.ShowResults
+        recentTerms.isNotEmpty() -> SearchFieldLeadingAction.RecentTerms
+        else -> SearchFieldLeadingAction.None
+    }
 }
+
+/** @see ReadingSearchBarState.leadingAction */
+enum class SearchFieldLeadingAction { None, RecentTerms, ShowResults }

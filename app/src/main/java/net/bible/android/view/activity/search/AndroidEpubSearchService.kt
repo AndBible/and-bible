@@ -27,6 +27,7 @@ import net.bible.sharedcore.search.adjustSearchText
 import net.bible.sharedcore.search.parseHighlightHtml
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.nameWithoutDocument
 import org.crosswire.jsword.book.Books
 
 /**
@@ -60,7 +61,7 @@ class AndroidEpubSearchService : EpubSearchService {
                         // @Transient and absent from osisRef, which is why the fragment address
                         // alone collided as a list key (F44/B1).
                         ordinal = kt.key.ordinal?.start ?: 0,
-                        keyName = kt.key.name,
+                        keyName = kt.key.nameWithoutDocument,
                         text = parseHighlightHtml(kt.text),
                     )
                 }

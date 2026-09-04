@@ -117,7 +117,7 @@ class EpubSearchComposeActivity : ActivityBase() {
         val link = """<a href="$ftsLink">${getString(R.string.help_fts5)}</a>"""
         val span = htmlToSpan(
             """
-            ${getString(R.string.help_search_text2)}<br><br>
+            ${getString(R.string.help_search_epub)}<br><br>
             ${getString(R.string.help_search_details, link)}
             """.trimIndent()
         )

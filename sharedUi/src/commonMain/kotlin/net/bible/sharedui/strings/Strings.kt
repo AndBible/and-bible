@@ -106,6 +106,12 @@ interface Strings {
 
     /** The scope dropdown's label ("Search Where") — classic's own `RadioGroup` prompt for this. */
     val searchWhere: String
+
+    /**
+     * The EPUB word-mode dropdown's label. NOT `search_words_group_prompt` ("Find verses"), which is
+     * classic's Bible-only wording and says the wrong thing about a book with no verses.
+     */
+    val searchTypePrompt: String
     val chooseTranslations: String
     val recentSearches: String
     val create: String
@@ -127,6 +133,9 @@ interface Strings {
      */
     val searchClear: String
 
+    /** Content description for the toolbar field's back-to-results button. */
+    val searchShowResults: String
+
     /**
      * F6-B5. The Bible-search help dialog, restored to the Compose path: classic offered it from the
      * search screen's action bar (`R.menu.search_actionbar_menu`) and the Compose form dropped it
@@ -134,6 +143,16 @@ interface Strings {
      * [helpSearchDetails] takes the link label, matching `custom_repositories_help2`'s shape.
      */
     val helpSearchText2: String
+
+    /**
+     * The Bible-search help body (round 17d). Replaces [helpSearchText2] at the toolbar's help
+     * dialog; that string stays for the callers and translations that still reference it.
+     */
+    val helpSearchBible: String
+
+    /** The EPUB-search help body — the four word modes plus FTS5 syntax, NOT Lucene's (round 17d). */
+    val helpSearchEpub: String
+
     fun helpSearchDetails(link: String): String
     val helpApacheLucene: String
 

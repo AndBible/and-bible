@@ -26,6 +26,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.page.CurrentMapPage
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.navigation.ChooseMapKeyController
 import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedui.AbAppTheme
@@ -51,7 +52,7 @@ class ChooseMapKeyComposeActivity : ActivityBase() {
 
     private val controller by lazy {
         ChooseMapKeyController(
-            loadRows = { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.name) } },
+            loadRows = { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) } },
             currentRow = { page.key?.let { cur -> keys.indexOf(cur).takeIf { it >= 0 }?.toString() } },
             onSelect = { keyId ->
                 val key = keys.getOrNull(keyId.toIntOrNull() ?: -1)

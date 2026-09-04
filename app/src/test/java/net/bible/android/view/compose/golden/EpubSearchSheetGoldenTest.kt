@@ -77,6 +77,26 @@ class EpubSearchSheetGoldenTest {
 
     @Test fun results() = captureMatrix("EpubSearchSheet", "results", heightDp = 400, content = sheet())
 
+    // C4: a long snippet must stop at three lines with an ellipsis, not push every following row
+    // off the sheet. If the clamp were removed this golden would grow by several lines.
+    @Test fun results_long_snippet() = captureGolden(
+        "EpubSearchSheet", "results_long_snippet", EDGE_MODE, heightDp = 400,
+        content = sheet(
+            rows = listOf(
+                EpubResultRow(
+                    keyId = "1", ordinal = 0, keyName = "Chapter 1",
+                    text = preview(
+                        "…and when we speak of the mystery which has been hidden for ages " +
+                            "and generations but is now revealed to his saints, we mean ",
+                        "grace",
+                        ", the riches of the glory of this mystery among the nations, which is " +
+                            "Christ in you, the hope of glory…",
+                    ),
+                ),
+            ),
+        ),
+    )
+
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun results_rtl() = captureRtl("EpubSearchSheet", "results", heightDp = 400, content = sheet())

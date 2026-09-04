@@ -95,6 +95,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val searchNewTestament: String get() = context.getString(R.string.search_new_testament)
     override val searchCurrentBook: String get() = context.getString(R.string.search_current_book)
     override val searchWhere: String get() = context.getString(R.string.search_bible_section_group_prompt)
+    override val searchTypePrompt: String get() = context.getString(R.string.search_type_prompt)
     override val chooseTranslations: String get() = context.getString(R.string.search_translations)
     override val recentSearches: String get() = context.getString(R.string.recent_searches)
     override val create: String get() = context.getString(R.string.index_create)
@@ -111,7 +112,10 @@ class AndroidStrings(private val context: Context) : Strings {
     override val searchOptions: String get() = context.getString(R.string.search_options)
     override val searchSubmit: String get() = context.getString(R.string.search_submit)
     override val searchClear: String get() = context.getString(R.string.search_clear)
+    override val searchShowResults: String get() = context.getString(R.string.search_show_results)
     override val helpSearchText2: String get() = context.getString(R.string.help_search_text2)
+    override val helpSearchBible: String get() = context.getString(R.string.help_search_bible)
+    override val helpSearchEpub: String get() = context.getString(R.string.help_search_epub)
     override fun helpSearchDetails(link: String): String =
         context.getString(R.string.help_search_details, link)
     override val helpApacheLucene: String get() = context.getString(R.string.help_apache_lucene)

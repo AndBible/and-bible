@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /** A two-line (title + secondary) clickable list row, built on primitives (no experimental API). */
@@ -47,6 +48,7 @@ fun TwoLineListItem(
     subtitle: AnnotatedString,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    subtitleMaxLines: Int = Int.MAX_VALUE,
 ) {
     Column(
         modifier = modifier
@@ -55,6 +57,11 @@ fun TwoLineListItem(
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         Text(text = title, style = MaterialTheme.typography.bodyLarge)
-        Text(text = subtitle, style = MaterialTheme.typography.bodySmall)
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = subtitleMaxLines,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }

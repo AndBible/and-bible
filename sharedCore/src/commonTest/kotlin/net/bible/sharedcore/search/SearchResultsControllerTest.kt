@@ -169,6 +169,18 @@ class SearchResultsControllerTest {
         assertEquals(listOf("KJV", "ESV"), c.selectedTranslations.value)
     }
 
+    // F6-C6 / spec D7: leaving search mode drops the rows the session produced. The persisted
+    // translation selection and the candidate list are NOT session state and must survive.
+    @Test fun clearEmptiesTheRowsAndTheErrorFlag() = runTest(UnconfinedTestDispatcher()) {
+        val c = SearchResultsController(fake, backgroundScope)
+        c.run(SearchRequest("x", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), ""))
+        assertEquals(listOf("Gen 1:1"), c.displayed.value.map { it.referenceName })
+        c.clear()
+        assertEquals(MultiSearchResults.EMPTY, c.results.value)
+        assertNull(c.error.value)
+        assertFalse(c.loading.value)
+    }
+
     @Test fun selectTranslations_unindexed_calls_onNeedIndex_and_does_not_rerun() = runTest(UnconfinedTestDispatcher()) {
         fake.unindexed = listOf("ESV")
         val c = SearchResultsController(fake, backgroundScope)

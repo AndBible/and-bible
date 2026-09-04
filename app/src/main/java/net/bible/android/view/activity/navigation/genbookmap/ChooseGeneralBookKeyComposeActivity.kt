@@ -27,6 +27,7 @@ import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.navigation.ChooseGeneralBookKeyController
 import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedui.AbAppTheme
@@ -59,7 +60,7 @@ class ChooseGeneralBookKeyComposeActivity : ActivityBase() {
 
     private val controller by lazy {
         ChooseGeneralBookKeyController(
-            loadRows = { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.name) } },
+            loadRows = { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) } },
             currentRow = { page.key?.let { cur -> keys.indexOf(cur).takeIf { it >= 0 }?.toString() } },
             onSelect = { keyId ->
                 val key = keys.getOrNull(keyId.toIntOrNull() ?: -1)

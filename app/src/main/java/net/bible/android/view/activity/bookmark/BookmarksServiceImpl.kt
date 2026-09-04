@@ -184,6 +184,8 @@ fun BookmarkSortOrder.toSortMode(): BookmarkSortMode = when (this) {
  * which classic feeds through the same `Html.fromHtml`-based `htmlToSpan` — notes are ordinarily
  * plain user text, but on the (rare) chance one contains a stray tag other than `<b>`, that tag is
  * stripped rather than rendered literally, since [StyledText] only models bold/highlight runs.
+ * Unlike [net.bible.sharedcore.search.parseHighlightHtml], this does NOT need whitespace
+ * normalization: its input is bookmark/note text from the database, not raw source XHTML.
  */
 fun htmlToStyledText(html: String): StyledText {
     val runs = mutableListOf<StyledRun>()

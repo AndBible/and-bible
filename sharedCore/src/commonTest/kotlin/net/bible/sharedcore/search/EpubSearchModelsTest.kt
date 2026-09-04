@@ -34,4 +34,39 @@ class EpubSearchModelsTest {
     @Test fun parseHighlight_unescapes_entities() {
         assertEquals(listOf(StyledRun("a & b")), parseHighlightHtml("a &amp; b").runs)
     }
+
+    @Test
+    fun collapsesRunsOfWhitespaceInsideOneRun() {
+        val st = parseHighlightHtml("When we speak of \n     “Christ being in us,”")
+        assertEquals("When we speak of “Christ being in us,”", st.plainText())
+    }
+
+    @Test
+    fun collapsesWhitespaceAcrossAStyledRunBoundary() {
+        // The space before <b> and the newline after it are ONE gap, split over two runs.
+        val st = parseHighlightHtml("say \n<b>peace</b>\n  now")
+        assertEquals(
+            listOf(StyledRun("say ", false), StyledRun("peace", true), StyledRun(" now", false)),
+            st.runs,
+        )
+    }
+
+    @Test
+    fun trimsLeadingAndTrailingWhitespace() {
+        val st = parseHighlightHtml("\n   say <b>peace</b>   \n")
+        assertEquals(listOf(StyledRun("say ", false), StyledRun("peace", true)), st.runs)
+    }
+
+    @Test
+    fun keepsNonBreakingSpace() {
+        // NBSP is content, not layout: an EPUB uses it to hold a reference together. Only the ASCII
+        // run collapses; the two NBSPs come through exactly as they are.
+        val st = parseHighlightHtml("Gen\u00A01:1   and\u00A0\u00A0more")
+        assertEquals("Gen\u00A01:1 and\u00A0\u00A0more", st.plainText())
+    }
+
+    @Test
+    fun emptyInputStillYieldsOneEmptyRun() {
+        assertEquals(listOf(StyledRun("")), parseHighlightHtml("   \n  ").runs)
+    }
 }

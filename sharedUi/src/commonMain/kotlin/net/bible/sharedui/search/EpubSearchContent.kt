@@ -17,21 +17,15 @@
 
 package net.bible.sharedui.search
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.search.EpubResultRow
 import net.bible.sharedcore.search.EpubSearchMode
+import net.bible.sharedui.components.AbDropdownField
 import net.bible.sharedui.components.TwoLineListItem
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.Strings
 
 /**
  * EPUB result rows for the reading view's search sheet — the EPUB counterpart of [bibleResultRows].
@@ -52,12 +46,15 @@ fun LazyListScope.epubResultRows(
             title = row.keyName,
             subtitle = styledTextToAnnotatedString(row.text),
             onClick = { onSelect(row.keyId, row.ordinal) },
+            // C4: `snippet()` bounds the snippet in TOKENS, which does not bound it in LINES. Three
+            // lines keeps a result list scannable whatever the token lengths turn out to be.
+            subtitleMaxLines = 3,
         )
     }
 }
 
 /**
- * The EPUB search settings — the 4-way word-mode row (including raw FTS5) — for the modal settings
+ * The EPUB search settings — the word-mode dropdown (including raw FTS5) — for the modal settings
  * sheet, the EPUB counterpart of [BibleSearchSettings]. EPUB has no section and no translation
  * picker: both are Bible concepts.
  */
@@ -67,18 +64,25 @@ fun EpubSearchSettings(
     onMode: (EpubSearchMode) -> Unit,
 ) {
     val strings = LocalStrings.current
-    val modes = EpubSearchMode.entries
-    val modeLabels = listOf(strings.allWords, strings.anyWord, strings.phrase, strings.ftsQuery)
+    // A dropdown, not a four-way SegmentedButtonRow: four equal segments cannot hold four localized
+    // labels — they soft-wrap mid-word and clip, in English at 320dp and worse in Finnish. This is
+    // F6-B4's finding for the Bible section row, arriving at the EPUB form (spec D1).
+    AbDropdownField(
+        label = strings.searchTypePrompt,
+        selected = mode,
+        options = EpubSearchMode.entries,
+        optionLabel = { epubSearchModeLabel(strings, it) },
+        onSelect = onMode,
+    )
+}
 
-    SingleChoiceSegmentedButtonRow(
-        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-    ) {
-        modes.forEachIndexed { index, m ->
-            SegmentedButton(
-                selected = mode == m,
-                onClick = { onMode(m) },
-                shape = SegmentedButtonDefaults.itemShape(index, modes.size),
-            ) { Text(modeLabels[index]) }
-        }
-    }
+/**
+ * The label for one EPUB word mode. A plain function, not a composable, so a summary line can call
+ * it too — the same shape as [searchSectionLabel] in `BibleSearchSettings.kt`.
+ */
+internal fun epubSearchModeLabel(strings: Strings, mode: EpubSearchMode): String = when (mode) {
+    EpubSearchMode.ALL_WORDS -> strings.allWords
+    EpubSearchMode.ANY_WORD -> strings.anyWord
+    EpubSearchMode.PHRASE -> strings.phrase
+    EpubSearchMode.FTS -> strings.ftsQuery
 }

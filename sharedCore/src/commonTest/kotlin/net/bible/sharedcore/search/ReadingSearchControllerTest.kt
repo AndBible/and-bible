@@ -189,6 +189,59 @@ class ReadingSearchControllerTest {
         assertEquals(1, r.searchesRun.size, "reopening must serve the existing results, not re-run")
     }
 
+    // ---- 17d C5 / spec §7, D6: the toolbar's back-to-results button ------------------------------
+
+    @Test
+    fun showResultsRaisesTheSheetWithoutRerunningTheSearch() {
+        val (r, c) = controller()
+        c.open(seedQuery = "light")
+        c.closeSheet()
+        assertFalse(c.sheetVisible.value)
+        r.searchesRun.clear()
+        assertTrue(c.showResults())
+        assertTrue(c.sheetVisible.value)
+        assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), c.phase.value)
+        assertEquals(emptyList<Triple<String, String, Boolean>>(), r.searchesRun)
+        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+    }
+
+    @Test
+    fun showResultsDoesNothingWithoutResults() {
+        val (_, c) = controller()
+        c.open()
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
+        assertFalse(c.showResults())
+        assertFalse(c.sheetVisible.value)
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
+    }
+
+    // ---- F6-C6 / spec D7: leaving search mode resets the session ---------------------------------
+
+    @Test
+    fun leavingSearchModeClearsTheQueryButNotTheRecentTerms() {
+        val (_, c) = controller()
+        c.open(seedQuery = "light")
+        c.submit()
+        assertEquals(listOf("light"), c.queries.recentTerms.value)
+        c.closeSheet()
+        c.closeSearchMode()
+        assertEquals("", c.queries.query.value)
+        assertEquals(listOf("light"), c.queries.recentTerms.value)
+    }
+
+    @Test
+    fun reopeningAfterLeavingStartsAtTheFormWithTheFieldFocused() {
+        val (r, c) = controller()
+        c.open(seedQuery = "light")
+        c.closeSheet(); c.closeSearchMode()
+        r.searchesRun.clear()
+        c.open()
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
+        assertFalse(c.sheetVisible.value)
+        assertEquals(SearchFieldImeRequest.Focus, c.imeRequest.value)
+        assertEquals(emptyList<Triple<String, String, Boolean>>(), r.searchesRun)
+    }
+
     // ---- F6 Task 11: promptIndexFor (index prompt for a translation other than the active one) ---
 
     /**
@@ -355,16 +408,22 @@ class ReadingSearchControllerTest {
         assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
     }
 
-    // Reopening on a query whose results are already served shows results, so no keyboard.
+    // F6-C6 / spec D7: closeSearchMode() now clears the query (see
+    // leavingSearchModeClearsTheQueryButNotTheRecentTerms above), so reopening after a full close no
+    // longer serves the old results — it starts fresh at the form and focuses the field. This test
+    // used to assert the opposite (Release, because the query used to survive the close); that was
+    // the OLD, now-fixed behaviour — updated rather than deleted since it still pins something real:
+    // a full close-then-reopen must NOT come back showing stale results.
     @Test
-    fun reopeningOnAnAlreadyServedQueryReleasesTheField() {
+    fun reopeningAfterAFullCloseStartsFreshAtTheFormRatherThanServingStaleResults() {
         val (_, c) = controller()
         c.open()
         c.queries.setQuery("light")
         c.submit()
         c.closeSearchMode()
         c.open()
-        assertEquals(SearchFieldImeRequest.Release, c.imeRequest.value)
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
+        assertEquals(SearchFieldImeRequest.Focus, c.imeRequest.value)
     }
 
     // Closing the sheet deliberately changes nothing: it hides the results without changing the

@@ -30,4 +30,11 @@ class EpubSearchResultsController(
 
     fun select(keyId: String, ordinal: Int) = onSelect(keyId, ordinal)
     fun dismissError() { _error.value = false }
+
+    /** Drop the rows: the search session has ended (spec D7). */
+    fun clear() {
+        _results.value = emptyList()
+        _error.value = false
+        _loading.value = false
+    }
 }

@@ -50,4 +50,16 @@ class EpubSearchResultsControllerTest {
         c.dismissError()
         assertFalse(c.error.value)
     }
+
+    // F6-C6 / spec D7: leaving search mode drops the rows the session produced.
+    @Test
+    fun clearEmptiesTheRowsAndTheErrorFlag() = runTest(UnconfinedTestDispatcher()) {
+        val c = EpubSearchResultsController(backgroundScope, FakeService(listOf(row)), onSelect = { _, _ -> })
+        c.run("EPUB", "grace", EpubSearchMode.ALL_WORDS)
+        assertTrue(c.results.value.isNotEmpty())
+        c.clear()
+        assertEquals(emptyList<EpubResultRow>(), c.results.value)
+        assertFalse(c.error.value)
+        assertFalse(c.loading.value)
+    }
 }

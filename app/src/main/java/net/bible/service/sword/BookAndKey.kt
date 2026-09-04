@@ -170,3 +170,16 @@ fun bookAndKeyListOf(keys: Collection<BookAndKey>): BookAndKeyList {
     }
     return list
 }
+
+/**
+ * The key's own name, without the `"<document abbreviation>: "` prefix [BookAndKey.getName] adds.
+ *
+ * For rendering a key on a screen whose document is already established — an EPUB search (which
+ * targets exactly one book) and a chapter/key picker (which lists exactly one book's keys). Everywhere
+ * a key can appear next to keys from OTHER documents — bookmarks, history, multi-document result
+ * lists — the prefix is what tells them apart, so those keep using [Key.getName].
+ *
+ * A no-op for any key that is not a [BookAndKey], which is why all three `KeyRow` builders can call
+ * it uniformly rather than the general-book one alone.
+ */
+val Key.nameWithoutDocument: String get() = (this as? BookAndKey)?.key?.name ?: name
