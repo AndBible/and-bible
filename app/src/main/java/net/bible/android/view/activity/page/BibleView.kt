@@ -135,7 +135,6 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.activity.page.screen.clipboardKey
-import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.AndBibleAddons
@@ -634,22 +633,20 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @RequiresApi(Build.VERSION_CODES.M)
     private fun getSupportedActivities(): List<ResolveInfo> {
         val packageManager: PackageManager = context.packageManager
+        // No filter: AndBible stopped registering itself as a PROCESS_TEXT handler when the
+        // SearchResults <activity-alias> was removed (837515385690, 2025-08-21), so there is no
+        // longer an own entry to strip out of this list. See spec §9.2 / Appendix F.2.
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             packageManager.queryIntentActivities(createProcessTextIntent(), PackageManager.ResolveInfoFlags.of(0))
         } else {
             packageManager.queryIntentActivities(createProcessTextIntent(), 0)
-        }.filter { it.activityInfo.name != SearchResults::class.qualifiedName }
+        }
     }
 
     private fun getLabel(resolveInfo: ResolveInfo): CharSequence {
         return resolveInfo.loadLabel(context.packageManager)
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun createProcessTextIntentForResolveInfo(info: ResolveInfo) =
-        createProcessTextIntent()
-            .putExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, true)
-            .setClassName(info.activityInfo.packageName, info.activityInfo.name)
 
     private fun onPrepareActionMenu(mode: ActionMode, menu: Menu): Boolean {
         Log.i(TAG, "onPrepareActionMode $menuPrepared ${currentSelection?.verseRange}")
@@ -725,19 +722,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if (currentSelectionText != null && CommonUtils.settings.llmConfigured) {
                 menu.findItem(R.id.llm_action).apply {
                     isVisible = true
-                }
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelectionText != null) {
-                var menuItemOrder = 100
-                for (resolveInfo in getSupportedActivities()) {
-                    menu.add(Menu.NONE, Menu.NONE,
-                        menuItemOrder++,
-                        getLabel(resolveInfo))
-                        .setIntent(createProcessTextIntentForResolveInfo(resolveInfo))
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-                }
-                if(!isBible) {
-                    menu.findItem(R.id.copy).isVisible = true
                 }
             }
 
