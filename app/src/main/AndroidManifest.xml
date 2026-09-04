@@ -416,7 +416,7 @@
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/rdg_plan_selector_title"
-            android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReading"
+            android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReadingComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.readingplan.DailyReadingList"
@@ -429,7 +429,7 @@
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/rdg_plan_title"
-            android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReading"
+            android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReadingComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.readingplan.DailyReading"
