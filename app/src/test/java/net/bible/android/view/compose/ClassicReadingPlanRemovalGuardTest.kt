@@ -100,4 +100,138 @@ class ClassicReadingPlanRemovalGuardTest {
                 .sorted(),
         )
     }
+
+    private val doomedPaths = listOf(
+        "src/main/java/net/bible/android/view/activity/readingplan/DailyReading.kt",
+        "src/main/java/net/bible/android/view/activity/readingplan/DailyReadingList.kt",
+        "src/main/java/net/bible/android/view/activity/readingplan/ReadingPlanSelectorList.kt",
+        "src/main/java/net/bible/android/view/activity/readingplan/DailyReadingItemAdapter.kt",
+        "src/main/java/net/bible/android/view/activity/readingplan/ReadingPlanItemAdapter.kt",
+        "src/main/java/net/bible/android/view/activity/readingplan/actionbar",
+        "src/main/res/layout/list.xml",
+        "src/main/res/layout/two_line_list_item.xml",
+        "src/main/res/layout/reading_plan_one_day.xml",
+        "src/main/res/layout/reading_plan_one_reading.xml",
+        "src/main/res/layout/reading_plan_title.xml",
+        "src/main/res/menu/reading_plan.xml",
+        "src/main/res/menu/reading_plan_list_context_menu.xml",
+    )
+
+    @Test fun theClassicReadingPlanFilesAndResourcesAreGone() {
+        assertTrue(
+            "cwd is not the :app module dir — this guard would pass vacuously",
+            File("src/main").isDirectory,
+        )
+        val survivors = doomedPaths.filter { File(it).exists() }
+        assertEquals(
+            "these classic reading-plan files, resources or directories should have been deleted " +
+                "in S2. The whole actionbar/ directory goes, not just ReadingPlanTitle: the " +
+                "manager and all five buttons have no consumer except each other and classic " +
+                "DailyReading. list.xml is S2's to delete — S1 left it because these two list " +
+                "screens still inflated it (spec 8.1).",
+            emptyList<String>(),
+            survivors,
+        )
+    }
+
+    /**
+     * `ReadingPlanKeys.kt` is this slice's trap: it sits in the doomed directory, it is named
+     * after the feature being deleted, and it holds `ReadingPlanKeys` (the PLAN/DAY intent-extra
+     * keys) and `ReadingPlanCatalog` — both lifted out of `DailyReading`'s companion by the
+     * prologue's P2 precisely so they could outlive it. `DailyReadingComposeActivity` and
+     * `service/readingplan/ReadingPlanTextFileDao` read them. Asserting these files exist turns
+     * "deleted too much" into a failure instead of a silence.
+     */
+    @Test fun theSurvivingReadingPlanCollaboratorsStillExist() {
+        val expected = listOf(
+            "src/main/java/net/bible/android/view/activity/readingplan/ReadingPlanKeys.kt",
+            "src/main/java/net/bible/android/view/activity/readingplan/DailyReadingComposeActivity.kt",
+            "src/main/java/net/bible/android/view/activity/readingplan/DailyReadingListComposeActivity.kt",
+            "src/main/java/net/bible/android/view/activity/readingplan/ReadingPlanSelectorComposeActivity.kt",
+            "src/main/res/layout/list_content_simple.xml",
+        )
+        val missing = expected.filterNot { File(it).isFile }
+        assertEquals("S2 deleted a file it was supposed to keep", emptyList<String>(), missing)
+    }
+
+    /**
+     * The reference proof of spec §3.3, expressed as a test so it survives this session. Walks all
+     * of `src/main` rather than a path list, so a new file naming a deleted class cannot escape.
+     *
+     * Matching on the FULLY-QUALIFIED name with a word boundary is what makes this possible at
+     * all: every surviving Compose twin is named after its classic original
+     * (`DailyReading` / `DailyReadingComposeActivity`), and imports are KEPT because an import is
+     * the reference being hunted — see [ClassicRemovalScan] for why both halves are load-bearing.
+     */
+    @Test fun noSourceFileNamesAClassicReadingPlanScreen() {
+        val sources = ClassicRemovalScan.mainSources()
+        val offenders = sources
+            .filter { file ->
+                val code = ClassicRemovalScan.codeLinesOf(file.path, keepImports = true)
+                doomedClassRefs.any { it.containsMatchIn(code) }
+            }
+            .map { it.path.replace('\\', '/') }
+            .sorted()
+        assertEquals(
+            "these files still name a classic reading-plan class deleted in S2",
+            emptyList<String>(),
+            offenders,
+        )
+        assertTrue("the src/main walk found no Kotlin source at all", sources.size > 100)
+    }
+
+    /** No manifest may declare, or point at, a class this slice deletes. */
+    @Test fun noManifestEntryNamesAClassicReadingPlanScreen() {
+        assertTrue(
+            "src/main/AndroidManifest.xml is missing — this guard would pass vacuously",
+            File("src/main/AndroidManifest.xml").isFile,
+        )
+        val offenders = ClassicRemovalScan.manifestPaths
+            .filter { File(it).isFile }
+            .flatMap { path ->
+                File(path).readLines()
+                    .filter { line -> doomedClassRefs.any { it.containsMatchIn(line) } }
+                    .map { "$path: ${it.trim()}" }
+            }
+            .sorted()
+        assertEquals(
+            "a manifest still names a class S2 deletes — either a leftover <activity> block or " +
+                "a parentActivityName. Neither is a compile error and neither breaks another " +
+                "test; the app would simply reference a class that is gone.",
+            emptyList<String>(),
+            offenders,
+        )
+    }
+
+    /** The routing arms must be unconditional now: no `useComposeFor` branch may mention reading plan. */
+    @Test fun screenLauncherDoesNotBranchForReadingPlan() {
+        val path = "src/main/java/net/bible/android/view/ScreenLauncher.kt"
+        assertTrue("$path is missing — this guard would pass vacuously", File(path).isFile)
+        val code = ClassicRemovalScan.codeLinesOf(path)
+        assertTrue(
+            "$path no longer reads use_compose_ui at all — the flag must survive S2 for the " +
+                "remaining slices (spec §3.4)",
+            code.contains("useComposeFor"),
+        )
+        val readingPlanScreens = listOf(
+            "Screen.ReadingPlanSelector", "Screen.DailyReadingList", "Screen.ReadingPlan",
+        )
+        // Each arm is `Screen.X -> XComposeActivity::class.java`. Take the text from the arm's
+        // `Screen.X ->` up to the next `Screen.` and assert no branch survives inside it. The
+        // literal " ->" in the search string is what keeps `Screen.ReadingPlan ->` from matching
+        // the `Screen.ReadingPlanSelector ->` arm.
+        val offenders = readingPlanScreens.filter { screen ->
+            val start = code.indexOf("$screen ->")
+            if (start < 0) return@filter true
+            val next = code.indexOf("Screen.", start + screen.length + 3)
+            val arm = if (next < 0) code.substring(start) else code.substring(start, next)
+            arm.contains("useComposeFor") || arm.contains("else ")
+        }
+        assertEquals(
+            "these reading-plan arms still branch on the flag (or are missing entirely) — S2 " +
+                "collapses them to the Compose class unconditionally",
+            emptyList<String>(),
+            offenders,
+        )
+    }
 }

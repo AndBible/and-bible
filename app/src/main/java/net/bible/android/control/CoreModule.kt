@@ -68,13 +68,6 @@ import net.bible.sharedcore.settings.TextDisplaySettingsService
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedcore.window.WindowStateService
 import net.bible.android.control.versification.BibleTraverser
-import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager
-import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanBibleActionBarButton
-import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanCommentaryActionBarButton
-import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanDictionaryActionBarButton
-import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanPauseActionBarButton
-import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanStopActionBarButton
-import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanTitle
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton
 import net.bible.service.db.readingplan.ReadingPlanRepository
@@ -143,13 +136,6 @@ val coreModule = module {
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.
     single { SpeakControl(lazy { get<TextToSpeechServiceManager>() }, get()) }
     singleOf(::DocumentBibleBooksFactory)
-    singleOf(::ReadingPlanActionBarManager)
-    singleOf(::ReadingPlanBibleActionBarButton)
-    singleOf(::ReadingPlanCommentaryActionBarButton)
-    singleOf(::ReadingPlanDictionaryActionBarButton)
-    singleOf(::ReadingPlanPauseActionBarButton)
-    singleOf(::ReadingPlanStopActionBarButton)
-    singleOf(::ReadingPlanTitle)
     singleOf(::SpeakActionBarButton)
     singleOf(::SpeakStopActionBarButton)
     singleOf(::TextToSpeechServiceManager)

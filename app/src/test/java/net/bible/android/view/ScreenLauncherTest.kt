@@ -76,12 +76,9 @@ import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.mydocuments.MyDocumentsComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
-import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
-import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
-import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
 import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
@@ -149,27 +146,18 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun readingPlanSelector_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun readingPlanSelector_routes_to_compose() {
         assertEquals(ReadingPlanSelectorComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingPlanSelector))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(ReadingPlanSelectorList::class.java, ScreenLauncher.targetFor(Screen.ReadingPlanSelector))
     }
 
     @Test
-    fun dailyReadingList_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun dailyReadingList_routes_to_compose() {
         assertEquals(DailyReadingListComposeActivity::class.java, ScreenLauncher.targetFor(Screen.DailyReadingList))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(DailyReadingList::class.java, ScreenLauncher.targetFor(Screen.DailyReadingList))
     }
 
     @Test
-    fun readingPlan_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun readingPlan_routes_to_compose() {
         assertEquals(DailyReadingComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingPlan))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(DailyReading::class.java, ScreenLauncher.targetFor(Screen.ReadingPlan))
     }
 
     @Test

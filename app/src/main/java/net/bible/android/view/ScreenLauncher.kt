@@ -78,11 +78,8 @@ import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.mydocuments.MyDocumentsComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
-import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
-import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
-import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
 import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
@@ -130,15 +127,9 @@ object ScreenLauncher {
         Screen.SearchIndexProgress -> SearchIndexProgressComposeActivity::class.java
         Screen.SearchIndex -> SearchIndexComposeActivity::class.java
         Screen.SearchResults -> SearchResultsComposeActivity::class.java
-        Screen.ReadingPlanSelector ->
-            if (useComposeFor(screen)) ReadingPlanSelectorComposeActivity::class.java
-            else ReadingPlanSelectorList::class.java
-        Screen.DailyReadingList ->
-            if (useComposeFor(screen)) DailyReadingListComposeActivity::class.java
-            else DailyReadingList::class.java
-        Screen.ReadingPlan ->
-            if (useComposeFor(screen)) DailyReadingComposeActivity::class.java
-            else DailyReading::class.java
+        Screen.ReadingPlanSelector -> ReadingPlanSelectorComposeActivity::class.java
+        Screen.DailyReadingList -> DailyReadingListComposeActivity::class.java
+        Screen.ReadingPlan -> DailyReadingComposeActivity::class.java
         Screen.ChooseGeneralBookKey ->
             if (useComposeFor(screen)) ChooseGeneralBookKeyComposeActivity::class.java
             else ChooseGeneralBookKey::class.java
