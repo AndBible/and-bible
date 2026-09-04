@@ -37,7 +37,14 @@ import org.junit.Test
  * true until the last slice lands, so it is deliberately not attempted here.
  */
 class ClassicSearchRemovalGuardTest {
-    /** Fully-qualified names of the six classic search screens deleted in S1. */
+    /**
+     * Fully-qualified names of the six classic search screens deleted in S1, plus the five
+     * collaborators that went with them: `EpubSearchItemAdapter` (deleted alongside the screens,
+     * in the same atomic commit) and the four orphaned collaborators deleted in the following
+     * commit (`MultiSearchItemAdapter`, `SearchDocumentFilter`, and the whole
+     * `searchresultsactionbar` subpackage — `SearchResultsActionBarManager` and
+     * `ScriptureToggleActionBarButton`).
+     */
     private val doomedClassNames = listOf(
         "net.bible.android.view.activity.search.SearchIndexProgressStatus",
         "net.bible.android.view.activity.search.SearchIndex",
@@ -45,7 +52,15 @@ class ClassicSearchRemovalGuardTest {
         "net.bible.android.view.activity.search.Search",
         "net.bible.android.view.activity.search.EpubSearch",
         "net.bible.android.view.activity.search.EpubSearchResults",
+        "net.bible.android.view.activity.search.EpubSearchItemAdapter",
+        "net.bible.android.view.activity.search.MultiSearchItemAdapter",
+        "net.bible.android.view.activity.search.SearchDocumentFilter",
+        "net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager",
+        "net.bible.android.view.activity.search.searchresultsactionbar.ScriptureToggleActionBarButton",
     )
+
+    /** [doomedClassNames] as word-boundary regexes: `…search.EpubSearch` must not match `…search.EpubSearchResultKey`. */
+    private val doomedClassRefs = doomedClassNames.map { Regex(Regex.escape(it) + "(?![A-Za-z0-9_])") }
 
     /**
      * S1: confirm that `BibleView.kt` has been cleaned of references to the classic search
@@ -81,12 +96,14 @@ class ClassicSearchRemovalGuardTest {
                 .map { it.trim() },
         )
         assertEquals(
-            "$path references the classic search package, whose screens S1 deletes. A surviving " +
-                "file may not name them, and retargeting at the Compose class would be equally " +
-                "dead while implying a live mechanism (spec §9.2, Appendix F.2).",
+            "$path references one of S1's doomed classic search classes/collaborators by its " +
+                "fully-qualified name. A surviving file may not name them, and retargeting at the " +
+                "Compose class would be equally dead while implying a live mechanism (spec §9.2, " +
+                "Appendix F.2). Scanned raw (not the comment-stripped codeLinesOf) so a re-added " +
+                "import is caught here too.",
             emptyList<String>(),
             File(path).readLines()
-                .filter { it.contains("net.bible.android.view.activity.search") }
+                .filter { line -> doomedClassRefs.any { it.containsMatchIn(line) } }
                 .map { it.trim() },
         )
     }
@@ -102,6 +119,10 @@ class ClassicSearchRemovalGuardTest {
     )
 
     @Test fun theClassicSearchScreensAreGone() {
+        assertTrue(
+            "cwd is not the :app module dir — this guard would pass vacuously",
+            File("src/main").isDirectory,
+        )
         val survivors = doomedPaths.filter { File(it).exists() }
         assertEquals("these classic search files should have been deleted in S1", emptyList<String>(), survivors)
     }
@@ -135,20 +156,19 @@ class ClassicSearchRemovalGuardTest {
             .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }
             .toList()
         // Imports are the reference this sweep hunts, so they are KEPT here (unlike every other
-        // scan in this file), and each name is matched with a trailing non-identifier boundary.
-        // Both halves are load-bearing: with imports stripped there is nothing left to find (every
-        // fully-qualified mention of a doomed class in `src/main` today is an import line in
-        // `ScreenLauncher.kt` or a KDoc line), and with a plain `contains` the sweep could never
-        // pass, because the SURVIVING `…search.SearchComposeActivity`,
-        // `…search.SearchIndexComposeActivity`, `…search.SearchIndexProgressComposeActivity`,
-        // `…search.SearchResultsComposeActivity`, `…search.EpubSearchComposeActivity`,
-        // `…search.EpubSearchResultsComposeActivity` and `…search.EpubSearchResultKey` each carry a
-        // doomed name as a prefix.
-        val doomedRefs = doomedClassNames.map { Regex(Regex.escape(it) + "(?![A-Za-z0-9_])") }
+        // scan in this file), and each name ([doomedClassRefs]) is matched with a trailing
+        // non-identifier boundary. Both halves are load-bearing: with imports stripped there is
+        // nothing left to find (every fully-qualified mention of a doomed class in `src/main`
+        // today is an import line in `ScreenLauncher.kt` or a KDoc line), and with a plain
+        // `contains` the sweep could never pass, because the SURVIVING
+        // `…search.SearchComposeActivity`, `…search.SearchIndexComposeActivity`,
+        // `…search.SearchIndexProgressComposeActivity`, `…search.SearchResultsComposeActivity`,
+        // `…search.EpubSearchComposeActivity`, `…search.EpubSearchResultsComposeActivity` and
+        // `…search.EpubSearchResultKey` each carry a doomed name as a prefix.
         val offenders = sources
             .filter { file ->
                 val code = codeLinesOf(file.path, keepImports = true)
-                doomedRefs.any { it.containsMatchIn(code) }
+                doomedClassRefs.any { it.containsMatchIn(code) }
             }
             .map { it.path.replace('\\', '/') }
             .sorted()
