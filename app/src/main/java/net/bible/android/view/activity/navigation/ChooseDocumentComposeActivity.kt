@@ -28,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -36,7 +35,6 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.database.DocumentSearch
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.installedDocument
@@ -44,13 +42,13 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
-import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocRow
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.anySelectedDeletable
@@ -65,6 +63,14 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.koin.android.ext.android.inject
 
 /**
+ * Per-SCREEN preference keys, not shared with Download: sorting a download list by size is a
+ * different intent from ordering the reading view's document picker, and changing one must not
+ * silently reorder the other.
+ */
+private const val ARRANGEMENT_KEY = "chooseDoc.arrangement"
+private const val ARRANGEMENT_REMEMBER_KEY = "chooseDoc.arrangement.remember"
+
+/**
  * Compose host for the document (bible/commentary/…) chooser — the new-path twin of classic
  * [ChooseDocument]. It loads JSword [Book]s off-main, flattens them to [DocRow]s, and drives the
  * shared [DocumentSelectionController]/[DocumentSelectionScreen]. All JSword side effects
@@ -77,8 +83,6 @@ import org.koin.android.ext.android.inject
 class ChooseDocumentComposeActivity : ActivityBase() {
     private val downloadControl: DownloadControl by inject()
     private val documentControl: DocumentControl by inject()
-
-    private val dao get() = DatabaseContainer.instance.chooseDocumentsDb.documentSearchDao()
 
     /** docId (Book.initials) -> Book, rebuilt on every (re)load. */
     private var booksById: Map<String, Book> = emptyMap()
@@ -98,6 +102,22 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                 // read back on launch here; stored for parity / potential reuse.
                 CommonUtils.settings.setString("selected_language_code", lang?.code)
             },
+            // No SIZE (DocRowMapper sets installSizeMb = null here — it is a download-only field)
+            // and no RECOMMENDED (this screen never loads the recommended-documents config, so the
+            // flag is always false). A criterion with no data is a lie, so it is not offered.
+            applicableSortKeys = setOf(DocSortKey.STATUS, DocSortKey.TYPE, DocSortKey.NAME,
+                DocSortKey.LANGUAGE, DocSortKey.REPOSITORY),
+            applicableGroupKeys = listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.LANGUAGE, DocGroupBy.REPOSITORY),
+            storedArrangement = if (CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true))
+                CommonUtils.settings.getString(ARRANGEMENT_KEY, null) else null,
+            rememberArrangementInitially = CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true),
+            onArrangementChange = { encoded, remember ->
+                CommonUtils.settings.setBoolean(ARRANGEMENT_REMEMBER_KEY, remember)
+                CommonUtils.settings.setString(ARRANGEMENT_KEY, encoded)
+            },
+            // Round 17e-1 final-review fix (I3): debounces the drag-reorder commit (persist +
+            // refilter) so it fires once per settled gesture, not once per item swap.
+            scope = lifecycleScope,
         )
     }
 
@@ -113,14 +133,6 @@ class ChooseDocumentComposeActivity : ActivityBase() {
 
         lifecycleScope.launch {
             loadDocuments()
-            // Observe the query: run the Room FTS off-main when long enough, else clear the filter.
-            // collectLatest replays the current (possibly pre-seeded) value against the seeded DAO.
-            controller.query.collectLatest { q ->
-                val ids = if (q.length >= 3) {
-                    withContext(Dispatchers.IO) { runCatching { dao.search("$q*").toSet() }.getOrNull() }
-                } else null
-                controller.setSearchResults(ids)
-            }
         }
 
         setContent {
@@ -137,6 +149,11 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                     val selectedIds by controller.selectedIds.collectAsState()
                     val error by controller.error.collectAsState()
                     val searchModeActive by controller.searchModeActive.collectAsState()
+                    val grouped by controller.grouped.collectAsState()
+                    val arrangement by controller.arrangement.collectAsState()
+                    val repositories by controller.repositories.collectAsState()
+                    val rememberArrangement by controller.rememberArrangement.collectAsState()
+                    val arrangementIsDefault by controller.arrangementIsDefault.collectAsState()
 
                     val firstSelected = displayed.firstOrNull { it.docId in selectedIds }
 
@@ -146,7 +163,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                         loading = loading,
                         isRefreshing = false,
                         onRefresh = null,
-                        displayed = displayed,
+                        grouped = grouped,
                         languages = languages,
                         selectedLanguage = selectedLanguage,
                         typeFilters = typeFilterLabels(strings),
@@ -167,6 +184,17 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                             CommonUtils.settings.setInt("selected_document_filter_no", it.ordinal)
                             controller.setTypeFilter(it)
                         },
+                        arrangement = arrangement,
+                        groupKeys = controller.groupKeys,
+                        repositories = repositories,
+                        rememberArrangement = rememberArrangement,
+                        arrangementIsDefault = arrangementIsDefault,
+                        onMoveSort = controller::moveSortCriterion,
+                        onToggleSortDirection = controller::toggleSortDirection,
+                        onGroupByChange = controller::setGroupBy,
+                        onRepositoryChange = controller::setRepositoryFilter,
+                        onRememberChange = controller::setRememberArrangement,
+                        onResetArrangement = controller::resetArrangement,
                         onRowClick = { row ->
                             if (selectionMode) controller.toggle(row.docId) else controller.select(row.docId)
                         },
@@ -213,21 +241,14 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                 // in DocRowMapper, shared with the reading view's document quick sheet so the two
                 // cannot drift. One mapper per book list — see its kdoc.
                 val mapper = DocRowMapper(downloadControl, books)
-                // Seed the FTS DAO once (mirror classic populateMasterDocumentList dao.clear()/insertDocuments).
-                // Stays HERE, not in the mapper: it feeds this screen's search field only.
-                runCatching {
-                    dao.clear()
-                    dao.insertDocuments(books.map {
-                        DocumentSearch(
-                            it.osisID, it.abbreviation, if (it.isPseudoBook) "" else it.name,
-                            it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "",
-                        )
-                    })
-                }
+                // Round 17e-2: no FTS seeding here any more. The search runs in the controller over
+                // the loaded rows (matchesDocumentQuery), which indexes the same four fields the
+                // FTS table did. DocumentSearch / TemporaryDatabase stay in the tree because
+                // classic DocumentSelectionBase still uses them; Batch Z deletes them whole.
                 books.map { mapper.toDocRow(it) }
             }
             booksById = books.associateBy { it.initials }
-            controller.setDocuments(rows, searchIds = null)
+            controller.setDocuments(rows)
         } catch (e: Exception) {
             Log.e(TAG, "Error loading documents", e)
             controller.showError()

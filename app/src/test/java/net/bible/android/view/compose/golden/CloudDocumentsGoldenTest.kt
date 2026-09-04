@@ -4,8 +4,24 @@ import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.cloud.CloudDocFilter
 import net.bible.sharedcore.cloud.CloudDocItem
+import net.bible.sharedcore.navigation.DocArrangement
 import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocGroup
+import net.bible.sharedcore.navigation.DocGroupBy
+import net.bible.sharedcore.navigation.DocGroupKey
+import net.bible.sharedcore.navigation.DocSortCriterion
+import net.bible.sharedcore.navigation.DocSortKey
+import net.bible.sharedui.components.AbArrangementLabels
+import net.bible.sharedui.components.AbArrangementSheetContent
 import net.bible.sharedui.cloud.CloudDocumentsScreen
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -60,6 +76,19 @@ class CloudDocumentsGoldenTest {
         DocCategory.MAPS to "Maps", DocCategory.AND_BIBLE to "Add-ons",
     )
 
+    // The cloud controller's applicable sort keys (STATUS, TYPE, NAME, SIZE) — no LANGUAGE,
+    // REPOSITORY or RECOMMENDED: a cloud listing has neither, and nothing marks a synced document
+    // as recommended. See CloudDocumentsController.applicableSortKeys.
+    private val cloudArrangement = DocArrangement(
+        sort = listOf(
+            DocSortCriterion(DocSortKey.STATUS),
+            DocSortCriterion(DocSortKey.TYPE),
+            DocSortCriterion(DocSortKey.NAME),
+            DocSortCriterion(DocSortKey.SIZE),
+        ),
+        groupBy = DocGroupBy.NONE,
+    )
+
     @Composable
     private fun screen(
         displayed: List<CloudDocItem> = rows,
@@ -71,7 +100,7 @@ class CloudDocumentsGoldenTest {
     ) = CloudDocumentsScreen(
         title = "Manage cloud documents",
         loading = loading, isRefreshing = false, onRefresh = {},
-        displayed = displayed,
+        grouped = listOf(DocGroup(DocGroupKey.None, displayed)),
         statusFilters = statusFilters, selectedStatusFilter = CloudDocFilter.ALL,
         categoryFilters = categoryFilters, selectedCategoryFilter = null,
         query = query, selectionMode = selectionMode, selectedIds = selectedIds, syncEnabled = false,
@@ -84,6 +113,16 @@ class CloudDocumentsGoldenTest {
         topBarActions = {}, onQueryChange = {},
         searchModeActive = searchModeActive, onOpenSearch = {}, onCloseSearch = {},
         onStatusFilterChange = {}, onCategoryFilterChange = {},
+        // Task 10: arrangement + show-removed plumbing. The filter bar's own arrangement sheet is
+        // a ModalBottomSheet, so — same rule as syncNowDialog above — no golden here may open it;
+        // CloudDocFilterBar's chips/count render regardless, and the dedicated arrangement-sheet
+        // golden below captures AbArrangementSheetContent directly instead.
+        arrangement = cloudArrangement,
+        groupKeys = listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.STATUS),
+        rememberArrangement = true, arrangementIsDefault = true,
+        onMoveSort = { _, _ -> }, onToggleSortDirection = {}, onGroupByChange = {},
+        onRememberChange = {}, onResetArrangement = {},
+        showRemoved = false, onShowRemovedChange = {},
         onRowClick = {}, onRowLongClick = {}, onRowAction = { _, _ -> }, onBulkAction = {},
         onSyncNowConfirm = {}, onSyncNowDismiss = {}, onNavigateUp = {}, onExitSelection = {},
     )
@@ -113,4 +152,41 @@ class CloudDocumentsGoldenTest {
     // via statusRows — proving every status (incl. WONT_SYNC + REMOVED_STILL_INSTALLED) reads by
     // icon + text with colour degraded to grayscale.
     @Test fun cloud_status_bw() = captureGolden("CloudDocuments", "status", GoldenMode.BW, heightDp = 900) { screen(displayed = statusRows) }
+
+    // Captured via AbArrangementSheetContent directly, never inside AbArrangementSheet: an open
+    // ModalBottomSheet is a popup and hangs the Roborazzi capture (and the whole :app suite with
+    // it) -- same rule ArrangementSheetGoldenTest follows for the download screen's own sheet.
+    // Proves: exactly the cloud screen's four sort criteria, NO repository section (the
+    // `repositories = emptyList()` guard in CloudDocFilterBar), and the "show removed documents"
+    // switch rendered via `extraContent`, above the "remember" switch.
+    @Test fun cloud_arrangementSheet() = captureGolden("CloudDocuments", "arrangementSheet", EDGE_MODE, heightDp = 900) {
+        AbArrangementSheetContent(
+            labels = AbArrangementLabels(
+                title = "Filter and sort", repositoryLabel = "Repository",
+                allRepositories = "All repositories", sortLabel = "Sort order", groupLabel = "Group by",
+                rememberLabel = "Remember these settings", resetLabel = "Reset to defaults",
+                reorderLabel = "Reorder", ascending = "Ascending", descending = "Descending",
+                sortKeyLabel = { it.name.lowercase().replaceFirstChar { c -> c.uppercase() } },
+                groupKeyLabel = { it.name.lowercase().replaceFirstChar { c -> c.uppercase() } },
+            ),
+            sort = cloudArrangement.sort,
+            groupBy = cloudArrangement.groupBy,
+            groupKeys = listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.STATUS),
+            repositories = emptyList(),
+            selectedRepository = null,
+            rememberSettings = true,
+            resultCount = "6 documents",
+            onMoveSort = { _, _ -> }, onToggleDirection = {}, onGroupByChange = {},
+            onRepositoryChange = {}, onRememberChange = {}, onReset = {},
+            extraContent = {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("Show removed documents", modifier = Modifier.weight(1f))
+                    Switch(checked = false, onCheckedChange = {})
+                }
+            },
+        )
+    }
 }

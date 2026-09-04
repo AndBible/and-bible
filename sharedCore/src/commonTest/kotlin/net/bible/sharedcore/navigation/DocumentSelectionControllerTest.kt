@@ -16,6 +16,8 @@
  */
 package net.bible.sharedcore.navigation
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -45,21 +47,21 @@ class DocumentSelectionControllerTest {
         val c = controller()
         // two rows that group to the same key must appear once; languages sorted by comparator
         val enAlt = LangOption("eng", "English", "en")
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE, en), row("b", DocCategory.BIBLE, fi), row("c", DocCategory.BIBLE, enAlt)), searchIds = null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE, en), row("b", DocCategory.BIBLE, fi), row("c", DocCategory.BIBLE, enAlt)))
         assertFalse(c.loading.value)
         assertEquals(listOf("English", "Finnish"), c.languages.value.map { it.displayName })
     }
 
     @Test fun type_filter_all_excludes_addons() {
         val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("x", DocCategory.AND_BIBLE)), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("x", DocCategory.AND_BIBLE)))
         c.setTypeFilter(DocTypeFilter.ALL)
         assertEquals(listOf("a"), c.displayed.value.map { it.docId })
     }
 
     @Test fun type_filter_bible_only() {
         val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.COMMENTARY)), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.COMMENTARY)))
         c.setTypeFilter(DocTypeFilter.BIBLE)
         assertEquals(listOf("a"), c.displayed.value.map { it.docId })
     }
@@ -67,7 +69,7 @@ class DocumentSelectionControllerTest {
     @Test fun language_filter_matches_grouping_key_and_always_keeps_andbible() {
         val c = controller()
         val rows = listOf(row("a", DocCategory.BIBLE, en), row("b", DocCategory.BIBLE, fi), row("x", DocCategory.AND_BIBLE, fi))
-        c.setDocuments(rows, null)
+        c.setDocuments(rows)
         // Case 1: type=ALL removes AND_BIBLE entirely, so the "always keep AND_BIBLE" language
         // clause never gets a chance to save row "x". With language=en, "b" (fi) is also filtered out.
         c.setTypeFilter(DocTypeFilter.ALL)
@@ -81,17 +83,26 @@ class DocumentSelectionControllerTest {
         assertEquals(listOf("x"), c.displayed.value.map { it.docId })
     }
 
-    @Test fun search_below_3_chars_is_ignored() {
-        val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), searchIds = null)
-        c.setQuery("ab") // < 3 chars -> host should not have searched; controller keeps all
+    // Round 17e-2: the query now filters IN the controller, over the same four fields the FTS
+    // table indexed (abbreviation, name, language display name, repository) — see
+    // matchesDocumentQuery. Replaces search_below_3_chars_is_ignored (the 3-char minimum is gone)
+    // and search_results_intersect_by_osisId (setDocuments no longer takes a searchIds set).
+    @Test fun the_query_filters_on_abbreviation_name_language_and_repository_from_one_character() {
+        val c = arrangingController()
+        c.setDocuments(listOf(
+            row("KJV", DocCategory.BIBLE).copy(name = "King James Version", repository = "CrossWire"),
+            row("FinPR", DocCategory.BIBLE, lang = fi).copy(name = "Raamattu 1938", repository = "eBible"),
+        ))
+        c.setQuery("kj")
+        assertEquals(listOf("KJV"), c.displayed.value.map { it.docId })
+        // "Raamattu 1938" shares no word with "Finnish" — this can only match via the language
+        // field (fi's displayName), genuinely isolating that language IS a searched field.
+        c.setQuery("finnish")
+        assertEquals(listOf("FinPR"), c.displayed.value.map { it.docId })
+        c.setQuery("ebible")
+        assertEquals(listOf("FinPR"), c.displayed.value.map { it.docId })
+        c.setQuery("")
         assertEquals(2, c.displayed.value.size)
-    }
-
-    @Test fun search_results_intersect_by_osisId() {
-        val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), searchIds = setOf("osis-a"))
-        assertEquals(listOf("a"), c.displayed.value.map { it.docId })
     }
 
     @Test fun sort_puts_being_installed_first_then_not_installed_then_category_then_abbr() {
@@ -101,7 +112,7 @@ class DocumentSelectionControllerTest {
             row("a", DocCategory.BIBLE, status = DocInstallStatus.NOT_INSTALLED, abbr = "a"),
             row("d", DocCategory.BIBLE, status = DocInstallStatus.BEING_INSTALLED, abbr = "d"),
         )
-        c.setDocuments(rows, null)
+        c.setDocuments(rows)
         c.setTypeFilter(DocTypeFilter.ALL)
         // Classic-faithful order (DocumentSelectionBase sort key 2 = `getDocumentByInitials(...) == null`,
         // false < true): BEING_INSTALLED first (d), then among the "else" tier INSTALLED (z, false)
@@ -111,7 +122,7 @@ class DocumentSelectionControllerTest {
 
     @Test fun selection_toggle_and_autoexit_on_refilter() {
         val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE)), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE)))
         c.enterSelection(); c.toggle("a")
         assertTrue(c.selectionMode.value); assertEquals(setOf("a"), c.selectedIds.value)
         c.setTypeFilter(DocTypeFilter.COMMENTARY) // list changes -> exit selection
@@ -121,7 +132,7 @@ class DocumentSelectionControllerTest {
     @Test fun setLanguage_reports_sticky() {
         var sticky: LangOption? = null
         val c = DocumentSelectionController(compareBy { it.displayName }, {}, {}, {}, {}, {}, { sticky = it })
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE, fi)), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE, fi)))
         c.setLanguage(fi)
         assertEquals(fi, sticky)
     }
@@ -129,7 +140,7 @@ class DocumentSelectionControllerTest {
     @Test fun select_delete_about_forward_to_seams() {
         var selected: String? = null; var deleted: Set<String>? = null
         val c = DocumentSelectionController(compareBy { it.displayName }, { selected = it }, { deleted = it }, {}, {}, {}, {})
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE)), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE)))
         c.select("a"); assertEquals("a", selected)
         c.enterSelection(); c.toggle("a"); c.delete(); assertEquals(setOf("a"), deleted)
     }
@@ -145,12 +156,12 @@ class DocumentSelectionControllerTest {
      * fixed here — a progress tick re-sorted the displayed list and floated BEING_INSTALLED to the
      * top, moving the row out from under the user. updateDownloadStatus now updates the row IN
      * PLACE and leaves sorting to the four compositional triggers (setDocuments/setLanguage/
-     * setTypeFilter/setSearchResults). See download_progress_keeps_the_row_at_its_index and
+     * setTypeFilter/setQuery). See download_progress_keeps_the_row_at_its_index and
      * download_progress_does_not_clear_an_active_selection below for the dedicated coverage.
      */
     @Test fun updateDownloadStatus_does_not_float_and_preserves_selection() {
         val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE, abbr = "a"), row("b", DocCategory.BIBLE, abbr = "b")), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE, abbr = "a"), row("b", DocCategory.BIBLE, abbr = "b")))
         c.setTypeFilter(DocTypeFilter.ALL)
         assertEquals(listOf("a", "b"), c.displayed.value.map { it.docId })
         // Enter selection and select "a" — a progress tick must NOT wipe this.
@@ -170,7 +181,7 @@ class DocumentSelectionControllerTest {
 
     @Test fun updateDownloadStatus_noop_when_unchanged() {
         val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)))
         c.setTypeFilter(DocTypeFilter.ALL)
         c.updateDownloadStatus("a", DocInstallStatus.BEING_INSTALLED, 40, canDelete = false)
         val before = c.displayed.value
@@ -191,7 +202,7 @@ class DocumentSelectionControllerTest {
      */
     @Test fun updateDownloadStatus_applies_a_changed_canDelete() {
         val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)))
         c.setTypeFilter(DocTypeFilter.ALL)
         assertFalse(c.displayed.value.first { it.docId == "a" }.canDelete)
         assertFalse(anySelectedDeletable(c.displayed.value, setOf("a")))
@@ -213,7 +224,7 @@ class DocumentSelectionControllerTest {
      */
     @Test fun updateDownloadStatus_applies_canDelete_even_when_status_and_progress_are_unchanged() {
         val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE, status = DocInstallStatus.INSTALLED)), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE, status = DocInstallStatus.INSTALLED)))
         assertFalse(c.displayed.value.single().canDelete)
 
         c.updateDownloadStatus("a", DocInstallStatus.INSTALLED, 0, canDelete = true)
@@ -236,7 +247,6 @@ class DocumentSelectionControllerTest {
                 row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE),
                 row("d", DocCategory.BIBLE), row("e", DocCategory.BIBLE),
             ),
-            null,
         )
         assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
 
@@ -252,7 +262,7 @@ class DocumentSelectionControllerTest {
 
     @Test fun download_progress_leaves_result_count_alone() {
         val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)))
         assertEquals(2, c.resultCount.value)
         c.updateDownloadStatus("a", DocInstallStatus.BEING_INSTALLED, 10, canDelete = false)
         assertEquals(2, c.resultCount.value)
@@ -260,7 +270,7 @@ class DocumentSelectionControllerTest {
 
     @Test fun download_progress_for_a_filtered_out_row_updates_documents_only() {
         val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.COMMENTARY)), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.COMMENTARY)))
         c.setTypeFilter(DocTypeFilter.BIBLE)
         assertEquals(listOf("a"), c.displayed.value.map { it.docId })
 
@@ -277,12 +287,12 @@ class DocumentSelectionControllerTest {
     @Test fun setDocuments_resorts_and_floats_the_installing_row() {
         val c = controller()
         val rows = listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE))
-        c.setDocuments(rows, null)
+        c.setDocuments(rows)
         c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 20, canDelete = false)
         assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
 
         // A refresh re-pushes the master list, which is where classic re-sorts too.
-        c.setDocuments(c.documents.value, null)
+        c.setDocuments(c.documents.value)
         assertEquals(0, c.displayed.value.indexOfFirst { it.docId == "c" })
     }
 
@@ -290,7 +300,6 @@ class DocumentSelectionControllerTest {
         val c = controller()
         c.setDocuments(
             listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE)),
-            null,
         )
         c.updateDownloadStatus("c", DocInstallStatus.BEING_INSTALLED, 20, canDelete = false)
         assertEquals(2, c.displayed.value.indexOfFirst { it.docId == "c" })
@@ -301,7 +310,7 @@ class DocumentSelectionControllerTest {
 
     @Test fun download_progress_does_not_clear_an_active_selection() {
         val c = controller()
-        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)), null)
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE)))
         c.enterSelection()
         c.toggle("a")
 
@@ -329,7 +338,6 @@ class DocumentSelectionControllerTest {
         val c = controller()
         c.setDocuments(
             listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE)),
-            null,
         )
         c.enterSelection(); c.toggle("a")
         assertEquals(1, c.displayed.value.indexOfFirst { it.docId == "b" })
@@ -365,5 +373,158 @@ class DocumentSelectionControllerTest {
         c.closeSearch()
         assertFalse(c.searchModeActive.value)
         assertEquals("", c.query.value)
+    }
+
+    private fun arrangingController(
+        applicable: Set<DocSortKey> = DocSortKey.entries.toSet(),
+        stored: String? = null,
+        remember: Boolean = true,
+        onArrangement: (String?, Boolean) -> Unit = { _, _ -> },
+        // Round 17e-1 final-review fix (I3): null (every pre-existing test's choice) keeps
+        // moveSortCriterion's commit synchronous, unchanged from before the fix.
+        scope: CoroutineScope? = null,
+    ) = DocumentSelectionController(
+        langComparator = compareBy { it.displayName },
+        onSelect = {}, onDelete = {}, onDeleteIndex = {}, onAbout = {}, onUnlock = {}, onStickyLanguage = {},
+        applicableSortKeys = applicable,
+        applicableGroupKeys = listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.LANGUAGE, DocGroupBy.REPOSITORY),
+        storedArrangement = stored,
+        rememberArrangementInitially = remember,
+        onArrangementChange = onArrangement,
+        scope = scope,
+    )
+
+    @Test fun repository_list_is_deduped_sorted_and_drops_blanks() {
+        val c = arrangingController()
+        c.setDocuments(listOf(
+            row("a", DocCategory.BIBLE).copy(repository = "Zeta"),
+            row("b", DocCategory.BIBLE).copy(repository = "Alpha"),
+            row("c", DocCategory.BIBLE).copy(repository = "Alpha"),
+            row("d", DocCategory.BIBLE).copy(repository = ""),
+        ))
+        assertEquals(listOf("Alpha", "Zeta"), c.repositories.value)
+    }
+
+    @Test fun repository_filter_narrows_the_displayed_list_and_the_result_count() {
+        val c = arrangingController()
+        c.setDocuments(listOf(
+            row("a", DocCategory.BIBLE).copy(repository = "Alpha"),
+            row("b", DocCategory.BIBLE).copy(repository = "Zeta"),
+        ))
+        c.setRepositoryFilter("Alpha")
+        assertEquals(listOf("a"), c.displayed.value.map { it.docId })
+        assertEquals(1, c.resultCount.value)
+        c.setRepositoryFilter(null)
+        assertEquals(2, c.displayed.value.size)
+    }
+
+    @Test fun moving_a_criterion_reorders_the_displayed_list() {
+        val c = arrangingController()
+        c.setDocuments(listOf(
+            row("m", DocCategory.MAPS), row("b", DocCategory.BIBLE),
+        ))
+        assertEquals(listOf("b", "m"), c.displayed.value.map { it.docId })  // TYPE outranks NAME
+        val nameIndex = c.arrangement.value.sort.indexOfFirst { it.key == DocSortKey.NAME }
+        c.moveSortCriterion(nameIndex, 0)
+        assertEquals(listOf("b", "m"), c.displayed.value.map { it.docId })  // "b" < "m" alphabetically too
+        c.toggleSortDirection(DocSortKey.NAME)
+        assertEquals(listOf("m", "b"), c.displayed.value.map { it.docId })
+    }
+
+    // Round 17e-1 final-review fix (I3): without a [CoroutineScope], moveSortCriterion still
+    // commits (persists + refilters) synchronously on every call -- the pre-fix behavior, and the
+    // choice every OTHER test in this file (including moving_a_criterion_reorders_the_displayed_list
+    // above) implicitly relies on by never passing a scope.
+    @Test fun moving_a_criterion_without_a_scope_commits_synchronously() {
+        val persisted = mutableListOf<String?>()
+        val c = arrangingController(onArrangement = { s, _ -> persisted.add(s) })
+        c.setDocuments(listOf(row("zbook", DocCategory.BIBLE), row("amap", DocCategory.MAPS)))
+        assertEquals(listOf("zbook", "amap"), c.displayed.value.map { it.docId }) // TYPE outranks NAME
+        val nameIndex = c.arrangement.value.sort.indexOfFirst { it.key == DocSortKey.NAME }
+        c.moveSortCriterion(nameIndex, 0)
+        assertEquals(1, persisted.size) // committed immediately -- no scope to debounce through
+        assertEquals(listOf("amap", "zbook"), c.displayed.value.map { it.docId }) // NAME now leads
+    }
+
+    // With a scope, a single swap's commit (persistence write + refilter) is deferred rather than
+    // synchronous -- the fix's actual point: AbReorderableColumn calls moveSortCriterion once per
+    // item swap, and none of that work should happen while the gesture is still live.
+    @Test fun moving_a_criterion_with_a_scope_defers_the_commit_until_settled() = runTest {
+        val persisted = mutableListOf<String?>()
+        val c = arrangingController(onArrangement = { s, _ -> persisted.add(s) }, scope = this)
+        c.setDocuments(listOf(row("zbook", DocCategory.BIBLE), row("amap", DocCategory.MAPS)))
+        val nameIndex = c.arrangement.value.sort.indexOfFirst { it.key == DocSortKey.NAME }
+
+        c.moveSortCriterion(nameIndex, 0)
+        // The sheet's OWN live order updates immediately (it reads `arrangement`, not `displayed`).
+        assertEquals(DocSortKey.NAME, c.arrangement.value.sort[0].key)
+        // But the expensive part -- the persistence write and the document list re-sort/re-group --
+        // has not run yet.
+        assertTrue(persisted.isEmpty())
+        assertEquals(listOf("zbook", "amap"), c.displayed.value.map { it.docId })
+
+        testScheduler.advanceUntilIdle()
+        assertEquals(1, persisted.size)
+        assertEquals(listOf("amap", "zbook"), c.displayed.value.map { it.docId }) // now applied
+    }
+
+    // AbReorderableColumn fires onMove once per item SWAP, so a single drag gesture can call
+    // moveSortCriterion several times in quick succession. All of them must coalesce into ONE
+    // commit -- proving the debounce actually debounces, not just defers a single call.
+    @Test fun rapid_successive_swaps_within_one_drag_commit_only_once() = runTest {
+        val persisted = mutableListOf<String?>()
+        val c = arrangingController(onArrangement = { s, _ -> persisted.add(s) }, scope = this)
+        c.setDocuments(listOf(row("zbook", DocCategory.BIBLE), row("amap", DocCategory.MAPS)))
+        val nameIndex = c.arrangement.value.sort.indexOfFirst { it.key == DocSortKey.NAME }
+
+        c.moveSortCriterion(nameIndex, 0) // swap 1: NAME -> front
+        c.moveSortCriterion(0, 1)         // swap 2: NAME -> back one slot
+        c.moveSortCriterion(1, 0)         // swap 3: NAME -> front again, same drag settling there
+        assertTrue(persisted.isEmpty()) // nothing committed mid-gesture
+
+        testScheduler.advanceUntilIdle()
+        assertEquals(1, persisted.size) // exactly one commit for the whole gesture
+        assertEquals(DocSortKey.NAME, c.arrangement.value.sort[0].key)
+        assertEquals(listOf("amap", "zbook"), c.displayed.value.map { it.docId }) // the settled order
+    }
+
+    @Test fun grouping_produces_groups_and_a_flat_displayed_list_that_agree() {
+        val c = arrangingController()
+        c.setDocuments(listOf(row("m", DocCategory.MAPS), row("b", DocCategory.BIBLE)))
+        c.setGroupBy(DocGroupBy.TYPE)
+        assertEquals(2, c.grouped.value.size)
+        assertEquals(c.displayed.value.map { it.docId }, c.grouped.value.flatMap { g -> g.rows.map { it.docId } })
+    }
+
+    @Test fun arrangement_changes_are_persisted_only_while_remember_is_on() {
+        val saved = mutableListOf<Pair<String?, Boolean>>()
+        val c = arrangingController(onArrangement = { s, r -> saved.add(s to r) })
+        c.setGroupBy(DocGroupBy.TYPE)
+        assertTrue(saved.last().first!!.contains("|TYPE|"))
+        assertEquals(true, saved.last().second)
+
+        // Turning remember OFF clears the stored value once, then stops writing.
+        c.setRememberArrangement(false)
+        assertEquals(null, saved.last().first)
+        val countAfterOff = saved.size
+        c.setGroupBy(DocGroupBy.LANGUAGE)
+        assertEquals(countAfterOff, saved.size)
+        // ...but the live arrangement still changed, so the screen still obeys it.
+        assertEquals(DocGroupBy.LANGUAGE, c.arrangement.value.groupBy)
+    }
+
+    @Test fun a_stored_arrangement_is_applied_at_construction() {
+        val c = arrangingController(stored = "NAME|TYPE|Alpha")
+        assertEquals(DocSortKey.NAME, c.arrangement.value.sort.first().key)
+        assertEquals(DocGroupBy.TYPE, c.arrangement.value.groupBy)
+        assertEquals("Alpha", c.arrangement.value.repository)
+        assertFalse(c.arrangementIsDefault.value)
+    }
+
+    @Test fun reset_restores_the_default_and_reports_it_as_default() {
+        val c = arrangingController(stored = "NAME|TYPE|Alpha")
+        c.resetArrangement()
+        assertEquals(defaultArrangement(DocSortKey.entries.toSet()), c.arrangement.value)
+        assertTrue(c.arrangementIsDefault.value)
     }
 }

@@ -794,6 +794,10 @@
     <string name="doc_type_book">Book</string>
     <string name="doc_type_map">Map</string>
     <string name="doc_type_addons">Add-ons</string>
+    <!-- Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context. -->
+    <string name="doc_type_other">Other</string>
     <string name="document_type_label">Document type</string>
 
     <!-- Languages -->
@@ -1294,7 +1298,6 @@
     <string name="delete_custom_repository">Do you want to remove custom repository %s?</string>
     <string name="custom_repositories_help1">To add a new custom repository, type or copy &amp; paste custom repository URL here.</string>
     <string name="custom_repositories_help2">You can read more information about custom repositories in %s.</string>
-    <string name="wiki_page">WIKI page</string>
     <string name="custom_repositories_help0">You can install documents from external custom repositories by installing custom repositories.</string>
     <string name="duplicate_custom_repository">Repository with name %s already exists, can\'t add another.</string>
 
@@ -2080,4 +2083,28 @@
     <string name="document_quick_tab_recent">Recent</string>
     <string name="document_quick_tab_for_verse">This verse</string>
     <string name="document_quick_tab_last_filter">Last filter</string>
+    <!-- Round 17e: document list filter/sort/group sheet -->
+    <string name="doc_arrange_title">Filter and sort</string>
+    <string name="doc_arrange_repository">Repository</string>
+    <string name="doc_arrange_all_repositories">All repositories</string>
+    <string name="doc_arrange_sort">Sort order</string>
+    <string name="doc_arrange_group_by">Group by</string>
+    <string name="doc_arrange_remember">Remember these settings</string>
+    <string name="doc_arrange_reset">Reset to defaults</string>
+    <string name="doc_arrange_more_filters">More filters</string>
+    <string name="doc_arrange_reorder">Reorder</string>
+    <string name="doc_sort_ascending">Ascending</string>
+    <string name="doc_sort_descending">Descending</string>
+    <string name="doc_sort_status">Status</string>
+    <string name="doc_sort_recommended">Recommended first</string>
+    <string name="doc_sort_name">Name</string>
+    <string name="doc_sort_size">Size</string>
+    <string name="doc_group_none">No grouping</string>
+    <!-- Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet. -->
+    <string name="doc_group_status_downloading">Downloading</string>
+    <string name="doc_group_status_update_available">Update available</string>
+    <string name="doc_group_status_installed">Installed</string>
+    <string name="doc_group_status_not_installed">Not installed</string>
 </resources>

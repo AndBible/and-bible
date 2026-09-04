@@ -67,7 +67,7 @@ fun buildDocumentQuickTabs(
     val byId = offerable.associateBy { it.docId }
     val recent = recentInitials.mapNotNull { byId[it] }
     val forVerse = offerable.filter { it.docId in forVerseIds }
-    val lastFilter = computeDisplayedDocuments(offerable, lastLanguage, lastTypeFilter, searchIds = null)
+    val lastFilter = computeDisplayedDocuments(offerable, lastLanguage, lastTypeFilter, query = "")
     val rows = mapOf(
         DocumentQuickTab.RECENT to recent,
         DocumentQuickTab.FOR_VERSE to forVerse,

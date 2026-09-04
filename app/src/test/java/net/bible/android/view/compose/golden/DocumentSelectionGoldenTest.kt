@@ -2,11 +2,17 @@ package net.bible.android.view.compose.golden
 
 import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
+import net.bible.sharedcore.navigation.DocArrangement
 import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocGroup
+import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
+import net.bible.sharedcore.navigation.defaultArrangement
+import net.bible.sharedcore.navigation.groupDocuments
 import net.bible.sharedui.navigation.DocumentSelectionScreen
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,6 +58,19 @@ class DocumentSelectionGoldenTest {
             installStatus = DocInstallStatus.INSTALLED, percentDone = 0, recommended = false,
             badWarn = false, locked = true, enciphered = true, canDelete = true, installSizeMb = 4.0,
         ),
+    )
+
+    /**
+     * Round 17e-1 final-review fix (I1): a DocCategory.OTHER row, so [chooseDocument_grouped]
+     * actually exercises the "uncategorized" header branch. Real-world equivalents are CrossWire's
+     * DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES documents, which DocCategoryMapping maps
+     * to OTHER — grouping by TYPE on a real download list shows this header for that whole bucket.
+     */
+    private val otherCategoryRow = DocRow(
+        docId = "DailyDevo", osisId = "DailyDevo", abbreviation = "Devo", name = "Daily Devotions",
+        language = english, repository = "CrossWire", category = DocCategory.OTHER,
+        installStatus = DocInstallStatus.NOT_INSTALLED, percentDone = 0, recommended = false,
+        badWarn = false, locked = false, enciphered = false, canDelete = false, installSizeMb = 0.5,
     )
 
     private val languages = listOf(english, greek)
@@ -154,6 +173,7 @@ class DocumentSelectionGoldenTest {
     private fun screen(
         loading: Boolean = false,
         displayed: List<DocRow> = rows,
+        groupBy: DocGroupBy = DocGroupBy.NONE,
         count: String = resultCount,
         selectionMode: Boolean = false,
         selectedIds: Set<String> = emptySet(),
@@ -171,7 +191,7 @@ class DocumentSelectionGoldenTest {
         loading = loading,
         isRefreshing = isRefreshing,
         onRefresh = if (downloadMode) ({}) else null,
-        displayed = displayed,
+        grouped = groupDocuments(displayed, groupBy),
         languages = languages,
         selectedLanguage = selectedLanguage,
         typeFilters = typeFilters,
@@ -188,6 +208,17 @@ class DocumentSelectionGoldenTest {
         onCloseSearch = {},
         onLanguageChange = {},
         onTypeFilterChange = {},
+        arrangement = defaultArrangement(DocSortKey.entries.toSet()).copy(groupBy = groupBy),
+        groupKeys = DocGroupBy.entries.toList(),
+        repositories = emptyList(),
+        rememberArrangement = false,
+        arrangementIsDefault = groupBy == DocGroupBy.NONE,
+        onMoveSort = { _, _ -> },
+        onToggleSortDirection = {},
+        onGroupByChange = {},
+        onRepositoryChange = {},
+        onRememberChange = {},
+        onResetArrangement = {},
         onRowClick = {},
         onRowLongClick = {},
         onDownload = {},
@@ -246,6 +277,24 @@ class DocumentSelectionGoldenTest {
     @Test fun chooseDocument_loading() {
         captureGolden("ChooseDocument", "loading", EDGE_MODE) {
             screen(loading = true, displayed = emptyList())
+        }
+    }
+
+    /**
+     * Grouped by TYPE over a fixture holding three categories (BIBLE, COMMENTARY, OTHER): guards
+     * the sticky header rendering added in round 17e-1 — three distinct headers, rows filed under
+     * the right one, an opaque header background rather than one that lets scrolled-under row text
+     * show through, and (final-review fix I1) the OTHER category's header reading "Other" rather
+     * than the misleading "All". `heightDp = 1024` keeps all three headers and their rows in frame.
+     */
+    @Test fun chooseDocument_grouped() {
+        captureGolden("ChooseDocument", "grouped", EDGE_MODE, heightDp = 1024) {
+            screen(
+                displayed = rows.filter { it.category == DocCategory.BIBLE || it.category == DocCategory.COMMENTARY } +
+                    otherCategoryRow,
+                groupBy = DocGroupBy.TYPE,
+                count = "5 documents",
+            )
         }
     }
 

@@ -59,6 +59,9 @@ import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
 
+/** What a masked settings row shows instead of its value. Fixed length — see the call site. */
+private const val MASKED_SUMMARY = "••••••••"
+
 /**
  * Reusable declarative settings screen. Renders a [SettingsScreenState] (a flat list of
  * [SettingsItem]s) as Material3 settings rows inside an [AbScaffold]. Every callback is fired with
@@ -301,7 +304,14 @@ private fun RenderSettingsItem(
 
         is SettingsItem.TextInputRow -> AbSettingsRow(
             title = item.title,
-            summary = item.summary ?: item.value,
+            // A masked row must never fall through to its raw value: the row's own summary if it
+            // has one, else a fixed bullet run, else (empty value) nothing at all. Before this,
+            // `item.summary ?: item.value` printed the Nextcloud password in the settings list —
+            // the editor sheet has always masked it, this list never did. The bullet run is a
+            // FIXED length on purpose: one bullet per character would leak the password's length.
+            summary = item.summary
+                ?: if (item.masked) item.value.takeIf { it.isNotEmpty() }?.let { MASKED_SUMMARY }
+                   else item.value,
             enabled = item.enabled,
             onClick = { openTextInput(item.key) },
             iconKey = item.iconKey,

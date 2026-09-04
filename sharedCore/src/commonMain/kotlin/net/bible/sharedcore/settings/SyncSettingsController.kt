@@ -68,7 +68,12 @@ class SyncSettingsController(
                 visible = s.credsVisible, enabled = s.credsEnabled, iconKey = "cloud_sync_password",
             ))
             add(SettingsItem.TextInputRow(
-                key = "cloud_sync_folder_path", title = labels.folderPathTitle, summary = labels.folderPathSummary,
+                key = "cloud_sync_folder_path", title = labels.folderPathTitle,
+                // A configured path IS the row's summary; the static explanation is only what to
+                // say when there is nothing to show. Deliberately fixed HERE rather than by
+                // changing AbSettingsRow's `summary ?: value` rule, which would alter every other
+                // settings screen under a request about one row.
+                summary = s.folderPath.ifBlank { labels.folderPathSummary },
                 value = s.folderPath, visible = s.credsVisible, enabled = s.credsEnabled,
                 iconKey = "cloud_sync_folder_path",
             ))

@@ -50,6 +50,11 @@ import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.docCategoryOf
 
+// Round 17e-2: own key prefix, distinct from the download list's `download.*` keys — changing the
+// sync list's order must never reorder the download list.
+private const val ARRANGEMENT_KEY = "cloudDocs.arrangement"
+private const val ARRANGEMENT_REMEMBER_KEY = "cloudDocs.arrangement.remember"
+
 /**
  * Compose host for the cloud documents management view — the new-path twin of classic
  * [CloudDocumentsActivity]. Wires the shared [CloudDocumentsController] seams to the real
@@ -80,6 +85,17 @@ class CloudDocumentsComposeActivity : ActivityBase() {
             onSyncNow = ::handleSyncNowConfirm,
             onRescan = { runSyncAction { DocumentSync.resetListingCache() } },
             onShowRemovedChange = ::handleShowRemovedChange,
+            storedArrangement = if (CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true))
+                CommonUtils.settings.getString(ARRANGEMENT_KEY, null) else null,
+            rememberArrangementInitially = CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true),
+            onArrangementChange = { encoded, remember ->
+                CommonUtils.settings.setBoolean(ARRANGEMENT_REMEMBER_KEY, remember)
+                CommonUtils.settings.setString(ARRANGEMENT_KEY, encoded)
+            },
+            // Final-review fix wave (round 17e-2): debounces the drag-reorder commit (persist +
+            // refilter) so it fires once per settled gesture, not once per item swap — same as
+            // DocumentSelectionController's own scope wiring in DownloadComposeActivity.
+            scope = lifecycleScope,
         )
     }
 
@@ -100,7 +116,7 @@ class CloudDocumentsComposeActivity : ActivityBase() {
         }
         setContent {
             AbAppTheme {
-                    val displayed by controller.displayed.collectAsState()
+                    val grouped by controller.grouped.collectAsState()
                     val statusFilter by controller.statusFilter.collectAsState()
                     val categoryFilter by controller.categoryFilter.collectAsState()
                     val query by controller.query.collectAsState()
@@ -111,13 +127,16 @@ class CloudDocumentsComposeActivity : ActivityBase() {
                     val transferRunning by controller.transferRunning.collectAsState()
                     val showRemoved by controller.showRemoved.collectAsState()
                     val syncNowDialog by controller.syncNowDialog.collectAsState()
+                    val arrangement by controller.arrangement.collectAsState()
+                    val rememberArrangement by controller.rememberArrangement.collectAsState()
+                    val arrangementIsDefault by controller.arrangementIsDefault.collectAsState()
 
                     CloudDocumentsScreen(
                         title = getString(R.string.document_sync_manage_title),
                         loading = busy || transferRunning,
                         isRefreshing = false,
                         onRefresh = { refresh() },
-                        displayed = displayed,
+                        grouped = grouped,
                         statusFilters = statusFilterLabels(showRemoved),
                         selectedStatusFilter = statusFilter,
                         categoryFilters = categoryFilterLabels(),
@@ -127,13 +146,24 @@ class CloudDocumentsComposeActivity : ActivityBase() {
                         selectedIds = selectedIds,
                         syncEnabled = DocumentSyncSettings.enabled,
                         syncNowDialog = syncNowDialog,
-                        topBarActions = { OverflowMenu(showRemoved) },
+                        topBarActions = { OverflowMenu() },
                         onQueryChange = controller::setQuery,
                         searchModeActive = searchModeActive,
                         onOpenSearch = controller::openSearch,
                         onCloseSearch = controller::closeSearch,
                         onStatusFilterChange = controller::setStatusFilter,
                         onCategoryFilterChange = controller::setCategoryFilter,
+                        arrangement = arrangement,
+                        groupKeys = controller.groupKeys,
+                        rememberArrangement = rememberArrangement,
+                        arrangementIsDefault = arrangementIsDefault,
+                        onMoveSort = controller::moveSortCriterion,
+                        onToggleSortDirection = controller::toggleSortDirection,
+                        onGroupByChange = controller::setGroupBy,
+                        onRememberChange = controller::setRememberArrangement,
+                        onResetArrangement = controller::resetArrangement,
+                        showRemoved = showRemoved,
+                        onShowRemovedChange = controller::setShowRemoved,
                         onRowClick = { if (selectionMode) controller.toggle(it.initials) },
                         onRowLongClick = { controller.enterSelection(); controller.toggle(it.initials) },
                         onRowAction = { item, action -> controller.performAction(item, action) },
@@ -312,9 +342,9 @@ class CloudDocumentsComposeActivity : ActivityBase() {
         else -> resources.getQuantityString(R.plurals.cloud_doc_sync_now_count, count, count)
     }
 
-    // --- Overflow menu (Sync now / Re-scan / Show removed / Help) ---------------------------
+    // --- Overflow menu (Sync now / Re-scan / Help) ------------------------------------------
     @Composable
-    private fun OverflowMenu(showRemoved: Boolean) {
+    private fun OverflowMenu() {
         AbOverflowMenu(contentDescription = null) { close ->
             if (CloudSync.signedIn) {
                 AbMenuItem(
@@ -326,13 +356,6 @@ class CloudDocumentsComposeActivity : ActivityBase() {
                     text = getString(R.string.cloud_doc_rescan),
                     onClick = { close(); controller.rescan() },
                     icon = { Icon(painterResource(R.drawable.ic_baseline_refresh_24), contentDescription = null) },
-                )
-                AbMenuItem(
-                    text = getString(R.string.cloud_doc_show_removed),
-                    onClick = { close(); controller.setShowRemoved(!showRemoved) },
-                    icon = { Icon(painterResource(R.drawable.ic_baseline_visibility_24), contentDescription = null) },
-                    checkable = true,
-                    checked = showRemoved,
                 )
             }
             AbMenuItem(
@@ -358,6 +381,7 @@ class CloudDocumentsComposeActivity : ActivityBase() {
         cloudOnly = cloudOnly, localOnly = localOnly, updateAvailable = updateAvailable, localNewer = localNewer,
         blocked = blocked, canDeleteLocal = canDeleteLocal, cloudDeleted = cloudDeleted,
         sizeLabel = if (sizeBytes > 0) Formatter.formatShortFileSize(this@CloudDocumentsComposeActivity, sizeBytes) else null,
+        sizeBytes = sizeBytes.takeIf { it > 0 },
     )
 
     private fun statusFilterLabels(showRemoved: Boolean): List<Pair<CloudDocFilter, String>> = buildList {

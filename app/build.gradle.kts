@@ -477,6 +477,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material.icons.extended)  // Icons.Filled, Icons.AutoMirrored etc.
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation("de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5")

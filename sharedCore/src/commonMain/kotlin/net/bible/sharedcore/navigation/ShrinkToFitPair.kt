@@ -71,55 +71,121 @@ fun shrinkToFitPair(
     languageShareOfShortfall: Float = 2f / 3f,
     minWidth: Int = 0,
 ): ShrinkToFitWidths {
+    // Delegates to the n-ary form (round 17e) so there is exactly ONE implementation of the
+    // shrink-and-redistribute arithmetic. This signature and ShrinkToFitPairTest are kept as the
+    // regression anchor for the tuned 2/3 : 1/3 asymmetry.
+    val out = shrinkToFitChips(
+        available = available,
+        gap = gap,
+        naturals = listOf(languageNatural, typeNatural),
+        shortfallWeights = listOf(languageShareOfShortfall, 1f - languageShareOfShortfall),
+        minWidth = minWidth,
+    )
+    return ShrinkToFitWidths(out.widths[0], out.widths[1], out.gap)
+}
+
+/** [shrinkToFitChips]'s result: each chip's assigned width, plus the gap actually applied. */
+data class ChipWidths(val widths: List<Int>, val gap: Int)
+
+/**
+ * The n-chip generalisation of [shrinkToFitPair]. Every chip gets its natural width whenever they
+ * all fit; only when they do not does any chip shrink, and then by its [shortfallWeights] share of
+ * the SHORTFALL rather than of the whole row.
+ *
+ * The two-chip case must remain byte-identical to [shrinkToFitPair]'s tuned behaviour, which is
+ * why the cut is computed the same way: chips 0..n-2 take `floor(shortfall * weight)`, the LAST
+ * chip absorbs the exact remainder, each is clamped to its own room above the floor, and any still
+ * unassigned shortfall is handed back in index order. `ShrinkToFitPairTest` runs unmodified against
+ * the delegate below and is the anchor for that equivalence.
+ */
+fun shrinkToFitChips(
+    available: Int,
+    gap: Int,
+    naturals: List<Int>,
+    shortfallWeights: List<Float>,
+    minWidth: Int = 0,
+): ChipWidths {
+    require(naturals.size == shortfallWeights.size) { "one weight per chip" }
+    if (naturals.isEmpty()) return ChipWidths(emptyList(), 0)
     val safeAvailable = available.coerceAtLeast(0)
-    // The gap itself can never exceed what's available: if it did, no non-negative widths could
-    // keep `languageWidth + typeWidth + gap` within `available` at all (both widths are already
-    // floored at zero, so cutting them further cannot make room for an over-large gap). Clamping
-    // it here — rather than trusting the caller's fixed nominal gap — is what makes the invariant
-    // hold by construction rather than by hoping this case never comes up.
-    val effectiveGap = gap.coerceIn(0, safeAvailable)
-    val widthBudget = safeAvailable - effectiveGap
-    val neededWidths = languageNatural + typeNatural
+    val gaps = naturals.size - 1
+    // The gaps themselves can never exceed what is available: if they did, no non-negative widths
+    // could keep the total within `available` at all. Clamping here is what makes the
+    // sum(widths) + gap*gaps <= available invariant hold by construction.
+    val effectiveGap = if (gaps == 0) 0 else gap.coerceIn(0, safeAvailable / gaps)
+    val widthBudget = safeAvailable - effectiveGap * gaps
+    val needed = naturals.sum()
+    if (needed <= widthBudget) return ChipWidths(naturals, effectiveGap)
 
-    val languageWidth: Int
-    val typeWidth: Int
-    if (neededWidths <= widthBudget) {
-        // Both fit as-is -- nothing shrinks, nothing is truncated that doesn't need to be.
-        languageWidth = languageNatural
-        typeWidth = typeNatural
-    } else {
-        // A floor above a chip's own natural width would ask this function to GROW that chip,
-        // which is not its job -- cap each chip's floor to what it naturally has.
-        val safeMinWidth = minWidth.coerceAtLeast(0)
-        val languageFloor = safeMinWidth.coerceAtMost(languageNatural)
-        val typeFloor = safeMinWidth.coerceAtMost(typeNatural)
-        // Both floors fit inside the budget together <=> there is enough room to cut every bit of
-        // shortfall while respecting both floors (neededWidths - (languageFloor + typeFloor) is
-        // exactly the max cut achievable while honoring both, and that is >= shortfall exactly
-        // when this holds) -- so when it holds the floors are fully honorable, and when it does
-        // not, honoring them at all would leave part of the shortfall uncut and violate the
-        // top-level invariant, so the floor is dropped instead.
-        val canHonorFloors = widthBudget >= languageFloor + typeFloor
-        val languageMin = if (canHonorFloors) languageFloor else 0
-        val typeMin = if (canHonorFloors) typeFloor else 0
+    val safeMin = minWidth.coerceAtLeast(0)
+    val floors = naturals.map { safeMin.coerceAtMost(it) }
+    // Honouring every floor is only possible when the floors themselves fit; when they do not,
+    // honouring them would leave part of the shortfall uncut and break the stronger
+    // "never claim more than available" invariant, so the floor is dropped entirely.
+    val canHonorFloors = widthBudget >= floors.sum()
+    val mins = if (canHonorFloors) floors else naturals.map { 0 }
 
-        // Never ask the pair to give up more than they jointly have -- a shortfall bigger than
-        // languageNatural + typeNatural is only satisfiable by cutting both to zero, not by
-        // manufacturing negative width.
-        val shortfall = (neededWidths - widthBudget).coerceAtMost(languageNatural + typeNatural)
-        var languageCut = (shortfall * languageShareOfShortfall).toInt().coerceIn(0, languageNatural - languageMin)
-        var typeCut = (shortfall - languageCut).coerceIn(0, typeNatural - typeMin)
-        // If type's own room (down to its floor) couldn't cover what language's clamp left over,
-        // the remaining shortfall goes BACK to language (which may still have room down to ITS
-        // floor after its first cut) -- a one-directional handoff (language's leftover -> type
-        // only) would silently drop this remainder whenever BOTH chips clamp, which is exactly the
-        // shape of shortfall that a redistribution mechanism exists to handle in the first place.
-        val stillOwed = shortfall - languageCut - typeCut
-        if (stillOwed > 0) {
-            languageCut += stillOwed.coerceAtMost(languageNatural - languageMin - languageCut)
-        }
-        languageWidth = (languageNatural - languageCut).coerceAtLeast(0)
-        typeWidth = (typeNatural - typeCut).coerceAtLeast(0)
+    val shortfall = (needed - widthBudget).coerceAtMost(needed)
+    val cuts = IntArray(naturals.size)
+    var assigned = 0
+    for (i in naturals.indices) {
+        val want = if (i == naturals.lastIndex) shortfall - assigned else (shortfall * shortfallWeights[i]).toInt()
+        cuts[i] = want.coerceIn(0, naturals[i] - mins[i])
+        assigned += cuts[i]
     }
-    return ShrinkToFitWidths(languageWidth, typeWidth, effectiveGap)
+    // Whatever a clamp refused is handed back in index order, so a shortfall is never silently
+    // dropped just because one chip had no room for its proportional share.
+    var owed = shortfall - assigned
+    var i = 0
+    while (owed > 0 && i < naturals.size) {
+        val room = naturals[i] - mins[i] - cuts[i]
+        val take = owed.coerceAtMost(room.coerceAtLeast(0))
+        cuts[i] += take
+        owed -= take
+        i++
+    }
+    return ChipWidths(naturals.mapIndexed { idx, n -> (n - cuts[idx]).coerceAtLeast(0) }, effectiveGap)
+}
+
+/**
+ * How a filter bar lays out: each chip's width, the gap, and whether the result count had to move
+ * to a second row underneath the chips.
+ */
+data class FilterBarLayout(val chipWidths: List<Int>, val gap: Int, val countOnSecondRow: Boolean)
+
+/**
+ * Decide a filter bar's layout: chips, a trailing result count and a trailing "more filters" icon
+ * button.
+ *
+ * The count moves to a second row ONLY when keeping it on the first row would force a chip to
+ * truncate — on a roomy phone everything stays on one line, on a narrow one the count drops below
+ * and the chips keep their full labels. A chip that hides its own current value is a filter the
+ * user cannot read, which is worse than one extra line of chrome; the count is the one element
+ * here that reads identically wherever it sits.
+ *
+ * The icon button never moves: it is fixed-width and is the row's affordance.
+ */
+fun filterBarLayout(
+    available: Int,
+    gap: Int,
+    chipNaturals: List<Int>,
+    shortfallWeights: List<Float>,
+    countWidth: Int,
+    tuneWidth: Int,
+    minChipWidth: Int,
+): FilterBarLayout {
+    val oneRowBudget = available - tuneWidth - countWidth - gap * 2
+    val needed = chipNaturals.sum() + gap * (chipNaturals.size - 1).coerceAtLeast(0)
+    if (needed <= oneRowBudget) {
+        return FilterBarLayout(chipNaturals, gap, countOnSecondRow = false)
+    }
+    val twoRowBudget = available - tuneWidth - gap
+    val widths = shrinkToFitChips(
+        available = twoRowBudget,
+        gap = gap,
+        naturals = chipNaturals,
+        shortfallWeights = shortfallWeights,
+        minWidth = minChipWidth,
+    )
+    return FilterBarLayout(widths.widths, widths.gap, countOnSecondRow = true)
 }

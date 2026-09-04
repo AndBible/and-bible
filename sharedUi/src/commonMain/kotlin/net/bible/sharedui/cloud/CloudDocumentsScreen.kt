@@ -16,18 +16,8 @@
  */
 package net.bible.sharedui.cloud
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Block
@@ -48,18 +38,15 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.cloud.CloudDocAction
 import net.bible.sharedcore.cloud.CloudDocActionLabel
@@ -71,18 +58,22 @@ import net.bible.sharedcore.cloud.actionLabelKind
 import net.bible.sharedcore.cloud.bulkMenuActions
 import net.bible.sharedcore.cloud.cloudDocStatus
 import net.bible.sharedcore.cloud.documentMenuActions
+import net.bible.sharedcore.navigation.DocArrangement
 import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocGroup
+import net.bible.sharedcore.navigation.DocGroupBy
+import net.bible.sharedcore.navigation.DocGroupKey
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbActionIcon
-import net.bible.sharedui.components.AbDropdownField
-import net.bible.sharedui.components.AbLoadingIndicator
+import net.bible.sharedui.components.AbDocumentListRow
+import net.bible.sharedui.components.AbDocumentListScaffold
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectSheet
-import net.bible.sharedui.components.AbPullToRefresh
 import net.bible.sharedui.components.AbSearchImeRequest
-import net.bible.sharedui.components.AbSelectionScaffold
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
+import net.bible.sharedui.navigation.LocalCategoryIcon
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.theme.LocalDisplayColorMode
@@ -93,7 +84,7 @@ fun CloudDocumentsScreen(
     loading: Boolean,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
-    displayed: List<CloudDocItem>,
+    grouped: List<DocGroup<CloudDocItem>>,
     statusFilters: List<Pair<CloudDocFilter, String>>,
     selectedStatusFilter: CloudDocFilter,
     categoryFilters: List<Pair<DocCategory?, String>>,
@@ -110,6 +101,17 @@ fun CloudDocumentsScreen(
     onCloseSearch: () -> Unit,
     onStatusFilterChange: (CloudDocFilter) -> Unit,
     onCategoryFilterChange: (DocCategory?) -> Unit,
+    arrangement: DocArrangement,
+    groupKeys: List<DocGroupBy>,
+    rememberArrangement: Boolean,
+    arrangementIsDefault: Boolean,
+    onMoveSort: (from: Int, to: Int) -> Unit,
+    onToggleSortDirection: (DocSortKey) -> Unit,
+    onGroupByChange: (DocGroupBy) -> Unit,
+    onRememberChange: (Boolean) -> Unit,
+    onResetArrangement: () -> Unit,
+    showRemoved: Boolean,
+    onShowRemovedChange: (Boolean) -> Unit,
     onRowClick: (CloudDocItem) -> Unit,
     onRowLongClick: (CloudDocItem) -> Unit,
     onRowAction: (CloudDocItem, CloudDocAction) -> Unit,
@@ -120,77 +122,60 @@ fun CloudDocumentsScreen(
     onExitSelection: () -> Unit,
 ) {
     val strings = LocalStrings.current
-    val selectedStatusPair = statusFilters.firstOrNull { it.first == selectedStatusFilter }
-        ?: (selectedStatusFilter to selectedStatusFilter.name)
-    val selectedCategoryPair = categoryFilters.firstOrNull { it.first == selectedCategoryFilter }
-        ?: (selectedCategoryFilter to "")
-    val bulkActions = if (selectionMode) bulkMenuActions(displayed.filter { it.initials in selectedIds }, syncEnabled) else emptyList()
+    val allRows = grouped.flatMap { it.rows }
+    val bulkActions = if (selectionMode) {
+        bulkMenuActions(allRows.filter { it.initials in selectedIds }, syncEnabled)
+    } else emptyList()
+    val resultCount = strings.docFilterResults(allRows.size)
 
-    AbSelectionScaffold(
+    AbDocumentListScaffold(
         title = title,
-        selectionMode = selectionMode,
-        selectedCount = selectedIds.size,
-        onNavigateUp = onNavigateUp,
-        onExitSelection = onExitSelection,
-        actions = {
-            AbActionIcon(Icons.Filled.Search, strings.search, onOpenSearch)
-            topBarActions()
-        },
+        selectionMode = selectionMode, selectedCount = selectedIds.size,
+        onNavigateUp = onNavigateUp, onExitSelection = onExitSelection,
+        actions = { AbActionIcon(Icons.Filled.Search, strings.search, onOpenSearch); topBarActions() },
         selectionActions = {
             bulkActions.forEach { action ->
-                IconButton(onClick = { onBulkAction(action) }) {
-                    Icon(bulkIcon(action), contentDescription = null)
-                }
+                IconButton(onClick = { onBulkAction(action) }) { Icon(bulkIcon(action), contentDescription = null) }
             }
         },
-        search = if (searchModeActive) {
-            AbTopBarSearchState(query = query, imeRequest = AbSearchImeRequest.Focus)
-        } else null,
-        searchCallbacks = if (searchModeActive) {
-            AbTopBarSearchCallbacks(
-                onQueryChange = onQueryChange,
-                onClose = onCloseSearch,
-                onImeRequestHandled = {},
+        search = if (searchModeActive) AbTopBarSearchState(query = query, imeRequest = AbSearchImeRequest.Focus) else null,
+        searchCallbacks = if (searchModeActive) AbTopBarSearchCallbacks(
+            onQueryChange = onQueryChange, onClose = onCloseSearch, onImeRequestHandled = {},
+        ) else null,
+        filterBar = {
+            CloudDocFilterBar(
+                statusFilters = statusFilters,
+                selectedStatusFilter = selectedStatusFilter,
+                onStatusFilterChange = onStatusFilterChange,
+                categoryFilters = categoryFilters,
+                selectedCategoryFilter = selectedCategoryFilter,
+                onCategoryFilterChange = onCategoryFilterChange,
+                resultCount = resultCount,
+                arrangement = arrangement,
+                groupKeys = groupKeys,
+                rememberArrangement = rememberArrangement,
+                arrangementIsDefault = arrangementIsDefault,
+                onMoveSort = onMoveSort,
+                onToggleSortDirection = onToggleSortDirection,
+                onGroupByChange = onGroupByChange,
+                onRememberChange = onRememberChange,
+                onResetArrangement = onResetArrangement,
+                showRemoved = showRemoved,
+                onShowRemovedChange = onShowRemovedChange,
             )
-        } else null,
-    ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            AbDropdownField(
-                label = "",
-                selected = selectedStatusPair,
-                options = statusFilters,
-                optionLabel = { it.second },
-                onSelect = { onStatusFilterChange(it.first) },
-            )
-            AbDropdownField(
-                label = "",
-                selected = selectedCategoryPair,
-                options = categoryFilters,
-                optionLabel = { it.second },
-                onSelect = { onCategoryFilterChange(it.first) },
-            )
-            if (loading) {
-                AbLoadingIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
-            }
-            AbPullToRefresh(isRefreshing = isRefreshing, onRefresh = onRefresh) {
-                if (displayed.isEmpty()) {
-                    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(strings.emptyList, modifier = Modifier.padding(32.dp), style = MaterialTheme.typography.bodyLarge)
-                    }
-                } else {
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(displayed, key = { it.initials }) { item ->
-                            CloudDocRow(
-                                item = item, selectionMode = selectionMode,
-                                selected = item.initials in selectedIds, syncEnabled = syncEnabled,
-                                onClick = { onRowClick(item) }, onLongClick = { onRowLongClick(item) },
-                                onAction = { onRowAction(item, it) },
-                            )
-                        }
-                    }
-                }
-            }
-        }
+        },
+        loading = loading, isRefreshing = isRefreshing, onRefresh = onRefresh,
+        groups = grouped,
+        groupHeaderLabel = { cloudGroupHeaderLabel(it, strings) },
+        itemKey = { it.initials },
+        emptyText = strings.emptyList,
+    ) { item ->
+        CloudDocRow(
+            item = item, selectionMode = selectionMode,
+            selected = item.initials in selectedIds, syncEnabled = syncEnabled,
+            onClick = { onRowClick(item) }, onLongClick = { onRowLongClick(item) },
+            onAction = { onRowAction(item, it) },
+        )
     }
 
     if (syncNowDialog != null) {
@@ -217,6 +202,30 @@ fun CloudDocumentsScreen(
             onDismiss = onSyncNowDismiss,
         )
     }
+}
+
+/**
+ * Header label for a cloud-list group, reusing the SAME words the screen's own filters/status show
+ * — a group called "Update available" must not be a third spelling of a state the status chip and
+ * the row subtitle already name. [DocCategory.OTHER]/null is NOT the same as "no value" — it's a
+ * real, meaningful category (documents that aren't Bible/commentary/dictionary/general
+ * book/maps/add-on), so it gets its own [Strings.docTypeOther] label rather than the `all`
+ * placeholder, matching [net.bible.sharedui.navigation.documentGroupHeaderLabel]'s sibling case.
+ */
+private fun cloudGroupHeaderLabel(key: DocGroupKey, strings: Strings): String = when (key) {
+    is DocGroupKey.Status -> statusLabel(CloudDocStatus.entries[key.rank], strings)
+    is DocGroupKey.Category -> when (key.category) {
+        DocCategory.BIBLE -> strings.docTypeBible
+        DocCategory.COMMENTARY -> strings.docTypeCommentary
+        DocCategory.DICTIONARY -> strings.docTypeDictionary
+        DocCategory.GENERAL_BOOK -> strings.docTypeGeneralBook
+        DocCategory.MAPS -> strings.docTypeMaps
+        DocCategory.AND_BIBLE -> strings.docTypeAddon
+        DocCategory.OTHER, null -> strings.docTypeOther
+    }
+    // The cloud screen offers neither, so these are unreachable — but the `when` must stay
+    // exhaustive so a future group key fails the build rather than rendering an empty header.
+    is DocGroupKey.Language, is DocGroupKey.Repository, DocGroupKey.None -> ""
 }
 
 private fun bulkIcon(action: CloudDocAction): ImageVector = when (action) {
@@ -295,7 +304,6 @@ private fun statusBaseArgb(status: CloudDocStatus): Int = when (status) {
 private fun statusColor(status: CloudDocStatus): Color =
     Color(accentArgbFor(statusBaseArgb(status), LocalDisplayColorMode.current))
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CloudDocRow(
     item: CloudDocItem,
@@ -308,34 +316,50 @@ private fun CloudDocRow(
 ) {
     val strings = LocalStrings.current
     val status = cloudDocStatus(item)
-    Row(
-        modifier = Modifier.fillMaxWidth().combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (selectionMode) Checkbox(checked = selected, onCheckedChange = null)
-        else Icon(statusIcon(status), contentDescription = null, tint = statusColor(status)) // icon + text: e-ink safe
-        Spacer(Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(item.name, style = MaterialTheme.typography.bodyLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text(subtitle(item, status, strings), style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        }
-        if (!selectionMode) {
-            var expanded by remember { mutableStateOf(false) }
-            IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                documentMenuActions(item, syncEnabled).forEach { action ->
-                    val kind = actionLabelKind(action, item.localOnly, syncEnabled)
-                    AbMenuItem(
-                        text = actionLabel(kind, strings),
-                        onClick = { expanded = false; onAction(action) },
-                        icon = { Icon(cloudActionIcon(kind), contentDescription = null) },
-                    )
+    AbDocumentListRow(
+        title = item.name,
+        subtitle = AnnotatedString(subtitle(item, status, strings)),
+        onClick = onClick,
+        onLongClick = onLongClick,
+        leading = {
+            if (selectionMode) {
+                Checkbox(checked = selected, onCheckedChange = null)
+            } else {
+                // Round 17e-2: the DOCUMENT CATEGORY, as in the download list — the two lists now
+                // answer "what kind of book is this?" in the same place. The sync status has not
+                // been dropped; it moved to the trailing slot below, which is where the download
+                // list has always shown a per-row status. `category` is nullable on a cloud
+                // listing, and OTHER is the row the category icon seam draws for "no category".
+                Icon(
+                    painter = LocalCategoryIcon.current(item.category ?: DocCategory.OTHER),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                )
+            }
+        },
+        trailing = {
+            // Icon AND the subtitle's status word, never colour alone — the e-ink and BW themes
+            // grey the tint away (accentArgbFor), so the status has to survive without it.
+            Icon(statusIcon(status), contentDescription = statusLabel(status, strings),
+                tint = statusColor(status), modifier = Modifier.size(20.dp))
+            if (!selectionMode) {
+                var expanded by remember { mutableStateOf(false) }
+                IconButton(onClick = { expanded = true }) {
+                    Icon(Icons.Filled.MoreVert, contentDescription = null)
+                }
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    documentMenuActions(item, syncEnabled).forEach { action ->
+                        val kind = actionLabelKind(action, item.localOnly, syncEnabled)
+                        AbMenuItem(
+                            text = actionLabel(kind, strings),
+                            onClick = { expanded = false; onAction(action) },
+                            icon = { Icon(cloudActionIcon(kind), contentDescription = null) },
+                        )
+                    }
                 }
             }
-        }
-    }
+        },
+    )
 }
 
 private fun subtitle(item: CloudDocItem, status: CloudDocStatus, strings: Strings): String {

@@ -42,13 +42,14 @@ fun syncSnap(
     autoTogglesVisible: Boolean = false,
     wifiOnlyVisible: Boolean = false,
     adapterEnabled: Boolean = true,
+    folderPath: String = "f",
 ) = SyncSettingsSnapshot(
     adapter = "NEXT_CLOUD",
     adapterChoices = listOf(Choice2("GOOGLE_DRIVE", "Google Drive"), Choice2("NEXT_CLOUD", "Nextcloud")),
     adapterSummary = "adapter summary",
     adapterEnabled = adapterEnabled,
     cloudInfoSummary = null,
-    serverUrl = "https://s", username = "u", password = "p", folderPath = "f",
+    serverUrl = "https://s", username = "u", password = "p", folderPath = folderPath,
     credsVisible = credsVisible, credsEnabled = credsEnabled,
     resetVisible = resetVisible, cloudInfoVisible = cloudInfoVisible,
     categoryEnabled = SyncCategoryKeys.DISPLAY.associateWith { false },
@@ -221,5 +222,18 @@ class SyncSettingsControllerTest {
             ),
             rows,
         )
+    }
+
+    @Test fun folder_path_row_shows_the_configured_path_and_falls_back_to_its_explanation() {
+        val labels = SyncSettingsLabels.forTest()
+        val configured = controller(FakeSyncSettingsService(syncSnap(folderPath = "/AndBible/documents")))
+        val row = configured.state.value.screen.items
+            .filterIsInstance<SettingsItem.TextInputRow>().first { it.key == "cloud_sync_folder_path" }
+        assertEquals("/AndBible/documents", row.summary)
+
+        val empty = controller(FakeSyncSettingsService(syncSnap(folderPath = "")))
+        val emptyRow = empty.state.value.screen.items
+            .filterIsInstance<SettingsItem.TextInputRow>().first { it.key == "cloud_sync_folder_path" }
+        assertEquals(labels.folderPathSummary, emptyRow.summary)
     }
 }

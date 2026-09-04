@@ -16,42 +16,48 @@
  */
 package net.bible.sharedcore.navigation
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import net.bible.sharedcore.search.SearchModeController
 
-fun computeDisplayedDocuments(all: List<DocRow>, lang: LangOption?, type: DocTypeFilter, searchIds: Set<String>?): List<DocRow> =
-    all.filter { row ->
-        type.test(row) &&
-            (lang == null || row.language.groupingKey == lang.groupingKey || row.category == DocCategory.AND_BIBLE) &&
-            (searchIds == null || searchIds.contains(row.osisId))
-    }.sortedWith(
-        compareBy<DocRow>(
-            {
-                when (it.installStatus) {
-                    DocInstallStatus.BEING_INSTALLED -> 0
-                    DocInstallStatus.UPGRADE_AVAILABLE -> 1
-                    else -> 2
-                }
-            },
-            { it.installStatus == DocInstallStatus.NOT_INSTALLED }, // not-installed after installed (false<true)
-            { if (lang != null) !it.recommended else false },
-            {
-                when (it.category) {
-                    DocCategory.BIBLE -> 0; DocCategory.COMMENTARY -> 1; DocCategory.DICTIONARY -> 2
-                    DocCategory.GENERAL_BOOK -> 4; DocCategory.MAPS -> 5; DocCategory.AND_BIBLE -> 6; DocCategory.OTHER -> 7
-                }
-            },
-            { it.abbreviation.lowercase() },
-        )
+/**
+ * How long [DocumentSelectionController.moveSortCriterion] waits after the LAST swap of a drag
+ * gesture before committing (persisting + refiltering) the reordered criteria — see that
+ * function's KDoc (round 17e-1 final-review fix I3).
+ */
+private const val SORT_REORDER_COMMIT_DELAY_MS = 300L
+
+/**
+ * Filter, then arrange. Filtering (type / language / search / repository) is separate from
+ * ordering because ordering is now user-controlled and lives in [sortDocuments]; before round 17e
+ * this function hard-coded a single composite comparator, which [defaultArrangement] reproduces.
+ */
+fun computeDisplayedDocuments(
+    all: List<DocRow>,
+    lang: LangOption?,
+    type: DocTypeFilter,
+    query: String,
+    arrangement: DocArrangement = defaultArrangement(DocSortKey.entries.toSet()),
+): List<DocRow> =
+    sortDocuments(
+        all.filter { row ->
+            type.test(row) &&
+                (lang == null || row.language.groupingKey == lang.groupingKey || row.category == DocCategory.AND_BIBLE) &&
+                matchesDocumentQuery(query, listOf(row.abbreviation, row.name, row.language.displayName, row.repository)) &&
+                (arrangement.repository == null || row.repository == arrangement.repository)
+        },
+        arrangement,
     )
 
 /**
  * Framework-free controller ported from DocumentSelectionBase's filter/sort/multi-select surface.
- * The host loads the Book list off-main, flattens to DocRow, and pushes via [setDocuments]; the
- * host also owns the Room FTS search (calls [setSearchResults] with matching osisIds). All JSword
- * side effects (open/delete/about/unlock) happen behind the injected seams.
+ * The host loads the Book list off-main, flattens to DocRow, and pushes via [setDocuments]. All
+ * JSword side effects (open/delete/about/unlock) happen behind the injected seams.
  */
 class DocumentSelectionController(
     private val langComparator: Comparator<LangOption>,
@@ -61,9 +67,18 @@ class DocumentSelectionController(
     private val onAbout: (String) -> Unit,
     private val onUnlock: (String) -> Unit,
     private val onStickyLanguage: (LangOption?) -> Unit,
+    private val applicableSortKeys: Set<DocSortKey> = DocSortKey.entries.toSet(),
+    private val applicableGroupKeys: List<DocGroupBy> = listOf(DocGroupBy.NONE),
+    storedArrangement: String? = null,
+    rememberArrangementInitially: Boolean = true,
+    private val onArrangementChange: (encoded: String?, remember: Boolean) -> Unit = { _, _ -> },
+    // Round 17e-1 final-review fix (I3). Null (the default, and every existing test's choice) makes
+    // moveSortCriterion commit synchronously, same as before this fix — a host that cares about the
+    // debounced behavior (i.e. every real screen) supplies its lifecycleScope.
+    private val scope: CoroutineScope? = null,
 ) {
     private var all: List<DocRow> = emptyList()
-    private var searchIds: Set<String>? = null
+    private var sortReorderCommitJob: Job? = null
 
     private val _loading = MutableStateFlow(true)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
@@ -90,15 +105,95 @@ class DocumentSelectionController(
     private val _error = MutableStateFlow<ChooserError?>(null)
     val error: StateFlow<ChooserError?> = _error.asStateFlow()
 
-    fun setDocuments(all: List<DocRow>, searchIds: Set<String>?) {
+    private val _arrangement = MutableStateFlow(
+        decodeArrangement(storedArrangement, applicableSortKeys, applicableGroupKeys.toSet())
+    )
+    val arrangement: StateFlow<DocArrangement> = _arrangement.asStateFlow()
+    private val _rememberArrangement = MutableStateFlow(rememberArrangementInitially)
+    val rememberArrangement: StateFlow<Boolean> = _rememberArrangement.asStateFlow()
+    private val _repositories = MutableStateFlow<List<String>>(emptyList())
+    val repositories: StateFlow<List<String>> = _repositories.asStateFlow()
+    private val _grouped = MutableStateFlow<List<DocGroup<DocRow>>>(emptyList())
+    val grouped: StateFlow<List<DocGroup<DocRow>>> = _grouped.asStateFlow()
+    private val _arrangementIsDefault = MutableStateFlow(
+        decodeArrangement(storedArrangement, applicableSortKeys, applicableGroupKeys.toSet()) ==
+            defaultArrangement(applicableSortKeys)
+    )
+    val arrangementIsDefault: StateFlow<Boolean> = _arrangementIsDefault.asStateFlow()
+
+    /** The group keys this screen offers, for the arrangement sheet's radio row. */
+    val groupKeys: List<DocGroupBy> get() = applicableGroupKeys
+
+    /**
+     * Reorder one sort criterion. [AbReorderableColumn] (in `:sharedUi`) calls this once PER ITEM
+     * SWAP during an active drag inside the arrangement sheet — a modal with no visible document
+     * list behind it. Doing a full [applyArrangement] (a synchronous persistence write plus a
+     * re-sort/re-group of the whole, potentially large, document list) on every swap would be
+     * wasted main-thread work for a reorder the user cannot even see yet.
+     *
+     * [_arrangement] is still updated on every call, immediately, so the sheet's OWN UI (which
+     * reads the live order) reflects each swap right away. Only the expensive commit is deferred:
+     * with a [scope] supplied, it is debounced — cancelling any pending commit and rescheduling —
+     * so it fires once, [SORT_REORDER_COMMIT_DELAY_MS] after the LAST swap, i.e. once the drag
+     * settles. Without a [scope] it commits synchronously, matching the pre-fix behavior (the
+     * choice every test that does not itself exercise this debounce makes).
+     */
+    fun moveSortCriterion(from: Int, to: Int) {
+        val list = _arrangement.value.sort.toMutableList()
+        if (from !in list.indices || to !in list.indices) return
+        list.add(to, list.removeAt(from))
+        val next = _arrangement.value.copy(sort = list)
+        _arrangement.value = next
+        _arrangementIsDefault.value = next == defaultArrangement(applicableSortKeys)
+        val liveScope = scope
+        if (liveScope == null) {
+            applyArrangement(next)
+            return
+        }
+        sortReorderCommitJob?.cancel()
+        sortReorderCommitJob = liveScope.launch {
+            delay(SORT_REORDER_COMMIT_DELAY_MS)
+            applyArrangement(_arrangement.value)
+        }
+    }
+
+    fun toggleSortDirection(key: DocSortKey) {
+        applyArrangement(_arrangement.value.copy(
+            sort = _arrangement.value.sort.map { if (it.key == key) it.copy(descending = !it.descending) else it },
+        ))
+    }
+
+    fun setGroupBy(groupBy: DocGroupBy) = applyArrangement(_arrangement.value.copy(groupBy = groupBy))
+    fun setRepositoryFilter(repository: String?) = applyArrangement(_arrangement.value.copy(repository = repository))
+    fun resetArrangement() = applyArrangement(defaultArrangement(applicableSortKeys))
+
+    /**
+     * The user's "remember these settings" switch. Turning it OFF clears the stored value ONCE
+     * (so the next launch really does start from the default) and then stops writing; the live
+     * arrangement is untouched, because the switch is about persistence, not about this session.
+     */
+    fun setRememberArrangement(on: Boolean) {
+        _rememberArrangement.value = on
+        if (on) onArrangementChange(encodeArrangement(_arrangement.value), true)
+        else onArrangementChange(null, false)
+    }
+
+    private fun applyArrangement(next: DocArrangement) {
+        _arrangement.value = next
+        _arrangementIsDefault.value = next == defaultArrangement(applicableSortKeys)
+        if (_rememberArrangement.value) onArrangementChange(encodeArrangement(next), true)
+        refilter()
+    }
+
+    fun setDocuments(all: List<DocRow>) {
         this.all = all
-        this.searchIds = searchIds
         _documents.value = all
         _loading.value = false
         // dedupe languages by groupingKey (representative = first seen), sort by host comparator
         _languages.value = all.map { it.language }
             .associateBy { it.groupingKey }.values
             .sortedWith(langComparator)
+        _repositories.value = all.map { it.repository }.filter { it.isNotEmpty() }.distinct().sortedBy { it.lowercase() }
         refilter()
     }
 
@@ -112,7 +207,7 @@ class DocumentSelectionController(
      * top the instant it entered BEING_INSTALLED — that is computeDisplayed's first sort key —
      * which reads as the row disappearing from where the user left it. The sort keys are correct
      * and unchanged; they apply at the next re-sort (setDocuments / setLanguage / setTypeFilter /
-     * setSearchResults), exactly as in classic.
+     * setQuery), exactly as in classic.
      *
      * [canDelete] travels with the status because a finished install CHANGES it: the flag is
      * derived from the installed copy of the document, which does not exist until the download
@@ -134,12 +229,26 @@ class DocumentSelectionController(
         if (shownIdx >= 0) {
             _displayed.value = shown.toMutableList().apply { this[shownIdx] = updated }
         }
+        // Mirror the in-place replacement into the grouped view. Deliberately NOT a regroup: a
+        // status change can move a row between STATUS groups, and doing that mid-download is the
+        // same "the row jumped away from where the user left it" defect the no-re-sort rule exists
+        // to prevent. The next real refilter regroups.
+        _grouped.value = _grouped.value.map { g ->
+            val i = g.rows.indexOfFirst { it.docId == docId }
+            if (i < 0) g else g.copy(rows = g.rows.toMutableList().apply { this[i] = updated })
+        }
         // resultCount is deliberately NOT recomputed: no predicate in computeDisplayed reads
         // installStatus, so a status change can never add or remove a row from the displayed set.
     }
 
-    fun setSearchResults(osisIds: Set<String>?) { searchIds = osisIds; refilter() }
-    fun setQuery(q: String) { _query.value = q } // host observes query, runs FTS when >=3, calls setSearchResults
+    /**
+     * Round 17e-2: the query filters HERE, over the loaded rows, instead of the host running a
+     * Room FTS query and pushing osisIds back. The FTS table indexed only these same four short
+     * fields, so nothing is lost — and the three-character minimum and the per-keystroke IO hop
+     * go with it. `matchesDocumentQuery` is shared with the cloud list, which is what makes the
+     * two screens' search behave the same.
+     */
+    fun setQuery(q: String) { _query.value = q; refilter() }
     fun openSearch() = searchMode.open()
     fun closeSearch() = searchMode.close()
     fun setLanguage(lang: LangOption?) { _selectedLanguage.value = lang; onStickyLanguage(lang); refilter() }
@@ -147,13 +256,14 @@ class DocumentSelectionController(
 
     private fun refilter() {
         clearSelection()
-        val out = computeDisplayed(all, _selectedLanguage.value, _selectedTypeFilter.value, searchIds)
+        val out = computeDisplayed(all, _selectedLanguage.value, _selectedTypeFilter.value, _query.value)
         _displayed.value = out
+        _grouped.value = groupDocuments(out, _arrangement.value.groupBy)
         _resultCount.value = out.size
     }
 
-    fun computeDisplayed(all: List<DocRow>, lang: LangOption?, type: DocTypeFilter, searchIds: Set<String>?): List<DocRow> =
-        computeDisplayedDocuments(all, lang, type, searchIds)
+    fun computeDisplayed(all: List<DocRow>, lang: LangOption?, type: DocTypeFilter, query: String): List<DocRow> =
+        computeDisplayedDocuments(all, lang, type, query, _arrangement.value)
 
     fun enterSelection() { _selectionMode.value = true }
     fun toggle(id: String) {

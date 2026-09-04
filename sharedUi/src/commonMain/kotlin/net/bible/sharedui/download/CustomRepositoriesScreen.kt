@@ -43,11 +43,14 @@ import net.bible.sharedui.components.TwoLineListItem
 import net.bible.sharedui.strings.LocalStrings
 
 /**
- * Wiki page documenting custom-repository manifest format (classic `customRepositoriesWikiUrl`,
- * `net.bible.android.view.activity.download.CustomRepositories`). Shared by [CustomRepositoriesScreen]
- * and [CustomRepositoryEditorScreen] as the help dialogs' "read more" link target.
+ * The manual page documenting the custom-repository manifest format. Moved off the GitHub wiki
+ * 2026-08-29 (round 17e): the wiki page no longer exists and the content lives in the manual.
+ *
+ * Public, not internal: `:app`'s CustomRepositoryHelpUrlTest asserts this and the classic copy in
+ * `net.bible.android.view.activity.download` are the same string, and `internal` is scoped to the
+ * compilation module.
  */
-internal const val customRepositoriesWikiUrl = "https://github.com/AndBible/and-bible/wiki/Custom-repositories"
+const val customRepositoriesHelpUrl = "https://docs.andbible.org/en/latest/custom_repositories.html"
 
 /**
  * Stateless port of classic `CustomRepositories`: a list of user-added custom Sword/MyBible
@@ -109,10 +112,10 @@ fun CustomRepositoriesScreen(
     if (showHelp) {
         AbInfoDialog(
             title = strings.customRepositories,
-            body = "${strings.customRepositoriesHelp0}\n\n${strings.customRepositoriesHelp2(strings.wikiPage)}",
+            body = "${strings.customRepositoriesHelp0}\n\n${strings.customRepositoriesHelp2(strings.helpReadMoreLink)}",
             onDismiss = { showHelp = false },
-            readMoreLabel = strings.wikiPage,
-            readMoreUrl = customRepositoriesWikiUrl,
+            readMoreLabel = strings.helpReadMoreLink,
+            readMoreUrl = customRepositoriesHelpUrl,
         )
     }
 }

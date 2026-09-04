@@ -1,15 +1,19 @@
 package net.bible.sharedcore.cloud
 
 import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.matchesDocumentQuery
 
-/** Keeps items matching the status, a case-insensitive name substring, and (when non-null) category. */
+/**
+ * Keeps items matching the status, (when non-null) category, and [nameQuery] — matched as a
+ * token-prefix query (via [matchesDocumentQuery], case-insensitive, Unicode-aware) over BOTH
+ * [CloudDocItem.initials] and [CloudDocItem.name], not a plain name substring.
+ */
 fun filterCloudDocuments(
     items: List<CloudDocItem>,
     status: CloudDocFilter,
     nameQuery: String,
     category: DocCategory?,
 ): List<CloudDocItem> {
-    val query = nameQuery.trim()
     return items.filter { item ->
         val statusOk = when (status) {
             CloudDocFilter.ALL -> true
@@ -21,7 +25,11 @@ fun filterCloudDocuments(
             CloudDocFilter.CLOUD_ONLY -> item.cloudOnly && !item.cloudDeleted
             CloudDocFilter.REMOVED -> item.cloudDeleted
         }
-        val nameOk = query.isEmpty() || item.name.contains(query, ignoreCase = true)
+        // Round 17e-2: the SHARED matcher, over initials AND name. It used to be
+        // `item.name.contains(query, ignoreCase = true)`, which could not find a document by the
+        // abbreviation — the exact defect reported. Initials first because that is the shorter,
+        // more distinctive field.
+        val nameOk = matchesDocumentQuery(nameQuery, listOf(item.initials, item.name))
         val categoryOk = category == null || item.category == category
         statusOk && nameOk && categoryOk
     }

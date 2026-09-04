@@ -16,13 +16,7 @@
  */
 package net.bible.sharedui.navigation
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
@@ -32,21 +26,24 @@ import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.navigation.ChooserError
+import net.bible.sharedcore.navigation.DocArrangement
+import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocGroup
+import net.bible.sharedcore.navigation.DocGroupBy
+import net.bible.sharedcore.navigation.DocGroupKey
 import net.bible.sharedcore.navigation.DocRow
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbDocumentListScaffold
 import net.bible.sharedui.components.AbErrorDialog
-import net.bible.sharedui.components.AbLoadingIndicator
-import net.bible.sharedui.components.AbPullToRefresh
 import net.bible.sharedui.components.AbSearchImeRequest
-import net.bible.sharedui.components.AbSelectionScaffold
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.Strings
 
 /**
  * Shared, stateless document-selection screen. Used by both ChooseDocument (Plan A,
@@ -60,7 +57,7 @@ fun DocumentSelectionScreen(
     loading: Boolean,
     isRefreshing: Boolean,
     onRefresh: (() -> Unit)?,
-    displayed: List<DocRow>,
+    grouped: List<DocGroup<DocRow>>,
     languages: List<LangOption>,
     selectedLanguage: LangOption?,
     typeFilters: List<Pair<DocTypeFilter, String>>,
@@ -77,6 +74,17 @@ fun DocumentSelectionScreen(
     onCloseSearch: () -> Unit,
     onLanguageChange: (LangOption?) -> Unit,
     onTypeFilterChange: (DocTypeFilter) -> Unit,
+    arrangement: DocArrangement,
+    groupKeys: List<DocGroupBy>,
+    repositories: List<String>,
+    rememberArrangement: Boolean,
+    arrangementIsDefault: Boolean,
+    onMoveSort: (from: Int, to: Int) -> Unit,
+    onToggleSortDirection: (DocSortKey) -> Unit,
+    onGroupByChange: (DocGroupBy) -> Unit,
+    onRepositoryChange: (String?) -> Unit,
+    onRememberChange: (Boolean) -> Unit,
+    onResetArrangement: () -> Unit,
     onRowClick: (DocRow) -> Unit,
     onRowLongClick: (DocRow) -> Unit,
     onDownload: (DocRow) -> Unit,
@@ -93,7 +101,7 @@ fun DocumentSelectionScreen(
 ) {
     val strings = LocalStrings.current
 
-    AbSelectionScaffold(
+    AbDocumentListScaffold(
         title = title,
         selectionMode = selectionMode,
         selectedCount = selectedIds.size,
@@ -133,8 +141,7 @@ fun DocumentSelectionScreen(
                 }
             }
         },
-    ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+        filterBar = {
             // Search lives in the top bar (round 7). DocumentFilterBar carries the language and type
             // filters as chips that show their current value and open one bottom sheet at a time —
             // which is why the controls are not hosted in a summary sheet: nesting bottom sheets is
@@ -147,20 +154,37 @@ fun DocumentSelectionScreen(
                 selectedTypeFilter = selectedTypeFilter,
                 onTypeFilterChange = onTypeFilterChange,
                 resultCount = resultCount,
+                arrangement = arrangement,
+                groupKeys = groupKeys,
+                repositories = repositories,
+                rememberArrangement = rememberArrangement,
+                arrangementIsDefault = arrangementIsDefault,
+                onMoveSort = onMoveSort,
+                onToggleSortDirection = onToggleSortDirection,
+                onGroupByChange = onGroupByChange,
+                onRepositoryChange = onRepositoryChange,
+                onRememberChange = onRememberChange,
+                onResetArrangement = onResetArrangement,
             )
-            if (loading) {
-                AbLoadingIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
-            }
-            if (onRefresh != null) {
-                AbPullToRefresh(isRefreshing = isRefreshing, onRefresh = onRefresh) {
-                    DocumentList(displayed, downloadMode, selectionMode, selectedIds,
-                        onRowClick, onRowLongClick, onDownload, onCancel)
-                }
-            } else {
-                DocumentList(displayed, downloadMode, selectionMode, selectedIds,
-                    onRowClick, onRowLongClick, onDownload, onCancel)
-            }
-        }
+        },
+        loading = loading,
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        groups = grouped,
+        groupHeaderLabel = { key -> documentGroupHeaderLabel(key, strings) },
+        itemKey = { it.docId },
+        emptyText = null,
+    ) { row ->
+        DocumentRow(
+            row = row,
+            downloadMode = downloadMode,
+            selectionMode = selectionMode,
+            selected = row.docId in selectedIds,
+            onClick = { onRowClick(row) },
+            onLongClick = { onRowLongClick(row) },
+            onDownload = { onDownload(row) },
+            onCancel = { onCancel(row) },
+        )
     }
 
     if (error != null) {
@@ -168,29 +192,38 @@ fun DocumentSelectionScreen(
     }
 }
 
-@Composable
-private fun DocumentList(
-    displayed: List<DocRow>,
-    downloadMode: Boolean,
-    selectionMode: Boolean,
-    selectedIds: Set<String>,
-    onRowClick: (DocRow) -> Unit,
-    onRowLongClick: (DocRow) -> Unit,
-    onDownload: (DocRow) -> Unit,
-    onCancel: (DocRow) -> Unit,
-) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(displayed, key = { it.docId }) { row ->
-            DocumentRow(
-                row = row,
-                downloadMode = downloadMode,
-                selectionMode = selectionMode,
-                selected = row.docId in selectedIds,
-                onClick = { onRowClick(row) },
-                onLongClick = { onRowLongClick(row) },
-                onDownload = { onDownload(row) },
-                onCancel = { onCancel(row) },
-            )
-        }
+/**
+ * A group header's text. The category headers reuse the SAME strings the type filter's sheet
+ * shows, so "Bible" means one thing on this screen; a missing value renders the `all`
+ * placeholder rather than an empty header. [DocCategory.OTHER]/null is NOT the same as "no
+ * value" — CrossWire ships real documents (daily devotions, glossaries, essays, images, …) that
+ * map to OTHER, so it gets its own [Strings.docTypeOther] label rather than the `all` placeholder.
+ */
+private fun documentGroupHeaderLabel(key: DocGroupKey, strings: Strings): String = when (key) {
+    is DocGroupKey.Category -> when (key.category) {
+        DocCategory.BIBLE -> strings.docTypeBible
+        DocCategory.COMMENTARY -> strings.docTypeCommentary
+        DocCategory.DICTIONARY -> strings.docTypeDictionary
+        DocCategory.GENERAL_BOOK -> strings.docTypeGeneralBook
+        DocCategory.MAPS -> strings.docTypeMaps
+        DocCategory.AND_BIBLE -> strings.docTypeAddon
+        DocCategory.OTHER, null -> strings.docTypeOther
     }
+    is DocGroupKey.Language -> key.language ?: strings.all
+    is DocGroupKey.Repository -> key.repository ?: strings.all
+    is DocGroupKey.Status -> documentGroupStatusLabel(key.rank, strings)
+    DocGroupKey.None -> ""
+}
+
+/**
+ * Per-status-VALUE label for a STATUS-grouped list's header, keyed by [DocRow.sortStatusRank]
+ * (see that property's KDoc). The engine deliberately stays ignorant of the status vocabulary —
+ * a rank, not an enum, because different screens rank different things — so the label mapping
+ * lives here, on the host side, specific to THIS screen's four DocInstallStatus-derived ranks.
+ */
+private fun documentGroupStatusLabel(rank: Int, strings: Strings): String = when (rank) {
+    0 -> strings.docGroupStatusDownloading      // DocInstallStatus.BEING_INSTALLED
+    1 -> strings.docGroupStatusUpdateAvailable  // DocInstallStatus.UPGRADE_AVAILABLE
+    2 -> strings.docGroupStatusInstalled        // INSTALLED / ERROR_DOWNLOADING / INSTALL_CANCELLED
+    else -> strings.docGroupStatusNotInstalled  // 3: DocInstallStatus.NOT_INSTALLED
 }

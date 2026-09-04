@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -44,7 +46,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
@@ -59,7 +60,6 @@ import net.bible.android.control.download.LanguageGrouping
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
-import net.bible.android.database.DocumentSearch
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.DocumentConfiguration
@@ -79,8 +79,10 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.RepoFactory
 import net.bible.service.download.isPseudoBook
+import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
+import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
@@ -106,6 +108,14 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 /**
+ * Per-SCREEN preference keys, not shared with ChooseDocument: sorting a download list by size is a
+ * different intent from ordering the reading view's document picker, and changing one must not
+ * silently reorder the other.
+ */
+private const val ARRANGEMENT_KEY = "download.arrangement"
+private const val ARRANGEMENT_REMEMBER_KEY = "download.arrangement.remember"
+
+/**
  * Compose host for the Download screen — the new-path twin of classic [DownloadActivity]. It reuses
  * the SAME shared [DocumentSelectionController]/[DocumentSelectionScreen] built in Plan A, running
  * them in `downloadMode = true` (install sizes shown, pull-to-refresh live, per-row download/cancel).
@@ -123,7 +133,6 @@ open class DownloadComposeActivity : ActivityBase() {
     private val downloadControl: DownloadControl by inject()
     private val documentControl: DocumentControl by inject()
 
-    private val dao get() = DatabaseContainer.instance.downloadDocumentsDb.documentSearchDao()
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
     private val bookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
@@ -145,8 +154,6 @@ open class DownloadComposeActivity : ActivityBase() {
     private var allBooks: List<Book> = emptyList()
     /** Current DocRows host-side so progress updates can rebuild only the affected rows. */
     private var currentRows: List<DocRow> = emptyList()
-    /** Current FTS search result set (osisIds) to preserve across progress/refresh pushes. */
-    private var currentSearchIds: Set<String>? = null
     /** groupingKey -> sort rank from downloadControl.sortLanguages (RelevantLanguageSorter). */
     private var langRank: Map<String, Int> = emptyMap()
 
@@ -196,6 +203,20 @@ open class DownloadComposeActivity : ActivityBase() {
             onAbout = ::handleAbout,
             onUnlock = ::handleUnlock,
             onStickyLanguage = { lang -> CommonUtils.settings.setString("selected_language_code", lang?.code) },
+            // Every key applies here: this list is the only one with an install size, and the only
+            // one that loads the recommended-documents config.
+            applicableSortKeys = DocSortKey.entries.toSet(),
+            applicableGroupKeys = listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.LANGUAGE, DocGroupBy.REPOSITORY),
+            storedArrangement = if (CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true))
+                CommonUtils.settings.getString(ARRANGEMENT_KEY, null) else null,
+            rememberArrangementInitially = CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true),
+            onArrangementChange = { encoded, remember ->
+                CommonUtils.settings.setBoolean(ARRANGEMENT_REMEMBER_KEY, remember)
+                CommonUtils.settings.setString(ARRANGEMENT_KEY, encoded)
+            },
+            // Round 17e-1 final-review fix (I3): debounces the drag-reorder commit (persist +
+            // refilter) so it fires once per settled gesture, not once per item swap.
+            scope = lifecycleScope,
         )
     }
 
@@ -223,15 +244,6 @@ open class DownloadComposeActivity : ActivityBase() {
             if (refresh) updateLastRepoRefreshDate()
 
             handleAutoDownloadExtras()
-
-            // Observe the query and run the Room FTS off-main (same as ChooseDocument host).
-            controller.query.collectLatest { q ->
-                val ids = if (q.length >= 3) {
-                    withContext(Dispatchers.IO) { runCatching { dao.search("$q*").toSet() }.getOrNull() }
-                } else null
-                currentSearchIds = ids
-                controller.setSearchResults(ids)
-            }
         }
 
         // Live per-row download progress: push each row's live status into the controller, which
@@ -257,6 +269,11 @@ open class DownloadComposeActivity : ActivityBase() {
                     val error by controller.error.collectAsState()
                     val isRefreshing by refreshing.collectAsState()
                     val searchModeActive by controller.searchModeActive.collectAsState()
+                    val grouped by controller.grouped.collectAsState()
+                    val arrangement by controller.arrangement.collectAsState()
+                    val repositories by controller.repositories.collectAsState()
+                    val rememberArrangement by controller.rememberArrangement.collectAsState()
+                    val arrangementIsDefault by controller.arrangementIsDefault.collectAsState()
 
                     val firstSelected = displayed.firstOrNull { it.docId in selectedIds }
                     val bibleInstalled by hasBible.collectAsState()
@@ -280,7 +297,7 @@ open class DownloadComposeActivity : ActivityBase() {
                                 }
                             }
                         },
-                        displayed = displayed,
+                        grouped = grouped,
                         languages = languages,
                         selectedLanguage = selectedLanguage,
                         typeFilters = typeFilterLabels(strings),
@@ -300,6 +317,17 @@ open class DownloadComposeActivity : ActivityBase() {
                             CommonUtils.settings.setInt("selected_document_filter_no", it.ordinal)
                             controller.setTypeFilter(it)
                         },
+                        arrangement = arrangement,
+                        groupKeys = controller.groupKeys,
+                        repositories = repositories,
+                        rememberArrangement = rememberArrangement,
+                        arrangementIsDefault = arrangementIsDefault,
+                        onMoveSort = controller::moveSortCriterion,
+                        onToggleSortDirection = controller::toggleSortDirection,
+                        onGroupByChange = controller::setGroupBy,
+                        onRepositoryChange = controller::setRepositoryFilter,
+                        onRememberChange = controller::setRememberArrangement,
+                        onResetArrangement = controller::resetArrangement,
                         onRowClick = { row ->
                             if (selectionMode) controller.toggle(row.docId) else controller.select(row.docId)
                         },
@@ -473,16 +501,10 @@ open class DownloadComposeActivity : ActivityBase() {
                 langRank = downloadControl.sortLanguages(grouping.representatives)
                     .mapIndexedNotNull { i, lang -> grouping.key(lang)?.let { it to i } }
                     .toMap()
-                // Seed the FTS DAO (mirror classic populateMasterDocumentList dao.clear()/insertDocuments).
-                runCatching {
-                    dao.clear()
-                    dao.insertDocuments(books.map {
-                        DocumentSearch(
-                            it.osisID, it.abbreviation, if (it.isPseudoBook) "" else it.name,
-                            it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "",
-                        )
-                    })
-                }
+                // Round 17e-2: no FTS seeding here any more. The search runs in the controller over
+                // the loaded rows (matchesDocumentQuery), which indexes the same four fields the
+                // FTS table did. DocumentSearch / TemporaryDatabase stay in the tree because
+                // classic DocumentSelectionBase still uses them; Batch Z deletes them whole.
                 // Bad documents flagged HIDE are excluded (classic filterDocuments); WARN → badWarn.
                 books.filterNot { it.isBadDocument(badDocuments, BadDocumentAction.HIDE) }
                     .map { it.toDocRow(grouping, langByKey) }
@@ -495,7 +517,7 @@ open class DownloadComposeActivity : ActivityBase() {
             // so the bridge's repoIdentity -> docId map is the identity.
             bridge.setRepoIdentityMap(books.associate { it.repoIdentity to it.repoIdentity })
             currentRows = rows
-            controller.setDocuments(rows, currentSearchIds)
+            controller.setDocuments(rows)
         } catch (e: Exception) {
             Log.e(TAG, "Error loading download documents", e)
             controller.showError()
@@ -832,15 +854,14 @@ open class DownloadComposeActivity : ActivityBase() {
                     icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
                 )
             }
-            // Same drawable as "Install zip" above — deliberate classic parity, not a copy-paste
-            // artefact: classic's own `download_documents.xml` reuses ic_unarchive_white_24dp for
-            // both rows too. Contrast ManageLabelsComposeActivity.kt's undo-glyph rows, where the
-            // identical classic reuse WAS judged a mistake and given distinct icons instead — the
-            // two cases were decided independently and this one intentionally kept the duplicate.
             AbMenuItem(
                 text = getString(R.string.custom_repositories),
                 onClick = { close(); onCustomRepositories() },
-                icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
+                // Icons.Filled.Dns (a stack of servers) rather than the "Install zip" unarchive
+                // glyph this row used to share: the two rows do unrelated things, and the shared
+                // glyph made the menu unreadable at a glance. Distinct from the cloud-sync row's
+                // ic_syncdb_24dp below and from the per-row download arrows in the list.
+                icon = { Icon(Icons.Filled.Dns, contentDescription = null) },
             )
             if (DocumentSyncSettings.enabled) {
                 AbMenuItem(
