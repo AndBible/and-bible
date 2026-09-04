@@ -18,6 +18,8 @@
 package net.bible.android.view.compose
 
 import java.io.File
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 
 /**
  * Shared scanning helpers for the Batch Z-late phase 1 removal guards, one per slice
@@ -93,4 +95,131 @@ object ClassicRemovalScan {
             .flatMap { sourceSet ->
                 sourceSet.walkTopDown().filter { it.isFile && (it.extension == "kt" || it.extension == "java") }
             }
+
+    /**
+     * The five assertions every slice removal guard from S4 onwards makes, extracted in batch
+     * S4+S5+S7+S8. S3's final review asked for this: the arm-scanning body had been copied into
+     * three guards by then, and the third had to explain in KDoc why its copy diverged from the
+     * other two. Extracting also fixes a defect that review found — in the copies, the
+     * anti-vacuity precondition sat AFTER the assertion it protects, so an empty scan surfaced as
+     * the wrong failure. Here the precondition runs first, by construction, and a later slice
+     * cannot forget it.
+     *
+     * The three landed guards (S1, S2, S3) are deliberately NOT retrofitted onto these: that is a
+     * change to already-gated slices with no defect behind it, and spec 2.3's tail sweep owns it
+     * if anyone wants uniformity. Their continued passing is what proves this extraction is
+     * faithful, so every slice task in this batch re-runs them.
+     *
+     * `hint` is the message a failure prints. Write it for the person who broke the guard two
+     * years from now, not for the person adding it: say what was deleted, and — where a slice
+     * keeps something referenceless on purpose — say what is deliberately NOT in the list.
+     */
+    fun assertPathsGone(paths: List<String>, hint: String) {
+        assertTrue(
+            "cwd is not the :app module dir — this assertion would pass vacuously",
+            File("src/main").isDirectory,
+        )
+        assertEquals(hint, emptyList<String>(), paths.filter { File(it).exists() }.sorted())
+    }
+
+    /**
+     * The inverse of [assertPathsGone], for a slice that makes a file REFERENCELESS but keeps it
+     * (spec 2.4). Such a file could be deleted with every gate still green — a compile passes, the
+     * reference proof passes, no golden moves — so only an assertion of its presence defends it.
+     * Needs no precondition of its own beyond the module-dir check: a wrong working directory
+     * makes this assertion FAIL rather than pass, which is the safe direction.
+     */
+    fun assertPathsPresent(paths: List<String>, hint: String) {
+        assertTrue(
+            "cwd is not the :app module dir — this assertion would report every path as missing",
+            File("src/main").isDirectory,
+        )
+        assertEquals(hint, emptyList<String>(), paths.filterNot { File(it).exists() }.sorted())
+    }
+
+    /**
+     * Walks every shipping source set rather than a path list, so a new file naming a deleted
+     * class by its FULLY-QUALIFIED name from outside the deleted package cannot escape. An
+     * unqualified same-package reference is invisible to this sweep — and does not need it,
+     * because the compiler already catches that: the class it would resolve to is gone.
+     *
+     * Imports are KEPT ([codeLinesOf] `keepImports = true`) because for a fully-qualified sweep an
+     * import IS the reference being hunted; with imports stripped this finds nothing and passes
+     * vacuously. See [refsFor] for why the boundary is trailing-only.
+     */
+    fun assertNoSourceNames(fqNames: List<String>, hint: String) {
+        val refs = refsFor(fqNames)
+        val sources = appSources()
+        assertTrue("the source-set walk found no Kotlin/Java source at all", sources.size > 100)
+        val offenders = sources
+            .filter { file ->
+                val code = codeLinesOf(file.path, keepImports = true)
+                refs.any { it.containsMatchIn(code) }
+            }
+            .map { it.path.replace('\\', '/') }
+            .sorted()
+        assertEquals(hint, emptyList<String>(), offenders)
+    }
+
+    /**
+     * No manifest may declare, or point at, a class a slice deletes. Covers `android:name` and
+     * `android:parentActivityName` alike, which is the point: `parentActivityName` is a plain
+     * string consumed by `NavUtils` at runtime, so nothing compiles against it, no other test
+     * reads it and no golden renders it. S2 found a surviving Compose activity parented to a
+     * doomed classic class with zero automated signal, and batch S4+S5+S7+S8 found three more.
+     */
+    fun assertNoManifestNames(fqNames: List<String>, hint: String) {
+        assertTrue(
+            "src/main/AndroidManifest.xml is missing — this assertion would pass vacuously",
+            File("src/main/AndroidManifest.xml").isFile,
+        )
+        val refs = refsFor(fqNames)
+        val offenders = manifestPaths
+            .filter { File(it).isFile }
+            .flatMap { path ->
+                File(path).readLines()
+                    .filter { line -> refs.any { it.containsMatchIn(line) } }
+                    .map { "$path: ${it.trim()}" }
+            }
+            .sorted()
+        assertEquals(hint, emptyList<String>(), offenders)
+    }
+
+    /**
+     * A collapsed arm is `Screen.X -> XComposeActivity::class.java`, with no flag branch left in
+     * it. Takes the text from each arm's `Screen.X ->` up to the next `Screen.` and asserts no
+     * branch survives inside it; a missing arm counts as an offender, so a deleted enum entry
+     * cannot pass silently. The literal `" ->"` in the search string keeps an arm from matching a
+     * longer-named sibling (`Screen.MyDocuments` vs `Screen.MyDocumentPages`).
+     *
+     * `else` is matched as a WHOLE WORD, not as the literal `"else "` the S1 and S2 copies used —
+     * S2's review flagged that an `else` at end of line slips past the literal form, and S3 made
+     * the fix before the pattern was copied further.
+     *
+     * Known bound, stated precisely rather than overclaimed: the arm ends at the next `Screen.`
+     * TOKEN, which is not the same as the next `when` arm. An arm whose own body mentioned
+     * `Screen.` — say `Screen.X -> if (useComposeFor(Screen.X))` — would be truncated before its
+     * branch detector fired. No collapsed arm can take that shape, and every branching arm in the
+     * file today writes `useComposeFor(screen)` with the implicit parameter, so the bound is exact
+     * in practice; it is documented because ~11 more slices will rely on it.
+     */
+    fun assertLauncherArmsUnconditional(screens: List<String>, hint: String) {
+        val path = "src/main/java/net/bible/android/view/ScreenLauncher.kt"
+        assertTrue("$path is missing — this assertion would pass vacuously", File(path).isFile)
+        val code = codeLinesOf(path)
+        assertTrue(
+            "$path no longer reads use_compose_ui at all — the flag must survive until the " +
+                "epilogue (spec 3.4)",
+            code.contains("useComposeFor"),
+        )
+        val elseWord = Regex("""\belse\b""")
+        val offenders = screens.filter { screen ->
+            val start = code.indexOf("$screen ->")
+            if (start < 0) return@filter true
+            val next = code.indexOf("Screen.", start + screen.length + 3)
+            val arm = if (next < 0) code.substring(start) else code.substring(start, next)
+            arm.contains("useComposeFor") || elseWord.containsMatchIn(arm)
+        }
+        assertEquals(hint, emptyList<String>(), offenders)
+    }
 }
