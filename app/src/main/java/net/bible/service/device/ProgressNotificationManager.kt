@@ -27,7 +27,6 @@ import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
-import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.download.ProgressStatusComposeActivity
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
@@ -121,8 +120,7 @@ class ProgressNotificationManager {
     private fun buildNotification(prog: Progress) {
         Log.i(TAG, "Creating Notification for progress Hash:" + prog.hashCode())
         val app = BibleApplication.application
-        val cls = if (CommonUtils.settings.getBoolean("use_compose_ui", false)) ProgressStatusComposeActivity::class.java else ProgressStatus::class.java
-        val intent = Intent(app, cls)
+        val intent = Intent(app, ProgressStatusComposeActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         val builder = NotificationCompat.Builder(app, if(BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else PROGRESS_NOTIFICATION_CHANNEL)
 
