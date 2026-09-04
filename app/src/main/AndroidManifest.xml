@@ -426,13 +426,13 @@
             android:name="net.bible.android.view.activity.progress.ReadingProgressSettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/reading_progress_settings"
-            android:parentActivityName="net.bible.android.view.activity.progress.ReadingProgressActivity" />
+            android:parentActivityName="net.bible.android.view.activity.progress.ReadingProgressComposeActivity" />
         <activity
             android:name="net.bible.android.view.activity.settings.ReadingProgressSettingsComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/reading_progress_settings"
-            android:parentActivityName="net.bible.android.view.activity.progress.ReadingProgressActivity" />
+            android:parentActivityName="net.bible.android.view.activity.progress.ReadingProgressComposeActivity" />
         <activity
             android:name=".view.activity.StartupComposeActivity"
             android:theme="@style/Theme.AbCompose"
@@ -486,7 +486,7 @@
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/my_document_pages_title"
-            android:parentActivityName="net.bible.android.view.activity.mydocuments.MyDocumentsActivity"
+            android:parentActivityName="net.bible.android.view.mydocuments.MyDocumentsComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.settings.ColorSettingsActivity"
