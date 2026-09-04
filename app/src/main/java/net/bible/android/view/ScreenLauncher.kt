@@ -47,7 +47,6 @@ import net.bible.android.view.activity.bookmark.LabelEditActivity
 import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity
-import net.bible.android.view.activity.cloud.CloudDocumentsActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
@@ -154,9 +153,7 @@ object ScreenLauncher {
         Screen.MyDocumentPages ->
             if (useComposeFor(screen)) MyDocumentPagesComposeActivity::class.java
             else MyDocumentPagesActivity::class.java
-        Screen.CloudDocuments ->
-            if (useComposeFor(screen)) CloudDocumentsComposeActivity::class.java
-            else CloudDocumentsActivity::class.java
+        Screen.CloudDocuments -> CloudDocumentsComposeActivity::class.java
         // Round 13a: there is no Compose Speak ACTIVITY any more — the Compose path opens
         // `ComposeReadingViewHost.showSpeakSettings()` (a sheet over the reading view) instead, and
         // `SpeakEntryPointGuardTest` enforces that every Compose call site does so. Reaching this
