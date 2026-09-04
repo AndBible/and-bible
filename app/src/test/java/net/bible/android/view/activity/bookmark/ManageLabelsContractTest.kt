@@ -17,9 +17,13 @@
 
 package net.bible.android.view.activity.bookmark
 
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.bookmark.ManageLabelsContract.ManageLabelsData
 import net.bible.android.view.activity.bookmark.ManageLabelsContract.Mode
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -56,13 +60,31 @@ class ManageLabelsContractTest {
     }
 
     @Test fun theModeDerivedFlagsAreUnchanged() {
+        // assertTrue alone only pins the modes IN each set — pin the boundary with assertFalse
+        // for a mode outside it too, so widening the set (e.g. showCheckboxes gaining WORKSPACE)
+        // would also fail, not just narrowing it.
         assertTrue(ManageLabelsData(mode = Mode.HIDELABELS).showUnassigned)
         assertTrue(ManageLabelsData(mode = Mode.WORKSPACE).showUnassigned)
+        assertFalse(ManageLabelsData(mode = Mode.ASSIGN).showUnassigned)
+
         assertTrue(ManageLabelsData(mode = Mode.ASSIGN).showCheckboxes)
+        assertFalse(ManageLabelsData(mode = Mode.WORKSPACE).showCheckboxes)
+
         assertTrue(ManageLabelsData(mode = Mode.STUDYPAD).hideCategories)
-        assertEquals(
-            ManageLabelsData(mode = Mode.WORKSPACE).autoAssignLabels,
-            ManageLabelsData(mode = Mode.WORKSPACE).contextSelectedItems,
-        )
+        assertFalse(ManageLabelsData(mode = Mode.ASSIGN).hideCategories)
+    }
+
+    @Test fun contextSelectedItemsPicksTheBackingSetByMode() {
+        // Two freshly-constructed instances are both empty sets either way, so equality can't
+        // tell WORKSPACE's autoAssignLabels branch apart from the else -> selectedLabels branch.
+        // Make the sets distinguishable and assert IDENTITY: this pins which field is returned,
+        // not just that whatever is returned happens to compare equal.
+        val workspaceData = ManageLabelsData(mode = Mode.WORKSPACE, autoAssignLabels = mutableSetOf(IdType()))
+        assertSame(workspaceData.autoAssignLabels, workspaceData.contextSelectedItems)
+        assertNotSame(workspaceData.selectedLabels, workspaceData.contextSelectedItems)
+
+        val assignData = ManageLabelsData(mode = Mode.ASSIGN, selectedLabels = mutableSetOf(IdType()))
+        assertSame(assignData.selectedLabels, assignData.contextSelectedItems)
+        assertNotSame(assignData.autoAssignLabels, assignData.contextSelectedItems)
     }
 }

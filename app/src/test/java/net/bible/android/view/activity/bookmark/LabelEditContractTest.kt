@@ -17,10 +17,13 @@
 
 package net.bible.android.view.activity.bookmark
 
+import net.bible.android.database.IdType
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.bookmark.LabelEditContract.LabelData
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -32,14 +35,33 @@ class LabelEditContractTest {
         isAutoAssignPrimary = false,
         isThisBookmarkSelected = true,
         isThisBookmarkPrimary = false,
+        // Populated (not left at their defaults) so a round-trip that silently drops either
+        // field — e.g. workspaceOverride, which LabelEditMapper.applyToData writes back and
+        // which carries a WorkspaceEntities.WorkspaceLabelOverride across the intent — is
+        // actually exercised, not vacuously true because both sides are null/false.
+        workspaceOverride = WorkspaceEntities.WorkspaceLabelOverride(
+            workspaceId = IdType(),
+            labelId = IdType(),
+            overrideMode = WorkspaceEntities.WorkspaceLabelOverride.MODE_MARKER,
+        ),
+        hasWorkspaceContext = true,
     )
 
     @Test fun aRoundTripPreservesTheLabelNameAndFlags() {
-        val decoded = LabelData.fromJSON(sample().toJSON())
+        val original = sample()
+        val decoded = LabelData.fromJSON(original.toJSON())
         assertEquals("Test label", decoded.label.name)
         assertTrue(decoded.isThisBookmarkSelected)
         assertFalse(decoded.isAssigning)
         assertFalse(decoded.delete)
+        assertTrue(decoded.hasWorkspaceContext)
+        assertNotNull(decoded.workspaceOverride)
+        assertEquals(original.workspaceOverride!!.workspaceId, decoded.workspaceOverride!!.workspaceId)
+        assertEquals(original.workspaceOverride!!.labelId, decoded.workspaceOverride!!.labelId)
+        assertEquals(
+            WorkspaceEntities.WorkspaceLabelOverride.MODE_MARKER,
+            decoded.workspaceOverride!!.overrideMode,
+        )
     }
 
     @Test fun anUnknownPropertyIsIgnoredOnDecode() {
