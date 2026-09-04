@@ -206,7 +206,7 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
     // AiConnectionSettingsScreen via AbListChoiceDialog/AbTextInputDialog, F32) ----------------
 
     /** Sentinel value used to identify the "Custom…" entry in the language picker (mirrors classic). */
-    private val customLanguageTag = " custom"
+    private val customLanguageTag = "\u0000custom"
 
     /**
      * Builds the language option list from the `prefs_interface_locale_*` string-arrays: an "app
