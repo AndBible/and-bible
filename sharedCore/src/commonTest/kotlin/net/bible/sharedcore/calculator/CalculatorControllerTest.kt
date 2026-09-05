@@ -307,4 +307,21 @@ class CalculatorControllerTest {
 
     @Test fun lastExpression_handles_large_numbers() =
         assertEquals("+999", lastExpressionAfter("1000+999"))
+
+    // The deleted suite actually had 41 tests, not 38: 11 checkIfOperation + 10
+    // defineLastCharacter + 12 saveLastExpression-extracts (the twelve ported above) + 3
+    // PIN-decision-copy + 5 more saveLastExpression cases not accounted for above. Of those
+    // five, four are redundant with coverage already ported or already present here (a
+    // Clear-then-single-digit case that resolves to the same no-op path as
+    // lastExpression_is_empty_for_a_single_digit; a repeat-equals case using the same "5+3"
+    // input as lastExpression_extracts_simple_addition; a three-assertion case cycling through
+    // operators already covered individually and by lastExpression_takes_only_the_final_operation;
+    // and a parenthesis-then-multiply case already covered by the same IS_NUMBER branch as
+    // lastExpression_extracts_multiplication together with the parenthesis-handling tests
+    // above). The fifth — a trailing PERCENT suffix — reaches a branch none of the other tests
+    // do: saveLastExpression's `if (input.length > 1)` block has no arm for a trailing character
+    // that is an operand (as opposed to a number or ")"), so it falls through and lastExpression
+    // is left whatever it already was (here: "", from addOperand's own reset when % was typed).
+    @Test fun lastExpression_is_empty_after_a_trailing_percent() =
+        assertEquals("", lastExpressionAfter("100-50%"))
 }
