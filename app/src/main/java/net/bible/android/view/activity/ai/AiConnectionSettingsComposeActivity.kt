@@ -17,7 +17,6 @@
 package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -144,18 +143,20 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
     }
 
     /**
-     * Opens the AI-providers screen for [AiConnectionNav.EASY_SETUP]. When [ScreenLauncher] routes
-     * [Screen.AiProviders] to the Compose host, adds [AiProvidersComposeActivity.EXTRA_START_EASY_SETUP]
-     * so it opens straight into the Compose easy-setup wizard; when it routes to the classic
-     * `AiProvidersActivity`, launches it plain (classic has no ported easy-setup wizard — same
-     * interim fallback as 9a, just flag-routed).
+     * Opens the AI-providers screen for [AiConnectionNav.EASY_SETUP], carrying
+     * [AiProvidersComposeActivity.EXTRA_START_EASY_SETUP] so it opens straight into the easy-setup
+     * wizard rather than the plain provider list.
+     *
+     * Batch Z-late epilogue, Task 7 fix round 1: this used to read the routing target back out of
+     * [ScreenLauncher] and add the extra only `if (target == AiProvidersComposeActivity::class.java)`,
+     * because the other side of that comparison was the classic `AiProvidersActivity`, which had no
+     * ported wizard. That class is deleted, so the comparison was unconditionally true -- dead code
+     * under a kdoc that still promised the fallback. Both are gone; the extra is now added
+     * unconditionally, which is exactly what the branch already did.
      */
     private fun launchEasySetup() {
-        val target = ScreenLauncher.targetFor(Screen.AiProviders)
-        val intent = Intent(this, target)
-        if (target == AiProvidersComposeActivity::class.java) {
-            intent.putExtra(AiProvidersComposeActivity.EXTRA_START_EASY_SETUP, true)
-        }
+        val intent = ScreenLauncher.intentFor(this, Screen.AiProviders)
+            .putExtra(AiProvidersComposeActivity.EXTRA_START_EASY_SETUP, true)
         startActivity(intent)
     }
 

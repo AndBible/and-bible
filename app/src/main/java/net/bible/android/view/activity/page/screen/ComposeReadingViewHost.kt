@@ -2720,11 +2720,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // windowState.layout current, but the very first mount needs an explicit kick).
         windowState.refresh(activity.windowRepository)
 
-        // Layout surgery, done programmatically here rather than in main_bible_view.xml. That
-        // was originally so the classic path -- which never called install() -- kept the
-        // XML-authored visibility/constraints byte-for-byte; the classic path is gone, but the
-        // layout file is still shared with everything else that inflates it, so the surgery stays
-        // here rather than being baked into the XML.
+        // Layout surgery: hide the classic toolbar row and re-anchor `container` to the parent
+        // top. Done programmatically here rather than authored into main_bible_view.xml. The
+        // original reason -- keeping the classic path, which never called install(), byte-for-byte
+        // identical -- died with that path in Z-late; install() is now unconditional, from
+        // MainBibleActivity.setupUi, and the layout has exactly one inflation site
+        // (MainBibleActivity.kt's MainBibleViewBinding.inflate). NO replacement reason is claimed:
+        // this is simply where it has always lived.
+        //
+        // What the XML could NOT do is delete the row, and that is not what this does.
+        // toolbarLayout's children are still bound and used -- binding.syncIcon's visibility, and
+        // bibleButton/commentaryButton/optionsMenu as popup anchors -- so the row stays inflated
+        // and merely GONE.
         activity.binding.toolbarLayout.visibility = View.GONE
         activity.binding.toolbarDivider.visibility = View.GONE
         (container.layoutParams as? ConstraintLayout.LayoutParams)?.let { params ->
