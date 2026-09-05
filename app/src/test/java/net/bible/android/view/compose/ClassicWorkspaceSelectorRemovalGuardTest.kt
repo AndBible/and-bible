@@ -30,9 +30,12 @@ import org.junit.Test
  * Four comments in `:sharedCore` and `:sharedUi` cite it by path AND line as the classic-parity
  * source of truth, so deleting it silently invalidates four cross-module parity claims.
  *
- * What this guard deliberately does NOT touch: `RoutingSeamGuardTest`'s §11.4 exemption. That test
- * locks the Compose selector's unconditional raw launch of classic TextDisplaySettingsActivity,
- * which S11 does not open and S12 owns. §11.4 is DECIDED, not RESOLVED.
+ * What this guard used to deliberately leave untouched: `RoutingSeamGuardTest`'s §11.4 exemption,
+ * which locked the Compose selector's unconditional raw launch of classic TextDisplaySettingsActivity.
+ * S11 did not open that exemption; S12 did -- "Z-late S12 prelude: route the workspace selector at
+ * the Compose settings screen" deleted both the allowlist and its anti-vacuity test, since the
+ * selector now launches `TextDisplaySettingsComposeActivity.intentForDetachedWorkspace` instead.
+ * §11.4 is RESOLVED, not merely decided.
  */
 class ClassicWorkspaceSelectorRemovalGuardTest {
     private val doomedClassNames = listOf(

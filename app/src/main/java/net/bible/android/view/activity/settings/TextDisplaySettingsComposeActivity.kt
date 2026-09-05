@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.android.activity.R
+import net.bible.android.database.SettingsBundle
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
@@ -85,9 +86,21 @@ import org.koin.android.ext.android.inject
  *   `windowRepository.workspaceSettings.updateFrom(data)` recent-labels side-effect.
  */
 class TextDisplaySettingsComposeActivity : ActivityBase() {
+    /** Non-null only for a selector-originated launch: the in-memory workspace edit this screen
+     *  returns to the workspace selector. See spec 11.4 and [DetachedWorkspaceEdit]. */
+    private val detachedEdit: DetachedWorkspaceEdit? by lazy {
+        intent.getStringExtra(EXTRA_DETACHED_BUNDLE)?.let { DetachedWorkspaceEdit(SettingsBundle.fromJson(it)) }
+    }
+
     // The CONCRETE service (not the `TextDisplaySettingsService` interface) — needed for the
     // HIDELABELS bridge helper, which isn't part of the portable interface.
-    private val service: TextDisplaySettingsServiceImpl by inject()
+    private val sharedService: TextDisplaySettingsServiceImpl by inject()
+
+    /** The detached launch builds its OWN service instance -- see [DetachedWorkspaceEdit]'s kdoc for
+     *  why this must not be the Koin singleton. */
+    private val service: TextDisplaySettingsServiceImpl by lazy {
+        detachedEdit?.let { TextDisplaySettingsServiceImpl(it) } ?: sharedService
+    }
 
     private val windowRepository get() = CommonUtils.windowControl.windowRepository
 
@@ -241,6 +254,26 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
         }
     }
 
+    /**
+     * The whole result contract for a selector-originated (detached) launch: returns
+     * `settingsBundle` + `reset` -- but only when [DetachedWorkspaceEdit.changed] (plan D3), so
+     * merely opening and leaving the screen does not mark the workspace changed on the selector's
+     * next Save. Covers every exit path, since [pop]'s `else -> finish()`, the action bar's Up, and
+     * the system back all end up here rather than setting a result of their own.
+     */
+    override fun finish() {
+        val edit = detachedEdit
+        if (edit != null && edit.changed) {
+            setResult(
+                Activity.RESULT_OK,
+                Intent()
+                    .putExtra(EXTRA_DETACHED_BUNDLE, edit.bundle.toJson())
+                    .putExtra("reset", edit.reset),
+            )
+        }
+        super.finish()
+    }
+
     // --- Internal drill-up nav stack ------------------------------------------------------------
 
     private fun pop() {
@@ -354,6 +387,16 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
         const val EXTRA_WINDOW_ID = "windowId"
         const val EXTRA_WORKSPACE_ID = "workspaceId"
 
+        /** Carries the workspace the selector NAMED, as SettingsBundle JSON. Same extra name as
+         *  classic TextDisplaySettingsActivity used, so the selector's onActivityResult is unchanged. */
+        const val EXTRA_DETACHED_BUNDLE = "settingsBundle"
+
+        /** Selector-originated launch (spec 11.4): edits the named workspace against a detached copy
+         *  and returns `settingsBundle` + `reset` when -- and only when -- something changed. */
+        fun intentForDetachedWorkspace(context: Context, settingsBundleJson: String): Intent =
+            Intent(context, TextDisplaySettingsComposeActivity::class.java)
+                .putExtra(EXTRA_DETACHED_BUNDLE, settingsBundleJson)
+
         fun intentFor(context: Context, scope: SettingsScope): Intent {
             val intent = Intent(context, TextDisplaySettingsComposeActivity::class.java)
             when (scope) {
@@ -394,14 +437,24 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
 internal fun shouldCloseSearchOnBack(atListDestination: Boolean, searchActive: Boolean): Boolean =
     atListDestination && searchActive
 
-/** Reconstructs the initial [SettingsScope] from the extras [TextDisplaySettingsComposeActivity.intentFor] set. */
-private fun scopeFromIntent(intent: Intent): SettingsScope = when (intent.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL)) {
-    "window" -> SettingsScope.Window(
-        windowId = intent.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WINDOW_ID)!!,
-        workspaceId = intent.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WORKSPACE_ID)!!,
-    )
-    "workspace" -> SettingsScope.Workspace(
-        workspaceId = intent.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WORKSPACE_ID)!!,
-    )
-    else -> SettingsScope.Global
+/**
+ * Reconstructs the initial [SettingsScope] from the extras [TextDisplaySettingsComposeActivity.intentFor]
+ * or [TextDisplaySettingsComposeActivity.intentForDetachedWorkspace] set. A present
+ * [TextDisplaySettingsComposeActivity.EXTRA_DETACHED_BUNDLE] wins over [TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL] --
+ * a detached launch scopes to the bundle's own workspace, never the active one.
+ */
+private fun scopeFromIntent(intent: Intent): SettingsScope {
+    intent.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_DETACHED_BUNDLE)?.let {
+        return SettingsScope.Workspace(SettingsBundle.fromJson(it).workspaceId.toString())
+    }
+    return when (intent.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL)) {
+        "window" -> SettingsScope.Window(
+            windowId = intent.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WINDOW_ID)!!,
+            workspaceId = intent.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WORKSPACE_ID)!!,
+        )
+        "workspace" -> SettingsScope.Workspace(
+            workspaceId = intent.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WORKSPACE_ID)!!,
+        )
+        else -> SettingsScope.Global
+    }
 }

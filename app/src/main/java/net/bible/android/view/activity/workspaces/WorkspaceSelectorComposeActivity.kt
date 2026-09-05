@@ -26,7 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import net.bible.android.activity.R
 import net.bible.android.database.SettingsBundle
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
+import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.workspaces.WorkspaceSelectorController
 import net.bible.sharedcore.workspaces.WorkspaceService
@@ -39,12 +39,18 @@ import org.koin.android.ext.android.inject
  * Result parity: builds its result Intent with the CLASSIC class + `workspaceId`/`changed` extras so
  * `MainBibleActivity.onActivityResult` (`WORKSPACE_CHANGED`) is untouched.
  *
- * TextDisplaySettings round-trip: classic [TextDisplaySettingsActivity.setResult] does NOT echo back a
- * `workspaceId` extra (only `settingsBundle`/`reset`/`edited`/`dirtyTypes` — the workspace id is buried
- * inside the `settingsBundle` JSON). Like classic `WorkspaceSelectorActivity.onActivityResult`, this host
- * parses the id back out of that JSON via `SettingsBundle.fromJson(...).workspaceId` in [onActivityResult]
- * rather than stashing it in a plain field, since a plain field would not survive the host process being
- * killed while [TextDisplaySettingsActivity] is foregrounded (process death drops the edit silently).
+ * TextDisplaySettings round-trip (spec 11.4, resolved): [onEditSettings] launches
+ * [TextDisplaySettingsComposeActivity.intentForDetachedWorkspace] with the named workspace's
+ * `SettingsBundle` JSON. That screen edits a [net.bible.android.view.activity.settings.DetachedWorkspaceEdit] --
+ * never the active workspace or the shared service -- and its [TextDisplaySettingsComposeActivity.finish]
+ * override echoes back `settingsBundle`/`reset` only when the edit actually changed (plan D3); an
+ * unedited open-then-back returns no result at all, unlike classic's `setResult()`-at-load. Neither
+ * `edited` nor `dirtyTypes` is reproduced -- this selector doesn't read them (D5). This host does NOT
+ * echo back a `workspaceId` extra (the workspace id is buried inside the `settingsBundle` JSON); like
+ * classic `WorkspaceSelectorActivity.onActivityResult`, it parses the id back out of that JSON via
+ * `SettingsBundle.fromJson(...).workspaceId` in [onActivityResult] rather than stashing it in a plain
+ * field, since a plain field would not survive the host process being killed while
+ * [TextDisplaySettingsComposeActivity] is foregrounded (process death drops the edit silently).
  */
 class WorkspaceSelectorComposeActivity : ActivityBase() {
     private val service: WorkspaceService by inject()
@@ -67,8 +73,9 @@ class WorkspaceSelectorComposeActivity : ActivityBase() {
                 // NOTE: calls service.settingsBundleJson(id) directly, NOT controller.settingsBundleJson(id) —
                 // the latter would recursively reference `controller` from inside its own `by lazy` initializer.
                 startActivityForResult(
-                    Intent(this, TextDisplaySettingsActivity::class.java)
-                        .putExtra("settingsBundle", service.settingsBundleJson(id)),
+                    TextDisplaySettingsComposeActivity.intentForDetachedWorkspace(
+                        this, service.settingsBundleJson(id),
+                    ),
                     WORKSPACE_SETTINGS_CHANGED,
                 )
             },
@@ -141,7 +148,8 @@ class WorkspaceSelectorComposeActivity : ActivityBase() {
             val settingsBundleJson = extras.getString("settingsBundle")!!
             // Read the workspace id from the returned JSON itself (like classic
             // WorkspaceSelectorActivity.onActivityResult), not from host-side state, so the round-trip
-            // survives the host process being killed while TextDisplaySettingsActivity was foregrounded.
+            // survives the host process being killed while TextDisplaySettingsComposeActivity was
+            // foregrounded.
             val id = SettingsBundle.fromJson(settingsBundleJson).workspaceId.toString()
             controller.applyWorkspaceSettings(
                 id = id,
