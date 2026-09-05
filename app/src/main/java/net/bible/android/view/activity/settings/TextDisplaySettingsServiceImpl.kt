@@ -51,6 +51,41 @@ import net.bible.sharedcore.settings.TextSettingsSnapshot
 import org.crosswire.jsword.book.Books
 
 /**
+ * A workspace-scoped settings edit that is NOT written through to the active workspace or the DB.
+ *
+ * Spec 11.4's decided design (option 1): the workspace selector stages every workspace in a
+ * detached `working` copy and flushes only on Save, so a write-through settings edit would break
+ * it twice -- Cancel would stop discarding, and Save could clobber the edit with the pre-edit copy
+ * it already holds. A [TextDisplaySettingsServiceImpl] constructed with one of these therefore
+ * resolves every WORKSPACE read to [bundle] and lands every write in it.
+ *
+ * Held by a SEPARATE service instance, never by the Koin singleton: that singleton is shared with
+ * the reading view's in-place settings editor, and a mutable mode flag on it would leak there.
+ *
+ * [reset] is deliberately NOT sticky: [markDirty] clears it. It describes "the most recent
+ * operation on this edit was a reset", not "a reset happened at some point" --
+ * [net.bible.android.view.activity.workspaces.WorkspaceServiceImpl.applyWorkspaceSettings] reads a
+ * `reset = true` flag as "discard the returned bundle entirely" (defaults the workspace instead of
+ * applying it), so a flag left set after a later edit would silently throw that edit away. A bare
+ * `reset()` with no further edit still reports as reset (see [changed]/[reset]), which is what the
+ * caller needs to decide whether to send the flag at all.
+ */
+class DetachedWorkspaceEdit(val bundle: SettingsBundle) {
+    var dirty: Boolean = false
+        private set
+    var reset: Boolean = false
+        private set
+
+    fun markDirty() { dirty = true; reset = false }
+    fun markReset() { reset = true; dirty = true }
+
+    /** Whether anything happened worth returning to the caller. Plan D3: merely opening the screen
+     *  must NOT mark the workspace changed, which is what classic did (it called setResult() at the
+     *  end of loadSettingsBundle, so open-then-back persisted on the selector's next Save). */
+    val changed: Boolean get() = dirty || reset
+}
+
+/**
  * Android impl of [TextDisplaySettingsService] — the ONLY place classic
  * `WorkspaceEntities`/`SettingsBundle`/`getPrefItem` are read or written from the Compose side
  * (approach B). Drives the EXISTING classic machinery (`getPrefItem`, `OptionsMenuItemInterface`,
@@ -64,33 +99,6 @@ import org.crosswire.jsword.book.Books
  * TEXT_DISPLAY_SETTINGS_CHANGED round-trip that was its only caller; named here as the parity
  * target this was written against, not as live code).
  */
-/**
- * A workspace-scoped settings edit that is NOT written through to the active workspace or the DB.
- *
- * Spec 11.4's decided design (option 1): the workspace selector stages every workspace in a
- * detached `working` copy and flushes only on Save, so a write-through settings edit would break
- * it twice -- Cancel would stop discarding, and Save could clobber the edit with the pre-edit copy
- * it already holds. A [TextDisplaySettingsServiceImpl] constructed with one of these therefore
- * resolves every WORKSPACE read to [bundle] and lands every write in it.
- *
- * Held by a SEPARATE service instance, never by the Koin singleton: that singleton is shared with
- * the reading view's in-place settings editor, and a mutable mode flag on it would leak there.
- */
-class DetachedWorkspaceEdit(val bundle: SettingsBundle) {
-    var dirty: Boolean = false
-        private set
-    var reset: Boolean = false
-        private set
-
-    fun markDirty() { dirty = true }
-    fun markReset() { reset = true; dirty = true }
-
-    /** Whether anything happened worth returning to the caller. Plan D3: merely opening the screen
-     *  must NOT mark the workspace changed, which is what classic did (it called setResult() at the
-     *  end of loadSettingsBundle, so open-then-back persisted on the selector's next Save). */
-    val changed: Boolean get() = dirty || reset
-}
-
 class TextDisplaySettingsServiceImpl(
     private val detached: DetachedWorkspaceEdit? = null,
 ) : TextDisplaySettingsService {

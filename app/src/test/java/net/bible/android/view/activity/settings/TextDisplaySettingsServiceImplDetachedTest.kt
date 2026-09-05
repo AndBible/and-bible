@@ -114,6 +114,41 @@ class TextDisplaySettingsServiceImplDetachedTest {
         )
     }
 
+    // Final review Finding 1 (Important): reset() sets `reset = true` and nothing used to clear it,
+    // so selector -> workspace B -> Reset -> change a setting -> back -> Save silently discarded
+    // the post-reset edit, because WorkspaceServiceImpl.applyWorkspaceSettings reads `reset = true`
+    // as "ignore the returned bundle entirely". This test fails against the pre-fix markDirty()
+    // (which only set `dirty = true` and never cleared `reset`).
+    @Test
+    fun aSubsequentEditAfterResetClearsTheStickyResetFlag() {
+        val edit = DetachedWorkspaceEdit(detachedBundle())
+        val service = TextDisplaySettingsServiceImpl(edit)
+        val scope = SettingsScope.Workspace(edit.bundle.workspaceId.toString())
+        service.reset(scope)
+        assertTrue(edit.reset)
+
+        service.setValue(scope, TextSettingType.STRONGS, TextSettingValue.IntValue(2))
+
+        assertFalse(
+            "a later edit must clear the sticky reset flag, or applyWorkspaceSettings would " +
+                "discard this edit entirely",
+            edit.reset,
+        )
+        assertEquals(2, edit.bundle.workspaceSettings.strongsMode)
+    }
+
+    // Final review Finding 5 (Minor): the workspace COLOUR is the one field
+    // WorkspaceServiceImpl.applyWorkspaceSettings reads out of the bundle by hand (not merely
+    // `settings.workspaceSettings` wholesale), so it needs its own detached round-trip coverage.
+    @Test
+    fun detachedWorkspaceColorPickSurvivesIntoTheBundle() {
+        val edit = DetachedWorkspaceEdit(detachedBundle())
+        val service = TextDisplaySettingsServiceImpl(edit)
+        val scope = SettingsScope.Workspace(edit.bundle.workspaceId.toString())
+        service.setWorkspaceColor(scope, -65536)
+        assertEquals(-65536, edit.bundle.workspaceSettings.colors!!.workspaceColor)
+    }
+
     @Test
     fun anUntouchedDetachedEditReportsNoChange() {
         val edit = DetachedWorkspaceEdit(detachedBundle())
