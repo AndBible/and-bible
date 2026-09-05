@@ -77,6 +77,7 @@ import net.bible.service.history.HistoryTraversalFactory
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val coreModule = module {
@@ -134,7 +135,12 @@ val coreModule = module {
     // DetachedWorkspaceEdit? constructor param, which singleOf would try (and fail) to resolve as
     // a Koin dependency. The shared singleton always gets the plain, non-detached instance; a
     // detached instance (workspace-selector settings edit) is constructed separately, never via Koin.
-    single<TextDisplaySettingsService> { TextDisplaySettingsServiceImpl() }
+    // `single { ... } bind ...::class` (not `single<TextDisplaySettingsService> { ... }`) keeps the
+    // CONCRETE class as the definition's primary type, with the interface as a secondary one --
+    // TextDisplaySettingsComposeActivity injects the concrete TextDisplaySettingsServiceImpl (for
+    // the HIDELABELS bridge helper, outside the portable interface), same reason as the
+    // singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() } pattern above.
+    single { TextDisplaySettingsServiceImpl() } bind TextDisplaySettingsService::class
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.

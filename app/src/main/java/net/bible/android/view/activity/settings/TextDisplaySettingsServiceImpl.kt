@@ -248,9 +248,9 @@ class TextDisplaySettingsServiceImpl(
             // SettingsBundle.workspaceSettings is a `val` (the SAME TextDisplaySettings instance is
             // shared with every Preference read/write for this bundle, see bundleFor), so a fresh
             // workspace-level reset clears it in place field-by-field rather than replacing the
-            // reference -- a fresh TextDisplaySettings() has every field null, so this is equivalent.
-            val fresh = TextDisplaySettings()
-            TextDisplaySettings.Types.values().forEach { t -> it.bundle.workspaceSettings.setValue(t, fresh.getValue(t)) }
+            // reference -- copyFrom(TextDisplaySettings()) sets every field to the fresh instance's
+            // (all null), which is equivalent to "replace with a fresh instance" for every reader.
+            it.bundle.workspaceSettings.copyFrom(TextDisplaySettings())
             // Deliberately NO workspaceColor default here, unlike the non-detached WORKSPACE branch
             // below: WorkspaceServiceImpl.applyWorkspaceSettings applies the default itself when the
             // `reset` flag (set by markReset()) is true, on the selector's staged entity where it belongs.

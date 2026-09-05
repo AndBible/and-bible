@@ -4,8 +4,10 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
+import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton
 import net.bible.sharedcore.bookmark.BookmarksService
+import net.bible.sharedcore.settings.TextDisplaySettingsService
 import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
@@ -54,6 +56,22 @@ class CoreModuleResolveTest {
         val koin = GlobalContext.get()
         val concrete = koin.get<BookmarksServiceImpl>()
         val bound = koin.get<BookmarksService>()
+        assertNotNull(concrete)
+        assertSame(concrete, bound)
+    }
+
+    @Test
+    fun `TextDisplaySettingsServiceImpl resolves both as its concrete type and as TextDisplaySettingsService, same instance`() {
+        // TextDisplaySettingsComposeActivity injects the CONCRETE TextDisplaySettingsServiceImpl
+        // (for the HIDELABELS bridge helper, beyond the portable TextDisplaySettingsService
+        // interface); this relies on `single { TextDisplaySettingsServiceImpl() } bind
+        // TextDisplaySettingsService::class` keeping BOTH the primary (concrete) type and the bound
+        // interface resolvable to the SAME singleton -- an earlier `single<TextDisplaySettingsService>
+        // { TextDisplaySettingsServiceImpl() }` registered ONLY the interface as resolvable and broke
+        // that injection with NoDefinitionFoundException.
+        val koin = GlobalContext.get()
+        val concrete = koin.get<TextDisplaySettingsServiceImpl>()
+        val bound = koin.get<TextDisplaySettingsService>()
         assertNotNull(concrete)
         assertSame(concrete, bound)
     }
