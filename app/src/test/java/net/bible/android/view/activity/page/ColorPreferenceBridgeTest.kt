@@ -22,10 +22,11 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.settings.ColorSettingsActivity
+import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.service.common.CommonUtils
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -34,14 +35,19 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 /**
- * Settings editor sheets T12: [ColorPreference.openDialog] no longer branches on
- * `use_compose_ui` at all -- it always launches the classic [ColorSettingsActivity] (unchanged
- * `startActivityForResult`/`COLORS_CHANGED` round-trip), regardless of the flag. The Compose
- * routing decision moved to `OptionsMenuStateBuilder.dispatch` (Settings editor sheets T11),
- * which sends COLORS to the reading view's in-place editor sheet before `openDialog` is ever
- * called; those tests own that contract. This test only guards that `openDialog` itself stayed
- * a plain, flag-independent classic launch after the dead Compose branch (and the
- * `startDestination = "colors"` extra it used to send) were deleted.
+ * [ColorPreference.openDialog] does not branch on `use_compose_ui` at all -- it launches the same
+ * thing either way, which is what both halves below assert. The Compose routing decision lives in
+ * `OptionsMenuStateBuilder.dispatch` (Settings editor sheets T11), which sends COLORS to the
+ * reading view's in-place editor sheet before `openDialog` is ever called; those tests own that
+ * contract.
+ *
+ * Slice S12 repointed the target: what `openDialog` launches is now
+ * [TextDisplaySettingsComposeActivity] at its colours destination
+ * ([TextDisplaySettingsComposeActivity.intentForColors]), not the deleted classic
+ * `ColorSettingsActivity`, and it is a plain `startActivity` -- there is no `COLORS_CHANGED`
+ * round-trip left, because the Compose destination writes each edit through as it is made. The
+ * `EXTRA_START_AT_COLORS` assertion is what separates this from an ordinary text-settings launch:
+ * without it the user would land on the settings LIST rather than on colours.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -67,7 +73,7 @@ class ColorPreferenceBridgeTest {
     private fun buildProbeActivity() = Robolectric.buildActivity(ProbeActivity::class.java).setup().get()
 
     @Test
-    fun colorPreferenceLaunchesClassicWhenFlagOn() {
+    fun colorPreferenceLaunchesComposeColorsWhenFlagOn() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         val pref = ColorPreference(workspaceBundle())
         val activity = buildProbeActivity()
@@ -75,13 +81,28 @@ class ColorPreferenceBridgeTest {
         pref.openDialog(activity, null, null)
 
         val started = shadowOf(activity).nextStartedActivity
-        assertEquals(ColorSettingsActivity::class.java.name, started?.component?.className)
-        val forResult = shadowOf(activity).nextStartedActivityForResult
-        assertEquals(MainBibleActivity.COLORS_CHANGED, forResult?.requestCode)
+        assertEquals(TextDisplaySettingsComposeActivity::class.java.name, started?.component?.className)
+        assertTrue(
+            "the launch must carry EXTRA_START_AT_COLORS, or it opens the text-settings list " +
+                "instead of the colours destination",
+            started!!.getBooleanExtra(TextDisplaySettingsComposeActivity.EXTRA_START_AT_COLORS, false),
+        )
+        assertEquals(
+            "a WORKSPACE-level bundle must launch at workspace scope",
+            "workspace",
+            started.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL),
+        )
+        // Robolectric records a plain startActivity as a for-result launch with requestCode -1,
+        // so "no round-trip" is that sentinel rather than a missing record.
+        assertEquals(
+            "the COLORS_CHANGED round-trip is gone -- this must be a plain startActivity",
+            -1,
+            shadowOf(activity).nextStartedActivityForResult!!.requestCode,
+        )
     }
 
     @Test
-    fun colorPreferenceLaunchesClassicWhenFlagOff() {
+    fun colorPreferenceLaunchesComposeColorsWhenFlagOff() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         val pref = ColorPreference(workspaceBundle())
         val activity = buildProbeActivity()
@@ -89,8 +110,23 @@ class ColorPreferenceBridgeTest {
         pref.openDialog(activity, null, null)
 
         val started = shadowOf(activity).nextStartedActivity
-        assertEquals(ColorSettingsActivity::class.java.name, started?.component?.className)
-        val forResult = shadowOf(activity).nextStartedActivityForResult
-        assertEquals(MainBibleActivity.COLORS_CHANGED, forResult?.requestCode)
+        assertEquals(TextDisplaySettingsComposeActivity::class.java.name, started?.component?.className)
+        assertTrue(
+            "the launch must carry EXTRA_START_AT_COLORS, or it opens the text-settings list " +
+                "instead of the colours destination",
+            started!!.getBooleanExtra(TextDisplaySettingsComposeActivity.EXTRA_START_AT_COLORS, false),
+        )
+        assertEquals(
+            "a WORKSPACE-level bundle must launch at workspace scope",
+            "workspace",
+            started.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL),
+        )
+        // Robolectric records a plain startActivity as a for-result launch with requestCode -1,
+        // so "no round-trip" is that sentinel rather than a missing record.
+        assertEquals(
+            "the COLORS_CHANGED round-trip is gone -- this must be a plain startActivity",
+            -1,
+            shadowOf(activity).nextStartedActivityForResult!!.requestCode,
+        )
     }
 }

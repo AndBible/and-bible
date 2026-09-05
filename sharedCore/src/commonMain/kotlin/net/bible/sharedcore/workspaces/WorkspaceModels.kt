@@ -40,6 +40,6 @@ interface WorkspaceService {
     fun settingTypeLabels(sourceId: String): List<String>     // TextDisplaySettings.Types titles for the source
     fun copySettings(sourceId: String, typeIndices: List<Int>, targetIds: List<String>): List<WorkspaceRowVd>  // mutates working; returns refreshed target VDs
     fun copySettingsToGlobal(sourceId: String, typeIndices: List<Int>)
-    fun settingsBundleJson(id: String): String                // for the classic TextDisplaySettingsActivity round-trip
+    fun settingsBundleJson(id: String): String                // the detached settings-editor round-trip (spec 11.4)
     fun applyWorkspaceSettings(id: String, settingsBundleJson: String, reset: Boolean): WorkspaceRowVd  // mutates working; returns refreshed VD
 }

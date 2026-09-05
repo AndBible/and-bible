@@ -19,7 +19,6 @@ package net.bible.android.view.activity.page
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.Intent
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,8 +39,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
-import net.bible.android.view.activity.settings.ColorSettingsActivity
+import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.android.view.util.widget.FontFamilyWidget
 import net.bible.android.view.util.widget.MarginSizeWidget
@@ -553,14 +551,18 @@ internal fun SettingsBundle.toScope(): SettingsScope = when (level) {
 class ColorPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.COLORS) {
     override val visible = true
     /**
-     * The compose path never reaches here: [OptionsMenuStateBuilder.dispatch] and
-     * `handleWindowTextOptionItem` route COLORS to the reading view's in-place editor sheet
-     * before openDialog is called (Settings editor sheets T11). This is the classic path only.
+     * Only the CLASSIC menu path reaches here: on the Compose path [OptionsMenuStateBuilder.dispatch]
+     * and `handleWindowTextOptionItem` route COLORS to the reading view's in-place editor sheet
+     * before openDialog is called (Settings editor sheets T11).
+     *
+     * Since slice S12 that classic path lands on the Compose screen too — the colours destination
+     * of [TextDisplaySettingsComposeActivity] ([TextDisplaySettingsComposeActivity.intentForColors]),
+     * for the scope this preference was built for — rather than on the deleted classic
+     * `ColorSettingsActivity`. It is a plain `startActivity`: the Compose destination writes each
+     * edit through as it is made, so there is no `COLORS_CHANGED` result to wait for.
      */
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val intent = Intent(activity, ColorSettingsActivity::class.java)
-        intent.putExtra("settingsBundle", settings.toJson())
-        activity.startActivityForResult(intent, COLORS_CHANGED)
+        activity.startActivity(TextDisplaySettingsComposeActivity.intentForColors(activity, settings.toScope()))
         return true
     }
 }

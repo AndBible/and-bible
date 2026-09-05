@@ -51,7 +51,6 @@ import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
 import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
-import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.android.view.activity.settings.ReadingProgressSettingsComposeActivity
 import net.bible.android.view.activity.search.EpubSearchComposeActivity
 import net.bible.android.view.activity.search.EpubSearchResultsComposeActivity
@@ -59,11 +58,8 @@ import net.bible.android.view.activity.search.SearchComposeActivity
 import net.bible.android.view.activity.search.SearchIndexComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
-import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SettingsComposeActivity
-import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsComposeActivity
-import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -354,15 +350,11 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun settingsRoutesToComposeWhenFlagOn() {
+    fun settings_routes_by_flag() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(SettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Settings))
-    }
-
-    @Test
-    fun settingsRoutesToClassicWhenFlagOff() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(SettingsActivity::class.java, ScreenLauncher.targetFor(Screen.Settings))
+        assertEquals(SettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Settings))
     }
 
     @Test
@@ -370,7 +362,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(ReadingProgressSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgressSettings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(ReadingProgressSettingsActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgressSettings))
+        assertEquals(ReadingProgressSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgressSettings))
     }
 
     @Test
@@ -378,7 +370,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(SyncSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SyncSettings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(SyncSettingsActivity::class.java, ScreenLauncher.targetFor(Screen.SyncSettings))
+        assertEquals(SyncSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SyncSettings))
     }
 
     @Test
@@ -398,7 +390,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(TextDisplaySettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.TextDisplaySettings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(TextDisplaySettingsActivity::class.java, ScreenLauncher.targetFor(Screen.TextDisplaySettings))
+        assertEquals(TextDisplaySettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.TextDisplaySettings))
     }
 
     @Test

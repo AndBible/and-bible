@@ -251,8 +251,22 @@ object ClassicRemovalScan {
      * file today writes `useComposeFor(screen)` with the implicit parameter, so the bound is exact
      * in practice; it is documented because ~11 more slices will rely on it.
      */
-    fun assertLauncherArmsUnconditional(screens: List<String>, hint: String) {
-        val path = "src/main/java/net/bible/android/view/ScreenLauncher.kt"
+    fun assertLauncherArmsUnconditional(screens: List<String>, hint: String) =
+        assertLauncherArmsUnconditionalIn(LAUNCHER_PATH, screens, hint)
+
+    /** `ScreenLauncher.kt`, relative to the `:app` module dir — what the slice guards scan. */
+    const val LAUNCHER_PATH = "src/main/java/net/bible/android/view/ScreenLauncher.kt"
+
+    /**
+     * [assertLauncherArmsUnconditional] against an arbitrary file. `internal` and NOT part of the
+     * helper's slice-guard surface: every slice guard scans the real [LAUNCHER_PATH] and must keep
+     * doing so. The one caller is `ClassicRemovalScanAssertionsTest`, which since slice S12 has no
+     * still-branching arm left in the real file to use as its deliberately-failing input, and so
+     * hands this a hand-written fixture instead. Making the path a parameter rather than
+     * reimplementing the scan in the test is the point: the fixture must exercise THIS code, or the
+     * test proves nothing about what the slice guards run.
+     */
+    internal fun assertLauncherArmsUnconditionalIn(path: String, screens: List<String>, hint: String) {
         assertTrue("$path is missing — this assertion would pass vacuously", File(path).isFile)
         val code = codeLinesOf(path)
         assertTrue(

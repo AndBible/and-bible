@@ -20,7 +20,6 @@ package net.bible.android.view.activity.page.screen
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.Context
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
@@ -75,8 +74,9 @@ import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.Preference
 import net.bible.android.view.activity.page.SubMenuPreference
 import net.bible.android.view.activity.page.application
-import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
+import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.settings.getPrefItem
+import net.bible.sharedcore.settings.SettingsScope
 import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
@@ -979,9 +979,14 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             )
             R.id.allTextOptions -> CommandPreference(
                 launch = {_, _, _ ->
-                    val intent = Intent(mainBibleActivity, TextDisplaySettingsActivity::class.java)
-                    intent.putExtra("settingsBundle", settingsBundle.toJson())
-                    mainBibleActivity.startActivityForResult(intent, MainBibleActivity.TEXT_DISPLAY_SETTINGS_CHANGED)
+                    // Slice S12: the classic TextDisplaySettingsActivity round-trip
+                    // (TEXT_DISPLAY_SETTINGS_CHANGED) is gone -- the Compose screen writes each edit
+                    // through as it is made, so this is a plain startActivity, matching what
+                    // MainBibleActivity's own window-level bridge row now does.
+                    mainBibleActivity.startActivity(TextDisplaySettingsComposeActivity.intentFor(
+                        mainBibleActivity,
+                        SettingsScope.Window(window.id.toString(), windowControl.windowRepository.id.toString()),
+                    ))
                 },
                 visible = window.isVisible,
                 opensDialog = true

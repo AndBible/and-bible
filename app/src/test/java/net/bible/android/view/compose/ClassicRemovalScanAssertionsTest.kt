@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose
 
+import java.io.File
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -32,6 +33,12 @@ import org.junit.Test
  * helpers resolve paths relative to the `:app` module dir (the working directory for its unit
  * tests), so a fixture in a temp directory would exercise a different code path than production
  * use and would not prove the preconditions work.
+ *
+ * ONE exception, forced by slice S12: the launcher-arm test's FAILING input is now a synthetic
+ * fixture, because S12 collapsed the last arm in `ScreenLauncher.kt` that still branched on the
+ * flag and there is no real branching arm left to hand it. Its clean-direction inputs are still
+ * real, and its fixture is scanned by the same helper body the slice guards run — see that test's
+ * own kdoc.
  */
 class ClassicRemovalScanAssertionsTest {
     @Test fun assertPathsGoneFailsWhenAPathSurvives() {
@@ -130,25 +137,76 @@ class ClassicRemovalScanAssertionsTest {
         )
     }
 
+    /**
+     * The failing input is a SYNTHETIC fixture, not a real arm. Every other test in this class
+     * drives its helper with real repo paths on purpose (see the class kdoc), and this one used
+     * `Screen.Settings` — the last arm that still branched on the flag — right up to slice S12.
+     * S12 collapsed it, and with it the last branching arm anywhere in `ScreenLauncher.kt`, so
+     * there is nothing real left to point this half at.
+     *
+     * The fixture is written to a temp file and scanned by
+     * [ClassicRemovalScan.assertLauncherArmsUnconditionalIn], the same body
+     * [ClassicRemovalScan.assertLauncherArmsUnconditional] runs — only the path is a parameter. So
+     * this still exercises the real detector rather than a re-implementation of it: the fixture
+     * carries BOTH a branching arm (must fail) and a collapsed one (must pass), and the
+     * clean-direction call against the real file below keeps the production path covered too.
+     */
     @Test fun assertLauncherArmsUnconditionalFailsOnAnArmThatStillBranches() {
-        // Screen.Settings is S12's, which is BLOCKED on spec 11.4 and therefore still branches on
-        // the flag today. If S12 ever lands, this input stops being a branching arm and this half
-        // of the test would pass for the wrong reason — so assert the premise first.
-        val code = ClassicRemovalScan.codeLinesOf("src/main/java/net/bible/android/view/ScreenLauncher.kt")
-        val start = code.indexOf("Screen.Settings ->")
-        assertTrue("Screen.Settings is missing from ScreenLauncher — pick another branching arm", start >= 0)
-        val next = code.indexOf("Screen.", start + "Screen.Settings".length + 3)
+        val fixture = File.createTempFile("ScreenLauncherFixture", ".kt").apply { deleteOnExit() }
+        fixture.writeText(
+            """
+            object ScreenLauncher {
+                fun useComposeFor(screen: Screen): Boolean = flag
+                fun targetFor(screen: Screen): Class<*> = when (screen) {
+                    Screen.StillBranching ->
+                        if (useComposeFor(screen)) NewActivity::class.java
+                        else OldActivity::class.java
+                    Screen.AlreadyCollapsed -> NewActivity::class.java
+                }
+            }
+            """.trimIndent(),
+        )
+
+        // Premise: the fixture is what a branching arm and a collapsed arm actually look like in
+        // ScreenLauncher.kt. If the real file's shape ever diverges from this, the fixture stops
+        // standing in for it — which is the one way this synthetic input could rot.
+        val real = ClassicRemovalScan.codeLinesOf(ClassicRemovalScan.LAUNCHER_PATH)
         assertTrue(
-            "Screen.Settings no longer branches on the flag — S12 must have landed; " +
-                "pick another still-branching arm for this test's failing input",
-            code.substring(start, next).contains("useComposeFor"),
+            "ScreenLauncher.kt no longer writes collapsed arms as `Screen.X -> XComposeActivity::class.java`" +
+                " — the fixture below no longer resembles the file this helper scans",
+            real.contains("Screen.Settings -> SettingsComposeActivity::class.java"),
+        )
+
+        // Anti-vacuity: a MISSING arm also counts as an offender (asserted below), so without this
+        // the branching case could be passing for the wrong reason -- the helper failing because it
+        // never found the arm at all rather than because it saw the branch.
+        assertTrue(
+            "the fixture's branching arm is not written in the shape the scan looks for",
+            ClassicRemovalScan.codeLinesOf(fixture.path).contains("Screen.StillBranching ->"),
         )
         assertThrows(AssertionError::class.java) {
-            ClassicRemovalScan.assertLauncherArmsUnconditional(
-                listOf("Screen.Settings"),
+            ClassicRemovalScan.assertLauncherArmsUnconditionalIn(
+                fixture.path,
+                listOf("Screen.StillBranching"),
                 "this arm still branches on the flag, so the helper must fail",
             )
         }
+        ClassicRemovalScan.assertLauncherArmsUnconditionalIn(
+            fixture.path,
+            listOf("Screen.AlreadyCollapsed"),
+            "this arm is collapsed, so the helper must pass",
+        )
+        // A MISSING arm counts as an offender too — that is what stops a deleted enum entry from
+        // passing silently, and nothing else in this class covers it.
+        assertThrows(AssertionError::class.java) {
+            ClassicRemovalScan.assertLauncherArmsUnconditionalIn(
+                fixture.path,
+                listOf("Screen.NotInTheFileAtAll"),
+                "this arm does not exist, so the helper must fail",
+            )
+        }
+
+        // And the production path itself, against the real file.
         ClassicRemovalScan.assertLauncherArmsUnconditional(
             listOf("Screen.ChooseMapKey"),
             "S3 collapsed this arm, so the helper must pass",

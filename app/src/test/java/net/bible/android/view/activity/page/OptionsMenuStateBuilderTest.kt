@@ -118,7 +118,7 @@ class OptionsMenuStateBuilderTest {
     @Test
     fun allTextOptionsOpensADialogAndIsNotCheckable() {
         val item = itemById(OptionsMenuStateBuilder.idFor(R.id.allTextOptions, 0))
-        assertTrue(item.opensDialog, "allTextOptions launches TextDisplaySettingsActivity")
+        assertTrue(item.opensDialog, "allTextOptions launches the text-display settings screen")
         assertFalse(item.checkable)
         assertTrue(item.label.isNotBlank())
     }

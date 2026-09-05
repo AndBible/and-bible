@@ -22,7 +22,8 @@ package net.bible.android.control.event.window
  *
  * Exists because the colour has **twelve** live write sites across **five** files, spanning both the
  * classic and Compose settings surfaces — `MainBibleActivity` (the `COLORS_CHANGED` activity-result
- * branch and `workspaceSettingsChanged`'s `SettingsLevel.WORKSPACE` branch), `TextDisplaySettings`
+ * branch, plus `workspaceSettingsChanged`'s `SettingsLevel.WORKSPACE` branch until slice S12 deleted
+ * it with the TEXT_DISPLAY_SETTINGS_CHANGED round-trip), `TextDisplaySettings`
  * (`commitDirtyToInMemoryState`'s workspace branch, the classic per-edit commit),
  * `TextDisplaySettingsServiceImpl` (`reset`, `applyAndPersist`, `applyColors`, `resetColors` — the
  * last two are reached live from the Compose colour picker's per-edit commit and its Reset action,

@@ -24,6 +24,7 @@ import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
+import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.util.widget.composeHostMounted
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.ToolbarState
@@ -602,21 +603,40 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     }
 
     /**
-     * A BRIDGED id (`"allTextOptions"`) invokes the classic native launch — `TextDisplaySettingsActivity`
-     * via `startActivityForResult` (`SplitBibleArea.kt:978-986`'s window-level counterpart) — rather
-     * than acting through the command seam, and reports `false` (closes the menu).
+     * A BRIDGED id (`"allTextOptions"`) invokes a native launch — `SplitBibleArea`'s window-level
+     * counterpart — rather than acting through the command seam, and reports `false` (closes the
+     * menu).
+     *
+     * Slice S12: the target is `TextDisplaySettingsComposeActivity`, scoped to the window the row
+     * belongs to, launched with a plain `startActivity`. The classic `TextDisplaySettingsActivity` /
+     * `TEXT_DISPLAY_SETTINGS_CHANGED` round-trip this used to assert is gone: the Compose screen
+     * writes each edit through as it is made and returns no result. The scope extras are asserted
+     * because the window id is the whole point of the WINDOW-level row — a launch that silently
+     * fell back to global scope would still satisfy a bare class-name check.
      */
-    @Test fun allTextOptionsLaunchesTextDisplaySettingsActivity() {
+    @Test fun allTextOptionsLaunchesComposeTextDisplaySettingsForTheWindow() {
         val w1 = windowRepository.activeWindow
 
         val stayOpen = activity.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS)
 
         assertFalse(stayOpen)
-        val started = shadowOf(activity).nextStartedActivityForResult
-        assertEquals(MainBibleActivity.TEXT_DISPLAY_SETTINGS_CHANGED, started?.requestCode)
+        // Robolectric records a plain startActivity as a for-result launch with requestCode -1, so
+        // "no round-trip" is that sentinel rather than a missing record.
         assertEquals(
-            "net.bible.android.view.activity.settings.TextDisplaySettingsActivity",
-            started?.intent?.component?.className,
+            -1,
+            shadowOf(activity).nextStartedActivityForResult?.requestCode,
+            "the classic TEXT_DISPLAY_SETTINGS_CHANGED round-trip is gone -- this is a plain startActivity",
+        )
+        val started = shadowOf(activity).nextStartedActivity
+        assertEquals(
+            "net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity",
+            started?.component?.className,
+        )
+        assertEquals("window", started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL))
+        assertEquals(w1.id.toString(), started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WINDOW_ID))
+        assertEquals(
+            windowRepository.id.toString(),
+            started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WORKSPACE_ID),
         )
     }
 

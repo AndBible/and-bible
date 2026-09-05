@@ -130,6 +130,12 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
      * that day (`false`)/night (`true`) slot. Only meaningful while [colorsScope] is non-null. */
     private var chooserNight by mutableStateOf<Boolean?>(null)
 
+    /** True for an [intentForColors] launch, where the colours destination is the ROOT rather than
+     * something pushed on top of the text-settings list — so backing out of it must [finish], not
+     * reveal a list the user never opened. Classic `ColorPreference.openDialog` launched a separate
+     * `ColorSettingsActivity`, whose back went straight to the caller; this preserves that. */
+    private var startedAtColors = false
+
     // Registered eagerly (constructor-time property, like classic BackgroundImageChooserActivity's
     // photoPicker) so it's ready well before RESUMED, whichever destination is showing.
     private var pendingPick: CancellableContinuation<String?>? = null
@@ -157,6 +163,13 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
         super.onCreate(savedInstanceState)
         val initialScope = scopeFromIntent(intent)
         navStack = listOf(initialScope)
+        // A colours-originated launch (intentForColors) opens straight at the internal `colors`
+        // destination for the SAME scope the list would otherwise have shown. Backing out of it
+        // finishes rather than revealing that list -- see [startedAtColors] and pop().
+        if (intent.getBooleanExtra(EXTRA_START_AT_COLORS, false)) {
+            colorsScope = initialScope
+            startedAtColors = true
+        }
 
         setContent {
             AbAppTheme {
@@ -279,6 +292,9 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
     private fun pop() {
         when {
             chooserNight != null -> chooserNight = null
+            // A colours-originated launch has nothing underneath the colours destination — see
+            // [startedAtColors].
+            colorsScope != null && startedAtColors -> finish()
             colorsScope != null -> {
                 val scope = colorsScope!!
                 colorsScope = null
@@ -391,6 +407,11 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
          *  classic TextDisplaySettingsActivity used, so the selector's onActivityResult is unchanged. */
         const val EXTRA_DETACHED_BUNDLE = "settingsBundle"
 
+        /** Marker for a launch that should open directly at the internal colours destination —
+         *  see [intentForColors]. Deliberately NOT part of [intentFor]'s extras: a plain launch
+         *  must still land on the text-settings list. */
+        const val EXTRA_START_AT_COLORS = "startAtColors"
+
         /** Selector-originated launch (spec 11.4): edits the named workspace against a detached copy
          *  and returns `settingsBundle` + `reset` when -- and only when -- something changed. */
         fun intentForDetachedWorkspace(context: Context, settingsBundleJson: String): Intent =
@@ -415,6 +436,19 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
             }
             return intent
         }
+
+        /**
+         * [intentFor]'s extras plus [EXTRA_START_AT_COLORS]: opens this Activity with the internal
+         * colours destination ([ColorSettingsScreen]) already pushed for [scope].
+         *
+         * Slice S12's replacement for classic `ColorPreference.openDialog`'s raw
+         * `ColorSettingsActivity` launch. That launch was a `startActivityForResult` round-trip
+         * (`MainBibleActivity.COLORS_CHANGED`); this one is a plain `startActivity`, because the
+         * Compose colours destination writes its edits through [ColorSettingsController] as they
+         * are made and has no result to return.
+         */
+        fun intentForColors(context: Context, scope: SettingsScope): Intent =
+            intentFor(context, scope).putExtra(EXTRA_START_AT_COLORS, true)
     }
 }
 

@@ -143,8 +143,6 @@ import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.page.screen.classicBottomChromeAllowed
 import net.bible.android.view.activity.page.screen.clipboardKey
-import net.bible.android.view.activity.settings.DirtyTypesSerializer
-import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.UiUtils
@@ -1738,14 +1736,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         )
         return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
-                if (ScreenLauncher.useComposeFor(Screen.TextDisplaySettings)) {
-                    startActivity(TextDisplaySettingsComposeActivity.intentFor(
-                        this, SettingsScope.Workspace(windowRepository.id.toString())))
-                } else {
-                    val intent = Intent(this, TextDisplaySettingsActivity::class.java)
-                    intent.putExtra("settingsBundle", settingsBundle.toJson())
-                    startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
-                }
+                startActivity(TextDisplaySettingsComposeActivity.intentFor(
+                    this, SettingsScope.Workspace(windowRepository.id.toString())))
             }, opensDialog = true)
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository.workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
@@ -2037,23 +2029,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             // distinct from this activity's OWN workspace-level `getItemOptions(R.id.allTextOptions)`
             // used by the overflow menu).
             WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS -> {
-                if (ScreenLauncher.useComposeFor(Screen.TextDisplaySettings)) {
-                    startActivity(TextDisplaySettingsComposeActivity.intentFor(
-                        this, SettingsScope.Window(window.id.toString(), windowRepository.id.toString())))
-                } else {
-                    val settingsBundle = SettingsBundle(
-                        level = SettingsLevel.WINDOW,
-                        windowId = window.id,
-                        pageManagerSettings = window.pageManager.textDisplaySettings,
-                        workspaceId = windowRepository.id,
-                        workspaceName = windowRepository.name,
-                        workspaceSettings = windowRepository.textDisplaySettings,
-                        globalSettings = CommonUtils.globalTextDisplaySettings,
-                    )
-                    val intent = Intent(this, TextDisplaySettingsActivity::class.java)
-                    intent.putExtra("settingsBundle", settingsBundle.toJson())
-                    startActivityForResult(intent, TEXT_DISPLAY_SETTINGS_CHANGED)
-                }
+                startActivity(TextDisplaySettingsComposeActivity.intentFor(
+                    this, SettingsScope.Window(window.id.toString(), windowRepository.id.toString())))
                 false
             }
             // SplitBibleArea.kt:1002-1004
@@ -3110,20 +3087,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     // host is null there).
                     composeReadingViewHost?.refreshHostedState()
                 }
-                TEXT_DISPLAY_SETTINGS_CHANGED -> {
-                    val edited = extras.getBoolean("edited")
-                    val reset = extras.getBoolean("reset")
-
-                    val settingsBundle = SettingsBundle.fromJson(extras.getString("settingsBundle")!!)
-                    val requiresReload = extras.getBoolean("requiresReload")
-
-                    if (!edited && !reset) return
-
-                    val dirtyTypes = DirtyTypesSerializer.fromJson(extras.getString("dirtyTypes")!!).dirtyTypes
-
-                    workspaceSettingsChanged(settingsBundle, requiresReload, reset, dirtyTypes)
-                    return
-                }
                 STD_REQUEST_CODE -> {
                     CurrentActivityHolder.activate(this) // needed because startKeyChooser is using this
                     when (val kind = ActivityResultKind.fromExtra(extras.getString(ActivityResultKind.EXTRA))) {
@@ -3259,59 +3222,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         return super.onKeyDown(keyCode, event)
     }
 
-    private fun workspaceSettingsChanged(settingsBundle: SettingsBundle, requiresReload: Boolean = false,
-                                         reset: Boolean = false, dirtyTypes: Set<TextDisplaySettings.Types>? = null) {
-        when (settingsBundle.level) {
-            SettingsLevel.WINDOW -> {
-                val window = windowRepository.getWindow(settingsBundle.windowId!!)!!
-                window.pageManager.textDisplaySettings = if(reset)
-                    TextDisplaySettings()
-                else
-                    settingsBundle.pageManagerSettings!!
-
-                if(requiresReload)
-                    window.loadText()
-                else {
-                    window.bibleView?.updateTextDisplaySettings()
-                }
-            }
-            SettingsLevel.WORKSPACE -> {
-                // A/B batch 4a F1 fix round 1: workspaceSettingsChanged is the classic
-                // TextDisplaySettingsActivity write-back path, a sibling of COLORS_CHANGED above.
-                if(reset) {
-                    windowRepository.textDisplaySettings = TextDisplaySettings()
-                    windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
-                    ABEventBus.post(WorkspaceColorChanged())
-                } else {
-                    windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
-                    windowRepository.workspaceSettings.workspaceColor = settingsBundle.workspaceSettings.colors?.workspaceColor?: defaultWorkspaceColor
-                    ABEventBus.post(WorkspaceColorChanged())
-                }
-                if(dirtyTypes != null) {
-                    windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
-                }
-                if(requiresReload) {
-                    ABEventBus.post(SynchronizeWindowsEvent(true))
-                } else {
-                    windowRepository.updateAllWindowsTextDisplaySettings()
-                }
-            }
-            SettingsLevel.GLOBAL -> {
-                // Global settings are saved in TextDisplaySettingsActivity.onBackPressed()
-                if(dirtyTypes != null) {
-                    windowRepository.propagateGlobalTextDisplaySettingsChange(
-                        dirtyTypes, CommonUtils.globalTextDisplaySettings
-                    )
-                }
-                if(requiresReload) {
-                    ABEventBus.post(SynchronizeWindowsEvent(true))
-                } else {
-                    windowRepository.updateAllWindowsTextDisplaySettings()
-                }
-            }
-        }
-        resetSystemUi()
-    }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         Log.i(TAG, "onRequestPermissionResult $requestCode")
         when (requestCode) {
@@ -3497,7 +3407,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
 
-        const val TEXT_DISPLAY_SETTINGS_CHANGED = 92
         const val COLORS_CHANGED = 93
         const val WORKSPACE_CHANGED = 94
 

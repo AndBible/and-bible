@@ -52,13 +52,9 @@ import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
 import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
-import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.android.view.activity.settings.ReadingProgressSettingsComposeActivity
-import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SettingsComposeActivity
-import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsComposeActivity
-import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.search.EpubSearchComposeActivity
@@ -75,15 +71,17 @@ import net.bible.service.common.CommonUtils
 enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
 
 /**
- * Central old/new routing indirection (Strangler Fig). Chooses the classic or Compose
- * implementation per screen from the global `use_compose_ui` debug flag. This is the seed of
- * the future CMP navigation graph (Batch Z). Task 11 attached the Compose calculator host.
+ * Central old/new routing indirection (Strangler Fig), now fully collapsed: slice S12 was the last
+ * one with a flag branch left in [targetFor], so the map is unconditional and the `use_compose_ui`
+ * flag no longer selects an implementation here at all. This is the seed of the future CMP
+ * navigation graph (Batch Z); spec 10.1's epilogue turns it into that graph and retires
+ * [useComposeFor], whose sole surviving production caller is `StartupActivity`.
  */
 object ScreenLauncher {
     fun useComposeFor(@Suppress("UNUSED_PARAMETER") screen: Screen): Boolean =
         CommonUtils.settings.getBoolean("use_compose_ui", false)
 
-    /** The Activity class implementing [screen] under the current `use_compose_ui` flag. */
+    /** The Activity class implementing [screen]. Unconditional since slice S12 — see the object kdoc. */
     fun targetFor(screen: Screen): Class<*> = when (screen) {
         Screen.Calculator -> CalculatorComposeActivity::class.java
         Screen.History -> HistoryComposeActivity::class.java
@@ -133,20 +131,12 @@ object ScreenLauncher {
         Screen.ManageLabels -> ManageLabelsComposeActivity::class.java
         Screen.Bookmarks -> BookmarksComposeActivity::class.java
         Screen.ReadingProgress -> ReadingProgressComposeActivity::class.java
-        Screen.Settings ->
-            if (useComposeFor(screen)) SettingsComposeActivity::class.java
-            else SettingsActivity::class.java
-        Screen.ReadingProgressSettings ->
-            if (useComposeFor(screen)) ReadingProgressSettingsComposeActivity::class.java
-            else ReadingProgressSettingsActivity::class.java
-        Screen.SyncSettings ->
-            if (useComposeFor(screen)) SyncSettingsComposeActivity::class.java
-            else SyncSettingsActivity::class.java
+        Screen.Settings -> SettingsComposeActivity::class.java
+        Screen.ReadingProgressSettings -> ReadingProgressSettingsComposeActivity::class.java
+        Screen.SyncSettings -> SyncSettingsComposeActivity::class.java
         Screen.Startup -> StartupComposeActivity::class.java
         Screen.InstallZip -> InstallZipComposeActivity::class.java
-        Screen.TextDisplaySettings ->
-            if (useComposeFor(screen)) TextDisplaySettingsComposeActivity::class.java
-            else TextDisplaySettingsActivity::class.java
+        Screen.TextDisplaySettings -> TextDisplaySettingsComposeActivity::class.java
         Screen.CustomRepositories -> CustomRepositoriesComposeActivity::class.java
         Screen.CustomRepositoryEditor -> CustomRepositoryEditorComposeActivity::class.java
         Screen.Backup -> BackupComposeActivity::class.java

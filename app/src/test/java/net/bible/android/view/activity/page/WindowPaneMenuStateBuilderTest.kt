@@ -212,7 +212,7 @@ class WindowPaneMenuStateBuilderTest {
             textOptionsMenu.submenu.map { it.id },
         )
         val allTextOptions = textOptionsMenu.submenu.first()
-        assertTrue(allTextOptions.opensDialog, "allTextOptions bridges into TextDisplaySettingsActivity")
+        assertTrue(allTextOptions.opensDialog, "allTextOptions bridges into the text-display settings screen")
     }
 
     @Test

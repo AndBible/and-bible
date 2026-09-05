@@ -60,7 +60,9 @@ import org.crosswire.jsword.book.Books
  *
  * Parity target: [TextDisplaySettingsActivity.commitDirtyToInMemoryState] (per-level in-memory
  * commit + propagation) and `MainBibleActivity.workspaceSettingsChanged` (same per-level branches
- * fired from the classic activity-result path).
+ * fired from the classic activity-result path -- deleted in slice S12 with the
+ * TEXT_DISPLAY_SETTINGS_CHANGED round-trip that was its only caller; named here as the parity
+ * target this was written against, not as live code).
  */
 /**
  * A workspace-scoped settings edit that is NOT written through to the active workspace or the DB.
@@ -290,7 +292,8 @@ class TextDisplaySettingsServiceImpl(
         }
     }
 
-    /** Mirrors TextDisplaySettingsActivity.commitDirtyToInMemoryState + workspaceSettingsChanged, per edit. */
+    /** Mirrors TextDisplaySettingsActivity.commitDirtyToInMemoryState + MainBibleActivity's
+     *  workspaceSettingsChanged (deleted in slice S12), per edit. */
     private fun applyAndPersist(scope: SettingsScope, bundle: SettingsBundle, dirty: Set<TextDisplaySettings.Types>) {
         detachedFor(scope)?.let { it.markDirty(); return }
         when (scope) {
