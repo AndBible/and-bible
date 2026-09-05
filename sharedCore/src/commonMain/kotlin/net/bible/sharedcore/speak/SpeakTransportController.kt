@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.onEach
 
 /**
  * Drives the Compose speak-transport bar. iOS-clean: sees only [SpeakTransportService] (transport +
- * visibility) and [SpeakSettingsService] (speed). [onConfig] is a host lambda (launches Screen.BibleSpeak).
+ * visibility) and [SpeakSettingsService] (speed). [onConfig] is a host lambda (opens the host's
+ * Speak settings sheet).
  */
 class SpeakTransportController(
     private val transport: SpeakTransportService,

@@ -28,8 +28,8 @@ import org.junit.Test
  *
  * The first version of this test (verbatim from the task brief) was a pair of WHOLE-FILE substring
  * checks — "does this file mention `showWorkspaceSheet` anywhere". That is far weaker than it looks:
- * unlike [SpeakEntryPointGuardTest]'s three call-site files (exactly one `Screen.BibleSpeak` mention
- * per file), `MainBibleActivity.kt` alone carries THREE separate `Screen.WorkspaceSelector` launches
+ * unlike [SpeakEntryPointGuardTest]'s three call-site files (each with a single Speak sheet entry
+ * point), `MainBibleActivity.kt` alone carries THREE separate `Screen.WorkspaceSelector` launches
  * — two deliberately classic-only, one gated — so "does the file mention the string anywhere" would
  * have stayed green even if a brand new, entirely ungated fourth launch were added right next to the
  * two classic ones, and it would also stay green for a reroute gated behind a condition that could

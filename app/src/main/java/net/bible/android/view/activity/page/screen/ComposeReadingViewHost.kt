@@ -855,9 +855,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * [agentLog] above, for the same test-visibility reason. Visibility flows entirely from
      * [speakTransportService] (bridged from [MainBibleActivity.transportBarVisible] via
      * `SpeakTransportVisibilityChanged`), NOT from a host-owned flag — the `onConfig` seam below is
-     * the only host-supplied one (round 13a: it opens the Speak settings SHEET over the reading view
-     * via [showSpeakSettings] instead of launching [Screen.BibleSpeak], which now means the classic
-     * activity). Rendered by [mountComposeView] (see [install]) as `ReadingViewScreen`'s `speakBar`
+     * the only host-supplied one (round 13a: it opens the Speak settings SHEET over the reading
+     * view via [showSpeakSettings]; the `Screen.BibleSpeak` route it replaced was removed from the
+     * enum in Batch Z-late's epilogue). Rendered by [mountComposeView] (see [install]) as `ReadingViewScreen`'s `speakBar`
      * slot (Task 5).
      */
     val speakTransport = SpeakTransportController(
@@ -1115,8 +1115,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
 
     // ------------------------------------------------------------------------------------------
     // Round 13a — the Speak settings sheet over the reading view. Replaces the two deleted Compose
-    // Speak activities (T4): `Screen.BibleSpeak` now resolves to the CLASSIC screen, so this host
-    // is the whole Compose-path Speak settings surface, guarded by `SpeakEntryPointGuardTest`.
+    // Speak activities (T4); S13 then deleted the classic ones and Batch Z-late's epilogue removed
+    // the `Screen.BibleSpeak` enum entry, so this host is the WHOLE Speak settings surface, on
+    // either side of the port. Guarded by `SpeakEntryPointGuardTest`.
     // ------------------------------------------------------------------------------------------
 
     /** The Speak sheet's page stack. One instance per host, like [textSettingsEditor]. */
@@ -1138,9 +1139,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private var speakGridBack: (() -> Boolean)? = null
 
     /**
-     * Open the Speak settings sheet over the reading view. The only way in on the Compose path —
-     * round 13a deleted the Compose Speak activities, so [Screen.BibleSpeak] now means the CLASSIC
-     * screen and every Compose-path call site must come here instead.
+     * Open the Speak settings sheet over the reading view. The only way in: round 13a deleted the
+     * Compose Speak activities, S13 the classic ones, and Batch Z-late's epilogue the
+     * `Screen.BibleSpeak` enum entry that used to route to them.
      */
     internal fun showSpeakSettings() {
         // Total mutual exclusion, the third and last application site of the rule -- see

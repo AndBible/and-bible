@@ -63,12 +63,11 @@ import net.bible.android.view.activity.search.SearchComposeActivity
 import net.bible.android.view.activity.search.SearchIndexComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import net.bible.service.common.CommonUtils
 
 /** Screens that have both a classic (XML) and a new (Compose) implementation. */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, BibleSpeak, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
+enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
 
 /**
  * Central old/new routing indirection (Strangler Fig), now fully collapsed: slice S12 was the last
@@ -108,14 +107,6 @@ object ScreenLauncher {
         Screen.MyDocuments -> MyDocumentsComposeActivity::class.java
         Screen.MyDocumentPages -> MyDocumentPagesComposeActivity::class.java
         Screen.CloudDocuments -> CloudDocumentsComposeActivity::class.java
-        // Slice S13 deleted the classic BibleSpeakActivity, and round 13a had already deleted the
-        // Compose Speak ACTIVITIES: the Compose Speak surface is
-        // ComposeReadingViewHost.showSpeakSettings()/showSpeakTransport(), a sheet over the reading
-        // view, not an Activity. This is the one Screen entry in the enum with no Activity of its
-        // own; it resolves to the reading view that HOSTS the replacement. Reaching it means the
-        // flag is OFF, where there is no Compose host to open a sheet on — that hole closes when the
-        // epilogue (spec §10.2) collapses the three remaining classic branches and the flag dies.
-        Screen.BibleSpeak -> MainBibleActivity::class.java
         Screen.WorkspaceSelector -> WorkspaceSelectorComposeActivity::class.java
         Screen.AiConnectionSettings -> AiConnectionSettingsComposeActivity::class.java
         Screen.AiProviders -> AiProvidersComposeActivity::class.java

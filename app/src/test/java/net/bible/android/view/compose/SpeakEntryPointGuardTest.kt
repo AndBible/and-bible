@@ -40,12 +40,15 @@ class SpeakEntryPointGuardTest {
     }
 
     /**
-     * Round 13a T13: `Screen.BibleSpeak` resolves to `MainBibleActivity` (the reading view host)
-     * in both flag states — S13 deleted the classic activity this comment used to name — so every
-     * Compose-path call site must branch to [net.bible.android.view.activity.page.screen
-     * .ComposeReadingViewHost.showSpeakSettings] instead. A forgotten branch would silently leave the
-     * reading view on screen with no sheet opened — a dead-end no-op no golden and no unit test would
-     * notice, and one nothing else here would fail on.
+     * Batch Z-late epilogue, Task 1 (spec decision D3): `Screen.BibleSpeak` is gone from the enum,
+     * because its last three launch sites were collapsed away. This guard's subject moves with it —
+     * from "every file that LAUNCHES the screen must also branch to the sheet" to "the sheet entry
+     * points exist, and these three files are the only ones that hold them".
+     *
+     * That is the same protection, stated over what survives: a Speak entry that stopped reaching
+     * the sheet would silently leave the reading view on screen with nothing opened — a dead-end
+     * no-op no golden and no unit test would notice — and a FOURTH file growing an entry point
+     * would be unpoliced by every per-file test below.
      *
      * Same source-scan shape (and the same two traps avoided) as [MenuSeamGuardTest]: prose lines
      * are filtered so an `import` or a comment cannot satisfy the guard, and the path list is
@@ -63,14 +66,13 @@ class SpeakEntryPointGuardTest {
     }
 
     /**
-     * The Compose-path Speak entry points a `Screen.BibleSpeak` site may branch to.
+     * The reading view's two Speak sheet entry points.
      *
      * Round 14b §8 widened this from the single `showSpeakSettings(` round 13a required. The
      * main-menu Speak item now calls `showSpeakTransport()` instead: reaching the SETTINGS from a
      * menu row left the user with no visible way to start playback (the settings sheet has no play
      * control, and transport-bar visibility is a separate state that path never touched), which is
-     * the reported defect. `MenuCommandHandler` still MENTIONS `Screen.BibleSpeak` in its classic
-     * branch, so it is still scanned — it just satisfies the guard through the other call now.
+     * the reported defect.
      *
      * Both names are accepted rather than one being swapped for the other, because the two entry
      * points are both live and both correct: the toolbar's long-press and the transport bar's cog
@@ -81,25 +83,18 @@ class SpeakEntryPointGuardTest {
     private fun branchesToCompose(code: String): Boolean =
         composeSpeakEntryPoints.any { code.contains(it) }
 
-    @Test fun everyBibleSpeakIntentSiteAlsoBranchesToTheSheet() {
-        callSites.forEach { path ->
-            val code = codeLinesOf(path)
-            if (code.contains("Screen.BibleSpeak")) {
-                assertTrue(
-                    "$path launches Screen.BibleSpeak but calls neither showSpeakSettings() nor " +
-                        "showSpeakTransport() — the Compose path would land on the reading view with " +
-                        "no sheet opened, a dead-end no-op",
-                    branchesToCompose(code),
-                )
-            }
-        }
-    }
-
-    /** At least one site must actually branch, or the `if` above could be satisfied by nothing. */
-    @Test fun atLeastOneCallSiteBranchesToTheSheet() {
-        assertTrue(
-            "no call site reaches a Compose Speak entry point at all — the Compose Speak path is gone",
-            callSites.any { branchesToCompose(codeLinesOf(it)) },
+    /**
+     * EVERY scanned file must reach a sheet entry point — not just one of them, which is all the
+     * pre-epilogue form asserted once `Screen.BibleSpeak` stopped appearing in any of them.
+     */
+    @Test fun everyScannedCallSiteReachesASpeakSheetEntryPoint() {
+        val silent = callSites.filterNot { branchesToCompose(codeLinesOf(it)) }.sorted()
+        assertEquals(
+            "these files hold a Speak entry and reach neither showSpeakSettings() nor " +
+                "showSpeakTransport() — the reading view would stay on screen with no sheet opened, " +
+                "a dead-end no-op",
+            emptyList<String>(),
+            silent,
         )
     }
 
@@ -143,57 +138,36 @@ class SpeakEntryPointGuardTest {
     }
 
     /**
-     * Round 13a whole-branch review, F9: [callSites] names three files, so a FOURTH Compose-path
-     * launcher — a new file, or an old one that grows a Speak entry point — would be unpoliced by
-     * every test above. This walks all of `src/main` instead of a list, so no new file can escape it.
+     * Round 13a whole-branch review, F9: [callSites] names three files, so a FOURTH Speak entry
+     * point — a new file, or an old one that grows one — would be unpoliced by every test above.
+     * This walks all of `src/main` instead of a list, so no new file can escape it.
      *
-     * Two files are excluded by name, and both are CLASSIC-path code that legitimately has no
-     * `showSpeakSettings()` branch:
-     *  - `ScreenLauncher.kt` — the classic router itself; `Screen.BibleSpeak` is the mapping it
-     *    exists to declare.
-     *  - `SpeakTransportWidget.kt` — the classic transport widget, explicitly untouched by round 13a
-     *    (spec §5). `ComposeReadingViewHost` hides it (`binding.speakTransport.visibility = GONE`)
-     *    and renders `SpeakTransportBar` instead, whose `onConfig` DOES go to the sheet. S13 then
-     *    removed the widget's own config-button route entirely (it had no flag check at all), so the
-     *    button now has no route of any kind, on either path. The file stays in
-     *    [excludedClassicLaunchers] so [everyExcludedClassicLauncherStillExists] keeps asserting the
-     *    §2.4-protected widget exists; the cog itself stays visible-but-inert on the classic bottom
-     *    bar until the epilogue decides the fate of `main_bible_view.xml:201`'s
-     *    `custom:showConfig="true"`.
-     * [excludedClassicLaunchers] is asserted to exist for the same anti-vacuity reason as
-     * [everyScannedCallSiteExists]: a renamed exclusion must resurface as a failure, not a silence.
+     * Batch Z-late epilogue, Task 1: with `Screen.BibleSpeak` gone there is no launch site left to
+     * filter on, so the walk now asserts the exact SET of files holding a sheet entry point. That
+     * is strictly stronger than the pre-epilogue form, and it carries its own anti-vacuity: an
+     * empty walk cannot equal a three-element list.
+     *
+     * The two files that used to need excluding no longer do, because neither reaches an entry
+     * point: `ScreenLauncher.kt` declared the retired `Screen.BibleSpeak` mapping, and
+     * `SpeakTransportWidget.kt` (the classic widget, §2.4-protected, existence asserted by
+     * [ClassicSpeakRemovalGuardTest]) had its own config-button route removed in S13, so its cog is
+     * visible-but-inert until the epilogue decides the fate of `main_bible_view.xml:201`'s
+     * `custom:showConfig="true"`.
      */
-    private val excludedClassicLaunchers = listOf(
-        "src/main/java/net/bible/android/view/ScreenLauncher.kt",
-        "src/main/java/net/bible/android/view/util/widget/SpeakTransportWidget.kt",
-    )
-
-    @Test fun everyExcludedClassicLauncherStillExists() {
-        val missing = excludedClassicLaunchers.filterNot { File(it).isFile }
-        assertEquals("excluded paths that no longer exist (the exclusion is now a blind spot)", emptyList<String>(), missing)
-    }
-
-    @Test fun noUnscannedSourceFileLaunchesBibleSpeakWithoutBranchingToTheSheet() {
-        val excludedNames = excludedClassicLaunchers.map { File(it).name }.toSet()
-        val candidates = File("src/main").walkTopDown()
-            .filter { it.isFile && it.extension == "kt" && it.name !in excludedNames }
-            .filter { codeLinesOf(it.path).contains("Screen.BibleSpeak") }
-            .toList()
-        val offenders = candidates
-            .filterNot { branchesToCompose(codeLinesOf(it.path)) }
+    @Test fun theSpeakSheetEntryPointsLiveInExactlyTheScannedFiles() {
+        val holders = File("src/main").walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .filter { branchesToCompose(codeLinesOf(it.path)) }
             .map { it.path.replace('\\', '/') }
             .sorted()
+            .toList()
         assertEquals(
-            "these files launch Screen.BibleSpeak but reach no Compose Speak entry point — on the " +
-                "Compose path they would land on the reading view with no sheet opened, a dead-end " +
-                "no-op. Either add a `host.showSpeakSettings()` / `host.showSpeakTransport()` branch, " +
-                "or, if the file is classic-only, add it to excludedClassicLaunchers WITH the reason.",
-            emptyList<String>(),
-            offenders,
+            "the files holding a Speak sheet entry point are not the three scanned call sites. A " +
+                "NEW one is an entry point no per-file test here polices — add it to callSites WITH " +
+                "the reason; a MISSING one means a Speak entry stopped reaching the sheet.",
+            callSites.sorted(),
+            holders,
         )
-        // Anti-vacuity: the walk must actually be finding the known Compose-path launchers. If this
-        // ever drops to zero the scan has stopped seeing source at all and proves nothing.
-        assertTrue("the src/main walk found no Screen.BibleSpeak site at all", candidates.isNotEmpty())
     }
 
     /** Non-prose lines only: an `import` line or a comment mentioning either name must not count. */

@@ -17,6 +17,8 @@
 
 package net.bible.android.view.compose
 
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -24,11 +26,12 @@ import org.junit.Test
  * layouts and their shared menu, `SpeakTransportWidget`'s unguarded config-button route was removed
  * (spec §4 P3), and `Screen.BibleSpeak`'s arm was pointed at `MainBibleActivity`.
  *
- * `Screen.BibleSpeak` is the one enum entry with no Activity of its own: round 13a replaced the
- * Compose Speak activities with a sheet over the reading view, so the arm resolves to the host of
- * that sheet. `screenLauncherDoesNotBranchForBibleSpeak` below is therefore a vacuous-but-correct
- * assertion — the arm never had a flag branch to collapse — and it is kept so that a later change
- * cannot quietly reintroduce one.
+ * Batch Z-late epilogue, Task 1 (spec decision D3): that arm is now GONE, and so is the enum entry
+ * — the epilogue removed the last three `Screen.BibleSpeak` launch sites, leaving a routing target
+ * that was fiction. `theBibleSpeakScreenEntryIsGone` below replaces the old
+ * `screenLauncherDoesNotBranchForBibleSpeak`, which asserted that the arm existed unconditionally
+ * and would now fail for the RIGHT reason with entirely the wrong message. Speak entry is wholly a
+ * sheet over the reading view; `SpeakEntryPointGuardTest` guards that sheet.
  *
  * `AbstractSpeakActivity` is deliberately kept and deliberately referenceless: §2.4 names this base
  * and this exact situation. It is the phase's third such residue after ChooseKeyBase (S3) and
@@ -75,13 +78,20 @@ class ClassicSpeakRemovalGuardTest {
         )
     }
 
-    @Test fun screenLauncherDoesNotBranchForBibleSpeak() {
-        ClassicRemovalScan.assertLauncherArmsUnconditional(
-            listOf("Screen.BibleSpeak"),
-            "the BibleSpeak arm branches on the flag, or is missing entirely. It must be the single " +
-                "unconditional line `Screen.BibleSpeak -> MainBibleActivity::class.java`: there is " +
-                "no Speak Activity of either kind any more, and the arm resolves to the host of the " +
-                "sheet that replaced them.",
+    @Test fun theBibleSpeakScreenEntryIsGone() {
+        val code = ClassicRemovalScan.codeLinesOf(ClassicRemovalScan.LAUNCHER_PATH)
+        // Anti-vacuity: the scan must be reading a real, populated router, or "no BibleSpeak here"
+        // is what an empty string says too.
+        assertTrue(
+            "${ClassicRemovalScan.LAUNCHER_PATH} does not look like the router any more — this " +
+                "assertion would pass vacuously",
+            code.contains("Screen.WorkspaceSelector ->"),
+        )
+        assertFalse(
+            "ScreenLauncher still names BibleSpeak. Batch Z-late's epilogue (decision D3) removed " +
+                "the enum entry AND its targetFor arm: all three launch sites are gone, so the " +
+                "routing target would be fiction. Speak entry is the reading-view sheet only.",
+            code.contains("BibleSpeak"),
         )
     }
 
