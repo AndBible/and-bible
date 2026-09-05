@@ -17,15 +17,19 @@
 package net.bible.android.view.activity.settings
 
 import android.app.Activity
+import android.content.Context
 import androidx.compose.runtime.State
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TestBibleApplication
+import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.settings.KEY_OPEN_GLOBAL_SETTINGS
 import net.bible.sharedcore.settings.SettingsScope
+import net.bible.sharedcore.settings.TextDisplaySettingsController
 import net.bible.sharedcore.settings.TextDisplaySettingsService
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -86,6 +90,24 @@ class TextDisplaySettingsComposeActivityDetachedTest {
         @Suppress("UNCHECKED_CAST")
         val lazy = field.get(activity) as Lazy<DetachedWorkspaceEdit?>
         return lazy.value
+    }
+
+    /** Invokes the private `onNavigate(scope, key)` -- the same path the composed screen's
+     *  `onNavigate = { key -> onNavigate(scope, key) }` callback takes on a real button press. */
+    private fun invokeOnNavigate(activity: TextDisplaySettingsComposeActivity, scope: SettingsScope, key: String) {
+        val method = TextDisplaySettingsComposeActivity::class.java
+            .getDeclaredMethod("onNavigate", SettingsScope::class.java, String::class.java)
+        method.isAccessible = true
+        method.invoke(activity, scope, key)
+    }
+
+    /** Invokes the private `controllerFor(scope)` -- what the composition calls (and caches) for
+     *  whatever scope is on top of `navStack`, and the exact call that used to throw for a detached
+     *  instance asked to build a controller for [SettingsScope.Global]. */
+    private fun controllerForOf(activity: TextDisplaySettingsComposeActivity, scope: SettingsScope): TextDisplaySettingsController {
+        val method = TextDisplaySettingsComposeActivity::class.java.getDeclaredMethod("controllerFor", SettingsScope::class.java)
+        method.isAccessible = true
+        return method.invoke(activity, scope) as TextDisplaySettingsController
     }
 
     @Test
@@ -149,6 +171,35 @@ class TextDisplaySettingsComposeActivityDetachedTest {
             val returned = shadow.resultIntent.getStringExtra("settingsBundle")!!
             assertEquals(bundle.workspaceId, SettingsBundle.fromJson(returned).workspaceId)
             assertFalse(shadow.resultIntent.getBooleanExtra("reset", true))
+        }
+    }
+
+    @Test
+    fun aDetachedLaunchCanOpenGlobalTextOptionsWithoutCrashing() {
+        // Fix round 1: showGlobalLink is unconditionally true for any non-Global scope, so
+        // "Global text options" is reachable from a detached (selector-originated) Workspace
+        // screen. GLOBAL is not part of the selector's staged copy (classic wrote it through too --
+        // TextDisplaySettings.kt:203-210), so this must resolve via the LIVE path, not throw.
+        val bundle = detachedBundle()
+        val intent = TextDisplaySettingsComposeActivity.intentForDetachedWorkspace(
+            ApplicationProvider.getApplicationContext(), bundle.toJson(),
+        )
+        Robolectric.buildActivity(TextDisplaySettingsComposeActivity::class.java, intent).use { c ->
+            val activity = c.setup().get()
+            invokeOnNavigate(activity, scopeOf(activity), KEY_OPEN_GLOBAL_SETTINGS)
+            val pushedScope = scopeOf(activity)
+            assertTrue("KEY_OPEN_GLOBAL_SETTINGS must push SettingsScope.Global", pushedScope is SettingsScope.Global)
+
+            // This is the exact call that used to throw IllegalStateException from detached mode's
+            // scope guard: the composition builds a controller for whatever scope navStack.last()
+            // now is, and construction eagerly calls service.loadText(scope).
+            val controller = controllerForOf(activity, pushedScope)
+            val expectedTitle = ApplicationProvider.getApplicationContext<Context>()
+                .getString(R.string.global_text_display_settings_title)
+            assertEquals(
+                "the pushed Global controller did not resolve GLOBAL scope's title",
+                expectedTitle, controller.state.value.title,
+            )
         }
     }
 

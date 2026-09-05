@@ -103,29 +103,39 @@ class TextDisplaySettingsServiceImpl(
         net.bible.android.database.InheritedFrom.GLOBAL -> InheritedFrom.GLOBAL
     }
 
-    private fun requireWorkspaceScope(scope: SettingsScope) {
-        check(scope is SettingsScope.Workspace) {
-            "detached mode edits one named workspace; got $scope"
-        }
+    /**
+     * The [DetachedWorkspaceEdit] this operation should use, or null when it must take the live path.
+     *
+     * A GLOBAL scope is genuinely global and is NOT part of the selector's staged copy, so it falls
+     * through to the live path even on a detached instance -- classic did the same, opening global
+     * settings write-through from a selector-originated screen (TextDisplaySettings.kt:203-210).
+     * A WINDOW scope is unreachable from a detached launch (the workspace link only appears at window
+     * scope) and throws rather than silently addressing the active workspace's window.
+     */
+    private fun detachedFor(scope: SettingsScope): DetachedWorkspaceEdit? {
+        val d = detached ?: return null
+        check(scope !is SettingsScope.Window) { "a detached edit cannot address a window; got $scope" }
+        return if (scope is SettingsScope.Workspace) d else null
     }
 
     /** [repo.name] for the active workspace, or the detached bundle's own name in detached mode. */
-    private fun workspaceName(scope: SettingsScope): String = detached?.bundle?.workspaceName ?: repo.name
+    private fun workspaceName(scope: SettingsScope): String = detachedFor(scope)?.bundle?.workspaceName ?: repo.name
 
     /**
      * The workspace colour to show/carry for [scope]'s bundle. `TextDisplaySettings.actual()`'s
      * merge deliberately drops the `@Ignore` `workspaceColor` field (see [WorkspaceEntities.Colors.merge]),
      * so both detached and non-detached callers must read it separately rather than from
-     * `bundle.actualSettings.colors`. Detached mode must read the DETACHED bundle's own colour, not
-     * the active [repo]'s -- reading `repo` here would leak the active workspace's colour into an
-     * edit of a different, unrelated workspace.
+     * `bundle.actualSettings.colors`. A detached WORKSPACE scope must read the DETACHED bundle's own
+     * colour, not the active [repo]'s -- reading `repo` here would leak the active workspace's colour
+     * into an edit of a different, unrelated workspace. A GLOBAL scope on a detached instance is the
+     * live path (see [detachedFor]), so it reads [repo] exactly like a non-detached instance.
      */
-    private fun workspaceColorFor(bundle: SettingsBundle): Int =
-        if (detached != null) bundle.workspaceSettings.colors?.workspaceColor ?: defaultWorkspaceColor
+    private fun workspaceColorFor(scope: SettingsScope, bundle: SettingsBundle): Int =
+        if (detachedFor(scope) != null) bundle.workspaceSettings.colors?.workspaceColor ?: defaultWorkspaceColor
         else repo.workspaceSettings.workspaceColor ?: defaultWorkspaceColor
 
     private fun bundleFor(scope: SettingsScope): SettingsBundle {
-        detached?.let { requireWorkspaceScope(scope); return it.bundle }
+        detachedFor(scope)?.let { return it.bundle }
         return when (scope) {
             is SettingsScope.Global -> SettingsBundle(
                 level = SettingsLevel.GLOBAL,
@@ -243,8 +253,7 @@ class TextDisplaySettingsServiceImpl(
     }
 
     override fun reset(scope: SettingsScope) {
-        detached?.let {
-            requireWorkspaceScope(scope)
+        detachedFor(scope)?.let {
             // SettingsBundle.workspaceSettings is a `val` (the SAME TextDisplaySettings instance is
             // shared with every Preference read/write for this bundle, see bundleFor), so a fresh
             // workspace-level reset clears it in place field-by-field rather than replacing the
@@ -283,7 +292,7 @@ class TextDisplaySettingsServiceImpl(
 
     /** Mirrors TextDisplaySettingsActivity.commitDirtyToInMemoryState + workspaceSettingsChanged, per edit. */
     private fun applyAndPersist(scope: SettingsScope, bundle: SettingsBundle, dirty: Set<TextDisplaySettings.Types>) {
-        detached?.let { requireWorkspaceScope(scope); it.markDirty(); return }
+        detachedFor(scope)?.let { it.markDirty(); return }
         when (scope) {
             is SettingsScope.Global -> {
                 CommonUtils.globalTextDisplaySettings = bundle.globalSettings
@@ -319,7 +328,7 @@ class TextDisplaySettingsServiceImpl(
     override fun loadColors(scope: SettingsScope): ColorsSnapshot {
         val bundle = bundleFor(scope)
         val c = bundle.actualSettings.colors ?: TextDisplaySettings.default.colors!!
-        val wsColor = workspaceColorFor(bundle)
+        val wsColor = workspaceColorFor(scope, bundle)
         return ColorsSnapshot(
             title = colorTitleFor(scope),
             dayTextColor = c.dayTextColor ?: TextDisplaySettings.black,
@@ -343,7 +352,7 @@ class TextDisplaySettingsServiceImpl(
     /** Current merged colours for [scope], with `workspaceColor` carried like [loadColors]. */
     private fun currentColors(scope: SettingsScope): WorkspaceEntities.Colors {
         val bundle = bundleFor(scope)
-        val wsColor = workspaceColorFor(bundle)
+        val wsColor = workspaceColorFor(scope, bundle)
         val c = (bundle.actualSettings.colors ?: TextDisplaySettings.default.colors!!).copy()
         c.workspaceColor = wsColor
         return c
@@ -368,8 +377,7 @@ class TextDisplaySettingsServiceImpl(
         // is already the mutated bundle value (computed from currentColors, which already resolves
         // to the detached bundle via bundleFor), so we mirror it onto detached.bundle instead of the
         // WORKSPACE branch's repo/ABEventBus/saveIntoDb below.
-        detached?.let {
-            requireWorkspaceScope(scope)
+        detachedFor(scope)?.let {
             it.bundle.workspaceSettings.colors = colors
             it.markDirty()
             return
@@ -436,8 +444,7 @@ class TextDisplaySettingsServiceImpl(
     override fun resetColors(scope: SettingsScope) {
         // See applyColors.
         CommonUtils.displaySettingChanged(TextDisplaySettings.Types.COLORS)
-        detached?.let {
-            requireWorkspaceScope(scope)
+        detachedFor(scope)?.let {
             it.bundle.workspaceSettings.colors = TextDisplaySettings.default.colors
             it.markDirty()
             return

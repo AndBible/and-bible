@@ -123,6 +123,45 @@ class TextDisplaySettingsServiceImplDetachedTest {
     }
 
     @Test
+    fun detachedGlobalScopeLoadsTheLiveGlobalNotTheWorkspaceBundle() {
+        // Fix round 1: showGlobalLink is unconditionally true for any non-Global scope, so a
+        // detached (selector-originated) Workspace screen can reach GLOBAL scope. GLOBAL is not
+        // part of the selector's staged copy -- classic wrote it through live too
+        // (TextDisplaySettings.kt:203-210) -- so this must resolve via the live path, not throw.
+        val edit = DetachedWorkspaceEdit(detachedBundle())
+        val service = TextDisplaySettingsServiceImpl(edit)
+        val snapshot = service.loadText(SettingsScope.Global)
+        assertEquals(
+            "GLOBAL scope on a detached instance must read the ACTIVE workspace's name (the live " +
+                "path), not the detached bundle's -- it is unaffected by which workspace is edited",
+            repo.name, snapshot.workspaceName,
+        )
+        assertFalse("merely loading Global must not mark the workspace edit changed", edit.changed)
+    }
+
+    @Test
+    fun detachedGlobalScopeSetValueWritesThroughLikeANonDetachedInstance() {
+        val edit = DetachedWorkspaceEdit(detachedBundle())
+        val service = TextDisplaySettingsServiceImpl(edit)
+        val plain = TextDisplaySettingsServiceImpl()
+
+        plain.setValue(SettingsScope.Global, TextSettingType.STRONGS, TextSettingValue.IntValue(2))
+        val expected = CommonUtils.globalTextDisplaySettings.strongsMode
+        CommonUtils.globalTextDisplaySettings = WorkspaceEntities.TextDisplaySettings()   // undo, then redo via the detached instance
+
+        service.setValue(SettingsScope.Global, TextSettingType.STRONGS, TextSettingValue.IntValue(2))
+        assertEquals(
+            "a GLOBAL edit on a detached instance must write through to the live global settings " +
+                "exactly like a non-detached instance",
+            expected, CommonUtils.globalTextDisplaySettings.strongsMode,
+        )
+        assertFalse(
+            "a GLOBAL edit is not a WORKSPACE edit -- it must not mark the detached workspace edit changed",
+            edit.changed,
+        )
+    }
+
+    @Test
     fun detachedModeRejectsAWindowScope() {
         val edit = DetachedWorkspaceEdit(detachedBundle())
         val service = TextDisplaySettingsServiceImpl(edit)
