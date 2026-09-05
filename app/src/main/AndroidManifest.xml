@@ -522,11 +522,6 @@
             android:parentActivityName=".StartupActivity"
             />
         <activity
-            android:name="net.bible.android.view.activity.download.ProgressStatus"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/progress_status"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
             android:name="net.bible.android.view.activity.download.ProgressStatusComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

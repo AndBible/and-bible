@@ -52,7 +52,6 @@ import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeAct
 import net.bible.android.view.activity.download.CustomRepositoriesComposeActivity
 import net.bible.android.view.activity.download.CustomRepositoryEditorComposeActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
-import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.download.ProgressStatusComposeActivity
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
@@ -438,10 +437,8 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun progressStatus_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(ProgressStatusComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ProgressStatus))
+    fun progressStatus_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(ProgressStatus::class.java, ScreenLauncher.targetFor(Screen.ProgressStatus))
+        assertEquals(ProgressStatusComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ProgressStatus))
     }
 }

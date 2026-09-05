@@ -53,7 +53,6 @@ import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.android.view.activity.download.CustomRepositoriesComposeActivity
 import net.bible.android.view.activity.download.CustomRepositoryEditorComposeActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
-import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.download.ProgressStatusComposeActivity
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
@@ -205,9 +204,7 @@ object ScreenLauncher {
         Screen.Backup ->
             if (useComposeFor(screen)) BackupComposeActivity::class.java
             else BackupActivity::class.java
-        Screen.ProgressStatus ->
-            if (useComposeFor(screen)) ProgressStatusComposeActivity::class.java
-            else ProgressStatus::class.java
+        Screen.ProgressStatus -> ProgressStatusComposeActivity::class.java
     }
 
     /**
