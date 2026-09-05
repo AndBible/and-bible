@@ -24,13 +24,8 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.net.Uri
 import io.requery.android.database.sqlite.SQLiteDatabase
-import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
-import android.view.View
 import android.widget.Button
-import android.widget.ImageButton
-import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -40,11 +35,9 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
-import net.bible.android.activity.databinding.BackupViewBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
-import net.bible.android.control.report.LAST_CRASH_STACKTRACE_FILE
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.OLD_DATABASE_VERSION
@@ -1055,132 +1048,4 @@ object BackupControl {
     }
 
     private const val TAG = "BackupControl"
-}
-
-class BackupActivity: ActivityBase() {
-    lateinit var binding: BackupViewBinding
-    override val doNotInitializeApp: Boolean = true
-
-    override fun onBackPressed() {
-        updateSelectionOptions()
-        super.onBackPressed()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId){
-            android.R.id.home -> {
-                updateSelectionOptions()
-                finish()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = BackupViewBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        binding.apply {
-            toggleBackupApplication.isChecked = CommonUtils.settings.getBoolean("backup_application", false)
-            toggleBackupDatabase.isChecked = CommonUtils.settings.getBoolean("backup_database", true)
-            toggleBackupDocuments.isChecked = CommonUtils.settings.getBoolean("backup_documents", false)
-            toggleRestoreDatabase.isChecked = CommonUtils.settings.getBoolean("restore_database", true)
-            toggleRestoreDocuments.isChecked = CommonUtils.settings.getBoolean("restore_documents", false)
-
-            buttonBackup.setOnClickListener {
-                updateSelectionOptions()
-                when {
-                    toggleBackupApplication.isChecked -> lifecycleScope.launch { BackupControl.backupApp(this@BackupActivity) }
-                    toggleBackupDatabase.isChecked -> lifecycleScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) }
-                    toggleBackupDocuments.isChecked -> lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) }
-                }
-            }
-            buttonRestore.setOnClickListener {
-                updateSelectionOptions()
-                when {
-                    toggleRestoreDatabase.isChecked -> lifecycleScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) }
-                    toggleRestoreDocuments.isChecked -> lifecycleScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
-                }
-            }
-            val backupFiles = CommonUtils.dbBackupPath.listFiles()
-                ?.sortedByDescending { it.name }
-                ?: emptyList()
-
-            if (backupFiles.isEmpty()) {
-                importExportTitle.visibility = View.GONE
-            } else {
-                val parsedFiles = BackupControl.parseBackupFiles(backupFiles)
-                for (info in parsedFiles) {
-                    val itemView = layoutInflater.inflate(R.layout.backup_file_list_item, backupDbButtons, false)
-                    itemView.findViewById<TextView>(R.id.backupTitle).text = info.displayDate
-                    val sizeKb = info.file.length() / 1024
-                    val sizeStr = if (sizeKb > 1024) "${sizeKb / 1024} MB" else "$sizeKb KB"
-                    val detailText = if (info.appVersion != null)
-                        getString(R.string.backup_file_info, info.appVersion, sizeStr)
-                    else sizeStr
-                    itemView.findViewById<TextView>(R.id.backupDetails).text = detailText
-                    itemView.findViewById<ImageButton>(R.id.exportButton).setOnClickListener {
-                        lifecycleScope.launch { BackupControl.saveDbBackupFileViaIntent(this@BackupActivity, info.file) }
-                    }
-                    itemView.findViewById<ImageButton>(R.id.restoreButton).setOnClickListener {
-                        lifecycleScope.launch { BackupControl.restoreFromLocalBackupFile(this@BackupActivity, info.file) }
-                    }
-                    backupDbButtons.addView(itemView)
-                }
-            }
-
-            // Database reset section. Titles come from the shared databaseTitleResIds map.
-            data class ResettableDb(val dbFileName: String, val syncCategory: SyncableDatabaseDefinition?)
-            val resettableDbs = listOf(
-                ResettableDb(BookmarkDatabase.dbFileName, SyncableDatabaseDefinition.BOOKMARKS),
-                ResettableDb(WorkspaceDatabase.dbFileName, SyncableDatabaseDefinition.WORKSPACES),
-                ResettableDb(ReadingPlanDatabase.dbFileName, SyncableDatabaseDefinition.READINGPLANS),
-                ResettableDb(RepoDatabase.dbFileName, null),
-                ResettableDb(SettingsDatabase.dbFileName, null),
-                ResettableDb(MyDocumentDatabase.dbFileName, SyncableDatabaseDefinition.MYDOCUMENTS),
-                ResettableDb(AiSettingsDatabase.dbFileName, SyncableDatabaseDefinition.AI_SETTINGS),
-                ResettableDb(ProgressDatabase.dbFileName, SyncableDatabaseDefinition.PROGRESS),
-            )
-            for (db in resettableDbs) {
-                val nameResId = databaseTitleResIds.getValue(db.dbFileName)
-                val btn = Button(this@BackupActivity)
-                btn.text = getString(R.string.reset_something, getString(nameResId))
-                btn.setOnClickListener {
-                    lifecycleScope.launch { BackupControl.resetDatabase(this@BackupActivity, db.dbFileName, nameResId, db.syncCategory) }
-                }
-                resetButtons.addView(btn)
-            }
-
-            // Show last crash stack trace if available
-            val crashFile = File(SharedConstants.internalFilesDir, "log/$LAST_CRASH_STACKTRACE_FILE")
-            val crashTime = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
-            if (crashFile.exists() && crashTime > 0) {
-                try {
-                    val stackTrace = crashFile.readText()
-                    if (stackTrace.isNotBlank()) {
-                        val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                            .format(Date(crashTime))
-                        crashInfoTitle.visibility = View.VISIBLE
-                        crashInfoText.visibility = View.VISIBLE
-                        crashInfoText.text = "$timeStr\n\n$stackTrace"
-                    }
-                } catch (e: Exception) {
-                    Log.e("BackupActivity", "Error reading crash info", e)
-                }
-            }
-        }
-    }
-
-    private fun updateSelectionOptions() {
-        if(!CommonUtils.initialized) return
-        // update widget share option settings
-        CommonUtils.settings.apply {
-            setBoolean("backup_application", binding.toggleBackupApplication.isChecked)
-            setBoolean("backup_database", binding.toggleBackupDatabase.isChecked)
-            setBoolean("backup_documents", binding.toggleBackupDocuments.isChecked)
-            setBoolean("restore_database", binding.toggleRestoreDatabase.isChecked)
-            setBoolean("restore_documents", binding.toggleRestoreDocuments.isChecked)
-        }
-    }
 }

@@ -39,7 +39,6 @@ import net.bible.android.view.activity.ai.RawLogHistoryActivity
 import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
 import net.bible.android.view.activity.ai.ToolInfoActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
-import net.bible.android.control.backup.BackupActivity
 import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
@@ -192,9 +191,7 @@ object ScreenLauncher {
             else TextDisplaySettingsActivity::class.java
         Screen.CustomRepositories -> CustomRepositoriesComposeActivity::class.java
         Screen.CustomRepositoryEditor -> CustomRepositoryEditorComposeActivity::class.java
-        Screen.Backup ->
-            if (useComposeFor(screen)) BackupComposeActivity::class.java
-            else BackupActivity::class.java
+        Screen.Backup -> BackupComposeActivity::class.java
         Screen.ProgressStatus -> ProgressStatusComposeActivity::class.java
     }
 

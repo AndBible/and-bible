@@ -39,7 +39,6 @@ import net.bible.android.view.activity.ai.RawLogHistoryActivity
 import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
 import net.bible.android.view.activity.ai.ToolInfoActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
-import net.bible.android.control.backup.BackupActivity
 import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
@@ -423,11 +422,11 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun backup_routes_by_flag() {
+    fun backup_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(BackupComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Backup))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(BackupActivity::class.java, ScreenLauncher.targetFor(Screen.Backup))
+        assertEquals(BackupComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Backup))
     }
 
     @Test
