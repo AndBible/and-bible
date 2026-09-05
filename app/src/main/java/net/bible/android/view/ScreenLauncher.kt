@@ -81,7 +81,6 @@ import net.bible.android.view.activity.search.SearchIndexComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import net.bible.service.common.CommonUtils
 
@@ -132,9 +131,7 @@ object ScreenLauncher {
         // flag is OFF, where there is no Compose host to open a sheet on — that hole closes when the
         // epilogue (spec §10.2) collapses the three remaining classic branches and the flag dies.
         Screen.BibleSpeak -> MainBibleActivity::class.java
-        Screen.WorkspaceSelector ->
-            if (useComposeFor(screen)) WorkspaceSelectorComposeActivity::class.java
-            else WorkspaceSelectorActivity::class.java
+        Screen.WorkspaceSelector -> WorkspaceSelectorComposeActivity::class.java
         Screen.AiConnectionSettings ->
             if (useComposeFor(screen)) AiConnectionSettingsComposeActivity::class.java
             else AiConnectionSettingsActivity::class.java

@@ -80,7 +80,6 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
@@ -244,11 +243,17 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun workspaceSelector_routes_by_flag() {
+    fun workspaceSelector_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(WorkspaceSelectorComposeActivity::class.java, ScreenLauncher.targetFor(Screen.WorkspaceSelector))
+        assertEquals(
+            WorkspaceSelectorComposeActivity::class.java,
+            ScreenLauncher.targetFor(Screen.WorkspaceSelector),
+        )
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(WorkspaceSelectorActivity::class.java, ScreenLauncher.targetFor(Screen.WorkspaceSelector))
+        assertEquals(
+            WorkspaceSelectorComposeActivity::class.java,
+            ScreenLauncher.targetFor(Screen.WorkspaceSelector),
+        )
     }
 
     @Test
