@@ -2644,11 +2644,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * into position from here. What survives is the restore-buttons broadcast, which was never
      * bar-specific -- `BibleView` re-reads its offsets on it.
      *
-     * `transportBarVisible`/`transportBarHeight`/`bottomOffset1` are NOT dead with the bar: they are
-     * still tracked by their own setters and read unconditionally by `bottomOffset2` and
-     * `bottomOffsetForWebView` to size the Compose WebView's bottom padding. (That reservation is
-     * the pre-existing 12b/12f double-reservation concern, tracked as a device-verification item and
-     * still not fixed here.)
+     * `transportBarVisible`/`transportBarHeight`/`bottomOffset1` are NOT dead with the bar, but for
+     * two different reasons, so do not read the three as one. [transportBarVisible] and
+     * [transportBarHeight] are read unconditionally by [bottomOffset2] and [bottomOffsetForWebView]
+     * to size the Compose WebView's bottom padding -- that reservation is the pre-existing 12b/12f
+     * double-reservation concern, tracked as a device-verification item and still not fixed here.
+     * [bottomOffset1] is NOT what those two read (they take [bottomOffset1WithoutIme]); it is live
+     * through [imeHeight] and through `mainBibleView`'s own bottom padding while the IME padding is
+     * applied.
      */
     private fun updateBottomBars() {
         Log.i(TAG, "updateBottomBars")

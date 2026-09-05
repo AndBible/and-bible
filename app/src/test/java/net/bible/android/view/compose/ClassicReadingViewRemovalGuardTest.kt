@@ -166,6 +166,18 @@ class ClassicReadingViewRemovalGuardTest {
      * below -- which makes the same argument, since a host that does not exist cannot redeclare
      * anything.
      */
+    @Test
+    fun theClipboardKeyOutlivesItsClassicHome() {
+        ClassicRemovalScan.assertPathsPresent(
+            listOf("src/main/java/net/bible/android/view/activity/page/screen/ClipboardKey.kt"),
+            "the shared clipboardKey must have been split out before SplitBibleArea is deleted",
+        )
+        ClassicRemovalScan.assertPathsGone(
+            doomedReadingViewPaths,
+            "the classic host must be GONE, so it cannot hold a second declaration of the slot",
+        )
+    }
+
     /**
      * Spec 10.4 / decision D1. The two widgets `main_bible_view.xml` still embedded were not merely
      * hidden, because a `GONE` view is still ATTACHED: `SpeakTransportWidget.onAttachedToWindow`
@@ -215,17 +227,5 @@ class ClassicReadingViewRemovalGuardTest {
         )
         assertEquals("main_bible_view.xml must not embed the classic chrome", 0,
             Regex("""SpeakTransportWidget|AgentLogWidget""").findAll(layout).count())
-    }
-
-    @Test
-    fun theClipboardKeyOutlivesItsClassicHome() {
-        ClassicRemovalScan.assertPathsPresent(
-            listOf("src/main/java/net/bible/android/view/activity/page/screen/ClipboardKey.kt"),
-            "the shared clipboardKey must have been split out before SplitBibleArea is deleted",
-        )
-        ClassicRemovalScan.assertPathsGone(
-            doomedReadingViewPaths,
-            "the classic host must be GONE, so it cannot hold a second declaration of the slot",
-        )
     }
 }
