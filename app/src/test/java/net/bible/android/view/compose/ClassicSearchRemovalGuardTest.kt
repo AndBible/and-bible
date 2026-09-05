@@ -143,38 +143,20 @@ class ClassicSearchRemovalGuardTest {
     }
 
     /**
-     * The reference proof of spec §3.3, expressed as a test so it survives this session. Walks all
-     * of `src/main` rather than a path list, so a new file naming a deleted class cannot escape.
+     * The reference proof of spec §3.3, expressed as a test so it survives this session. Delegates
+     * to [ClassicRemovalScan.assertNoSourceNames], which walks every shipping source set's
+     * Kotlin/Java source AND its resource XML, so a new reference to a deleted class by its
+     * fully-qualified name — whether written in source or named by a layout — cannot escape.
      *
      * Matching on the FULLY-QUALIFIED name is deliberate: `Search`, `SearchIndex` and `SearchResults`
      * are ordinary English words and a bare-name scan would drown in false positives — including
      * the genuinely unrelated `net.bible.service.sword.epub.EpubSearch`.
      */
     @Test fun noSourceFileNamesAClassicSearchScreen() {
-        val sources = ClassicRemovalScan.appSources()
-        // Imports are the reference this sweep hunts, so they are KEPT here (unlike every other
-        // scan in this file), and each name ([doomedClassRefs]) is matched with a trailing
-        // non-identifier boundary. Both halves are load-bearing: with imports stripped there is
-        // nothing left to find (every fully-qualified mention of a doomed class in `src/main`
-        // today is an import line in `ScreenLauncher.kt` or a KDoc line), and with a plain
-        // `contains` the sweep could never pass, because the SURVIVING
-        // `…search.SearchComposeActivity`, `…search.SearchIndexComposeActivity`,
-        // `…search.SearchIndexProgressComposeActivity`, `…search.SearchResultsComposeActivity`,
-        // `…search.EpubSearchComposeActivity`, `…search.EpubSearchResultsComposeActivity` and
-        // `…search.EpubSearchResultKey` each carry a doomed name as a prefix.
-        val offenders = sources
-            .filter { file ->
-                val code = ClassicRemovalScan.codeLinesOf(file.path, keepImports = true)
-                doomedClassRefs.any { it.containsMatchIn(code) }
-            }
-            .map { it.path.replace('\\', '/') }
-            .sorted()
-        assertEquals(
+        ClassicRemovalScan.assertNoSourceNames(
+            doomedClassNames,
             "these files still name a classic search screen deleted in S1",
-            emptyList<String>(),
-            offenders,
         )
-        assertTrue("the src/main walk found no Kotlin source at all", sources.size > 100)
     }
 
     /** The routing arms must be unconditional now: no `useComposeFor` branch may mention search. */

@@ -97,6 +97,26 @@ object ClassicRemovalScan {
             }
 
     /**
+     * Every resource XML under every SHIPPING source set's `res/` tree (`src/main/res`,
+     * `src/debug/res`, `src/discrete/res`, …), globbed rather than listed for the same reason
+     * [manifestPaths] globs: a source set that gains a `res/` tree later is picked up instead of
+     * being silently skipped (`src/standard` has none today). `src/test` and `src/androidTest` are
+     * excluded exactly as in [appSources]; neither has a `res/` tree.
+     *
+     * The manifest is deliberately NOT here — it sits outside `res/` and has its own sweep,
+     * [assertNoManifestNames]. Comments are NOT stripped (unlike [codeLinesOf], which strips KOTLIN
+     * comment syntax and would be simply wrong here — XML comments are `<!--` with `~`-prefixed
+     * continuation lines in this repo): a commented-out `<net.bible.…>` tag is still a dangling
+     * reference to a deleted class, and flagging it is the safe direction.
+     */
+    fun appResourceXml(): List<File> =
+        File("src").listFiles { f -> f.isDirectory && f.name != "test" && f.name != "androidTest" }
+            .orEmpty()
+            .map { File(it, "res") }
+            .filter { it.isDirectory }
+            .flatMap { res -> res.walkTopDown().filter { it.isFile && it.extension == "xml" } }
+
+    /**
      * The five assertions every slice removal guard from S4 onwards makes, extracted in batch
      * S4+S5+S7+S8. S3's final review asked for this: the arm-scanning body had been copied into
      * three guards by then, and the third had to explain in KDoc why its copy diverged from the
@@ -138,27 +158,53 @@ object ClassicRemovalScan {
     }
 
     /**
-     * Walks every shipping source set rather than a path list, so a new file naming a deleted
-     * class by its FULLY-QUALIFIED name from outside the deleted package cannot escape. An
-     * unqualified same-package reference is invisible to this sweep — and does not need it,
-     * because the compiler already catches that: the class it would resolve to is gone.
+     * Walks every shipping source set rather than a path list — both its Kotlin/Java sources
+     * ([appSources]) and its resource XML ([appResourceXml]) — so a class named by its
+     * FULLY-QUALIFIED name from outside the deleted package cannot escape. An unqualified
+     * same-package reference is invisible to this sweep — and does not need it, because the
+     * compiler already catches that: the class it would resolve to is gone.
      *
-     * Imports are KEPT ([codeLinesOf] `keepImports = true`) because for a fully-qualified sweep an
-     * import IS the reference being hunted; with imports stripped this finds nothing and passes
-     * vacuously. See [refsFor] for why the boundary is trailing-only.
+     * The resource arm was added in the S6+S16+S18+S19 batch, after batch S4+S5+S7+S8's final
+     * review found the KDoc here claimed a fully-qualified name "cannot escape" while the walk
+     * opened only `.kt`/`.java`. **Layout XML is exactly where this repo names classes
+     * fully-qualified**: eight layouts carry a bare `<net.bible.…>` element tag, `res/xml/settings.xml`
+     * names a custom `Preference` class three times, and `CalendarHeatmapView`'s only two
+     * instantiation sites in the whole tree were `reading_progress.xml:191` and `:485`. Such a
+     * reference is resolved by `LayoutInflater` at RUNTIME: the compiler, the unit suite and
+     * Roborazzi all miss it alike and `assembleStandardGithubDebug` packages it happily, so a
+     * regression surfaces only as an `InflateException` on a user's device.
+     *
+     * The two arms differ deliberately. Source: imports are KEPT ([codeLinesOf]
+     * `keepImports = true`) because for a fully-qualified sweep an import IS the reference being
+     * hunted, and Kotlin comment lines are dropped. Resources: nothing is stripped, and offenders
+     * are reported per LINE (as in [assertNoManifestNames]) because a layout is long and the
+     * offending tag is what has to go — removing the TAG, not the class, is the fix. Each arm
+     * carries its own vacuity precondition: a single combined count would let a broken source walk
+     * hide behind ~470 resource files.
+     *
+     * Callers MUST pass fully-qualified names. A bare class name against resource XML is not merely
+     * loose, it is unusable: `Search` matches ~140 lines of `strings.xml` under `values` locale
+     * directories in this repo alone. See [refsFor] for why the boundary is trailing-only.
      */
     fun assertNoSourceNames(fqNames: List<String>, hint: String) {
         val refs = refsFor(fqNames)
         val sources = appSources()
         assertTrue("the source-set walk found no Kotlin/Java source at all", sources.size > 100)
-        val offenders = sources
+        val resources = appResourceXml()
+        assertTrue("the res/ walk found no resource XML at all", resources.size > 100)
+        val sourceOffenders = sources
             .filter { file ->
                 val code = codeLinesOf(file.path, keepImports = true)
                 refs.any { it.containsMatchIn(code) }
             }
             .map { it.path.replace('\\', '/') }
-            .sorted()
-        assertEquals(hint, emptyList<String>(), offenders)
+        val resourceOffenders = resources.flatMap { file ->
+            val path = file.path.replace('\\', '/')
+            file.readLines().mapIndexedNotNull { index, line ->
+                if (refs.any { it.containsMatchIn(line) }) "$path:${index + 1}: ${line.trim()}" else null
+            }
+        }
+        assertEquals(hint, emptyList<String>(), (sourceOffenders + resourceOffenders).sorted())
     }
 
     /**

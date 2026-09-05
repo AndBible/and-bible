@@ -73,6 +73,45 @@ class ClassicRemovalScanAssertionsTest {
         )
     }
 
+    /**
+     * The resource arm, added in this batch. Batch S4+S5+S7+S8's final review found the sweep
+     * walked only `.kt`/`.java` while its KDoc claimed a fully-qualified name "cannot escape" it —
+     * and layout XML is exactly where this repo names classes fully-qualified. Such a reference is
+     * resolved by `LayoutInflater` at RUNTIME, so nothing else in the gate can see it.
+     */
+    @Test fun assertNoSourceNamesFailsOnAClassOnlyALayoutNames() {
+        // BookmarkListItem is inflated by name from two layouts (bookmark_list_item.xml:19,
+        // studypad_list_item.xml:19) and is written UNQUALIFIED everywhere in Kotlin — view binding
+        // does the rest — so its fully-qualified name appears in NO shipping .kt/.java file. Both
+        // premises are asserted before use: if either stops holding, this test would pass for the
+        // wrong reason, which is the exact vacuity it exists to prevent.
+        val fq = "net.bible.android.view.util.widget.BookmarkListItem"
+        val ref = ClassicRemovalScan.refsFor(listOf(fq)).single()
+        val namedInSource = ClassicRemovalScan.appSources()
+            .filter { ref.containsMatchIn(ClassicRemovalScan.codeLinesOf(it.path, keepImports = true)) }
+            .map { it.path }
+        assertTrue(
+            "$fq is now named fully-qualified in $namedInSource, so the SOURCE arm would supply " +
+                "the failure and this test would no longer prove the resource arm works — pick " +
+                "another class named only by a layout",
+            namedInSource.isEmpty(),
+        )
+        assertTrue(
+            "no resource XML names $fq any more — pick another class from a surviving layout",
+            ClassicRemovalScan.appResourceXml().any { f -> f.readLines().any { ref.containsMatchIn(it) } },
+        )
+        assertThrows(AssertionError::class.java) {
+            ClassicRemovalScan.assertNoSourceNames(
+                listOf(fq),
+                "two layouts still inflate this class by name, so the helper must fail",
+            )
+        }
+        ClassicRemovalScan.assertNoSourceNames(
+            listOf("net.bible.android.view.util.widget.NoSuchWidgetEver"),
+            "neither a source file nor a layout names this class, so the helper must pass",
+        )
+    }
+
     @Test fun assertNoManifestNamesFailsOnAClassTheManifestDeclares() {
         assertThrows(AssertionError::class.java) {
             ClassicRemovalScan.assertNoManifestNames(

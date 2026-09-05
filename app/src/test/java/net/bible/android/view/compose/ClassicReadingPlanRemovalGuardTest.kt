@@ -155,35 +155,27 @@ class ClassicReadingPlanRemovalGuardTest {
     }
 
     /**
-     * The reference proof of spec §3.3, expressed as a test so it survives this session. Walks
-     * every shipping source set (`src/main`, `src/debug`, `src/standard`, `src/discrete`, …) rather
-     * than a path list, so a new file naming a deleted class by its FULLY-QUALIFIED name from
-     * OUTSIDE the deleted package cannot escape. That scoping matters: an unqualified same-package
-     * reference (a bare `DailyReading` written inside `readingplan/`) is invisible to this sweep —
-     * but that case does not need this test, because the compiler already catches it: the class it
-     * would resolve to no longer exists.
+     * The reference proof of spec §3.3, expressed as a test so it survives this session. Delegates
+     * to [ClassicRemovalScan.assertNoSourceNames], which walks every shipping source set's
+     * Kotlin/Java source AND its resource XML (`src/main`, `src/debug`, `src/standard`,
+     * `src/discrete`, …) rather than a path list, so a new reference to a deleted class by its
+     * FULLY-QUALIFIED name from OUTSIDE the deleted package — whether written in source or named by
+     * a layout — cannot escape. That scoping matters: an unqualified same-package reference (a bare
+     * `DailyReading` written inside `readingplan/`) is invisible to this sweep — but that case does
+     * not need this test, because the compiler already catches it: the class it would resolve to no
+     * longer exists.
      *
-     * Matching on the FULLY-QUALIFIED name with a trailing (not leading — see [ClassicRemovalScan.refsFor])
-     * non-identifier boundary is what makes this possible at all: every surviving Compose twin is
-     * named after its classic original
-     * (`DailyReading` / `DailyReadingComposeActivity`), and imports are KEPT because an import is
-     * the reference being hunted — see [ClassicRemovalScan] for why both halves are load-bearing.
+     * Matching on the FULLY-QUALIFIED name with a trailing (not leading — see
+     * [ClassicRemovalScan.refsFor]) non-identifier boundary is what makes this possible at all:
+     * every surviving Compose twin is named after its classic original (`DailyReading` /
+     * `DailyReadingComposeActivity`), and imports are KEPT because an import is the reference being
+     * hunted — see [ClassicRemovalScan] for why both halves are load-bearing.
      */
     @Test fun noSourceFileNamesAClassicReadingPlanScreen() {
-        val sources = ClassicRemovalScan.appSources()
-        val offenders = sources
-            .filter { file ->
-                val code = ClassicRemovalScan.codeLinesOf(file.path, keepImports = true)
-                doomedClassRefs.any { it.containsMatchIn(code) }
-            }
-            .map { it.path.replace('\\', '/') }
-            .sorted()
-        assertEquals(
+        ClassicRemovalScan.assertNoSourceNames(
+            doomedClassNames,
             "these files still name a classic reading-plan class deleted in S2",
-            emptyList<String>(),
-            offenders,
         )
-        assertTrue("the source-set walk found no Kotlin source at all", sources.size > 100)
     }
 
     /** No manifest may declare, or point at, a class this slice deletes. */
