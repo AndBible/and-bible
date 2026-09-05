@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.progress
 
+import android.content.Context
 import android.graphics.Color
 import androidx.core.graphics.ColorUtils
 import kotlin.math.ceil
@@ -122,4 +123,12 @@ object ReadingProgressColors {
         val maxPercent = (maxReadPercent * 100).roundToInt().coerceAtLeast(100)
         return (25..maxPercent step 25).toList()
     }
+}
+
+/** Resolves a theme color attribute so UI stays readable in light and dark mode. */
+internal fun Context.themeColor(attr: Int, fallback: Int): Int {
+    val ta = obtainStyledAttributes(intArrayOf(attr))
+    val color = ta.getColor(0, fallback)
+    ta.recycle()
+    return color
 }
