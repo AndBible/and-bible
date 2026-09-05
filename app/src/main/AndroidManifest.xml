@@ -128,7 +128,7 @@
             android:label="@string/edit_label"
             />
         <activity
-            android:parentActivityName="net.bible.android.view.activity.bookmark.ManageLabels"
+            android:parentActivityName="net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity"
             android:name="net.bible.android.view.activity.bookmark.LabelEditComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -200,7 +200,7 @@
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/manage_labels"
-            android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks"
+            android:parentActivityName="net.bible.android.view.activity.bookmark.BookmarksComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.AiSettingsActivity"
@@ -228,7 +228,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/ai_connection_settings"
             android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiSettingsActivity"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiPromptsComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.PromptEditActivity"
@@ -242,7 +242,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/edit_prompt"
             android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiSettingsActivity"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiPromptsComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.AiProvidersActivity"
@@ -256,7 +256,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/ai_providers_category"
             android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.AiModelsActivity"
@@ -270,7 +270,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/ai_models_category"
             android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.GlobalToolPermissionsActivity"
@@ -295,21 +295,21 @@
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/global_tool_permissions_title"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/ai_document_filter_activity_title"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.ToolInfoComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/ai_available_tools"
-            android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
+            android:parentActivityName="net.bible.android.view.activity.ai.PromptEditComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.RawLlmLogActivity"
@@ -335,7 +335,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/raw_log_history_title"
             android:theme="@style/Theme.AbCompose"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity"
