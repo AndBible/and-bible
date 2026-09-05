@@ -48,7 +48,6 @@ import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
-import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.android.view.activity.download.CustomRepositoriesComposeActivity
 import net.bible.android.view.activity.download.CustomRepositoryEditorComposeActivity
@@ -102,9 +101,7 @@ object ScreenLauncher {
 
     /** The Activity class implementing [screen] under the current `use_compose_ui` flag. */
     fun targetFor(screen: Screen): Class<*> = when (screen) {
-        Screen.Calculator ->
-            if (useComposeFor(screen)) CalculatorComposeActivity::class.java
-            else CalculatorActivity::class.java
+        Screen.Calculator -> CalculatorComposeActivity::class.java
         Screen.History ->
             if (useComposeFor(screen)) HistoryComposeActivity::class.java
             else History::class.java

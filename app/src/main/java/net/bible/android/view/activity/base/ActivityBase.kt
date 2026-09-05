@@ -50,7 +50,6 @@ import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.comingFromStartupActivity
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.android.view.util.UiUtils.setActionBarColor
 import net.bible.android.view.util.VolumeButtonScroll
@@ -314,8 +313,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         val fromStartupActivity = comingFromStartupActivity
         comingFromStartupActivity = false
         if (
-            this !is CalculatorActivity
-            && this !is CalculatorComposeActivity
+            this !is CalculatorComposeActivity
             && !fromStartupActivity
             && this !is StartupActivity
             && CommonUtils.showCalculator

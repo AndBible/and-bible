@@ -217,4 +217,94 @@ class CalculatorControllerTest {
         assertNull(c.error.value)
         assertEquals("1", c.display.value)
     }
+
+    // --- saveLastExpression, ported from the deleted CalculatorActivityTest (S15) ---
+    //
+    // The classic suite called activity.saveLastExpression(input) directly and read
+    // activity.lastExpression. Both are private in CalculatorController, so these drive the same
+    // algorithm through the only public path that uses it: the repeat-equals branch of calculate()
+    // (CalculatorController.kt:257), where a second EQUALS evaluates `display + lastExpression`.
+    //
+    // The recording controller returns a fixed "0" from evaluate, so the SECOND recorded expression
+    // is exactly "0" + lastExpression — with calculate()'s own transforms applied to it
+    // (CalculatorController.kt:258-261: "x" -> "*", any non-ASCII -> "/"). That is why the expected
+    // strings below read "0*3" and "0/2" rather than "0x3" and "0÷2".
+
+    private fun recording(): Pair<CalculatorController, MutableList<String>> {
+        val seen = mutableListOf<String>()
+        val c = CalculatorController(
+            evaluate = { expr -> seen += expr; EvalResult.Ok("0") },
+            isPin = { false },
+            onUnlock = {},
+        )
+        return c to seen
+    }
+
+    /** Types [expression] on the keypad, asserting the display matches before pressing EQUALS. */
+    private fun CalculatorController.type(expression: String) {
+        expression.forEach { ch ->
+            onKey(
+                when (ch) {
+                    in '0'..'9' -> CalcKey.entries[ch - '0']   // D0..D9 are the first ten entries
+                    '+' -> CalcKey.PLUS
+                    '-' -> CalcKey.MINUS
+                    'x' -> CalcKey.TIMES
+                    '÷' -> CalcKey.DIV
+                    '%' -> CalcKey.PERCENT
+                    '.' -> CalcKey.DOT
+                    '(', ')' -> CalcKey.PARENS
+                    else -> error("no key for '$ch'")
+                }
+            )
+        }
+        assertEquals(expression, display.value, "keypad did not produce the expression under test")
+    }
+
+    /** Presses EQUALS twice and returns what the second press handed to evaluate, minus the "0". */
+    private fun lastExpressionAfter(expression: String): String {
+        val (c, seen) = recording()
+        c.type(expression)
+        c.onKey(CalcKey.EQUALS)
+        c.onKey(CalcKey.EQUALS)
+        assertEquals(2, seen.size, "expected exactly two evaluations")
+        assertEquals("0", c.display.value)
+        assertTrue(seen[1].startsWith("0"), "second evaluation was ${seen[1]}")
+        return seen[1].removePrefix("0")
+    }
+
+    @Test fun lastExpression_extracts_simple_addition() =
+        assertEquals("+3", lastExpressionAfter("5+3"))
+
+    @Test fun lastExpression_extracts_simple_subtraction() =
+        assertEquals("-20", lastExpressionAfter("100-20"))
+
+    @Test fun lastExpression_extracts_decimal_number() =
+        assertEquals("-2.5", lastExpressionAfter("10-2.5"))
+
+    @Test fun lastExpression_extracts_multiplication() =
+        assertEquals("*3", lastExpressionAfter("5x3"))          // "x3", transformed by calculate()
+
+    @Test fun lastExpression_extracts_division() =
+        assertEquals("/2", lastExpressionAfter("10÷2"))         // "÷2", transformed by calculate()
+
+    @Test fun lastExpression_extracts_parenthesised_group() =
+        assertEquals("*(2+3)", lastExpressionAfter("10x(2+3)"))
+
+    @Test fun lastExpression_extracts_nested_parentheses() =
+        assertEquals("*((2+3)*4)", lastExpressionAfter("5x((2+3)x4)"))
+
+    @Test fun lastExpression_is_empty_for_a_single_digit() =
+        assertEquals("", lastExpressionAfter("5"))
+
+    @Test fun lastExpression_is_empty_for_a_two_digit_number() =
+        assertEquals("", lastExpressionAfter("80"))
+
+    @Test fun lastExpression_is_empty_for_a_three_digit_number() =
+        assertEquals("", lastExpressionAfter("123"))
+
+    @Test fun lastExpression_takes_only_the_final_operation() =
+        assertEquals("+5", lastExpressionAfter("100-20+5"))
+
+    @Test fun lastExpression_handles_large_numbers() =
+        assertEquals("+999", lastExpressionAfter("1000+999"))
 }
