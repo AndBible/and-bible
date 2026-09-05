@@ -164,11 +164,6 @@ class ClassicSearchRemovalGuardTest {
         val path = "src/main/java/net/bible/android/view/ScreenLauncher.kt"
         assertTrue("$path is missing — this guard would pass vacuously", File(path).isFile)
         val code = ClassicRemovalScan.codeLinesOf(path)
-        assertTrue(
-            "$path no longer reads use_compose_ui at all — the flag must survive S1 for the " +
-                "remaining slices (spec §3.4)",
-            code.contains("useComposeFor"),
-        )
         val searchScreens = listOf(
             "Screen.SearchIndexProgress", "Screen.SearchIndex", "Screen.SearchResults",
             "Screen.Search", "Screen.EpubSearch", "Screen.EpubSearchResults",

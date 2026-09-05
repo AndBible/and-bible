@@ -228,7 +228,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun aiConnectionSettings_routes_by_flag() {
+    fun aiConnectionSettings_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(AiConnectionSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiConnectionSettings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -236,7 +236,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun aiProviders_routes_by_flag() {
+    fun aiProviders_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(AiProvidersComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiProviders))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -244,7 +244,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun aiModels_routes_by_flag() {
+    fun aiModels_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(AiModelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiModels))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -252,7 +252,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun aiPrompts_routes_by_flag() {
+    fun aiPrompts_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(AiPromptsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiPrompts))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -260,7 +260,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun promptEdit_routes_by_flag() {
+    fun promptEdit_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(PromptEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.PromptEdit))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -268,7 +268,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun globalToolPermissions_routes_by_flag() {
+    fun globalToolPermissions_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(GlobalToolPermissionsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GlobalToolPermissions))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -276,7 +276,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun toolInfo_routes_by_flag() {
+    fun toolInfo_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(ToolInfoComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ToolInfo))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -284,7 +284,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun aiDocumentFilter_routes_by_flag() {
+    fun aiDocumentFilter_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(AiDocumentFilterComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiDocumentFilter))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -292,7 +292,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun rawLogHistory_routes_by_flag() {
+    fun rawLogHistory_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(RawLogHistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLogHistory))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -300,7 +300,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun rawLlmLog_routes_by_flag() {
+    fun rawLlmLog_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(RawLlmLogComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLlmLog))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -338,7 +338,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun settings_routes_by_flag() {
+    fun settings_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(SettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Settings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -346,7 +346,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun readingProgressSettings_routes_by_flag() {
+    fun readingProgressSettings_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(ReadingProgressSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgressSettings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -354,7 +354,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun syncSettings_routes_by_flag() {
+    fun syncSettings_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(SyncSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SyncSettings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
@@ -374,7 +374,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun textDisplaySettings_routes_by_flag() {
+    fun textDisplaySettings_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(TextDisplaySettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.TextDisplaySettings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)

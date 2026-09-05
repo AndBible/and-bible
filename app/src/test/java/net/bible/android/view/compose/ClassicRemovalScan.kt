@@ -265,15 +265,19 @@ object ClassicRemovalScan {
      * hands this a hand-written fixture instead. Making the path a parameter rather than
      * reimplementing the scan in the test is the point: the fixture must exercise THIS code, or the
      * test proves nothing about what the slice guards run.
+     *
+     * Asserts each named arm of `ScreenLauncher.targetFor` is unconditional.
+     *
+     * Batch Z-late's epilogue retired this function's old precondition — that the launcher still
+     * reads `use_compose_ui` — because the flag no longer exists (spec 10.6). The assertion is not
+     * vacuous without it: the detector below looks for `useComposeFor` OR an `else` inside the arm
+     * text, and a genuinely re-branched arm would contain one of them. What the precondition used
+     * to catch (a whole-file rewrite silently emptying the scan) is now caught by
+     * `FlagRemovalGuardTest`, which asserts the flag is absent everywhere rather than present here.
      */
     internal fun assertLauncherArmsUnconditionalIn(path: String, screens: List<String>, hint: String) {
         assertTrue("$path is missing — this assertion would pass vacuously", File(path).isFile)
         val code = codeLinesOf(path)
-        assertTrue(
-            "$path no longer reads use_compose_ui at all — the flag must survive until the " +
-                "epilogue (spec 3.4)",
-            code.contains("useComposeFor"),
-        )
         val elseWord = Regex("""\belse\b""")
         val offenders = screens.filter { screen ->
             val start = code.indexOf("$screen ->")

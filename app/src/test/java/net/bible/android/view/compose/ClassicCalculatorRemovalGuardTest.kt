@@ -29,7 +29,7 @@ import org.junit.Test
  *
  * Two things this guard deliberately does NOT assert, both of which look like omissions:
  *
- * 1. `ScreenLauncherTest` has no `calculator_routes_by_flag` case to rewrite, and never had one.
+ * 1. `ScreenLauncherTest` has no `calculator_routes_to_compose` case to rewrite, and never had one.
  *    `Screen.Calculator` appears there only as the probe for `useComposeFor` itself
  *    (`default_off_routes_to_old`, `flag_on_routes_to_new`), which must survive until the flag dies
  *    in the epilogue. `screenLauncherDoesNotBranchForCalculator` below is therefore the only check

@@ -41,8 +41,7 @@ import org.junit.Test
  * call site creates its OWN state in the same file, with `skipPartiallyExpanded = true`, AND passes
  * that state to the sheet via a `sheetState = ` argument. A wrapper that took a `SheetState` as a
  * parameter instead would fail the count check — that is intentional. It means "explain yourself
- * here", not "you are wrong": add the file to the exclusions WITH the reason, the same discipline
- * `SpeakEntryPointGuardTest.excludedClassicLaunchers` uses.
+ * here", not "you are wrong": add the file to the exclusions WITH the reason.
  *
  * Paths are relative to the `:app` module dir, this test's working directory.
  *

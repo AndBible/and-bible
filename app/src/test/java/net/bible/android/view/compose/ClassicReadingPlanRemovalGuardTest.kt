@@ -206,11 +206,6 @@ class ClassicReadingPlanRemovalGuardTest {
         val path = "src/main/java/net/bible/android/view/ScreenLauncher.kt"
         assertTrue("$path is missing — this guard would pass vacuously", File(path).isFile)
         val code = ClassicRemovalScan.codeLinesOf(path)
-        assertTrue(
-            "$path no longer reads use_compose_ui at all — the flag must survive S2 for the " +
-                "remaining slices (spec §3.4)",
-            code.contains("useComposeFor"),
-        )
         val readingPlanScreens = listOf(
             "Screen.ReadingPlanSelector", "Screen.DailyReadingList", "Screen.ReadingPlan",
         )

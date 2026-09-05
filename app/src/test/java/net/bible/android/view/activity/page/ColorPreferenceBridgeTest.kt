@@ -19,12 +19,11 @@ package net.bible.android.view.activity.page
 import android.os.Bundle
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
-import net.bible.service.common.CommonUtils
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -36,10 +35,9 @@ import org.robolectric.annotation.Config
 
 /**
  * [ColorPreference.openDialog] does not branch on `use_compose_ui` at all -- it launches the same
- * thing either way, which is what both halves below assert. The Compose routing decision lives in
- * `OptionsMenuStateBuilder.dispatch` (Settings editor sheets T11), which sends COLORS to the
- * reading view's in-place editor sheet before `openDialog` is ever called; those tests own that
- * contract.
+ * thing regardless. The Compose routing decision lives in `OptionsMenuStateBuilder.dispatch`
+ * (Settings editor sheets T11), which sends COLORS to the reading view's in-place editor sheet
+ * before `openDialog` is ever called; those tests own that contract.
  *
  * Slice S12 repointed the target: what `openDialog` launches is now
  * [TextDisplaySettingsComposeActivity] at its colours destination
@@ -63,18 +61,18 @@ class ColorPreferenceBridgeTest {
         }
     }
 
-    @After
-    fun tearDown() {
-        CommonUtils.settings.removeBoolean("use_compose_ui")
-    }
-
     private fun workspaceBundle() = SettingsBundle(level = SettingsLevel.WORKSPACE)
+
+    private fun windowBundle() = SettingsBundle(
+        level = SettingsLevel.WINDOW,
+        workspaceId = IdType(),
+        windowId = IdType(),
+    )
 
     private fun buildProbeActivity() = Robolectric.buildActivity(ProbeActivity::class.java).setup().get()
 
     @Test
-    fun colorPreferenceLaunchesComposeColorsWhenFlagOn() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun colorPreferenceOpensTheComposeColoursDestination() {
         val pref = ColorPreference(workspaceBundle())
         val activity = buildProbeActivity()
 
@@ -85,26 +83,29 @@ class ColorPreferenceBridgeTest {
         assertTrue(
             "the launch must carry EXTRA_START_AT_COLORS, or it opens the text-settings list " +
                 "instead of the colours destination",
-            started!!.getBooleanExtra(TextDisplaySettingsComposeActivity.EXTRA_START_AT_COLORS, false),
+            started?.getBooleanExtra(TextDisplaySettingsComposeActivity.EXTRA_START_AT_COLORS, false) == true,
         )
         assertEquals(
             "a WORKSPACE-level bundle must launch at workspace scope",
             "workspace",
-            started.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL),
+            started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL),
         )
         // Robolectric records a plain startActivity as a for-result launch with requestCode -1,
         // so "no round-trip" is that sentinel rather than a missing record.
         assertEquals(
             "the COLORS_CHANGED round-trip is gone -- this must be a plain startActivity",
             -1,
-            shadowOf(activity).nextStartedActivityForResult!!.requestCode,
+            shadowOf(activity).nextStartedActivityForResult?.requestCode,
         )
     }
 
+    /** The WINDOW arm was reachable from `SplitBibleArea` until this batch deleted it, and is
+     *  still reachable from the window-pane menu. S12 left it unasserted (spec F.9); assert it
+     *  here so a WINDOW-scoped launch is covered alongside the WORKSPACE one above. */
     @Test
-    fun colorPreferenceLaunchesComposeColorsWhenFlagOff() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        val pref = ColorPreference(workspaceBundle())
+    fun colorPreferenceOpensTheComposeColoursDestinationForAWindowScopedBundle() {
+        val bundle = windowBundle()
+        val pref = ColorPreference(bundle)
         val activity = buildProbeActivity()
 
         pref.openDialog(activity, null, null)
@@ -114,19 +115,17 @@ class ColorPreferenceBridgeTest {
         assertTrue(
             "the launch must carry EXTRA_START_AT_COLORS, or it opens the text-settings list " +
                 "instead of the colours destination",
-            started!!.getBooleanExtra(TextDisplaySettingsComposeActivity.EXTRA_START_AT_COLORS, false),
+            started?.getBooleanExtra(TextDisplaySettingsComposeActivity.EXTRA_START_AT_COLORS, false) == true,
         )
         assertEquals(
-            "a WORKSPACE-level bundle must launch at workspace scope",
-            "workspace",
-            started.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL),
+            "a WINDOW-level bundle must launch at window scope",
+            "window",
+            started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL),
         )
-        // Robolectric records a plain startActivity as a for-result launch with requestCode -1,
-        // so "no round-trip" is that sentinel rather than a missing record.
         assertEquals(
-            "the COLORS_CHANGED round-trip is gone -- this must be a plain startActivity",
-            -1,
-            shadowOf(activity).nextStartedActivityForResult!!.requestCode,
+            "the window id must be carried through to the destination",
+            bundle.windowId.toString(),
+            started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WINDOW_ID),
         )
     }
 }
