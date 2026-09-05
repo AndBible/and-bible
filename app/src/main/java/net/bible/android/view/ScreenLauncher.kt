@@ -59,7 +59,6 @@ import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
-import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.HistoryComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentsComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
@@ -102,9 +101,7 @@ object ScreenLauncher {
     /** The Activity class implementing [screen] under the current `use_compose_ui` flag. */
     fun targetFor(screen: Screen): Class<*> = when (screen) {
         Screen.Calculator -> CalculatorComposeActivity::class.java
-        Screen.History ->
-            if (useComposeFor(screen)) HistoryComposeActivity::class.java
-            else History::class.java
+        Screen.History -> HistoryComposeActivity::class.java
         Screen.SearchIndexProgress -> SearchIndexProgressComposeActivity::class.java
         Screen.SearchIndex -> SearchIndexComposeActivity::class.java
         Screen.SearchResults -> SearchResultsComposeActivity::class.java

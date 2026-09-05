@@ -55,7 +55,6 @@ import net.bible.android.view.activity.download.DownloadComposeActivity
 import net.bible.android.view.activity.download.ProgressStatusComposeActivity
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
-import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.HistoryComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
@@ -117,11 +116,11 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun history_routes_by_flag() {
+    fun history_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(HistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.History))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(History::class.java, ScreenLauncher.targetFor(Screen.History))
+        assertEquals(HistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.History))
     }
 
     @Test
