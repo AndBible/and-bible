@@ -40,11 +40,8 @@ import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
 import net.bible.android.view.activity.ai.ToolInfoActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
 import net.bible.android.view.activity.backup.BackupComposeActivity
-import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
-import net.bible.android.view.activity.bookmark.LabelEditActivity
 import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
-import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
@@ -337,27 +334,21 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun labelEdit_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun labelEdit_routes_to_compose() {
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(LabelEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.LabelEdit))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(LabelEditActivity::class.java, ScreenLauncher.targetFor(Screen.LabelEdit))
     }
 
     @Test
-    fun manageLabels_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun manageLabels_routes_to_compose() {
+        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ManageLabelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ManageLabels))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(ManageLabels::class.java, ScreenLauncher.targetFor(Screen.ManageLabels))
     }
 
     @Test
-    fun bookmarks_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(BookmarksComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
+    fun bookmarks_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(Bookmarks::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
+        assertEquals(BookmarksComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
     }
 
     @Test

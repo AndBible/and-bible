@@ -80,8 +80,13 @@ class ClassicRemovalScanAssertionsTest {
      * resolved by `LayoutInflater` at RUNTIME, so nothing else in the gate can see it.
      */
     @Test fun assertNoSourceNamesFailsOnAClassOnlyALayoutNames() {
-        // BookmarkListItem is inflated by name from two layouts (bookmark_list_item.xml:19,
-        // studypad_list_item.xml:19) and is written UNQUALIFIED everywhere in Kotlin — view binding
+        // BookmarkListItem is inflated by name from ONE layout (studypad_list_item.xml:19) and is
+        // written UNQUALIFIED everywhere in Kotlin — view binding
+        // (Slice S9 deleted the second, bookmark_list_item.xml. THIS TEST NOW DEPENDS ON
+        // studypad_list_item.xml SURVIVING, and that layout is on the epilogue's dead-layout
+        // delete list: when the epilogue removes it, the assertion below fails with "no resource
+        // XML names $fq any more" — that is this coupling, not a regression. The fix then is to
+        // pick a different class that only a surviving layout names fully-qualified.)
         // does the rest — so its fully-qualified name appears in NO shipping .kt/.java file. Both
         // premises are asserted before use: if either stops holding, this test would pass for the
         // wrong reason, which is the exact vacuity it exists to prevent.

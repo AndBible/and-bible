@@ -116,12 +116,6 @@
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
-            android:parentActivityName="net.bible.android.view.activity.bookmark.ManageLabels"
-            android:name="net.bible.android.view.activity.bookmark.LabelEditActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/edit_label"
-            />
-        <activity
             android:parentActivityName="net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity"
             android:name="net.bible.android.view.activity.bookmark.LabelEditComposeActivity"
             android:theme="@style/Theme.AbCompose"
@@ -171,24 +165,12 @@
             android:label="@string/search_index"
             />
         <activity
-            android:name="net.bible.android.view.activity.bookmark.Bookmarks"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/bookmarks_and_mynotes_title"
-            android:launchMode="singleTop"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
             android:name="net.bible.android.view.activity.bookmark.BookmarksComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/bookmarks_and_mynotes_title"
             android:launchMode="singleTop"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.bookmark.ManageLabels"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/manage_labels"
-            android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks"
-            />
         <activity
             android:name="net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity"
             android:theme="@style/Theme.AbCompose"

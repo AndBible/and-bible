@@ -53,8 +53,8 @@ class ManageLabelsContractTest {
 
     @Test fun anUnknownPropertyIsIgnoredOnDecode() {
         // This is the real point of the test: it pins WHICH Json instance the move uses.
-        // CommonUtils.json sets ignoreUnknownKeys = true; the package-level `json` in
-        // ManageLabels.kt does not. Decoding must tolerate an extra property.
+        // CommonUtils.json sets ignoreUnknownKeys = true; the package-level `json` in the classic
+        // ManageLabels.kt (deleted in slice S9) did not. Decoding must tolerate an extra property.
         val withExtra = """{"mode":"STUDYPAD","somethingNobodyKnows":42}"""
         assertEquals(Mode.STUDYPAD, ManageLabelsData.fromJSON(withExtra).mode)
     }

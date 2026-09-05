@@ -40,11 +40,8 @@ import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
 import net.bible.android.view.activity.ai.ToolInfoActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
 import net.bible.android.view.activity.backup.BackupComposeActivity
-import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
-import net.bible.android.view.activity.bookmark.LabelEditActivity
 import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
-import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
@@ -162,15 +159,9 @@ object ScreenLauncher {
         Screen.RawLlmLog ->
             if (useComposeFor(screen)) RawLlmLogComposeActivity::class.java
             else RawLlmLogActivity::class.java
-        Screen.LabelEdit ->
-            if (useComposeFor(screen)) LabelEditComposeActivity::class.java
-            else LabelEditActivity::class.java
-        Screen.ManageLabels ->
-            if (useComposeFor(screen)) ManageLabelsComposeActivity::class.java
-            else ManageLabels::class.java
-        Screen.Bookmarks ->
-            if (useComposeFor(screen)) BookmarksComposeActivity::class.java
-            else Bookmarks::class.java
+        Screen.LabelEdit -> LabelEditComposeActivity::class.java
+        Screen.ManageLabels -> ManageLabelsComposeActivity::class.java
+        Screen.Bookmarks -> BookmarksComposeActivity::class.java
         Screen.ReadingProgress -> ReadingProgressComposeActivity::class.java
         Screen.Settings ->
             if (useComposeFor(screen)) SettingsComposeActivity::class.java
