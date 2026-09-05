@@ -62,7 +62,36 @@ import org.crosswire.jsword.book.Books
  * commit + propagation) and `MainBibleActivity.workspaceSettingsChanged` (same per-level branches
  * fired from the classic activity-result path).
  */
-class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
+/**
+ * A workspace-scoped settings edit that is NOT written through to the active workspace or the DB.
+ *
+ * Spec 11.4's decided design (option 1): the workspace selector stages every workspace in a
+ * detached `working` copy and flushes only on Save, so a write-through settings edit would break
+ * it twice -- Cancel would stop discarding, and Save could clobber the edit with the pre-edit copy
+ * it already holds. A [TextDisplaySettingsServiceImpl] constructed with one of these therefore
+ * resolves every WORKSPACE read to [bundle] and lands every write in it.
+ *
+ * Held by a SEPARATE service instance, never by the Koin singleton: that singleton is shared with
+ * the reading view's in-place settings editor, and a mutable mode flag on it would leak there.
+ */
+class DetachedWorkspaceEdit(val bundle: SettingsBundle) {
+    var dirty: Boolean = false
+        private set
+    var reset: Boolean = false
+        private set
+
+    fun markDirty() { dirty = true }
+    fun markReset() { reset = true; dirty = true }
+
+    /** Whether anything happened worth returning to the caller. Plan D3: merely opening the screen
+     *  must NOT mark the workspace changed, which is what classic did (it called setResult() at the
+     *  end of loadSettingsBundle, so open-then-back persisted on the selector's next Save). */
+    val changed: Boolean get() = dirty || reset
+}
+
+class TextDisplaySettingsServiceImpl(
+    private val detached: DetachedWorkspaceEdit? = null,
+) : TextDisplaySettingsService {
     private val app get() = BibleApplication.application
     private val windowControl get() = CommonUtils.windowControl
     private val repo get() = windowControl.windowRepository
@@ -74,29 +103,53 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
         net.bible.android.database.InheritedFrom.GLOBAL -> InheritedFrom.GLOBAL
     }
 
-    private fun bundleFor(scope: SettingsScope): SettingsBundle = when (scope) {
-        is SettingsScope.Global -> SettingsBundle(
-            level = SettingsLevel.GLOBAL,
-            globalSettings = CommonUtils.globalTextDisplaySettings,
-        )
-        is SettingsScope.Workspace -> SettingsBundle(
-            level = SettingsLevel.WORKSPACE,
-            workspaceId = repo.id, workspaceName = repo.name,
-            workspaceSettings = repo.textDisplaySettings.apply {  // LIVE object; carry workspaceColor like getItemOptions
-                colors?.workspaceColor = repo.workspaceSettings.workspaceColor
-            },
-            globalSettings = CommonUtils.globalTextDisplaySettings,
-        )
-        is SettingsScope.Window -> {
-            val window = repo.getWindow(IdType(scope.windowId))!!
-            SettingsBundle(
-                level = SettingsLevel.WINDOW,
-                windowId = window.id,
-                pageManagerSettings = window.pageManager.textDisplaySettings,  // LIVE object
-                workspaceId = repo.id, workspaceName = repo.name,
-                workspaceSettings = repo.textDisplaySettings,
+    private fun requireWorkspaceScope(scope: SettingsScope) {
+        check(scope is SettingsScope.Workspace) {
+            "detached mode edits one named workspace; got $scope"
+        }
+    }
+
+    /** [repo.name] for the active workspace, or the detached bundle's own name in detached mode. */
+    private fun workspaceName(scope: SettingsScope): String = detached?.bundle?.workspaceName ?: repo.name
+
+    /**
+     * The workspace colour to show/carry for [scope]'s bundle. `TextDisplaySettings.actual()`'s
+     * merge deliberately drops the `@Ignore` `workspaceColor` field (see [WorkspaceEntities.Colors.merge]),
+     * so both detached and non-detached callers must read it separately rather than from
+     * `bundle.actualSettings.colors`. Detached mode must read the DETACHED bundle's own colour, not
+     * the active [repo]'s -- reading `repo` here would leak the active workspace's colour into an
+     * edit of a different, unrelated workspace.
+     */
+    private fun workspaceColorFor(bundle: SettingsBundle): Int =
+        if (detached != null) bundle.workspaceSettings.colors?.workspaceColor ?: defaultWorkspaceColor
+        else repo.workspaceSettings.workspaceColor ?: defaultWorkspaceColor
+
+    private fun bundleFor(scope: SettingsScope): SettingsBundle {
+        detached?.let { requireWorkspaceScope(scope); return it.bundle }
+        return when (scope) {
+            is SettingsScope.Global -> SettingsBundle(
+                level = SettingsLevel.GLOBAL,
                 globalSettings = CommonUtils.globalTextDisplaySettings,
             )
+            is SettingsScope.Workspace -> SettingsBundle(
+                level = SettingsLevel.WORKSPACE,
+                workspaceId = repo.id, workspaceName = repo.name,
+                workspaceSettings = repo.textDisplaySettings.apply {  // LIVE object; carry workspaceColor like getItemOptions
+                    colors?.workspaceColor = repo.workspaceSettings.workspaceColor
+                },
+                globalSettings = CommonUtils.globalTextDisplaySettings,
+            )
+            is SettingsScope.Window -> {
+                val window = repo.getWindow(IdType(scope.windowId))!!
+                SettingsBundle(
+                    level = SettingsLevel.WINDOW,
+                    windowId = window.id,
+                    pageManagerSettings = window.pageManager.textDisplaySettings,  // LIVE object
+                    workspaceId = repo.id, workspaceName = repo.name,
+                    workspaceSettings = repo.textDisplaySettings,
+                    globalSettings = CommonUtils.globalTextDisplaySettings,
+                )
+            }
         }
     }
 
@@ -111,7 +164,7 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
             )
         }
         return TextSettingsSnapshot(
-            scope, titleFor(scope), repo.name, rows,
+            scope, titleFor(scope), workspaceName(scope), rows,
             showParentCategory = scope !is SettingsScope.Global,
             showWorkspaceLink = scope is SettingsScope.Window,
             showGlobalLink = scope !is SettingsScope.Global,
@@ -163,7 +216,7 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
 
     private fun titleFor(scope: SettingsScope) = when (scope) {
         is SettingsScope.Global -> app.getString(R.string.global_text_display_settings_title)
-        is SettingsScope.Workspace -> app.getString(R.string.workspace_text_display_settings_title, repo.name)
+        is SettingsScope.Workspace -> app.getString(R.string.workspace_text_display_settings_title, workspaceName(scope))
         is SettingsScope.Window -> app.getString(R.string.window_text_display_settings_title, windowControl.windowPosition(IdType(scope.windowId)) + 1)
     }
 
@@ -190,6 +243,20 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
     }
 
     override fun reset(scope: SettingsScope) {
+        detached?.let {
+            requireWorkspaceScope(scope)
+            // SettingsBundle.workspaceSettings is a `val` (the SAME TextDisplaySettings instance is
+            // shared with every Preference read/write for this bundle, see bundleFor), so a fresh
+            // workspace-level reset clears it in place field-by-field rather than replacing the
+            // reference -- a fresh TextDisplaySettings() has every field null, so this is equivalent.
+            val fresh = TextDisplaySettings()
+            TextDisplaySettings.Types.values().forEach { t -> it.bundle.workspaceSettings.setValue(t, fresh.getValue(t)) }
+            // Deliberately NO workspaceColor default here, unlike the non-detached WORKSPACE branch
+            // below: WorkspaceServiceImpl.applyWorkspaceSettings applies the default itself when the
+            // `reset` flag (set by markReset()) is true, on the selector's staged entity where it belongs.
+            it.markReset()
+            return
+        }
         val all = TextDisplaySettings.Types.values().toSet()
         when (scope) {
             is SettingsScope.Global -> {
@@ -216,6 +283,7 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
 
     /** Mirrors TextDisplaySettingsActivity.commitDirtyToInMemoryState + workspaceSettingsChanged, per edit. */
     private fun applyAndPersist(scope: SettingsScope, bundle: SettingsBundle, dirty: Set<TextDisplaySettings.Types>) {
+        detached?.let { requireWorkspaceScope(scope); it.markDirty(); return }
         when (scope) {
             is SettingsScope.Global -> {
                 CommonUtils.globalTextDisplaySettings = bundle.globalSettings
@@ -251,7 +319,7 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
     override fun loadColors(scope: SettingsScope): ColorsSnapshot {
         val bundle = bundleFor(scope)
         val c = bundle.actualSettings.colors ?: TextDisplaySettings.default.colors!!
-        val wsColor = windowControl.windowRepository.workspaceSettings.workspaceColor ?: defaultWorkspaceColor
+        val wsColor = workspaceColorFor(bundle)
         return ColorsSnapshot(
             title = colorTitleFor(scope),
             dayTextColor = c.dayTextColor ?: TextDisplaySettings.black,
@@ -275,7 +343,7 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
     /** Current merged colours for [scope], with `workspaceColor` carried like [loadColors]. */
     private fun currentColors(scope: SettingsScope): WorkspaceEntities.Colors {
         val bundle = bundleFor(scope)
-        val wsColor = windowControl.windowRepository.workspaceSettings.workspaceColor ?: defaultWorkspaceColor
+        val wsColor = workspaceColorFor(bundle)
         val c = (bundle.actualSettings.colors ?: TextDisplaySettings.default.colors!!).copy()
         c.workspaceColor = wsColor
         return c
@@ -295,6 +363,17 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
         // (CommonUtils.displaySettingChanged, called from OptionsMenuItems.kt:183). Without this the
         // colour editor never appears as a shortcut in the overflow menu, however often it is used.
         CommonUtils.displaySettingChanged(TextDisplaySettings.Types.COLORS)
+        // Shared sink for setColor/setNoise/setWorkspaceColor/setBackgroundImage/setBackgroundOpacity
+        // (all five route here via editColors), so one short-circuit here covers all five: [colors]
+        // is already the mutated bundle value (computed from currentColors, which already resolves
+        // to the detached bundle via bundleFor), so we mirror it onto detached.bundle instead of the
+        // WORKSPACE branch's repo/ABEventBus/saveIntoDb below.
+        detached?.let {
+            requireWorkspaceScope(scope)
+            it.bundle.workspaceSettings.colors = colors
+            it.markDirty()
+            return
+        }
         when (scope) {
             is SettingsScope.Window -> {
                 val window = repo.getWindow(IdType(scope.windowId))!!
@@ -357,6 +436,12 @@ class TextDisplaySettingsServiceImpl : TextDisplaySettingsService {
     override fun resetColors(scope: SettingsScope) {
         // See applyColors.
         CommonUtils.displaySettingChanged(TextDisplaySettings.Types.COLORS)
+        detached?.let {
+            requireWorkspaceScope(scope)
+            it.bundle.workspaceSettings.colors = TextDisplaySettings.default.colors
+            it.markDirty()
+            return
+        }
         when (scope) {
             is SettingsScope.Window -> {
                 val window = repo.getWindow(IdType(scope.windowId))!!

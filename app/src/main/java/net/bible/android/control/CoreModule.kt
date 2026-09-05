@@ -130,7 +130,11 @@ val coreModule = module {
     singleOf(::DocumentFilterServiceImpl) { bind<DocumentFilterService>() }
     singleOf(::ReadingProgressServiceImpl) { bind<ReadingProgressService>() }
     singleOf(::ReadingProgressSettingsServiceImpl) { bind<ReadingProgressSettingsService>() }
-    singleOf(::TextDisplaySettingsServiceImpl) { bind<TextDisplaySettingsService>() }
+    // Explicit (not singleOf): TextDisplaySettingsServiceImpl now takes an optional
+    // DetachedWorkspaceEdit? constructor param, which singleOf would try (and fail) to resolve as
+    // a Koin dependency. The shared singleton always gets the plain, non-detached instance; a
+    // detached instance (workspace-selector settings edit) is constructed separately, never via Koin.
+    single<TextDisplaySettingsService> { TextDisplaySettingsServiceImpl() }
     // SpeakControl's constructor takes a kotlin.Lazy<TextToSpeechServiceManager>, which Koin
     // cannot resolve on its own (singleOf/verify special-case Lazy, but a real get() throws
     // NoDefinitionFoundException). Supply the Lazy wrapper explicitly.
