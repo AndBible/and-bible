@@ -117,18 +117,20 @@ object ClassicRemovalScan {
             .flatMap { res -> res.walkTopDown().filter { it.isFile && it.extension == "xml" } }
 
     /**
-     * The five assertions every slice removal guard from S4 onwards makes, extracted in batch
-     * S4+S5+S7+S8. S3's final review asked for this: the arm-scanning body had been copied into
+     * The five assertions every slice removal guard now makes, extracted in batch S4+S5+S7+S8 for
+     * S4 onwards. S3's final review asked for this: the arm-scanning body had been copied into
      * three guards by then, and the third had to explain in KDoc why its copy diverged from the
      * other two. Extracting also fixes a defect that review found — in the copies, the
      * anti-vacuity precondition sat AFTER the assertion it protects, so an empty scan surfaced as
      * the wrong failure. Here the precondition runs first, by construction, and a later slice
      * cannot forget it.
      *
-     * The three landed guards (S1, S2, S3) are deliberately NOT retrofitted onto these: that is a
-     * change to already-gated slices with no defect behind it, and spec 2.3's tail sweep owns it
-     * if anyone wants uniformity. Their continued passing is what proves this extraction is
-     * faithful, so every slice task in this batch re-runs them.
+     * S1/S2/S3 kept their own inlined copies at first — retrofitting them was deferred as a change
+     * to already-gated slices with no defect behind it, leaving spec 2.3's tail sweep to own it if
+     * anyone wanted uniformity. The S6+S16+S18+S19 batch gave that retrofit a real defect: the
+     * resource-XML gap fixed in [assertNoSourceNames] meant the three inlined copies were sweeping
+     * with a hole the shared assertion had already closed, so they were retrofitted onto it there,
+     * and all seven landed guards now share this one code path.
      *
      * `hint` is the message a failure prints. Write it for the person who broke the guard two
      * years from now, not for the person adding it: say what was deleted, and — where a slice
