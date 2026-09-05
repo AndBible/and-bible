@@ -51,10 +51,13 @@ class SpeakEntryPointGuardTest {
      * would be unpoliced by every per-file test below.
      *
      * Scope, precisely: every test here scans per FILE, not per call site. `MainBibleActivity.kt`
-     * holds TWO `showSpeakSettings(` sites (the toolbar long-press and the transport bar's cog), so
-     * losing exactly one of them leaves the file still matching and passes every guard below. What
-     * these tests do catch is a file losing its LAST entry point, a file gaining one, and either
-     * file swapping settings for transport or the reverse.
+     * holds TWO `showSpeakSettings(` sites -- the classic `speakButton.setOnLongClickListener` and
+     * `composeSpeakLong()`, the Compose toolbar's long-press -- so losing exactly one of them
+     * leaves the file still matching and passes every guard below. (The transport bar's cog is a
+     * THIRD settings route, but it lives in `ComposeReadingViewHost.kt` as
+     * `onConfig = { showSpeakSettings() }`, not here.) What these tests do catch is a file losing
+     * its LAST entry point, a file gaining one, and either of the first two files swapping settings
+     * for transport or the reverse.
      *
      * Same source-scan shape (and the same two traps avoided) as [MenuSeamGuardTest]: prose lines
      * are filtered so an `import` or a comment cannot satisfy the guard, and the path list is
@@ -122,12 +125,20 @@ class SpeakEntryPointGuardTest {
     /**
      * Round 14b whole-branch review, minor: [composeSpeakEntryPoints] widened to accept EITHER name
      * at any call site, so on its own [everyScannedCallSiteReachesASpeakSheetEntryPoint] would let a
-     * retarget of the toolbar long-press / transport-bar cog from `showSpeakSettings(` to
-     * `showSpeakTransport(` pass every gate here — even though spec §8's entry-point table says both
-     * of those are SETTINGS routes and must stay so (only the main-menu row is the transport). This
-     * is the symmetric assertion [theMainMenuSpeakItemShowsTheTransportBar] already makes for the
+     * retarget of this file's two long-press routes from `showSpeakSettings(` to
+     * `showSpeakTransport(` pass every gate here — even though spec §8's entry-point table says
+     * both are SETTINGS routes and must stay so (only the main-menu row is the transport). This is
+     * the symmetric assertion [theMainMenuSpeakItemShowsTheTransportBar] already makes for the
      * menu, applied to `MainBibleActivity.kt`: it must still call `showSpeakSettings(`, and must NOT
      * call `showSpeakTransport(` — that call belongs to `MenuCommandHandler` alone.
+     *
+     * The two routes this covers are the classic `speakButton.setOnLongClickListener` and
+     * `composeSpeakLong()`. Fix round 1: the transport bar's COG used to be named here as one of
+     * them, and it is not in this file — it is `ComposeReadingViewHost.kt`'s
+     * `onConfig = { showSpeakSettings() }`. No test here polices the cog's direction, and none can
+     * in this shape: `ComposeReadingViewHost.kt` DECLARES both `showSpeakSettings` and
+     * `showSpeakTransport`, so a per-file name scan of it can never distinguish a call from a
+     * declaration.
      */
     @Test fun mainBibleActivityStillShowsSettingsNotTheTransportBar() {
         val code = codeLinesOf("src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt")

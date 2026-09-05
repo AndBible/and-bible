@@ -18,6 +18,7 @@
 package net.bible.android.view.compose
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -41,6 +42,42 @@ class ClassicReadingViewRemovalGuardTest {
                 "removed in Task 7 and a surviving read would not compile then.",
             0,
             Regex("""getBoolean\("use_compose_ui"""").findAll(code).count(),
+        )
+    }
+
+    /**
+     * Fix round 1, and the reason it exists: [theReadingViewReadsTheFlagNowhere] counts flag reads
+     * and nothing else, so it is satisfied IDENTICALLY by a collapse to the Compose branch and a
+     * collapse to the classic one. Delete the flag read but keep the toolbar tinting and
+     * `statusBarColor = toolbarColor`, and the count is still 0. Nothing else in the tree closes
+     * that gap: the Roborazzi goldens exercise Compose composables, not this activity's
+     * system-bar code, and the compile break from the classic views' own removal does not arrive
+     * until the slice that deletes them.
+     *
+     * These three names are the tell, because each appears only on the classic side of the branches
+     * this epilogue collapsed. `toolbarColor` was the classic toolbar's colour source (deleted with
+     * its last reader); `toolbarLayout` is the view every classic branch mutated -- background,
+     * height, padding, visibility, slide animation; `toolbarDivider` is the monochrome-only rule
+     * from inside the deleted tint block. All three are exactly zero in the file's CODE lines as of
+     * this commit and each would be non-zero under a wrong-direction collapse.
+     *
+     * Deliberately scoped to code lines: `toolbarLayout` still appears seven times in this file's
+     * PROSE ("the now-GONE `toolbarLayout`"), which [ClassicRemovalScan.codeLinesOf] strips. Those
+     * comments are accurate and must stay.
+     */
+    @Test
+    fun theReadingViewNamesNoClassicToolbarInCode() {
+        val code = ClassicRemovalScan.codeLinesOf(mainBibleActivity)
+        assertTrue(
+            "the scan read no MainBibleActivity code at all -- this assertion would pass vacuously",
+            code.contains("class MainBibleActivity"),
+        )
+        assertEquals(
+            "MainBibleActivity must not name the classic toolbar in code. A use_compose_ui read " +
+                "count of 0 on its own cannot tell a collapse to the Compose branch from a " +
+                "collapse to the CLASSIC one -- these names can only reappear on the classic side.",
+            emptyList<String>(),
+            listOf("toolbarLayout", "toolbarColor", "toolbarDivider").filter { code.contains(it) },
         )
     }
 }

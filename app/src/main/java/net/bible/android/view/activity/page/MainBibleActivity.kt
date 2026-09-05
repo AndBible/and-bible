@@ -318,9 +318,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Top offset with only statusbar and toolbar
     val topOffset2 = 0
 
-    private var systemInsets: Insets = Insets.NONE
     // Offsets with system insets only - will be updated by setupEdgeToEdge()
-    private var topOffset1 = 0
     private var bottomOffset1 = 0
     private var bottomOffset1WithoutIme = 0  // Always excludes IME (keyboard) height
     var rightOffset1 = 0
@@ -677,10 +675,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val systemBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
                 val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
 
-                systemInsets = systemBarInsets
-
                 // Store base system bar offsets (without IME)
-                topOffset1 = systemBarInsets.top
                 bottomOffset1WithoutIme = systemBarInsets.bottom  // Always system bars only, never includes IME
                 leftOffset1 = systemBarInsets.left
                 rightOffset1 = systemBarInsets.right
@@ -2542,8 +2537,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     // day+non-monochrome case, right for its dark `#444444` toolbar and exactly
                     // wrong for a light M3 surface.) A consequence worth knowing before editing:
                     // the `APPEARANCE_LIGHT_STATUS_BARS` bit the monochrome clause above ORs into
-                    // `appearance` is therefore not applied either -- it is kept as the value that
-                    // would take effect if that bit ever re-entered the mask.
+                    // `appearance` is therefore INERT -- outside the mask, it is neither set nor
+                    // cleared. Deleting that clause would be exactly as behaviour-neutral as
+                    // keeping it; it stays to preserve the INTENT (what monochrome asks for) for
+                    // the day the bit re-enters the mask, not because anything today depends on it.
                     //
                     // The NAVIGATION-bar appearance bit is not this call's alone either
                     // (whole-branch review, Minor 4). (1) Since round 12b §3,
@@ -2574,9 +2571,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!ScreenSettings.nightMode) {
-                    // Same rule as the API-R+ branch above (Important 1): the Compose seam is
-                    // the single writer of the status-bar icon appearance, so classic's
-                    // SYSTEM_UI_FLAG_LIGHT_STATUS_BAR bit is never set here.
+                    // Classic's SYSTEM_UI_FLAG_LIGHT_STATUS_BAR bit is not set here, mirroring the
+                    // API-R+ branch's intent (Important 1). The parallel stops at the intent, and
+                    // this branch IS live -- minSdk is 23. Below API 30 there is no mask: the
+                    // `systemUiVisibility = uiFlags` assignment a few lines down writes every bit
+                    // at once, so it also CLEARS whatever `SystemBarSync.applySystemBarColor` set
+                    // through `WindowInsetsControllerCompat`, which on API < 30 targets this very
+                    // flag on this very field. So the Compose seam is NOT the single writer here,
+                    // whatever the API-R+ comment can say for its own masked call -- the two race,
+                    // and whichever ran last wins. Pre-existing, unchanged by the flag collapse,
+                    // and never audited on real API 23-29 hardware.
                     uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
                 }
             }

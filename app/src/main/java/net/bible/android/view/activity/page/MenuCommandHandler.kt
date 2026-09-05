@@ -225,9 +225,10 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     // one-way action and must never hide the bar again.
                     //
                     // `handlerIntent` stays null so the shared dispatch below does not also start an
-                    // activity (mirrors the `searchButton` case right above). The `host != null`
-                    // check stays out of conservatism: this class is not the activity, so it takes
-                    // the host's non-nullness on trust rather than by construction.
+                    // activity (mirrors the `searchButton` case right above). `composeReadingViewHost`
+                    // is declared nullable, so SOME null handling is compiler-mandated; what this
+                    // shape chooses is to fall through with `isHandled` still false, leaving the
+                    // menu row an unhandled no-op rather than opening anything.
                     if(currentPage.isSpeakable) {
                         val host = mainBibleActivity.composeReadingViewHost
                         if (host != null) {
