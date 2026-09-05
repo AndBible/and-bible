@@ -179,12 +179,6 @@
             android:parentActivityName="net.bible.android.view.activity.bookmark.BookmarksComposeActivity"
             />
         <activity
-            android:name="net.bible.android.view.activity.ai.AiSettingsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_settings"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            />
-        <activity
             android:name="net.bible.android.view.activity.ai.AiPromptsComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -199,12 +193,6 @@
             android:label="@string/ai_connection_settings"
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName="net.bible.android.view.activity.ai.AiPromptsComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.PromptEditActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/edit_prompt"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiSettingsActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.PromptEditComposeActivity"
@@ -250,18 +238,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/ai_available_tools"
             android:parentActivityName="net.bible.android.view.activity.ai.PromptEditComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.RawLlmLogActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/raw_llm_log_title"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.RawLogHistoryActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/raw_log_history_title"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.RawLlmLogComposeActivity"

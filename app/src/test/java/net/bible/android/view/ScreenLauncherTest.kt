@@ -24,13 +24,9 @@ import net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity
 import net.bible.android.view.activity.ai.AiModelsComposeActivity
 import net.bible.android.view.activity.ai.AiProvidersComposeActivity
 import net.bible.android.view.activity.ai.AiPromptsComposeActivity
-import net.bible.android.view.activity.ai.AiSettingsActivity
 import net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity
-import net.bible.android.view.activity.ai.PromptEditActivity
 import net.bible.android.view.activity.ai.PromptEditComposeActivity
-import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.android.view.activity.ai.RawLlmLogComposeActivity
-import net.bible.android.view.activity.ai.RawLogHistoryActivity
 import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
 import net.bible.android.view.activity.backup.BackupComposeActivity
@@ -276,7 +272,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(AiPromptsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiPrompts))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(AiSettingsActivity::class.java, ScreenLauncher.targetFor(Screen.AiPrompts))
+        assertEquals(AiPromptsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiPrompts))
     }
 
     @Test
@@ -284,7 +280,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(PromptEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.PromptEdit))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(PromptEditActivity::class.java, ScreenLauncher.targetFor(Screen.PromptEdit))
+        assertEquals(PromptEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.PromptEdit))
     }
 
     @Test
@@ -316,7 +312,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(RawLogHistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLogHistory))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(RawLogHistoryActivity::class.java, ScreenLauncher.targetFor(Screen.RawLogHistory))
+        assertEquals(RawLogHistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLogHistory))
     }
 
     @Test
@@ -324,7 +320,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(RawLlmLogComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLlmLog))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(RawLlmLogActivity::class.java, ScreenLauncher.targetFor(Screen.RawLlmLog))
+        assertEquals(RawLlmLogComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLlmLog))
     }
 
     @Test

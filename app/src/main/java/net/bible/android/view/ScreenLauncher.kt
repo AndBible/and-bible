@@ -24,13 +24,9 @@ import net.bible.android.view.activity.ai.AiModelsComposeActivity
 import net.bible.android.view.activity.ai.AiProvidersComposeActivity
 import net.bible.android.view.activity.ai.AiPromptsComposeActivity
 import net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity
-import net.bible.android.view.activity.ai.AiSettingsActivity
 import net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity
-import net.bible.android.view.activity.ai.PromptEditActivity
 import net.bible.android.view.activity.ai.PromptEditComposeActivity
-import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.android.view.activity.ai.RawLlmLogComposeActivity
-import net.bible.android.view.activity.ai.RawLogHistoryActivity
 import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
 import net.bible.android.view.activity.backup.BackupComposeActivity
@@ -126,21 +122,13 @@ object ScreenLauncher {
         Screen.AiConnectionSettings -> AiConnectionSettingsComposeActivity::class.java
         Screen.AiProviders -> AiProvidersComposeActivity::class.java
         Screen.AiModels -> AiModelsComposeActivity::class.java
-        Screen.AiPrompts ->
-            if (useComposeFor(screen)) AiPromptsComposeActivity::class.java
-            else AiSettingsActivity::class.java
-        Screen.PromptEdit ->
-            if (useComposeFor(screen)) PromptEditComposeActivity::class.java
-            else PromptEditActivity::class.java
+        Screen.AiPrompts -> AiPromptsComposeActivity::class.java
+        Screen.PromptEdit -> PromptEditComposeActivity::class.java
         Screen.GlobalToolPermissions -> GlobalToolPermissionsComposeActivity::class.java
         Screen.ToolInfo -> ToolInfoComposeActivity::class.java
         Screen.AiDocumentFilter -> AiDocumentFilterComposeActivity::class.java
-        Screen.RawLogHistory ->
-            if (useComposeFor(screen)) RawLogHistoryComposeActivity::class.java
-            else RawLogHistoryActivity::class.java
-        Screen.RawLlmLog ->
-            if (useComposeFor(screen)) RawLlmLogComposeActivity::class.java
-            else RawLlmLogActivity::class.java
+        Screen.RawLogHistory -> RawLogHistoryComposeActivity::class.java
+        Screen.RawLlmLog -> RawLlmLogComposeActivity::class.java
         Screen.LabelEdit -> LabelEditComposeActivity::class.java
         Screen.ManageLabels -> ManageLabelsComposeActivity::class.java
         Screen.Bookmarks -> BookmarksComposeActivity::class.java
