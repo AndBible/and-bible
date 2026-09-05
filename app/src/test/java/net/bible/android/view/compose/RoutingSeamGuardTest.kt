@@ -36,15 +36,18 @@ class RoutingSeamGuardTest {
     private val readPattern = """getBoolean("use_compose_ui""""
 
     /**
-     * Every file that legitimately reads the flag after P4 — verified by
+     * Every file that legitimately reads the flag — verified by
      * `grep -a -rn 'getBoolean("use_compose_ui"' app/src/main`, which found 16 reads in 8 files
-     * before this task. The epilogue empties this list when the flag goes.
+     * before P4. The epilogue empties this list when the flag goes.
+     *
+     * Batch Z-late epilogue, Task 1: `MenuCommandHandler.kt` and `OptionsMenuStateBuilder.kt` were
+     * dropped here because their flag reads are gone (spec 10.2) -- required by
+     * [everyExpectedReaderActuallyStillReadsTheFlag]'s own rule that a file which stopped reading
+     * the flag must leave the list, or the list becomes fiction.
      */
     private val expectedReaders = listOf(
         "src/main/java/net/bible/android/view/ScreenLauncher.kt",
         "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
-        "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
-        "src/main/java/net/bible/android/view/activity/page/OptionsMenuStateBuilder.kt",
         "src/main/java/net/bible/android/view/activity/page/screen/DocumentViewManager.kt",
     )
 

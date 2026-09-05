@@ -224,19 +224,15 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     // no idea how to start playback. Idempotent by design (spec D3): a menu row is a
                     // one-way action and must never hide the bar again.
                     //
-                    // Classic behaviour unchanged: the `else` branch still launches
-                    // `Screen.BibleSpeak`, whose layout EMBEDS the transport widget
-                    // (speak_bible.xml:175-176), which is why the classic path never had this
-                    // problem. `isSpeakable` still gates BOTH branches, and `handlerIntent` stays
-                    // null on the Compose branch so the shared dispatch below does not also start an
-                    // activity (mirrors the `searchButton` case right above).
+                    // `handlerIntent` stays null so the shared dispatch below does not also start an
+                    // activity (mirrors the `searchButton` case right above). The `host != null`
+                    // check stays: this class is not the activity, and it reads the host off
+                    // `mainBibleActivity`, which may be any foreground activity.
                     if(currentPage.isSpeakable) {
                         val host = mainBibleActivity.composeReadingViewHost
-                        if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
+                        if (host != null) {
                             host.showSpeakTransport()
                             isHandled = true
-                        } else {
-                            handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.BibleSpeak)
                         }
                     }
                 }

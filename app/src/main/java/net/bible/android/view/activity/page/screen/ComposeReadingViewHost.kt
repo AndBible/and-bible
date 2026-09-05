@@ -2672,10 +2672,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
 
     /**
      * Opens the Compose reading-view regenerate-confirm dialog for [pageId]/[bibleView] (Batch
-     * 12e-A Task 6) — the compose-path counterpart of classic `LlmDialogHelper.showRegenerateDialog`.
-     * The `onRegenerate` callback is a verbatim mirror of classic `LlmDialogHelper.startRegenerate`:
-     * it loads the "Regenerating…" placeholder into [bibleView] before kicking off the foreground
-     * service. Called by [MainBibleActivity.showRegenerate] when `use_compose_ui` is on.
+     * 12e-A Task 6) — it replaced the classic `LlmDialogHelper.showRegenerateDialog`, deleted in
+     * Batch Z-late's epilogue. The `onRegenerate` callback is a verbatim mirror of classic
+     * `LlmDialogHelper.startRegenerate`: it loads the "Regenerating…" placeholder into [bibleView]
+     * before kicking off the foreground service. Called by [MainBibleActivity.showRegenerate].
      */
     fun showRegenerate(pageId: IdType, bibleView: BibleView) {
         readingLlmDialogs.openRegenerate(pageId.toString()) { _, instructions, keepPrevious, freshRun, modelOverrideId ->

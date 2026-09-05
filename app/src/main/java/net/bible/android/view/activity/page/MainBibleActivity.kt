@@ -242,8 +242,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     lateinit var documentViewManager: DocumentViewManager
     lateinit var bibleViewFactory: BibleViewFactory
-    /** Set in [setupUi] when mounting on the `use_compose_ui` path; null on the classic path.
-     * Lets [DocumentViewManager.buildView] mirror classic's forced recreate (see its kdoc). */
+    /** Assigned unconditionally in [setupUi]; stays a nullable `var` because external readers
+     * reach it through `as? MainBibleActivity` and are legitimately null for any other foreground
+     * activity. Lets [DocumentViewManager.buildView] mirror classic's forced recreate (see its
+     * kdoc). */
     var composeReadingViewHost: ComposeReadingViewHost? = null
     private lateinit var mainMenuCommandHandler: MenuCommandHandler
 
@@ -601,26 +603,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun fixNightMode() {} // handle this manually here
 
     private fun setupUi() {
-        if (CommonUtils.settings.getBoolean("use_compose_ui", false)) {
-            // Compose reading view: mount ComposeView into mainBibleView instead of the classic
-            // SplitBibleArea build. Plan B hosts the Compose toolbar (`ReadingToolbar`) on this
-            // path, so the classic `toolbarLayout` row is hidden (GONE) here; the drawer stays
-            // native. DocumentViewManager's own buildView()/removeView() are guarded to no-op
-            // in this mode, so they never rebuild a classic split over the ComposeView.
-            binding.mainBibleView.removeAllViews()
-            composeReadingViewHost = ComposeReadingViewHost(this).also { it.install(binding.mainBibleView) }
-            // Batch Z-early A6: the Compose ModalNavigationDrawer replaces the native one on this
-            // path; lock the native DrawerLayout so it cannot be dragged open underneath the
-            // Compose drawer. NOTE (A7 fix B): the lock gates GESTURES only — `LOCK_MODE_LOCKED_*`
-            // is consulted by `ViewDragHelper`, while `openDrawer(View, Boolean)` makes no
-            // `getDrawerLockMode` call whatsoever, so every programmatic open must be retargeted at
-            // the Compose drawer by hand (see `composeToggleDrawer` and `composeOpenDrawerIfHosted`).
-            // Not touched on the classic path — see the spec's flag-OFF-byte-identical constraint.
-            binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            composeReadingViewHost!!.rebuildDrawer()
-        } else {
-            documentViewManager.buildView()   // existing classic path — unchanged
-        }
+        // Compose reading view: mount ComposeView into mainBibleView. The classic `toolbarLayout`
+        // row is hidden (GONE) by ComposeReadingViewHost.install; the drawer stays native.
+        binding.mainBibleView.removeAllViews()
+        val host = ComposeReadingViewHost(this)
+        composeReadingViewHost = host
+        host.install(binding.mainBibleView)
+        // Batch Z-early A6: the Compose ModalNavigationDrawer replaces the native one; lock the
+        // native DrawerLayout so it cannot be dragged open underneath it. NOTE (A7 fix B): the lock
+        // gates GESTURES only -- `LOCK_MODE_LOCKED_*` is consulted by `ViewDragHelper`, while
+        // `openDrawer(View, Boolean)` makes no `getDrawerLockMode` call, so every programmatic open
+        // is retargeted at the Compose drawer by hand (see `composeToggleDrawer` and
+        // `composeOpenDrawerIfHosted`).
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        host.rebuildDrawer()
         windowControl.windowSync.reloadAllWindows(true)
         updateActions()
         ABEventBus.post(ConfigurationChanged(resources.configuration))
@@ -1123,17 +1119,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             speakButton.setOnLongClickListener {
-                // Round 13a: on the Compose path the Speak settings are a sheet over the reading
-                // view — `Screen.BibleSpeak` now resolves to the CLASSIC activity, so the Intent
-                // route below is the classic path's only. Same "flag + host installed" guard as
-                // `handleWindowTextOptionItem`'s sheet interception.
-                val host = composeReadingViewHost
-                if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
-                    host.showSpeakSettings()
-                } else {
-                    val intent = ScreenLauncher.intentFor(this@MainBibleActivity, Screen.BibleSpeak)
-                    startActivityForResult(intent, STD_REQUEST_CODE)
-                }
+                // Round 13a: the Speak settings are a sheet over the reading view.
+                composeReadingViewHost?.showSpeakSettings()
                 true
             }
             searchButton.setOnClickListener {
@@ -1386,19 +1373,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         updateBottomBars()
     }
 
-    /**
-     * The Compose toolbar's Speak long-press. Round 13a: opens the Speak settings SHEET over the
-     * reading view. The Intent route survives only for the classic case (no host / flag off), which
-     * this method cannot actually be reached in — it is kept so the flag-OFF behaviour of this body
-     * is unchanged by inspection, the same idiom as [composeSearch].
-     */
+    /** The Compose toolbar's Speak long-press: opens the Speak settings SHEET over the reading view. */
     internal fun composeSpeakLong() {
-        val host = composeReadingViewHost
-        if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
-            host.showSpeakSettings()
-            return
-        }
-        startActivityForResult(ScreenLauncher.intentFor(this, Screen.BibleSpeak), STD_REQUEST_CODE)
+        composeReadingViewHost?.showSpeakSettings()
     }
 
     /**
@@ -1772,12 +1749,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         endOffset = null,
                         bookmarks = emptyList(),
                     )
-                    val host = composeReadingViewHost
-                    if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
-                        host.showPromptSelector(selection, PromptContext.WORKSPACE_MENU, null)
-                    } else {
-                        llmDialogHelper.showPromptSelector(selection, PromptContext.WORKSPACE_MENU)
-                    }
+                    composeReadingViewHost?.showPromptSelector(selection, PromptContext.WORKSPACE_MENU, null)
                 },
                 visible = CommonUtils.settings.llmConfigured,
                 opensDialog = true,
@@ -2143,9 +2115,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * Settings editor sheets T11: the non-boolean branch carries the SAME sheet-vs-dialog
      * interception as [OptionsMenuStateBuilder.dispatch] -- a sheet-editable
      * [Preference.type] opens IN PLACE over the reading view via
-     * `composeReadingViewHost.showTextSettingEditor` when the host is installed and
-     * `use_compose_ui` is on, reusing the same `onReady` closure `openDialog` would otherwise have
-     * received; everything else still calls `openDialog` unchanged. The scope passed is
+     * `composeReadingViewHost.showTextSettingEditor` when the host is installed, reusing the same
+     * `onReady` closure `openDialog` would otherwise have received; everything else still calls
+     * `openDialog` unchanged. The scope passed is
      * `settingsBundle.toScope()` at WINDOW level, so the sheet edits THIS pane's own setting,
      * matching what the ☰ pane menu means (as opposed to the workspace-level scope
      * [OptionsMenuStateBuilder.dispatch] passes for the 3-dot overflow menu).
@@ -2169,9 +2141,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             val onReady: () -> Unit = { window.bibleView?.updateTextDisplaySettings() }
             val host = composeReadingViewHost
             val page = (itemOptions as? Preference)?.let { textSettingEditorPageFor(it.type.name) }
-            if (page != null && host != null &&
-                CommonUtils.settings.getBoolean("use_compose_ui", false)
-            ) {
+            if (page != null && host != null) {
                 // WINDOW-scoped: settingsBundle.toScope() carries level=WINDOW, so the sheet edits
                 // this pane's own setting — which is what the pane menu means.
                 host.showTextSettingEditor(settingsBundle.toScope(), page, onReady)
@@ -3339,25 +3309,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     fun showLlmPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION) {
         val documentCategory = windowRepository.activeWindow.pageManager.currentPage.documentCategory
-        val host = composeReadingViewHost
-        if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
-            host.showPromptSelector(selection, context, documentCategory)
-        } else {
-            llmDialogHelper.showPromptSelector(selection, context, documentCategory)
-        }
+        composeReadingViewHost?.showPromptSelector(selection, context, documentCategory)
     }
 
-    /** Compose-gated bridge for `BibleJavascriptInterface.regenerateMyDocumentPage` (Batch 12e-A
-     *  T6) — mirrors [showLlmPromptSelector]'s fork: the Compose LLM dialog host's regenerate
-     *  confirmation when `use_compose_ui` is on and [composeReadingViewHost] is installed, else the
-     *  classic [LlmDialogHelper.showRegenerateDialog]. */
+    /** Bridge for `BibleJavascriptInterface.regenerateMyDocumentPage` (Batch 12e-A T6): the Compose
+     *  LLM dialog host's regenerate confirmation, over the reading view. */
     fun showRegenerate(pageId: IdType, bibleView: BibleView) {
-        val host = composeReadingViewHost
-        if (CommonUtils.settings.getBoolean("use_compose_ui", false) && host != null) {
-            host.showRegenerate(pageId, bibleView)
-        } else {
-            llmDialogHelper.showRegenerateDialog(pageId, bibleView)
-        }
+        composeReadingViewHost?.showRegenerate(pageId, bibleView)
     }
 
     companion object {

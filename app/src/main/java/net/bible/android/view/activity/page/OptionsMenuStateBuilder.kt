@@ -174,12 +174,13 @@ object OptionsMenuStateBuilder {
      * Settings editor sheets T11: for a [Preference] whose type
      * [net.bible.sharedcore.settings.textSettingEditorPageFor] maps to a page — one of the eight
      * sheet-editable text display settings, plus colours — and only when [activity]'s
-     * `composeReadingViewHost` is installed AND `use_compose_ui` is on, this opens that page IN
-     * PLACE over the reading view (`ComposeReadingViewHost.showTextSettingEditor`) instead of
-     * calling `openDialog`, reusing the exact same `onReady` closure `openDialog` would otherwise
-     * have received. Everything else — every boolean toggle (handled above, before this function
-     * ever reaches this point), `CommandPreference`/`AutoAssignPreference`, HIDELABELS, and the
-     * classic (flag-off) path — still calls `openDialog` unchanged.
+     * `composeReadingViewHost` is installed, this opens that page IN PLACE over the reading view
+     * (`ComposeReadingViewHost.showTextSettingEditor`) instead of calling `openDialog`, reusing the
+     * exact same `onReady` closure `openDialog` would otherwise have received. Everything else —
+     * every boolean toggle (handled above, before this function ever reaches this point),
+     * `CommandPreference`/`AutoAssignPreference`, HIDELABELS, and every type
+     * [net.bible.sharedcore.settings.textSettingEditorPageFor] does not name — still calls
+     * `openDialog` unchanged.
      *
      * Returns whether the menu should stay open: `true` for a boolean toggle (so the host can
      * rebuild the list and show the flipped check), `false` once a sheet/dialog/activity/action
@@ -211,15 +212,13 @@ object OptionsMenuStateBuilder {
                 activity.windowRepository.updateAllWindowsTextDisplaySettings()
             }
             // The eight sheet-editable text display settings are edited IN PLACE over the reading
-            // view on the compose path — no activity launch, so back cannot land anywhere but the
-            // reading view. Everything else (CommandPreference, AutoAssignPreference, HIDELABELS,
-            // and every type textSettingEditorPageFor does not name) falls through to openDialog
-            // unchanged, and the classic path is untouched.
+            // view — no activity launch, so back cannot land anywhere but the reading view.
+            // Everything else (CommandPreference, AutoAssignPreference, HIDELABELS, and every type
+            // textSettingEditorPageFor does not name) falls through to openDialog unchanged: `page`
+            // is genuinely null for those, so this fall-through stays live.
             val host = activity.composeReadingViewHost
             val page = (itemOptions as? Preference)?.let { textSettingEditorPageFor(it.type.name) }
-            if (page != null && host != null &&
-                CommonUtils.settings.getBoolean("use_compose_ui", false)
-            ) {
+            if (page != null && host != null) {
                 host.showTextSettingEditor((itemOptions as Preference).settings.toScope(), page, onReady)
                 return false
             }

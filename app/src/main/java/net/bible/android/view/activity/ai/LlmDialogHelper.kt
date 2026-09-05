@@ -307,42 +307,6 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
     }
 
     /**
-     * Show regenerate dialog with optional additional instructions and keep previous checkbox.
-     */
-    fun showRegenerateDialog(pageId: IdType, bibleView: BibleView) {
-        val layout = LinearLayout(activity).apply {
-            orientation = LinearLayout.VERTICAL
-        }
-        val editText = EditText(activity).apply {
-            setHint(R.string.ai_regenerate_instructions_hint)
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-            minLines = 3
-        }
-        val keepPreviousCheckBox = CheckBox(activity).apply {
-            setText(R.string.ai_regenerate_keep_previous)
-        }
-        val freshRunCheckBox = CheckBox(activity).apply {
-            setText(R.string.ai_regenerate_fresh_run)
-        }
-        layout.addView(editText)
-        layout.addView(keepPreviousCheckBox)
-        layout.addView(freshRunCheckBox)
-
-        AlertDialog.Builder(activity)
-            .setTitle(R.string.ai_regenerate_title)
-            .setView(layout)
-            .setPositiveButton(R.string.ai_document_regenerate) { _, _ ->
-                val instructions = editText.text.toString().trim().ifEmpty { null }
-                val keepPrevious = keepPreviousCheckBox.isChecked
-                val freshRun = freshRunCheckBox.isChecked
-
-                startRegenerateWithModelCheck(pageId, bibleView, instructions, keepPrevious, freshRun)
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    /**
      * Check if model selection is needed before starting regeneration.
      * Looks up the prompt associated with the page to check for configuredModelId.
      */
