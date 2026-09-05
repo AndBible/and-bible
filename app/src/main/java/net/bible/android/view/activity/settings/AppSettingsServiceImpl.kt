@@ -235,7 +235,6 @@ class AppSettingsServiceImpl(
             enableBluetooth = readBool("enable_bluetooth_pref", true),
             requestSdcardPermission = readBool("request_sdcard_permission_pref", false),
             showErrorbox = readBool("show_errorbox", false),
-            useComposeUi = readBool("use_compose_ui", false),
             // Choice entries
             toolbarButtonActionChoices = choicesFrom(
                 R.array.prefs_toolbar_button_action_descriptions, R.array.prefs_toolbar_button_action_values

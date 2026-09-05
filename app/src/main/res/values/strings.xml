@@ -248,9 +248,6 @@
     <string name="prefs_margin_size_title">Change margin size</string>
     <string name="prefs_margin_size_mm_title">Margin size (%1$d/%2$d/%3$d mm)</string>
     <string name="prefs_advanced_settings_cat">Advanced settings</string>
-    <string name="prefs_category_developer">Developer</string>
-    <string name="prefs_use_compose_ui">Use new Compose UI (experimental)</string>
-    <string name="prefs_use_compose_ui_summary">Render supported screens with the new Compose UI. Off = classic UI.</string>
     <string name="prefs_features_cat">Features</string>
     <string name="prefs_display_customization_cat">Look &amp; feel</string>
     <string name="prefs_behavior_customization_cat">Application behavior</string>

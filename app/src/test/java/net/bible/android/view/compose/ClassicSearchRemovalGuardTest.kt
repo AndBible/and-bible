@@ -159,29 +159,22 @@ class ClassicSearchRemovalGuardTest {
         )
     }
 
-    /** The routing arms must be unconditional now: no `useComposeFor` branch may mention search. */
-    @Test fun screenLauncherDoesNotBranchForSearch() {
-        val path = "src/main/java/net/bible/android/view/ScreenLauncher.kt"
-        assertTrue("$path is missing — this guard would pass vacuously", File(path).isFile)
-        val code = ClassicRemovalScan.codeLinesOf(path)
-        val searchScreens = listOf(
+    /**
+     * The routing arms must be unconditional now: no branch may survive inside one.
+     *
+     * Batch Z-late epilogue, Task 7: this was an INLINED copy of the shared detector using the
+     * literal `arm.contains("else ")`, which an `else` written at end of line slips past (see
+     * [ClassicRemovalScan.assertLauncherArmsUnconditionalIn]'s own kdoc). The copy's only reason to
+     * exist was a slice-specific precondition that Task 6 deleted, and the flag whose name masked
+     * the hole is gone, so the branch check here would otherwise have become the sole live one --
+     * in its broken form. Folded onto the shared helper, which matches `else` as a whole word.
+     */
+    @Test fun screenLauncherDoesNotBranchForSearch() = ClassicRemovalScan.assertLauncherArmsUnconditional(
+        listOf(
             "Screen.SearchIndexProgress", "Screen.SearchIndex", "Screen.SearchResults",
             "Screen.Search", "Screen.EpubSearch", "Screen.EpubSearchResults",
-        )
-        // Each arm is `Screen.X -> XComposeActivity::class.java`. Take the text from the arm's
-        // `Screen.X ->` up to the next `Screen.` and assert no branch survives inside it.
-        val offenders = searchScreens.filter { screen ->
-            val start = code.indexOf("$screen ->")
-            if (start < 0) return@filter true
-            val next = code.indexOf("Screen.", start + screen.length + 3)
-            val arm = if (next < 0) code.substring(start) else code.substring(start, next)
-            arm.contains("useComposeFor") || arm.contains("else ")
-        }
-        assertEquals(
-            "these search arms still branch on the flag (or are missing entirely) — S1 collapses " +
-                "them to the Compose class unconditionally",
-            emptyList<String>(),
-            offenders,
-        )
-    }
+        ),
+        "these search arms still branch on the flag (or are missing entirely) — S1 collapses " +
+            "them to the Compose class unconditionally",
+    )
 }

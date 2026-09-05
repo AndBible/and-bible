@@ -52,7 +52,8 @@ class AppSettingsController(
     private fun build(s: AppSettingsSnapshot): SettingsScreenState {
         // Round 14b: each row's `iconKey` is its own classic preference key (`:app`'s
         // `settingsDrawableRes` owns the actual drawable lookup); `request_sdcard_permission_pref`
-        // and `use_compose_ui` stay iconless, matching `res/xml/settings.xml`.
+        // stays iconless, matching `res/xml/settings.xml`. (It was one of two such rows until
+        // Batch Z-late's epilogue deleted the Developer category and its single switch.)
         val items = listOf(
             // ---- Dictionaries ----
             SettingsItem.Category(
@@ -413,18 +414,6 @@ class AppSettingsController(
                 summary = labels.crashAppSummary,
                 visible = s.betaFeaturesVisible,
                 iconKey = AppSettingsNav.CRASH_APP,
-            ),
-            // ---- Developer ----
-            SettingsItem.Category(
-                key = "prefs_category_developer",
-                title = labels.developerCat,
-                visible = true,
-            ),
-            SettingsItem.SwitchRow(
-                key = "use_compose_ui",
-                title = labels.useComposeUiTitle,
-                summary = labels.useComposeUiSummary,
-                checked = s.useComposeUi,
             ),
         )
         return SettingsScreenState(title = labels.screenTitle, items = items)

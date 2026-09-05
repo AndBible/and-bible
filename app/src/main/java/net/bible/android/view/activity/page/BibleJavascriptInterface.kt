@@ -893,9 +893,8 @@ class BibleJavascriptInterface(
                 // consistency fix.
                 "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
                 "CtrlKeyW" -> {
-                    // M1 (whole-branch review fix wave): guard on the MOUNTED HOST, not the live
-                    // `use_compose_ui` flag -- see MainBibleActivity's R.id.switchToWorkspace for
-                    // the full rationale (toggling the setting doesn't recreate the activity).
+                    // M1 (whole-branch review fix wave): guard on the MOUNTED HOST -- see
+                    // MainBibleActivity's R.id.switchToWorkspace for the full rationale.
                     val host = mainBibleActivity.composeReadingViewHost
                     if (host != null) {
                         host.showWorkspaceSheet()

@@ -63,12 +63,9 @@ import net.bible.android.view.activity.settings.SyncSettingsComposeActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
-import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -79,27 +76,11 @@ import org.robolectric.annotation.Config
 class ScreenLauncherTest {
     @After
     fun tearDown() {
-        CommonUtils.settings.removeBoolean("use_compose_ui")
         DatabaseResetter.resetDatabase()
     }
 
     @Test
-    fun default_off_routes_to_old() {
-        CommonUtils.settings.removeBoolean("use_compose_ui")
-        assertFalse(ScreenLauncher.useComposeFor(Screen.Calculator))
-    }
-
-    @Test
-    fun flag_on_routes_to_new() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertTrue(ScreenLauncher.useComposeFor(Screen.Calculator))
-    }
-
-    @Test
     fun history_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(HistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.History))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(HistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.History))
     }
 
@@ -110,61 +91,51 @@ class ScreenLauncherTest {
 
     @Test
     fun readingPlanSelector_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ReadingPlanSelectorComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingPlanSelector))
     }
 
     @Test
     fun dailyReadingList_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(DailyReadingListComposeActivity::class.java, ScreenLauncher.targetFor(Screen.DailyReadingList))
     }
 
     @Test
     fun readingPlan_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(DailyReadingComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingPlan))
     }
 
     @Test
     fun chooseGeneralBookKey_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ChooseGeneralBookKeyComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseGeneralBookKey))
     }
 
     @Test
     fun chooseMapKey_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ChooseMapKeyComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseMapKey))
     }
 
     @Test
     fun chooseDictionaryWord_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ChooseDictionaryWordComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseDictionaryWord))
     }
 
     @Test
     fun chooseDocument_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ChooseDocumentComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseDocument))
     }
 
     @Test
     fun gridChoosePassageBook_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(GridChoosePassageComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GridChoosePassageBook))
     }
 
     @Test
     fun download_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(DownloadComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Download))
     }
 
     @Test
     fun firstDownload_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         // same DownloadComposeActivity as Screen.Download (the firstDownload extra, added by the
         // caller, differentiates behaviour)
         assertEquals(DownloadComposeActivity::class.java, ScreenLauncher.targetFor(Screen.FirstDownload))
@@ -197,30 +168,21 @@ class ScreenLauncherTest {
 
     @Test
     fun myDocuments_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(MyDocumentsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocuments))
     }
 
     @Test
     fun myDocumentPages_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(MyDocumentPagesComposeActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocumentPages))
     }
 
     @Test
     fun cloudDocuments_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(CloudDocumentsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CloudDocuments))
     }
 
     @Test
     fun workspaceSelector_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(
-            WorkspaceSelectorComposeActivity::class.java,
-            ScreenLauncher.targetFor(Screen.WorkspaceSelector),
-        )
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(
             WorkspaceSelectorComposeActivity::class.java,
             ScreenLauncher.targetFor(Screen.WorkspaceSelector),
@@ -229,181 +191,121 @@ class ScreenLauncherTest {
 
     @Test
     fun aiConnectionSettings_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(AiConnectionSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiConnectionSettings))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(AiConnectionSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiConnectionSettings))
     }
 
     @Test
     fun aiProviders_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(AiProvidersComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiProviders))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(AiProvidersComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiProviders))
     }
 
     @Test
     fun aiModels_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(AiModelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiModels))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(AiModelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiModels))
     }
 
     @Test
     fun aiPrompts_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(AiPromptsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiPrompts))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(AiPromptsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiPrompts))
     }
 
     @Test
     fun promptEdit_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(PromptEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.PromptEdit))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(PromptEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.PromptEdit))
     }
 
     @Test
     fun globalToolPermissions_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(GlobalToolPermissionsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GlobalToolPermissions))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(GlobalToolPermissionsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GlobalToolPermissions))
     }
 
     @Test
     fun toolInfo_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(ToolInfoComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ToolInfo))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ToolInfoComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ToolInfo))
     }
 
     @Test
     fun aiDocumentFilter_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(AiDocumentFilterComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiDocumentFilter))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(AiDocumentFilterComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiDocumentFilter))
     }
 
     @Test
     fun rawLogHistory_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(RawLogHistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLogHistory))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(RawLogHistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLogHistory))
     }
 
     @Test
     fun rawLlmLog_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(RawLlmLogComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLlmLog))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(RawLlmLogComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLlmLog))
     }
 
     @Test
     fun labelEdit_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(LabelEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.LabelEdit))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(LabelEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.LabelEdit))
     }
 
     @Test
     fun manageLabels_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(ManageLabelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ManageLabels))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ManageLabelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ManageLabels))
     }
 
     @Test
     fun bookmarks_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(BookmarksComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(BookmarksComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
     }
 
     @Test
     fun readingProgress_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ReadingProgressComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgress))
     }
 
     @Test
     fun settings_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(SettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Settings))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(SettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Settings))
     }
 
     @Test
     fun readingProgressSettings_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(ReadingProgressSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgressSettings))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ReadingProgressSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgressSettings))
     }
 
     @Test
     fun syncSettings_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(SyncSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SyncSettings))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(SyncSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SyncSettings))
     }
 
     @Test
     fun startup_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(StartupComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Startup))
     }
 
     @Test
     fun installZip_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(InstallZipComposeActivity::class.java, ScreenLauncher.targetFor(Screen.InstallZip))
     }
 
     @Test
     fun textDisplaySettings_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(TextDisplaySettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.TextDisplaySettings))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(TextDisplaySettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.TextDisplaySettings))
     }
 
     @Test
     fun customRepositories_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(CustomRepositoriesComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CustomRepositories))
     }
 
     @Test
     fun customRepositoryEditor_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(CustomRepositoryEditorComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CustomRepositoryEditor))
     }
 
     @Test
     fun backup_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(BackupComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Backup))
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(BackupComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Backup))
     }
 
     @Test
     fun progressStatus_routes_to_compose() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ProgressStatusComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ProgressStatus))
     }
 }

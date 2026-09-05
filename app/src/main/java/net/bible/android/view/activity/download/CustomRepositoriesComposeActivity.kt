@@ -41,10 +41,10 @@ import org.koin.android.ext.android.inject
  * Drives the shared [CustomRepositoryController] over [CustomRepositoryService] and renders
  * [CustomRepositoriesScreen].
  *
- * Row taps / "create" both navigate to the editor (routed through [ScreenLauncher] --
- * [CustomRepositoryEditorComposeActivity] or classic [CustomRepositoryEditor], per `use_compose_ui`)
- * carrying the SAME classic `"data"`=[RepositoryData] JSON extra ([toRepositoryData]) either editor
- * expects, so the two are interchangeable. The returned [RepositoryResult] ([toRepositoryResult])
+ * Row taps / "create" both navigate to the editor (routed through [ScreenLauncher] to
+ * [CustomRepositoryEditorComposeActivity]) carrying the SAME classic `"data"`=[RepositoryData] JSON
+ * extra ([toRepositoryData]) the deleted classic editor expected, so the wire format is unchanged
+ * for anything else that builds it. The returned [RepositoryResult] ([toRepositoryResult])
  * is fed straight to [CustomRepositoryController.applyResult] (insert/update/delete/cancel); a
  * rejected duplicate-name upsert posts a [ToastEvent] (classic `handleResult`'s
  * `duplicate_custom_repository` toast).

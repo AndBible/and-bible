@@ -201,30 +201,19 @@ class ClassicReadingPlanRemovalGuardTest {
         )
     }
 
-    /** The routing arms must be unconditional now: no `useComposeFor` branch may mention reading plan. */
-    @Test fun screenLauncherDoesNotBranchForReadingPlan() {
-        val path = "src/main/java/net/bible/android/view/ScreenLauncher.kt"
-        assertTrue("$path is missing — this guard would pass vacuously", File(path).isFile)
-        val code = ClassicRemovalScan.codeLinesOf(path)
-        val readingPlanScreens = listOf(
-            "Screen.ReadingPlanSelector", "Screen.DailyReadingList", "Screen.ReadingPlan",
-        )
-        // Each arm is `Screen.X -> XComposeActivity::class.java`. Take the text from the arm's
-        // `Screen.X ->` up to the next `Screen.` and assert no branch survives inside it. The
-        // literal " ->" in the search string is what keeps `Screen.ReadingPlan ->` from matching
-        // the `Screen.ReadingPlanSelector ->` arm.
-        val offenders = readingPlanScreens.filter { screen ->
-            val start = code.indexOf("$screen ->")
-            if (start < 0) return@filter true
-            val next = code.indexOf("Screen.", start + screen.length + 3)
-            val arm = if (next < 0) code.substring(start) else code.substring(start, next)
-            arm.contains("useComposeFor") || arm.contains("else ")
-        }
-        assertEquals(
-            "these reading-plan arms still branch on the flag (or are missing entirely) — S2 " +
-                "collapses them to the Compose class unconditionally",
-            emptyList<String>(),
-            offenders,
-        )
-    }
+    /**
+     * The routing arms must be unconditional now: no branch may survive inside one. The shared
+     * helper's literal `" ->"` is what keeps `Screen.ReadingPlan ->` from matching the
+     * `Screen.ReadingPlanSelector ->` arm.
+     *
+     * Batch Z-late epilogue, Task 7: folded onto the shared helper, for the reason given in
+     * `ClassicSearchRemovalGuardTest.screenLauncherDoesNotBranchForSearch` -- this inlined copy
+     * carried the literal `arm.contains("else ")`, which misses an `else` at end of line, and with
+     * the flag deleted that broken check would have been the only live one left here.
+     */
+    @Test fun screenLauncherDoesNotBranchForReadingPlan() = ClassicRemovalScan.assertLauncherArmsUnconditional(
+        listOf("Screen.ReadingPlanSelector", "Screen.DailyReadingList", "Screen.ReadingPlan"),
+        "these reading-plan arms still branch on the flag (or are missing entirely) — S2 " +
+            "collapses them to the Compose class unconditionally",
+    )
 }

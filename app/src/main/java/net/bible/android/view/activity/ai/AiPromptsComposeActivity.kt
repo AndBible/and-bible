@@ -60,8 +60,8 @@ import kotlin.coroutines.resume
  * [AiPromptsScreen].
  *
  * Navigation (`onOpenPrompt`/`onNewPrompt`/`onOpenConnectionSettings`) stays host-side, as the
- * controller intends. They route via [ScreenLauncher] to [Screen.PromptEdit] / [Screen.AiConnectionSettings],
- * so both honor the `use_compose_ui` flag independently of this host.
+ * controller intends. They route via [ScreenLauncher] to [Screen.PromptEdit] /
+ * [Screen.AiConnectionSettings] rather than naming either host class here.
  *
  * CSV import/export stays host-side — it needs Android SAF (`awaitIntent`), which the shared layer
  * can't own. The flows are ported verbatim from classic [AiSettingsActivity] (`exportPrompts`/

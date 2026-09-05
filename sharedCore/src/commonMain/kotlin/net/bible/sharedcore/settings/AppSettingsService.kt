@@ -50,13 +50,12 @@ data class AppSettingsSnapshot(
     val discreteMode: Boolean,
     val showCalculator: Boolean,
     val calculatorPin: String,
-    // Features / advanced / developer
+    // Features / advanced
     val experimentalFeatures: Set<String>,
     val experimentalFeatureOptions: List<DictOption>,
     val enableBluetooth: Boolean,
     val requestSdcardPermission: Boolean,
     val showErrorbox: Boolean,
-    val useComposeUi: Boolean,
     // choice entries (label lists come from the host; values fixed by classic array resources)
     val toolbarButtonActionChoices: List<Choice2>,
     val bibleViewSwipeModeChoices: List<Choice2>,

@@ -43,6 +43,26 @@ object ClassicRemovalScan {
             .sorted()
 
     /**
+     * The repository root, for the few scans that must reach OUTSIDE the `:app` module — the other
+     * two Kotlin modules (`sharedCore`, `sharedUi`). Everything else here is relative to the `:app`
+     * module dir, which is the working directory for its unit tests; this is that same convention
+     * with one directory level undone, not a second path scheme.
+     *
+     * Verified rather than assumed: the parent must actually carry `settings.gradle.kts`, so a
+     * future working-directory change surfaces as this failure instead of as a walk that silently
+     * finds nothing. Callers that walk trees under it MUST still carry their own per-root vacuity
+     * floor — this check proves the root, not that a given subdirectory under it exists.
+     */
+    fun repoRoot(): File {
+        val root = File("..").canonicalFile
+        assertTrue(
+            "$root is not the repo root (no settings.gradle.kts) — cwd is not the :app module dir",
+            File(root, "settings.gradle.kts").isFile,
+        )
+        return root
+    }
+
+    /**
      * Non-prose lines only: a comment must not satisfy or defeat a scan. `import` lines are
      * dropped too by default — for a "does this file still compare X" scan an import is noise —
      * but a fully-qualified-name sweep passes `keepImports = true`, because there an import IS
@@ -246,10 +266,10 @@ object ClassicRemovalScan {
      *
      * Known bound, stated precisely rather than overclaimed: the arm ends at the next `Screen.`
      * TOKEN, which is not the same as the next `when` arm. An arm whose own body mentioned
-     * `Screen.` — say `Screen.X -> if (useComposeFor(Screen.X))` — would be truncated before its
-     * branch detector fired. No collapsed arm can take that shape, and every branching arm in the
-     * file today writes `useComposeFor(screen)` with the implicit parameter, so the bound is exact
-     * in practice; it is documented because ~11 more slices will rely on it.
+     * `Screen.` — say `Screen.X -> if (someCondition(Screen.X))` — would be truncated before its
+     * branch detector fired. No collapsed arm can take that shape, and there is no branching arm
+     * left in the file at all, so the bound is exact today; it is documented because this helper
+     * is what stands between a re-branched arm and a silent pass.
      */
     fun assertLauncherArmsUnconditional(screens: List<String>, hint: String) =
         assertLauncherArmsUnconditionalIn(LAUNCHER_PATH, screens, hint)

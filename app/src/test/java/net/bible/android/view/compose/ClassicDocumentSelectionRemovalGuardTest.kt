@@ -122,7 +122,7 @@ class ClassicDocumentSelectionRemovalGuardTest {
                 "Screen.CustomRepositories",
                 "Screen.CustomRepositoryEditor",
             ),
-            "a document-selection arm still consults use_compose_ui; slice S6 deleted the classic " +
+            "a document-selection arm still branches; slice S6 deleted the classic " +
                 "class it would branch to",
         )
 }

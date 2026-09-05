@@ -52,12 +52,11 @@ import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.settings.AppSettingsScreen
 
 /**
- * Keys whose classic effect depends on values read only at Activity-creation time (locale via
+ * Keys whose classic effect depends on values read only at Activity-creation time: locale via
  * [net.bible.android.view.util.locale.LocaleHelper.onAttach]/`attachBaseContext`; night mode / color
  * mode / animations via the [AbTheme] args below, computed once per composition; `discrete_mode`
- * changes app-wide behaviour gates read elsewhere) or that flip which Activity class future
- * navigation resolves to (`use_compose_ui`, read by [ScreenLauncher.useComposeFor]). None of these
- * are observed reactively by this screen, so [SettingsComposeActivity] force-recreates itself after
+ * changes app-wide behaviour gates read elsewhere. None of these are observed reactively by this
+ * screen, so [SettingsComposeActivity] force-recreates itself after
  * a write to any of them — the same primitive classic `SettingsActivity.reset` used (both deleted
  * in Z-late slice S12) to make a bulk reset visible immediately. (No classic per-row listener did
  * this: `SettingsFragment` only recreated on the explicit "reset" action. This Compose host
@@ -70,7 +69,6 @@ private val RECREATE_ON_CHANGE_KEYS = setOf(
     "night_mode_pref3",
     "display_color_mode",
     "discrete_mode",
-    "use_compose_ui",
 )
 
 /**
@@ -280,7 +278,6 @@ class SettingsComposeActivity : ActivityBase() {
         persecutionCat = getString(R.string.prefs_persecution_cat),
         featuresCat = getString(R.string.prefs_features_cat),
         advancedCat = getString(R.string.prefs_advanced_settings_cat),
-        developerCat = getString(R.string.prefs_category_developer),
 
         strongsGreekDictionaryTitle = getString(R.string.choose_strongs_greek_dictionary_title),
         strongsGreekDictionarySummary = getString(R.string.choose_strongs_greek_dictionary_summary),
@@ -361,8 +358,6 @@ class SettingsComposeActivity : ActivityBase() {
         openLinksSummary = getString(R.string.open_bible_links_summary),
         crashAppTitle = getString(R.string.crash_app),
         crashAppSummary = getString(R.string.crash_app_summary),
-        useComposeUiTitle = getString(R.string.prefs_use_compose_ui),
-        useComposeUiSummary = getString(R.string.prefs_use_compose_ui_summary),
 
         syncShortcutTitle = getString(R.string.cloud_sync_title),
         syncShortcutSummary = getString(R.string.sync_settings_shortcut_summary),

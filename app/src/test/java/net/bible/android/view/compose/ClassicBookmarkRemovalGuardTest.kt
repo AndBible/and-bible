@@ -124,7 +124,7 @@ class ClassicBookmarkRemovalGuardTest {
     @Test fun theBookmarkArmsAreUnconditional() =
         ClassicRemovalScan.assertLauncherArmsUnconditional(
             listOf("Screen.LabelEdit", "Screen.ManageLabels", "Screen.Bookmarks"),
-            "a bookmarks/labels arm still consults use_compose_ui (or is missing entirely); S9 " +
+            "a bookmarks/labels arm still branches (or is missing entirely); S9 " +
                 "deleted the classic classes all three would branch to",
         )
 }

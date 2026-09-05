@@ -44,7 +44,7 @@ class AppSettingsControllerTest {
         displayColorMode = "normal", einkMode = false, disableAnimations = false,
         discreteMode = false, showCalculator = false, calculatorPin = "1234",
         experimentalFeatures = emptySet(), experimentalFeatureOptions = emptyList(),
-        enableBluetooth = true, requestSdcardPermission = false, showErrorbox = false, useComposeUi = true,
+        enableBluetooth = true, requestSdcardPermission = false, showErrorbox = false,
         toolbarButtonActionChoices = emptyList(), bibleViewSwipeModeChoices = emptyList(),
         nightModeChoices = emptyList(), localeChoices = emptyList(), notesContentTypeChoices = emptyList(),
         displayColorModeChoices = emptyList(),
@@ -111,11 +111,6 @@ class AppSettingsControllerTest {
         assertEquals("font_size_multiplier" to 220, svc.lastInt)
     }
 
-    @Test fun developerAndUseComposeAlwaysPresent() {
-        val c = controller(FakeAppSettingsService(snap()))
-        assertTrue(c.state.value.visibleItems.map { it.key }.contains("use_compose_ui"))
-    }
-
     @Test fun fontSliderValueLabelUnescapesPercent() {
         val c = controller(FakeAppSettingsService(snap()))
         val row = c.state.value.visibleItems.single { it.key == "font_size_multiplier" } as SettingsItem.SliderRow
@@ -124,11 +119,11 @@ class AppSettingsControllerTest {
 
     /**
      * Round 14b: the 41 rows classic gives an `android:icon` in `res/xml/settings.xml` take their own
-     * key as `iconKey`; the two rows classic leaves bare stay bare, as do all category headers. The
+     * key as `iconKey`; the one row classic leaves bare stays bare, as do all category headers. The
      * key→drawable half of the parity claim is pinned separately by `SettingsIconParityTest` in `:app`.
      */
     @Test fun iconKeysMatchClassicSettingsXml() {
-        val iconless = setOf("request_sdcard_permission_pref", "use_compose_ui")
+        val iconless = setOf("request_sdcard_permission_pref")
         val items = controller(
             FakeAppSettingsService(
                 snap(betaFeaturesVisible = true, sdcardPermissionVisible = true, openLinksVisible = true),
@@ -215,8 +210,6 @@ class AppSettingsControllerTest {
             "show_errorbox",
             "open_links",
             "crash_app",
-            "prefs_category_developer",
-            "use_compose_ui",
         )
         val c = controller(
             FakeAppSettingsService(

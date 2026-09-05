@@ -65,7 +65,6 @@ class TextDisplaySettingsComposeActivityColorsTest {
 
     @Test
     fun `plain intentFor launch starts at the text list, not colors`() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
         val repo = CommonUtils.windowControl.windowRepository
         val intent = TextDisplaySettingsComposeActivity.intentFor(
             org.robolectric.RuntimeEnvironment.getApplication(),

@@ -276,11 +276,10 @@ object Dialogs {
     ): AgentPermissionResult {
         // Compose path: route to the Compose reading view's dialog slot when — and only when — the
         // foreground activity is a MainBibleActivity with the Compose reading view mounted.
-        // `composeReadingViewHost` is set in `setupUi` only on the `use_compose_ui` path and is null
-        // on the classic path, so it IS the "Compose reading view is live" signal (no extra flag
-        // read). Any other foreground activity (e.g. classic Settings, which AgentExecutor's
-        // `awaitActivity()` may well hand us even with the flag ON) falls through to the classic
-        // dialog below — a permission prompt must never be dropped, because AgentExecutor suspends
+        // `composeReadingViewHost` is set in `setupUi` and is null until then, so it IS the
+        // "Compose reading view is live" signal. Any other foreground activity, which
+        // AgentExecutor's `awaitActivity()` may well hand us, falls through to the plain-AlertDialog
+        // path below — a permission prompt must never be dropped, because AgentExecutor suspends
         // on this call and would hang forever.
         val host = (context as? MainBibleActivity)?.composeReadingViewHost
         if (host != null) {
@@ -300,9 +299,9 @@ object Dialogs {
     }
 
     /**
-     * The classic (`use_compose_ui` off — or any non-Compose foreground activity) native
-     * `AlertDialog` implementation, moved here verbatim from [agentPermissionDialog] so the classic
-     * path stays behaviourally byte-for-byte identical.
+     * The native `AlertDialog` implementation, used whenever the foreground activity is not a
+     * [MainBibleActivity] with the reading view mounted. Moved here verbatim from
+     * [agentPermissionDialog] so this fallback stays behaviourally byte-for-byte identical.
      */
     private suspend fun classicAgentPermissionDialog(
         context: Context,

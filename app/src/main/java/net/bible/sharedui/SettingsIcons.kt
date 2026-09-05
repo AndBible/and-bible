@@ -84,7 +84,7 @@ fun settingsDrawableRes(key: String): Int? = when (key) {
     "document_sync_manage" -> R.drawable.ic_baseline_cloud_24
 
     // Round 14b — application preferences, mirroring res/xml/settings.xml `android:icon` verbatim.
-    // `request_sdcard_permission_pref` and `use_compose_ui` have no classic icon and get none.
+    // `request_sdcard_permission_pref` has no classic icon and gets none.
     "strongs_greek_dictionary" -> R.drawable.ic_strongs_greek
     "strongs_hebrew_dictionary" -> R.drawable.ic_strongs_hebrew
     "robinson_greek_morphology" -> R.drawable.ic_morphology_24dp

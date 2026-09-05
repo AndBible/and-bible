@@ -30,11 +30,11 @@ import org.junit.Test
  * Two things this guard deliberately does NOT assert, both of which look like omissions:
  *
  * 1. `ScreenLauncherTest` has no `calculator_routes_to_compose` case to rewrite, and never had one.
- *    `Screen.Calculator` appears there only as the probe for `useComposeFor` itself
- *    (`default_off_routes_to_old`, `flag_on_routes_to_new`), which must survive until the flag dies
- *    in the epilogue. `screenLauncherDoesNotBranchForCalculator` below is therefore the only check
- *    that this arm is unconditional — spec Appendix A11's "nothing fails if an arm silently loses
- *    its test" made concrete, on the pilot screen of all things.
+ *    `Screen.Calculator` appeared there only as the probe for the routing flag itself, and the
+ *    epilogue deleted those two tests along with the flag. `screenLauncherDoesNotBranchForCalculator`
+ *    below is therefore the only check that this arm is unconditional — spec Appendix A11's
+ *    "nothing fails if an arm silently loses its test" made concrete, on the pilot screen of all
+ *    things.
  * 2. The `<activity-alias>` named `net.bible.android.view.activity.Calculator` is untouched: its
  *    `targetActivity` is `.StartupActivity`, not this class.
  */

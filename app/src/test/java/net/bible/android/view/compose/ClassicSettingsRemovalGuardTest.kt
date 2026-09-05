@@ -23,8 +23,8 @@ import org.junit.Test
  * Batch Z-late phase 1, slice S12 -- the LAST classic Screen: six classic settings screens deleted
  * with `PreferenceSearchHelper`, eight resources and six manifest blocks, and `ScreenLauncher`'s
  * four remaining flag arms collapsed to their Compose implementations. After this slice
- * `ScreenLauncher.targetFor` is a plain `Screen -> Class` map with no `useComposeFor` call left
- * anywhere in it (the declaration itself survives for the epilogue to remove).
+ * `ScreenLauncher.targetFor` is a plain `Screen -> Class` map with no branch left anywhere in it.
+ * (The routing flag's declaration outlived this slice by one step; the epilogue removed it.)
  *
  * Unlike every earlier slice's guard, this one was written AFTER the deletion (Tasks 3-5), not
  * before it, so it never ran red against a live classic file. Tasks 3-5 are a pure-compile
@@ -128,9 +128,9 @@ class ClassicSettingsRemovalGuardTest {
 
     @Test fun theSettingsArmsResolveUnconditionally() = ClassicRemovalScan.assertLauncherArmsUnconditional(
         listOf("Settings", "SyncSettings", "TextDisplaySettings", "ReadingProgressSettings").map { "Screen.$it" },
-        "one of these four settings arms still branches on the flag (or is missing entirely) -- " +
-            "S12 collapses all four to their Compose classes unconditionally. These are the LAST " +
-            "four arms in ScreenLauncher.targetFor; after this slice the when-block is a plain " +
-            "Screen -> Class map with no useComposeFor call left inside it.",
+        "one of these four settings arms still branches (or is missing entirely) -- " +
+            "S12 collapses all four to their Compose classes unconditionally. These were the LAST " +
+            "four branching arms in ScreenLauncher.targetFor; after this slice the when-block is a " +
+            "plain Screen -> Class map.",
     )
 }

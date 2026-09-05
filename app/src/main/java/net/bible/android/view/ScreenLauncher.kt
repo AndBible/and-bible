@@ -64,23 +64,28 @@ import net.bible.android.view.activity.search.SearchIndexComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
-import net.bible.service.common.CommonUtils
 
-/** Screens that have both a classic (XML) and a new (Compose) implementation. */
+/**
+ * The screens [ScreenLauncher] routes to. Named for what they ARE, not for how they are built --
+ * this used to be "screens that have both a classic (XML) and a new (Compose) implementation", and
+ * after Batch Z-late phase 1 none of them has a classic half left.
+ */
 enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
 
 /**
- * Central old/new routing indirection (Strangler Fig), now fully collapsed: slice S12 was the last
- * one with a flag branch left in [targetFor], so the map is unconditional and the `use_compose_ui`
- * flag no longer selects an implementation here at all. This is the seed of the future CMP
- * navigation graph (Batch Z); spec 10.1's epilogue turns it into that graph and retires
- * [useComposeFor], whose sole surviving production caller is `StartupActivity`.
+ * Central routing indirection, and all that survives of the old/new Strangler Fig: [targetFor] is a
+ * plain [Screen] to `Class` map, and there is no longer any second implementation for it to choose
+ * between. Batch Z-late phase 1 deleted every classic screen slice by slice, and its epilogue
+ * (spec 10.1) removed the settings flag that used to pick a side, so what is left is one place that
+ * answers "which Activity IS this screen" -- the seed of the future CMP navigation graph, which
+ * replaces this map rather than the flag.
+ *
+ * Keeping the indirection after the choice disappeared is deliberate: callers name a [Screen], not
+ * an Activity class, so the whole tree does not have to be edited again when a screen's host class
+ * changes -- which is exactly what the navigation graph will change it to.
  */
 object ScreenLauncher {
-    fun useComposeFor(@Suppress("UNUSED_PARAMETER") screen: Screen): Boolean =
-        CommonUtils.settings.getBoolean("use_compose_ui", false)
-
-    /** The Activity class implementing [screen]. Unconditional since slice S12 — see the object kdoc. */
+    /** The Activity class implementing [screen]. */
     fun targetFor(screen: Screen): Class<*> = when (screen) {
         Screen.Calculator -> CalculatorComposeActivity::class.java
         Screen.History -> HistoryComposeActivity::class.java

@@ -38,8 +38,10 @@ class ClassicReadingViewRemovalGuardTest {
     fun theReadingViewReadsTheFlagNowhere() {
         val code = ClassicRemovalScan.codeLinesOf(mainBibleActivity)
         assertEquals(
-            "MainBibleActivity must not read use_compose_ui at all -- the flag's definition is " +
-                "removed in Task 7 and a surviving read would not compile then.",
+            "MainBibleActivity must not read use_compose_ui at all -- the epilogue deleted the " +
+                "setting, its row and every production reader. Note that such a read would still " +
+                "COMPILE (settings is an untyped key-value store), so this count is the only thing " +
+                "that catches one coming back.",
             0,
             Regex("""getBoolean\("use_compose_ui"""").findAll(code).count(),
         )

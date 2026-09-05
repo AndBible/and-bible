@@ -18,7 +18,6 @@ data class AppSettingsLabels(
     val persecutionCat: String,
     val featuresCat: String,
     val advancedCat: String,
-    val developerCat: String,
 
     // Dictionaries
     val strongsGreekDictionaryTitle: String,
@@ -105,8 +104,6 @@ data class AppSettingsLabels(
     val openLinksSummary: String,
     val crashAppTitle: String,
     val crashAppSummary: String,
-    val useComposeUiTitle: String,
-    val useComposeUiSummary: String,
 
     // Nav-shortcut labels (rows that navigate to another settings screen)
     val syncShortcutTitle: String,
@@ -130,7 +127,6 @@ data class AppSettingsLabels(
             persecutionCat = "Persecution resistant settings",
             featuresCat = "Features",
             advancedCat = "Advanced",
-            developerCat = "Developer",
 
             strongsGreekDictionaryTitle = "Strong's Greek dictionary",
             strongsGreekDictionarySummary = "Dictionary used for Greek Strong's numbers",
@@ -211,8 +207,6 @@ data class AppSettingsLabels(
             openLinksSummary = "Choose how external links are opened",
             crashAppTitle = "Crash app",
             crashAppSummary = "Trigger a test crash",
-            useComposeUiTitle = "Use Compose UI",
-            useComposeUiSummary = "Use the new Compose-based UI",
 
             syncShortcutTitle = "Cloud sync",
             syncShortcutSummary = "Configure cloud synchronization",

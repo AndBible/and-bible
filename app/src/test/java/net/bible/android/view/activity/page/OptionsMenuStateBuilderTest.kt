@@ -90,7 +90,6 @@ class OptionsMenuStateBuilderTest {
 
     @After
     fun tearDown() {
-        CommonUtils.settings.removeBoolean("use_compose_ui")
         CommonUtils.settings.setString("lastDisplaySettings", null)
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
@@ -242,14 +241,21 @@ class OptionsMenuStateBuilderTest {
     // ------------------------------------------------------------------------------------------
     // Settings editor sheets T11: both reading-view menus route to the in-place sheet.
     //
-    // dispatch's `else` branch (where the boolean-toggle check has already failed) now checks
+    // dispatch's `else` branch (where the boolean-toggle check has already failed) checks
     // `textSettingEditorPageFor(itemOptions.type.name)` before falling through to
-    // `itemOptions.openDialog`. The four tests below pin, in order: the interception firing for a
-    // sheet-editable type with the flag on; the classic dialog still firing for that SAME type
-    // with the flag off (so nothing about the type itself changed, only the flag); and the two
-    // negatives that matter most -- a boolean row (never reaches the `else` branch at all) and
-    // BOOKMARKS_HIDELABELS (reaches the `else` branch but `textSettingEditorPageFor` returns null
-    // for it) must both still behave exactly as before, flag or no flag.
+    // `itemOptions.openDialog`, and takes the sheet only when BOTH that page and a mounted host
+    // are non-null (`page != null && host != null`).
+    //
+    // Batch Z-late epilogue, Task 7: the `use_compose_ui` clause is gone from that condition (spec
+    // 10.2), so "off" no longer means a flag -- it means one of the two remaining operands is null.
+    // The tests below pin all four cases the condition can be in, and each null operand is now
+    // pinned SEPARATELY because with the flag gone they are the only two ways the classic
+    // fall-through is still reachable at all:
+    //   * both non-null            -> the sheet takes over;
+    //   * host == null             -> the classic dialog, for a type that IS sheet-editable;
+    //   * page == null, host set   -> the classic dialog, for a type that is not (HIDELABELS);
+    //   * page == null, no host    -> the classic dialog, the same type with neither operand.
+    // Plus the negative that never reaches the `else` branch at all: a boolean row.
     // ------------------------------------------------------------------------------------------
 
     private fun workspaceSettingsBundle() = SettingsBundle(
@@ -283,8 +289,7 @@ class OptionsMenuStateBuilderTest {
     }
 
     @Test
-    fun aSheetEditableTextOptionGoesToTheHostWhenComposeIsOn() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun aSheetEditableTextOptionGoesToTheHost() {
         val host = ComposeReadingViewHost(activity)
         activity.composeReadingViewHost = host
         val pref = FontSizePreference(workspaceSettingsBundle())
@@ -295,15 +300,26 @@ class OptionsMenuStateBuilderTest {
         assertEquals(SettingsEditorPage.Row("FONTSIZE"), host.textSettingsEditor.current)
     }
 
+    /**
+     * `host == null` for a type that IS sheet-editable — one of the two null operands that still
+     * make the classic fall-through reachable.
+     *
+     * Batch Z-late epilogue, Task 7: this used to be named `...WhenComposeIsOff` and set
+     * `use_compose_ui = false`. Task 1 removed the flag clause from the interception, after which
+     * the setBoolean line did nothing and the test passed only because this fixture installs no
+     * host — its name, its assertion message and the block comment above it all described a gate
+     * the code no longer had. Retargeted on the condition it actually exercises, and the null host
+     * is now stated explicitly rather than inherited from the fixture.
+     */
     @Test
-    fun aSheetEditableTextOptionStillOpensTheClassicDialogWhenComposeIsOff() {
-        CommonUtils.settings.setBoolean("use_compose_ui", false)
+    fun aSheetEditableTextOptionStillOpensTheClassicDialogWhenNoHostIsInstalled() {
+        activity.composeReadingViewHost = null
         val pref = RecordingPreference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
 
         val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
 
         assertFalse(stayOpen)
-        assertTrue(pref.openDialogCalled, "flag off must still reach openDialog, unchanged from before T11")
+        assertTrue(pref.openDialogCalled, "with no host mounted a sheet-editable type must still reach openDialog")
     }
 
     /** Negative #1: a boolean row never reaches the `else` branch at all (the `isBoolean` check
@@ -313,7 +329,6 @@ class OptionsMenuStateBuilderTest {
      *  via that route. */
     @Test
     fun aBooleanTextOptionStillTogglesAndKeepsTheMenuOpen() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
         val pref = Preference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.SECTIONTITLES)
         val before = pref.value as Boolean
 
@@ -328,13 +343,37 @@ class OptionsMenuStateBuilderTest {
      *  row) -- pins that the interception did not widen to catch it too. */
     @Test
     fun hideLabelsStillLaunchesManageLabelsRatherThanASheet() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
         val pref = RecordingPreference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.BOOKMARKS_HIDELABELS)
 
         val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
 
         assertFalse(stayOpen)
         assertTrue(pref.openDialogCalled, "HIDELABELS is not sheet-editable, so it must still reach openDialog")
+    }
+
+    /**
+     * `page == null` WITH a host mounted — the other null operand, and the gap Task 1's review
+     * found (its item b). [hideLabelsStillLaunchesManageLabelsRatherThanASheet] above runs on this
+     * file's default fixture, which installs no host, so it cannot tell the two nulls apart: it
+     * would pass identically if `textSettingEditorPageFor` started returning a page for HIDELABELS,
+     * because the missing host would carry the assertion on its own.
+     *
+     * With the flag gone `host != null` is true in every production reading-view state, so
+     * `page == null` is the only live reason the `else` branch's classic fall-through still exists
+     * at all. Nothing pinned it before this test.
+     */
+    @Test
+    fun hideLabelsStillLaunchesManageLabelsEvenWithAHostInstalled() {
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        val pref = RecordingPreference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.BOOKMARKS_HIDELABELS)
+
+        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
+
+        assertFalse(stayOpen)
+        assertTrue(
+            pref.openDialogCalled,
+            "HIDELABELS has no sheet page, so even a mounted host must leave it on openDialog",
+        )
     }
 
     /**
@@ -347,8 +386,7 @@ class OptionsMenuStateBuilderTest {
      * overflow-menu tests above exercise.
      */
     @Test
-    fun windowPaneSheetEditableTextOptionGoesToTheHostWhenComposeIsOn() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
+    fun windowPaneSheetEditableTextOptionGoesToTheHost() {
         val host = ComposeReadingViewHost(activity)
         activity.composeReadingViewHost = host
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
@@ -362,13 +400,13 @@ class OptionsMenuStateBuilderTest {
     }
 
     /**
-     * Final fix wave, Fix 6: [windowPaneSheetEditableTextOptionGoesToTheHostWhenComposeIsOn]'s
-     * flag-off twin, missing before this fix round. `MainBibleActivity.handleWindowTextOptionItem`
+     * Final fix wave, Fix 6: [windowPaneSheetEditableTextOptionGoesToTheHost]'s no-host twin,
+     * missing before this fix round. `MainBibleActivity.handleWindowTextOptionItem`
      * and `OptionsMenuStateBuilder.dispatch`'s `else` branch are HAND-DUPLICATED code, not a shared
-     * helper, so the overflow menu's own on/off pair (
-     * [aSheetEditableTextOptionGoesToTheHostWhenComposeIsOn] /
-     * [aSheetEditableTextOptionStillOpensTheClassicDialogWhenComposeIsOff]) proves nothing about
-     * this second, independently maintained copy.
+     * helper, so the overflow menu's own pair (
+     * [aSheetEditableTextOptionGoesToTheHost] /
+     * [aSheetEditableTextOptionStillOpensTheClassicDialogWhenNoHostIsInstalled]) proves nothing
+     * about this second, independently maintained copy.
      *
      * Can't reuse [RecordingPreference] here the way the overflow twin does: unlike
      * `OptionsMenuStateBuilder.dispatch`, `handleWindowTextOptionItem` has no injectable
@@ -382,8 +420,8 @@ class OptionsMenuStateBuilderTest {
      * under Robolectric with a non-`.create()`d activity, matching the ON twin's own house style of
      * driving the real [MainBibleActivity.handleWindowPaneMenuItem] bridge rather than a fixture).
      *
-     * Batch Z-late epilogue, Task 1: this used to clear `use_compose_ui` and leave the host
-     * installed. The flag clause is gone from the interception (spec 10.2 -- it is now
+     * Batch Z-late epilogue, Task 1: this used to clear the old `use_compose_ui` setting and leave
+     * the host installed. The flag clause is gone from the interception (spec 10.2 -- it is now
      * `page != null && host != null`), so the OFF state this pins is "no host installed".
      *
      * Task 2, carrying a Task 1 review finding: Task 1 kept building a local host that it then did

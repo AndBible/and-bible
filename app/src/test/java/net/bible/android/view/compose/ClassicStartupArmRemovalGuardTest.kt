@@ -24,9 +24,9 @@ import org.junit.Test
  * deletes NO file, so `assertPathsGone`/`assertNoSourceNames` would be actively wrong here:
  * classic `StartupActivity` survives as the manifest launcher's target and the pre-init
  * orchestrator, and `startup_view.xml` plus its nine private collaborators survive too, because
- * `showFirstLayout()` has a second caller inside `gotoMainBibleActivity()` that is reachable with
- * `use_compose_ui` ON whenever every installed Bible is locked (spec Appendix B A4 says otherwise
- * and is wrong; see the batch record). Those move to the epilogue with the pre-init splash.
+ * `showFirstLayout()` has a second caller inside `gotoMainBibleActivity()`, reachable whenever
+ * every installed Bible is locked (spec Appendix B A4 says otherwise and is wrong; see the batch
+ * record) — which the epilogue's flag removal made unconditional rather than settling.
  *
  * So this guard asserts exactly two things: the arm no longer branches, and the class it used to
  * branch to is still here — the second being what stops a later slice from reading the first as
@@ -37,11 +37,9 @@ class ClassicStartupArmRemovalGuardTest {
     @Test fun theStartupArmIsUnconditional() =
         ClassicRemovalScan.assertLauncherArmsUnconditional(
             listOf("Screen.Startup"),
-            "the Screen.Startup arm consults use_compose_ui again; its classic half was never " +
-                "reachable -- the only caller of targetFor(Screen.Startup) sits inside " +
-                "if (useComposeFor(Screen.Startup)), and with the flag OFF the arm returned a " +
-                "class with no <activity> entry in any manifest, so it would have thrown " +
-                "ActivityNotFoundException",
+            "the Screen.Startup arm branches again; its classic half was never reachable -- " +
+                "the arm's classic side named a class with no <activity> entry in any manifest, " +
+                "so taking it would have thrown ActivityNotFoundException",
         )
 
     @Test fun classicStartupActivityAndItsFirstRunLayoutStillExist() =
@@ -55,7 +53,7 @@ class ClassicStartupArmRemovalGuardTest {
             "S18 collapsed a routing arm, it did NOT delete the classic startup screen: " +
                 "StartupActivity is still the manifest launcher's target and the pre-init " +
                 "orchestrator, the legacy alias subclass is named by CommonUtils.changeAppIconAndName, " +
-                "and startup_view.xml is still reachable with use_compose_ui ON via " +
-                "gotoMainBibleActivity()'s all-Bibles-locked fallback",
+                "and startup_view.xml is still reachable via gotoMainBibleActivity()'s " +
+                "all-Bibles-locked fallback",
         )
 }

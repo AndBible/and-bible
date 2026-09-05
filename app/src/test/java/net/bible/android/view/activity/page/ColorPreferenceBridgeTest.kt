@@ -34,8 +34,9 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 /**
- * [ColorPreference.openDialog] does not branch on `use_compose_ui` at all -- it launches the same
- * thing regardless. The Compose routing decision lives in `OptionsMenuStateBuilder.dispatch`
+ * [ColorPreference.openDialog] does not branch at all -- it launches the same thing regardless.
+ * (It never consulted the old `use_compose_ui` setting either, which is what this paragraph used
+ * to say.) The Compose routing decision lives in `OptionsMenuStateBuilder.dispatch`
  * (Settings editor sheets T11), which sends COLORS to the reading view's in-place editor sheet
  * before `openDialog` is ever called; those tests own that contract.
  *

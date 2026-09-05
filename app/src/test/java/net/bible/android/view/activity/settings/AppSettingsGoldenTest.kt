@@ -97,7 +97,6 @@ class AppSettingsGoldenTest {
         enableBluetooth = false,
         requestSdcardPermission = false,
         showErrorbox = false,
-        useComposeUi = true,
         toolbarButtonActionChoices = choices("bookmark" to "Bookmark", "share" to "Share", "speak" to "Speak"),
         bibleViewSwipeModeChoices = choices("verse_change" to "Change verse", "day_change" to "Change day"),
         nightModeChoices = choices("manual" to "Manual", "automatic" to "Follow system"),

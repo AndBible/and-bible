@@ -149,9 +149,9 @@ private const val URI_GRANT_FLAGS =
  * **This is no longer a forwarding hop.** It was written for spec
  * `2026-07-25-compose-pre-ab-state-freshness-design.md` §1 P2, when the external
  * `<intent-filter>`s for `ACTION_VIEW`/`ACTION_SEND`/`ACTION_SEND_MULTIPLE` lived on the classic
- * `InstallZip` Activity — an `<intent-filter>` cannot be toggled at runtime, so classic had to
- * receive the file-manager/Share-sheet Intent and forward a copy here whenever `use_compose_ui`
- * was ON. Slice S16's prep moved those filters onto this host in
+ * `InstallZip` Activity — an `<intent-filter>` cannot be toggled at runtime, so while the port was
+ * still switchable at runtime classic had to receive the file-manager/Share-sheet Intent and
+ * forward a copy here. Slice S16's prep moved those filters onto this host in
  * `app/src/standard/AndroidManifest.xml` and then deleted classic `InstallZip`, so **an external
  * module-file Intent now lands here directly** and nothing in production calls this any more.
  *
@@ -271,8 +271,8 @@ private val SAF_MIME_TYPES = arrayOf(
 )
 
 /**
- * Compose host for InstallZip (Plan B), behind `use_compose_ui` (routed via `Screen.InstallZip`,
- * Task B4). Handles entry dispatch (ACTION_VIEW/SEND/SEND_MULTIPLE/picker), the guaranteed-present
+ * Compose host for InstallZip (Plan B), routed via `Screen.InstallZip` (Task B4). Handles entry
+ * dispatch (ACTION_VIEW/SEND/SEND_MULTIPLE/picker), the guaranteed-present
  * prelude (confirm-install / format-info + SAF pick) with [InstallZipContent] itself, then starts
  * the shared foreground [DocumentInstallService] and renders its [DocumentInstallService.controller]
  * jobs -- including answering its ask-back [DecisionRequest]s -- via the same composable.

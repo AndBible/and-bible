@@ -211,7 +211,7 @@ class MyDocumentsComposeActivity : ActivityBase() {
         val doc = entityByLong[id] ?: return
         // Classic offers a save-changes prompt here; the auto-save-on-leave contract auto-saves instead.
         if (controller.dirty.value) controller.save()
-        // Route the pages drill-down through ScreenLauncher so the use_compose_ui flag governs it too.
+        // Route the pages drill-down through ScreenLauncher rather than naming the host class here.
         val intent = Intent(this, ScreenLauncher.targetFor(Screen.MyDocumentPages))
             .putExtra("documentId", doc.id.toString())
             .putExtra("documentInitials", doc.initials)

@@ -85,7 +85,7 @@ class ClassicProgressStatusRemovalGuardTest {
     @Test fun theProgressStatusArmIsUnconditional() =
         ClassicRemovalScan.assertLauncherArmsUnconditional(
             listOf("Screen.ProgressStatus"),
-            "the ProgressStatus arm still consults use_compose_ui; slice S19 deleted the classic " +
+            "the ProgressStatus arm still branches; slice S19 deleted the classic " +
                 "class it would branch to",
         )
 }

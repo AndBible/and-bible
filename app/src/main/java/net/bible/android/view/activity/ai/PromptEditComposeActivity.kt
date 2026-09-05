@@ -66,8 +66,8 @@ import org.koin.android.ext.android.inject
  * itself, being a plain composable, not an Activity) — checks `controller.isDirty` and shows an
  * equivalent host-level discard-confirm dialog before finishing.
  *
- * **View tools** stays host-side: it routes through [ScreenLauncher] ([Screen.ToolInfo], old/new per
- * `use_compose_ui` — Batch 9d task 11), ported verbatim from classic [PromptEditActivity]. The help
+ * **View tools** stays host-side: it routes through [ScreenLauncher] ([Screen.ToolInfo] — Batch 9d
+ * task 11), ported verbatim from classic [PromptEditActivity]. The help
  * dialog (F30) is owned by [PromptEditScreen] itself as an `AbInfoDialog` — this host only supplies
  * the Android-resource-backed help body text and the full "Read more" docs URL.
  *

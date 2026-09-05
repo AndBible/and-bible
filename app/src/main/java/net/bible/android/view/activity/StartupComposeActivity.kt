@@ -56,11 +56,14 @@ import net.bible.sharedui.strings.LocalStrings
 import java.util.Locale
 
 /**
- * Compose host for the first-run welcome screen — the new-path twin of classic
- * [StartupActivity.showFirstLayout]. Launched (behind `use_compose_ui`) by classic StartupActivity
- * only in the "no bibles" branch, AFTER database init (so the toggle is readable). Owns all Android
- * orchestration; signals success via `RESULT_OK` when bibles exist, and never launches
- * MainBibleActivity itself (classic StartupActivity does that).
+ * Compose host for the first-run welcome screen. Launched by [StartupActivity] only in the
+ * "no bibles" branch, AFTER database init. Owns all Android orchestration; signals success via
+ * `RESULT_OK` when bibles exist, and never launches MainBibleActivity itself ([StartupActivity]
+ * does that).
+ *
+ * [StartupActivity.showFirstLayout] — the classic welcome layout this replaced — is still reachable
+ * by its OTHER caller, `gotoMainBibleActivity()`'s every-Bible-locked path, so it and
+ * `startup_view.xml` survive.
  */
 class StartupComposeActivity : ActivityBase() {
     override val doNotInitializeApp = true

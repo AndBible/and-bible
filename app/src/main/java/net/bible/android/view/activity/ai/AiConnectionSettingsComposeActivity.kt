@@ -129,11 +129,8 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
     }
 
     // --- Navigation --------------------------------------------------------------------------
-    // Routed through ScreenLauncher (Screen enum) so PROVIDERS/MODELS honor the use_compose_ui
-    // flag from this Compose host too. EASY_SETUP opens the Compose AiProvidersComposeActivity's
-    // wizard (via EXTRA_START_EASY_SETUP) when the flag routes there; otherwise it falls back to
-    // the classic AiProvidersActivity's plain provider list (classic has no ported easy-setup
-    // wizard of its own — same interim fallback as 9a, just now flag-routed).
+    // Routed through ScreenLauncher (Screen enum) rather than naming the host classes here.
+    // EASY_SETUP opens AiProvidersComposeActivity's wizard via EXTRA_START_EASY_SETUP.
     private fun onNavigate(key: String) {
         when (key) {
             AiConnectionNav.EASY_SETUP -> launchEasySetup()

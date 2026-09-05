@@ -1122,7 +1122,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     // ---- Compose toolbar bridge (Batch 12b-B Task 5) ----
     // Thin `internal` wrappers so `ComposeReadingViewHost`'s `ReadingToolbarCallbacks` (the
-    // Compose reading toolbar, `use_compose_ui`) can drive the exact same actions as the classic
+    // Compose reading toolbar) can drive the exact same actions as the classic
     // toolbar's click/long-click/fling listeners above and in `updateActions()` /
     // `setupToolbarFlingDetection()`, without widening any of those private members' own
     // visibility — each wrapper just calls into the existing private logic from within this class.
@@ -1406,7 +1406,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * unchanged.
      *
      * Three separate conditions fall through to the classic path, and each is a real case, not
-     * belt-and-braces: no host at all (`use_compose_ui` off), a page shape `KeyChooserRoute`
+     * belt-and-braces: no host mounted yet, a page shape `KeyChooserRoute`
      * deliberately keeps on its own screen (dictionary, StudyPad, my-document, multi-document), and
      * a chosen kind whose key list is EMPTY — where both chooser activities apply a fallback
      * selection and finish without drawing anything, which a sheet cannot reproduce (E3).
@@ -1436,8 +1436,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     /**
      * The Compose toolbar title's long-press. Round 15b Task 5: with a Compose host mounted this now
      * opens the document QUICK sheet over the reading view (spec §4.5) instead of starting the full
-     * `ChooseDocument` screen — which the sheet's own footer row still reaches. Null host = classic
-     * path (`use_compose_ui` off), unchanged below.
+     * `ChooseDocument` screen — which the sheet's own footer row still reaches. Null host = the
+     * full-screen path, unchanged below.
      *
      * The reroute lives HERE rather than at the toolbar callback so there is exactly ONE conditional
      * and one classic fall-through for this entry point, and so any later caller of this internal
@@ -1714,11 +1714,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 fullScreen = true
             })
             R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
-                // M1 (whole-branch review fix wave): guard on the MOUNTED HOST, not the live
-                // `use_compose_ui` flag -- toggling the setting does not recreate the activity, and
-                // History (MenuCommandHandler.kt / this file's long-press-back) already guards this
-                // way. Guarding on the flag here would let the toolbar icon (host-only) open the
-                // sheet while this item opened the Activity, in that window.
+                // M1 (whole-branch review fix wave): guard on the MOUNTED HOST. The host is
+                // mounted by `setupUi`, so it is null until then and null in any state where the
+                // reading view is not up; History (MenuCommandHandler.kt / this file's
+                // long-press-back) already guards the same way. The alternative this replaced was a
+                // live settings read, which could disagree with what is actually on screen.
                 val host = composeReadingViewHost
                 if (host != null) {
                     host.showWorkspaceSheet()

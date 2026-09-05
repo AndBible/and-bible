@@ -37,7 +37,7 @@ import java.math.BigDecimal
  * arithmetic engine (exp4j + BigDecimal) and the real PIN on the `:app` side of the injected seams.
  * Behaviour (arithmetic formatting, PIN-vs-operation unlock decision, RESULT_OK/finish) mirrors
  * [CalculatorActivity] exactly. Like it, [doNotInitializeApp] is true (no workspace init behind
- * the disguise). Selected by [net.bible.android.view.ScreenLauncher] when `use_compose_ui` is on.
+ * the disguise). Resolved by [net.bible.android.view.ScreenLauncher].
  */
 class CalculatorComposeActivity : ActivityBase() {
     override val doNotInitializeApp: Boolean = true

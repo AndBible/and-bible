@@ -94,7 +94,7 @@ class ClassicInstallZipRemovalGuardTest {
     @Test fun theInstallZipArmIsUnconditional() =
         ClassicRemovalScan.assertLauncherArmsUnconditional(
             listOf("Screen.InstallZip"),
-            "the InstallZip arm still consults use_compose_ui; slice S16 deleted the classic " +
+            "the InstallZip arm still branches; slice S16 deleted the classic " +
                 "class it would branch to",
         )
 

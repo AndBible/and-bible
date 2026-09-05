@@ -41,9 +41,8 @@ import org.koin.android.ext.android.inject
  * added since the activity was created.
  *
  * **Opening a log.** [RawLogHistoryController.onOpenLog] routes through [ScreenLauncher]
- * ([Screen.RawLlmLog], old/new per `use_compose_ui` — Batch 9d task 11), passing the classic
- * [RawLlmLogKeys.EXTRA_LOG_RECORD_ID] extra name (reused verbatim so the extra key matches
- * classic) regardless of which host it resolves to.
+ * ([Screen.RawLlmLog] — Batch 9d task 11), passing the classic [RawLlmLogKeys.EXTRA_LOG_RECORD_ID]
+ * extra name, reused verbatim so the extra key matches what classic sent.
  */
 class RawLogHistoryComposeActivity : ActivityBase() {
     private val service: RawLogService by inject()

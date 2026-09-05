@@ -451,10 +451,11 @@ class WindowButtonsVisibility {
 enum class PaneMenuAnchor { Pane, Rail }
 
 /**
- * Mounts the Compose reading view into [MainBibleActivity]'s content, replacing the classic
- * `SplitBibleArea` build (see [DocumentViewManager]'s `use_compose_ui` guard) when
- * `use_compose_ui` is on. Plan A kept the classic toolbar/drawer chrome; Plan B (this task) hosts
- * the Compose `ReadingToolbar` instead: [install] hides the classic `toolbarLayout`/
+ * Mounts the Compose reading view into [MainBibleActivity]'s content. It replaced the classic
+ * `SplitBibleArea` build, which [DocumentViewManager] used to choose between; that build is gone
+ * and this is now the only reading view there is. Plan A kept the classic toolbar/drawer chrome;
+ * Plan B (this task) hosts the Compose `ReadingToolbar` instead: [install] hides the classic
+ * `toolbarLayout`/
  * `toolbarDivider` and re-anchors [container] (`binding.mainBibleView`) from below the divider to
  * the parent top, so the Compose toolbar — which applies its own
  * `Modifier.windowInsetsPadding(WindowInsets.statusBars)` — owns the top inset instead. The drawer
@@ -2640,8 +2641,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * [mountComposeView]; this bridge only supplies the `onExecute` callback that starts the agent
      * once a prompt (and, if needed, a specification/model override) has been chosen — a verbatim
      * mirror of classic `LlmDialogHelper.executePrompt`. Called by [MainBibleActivity]'s
-     * flag-gated entry points ([MainBibleActivity.showLlmPromptSelector] and the overflow/pane-menu
-     * LLM actions) when `use_compose_ui` is on.
+     * host-gated entry points ([MainBibleActivity.showLlmPromptSelector] and the overflow/pane-menu
+     * LLM actions).
      */
     fun showPromptSelector(selection: Selection, context: PromptContext, docCategory: DocumentCategory?) {
         readingLlmDialogs.openPromptSelector(context.name, docCategory?.name) { promptId, userSpecification, modelOverrideId ->
@@ -2719,10 +2720,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // windowState.layout current, but the very first mount needs an explicit kick).
         windowState.refresh(activity.windowRepository)
 
-        // Layout surgery (compose path only — see class kdoc). Done programmatically here, not in
-        // main_bible_view.xml, so the classic (use_compose_ui=false) path — which never calls
-        // install() — stays byte-identical: toolbarLayout/toolbarDivider keep their XML-authored
-        // visibility/constraints, and `container`'s LayoutParams are never mutated.
+        // Layout surgery, done programmatically here rather than in main_bible_view.xml. That
+        // was originally so the classic path -- which never called install() -- kept the
+        // XML-authored visibility/constraints byte-for-byte; the classic path is gone, but the
+        // layout file is still shared with everything else that inflates it, so the surgery stays
+        // here rather than being baked into the XML.
         activity.binding.toolbarLayout.visibility = View.GONE
         activity.binding.toolbarDivider.visibility = View.GONE
         (container.layoutParams as? ConstraintLayout.LayoutParams)?.let { params ->

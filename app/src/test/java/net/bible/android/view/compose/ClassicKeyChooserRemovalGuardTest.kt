@@ -151,38 +151,18 @@ class ClassicKeyChooserRemovalGuardTest {
         )
     }
 
-    /** The routing arms must be unconditional now: no `useComposeFor` branch may mention a chooser. */
-    @Test fun screenLauncherDoesNotBranchForKeyChoosers() {
-        val path = "src/main/java/net/bible/android/view/ScreenLauncher.kt"
-        assertTrue("$path is missing — this guard would pass vacuously", File(path).isFile)
-        val code = ClassicRemovalScan.codeLinesOf(path)
-        val chooserScreens = listOf(
-            "Screen.ChooseGeneralBookKey", "Screen.ChooseMapKey", "Screen.ChooseDictionaryWord",
-        )
-        // Each arm is `Screen.X -> XComposeActivity::class.java`. This is a TOKEN bound, not a
-        // true `when`-arm bound: take the text from the arm's `Screen.X ->` up to the NEXT
-        // occurrence of the token `Screen.` (or the end of the file), and assert no branch
-        // survives inside that span. An arm whose own body happened to mention `Screen.` would be
-        // truncated early by this heuristic — every collapsed arm here is a one-liner, so that
-        // never happens in practice, but a future arm is not guaranteed to stay that way. The
-        // literal " ->" in the search string keeps an arm from matching a longer-named sibling.
-        // NOTE, deliberately different from S1's and S2's copies of this test: the branch detector
-        // matches `else` as a WHOLE WORD rather than the literal `"else "`, so an `else` written at
-        // the end of a line is caught too. S2's final review flagged that gap and asked for it to
-        // be fixed before the pattern was copied further; this is that fix.
-        val elseWord = Regex("""\belse\b""")
-        val offenders = chooserScreens.filter { screen ->
-            val start = code.indexOf("$screen ->")
-            if (start < 0) return@filter true
-            val next = code.indexOf("Screen.", start + screen.length + 3)
-            val arm = if (next < 0) code.substring(start) else code.substring(start, next)
-            arm.contains("useComposeFor") || elseWord.containsMatchIn(arm)
-        }
-        assertEquals(
-            "these key-chooser arms still branch on the flag (or are missing entirely) — S3 " +
-                "collapses them to the Compose class unconditionally",
-            emptyList<String>(),
-            offenders,
-        )
-    }
+    /**
+     * The routing arms must be unconditional now: no branch may survive inside one.
+     *
+     * Batch Z-late epilogue, Task 7: folded onto the shared helper. This copy was already the
+     * CORRECT one -- S3 wrote the whole-word `else` detector here, and that is the form
+     * [ClassicRemovalScan] was extracted from -- so folding it changes no behaviour; it removes the
+     * third and last copy, which is what stops the two broken copies from being re-derived from a
+     * surviving inlined one.
+     */
+    @Test fun screenLauncherDoesNotBranchForKeyChoosers() = ClassicRemovalScan.assertLauncherArmsUnconditional(
+        listOf("Screen.ChooseGeneralBookKey", "Screen.ChooseMapKey", "Screen.ChooseDictionaryWord"),
+        "these key-chooser arms still branch on the flag (or are missing entirely) — S3 " +
+            "collapses them to the Compose class unconditionally",
+    )
 }
