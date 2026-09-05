@@ -395,29 +395,14 @@ internal fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Bo
     !fullScreen && transportVisible
 
 /**
- * Whether the classic native bottom chrome — [net.bible.android.view.util.widget.AgentLogWidget]
- * and `MainBibleActivity`'s classic `speakTransport` bar — is allowed to make itself visible.
- * `false` on the Compose path, where `ReadingViewScreen`'s `agentLog`/`speakBar` slots (see
- * [agentLog]/[speakTransport] below, wired as `agentLogSlot`/`speakBarSlot` in [install]) are the
- * ones that own this chrome; left showing, the classic views would draw ON TOP of their Compose
- * replacements, since both are declared AFTER the Compose container in `main_bible_view.xml` and
- * anchored to the parent bottom (pre-A/B state-freshness spec §1 P3, Task 5).
- *
- * A pure function, mirroring [speakBarVisible] above, so this decision is unit-testable even at
- * its `AgentLogWidget` call site — a real `View` with no Robolectric test in this repo — see
- * `ClassicBottomChromeAllowedTest`.
- */
-internal fun classicBottomChromeAllowed(composeHosted: Boolean): Boolean = !composeHosted
-
-/**
  * The `menuWindowId`/`paneMenuWindowId` a surface should receive: the open window's id only when
  * the open menu is anchored ([openAnchor]) to THAT [surface], else `null` — the pane overlay and the
  * rail (A/B batch 3, F5b) each call this with their own [surface] so exactly one of the two
  * `WindowPaneMenu` instances ever reports itself expanded, keeping "both menus open at once"
  * structurally unrepresentable rather than merely avoided. A pure function, mirroring
- * [speakBarVisible]/[classicBottomChromeAllowed] above, so the gate itself — not just the
- * `openPaneMenu` bookkeeping that feeds it — is unit-testable without a `ComposeTestRule` (this
- * repo's `:app` unit tests have none); see `MenuWindowIdForTest`.
+ * [speakBarVisible] above, so the gate itself — not just the `openPaneMenu` bookkeeping that feeds
+ * it — is unit-testable without a `ComposeTestRule` (this repo's `:app` unit tests have none); see
+ * `MenuWindowIdForTest`.
  */
 internal fun menuWindowIdFor(surface: PaneMenuAnchor, openAnchor: PaneMenuAnchor, openWindowId: String?): String? =
     if (openAnchor == surface) openWindowId else null
@@ -2740,15 +2725,6 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // visibility/constraints, and `container`'s LayoutParams are never mutated.
         activity.binding.toolbarLayout.visibility = View.GONE
         activity.binding.toolbarDivider.visibility = View.GONE
-        // The classic Speak-transport bar and agent-log widget are declared AFTER the Compose
-        // container in main_bible_view.xml and anchored to the parent bottom — unless hidden,
-        // they draw ON TOP of their Compose replacements (`ReadingViewScreen`'s `speakBar`/
-        // `agentLog` slots below, `speakBarSlot`/`agentLogSlot`). Hiding them here alone is not
-        // enough — both re-show themselves later (`MainBibleActivity.updateBottomBars()`,
-        // `AgentLogWidget`'s own bus handlers) — see `classicBottomChromeAllowed`, which those
-        // call sites guard on.
-        activity.binding.speakTransport.visibility = View.GONE
-        activity.binding.agentLogWidget.visibility = View.GONE
         (container.layoutParams as? ConstraintLayout.LayoutParams)?.let { params ->
             params.topToBottom = ConstraintLayout.LayoutParams.UNSET
             params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID

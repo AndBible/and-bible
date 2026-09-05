@@ -128,7 +128,10 @@ class ClassicReadingViewRemovalGuardTest {
                 "net.bible.android.view.util.widget.WindowButtonWidget",
                 "net.bible.android.view.util.widget.AddNewWindowButtonWidget",
             ),
-            "a KDoc bracket link counts -- it is a compile error, not prose",
+            "a KDoc bracket link counts, and not because it breaks the build: kotlinc ignores an " +
+                "unresolved [Foo] entirely (at most Dokka warns). What it means is that a survivor " +
+                "still points a reader at a class that is gone -- and the IMPORT such a link " +
+                "usually drags in behind it IS a hard compile error.",
         )
     }
 
@@ -163,6 +166,57 @@ class ClassicReadingViewRemovalGuardTest {
      * below -- which makes the same argument, since a host that does not exist cannot redeclare
      * anything.
      */
+    /**
+     * Spec 10.4 / decision D1. The two widgets `main_bible_view.xml` still embedded were not merely
+     * hidden, because a `GONE` view is still ATTACHED: `SpeakTransportWidget.onAttachedToWindow`
+     * registers three `ABEventBus` subscriptions and its `SpeakProgressEvent` handler ran
+     * `speakControl.getStatusText(FLAG_SHOW_ALL)` on every progress tick, beside the Compose
+     * `SpeakTransportController` that replaced it; its constructor ran `SpeakSettings.load()`
+     * regardless of visibility. `AgentLogWidget` likewise kept live bus handlers and a
+     * `RecyclerView` adapter. So the tags go and the classes go with them.
+     *
+     * The presence half is not decoration: both files held a LIVE declaration that the Compose path
+     * still posts and consumes (`HideTransportEvent`, `AgentLogVisibilityChanged`), so the deletion
+     * is only correct if those were split out first -- exactly the shape of
+     * [theRestoreButtonsEventOutlivesItsClassicHome] above. Deleting the widgets and dropping the
+     * events would break the Compose Speak bar's hide path and the agent-log offset bookkeeping,
+     * and the two halves together forbid the other failure mode too: a split-out file that merely
+     * shadows a still-present host.
+     *
+     * The layout half is the anti-vacuity precondition for the count: `mainBibleView` is the Compose
+     * mount point and must still be there, or "zero classic chrome tags" is what an empty or
+     * moved-away file says too.
+     */
+    @Test
+    fun theClassicBottomChromeIsGone() {
+        ClassicRemovalScan.assertPathsGone(
+            listOf(
+                "src/main/java/net/bible/android/view/util/widget/SpeakTransportWidget.kt",
+                "src/main/java/net/bible/android/view/util/widget/AgentLogWidget.kt",
+                "src/main/res/layout/speak_transport_widget.xml",
+                "src/main/res/layout/agent_log_widget.xml",
+            ),
+            "spec 10.4 / D1: a GONE view is still attached, so leaving these hidden kept three " +
+                "ABEventBus subscriptions and a per-tick getStatusText running beside the Compose " +
+                "controller. The tags go and the classes go with them.",
+        )
+        ClassicRemovalScan.assertPathsPresent(
+            listOf(
+                "src/main/java/net/bible/android/view/util/widget/SpeakTransportEvents.kt",
+                "src/main/java/net/bible/android/view/util/widget/AgentLogEvents.kt",
+            ),
+            "their live Compose-path events had to be split out first",
+        )
+        val layout = ClassicRemovalScan.codeLinesOf("src/main/res/layout/main_bible_view.xml")
+        assertTrue(
+            "main_bible_view.xml no longer holds the Compose mount point -- the count below " +
+                "would pass vacuously against an empty or moved file",
+            layout.contains("android:id=\"@+id/mainBibleView\""),
+        )
+        assertEquals("main_bible_view.xml must not embed the classic chrome", 0,
+            Regex("""SpeakTransportWidget|AgentLogWidget""").findAll(layout).count())
+    }
+
     @Test
     fun theClipboardKeyOutlivesItsClassicHome() {
         ClassicRemovalScan.assertPathsPresent(

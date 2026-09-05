@@ -380,9 +380,14 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         ABEventBus.post(WindowChangedEvent(window))
     }
     /**
-     * Reuses the same [RestoreButtonsVisibilityChanged] event class classic `SplitBibleArea`
-     * posts (and `BibleView` listens for) so a restore-buttons toggle driven through the new
-     * Compose command seam still refreshes the classic view.
+     * Posts [RestoreButtonsVisibilityChanged], the sole remaining sender of it.
+     *
+     * Carry-over correction from Batch Z-late's epilogue (Task 4 review): this KDoc used to say the
+     * event class was shared with classic `SplitBibleArea`, which "posts" it, so that a toggle
+     * through the Compose command seam "still refreshes the classic view". Both halves are now
+     * false -- `SplitBibleArea` was deleted in Task 4 (the event class survived it only because it
+     * was split out into `RestoreButtonsEvents.kt` first), and there is no classic reading view
+     * left to refresh. The single consumer is `BibleView`, which re-reads its bottom offsets.
      */
     fun notifyRestoreButtonsChanged() {
         windowStateService.refresh(this)

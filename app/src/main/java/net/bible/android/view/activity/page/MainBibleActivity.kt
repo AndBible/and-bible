@@ -55,8 +55,6 @@ import android.view.ViewGroup
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
-import android.view.animation.AccelerateInterpolator
-import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
@@ -138,13 +136,12 @@ import net.bible.android.view.activity.ai.LlmDialogHelper
 import net.bible.android.view.activity.download.imageResource
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import net.bible.android.view.activity.page.screen.classicBottomChromeAllowed
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.AgentLogVisibilityChanged
-import net.bible.android.view.util.widget.SpeakTransportWidget
+import net.bible.android.view.util.widget.HideTransportEvent
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.betaIntroVideo
@@ -392,7 +389,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 updateBottomBars()
             }
         }
-        on<SpeakTransportWidget.HideTransportEvent> { event ->
+        on<HideTransportEvent> { _ ->
             transportBarVisible = false
             updateBottomBars()
         }
@@ -2507,8 +2504,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // `MaterialTheme.colorScheme`/`AbTheme`) owns its own colors, and `toolbarLayout` is GONE
         // (see `ComposeReadingViewHost.install`). What survives is the window-level chrome that
         // was always applied unconditionally -- the system-bar show/hide/appearance flags,
-        // `navigationBarColor`, and `speakTransport`'s background (the transport bar is still a
-        // classic View until it is retired with the rest of the classic bottom chrome).
+        // `navigationBarColor`. The classic `speakTransport` bar's background write went with the
+        // bar itself (spec 10.4): the Compose `SpeakTransportBar` paints its own surface.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.decorView.windowInsetsController?.apply {
                 if (CommonUtils.settings.hideStatusBar) {
@@ -2636,58 +2633,25 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         controller.isAppearanceLightNavigationBars = navBarBackgroundIsLight
                     }
                 }
-
-                binding.speakTransport.setBackgroundColor(color)
             }
         }
     }
 
+    /**
+     * There are no bottom BARS left for this to lay out: the classic `speakTransport` bar and
+     * `agentLogWidget` are deleted (spec 10.4), and the Compose `SpeakTransportBar`/`AgentLogPanel`
+     * that replaced them place themselves inside `ReadingViewScreen` rather than being animated
+     * into position from here. What survives is the restore-buttons broadcast, which was never
+     * bar-specific -- `BibleView` re-reads its offsets on it.
+     *
+     * `transportBarVisible`/`transportBarHeight`/`bottomOffset1` are NOT dead with the bar: they are
+     * still tracked by their own setters and read unconditionally by `bottomOffset2` and
+     * `bottomOffsetForWebView` to size the Compose WebView's bottom padding. (That reservation is
+     * the pre-existing 12b/12f double-reservation concern, tracked as a device-verification item and
+     * still not fixed here.)
+     */
     private fun updateBottomBars() {
         Log.i(TAG, "updateBottomBars")
-        // The Compose Speak transport bar (`ComposeReadingViewHost`/`SpeakTransportBar`, gated by
-        // `speakBarVisible`) and agent-log panel (`AgentLogPanel`) own this chrome on the
-        // `use_compose_ui` path — `ComposeReadingViewHost.install()` hides the classic
-        // `speakTransport`/`agentLogWidget` views at mount time. Every mutation of those classic
-        // views below is guarded on whether a Compose host is actually MOUNTED
-        // (`composeReadingViewHost != null`), NOT on the live `use_compose_ui` flag: returning from
-        // Settings runs `preferenceSettingsChanged()` without recreating this activity, so the flag
-        // and the mounted host can disagree for a whole activity lifetime after the user toggles it
-        // (see `classicBottomChromeAllowed`'s finding-I1 fix). `bottomOffset1`/`transportBarHeight`/
-        // `transportBarVisible` keep being tracked unconditionally here regardless of the guard —
-        // `bottomOffset2`/`bottomOffsetForWebView` also read them unconditionally elsewhere to size
-        // the WebView's bottom padding (that is a separate, pre-existing 12b/12f double-reservation
-        // concern on the Compose path, tracked as a device-verification item, NOT fixed here); only
-        // the classic views' own visibility/translation writes below are conditional.
-        if (classicBottomChromeAllowed(composeHosted = composeReadingViewHost != null)) {
-            if(isFullScreen || !transportBarVisible) {
-                binding.speakTransport.animate()
-                    .translationY(binding.speakTransport.height.toFloat())
-                    .setInterpolator(AccelerateInterpolator())
-                    .withEndAction { binding.speakTransport.visibility = View.GONE }
-                    .apply {
-                        if(CommonUtils.settings.disableAnimations) {
-                            duration = 0
-                        }
-                    }
-                    .start()
-            } else {
-                binding.speakTransport.visibility = View.VISIBLE
-                binding.speakTransport.animate()
-                    .translationY(-bottomOffset1.toFloat())
-                    .setInterpolator(DecelerateInterpolator())
-                    .apply {
-                        if(CommonUtils.settings.disableAnimations) {
-                            duration = 0
-                        }
-                    }
-                    .start()
-            }
-
-            // Position agent log widget above system nav bar and transport bar
-            val agentLogOffset = bottomOffset1 + (if (transportBarVisible) transportBarHeight else 0)
-            binding.agentLogWidget.translationY = -agentLogOffset.toFloat()
-        }
-
         ABEventBus.post(UpdateRestoreWindowButtons())
     }
 
@@ -2816,10 +2780,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // height, padding, visibility and status-bar inset — see that class's `install()` — so
         // there is no toolbar view left for this function to lay out or animate. What remains is
         // the system-bar hide/show, which was never toolbar-specific: fullscreen must still
-        // hide/show the OS status/navigation bars. `speakTransport`'s horizontal padding was
-        // likewise always applied, and stays until the classic transport bar itself is retired.
-        binding.speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
-
+        // hide/show the OS status/navigation bars. The classic `speakTransport` bar's horizontal
+        // padding write went with the bar itself (spec 10.4); the Compose `SpeakTransportBar`
+        // consumes the cutout/system-bar insets in `ReadingViewScreen`.
         if(isFullScreen) {
             hideSystemUI()
             Log.i(TAG, "Fullscreen on")

@@ -33,6 +33,12 @@ import org.junit.Test
  * and would now fail for the RIGHT reason with entirely the wrong message. Speak entry is wholly a
  * sheet over the reading view; `SpeakEntryPointGuardTest` guards that sheet.
  *
+ * Batch Z-late epilogue, Task 5 (spec 10.4 / decision D1): `SpeakTransportWidget` and its layout
+ * moved from this file's PRESENT list to its doomed list. S13 kept them because they were still
+ * embedded in `main_bible_view.xml`; Task 5 removed that embedding, and a `GONE` view is still
+ * attached, so hiding rather than deleting would have left three live bus subscriptions and a
+ * per-tick `getStatusText` running beside the Compose controller.
+ *
  * `AbstractSpeakActivity` is deliberately kept and deliberately referenceless: §2.4 names this base
  * and this exact situation. It is the phase's third such residue after ChooseKeyBase (S3) and
  * ProgressActivityBase (S19), and nothing but the assertion below stops a later tidy deleting it
@@ -50,22 +56,28 @@ class ClassicSpeakRemovalGuardTest {
         "src/main/res/layout/speak_bible.xml",
         "src/main/res/layout/speak_settings.xml",
         "src/main/res/menu/speak_bible_actionbar_menu.xml",
+        // Batch Z-late epilogue, Task 5 (spec 10.4 / decision D1): the classic transport bar was
+        // the last of the classic bottom chrome. It could not simply be left GONE -- a GONE view is
+        // still ATTACHED, so it kept three ABEventBus subscriptions and ran getStatusText on every
+        // SpeakProgressEvent beside the Compose SpeakTransportController that replaced it.
+        "src/main/java/net/bible/android/view/util/widget/SpeakTransportWidget.kt",
+        "src/main/res/layout/speak_transport_widget.xml",
     )
 
     @Test fun theClassicSpeakFilesAndResourcesAreGone() {
         ClassicRemovalScan.assertPathsGone(
             doomedPaths,
             "these classic Speak files, layouts or the shared actionbar menu should have been " +
-                "deleted in S13",
+                "deleted in S13, and SpeakTransportWidget with its layout in the epilogue's Task 5",
         )
     }
 
     @Test fun noSourceFileNamesAClassicSpeakScreen() {
         ClassicRemovalScan.assertNoSourceNames(
             doomedClassNames,
-            "these files still name a classic Speak screen deleted in S13. SpeakTransportWidget and " +
-                "everything under speak/actionbarbuttons/ SURVIVE and name neither class — a hit " +
-                "there would be a new reference, not a leftover.",
+            "these files still name a classic Speak screen deleted in S13. Everything under " +
+                "speak/actionbarbuttons/ SURVIVES and names neither class — a hit there would be a " +
+                "new reference, not a leftover.",
         )
     }
 
@@ -95,17 +107,40 @@ class ClassicSpeakRemovalGuardTest {
         )
     }
 
-    @Test fun theReferencelessAbstractSpeakActivityAndTheTransportWidgetStillExist() {
+    @Test fun theReferencelessAbstractSpeakActivityStillExists() {
         ClassicRemovalScan.assertPathsPresent(
-            listOf(
-                "src/main/java/net/bible/android/view/activity/speak/AbstractSpeakActivity.kt",
-                "src/main/java/net/bible/android/view/util/widget/SpeakTransportWidget.kt",
-                "src/main/res/layout/speak_transport_widget.xml",
-            ),
+            listOf("src/main/java/net/bible/android/view/activity/speak/AbstractSpeakActivity.kt"),
             "AbstractSpeakActivity lost both its subclasses in S13 and is now referenceless — §2.4 " +
-                "names it and keeps it. SpeakTransportWidget is §2.4-protected too: S13 removes its " +
-                "config-button route but not the widget, which stays until the epilogue removes the " +
-                "classic bottom chrome from main_bible_view.xml.",
+                "names it and keeps it.",
+        )
+    }
+
+    /**
+     * The epilogue did exactly what this guard's older message predicted. S13 called
+     * `SpeakTransportWidget` §2.4-protected and asserted it PRESENT, because it removed only the
+     * widget's config-button route and left the widget itself embedded in `main_bible_view.xml`.
+     * Task 5 removed that embedding, and with it the widget and its layout -- both are now in
+     * [doomedPaths] above, which is why this assertion is the inverse of the one it replaces.
+     *
+     * [HideTransportEvent] is the anti-vacuity half and the substantive half at once: it was a
+     * NESTED class of the deleted widget and is still posted and consumed on the Compose path, so
+     * the deletion is only correct because it was promoted to its own file first. A guard that only
+     * asserted the widget gone would pass just as well if the event had been deleted with it, which
+     * would silently break the Compose Speak bar's hide path.
+     */
+    @Test fun theTransportWidgetsLiveEventOutlivedIt() {
+        ClassicRemovalScan.assertPathsPresent(
+            listOf("src/main/java/net/bible/android/view/util/widget/SpeakTransportEvents.kt"),
+            "HideTransportEvent had to be split out of SpeakTransportWidget before Task 5 could " +
+                "delete the widget",
+        )
+        val code = ClassicRemovalScan.codeLinesOf(
+            "src/main/java/net/bible/android/control/speak/SpeakTransportServiceImpl.kt",
+        )
+        assertTrue(
+            "the Compose Speak transport bridge no longer posts HideTransportEvent — the promoted " +
+                "event has lost the very consumer that justified promoting it",
+            code.contains("ABEventBus.post(HideTransportEvent())"),
         )
     }
 }

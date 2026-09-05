@@ -166,10 +166,9 @@ class SpeakEntryPointGuardTest {
      *
      * The two files that used to need excluding no longer do, because neither reaches an entry
      * point: `ScreenLauncher.kt` declared the retired `Screen.BibleSpeak` mapping, and
-     * `SpeakTransportWidget.kt` (the classic widget, §2.4-protected, existence asserted by
-     * [ClassicSpeakRemovalGuardTest]) had its own config-button route removed in S13, so its cog is
-     * visible-but-inert until the epilogue decides the fate of `main_bible_view.xml:201`'s
-     * `custom:showConfig="true"`.
+     * `SpeakTransportWidget.kt` no longer exists at all -- Task 5 deleted it with the rest of the
+     * classic bottom chrome (spec 10.4 / decision D1), which also settled the fate of its
+     * visible-but-inert cog and of `main_bible_view.xml`'s `custom:showConfig="true"`.
      */
     @Test fun theSpeakSheetEntryPointsLiveInExactlyTheScannedFiles() {
         val holders = File("src/main").walkTopDown()
