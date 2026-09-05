@@ -40,11 +40,12 @@ class SpeakEntryPointGuardTest {
     }
 
     /**
-     * Round 13a T13: `Screen.BibleSpeak` now resolves to the CLASSIC activity only (T4), so every
+     * Round 13a T13: `Screen.BibleSpeak` resolves to `MainBibleActivity` (the reading view host)
+     * in both flag states — S13 deleted the classic activity this comment used to name — so every
      * Compose-path call site must branch to [net.bible.android.view.activity.page.screen
-     * .ComposeReadingViewHost.showSpeakSettings] instead. A forgotten branch would silently drop the
-     * user into the classic Speak screen — a regression no golden and no unit test would notice, and
-     * one nothing else here would fail on.
+     * .ComposeReadingViewHost.showSpeakSettings] instead. A forgotten branch would silently leave the
+     * reading view on screen with no sheet opened — a dead-end no-op no golden and no unit test would
+     * notice, and one nothing else here would fail on.
      *
      * Same source-scan shape (and the same two traps avoided) as [MenuSeamGuardTest]: prose lines
      * are filtered so an `import` or a comment cannot satisfy the guard, and the path list is
@@ -86,7 +87,8 @@ class SpeakEntryPointGuardTest {
             if (code.contains("Screen.BibleSpeak")) {
                 assertTrue(
                     "$path launches Screen.BibleSpeak but calls neither showSpeakSettings() nor " +
-                        "showSpeakTransport() — the Compose path would open the CLASSIC Speak activity",
+                        "showSpeakTransport() — the Compose path would land on the reading view with " +
+                        "no sheet opened, a dead-end no-op",
                     branchesToCompose(code),
                 )
             }
@@ -183,9 +185,9 @@ class SpeakEntryPointGuardTest {
             .sorted()
         assertEquals(
             "these files launch Screen.BibleSpeak but reach no Compose Speak entry point — on the " +
-                "Compose path they would open the CLASSIC Speak activity. Either add a " +
-                "`host.showSpeakSettings()` / `host.showSpeakTransport()` branch, or, if the file " +
-                "is classic-only, add it to excludedClassicLaunchers WITH the reason.",
+                "Compose path they would land on the reading view with no sheet opened, a dead-end " +
+                "no-op. Either add a `host.showSpeakSettings()` / `host.showSpeakTransport()` branch, " +
+                "or, if the file is classic-only, add it to excludedClassicLaunchers WITH the reason.",
             emptyList<String>(),
             offenders,
         )

@@ -325,18 +325,24 @@ class ScreenLauncherTest {
 
     @Test
     fun labelEdit_routes_to_compose() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(LabelEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.LabelEdit))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(LabelEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.LabelEdit))
     }
 
     @Test
     fun manageLabels_routes_to_compose() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(ManageLabelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ManageLabels))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(ManageLabelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ManageLabels))
     }
 
     @Test
     fun bookmarks_routes_to_compose() {
+        CommonUtils.settings.setBoolean("use_compose_ui", true)
+        assertEquals(BookmarksComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
         assertEquals(BookmarksComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
     }

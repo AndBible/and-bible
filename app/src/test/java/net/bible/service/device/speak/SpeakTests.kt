@@ -24,12 +24,10 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.control.versification.BibleTraverser
@@ -122,8 +120,10 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
         val before = speakSettingsService.playback.value.speedPercent
         val s = SpeakSettings.load()
         s.playbackSettings = s.playbackSettings.copy(speed = before + 10)
+        // save() itself broadcasts SpeakSettingsChangedEvent whenever the settings differ from
+        // currentSettings (SpeakSettings.kt:35), which they do here (speed changed by 10) — no
+        // extra post needed; this line still exercises the event->listener path this test is for.
         s.save()
-        ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
         assertThat(speakSettingsService.playback.value.speedPercent, equalTo(before + 10))
     }
 

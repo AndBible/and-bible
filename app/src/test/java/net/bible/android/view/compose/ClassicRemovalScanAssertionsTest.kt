@@ -108,7 +108,7 @@ class ClassicRemovalScanAssertionsTest {
         assertThrows(AssertionError::class.java) {
             ClassicRemovalScan.assertNoSourceNames(
                 listOf(fq),
-                "two layouts still inflate this class by name, so the helper must fail",
+                "one layout still inflates this class by name, so the helper must fail",
             )
         }
         ClassicRemovalScan.assertNoSourceNames(
