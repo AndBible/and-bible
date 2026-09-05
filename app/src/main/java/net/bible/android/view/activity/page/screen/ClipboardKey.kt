@@ -21,8 +21,15 @@ import net.bible.service.sword.BookAndKey
 
 /**
  * The app-wide "copied Bible reference" slot: set by `MainBibleActivity`'s copy-reference pane-menu
- * action and by `BibleView`'s and-bible-URL handler, read back by `WindowPaneMenuStateBuilder` to
- * decide whether the pane menu's "go to copied reference" row is shown and what it is labelled.
+ * action and by `BibleView`'s and-bible-URL handler, and read back by TWO survivors --
+ * `WindowPaneMenuStateBuilder`, which decides whether the pane menu's "go to copied reference" row
+ * is shown and what it is labelled, and `MainBibleActivity` itself, whose `ID_GO_TO_REFERENCE`
+ * handler is what actually navigates to the stored reference when that row is chosen.
+ *
+ * That second reader was missing from this KDoc when the file was created and was added in the
+ * commit that deleted the classic host. The omission matters more here than it would elsewhere:
+ * this file's whole reason to exist is to be the durable record of who uses the slot, so an
+ * incomplete list is the one defect that makes it useless.
  *
  * Split out of `SplitBibleArea.kt` by Batch Z-late's epilogue (spec 10.3) for the same reason
  * [RestoreButtonsVisibilityChanged] was: it is a top-level declaration that merely happened to live

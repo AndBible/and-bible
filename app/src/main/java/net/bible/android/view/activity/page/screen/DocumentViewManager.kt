@@ -20,9 +20,6 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 
-class WebViewsBuiltEvent
-class AfterRemoveWebViewEvent
-
 /**
  * Create Views for displaying documents
  *
@@ -44,6 +41,10 @@ class DocumentViewManager(val mainBibleActivity: MainBibleActivity) {
 
     val documentView: BibleView get() = getDocumentView(windowControl.activeWindow)
 
+    /**
+     * Takes an explicit `window` rather than reading the active one itself: a specific screen is
+     * specified to prevent content going to the wrong screen if the active screen is changed fast.
+     */
     private fun getDocumentView(window: Window): BibleView =
         mainBibleActivity.bibleViewFactory.getOrCreateBibleView(window)
 }

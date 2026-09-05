@@ -81,8 +81,56 @@ class ClassicReadingViewRemovalGuardTest {
         )
     }
 
-    private val splitBibleArea =
-        "src/main/java/net/bible/android/view/activity/page/screen/SplitBibleArea.kt"
+    /**
+     * The five files spec 10.3's collapse orphans. `SplitBibleArea.kt` had exactly two top-level
+     * declarations left when it was deleted -- `LockableHorizontalScrollView`, whose only referrer
+     * was `split_bible_area.xml`, and `SplitBibleArea` itself, whose only code referrer was
+     * `BibleFrame.kt`. `AddNewWindowButtonWidget` lives inside `WindowButtonWidget.kt` and went
+     * with it. `PageTiltScroller.kt` sits in the same directory and deliberately SURVIVES -- its
+     * consumer is `BibleView`.
+     */
+    private val doomedReadingViewPaths = listOf(
+        "src/main/java/net/bible/android/view/activity/page/screen/SplitBibleArea.kt",
+        "src/main/java/net/bible/android/view/activity/page/screen/BibleFrame.kt",
+        "src/main/java/net/bible/android/view/activity/page/screen/Separator.kt",
+        "src/main/java/net/bible/android/view/util/widget/WindowButtonWidget.kt",
+        "src/main/res/layout/split_bible_area.xml",
+    )
+
+    @Test
+    fun theClassicSplitReadingAreaIsGone() {
+        ClassicRemovalScan.assertPathsGone(
+            doomedReadingViewPaths,
+            "spec 10.3: the collapse orphans these five, and D2 deletes them here rather than " +
+                "deferring",
+        )
+    }
+
+    /**
+     * `net.bible.android.view.util.widget.TwoLineListItem` is deliberately NOT in this list even
+     * though it sits in the very directory `WindowButtonWidget.kt` was deleted from (trap 12): it
+     * SURVIVES, inflated by name from `list_item_2_highlighted.xml` and subclassed by
+     * `KeyItemAdapter`, and `sharedUi` separately owns an unrelated composable of the same bare
+     * name. Listing it would fail this guard against live code.
+     *
+     * The names are FULLY QUALIFIED, as [ClassicRemovalScan.assertNoSourceNames] requires -- a bare
+     * `Separator` would match ~100 unrelated lines, `sharedUi`'s own `Separator` composable among
+     * them. The sweep keeps imports and scans resource XML too, so the layout tags that inflated
+     * these classes by name are covered as well as Kotlin references.
+     */
+    @Test
+    fun nothingStillNamesTheClassicSplitReadingArea() {
+        ClassicRemovalScan.assertNoSourceNames(
+            listOf(
+                "net.bible.android.view.activity.page.screen.SplitBibleArea",
+                "net.bible.android.view.activity.page.screen.BibleFrame",
+                "net.bible.android.view.activity.page.screen.Separator",
+                "net.bible.android.view.util.widget.WindowButtonWidget",
+                "net.bible.android.view.util.widget.AddNewWindowButtonWidget",
+            ),
+            "a KDoc bracket link counts -- it is a compile error, not prose",
+        )
+    }
 
     @Test
     fun theRestoreButtonsEventOutlivesItsClassicHome() {
@@ -92,15 +140,9 @@ class ClassicReadingViewRemovalGuardTest {
             listOf("src/main/java/net/bible/android/view/activity/page/screen/RestoreButtonsEvents.kt"),
             "the live Compose-path event must have been split out before SplitBibleArea is deleted",
         )
-        val classic = ClassicRemovalScan.codeLinesOf(splitBibleArea)
-        assertTrue(
-            "the scan read no SplitBibleArea code at all -- this assertion would pass vacuously",
-            classic.contains("class SplitBibleArea"),
-        )
-        assertEquals(
-            "SplitBibleArea.kt must no longer DECLARE RestoreButtonsVisibilityChanged",
-            0,
-            Regex("""class\s+RestoreButtonsVisibilityChanged""").findAll(classic).count(),
+        ClassicRemovalScan.assertPathsGone(
+            doomedReadingViewPaths,
+            "the classic host must be GONE, so it cannot hold a second declaration of the event",
         )
     }
 
@@ -114,8 +156,12 @@ class ClassicReadingViewRemovalGuardTest {
      * would notice its loss until the compile break in the slice that deletes its host.
      *
      * Both halves are load-bearing. The presence check alone would pass with the declaration
-     * duplicated in two files (a redeclaration error, but only once someone compiles); the
-     * declaration count alone would pass with the property simply deleted.
+     * duplicated in two files (a redeclaration error, but only once someone compiles); the second
+     * half alone would pass with the property simply deleted. That second half used to count
+     * declarations inside `SplitBibleArea.kt`; once Task 4 deleted that file the count would have
+     * THROWN rather than passed vacuously, so it became the [ClassicRemovalScan.assertPathsGone]
+     * below -- which makes the same argument, since a host that does not exist cannot redeclare
+     * anything.
      */
     @Test
     fun theClipboardKeyOutlivesItsClassicHome() {
@@ -123,15 +169,9 @@ class ClassicReadingViewRemovalGuardTest {
             listOf("src/main/java/net/bible/android/view/activity/page/screen/ClipboardKey.kt"),
             "the shared clipboardKey must have been split out before SplitBibleArea is deleted",
         )
-        val classic = ClassicRemovalScan.codeLinesOf(splitBibleArea)
-        assertTrue(
-            "the scan read no SplitBibleArea code at all -- this assertion would pass vacuously",
-            classic.contains("class SplitBibleArea"),
-        )
-        assertEquals(
-            "SplitBibleArea.kt must no longer DECLARE clipboardKey",
-            0,
-            Regex("""^var\s+clipboardKey""", RegexOption.MULTILINE).findAll(classic).count(),
+        ClassicRemovalScan.assertPathsGone(
+            doomedReadingViewPaths,
+            "the classic host must be GONE, so it cannot hold a second declaration of the slot",
         )
     }
 }

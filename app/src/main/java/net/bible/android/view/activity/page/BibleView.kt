@@ -129,11 +129,8 @@ import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
-import net.bible.android.view.activity.page.screen.BibleFrame
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
-import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.util.UiUtils
 import net.bible.android.view.util.widget.ShareWidget
@@ -1174,9 +1171,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     on<MainBibleActivity.ImePaddingChanged> { event ->
                         updateOffsets(true)
                     }
-                    on<WebViewsBuiltEvent> { event ->
-                        checkWindows = true
-                    }
                     on<WindowSizeChangedEvent> { event ->
                         Log.i(TAG, "window size changed")
                         separatorMoving = !event.isFinished
@@ -1185,14 +1179,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                             doCheckWindows()
                         }
                     }
-                    onMain<WebViewsBuiltEvent> { event ->
-                        if(toBeDestroyed)
-                            doDestroy()
-                    }
-                    onMain<AfterRemoveWebViewEvent> { event ->
-                        if(toBeDestroyed)
-                            doDestroy()
-                    }
+                    // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
+                    // and finish a deferred teardown. Both events were posted only by the classic
+                    // split reading area, so they became unpostable when it went; the live teardown
+                    // route is `BibleViewFactory.clear()`, which calls `doDestroy()` directly and
+                    // is not event-driven. Removed in Batch Z-late's epilogue (spec 10.3).
                 }
             } else {
                 ABEventBus.unregister(this)
@@ -1549,12 +1540,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
             Log.i(TAG, "onRenderProcessGone")
-            val bf = view.parent as? BibleFrame
-            if (bf != null) {
-                bf.recreate()
-            } else {
-                Log.w(TAG, "WebView parent is null in onRenderProcessGone, cannot recreate")
-            }
+            // Renderer-crash RECOVERY is RETIRED, not ported: this used to cast `view.parent` to
+            // classic `BibleFrame` and call `bf.recreate()`, which rebuilt the frame -- and with it
+            // this BibleView -- after the WebView renderer process died. On the Compose path the
+            // parent is the `AndroidView` container, so the cast has been null and the recovery a
+            // silent no-op ever since the host was introduced; the frame it reached for is deleted
+            // in Batch Z-late's epilogue (spec 10.3). What is no longer recovered: after a renderer
+            // death the pane is left showing a blank WebView until something else rebuilds it
+            // (a window/workspace change, or the user reopening the app). Returning `true` still
+            // keeps the crash from taking the whole process down, exactly as before.
+            Log.w(TAG, "WebView renderer gone; no recreate on the compose path")
             return true
         }
     }

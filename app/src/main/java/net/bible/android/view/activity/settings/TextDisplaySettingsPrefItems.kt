@@ -21,9 +21,11 @@ package net.bible.android.view.activity.settings
  * The `SettingsBundle` -> `OptionsMenuItemInterface` mapping for every text-display setting.
  *
  * Split out of `TextDisplaySettings.kt` by Z-late S12, which deletes the classic activity that used
- * to host it. Six survivors consume it -- MainBibleActivity, SplitBibleArea, WindowPaneMenuStateBuilder,
+ * to host it. FIVE survivors consume it -- MainBibleActivity, WindowPaneMenuStateBuilder,
  * WorkspaceServiceImpl, WindowControl, and (importlessly, same package) TextDisplaySettingsServiceImpl,
  * which is the Compose side's single source of truth for the sparse-override/inheritance math.
+ * (Six when S12 wrote this: classic `SplitBibleArea` was the sixth, and was deleted by the epilogue
+ * task that orphaned it -- leaving this a five-consumer list, not a stale six.)
  */
 
 import net.bible.android.database.SettingsBundle
