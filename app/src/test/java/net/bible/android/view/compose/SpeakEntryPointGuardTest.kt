@@ -50,6 +50,12 @@ class SpeakEntryPointGuardTest {
      * no-op no golden and no unit test would notice — and a FOURTH file growing an entry point
      * would be unpoliced by every per-file test below.
      *
+     * Scope, precisely: every test here scans per FILE, not per call site. `MainBibleActivity.kt`
+     * holds TWO `showSpeakSettings(` sites (the toolbar long-press and the transport bar's cog), so
+     * losing exactly one of them leaves the file still matching and passes every guard below. What
+     * these tests do catch is a file losing its LAST entry point, a file gaining one, and either
+     * file swapping settings for transport or the reverse.
+     *
      * Same source-scan shape (and the same two traps avoided) as [MenuSeamGuardTest]: prose lines
      * are filtered so an `import` or a comment cannot satisfy the guard, and the path list is
      * asserted to exist so the scan can never pass vacuously.
@@ -115,7 +121,7 @@ class SpeakEntryPointGuardTest {
 
     /**
      * Round 14b whole-branch review, minor: [composeSpeakEntryPoints] widened to accept EITHER name
-     * at any call site, so on its own [everyBibleSpeakIntentSiteAlsoBranchesToTheSheet] would let a
+     * at any call site, so on its own [everyScannedCallSiteReachesASpeakSheetEntryPoint] would let a
      * retarget of the toolbar long-press / transport-bar cog from `showSpeakSettings(` to
      * `showSpeakTransport(` pass every gate here — even though spec §8's entry-point table says both
      * of those are SETTINGS routes and must stay so (only the main-menu row is the transport). This

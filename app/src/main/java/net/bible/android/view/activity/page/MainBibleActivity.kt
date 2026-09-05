@@ -57,7 +57,6 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
@@ -128,7 +127,6 @@ import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.KJVA
-import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -2511,23 +2509,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    private val toolbarColor get() =
-        if (ScreenSettings.nightMode)
-            resources.getColor(R.color.actionbar_background_night, theme)
-        else if (CommonUtils.settings.monochromeMode) {
-            Color.WHITE
-        } else {
-            workspaceSettings.workspaceColor ?: defaultWorkspaceColor
-        }
-
     private fun showSystemUI(setNavBarColor: Boolean=true) {
-        // The classic toolbar-view background/tint/divider-visibility/status-bar-color mutations
-        // below are skipped on the `use_compose_ui` path — the Compose `ReadingToolbar` (via
-        // `MaterialTheme.colorScheme`/`AbTheme`) owns its own colors now, and `toolbarLayout` is
-        // GONE anyway (see `ComposeReadingViewHost.install`). `navigationBarColor` and
-        // `speakTransport`'s background are NOT toolbar-specific (the transport bar stays a
-        // classic View either way) so they are computed/applied unconditionally, same as before.
-        val composeUiEnabled = CommonUtils.settings.getBoolean("use_compose_ui", false)
+        // Nothing here touches the reading toolbar any more: the Compose `ReadingToolbar` (via
+        // `MaterialTheme.colorScheme`/`AbTheme`) owns its own colors, and `toolbarLayout` is GONE
+        // (see `ComposeReadingViewHost.install`). What survives is the window-level chrome that
+        // was always applied unconditionally -- the system-bar show/hide/appearance flags,
+        // `navigationBarColor`, and `speakTransport`'s background (the transport bar is still a
+        // classic View until it is retired with the rest of the classic bottom chrome).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.decorView.windowInsetsController?.apply {
                 if (CommonUtils.settings.hideStatusBar) {
@@ -2544,20 +2532,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     if (CommonUtils.settings.monochromeMode) {
                         appearance = appearance or WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                     }
-                    // A/B batch 3 review fix (Important 1): on the Compose path the status-bar
-                    // *icon appearance* is owned by `LocalSystemBarSync`/`applySystemBarColor`
-                    // (called from `ReadingToolbar`/`AbTopAppBar` via a `SideEffect`), derived from
-                    // the actual container colour rather than classic's fixed
-                    // "dark unless monochrome" rule. Classic's day+non-monochrome case explicitly
-                    // CLEARS `APPEARANCE_LIGHT_STATUS_BARS` here (correct for classic's dark
-                    // `#444444` toolbar) — exactly wrong for the Compose not-set path, whose
-                    // container is the light M3 surface. So the STATUS_BARS bit is left out of the
-                    // mask entirely when Compose owns the bar, same seam-is-single-writer rule as
-                    // the sibling `statusBarColor` skip a few lines below.
+                    // A/B batch 3 review fix (Important 1): the status-bar *icon appearance* is
+                    // owned by `LocalSystemBarSync`/`applySystemBarColor` (called from
+                    // `ReadingToolbar`/`AbTopAppBar` via a `SideEffect`), derived from the actual
+                    // container colour rather than the classic toolbar's fixed
+                    // "dark unless monochrome" rule. So `APPEARANCE_LIGHT_STATUS_BARS` is
+                    // deliberately absent from the MASK: this call must neither set nor clear it,
+                    // leaving the seam its single writer. (Classic cleared it in the
+                    // day+non-monochrome case, right for its dark `#444444` toolbar and exactly
+                    // wrong for a light M3 surface.) A consequence worth knowing before editing:
+                    // the `APPEARANCE_LIGHT_STATUS_BARS` bit the monochrome clause above ORs into
+                    // `appearance` is therefore not applied either -- it is kept as the value that
+                    // would take effect if that bit ever re-entered the mask.
                     //
-                    // Two corrections to what used to stand here, "the NAVIGATION-bar appearance bit
-                    // is unconditional either way — the seam never touches it" (whole-branch review,
-                    // Minor 4). (1) The seam CAN touch it now: since round 12b §3,
+                    // The NAVIGATION-bar appearance bit is not this call's alone either
+                    // (whole-branch review, Minor 4). (1) Since round 12b §3,
                     // `SystemBarSync.applySystemBarColor` writes `isAppearanceLightNavigationBars`
                     // whenever `fillWindowBackground = true` (`SystemBarSync.kt:103-107`). It stays
                     // untouched in THIS window only because the two composables that sync are
@@ -2566,15 +2555,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     // activity — the reading search sheet deliberately avoids `AbTopAppBar` for
                     // exactly this reason, `SearchSheetContent.kt:50-56`). Compose an `AbScaffold`
                     // into the reading view and this mask stops being the only writer.
-                    // (2) "Unconditional" also misreads the end state: the bit set here is
-                    // OVERWRITTEN a few dozen lines below, from the pane background, whenever there is
-                    // any visible window — so this write is the value that survives only in the
-                    // no-visible-windows path.
-                    val statusBarAppearanceMask =
-                        if (composeUiEnabled) 0 else WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                    // (2) The bit written here is OVERWRITTEN a few dozen lines below, from the pane
+                    // background, whenever there is any visible window — so this write is the value
+                    // that survives only in the no-visible-windows path.
                     setSystemBarsAppearance(
                         appearance,
-                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS or statusBarAppearanceMask
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
                     )
                 }
             }
@@ -2588,13 +2574,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!ScreenSettings.nightMode) {
+                    // Same rule as the API-R+ branch above (Important 1): the Compose seam is
+                    // the single writer of the status-bar icon appearance, so classic's
+                    // SYSTEM_UI_FLAG_LIGHT_STATUS_BAR bit is never set here.
                     uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                    // Same gate as the API-R+ branch above (Important 1): the Compose seam is the
-                    // single writer of the status-bar icon appearance, so classic's
-                    // SYSTEM_UI_FLAG_LIGHT_STATUS_BAR bit is only added when Compose isn't in play.
-                    if (CommonUtils.settings.monochromeMode && !composeUiEnabled) {
-                        uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                    }
                 }
             }
             window.decorView.systemUiVisibility = uiFlags
@@ -2603,37 +2586,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(windowRepository.visibleWindows.isNotEmpty()) {
                 val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings, CommonUtils.globalTextDisplaySettings).colors!!
-
-                if (!composeUiEnabled) {
-                    binding.run {
-                        toolbarLayout.setBackgroundColor(toolbarColor)
-                        homeButton.setBackgroundColor(toolbarColor)
-                        pageTitle.setBackgroundColor(toolbarColor)
-                        syncIcon.setBackgroundColor(toolbarColor)
-                        documentTitle.setBackgroundColor(toolbarColor)
-                        toolbarButtonLayout.setBackgroundColor(toolbarColor)
-                    }
-
-                    val isMonochrome = CommonUtils.settings.monochromeMode && !ScreenSettings.nightMode
-                    val toolbarIconTint = if (isMonochrome) Color.BLACK else Color.WHITE
-                    binding.run {
-                        homeButton.drawable?.setTint(toolbarIconTint)
-                        pageTitle.setTextColor(toolbarIconTint)
-                        documentTitle.setTextColor(toolbarIconTint)
-                        syncIcon.drawable?.setTint(toolbarIconTint)
-                        for (i in 0 until toolbarButtonLayout.childCount) {
-                            val child = toolbarButtonLayout.getChildAt(i)
-                            if (child is ImageButton) {
-                                child.drawable?.setTint(toolbarIconTint)
-                            }
-                        }
-                    }
-                    if (ScreenSettings.nightMode) {
-                        binding.homeButton.drawable.setTint(workspaceSettings.workspaceColor ?: defaultWorkspaceColor)
-                    }
-
-                    binding.toolbarDivider.visibility = if (isMonochrome) View.VISIBLE else View.GONE
-                }
 
                 val color = if (setNavBarColor && !CommonUtils.settings.monochromeMode) {
                     val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
@@ -2651,7 +2603,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
 
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                        if (!composeUiEnabled) statusBarColor = toolbarColor
+                        // No `statusBarColor` write: the Compose seam owns the status bar
+                        // (`LocalSystemBarSync`), same single-writer rule as the appearance mask above.
                         navigationBarColor = color
                     }
                 }
@@ -2859,65 +2812,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateToolbar() {
         // The Compose reading toolbar (`ComposeReadingViewHost`/`ReadingToolbar`) owns its own
-        // height/padding/visibility/status-bar inset on the `use_compose_ui` path — see that
-        // class's `install()`. Below, every mutation of the classic `toolbarLayout` is guarded on
-        // `composeUiEnabled`, but the system-bar hide/show calls are NOT guarded: fullscreen must
-        // still hide/show the OS status/navigation bars regardless of which toolbar is active.
-        val composeUiEnabled = CommonUtils.settings.getBoolean("use_compose_ui", false)
-        binding.apply {
-            if (!composeUiEnabled) {
-                val toolbarHeightRes = if (CommonUtils.settings.monochromeMode && !ScreenSettings.nightMode)
-                    R.dimen.toolbar_height_monochrome else R.dimen.toolbar_height
-                val toolbarHeightPx = resources.getDimensionPixelSize(toolbarHeightRes)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                    binding.toolbarLayout.layoutParams.height = systemInsets.top + toolbarHeightPx
-                    binding.toolbarLayout.setPadding(0, systemInsets.top, 0, 0)
-                } else {
-                    binding.toolbarLayout.layoutParams.height = toolbarHeightPx
-                    binding.toolbarLayout.minimumHeight = toolbarHeightPx
-                }
-                toolbarLayout.setPadding(leftOffset1, topOffset1, rightOffset1, 0)
-            }
-            speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
+        // height, padding, visibility and status-bar inset — see that class's `install()` — so
+        // there is no toolbar view left for this function to lay out or animate. What remains is
+        // the system-bar hide/show, which was never toolbar-specific: fullscreen must still
+        // hide/show the OS status/navigation bars. `speakTransport`'s horizontal padding was
+        // likewise always applied, and stays until the classic transport bar itself is retired.
+        binding.speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)
 
-            if(isFullScreen) {
-                hideSystemUI()
-                Log.i(TAG, "Fullscreen on")
-                if (!composeUiEnabled) {
-                    toolbarLayout.visibility = View.GONE
-
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                        toolbarLayout.translationY = 0f
-                        toolbarLayout.animate().translationY(-toolbarLayout.height.toFloat())
-                            .setInterpolator(AccelerateInterpolator())
-                            .withEndAction { toolbarLayout.visibility = View.GONE }
-                            .apply {
-                                if (CommonUtils.settings.disableAnimations) {
-                                    duration = 0
-                                }
-                            }.start()
-                    }
-                }
-            }
-            else {
-                showSystemUI()
-                Log.i(TAG, "Fullscreen off")
-
-                if (!composeUiEnabled) {
-                    toolbarLayout.visibility = View.VISIBLE
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                        toolbarLayout.translationY = -toolbarLayout.height.toFloat()
-                        toolbarLayout.animate().translationY(0f)
-                            .setInterpolator(DecelerateInterpolator())
-                            .apply {
-                                if (CommonUtils.settings.disableAnimations) {
-                                    duration = 0
-                                }
-                            }.start()
-                    }
-                    updateActions()
-                }
-            }
+        if(isFullScreen) {
+            hideSystemUI()
+            Log.i(TAG, "Fullscreen on")
+        }
+        else {
+            showSystemUI()
+            Log.i(TAG, "Fullscreen off")
         }
     }
 

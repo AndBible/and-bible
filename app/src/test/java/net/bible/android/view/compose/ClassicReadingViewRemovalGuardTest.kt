@@ -34,15 +34,12 @@ class ClassicReadingViewRemovalGuardTest {
         "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"
 
     @Test
-    fun theReadingViewReadsTheFlagInExactlyOnePlaceLeft() {
-        // Task 1 collapses seven of the nine reads; :2560 (showSystemUI) and :2896
-        // (updateToolbar) are Task 2's, and this expectation drops to 0 there.
+    fun theReadingViewReadsTheFlagNowhere() {
         val code = ClassicRemovalScan.codeLinesOf(mainBibleActivity)
         assertEquals(
-            "MainBibleActivity should read use_compose_ui exactly twice after Task 1 -- " +
-                "the two local `val composeUiEnabled` sites Task 2 owns. Any other count means " +
-                "a branch was missed or one of Task 2's was collapsed early.",
-            2,
+            "MainBibleActivity must not read use_compose_ui at all -- the flag's definition is " +
+                "removed in Task 7 and a surviving read would not compile then.",
+            0,
             Regex("""getBoolean\("use_compose_ui"""").findAll(code).count(),
         )
     }

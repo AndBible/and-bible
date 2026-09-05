@@ -226,8 +226,8 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     //
                     // `handlerIntent` stays null so the shared dispatch below does not also start an
                     // activity (mirrors the `searchButton` case right above). The `host != null`
-                    // check stays: this class is not the activity, and it reads the host off
-                    // `mainBibleActivity`, which may be any foreground activity.
+                    // check stays out of conservatism: this class is not the activity, so it takes
+                    // the host's non-nullness on trust rather than by construction.
                     if(currentPage.isSpeakable) {
                         val host = mainBibleActivity.composeReadingViewHost
                         if (host != null) {

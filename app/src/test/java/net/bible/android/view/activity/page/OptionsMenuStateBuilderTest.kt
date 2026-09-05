@@ -375,23 +375,23 @@ class OptionsMenuStateBuilderTest {
      * `getItemOptions` -- it always builds the real `Preference` via the module-level `getPrefItem`.
      * So this asserts the same thing the overflow twin asserts, by the same "assert the routing
      * decision, not the UI" convention this file's class kdoc states, just via the one seam that
-     * IS available: with NO host installed, [ComposeReadingViewHost.showTextSettingEditor] must
-     * never be reached, so the host's stack stays untouched. That is airtight together with
-     * `assertFalse`: `handleWindowTextOptionItem`'s only `false`-returning paths are the sheet
-     * takeover (gated on the host, so unreachable here) and the classic
-     * `itemOptions.openDialog(...); false` tail -- so a `false` result with an untouched stack can
-     * only mean the classic dialog path ran, exactly as before T11 (proven not to crash under
-     * Robolectric with a non-`.create()`d activity, matching the ON twin's own house style of
+     * IS available: the RETURN VALUE. `handleWindowTextOptionItem`'s only `false`-returning paths
+     * are the sheet takeover -- gated on `composeReadingViewHost != null`, and so unreachable with
+     * no host installed -- and the classic `itemOptions.openDialog(...); false` tail. So `false`
+     * here can only mean the classic dialog path ran, exactly as before T11 (proven not to crash
+     * under Robolectric with a non-`.create()`d activity, matching the ON twin's own house style of
      * driving the real [MainBibleActivity.handleWindowPaneMenuItem] bridge rather than a fixture).
      *
      * Batch Z-late epilogue, Task 1: this used to clear `use_compose_ui` and leave the host
      * installed. The flag clause is gone from the interception (spec 10.2 -- it is now
-     * `page != null && host != null`), so the OFF state this pins is "no host installed", and the
-     * host is built but deliberately NOT handed to the activity.
+     * `page != null && host != null`), so the OFF state this pins is "no host installed".
+     *
+     * Task 2, carrying a Task 1 review finding: Task 1 kept building a local host that it then did
+     * not install, and asserted `assertNull` on its editor stack. Production never sees that
+     * object, so the assertion could not fail; both it and the local are gone.
      */
     @Test
     fun windowPaneSheetEditableTextOptionStillOpensTheClassicDialogWhenNoHostIsInstalled() {
-        val host = ComposeReadingViewHost(activity)
         activity.composeReadingViewHost = null
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
         val window = windowRepository.activeWindow
@@ -400,7 +400,6 @@ class OptionsMenuStateBuilderTest {
             window.id.toString(), WindowPaneMenuStateBuilder.idForTextOptionItem(0))
 
         assertFalse(stayOpen, "no host must still reach the classic dialog tail, which returns false")
-        assertNull(host.textSettingsEditor.current, "no host must not route to the sheet")
     }
 
     /**
