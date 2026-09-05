@@ -19,17 +19,12 @@ package net.bible.android.view
 
 import android.content.Context
 import android.content.Intent
-import net.bible.android.view.activity.ai.AiConnectionSettingsActivity
 import net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity
-import net.bible.android.view.activity.ai.AiModelsActivity
 import net.bible.android.view.activity.ai.AiModelsComposeActivity
-import net.bible.android.view.activity.ai.AiProvidersActivity
 import net.bible.android.view.activity.ai.AiProvidersComposeActivity
 import net.bible.android.view.activity.ai.AiPromptsComposeActivity
-import net.bible.android.view.activity.ai.AiDocumentFilterActivity
 import net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity
 import net.bible.android.view.activity.ai.AiSettingsActivity
-import net.bible.android.view.activity.ai.GlobalToolPermissionsActivity
 import net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity
 import net.bible.android.view.activity.ai.PromptEditActivity
 import net.bible.android.view.activity.ai.PromptEditComposeActivity
@@ -37,7 +32,6 @@ import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.android.view.activity.ai.RawLlmLogComposeActivity
 import net.bible.android.view.activity.ai.RawLogHistoryActivity
 import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
-import net.bible.android.view.activity.ai.ToolInfoActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
 import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
@@ -129,30 +123,18 @@ object ScreenLauncher {
         // epilogue (spec §10.2) collapses the three remaining classic branches and the flag dies.
         Screen.BibleSpeak -> MainBibleActivity::class.java
         Screen.WorkspaceSelector -> WorkspaceSelectorComposeActivity::class.java
-        Screen.AiConnectionSettings ->
-            if (useComposeFor(screen)) AiConnectionSettingsComposeActivity::class.java
-            else AiConnectionSettingsActivity::class.java
-        Screen.AiProviders ->
-            if (useComposeFor(screen)) AiProvidersComposeActivity::class.java
-            else AiProvidersActivity::class.java
-        Screen.AiModels ->
-            if (useComposeFor(screen)) AiModelsComposeActivity::class.java
-            else AiModelsActivity::class.java
+        Screen.AiConnectionSettings -> AiConnectionSettingsComposeActivity::class.java
+        Screen.AiProviders -> AiProvidersComposeActivity::class.java
+        Screen.AiModels -> AiModelsComposeActivity::class.java
         Screen.AiPrompts ->
             if (useComposeFor(screen)) AiPromptsComposeActivity::class.java
             else AiSettingsActivity::class.java
         Screen.PromptEdit ->
             if (useComposeFor(screen)) PromptEditComposeActivity::class.java
             else PromptEditActivity::class.java
-        Screen.GlobalToolPermissions ->
-            if (useComposeFor(screen)) GlobalToolPermissionsComposeActivity::class.java
-            else GlobalToolPermissionsActivity::class.java
-        Screen.ToolInfo ->
-            if (useComposeFor(screen)) ToolInfoComposeActivity::class.java
-            else ToolInfoActivity::class.java
-        Screen.AiDocumentFilter ->
-            if (useComposeFor(screen)) AiDocumentFilterComposeActivity::class.java
-            else AiDocumentFilterActivity::class.java
+        Screen.GlobalToolPermissions -> GlobalToolPermissionsComposeActivity::class.java
+        Screen.ToolInfo -> ToolInfoComposeActivity::class.java
+        Screen.AiDocumentFilter -> AiDocumentFilterComposeActivity::class.java
         Screen.RawLogHistory ->
             if (useComposeFor(screen)) RawLogHistoryComposeActivity::class.java
             else RawLogHistoryActivity::class.java

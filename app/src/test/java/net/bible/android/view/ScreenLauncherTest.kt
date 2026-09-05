@@ -19,17 +19,12 @@ package net.bible.android.view
 
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.view.activity.ai.AiConnectionSettingsActivity
 import net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity
-import net.bible.android.view.activity.ai.AiDocumentFilterActivity
 import net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity
-import net.bible.android.view.activity.ai.AiModelsActivity
 import net.bible.android.view.activity.ai.AiModelsComposeActivity
-import net.bible.android.view.activity.ai.AiProvidersActivity
 import net.bible.android.view.activity.ai.AiProvidersComposeActivity
 import net.bible.android.view.activity.ai.AiPromptsComposeActivity
 import net.bible.android.view.activity.ai.AiSettingsActivity
-import net.bible.android.view.activity.ai.GlobalToolPermissionsActivity
 import net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity
 import net.bible.android.view.activity.ai.PromptEditActivity
 import net.bible.android.view.activity.ai.PromptEditComposeActivity
@@ -37,7 +32,6 @@ import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.android.view.activity.ai.RawLlmLogComposeActivity
 import net.bible.android.view.activity.ai.RawLogHistoryActivity
 import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
-import net.bible.android.view.activity.ai.ToolInfoActivity
 import net.bible.android.view.activity.ai.ToolInfoComposeActivity
 import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
@@ -258,7 +252,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(AiConnectionSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiConnectionSettings))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(AiConnectionSettingsActivity::class.java, ScreenLauncher.targetFor(Screen.AiConnectionSettings))
+        assertEquals(AiConnectionSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiConnectionSettings))
     }
 
     @Test
@@ -266,7 +260,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(AiProvidersComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiProviders))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(AiProvidersActivity::class.java, ScreenLauncher.targetFor(Screen.AiProviders))
+        assertEquals(AiProvidersComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiProviders))
     }
 
     @Test
@@ -274,7 +268,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(AiModelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiModels))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(AiModelsActivity::class.java, ScreenLauncher.targetFor(Screen.AiModels))
+        assertEquals(AiModelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiModels))
     }
 
     @Test
@@ -298,7 +292,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(GlobalToolPermissionsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GlobalToolPermissions))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(GlobalToolPermissionsActivity::class.java, ScreenLauncher.targetFor(Screen.GlobalToolPermissions))
+        assertEquals(GlobalToolPermissionsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GlobalToolPermissions))
     }
 
     @Test
@@ -306,7 +300,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(ToolInfoComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ToolInfo))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(ToolInfoActivity::class.java, ScreenLauncher.targetFor(Screen.ToolInfo))
+        assertEquals(ToolInfoComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ToolInfo))
     }
 
     @Test
@@ -314,7 +308,7 @@ class ScreenLauncherTest {
         CommonUtils.settings.setBoolean("use_compose_ui", true)
         assertEquals(AiDocumentFilterComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiDocumentFilter))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(AiDocumentFilterActivity::class.java, ScreenLauncher.targetFor(Screen.AiDocumentFilter))
+        assertEquals(AiDocumentFilterComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiDocumentFilter))
     }
 
     @Test

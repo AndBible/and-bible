@@ -193,12 +193,6 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             />
         <activity
-            android:name="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_connection_settings"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiSettingsActivity"
-            />
-        <activity
             android:name="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -221,12 +215,6 @@
             android:parentActivityName="net.bible.android.view.activity.ai.AiPromptsComposeActivity"
             />
         <activity
-            android:name="net.bible.android.view.activity.ai.AiProvidersActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_providers_category"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
-            />
-        <activity
             android:name="net.bible.android.view.activity.ai.AiProvidersComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -235,36 +223,12 @@
             android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
             />
         <activity
-            android:name="net.bible.android.view.activity.ai.AiModelsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_models_category"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
-            />
-        <activity
             android:name="net.bible.android.view.activity.ai.AiModelsComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/ai_models_category"
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.GlobalToolPermissionsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/global_tool_permissions_title"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.AiDocumentFilterActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_document_filter_activity_title"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.ToolInfoActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_available_tools"
-            android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity"
@@ -297,7 +261,7 @@
             android:name="net.bible.android.view.activity.ai.RawLogHistoryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/raw_log_history_title"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.ai.RawLlmLogComposeActivity"
