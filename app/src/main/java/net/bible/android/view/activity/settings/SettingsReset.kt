@@ -19,18 +19,20 @@ package net.bible.android.view.activity.settings
 import net.bible.service.common.CommonUtils
 
 /**
- * The settings-reset contract, lifted out of `SettingsActivity`'s companion object because the
- * classic settings screen was deleted (Batch Z-late phase 1, slice S12) while
- * [SettingsComposeActivity.resetSettings] still needs it. Both reset paths read the SAME list so
- * they cannot drift apart — that was already the reason it lived in one place.
+ * The settings-reset contract, lifted out of `SettingsActivity`'s companion object when the
+ * classic settings screen was deleted (Batch Z-late phase 1, slice S12). Classic's own reset path
+ * is gone with it; [SettingsComposeActivity.resetSettings] is now the SOLE caller of
+ * [performReset], and `SettingsResetTest` is the only other reader of [RESET_KEYS]. Kept as its
+ * own object rather than folded back into `SettingsComposeActivity` because a standalone list is
+ * simpler to test than a companion-object one.
  */
 object SettingsReset {
     /**
-     * The hardcoded key list cleared by `SettingsActivity.reset` (classic) and
-     * `net.bible.android.view.activity.settings.SettingsComposeActivity.resetSettings` (Compose
-     * host) — kept in ONE place so the two reset paths cannot drift apart. Does not include the
-     * `realSharedPreferences`-routed keys (`locale_pref`/`calculator_pin`/`show_calculator`/
-     * `discrete_mode`), which [performReset] clears separately, matching the classic split.
+     * The hardcoded key list cleared by [SettingsComposeActivity.resetSettings] — the classic
+     * `SettingsActivity.reset` this list used to also serve is deleted (Z-late slice S12). Does
+     * not include the `realSharedPreferences`-routed keys (`locale_pref`/`calculator_pin`/
+     * `show_calculator`/`discrete_mode`), which [performReset] clears separately, matching the
+     * classic split.
      */
     val RESET_KEYS = listOf(
         "strongs_greek_dictionary",

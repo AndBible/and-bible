@@ -179,7 +179,8 @@ class TextDisplaySettingsComposeActivityDetachedTest {
         // Fix round 1: showGlobalLink is unconditionally true for any non-Global scope, so
         // "Global text options" is reachable from a detached (selector-originated) Workspace
         // screen. GLOBAL is not part of the selector's staged copy (classic wrote it through too --
-        // TextDisplaySettings.kt:203-210), so this must resolve via the LIVE path, not throw.
+        // classic TextDisplaySettings.kt, deleted whole by Z-late slice S12, commit e071e10cf), so
+        // this must resolve via the LIVE path, not throw.
         val bundle = detachedBundle()
         val intent = TextDisplaySettingsComposeActivity.intentForDetachedWorkspace(
             ApplicationProvider.getApplicationContext(), bundle.toJson(),

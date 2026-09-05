@@ -45,13 +45,15 @@ import org.robolectric.annotation.Config
  * made COLORS show up as a recently-used setting in the overflow menu. This test pins the fix:
  * both mutators now call [CommonUtils.displaySettingChanged] themselves.
  *
- * Classic has the same omission and is NOT fixed here: `MainBibleActivity`'s own `COLORS_CHANGED`
- * branch (`onActivityResult`) also writes `windowRepository.textDisplaySettings.colors` directly
- * with no call to `displaySettingChanged`, so a colour change through the classic
- * `ColorSettingsActivity` path does not record COLORS as recently used either. Left alone
- * deliberately (see the spec's F2 section): that branch only runs once COLORS is already in the
- * recent list (so it doesn't reproduce the reported symptom), and classic is being deleted in
- * Batch Z-late. This test constructs [TextDisplaySettingsServiceImpl] directly (following
+ * Classic had the same omission and it was never fixed there: `MainBibleActivity`'s own
+ * `COLORS_CHANGED` branch (`onActivityResult`) also wrote `windowRepository.textDisplaySettings.colors`
+ * directly with no call to `displaySettingChanged`, so a colour change through the classic
+ * `ColorSettingsActivity` path never recorded COLORS as recently used either. Left alone
+ * deliberately at the time (see the spec's F2 section): that branch only ran once COLORS was
+ * already in the recent list (so it didn't reproduce the reported symptom), and classic was
+ * already scheduled for deletion in Batch Z-late -- both the branch and the Activity are gone now
+ * (Z-late slice S12, commit e071e10cf), so this whole paragraph is history, not a live parallel
+ * bug. This test constructs [TextDisplaySettingsServiceImpl] directly (following
  * [TextDisplaySettingsServiceImplColorsTest]'s setup), which is the honest route: the service
  * builds cleanly in the unit-test environment with only a fresh [WindowRepository], so no
  * fallback to testing an extracted-and-isolated tail was needed.

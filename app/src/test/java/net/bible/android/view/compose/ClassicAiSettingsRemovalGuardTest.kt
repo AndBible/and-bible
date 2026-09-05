@@ -36,9 +36,11 @@ import org.junit.Test
  *
  * Resources deliberately NOT deleted, and the reason each survives, because this hint is the only
  * place a future reader will find it:
- *   - `settings_activity.xml` + its `@+id/settings_container` — last referrer after this task is
- *     S12's `SettingsActivity.kt:105,115`, and S12 is not in this batch. Deleting it ships a
- *     runtime Resources$NotFoundException.
+ *   - `settings_activity.xml` + its `@+id/settings_container` — was kept for S12's
+ *     `SettingsActivity.kt:105,115` at the time this guard was written, since S12 was not yet in
+ *     this batch. S12 has since deleted `SettingsActivity.kt` itself and, with it,
+ *     `settings_activity.xml` (Z-late slice S12) -- this layout is GONE now, and
+ *     `ClassicSettingsRemovalGuardTest` is what pins that.
  *   - `manage_prompts_category_header.xml`, `prompt_selector_item.xml` — inflated by the SURVIVING
  *     `LlmDialogHelper.kt:112,126`, which is reading-view chrome for `MainBibleActivity`, not an
  *     AI-settings collaborator.

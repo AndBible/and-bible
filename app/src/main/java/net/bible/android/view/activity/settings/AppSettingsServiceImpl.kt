@@ -126,7 +126,8 @@ class AppSettingsServiceImpl(
         else (CommonUtils.settings.getString(key, default) ?: default)
 
     private fun readStringSet(key: String, default: Set<String>): Set<String> =
-        CommonUtils.settings.getStringSet(key, default) // PreferenceStore never routes StringSet through realShared
+        // classic's preference datastore (deleted S12) never routed StringSet through realShared
+        CommonUtils.settings.getStringSet(key, default)
 
     // ---- Inverse multi-select helpers ----
 

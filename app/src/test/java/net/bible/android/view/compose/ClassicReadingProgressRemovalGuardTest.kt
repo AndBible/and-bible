@@ -88,9 +88,10 @@ class ClassicReadingProgressRemovalGuardTest {
             doomedClassNames,
             "a manifest still names a class S5 deletes. Watch parentActivityName specifically: " +
                 "TWO surviving blocks pointed their Up target at classic ReadingProgressActivity " +
-                "before this batch — the classic ReadingProgressSettingsActivity, which survives " +
-                "only because S12 is blocked, and the permanent Compose " +
-                "ReadingProgressSettingsComposeActivity. Nothing compiles against that attribute.",
+                "before this batch — the classic ReadingProgressSettingsActivity (since deleted " +
+                "in Z-late slice S12, covered by ClassicSettingsRemovalGuardTest) and the " +
+                "permanent Compose ReadingProgressSettingsComposeActivity. Nothing compiles " +
+                "against that attribute.",
         )
     }
 
@@ -99,7 +100,9 @@ class ClassicReadingProgressRemovalGuardTest {
             listOf("Screen.ReadingProgress"),
             "the Reading progress arm still branches on the flag (or is missing entirely) — S5 " +
                 "collapses it to the Compose class unconditionally. Note this is NOT " +
-                "Screen.ReadingProgressSettings, which belongs to S12 and must keep branching.",
+                "Screen.ReadingProgressSettings: that arm belonged to S12, which has since " +
+                "collapsed it too (ClassicSettingsRemovalGuardTest.theSettingsArmsResolveUnconditionally) " +
+                "— it does not branch either any more, but this test does not cover it.",
         )
     }
 }

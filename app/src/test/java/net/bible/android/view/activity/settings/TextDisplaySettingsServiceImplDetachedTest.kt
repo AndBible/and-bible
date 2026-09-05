@@ -126,8 +126,9 @@ class TextDisplaySettingsServiceImplDetachedTest {
     fun detachedGlobalScopeLoadsTheLiveGlobalNotTheWorkspaceBundle() {
         // Fix round 1: showGlobalLink is unconditionally true for any non-Global scope, so a
         // detached (selector-originated) Workspace screen can reach GLOBAL scope. GLOBAL is not
-        // part of the selector's staged copy -- classic wrote it through live too
-        // (TextDisplaySettings.kt:203-210) -- so this must resolve via the live path, not throw.
+        // part of the selector's staged copy -- classic wrote it through live too (classic
+        // TextDisplaySettings.kt, deleted whole by Z-late slice S12, commit e071e10cf) -- so this
+        // must resolve via the live path, not throw.
         val edit = DetachedWorkspaceEdit(detachedBundle())
         val service = TextDisplaySettingsServiceImpl(edit)
         val snapshot = service.loadText(SettingsScope.Global)

@@ -110,7 +110,8 @@ class TextDisplaySettingsServiceImpl(
      *
      * A GLOBAL scope is genuinely global and is NOT part of the selector's staged copy, so it falls
      * through to the live path even on a detached instance -- classic did the same, opening global
-     * settings write-through from a selector-originated screen (TextDisplaySettings.kt:203-210).
+     * settings write-through from a selector-originated screen (classic `TextDisplaySettings.kt`,
+     * deleted whole by Z-late slice S12, commit e071e10cf).
      * A WINDOW scope is unreachable from a detached launch (the workspace link only appears at window
      * scope) and throws rather than silently addressing the active workspace's window.
      */

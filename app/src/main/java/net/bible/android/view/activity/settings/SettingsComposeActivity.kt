@@ -60,10 +60,10 @@ import net.bible.sharedui.settings.AppSettingsScreen
  * are observed reactively by this screen, so [SettingsComposeActivity] force-recreates itself after
  * a write to any of them — the same primitive classic `SettingsActivity.reset` used (both deleted
  * in Z-late slice S12) to make a bulk reset visible immediately. (No classic per-row listener did
- * this: `SettingsFragment` only recreated on the explicit "reset" action. We still recreate per-write
- * here so the NEW Compose
- * host's own theme/locale re-render immediately rather than only on next visit — see the Task 9
- * report for the full rationale.)
+ * this: `SettingsFragment` only recreated on the explicit "reset" action. This Compose host
+ * recreates on every write to one of these keys, not just on reset, so its own theme/locale
+ * re-render immediately rather than only on next visit — see the Task 9 report for the full
+ * rationale.)
  */
 private val RECREATE_ON_CHANGE_KEYS = setOf(
     "locale_pref",
@@ -254,10 +254,10 @@ class SettingsComposeActivity : ActivityBase() {
     }
 
     /**
-     * Clears the SAME hardcoded key list classic SettingsActivity.reset cleared (deleted in Z-late slice S12)
-     * ([SettingsReset.RESET_KEYS] + the four realShared-routed keys, via
-     * [SettingsReset.performReset] — extracted there so the two reset paths cannot drift), then
-     * refreshes the service snapshot and recreates (locale/night-mode/color-mode/discrete-mode are
+     * Clears the hardcoded key list classic SettingsActivity.reset used to clear (deleted in
+     * Z-late slice S12) — [SettingsReset.RESET_KEYS] + the four realShared-routed keys, via
+     * [SettingsReset.performReset], the sole surviving caller — then refreshes the service
+     * snapshot and recreates (locale/night-mode/color-mode/discrete-mode are
      * all in the cleared set, so this recreate is also covered by [RECREATE_ON_CHANGE_KEYS]'s
      * rationale).
      */

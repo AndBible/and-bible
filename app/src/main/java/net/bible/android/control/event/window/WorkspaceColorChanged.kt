@@ -20,13 +20,13 @@ package net.bible.android.control.event.window
  * Posted whenever `WindowRepository.workspaceSettings.workspaceColor` (or, for a not-currently-active
  * workspace, its persisted `WorkspaceEntities.Workspace.workspaceSettings.workspaceColor`) is written.
  *
- * Exists because the colour has several live write sites, spanning both the classic and Compose
- * settings surfaces at the time this was written: `MainBibleActivity` (the `COLORS_CHANGED`
- * activity-result branch, plus `workspaceSettingsChanged`'s `SettingsLevel.WORKSPACE` branch --
- * both deleted in slice S12, the former along with the TEXT_DISPLAY_SETTINGS_CHANGED round-trip
- * that was its only caller) and classic `TextDisplaySettings` (`commitDirtyToInMemoryState`'s
- * workspace branch -- deleted whole in slice S12) used to write here too. The sites that remain
- * are `TextDisplaySettingsServiceImpl` (`reset`, `applyAndPersist`, `applyColors`, `resetColors` —
+ * Exists because the colour has several live write sites. At the time this event was introduced
+ * they spanned both the classic and Compose settings surfaces; the classic ones are gone now
+ * (Z-late slice S12): `MainBibleActivity`'s `COLORS_CHANGED` activity-result branch (deleted along
+ * with the TEXT_DISPLAY_SETTINGS_CHANGED round-trip that was its only caller), its
+ * `workspaceSettingsChanged`'s `SettingsLevel.WORKSPACE` branch, and classic `TextDisplaySettings`'s
+ * `commitDirtyToInMemoryState` workspace branch all used to write here too, and are all deleted.
+ * The sites that remain are `TextDisplaySettingsServiceImpl` (`reset`, `applyAndPersist`, `applyColors`, `resetColors` —
  * the last two are reached live from the Compose colour picker's per-edit commit and its Reset
  * action, `ColorSettingsController.onWorkspaceColorChange`/`onReset`) and `WorkspaceServiceImpl`
  * (`applyWorkspaceSettings`). Only the now-deleted `MainBibleActivity` branch ever returned through
