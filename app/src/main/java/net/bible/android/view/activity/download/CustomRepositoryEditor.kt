@@ -39,7 +39,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.CustomRepositoryEditorBinding
@@ -60,18 +59,6 @@ import javax.net.ssl.HttpsURLConnection
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-@Serializable
-data class RepositoryData (
-    var repository: CustomRepository? = null,
-    var delete: Boolean = false,
-    var cancel: Boolean = false,
-) {
-    fun toJSON(): String = CommonUtils.json.encodeToString(serializer(), this)
-
-    companion object {
-        fun fromJSON(str: String): RepositoryData = CommonUtils.json.decodeFromString(serializer(), str)
-    }
-}
 class CustomRepositoryEditor: CustomTitlebarActivityBase() {
     private lateinit var binding: CustomRepositoryEditorBinding
     private lateinit var data: RepositoryData

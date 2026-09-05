@@ -25,7 +25,6 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
-import net.bible.android.control.download.repo
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
@@ -35,53 +34,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.isPseudoBook
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-
-val BookCategory.imageResource: Int
-    get() = when(this) {
-        BookCategory.BIBLE -> if(CommonUtils.isDiscrete) R.drawable.ic_baseline_menu_book_24 else  R.drawable.ic_bible_24dp
-        BookCategory.COMMENTARY -> R.drawable.ic_commentary
-        BookCategory.DICTIONARY -> R.drawable.ic_dictionary_24dp
-        BookCategory.MAPS -> R.drawable.ic_map_black_24dp
-        BookCategory.GENERAL_BOOK -> R.drawable.ic_book_24dp
-        BookCategory.AND_BIBLE -> R.drawable.ic_addon_24dp
-        else -> R.drawable.ic_book_24dp
-    }
-
-val Book.imageResource: Int
-    get() = bookCategory.imageResource
-
-fun Book.isRecommended(recommendedDocuments: DocumentConfiguration?): Boolean =
-    recommendedDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
-        if(it.contains("::")) {
-            val (initials, repository) = it.split("::")
-            initials == this.initials && repository == this.repo
-        } else {
-            it == initials
-        }
-    } != null
-
-enum class BadDocumentAction {
-    WARN, HIDE, NONE;
-    companion object {
-        fun getByLetter(actionLetter: String) =
-            when (actionLetter) {
-                "W" -> WARN
-                "H" -> HIDE
-                else -> NONE
-            }
-    }
-}
-fun Book.isBadDocument(badDocuments: DocumentConfiguration?, actionForDocument: BadDocumentAction): Boolean =
-    badDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
-        val (initials, repository, version, actionStr) = it.split("::")
-        val action = BadDocumentAction.getByLetter(actionStr)
-        initials == this.initials
-            && repository == this.repo
-            && version == bookMetaData.getProperty(SwordBookMetaData.KEY_VERSION)
-            && action == actionForDocument
-    } != null
 
 /** Add an image to the normal 2 line list item
  *

@@ -53,7 +53,6 @@ import net.bible.service.download.isPseudoBook
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.Books
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -83,9 +82,6 @@ import kotlin.coroutines.coroutineContext
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
-val Book.isInstalled: Boolean get() = Books.installed().getBook(initials) != null
-
 
 open class DownloadActivity : DocumentSelectionBase(
     R.menu.download_documents, R.menu.document_context_menu,

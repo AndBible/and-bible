@@ -16,9 +16,31 @@
  */
 package net.bible.android.view.activity.download
 
+import kotlinx.serialization.Serializable
+import net.bible.android.database.CustomRepository
+import net.bible.service.common.CommonUtils
 import net.bible.service.download.toData
 import net.bible.service.download.toEntity
 import net.bible.sharedcore.download.RepositoryResult
+
+/**
+ * The classic `"data"` Intent-JSON extra shape shared by [CustomRepositoryEditor],
+ * [CustomRepositoryEditorComposeActivity] and [CustomRepositoriesComposeActivity]. Moved here
+ * (out of classic [CustomRepositoryEditor], which used to host it) because this file's whole
+ * purpose is already mapping between it and the portable [RepositoryResult] below.
+ */
+@Serializable
+data class RepositoryData (
+    var repository: CustomRepository? = null,
+    var delete: Boolean = false,
+    var cancel: Boolean = false,
+) {
+    fun toJSON(): String = CommonUtils.json.encodeToString(serializer(), this)
+
+    companion object {
+        fun fromJSON(str: String): RepositoryData = CommonUtils.json.decodeFromString(serializer(), str)
+    }
+}
 
 /**
  * Maps between the classic `RepositoryData` Intent-JSON contract ([RepositoryData], defined

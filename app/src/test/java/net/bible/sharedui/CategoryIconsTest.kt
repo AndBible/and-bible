@@ -23,7 +23,7 @@ import org.junit.Test
 
 /**
  * Guards the classic per-category icon mapping ([categoryDrawableRes]) against the classic
- * `BookCategory.imageResource` (`download/DocumentListItem.kt`). Every category must resolve to the
+ * `BookCategory.imageResource` (`download/DocumentBadges.kt`). Every category must resolve to the
  * bespoke vector drawable, with the two book-shaped categories (GENERAL_BOOK / OTHER) sharing
  * `ic_book_24dp`.
  */

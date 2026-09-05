@@ -17,18 +17,11 @@
 
 package net.bible.android.control.download
 
-import android.app.Activity
-import android.content.Context
-import android.view.LayoutInflater
-import android.widget.ProgressBar
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.activity.R
-import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
-import net.bible.android.view.activity.download.DocumentListItem
 import net.bible.service.download.FakeBookFactory
 import net.bible.test.DatabaseResetter
 import org.crosswire.common.progress.JobManager
@@ -40,7 +33,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.IOException
@@ -88,8 +80,6 @@ class DocumentDownloadProgressCacheTest {
         var initials = "KJV"
         var document: Book? = null
         var progress = JobManager.createJob("INSTALL_BOOK-$initials", "Installing King James Version", null)
-        var documentDownloadListItem: DocumentListItem? = null
-        var progressBar: ProgressBar? = null
 
         init {
             try {
@@ -101,13 +91,6 @@ class DocumentDownloadProgressCacheTest {
             }
             progress.totalWork = 100
             progress.work = 33
-            val activity = Robolectric.buildActivity(Activity::class.java).create().get()
-            documentDownloadListItem = (LayoutInflater.from(activity).inflate(R.layout.document_list_item, null) as DocumentListItem).also {
-                it.binding = DocumentListItemBinding.inflate(activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
-            }
-
-            documentDownloadListItem!!.document = document!!
-            progressBar = documentDownloadListItem!!.binding.progressBar
         }
     }
 }

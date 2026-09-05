@@ -43,8 +43,6 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.install.InstallManager
 
-const val customRepositoriesHelpUrl = "https://docs.andbible.org/en/latest/custom_repositories.html"
-
 class CustomRepositories : ListActivityBase() {
     private lateinit var binding: CustomRepositoriesBinding
     private var customRepositories = arrayListOf<CustomRepository>()
