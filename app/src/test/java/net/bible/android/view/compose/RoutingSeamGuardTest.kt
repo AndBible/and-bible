@@ -44,11 +44,17 @@ class RoutingSeamGuardTest {
      * dropped here because their flag reads are gone (spec 10.2) -- required by
      * [everyExpectedReaderActuallyStillReadsTheFlag]'s own rule that a file which stopped reading
      * the flag must leave the list, or the list becomes fiction.
+     *
+     * Batch Z-late epilogue, Task 3: `MainBibleActivity.kt` and `DocumentViewManager.kt` leave under
+     * that same rule, and one of them was overdue. Tasks 1-2 collapsed the activity's last nine flag
+     * branches but left its row here, so this assertion was ALREADY failing before Task 3 touched
+     * anything -- it is a list, not a compiled reference, and nothing else in the tree notices a
+     * stale row. Task 3 emptied `DocumentViewManager`'s own read at the same time. `ScreenLauncher`
+     * is now the single remaining reader, which is the seam's whole point; the epilogue empties this
+     * list entirely when the flag goes.
      */
     private val expectedReaders = listOf(
         "src/main/java/net/bible/android/view/ScreenLauncher.kt",
-        "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
-        "src/main/java/net/bible/android/view/activity/page/screen/DocumentViewManager.kt",
     )
 
     @Test fun everyExpectedReaderStillExists() {

@@ -868,7 +868,10 @@ class BibleJavascriptInterface(
                 "AltArrowRight" -> windowControl.focusNextWindow()
                 "AltArrowUp" -> windowControl.focusPreviousWindow()
                 "AltArrowLeft" -> windowControl.focusPreviousWindow()
-                "AltKeyW" -> mainBibleActivity.documentViewManager.splitBibleArea?.binding?.restoreButtons?.requestFocus()
+                // "AltKeyW" (focus the window restore-buttons strip) is RETIRED, not ported: it
+                // reached into classic `SplitBibleArea`'s inflated strip, which the Compose reading
+                // view has no counterpart for, so the shortcut has been a silent no-op since the
+                // host was introduced. Removed with the strip in Batch Z-late's epilogue (spec 10.3).
                 "AltKeyM" -> {
                     // Batch Z-early A7 fix B: on the compose path the native DrawerLayout is locked
                     // — but the lock gates ViewDragHelper gestures only, and `open()` bypasses it

@@ -111,10 +111,6 @@ class LockableHorizontalScrollView(context: Context, attributeSet: AttributeSet)
     }
 }
 
-class RestoreButtonsVisibilityChanged
-
-var clipboardKey: BookAndKey? = null
-
 @SuppressLint("ViewConstructor")
 class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLayout(mainBibleActivity) {
     private val isSplitVertically get() = mainBibleActivity.isSplitVertically

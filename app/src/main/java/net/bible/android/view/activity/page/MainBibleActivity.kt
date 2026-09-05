@@ -468,7 +468,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
         onMain<MainBibleAfterRestore> { e ->
             bookmarkControl.reset()
-            documentViewManager.removeView()
             bibleViewFactory.clear()
             windowControl.windowSync.setResyncRequired()
             currentWorkspaceId = IdType.empty()
@@ -1678,7 +1677,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var currentWorkspaceId
         get() = windowRepository.id
         set(value) {
-            documentViewManager.removeView()
             bibleViewFactory.clear()
             windowRepository.loadFromDb(value)
 
@@ -2696,7 +2694,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     class UpdateRestoreWindowButtons
 
     override fun onDestroy() {
-        documentViewManager.removeView()
         bibleViewFactory.clear()
         super.onDestroy()
         beforeDestroy()
@@ -3078,16 +3075,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun preferenceSettingsChanged() {
         resetSystemUi()
         requestSdcardPermission()
-        documentViewManager.removeView()
-        documentViewManager.buildView()
         ABEventBus.post(SynchronizeWindowsEvent(true))
         CommonUtils.changeAppIconAndName()
-        // Pre-A/B P3: on the Compose path both DocumentViewManager calls above are no-ops
-        // (`removeView` returns early, and `buildView(forceUpdate = false)` returns early too),
-        // so returning from Settings updated NOTHING — neither the toolbar snapshot (e.g. the
-        // `toolbar_button_actions` swap mode) nor the settings the host reads inside its
+        // Returning from Settings is what re-reads the toolbar snapshot (e.g. the
+        // `toolbar_button_actions` swap mode) and the settings the host reads inside its
         // composition (`hide_bible_reference_overlay`, `hide_window_buttons`,
-        // `full_screen_hide_buttons_pref`). `rebuildComposition = true` re-runs those reads.
+        // `full_screen_hide_buttons_pref`); the two DocumentViewManager calls this replaced had
+        // been no-ops on the Compose path since Pre-A/B P3, and are gone with the classic split.
         composeReadingViewHost?.refreshHostedState(rebuildComposition = true)
     }
 

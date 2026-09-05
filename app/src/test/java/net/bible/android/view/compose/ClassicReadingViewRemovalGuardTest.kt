@@ -80,4 +80,58 @@ class ClassicReadingViewRemovalGuardTest {
             listOf("toolbarLayout", "toolbarColor", "toolbarDivider").filter { code.contains(it) },
         )
     }
+
+    private val splitBibleArea =
+        "src/main/java/net/bible/android/view/activity/page/screen/SplitBibleArea.kt"
+
+    @Test
+    fun theRestoreButtonsEventOutlivesItsClassicHome() {
+        // RestoreButtonsVisibilityChanged is posted by WindowRepository.notifyRestoreButtonsChanged
+        // and consumed by BibleView -- both on the Compose path. It must NOT die with SplitBibleArea.
+        ClassicRemovalScan.assertPathsPresent(
+            listOf("src/main/java/net/bible/android/view/activity/page/screen/RestoreButtonsEvents.kt"),
+            "the live Compose-path event must have been split out before SplitBibleArea is deleted",
+        )
+        val classic = ClassicRemovalScan.codeLinesOf(splitBibleArea)
+        assertTrue(
+            "the scan read no SplitBibleArea code at all -- this assertion would pass vacuously",
+            classic.contains("class SplitBibleArea"),
+        )
+        assertEquals(
+            "SplitBibleArea.kt must no longer DECLARE RestoreButtonsVisibilityChanged",
+            0,
+            Regex("""class\s+RestoreButtonsVisibilityChanged""").findAll(classic).count(),
+        )
+    }
+
+    /**
+     * The second live tenant of `SplitBibleArea.kt`, found while proving the claim above rather
+     * than assuming it. `var clipboardKey` is a TOP-LEVEL property in that file, and three
+     * survivors import it by its fully-qualified name -- `MainBibleActivity`, `BibleView` and
+     * `WindowPaneMenuStateBuilder` (the Compose pane menu's "go to copied reference" row reads the
+     * very same shared state classic wrote). It has to be split out for exactly the same reason the
+     * event does, so it is guarded the same way and for the same reason: nothing else in the tree
+     * would notice its loss until the compile break in the slice that deletes its host.
+     *
+     * Both halves are load-bearing. The presence check alone would pass with the declaration
+     * duplicated in two files (a redeclaration error, but only once someone compiles); the
+     * declaration count alone would pass with the property simply deleted.
+     */
+    @Test
+    fun theClipboardKeyOutlivesItsClassicHome() {
+        ClassicRemovalScan.assertPathsPresent(
+            listOf("src/main/java/net/bible/android/view/activity/page/screen/ClipboardKey.kt"),
+            "the shared clipboardKey must have been split out before SplitBibleArea is deleted",
+        )
+        val classic = ClassicRemovalScan.codeLinesOf(splitBibleArea)
+        assertTrue(
+            "the scan read no SplitBibleArea code at all -- this assertion would pass vacuously",
+            classic.contains("class SplitBibleArea"),
+        )
+        assertEquals(
+            "SplitBibleArea.kt must no longer DECLARE clipboardKey",
+            0,
+            Regex("""^var\s+clipboardKey""", RegexOption.MULTILINE).findAll(classic).count(),
+        )
+    }
 }
