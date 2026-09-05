@@ -80,7 +80,6 @@ import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsComposeActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
-import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
@@ -392,11 +391,9 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun startup_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(StartupComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Startup))
+    fun startup_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(StartupActivity::class.java, ScreenLauncher.targetFor(Screen.Startup))
+        assertEquals(StartupComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Startup))
     }
 
     @Test

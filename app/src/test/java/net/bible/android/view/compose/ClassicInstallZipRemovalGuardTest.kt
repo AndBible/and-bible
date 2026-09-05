@@ -130,12 +130,14 @@ class ClassicInstallZipRemovalGuardTest {
                 hostBlock.contains(it),
             )
         }
+        val discreteBlock = java.io.File("src/discrete/AndroidManifest.xml").readText()
+            .substringAfter("net.bible.android.view.activity.installzip.InstallZipComposeActivity", "")
+            .substringBefore("/>", "")
         assertTrue(
             "src/discrete/AndroidManifest.xml no longer overrides InstallZipComposeActivity's " +
                 "label; the discrete build would advertise the non-disguised name in the system " +
                 "share sheet",
-            java.io.File("src/discrete/AndroidManifest.xml").readText()
-                .contains("install_zip_module_discrete"),
+            discreteBlock.contains("install_zip_module_discrete"),
         )
     }
 }

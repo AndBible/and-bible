@@ -76,7 +76,6 @@ import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsComposeActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
-import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.search.EpubSearchComposeActivity
 import net.bible.android.view.activity.search.EpubSearchResultsComposeActivity
@@ -189,9 +188,7 @@ object ScreenLauncher {
         Screen.SyncSettings ->
             if (useComposeFor(screen)) SyncSettingsComposeActivity::class.java
             else SyncSettingsActivity::class.java
-        Screen.Startup ->
-            if (useComposeFor(screen)) StartupComposeActivity::class.java
-            else StartupActivity::class.java
+        Screen.Startup -> StartupComposeActivity::class.java
         Screen.InstallZip -> InstallZipComposeActivity::class.java
         Screen.TextDisplaySettings ->
             if (useComposeFor(screen)) TextDisplaySettingsComposeActivity::class.java
