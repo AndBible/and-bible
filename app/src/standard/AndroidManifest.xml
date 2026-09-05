@@ -46,8 +46,15 @@
                     />
             </intent-filter>
         </activity-alias>
+        <!--
+          ~ The app's only EXTERNAL entry points for module files: a file manager's "open with", a
+          ~ Share sheet, or any ACTION_VIEW on a .zip/.epub/.ttf. An <intent-filter> cannot be
+          ~ toggled at runtime, which is why these lived on classic InstallZip (which forwarded to
+          ~ this host) until slice S16 deleted it. Moving them here is what PRESERVES the feature;
+          ~ deleting them with the classic Activity would have removed it.
+          -->
         <activity
-            android:name="net.bible.android.view.activity.installzip.InstallZip"
+            android:name="net.bible.android.view.activity.installzip.InstallZipComposeActivity"
             android:label="@string/install_zip_module"
             android:exported="true"
             >
