@@ -30,8 +30,9 @@ import net.bible.sharedcore.settings.ReadingProgressSettingsSnapshot
 
 /**
  * Android impl of [ReadingProgressSettingsService]. Reproduces the classic
- * `ReadingProgressSettingsDataStore` (`app/src/main/java/net/bible/android/view/activity/progress/ReadingProgressSettings.kt`)
- * key-for-key: reads/writes go through the [ReadingProgressSettings] singleton
+ * `ReadingProgressSettingsDataStore` (its file was deleted in the "Z-late S12: delete the classic
+ * settings cluster" commit; see that commit and its history for the source of truth this was
+ * written against) key-for-key: reads/writes go through the [ReadingProgressSettings] singleton
  * (Room-DAO-backed, `net.bible.service.common.ReadingProgressSettings`), NOT
  * `CommonUtils.settings`. That singleton's property setters do NOT themselves post
  * [ReadingProgressSettingsChangedEvent] (they only write to the DAO) — the classic

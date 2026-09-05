@@ -109,7 +109,6 @@ import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
-import net.bible.android.control.event.window.WorkspaceColorChanged
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.OrdinalRange
@@ -3045,48 +3044,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     }
                     return
                 }
-                COLORS_CHANGED -> {
-                    val edited = extras.getBoolean("edited")
-                    val reset = extras.getBoolean("reset")
-                    val windowId = extras.getString("windowId")
-                    val colorsStr = extras.getString("colors")
-
-                    if (!edited && !reset) return
-
-                    val colors = if (reset)
-                        if (windowId != null) {
-                            null
-                        } else TextDisplaySettings.default.colors
-                    else
-                        WorkspaceEntities.Colors.fromJson(colorsStr!!)
-
-                    if (windowId != null) {
-                        val window = windowRepository.getWindow(IdType(windowId))!!
-                        window.pageManager.textDisplaySettings.colors = colors
-                        window.bibleView?.updateTextDisplaySettings()
-                    } else {
-                        windowRepository.textDisplaySettings.colors = colors
-                        windowRepository.updateWindowTextDisplaySettingsValues(
-                            setOf(TextDisplaySettings.Types.COLORS),
-                            windowRepository.textDisplaySettings
-                        )
-                        if(reset) {
-                            windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
-                        } else {
-                            windowRepository.workspaceSettings.workspaceColor = colors!!.workspaceColor
-                        }
-                        ABEventBus.post(WorkspaceColorChanged())
-                        windowRepository.updateAllWindowsTextDisplaySettings()
-                    }
-                    resetSystemUi()
-                    // A/B batch 3 review fix (Minor 2): a newly picked/reset workspace colour is
-                    // exactly what F3 shows on the Compose reading toolbar, but nothing here pushed
-                    // a `HostedStateRefresher.refresh()` — so the new colour sat unused in
-                    // `workspaceSettings` until an unrelated passage/verse/window event happened to
-                    // rebuild `ToolbarStateServiceImpl`'s snapshot. Inert on the classic path (the
-                    // host is null there).
-                    composeReadingViewHost?.refreshHostedState()
-                }
                 STD_REQUEST_CODE -> {
                     CurrentActivityHolder.activate(this) // needed because startKeyChooser is using this
                     when (val kind = ActivityResultKind.fromExtra(extras.getString(ActivityResultKind.EXTRA))) {
@@ -3407,7 +3364,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         var initialized = false
         private const val SDCARD_READ_REQUEST = 2
 
-        const val COLORS_CHANGED = 93
         const val WORKSPACE_CHANGED = 94
 
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"

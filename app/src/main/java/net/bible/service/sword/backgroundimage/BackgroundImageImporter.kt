@@ -31,8 +31,7 @@ private val imageExtensions = setOf("jpg", "jpeg", "png", "webp")
 /**
  * Copy-into-`modulesDir/background` + SWORD-registration logic for a user-picked background
  * image, lifted VERBATIM (`copyAndRegister`/`fileName`/`uniqueFile`) from the classic
- * [net.bible.android.view.activity.settings.BackgroundImageChooserActivity], which is left
- * untouched (Approach B — classic stays byte-identical behind `use_compose_ui` OFF). Used by
+ * BackgroundImageChooserActivity (deleted in Z-late slice S12). Used by
  * [net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl.importBackgroundImage]
  * for the Compose colours/background-image screens.
  */

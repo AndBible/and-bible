@@ -31,9 +31,10 @@ import net.bible.sharedui.settings.AbSettingsScreen
 import org.koin.android.ext.android.inject
 
 /**
- * Compose host for the reading-progress/memorization settings screen — the new-path twin of
- * classic [net.bible.android.view.activity.progress.ReadingProgressSettingsActivity]
- * (`R.xml.reading_progress_settings`). This is the simplest of the Batch 10c hosts: a flat list
+ * Compose host for the reading-progress/memorization settings screen — the new-path twin of the
+ * classic ReadingProgressSettingsActivity (deleted in Z-late slice S12; `R.xml.reading_progress_settings`
+ * itself survives -- kept only because `SettingsIconParityTest` reads it through `R.xml`). This is
+ * the simplest of the Batch 10c hosts: a flat list
  * of switches + one list-choice row, no navigation rows, no reset action, no recreate parity to
  * worry about. Modelled on the (now-deleted, round 13a) SpeakSettingsComposeActivity's approach.
  */

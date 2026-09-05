@@ -60,8 +60,9 @@ import net.bible.sharedui.settings.TextDisplaySettingsScreen
 import org.koin.android.ext.android.inject
 
 /**
- * Compose host for the text-display-settings screen — the new-path twin of classic
- * [TextDisplaySettingsActivity]/[TextDisplaySettingsFragment] (`R.xml.text_display_settings`).
+ * Compose host for the text-display-settings screen — the new-path twin of the classic
+ * TextDisplaySettingsActivity/TextDisplaySettingsFragment (`text_display_settings.xml`), all
+ * deleted in Z-late slice S12.
  *
  * Unlike the other Batch 12d-A Compose settings hosts, this one is a SINGLE Activity that
  * internally implements the WINDOW → WORKSPACE → GLOBAL drill-up navigation classic did with

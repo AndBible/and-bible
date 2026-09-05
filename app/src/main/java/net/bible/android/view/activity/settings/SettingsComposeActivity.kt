@@ -58,9 +58,10 @@ import net.bible.sharedui.settings.AppSettingsScreen
  * changes app-wide behaviour gates read elsewhere) or that flip which Activity class future
  * navigation resolves to (`use_compose_ui`, read by [ScreenLauncher.useComposeFor]). None of these
  * are observed reactively by this screen, so [SettingsComposeActivity] force-recreates itself after
- * a write to any of them — the same primitive classic [SettingsActivity.reset] already uses to make
- * a bulk reset visible immediately. (No classic per-row listener does this today: `SettingsFragment`
- * only recreates on the explicit "reset" action. We still recreate per-write here so the NEW Compose
+ * a write to any of them — the same primitive classic `SettingsActivity.reset` used (both deleted
+ * in Z-late slice S12) to make a bulk reset visible immediately. (No classic per-row listener did
+ * this: `SettingsFragment` only recreated on the explicit "reset" action. We still recreate per-write
+ * here so the NEW Compose
  * host's own theme/locale re-render immediately rather than only on next visit — see the Task 9
  * report for the full rationale.)
  */
@@ -73,11 +74,12 @@ private val RECREATE_ON_CHANGE_KEYS = setOf(
 )
 
 /**
- * Compose host for the main app Settings screen — the new-path twin of classic
- * [SettingsActivity]/[SettingsFragment]. Builds [AppSettingsLabels] from `strings.xml`, wires the
- * shared [AppSettingsController] (backed by [AppSettingsServiceImpl]), and renders
- * [AppSettingsScreen]. Every navigation-row / action-row target reuses the SAME classic code path
- * `SettingsFragment.onCreatePreferences` uses for that row (see [onNavigate] kdocs); `sync_settings_shortcut`
+ * Compose host for the main app Settings screen — the new-path twin of the classic
+ * SettingsActivity/SettingsFragment (both deleted in Z-late slice S12). Builds [AppSettingsLabels]
+ * from `strings.xml`, wires the shared [AppSettingsController] (backed by [AppSettingsServiceImpl]),
+ * and renders [AppSettingsScreen]. Every navigation-row / action-row target reuses the SAME code
+ * path classic `SettingsFragment.onCreatePreferences` used for that row (see [onNavigate] kdocs);
+ * `sync_settings_shortcut`
  * (`Screen.SyncSettings`, Batch 10-remainder), `ai_settings_shortcut` (`Screen.AiPrompts`, Batch 9) and
  * `reading_progress_settings_shortcut` (`Screen.ReadingProgressSettings`, Batch 10c) all route
  * through [ScreenLauncher].
@@ -240,7 +242,7 @@ class SettingsComposeActivity : ActivityBase() {
 
     // --- Reset ----------------------------------------------------------------------------------
 
-    /** Same confirmation dialog classic [SettingsActivity.reset] shows before clearing. */
+    /** Same confirmation dialog classic SettingsActivity.reset showed before clearing (deleted in Z-late slice S12). */
     private fun confirmResetSettings() {
         AlertDialog.Builder(this)
             .setMessage(R.string.reset_app_prefs)
@@ -252,7 +254,7 @@ class SettingsComposeActivity : ActivityBase() {
     }
 
     /**
-     * Clears the SAME hardcoded key list classic [SettingsActivity.reset] clears
+     * Clears the SAME hardcoded key list classic SettingsActivity.reset cleared (deleted in Z-late slice S12)
      * ([SettingsReset.RESET_KEYS] + the four realShared-routed keys, via
      * [SettingsReset.performReset] — extracted there so the two reset paths cannot drift), then
      * refreshes the service snapshot and recreates (locale/night-mode/color-mode/discrete-mode are

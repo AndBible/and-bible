@@ -308,11 +308,6 @@
             android:launchMode="singleTop"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
-            android:name="net.bible.android.view.activity.progress.ReadingProgressSettingsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/reading_progress_settings"
-            android:parentActivityName="net.bible.android.view.activity.progress.ReadingProgressComposeActivity" />
-        <activity
             android:name="net.bible.android.view.activity.settings.ReadingProgressSettingsComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -322,11 +317,6 @@
             android:name=".view.activity.StartupComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:exported="false" />
-        <activity
-            android:name="net.bible.android.view.activity.settings.SettingsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/settings"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.settings.SettingsComposeActivity"
             android:theme="@style/Theme.AbCompose"
@@ -356,31 +346,10 @@
             android:parentActivityName="net.bible.android.view.mydocuments.MyDocumentsComposeActivity"
             />
         <activity
-            android:name="net.bible.android.view.activity.settings.ColorSettingsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/workspace_color_settings_title"
-            android:parentActivityName="net.bible.android.view.activity.settings.TextDisplaySettingsActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.settings.BackgroundImageChooserActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/background_image_title"
-            android:parentActivityName="net.bible.android.view.activity.settings.ColorSettingsActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.settings.SyncSettingsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/cloud_sync_title"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
             android:name="net.bible.android.view.activity.settings.SyncSettingsComposeActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/cloud_sync_title"
             android:theme="@style/Theme.AbCompose"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.settings.TextDisplaySettingsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/text_display_settings_activity_title"
-            android:launchMode="singleTop"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity"

@@ -31,9 +31,10 @@ import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.settings.SyncSettingsScreen
 
 /**
- * Compose host for the cloud-sync settings screen — the new-path twin of classic
- * [SyncSettingsActivity] (`R.xml.sync_settings`). The service is host-constructed (NOT a Koin
- * singleton) because its OAuth methods are activity-bound. `document_sync_manage` navigates to
+ * Compose host for the cloud-sync settings screen — the new-path twin of the classic
+ * SyncSettingsActivity (deleted in Z-late slice S12; `R.xml.sync_settings`). The service is
+ * host-constructed (NOT a Koin singleton) because its OAuth methods are activity-bound.
+ * `document_sync_manage` navigates to
  * [Screen.CloudDocuments] via [ScreenLauncher]; a category-enable posts `MainBibleAfterRestore`
  * inside the service impl (classic parity). `onResume` refreshes to reflect a sign-in/out or a
  * DocumentSyncSettings change that happened while backgrounded.

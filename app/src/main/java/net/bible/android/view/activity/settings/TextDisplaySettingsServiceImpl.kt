@@ -56,11 +56,11 @@ import org.crosswire.jsword.book.Books
  * (approach B). Drives the EXISTING classic machinery (`getPrefItem`, `OptionsMenuItemInterface`,
  * `WindowRepository`, `CommonUtils.globalTextDisplaySettings`) instead of duplicating the
  * sparse-override/inheritance math, which lives in `Preference.value` / `SettingsBundle.actual()`
- * (`TextDisplaySettings.kt`, `OptionsMenuItems.kt`, `WorkspaceEntities.kt`).
+ * (`TextDisplaySettingsPrefItems.kt`, `OptionsMenuItems.kt`, `WorkspaceEntities.kt`).
  *
- * Parity target: [TextDisplaySettingsActivity.commitDirtyToInMemoryState] (per-level in-memory
- * commit + propagation) and `MainBibleActivity.workspaceSettingsChanged` (same per-level branches
- * fired from the classic activity-result path -- deleted in slice S12 with the
+ * Parity target: classic TextDisplaySettingsActivity's `commitDirtyToInMemoryState` (per-level
+ * in-memory commit + propagation) and `MainBibleActivity.workspaceSettingsChanged` (same per-level
+ * branches fired from the classic activity-result path -- both deleted in slice S12 along with the
  * TEXT_DISPLAY_SETTINGS_CHANGED round-trip that was its only caller; named here as the parity
  * target this was written against, not as live code).
  */
@@ -442,8 +442,9 @@ class TextDisplaySettingsServiceImpl(
         if (night) it.nightBackgroundImageOpacity = opacity else it.dayBackgroundImageOpacity = opacity
     }
 
-    // Whole-Colors reset — reproduces the classic ColorSettingsActivity "Reset" (MainBibleActivity
-    // COLORS_CHANGED reset branch): WINDOW -> colours null (inherit); WORKSPACE/GLOBAL -> default.colors.
+    // Whole-Colors reset — reproduces the classic ColorSettingsActivity "Reset" (MainBibleActivity's
+    // COLORS_CHANGED reset branch, both deleted in slice S12): WINDOW -> colours null (inherit);
+    // WORKSPACE/GLOBAL -> default.colors.
     override fun resetColors(scope: SettingsScope) {
         // See applyColors.
         CommonUtils.displaySettingChanged(TextDisplaySettings.Types.COLORS)

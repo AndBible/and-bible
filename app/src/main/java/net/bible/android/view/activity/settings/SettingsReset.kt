@@ -20,7 +20,7 @@ import net.bible.service.common.CommonUtils
 
 /**
  * The settings-reset contract, lifted out of `SettingsActivity`'s companion object because the
- * classic settings screen is being deleted (Batch Z-late phase 1) while
+ * classic settings screen was deleted (Batch Z-late phase 1, slice S12) while
  * [SettingsComposeActivity.resetSettings] still needs it. Both reset paths read the SAME list so
  * they cannot drift apart — that was already the reason it lived in one place.
  */

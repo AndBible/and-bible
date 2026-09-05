@@ -21,7 +21,9 @@ package net.bible.sharedcore.settings
  * Filters a flat settings list to the rows whose title or summary contain [query] (case-insensitive),
  * keeping a [SettingsItem.Category] header only when at least one of the rows that follow it (up to the
  * next category) survives — the Compose analogue of the classic `PreferenceSearchHelper` action-bar
- * filter, including its empty-category hiding.
+ * filter, including its empty-category hiding. `PreferenceSearchHelper.kt` was deleted in the
+ * "Z-late S12: delete the classic settings cluster" commit; see that commit (and its history) for
+ * the classic-parity source of truth this was written against.
  *
  * A blank [query] returns [items] unchanged. Pure; call with an already visibility-filtered list
  * (`SettingsScreenState.visibleItems`) so hidden rows never re-appear via search.
