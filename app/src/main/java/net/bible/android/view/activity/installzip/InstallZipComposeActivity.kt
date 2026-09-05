@@ -125,7 +125,16 @@ internal suspend fun classifyEntry(
 }
 
 /**
- * The URI-grant flags a forwarded Intent needs to keep the sender's `content://` grant readable
+ * The log tag for this package. Kept as the literal `"InstallZip"` it has always been rather than
+ * renamed to match the host class: slice S16 deleted classic `InstallZip.kt`, which declared this
+ * as a package-visible `const val TAG` that this file read with no import at all (same package),
+ * and log-tag continuity across the release matters more here than symmetry with the class name --
+ * a user's logcat capture from before and after the port should filter identically.
+ */
+private const val TAG = "InstallZip"
+
+/**
+ * The URI-grant flags an Intent needs to keep the sender's `content://` grant readable
  * (see [composeForwardIntent]) -- and ONLY these; deliberately excludes any `FLAG_ACTIVITY_*`.
  */
 private const val URI_GRANT_FLAGS =
@@ -135,21 +144,31 @@ private const val URI_GRANT_FLAGS =
         Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
 
 /**
- * The Intent classic [InstallZip] forwards here when `use_compose_ui` is ON (spec
- * `2026-07-25-compose-pre-ab-state-freshness-design.md` §1 P2).
+ * Normalises an inbound Intent into one addressed at this host, keeping the sender's URI grant.
  *
- * The real external `<intent-filter>`s for `ACTION_VIEW`/`ACTION_SEND`/`ACTION_SEND_MULTIPLE`
- * live only on classic [InstallZip] (`app/src/standard/AndroidManifest.xml`), and an
- * `<intent-filter>` cannot be toggled at runtime — so a file-manager or Share-sheet install would
- * otherwise never reach this host, whatever the flag says. Forwarding a **copy** of the whole
- * Intent keeps every part of the contract the receiving host reads: `action`, `data` + `type`,
- * `clipData`, and all extras.
+ * **This is no longer a forwarding hop.** It was written for spec
+ * `2026-07-25-compose-pre-ab-state-freshness-design.md` §1 P2, when the external
+ * `<intent-filter>`s for `ACTION_VIEW`/`ACTION_SEND`/`ACTION_SEND_MULTIPLE` lived on the classic
+ * `InstallZip` Activity — an `<intent-filter>` cannot be toggled at runtime, so classic had to
+ * receive the file-manager/Share-sheet Intent and forward a copy here whenever `use_compose_ui`
+ * was ON. Slice S16's prep moved those filters onto this host in
+ * `app/src/standard/AndroidManifest.xml` and then deleted classic `InstallZip`, so **an external
+ * module-file Intent now lands here directly** and nothing in production calls this any more.
+ *
+ * It is kept, rather than deleted with the forwarder, as this file's URI-grant normaliser: it is
+ * small, side-effect-free, and its four `InstallZipComposeActivityTest` cases are the only
+ * coverage anywhere of which flags may and may not travel with a `content://` uri — the rule
+ * below, which any future re-dispatch of an inbound Intent has to obey. Deleting a tested,
+ * documented invariant inside a deletion slice would have cost that coverage for nothing.
+ *
+ * Building it from a **copy** of the whole Intent keeps every part of the contract the
+ * receiving host reads: `action`, `data` + `type`, `clipData`, and all extras.
  *
  * The **flags** are NOT copied wholesale, though — only [URI_GRANT_FLAGS] survive, most
  * importantly `FLAG_GRANT_READ_URI_PERMISSION`, without which the `content://` uri would fail to
  * open with a `SecurityException`. A sender's `FLAG_ACTIVITY_*` flags (e.g. a file manager
  * launching with `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK`) must NOT travel: they'd
- * make the forwarded launch resolve by task affinity instead of stacking in the current task,
+ * make the relaunch resolve by task affinity instead of stacking in the current task,
  * so Back from this host could land on the home screen or yank the whole app task forward
  * (finding M1, pre-A/B state-freshness final review).
  *

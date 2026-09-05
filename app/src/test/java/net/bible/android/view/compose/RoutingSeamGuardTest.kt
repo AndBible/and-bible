@@ -46,7 +46,6 @@ class RoutingSeamGuardTest {
         "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
         "src/main/java/net/bible/android/view/activity/page/OptionsMenuStateBuilder.kt",
         "src/main/java/net/bible/android/view/activity/page/screen/DocumentViewManager.kt",
-        "src/main/java/net/bible/android/view/activity/installzip/InstallZip.kt",
     )
 
     @Test fun everyExpectedReaderStillExists() {

@@ -53,7 +53,6 @@ import net.bible.android.view.activity.download.CustomRepositoriesComposeActivit
 import net.bible.android.view.activity.download.CustomRepositoryEditorComposeActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
 import net.bible.android.view.activity.download.ProgressStatusComposeActivity
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.History
@@ -401,11 +400,9 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun installZip_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(InstallZipComposeActivity::class.java, ScreenLauncher.targetFor(Screen.InstallZip))
+    fun installZip_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(InstallZip::class.java, ScreenLauncher.targetFor(Screen.InstallZip))
+        assertEquals(InstallZipComposeActivity::class.java, ScreenLauncher.targetFor(Screen.InstallZip))
     }
 
     @Test

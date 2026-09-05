@@ -59,7 +59,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.application
 import net.bible.android.view.util.Hourglass
@@ -842,10 +841,14 @@ object BackupControl {
      * Extract a module zip archive into the SWORD download directory and register the
      * resulting books with JSword, without any Activity UI.
      *
-     * This is the shared, headless core of module installation. The Activity-based
-     * [InstallZip] flow delegates here (passing a progress callback), and the cloud
-     * document-sync layer ([net.bible.service.cloudsync.documents.DocumentArchiver]) also
-     * delegates here so that the install path is not duplicated.
+     * This is the shared, headless core of module installation. The interactive install flow
+     * behind [net.bible.android.view.activity.installzip.InstallZipComposeActivity] delegates
+     * here (via `DocumentInstallService`/[net.bible.service.installzip.InstallCommitter], passing
+     * a progress callback), and the cloud document-sync layer
+     * ([net.bible.service.cloudsync.documents.DocumentArchiver]) also delegates here so that the
+     * install path is not duplicated. The link named the classic `InstallZip` Activity until
+     * slice S16 deleted it; the import that resolved that link had to go with it, since an
+     * unresolved import is a compile error rather than a mere Dokka warning.
      *
      * The archive may contain an [ANDBIBLE_BACKUP_MANIFEST_FILENAME] manifest entry
      * (which is skipped) plus module files at modulesDir-relative paths: SWORD conf files

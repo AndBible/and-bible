@@ -54,7 +54,6 @@ import net.bible.android.view.activity.download.CustomRepositoriesComposeActivit
 import net.bible.android.view.activity.download.CustomRepositoryEditorComposeActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
 import net.bible.android.view.activity.download.ProgressStatusComposeActivity
-import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
@@ -193,9 +192,7 @@ object ScreenLauncher {
         Screen.Startup ->
             if (useComposeFor(screen)) StartupComposeActivity::class.java
             else StartupActivity::class.java
-        Screen.InstallZip ->
-            if (useComposeFor(screen)) InstallZipComposeActivity::class.java
-            else InstallZip::class.java
+        Screen.InstallZip -> InstallZipComposeActivity::class.java
         Screen.TextDisplaySettings ->
             if (useComposeFor(screen)) TextDisplaySettingsComposeActivity::class.java
             else TextDisplaySettingsActivity::class.java
