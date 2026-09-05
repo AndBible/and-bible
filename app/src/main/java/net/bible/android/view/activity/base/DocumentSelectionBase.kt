@@ -53,7 +53,6 @@ import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActiv
 import net.bible.android.view.activity.download.BadDocumentAction
 import net.bible.android.view.activity.download.isBadDocument
 import net.bible.android.view.activity.download.isRecommended
-import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Ref
@@ -153,6 +152,15 @@ abstract class DocumentSelectionBase(
     protected abstract suspend fun getDocumentsFromSource(refresh: Boolean): List<Book>
     protected abstract fun handleDocumentSelection(selectedDocument: Book)
     protected abstract fun sortLanguages(languages: Collection<Language>?): List<Language>
+
+    /**
+     * Whether this screen re-indexes on every load rather than only on an explicit refresh.
+     * Was `this is ChooseDocument` until slice S6 deleted that subclass; expressed as a seam so the
+     * base states the behaviour it branches on rather than naming a subclass. The base has no
+     * subclasses at all today (spec 2.4 keeps it as recorded referenceless residue), so nothing
+     * overrides this yet.
+     */
+    protected open val reindexOnEveryLoad: Boolean get() = false
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedDialogsState: Bundle?) {
@@ -400,7 +408,7 @@ abstract class DocumentSelectionBase(
                     allDocuments.clear()
                     allDocuments.addAll(newDocs)
                 }
-                if(refresh || this@DocumentSelectionBase is ChooseDocument) {
+                if(refresh || reindexOnEveryLoad) {
                     dao.clear()
                     dao.insertDocuments(allDocuments.map {
                         DocumentSearch(it.osisID, it.abbreviation, if (it.isPseudoBook) "" else it.name, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY)

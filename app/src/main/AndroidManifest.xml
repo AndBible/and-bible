@@ -115,11 +115,6 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             />
         <activity
-            android:name="net.bible.android.view.activity.navigation.ChooseDocument"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/chooseBook"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -496,16 +491,6 @@
             android:label="@string/history"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
-            android:name="net.bible.android.view.activity.download.CustomRepositories"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/custom_repositories"
-            android:parentActivityName="net.bible.android.view.activity.download.DownloadActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.download.CustomRepositoryEditor"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/custom_repositories"
-            android:parentActivityName="net.bible.android.view.activity.download.CustomRepositories" />
-        <activity
             android:name="net.bible.android.view.activity.download.CustomRepositoriesComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -528,18 +513,6 @@
             android:label="@string/speak_advanced_settings"
             android:launchMode="singleTop"
             android:parentActivityName="net.bible.android.view.activity.speak.BibleSpeakActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.download.FirstDownload"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/download"
-            android:parentActivityName=".StartupActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.download.DownloadActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/download"
-            android:parentActivityName=".StartupActivity"
-            />
         <activity
             android:name="net.bible.android.view.activity.download.DownloadComposeActivity"
             android:theme="@style/Theme.AbCompose"

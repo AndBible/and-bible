@@ -43,12 +43,12 @@ data class RepositoryData (
 }
 
 /**
- * Maps between the classic `RepositoryData` Intent-JSON contract ([RepositoryData], defined
- * alongside classic [CustomRepositoryEditor] and used verbatim by [CustomRepositoriesComposeActivity]
- * for the `"data"` extra it exchanges with [CustomRepositoryEditorComposeActivity]/classic
- * [CustomRepositoryEditor]) and the portable [RepositoryResult] the `:sharedCore` download
- * controllers speak. Kept as a single pair of functions so both Compose hosts (and
- * `CustomRepositoryMapperTest`'s JSON-parity check) share one mapping.
+ * Maps between the classic `RepositoryData` Intent-JSON contract ([RepositoryData], declared
+ * immediately above in this file and used verbatim by [CustomRepositoriesComposeActivity] for the
+ * `"data"` extra it exchanges with [CustomRepositoryEditorComposeActivity]) and the portable
+ * [RepositoryResult] the `:sharedCore` download controllers speak. Kept as a single pair of
+ * functions so both Compose hosts (and `CustomRepositoryMapperTest`'s JSON-parity check) share one
+ * mapping.
  */
 fun RepositoryData.toRepositoryResult(): RepositoryResult = RepositoryResult(
     repository = repository?.toData(),

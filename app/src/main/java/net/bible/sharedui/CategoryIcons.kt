@@ -22,7 +22,7 @@ import net.bible.sharedcore.navigation.DocCategory
 
 /**
  * The classic per-category document icon, mirroring `BookCategory.imageResource`
- * (`download/DocumentListItem.kt`). Backs the `LocalCategoryIcon` seam so the moved Compose
+ * (`download/DocumentBadges.kt`). Backs the `LocalCategoryIcon` seam so the moved Compose
  * `DocumentRow` shows the bespoke vector art instead of generic Material icons.
  */
 @DrawableRes

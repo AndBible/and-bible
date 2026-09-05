@@ -118,7 +118,6 @@ import net.bible.android.database.json
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
@@ -962,8 +961,6 @@ object CommonUtils : CommonUtilsBase() {
         val existingVersion = existingDocument?.bookMetaData?.getProperty("Version")
         val existingVersionDate = existingDocument?.bookMetaData?.getProperty("SwordVersionDate") ?: "-"
 
-        val inDownloadScreen = context is DownloadActivity
-
         val versionLatest = document.bookMetaData.getProperty("Version")
         val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
 
@@ -988,8 +985,6 @@ object CommonUtils : CommonUtilsBase() {
 
         if(versionMessageLatest != null) {
             about += "\n\n" + versionMessageLatest
-            if(versionMessageInstalled != null && inDownloadScreen)
-                about += "\n" + versionMessageInstalled
         }
 
         val history = document.bookMetaData.getValues("History")

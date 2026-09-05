@@ -49,18 +49,13 @@ import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
-import net.bible.android.view.activity.download.CustomRepositories
 import net.bible.android.view.activity.download.CustomRepositoriesComposeActivity
-import net.bible.android.view.activity.download.CustomRepositoryEditor
 import net.bible.android.view.activity.download.CustomRepositoryEditorComposeActivity
-import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
-import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.download.ProgressStatusComposeActivity
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
-import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.HistoryComposeActivity
@@ -174,11 +169,9 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun chooseDocument_routes_old_and_new() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(ChooseDocumentComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseDocument))
+    fun chooseDocument_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(ChooseDocument::class.java, ScreenLauncher.targetFor(Screen.ChooseDocument))
+        assertEquals(ChooseDocumentComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseDocument))
     }
 
     @Test
@@ -188,20 +181,17 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun download_routes_old_and_new() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(DownloadComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Download))
+    fun download_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(DownloadActivity::class.java, ScreenLauncher.targetFor(Screen.Download))
+        assertEquals(DownloadComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Download))
     }
 
     @Test
-    fun firstDownload_routes_old_and_new() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        // new: same DownloadComposeActivity (the firstDownload extra differentiates behaviour)
-        assertEquals(DownloadComposeActivity::class.java, ScreenLauncher.targetFor(Screen.FirstDownload))
+    fun firstDownload_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(FirstDownload::class.java, ScreenLauncher.targetFor(Screen.FirstDownload))
+        // same DownloadComposeActivity as Screen.Download (the firstDownload extra, added by the
+        // caller, differentiates behaviour)
+        assertEquals(DownloadComposeActivity::class.java, ScreenLauncher.targetFor(Screen.FirstDownload))
     }
 
     @Test
@@ -428,19 +418,15 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun customRepositories_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(CustomRepositoriesComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CustomRepositories))
+    fun customRepositories_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(CustomRepositories::class.java, ScreenLauncher.targetFor(Screen.CustomRepositories))
+        assertEquals(CustomRepositoriesComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CustomRepositories))
     }
 
     @Test
-    fun customRepositoryEditor_routes_by_flag() {
-        CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(CustomRepositoryEditorComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CustomRepositoryEditor))
+    fun customRepositoryEditor_routes_to_compose() {
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(CustomRepositoryEditor::class.java, ScreenLauncher.targetFor(Screen.CustomRepositoryEditor))
+        assertEquals(CustomRepositoryEditorComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CustomRepositoryEditor))
     }
 
     @Test

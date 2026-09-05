@@ -50,19 +50,14 @@ import net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.discrete.CalculatorActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
-import net.bible.android.view.activity.download.CustomRepositories
 import net.bible.android.view.activity.download.CustomRepositoriesComposeActivity
-import net.bible.android.view.activity.download.CustomRepositoryEditor
 import net.bible.android.view.activity.download.CustomRepositoryEditorComposeActivity
-import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.download.DownloadComposeActivity
-import net.bible.android.view.activity.download.FirstDownload
 import net.bible.android.view.activity.download.ProgressStatus
 import net.bible.android.view.activity.download.ProgressStatusComposeActivity
 import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
-import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
@@ -126,18 +121,13 @@ object ScreenLauncher {
         Screen.ChooseMapKey -> ChooseMapKeyComposeActivity::class.java
         Screen.ChooseDictionaryWord -> ChooseDictionaryWordComposeActivity::class.java
         Screen.GridChoosePassageBook -> GridChoosePassageComposeActivity::class.java
-        Screen.ChooseDocument ->
-            if (useComposeFor(screen)) ChooseDocumentComposeActivity::class.java
-            else ChooseDocument::class.java
-        Screen.Download ->
-            if (useComposeFor(screen)) DownloadComposeActivity::class.java
-            else DownloadActivity::class.java
+        Screen.ChooseDocument -> ChooseDocumentComposeActivity::class.java
+        Screen.Download -> DownloadComposeActivity::class.java
         Screen.FirstDownload ->
             // Compose FirstDownload = the shared DownloadComposeActivity + EXTRA_FIRST_DOWNLOAD.
             // intentFor stays generic (no extra injected here); callers add
             // DownloadComposeActivity.EXTRA_FIRST_DOWNLOAD themselves.
-            if (useComposeFor(screen)) DownloadComposeActivity::class.java
-            else FirstDownload::class.java
+            DownloadComposeActivity::class.java
         Screen.Search -> SearchComposeActivity::class.java
         Screen.EpubSearch -> EpubSearchComposeActivity::class.java
         Screen.EpubSearchResults -> EpubSearchResultsComposeActivity::class.java
@@ -210,12 +200,8 @@ object ScreenLauncher {
         Screen.TextDisplaySettings ->
             if (useComposeFor(screen)) TextDisplaySettingsComposeActivity::class.java
             else TextDisplaySettingsActivity::class.java
-        Screen.CustomRepositories ->
-            if (useComposeFor(screen)) CustomRepositoriesComposeActivity::class.java
-            else CustomRepositories::class.java
-        Screen.CustomRepositoryEditor ->
-            if (useComposeFor(screen)) CustomRepositoryEditorComposeActivity::class.java
-            else CustomRepositoryEditor::class.java
+        Screen.CustomRepositories -> CustomRepositoriesComposeActivity::class.java
+        Screen.CustomRepositoryEditor -> CustomRepositoryEditorComposeActivity::class.java
         Screen.Backup ->
             if (useComposeFor(screen)) BackupComposeActivity::class.java
             else BackupActivity::class.java
