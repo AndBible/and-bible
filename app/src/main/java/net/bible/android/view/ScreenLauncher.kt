@@ -81,7 +81,7 @@ import net.bible.android.view.activity.search.SearchComposeActivity
 import net.bible.android.view.activity.search.SearchIndexComposeActivity
 import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
 import net.bible.android.view.activity.search.SearchResultsComposeActivity
-import net.bible.android.view.activity.speak.BibleSpeakActivity
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import net.bible.service.common.CommonUtils
@@ -125,11 +125,14 @@ object ScreenLauncher {
         Screen.MyDocuments -> MyDocumentsComposeActivity::class.java
         Screen.MyDocumentPages -> MyDocumentPagesComposeActivity::class.java
         Screen.CloudDocuments -> CloudDocumentsComposeActivity::class.java
-        // Round 13a: there is no Compose Speak ACTIVITY any more — the Compose path opens
-        // `ComposeReadingViewHost.showSpeakSettings()` (a sheet over the reading view) instead, and
-        // `SpeakEntryPointGuardTest` enforces that every Compose call site does so. Reaching this
-        // line therefore always means the classic screen.
-        Screen.BibleSpeak -> BibleSpeakActivity::class.java
+        // Slice S13 deleted the classic BibleSpeakActivity, and round 13a had already deleted the
+        // Compose Speak ACTIVITIES: the Compose Speak surface is
+        // ComposeReadingViewHost.showSpeakSettings()/showSpeakTransport(), a sheet over the reading
+        // view, not an Activity. This is the one Screen entry in the enum with no Activity of its
+        // own; it resolves to the reading view that HOSTS the replacement. Reaching it means the
+        // flag is OFF, where there is no Compose host to open a sheet on — that hole closes when the
+        // epilogue (spec §10.2) collapses the three remaining classic branches and the flag dies.
+        Screen.BibleSpeak -> MainBibleActivity::class.java
         Screen.WorkspaceSelector ->
             if (useComposeFor(screen)) WorkspaceSelectorComposeActivity::class.java
             else WorkspaceSelectorActivity::class.java

@@ -36,9 +36,8 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.speak.BibleSpeakActivity
-import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.common.AdvancedSpeakSettings
@@ -72,8 +71,7 @@ open class SpeakIntegrationTestBase {
     lateinit var book: SwordBook
     lateinit var windowControl: WindowControl
 
-    lateinit var bibleSpeakActivityController: ActivityController<BibleSpeakActivity>
-    lateinit var bibleSpeakSettingsActivityController: ActivityController<SpeakSettingsActivity>
+    lateinit var speakSettingsService: SpeakSettingsService
 
     @Before
     fun setUp() {
@@ -91,12 +89,11 @@ open class SpeakIntegrationTestBase {
         bookmarkControl = koin.get()
         speakControl = koin.get()
         windowControl = koin.get()
+        speakSettingsService = koin.get()
         windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository.initialize()
         speakControl.setupMockedTts()
         book = Books.installed().getBook("FinRK") as SwordBook
-        bibleSpeakActivityController = Robolectric.buildActivity(BibleSpeakActivity::class.java)
-        bibleSpeakSettingsActivityController = Robolectric.buildActivity(SpeakSettingsActivity::class.java)
     }
 
     @After
@@ -117,24 +114,27 @@ open class SpeakIntegrationTestBase {
 @RunWith(RobolectricTestRunner::class)
 class SpeakActivityTests : SpeakIntegrationTestBase() {
     @Test
-    fun testSpeakActivityIsUpdatedWhenSettingsAreChanged() {
-        AdvancedSpeakSettings.synchronize = true
-        val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
-        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(true))
-        AdvancedSpeakSettings.synchronize = false
+    fun testPlaybackSettingsAreRefreshedWhenSettingsChangeExternally() {
+        // Was testSpeakActivityIsUpdatedWhenSettingsAreChanged, which asserted that the classic
+        // Activity's view refreshed when a SpeakSettingsChangedEvent was posted behind its back.
+        // The observable state that carries that contract now is SpeakSettingsService.playback,
+        // which re-reads on exactly that event (SpeakSettingsServiceImpl.kt:53-55).
+        val before = speakSettingsService.playback.value.speedPercent
+        val s = SpeakSettings.load()
+        s.playbackSettings = s.playbackSettings.copy(speed = before + 10)
+        s.save()
         ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
-        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(false))
+        assertThat(speakSettingsService.playback.value.speedPercent, equalTo(before + 10))
     }
 
     @Test
-    fun testSpeakActivityUpdatesSettings() {
+    fun testTogglingSynchronizeWritesTheSetting() {
+        // Was testSpeakActivityUpdatesSettings: the checkbox click wrote AdvancedSpeakSettings and
+        // the view reflected it. The service's setter is what the Compose Advanced page calls.
         AdvancedSpeakSettings.synchronize = true
-        val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
-        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(true))
-        settingsActivity.binding.synchronize.performClick()
-
-        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(false))
+        speakSettingsService.setSynchronize(false)
         assertThat(AdvancedSpeakSettings.synchronize, equalTo(false))
+        assertThat(speakSettingsService.advanced.value.synchronize, equalTo(false))
     }
 }
 
@@ -153,7 +153,6 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         AdvancedSpeakSettings.restoreSettingsFromBookmarks = true
         SpeakSettings().save()
 
-        bibleSpeakActivityController.create()
         mainActivityController.create()
     }
 
@@ -175,9 +174,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
     }
 
     private fun changeSpeed(speed: Int) {
-        val settingsActivity = bibleSpeakActivityController.visible().get()
-        settingsActivity.binding.speakSpeed.setProgress(speed)
-        settingsActivity.updateSettings()
+        speakSettingsService.setSpeed(speed)
     }
 
     private fun setSleepTimer(time: Int) {

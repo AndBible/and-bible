@@ -151,8 +151,13 @@ class SpeakEntryPointGuardTest {
      *    exists to declare.
      *  - `SpeakTransportWidget.kt` — the classic transport widget, explicitly untouched by round 13a
      *    (spec §5). `ComposeReadingViewHost` hides it (`binding.speakTransport.visibility = GONE`)
-     *    and renders `SpeakTransportBar` instead, whose `onConfig` DOES go to the sheet — so this
-     *    widget's config button is unreachable on the Compose path.
+     *    and renders `SpeakTransportBar` instead, whose `onConfig` DOES go to the sheet. S13 then
+     *    removed the widget's own config-button route entirely (it had no flag check at all), so the
+     *    button now has no route of any kind, on either path. The file stays in
+     *    [excludedClassicLaunchers] so [everyExcludedClassicLauncherStillExists] keeps asserting the
+     *    §2.4-protected widget exists; the cog itself stays visible-but-inert on the classic bottom
+     *    bar until the epilogue decides the fate of `main_bible_view.xml:201`'s
+     *    `custom:showConfig="true"`.
      * [excludedClassicLaunchers] is asserted to exist for the same anti-vacuity reason as
      * [everyScannedCallSiteExists]: a renamed exclusion must resurface as a failure, not a silence.
      */

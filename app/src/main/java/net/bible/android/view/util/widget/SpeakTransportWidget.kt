@@ -42,8 +42,6 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.service.common.AdvancedSpeakSettings
@@ -95,10 +93,6 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
             prevButton.setOnClickListener { onButtonClick(it) }
             nextButton.setOnClickListener { onButtonClick(it) }
             stopButton.setOnClickListener { onButtonClick(it) }
-            configButton.setOnClickListener {
-                val intent = ScreenLauncher.intentFor(context, Screen.BibleSpeak)
-                context.startActivity(intent)
-            }
             rewindButton.setOnClickListener { onButtonClick(it) }
             forwardButton.setOnClickListener { onButtonClick(it) }
             bookmarkButton.setOnClickListener { onBookmarkButtonClick() }

@@ -497,17 +497,6 @@
             android:label="@string/custom_repositories"
             android:parentActivityName="net.bible.android.view.activity.download.CustomRepositoriesComposeActivity" />
         <activity
-            android:name="net.bible.android.view.activity.speak.BibleSpeakActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/speak"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.speak.SpeakSettingsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/speak_advanced_settings"
-            android:launchMode="singleTop"
-            android:parentActivityName="net.bible.android.view.activity.speak.BibleSpeakActivity" />
-        <activity
             android:name="net.bible.android.view.activity.download.DownloadComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

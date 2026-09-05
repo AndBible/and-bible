@@ -80,7 +80,7 @@ import net.bible.android.view.activity.settings.SyncSettingsComposeActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
-import net.bible.android.view.activity.speak.BibleSpeakActivity
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import net.bible.service.common.CommonUtils
@@ -234,13 +234,14 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun bibleSpeak_routes_to_classic_in_both_flag_states() {
-        // Round 13a: there is no Compose Speak activity any more (the Compose path opens a sheet
-        // over the reading view instead), so Screen.BibleSpeak always means the classic screen.
+    fun bibleSpeak_routes_to_the_reading_view_in_both_flag_states() {
+        // Screen.BibleSpeak is the one entry with no Activity of its own: round 13a replaced the
+        // Compose Speak activities with a sheet over the reading view, and S13 deleted the classic
+        // ones. The arm resolves to the host of that sheet in both flag states.
         CommonUtils.settings.setBoolean("use_compose_ui", true)
-        assertEquals(BibleSpeakActivity::class.java, ScreenLauncher.targetFor(Screen.BibleSpeak))
+        assertEquals(MainBibleActivity::class.java, ScreenLauncher.targetFor(Screen.BibleSpeak))
         CommonUtils.settings.setBoolean("use_compose_ui", false)
-        assertEquals(BibleSpeakActivity::class.java, ScreenLauncher.targetFor(Screen.BibleSpeak))
+        assertEquals(MainBibleActivity::class.java, ScreenLauncher.targetFor(Screen.BibleSpeak))
     }
 
     @Test
