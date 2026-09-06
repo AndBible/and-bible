@@ -147,7 +147,8 @@ class NavHostComposeActivity : ActivityBase() {
                         scope = lifecycleScope,
                         labels = buildAiConnectionLabels(),
                         // The real navigation branching lives in aiNavGraph's
-                        // AI_CONNECTION_SETTINGS arm (three edges are navController.navigate(...)),
+                        // AI_CONNECTION_SETTINGS arm (six of its seven edges are
+                        // navController.navigate(...); RESET_USAGE is the one host callback),
                         // not here — see AiConnectionSettingsDeps' kdoc. This constructor param is
                         // required but unused: the screen's onNavigate is wired directly in the
                         // graph, never through controller::onNavigate.
